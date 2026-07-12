@@ -64,7 +64,8 @@ def reachable_set(adj: dict, src: Any) -> set:
 def find_cycles(adj: dict) -> list[list[Any]]:
     """Tarjan SCC: return every cycle-bearing component (SCC size > 1, or a
     single node with a self-loop). Non-recursive to tolerate arbitrary graph
-    sizes without hitting Python's recursion limit.
+    sizes without hitting Python's recursion limit. Components and their nodes
+    use canonical order so Finding evidence is stable across hash seeds.
     """
     index_counter = 0
     index: dict[Any, int] = {}
@@ -117,7 +118,8 @@ def find_cycles(adj: dict) -> list[list[Any]]:
                             break
                     if len(comp) > 1 or v in adj.get(v, []):
                         result.append(comp)
-    return result
+    components = [sorted(component, key=repr) for component in result]
+    return sorted(components, key=lambda component: tuple(map(repr, component)))
 
 
 def topo_order(adj: dict) -> list[Any] | None:

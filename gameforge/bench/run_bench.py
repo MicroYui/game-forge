@@ -5,10 +5,10 @@ computes the power table, and emits a `BenchReport`. `main()` prints the text
 view; `--json` emits the JSON contract M3b/M3c consume.
 
 The 11 deterministic/simulation classes get real per-class BDR from the
-checker/sim sweep. The 4 narrative (llm-assisted) classes are scored by the M2
-Consistency quorum, which is a separate cassette-bound record — until that
-record they are reported at n=0 (PENDING), NOT as a fake 0/N detected: honest
-about what has and has not been measured.
+checker/sim sweep. The 4 narrative (llm-assisted) rows remain at n=0 only in
+this v1 compatibility view pending BenchReport v2 ingestion. Their measured,
+cassette-bound evidence is carried separately rather than being backfilled
+into the legacy report contract.
 """
 from __future__ import annotations
 
@@ -25,9 +25,7 @@ from gameforge.spine.stats import wilson_ci
 
 
 def _narrative_pending() -> list[Metric]:
-    """One PENDING llm-assisted metric per narrative class (n=0), so the report
-    lists all 15 classes without faking a narrative BDR the deterministic sweep
-    cannot produce."""
+    """Keep four n=0 rows in the v1 compatibility view pending v2 ingestion."""
     low, high = wilson_ci(0, 0)
     return [
         Metric("bdr", dc.value, 0, 0, 0.0, low, high, "llm_assisted")

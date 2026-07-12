@@ -55,3 +55,13 @@ def test_format_text_separates_buckets_and_reports_oracle_fp_and_power():
     assert det_idx < llm_idx < agent_idx
     # the under-powered class is visibly flagged
     assert "under-powered" in txt.lower() or "target_met=false" in txt.lower().replace(" ", "")
+
+
+def test_format_text_assigns_measured_narrative_evidence_to_bench_report_v2():
+    text = format_text(_sample())
+
+    assert (
+        "LLM-assisted BDR (narrative evidence is carried by BenchReport v2)"
+        in text
+    )
+    assert "human-confirmed" not in text

@@ -7,7 +7,7 @@ defect_class; a clean counterpart triggers 0 (oracle-FP=0 seed).
 from __future__ import annotations
 
 from gameforge.contracts.ir import Entity, NodeType, EdgeType, Relation
-from gameforge.spine.checkers.graph import GraphChecker
+from gameforge.spine.checkers.graph import GraphChecker, find_cycles
 from gameforge.spine.ir.snapshot import Snapshot
 
 
@@ -117,6 +117,18 @@ def test_cycle_detected_with_path_evidence():
                   Relation(id="b", type=EdgeType.PRECEDES, src_id="s2", dst_id="s3")]
     clean = [f for f in GraphChecker().check(_snap(ents, clean_rels)) if f.defect_class == "cyclic_dependency"]
     assert clean == []
+
+
+def test_cycle_components_have_canonical_order_for_replayable_evidence():
+    adjacency = {
+        "z": ["a"],
+        "a": ["m"],
+        "m": ["z"],
+        "c": ["b"],
+        "b": ["c"],
+    }
+
+    assert find_cycles(adjacency) == [["a", "m", "z"], ["b", "c"]]
 
 
 def test_self_requirement_is_a_dependency_cycle():

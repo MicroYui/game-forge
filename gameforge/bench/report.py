@@ -77,7 +77,7 @@ def format_text(report: BenchReport) -> str:
 
     for bucket, title in (("deterministic", "Deterministic BDR (checker/ASP/SMT)"),
                           ("simulation", "Simulation BDR (economy)"),
-                          ("llm_assisted", "LLM-assisted BDR (narrative — human-confirmed)")):
+                          ("llm_assisted", "LLM-assisted BDR (narrative evidence is carried by BenchReport v2)")):
         rows = [m for m in report.seeded if m.bucket == bucket]
         if rows:
             lines.append(f"\n-- {title} --")

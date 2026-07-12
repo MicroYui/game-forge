@@ -1,8 +1,9 @@
 """M3a Task 10: end-to-end GameForge-Bench report."""
 from __future__ import annotations
 
+from gameforge.bench import run_bench
 from gameforge.bench.run_bench import build_bench_report
-from gameforge.bench.taxonomy import DefectClass
+from gameforge.bench.taxonomy import CLASS_META, Bucket, DefectClass
 
 
 def test_end_to_end_bench_report_all_classes_zero_oracle_fp():
@@ -41,3 +42,24 @@ def test_bench_report_json_serialises():
     r = build_bench_report(seed=0, with_agent=False,
                            per_class_n={DefectClass.prob_sum_ne_1: 2}, n_clean=1)
     assert r.to_json().strip().startswith("{")
+
+
+def test_zero_denominator_narrative_rows_are_explicitly_a_v1_compatibility_view():
+    report = build_bench_report(
+        seed=0,
+        with_agent=False,
+        with_external=False,
+        per_class_n={DefectClass.dangling_reference: 1},
+        n_clean=1,
+    )
+    narrative_rows = [
+        metric for metric in report.seeded if metric.bucket == "llm_assisted"
+    ]
+
+    assert len(narrative_rows) == sum(
+        CLASS_META[item].bucket is Bucket.llm_assisted for item in DefectClass
+    )
+    assert all((row.n, row.k) == (0, 0) for row in narrative_rows)
+    assert "v1 compatibility view pending BenchReport v2 ingestion" in (
+        run_bench.__doc__ or ""
+    )

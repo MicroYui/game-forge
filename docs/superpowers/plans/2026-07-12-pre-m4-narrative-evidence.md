@@ -1000,7 +1000,7 @@ Development result (verification responses remained unopened):
 - Consumes: the sealed protocol, 1,905 frozen verification cases, and dedicated GPT-5.6 cassettes.
 - Produces: immutable per-case outcomes, four 381-case BDR metrics, a 381-case clean FP metric, and a byte-reproducible evidence manifest for BenchReport v2.
 
-- [ ] **Step 1: Add failing acceptance tests before recording verification**
+- [x] **Step 1: Add failing acceptance tests before recording verification**
 
 ```python
 def test_verification_evidence_has_power_complete_denominators():
@@ -1022,13 +1022,13 @@ def test_verification_evidence_is_gpt56_and_has_no_dropped_failures():
 
 The tests also rederive all metrics and Wilson intervals, validate every outcome/case/protocol hash, assert model payloads contain no hidden answer field, and assert old root cassettes still replay.
 
-- [ ] **Step 2: Run acceptance tests and verify RED**
+- [x] **Step 2: Run acceptance tests and verify RED**
 
 Run: `uv run pytest tests/bench/narrative/test_verification_evidence.py tests/bench/narrative/test_narrative_acceptance.py -q`
 
 Expected: fail because `verification-evidence.json` and verification cassettes do not exist.
 
-- [ ] **Step 3: Record every verification request with resume enabled**
+- [x] **Step 3: Record every verification request with resume enabled**
 
 Run:
 
@@ -1038,7 +1038,7 @@ GAMEFORGE_LLM_LIVE=1 uv run python -m gameforge.bench.narrative.harness --record
 
 Expected: the harness validates the sealed protocol before the first call, processes 1,905 cases in case-ID order, and records up to 5,715 first-round requests. If the gateway interrupts, rerun the same command; `resume=True` reuses finished hashes and calls only missing ones. Do not change the protocol, replace a case, or discard a poor response after this command begins.
 
-- [ ] **Step 4: Produce two independent zero-network replays and compare canonical bytes**
+- [x] **Step 4: Produce two independent zero-network replays and compare canonical bytes**
 
 Run:
 
@@ -1050,7 +1050,7 @@ cmp scenarios/narrative_bench/verification-evidence.json /tmp/narrative-verifica
 
 Expected: `cmp` exits 0. The evidence honestly retains every wrong hint, parse failure, fallback, cassette miss, and runner failure in its correct denominator. Measured BDR/FP may be high or low; no result-based rerun is permitted.
 
-- [ ] **Step 5: Run focused narrative acceptance**
+- [x] **Step 5: Run focused narrative acceptance**
 
 Run:
 
@@ -1061,13 +1061,26 @@ uv run python -m gameforge.bench.narrative.harness --validate-evidence scenarios
 
 Expected: all tests pass, evidence validation exits 0, four measured class rows have `n=381`, and clean FP has `n=381`.
 
-- [ ] **Step 6: Commit immutable verification evidence**
+- [x] **Step 6: Commit immutable verification evidence**
 
 ```bash
 git add cassettes/narrative/pre-m4-1 scenarios/narrative_bench/verification-evidence.json tests/bench/narrative/test_verification_evidence.py tests/bench/narrative/test_narrative_acceptance.py
 git diff --cached --check
 git commit -m "test(bench): measure power-complete narrative evidence"
 ```
+
+Verification result (no verification-driven tuning or reruns):
+
+- All 1,905 frozen cases and 5,715 first-round requests are present under
+  `openai/gpt-5.6-sol/pre-m4@1`; 1,904 outcomes are `evaluated` and one is
+  `partial_parse_failure` with one invalid hint item retained in its denominator.
+- BDR: character `303/381 = 0.7952755905511811`, spoiler `381/381 = 1.0`,
+  faction `362/381 = 0.9501312335958005`, uniqueness `381/381 = 1.0`.
+- Clean FP: `6/381 = 0.015748031496062992`.
+- Two independent REPLAY processes and the post-regression REPLAY produced
+  byte-identical evidence SHA-256
+  `6d90a53f4d14863ac23fc9542906d0d63fc72b674ff35d98fe8ce83ddca092a2`.
+- Immutable verification evidence commit: `deb46841`.
 
 ---
 
@@ -1085,7 +1098,7 @@ git commit -m "test(bench): measure power-complete narrative evidence"
 - Consumes: all current and historical evidence from Tasks 1-9.
 - Produces: a closed narrative slice that remains separate from the later BenchReport v2 integration.
 
-- [ ] **Step 1: Add architecture regression tests**
+- [x] **Step 1: Add architecture regression tests**
 
 AST checks enforce:
 
@@ -1101,7 +1114,7 @@ Scan current formal corpus text and current prompts for forbidden per-case answe
 
 Update the legacy BenchReport v1 wording without integrating the new metrics yet: `run_bench.py` must identify its four zero-denominator rows as a v1 compatibility view pending BenchReport v2 ingestion, and `report.py` must label the empty section `LLM-assisted BDR (narrative evidence is carried by BenchReport v2)` rather than claiming `human-confirmed`. Lock both strings in the two existing report tests. The authoritative measured values remain solely in `verification-evidence.json` until the separate Report v2 plan.
 
-- [ ] **Step 2: Run the focused historical/new regression suite**
+- [x] **Step 2: Run the focused historical/new regression suite**
 
 Run:
 
@@ -1112,20 +1125,24 @@ git diff --exit-code -- cassettes ':!cassettes/narrative'
 
 Expected: all tests pass and historical cassettes have no diff.
 
-- [ ] **Step 3: Run all repository gates**
+- [x] **Step 3: Run all repository gates**
 
 Run:
 
 ```bash
 uv run pytest -q
-uv run pytest tests/architecture/test_import_contracts.py -q
+uv run pytest tests/test_dependency_lint.py -q
 uv run ruff check gameforge tests
 git diff --check
 ```
 
-Expected: full pytest passes with only already-declared skips, all seven import contracts pass, Ruff is clean, and `git diff --check` emits nothing.
+Expected: full pytest passes with only already-declared skips, the repository's
+actual import-linter/allowlist/probe gate passes, Ruff is clean, and
+`git diff --check` emits nothing. The earlier draft path
+`tests/architecture/test_import_contracts.py` never existed in the repository;
+`tests/test_dependency_lint.py` is the production dependency gate.
 
-- [ ] **Step 4: Re-run verification replay after the full suite**
+- [x] **Step 4: Re-run verification replay after the full suite**
 
 Run:
 
@@ -1136,15 +1153,35 @@ cmp /tmp/narrative-verification-final.json scenarios/narrative_bench/verificatio
 
 Expected: byte-identical evidence after a fresh zero-network process.
 
-- [ ] **Step 5: Mark this plan complete and commit closure checks**
+- [x] **Step 5: Mark this plan complete and commit closure checks**
 
 Mark Tasks 1-10 `[x]` only after their commands have passed. Do not change M3 to complete or begin M4: HED, QA-hours, Cost/Latency, BenchReport v2, combined acceptance, and the final pre-M4 audit remain outstanding.
 
 ```bash
-git add docs/superpowers/plans/2026-07-12-pre-m4-narrative-evidence.md tests/architecture/test_narrative_boundaries.py gameforge/bench/run_bench.py gameforge/bench/report.py
+git add docs/superpowers/plans/2026-07-12-pre-m4-narrative-evidence.md \
+  tests/architecture/test_narrative_boundaries.py \
+  gameforge/bench/run_bench.py gameforge/bench/report.py \
+  tests/bench/test_run_bench.py tests/bench/test_bench_report.py \
+  gameforge/spine/checkers/graph.py tests/spine/checkers/test_graph.py \
+  scenarios/external_cases/endless_sky/external-corpus-manifest.json
 git diff --cached --check
 git commit -m "test(bench): close the narrative evidence slice"
 ```
+
+Closure result:
+
+- Focused historical/new regression: `322 passed`; historical non-narrative
+  cassettes unchanged.
+- The first full-suite run exposed a pre-existing hash-seed nondeterminism in
+  `GraphChecker.find_cycles()`: Tarjan SCC evidence inherited `set`/stack order,
+  so Endless Sky evidence bytes varied across Python processes. A test-first,
+  source-neutral fix canonically orders SCC members and components; four
+  independent `PYTHONHASHSEED` values now replay byte-identically.
+- Regenerated external evidence changes only the graph-cycle entity order and
+  derived hashes; qualification remains `8/8`, verification remains `4/4`, and
+  after-oracle FP remains `0/8`.
+- Final repository gates: `1198 passed, 1 skipped`; dependency gate `27 passed`;
+  Ruff clean; whitespace diff clean; final narrative REPLAY byte-identical.
 
 ---
 
