@@ -26,7 +26,8 @@
 M3 umbrella 仍未完成。`2026-07-12-pre-m4-lean-closure-design.md` 已替代旧计划中的额外人工
 hash attestation 门禁：上游 bug-fix commit/PR 提供真人 provenance，固定 before/after predicate、
 native parser 与通用 checker 直接完成 qualification。Flare B0A 与通用 B0A 状态机冻结为历史
-replay 资产，不再扩展，也不得继续写 Flare reader/quest/loot-table 计划或进行第三轮搜索。
+replay 资产，不再扩展；Flare B0B、Corpus Freeze 与 M3d-1..4 均未进入，也不得继续写 Flare
+reader/quest/loot-table 计划或进行第三轮搜索。
 narrative BDR、
 Human-Edit-Distance、QA-hours 与 BenchReport v2 仍须分别规划。`DROPS_FROM` 与 repair
 cassette/apply 债务已由 `2026-07-12-pre-m4-core-corrections.md` 闭合。
