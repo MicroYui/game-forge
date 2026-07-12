@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8be4db645e01b4715d24665c40d93871284282bbd451a05e7cd70e80a490f2a9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3142,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 539,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 785500000
+      },
+      "created_at": 1783840500,
+      "id": "vKyiJxKJMwl4+iWxySc3usfwAelxYg1kI2efJq3CsIB7LUQ+4QWZVOet/LIUnrIa6JIFYCeltfy1/kQpvhbnQ6zlF/aLHDuav7NMDsentcxnME0kaCz0bNp9gfv0MiAGrlUKBPqrgJg4Q22MOFuUkqeAz383jVAKhoDzPerDYlbc9PBtaqcBfZe7688N79MrZCsctcHIWQ7ysQw5rw2PdJajTELa1MNoD09KSVN4ljJU9IciQiwpe+fr3bbJjlyWrx3LX99jcqSWz/w7p3vDlOGsYu4LoHJY6wGoorJBvGlpmrOjhKbgPNK50iNnd6L9OtRX/kHPUHhJgrHmpDvoD7h3IwAYDr9sFhBsMYZrDIgNKv0SkWWYwQ4JPD8+dS48gpwGCG3pOodTmNs8+v1VsAxqCYJCkA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "trY+P5E8zr97Cw1KmPWHHO6H8f1+j4paPPi0MjCHf5u1LodpSkRc8ty/8wUvTeGL00tbj59dx3owNLC8wQbuiatRPJEB/+eg1A91ny0K8WCgL/NG7+CsQ5G0tApuKIKsiIBnITeFHy1LuBfDFKaoD966AFHkbRGJwYEdYJ2gDiGOKEhrqKKGpqtxHkQeE0EwfdBkgRWigZZR3eDGEsIwkVa16sBvCEdd9i3SZyGTIUk75OzhY4EOFFy7kFSp5eHa9nOpYgCIYBrDdquLv5BogkEXesANxMRR/l7Qeu0VnIRUBqxIFKiU+MhXrYbQGJCO6y9EEdLuBS20ZarFN9GbH7TNZ5NSVwNVz3vf//3sKZCVmdjiz1IVKfzp1k/mXFSkYuNzM4prCjgEODADq1wD4V5l+lA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:515ed33e44952375\",\"npc:c1155dfcfed4102f\"],\"constraint_ids\":[\"C:e128174d54ab581a\"],\"span\":\"At desert waystation, Ivo was formally introduced as the First Navigator.\",\"rationale\":\"Ivo is established as another active First Navigator after Lea was recognized in the role, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "aSzIsdQxkGVw/Z58IRzN95d1uDxN3qfLM0yoKVRE8uvHEbmFh+5D6Ebv5V60BQnArno3M5NqoDT022ffdK6P4nr2jNARCM8wu5S8MlaGQOkOHm9zswN9XxJBB9mKsG6+2/Zbi3AdM3JnpGbLl9aXAArXo7t3KrtS5BY6OGEpWE8tDpHKs/6RV/09mHmZL8yVFTndH8mnRuZgaFEwEw6lQ8TpCNrhhWaVkk9MNJKfLjGsYwRg6d0TZUO7aDk3W6tJKdWsbdRTlT49xmpfGOK+NhLR/m1Bnf15KUA0okkdI8ekwqVoxL44/6R60mRpAyi1pYI/pdbxoJqDlkII4YYX8SqOirpdZfPUEPhJ0kP+D+6t2Fp8NN6aUMb3rKIvwDTwZ4DtubWrJSng0kymq7eaIzImhhLQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 539,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 711
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:515ed33e44952375\",\"npc:c1155dfcfed4102f\"],\"constraint_ids\":[\"C:e128174d54ab581a\"],\"span\":\"At desert waystation, Ivo was formally introduced as the First Navigator.\",\"rationale\":\"Ivo is established as another active First Navigator after Lea was recognized in the role, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 539,
+      "output_tokens": 172,
+      "total_tokens": 711
+    },
+    "tool_calls": []
+  }
+}

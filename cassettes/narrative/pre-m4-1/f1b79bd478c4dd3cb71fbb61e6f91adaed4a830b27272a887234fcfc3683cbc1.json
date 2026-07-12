@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f1b79bd478c4dd3cb71fbb61e6f91adaed4a830b27272a887234fcfc3683cbc1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2531,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 720,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 792000000
+      },
+      "created_at": 1783840100,
+      "id": "MWB10LhDg3LA3EOuAMWa8kFne7Si4l/U3li5JLQNs5NiBpj95VMhoMXHjtg/hjbphlq4rMNbGIvFXUdh9mIiQsdjAcebnyGBMrn80frzGtpLqlH0TSzWP/sXpad5t44r8rouQY2NoWS17jLDhaVzHd5cTig3ZuFty57KXtgQj7rPfEJMURWjv3EtI0GVVoiZZys3HPbcYRZH6xGZGXGlAqvQieEBdkesmskldHk8Iv/LEeUSZjCAkr2F9TUCZbdGP6Xyoj75passx8edgL22chm7O2IPG4jlV4AIA0h80U352ys9rf8DqGQHKAC/DJSiUbzgUj3i7b2UxoE7NiNS1GL9blHXRcMuh5ZG6UQQO0A9+x+QS+orTYBDw1pbnA/svzzY8o/JIIIqxSqYcc0PInpGeaMr4A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZNUPUjBXf0eNUdqblJ3FVYwnWKV1opA0lXklHJ44AoEsgNe5UlonxpRe+VDD/2MSfTTXiBGZbjatPvp4WMjJUD5e1oafKAhMlA7cSFtT5xSDlafjV/mW7FdF3KQ8j2vXOJtipFwmZzrV38W+Rohwp57XYgQLMm8TKQLcpUo4I5JXiviz0MJIpyuj5dczNngEAQXqPM2qFmje7M0EdFteG4rlTaK0BQrIge3pIyDT14f3UX1BcM9c7fR+BK16E35nFzfxNP43y0Ly3AjyycZZU8mKqVplfbLXXjBvTiiPvU9xkr3JWR3WbHWfZUQ8V4u/Qe0iywuxi+iK2bKrTU3MiZc1dawtDI2LfTus6I7Nb+KdUCr+U414/EXveWKjk4el3PAUCUJ/T5duBl4zDKOxairPzzM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:a8d0ca8ff5e7892c\",\"secret:c17f9275203e3af8\"],\"constraint_ids\":[\"C:0b60bf04a3e564ce\"],\"span\":\"While the story was still in hearing, Ivo identified the saboteur's name at canal bridge.\",\"rationale\":\"Ivo discloses the saboteur's name during the hearing, before the permitted verdict reveal stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "S8tWToaBxu84QvYKSH+svgyyPXbJDKFyWfN8BqWBbpoWoDSw5kNXyQvMFzbCxTBAowqEjlUkAqssHTOitsE1ZydK3NtIj1Wq2PmkSr8QTOHHioQQKa9WjISGcYPbcKfUMCYy6mB3ltVld3vZX5aHRXcg64RLYvrM5WlWLxR71cha/q+64anIjv8Rd7RM6EX5+E7EyqyItzYHfIal0WsrjXHvAV8D2Ht7fi02sEYsFcpbqpJyeReTkEctZqfHCxjDOSQ1EXyfBNFAKVMpXZjF/Os1WELrIgjmjBY6N/68tgZb0SRHbaAkMm2hf0i+KQtey+qN1sGu/BQsQwbuCt7+6Tt7eXxAaZLYfUM01bUWxLywF6dAlKrFkjPScZOs07l4N+Qe8aycQ38CdkntyLfX0+OLL1zG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 720,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 33
+        },
+        "total_tokens": 864
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:a8d0ca8ff5e7892c\",\"secret:c17f9275203e3af8\"],\"constraint_ids\":[\"C:0b60bf04a3e564ce\"],\"span\":\"While the story was still in hearing, Ivo identified the saboteur's name at canal bridge.\",\"rationale\":\"Ivo discloses the saboteur's name during the hearing, before the permitted verdict reveal stage.\"}]",
+    "token_usage": {
+      "input_tokens": 720,
+      "output_tokens": 144,
+      "total_tokens": 864
+    },
+    "tool_calls": []
+  }
+}

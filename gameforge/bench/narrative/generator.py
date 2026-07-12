@@ -34,7 +34,7 @@ from gameforge.bench.narrative.renderer import (
 )
 from gameforge.bench.taxonomy import DefectClass
 
-GENERATOR_VERSION = "narrative-generator@1"
+GENERATOR_VERSION = "narrative-generator@2"
 
 ANSWER_MARKER = re.compile(
     r"(?i)(TRAIT\s*:|SPOILER\s*:|CONTRADICTION\s*:|UNIQUE-ROLE\s*:|"
@@ -312,10 +312,15 @@ def _build_spoiler_world(
     constraint = _constraint(
         _opaque_id("C", private_key, "rule-a"),
         (speaker_id, secret_id),
-        rng.choice(rule_templates).format(
-            speaker=names[0],
-            secret=secret_name,
-            stage=stages[min_stage],
+        (
+            rng.choice(rule_templates).format(
+                speaker=names[0],
+                secret=secret_name,
+                stage=stages[min_stage],
+            )
+            + " Story stages progress in this order: "
+            + " -> ".join(stages)
+            + "."
         ),
         (gate_id,),
     )

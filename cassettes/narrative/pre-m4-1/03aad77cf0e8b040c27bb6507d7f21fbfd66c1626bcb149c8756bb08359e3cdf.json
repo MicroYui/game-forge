@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:03aad77cf0e8b040c27bb6507d7f21fbfd66c1626bcb149c8756bb08359e3cdf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9577,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 709,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 554,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2016500000
+      },
+      "created_at": 1783840100,
+      "id": "kBrJTam84eZAUjr6J4JgSe90JdykiQEHyZxEUslZUJ6A3xjsMfAMXKxProYSFhAed7OpD1vtxV8EcVh1p/0f8J/+/ukXceyZKtYfCV/5FebBLHaw2308/hOsswDAOYGvsRG63pQB0tz13syP+Q0kXkEQNsdygMTwp6J0x7VGCetQqlwApKvaXIe2RTp/fwU3ZVInB1FX0KD/NmVeSaqFJh2CzD9iWqQv6Q+2O9MVAdMFZNXq7cWNMBstkaATtBHaJYVJxin7mF2hJXEo35Ytus4VpAJjBCbo6n8Fu+X1ZB0PE84XUw/K2Rb3ieMsz3kaKp+0e09Bwso/lO9J9jep1OMIxMER4wfb0YDQTLWcnCbulcDOHDF6a5fUEAH9m7ZrVAd+b0q0Q1MzGMGogzLggDxKvoK/1A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "KG51lsjr0w2KQlwL5WylM0WceLwiuAM1cObqAaDFaVZay3WggmY+tzUKLs+sp4+SG2BGcMZpFsRIEKdRFYJ6jn2VoJ/166khOw3WkJ2FMaMZ1a/3t0qH+ZMuzaJ3OkVDngQ4aOXFAkuc3RtHmckTTAaU1XALyMaL5Mv2rIlD29URtNFdt0dSCCrdpvwpCSGPzoSd0D85I8SNavGkwD9KZ/qS0GK5aZmRKYaPl+mb3HMos5V7SrHQE4pcDfg7SuwYqjv4LA2orL2AZV+6RNhVy5X/pD3ykMfONwKJ4g9YplVI0VWub05/18txHD3UlJAWjqsTVTVdJqPUpYnikXEHIGWEz3CT2gvi7ME7vXWimETXHbwwUeFSODejXd5M4IjeVELPMoOLc2zsYT9q2AEmmReMdPE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a8d0ca8ff5e7892c\",\n      \"secret:c17f9275203e3af8\"\n    ],\n    \"constraint_ids\": [\n      \"C:0b60bf04a3e564ce\"\n    ],\n    \"span\": \"While the story was still in hearing, Ivo identified the saboteur's name at canal bridge.\",\n    \"rationale\": \"The saboteur's name is identified during the hearing, before its permitted reveal at the verdict.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a8d0ca8ff5e7892c\",\n      \"secret:c17f9275203e3af8\"\n    ],\n    \"constraint_ids\": [\n      \"C:0b60bf04a3e564ce\"\n    ],\n    \"span\": \"While the story was still in hearing, Ivo identified the saboteur's name at canal bridge.\",\n    \"rationale\": \"Ivo identifies the restricted name despite knowing it must be withheld until the verdict.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HJe1BlzRRda6Jqe0tSsv9XWqsNEEdJbhIVgZuqeY/P4eY+vzZEKGmRZp5kAnmnCPA1E5BCIsalRTzcDgFvQUjarm8KszUaTSUahHswMiGv7RrhQS23e7hS23Ru8zrni4iZWqnLqVXBnFFHmFJKvp8Z+QQIujee+Yo1aEbSiph565GwW3eQOMQRKoTEwIz2CiZ7aZZf0jKs9kMUJxI1U3c2D09RL39k8CM01tjpKAXZ1b3oB/SbqsRgqwRPgkkHjM52k97BX9O4h8utIqzG+7aRdqdTiKlhX/9sRbBAEGPIF5bZaWkjGFVQYXNuM19Y1Ugsxfdga9cMcGKzCZuJ/iytbOtdXQ+762D9wIKtNKGHCkdUbeDwLtmtATIJwiYwAt/tw3OVLs2YqXzu2LXxDeZMCNfORT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 709,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 554,
+        "output_tokens_details": {
+          "reasoning_tokens": 295
+        },
+        "total_tokens": 1263
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a8d0ca8ff5e7892c\",\n      \"secret:c17f9275203e3af8\"\n    ],\n    \"constraint_ids\": [\n      \"C:0b60bf04a3e564ce\"\n    ],\n    \"span\": \"While the story was still in hearing, Ivo identified the saboteur's name at canal bridge.\",\n    \"rationale\": \"The saboteur's name is identified during the hearing, before its permitted reveal at the verdict.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a8d0ca8ff5e7892c\",\n      \"secret:c17f9275203e3af8\"\n    ],\n    \"constraint_ids\": [\n      \"C:0b60bf04a3e564ce\"\n    ],\n    \"span\": \"While the story was still in hearing, Ivo identified the saboteur's name at canal bridge.\",\n    \"rationale\": \"Ivo identifies the restricted name despite knowing it must be withheld until the verdict.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 709,
+      "output_tokens": 554,
+      "total_tokens": 1263
+    },
+    "tool_calls": []
+  }
+}

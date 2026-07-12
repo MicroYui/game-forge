@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b13b4502203213ab5c01a680afca96d39c382430c324c9b1fcee9141d3f67a8a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4315,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 634,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 761000000
+      },
+      "created_at": 1783839400,
+      "id": "S0IBfvOfPf0vPZGIFt2CxqvE6TSnQp2ca9IFXZ7HaKdjXM07aaIutmAYCZybdv9ucuvbiVdbBoldiS21V2WjQTKPW+sG1eQ9/v0JXMaY1FFnB1nOUZrThJbBj3pTGjjbfBSAt4/75XWSurhLJTYHNXnHqg3YIpgMTHto7cDWBECAfAZcmg3kQ1q+Btcd1AwUAja7jvVZdAxrapqkT3vmfIAziitU5wBcvVa1WvqOZG1sovGq0+o42oel00oN8D9+gN3BHMTA2HMNxshvvqp6jqoN2z21fqByZqFrh568B79hntq0NeBPsskuuLE9ZQWgd41G/NCNIzKH6GklWfyMVxxzIqHHoPSL8zwDSRqcQ/RjRKSu0TsFyJzTiXC+8UGmaarKbh3/yPvJEBfgFV70CQoptuvtaA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qRj44p7GsdCtsSzq0L8yhfK7F+WvpVJyBVM7IaymCttZNEGqEA47R27OVoPC4siW1hfWUBJQUEgHlV+jSzOpGf7lTZJrTbJqW5/jzNJzYFMiGB7xxV5CtSU6xbZn23/uty2iBHsUmZU0v+Bm2dvp0lo7MyDBPeMV2o+yQuAAosNQvytpBbWiW7zo0b01CEX8xyICTn9JEQWk1MRE7wFO63u1dXbuSZk0a6eYh0eghhpexOlaRnSbCzrwsm1LpYiVOmjlHR6LsDiaDJ34H6ceOAedAnC/4BrV/TM72zlTdgwA0WX7dZWEhriLVdXAa8aKinv+hjeCHxEP6s3RqweRynSDIDAb2gf3Qy26MpwX1Zicu7iR4Kn+Nm3AhRwuAAyPMvoof1XV5MX4MPNW4fQ/699GPxg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:24d8cb5e36c18033\",\"npc:51913e2f5c0692bc\"],\"constraint_ids\":[\"C:a6277701a0e5b375\"],\"span\":\"At glass conservatory, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro explicitly coordinate on a battle plan despite belonging to enemy factions, Glass Court and Iron Compact.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vTe0dQr3V+PW68nnuRaaRCb2Qxl8ZjoLZwTpBNuLO6cwGIRF9kSdvtAiUU5luLMxSrMDkexmHPXg5pauFYWdTZq/V71eC+Q+lsRdw6sHtrzS6q6b0PcjrcLXGT5lCMRe4fk4ZrwdZun+s5Le7uYX7OawgLzon6bK2eNfY7XzCXlUY+UCZaFmjMQ3CoSW3+rFHcv72FMwTwrDk1NHcNLAz/5NfuylIKi6UaIV6I87cz03/cnfK48mTWbTq005fUZf3e1+1grv10LVpW9PGpvDyxwYMe/QzWydX4zURZt4OxVkchSvh74uA0B10hCDHvgDSSRLi45XYEDmLXCpQSqKIspzukcxfquQ9qYJ19JsaQixEnQABJ6bfpLIEPaPoFpkNuhT32n66ETU2dE8vjrVPMbqpvBt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 634,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:24d8cb5e36c18033\",\"npc:51913e2f5c0692bc\"],\"constraint_ids\":[\"C:a6277701a0e5b375\"],\"span\":\"At glass conservatory, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro explicitly coordinate on a battle plan despite belonging to enemy factions, Glass Court and Iron Compact.\"}]",
+    "token_usage": {
+      "input_tokens": 634,
+      "output_tokens": 148,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

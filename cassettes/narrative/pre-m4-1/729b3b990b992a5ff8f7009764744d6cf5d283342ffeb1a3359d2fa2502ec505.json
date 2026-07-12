@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:729b3b990b992a5ff8f7009764744d6cf5d283342ffeb1a3359d2fa2502ec505",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4672,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 708,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1056000000
+      },
+      "created_at": 1783839500,
+      "id": "ItgEZYLvouTwohbnNm2wSg19drzFYo9GQBfwAQVoM2sT6B/rBjciqZj9cj/LLVsAj273NF2F+wnBYVad7NU5z9sP72ADbDCwQWW8Xv7hxeNBoV4UIqbt9R8wP6u/98b42tswvlB7eRtW03KAMtMBq2tIyQyzbWEYr3VLJ0+Ar3S3eC2rPFm3bwEWuYcMimj5z9IOz239E9VUYKdz7ydcYKX/tAMncn1cprq+rkztKu8LKiIldfL+Zqfak4XDw6qmUbRUVkOv004bkjKxvndv1sxWY40N2L9KpzbYQl44QzFI35AOIKhWiXSVnHPg7SWXP037t18OEig6ev66z2tbLciAxju47J7Voi11U4m1U+3VFpiD/Gnv7QLp1oALRe99RdIntzl1uMfrkP9tJUuywrkQ3SOGQw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0k5HfEbuGIXtDS6/1jkdPpt0tm2K66qjTNRvUWNVXlBGQkmheZtxpT/gJ1MqmxkFOujdRhznbsE+twIwETvgkxRbf3gBXBwvIpyyR9JnU74Bd810X4zXsQH8a5AiqXikBf97Wu5ezgtnvngQShKXv1q0pMlCPG1VqqhTUNrIk3IN+1ttev8XRjREUeejy6yn35/ErPsl7r8rtSm6ok63k+2YjQ8w72cabzugRZyJg0XayWUglZpnXwfkQbEAg2b1EDIww5SmFs5+mkTLxCToqryAblLYZeWQ5hvGQi/Iy/XTZSUrl3RnZiadkyGhPNvYqyqDHerb7G/69l26/zTPL1ULZeKsZZx3psAWAzEgb2XgdFqPXcUv0yhwDhynxAgyoUHxpE3f4bdWX4pzSQBnPcMk604=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3ef13a21eb2a32db\",\"npc:459241034c5db6d6\"],\"constraint_ids\":[\"C:67bc73e2e8e752ec\"],\"span\":\"At archive hall, Mara was formally introduced as the Warden.\",\"rationale\":\"Qi was already recognized as the Warden, and no relinquishment occurs before Mara is also given the title, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sfkFDZB8xQVY4bQaxTAuo5mBwzsoD1iXlZjHNt06oMq6Dj4egRM9B1hZHTDss2ddG2419BIQQz1yaM9trzghOTEUdFWiWYlJ8JWv7Q3DUmMK7uTa5Hun6BaNbE/Lk91SCG+oO+KRZHy7AliocV5KZRm8uuWvMMKkMLO9DyYvXAu28LWqj743er5XqH9sK2moRTQoYV+nxPTJikEU/pnhbtPH4t5qumBRUvfwiIG0eU9KIDxYda4X/9pI3DbZwDqO8t3TSkCTwb3LXWTXAqvMatNPOkWBrTntbtzW4eKN7rnzyZK+c+02W2YlKKAGN3oSzE7PaNXk8hUE5OVmmQ5+pjuxgukpcav/3OKuacDF67AR3YmlsBjy1uzJ22N5AKs9id1GwX0w4RWa9qycRCBGVy7hSiqy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 708,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "reasoning_tokens": 123
+        },
+        "total_tokens": 942
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3ef13a21eb2a32db\",\"npc:459241034c5db6d6\"],\"constraint_ids\":[\"C:67bc73e2e8e752ec\"],\"span\":\"At archive hall, Mara was formally introduced as the Warden.\",\"rationale\":\"Qi was already recognized as the Warden, and no relinquishment occurs before Mara is also given the title, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 708,
+      "output_tokens": 234,
+      "total_tokens": 942
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:369fb96c963d33513528700d80ea4587fe6809537f10b46af0e5f6d31b07776d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3769,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 792000000
+      },
+      "created_at": 1783840600,
+      "id": "YJK5jO7RacEQHexh9/ei7eBTC8ddU1QfxP5OJZc7/tluZUxu+x5+hsHn1Dlzsly77xAEo1omrFque/8CuLOC4Y/njnNAMltCTsWpsrfcWGNbOwo1ILFwPWevIa28XMBTEE1NNkcy3QV4iEMzSWXIefE+gDIG0j7zkGItPt5yeBQ+N3+vEL0cggGIVkVDQup3DnWG4LyOah4gCZQpzv45JnZYV3NLdqtK+3P/Oe4qlIsG9ZZFh2kSwpgD9ZBNCvG3aqRGvu2VpXPunwh82FD6gv7yn6a78igu5+0Z7ihXD/opkBI+rIhIrtBdW1n4Qe2velWTgVIRxNmxDHDF+wcXZjKcd8q09/bJgrVTTySFmpOsJPBiDlxjTYoNdrH8jWReLwydcqmkSfPf97/jjmYgwO2JCZXXzg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3UTjtI5sXYL/kHpJLmHWQQZGKfXVO/sbIOQR4R8AcvqqzKM8WjKMYMd0JMe0GPbXDPvgqGaYDOtS4Fqyos5NUVb54lEnlbSSnkzjYEdIPBRc0x2CcVf7cl6J3bkz4eYfmFt92eMS/uaXk2rbGbpowibABL+RTGPmcIUA822mdxj380UZo4Dhdc7Sc4ZUztHrQgsa+Cpj8fjEwa0mHhPKPvkkkUTB3MWD7lhqYw0/hV11XQ69mCgp4FJ5vy/KhPUQ4ftsOWpxNMpOUh0PZUhQIVzZoqrMXOoRLVDgGEAeQGdnVB77y3K6fj1KwreFQzbgazFGRog1nI6qUiyCmmfG5cvZ53KDJiSB/6G7OU0RlhrPa4fybtxCVQkVlOuYpWUkz3QG//N89ip2UT+2Ly5MDvxcDN4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:61f4455b26cf6a5c\",\"npc:b35ccdbe4b226b77\"],\"constraint_ids\":[\"C:fc8a7b855a41210e\"],\"span\":\"Ada fought beside Malik under one banner at eastern ridge.\",\"rationale\":\"Ada and Malik belong to explicitly feuding factions barred from joint commands, yet they fight together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "94DJGYHbxZFFGsHbYEfQ++GbO0J3m5cfSb1VTrYe6PLsgHD462wIwFVFmNueDEivVHT31deJNEgnkazUgiP9uV2bPfo8pJHPOaBWe1g9xZy0KB/wi1+Y6UMB17vTTog8rb9WjkbJ7t1Dd4Re/GeMEfUy4EBahav6ZIlm+bFW64ldER5KJGXgL3yIaFsUc4k5m7aP0OZyiHLT1jsCHxYnMA/wuBaqilXYdhMvwYm9VlTCSr7krDfbgHYsassX5W6NyAuWWQnjTJrmWA3GVeh6j6rpgQ1EmHtjjjbT4C94YzLnE8AdXHRUXahg77gaLRt5a/2rJxuKQksBBhYA+Z/7Ga8e18nMqNYYOE8YvrZWptKYV8INr3dDk35T3aGVJKz7WelFwnLXi86OmAczhSzwKtM5dN5H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 769
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:61f4455b26cf6a5c\",\"npc:b35ccdbe4b226b77\"],\"constraint_ids\":[\"C:fc8a7b855a41210e\"],\"span\":\"Ada fought beside Malik under one banner at eastern ridge.\",\"rationale\":\"Ada and Malik belong to explicitly feuding factions barred from joint commands, yet they fight together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 163,
+      "total_tokens": 769
+    },
+    "tool_calls": []
+  }
+}

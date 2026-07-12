@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:81fe13db7475f8d0a858a20ecc01b954f2e4b270cb1759ddd4a56d0dfc0a62ea",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2589,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 678,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 813000000
+      },
+      "created_at": 1783840600,
+      "id": "xEgi/jPtA+nCPc65WJ18eglrnAo8aoYHCvinPaFsr4eaC+s+zALI6dMX22F3JzMjRcO490NK1A7ci4ayT7zjKUHgNpSBBVttLmDSqL3CffDv8vjDAumSilxhkt8eiD2W/W49J0XWLag3SXnNgCZ2IGnuN8xJJU0s02my+V6Mc5CLpUpLhlvUJsOCEDYZi8NLGhSrSvIk+CK8H9Y4snN6zpqRuPBij1Eg1hnvonjnh6Z46wmfepbRRlucjMSjYHcqklDwiPhu1stfS/NHrnfhYcO0ZY6dGKVnxJ/faV+yhUpsECgnVF5aQrgDCTmfT20PHtK50s1sJ6yTsaz1kvcaBcF5QR1IC2PRAlxcN7C8kTiB9JNuB4WFOtE5yqt5NvnjEEoWwI/+kL7zDYdTbwiDpHg9/bRJpQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VZ8ESthb9H06I7hEj0F6WAoCjbkLmpOqrF3W3CMx/M/qmBaTsu7rtzm6UPCJkZnsS81oPmqfZ2Aig6sQAoXk+sNwo4IKvv1RxjxyyZsUBnmmftD4Hw3wPJPKsL6rhBtjgi+JVioAKnn3aS8AWumbL/h28xS6npLH0sb43exO8YhcKr5WT5gGsAvQZOvzzZFen5umX2G2DeyP1mubCuSm6Uanc6ol+7xDXG84XYWaZXDitd7JP8IQGO1gXyzz8l/sUP2cSnoMYch6YP3IE6S8cE57PJqEjY24XP1eFmYW6Qw81ZqbLSV0geXL/wOw2yaWiBYORW99NpOzr22OxH/rgxFZNeH15tfQPodBCN61p9kVZ+yir/wTUECMhB2hayUi57AqSYTIgPqjpGyy0Ui02jHAXUE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:724b17fce5ccf663\",\n      \"npc:e0419b222480bf4b\"\n    ],\n    \"constraint_ids\": [\n      \"C:2331132105c89baf\"\n    ],\n    \"span\": \"At lower court, Veda and Oren signed a joint battle plan.\",\n    \"rationale\": \"Veda and Oren directly coordinate on a battle plan despite belonging to factions explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cWTjuaxfUO/ih67xc2f+oK7GDBvM+TmVX6XuH/PIQM037j0MXu5//ldaBeJvH6d5zHcYPkVsv7JGEU0JhPiwglkwFu0ZhVsOHcOLBKo4AoNLChRkkyDXDOCIO4KFafQaDGBvTCkOYCvo0a2v7YjE6Zm4zH40BCSDn4udTZjj5c1I2hOEr3o+iL0bQNruLALATkyHRuhRlikLAfuZjWtrTumBD41iyEoiLhHjGXFGq64JyA6w3B3rnDqnqV22c06Mwrzeu6bfyXUze2v83D5hys1yeXCoVLh57mT4sfEi0xlZRFmCM3bZ0YUyph/gU3NhXfA7q97rz+bg/G4YcCtgIVOW8KGrTK3sdy8YEIbpx9eUAqGAPglrlJK0uRsQFd5iVJBuYZxcXxWREbv08TCL402qQAfT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 678,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 33
+        },
+        "total_tokens": 836
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:724b17fce5ccf663\",\n      \"npc:e0419b222480bf4b\"\n    ],\n    \"constraint_ids\": [\n      \"C:2331132105c89baf\"\n    ],\n    \"span\": \"At lower court, Veda and Oren signed a joint battle plan.\",\n    \"rationale\": \"Veda and Oren directly coordinate on a battle plan despite belonging to factions explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 678,
+      "output_tokens": 158,
+      "total_tokens": 836
+    },
+    "tool_calls": []
+  }
+}

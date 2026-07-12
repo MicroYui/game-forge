@@ -925,7 +925,7 @@ git commit -m "feat(bench): add resumable narrative evidence harness"
 - Consumes: the 160-case development corpus and Task 7 harness.
 - Produces: development-only empirical diagnostics and the one-way frozen protocol used by verification.
 
-- [ ] **Step 1: Record the complete development split with GPT-5.6**
+- [x] **Step 1: Record the complete development split with GPT-5.6**
 
 Run:
 
@@ -936,13 +936,13 @@ uv run python -m gameforge.bench.narrative.harness --replay-development --output
 
 Expected: exactly 160 outcomes, each bound to `openai/gpt-5.6-sol/pre-m4@1`; 480 first-round request hashes when no router-level failure occurs; no request uses an M2 Opus snapshot.
 
-- [ ] **Step 2: Add a development evidence contract test and inspect only development errors**
+- [x] **Step 2: Add a development evidence contract test and inspect only development errors**
 
 The test requires all 160 frozen cases in the denominator, four 20-case positive class metrics, one 80-case clean FP metric, no cassette miss, and canonical evidence hash validity. Produce an error table grouped by `wrong_class`, `wrong_entity`, `wrong_span`, `no_quorum`, `parse_failure`, and `clean_hint` using only development outcomes.
 
 Use these development quality targets for prompt/matcher readiness, not as claims about verification: every class BDR at least 0.80 and clean FP at most 0.05. If a target misses, change only generic prompt wording, schema parsing, or source-span normalization; write a failing regression test from the development failure before the code change; increment `consistency@2` to the next explicit prompt version if prompt text changes; re-record only hashes changed by that version. Do not inspect or run any verification response during this loop.
 
-- [ ] **Step 3: Seal the exact protocol once the development path is ready**
+- [x] **Step 3: Seal the exact protocol once the development path is ready**
 
 Run:
 
@@ -953,7 +953,7 @@ uv run pytest tests/bench/narrative/test_development_evidence.py tests/bench/nar
 
 Expected: `protocol.json` binds the final current prompt version/text, matcher, model, corpora, perspectives, threshold, and `rebuttal_enabled=false`; tests reject any single-field mutation.
 
-- [ ] **Step 4: Reconfirm the M2 cassette set was untouched**
+- [x] **Step 4: Reconfirm the M2 cassette set was untouched**
 
 Run:
 
@@ -964,13 +964,27 @@ uv run pytest tests/agents/test_consistency_legacy_replay.py -q
 
 Expected: no historical cassette diff and the six-request Opus replay passes.
 
-- [ ] **Step 5: Commit development evidence and the frozen protocol**
+- [x] **Step 5: Commit development evidence and the frozen protocol**
 
 ```bash
 git add gameforge/agents/consistency gameforge/agents/prompts/library.py tests/agents cassettes/narrative/pre-m4-1 scenarios/narrative_bench/development-evidence.json scenarios/narrative_bench/protocol.json tests/bench/narrative/test_development_evidence.py
 git diff --cached --check
 git commit -m "data(bench): freeze the narrative verification protocol"
 ```
+
+Development result (verification responses remained unopened):
+
+- Initial `consistency@2` / `narrative-generator@1`: class BDR
+  `0.75 / 0.85 / 0.80 / 0.90`, clean FP `0.125`.
+- Root-cause review found the visible spoiler constraint omitted the ordered stage table, so some
+  seeded labels were not decidable from model-visible input. This benchmark-validity defect was
+  corrected as `narrative-generator@2`; it was not treated as a model miss or hidden with scoring.
+- Generic operational class boundaries and clean controls were added as `consistency@3`; no
+  case IDs, fixtures, seeds, game names, or answers entered the prompt.
+- Final development BDR is `0.80 / 1.00 / 0.95 / 1.00`; clean FP is `0.0125`.
+  Error groups: `no_quorum=5`, `clean_hint=1`, all other registered groups `0`.
+- Frozen corpus manifest: `349d2d34d1c65c182c960fc116dea9d15bf84e644e29a5a7ac43d34f66140de2`.
+  Frozen protocol: `144eb42d538a41c79405d32515fcd8aee0effb660872e44a465e0b177587b492`.
 
 ---
 

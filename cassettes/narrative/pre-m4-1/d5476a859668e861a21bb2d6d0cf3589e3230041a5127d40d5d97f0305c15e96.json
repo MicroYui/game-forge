@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d5476a859668e861a21bb2d6d0cf3589e3230041a5127d40d5d97f0305c15e96",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4732,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 687,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 227,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1024500000
+      },
+      "created_at": 1783840400,
+      "id": "xkMk7tUEBT1qut56bneie7EiN2D2uRyKXl0qI269Og4AJlwt7wVz0Qb6FuN3ocsN2cPHwz2hb+vXayKaF2x1I5xy5S1ncA7cqxz4deml45qlZDpbXrF3cC0zgxPUQmymvJL5A6YKCd80kap6p0Jnnd4ngToK5QQLibRd31gmNl/DUQsS8arFuIcB5iUezTXx0xDc7DPs3uoj4de8ZVwKVP2wXhAF6b1Ryizs1ls4MCfHb9NNPyxPmnSW685qWslTS3AxegkFGqj+6NewLukepnJp1s/Q3ULsbcyeR7RQjv0uRW9cu8ACFTKxBCKPOsDxjaYLF+3Bz9ZF+t9p6x1overvketMyMvrXaQS3U8M1b95kdtAeBdbMe84ycPVlgSpyeWIp3sm2wb8VXu0lg9r16GH8hp0Yw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Pt6n71hcKzIFZUwZn6+mgHPGwsSEI2+fTPpJ3PNFLhp9CgLp3Pw/Lqkz8jKuicifTwckHCGfMW2GXYalJ8dU40fLjsYdZKUEE8EKo/tjkluts6oYmY7tL5ZLrdC+uhzTICIuFHsigJhPXei7UrFS++vHjqZDK/m32+j7g/E/rzG2s9HXoLbfyrYR8FjJ/tpvzOdlpW5fN9vaJXdnvvSh3emX8BEjkKWgntG5pK0Anu/HtwVi2tDb6LI7jvNfk3uCPKKdw1CCtjhmqnT3Cyu+oD85w7oclliOgJtFCloB9C97jHiZgAG4xPV2YUd/vtefHH5h4lnu4w5rX2k9cvNE/VCVPPPimqx/IijJI2v3E0V//WvMvo3Etg4SyPjyF5jdWWlAOoKyreUVZGjXHTSWdlvYwdo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2e7dbf9201cf1dae\",\"npc:51cb82e12b6b51cf\"],\"constraint_ids\":[\"C:d3c54be734fa7a1a\"],\"span\":\"Daro accepted the title of the Beacon Keeper before the assembly at desert waystation.\",\"rationale\":\"Mei had already registered as Beacon Keeper, and Daro then accepted the same single-holder title with no relinquishment shown.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1HjmQGCivHeoR+/mixvSHu8h8rjxAO45OMho2Ni4NSCVYbyAb4i7ZAGMo8NCjRmz4Y2+roBlkXFz9csUFYetMoA2zQNMTx9LBNku/uiWUmwwxPx5TNdG33EjHSyj0jVSPBYqncJ6m52VlP2/vKS4m/Jxt7waRJMyxggdzHWIZE6lTxX/WAWTrCqNweLkJSD1CHmeedSb0Q6peeqS8f8abSqj5SNwPocFIkx7efca9nHlZ/wTfOuuM2PdH/N6ccQ6dCYe4LhPM9DfPhqhyUFxcjogqrtMPd13UFB7+WDOGbeW5aYonvDjbsuQ0HNoMpxvaQ7sv4i+qSxIEiGWWe4vX+XlDuN9x91cGg2KiCSwFHIpfksPv3wfw5QVGCT3/jKnC4e5W/TQkdj4orIHAgNhVEeYHaYT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 687,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 227,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 914
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2e7dbf9201cf1dae\",\"npc:51cb82e12b6b51cf\"],\"constraint_ids\":[\"C:d3c54be734fa7a1a\"],\"span\":\"Daro accepted the title of the Beacon Keeper before the assembly at desert waystation.\",\"rationale\":\"Mei had already registered as Beacon Keeper, and Daro then accepted the same single-holder title with no relinquishment shown.\"}]",
+    "token_usage": {
+      "input_tokens": 687,
+      "output_tokens": 227,
+      "total_tokens": 914
+    },
+    "tool_calls": []
+  }
+}

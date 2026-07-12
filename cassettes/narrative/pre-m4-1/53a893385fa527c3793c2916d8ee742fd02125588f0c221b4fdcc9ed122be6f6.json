@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:53a893385fa527c3793c2916d8ee742fd02125588f0c221b4fdcc9ed122be6f6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3739,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 149,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 750500000
+      },
+      "created_at": 1783839900,
+      "id": "g+MkbvWp4QLQdQLeZw6121iVij7NiWgl5YeIBUqJu1qFu7bKUh0+BPGF+IzFNXQ+b2MlTE6V0WamAb34RQXigYd55ka/Kz9+NagSLY8jslcTzQ3YQg++6cCGxvPEgND5vpIyrTmttejYgRWa8AJHWpP4R9dV4iHRcSX+hKSnX0ziPC/IaW7HrO3A4m5fwDXEhUMcjH9pjxFqhzn6Y7xhUjusU156jvYGbClpjvqG2mlWIBCePJ/hG8IHC2rbBIxZuTpR8Soc8XkwhyGmroZvGNo68gEoS4dTZ57e7dNIzMV5fWZGF9g5+sLS1ibs0hDOxsePX3u/xPa+Z1behh7p2ASMOGvDjiZtLMwJA3gp7pUWojc/eBB1prEy5PYNtrZbiihclqbatrAf30zLWJmw+c3TFUrOOA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gEUC/UrdUQPxhj08sqk15KePZjT/R2gMDMUmqpIb5FP8Llm50KzOnwSICE/wPdlCWKRu2yf+HOmnZX7W3eYDOQALvVkArWJfyyml2CX8H3joIoDt/zgQyAPXsvSsLMH9K9XMuZ2K3CvL621b+A+JgID4z3U0SBmJTVk0DNEUfYRUSqaOMjbnKiYYnklnwVLNAKkTvxiqyiY8qQkaFvb3Ccdpnj9pFlfWZFsHzwvsaya+ZbK6DtzU4Hd6ZVlxbZy6NIT56Cz2B39GACqmYxwTT16NFiufHProqafchmGYzRM5OSVhTfbzDNIxBwnDrh+7SEAOhMMvDBZDVRyaG9gUHtje47Z0CaJmbTDQ/sfnXV/Xuqbony2mJLBdp78e0fsjmcqyrYbiYZNnWVE00vXJ2RKLk+Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:13dfe0672fe0836a\",\"npc:d5e134bdc0453c42\"],\"constraint_ids\":[\"C:00778091f4101cb2\"],\"span\":\"At salt depot, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria explicitly coordinate on a battle plan despite belonging to Valley Rangers and Storm Company, which are designated enemies.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kVP102/NBmgF1NxiqClantbXYxNsy5rwYg1iWInxj3HddU8/Dw/R6gYn+CCDd+3H0uQr9wwb4EraZjksM9BlLLHjLJ1hRq/nniv1NXrhFJi2BAxi9jd4AKkIK7SmRahF9tNSUzA+DZAVr/GiybPoAjgUiOuxN2wYVbmoIfdlHa5a7+DIl1GcHHsO8Qyq5u4Lyq2qmtydhmemEOsvzm05z98q15qzDpiXAlVjDzLX1fj9cXz9w5RkBpjpsRxW9KTOK8cNEhHpTdsJowllbKJebmwmnwwJ2rgGVSpL+1o3iwZlduNmfHfNtWqpj6qexh1isb9XjtjE6wsl0pV6HSi0enRCpDf0v+77qrXoS75DN10fNYItrKHGBn5dpb87t2R0o7TZFaAdusp7CbIoNFRRM+yXpLfm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 149,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 756
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:13dfe0672fe0836a\",\"npc:d5e134bdc0453c42\"],\"constraint_ids\":[\"C:00778091f4101cb2\"],\"span\":\"At salt depot, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria explicitly coordinate on a battle plan despite belonging to Valley Rangers and Storm Company, which are designated enemies.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 149,
+      "total_tokens": 756
+    },
+    "tool_calls": []
+  }
+}

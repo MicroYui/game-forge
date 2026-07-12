@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cc96c645630d592a495ad243b166206af35f2abbdf42a2ef8e94255eda1298ce",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4579,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1009000000
+      },
+      "created_at": 1783839400,
+      "id": "keekrClSc4sMBLY+qSxlTh9RTItKPg+P6YgD8RUvir6om+CxF8F73PXsUtgD58hWtQ/J+996p0CG10b6khEkrmbVGY/FIQs+pEbZ7KmfVGV8GO33YFeIC8xQjwKWphsvYcaG1eXYPhtU5EB/90GxGUf6aEYpifiGGSyJGJ94rjXmhKdSIpO3Syh/jAx7/ID2dYevEBau2WNC3pvR7hmolETOpVau1p/QSgr5fpVqWnVvTZ6vNA0H4+B7LbCdSgTRMs4qZeDZWnBxS31l1C0a77tVCawjbN5DZ+49hp91LXTeVcC4gZAjzAF/oj5jhS9YoPVTxfrjwIJ4z1F/fZETW+NhXgGZTKSt3szI+85VX4lSBYnDkhN2CyRf5mdmWCraFWI8rSeds4qogt3awa4m9pLMciISvA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Lv2eMcGtdmVN8WuOKULZuD8XSRFNPIeomG4acUFEHGyX+/YCZMvvoQ2rjvbAmzcetARWJ7OCIVGlMB/ZHJ3PrTe8fu1+xZJErV4Ylm4kSf+IMoPaj33wq3H5HegP5u4r6Qzkdci5c0Db48gTBdmIS0Er1lTZc/7hZC4ncF/TlpiyG0xTZSGNM6xrg0WuafrkJWIGgIYRHt7vRuPeS9FuEztcjy8q/oe9TOnqemKevyOUm7B0tCY2h9dQvUUhzoyx1B8+j/tirwu01Ryn1rvVrNATJ/s2/TLLaH6K9t42uoxhI6RXpRgRgF6CS8ilb6FRbXfBahnNMw1vDG2JZ/dqLXCxQcL1E2JezLawmyuLb1PIfsvZxGptluIgxIBIiJjQA0aPO27lB6eMQHgZSuOuFelV8II=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4484d62d89dc3355\",\"npc:696f079496a513c0\"],\"constraint_ids\":[\"C:4594bc9a900c4b8f\"],\"span\":\"At relay deck, Malik was formally introduced as the Warden.\",\"rationale\":\"Malik is recognized as Warden at the same location where Ada signed as Warden, with no relinquishment stated, exceeding the exactly-one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qZ/AQzR1oMBxfNk5S/6ZtqEAgsesObUbDIlF06+H8WFKdrM6TZFf+hDPlEExfhlZAFR+ePbjhEDUkI6bQXC7NBQc1wSPvqj2B55tPCPNAd0sRAamdX/kHGKSAFEOU2Ek03ke5jib6yj98HvyHp8JZe5P3tLNTLM81uIKqb50IIWR/gGucSEhQCaykpCeDUmcxKx7TqhAqvugpQQYd0i9bav0J70jh16JuayzyZCSf375j4m4NWD8osWPSywJancvNrzFqcSdQDvFSwfooBYP98Ufu6F7LX0oYGOKZjB1rLFeOK1MwugDYHwnWk55BRXcc4IryuLsJ93gHRl/1M2j/dnqp+nhLWfCeBKoOAC29gHCgPmeI5AWM2GxwzTgevXoe2x2bOfXnyj222ecFaxGfIt8Atib",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "reasoning_tokens": 129
+        },
+        "total_tokens": 808
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4484d62d89dc3355\",\"npc:696f079496a513c0\"],\"constraint_ids\":[\"C:4594bc9a900c4b8f\"],\"span\":\"At relay deck, Malik was formally introduced as the Warden.\",\"rationale\":\"Malik is recognized as Warden at the same location where Ada signed as Warden, with no relinquishment stated, exceeding the exactly-one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 242,
+      "total_tokens": 808
+    },
+    "tool_calls": []
+  }
+}

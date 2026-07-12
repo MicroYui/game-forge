@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2b98dce616bd10921792738f93cd4631eca47b9414639cb6cf636e0055d4ee6a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5738,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 556,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 290,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1148000000
+      },
+      "created_at": 1783839200,
+      "id": "CNd2b6ARTXZGbXskKgB+5bVJ3Pd6pd14559yu+ihkSadCK8N/bHZPmsKDL5vgn60jVexEgFn3kDNczz+HHxcJM618ovrzz3vkQPXwwD3nTqE1sV0Xq7gkbLiYPXMXMkcjHpauy6MeyIORMUQeMHpUU2WeXLDehZDe2fuHhA7JBiDR6J02kJndYVcZ3h8trRTWP90YX4gkcOZhFtkm4muCY89m3e719+/mMPG5FNGYo6pLytNmB4kaPubyuo8qmJkDyazkrI4sHlp759sD4JIn7kDICy3XWhGD+hV14ySvgB+rGRQKRW7dGTOKxO2NOrAgS5q9gkqsRu6If5IgtGJP+KJMqgqtaXVH/MHQRNzsSk0PSVSwGM4SOxwwYVHwwhYCzVbBHPqT5Pyn8y/w+fzLVBxPMnBrg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "T3wBE7C+QgCTbP/lQ5sOJkL6jfvUnKWtkYofAToI4jhkDpitygLEKcac00OHkEjCuUMV54bjtmXUaMpV056zK+0hHqaiamBGFKikZzwnanBSNef0bwpnfYorBPxXFhBbkpjN0qzEM371F14bavNxpheX299R0yqRJUBqyGKY3fyTmd4NcrwHGbyHRcrbILdweqTlOgq+8vCPeiOGoLhzFrT49onHIThl21UZaZkV6b+xHL824gV0WrEb6scitW7cYqlkCF2PwRMN/rTgcX9RC87SIO1rU3nYbUAX1TvE8ZQcwP+NLdLBOpFnUCPPJtCRNUStrdK0SDhl8IqE+cBCZB2sV1bKikXE+ym/sbn8XCXh7HKrvwdI+ih10mxjpGbzJM9ADkpC1PGYOI+J9mQlTBfvOUY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7ac1e0ac5429b4d6\",\"npc:ec1db64199e25115\"],\"constraint_ids\":[\"C:c0fe688c113a7811\"],\"span\":\"Ivo signed the register as the First Navigator at signal tower.\",\"rationale\":\"Ivo claims the First Navigator role after Lea was recognized in it, with no relinquishment stated, showing two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yCfQuurqTaqA+Dc0y96975kYO87WGvmzUbgtY/0t3j5Tswwmb1wL5uOqH2t/2oZ+sHXc8K66iq0m7V3lKB0I7cObNVfd1slw50jtDHQk5YJi0wMySjs2A8UsYaJVyDrsIE6Z2YSj2bDY62Bh+p6F5XyEFMBP9eW+QPJeV3D85tFt3IhxYlbvJod48Objk7QROEzrWCLQk83MhjGsDaNQ2As5E7MprAklALz24AOau97UIh2vcpP/CkXYmwLWnduUuHQefqqmntT1CO8Jf8e7AdXy26dlWypyymua6GZYf95GuBgkCEbO7R1Z/Wl1T76j8vZtmTBaNZdvgKJDXlp8rKYaW41uuKzDCrwzwV1J4XQtzjG2enb0N65bUX5SRsFBpbA8O8jTXAheGu0jH7iAzk/1lxLr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 556,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 290,
+        "output_tokens_details": {
+          "reasoning_tokens": 178
+        },
+        "total_tokens": 846
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7ac1e0ac5429b4d6\",\"npc:ec1db64199e25115\"],\"constraint_ids\":[\"C:c0fe688c113a7811\"],\"span\":\"Ivo signed the register as the First Navigator at signal tower.\",\"rationale\":\"Ivo claims the First Navigator role after Lea was recognized in it, with no relinquishment stated, showing two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 556,
+      "output_tokens": 290,
+      "total_tokens": 846
+    },
+    "tool_calls": []
+  }
+}

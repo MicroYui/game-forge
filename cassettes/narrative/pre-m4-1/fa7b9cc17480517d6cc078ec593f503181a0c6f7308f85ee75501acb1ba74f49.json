@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fa7b9cc17480517d6cc078ec593f503181a0c6f7308f85ee75501acb1ba74f49",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3863,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 135,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 745500000
+      },
+      "created_at": 1783839400,
+      "id": "U+oiYsze9UfwkLmmb54Q1ta19Jaunh0ud7QRSsxS0Q6ABL3TTcKvW6HE2z82x3lB6CbK/palClTAXsw8xjduAl4hQEkNw8AYzKZ43LLbS4pJcXN8h+SpMAL5k0+PtF+d0xg9mrxr6jyVf0y9v6ZDregBIGAlXC7VVBNMdLXlFP+YoK8wiAmZ5MV2WqXNqqhA3F+ENS9FMwikTR3Hl7/bVYfvez8qvIBRv4G3xK3fTk+bdgFtCkWKGgKZZkJNbfopWlrtZ1FUaCVCibYvTJTb7+aHl6I4N1nRNobI+5jZuxoPxtKZHSlxiPnhjpyVrI+CRKGY30k7aYNFf9Vke+6t3znf9c6JZy8szBh4vU4uolIreehBj2Gzi4As8oFNjAfupvgjDajrYMyWP6iTacxIkXjV5HYfnw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tdDjPtE/4Wva6cH2xM6RC3LpHRfPi1tiSh9liYQwmrfbT/VuzNeCiIKzNVt+2yFHqFnvljeXrBIwZDngzyccnAnvYG3RC/+dls4YiCvlIMMOHHdoFfc5TU4yB8c10fzi+ANawLay/qZ2CxVKfORWYhGVXbZi17bKO2twi3sl67sNtt8UqJAl+HetBLhEZBWL1DhaR0po1B+o9/tqhpvC6OM/rGxYwRFRm8rcoBC/p5dVDUSXPWcAwTCVyArOSJYYIbe+KdO2Qjt8oLiJxtgpsmYr9F0/eM+pv9r2tAphD/QVHhLkYEPWqoJK9fQcaUcL6aFu0vKz7aSiOeJXEtxceLLr+L0yK796TCGwBQ1NchyWRI8Q1d+vD8B01PHpm5Wxtc2Cu8x4cWNux48v4wLrMOh2js0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ee91455a7c417526\"],\"constraint_ids\":[\"C:4be13fc3a1963eae\"],\"span\":\"At old mint, Veda abandoned the ally named in a sworn promise.\",\"rationale\":\"Veda abandons an ally covered by a sworn promise, directly violating the rule that her oath to an ally cannot be abandoned.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sX2COK0HOjN06dd3y6johEWSCNokUKpshu7G8YYxk71jbSruKwNU1t9PiRi8P6AeAA6BEr9DVO348/OMqRg4FSCx6FOHP/VvVHJ2b3/d4dQsin5lARr/Mqz/I5f3/canpLc6f0zv43RTVI6GWiySdV5O+hthnM9CY6up0kVx1KIK7o43qC7mVDnEtaif+fY1jar4hSOvlH3NEZloDgwT6jLsgdSj33wr5ROmfZ13uIs18ZRL2nlYfuOoeRcMycfNlUUhUpXn+Qor1ioSnT5KITSGhRwy+XbcQABEX2V0MYGv41I2/aPg/jKWliXVRajg38yMjl9vOhmYSJ/p3SXHqlWlRESvdvKj4+25TUZuYiLBQDwgUASpkTo9X0ySBr1/HantqQmOjRXz6XDsDYkNrJK3rOYu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 135,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 816
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ee91455a7c417526\"],\"constraint_ids\":[\"C:4be13fc3a1963eae\"],\"span\":\"At old mint, Veda abandoned the ally named in a sworn promise.\",\"rationale\":\"Veda abandons an ally covered by a sworn promise, directly violating the rule that her oath to an ally cannot be abandoned.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 135,
+      "total_tokens": 816
+    },
+    "tool_calls": []
+  }
+}

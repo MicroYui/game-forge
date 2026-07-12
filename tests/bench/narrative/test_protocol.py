@@ -40,7 +40,7 @@ def test_protocol_binds_current_corpora_prompts_matcher_and_gpt56():
         snapshot_tag="pre-m4@1",
     )
     assert protocol.model_snapshot == DEFAULT_SNAPSHOT
-    assert protocol.prompt_version == "consistency@2"
+    assert protocol.prompt_version == "consistency@3"
     assert protocol.perspectives == (
         "constraint_matching",
         "causal_world_state",

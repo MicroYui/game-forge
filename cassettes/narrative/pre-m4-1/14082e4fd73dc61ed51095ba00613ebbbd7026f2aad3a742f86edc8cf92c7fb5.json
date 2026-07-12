@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:14082e4fd73dc61ed51095ba00613ebbbd7026f2aad3a742f86edc8cf92c7fb5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4376,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 240,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1000000000
+      },
+      "created_at": 1783839600,
+      "id": "2+ae1gFdjMkzY0HDHCPSIT96hRBtn4GggINtDtPrHR043TEE57WZqgAM2RvOY8bcuZov5ucum64CJpf4s4485LfGM1+yw1gu4YTbkAt1yrsXF8XgtuaPkbSPInmbQhgXtzfKdTUsnIGYGbNJ25t9bDUauqo8AK5LuKIwnqw1CKiYtzBbSLpYYYjHUinsaIjjuG7r/K9RwEjH+LKRwSGn+Nly4gA1978PD1G/lTC+zJ+3Nu9OznpAZluwzgZ/vL1x2ADBkfx65VmZDtDbvqTAOFTluXkpw6tXA75TWvPuGx2eKwGNVOug//9GVa3e4vL/qp3dKN35AQWdMIv414k40Bl2pJXQ9KCIwC+KE0PtsM1t/LQI6QaFH8rwHG3pwyGknylV/Ysx0Rb6wBScijF/tVNxKkyqJA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QvtMv4Ad/sTQJk/BSX4kgEtkDuoNd1SUBoNzuDinjl91zpWFTq3koRgpcRHCFiuvqY9MBlSXd04v1+ji+BWeIlnZPZxx4cmkCW4yTllhAdykC/tJW+/ducfkArTqZVuh2fBEFwQwGArd8ZdKKRlUgsgv04KqnEr+W4TBY2YKS/ZFv4Ba6pgx+huWuL8oE6uyJK2MHml4HgxSgg0q5Iq5htnKvvwOZ4XDezDNiVHQzBJqYFjr+Dh0gPuYnS/5yMi68axBBimxcGGTRxZUajmj81ttFs5Xhn3bQ1jlvKfebJ4FIIS/5bWaIluSm5Zk/cQlvdKKOJ1PDzkEuCFyv9rC7hICTkaJoW26NJSBRkHA8qVSJk7FX8mjGFAt4rQKoIPc2b5t/tLc48Kn5KlMSvVjK5zqjIw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1deaba67cdbc4d05\",\n      \"npc:d9cedc6e3f7eaf3c\"\n    ],\n    \"constraint_ids\": [\n      \"C:4203c3ce95077ad9\"\n    ],\n    \"span\": \"Malik signed the register as the Caravan Voice at lower court.\",\n    \"rationale\": \"Malik assumes the single-holder office after Ada accepted the same title, with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UDtwe6h5bjwVgLIDUdzIyQwCkFRnMhNNtEtxEtu68cgUbQauLpYrmp9eU6L+ip2WKJKMHMuT49Mj5nqrzeDaNS69KxbOTqc4EeyN/fMKzUbqwhCWWilNTo8d+z1H4ASIvZUgcUYFAC+i8THa7EzqJRY7yjxZRqNTQihrxWRgOPP41z4jLc16dJmTiHnqUEo5K6GibrqvWIr6rpRuKTxweEIeOAG8Lg+ER6t9O3ip5icr/Zwv2mhL1ajGcjkhXU+X/1TMlCs79U99MyflFO/M4+UB6S9JuDT+UawXgdEMKNdLx2JGFlYVCBc23U4++fF9sAHRMcefuRppKvBpcYV4Rk8H4V1LqQ/rvnOsfTPPHcFILuGEteTmbXfbUyybuNOGzsQ4H1AlsBcqEki+4VqMXnY3esr2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 240,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1deaba67cdbc4d05\",\n      \"npc:d9cedc6e3f7eaf3c\"\n    ],\n    \"constraint_ids\": [\n      \"C:4203c3ce95077ad9\"\n    ],\n    \"span\": \"Malik signed the register as the Caravan Voice at lower court.\",\n    \"rationale\": \"Malik assumes the single-holder office after Ada accepted the same title, with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 240,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

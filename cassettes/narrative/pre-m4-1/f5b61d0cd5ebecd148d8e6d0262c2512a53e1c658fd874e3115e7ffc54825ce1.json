@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f5b61d0cd5ebecd148d8e6d0262c2512a53e1c658fd874e3115e7ffc54825ce1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4668,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 769500000
+      },
+      "created_at": 1783839600,
+      "id": "qlBuE4HQo22UZT3fzUdliQViwGWB3BBl5VnWprPtwkAUAShbR2MUvoGAZ2mXqXKPr4UUvpHNyvJyGFU/o+vPvYEUhYMuTh2O/o98Pa0nm09zG7Vq3ykvumUPSHtovVWRjoYcdR3w8/0AotSeEymjesuWofgAFpEUSzbgzHGdn1K99uswnBqjKr5w0BTAC80m4TKp6mlC6jRDRPXu9syUggJi8cvVUfC/8Nj3j9WuFkHZ2KFrUOY/VLFNdpxao16b9Hy8yFEvWIUddsFfJpGRbgbwd+0HwtGV7ot3qH0DIKwlx+T3Nt5iS5Huo8a1xR0gtwaJaDlmeGMYQpxoV6fygbCm1QEyfpQAtpv4m4bGQdSPz0g/HpeIuCD0V+SYgb2gV1PywDTB34GJfRUKB0heP7WqpYWQCQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9o7jP55Q0a+yXbvSrTmFElDNLYM1MzhhEuCeRqArsn3Ee89mQ6y5Q93UpW8TEM3vDPqB0xUPPeqNm6nOqxLFY5Lb6o+IZEFzLCHD1pNkfIf+8c2L8BiSbvoFc/i26P0OpWRz9NdLnoIexIAB3wP+7IPrjYK+7Hrh84hXVg+jSgVJa3kIYzKO0xgumGQfFdTjR1pBllpQ7A2nfRtt0oh7xfTJVVDjhuKq+nQHaiVAVVU56UPIN7AIx2DMHwkmx53bCezNbMLc2tA3il180BqFxavzYxM9qyfjdRKtCCmZzvqiKTGUrEF6NEjIlq7NmQYC0DiFrp+GoiGau/33MUa9eWseYNbgCVUSkyxbpob/sh98wDi1SE1vstAybFVDGc15+MO33oTkcNCcQzERec8sQfTnSM0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4a83e03bbf7355a4\"],\"constraint_ids\":[\"C:2ea012282d52e867\"],\"span\":\"Ada sealed the crew outside when the alarm sounded at relay deck.\",\"rationale\":\"Sealing the crew outside during an alarm conflicts with Ada's duty to protect their escape route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "03dp/2cb3ZNEGdakC+nQM3lVcwMuVSkxXZ8QlGaSMd+MNgq5R/W16e6Stn4xTnjABKWjHD4Z8tsY9Yv8L/HVQHYTrW2q/AmHjzaC9BXdNuehE2nl71uBfyEhv5cSq7uPV/kfcX/C5KSTYGVI+9zQz0T87AZShG3Nb3UTbHHcWy6u33MKY02XCQnQRCsI/MD20D0tYMpD0vea4hpvSdLWRGOfENrw6fn1SwoqhHZGbXsJ57+KrW9Cij94k1YozugyLPEWgMj0KY3COnJIAW763WsNMD9ccXpNJf8v87N7qvDHkbji6V0UDrT05SPrxA93Bs09EVgCaire7vSVMll9Frr/CMHmf9uKUEEjCKmnc5Y1Y065WIhpVyThdFx9Y5koqQJX98lpY/lD97bk2v4eK+0fvBS9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 764
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4a83e03bbf7355a4\"],\"constraint_ids\":[\"C:2ea012282d52e867\"],\"span\":\"Ada sealed the crew outside when the alarm sounded at relay deck.\",\"rationale\":\"Sealing the crew outside during an alarm conflicts with Ada's duty to protect their escape route.\"}]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 155,
+      "total_tokens": 764
+    },
+    "tool_calls": []
+  }
+}

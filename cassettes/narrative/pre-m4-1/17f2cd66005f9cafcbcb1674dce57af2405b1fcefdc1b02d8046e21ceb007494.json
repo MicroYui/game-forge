@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:17f2cd66005f9cafcbcb1674dce57af2405b1fcefdc1b02d8046e21ceb007494",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3123,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 151,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 771500000
+      },
+      "created_at": 1783840600,
+      "id": "/FFKcAOyp8Io5BeeYZHBaa6vZybRRdN+D/vBseFxJcsVyCuk22SlLzFkTOh06gqEfXyAz8TNszt5OR5eqATgQvos+g++B3QujwuqTZ5sLDNgnBtqYK3ZzjUXfHOR8DP4Qn7Dp37QExpmJZvRcz6/PGeSMsdNE6kqpflr5ZlD5YxgjEDKnIYdkFQXdAyD+M0XOTaBIFUAG3/Lup/W06vRCb+h1wPx4fb4U8GOltm9Q2Z3w3MzytoEKObQ4mdU2Fz47VqmZy+xmuC77tHxiNN73YmsYNwFnnAKUlaLWMy7otLxSUBIjldrH53TPA5+PZ8LV215lzbOB3ehqsoq3lVJDqp5+WvuL6yF1epqgYWI8V0vWcja6G5etefmKK8SRv+c4ICFFIX5EDuFP2unByutH7bIrJv9lw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fSJlrFJ4K0jDKruPBuUiHlrWVZrr/V/eJ1fKA1pciLm6HtKXd0Lw19lW1fFm31kbjJFfqiqYKVTY9gyIWi5h0nwS3ExSA7XhqqfzHa4fpKcncCE+kraiRUnirKnxkQBFplgoV6l/xYI1o/AzgCfHcg5oLYMIyTzUOSGpi2AqfqpJwdeRL9rrpZMB7J5e7AI69o/9RnBWeJL+NMN0k0rtcnUGLcaTvcls3PJXWbEwHfQwoOR3ED+41RL5TvIjImEoi72XmD6psIaJ7mpC+DPZIgCJo2cJkpcEWLbcWuQyVR4lQAhL0x6N2+6LAtVKBIdFUo56hS+msRWABGRX9GPCYRwmIFOTOSjNpwyD4LsUFrEOlWDrA/zOf3esDH2GmROfYejDvwSOkkeOW8hf/qyhRL7Vm2s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:e9a46d23fccf7b23\",\"secret:963fd7545404277f\"],\"constraint_ids\":[\"C:2a158d1eefe9e31a\"],\"span\":\"In relay deck, Noor disclosed the saboteur's name during relay alignment.\",\"rationale\":\"Noor reveals the protected saboteur identity during relay alignment, which occurs before the permitted reveal gate at vault access.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/k3qtBgFkA8xkhgoDKM6Cd1cRaXCkSM8tHNiKgoSKrDG91P/vuPMSrNg5cWP0l1wP8y/B0vo6V6oiOq6xYMPrnf2W56kaktzVsMzI/tzIwSY9fNPysVpdCoQW2iJeKSpLN5ZN3SPh9trTXuBKpT2tgMjlFP3LwofUsS629uQM/aFL9D1rDhFjuJeh5S8iV5vXIApWDRoX/CD9hCiCoLMe/wGCrn7CwIE8mH/ASUBmu0ilkNAjD3tIiCqJ4+OLzVHs8s4yY78pg+J8b+CyJ7VA45HFlSkdlBqplM6B+Kjqmc/GfES+kA6wjFn76EQeTapt6P6pfbRSaILsE5akXzMvtL04Vj/6phhA2uZYcZ/8uEYt/+6hI4Hj23Ezmx06xEbjD2+HkUDNTg1APLwKb+ylu+Ocmtk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 151,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:e9a46d23fccf7b23\",\"secret:963fd7545404277f\"],\"constraint_ids\":[\"C:2a158d1eefe9e31a\"],\"span\":\"In relay deck, Noor disclosed the saboteur's name during relay alignment.\",\"rationale\":\"Noor reveals the protected saboteur identity during relay alignment, which occurs before the permitted reveal gate at vault access.\"}]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 151,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

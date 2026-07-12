@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7d886837d1e0ecd41dc38f6da1e4950ee3879f51ac181a5eea6e2837dd26d73d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3359,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 690,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 933000000
+      },
+      "created_at": 1783839400,
+      "id": "fiXN7KGb+YTGJ7y/phD+S/NBjXfAoGAOBW0MyCzddSceNhTiYGmBWXX/AiiXkz4zuIOo19gwIufBig5gCObXGRgC92Fw/r+DmevJRQdy+PppvRk6Ke4TBZFG9rijmAGiKiMP8Q12KvahBs8SssVdWPzMFM1NXqlz4UfxigyhUrashiwJObuoS43EotpjxfagWIPmJ+UD6k8lCcyqTQ7rRfnAOnCiUCqZGimXDNOMz7TvdAt5SlrAAbP5cWJigym66qAZoVWMj0B21FFJNmE1Ts8SwCvJSBSHdk7eRVxmr0Kce+pMaXjQWLc6UOOpy8zs2JE/Q2fLzRR0jDK6bCBaPEKaX7GLVe01F8WJSL8sR4w8So8dEX7qV+uotihIwR4Krv2VL2neeJbos6gsi97El4Nr6+mxrQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "v8v0bOB4btZ9vXapsOe6L/0Jo15CR9tnHZHz28BnCmy25vEOs/oIcEM+eK2X3HLah5LyuRRMTGhSkeKUfHBfH9j0rv1MnSqOid/nO6OqM6ffT5AiFyaWMJD8DncYSsZ4CR4Ye8eaaWOAm5MEMemO7DlXUxE67YhEgDQY4DbZprwlbb5ZoLXNIMDysg2nuDpVIn0s9Dl1OgLWVw4cYzJp1MM7nPsrxCdMbqc5Fi0DQHgXfeCEglhxk7dWHEmLr4wzQX947FCBI7GF9POEWHX3IwZuxUgiEEK35iezThLXur/EGyXdbKi4FIuzJH2W1W/SkqrbwhB8+wk68iaTZWqT2joQPQQaAsfnf8Vz6J5KcYUSy+uQvC2WEf9wlIQqro6JvkXjfHOix7inmO5ONmIGR1bp2mU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c254e444a5fc1812\",\"npc:e8d2443329ec7ef3\"],\"constraint_ids\":[\"C:f9c4a4c63581e905\"],\"span\":\"In old mint, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda, a Valley Rangers member, supplies and establishes a permanent partnership with Oren of the enemy Storm Company, violating their explicit hostility.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PwylEDULUQg1dUPkeByfOzb6F8O2XrcFURbl78VkQP2Eyuyu/ULPIkd3yMyyCHcTPZtsyUFiPLEpA5/VeTaHj3W8sqf2AFMtdRFYDJiPdqwgr8o2YM4Amby+HfrZMMT0/1U4Czraul5DtMH0xNdR4PxPrNA1vFoV/wuQO1b7JNQv/Vm+SOWwLSeju1wcrPZnDN2wSNlS5dzZjevWNm8Vxy7xxULvT9aeXEVCXCqAVtpo6FA5BMEsBdw/vC2Ixp9jedft749pFszRSzFIwSayzY5tQmsFBbQDkasBzrM7G/zkhn0BcWrkP5w+Eky+7a0sM3Mfk5NiO5k8jwUDUmf3GOCwPAy5Yd1mxLVCrpvMI1dT6n3Y1PwxiiylvFzpZeV8BhUpxbmrGLhf675cQDvEDGUsPwX3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 690,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 886
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c254e444a5fc1812\",\"npc:e8d2443329ec7ef3\"],\"constraint_ids\":[\"C:f9c4a4c63581e905\"],\"span\":\"In old mint, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda, a Valley Rangers member, supplies and establishes a permanent partnership with Oren of the enemy Storm Company, violating their explicit hostility.\"}]",
+    "token_usage": {
+      "input_tokens": 690,
+      "output_tokens": 196,
+      "total_tokens": 886
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:95380f4bf41dd97e2f722fda68ae931e5389bf8a67c5a62d49d97d385c259de9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4983,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 937500000
+      },
+      "created_at": 1783840600,
+      "id": "5uk39Wv+zcMmV/Nmg5nuxGi7EqqM3y15nY+Ri3J1h6VMQLsAe9mgiVHsbK8fBFM/PXIibmxM74IGkGtynS7XxR19G0rxtgFOeVWhml3ML3BKRstO4SVBCN4NJp+jom/ao++D4UWmyP4qOrxkjsjl91Y/C6DIcOT6f85MV2QM8aAu5cf7ZzIBIV/QnaDIePkopYVXY1L/3/uiDH42HXwUSHWm103wnLRiTHXYMBze/k2bst+IoYNyKo4aEtpqV99LC3hk5nKbrO3TgYwI0TI/jMkV8PLmby3/ZvnaIFuC7Go74OQQK/dLko+WcpxALhWmyG5lLdSuMFwnxIfLn2CAwLxRTa+xyWCuOylgZkN952oVzH0V2SbnPwlujQDaKrTqnHsfsCedJ3Pc8OaiZyqmu+OcVd1Z+w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "y3xw9eQ+eLOZ9b3ycrrnGg7eovPft6ZPFKUF5ACWVbAk4UfRjNdFsPF0Y9mzTuQ7UJWOIPEPjx/pEBlFIGYU8cHzzhH0jViVgo5k/9CU2bwj71gpl0+CTvPyCwRkEmzM31DZPBVTVRJWQfQOETQ3GumGuYhwgEK0eBnv15hipCfBSaDwBFdeflp3fKlyi4yElyj3QTSp1x4wLlmJCgrhKO2JQb0QjpU2HOlZG7t509rbtxqIgTHoQQDfh84dJ7hcZbgffT8giiTchxuL1tOAi+L9GzhxfnhWwecgSGmTijn/99GIwcQwCXTkbwUAduj6B1q9aChJ55AXmGkD36gJ9zXkLOnbYVhA8e7YryY2gXNkvcqKtnuETAxl26Fb64yIjNlk5zPB2DVYYjmqcSXA85enEx8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4f04e99cb3f804b7\",\"npc:d8d0c9595fdcba17\"],\"constraint_ids\":[\"C:3f8bb64464ee7b67\"],\"span\":\"At relay deck, Iria was formally introduced as the Harbor Marshal.\",\"rationale\":\"Ansel was already recognized as Harbor Marshal, and Iria is subsequently introduced in the same unique role without any relinquishment by Ansel.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dmCrp3K39r9ICPyaKDPmVmoiOp6eQheJY/UZl8rMDyj6fF7obmN9MlDOMcaIsNv8GVP/DWGVuDcgh9nq+PbJWrx4PzGO9ey96FHoyY6gnMMEOzsh8oyDoaQDGBPf7HJNc0x4+GH9ZJDe6g564S1mh7zaYZQkEz1Dy7+4IxHWDGwijTqxyeYy5sh3XxrtvYob3hLna+EAvYojxTdwKaf2SuMCLJjJotYYU8fTq9i3Z8uKM0wZGUqqJ4OK9mlR12yIR3HcGzPluTVdUzgCIQV8ujIaav04VohgGV61M/Aofyz7uN6pryE5Yn9tk5xNCJ7b7qsLH7vSlya3Hwc+mUHo+CAhGghuUAumu3hMwkBLBDCj4NMcyPayCyeYEw6xBY3KnfFdnk3/UAz5H+6ArbREi9SdeS+e",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "reasoning_tokens": 95
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4f04e99cb3f804b7\",\"npc:d8d0c9595fdcba17\"],\"constraint_ids\":[\"C:3f8bb64464ee7b67\"],\"span\":\"At relay deck, Iria was formally introduced as the Harbor Marshal.\",\"rationale\":\"Ansel was already recognized as Harbor Marshal, and Iria is subsequently introduced in the same unique role without any relinquishment by Ansel.\"}]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 209,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

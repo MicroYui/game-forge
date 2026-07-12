@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f0edc0be1e59e6d9917ed003f579aa7699b4356256c4d745f5d875a616a3736b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2754,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 106,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 628500000
+      },
+      "created_at": 1783839400,
+      "id": "dUb6ChmI3DDFGDgD26ZKbU6mKrrsx9gvv5/riMzd3sul+1EeKL9SjWtgR0rmiWHpsXWd7XJ3LxWz+9qxOYJmhNLFH6rKALK/oTbolucWU1TdY44B+LY13N2uGDeli1OqSCgCCreoxXG16HtnTrbl132aQUyiF5Hs4k2t6SsGpSch/cnkfZ1onLu8eyrUzBsPm5t5K4x+mlNsGXB9zQlBKOiMrIeHXPbfoVU55qdCW5tRamfTTt2xN0ovuYHMknbD+npI82fICecV7zP46NUBmX5GM0puld1e+xN7yIHNjStLWyfaX1VwT27BOwh3GVx0vx7PsdhiGBoylQlCfoENCByRwVt1bSDE6RCK5f5uCG0iD9/qa+g6bxEufk2aX7ntMDq8G+gxMJ560kL5UJi3I0cdW2RgOA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:a4432840d98ca57c\",\"secret:67fe17f307f7fd43\"],\"constraint_ids\":[\"C:c0bc119909bbd749\"],\"span\":\"While the story was still in council session, Veda identified the reason the eastern beacon failed at signal tower.\",\"rationale\":\"Veda discloses the reason for the eastern beacon’s failure during council session, before the permitted archive opening stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+SsHUC3q1XR9mSCENOqGQRjhjuKsNHv+7iBMllG9Ny+unqr8ZDC3CEDCIoQjwafuc3kRkINKFeQ7do2XXyU2EcUDHvEuD2d8mA9yHlKJFulcEggz5enCK6LLnB6i7mxF81m6f5M5T2yDWp4Gmkm3YpY9njmua9iKDAHHwjReHGDA3H8eFiGtTje7LEa+F4aapBHRgzrb3XcpZDQDEyoKW5Dtr24KC56I8n7MKWRqNZ1VGX9Pto74TsYqdC524Cgb8U8U7SpihmqBXleDsToC03AH9/r2M6nbcm4LVTkDaCfdNvmkfaNkmuR8+S6NBTAtUVepB6KioJGc6aIug+qjVfQ1HNNI1e6E+ncl+lC0h4lr6E9ThJCd0ym4NcMQCB7+0CKj1ll8vrmQwicMYDMdVVVOczrK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 106,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 727
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:a4432840d98ca57c\",\"secret:67fe17f307f7fd43\"],\"constraint_ids\":[\"C:c0bc119909bbd749\"],\"span\":\"While the story was still in council session, Veda identified the reason the eastern beacon failed at signal tower.\",\"rationale\":\"Veda discloses the reason for the eastern beacon’s failure during council session, before the permitted archive opening stage.\"}]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 106,
+      "total_tokens": 727
+    },
+    "tool_calls": []
+  }
+}

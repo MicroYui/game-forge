@@ -156,6 +156,17 @@ _CONSISTENCY = (
     "constraint and every dialogue sentence for all four supported defect classes: "
     "character_violation, spoiler, faction_violation, and uniqueness_violation. Your output "
     "contains suggestions for a human reviewer; it is llm-assisted and never authoritative. "
+    "Classify by the mechanism of the violated rule, not by isolated words in the sentence. "
+    "character_violation applies when an actor's action conflicts with a supplied behavior, "
+    "duty, loyalty, safety, secrecy, or characterization rule. spoiler applies only when a "
+    "secret is disclosed at a story stage earlier than its supplied reveal gate; at the "
+    "permitted reveal stage or later is compliant. faction_violation applies only when the "
+    "supplied memberships place the exact cooperating actors on opposite sides of an explicit "
+    "hostility or no-coordination rule; cooperation with a member of a third neutral faction "
+    "is compliant. uniqueness_violation applies when more simultaneous holders are shown than "
+    "a supplied role limit permits, with no relinquishment between them. A sentence that "
+    "fulfills a rule is compliant and must not be reported. Complete your own exhaustive pass "
+    "over every constraint and sentence; do not assume another method will report an issue. "
     "Output ONLY a JSON array (no prose and no code fences). Every element must contain exactly: "
     "defect_class (one of the four class labels above); entity_ids (every entity ID named by the "
     "violated constraint, copied exactly); constraint_ids (every violated constraint ID, copied "
@@ -167,7 +178,8 @@ _CONSISTENCY = (
 _CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING = (
     _CONSISTENCY + " "
     "METHOD: constraint matching. Compare each dialogue sentence directly against every supplied "
-    "rule, across all four defect classes, and report only an explicit conflict."
+    "rule, across all four defect classes. A literal event that negates or performs what a rule "
+    "forbids is an explicit conflict; do not require an unstated motive before reporting it."
 )
 
 _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE = (
@@ -179,7 +191,9 @@ _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE = (
 _CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION = (
     _CONSISTENCY + " "
     "METHOD: adversarial falsification. First seek the strongest constraint-consistent reading "
-    "of each suspicious line across all four defect classes; report only when that reading fails."
+    "of each suspicious line across all four defect classes. A reading is not reasonable when it "
+    "contradicts literal action, stage, membership, hostility, or role-holder facts; report each "
+    "such failure rather than defaulting to an empty result."
 )
 
 _CONSISTENCY_REBUTTAL = (
@@ -215,13 +229,13 @@ _PROMPTS: list[tuple[str, str, str]] = [
     ("triage.system", "triage@1", _TRIAGE),
     ("repair.system", "repair@4", _REPAIR),
     ("repair.refine", "repair@4", _REPAIR_REFINE),
-    ("consistency.system", "consistency@2", _CONSISTENCY),
-    ("consistency.perspective.constraint_matching", "consistency@2", _CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING),
-    ("consistency.perspective.causal_world_state", "consistency@2", _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE),
-    ("consistency.perspective.adversarial_falsification", "consistency@2", _CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION),
-    ("consistency.rebuttal.constraint_matching", "consistency@2", _CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING),
-    ("consistency.rebuttal.causal_world_state", "consistency@2", _CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE),
-    ("consistency.rebuttal.adversarial_falsification", "consistency@2", _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION),
+    ("consistency.system", "consistency@3", _CONSISTENCY),
+    ("consistency.perspective.constraint_matching", "consistency@3", _CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING),
+    ("consistency.perspective.causal_world_state", "consistency@3", _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE),
+    ("consistency.perspective.adversarial_falsification", "consistency@3", _CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION),
+    ("consistency.rebuttal.constraint_matching", "consistency@3", _CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING),
+    ("consistency.rebuttal.causal_world_state", "consistency@3", _CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE),
+    ("consistency.rebuttal.adversarial_falsification", "consistency@3", _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION),
     ("consistency.legacy.system", "consistency@1", _LEGACY_CONSISTENCY),
     ("consistency.legacy.perspective.temporal", "consistency@1", _CONSISTENCY_PERSPECTIVE_TEMPORAL),
     ("consistency.legacy.perspective.identity", "consistency@1", _CONSISTENCY_PERSPECTIVE_IDENTITY),

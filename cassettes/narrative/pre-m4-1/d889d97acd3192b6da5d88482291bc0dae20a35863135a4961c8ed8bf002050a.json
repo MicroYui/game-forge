@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d889d97acd3192b6da5d88482291bc0dae20a35863135a4961c8ed8bf002050a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4482,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 532,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1001000000
+      },
+      "created_at": 1783839600,
+      "id": "udszQ4wuwAPmL9Eol7cYQ9FVXRxtZzvIJDqImHkNOq4N75yVCF+zUeB3wmWDKlVs6J6zCqL+1gK4dMJ0Tc/Cqf1eNSH2Af+rIJikg1WKYehnADFd3hsBnic3LWe8ac1xHaoYUzz84GD/ul5GUD7IX/rMk0chtPlECqPEN93I8HAnkYc7zgUBB6JApcjlTduL2OQ+ZTnV899zAU40OWq4IveiaVil26/8KzQ2OIVKer4LOLv1LoUoQSa0WWBZsUiyBR6wkfBJzb+hfokmPCDvHEm4bGQpATQNG2DNzYjuRKGGo7JCwU3nJQsWe2H0YCqqR88GQGZU54f3KflJxITzT27HdEMKoZtiqUcY7daLyhHnhu/+lu2wVdvdY9CW1gZOtgi5784UaARZrMLqAhPZ39cbd2JEDw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "iDIaYsbuj1xSfccEYfwnyGSg9AY1IE04vOEVl758iKSIxWOJNW1VbLejc5BNT1BRZTi6SDPQGzEwGXqF8wFjN29s7Y5U0U3USYpofjLd96m4/clEkXwYPT4CPv9q3O6rujF98SVWoDiutpCCNFIcowE6BDOQY/xrWwjQLEad0smo1+U5Fvyy8+lIKSpQmgQN5FUjzRJMuD/85PEdLSpDEX+YmXaUSmQKMIzIDsIWZzx0IfkjZGnnUvNqXNZx5Uuz5ulxDvMEeIEJkaf1IB/xBJev5iZkjIJy2loz+DIZzOXvm2IVRfoqk30Ee9M8S9X+FVZZJXIUY7l4igy7acmNTMeUPLRLlT/evKpCaLm2wxJAtWWthmULUEXifz4shPxevuV89cGbmhVAEGm9waSlWWIgqDQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c486d340739223ce\"],\"constraint_ids\":[\"C:832a3f707807a137\"],\"span\":\"Ivo sealed the crew outside when the alarm sounded at north gate.\",\"rationale\":\"Sealing the crew outside during an alarm conflicts with their ability to rely on Ivo to protect their escape route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eqVwWM1ogcgdn/ziYcByW4cVB+XcIRUaIvwcC2YbmhFWu+ZC+pQBtmuXhhsyLqu+Tb/KlVVx+IrH1JQOJpTyMVsxF3ibZdPzRgR03OoBTIs5hShS65j8KUmAxtWAToEJHWHvMyiEwPl6f0n4l8ghfEKtBT8CR7KoYIVQ3hSEREwtnF4lt7/PU67NZNr3si6bMXJdMcHdyNzV4YILQJJB1QjtAHB3Z/qWqCNOiS894YasJbkzBk7gL/5ucvF8D9x3SdPS/O7HTUuw/g/NYLTn1ESkygBkLokaukmALYk3gr6GawNOoq30En/5N1X6TuQCxIt/VjgUF4do9hOrMjXC3NIq2LY2Iy/Pfrvhom+7lsiYjQmIMJDDMOJw6Ije75MAgXetlFAKA2IZCZtVpo4VpAmiE/pa",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 532,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "reasoning_tokens": 158
+        },
+        "total_tokens": 777
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c486d340739223ce\"],\"constraint_ids\":[\"C:832a3f707807a137\"],\"span\":\"Ivo sealed the crew outside when the alarm sounded at north gate.\",\"rationale\":\"Sealing the crew outside during an alarm conflicts with their ability to rely on Ivo to protect their escape route.\"}]",
+    "token_usage": {
+      "input_tokens": 532,
+      "output_tokens": 245,
+      "total_tokens": 777
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d110eeb1450d36beaf30864fcee184391c3aac4f6c37a6bff705f217470658ee",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3188,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 93,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 594000000
+      },
+      "created_at": 1783839400,
+      "id": "Avu8Fzr+fR8qnA5EcejQU9nFCSQudV/yX4GK9fiFu8/zZgfDxeucbG4HDxHd8aUEqh8PnNUNS/Awht/7DPU8KGGJru20nx+awIP4Di19CMTRD9X/MYlE3KQ2eFdHy6M/qEdCiHdjz/G2SM8Fa0CiSxw3KWyN5QOEIWegq/Vc4x0v6o4L+RegKR5l+naGGFQbwUU/lnguiRr2wa7H5wrxUaEOc+Lp73h8alMzfxubUy7pRmz5GnZwaCn8KSJkHAcWwhotdGAOb1had5wV3Iv4Y39nqwjQy60wOct8ZgmxIBjC6oCvGsDdhy/DZub1P309RfVhJ+ieMrdB5pPBgdQilqxcZ202zNXZQIwHTryP/M4DyVi6B6kTN0hBW58il43iUomTqw2uT+K1bM31+q5ar98Mobfp3A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:b19dd3af4da70d79\",\"secret:c08b17461f46aa72\"],\"constraint_ids\":[\"C:62e89b2898396dde\"],\"span\":\"Ivo disclosed the source of the winter signal during encampment.\",\"rationale\":\"Ivo reveals the withheld source during encampment, before the permitted trade council stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mkYbBGaCCBVTw1oF4qg1AGJ4UR5ettJUZHxpGATAu0cxojoulpveVYnlpIbnw6/oI70u3ankkm3Q7nsfzXhvt4MZ3bL5rvKqlWo1dRa+FspOGQPHAcOxcDUd/Qdi8/u+aqbeTmpW3tLVQRvpv57CXwMl22y2gvcmri5A+tjvUrGanTv2hfgPpKCMnee6l1LKhkGZlZdSa6LjDP8idnzPaBxHGAaL4xEPUhnsrPgt+BCSeppG2Ulq2k0FuXRln2QrfpUrGlfsFlxj9ApnzwJIwKU524OR6pNbeChFjdxnmlEomeGrhCiTiIrq1l4FgncXO00Lvw7kyF1wnmKz4z/CEBI4mp7laA2XpXnibbyRFs5PdeeJrxBUQLMD0LSD0pcy9gC+9nEjVY+GG9qFAxDYUFyCGt5L",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 93,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 723
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:b19dd3af4da70d79\",\"secret:c08b17461f46aa72\"],\"constraint_ids\":[\"C:62e89b2898396dde\"],\"span\":\"Ivo disclosed the source of the winter signal during encampment.\",\"rationale\":\"Ivo reveals the withheld source during encampment, before the permitted trade council stage.\"}]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 93,
+      "total_tokens": 723
+    },
+    "tool_calls": []
+  }
+}

@@ -128,6 +128,27 @@ def test_generator_versions_are_explicit():
         seed=4,
         case_id="version-check",
     )
-    assert GENERATOR_VERSION == "narrative-generator@1"
+    assert GENERATOR_VERSION == "narrative-generator@2"
     assert case.generator_version == GENERATOR_VERSION
     assert case.renderer_version == RENDERER_VERSION
+
+
+@pytest.mark.parametrize("is_clean", [False, True])
+def test_spoiler_constraints_expose_the_complete_story_stage_order(is_clean):
+    case = generate_case(
+        split="development",
+        defect_class=DefectClass.spoiler,
+        is_clean=is_clean,
+        seed=313,
+        case_id=f"stage-order-{is_clean}",
+    )
+    reveal_constraint = next(
+        item
+        for item in case.constraints
+        if any(entity_id.startswith("secret:") for entity_id in item.entity_ids)
+    )
+
+    assert "Story stages progress in this order:" in reveal_constraint.statement
+    order = reveal_constraint.statement.split("Story stages progress in this order:", 1)[1]
+    assert order.count(" -> ") == 4
+    assert not ANSWER_MARKER.search(reveal_constraint.statement)

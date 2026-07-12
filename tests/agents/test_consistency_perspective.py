@@ -30,12 +30,12 @@ _C = _hint("C", "faction_violation", "C-c")
 _D = _hint("D", "uniqueness_violation", "C-d")
 
 _RESPONSES = {
-    "consistency@2#p_constraint_matching": json.dumps([_A, _B, _C]),
-    "consistency@2#p_causal_world_state": json.dumps([_A, _B, _D]),
-    "consistency@2#p_adversarial_falsification": json.dumps([_A]),
-    "consistency@2#r_constraint_matching": json.dumps([_C]),
-    "consistency@2#r_causal_world_state": json.dumps([_C, _D]),
-    "consistency@2#r_adversarial_falsification": json.dumps([_C]),
+    "consistency@3#p_constraint_matching": json.dumps([_A, _B, _C]),
+    "consistency@3#p_causal_world_state": json.dumps([_A, _B, _D]),
+    "consistency@3#p_adversarial_falsification": json.dumps([_A]),
+    "consistency@3#r_constraint_matching": json.dumps([_C]),
+    "consistency@3#r_causal_world_state": json.dumps([_C, _D]),
+    "consistency@3#r_adversarial_falsification": json.dumps([_C]),
 }
 
 

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e10adbd438988818ea2d42b93edccebf167a415788cd652def4736ea7687baa8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4232,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 617,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 839500000
+      },
+      "created_at": 1783840000,
+      "id": "WpcOBkpIu5vQZrD2GsFMN2T0XSrRsjcd2WD+6TAzOYXRoUf4cIr8vBvccVtsY9cNDNPmZIvq2AZBX0hs8FWeTLI+QeUaB3JdPlMCah/giIm0Jnf10rfmWepTXt9gav+CMaTMOeal/zR8DAJwikHMV08I60j3N9Pg8NHGrWLxn3VfU8r7+3WEk942CqeN3mqUGQSeFMTtivaTyCCugdCqXOTT34+IRjjinzT+TgGyP8RwM5fxMzEPO0gnVFCXIHaGll9rWAi76DbFDRdj9Pd/13z6l92ZoKTGv3ZLqQtp2dVG5V4qCixGt4kAFiLTCktWu0JwmBCjr3lYmdiCgFI1rsnYFtQ9WmbNYCKyaW+pGZmIzU6NXKmA45nbZ2eJqkRgPK4vG22CdKXemgNNM/Ka9ZCdqOoUcA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VEwiPIhWXC3HhvwSIMcsz1s62sGgBEF/VUqz6qgZHD0OEfA0K3FeNrEsd7t9Y9lOLKA0T/si4kaSGrd1LKSM4BrXczkv5+vRIybjeGM/wcZ/R6/8naEKybGoGZDLyK//0/fxQG4cJNxNNQHqus9+pNkagbP4a4Hj7lWHUigfwwwrd/D8FjQi9Fe8SOaRy1udrZ9PLxIZUgzGF6MwhNaCxcsPGB9yJT0jmgVckV6Xu8VWTHm5gL/hT327FhcGtjAsc5TjTcQulG5dXKE4ZgoB1x8PZxyHx/o2XXlAYo+fsh2Mm0vujgWtCP2XTkx8wb1IxCQ9jx8d9N3K+wUERNcMHfd/a1gr3yyB55u+J4inJ3RkfMLmomozI2TakPNViQy81AlC0dsYQySF4mbEgz/7765xMLw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:75b8d70d0cc5b18f\",\n      \"npc:c56797ccfa7b71e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:06655e054efc2340\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at glass conservatory.\",\n    \"rationale\": \"Qi of the Harbor Guard directly cooperates with Mara of the enemy Ash Fleet by fighting beside her under one banner.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qem/fB7abKrc8og8pd9xDP3ZRf/DV7sxU36pjrOqYjJcczuyveMJyOVueYn0hzJh8KjMt9OZopelqK8xkR/+H4iWscZYgpW3geIKTgdftAGTxbq+dFnXRHBnfNAlIbu4Sac2443bvIuR5hV0MDIBRqg6EYjbpWtea7ODk1ZiYacLQIm8NgQ+RQWioHD6D+CzUad3tRwPnN/sFDKuMRPj5Cyhk2ScLVlxPXCLzReEng4iAOg0gGyttCfgkdktEnSz0lWqrE8uh6w2tnlYHV+32cTJP6zzZrGWdO423VhkfMV8uPTzwjidQdf3t0KOCT+9VwtcjQhSv6X/G3pqnzgl09iReRQDe1DaFRBEhGsCviANjSrUJB6b1uSuQIQTINOcgOoW3SIonhQjp+9f9hXSw/5cXhy2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 617,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 794
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:75b8d70d0cc5b18f\",\n      \"npc:c56797ccfa7b71e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:06655e054efc2340\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at glass conservatory.\",\n    \"rationale\": \"Qi of the Harbor Guard directly cooperates with Mara of the enemy Ash Fleet by fighting beside her under one banner.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 617,
+      "output_tokens": 177,
+      "total_tokens": 794
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ea3b4e024b6bf1e4cf110c9988c6973f0a315132dd14cc479af489635c63ea3c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5996,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 302,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1192000000
+      },
+      "created_at": 1783839600,
+      "id": "0Dhi75jIpq/VaqZpliyL3YLrUL7blxN/cw3LmvcwmmRR1lXebJKNKE7VDCg/9JEpvNxd/8PmURHQffaZt2I2MFfpjncU/+WFRN4ezFTWvIiPfc/wOYYxHtCGCEmrwM+VTzaCJ0wQu3lj4XpzG2UgClmgrb9RavnMnZPU6MtYtoZAuN/aJX5OsB9QbDdJmMbPvupCk636XZTWG7FqNpKJ1ZbksfdOZQfr5yOaeNDGKHGPhs7jjkavbgz/byKIskJS0FNKUuVY/qamDCyty008wV0J8rt4AxonmMYjYtwwM23X2Vv6jzWZ0xf8UWFbElkYxCd+yMsg/Xm/Wb5FpRCr3CVGAZ1QQGXOdujko+T4f/MWJyak+gFU3ZBr1vlOq4b6WmkZMSQg8cB8YwmXPI7UHCJBODpDGA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gkVio7xSiiryt8/glP23kSKBN+b9Mcur6Z8jD6fTNXIf0LCgfMZwhbg+gjAagLTJ/CIKRAI2MknLtVuNvqPc6KwijOgu0mG7Kg01PkPJ4IuqQiv/okWwBLoto0/rIRx7DFkdLY06UpAp1w7puWV774DW/nqp+zuT2/9io6MY4G6NBcsqORQzPS2L5abtVgI45ivxqEkOrC37j1Zo0dWAwETHEpNdsv9ABUPZeMp0Pcc6EienJ9jxUA4CdwBqi/LLXFlf4ltl/bLpEXsx96ToFA4v+A5OpCH9GNE34FfW0fGhTj8Y15Oa0p/+bk6fP1MKVAZ0zIT0hH0TuMU1JEIDQPnzNXZSTkSU5E/4HaAytwtUCJg+HGIybTut2EeR2SmAGUK/2E1IakNC60C6+uXG9+hPMa4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a44eea28b3e2452d\",\"npc:f2d31d2908906477\"],\"constraint_ids\":[\"C:579325894a0b6e02\"],\"span\":\"Ivo accepted the title of the Crown Witness before the assembly at desert waystation.\",\"rationale\":\"Lea was already formally introduced as Crown Witness, and Ivo then accepts the same title without any relinquishment, creating two serving holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "T8Vgy+DUo1F5G7AHtvRRlKV/5CtpfNM61Zdpx6ZLDqvj3e8Al7EGDnxc0oKXZcHgtI9HpFf5rhGEVDS9PCxSesLtvh7DAocw8BCG7NnMFedNHnE9JYQ2rKEyLCv9li8qAfgrQFc3hlf7UpWroB2rvpaUATG9s9eSIaZb82Jvq2NK2lK5c+F8O7ZW2iKoIsztK0sNHz4AOj3rPaRmLRrFT/cKRiEXI81eUgyqZ6RsIc/gHchXJu/LQVpo7GVRZ4RjHiQCOWPifaj9tWzz0HSoWHgSxh8/6WpB6FpAV2e90SIvVM0EFRUSmm2hqUrBoV48CJ2XeHaIbeZOHmZWWzfUlhqqnuPWyIcvlswvKR06FPBpbyX7kLsUrMj3qiBlgKbEZBNNWnM/hHcFH+XVGC3jpLYZAU8L",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 302,
+        "output_tokens_details": {
+          "reasoning_tokens": 184
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a44eea28b3e2452d\",\"npc:f2d31d2908906477\"],\"constraint_ids\":[\"C:579325894a0b6e02\"],\"span\":\"Ivo accepted the title of the Crown Witness before the assembly at desert waystation.\",\"rationale\":\"Lea was already formally introduced as Crown Witness, and Ivo then accepts the same title without any relinquishment, creating two serving holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 302,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

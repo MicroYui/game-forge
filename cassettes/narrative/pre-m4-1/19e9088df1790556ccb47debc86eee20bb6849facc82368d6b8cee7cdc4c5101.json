@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:19e9088df1790556ccb47debc86eee20bb6849facc82368d6b8cee7cdc4c5101",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5893,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 284,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1135500000
+      },
+      "created_at": 1783839600,
+      "id": "PDDDOMuY+N63E86hDJkifaI0tmGdWiMQJDqMWifEeUY7QmhPoSFbZb5gT13zAIz/fxeToJdrnxNTnJI2/IUocDLI8Ojlf4Im0PBDeyhqvr8YJpzTi3hc3qdlkSoq+jradOBeki7fIlR2hJ+5VroWHX74FYAONu8WGUbMo3qSqWkmL0XvKiqzk05ynCAczwGAEWvE0MszI/Jk5rWmS4DFkK0cYmAEICK0uzC+Ojolq1hPYZh3AgA0fW3S2MZR/DkD6j/5/QLEgaDBpP7aV+BWIEsPNH9eGJ2//S/DNVCKLbmib5jRuGjXqPakmuwzVuTEzmVDRuCaYlHUjysZ5vPTpYj1A7bF569wrXG0rLaqKNkliT4fK1FHwpK2Q7GynFhSB0rk4VGNu+Oxbpz2awEWq19j1uQ1jA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Dk6bFccPy5FUN+I1e4ALopuNxXLUE24+JDQRyKab0UT9CJQTVZm8v7UjJJ+NPqDJYukYT19JtTjN9PNP8WaaJneja/psm993pbkyR2+CdbxLgRJ1764B4ChXwAuof07WE99z7ItmsFvO96p0PcJz+1160XddTlYWdi+9uCZ3yWKEG/zmZgmgkGYJKjZyS04Cg8XGtpMv1PRh/XR2KoB+pCuiAanwWZvjMuMqxwJFvNN7cRzk0XC89tZJPOms0X13wu3WyR1epBHEWNq2++P0T8EcayOzAeTHEOlH3JSIQwVNtYP+1gNHmqFvIn3Xf6taNLvY/vfEU8YoNeclabmGKr/32ATCnZS02e3dzXD1r5adMGCd4VjOvhO4R/EsYJ14FObRLu3e+DZq9L6LFT3wtUWjUtE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:190194905573f16c\",\n      \"npc:f118d9d7b316bdd6\"\n    ],\n    \"constraint_ids\": [\n      \"C:b5e472449e26b35d\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Ansel as the Crown Witness.\",\n    \"rationale\": \"Ansel is recognized as Crown Witness after Iria was formally introduced in the same unique role, with no relinquishment stated, creating two active holders where only one is permitted.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DCaiigJ9mtSEi4Bj09EuuoK6OVxE88xsJmHMKigRssHeiiFD8T0quekoX5FSzAqsySIRLYVyd4MJz/YZ4//Ifj9LZrndTzIE/C0C8I58zeAkAt55f6gjgFXgxBhEf4PFpsQDJIqXyWaV7irza07lrbXjSRAfHeEIzL85pFsqvHktzLxjypIZOehU5HPeJt/FWjb26GvIVgs0ywt609RIUBWq3NkNYNtNuGj9XTTV/95vpXnEd1OvwSCb+5Wd6H5Hy+44ZP121wPOHQJI6KK7GV8RDUsp+6xOLdRrFqEAPOX1VvCkQSG95YvziEBU3lQghk0rZTKY8S+wUkqI74SGiGpLGiEo6NI2KpDKBTgJH/cieNF3Yn5XTlxnSmx9uIAA4em2HCeoFwsxXiPvageEw5jUbj0n",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 284,
+        "output_tokens_details": {
+          "reasoning_tokens": 142
+        },
+        "total_tokens": 851
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:190194905573f16c\",\n      \"npc:f118d9d7b316bdd6\"\n    ],\n    \"constraint_ids\": [\n      \"C:b5e472449e26b35d\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Ansel as the Crown Witness.\",\n    \"rationale\": \"Ansel is recognized as Crown Witness after Iria was formally introduced in the same unique role, with no relinquishment stated, creating two active holders where only one is permitted.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 284,
+      "total_tokens": 851
+    },
+    "tool_calls": []
+  }
+}

@@ -74,7 +74,7 @@ def _hint(**changes: object) -> dict[str, object]:
 
 
 def _variants(**values: str) -> dict[str, str]:
-    return {f"consistency@2#{name}": value for name, value in values.items()}
+    return {f"consistency@3#{name}": value for name, value in values.items()}
 
 
 def test_quorum_uses_grounded_identity_not_free_text_rationale(tmp_path):
@@ -301,7 +301,7 @@ def test_current_method_prompts_all_cover_all_four_classes():
         "adversarial_falsification",
     ):
         version, prompt = get_prompt(f"consistency.perspective.{method}")
-        assert version == "consistency@2"
+        assert version == "consistency@3"
         assert method.replace("_", " ") in prompt.lower()
         for defect_class in (
             "character_violation",
@@ -310,6 +310,24 @@ def test_current_method_prompts_all_cover_all_four_classes():
             "uniqueness_violation",
         ):
             assert defect_class in prompt
+
+
+def test_current_prompt_has_operational_class_boundaries_and_clean_controls():
+    register_all_prompts()
+    _, prompt = get_prompt("consistency.system")
+    normalized = " ".join(prompt.lower().split())
+
+    for phrase in (
+        "character_violation applies when",
+        "spoiler applies only when",
+        "at the permitted reveal stage or later is compliant",
+        "faction_violation applies only when",
+        "a third neutral faction",
+        "uniqueness_violation applies when",
+        "complete your own exhaustive pass",
+        "fulfills a rule",
+    ):
+        assert phrase in normalized
 
 
 def test_consistency_checker_writes_grounded_llm_assisted_finding(tmp_path):

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8eebce98780c6593569373c745a5ceaf2be27ac69e0b8db7b971faddd6a31b38",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4969,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 689,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 386,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502500000
+      },
+      "created_at": 1783840600,
+      "id": "5d6harF9E3w+kyTpUQ6rIPNvWWPzFZC/XfEDhwusCJmyKpm9Z2uWtgSxhzUCl4dwMln/9A1m+RAyYdtLnt+r73m5B1f4N9vTPDwo36eoNW4FxMAVFTcVSpOWdo5a+AQazC/aGgQuIaaVPStdXBmwz2v3cSdGdXHTPbkwNmfqlnHYZAD1DuZBz5w3MVc0DKwB10C+MRz6M2WA5sSbUZDqBhXtbxJE4yQ+fpy8qICOdMWldkbHZZGU8iP7ztdjqeqvQLPaTLmJZ8QaX2FgwIvZmFXz1vB6X3+X9FY9Z++jvuD6E15U0eW6DnNVgeFnvBS0VhFInnWC9e9JqtxygTW3FPSFRvfNgXXfxVaRrLp/F9lKcZTlEuuZXNuw2RjtL74MjkYPfhv310ky67YsuL6W7lkV4czeJw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "aZ/4CEBC0W9UISmJVVtZtkv5evUjDCXAE8ruje48pa3nq4tOf7uuM+FDr5bOoAnvq2NARFPhb9sTHeUkA1/XIwdWf3bkhODMhxxHuyirVBVvLbEVscIYEuks9MucfLMBgM2mWDGRcGQUPJAeChgXDMcqV7shLyUJh33UkQLCK3Zy+kAFZR0NE55uWobL7wDBmBsEVnO2uYps7bmaGTV35lnjEN4RcfVfe8eLVdpqhpLNEzS7y4xPBUwb+sHa5bg7xMBOF2/G2JzIW3bsUiBvGIleKUEVqE+WQPnjaw6ZiVTnxzRFumlGCUo03IhKKVFUuBuXjW4DatasT6i3O2f+Vn2FqI0dzL0iIRSaZgfYf7Ha80R8nv9qaOsHZHjaKSnUo4ppPn0ypi5SrBLy3DIdcoqwksM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:615fb5299882caae\"\n    ],\n    \"constraint_ids\": [\n      \"C:b63fd3d7b4cd25b7\"\n    ],\n    \"span\": \"At old mint, Daro transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Daro directs the recovered coin to a rebuilding fund instead of returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f532ea36cef76376\",\n      \"secret:9efab074d49e4e24\"\n    ],\n    \"constraint_ids\": [\n      \"C:7df5666f3ceea5a6\"\n    ],\n    \"span\": \"At canal bridge during hearing, Mei told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Mei discloses the masked envoy's identity during the hearing, which occurs before the permitted reveal gate at second bell.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rzDG4fyzeVrfpsddbPYFxi3Dlfc0+zvL7LF+rQGrzshLBSA6p2v8MKreOlhD6XVBpGn0itME9SU5+/80M8YecN5wmstdguloqTOM/Afa6A/zBQhOv+heQU0e3wPS8qGgAIaPI0izrWGDEd0lfCxI9n6Mz8IuaP4YXS7g2JkvPkQniAs6EJOgD2VRsc0JtedSmFLmzzedraqUnN4nrkLnoYoVZPybL4/9+GYGPSLAMeysAlx677qYjBVogIAq4byikpNjJ7FgW75LMdTLmU2mp2iu5P9teAxKe66OgvODo7F/TGYjNgv3rS3DfePAQA3gdj6lluCqNdj2w8EOG+/zf0M+/XsRTyWikQSLasjigGnGMQbc4//dCHuqfGRki7MUHyUJD9YOgc0lh9rG9nu7bMnYAQTP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 689,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 386,
+        "output_tokens_details": {
+          "reasoning_tokens": 145
+        },
+        "total_tokens": 1075
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:615fb5299882caae\"\n    ],\n    \"constraint_ids\": [\n      \"C:b63fd3d7b4cd25b7\"\n    ],\n    \"span\": \"At old mint, Daro transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Daro directs the recovered coin to a rebuilding fund instead of returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f532ea36cef76376\",\n      \"secret:9efab074d49e4e24\"\n    ],\n    \"constraint_ids\": [\n      \"C:7df5666f3ceea5a6\"\n    ],\n    \"span\": \"At canal bridge during hearing, Mei told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Mei discloses the masked envoy's identity during the hearing, which occurs before the permitted reveal gate at second bell.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 689,
+      "output_tokens": 386,
+      "total_tokens": 1075
+    },
+    "tool_calls": []
+  }
+}

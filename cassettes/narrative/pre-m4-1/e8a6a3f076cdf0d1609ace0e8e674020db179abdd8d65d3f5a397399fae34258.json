@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e8a6a3f076cdf0d1609ace0e8e674020db179abdd8d65d3f5a397399fae34258",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5583,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 563,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884500000
+      },
+      "created_at": 1783840100,
+      "id": "6OH9Fyuhowggafmr20S1MCdb9VZ2+Xv1L3PXrtK2EW5BBaPupIT4Bbx/p4y4BcNGecLUyi6PL16DagCnSULDya/ZUshzdjsZIFM+pTNxotVnFDL04n2Garq2F8jJgE1J0QxEVCocjsEOLrVYnkqDjXrefQNwXPKjsaGt6Uc6blD0TrD5d1p/jIZRMD+GYl/g+djBtcxcaD7Jglg6wBRfcAuIgJ2TOscmWHjjqbmliipdSyTQXz5a9LuChwJqXuN+Z80vqS/3U3TxHCDVZVEKuCYIWjoMHkPP6YVE+AsZnGuBpDzmp6n+/5tf98JwQYu7jWhEBWNKaCcXi4rhOQidDPCFLBcPpwFZ4CQnTZvpUEkh4A8B8COnOXtScJ7cBQVHaXspxeed7++JfU1vAlxYl6bpswOebQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OxfHeIOF8MvJAXZnOiWFrpUHjyyP3R55yc2OqMxmovLBYWU5Fa3mIzKDgpifKaYAXXcMVE1v0sZ3nTW45MjnLV6pmwWQ+5++JeaKK4DROdnu7RQxDU1z0rjiuYz7fDFd3SLWdPBd01paiGZ3rBpT57fGNo43WioPpVXAdFTtJqHOvpDYD2dwG3QjKzdeOwOaeaSu+1sr+AGlXPsp1NViB68E3gcoStR7zjWiVEwnRPUEG7QdYnLpEpgMZXe/lKBpkBaIIyygbO8G4TdnjpVVbcwtMcBB3vlzWY9tX5Z4LOHk4TK4kNGtWJLQvbQRuqeeYXvPtUy1TcCP7mB2/SgsDf5McBXS9KWHEBLstdo1lBiVIQBq2ZBesOmCFcka5i1SNwEhgx8+IHgTVxPd8ffq8IcuDyA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:6a2fdf215f20a73a\",\n      \"npc:cea0ff4a999da2f5\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc05f183b248b563\"\n    ],\n    \"span\": \"Eli signed the register as the Caravan Voice at glass conservatory.\",\n    \"rationale\": \"Eli is shown holding the unique title after Tamsin was formally introduced with it, with no relinquishment stated between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1G79v5mTiFxQg5iVDh49nZj3OFSYMGlaw/fomGbvDajwGzMNcEDniDVNywyo4qkJS1EUzQwXa/aHjx7ctHBZFkr2XqUMuDwrg8Ro/Mjuqheiov3hC4Tj+9YJoHyXrmPH3rUgqCQPsGiUQ1s0CBisQL12rSiMlQGysF9GRcGLakJnyimyzMy47fi3Pv5y3Uta32uwQxHJoLZe4UinoribdpOz11zG8Ntsj1jCCfeXJHYCCAW1/rHfhvRuKShd7aATyBB3s9zPvLIEYgkZo24zAeU4CMgv4puhm4h3BaA2utjXj3I2LzFPraP3DNo4xi3V/lvmcshFf7GRA6az23PyVJbLcFNzscgd24P92Xxd3esbpIgQfwrdv2qVKPs5vCWKftFi3GpjQ7/r1iO1DUxAwZUJQ527",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 563,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 764
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:6a2fdf215f20a73a\",\n      \"npc:cea0ff4a999da2f5\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc05f183b248b563\"\n    ],\n    \"span\": \"Eli signed the register as the Caravan Voice at glass conservatory.\",\n    \"rationale\": \"Eli is shown holding the unique title after Tamsin was formally introduced with it, with no relinquishment stated between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 563,
+      "output_tokens": 201,
+      "total_tokens": 764
+    },
+    "tool_calls": []
+  }
+}

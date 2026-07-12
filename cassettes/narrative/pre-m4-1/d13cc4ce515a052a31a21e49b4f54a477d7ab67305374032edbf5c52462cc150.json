@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d13cc4ce515a052a31a21e49b4f54a477d7ab67305374032edbf5c52462cc150",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4745,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 698,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 266,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1147000000
+      },
+      "created_at": 1783840800,
+      "id": "7ZpID/rflovluwgrjQsjfI1/3dsKuXS9tAL+ILPnHMT76AuxvdlvIxLykipvVZmZzssP7HyZqMxTtQlO6jjaCSqEqhLQQdBCB4w/jSXD5MEZlSSbLZtO4t2FPRy5thUzt0ewvcok9DiuW3FN3saG5jvM/65xfKINF3fMER2HFfEZK0hGNIMIJSGm6iGjRlxxuKF5Tym4TAIhFud0Up1WdiJiMXvAlBN7ocb6oOlS0GtOMd7Z8mw0W9GIk4uB5hz7W1sd82y9aT/8UhAHy40lW38OxzXEK61EJR2ji62k0kiW/c2aiEK3DBq6tW2FOXTBAXDjJa+2c5shJhqSYlQF0D2h26KxpMlX7uRyOLeK177V7dF69jNEbctMfXoVloTXve8xR4ioGvE0eKV10WTDHRr9Uyybyg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vXaZft9IHkqcALzP/dNOCR/+KbPDMS75NVnWI1cwIwWO103Ak6u4cYYjKndBDaZRipsxnyw1cSoKPOVVvNfBSxmwzAjKyhoW5eGZ+hCu8+u++T/Tk1EyQh6ZfYuKJ39q7O8x+8AoGyHK9XR5NBTFNpGotWJLKexpgev4lEFSBwdGxiWEUMw/kJPYodqI8ui/gakjH/ZWA3pB9awuFhqY7WG4TExiPtpnR27O+q07Q8rrNQWDBjzEzfywmKzOvRPccz8ClEbmJi0r7NDa9eZSursJgt0M0lTq3IzQLT1ivTB+/WkO1yUiIm+0j5c/21GVjch3GH1eEp32KvzNWq5ocSfO9qR8fiF3SIjZLgL+OIRA7OFBH6T+sayltI9nDWvVcbWLxJ5MYk6aZMqAl61NbfhSie4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2edd32cf3b85a013\",\n      \"npc:465c0180d80c87ae\"\n    ],\n    \"constraint_ids\": [\n      \"C:be2a8f6fc42424e8\"\n    ],\n    \"span\": \"At salt depot, Oren was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Veda and Oren are both introduced as serving Vault Steward, with no relinquishment between appointments, exceeding the office's single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9IIWCkvBhNf64qjzx/2kK42Qs3h2a8E5vcb8L+Hf8OJb7C0FWNspQroUfRvrzuTdqc7PKQKRNedazsTVgkfTm17kjmHcLFRM/7TW96cYSB/IdPZCDoF7cjlPU7+kVLPevL8J65kPnFyPuzk7wEazTHTDkuD5dwxXV258g9R8sK8ieZcq/lTPNL//4Ofjr3qTE0CayNQfQXXgVOy233WIDgzxdJNQkGFqeL7eokq076wfwPGfgVhaHoqp87k5yH1fmqeSf0iX8KDgVyVcQbupiqFlg3zy8ktqdBTVD5z9EK0qjoQKJMuBwvz+i9wJKSoc/OA+wGDHPrtR468PtiZvdDdE9ZiW7Ex9XGRzG5oPr4oqT8p8u9pNWy/UzpTpmK3Rq6IsKrfONah+WGyrfemAGxR6S/nk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 698,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 266,
+        "output_tokens_details": {
+          "reasoning_tokens": 128
+        },
+        "total_tokens": 964
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2edd32cf3b85a013\",\n      \"npc:465c0180d80c87ae\"\n    ],\n    \"constraint_ids\": [\n      \"C:be2a8f6fc42424e8\"\n    ],\n    \"span\": \"At salt depot, Oren was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Veda and Oren are both introduced as serving Vault Steward, with no relinquishment between appointments, exceeding the office's single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 698,
+      "output_tokens": 266,
+      "total_tokens": 964
+    },
+    "tool_calls": []
+  }
+}

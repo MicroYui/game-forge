@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7d3df1625a68ee4f67188c5ebb8487b88ba3ee8d5aa8a2fa935ee1343dff2d9e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3979,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 228,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1002500000
+      },
+      "created_at": 1783839500,
+      "id": "CViJJkMBN/USa58JftFBmiIEp1nTZNEA42S4NkVl2JxQXp4l6VLK5C6lifqSSgNYg6cLDv6arDKKqebkbi/xSdDow230l3/JgdJnzz/cZ45cIx7spb1j8oqUul8uoldiCEe3EWsYB8qtBmoQi4J6uPYoCvzCFDaErhIJ1+XWDqg1FwiQyXbVdFgcSbIzbyY6ipsJnN6TGaueVwbWoqIdlkDeVYpZtQBD/0+o8XfvHj2rtYwGrx3jTs303LATGRO3Qp1DQwTCI4bMpfWBhmEp6ZUx6Oy33RfTuqJuG+mQ+QBdr3CsKrIAxILIP2fXCW4+zKT11rG0b5sCRc4Q+pH7ZfJRFsVjmhGh1vBdCsN3iVcdB4dznJKT7NzqnTXIEwDdG2/yLUwqdpaWZycRq6AspotyVNS/6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Wq2KtUZJbMzM8P4E87ICGpgthopc5xYCZRHwsf5cmIoTff5EmrBmx0GJbRt/n+HOpACB02p6WOdjwR6La89nupBLfHhpH5V6dEji6RFKdSdjRSRdXukxD30Ow7qeoc6fFVFZIY6YkEiNgAu4aE3ahVKdKUlU+W/UVaO93TSdN/FB/SUAOgoKt8UqILeXs/sIFRByhcwdJ6zMNtDuM9VAj0iJgcVzpt2HrXJ9+WHURCUoilCSUTBeawKGS3Bczc10XASpT7cyg0dexigj25d2SPulyI/VeBesbb8NVhVLVYOkulYHtk1sfHk5LaMuetzjC80srGQp/Qr5UJpdHKAZCa3oxeqOt1h2h5ki0Pvc/e1xJ50fx3Q0/JWKdeIMawED4pNktyO93kgLG1bV+RmwYdSCuR0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:6796a99e3af626af\",\n      \"npc:df596f6d08de660b\"\n    ],\n    \"constraint_ids\": [\n      \"C:8726bade340de42f\"\n    ],\n    \"span\": \"Qi signed the register as the Crown Witness at cargo ring.\",\n    \"rationale\": \"Mara had already accepted the Crown Witness title, and Qi is subsequently presented as holding the same single-holder office without any intervening relinquishment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gkBQTPsXyzfIoufVPcuc+D4Zm8Op6B1/471LRQbb5sCG1qPbq+4Ao5lT8ajS7ZiYyxaO2QOQKKNA7MW3vxu3HT5FqMu0OF8ekMif5xfDonw03jkvQOxhjPdmbImqozxg/xr+YlCK2D6DbQs2v/IYlmPVPM3ueN0ZnkHSe8Q62Wn/RdFbjgXWtU2houPo/ME73yDm5oAFPerCYVnuLTJWOsOh1AVEhDF0fBUMAO59OYAjnntGz+nlQRrtMtoie8YrxmyzVaudR8mYo7ipycI59obMgHnRvwLhGe8Vz1j84u8zBgJJ5ILdrEcvqplu7ZFM786ejTmaHdXc6eb0HmQYYXlMT7EK9Pi3o3DAjn3+prRV/0fhI5RwVd7JAM8wBTHbfDiFf2sTzOCZlrT8qZf/pVCumInU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 228,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 865
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:6796a99e3af626af\",\n      \"npc:df596f6d08de660b\"\n    ],\n    \"constraint_ids\": [\n      \"C:8726bade340de42f\"\n    ],\n    \"span\": \"Qi signed the register as the Crown Witness at cargo ring.\",\n    \"rationale\": \"Mara had already accepted the Crown Witness title, and Qi is subsequently presented as holding the same single-holder office without any intervening relinquishment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 228,
+      "total_tokens": 865
+    },
+    "tool_calls": []
+  }
+}

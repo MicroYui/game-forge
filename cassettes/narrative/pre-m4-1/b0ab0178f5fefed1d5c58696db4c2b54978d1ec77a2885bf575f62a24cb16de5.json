@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b0ab0178f5fefed1d5c58696db4c2b54978d1ec77a2885bf575f62a24cb16de5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2895,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 662,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 122,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 697000000
+      },
+      "created_at": 1783840500,
+      "id": "4urGTisi9EICE7JlCvDaTWkNQs4mX+T6LG/2EUhThr6glXs873l0nqyjD+u8fs4GfUm0LsZGcaKHmwdzu7yLLDRZ8yHxeOrl4RvNw11kVMvtQHqV0nP7futH7tywOvnu945oAmbLsJ7rlGO8sORTC9XNmKscq0bb76Sp1NqiJgeFrSA8QLo73BGuusH4ddNDtd4jupHQ4J4tMSNDUuIBfktktSEMATtOB3rp1oDWss7d5gw6gdFcEdP4YpI3wevHdqeMqCxJEDHZrS/OMqqkk+gCpRmQr6xDPZOrfsh6MDWcGfYk4IjH29tmD06KUQS8PaUyFMXKVUOycUPXFOB3o+gXbfgCmbBfMR/bTzJRd2Qv5AJ9CyDFSVUfmwD1Zs9ND4SSRTtwKI1r+DFAIRyR+k8kYOJfEg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Wvf5wZIDCuuFto3a4ufhxDEa5UjfVfKNjVtGFBcp/l/8iX5WqMLAblyzu3/wAcfswQ/QzlhN5GZ3t9eNFM/N+hXZ7MDEwv2MgPEZmkU0oUij0Cq6rXDDuYmLvmwhHg+9Nokaj+f2+SLyj/VzOwrnMm76AjlUFDw+tjCq9844ncqWui9/OIMoVbcWXtzzl/5Tnw0vACdwVzJF1xOjidQoDRyOJOa2D1Z2JOj/tO8zEtTKxXQiSy9TVHhB3X1MyWMXcUNEINsx8uZkCOxFHvkOwlLTXvQC2DILChsjhVi4D8zK3XihPIb51wP5ILH0mw6chFc8J11UWuH2bR1WHQLTlfyX1qkaBQiZVQXFEG72DLqMB/Zb6egeCoDLEZwySODnVr3GDMDSbopStPO5VOKZbJqZw8s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9d942f3053e1a983\"],\"constraint_ids\":[\"C:c302e387071b8653\"],\"span\":\"Ansel denied the pledge as soon as danger reached north gate.\",\"rationale\":\"Ansel abandons or repudiates his pledge when danger arises, conflicting with the rule that an oath to an ally cannot be abandoned.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rPxhIxzCxNBUBHiIgLo5Hz9WB/1VusULZPaPvMXPNwbwjjr8ErLrpDaDRiajKQox+13oMJC+Z8lZbQNZV0OAPEk7+otxYeTB9B68bB7j3VNz/y8WWl+z5Q9GwtpIQNTO1kVVyw01vfJeTEp1NEMwFLbWeZrHHv2KjIZ491AoAuEC6o1xlRZ7JYZtSaf7M9pwm/2BTcysdk6hnvut13ZEWIz/5Lxok5zZ28VjbuGEG3Douj8zMzNlj9NB/vH1ja/kM4UEGJ0CUE6folXIwLV1UTcrqsEccwLLpJ5CMqaQafFiPgKu0cSapBfAP8RnevChf8MK0p6T3uxe04ZAKJl+1K5YJ+x+2wNqGmgL/orkk6ZHtKwA29aLlM2cAbxAwl54L0AwdVVEzFkH1S/+VhSi+x+gwzL3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 662,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 122,
+        "output_tokens_details": {
+          "reasoning_tokens": 29
+        },
+        "total_tokens": 784
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9d942f3053e1a983\"],\"constraint_ids\":[\"C:c302e387071b8653\"],\"span\":\"Ansel denied the pledge as soon as danger reached north gate.\",\"rationale\":\"Ansel abandons or repudiates his pledge when danger arises, conflicting with the rule that an oath to an ally cannot be abandoned.\"}]",
+    "token_usage": {
+      "input_tokens": 662,
+      "output_tokens": 122,
+      "total_tokens": 784
+    },
+    "tool_calls": []
+  }
+}

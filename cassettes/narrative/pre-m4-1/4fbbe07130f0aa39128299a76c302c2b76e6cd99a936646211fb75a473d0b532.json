@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4fbbe07130f0aa39128299a76c302c2b76e6cd99a936646211fb75a473d0b532",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2805,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 570,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 189,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 852000000
+      },
+      "created_at": 1783839400,
+      "id": "KfAxu75gmEYpmKYn6bLhl9nKkdvmdWdIjfHtZwPKnKWFClQTGntCwhrirLYjWdxZDeHFfrtV3cjM8ixM+br3z6QqoCgAyX59QhgCFrXstwGv/dp4BLeokCdCWYIboJikK64qjZez4oL6ZHDAKXx1l4/jdbi9Yec3fs/XjLAjeHY53HdeoN0HOEsw7W/eCi69Z7x5mVZiLIYEbTPVh2dzYOjNIKeMSr70wkJVHb0mZpYpjPIXvUpPDU4nu/bQZim80e1Ptd2J38blGan8NFZ8H5eBu4lwNSOiWOXzNpAUalFhMae5nlI0wzbxcQWDSPcfVXVvEBL0vBcs+QQce1AQ+Sx8MpEmFlPJHBpxoFDBjToHfNn/SHvMnzFQjVrQwBHCZprDwT1Fced3obLgg072Hm2tf3I6Nw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4TgavxIqrN3UN8u2SJUUHro0PSKl5frzZEph8iYBzybBGHc3Ti+9TPfeFPNzjbWZunhgzVqXzHsdfALe72dshwSa74ns0OnR68E7CTruwG9DoiXGDSVkxEcMjGmG3czZ4QvP2cMBe/dOxf8BTVcIy7byUwVBuMraahl7nFRIlTZAfo7k9FDd8H264PuS3aRIZ2r0srCdj9ZjaUCWHtd+o3N5mCXnDlqK0Lh+qyKW0e340agvQkksOG34j+eB8ED44+vDSZBTUoK40QYQ+5p6p1RE3aZqfkmDymAnjDJXp6TanLC++U7VqxEKkVqwWE7MvneCAioMS31jfg2FdAL3HAKJ52WkCG0TPBZrc6mkzvQKZZnMsMKdg6rQJ6TYZqPjIstpoWG2g9katmCWoHNTQwxY5Ds=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:7f8381b0dd15b41e\",\"secret:3c1b32942b1f3f7f\"],\"constraint_ids\":[\"C:2ec2406f4d36c658\"],\"span\":\"While the story was still in first watch, Ada identified the saboteur's name at signal tower.\",\"rationale\":\"Ada discloses the saboteur's identity during first watch, before the permitted archive opening stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "knRhCqdaHZiqZKPEAS3kYdv/BaSWJ12fEPllQWILRuzu/xLBRpGLrW0Nl3HPstUDivWhsaf0RYen7w/MRQwtILY8pIULwBoh0EYkZtcGf9bTQ8UrKxEQIcW4J8+fW6pVm13H3pXryOlPMDq3o/uCs87+bMCUn9LnBA9jPaRCO/buMXXNTN/1UuE0Zo7BKn5+cAniDy7NyH1+DstSx9h88arua0YlE51AdlklNxSSI5kDSL/gHMW/+yfPGNjkdnAP/2+unq+RVNLdP5zXD4OeeunBA6G5xVlxW3Kc58CjDm8Iq1gEH/rSe+t1ab8Qbav+2/D9pnJybuag/RREMvXIp1xoEAp9y6iMjIp8U9LYbei+UkcA1YK2HZH2VcbN5CW0CZ2Wf6e7mzdGi3mpq6wfNRnpIpaC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 570,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 189,
+        "output_tokens_details": {
+          "reasoning_tokens": 75
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:7f8381b0dd15b41e\",\"secret:3c1b32942b1f3f7f\"],\"constraint_ids\":[\"C:2ec2406f4d36c658\"],\"span\":\"While the story was still in first watch, Ada identified the saboteur's name at signal tower.\",\"rationale\":\"Ada discloses the saboteur's identity during first watch, before the permitted archive opening stage.\"}]",
+    "token_usage": {
+      "input_tokens": 570,
+      "output_tokens": 189,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

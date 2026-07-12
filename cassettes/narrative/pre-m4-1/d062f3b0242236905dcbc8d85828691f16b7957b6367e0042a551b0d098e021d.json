@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d062f3b0242236905dcbc8d85828691f16b7957b6367e0042a551b0d098e021d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3255,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 624,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 795000000
+      },
+      "created_at": 1783840000,
+      "id": "IucT0QG6TPgdxoqCQPhhxqRrSWfCvkNAehO1kKXQqWpF0EUG5ZtuDKPV2mLMxWX0igdCnNR4NuyHbiscPIMct8XGHxZ3zJmQnha20IIkJV7cZkUJ6E5+cRH3YGK+Z0vm//KXSAKH95hpw6YhwFBl2KuqAr0coiMNSK1hnNyzM60+X0AeI34SiLhYEjkST2ye6NAZgbfxoBjgYi44C0q1Kha1HHndIbwxD3qohH88MfLZ7wBoGtNWqM+U6seG2wg2nZreHDx2OQrvvfF5Hw0INoEZgtce3WVG/xCghlRMM5FOyxDaQWPlwckWLjvjkrnjg2DDe49a2sMST7IxJVe2YfD3skkTuK3Lap+42yq/Rgyxdz9DqN68FIKHeGTOzhlYcSkfzM1mehtbgas75jSXazz7BK696w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Ba9nljgdKw4jD8pTWjf3ITpanwdSLR433Y4FQOolhmnCCvSgIh57e8AXT9gSyyPOL1snsnmsa52D8uBhP7OrWpcJVV+nLijJWtqkJXKclqGmMhFGvhJ8QIp+KksNybljxrgpL+K59fMKf92uxv2A9MCPrF+84O0zkel6QPzORKhL0Tgy93RexTzzoQr5lM7fQPY/rei1LU4LI9KdS2oPa3bdLyO9IJUQ8ahsN0h8E0ErXVWujo8J85p9H4XFH9ypJIuZU2Wcrh72WspJc44YtydEeW8zC0jNVWvxP/aF3OIrIhWZKvtGCZQNGJ2o5oPQHj92gEYFNAc7VKFESptKLd8Fm2FlwOKoynh66vQAyDm2PpV+H59Xtcan4l1/NMQ37AbdxTrVxiVA2h/xTmlyLhvMESY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:001f0f175bac097b\",\"npc:214a20078ea30ebe\"],\"constraint_ids\":[\"C:bf5b21d34a8ee729\"],\"span\":\"At river market, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea, members of factions that do not coordinate operations, explicitly cooperate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vpKqBHy+czRfhymXcvB5k7ZIXJYiwsv1SPlBt4nQx9WwFpJsdIj2gmZTBFAToQqKJLPGccV0HWAFsH1N7OEx4Uz/R6dy5IGC1vaaiiRrMjdzKbqkhhEzlANXBf3m5JkeCK85gB4DxbXcwtRUbpfyd4J83yIJynfHVdYOxIBD7O5SPq1IqTy+calzIeFTi89CZu8XYoR0BLwqJu8ukTdynH13nKIWm2j2iZYH9Kkjg93Ds/XN5kP4I4XR42JK5oUJTsA3FNIl3J0vJbXljyO31Cos01Pp6S8k9kKrDyYqxIH7WVwcXvPn9KDTi/MoMxcX9IfXzKLKmAukvvFfELwHITkeADUGQm/rnEoZ5rYp7Ts5ZFtMtzrJN5O/yYVU1pAZeSgF1hULWC/1DNLQXM+pHZBskHde",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 624,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:001f0f175bac097b\",\"npc:214a20078ea30ebe\"],\"constraint_ids\":[\"C:bf5b21d34a8ee729\"],\"span\":\"At river market, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea, members of factions that do not coordinate operations, explicitly cooperate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 624,
+      "output_tokens": 161,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

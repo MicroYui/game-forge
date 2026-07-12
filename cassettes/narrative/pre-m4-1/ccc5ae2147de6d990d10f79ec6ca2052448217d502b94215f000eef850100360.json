@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ccc5ae2147de6d990d10f79ec6ca2052448217d502b94215f000eef850100360",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5073,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 708,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 225,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1029000000
+      },
+      "created_at": 1783840400,
+      "id": "hK+NZg6fnmDg0go/RIuqwh9NInsSrLbzr8Tz0IYuHrDS+WdwYnmZEkAg7CIwdHWwxnNvbuPw+YYC6gNCi2JW2FQhGK5o/uD1JYg79CAZ7kMQJiYQgD+QE+2iAWQrpEnYVQRSINc4QAQAPQ0zQh2ELAlKKD6Bt3X+J/UiOXj7gmFYusLyedN55U4Cz6Wa3SUXjPvdd4QdJjyolGcf3W9iLP87zjqNgyQ5WE4/WlddHJawho0u1JP80VXCshWcLRq+y7QCub1/r6DXqBQh5Y/VQKhKYekA7d38msv7IOAPYQg0U8AEcSyRMguox9Gc1QEdaMKgGvQ51eW32wCKPKVQHOrrvI38oX3FRnC58/lWAOJi3mmQeJA65ATrAXtOUcNJqkY7f2JWi6fhlMeVFQMkoXqmStRmcA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Ji4ZAOE74XWOVewO66tRWoj8txXFOURwZrHjzTLc84rlaNNrQVV+LyCqg1BwURPS7nQ2VBdOr2qQxOkt499JMEyJv1zh5d3+aOStXs8g7R1ZpmccSeBEouuDId6TW24nHQ3KHRmzJ6YlQN1A7uerjsbjE5YP7aLE+KYB8ZleALPNnaWDG3COUvj7mgS6n7Zd9S7bIOUv4fO0f5C8LPy3dCjdb+OBApjGAw23MbBGfhflq7OWm02QvRqdbESHgKKeeBgv2KsgM0UL67l0Qj1EM2gPqlWS2ZoCzweyFnhGJZUSaSqWO5qWR5kvHa0A6p6s28jLKtH/OG2CKTqmrZFDFKTu7uDzXkDopSAjq3kCNf0xBCmqJZPbmth5D1+wA3HOBY3GzHpYpMbPsMb/T9qE8ebL0Fw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6c0d1da904d4e41d\",\n      \"secret:e63f7c489c494980\"\n    ],\n    \"constraint_ids\": [\n      \"C:2c4b90b517656b5f\"\n    ],\n    \"span\": \"At signal tower during arrival, Tamsin told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Tamsin discloses the hidden heir's identity during arrival, before the permitted archive opening stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/qp9VFHz8TMPwUBYDERRv9RmXA7gwU9aKoN/21Gs2dfdX7FIpOtJO/dYZ5B1zzN1wNG8ByjpzLt1sXS+dpSd2OGA1cQeQTODZiVSjNEYkvIAwv+2WrVH7cdNjnoxoHobWTJTEubzMPW+3eKl3dIgHVT+lAQJQi7Qgh9bVCPLKpAZEaHhWn9EkK9rvlb/6aketwJAni2I9sQebof+jcbOTfcpBfq9u60vxcIy1FnwngbUvL1rbP2StJeS8gTH/jJX1In0qC18e/lKWzKLTnY2+10nMmA6mjQ650A2hwb6bRid+rCjr4/pnSZjTWhKD2ek1xSPtzQIcx+BgwH+UwnBjNbFDt6oO6ihq7+ckU8CJHiFxCzdlnA8ggjVUoy0KzdvI3SPYQwzfT0dBfkW6GbPj5c8mEZr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 708,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 225,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 933
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6c0d1da904d4e41d\",\n      \"secret:e63f7c489c494980\"\n    ],\n    \"constraint_ids\": [\n      \"C:2c4b90b517656b5f\"\n    ],\n    \"span\": \"At signal tower during arrival, Tamsin told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Tamsin discloses the hidden heir's identity during arrival, before the permitted archive opening stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 708,
+      "output_tokens": 225,
+      "total_tokens": 933
+    },
+    "tool_calls": []
+  }
+}

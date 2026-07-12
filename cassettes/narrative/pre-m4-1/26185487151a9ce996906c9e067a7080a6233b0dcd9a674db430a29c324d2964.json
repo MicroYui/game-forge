@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:26185487151a9ce996906c9e067a7080a6233b0dcd9a674db430a29c324d2964",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4024,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 562,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 791000000
+      },
+      "created_at": 1783840500,
+      "id": "+L6oDnrgKhviLlLP1ssLEA+wxK148RfCSU55kWTw06PYuE+kddUzubj6Ig6dDPCtxcOODP/xKfXvtDecDEQbzfo8QSdfo/Auew5FmlPVLjukQVIplIjNv8c8GzOWFEfxHkFTgdsOK94hN5FpF6jLn3S524KeYLKgGWx32PUuOlkYkv4zjk4uDapad/AcPaqWjaJXik0bOFK3h1NCWswVXPqO55zw336pjDkKUSx2YnXNy6tfgLj0wa8kXiNJuofbJrRRFXigni0uzet2B9VfWVtl0mOLd9ZqCfaHVyLlAhPx8uHYQ94pJln9/ArT3j4mOwoYFephaT3Nq5UIRIvX4fsrU0Utr78mRDCeiAvZYOnH2/GZQ9GYg/eCQq9T1nx191RRJI30EWyDlgmu7m7fzBxdaMR4qw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8weHTvmHZilRGqtnHLI3MpL4K2OYKx4OpqzxJnGTRRnktp79jvU7hVxmmgVvhw8iyFxFi6/dCdc1BojuyVnlPC2ErOLSThYXXJD1rrKyIwqmLVEZ5gv6ZU4qhw1KtElNtHN1Br6W+GthUfxfv/tuuudwVLzlEOiMBFRoOlI6xIrWsKdao4iJIyu5kutU109EVQeVu2uf7ksFtOLHsxWfQd7g0OknpdV/BmRvulEGv+xJ52PEFth6NdMnMBU+s8zKxHBnYQPEBU4NOgdANV7tPbu0YkZG2y2242RsE+otzqn5VUhd6dExVQEdiYK8NTGX/YYIOSCfMdVT4cN7Eaw6x9+xYGQqzGDsXzGACKG9VU1hB9wx5u1EWUq2ywKMCg/eHgouSMbKVWaLIOmKo8e83OI/KRs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2cc9a301858a033d\",\"npc:82160c2edee0ebeb\"],\"constraint_ids\":[\"C:ec427b26ce54b0bc\"],\"span\":\"In caravan court, the council recognized Tamsin as the Harbor Marshal.\",\"rationale\":\"Tamsin is recognized as Harbor Marshal after Eli was recognized, with no relinquishment between them, creating two simultaneous title holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rbuNL9Y6yVfAtUZfQjycWbpS3nIWjcguHLBpDIoPit9JDkUMiqg6oVXc2qA69uttne87FkpaQ/SuyXJnmBoxD5hP21XLfq2UKBLWrYeEPUCpIeWEZvqx/4KzunuFp+PkPmNxy8nmUIwg08+DlJw6bvZ8TzaKItUd5yk5RsHVMtYgr0TOlHttsuweU627KyM4jIebHaoIJL+YkKTXVb3evn+WqWKYkRVkE/NbHJd88zV2aL2KzBivAo46eyswNIGz5GtcfaKoQTBQCw/vxHhlAzrCUVZp7o+xuR7NENVCoHJpHBcwsnGujtaLHMZusqiQK8t22FgN2nqhqPW5HX+ol2GixzbQT7XUXiSO9k9pE5O6NGkZcBG5uG3clNtSDElNwRpZdXMvKK9r4MFsWqZz1p2B0cnn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 562,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 732
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2cc9a301858a033d\",\"npc:82160c2edee0ebeb\"],\"constraint_ids\":[\"C:ec427b26ce54b0bc\"],\"span\":\"In caravan court, the council recognized Tamsin as the Harbor Marshal.\",\"rationale\":\"Tamsin is recognized as Harbor Marshal after Eli was recognized, with no relinquishment between them, creating two simultaneous title holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 562,
+      "output_tokens": 170,
+      "total_tokens": 732
+    },
+    "tool_calls": []
+  }
+}

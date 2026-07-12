@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ceeee715650dc780edcac4c3bd79e3931d38d1169b9a61f39a7dc9d78253e0e4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4301,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 687,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 230,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1033500000
+      },
+      "created_at": 1783840300,
+      "id": "ucnpwrSJU/8ox2C0lAboUYHcphLW51T5AejIWICDqp8BMMfy+xhlM8l4yE+Y8qiQyXM2b/btpqOcQpr2mNvlEFsTdAngSqO2eE1ianOW8Zbq/lqNM7fbGsabFO+nfU22+8XHrBtevxGGlQggdBIMIqRkMe7jhSPyAkIboPmJBv5XqdaN/Jak9skIUh/8Hcy80y56EoshXbX16Dmr/yLxjE4iGVQgfw9x0HcSfuQezjlCPj4/Pqd1k0ni8wEBt8E88Ypsi4BE6OXBTr7UoJc7FeJu/TTLhXKc7bvRAp3dmkjIUWgW0SrgKyk9aQ7/0mMKlEtLTLqnSRQQVohjGgkVMN/CZC2Oim0wHk3Ci98gwAHfr8dXjNaSdikioMqWqZI1nBrqyxorYBIxeliSxeiPcl4F1YluUw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CzvXQ3mpl0OjXGONeC5zm/Njpo937qT37VvrilqIDwPD5rTCiNKbl4pzcFz/herHmgMM7YKVJ7+WmFKuU6T0Epxuj3oWqsB3R7OlYbtcSjj/wMNk4ZN7TCy2CQ3Bdv3zF1h/56PNL2vEbl7gnDcszrF5uivjKg9nk5fPk/q/FNoWWiGaW4kG93cJDKEfM8YWC5fM5eayyha4IGPKwAlJWNG1vg9ZxiYH5V0PqCdzPmm42SWTs8yzG61X1MN5ev3vzTp/dvUPlZQFy2LCXM67K889xsIliuLXtZD9vCHD0g9gpOVMjr6YmSlj2dRQeudNP7e1TYps7DFgH9wlee2SmzmkzAFsAbX4GhOV58t6v/pyjY4YmCeOClEvYpJA5fwNxTOSCmxzZt/dYLO9cCXfuHLyQfc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:105fb3ef08df758d\",\"npc:ebb6c9eafeaca78e\"],\"constraint_ids\":[\"C:995e372e6a4f3e59\"],\"span\":\"Lea accepted the title of the Warden before the assembly at orbital concourse.\",\"rationale\":\"Lea becomes the Warden after Ivo registered as the Warden, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "d6vnXvhe64vrx422Vv3DCziv0WIWPxDZsidDfvEkMz6ylwUBoCFxPCpH9IBw5ajTp/4lx3HpO0FBaEn+R43fUzw3To7/yVrpsTZFz/r1xUUWtNzfnPNGcsTAnA0PspjoI90O8acgboUFqkohOzhfJvfRVYvVrMfeF5L4UI50E/LFiR6KZUkFUbdnKY+SHhVCW5FpsK2KiBaFHsWxmd8zcmTfetwKJLvEeOxSIkiEi9C+yFKHbEBJJkbtSY0En75TsyqQNPr9wrb1L35/z0elnv/ehdgsQni9gOO2tohScptOqkM9HBvCp++MNtsFWVDupK2utJxqiPwCFBLbgAJrXiDOpF8Wf2V5q6F+/+sblHileJAwJ0w3oRAmpk60oWBAese2sg5Tb8+y4yHcoY0MNhqbftyF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 687,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 230,
+        "output_tokens_details": {
+          "reasoning_tokens": 113
+        },
+        "total_tokens": 917
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:105fb3ef08df758d\",\"npc:ebb6c9eafeaca78e\"],\"constraint_ids\":[\"C:995e372e6a4f3e59\"],\"span\":\"Lea accepted the title of the Warden before the assembly at orbital concourse.\",\"rationale\":\"Lea becomes the Warden after Ivo registered as the Warden, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 687,
+      "output_tokens": 230,
+      "total_tokens": 917
+    },
+    "tool_calls": []
+  }
+}

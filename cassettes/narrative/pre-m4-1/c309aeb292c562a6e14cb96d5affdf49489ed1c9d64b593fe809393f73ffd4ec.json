@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c309aeb292c562a6e14cb96d5affdf49489ed1c9d64b593fe809393f73ffd4ec",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5666,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 658,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 869000000
+      },
+      "created_at": 1783839700,
+      "id": "46WFu76U1tFsyh91cw1P1+6CJ2HxIBLBR2fKulyXPOSdLmDoKB1TGTJEiJTAb8Bc1+8ykzYS/7rh6wJ0GHvkY+InqyE+WBvf8ksh93aZtm5ijqTQ1xOkxQiYThu1Q+PlET0to4+bLPMN7ENcITW6xtkm3FCfaPxqTXin1BQCNYfKoSeFmRhMav1EXAPfCEYy16d4ig61YH/RmQdwkj6uQ+oRsGSGEs2NJ+qiJckmvnK8i89Cc1PlH8548XV0mfByW8Y2DLELOpvxrmCARJfwSvJnYYwlFuMNF646wJAcSxUYNArK0erKKRtxjg00PD6IJbLDXK4xLAa69IsLBsRj2zwuMlDcs+DEmt1mk1EbPQBXzuG2NbQ10XeubZUL0Y0CwQiAE/5qmyyRct5PIHey4ebn03StSA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dcp44dtnfB8doR8OgU/3qiPOv5GRkHL8pI0OjEm3a48LWWcpeIy6liPMZGFSSMarFnjOn+MOwOSVFuX10vmQz73HcdemdWTUanmEhlFFKa0ZKaWigpZUwWzLDyKiB35F+FWp274popjAWZRKi0jn8zHETmcOXLszMe4/7GP7CRG+aWi1/sXUm56A72zoBa8mRav0chX/AwF/TRMxE2l05lKPMKSajt6n7XhzUjaiwW6sSbFSCfb096KVFqIZeXd2GcoRM1tpuuOUJR8d8kc73+gKtYUZ8ijgxWedo7WKWOL88kck2wrDI9IQWbX64behbdSxqThQu8//7GF5fPkM2SuNv+8auhrrBL0qpx0WnlNojL2QIrRU+kXklLoMujL6bDgvpERy4LMbRifjZJg1LPlhjLk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a869adc2a0e6485c\",\n      \"secret:23ac67f14842f2ec\"\n    ],\n    \"constraint_ids\": [\n      \"C:3355cff54bc6d897\"\n    ],\n    \"span\": \"At caravan court during trade council, Qi told the room the truth about the witness behind the sealed testimony.\",\n    \"rationale\": \"Qi discloses the protected witness during trade council, which occurs before the permitted reveal stage of crossing.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eXtp5jOMlQRmtaha8811ij/kZFSSJmRzglEzUnrWBkwjB0PgEyb+Y/r7obNzPp5CThzeT0No7rXfCQ6R/kGX8CrtHyhdhuZ2Wx9t9eztLJlvLlnl3NHwulrP7X+UDUMXu06PsKxS43w+8VFHhVJLAJG6zPv4NwgslzTA2rBdqBgCf10LgTGXd0nBqwSwA7P50RRmXFuNaHL57YIpvozoHffXWc4CdXks83tTmQ0MIH1jrgMgHhe3mmCHziPEaBAMivXvxaUeCUPZm8tNEfAIPFqkymg8qao2jq+YyeQJ+oh0rQoBBLNkkrQr34N8YYCvT8dHwhWxKBLXqrLQAzELfTUy9+1AfhRbqT8gE9JzukqVO1piKlkvB4RcWnWnxy3L4wm9X6PKoPsaQGNJJnIBS+vR0ERP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 658,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 838
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a869adc2a0e6485c\",\n      \"secret:23ac67f14842f2ec\"\n    ],\n    \"constraint_ids\": [\n      \"C:3355cff54bc6d897\"\n    ],\n    \"span\": \"At caravan court during trade council, Qi told the room the truth about the witness behind the sealed testimony.\",\n    \"rationale\": \"Qi discloses the protected witness during trade council, which occurs before the permitted reveal stage of crossing.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 658,
+      "output_tokens": 180,
+      "total_tokens": 838
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a14f22aecff872baf1be2023788b41be81cefc28060906b97c84a1085a21cc3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2925,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 527,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 137,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 674500000
+      },
+      "created_at": 1783840000,
+      "id": "mTFEFZo2oI2Sd5/Fqq8sjJehDR7FIrw8NGNaFW/afsglGIxU8kSIvxJFx3Z7zhg838/uxcEOE9Y0zMg3TrL30TrHoA9T1tmPug3OE5YznEsLcTBgDZs3BZA7+boC8wRgpbxNCJo+G8VwAOWfRA3CiIRFXy9yc5+rCb9fWG7sRGZsh2ZLJWRLXTJoIbdw+3W0RpZAwP3GQYBCE59Xdt1vs84ttrUt4xlxJu8kfbudvmaFkKzXogyiR6hMWOvVcpY73/k3Df2yQHYxWj9tevl8YwA2tcvDr3pTacYFNmV4/5RPV9anjlxRHGpeynIH7fbc4QPnI8+xjyAywAzEyEAm0khxA+0ETMb/C2VhpXfnGfwMISxwjcTJ4VeURExx6wu3MKyZ4OXf3LsjXqJQx8B6YV7SOOhmWw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EL3HBOwRoGMh04c140xj5wHbgM8H6DeXmtjR6xUNP8lHi+YG0zbSX5H79aM9N3bDgt9DiUpuyPJ7BOUIy/9RTLeR5nOn6J1tY//xPoukHA776zfDzwnvGPuz3gTAfbFIUcTgabWYkx6X9b6eKWvaUYNM/VJgYC8tYujf8JeuK6jpRaDevkxU+1+XRmQq2ptIwvk95FiW6TIyipKCGctkaCe07gd7FiKoSaAbBcqN6HFE37qo+dqharPH7E4wZVMsjdlFOw/R3Bsff+8lRtSVsluXptE/MoPBoR398osdCtY3XSlo/QIc0nPm+SeTp7d2UiMvjZg0bjJE1Tp2M65wtUPpgRTZ853VEgIUimq3SSDBkzRA8KwPqF3iJzM7/iZ7xFSPD4Z1mI3g32CgsNREhT21Y5E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:cdcea11125a1e77d\"],\"constraint_ids\":[\"C:891835b01b23a827\"],\"span\":\"At observatory, Noor sold an entrusted route to the raiders.\",\"rationale\":\"Noor trades away an ally's entrusted route by selling it to raiders, directly violating the rule that she does not trade away an ally's route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mSYoMuLipnVhMRSMGqSgvUVrLl1KShnlKpsucm0NmaK9DY/x3u/9vdDdhaJVG5+msoofvw1BAlQf/iCOaD6isCQvAArtPa3AbNNPZcBV15f8Efn3C16Ld73e9r5TdZXEpPiBkQXCnIlpQVqgzlDfh8+plvCpjBBkX4dUu46jD6wplIXbNa6m6IxZk0av6ktqo9PB55vZIU0Vg3NKu0wBAxpPdQEYNBAMDcEe9NFkKrwuuYbQ6CjMdFV/yi3ZIYIy9A2uYrZ1FlerNxjzwc55Kq7b6X1diG9E4Buug6XLiFU+p1u8FCFPD4bR7pHnI9INdEW6GBcaK0xVVMwxvpEJQxBzZL8s+JWSkN5WhsKE21ugL8V00PUpa3ZjMSVvM6Qk431TziLLac9tyqBdnFEldGCxzFFx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 527,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 137,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 664
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:cdcea11125a1e77d\"],\"constraint_ids\":[\"C:891835b01b23a827\"],\"span\":\"At observatory, Noor sold an entrusted route to the raiders.\",\"rationale\":\"Noor trades away an ally's entrusted route by selling it to raiders, directly violating the rule that she does not trade away an ally's route.\"}]",
+    "token_usage": {
+      "input_tokens": 527,
+      "output_tokens": 137,
+      "total_tokens": 664
+    },
+    "tool_calls": []
+  }
+}

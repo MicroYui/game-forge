@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a48c2e7674e57e56454491cbabb35d41fb9b2952267b3abcdddf6b17b3607aae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4908,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 519,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 312,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1195500000
+      },
+      "created_at": 1783839900,
+      "id": "ncRwzxYx+/kBNamYYXnS4Pfl0lFXu2eG2iK8dIieXLIQEEawa+3dLfrYXvgXXfaj+/N0g9Ic+MHJ/mZJ+D0fo1bdGPbIz8Yf0dcCJl42f/hvouXY08gC3OkN78WfjrSVA4ZUagAWiCmanXqYD1ivIp7/v8A97KP8yQWkhZlTmsH4rFZnw8ynFHjjXtgs3es9Y1eFC5jB/qp73WsLjGbl7VURQd81+QuTcjiP0ztnQwGiWDlbjLxdeVUHVxfXft2WddJWp5iFCXOoUVVdp9Px+5b15rvvaBQkhHxZCJtb0xnilpWKswakzK3XQHxsakJXR7cJgHZJMVJlhOJllr0LW1W+qWhJtMQtvye9NBeWZ/WXGOW2kq/nUoRCfxgzjGA9lDh1AoPHhCayeyFfyDXrAYNU9Xig5Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FEWEeYhobeWPQJsfoTuEOlZEWo6cYhk9bcnij8Y8lev+ULop4/qXuzn3vF4lUkzhMj+kHvHtV3yg/nhCMnlX8Ewpy39O7qNlLr7yITMxtLUAprVjZwLB1eiZCkSoC5TNszX4JGmQHe8Jb8y9u6Fhj29xwx7UxYORYw18PxiqwZzywfMwnV0QE+dxeHJUJof3msB9M0EslCspsjDn2yWbRRZP7YBgOk19zMfHsbcsWOij/XLVxomnKrYbVL1+M8I2/0ImJiAEEZMCakGXildshXgQrW2ifJLXUkT/E/6nHnua+x2RMnJSmPuJTuvnNwP0O9zb47BBHUXfc7uTu72dG2pxamm+BSiW9YiWryXztK9Q0CZP3AiXM2gBnpA/suMevoOiUx34d+CAcAviTWe8dwZLFCU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:fc4d94440bfb46c8\"\n    ],\n    \"constraint_ids\": [\n      \"C:9f4c76941dcbe996\"\n    ],\n    \"span\": \"In old mint, Iria returned the reserved rations to public stores.\",\n    \"rationale\": \"Iria returns reserved public aid to storage rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0c7463bfe04ff0e1\"\n    ],\n    \"constraint_ids\": [\n      \"C:42fb6f3e6d9b972c\"\n    ],\n    \"span\": \"Ansel erased the public ledger after taking its reserve at lower court.\",\n    \"rationale\": \"Erasing the ledger and taking the reserve conflict with Ansel's duties to safeguard public funds and record every transfer.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CO9Dz0ivDX4mRtUXt4OMbTGbGxU7eAXCijIbLl0eavSJxKuqo7vX/bfV7QXb9rU+RX2g40F0mABZfziZLyrgV8Oit87cJBcbdDFzvgvV8Ac53I1yB1YGMX4tXTDT3u76IIEkq+xZwEEPFGoZcG1u58ujWOYZbKvzvUlmWnG9WO07hv19xkWUSEgxwPI2+NuUfTT6ezXtTcPAaPpUoprqw740hp97fn+ZrYybacx76c2nWlgwej1d2ApgNaOgB/eGxnwGuBp9FSpqKTo+0x8YV/XLWXbT6whIWtTm92xrtHqcXJ7yMc20JTy236mobqnGUreLSlOxrpHzgAvb336yIGhYIwbqWZiNkQJ+gnlucGhcCy4FQ1kLTce0MLmU+LwKqrBXZ+Qo91rG5217LNiRV6HlEhu4",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 519,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 312,
+        "output_tokens_details": {
+          "reasoning_tokens": 89
+        },
+        "total_tokens": 831
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:fc4d94440bfb46c8\"\n    ],\n    \"constraint_ids\": [\n      \"C:9f4c76941dcbe996\"\n    ],\n    \"span\": \"In old mint, Iria returned the reserved rations to public stores.\",\n    \"rationale\": \"Iria returns reserved public aid to storage rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0c7463bfe04ff0e1\"\n    ],\n    \"constraint_ids\": [\n      \"C:42fb6f3e6d9b972c\"\n    ],\n    \"span\": \"Ansel erased the public ledger after taking its reserve at lower court.\",\n    \"rationale\": \"Erasing the ledger and taking the reserve conflict with Ansel's duties to safeguard public funds and record every transfer.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 519,
+      "output_tokens": 312,
+      "total_tokens": 831
+    },
+    "tool_calls": []
+  }
+}

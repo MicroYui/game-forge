@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fc63353ad41ba119bdd686b13b04fa91c6e71b69fe2a4e95ca3d0b67e75ace53",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5337,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 714,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 248,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1101000000
+      },
+      "created_at": 1783839200,
+      "id": "AltxO1NtV6MFprCyhS/hyh0NO9cVyCqf6TpCEOJrdsrMoutiEAEDOPmIj1EUWawPXGeclLmsiFgJaIe29/kW5hxqoin3pruGXRJyx+Jtta9Pdo8HHjfK+hw9FbCtaX0nPqcHZE5zBmWsUxhn7J0LuLGpUNP3wXEGlyi5E0F01+pzvljnbdx9n4zzUc2OeMryxhJ1SDSmsAOJwPNv1JggIyVF4bfF+yKAv342iDuuU7u3BTFyGq8tG0b5FRlQ8iaICGed9Hir5ZCETG9t4rjnvGFJi1zvZ3r+t88h06kZyqGTNtzwpIB6Y4gg2nm34LIMteAlq/a7IY+DpTHuI6ATURu2rx1SQmAEjUf7KWIFu/rf4deheXaw+b6H2ENAwEUMG61JaQnvang6oLdbYo0UJX6rmkGhmw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gkXN64qR/PpvBEa36hKThzNuRb4R69gJyElxhOa3AIXUs0Bc/xezKRfhijrkHarF6Abh3zyZl5W/PKLY/GX5S8XFba2igM5p46rBwA2T3e5PlK2AeanGkpc1mFeg4BEIXnL8IXUTgfpAKRwl+O64C+tc1/GanlOY/hdcgXie/0xpo6nwVmgGCN5OUsBNqkSEF1bcnJltv8XctwODsvwXDd4E1xSkc9UFJN0VlBa+Ns18QyGdyP08VCX0wiliVk6ZPknvWD3i6z/L0q2AkfAxFf1LEFfGoJ04r4P9F5bxtfsDFuUlPLOskn0G5VHIFGSa/7vs3UEr6TruPubKtTgQpWyJqIilBHx+1dfXkjD3ZzcjCJhouaN+nfmG63uCABDQryvI0jayJIxGOQQouSaxpLY2zY8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:40866aa6a209332a\",\n      \"npc:654ab06199aa1d0a\"\n    ],\n    \"constraint_ids\": [\n      \"C:9b92cc4253d5fd86\"\n    ],\n    \"span\": \"In north gate, the council recognized Mara as the Harbor Marshal.\",\n    \"rationale\": \"Qi had already accepted the Harbor Marshal title, and no relinquishment occurred before Mara was also recognized, producing two simultaneous holders of a unique role.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7d7SUK7XZ75Iv5Q3Xpi3DFyiX9Icsf6SnNlcDLq/UtELxA45eU0acb5bi/Oz6Xm7gs9ZRtZg+B5e4335QGw3I+Da4Ee4RryOg2TMijZwpYX34MqWpFvqD6/4a9S5lA9JEmjcPiTU8uTHtJCnFNdXdf22er2MzneBnSFOzg8UXpvkhga3WWTyHZvhKtbtvbDHpHYeX1sBkhGJ67rDTBCvwXXTYw9fR4f862H+eStfuiJtS4i+nKISbkVVfwusD6Zl4a+jU5UMJjjRpsm0xeePEBviYNzBKbxgFrHaq6xTyZO8eO+OUH+pRyUa0nu/wLSMw1ULAcT3hCLPWfsO6x3zQeFnOXI37sS8GwOpBjT4Xp0tpC1hUHEzt5EP2DrcOwJ0f91brJGD890huQ6OZbcpSvTyxs+h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 714,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 248,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 962
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:40866aa6a209332a\",\n      \"npc:654ab06199aa1d0a\"\n    ],\n    \"constraint_ids\": [\n      \"C:9b92cc4253d5fd86\"\n    ],\n    \"span\": \"In north gate, the council recognized Mara as the Harbor Marshal.\",\n    \"rationale\": \"Qi had already accepted the Harbor Marshal title, and no relinquishment occurred before Mara was also recognized, producing two simultaneous holders of a unique role.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 714,
+      "output_tokens": 248,
+      "total_tokens": 962
+    },
+    "tool_calls": []
+  }
+}

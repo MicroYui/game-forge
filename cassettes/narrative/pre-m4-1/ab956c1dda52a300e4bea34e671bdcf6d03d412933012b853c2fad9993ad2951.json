@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ab956c1dda52a300e4bea34e671bdcf6d03d412933012b853c2fad9993ad2951",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2944,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 704,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 793000000
+      },
+      "created_at": 1783839500,
+      "id": "sGhUlrFdgP0LTv1ppmxnIlyuM6jpnpomIuiBURluSrBHsHJLUsP6MRC9KTreMOKbSVNAHHJ373YDuh6DjWR7r518S96I5rD6OFvYfEvdZzI2MQ7ClZJ4ED2p92RJGflKlK9d/O18aC5jbShzsMFa8dF5+bXjssSI5ixERmIF9fpoc92PAyY1uWAPz3r83ttoJrY6EMi4GF8Xl1jZFFd70RxPJSMlXe8nkjgBc5B6EZ9PQolxloiAmEfp4sKDl/GxWkIc1wh+Ed6UUqQZFUE+CBgVuUi/ivmThTeFMivDv8YTjunDlhD7mdinQvmsi482MW0FQQH/ctdDeENsoMvqjd7tmAo4gdiifTgkilziJG+KLiV1fOS1tTUCHEOv8T1laMpgTUD5U4ATmRliWs/2tbkhAcwKOA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Tz+ZRBSGoM9NPovS7xfS14kzK5uEgsMPL05DCz4WcPAQR5Elp+hqemvTpvbYhOtKcHeA1MoKEE0yzdsk3nvCrGChyMBUQfUSdGjFNo37wajUoRTtAabjcVoUjEW8Ab2m1U5zKf1f6+lf/tw806+UqVrmCKOykoWuITHBu2oqe3KXcsqn+1eqAnD2QlRVWxI8dhtTSTk7MZ/RBhdtf0808eNbw9qpWRhsEAaY1GPlOmmLgr6IMJbkwic9s97qm7ACO6KbmmyO4YZSw63WmfBlrEJ9Zr43ss6XG2aZj4gm7/fMwRdcETpVajYzhaNWkllzKLiTcJkgxzjHpazjpEaBViFEnhumOR1tW9Y4wV6yCNS68Zn3c7JqQYx6YTQfbqeURIzoNUTzM7DC8lJVmTH3KbhGnt8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:36a37b2db80c008a\",\"npc:a4792b3a4f635af2\"],\"constraint_ids\":[\"C:1a4a224990586df0\"],\"span\":\"Mei welcomed Daro into a shared command post at observatory.\",\"rationale\":\"Mei of the Harbor Guard shares a command post with Daro of the enemy Ash Fleet, showing prohibited cooperation between explicitly hostile factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "D0y2rwpBSQOVkuYu7KmMgGdDsBJVwGT9/bcDs8XF3kb2IBg7t3njihHIqD/+8b0qOHmYBa+Xg5ZkDrO8iHZMVuZN9D7xe/BeaC60TV+IVT5cXxZtyTRrSOGHybVi33InWYvefIj/HhenrahN2g5P88/tNG6LR2o+1Yc5Q1+JJo2T4b3k1EMuuSj1onjjpZpeh9/oOgKGUp/C0l1G2xpnjf3xOdVSGHlweRIBqdgM7CpJg2ey8mEXVG2dxASWxFP6Vr0LsVItwt1d5Z6h+cAl2zluS3509Hr1wVCjFUCiAh2L6WPsck6z2AuvkgIdfaDvaTgjF/hZqmetZ5NBsi7uWiRa11Acbs2ImjelYDzERu6czEzS0upQ4WZrzqwKL/LwY7MWddCf0hEXEF+xp26iMTkAo9We",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 704,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 851
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:36a37b2db80c008a\",\"npc:a4792b3a4f635af2\"],\"constraint_ids\":[\"C:1a4a224990586df0\"],\"span\":\"Mei welcomed Daro into a shared command post at observatory.\",\"rationale\":\"Mei of the Harbor Guard shares a command post with Daro of the enemy Ash Fleet, showing prohibited cooperation between explicitly hostile factions.\"}]",
+    "token_usage": {
+      "input_tokens": 704,
+      "output_tokens": 147,
+      "total_tokens": 851
+    },
+    "tool_calls": []
+  }
+}

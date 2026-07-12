@@ -84,7 +84,7 @@ class NarrativeCorpusManifest(_StrictModel):
     schema_version: Literal["narrative-corpus-manifest@1"] = (
         "narrative-corpus-manifest@1"
     )
-    generator_version: Literal["narrative-generator@1"] = GENERATOR_VERSION
+    generator_version: Literal["narrative-generator@2"] = GENERATOR_VERSION
     renderer_version: Literal["narrative-renderer@1"] = RENDERER_VERSION
     oracle_version: Literal["narrative-oracle@1"] = ORACLE_VERSION
     files: tuple[NarrativeCorpusFile, ...]

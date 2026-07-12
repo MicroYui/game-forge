@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:02c53a491fd233b626d6bf4acf57cef75bc6f6a3874ff5b5734ee894904a14fe",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4332,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 869500000
+      },
+      "created_at": 1783839900,
+      "id": "4KyKnErSXWHl5WICb/mgTywb3kXUjRW/BQg8zidCp+JlUSUICoIxGviXMOXdGGVRCf7Huf13kobYjURqLRti8xYqo+SR5JbpEtWXAR3gftPdLPWPfENjLSfKcuUjSh2icYAg3UdwHyO3rfpNmPW2QTbNidvqiB1UO3i7a2Bk4uOvyh1IMOMCB9OpQn37k4Q2MKSgXp8yRaATfdL6NO7cB5NjYugRACJvmSTZZ/wDYR4QB8gxzrC4/JkvOMwlTHA0uPTnaUumwW3RCU5ly189HsKGA5T4HuuVSsa1Mp/HOLrIkb74iKklbQYQjHp4kDQRabi2mGmsZp7HIXEf/eu1PQ2O4tLBfHZadjPPWhiRy4bfq4JNfig61acKzogsW09k0iBtlI2VOq4GiiYOgeHnW8yxpQmdeQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DE0D0CWtQmUO64HROhmfGVi6hFUxHtL2cJRcnvqtOeHyTqP7uRpYO4LvNnPpJ5dEcKen3jYrfmx80s1mM2+u3ixmWdXfK/P+Vy1N70d2KCL/8HaCv3W7O5DqyTz4Zva0sn8YW5w6UHEgyfboRRIKVGMA6Gx+rre5d3j0GCTxjMxxVcmUY/Ej0rane+92MNnAM0JXz1ysXNUPRpHGHRmg2Aq8X5z7eUHQKBURymSztSBusiyooGabqwXxROgVYyDuDBKGVV58NE3fY6xQtxDz4mXU632nHBXkdsUkzUeMU5ZKUmPnJyawchhuZA6I2/WbbtKuJUyaoVFgCX4CiGkRZW1j9SoO+MMfT/5n1A7RUlpwd1jZxAj3aVnGagFQrKKw5odtjFRRfYR1y8eD6Od7OZ/PAwI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2454a06443bddde1\",\"npc:99d109eb0e66dcb0\"],\"constraint_ids\":[\"C:5d270e535d56a213\"],\"span\":\"Cass accepted the title of the Warden before the assembly at archive hall.\",\"rationale\":\"Noor already holds the Warden title, and no relinquishment occurs before Cass accepts it, creating two simultaneous holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "R2vQWz3OlZA9Xfamjjv1ODTRavJk4dVdbptSuI9MtpyPaISn+9OSBlAei4nULr/jVOsxXnbpWiLGWvSWYtrLLK8xDn1/nzYSyEguRD9Lz5WFELIVyPKiSi4gBUt6sFPmjF4hpprCMt6b0bTw7yY2soMREZv5b13NEvKtUN8gGseZHoR8QQmZd0fsLITxbVJWWFSUHvVDF0rOVatnXFq3QgXyb+5mBiIMrxZv6rE+MbAS7lFZcjCTlWxUqAgN0JRD50PZvgyCSqOse5fIstUcveJVMlpRAKVU1FYK7tHi8fMnfl0N9rm44Oo1KOAAKX9TwtKiAuTADdX7OzMVTV75Y+HyPdQqmLQeDUA+phWJQRAmIXldul/nJrF35YK491Mee65sL/I7I9UUamQD+Ffha19Mfh89",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2454a06443bddde1\",\"npc:99d109eb0e66dcb0\"],\"constraint_ids\":[\"C:5d270e535d56a213\"],\"span\":\"Cass accepted the title of the Warden before the assembly at archive hall.\",\"rationale\":\"Noor already holds the Warden title, and no relinquishment occurs before Cass accepts it, creating two simultaneous holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 199,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

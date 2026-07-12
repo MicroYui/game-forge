@@ -9,7 +9,7 @@ def test_all_agent_prompts_registered():
         ("triage.system", "triage@1"),
         ("repair.system", "repair@4"),
         ("repair.refine", "repair@4"),
-        ("consistency.system", "consistency@2"),
+        ("consistency.system", "consistency@3"),
         ("consistency.legacy.system", "consistency@1"),
         ("generation.system", "generation@1"),
     ]:

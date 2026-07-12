@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:42effcc254a0a3d2e3ecb51944d2f8475cc02df9e88bcac6c3b0eea28adddbc6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2859,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 541,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 128,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 654500000
+      },
+      "created_at": 1783839500,
+      "id": "ira46UXW1Y6zMBB3w1mEUTSZRyUCVnEcYwmTamGWDGSQgrw3F+KBR7q5VV7TR9jRDa1/KxEjQUMJ32SL8GzOej2Sn7No5MJxSVC+izi4gIhW+SU9+nhHbBxrRfvXf5uWZV/veT6dtOMNiXIb23jk5wQAMCFMNOsSSWhA2EZgGHZuZ4SHzt/ls3xJ0o+BK8x9PsSTuA9upP101sJPCKcO6MrJEuCpvQdEF2QzNR/ObmL0K0cTavw9flJGpr1AuLh0qJrGgWl5vKOticlfYSigBsPgmZVOxHVRjFTiRhGEzXW7hE9QndI1NCX3p0L0Ni+By04hty8ONciH7LDOS0cLB5qa+FmLZh8NNIZiiOnb7/qDGgwuekN2IFxGHeSHPGVHmcL/q0TlCkXCjLSB66uhpbWFMEdEow==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yBtAAh373BkUcYHuXyAdMBIccvmmzfZ1hffzpbhF1HPFkAWf2zvsuCdDPBuhGqrcmOXag4UhTLulYjiE0AfwWClMzxiloGUEJNE6apNNwwoi3LL0wGs/kP3+izV7jZlPolZv3iac93UIa65Wjk0j/MYoMuBZARdPTECotFeN/IkyeAygaAbAwD+woBIe+XnwYCFhY1dt/raiKoDZrJt1sI3JdlTRWN/uKPOnbSYFZHZClP/G07CXay7d+jE1mO7vM+RJrckMmwFHWjE6PKMxG71BA4+IZ6hfET2aQETZtM8eMe7I1+++ZKFad50PcQ4HX9I+ua/SjdqI1xrKgFNII7lJBgJ3hFyNK1DR5pCJTvHtc9uMDdiRtj5kGIjTJW7OTRPW1NUr0IEzAkq6ynvfi4lxjYg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e6bb2ba903c12d8b\"],\"constraint_ids\":[\"C:7eb43c9360b05bd6\"],\"span\":\"At desert waystation, Noor struck an unarmed visitor without warning.\",\"rationale\":\"Noor initiates violence by striking an unarmed visitor without warning, conflicting with the rule against initiating violence toward a peaceful visitor.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iibXZrdKHmWtVqf090coRF/23amNiJx1hfyUQjgNj6gSMiAxT9w+cHTG71gv6AyBm/n7Kb7m0cbO7ugok5ry55DDgTTatjNj0JF1CAU4lfDsTDAR7+QiII0bIrCkAubv1g4DwBSpKwfCQEPmbxgkcr9LP3gXSFVK9k4SMjFTgHBKa2wcvYu1vdMmBcMlyGOQpag2SDvpP9NjdDiyiYWUtJT78VLMs4AMICxkB1gLLFXLLlq7ufYq2OwtEDspwTO15yuerEpEs9uo3kR4yQJw+Qt+ygPik8ZSzi1sCSL4/NLO3Si9GogftqZvlnP3UON0UcejqflZtZjrl8ZWWFR58imbQjyIe4t/iX0Th8DxztFTrtGk2SzIP4ps0oGqh+wLcNBnkmOezEFrQoB6VSZwToAs9HMA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 541,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 128,
+        "output_tokens_details": {
+          "reasoning_tokens": 32
+        },
+        "total_tokens": 669
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e6bb2ba903c12d8b\"],\"constraint_ids\":[\"C:7eb43c9360b05bd6\"],\"span\":\"At desert waystation, Noor struck an unarmed visitor without warning.\",\"rationale\":\"Noor initiates violence by striking an unarmed visitor without warning, conflicting with the rule against initiating violence toward a peaceful visitor.\"}]",
+    "token_usage": {
+      "input_tokens": 541,
+      "output_tokens": 128,
+      "total_tokens": 669
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3464302912f6923ce53cd96887cfe331c63b1c362130b6e648871f2a83dfad5e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4007,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 641,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 965500000
+      },
+      "created_at": 1783840100,
+      "id": "BohbiKJ3AxQP6ZkgR8zfEMc1m/Jy59d7wdh0CrIqV1FEXbn8YYIAMHEM2XA5iJiY6H1sn0PcIQyMQlHdUNGhRjHjf065t/alDLgWSJF/WM9Y7FA+Mt+jrpTqGM1oqkWW8mdmuNxVb8TQ3Z/Bg6cN4yxiycZzZybjYljnDNwc/V9ohv0gLTlX5p1leIvbJDrlLfTCM3HZ7+MxsDI4N4+7woYn6Mz6e6b4M2K0sVXVacGZMLZH19jYuEtht6lL9X0Qxy5OyTIvOMAiv5cCghhWWfpltD544NkbFOi2Wb1V95UAzZxiTn8fs14ivm18/jHPMeUw4zZccMGDD2Xv4IV02DohfXbAEWKxSjA/ZZY5isuJsFR6I/Yz3eU8QU7Uw3HZoLUPTAf+JqiEl9J3bcSohFtpVDj53g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "izuphzMW6aFfZOR3S5fXuL5QHjfqBiYTkIwgpTyWBzGZ2MUh/fnox1T9m4+zxdI7kDchmNr/YPvMmjp37N8CV+aNsb8sdWMtWHJpH/RCeijsY8MPwuBlwd3G5uouSnfhWuX6UJ11eHoTBQMwpKqQuO8pLI+9lNGvKXekSdaMIj5kmQqGBGDTCyaW4x0M/a8ak8YxeeS3xmngba3yNRth3s+U2ALO7kUkXDvm2MBg8dshU/fEqrv5YzpgjvXhdVGDs+a0/iJ4Nx3PWCSnQg4E7jx74Dc6pcSeS5nxy38R9ut5oWFs0EA7WLpoK5VUcYZ02v/Zpk7Pmydjdlbofx4pdKoUAZMD9a/XAysg1x+yWsoHFX5TCquaQbUqB6yKoV5XdagI+H2d5GfOqBnVMRIFdvcFEhk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:006966bc69362545\",\n      \"secret:19b17b9607d60f50\"\n    ],\n    \"constraint_ids\": [\n      \"C:0c2b7eef50f71779\"\n    ],\n    \"span\": \"During survey at orbital concourse, Noor openly named the masked envoy's identity.\",\n    \"rationale\": \"Noor discloses the masked envoy's identity during survey, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+UxqvWNuk9JIurr6RttK+PH8Pd70EkQoCeQMlens80zktelvRimMbUQF6FgQeeXDfcGrZhEff/W88hdxSWV8aKGLWlfF3WKwcd63kmPfI0PzArzg/UmD9W/YMl8CmsmFhcjAXzpS0dG16OfRCO0zYDGhyEYGfIn4wN2w1dh/o7C/QyC4sh2q5pAvXchJJrQzuDxgh2bWIW1kem0K5CTXGUVc0KMInWSpt1I2aUIYJlZ/epY1vc6vFBRdN1BcjZjCdA7BOjKsaZoj8uajIWqh6WRIc3/9bK9TZfjQxdNj5AjY1/UDyG1OBYqJQuivEjcneZSk4gYX+8orRUyExtFOa/oC6L0JEL4I0MpY6XMQvaMLbnf7tfRCY4SdenpuWY4G5S7WiRRHb/TRiSalXnaKgD/I2JZk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 641,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 856
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:006966bc69362545\",\n      \"secret:19b17b9607d60f50\"\n    ],\n    \"constraint_ids\": [\n      \"C:0c2b7eef50f71779\"\n    ],\n    \"span\": \"During survey at orbital concourse, Noor openly named the masked envoy's identity.\",\n    \"rationale\": \"Noor discloses the masked envoy's identity during survey, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 641,
+      "output_tokens": 215,
+      "total_tokens": 856
+    },
+    "tool_calls": []
+  }
+}

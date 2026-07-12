@@ -156,9 +156,9 @@ def test_deterministic_and_llm_strictly_partitioned(tmp_path):
     det_checkers = compile_all(Constraint.from_yaml(_DET_CONSTRAINT_YAML))
 
     by_variant = {
-        "consistency@2#p_constraint_matching": json.dumps([_MAJORITY_HINT]),
-        "consistency@2#p_causal_world_state": json.dumps([_MAJORITY_HINT]),
-        "consistency@2#p_adversarial_falsification": "[]",
+        "consistency@3#p_constraint_matching": json.dumps([_MAJORITY_HINT]),
+        "consistency@3#p_causal_world_state": json.dumps([_MAJORITY_HINT]),
+        "consistency@3#p_adversarial_falsification": "[]",
     }
     router = _passthrough(_PerVariantTransport(by_variant), tmp_path)
     consistency_checker = ConsistencyChecker(
