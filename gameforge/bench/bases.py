@@ -18,6 +18,7 @@ from gameforge.spine.ingestion.format_schema import FormatSchema
 from gameforge.spine.ir.snapshot import Snapshot
 
 _CLEAN_DIR = Path(__file__).resolve().parents[2] / "scenarios" / "defects" / "clean"
+_CLEAN_SOURCE_REF = "scenarios/defects/clean"
 
 
 def clean_base() -> Snapshot:
@@ -26,4 +27,4 @@ def clean_base() -> Snapshot:
     with open(_CLEAN_DIR / "format_schema.json", encoding="utf-8") as fh:
         schema = FormatSchema.model_validate(json.load(fh))
     workbook = read_workbook(str(_CLEAN_DIR), schema)
-    return AureusCsvAdapter().to_ir(workbook, file_ref=str(_CLEAN_DIR))
+    return AureusCsvAdapter().to_ir(workbook, file_ref=_CLEAN_SOURCE_REF)
