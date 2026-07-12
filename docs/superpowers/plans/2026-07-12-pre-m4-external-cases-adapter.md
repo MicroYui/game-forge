@@ -158,7 +158,7 @@ git commit -m "feat(bench): add lean external case evidence contracts"
 - Consumes: raw UTF-8 bytes and a normalized repository-relative source path.
 - Produces: `SourceSpan`, `DataToken`, `PhysicalLine`, `DataNode`, `DataFile`, `EndlessSkyTree`, `parse_data_file(bytes, path)`, `render_data_file(data_file)`, `read_source_tree(mapping)`, `render_source_tree(tree)`, and `top_level_chunks(data_file)`.
 
-- [ ] **Step 1: Write failing example tests for quotes, comments, indentation, and exact bytes**
+- [x] **Step 1: Write failing example tests for quotes, comments, indentation, and exact bytes**
 
 ```python
 def test_reader_builds_token_tree_and_round_trips_exact_bytes():
@@ -188,13 +188,13 @@ def test_top_level_chunks_partition_every_input_byte_once():
     ]
 ```
 
-- [ ] **Step 2: Run example tests and verify RED**
+- [x] **Step 2: Run example tests and verify RED**
 
 Run: `uv run pytest tests/spine/ingestion/test_endless_sky_reader.py -q`
 
 Expected: import failure for the missing reader.
 
-- [ ] **Step 3: Implement a byte-preserving physical-line parser and indentation tree**
+- [x] **Step 3: Implement a byte-preserving physical-line parser and indentation tree**
 
 The reader must:
 
@@ -227,7 +227,7 @@ Split input with `bytes.splitlines(keepends=True)` while preserving a final non-
 
 `render_data_file()` concatenates `PhysicalLine.raw`, not normalized tokens. `top_level_chunks()` uses root line indices and adjacent-root boundaries so chunks form an exact, ordered partition including preamble, inter-record trivia, and trailing bytes.
 
-- [ ] **Step 4: Add and observe a failing Hypothesis round-trip property**
+- [x] **Step 4: Add and observe a failing Hypothesis round-trip property**
 
 ```python
 @given(source_files())
@@ -240,13 +240,13 @@ def test_render_parse_is_byte_exact(raw):
 
 Generate valid bare/quoted/backtick tokens, tabs or spaces, comments, blank lines, CRLF/LF, nested indentation, and optional final newline. The first run must fail on at least one unsupported generated shape before adjusting the parser, not the assertion.
 
-- [ ] **Step 5: Complete the reader until example and property tests pass**
+- [x] **Step 5: Complete the reader until example and property tests pass**
 
 Run: `uv run pytest tests/spine/ingestion/test_endless_sky_reader.py tests/spine/ingestion/test_endless_sky_reader_property.py -q`
 
 Expected: all tests pass with 300 property examples.
 
-- [ ] **Step 6: Commit the reader**
+- [x] **Step 6: Commit the reader**
 
 ```bash
 git add gameforge/spine/ingestion/endless_sky_reader.py tests/spine/ingestion/test_endless_sky_reader.py tests/spine/ingestion/test_endless_sky_reader_property.py
