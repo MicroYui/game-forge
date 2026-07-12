@@ -1,7 +1,7 @@
 """Agent-metric aggregation for GameForge-Bench (M3a Task 8 / design §6).
 
-The ONLY `bench` module that imports `gameforge.agents`. Per the user's M3
-decision, the expensive agent metrics (Fix Pass Rate, Playtest completion +
+One of the bounded `bench` bridges that imports `gameforge.agents`. Per the
+user's M3 decision, the expensive agent metrics (Fix Pass Rate, Playtest completion +
 planner/executor & memory ablations) are reported on the BOUNDED cassette
 subset already recorded in M2 — recomputed here under REPLAY (zero live calls,
 zero LLM SDK). Each group is guarded on its cassettes: a missing set is skipped

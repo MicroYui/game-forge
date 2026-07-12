@@ -387,7 +387,7 @@ revalidation are GREEN with `14 passed`; Ruff and `git diff --check` pass.
 - `playtest_replay_traces(variant) -> tuple[SampleTrace, ...]`
 - `build_agent_cost_evidence(...) -> AgentCostLatencyEvidence`
 
-- [ ] **Step 1: Write failing trace-composition tests**
+- [x] **Step 1: Write failing trace-composition tests**
 
 ```python
 def test_narrative_trace_uses_all_1905_frozen_verification_cases():
@@ -404,13 +404,13 @@ def test_hed_trace_keeps_14_logical_requests_but_only_10_recorded_requests():
 
 For repair/playtest, use fake one-case harness injection in unit tests, then one measured acceptance test over committed REPLAY data. Assert repair covers ten scenarios; playtest covers twenty chains separately for `layered`, `flat`, and `memory_on`; every replay metric matches the existing Agent metric result; no live transport is constructible; and source-specific names do not enter `cost_latency.py` or report contracts.
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_agent_costs.py tests/architecture/test_human_evidence_boundaries.py -q`
 
 Expected: missing composition module and boundary assertions fail.
 
-- [ ] **Step 3: Implement the Agent-only composition bridge**
+- [x] **Step 3: Implement the Agent-only composition bridge**
 
 Use a small `RequestTrackingRouter` facade that records `request_hash(request)` and delegates to a shared REPLAY `ModelRouter`. For repair, run each scenario as a one-element corpus. For playtest, run each chain as a one-element corpus with the exact frozen `RECORD_MAX_STEPS`, model snapshot, planner flag, and memory factory. The bridge may import Agents; `cost_latency.py`, `report_contracts.py`, `report.py`, and `acceptance.py` may not.
 
@@ -425,7 +425,7 @@ Do not include development narrative calls in the final headline workload. Inclu
 
 The historical Opus workload remains historical evidence; no request is regenerated with GPT-5.6 merely for presentation consistency.
 
-- [ ] **Step 4: Run REPLAY trace tests and commit**
+- [x] **Step 4: Run REPLAY trace tests and commit**
 
 Run:
 
@@ -445,6 +445,14 @@ git add gameforge/bench/agent_costs.py tests/bench/test_agent_costs.py \
 git diff --cached --check
 git commit -m "feat(bench): compose Agent cost traces"
 ```
+
+Task 4 result: RED failed on the absent composition module. The Agent-only
+bridge now preserves the 1,905/5,715 Narrative denominator, the HED 14-logical
+versus 10-recorded distinction, ten Repair samples, and twenty samples for each
+Playtest ablation. Measured zero-network REPLAY confirms GPT-5.6 for new
+Narrative/HED/Repair evidence and the actual historical Opus snapshot for all
+three Playtest workloads. The combined focused suite is GREEN with `15 passed`
+in 136.75s; cassettes are byte-unchanged, Ruff and `git diff --check` pass.
 
 ---
 

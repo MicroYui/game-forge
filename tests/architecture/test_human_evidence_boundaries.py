@@ -42,6 +42,39 @@ def test_agents_and_spine_do_not_depend_on_benchmark_or_agent_layers():
         assert not any(
             name.startswith("gameforge.bench") for name in _imports(path)
         ), path
+
+
+def test_agent_cost_composition_is_the_only_cost_layer_importing_agents():
+    allowed = {
+        Path("gameforge/bench/agent_costs.py"),
+        Path("gameforge/bench/agent_metrics.py"),
+    }
+    offenders: set[Path] = set()
+    for path in sorted((_ROOT / "gameforge/bench").glob("*.py")):
+        if any(name.startswith("gameforge.agents") for name in _imports(path)):
+            offenders.add(path.relative_to(_ROOT))
+
+    assert offenders == allowed
+
+    for relative in (
+        "gameforge/bench/cost_latency.py",
+        "gameforge/bench/report_contracts.py",
+    ):
+        source = (_ROOT / relative).read_text(encoding="utf-8").lower()
+        assert not any(
+            name.startswith("gameforge.agents")
+            for name in _imports(_ROOT / relative)
+        )
+        assert not any(
+            source_name in source
+            for source_name in ("aureus", "endless_sky", "flare")
+        )
+
+    composition = (_ROOT / "gameforge/bench/agent_costs.py").read_text(
+        encoding="utf-8"
+    )
+    assert "record_router" not in composition
+    assert "OpenAIResponsesTransport" not in composition
     for path in _python_files("gameforge/spine"):
         assert not any(
             name.startswith(("gameforge.agents", "gameforge.bench"))
