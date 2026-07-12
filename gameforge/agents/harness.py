@@ -258,7 +258,17 @@ class _NoLiveTransport:
 
 
 def replay_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
-    """REPLAY router over `cassettes/` — zero live calls (CI / acceptance)."""
+    """Active REPLAY router over `cassettes/` with zero live calls."""
+    return ModelRouter(
+        _NoLiveTransport(),
+        CassetteStore(cassettes_root),
+        mode=RouterMode.REPLAY,
+        default_model_snapshot=DEFAULT_SNAPSHOT,
+    )
+
+
+def historical_replay_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
+    """Historical M2 REPLAY router for unchanged Agent evidence."""
     return ModelRouter(
         _NoLiveTransport(),
         CassetteStore(cassettes_root),
@@ -313,10 +323,14 @@ def format_result(result: RepairCorpusResult) -> str:
 
 
 # --- agent-scenario samples (recorded alongside the repair corpus) ----------
-def _record_agent_samples(router: ModelRouter) -> None:
+def _record_agent_samples(
+    active_router: ModelRouter,
+    historical_router: ModelRouter,
+) -> None:
     """Exercise the extraction / consistency / generation agents on the
-    `scenarios/agents/` samples so their cassettes are recorded too. Best-effort:
-    a sample failing here prints a warning but never aborts the corpus recording.
+    `scenarios/agents/` samples. Unchanged M2 evidence replays historically;
+    generation uses the active recording policy. Best-effort failures print a
+    warning but never abort the corpus recording.
     """
     # Extraction: design-doc snippet -> proposed compilable constraints.
     try:
@@ -327,7 +341,7 @@ def _record_agent_samples(router: ModelRouter) -> None:
         with open(doc_path, encoding="utf-8") as fh:
             doc_text = fh.read()
         res = ExtractionProposer().run(
-            DesignDocInput(doc_text=doc_text, doc_version="v3"), router
+            DesignDocInput(doc_text=doc_text, doc_version="v3"), historical_router
         )
         print(f"[record] extraction: {len(res.produced.get('proposals', []))} proposals")
     except Exception as exc:  # noqa: BLE001 — sample recording is best-effort
@@ -346,7 +360,7 @@ def _record_agent_samples(router: ModelRouter) -> None:
             narrative_ids = [c.id for c in Constraint.from_yaml(fh.read())]
         res = ConsistencyAssistant().run(
             DialogueNarrativeInput(dialogue=dialogue, narrative_constraint_ids=narrative_ids),
-            router,
+            historical_router,
         )
         print(f"[record] consistency: {len(res.produced.get('hints', []))} quorum hints")
     except Exception as exc:  # noqa: BLE001 — sample recording is best-effort
@@ -365,7 +379,7 @@ def _record_agent_samples(router: ModelRouter) -> None:
                 goal="Add a small new side quest that awards 40 gold, staying within all caps.",
                 grounding_snapshot_id=snapshot.snapshot_id,
             ),
-            router,
+            active_router,
         )
         print(f"[record] generation: passed_gate={res.produced['proposal']['passed_gate']}")
     except Exception as exc:  # noqa: BLE001 — sample recording is best-effort
@@ -389,11 +403,12 @@ def _run_record() -> int:
         print(f"RECORD refused: {exc}", file=sys.stderr)
         return 2
 
-    router = record_router()
+    active_router = record_router()
+    historical_router = historical_replay_router()
     print("Recording repair corpus (live gateway)…")
-    result = run_repair_corpus(default_scenario_dirs(), _CONSTRAINTS_PATH, router)
+    result = run_repair_corpus(default_scenario_dirs(), _CONSTRAINTS_PATH, active_router)
     print(format_result(result))
-    _record_agent_samples(router)
+    _record_agent_samples(active_router, historical_router)
     if result.fix_pass_rate < 0.70:
         print(
             f"\nWARNING: fix_pass_rate {result.fix_pass_rate:.1%} < 70% — iterate the "
