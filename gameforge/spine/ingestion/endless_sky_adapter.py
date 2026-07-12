@@ -25,6 +25,9 @@ _ADAPTER_ID = "endless_sky"
 _OFFER_TRIGGERS = frozenset(
     {"landing", "job", "assisting", "boarding", "entering", "spaceport"}
 )
+_DIALOGUE_TERMINALS = frozenset(
+    {"accept", "decline", "depart", "die", "explode", "launch"}
+)
 _MISSION_STATE = re.compile(r"^(.+): (offered|done)$")
 
 
@@ -68,6 +71,10 @@ def _effect_id(name: str) -> str:
     return f"effect:endless-sky:{name}"
 
 
+def _resource_id(kind: str, name: str) -> str:
+    return f"effect:endless-sky:resource:{kind}:{name}"
+
+
 def _gate_id(destination: str) -> str:
     return f"unlock-condition:endless-sky:landing-access:{destination}"
 
@@ -92,6 +99,32 @@ def _trigger_id(chunk: TopLevelChunk, node: DataNode, trigger: str) -> str:
     )
 
 
+def _dialogue_entry_id(quest: str, chunk: TopLevelChunk, conversation: DataNode) -> str:
+    return (
+        "dialogue:endless-sky:entry:"
+        f"{_digest(quest, chunk.path, conversation.source_span.start_line)}"
+    )
+
+
+def _dialogue_option_id(quest: str, chunk: TopLevelChunk, option: DataNode) -> str:
+    return (
+        "dialogue:endless-sky:option:"
+        f"{_digest(quest, chunk.path, option.source_span.start_line)}"
+    )
+
+
+def _unresolved_merge_id(
+    quest: str,
+    chunk: TopLevelChunk,
+    option: DataNode,
+    target: str,
+) -> str:
+    return (
+        "dialogue:endless-sky:unresolved-merge:"
+        f"{_digest(quest, chunk.path, option.source_span.start_line, target)}"
+    )
+
+
 def _values(node: DataNode) -> tuple[str, ...]:
     return tuple(token.value for token in node.tokens)
 
@@ -100,6 +133,41 @@ def _descendants(node: DataNode):
     for child in node.children:
         yield child
         yield from _descendants(child)
+
+
+def _walk(node: DataNode):
+    yield node
+    yield from _descendants(node)
+
+
+def _goto_nodes(node: DataNode) -> tuple[tuple[str, DataNode], ...]:
+    return tuple(
+        (values[1], candidate)
+        for candidate in _walk(node)
+        if len(values := _values(candidate)) >= 2 and values[0] == "goto"
+    )
+
+
+def _contains_terminal(node: DataNode) -> bool:
+    return any(
+        (values := _values(candidate))
+        and values[0] in _DIALOGUE_TERMINALS
+        for candidate in _walk(node)
+    )
+
+
+def _guard_flags(nodes: tuple[DataNode, ...]) -> set[str]:
+    flags: set[str] = set()
+    for node in nodes:
+        for candidate in _walk(node):
+            values = _values(candidate)
+            if len(values) < 2 or values[:2] != ("to", "display"):
+                continue
+            for condition in _descendants(candidate):
+                condition_values = _values(condition)
+                if len(condition_values) >= 2 and condition_values[0] == "not":
+                    flags.add(condition_values[1])
+    return flags
 
 
 def _direct_children(node: DataNode, token: str):
@@ -300,7 +368,18 @@ class EndlessSkyTxtAdapter:
                 builder,
                 chunk,
                 restricted_destinations=restricted,
+                available_missions=frozenset(missions_by_name),
                 include_state_dependencies=key in target_keys,
+            )
+
+        known_resources = frozenset(
+            (resource.kind, resource.name) for resource in context.resources
+        )
+        for key in sorted(selected_effects):
+            self._map_effect(
+                builder,
+                by_key[key],
+                known_resources=known_resources,
             )
 
         return Snapshot.from_graph(builder.graph)
@@ -355,6 +434,7 @@ class EndlessSkyTxtAdapter:
         chunk: TopLevelChunk,
         *,
         restricted_destinations: frozenset[str],
+        available_missions: frozenset[str],
         include_state_dependencies: bool,
     ) -> None:
         node = chunk.node
@@ -485,6 +565,8 @@ class EndlessSkyTxtAdapter:
 
         if include_state_dependencies:
             for dependency, condition in _mission_state_conditions(node):
+                if dependency not in available_missions:
+                    continue
                 builder.add_relation(
                     EdgeType.REQUIRES,
                     current_quest,
@@ -493,6 +575,295 @@ class EndlessSkyTxtAdapter:
                     node=condition,
                     role=f"mission-state:{dependency}",
                 )
+            for conversation in _descendants(node):
+                if _values(conversation)[:1] == ("conversation",):
+                    self._map_conversation(builder, chunk, current_quest, conversation)
+
+    def _map_effect(
+        self,
+        builder: _GraphBuilder,
+        chunk: TopLevelChunk,
+        *,
+        known_resources: frozenset[tuple[str, str]],
+    ) -> None:
+        node = chunk.node
+        if node is None:
+            raise EndlessSkyAdapterError(f"effect chunk {chunk.name!r} has no token tree")
+        effect = _effect_id(chunk.name)
+        for candidate in _descendants(node):
+            values = _values(candidate)
+            if len(values) < 2 or values[0] != "sound":
+                continue
+            resource_kind = "sound"
+            resource_name = values[1]
+            resource = _resource_id(resource_kind, resource_name)
+            if (resource_kind, resource_name) in known_resources:
+                builder.add_entity(
+                    Entity(
+                        id=resource,
+                        type=NodeType.EFFECT,
+                        attrs={
+                            "resource_kind": resource_kind,
+                            "resource_name": resource_name,
+                        },
+                        source_ref=_source_ref(chunk, candidate),
+                    )
+                )
+            builder.add_relation(
+                EdgeType.REFERENCES,
+                effect,
+                resource,
+                chunk=chunk,
+                node=candidate,
+                role=f"resource:{resource_kind}:{resource_name}",
+            )
+
+    def _map_conversation(
+        self,
+        builder: _GraphBuilder,
+        chunk: TopLevelChunk,
+        quest: str,
+        conversation: DataNode,
+    ) -> None:
+        children = list(conversation.children)
+        entry = _dialogue_entry_id(quest, chunk, conversation)
+        builder.add_entity(
+            Entity(
+                id=entry,
+                type=NodeType.DIALOGUE_NODE,
+                attrs={"kind": "entry", "quest": quest},
+                source_ref=_source_ref(chunk, conversation),
+            )
+        )
+
+        label_nodes: dict[str, DataNode] = {}
+        label_indexes: dict[str, int] = {}
+        for index, child in enumerate(children):
+            values = _values(child)
+            if len(values) < 2 or values[0] != "label":
+                continue
+            label = values[1]
+            if label in label_nodes:
+                raise EndlessSkyAdapterError(
+                    f"conversation in {chunk.name!r} contains duplicate label {label!r}"
+                )
+            label_nodes[label] = child
+            label_indexes[label] = index
+            builder.add_entity(
+                Entity(
+                    id=dialogue_label_id(quest, label),
+                    type=NodeType.DIALOGUE_NODE,
+                    attrs={"kind": "label", "label": label, "quest": quest},
+                    source_ref=_source_ref(chunk, child),
+                )
+            )
+
+        set_flags = self._label_set_flags(children, label_indexes)
+        current_source = entry
+        for index, child in enumerate(children):
+            values = _values(child)
+            if not values:
+                continue
+            if values[0] == "label" and len(values) >= 2:
+                current_source = dialogue_label_id(quest, values[1])
+                continue
+            if values[0] == "choice":
+                self._map_choice(
+                    builder,
+                    chunk,
+                    quest,
+                    current_source,
+                    children,
+                    index,
+                    child,
+                    set_flags,
+                )
+                continue
+            for target, goto_node in _goto_nodes(child):
+                self._add_dialogue_transition(
+                    builder,
+                    chunk,
+                    current_source,
+                    quest,
+                    target,
+                    goto_node,
+                    path_nodes=(child,),
+                    set_flags=set_flags,
+                    role=f"goto:{target}",
+                )
+
+        blocks: list[tuple[int, str]] = [(-1, entry)]
+        blocks.extend(
+            (index, dialogue_label_id(quest, label))
+            for label, index in sorted(label_indexes.items(), key=lambda item: item[1])
+        )
+        for block_index, (start, source) in enumerate(blocks[:-1]):
+            next_start, next_label_id = blocks[block_index + 1]
+            segment = tuple(children[start + 1 : next_start])
+            if any(_values(node)[:1] == ("choice",) for node in segment):
+                continue
+            if any(_goto_nodes(node) or _contains_terminal(node) for node in segment):
+                continue
+            next_label_node = children[next_start]
+            next_label = _values(next_label_node)[1]
+            self._add_dialogue_transition(
+                builder,
+                chunk,
+                source,
+                quest,
+                next_label,
+                next_label_node,
+                path_nodes=segment,
+                set_flags=set_flags,
+                role=f"fallthrough:{next_label_id}",
+            )
+
+    def _map_choice(
+        self,
+        builder: _GraphBuilder,
+        chunk: TopLevelChunk,
+        quest: str,
+        source: str,
+        siblings: list[DataNode],
+        choice_index: int,
+        choice: DataNode,
+        set_flags: dict[str, set[str]],
+    ) -> None:
+        explicit_targets = {
+            target
+            for option in choice.children
+            for target, _ in _goto_nodes(option)
+        }
+        fallthrough_collisions: dict[str, list[DataNode]] = {}
+        for option in choice.children:
+            option_id = _dialogue_option_id(quest, chunk, option)
+            builder.add_entity(
+                Entity(
+                    id=option_id,
+                    type=NodeType.DIALOGUE_NODE,
+                    attrs={"kind": "choice_option", "quest": quest},
+                    source_ref=_source_ref(chunk, option),
+                )
+            )
+            builder.add_relation(
+                EdgeType.PRECEDES,
+                source,
+                option_id,
+                chunk=chunk,
+                node=option,
+                role=f"choice-option:{option.source_span.start_line}",
+            )
+
+            gotos = _goto_nodes(option)
+            if gotos:
+                for target, goto_node in gotos:
+                    self._add_dialogue_transition(
+                        builder,
+                        chunk,
+                        option_id,
+                        quest,
+                        target,
+                        goto_node,
+                        path_nodes=(option,),
+                        set_flags=set_flags,
+                        role=f"option-goto:{target}",
+                    )
+                continue
+            if _contains_terminal(option):
+                continue
+
+            target: str | None = None
+            target_node: DataNode | None = None
+            fell_into_label = False
+            path_nodes: list[DataNode] = [option]
+            for sibling in siblings[choice_index + 1 :]:
+                sibling_values = _values(sibling)
+                if len(sibling_values) >= 2 and sibling_values[0] == "label":
+                    target = sibling_values[1]
+                    target_node = sibling
+                    fell_into_label = True
+                    break
+                path_nodes.append(sibling)
+                sibling_gotos = _goto_nodes(sibling)
+                if sibling_gotos:
+                    target, target_node = sibling_gotos[0]
+                    break
+                if _contains_terminal(sibling):
+                    break
+
+            if target is None or target_node is None:
+                continue
+            self._add_dialogue_transition(
+                builder,
+                chunk,
+                option_id,
+                quest,
+                target,
+                target_node,
+                path_nodes=tuple(path_nodes),
+                set_flags=set_flags,
+                role=f"option-path:{target}",
+            )
+            if fell_into_label and target in explicit_targets:
+                fallthrough_collisions.setdefault(target, []).append(option)
+
+        for target, options in sorted(fallthrough_collisions.items()):
+            if len(options) < 2:
+                continue
+            option = options[0]
+            option_id = _dialogue_option_id(quest, chunk, option)
+            builder.add_relation(
+                EdgeType.REFERENCES,
+                option_id,
+                _unresolved_merge_id(quest, chunk, option, target),
+                chunk=chunk,
+                node=option,
+                role=f"missing-merge:{target}",
+            )
+
+    def _add_dialogue_transition(
+        self,
+        builder: _GraphBuilder,
+        chunk: TopLevelChunk,
+        source: str,
+        quest: str,
+        target: str,
+        evidence_node: DataNode,
+        *,
+        path_nodes: tuple[DataNode, ...],
+        set_flags: dict[str, set[str]],
+        role: str,
+    ) -> None:
+        guarded_once = bool(_guard_flags(path_nodes) & set_flags.get(target, set()))
+        builder.add_relation(
+            EdgeType.PRECEDES,
+            source,
+            dialogue_label_id(quest, target),
+            chunk=chunk,
+            node=evidence_node,
+            role=role,
+            attrs={"repeatability": "once"} if guarded_once else None,
+        )
+
+    def _label_set_flags(
+        self,
+        children: list[DataNode],
+        label_indexes: dict[str, int],
+    ) -> dict[str, set[str]]:
+        ordered = sorted(label_indexes.items(), key=lambda item: item[1])
+        result: dict[str, set[str]] = {}
+        for position, (label, start) in enumerate(ordered):
+            end = ordered[position + 1][1] if position + 1 < len(ordered) else len(children)
+            flags: set[str] = set()
+            for node in children[start + 1 : end]:
+                if _values(node)[:1] != ("action",):
+                    continue
+                for candidate in _descendants(node):
+                    values = _values(candidate)
+                    if len(values) >= 2 and values[0] == "set":
+                        flags.add(values[1])
+            result[label] = flags
+        return result
 
     def _ensure_gate(
         self,

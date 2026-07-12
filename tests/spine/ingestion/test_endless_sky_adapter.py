@@ -160,3 +160,22 @@ def test_direct_mission_state_dependency_is_mapped_as_a_real_quest() -> None:
         assert graph.neighbors(quest_id(name), EdgeType.HAS_STEP, direction="out")
         assert graph.neighbors(quest_id(name), EdgeType.STARTS_AT, direction="out")
     assert EndlessSkyTxtAdapter().from_ir(snapshot) == {"data/missions.txt": raw}
+
+
+def test_mission_dependency_outside_loaded_tree_remains_raw_only() -> None:
+    raw = (
+        b'mission "Current"\n'
+        b"\tlanding\n"
+        b"\tto offer\n"
+        b'\t\thas "External Story: done"\n'
+    )
+
+    snapshot = _adapt(raw, _target("Current"))
+
+    assert _relations(snapshot, EdgeType.REQUIRES) == []
+    assert [
+        finding
+        for finding in GraphChecker().check(snapshot)
+        if finding.defect_class == "dangling_reference"
+    ] == []
+    assert EndlessSkyTxtAdapter().from_ir(snapshot) == {"data/missions.txt": raw}

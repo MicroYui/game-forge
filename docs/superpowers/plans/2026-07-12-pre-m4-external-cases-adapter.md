@@ -606,7 +606,7 @@ git commit -m "feat(ingestion): map Endless Sky missions into generic IR"
 - Consumes: selected mission `conversation` token trees.
 - Produces: `DIALOGUE_NODE` label nodes, `PRECEDES` control edges, ordinary dangling `REFERENCES` edges for unresolved control targets, and `repeatability="once"` only when a monotonic guard is proven.
 
-- [ ] **Step 1: Write failing source-agnostic dialogue shape tests**
+- [x] **Step 1: Write failing source-agnostic dialogue shape tests**
 
 ```python
 def test_missing_choice_merge_becomes_an_ordinary_dangling_relation():
@@ -627,25 +627,25 @@ def test_monotonic_display_guard_marks_only_the_guarded_transition_once():
     assert by_class(GraphChecker().check(snapshot), "cyclic_dependency") == []
 ```
 
-- [ ] **Step 2: Run dialogue tests and verify RED**
+- [x] **Step 2: Run dialogue tests and verify RED**
 
 Run: `uv run pytest tests/spine/ingestion/test_endless_sky_dialogue_mapping.py -q`
 
 Expected: no dialogue relations exist.
 
-- [ ] **Step 3: Implement structural control-flow mapping without object-name branches**
+- [x] **Step 3: Implement structural control-flow mapping without object-name branches**
 
 Within each conversation:
 
 1. Create an entry DialogueNode plus one node per `label`.
 2. Associate each `choice` with the nearest preceding label or entry.
 3. An explicit descendant `goto X` adds `PRECEDES(source, label:X)`; absent `label:X` naturally leaves a dangling endpoint.
-4. For an option without a terminal, scan subsequent siblings until the next label or terminal goto. If the path falls into a label explicitly targeted by a different option from the same choice, emit `REFERENCES(option, unresolved:<stable-source-span>)` to a deliberately absent endpoint. This represents a missing merge reference in generic graph form.
+4. For an option without a terminal, scan subsequent siblings until the next label or terminal goto. If at least two implicit paths from the same choice fall into a label explicitly targeted by another option, emit one `REFERENCES(option, unresolved:<stable-source-span>)` for that ambiguous choice. A single implicit branch joining an explicit branch is a valid source idiom and remains clean; this FP boundary is locked by a generic regression test.
 5. A transition is `repeatability="once"` only when its option/path contains `to display/not FLAG` and the target label block contains `action/set FLAG` before the next label. Guards that do not match a target set remain repeatable.
 
 Stable IDs derive from quest ID, label text, and source span. Relation evidence retains `SourceRef` to the goto/choice line.
 
-- [ ] **Step 4: Verify development cases before implementing verification-specific assertions**
+- [x] **Step 4: Verify development cases before implementing verification-specific assertions**
 
 Run the two development fixtures only:
 
@@ -658,13 +658,13 @@ Expected: the development conversation-loop before snapshot is cyclic and its af
 
 Map selected `effect` records and child `sound NAME` into `EFFECT --REFERENCES--> EFFECT(resource_kind="sound")`. Context-declared existing resources become entities; unknown resource names remain missing endpoints. This makes the development sound case an ordinary dangling reference.
 
-- [ ] **Step 5: Run all dialogue/reference Adapter tests and verify GREEN**
+- [x] **Step 5: Run all dialogue/reference Adapter tests and verify GREEN**
 
 Run: `uv run pytest tests/spine/ingestion/test_endless_sky_adapter.py tests/spine/ingestion/test_endless_sky_dialogue_mapping.py -q`
 
 Expected: all tests pass, including generic variants with different quest/label/flag names.
 
-- [ ] **Step 6: Commit dialogue mapping**
+- [x] **Step 6: Commit dialogue mapping**
 
 ```bash
 git add gameforge/spine/ingestion/endless_sky_adapter.py tests/spine/ingestion/test_endless_sky_adapter.py tests/spine/ingestion/test_endless_sky_dialogue_mapping.py
