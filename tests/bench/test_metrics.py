@@ -3,7 +3,13 @@ from __future__ import annotations
 
 from gameforge.bench.corpus import build_corpus
 from gameforge.bench.inject import GroundTruth, inject
-from gameforge.bench.metrics import Metric, default_constraints, detects, score_seeded
+from gameforge.bench.metrics import (
+    Metric,
+    default_constraints,
+    detects,
+    run_pipeline,
+    score_seeded,
+)
 from gameforge.bench.taxonomy import Bucket, DefectClass
 from gameforge.bench.bases import clean_base
 from gameforge.spine.checkers.report import build_review_report
@@ -13,7 +19,7 @@ from gameforge.spine.dsl.compile import compile_all
 def _report_for(snapshot, needs_nav=False):
     checkers = compile_all(default_constraints())
     # run the economy sim too, so simulation-bucket classes (economy_collapse)
-    # are scorable — mirrors metrics._run_pipeline.
+    # are scorable — mirrors metrics.run_pipeline.
     from gameforge.spine.sim.economy import EconomyModel, EconomySimulator, to_findings
     model = EconomyModel.from_snapshot(snapshot)
     sim = EconomySimulator().run(model, seed=0, n_agents=50, n_ticks=200)
@@ -29,6 +35,17 @@ def _report_for(snapshot, needs_nav=False):
 def test_detects_true_when_class_and_entity_match():
     s = inject(clean_base(), DefectClass.dangling_reference, seed=1)
     assert detects(_report_for(s.snapshot), s.ground_truth) is True
+
+
+def test_public_run_pipeline_preserves_the_seeded_detection_path():
+    sample = inject(clean_base(), DefectClass.unreachable_target, seed=4)
+    report = run_pipeline(
+        sample.snapshot,
+        compile_all(default_constraints()),
+        needs_nav=sample.needs_nav,
+    )
+
+    assert detects(report, sample.ground_truth) is True
 
 
 def test_detects_false_on_clean_snapshot_for_every_class():

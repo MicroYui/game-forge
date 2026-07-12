@@ -75,7 +75,7 @@ def default_constraints(path: str = _CONSTRAINTS_DIR) -> list[Constraint]:
     return cons
 
 
-def _run_pipeline(snapshot: Snapshot, checkers, needs_nav: bool) -> ReviewReport:
+def run_pipeline(snapshot: Snapshot, checkers, *, needs_nav: bool) -> ReviewReport:
     """The M1 review pipeline for one snapshot: economy sim findings + (only
     when the sample needs it) a nav provider from the built Aureus world."""
     model = EconomyModel.from_snapshot(snapshot)
@@ -118,7 +118,7 @@ def score_seeded(corpus: Corpus, constraints: list[Constraint]) -> SeededScore:
         dc = sample.ground_truth.defect_class
         if CLASS_META[dc].bucket is Bucket.llm_assisted:
             continue
-        report = _run_pipeline(sample.snapshot, checkers, sample.needs_nav)
+        report = run_pipeline(sample.snapshot, checkers, needs_nav=sample.needs_nav)
         agg = per_class.setdefault(dc, [0, 0])
         agg[0] += int(detects(report, sample.ground_truth))
         agg[1] += 1
@@ -156,7 +156,7 @@ def score_seeded(corpus: Corpus, constraints: list[Constraint]) -> SeededScore:
     distinct_clean = {c.snapshot_id: c for c in corpus.clean}
     ofp = 0
     for clean in distinct_clean.values():
-        report = _run_pipeline(clean, checkers, needs_nav=False)
+        report = run_pipeline(clean, checkers, needs_nav=False)
         if report.deterministic_findings or report.unproven_findings:
             ofp += 1
     n_clean = len(distinct_clean)

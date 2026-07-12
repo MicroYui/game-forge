@@ -500,7 +500,7 @@ class DeterministicRuntimeEvidence(StrictModel):
     evidence_sha256: Sha256
 ```
 
-- [ ] **Step 1: Write failing clock-injected evidence tests**
+- [x] **Step 1: Write failing clock-injected evidence tests**
 
 ```python
 def test_runtime_measurement_times_setup_once_and_each_sample_once(fake_clock):
@@ -518,19 +518,19 @@ def test_runtime_manifest_rejects_environment_or_sample_tampering():
 
 Also test narrative samples are excluded, one distinct clean snapshot is included, sample IDs/order are deterministic, zero/negative elapsed values fail, constraints hash is content-bound and path-independent, package versions include `clingo`, `z3-solver`, and `pydantic`, canonical load/write works, and exposing `run_pipeline` does not alter seeded score results.
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_runtime_evidence.py tests/bench/test_metrics.py -q`
 
 Expected: missing runtime evidence module/public pipeline function.
 
-- [ ] **Step 3: Implement measurement and environment binding**
+- [x] **Step 3: Implement measurement and environment binding**
 
 Rename `_run_pipeline` to `run_pipeline` without behavioral changes. `measure_seeded_runtime()` compiles constraints inside the measured setup interval, warms no hidden extra sample, then measures the 11 deterministic/simulation classes in enum/index order and one entry per distinct clean snapshot. Exceptions abort evidence generation; they are not converted to zero latency.
 
 The distribution converts nanoseconds to milliseconds only after all positive integer timings are captured. Use the shared frozen bootstrap protocol for the mean CI and `percentile` for median/p95.
 
-- [ ] **Step 4: Run focused tests and commit**
+- [x] **Step 4: Run focused tests and commit**
 
 Run:
 
@@ -549,6 +549,14 @@ git add gameforge/bench/metrics.py gameforge/bench/runtime_evidence.py \
 git diff --cached --check
 git commit -m "feat(bench): measure deterministic pipeline runtime"
 ```
+
+Task 5 result: RED failed on the absent evidence module and private-only
+pipeline function. The public pipeline preserves seeded detection behavior;
+the runtime contract now times compile setup once, measures each of the eleven
+deterministic/simulation classes without hidden warmup, deduplicates clean
+snapshots, excludes narrative samples, and binds normalized constraints plus
+the OS/Python/solver environment. Canonical round-trip and tamper tests are
+GREEN with `13 passed`; Ruff and `git diff --check` pass.
 
 ---
 
