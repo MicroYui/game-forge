@@ -3,8 +3,11 @@
 from gameforge.bench.external_cases.contracts import (
     ExternalCaseEvidence,
     ExternalCaseRegistration,
+    ExternalCaseScore,
     ExternalCaseSpec,
+    ExternalClassMetric,
     ExternalCorpusManifest,
+    ExternalFpMetric,
     FindingEvidence,
     HumanTarget,
     NativeEvidence,
@@ -19,8 +22,11 @@ from gameforge.bench.external_cases.contracts import (
 __all__ = [
     "ExternalCaseEvidence",
     "ExternalCaseRegistration",
+    "ExternalCaseScore",
     "ExternalCaseSpec",
+    "ExternalClassMetric",
     "ExternalCorpusManifest",
+    "ExternalFpMetric",
     "FindingEvidence",
     "HumanTarget",
     "NativeEvidence",

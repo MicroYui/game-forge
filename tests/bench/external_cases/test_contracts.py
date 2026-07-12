@@ -96,6 +96,7 @@ def _case() -> ExternalCaseEvidence:
         reader_version="endless-sky-reader@1",
         adapter_version="endless-sky-adapter@1",
         mapping_spec_sha256=ZERO_SHA,
+        target_entity_ids=("effect:example",),
         findings_before=(
             FindingEvidence(
                 finding_id="graph@case#0",
@@ -116,6 +117,10 @@ def _case() -> ExternalCaseEvidence:
 
 
 def _manifest() -> ExternalCorpusManifest:
+    from gameforge.bench.external_cases.qualify import score_external_cases
+
+    case = _case()
+    score = score_external_cases((case,))
     return ExternalCorpusManifest.seal(
         schema_version="external-corpus-manifest@1",
         source_id="endless_sky",
@@ -124,7 +129,10 @@ def _manifest() -> ExternalCorpusManifest:
         reader_version="endless-sky-reader@1",
         adapter_version="endless-sky-adapter@1",
         mapping_spec_sha256=ZERO_SHA,
-        cases=(_case(),),
+        cases=(case,),
+        development=score.development,
+        verification=score.verification,
+        after_oracle_fp=score.after_oracle_fp,
     )
 
 

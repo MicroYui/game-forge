@@ -117,6 +117,7 @@ class ExternalCaseEvidence(_StrictModel):
     reader_version: VersionId
     adapter_version: VersionId
     mapping_spec_sha256: Sha256
+    target_entity_ids: tuple[NonEmptyStr, ...]
     findings_before: tuple[FindingEvidence, ...]
     findings_after: tuple[FindingEvidence, ...]
     human_target: HumanTarget
@@ -752,7 +753,7 @@ git commit -m "feat(bench): qualify Endless Sky cases with independent predicate
 - Consumes: case specs, verified raw trees, native evidence, predicates, Adapter snapshots, Graph/ASP findings, mapping-spec hash, and upstream patches.
 - Produces: eight `ExternalCaseEvidence` rows, per-class development/verification metrics, after-clean FP evidence, and a self-hashed `ExternalCorpusManifest`.
 
-- [ ] **Step 1: Write failing denominator and fail-closed qualification tests**
+- [x] **Step 1: Write failing denominator and fail-closed qualification tests**
 
 ```python
 @pytest.mark.parametrize(
@@ -779,13 +780,13 @@ def test_verification_scorer_keeps_all_frozen_cases_in_denominator():
     }
 ```
 
-- [ ] **Step 2: Run qualifier tests and verify RED**
+- [x] **Step 2: Run qualifier tests and verify RED**
 
 Run: `uv run pytest tests/bench/external_cases/test_qualify.py -q`
 
 Expected: qualifier module is missing.
 
-- [ ] **Step 3: Implement generic qualification and Wilson scoring**
+- [x] **Step 3: Implement generic qualification and Wilson scoring**
 
 `qualify_case()` is source-neutral. It requires:
 
@@ -799,7 +800,7 @@ Expected: qualifier module is missing.
 
 Every failed condition is appended to `failure_reasons`; it never raises a row out of the denominator. `score_external_cases()` separates development and verification, reports `k/n/rate/Wilson95` per class, and reports after-clean FP as `after snapshots with any finding / all after snapshots`.
 
-- [ ] **Step 4: Implement the source-bound runner and generate evidence**
+- [x] **Step 4: Implement the source-bound runner and generate evidence**
 
 The runner translates target locators to `EndlessSkyTarget`, loads source context, invokes both readers, the Adapter, GraphChecker, ASPChecker for cycle differential evidence, independent predicates, and the compiled native witness. It canonicalizes full Finding evidence, writes a temporary manifest, immediately reloads/revalidates it, then atomically replaces the committed manifest.
 
@@ -812,7 +813,7 @@ uv run python -m gameforge.bench.external_cases.endless_sky_runner \
 
 Expected: 8/8 qualified; four development rows excluded from the headline; four verification rows report one case each; after external oracle-FP is 0/8.
 
-- [ ] **Step 5: Prove offline evidence replay is byte-identical**
+- [x] **Step 5: Prove offline evidence replay is byte-identical**
 
 ```python
 def test_evidence_replay_is_byte_identical(tmp_path):
@@ -826,7 +827,7 @@ Run: `uv run pytest tests/bench/external_cases/test_qualify.py tests/bench/exter
 
 Expected: all tests pass without network or LLM calls.
 
-- [ ] **Step 6: Commit the qualification result**
+- [x] **Step 6: Commit the qualification result**
 
 ```bash
 git add gameforge/bench/external_cases/qualify.py gameforge/bench/external_cases/endless_sky_runner.py scenarios/external_cases/endless_sky/external-corpus-manifest.json tests/bench/external_cases/test_qualify.py tests/bench/external_cases/test_endless_sky_evidence_replay.py

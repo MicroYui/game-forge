@@ -8,6 +8,7 @@ results, generic GameForge findings, and the human-authored target patch.
 from __future__ import annotations
 
 import hashlib
+from decimal import Decimal, InvalidOperation
 from pathlib import PurePosixPath
 from typing import Annotated, Any, Literal
 from urllib.parse import urlparse
@@ -33,6 +34,22 @@ StableId = Annotated[
 ]
 NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 VersionId = StableId
+
+
+def _canonical_float(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    if not value.startswith("f:"):
+        raise ValueError("metric float string must use the canonical f: prefix")
+    raw = value.removeprefix("f:")
+    try:
+        decimal = Decimal(raw)
+    except InvalidOperation as exc:
+        raise ValueError("metric contains an invalid canonical float") from exc
+    canonical = format(decimal.normalize(), "f")
+    if raw != canonical or not decimal.is_finite():
+        raise ValueError("metric float string is not canonical and finite")
+    return float(decimal)
 
 
 class _StrictModel(BaseModel):
@@ -257,6 +274,7 @@ class ExternalCaseEvidence(_StrictModel):
     reader_version: VersionId
     adapter_version: VersionId
     mapping_spec_sha256: Sha256
+    target_entity_ids: tuple[NonEmptyStr, ...]
     findings_before: tuple[FindingEvidence, ...]
     findings_after: tuple[FindingEvidence, ...]
     human_target: HumanTarget
@@ -281,11 +299,86 @@ class ExternalCaseEvidence(_StrictModel):
             raise ValueError("predicate_after does not match case predicate_id")
         if self.qualification_status == "qualified" and self.failure_reasons:
             raise ValueError("qualified evidence cannot contain failure_reasons")
+        if self.qualification_status == "qualified" and not self.target_entity_ids:
+            raise ValueError("qualified evidence must bind resolved target entities")
         if self.qualification_status == "miss" and not self.failure_reasons:
             raise ValueError("miss evidence must contain failure_reasons")
+        if tuple(sorted(set(self.target_entity_ids))) != self.target_entity_ids:
+            raise ValueError("target_entity_ids must be unique and sorted")
         expected = content_sha256(self, exclude={"evidence_sha256"})
         if self.evidence_sha256 != expected:
             raise ValueError("evidence_sha256 does not bind external case evidence")
+        return self
+
+
+class ExternalClassMetric(_StrictModel):
+    defect_class: DefectClass
+    split: Literal["development", "verification"]
+    n: int = Field(gt=0)
+    k: int = Field(ge=0)
+    rate: float = Field(ge=0.0, le=1.0)
+    ci_low: float = Field(ge=0.0, le=1.0)
+    ci_high: float = Field(ge=0.0, le=1.0)
+    ci_method: Literal["wilson95"] = "wilson95"
+
+    @field_validator("rate", "ci_low", "ci_high", mode="before")
+    @classmethod
+    def parse_canonical_floats(cls, value: Any) -> Any:
+        return _canonical_float(value)
+
+    @model_validator(mode="after")
+    def validate_metric(self) -> ExternalClassMetric:
+        if self.k > self.n:
+            raise ValueError("external metric k cannot exceed n")
+        if abs(self.rate - self.k / self.n) > 1e-12:
+            raise ValueError("external metric rate does not equal k/n")
+        if not self.ci_low <= self.rate <= self.ci_high:
+            raise ValueError("external metric confidence interval does not contain rate")
+        return self
+
+
+class ExternalFpMetric(_StrictModel):
+    n: int = Field(gt=0)
+    count: int = Field(ge=0)
+    rate: float = Field(ge=0.0, le=1.0)
+    ci_low: float = Field(ge=0.0, le=1.0)
+    ci_high: float = Field(ge=0.0, le=1.0)
+    ci_method: Literal["wilson95"] = "wilson95"
+
+    @field_validator("rate", "ci_low", "ci_high", mode="before")
+    @classmethod
+    def parse_canonical_floats(cls, value: Any) -> Any:
+        return _canonical_float(value)
+
+    @model_validator(mode="after")
+    def validate_metric(self) -> ExternalFpMetric:
+        if self.count > self.n:
+            raise ValueError("external FP count cannot exceed n")
+        if abs(self.rate - self.count / self.n) > 1e-12:
+            raise ValueError("external FP rate does not equal count/n")
+        if not self.ci_low <= self.rate <= self.ci_high:
+            raise ValueError("external FP confidence interval does not contain rate")
+        return self
+
+
+class ExternalCaseScore(_StrictModel):
+    development: tuple[ExternalClassMetric, ...]
+    verification: tuple[ExternalClassMetric, ...]
+    after_oracle_fp: ExternalFpMetric
+
+    @model_validator(mode="after")
+    def validate_score(self) -> ExternalCaseScore:
+        for split, metrics in (
+            ("development", self.development),
+            ("verification", self.verification),
+        ):
+            if any(metric.split != split for metric in metrics):
+                raise ValueError(f"{split} score contains a metric from another split")
+            classes = [metric.defect_class for metric in metrics]
+            if classes != sorted(classes, key=lambda item: item.value):
+                raise ValueError(f"{split} metrics must be sorted by defect class")
+            if len(classes) != len(set(classes)):
+                raise ValueError(f"{split} metrics must contain unique defect classes")
         return self
 
 
@@ -298,6 +391,9 @@ class ExternalCorpusManifest(_StrictModel):
     adapter_version: VersionId
     mapping_spec_sha256: Sha256
     cases: tuple[ExternalCaseEvidence, ...]
+    development: tuple[ExternalClassMetric, ...]
+    verification: tuple[ExternalClassMetric, ...]
+    after_oracle_fp: ExternalFpMetric
     manifest_sha256: Sha256
 
     @classmethod
@@ -326,14 +422,46 @@ class ExternalCorpusManifest(_StrictModel):
         expected = content_sha256(self, exclude={"manifest_sha256"})
         if self.manifest_sha256 != expected:
             raise ValueError("manifest_sha256 does not bind external corpus manifest")
+
+        score = ExternalCaseScore(
+            development=self.development,
+            verification=self.verification,
+            after_oracle_fp=self.after_oracle_fp,
+        )
+        for split, metrics in (
+            ("development", score.development),
+            ("verification", score.verification),
+        ):
+            expected_groups: dict[DefectClass, list[ExternalCaseEvidence]] = {}
+            for case in self.cases:
+                if case.spec.split == split:
+                    expected_groups.setdefault(case.spec.defect_class, []).append(case)
+            by_class = {metric.defect_class: metric for metric in metrics}
+            if set(by_class) != set(expected_groups):
+                raise ValueError(f"{split} metrics do not cover manifest cases")
+            for defect_class, cases in expected_groups.items():
+                metric = by_class[defect_class]
+                expected_k = sum(
+                    case.qualification_status == "qualified" for case in cases
+                )
+                if metric.n != len(cases) or metric.k != expected_k:
+                    raise ValueError(f"{split} metric counts do not match manifest cases")
+        expected_fp = sum(bool(case.findings_after) for case in self.cases)
+        if self.after_oracle_fp.n != len(self.cases):
+            raise ValueError("after_oracle_fp denominator does not match manifest cases")
+        if self.after_oracle_fp.count != expected_fp:
+            raise ValueError("after_oracle_fp count does not match manifest cases")
         return self
 
 
 __all__ = [
     "ExternalCaseEvidence",
     "ExternalCaseRegistration",
+    "ExternalCaseScore",
     "ExternalCaseSpec",
+    "ExternalClassMetric",
     "ExternalCorpusManifest",
+    "ExternalFpMetric",
     "FindingEvidence",
     "HumanTarget",
     "NativeEvidence",

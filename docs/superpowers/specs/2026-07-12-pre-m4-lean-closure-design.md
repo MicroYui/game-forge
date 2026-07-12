@@ -77,6 +77,7 @@ ExternalCase {
   native_before, native_after,
   predicate_before, predicate_after,
   reader_version, adapter_version, mapping_spec_sha256,
+  target_entity_ids,
   finding_before, findings_after,
   agent_patch?, agent_target?, human_target,
   evidence_sha256
@@ -85,7 +86,8 @@ ExternalCase {
 ExternalCorpusManifest {
   schema_version, source_id, pinned_head, repository_url,
   reader_version, adapter_version, mapping_spec_sha256,
-  cases, manifest_sha256
+  cases, development, verification, after_oracle_fp,
+  manifest_sha256
 }
 ```
 
@@ -93,6 +95,9 @@ ExternalCorpusManifest {
 命令、exit code、stdout/stderr hash；`predicate_*` 必须分别为 violation/clear。
 所有 raw trees 与 patch 保存内容 hash。没有 reviewer、approval payload、nonce、盲审状态机或
 候选分配表，因为它们不改变 before/after 的事实。
+`development` / `verification` 保存按类的 `k/n/rate/Wilson95`，`after_oracle_fp` 保存 after
+快照中出现任意 Finding 的计数；manifest 校验器会从 cases 重新推导这些计数，拒绝与分母不一致
+的派生指标。浮点指标沿用 canonical JSON 的 `f:<decimal>` 表示，读回后仍按数值契约校验。
 
 ### 3.2 固定案例
 
