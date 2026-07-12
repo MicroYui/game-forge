@@ -592,7 +592,7 @@ git commit -m "feat(bench): define typed narrative facts and oracle"
 - Consumes: Task 4 fact/case contracts and deterministic seeds.
 - Produces: `RenderedNarrative`, `render_facts()`, `generate_case()`, `build_corpora()`, `load_cases()`, and a hash-bound frozen corpus manifest.
 
-- [ ] **Step 1: Write failing renderer tests that prove natural text and exact spans**
+- [x] **Step 1: Write failing renderer tests that prove natural text and exact spans**
 
 ```python
 def test_renderer_returns_exact_source_spans_without_answer_markers():
@@ -611,19 +611,19 @@ def test_renderer_does_not_import_or_call_the_oracle():
 
 Property tests render every supported fact combination across LF paragraphs, multi-sentence dialogue, Unicode names, explicit and implicit phrasing, distractors, and two or more entities. Every recorded span must slice back to its exact text.
 
-- [ ] **Step 2: Run renderer tests and verify RED**
+- [x] **Step 2: Run renderer tests and verify RED**
 
 Run: `uv run pytest tests/bench/narrative/test_renderer.py -q`
 
 Expected: import failure for the missing renderer.
 
-- [ ] **Step 3: Implement renderer-owned phrase tables and source maps**
+- [x] **Step 3: Implement renderer-owned phrase tables and source maps**
 
 The renderer owns phrase tables keyed only by semantic values such as `trait_id`, `action_id`, stage label, faction posture, cooperation action, and role label. It does not receive `DefectClass`, `is_clean`, an oracle result, or a target. It renders baseline constraint context, one event sentence, and 1-3 seeded distractor sentences, returning the exact span for every rendered event fact.
 
 Use at least these independent variation axes in every class: four setting packs, eight name sets, four baseline paraphrases, four event paraphrases, explicit/implicit surface form, target-first/target-last order, one/two distractor constraints, and two/multi-entity dialogue. Setting data is plain names and locations; no production Agent branch depends on a setting ID.
 
-- [ ] **Step 4: Write failing generator/corpus tests for exact counts and hidden-answer isolation**
+- [x] **Step 4: Write failing generator/corpus tests for exact counts and hidden-answer isolation**
 
 ```python
 def test_corpus_counts_are_exact_and_balanced():
@@ -654,7 +654,7 @@ def test_model_payload_never_contains_hidden_answer_fields():
 
 Also assert same inputs produce byte-identical cases, different seeds vary the text, every positive has exactly one correct oracle violation, every clean has zero, every prompt payload is unique across a split, no formal dialogue/constraint contains an answer marker, and development/verification seed domains are disjoint.
 
-- [ ] **Step 5: Implement deterministic case and corpus construction**
+- [x] **Step 5: Implement deterministic case and corpus construction**
 
 `generate_case()` performs this sequence:
 
@@ -670,11 +670,11 @@ Also assert same inputs produce byte-identical cases, different seeds vary the t
 
 Write one canonical JSON object per line, sorted by opaque case ID, with a final newline. `corpus-manifest.json` binds generator/renderer/oracle versions, each file's byte SHA-256, per-class positive counts, per-family clean counts, and its own `manifest_sha256`.
 
-- [ ] **Step 6: Replace answer-marked legacy narrative injectors with generator delegation**
+- [x] **Step 6: Replace answer-marked legacy narrative injectors with generator delegation**
 
 Keep the public `inject(base, narrative_class, seed)` API. For a narrative class, use the already-derived stable RNG to choose a development case seed, call `generate_case(..., is_clean=False)`, convert through `to_agent_input()`, and populate legacy `GroundTruth` from the case's class/entities. Delete all answer-bearing marker templates from `inject.py`; deterministic/simulation injectors remain untouched.
 
-- [ ] **Step 7: Generate and validate both frozen corpora**
+- [x] **Step 7: Generate and validate both frozen corpora**
 
 Run:
 
@@ -685,7 +685,7 @@ uv run pytest tests/bench/narrative/test_renderer.py tests/bench/narrative/test_
 
 Expected: 160 development cases, 1,905 verification cases, exact manifest counts, unique model payloads, and no answer-marker match.
 
-- [ ] **Step 8: Commit the renderer, generator, and frozen inputs**
+- [x] **Step 8: Commit the renderer, generator, and frozen inputs**
 
 ```bash
 git add gameforge/bench/narrative gameforge/bench/inject.py tests/bench/narrative tests/bench/test_inject_narrative.py scenarios/narrative_bench

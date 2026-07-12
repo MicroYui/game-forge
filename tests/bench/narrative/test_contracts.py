@@ -28,6 +28,7 @@ def _positive_values() -> dict[str, object]:
         "oracle_version": "narrative-oracle@1",
         "seed": 1,
         "split": "verification",
+        "benchmark_family": DefectClass.character_violation,
         "facts": (
             TraitFact(
                 fact_id="fact:trait",
@@ -130,6 +131,11 @@ def test_positive_case_requires_narrative_class_and_sorted_targets():
     values = _positive_values()
     values["target_entities"] = ("npc:z", "npc:a")
     with pytest.raises(ValidationError, match="sorted"):
+        seal_case(**values)
+
+    values = _positive_values()
+    values["benchmark_family"] = DefectClass.spoiler
+    with pytest.raises(ValidationError, match="benchmark_family"):
         seal_case(**values)
 
 

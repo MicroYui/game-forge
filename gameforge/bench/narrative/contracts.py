@@ -196,6 +196,7 @@ class NarrativeCase(_StrictModel):
     oracle_version: StableId
     seed: int = Field(ge=0)
     split: Literal["development", "verification"]
+    benchmark_family: DefectClass
     facts: tuple[NarrativeFact, ...]
     constraints: tuple[NarrativeConstraint, ...]
     dialogue: str
@@ -222,6 +223,8 @@ class NarrativeCase(_StrictModel):
 
     @model_validator(mode="after")
     def validate_case(self) -> NarrativeCase:
+        if self.benchmark_family not in NARRATIVE_CLASSES:
+            raise ValueError("benchmark_family must be a narrative defect class")
         if not self.facts:
             raise ValueError("narrative case must contain facts")
         fact_ids = [item.fact_id for item in self.facts]
@@ -272,6 +275,10 @@ class NarrativeCase(_StrictModel):
         else:
             if self.defect_class not in NARRATIVE_CLASSES:
                 raise ValueError("positive narrative case requires a narrative defect class")
+            if self.defect_class is not self.benchmark_family:
+                raise ValueError(
+                    "positive defect class must match its benchmark_family"
+                )
             if self.target_span is None:
                 raise ValueError("positive narrative case requires a target span")
 

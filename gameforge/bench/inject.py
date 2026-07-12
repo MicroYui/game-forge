@@ -39,13 +39,13 @@ import random
 from dataclasses import dataclass
 from typing import Callable
 
+from gameforge.bench.narrative.contracts import to_agent_input
+from gameforge.bench.narrative.generator import generate_case
 from gameforge.bench.taxonomy import DefectClass
-from gameforge.contracts.agent_io import DialogueNarrativeInput
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.spine.ir.snapshot import Snapshot
 
 _SOURCE_EDGES = (EdgeType.GRANTS, EdgeType.DROPS_FROM)
-_NARRATIVE_CONSTRAINT = "C-narrative-quest-lore-consistency"
 
 
 @dataclass
@@ -478,69 +478,53 @@ def _inject_economy_collapse(base: Snapshot, rng: random.Random) -> InjectedSamp
 
 # ---------------------------------------------------------------------------
 # 12–15. narrative injectors (design §3 strategies 12–15) — bucket=llm_assisted.
-# The snapshot graph stays CLEAN; the defect lives in a seeded
-# `DialogueNarrativeInput` (the M2 Consistency quorum's input). Each embeds
-# class-specific UPPERCASE markers so a property test can confirm the
-# contradiction was injected WITHOUT running the consistency checker.
+# The snapshot graph stays clean; the defect lives in a seeded, marker-free
+# `DialogueNarrativeInput`. Hidden typed facts and the independent narrative
+# oracle remain in the benchmark package rather than leaking into Agent input.
 # ---------------------------------------------------------------------------
-def _narrative_actor(entities: list[Entity], rng: random.Random, node_type: NodeType, fallback: str) -> str:
-    cands = sorted((e.id for e in entities if e.type is node_type))
-    return cands[rng.randrange(len(cands))] if cands else fallback
-
-
 def _narrative_sample(
-    base: Snapshot, defect: DefectClass, entity: str, text: str
+    base: Snapshot,
+    defect: DefectClass,
+    rng: random.Random,
 ) -> InjectedSample:
-    # snapshot unchanged (clean graph); the DialogueNarrativeInput carries the defect
+    case_seed = rng.randrange(2**63)
+    case = generate_case(
+        split="development",
+        defect_class=defect,
+        is_clean=False,
+        seed=case_seed,
+        case_id=f"legacy-{defect.value}-{case_seed:016x}",
+    )
     snapshot = Snapshot.from_entities_relations(
         list(base.entities.values()), list(base.relations.values())
     )
-    dlg = DialogueNarrativeInput(dialogue=text, narrative_constraint_ids=[_NARRATIVE_CONSTRAINT])
-    gt = GroundTruth(defect_class=defect, injected_entities=[entity], note=text[:120])
-    return InjectedSample(snapshot=snapshot, ground_truth=gt, dialogue=dlg)
+    target_text = case.target_span.text if case.target_span is not None else case.dialogue
+    ground_truth = GroundTruth(
+        defect_class=defect,
+        injected_entities=list(case.target_entities),
+        note=target_text[:120],
+    )
+    return InjectedSample(
+        snapshot=snapshot,
+        ground_truth=ground_truth,
+        dialogue=to_agent_input(case),
+    )
 
 
 def _inject_character_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
-    entities, _ = _clone_lists(base)
-    who = _narrative_actor(entities, rng, NodeType.NPC, "npc:unknown")
-    trait = ["honest", "loyal", "peaceful", "generous"][rng.randrange(4)]
-    action = ["lies to rob the merchant", "betrays the outpost", "starts a brawl",
-              "hoards the reward"][rng.randrange(4)]
-    v = _suffix(rng)
-    text = (f"[v{v}] {who} is established as TRAIT:{trait}. Later {who} says: "
-            f"CONTRADICTION: '{action}' — irreconcilable with being {trait}.")
-    return _narrative_sample(base, DefectClass.character_violation, who, text)
+    return _narrative_sample(base, DefectClass.character_violation, rng)
 
 
 def _inject_spoiler(base: Snapshot, rng: random.Random) -> InjectedSample:
-    entities, _ = _clone_lists(base)
-    who = _narrative_actor(entities, rng, NodeType.NPC, "npc:unknown")
-    twist = ["the king is the traitor", "the relic is cursed", "the guide is a spy",
-             "the outpost falls"][rng.randrange(4)]
-    v = _suffix(rng)
-    text = (f"[v{v}] REVEAL: '{twist}' is gated behind the finale quest. "
-            f"{who} blurts it in the intro — SPOILER: revealed far too early.")
-    return _narrative_sample(base, DefectClass.spoiler, who, text)
+    return _narrative_sample(base, DefectClass.spoiler, rng)
 
 
 def _inject_faction_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
-    entities, _ = _clone_lists(base)
-    who = _narrative_actor(entities, rng, NodeType.MONSTER, "mon:wolves")
-    v = _suffix(rng)
-    text = (f"[v{v}] ENEMIES: the Wolves ({who}) and the Outpost Guard are sworn foes. "
-            f"Yet {who} says: ALLIANCE: 'We Guards happily fight alongside you.'")
-    return _narrative_sample(base, DefectClass.faction_violation, who, text)
+    return _narrative_sample(base, DefectClass.faction_violation, rng)
 
 
 def _inject_uniqueness_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
-    entities, _ = _clone_lists(base)
-    npcs = sorted(e.id for e in entities if e.type is NodeType.NPC)
-    a = npcs[0] if npcs else "npc:a"
-    b = npcs[1] if len(npcs) > 1 else "npc:b"
-    v = _suffix(rng)
-    text = (f"[v{v}] Lore: there is exactly one Chosen. {a} claims UNIQUE-ROLE:Chosen. "
-            f"{b} also claims UNIQUE-ROLE:Chosen — two holders of a one-holder role.")
-    return _narrative_sample(base, DefectClass.uniqueness_violation, a, text)
+    return _narrative_sample(base, DefectClass.uniqueness_violation, rng)
 
 
 _INJECTORS: dict[DefectClass, Callable[[Snapshot, random.Random], InjectedSample]] = {
