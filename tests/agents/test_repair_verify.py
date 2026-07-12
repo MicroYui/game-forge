@@ -78,10 +78,10 @@ def _checkers():
     return compile_all(Constraint.from_yaml(_CONSTRAINTS_YAML))
 
 
-def _patch(ops: list[TypedOp]) -> Patch:
+def _patch(base: Snapshot, ops: list[TypedOp]) -> Patch:
     return Patch(
         id="test-patch",
-        base_snapshot_id="base",
+        base_snapshot_id=base.snapshot_id,
         target_snapshot_id="",
         side_effect_risk="low",
         ops=ops,
@@ -94,7 +94,7 @@ def _patch(ops: list[TypedOp]) -> Patch:
 def test_correct_patch_verifies_ok():
     base = _base_snapshot()
     checkers = _checkers()
-    patch = _patch([
+    patch = _patch(base, [
         TypedOp(op_id="o1", op="set_entity_attr", target="quest:q1.reward_gold",
                 old_value=120, new_value=50),
     ])
@@ -111,7 +111,7 @@ def test_correct_patch_verifies_ok():
 def test_out_of_range_new_value_not_resolved():
     base = _base_snapshot()
     checkers = _checkers()
-    patch = _patch([
+    patch = _patch(base, [
         TypedOp(op_id="o1", op="set_entity_attr", target="quest:q1.reward_gold",
                 old_value=120, new_value=200),  # still > 80: defect persists
     ])
@@ -126,7 +126,7 @@ def test_out_of_range_new_value_not_resolved():
 def test_patch_introducing_dangling_reference_is_rejected():
     base = _base_snapshot()
     checkers = _checkers()
-    patch = _patch([
+    patch = _patch(base, [
         TypedOp(op_id="o1", op="set_entity_attr", target="quest:q1.reward_gold",
                 old_value=120, new_value=50),  # resolves the target defect...
         TypedOp(op_id="o2", op="add_relation", target="rel:dangle",
@@ -151,7 +151,7 @@ def test_patch_introducing_dangling_reference_is_rejected():
 def test_hole_a_simulation_target_noop_does_not_resolve():
     base = _load_scenario("economy_collapse")
     checkers = _real_checkers()
-    noop = _patch([])  # empty ops -> content-identical snapshot (a genuine no-op)
+    noop = _patch(base, [])  # empty ops -> content-identical snapshot (a genuine no-op)
     patched = apply_patch(base, noop)
 
     result = verify_patch(base, patched, checkers, "economy_collapse", run_regression=False)
@@ -169,7 +169,7 @@ def test_hole_a_simulation_target_noop_does_not_resolve():
 def test_hole_b_delete_entity_to_silence_is_rejected():
     base = _load_scenario("reward_out_of_range")
     checkers = _real_checkers()
-    delete = _patch([
+    delete = _patch(base, [
         TypedOp(op_id="d1", op="delete_entity", target="quest:outpost"),
     ])
     patched = apply_patch(base, delete)
@@ -183,7 +183,7 @@ def test_hole_b_delete_entity_to_silence_is_rejected():
 def test_hole_b_legit_reward_fix_still_passes():
     base = _load_scenario("reward_out_of_range")
     checkers = _real_checkers()
-    fix = _patch([
+    fix = _patch(base, [
         TypedOp(op_id="r1", op="set_entity_attr", target="quest:outpost.reward.gold",
                 old_value=500, new_value=100),  # in range (<=150); quest preserved
     ])
@@ -202,7 +202,7 @@ def test_hole_b_legit_reward_fix_still_passes():
 def test_hole_c_gates_report_false_when_not_applicable():
     base = _base_snapshot()  # minimal in-memory: no region/grid, no economy entities
     checkers = _checkers()
-    patch = _patch([
+    patch = _patch(base, [
         TypedOp(op_id="o1", op="set_entity_attr", target="quest:q1.reward_gold",
                 old_value=120, new_value=50),
     ])
@@ -219,7 +219,7 @@ def test_hole_c_gates_report_false_when_not_applicable():
 def test_hole_c_regression_ran_true_on_buildable_scenario():
     base = _load_scenario("clean")
     checkers = _real_checkers()
-    patched = apply_patch(base, _patch([]))  # no-op
+    patched = apply_patch(base, _patch(base, []))  # no-op
 
     result = verify_patch(base, patched, checkers, "reward_out_of_range")  # run_regression True
 

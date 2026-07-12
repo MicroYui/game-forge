@@ -14,10 +14,10 @@ from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.patch import PatchRejected, apply_patch, dry_run
 
 
-def _patch(ops, preconditions=None, patch_id="p1") -> Patch:
+def _patch(snap: Snapshot, ops, preconditions=None, patch_id="p1") -> Patch:
     return Patch(
         id=patch_id,
-        base_snapshot_id="sha256:base",
+        base_snapshot_id=snap.snapshot_id,
         target_snapshot_id="",
         side_effect_risk="low",
         ops=ops,
@@ -42,7 +42,7 @@ def _base_snapshot() -> Snapshot:
 
 def test_set_entity_attr_with_correct_old_value_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="set_entity_attr", target="q:1.reward_gold",
                 old_value=120, new_value=80),
     ])
@@ -55,7 +55,7 @@ def test_set_entity_attr_with_correct_old_value_applies():
 
 def test_old_value_mismatch_is_rejected():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="set_entity_attr", target="q:1.reward_gold",
                 old_value=999, new_value=80),
     ])
@@ -66,7 +66,7 @@ def test_old_value_mismatch_is_rejected():
 
 def test_add_entity_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="add_entity", target="item:1",
                 new_value={"type": "ITEM", "attrs": {"name": "Sword"}}),
     ])
@@ -79,7 +79,7 @@ def test_add_entity_applies():
 
 def test_delete_entity_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="delete_entity", target="npc:1"),
     ])
     snap2 = apply_patch(snap, patch)
@@ -88,7 +88,7 @@ def test_delete_entity_applies():
 
 def test_add_relation_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="add_relation", target="rel:2",
                 new_value={"type": "TALKS_TO", "src_id": "q:1", "dst_id": "npc:1"}),
     ])
@@ -101,7 +101,7 @@ def test_add_relation_applies():
 
 def test_delete_relation_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="delete_relation", target="rel:1"),
     ])
     snap2 = apply_patch(snap, patch)
@@ -110,7 +110,7 @@ def test_delete_relation_applies():
 
 def test_set_relation_attr_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="set_relation_attr", target="rel:1.note",
                 old_value="start", new_value="updated"),
     ])
@@ -121,7 +121,7 @@ def test_set_relation_attr_applies():
 
 def test_replace_subgraph_applies():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="replace_subgraph", target="subgraph:1", new_value={
             "entities": [{"id": "q:1", "type": "QUEST", "attrs": {"reward_gold": 50}}],
             "relations": [],
@@ -135,6 +135,7 @@ def test_replace_subgraph_applies():
 def test_precondition_failure_is_rejected():
     snap = _base_snapshot()
     patch = _patch(
+        snap,
         [TypedOp(op_id="o1", op="set_entity_attr", target="q:1.reward_gold", new_value=1)],
         preconditions=[{"kind": "entity_exists", "id": "does_not_exist"}],
     )
@@ -144,7 +145,7 @@ def test_precondition_failure_is_rejected():
 
 def test_dry_run_returns_diff_without_mutating_base():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="set_entity_attr", target="q:1.reward_gold",
                 old_value=120, new_value=80),
     ])
@@ -155,9 +156,104 @@ def test_dry_run_returns_diff_without_mutating_base():
 
 def test_dry_run_lets_rejection_propagate():
     snap = _base_snapshot()
-    patch = _patch([
+    patch = _patch(snap, [
         TypedOp(op_id="o1", op="set_entity_attr", target="q:1.reward_gold",
                 old_value=999, new_value=80),
     ])
     with pytest.raises(PatchRejected):
+        dry_run(snap, patch)
+
+
+@pytest.mark.parametrize(
+    "ops",
+    [
+        [],
+        [
+            TypedOp(
+                op_id="add",
+                op="add_entity",
+                target="item:new",
+                new_value={"type": "ITEM", "attrs": {}},
+            )
+        ],
+        [TypedOp(op_id="delete", op="delete_relation", target="rel:1")],
+        [
+            TypedOp(
+                op_id="set",
+                op="set_entity_attr",
+                target="q:1.reward_gold",
+                old_value=120,
+                new_value=80,
+            )
+        ],
+    ],
+)
+def test_stale_base_rejects_every_patch_shape_before_work(ops):
+    snap = _base_snapshot()
+    patch = _patch(snap, ops).model_copy(
+        update={"base_snapshot_id": "sha256:stale"}
+    )
+
+    with pytest.raises(PatchRejected, match="base snapshot mismatch"):
+        apply_patch(snap, patch)
+
+
+def test_stale_base_rejection_precedes_malformed_precondition():
+    snap = _base_snapshot()
+    patch = _patch(snap, [], preconditions=[{"kind": "attr_equals"}]).model_copy(
+        update={"base_snapshot_id": "sha256:stale"}
+    )
+
+    with pytest.raises(PatchRejected, match="base snapshot mismatch"):
+        apply_patch(snap, patch)
+
+
+@pytest.mark.parametrize(
+    "condition",
+    [
+        {},
+        {"kind": "entity_exists"},
+        {"kind": "entity_exists", "id": ""},
+        {"kind": "entity_exists", "id": 7},
+        {"kind": "attr_equals"},
+        {"kind": "attr_equals", "target": "q:1.reward_gold"},
+        {"kind": "attr_equals", "target": "q:1", "value": 120},
+        {"kind": "attr_equals", "target": 7, "value": 120},
+    ],
+)
+def test_malformed_precondition_is_patch_rejected(condition):
+    snap = _base_snapshot()
+
+    with pytest.raises(PatchRejected, match="malformed precondition|unknown kind"):
+        apply_patch(snap, _patch(snap, [], preconditions=[condition]))
+
+
+def test_late_op_failure_never_mutates_input_snapshot():
+    snap = _base_snapshot()
+    patch = _patch(
+        snap,
+        [
+            TypedOp(
+                op_id="first",
+                op="set_entity_attr",
+                target="q:1.reward_gold",
+                old_value=120,
+                new_value=80,
+            ),
+            TypedOp(op_id="second", op="delete_entity", target="missing"),
+        ],
+    )
+
+    with pytest.raises(PatchRejected):
+        apply_patch(snap, patch)
+    assert snap.to_graph().get_node("q:1").attrs["reward_gold"] == 120
+
+
+def test_dry_run_rejects_stale_base():
+    snap = _base_snapshot()
+    patch = _patch(snap, []).model_copy(
+        update={"base_snapshot_id": "sha256:stale"}
+    )
+
+    with pytest.raises(PatchRejected, match="base snapshot mismatch"):
         dry_run(snap, patch)

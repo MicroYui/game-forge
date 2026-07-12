@@ -7,9 +7,14 @@ into a new `Snapshot` — it never edits a snapshot in place and it never
 "best-effort" applies an op it cannot verify: any anomaly is a hard reject
 (`PatchRejected`), never a silent partial apply.
 
-Two independent gates run before/while applying, both fail-closed:
+Three independent gates run before/while applying, all fail-closed:
 
-1. **Preconditions** (`Patch.preconditions`, a small documented vocabulary):
+1. **Exact base** (`Patch.base_snapshot_id`): the Patch must name the exact
+   Snapshot passed to `apply_patch`. A mismatch rejects before graph copying,
+   precondition evaluation, or op handling; this module does not implicitly
+   rebase.
+
+2. **Preconditions** (`Patch.preconditions`, a small documented vocabulary):
    - `{"kind": "entity_exists", "id": <entity_id>}` — entity must currently
      exist in the graph.
    - `{"kind": "attr_equals", "target": "<entity_id>.<path>", "value": <v>}`
@@ -18,7 +23,7 @@ Two independent gates run before/while applying, both fail-closed:
    Any unrecognized `kind`, or any failing condition, rejects the whole patch
    before a single op is applied.
 
-2. **old_value optimistic concurrency** (contract §6 anchor): for any
+3. **old_value optimistic concurrency** (contract §6 anchor): for any
    `TypedOp` whose `old_value` is not `None`, the *current* value at
    `op.target` (see convention below) must equal `op.old_value` at the moment
    that op is applied (ops apply in list order, so an earlier op in the same
@@ -105,16 +110,42 @@ def _set_nested(d: dict[str, Any], path: str, value: Any) -> None:
     cur[parts[-1]] = value
 
 
+def _required_nonempty_str(
+    cond: dict[str, Any], field: str, kind: object
+) -> str:
+    value = cond.get(field)
+    if not isinstance(value, str) or not value:
+        raise PatchRejected(
+            f"malformed precondition {kind!r}: {field!r} must be a non-empty string"
+        )
+    return value
+
+
 def _check_preconditions(graph: IRGraph, preconditions: list[dict[str, Any]]) -> None:
     for cond in preconditions:
         kind = cond.get("kind")
+        if not isinstance(kind, str) or not kind:
+            raise PatchRejected(
+                "malformed precondition: 'kind' must be a non-empty string"
+            )
         if kind == "entity_exists":
-            if graph.get_node(cond["id"]) is None:
+            entity_id = _required_nonempty_str(cond, "id", kind)
+            if graph.get_node(entity_id) is None:
                 raise PatchRejected(
-                    f"precondition failed: entity_exists({cond['id']!r})", None
+                    f"precondition failed: entity_exists({entity_id!r})", None
                 )
         elif kind == "attr_equals":
-            entity_id, path = _split_target(cond["target"])
+            target = _required_nonempty_str(cond, "target", kind)
+            entity_id, path = _split_target(target)
+            if not entity_id or not path:
+                raise PatchRejected(
+                    f"malformed precondition {kind!r}: 'target' must be "
+                    "'<entity_id>.<attr_path>'"
+                )
+            if "value" not in cond:
+                raise PatchRejected(
+                    f"malformed precondition {kind!r}: missing required field 'value'"
+                )
             node = graph.get_node(entity_id)
             if node is None:
                 raise PatchRejected(
@@ -124,7 +155,7 @@ def _check_preconditions(graph: IRGraph, preconditions: list[dict[str, Any]]) ->
             current = _get_nested(node.attrs, path) if path else None
             if current != cond["value"]:
                 raise PatchRejected(
-                    f"precondition failed: attr_equals({cond['target']!r}) "
+                    f"precondition failed: attr_equals({target!r}) "
                     f"expected {cond['value']!r}, found {current!r}", None
                 )
         else:
@@ -254,10 +285,18 @@ def _apply_op(graph: IRGraph, op: TypedOp) -> None:
 def apply_patch(snapshot: Snapshot, patch: Patch) -> Snapshot:
     """Apply `patch.ops` to a COPY of `snapshot`'s graph; return a new Snapshot.
 
-    Never mutates `snapshot`. Raises `PatchRejected` (rebase-or-reject) if any
-    precondition fails, any op's `old_value` no longer matches the current
-    value, or any op is otherwise malformed/inapplicable.
+    Never mutates `snapshot`. Raises `PatchRejected` (rebase-or-reject) if the
+    Patch targets another base, any precondition fails, any op's `old_value` no
+    longer matches the current value, or any op is otherwise malformed or
+    inapplicable.
     """
+    if snapshot.snapshot_id != patch.base_snapshot_id:
+        raise PatchRejected(
+            "base snapshot mismatch: "
+            f"patch expects {patch.base_snapshot_id!r}, "
+            f"current is {snapshot.snapshot_id!r}"
+        )
+
     graph = snapshot.to_graph()  # already a deep copy — `snapshot` stays untouched
 
     _check_preconditions(graph, patch.preconditions)
