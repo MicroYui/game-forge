@@ -298,6 +298,7 @@ def _validate_lineage(
         candidate.commit.commit_oid: candidate for candidate in discovered.discovered_candidates
     }
     parent: dict[str, str] = {}
+    validated_revert_targets: set[str] = set()
 
     def find(oid: str) -> str:
         parent.setdefault(oid, oid)
@@ -350,6 +351,7 @@ def _validate_lineage(
                     raise AdjudicationError(
                         f"a revert endpoint must be excluded as {expected_reason}"
                     )
+                validated_revert_targets.add(link.target_oid)
         if resolution.resolution == "same_group" and len(endpoint_group_ids) > 1:
             raise AdjudicationError(
                 "same_group lineage endpoints must belong to at most one fix group"
@@ -369,7 +371,7 @@ def _validate_lineage(
                 "lineage siblings cannot both count as independent proposed groups"
             )
         for oid in component:
-            if oid in group_by_commit:
+            if oid in group_by_commit or oid in validated_revert_targets:
                 continue
             candidate = candidate_by_oid.get(oid)
             if candidate is None:

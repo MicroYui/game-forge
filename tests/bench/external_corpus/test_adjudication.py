@@ -24,6 +24,7 @@ from tests.bench.external_corpus.adjudication_fixture import (
     discovery_with_external_lineage_siblings,
     discovery_with_lineage,
     discovery_with_recursive_external_revert,
+    discovery_with_selected_revert_in_equivalence_lineage,
     oid,
     reviewed_evidence,
 )
@@ -283,6 +284,35 @@ def test_recursive_external_revert_context_needs_no_candidate_disposition():
 
     assert decision.gate.status == "pass"
     assert ledger.lineage_resolutions == reviewed.lineage_resolutions
+
+
+def test_selected_revert_can_be_excluded_inside_equivalence_lineage():
+    discovery = discovery_with_selected_revert_in_equivalence_lineage()
+    evidence = reviewed_evidence(
+        discovery,
+        group_indices=[1, 2, 3, 4, 5, 6, 7, 8],
+    )
+    revert_oid = discovery.discovered_candidates[0].commit.commit_oid
+    reviewed = _reattest(
+        evidence,
+        candidate_decisions=_replace_disposition_reason(evidence, revert_oid, "revert"),
+        lineage_resolutions=[
+            LineageResolution(
+                link_id=link.link_id,
+                resolution="same_group",
+                affected_group_ids=(
+                    ["group.1"] if link.link_type == "backport" else []
+                ),
+                rationale="The representative backport points to a selected revert.",
+            )
+            for link in discovery.objective_lineage_links
+        ],
+    )
+
+    ledger, decision = adjudicate(discovery, reviewed)
+
+    assert decision.gate.status == "pass"
+    assert ledger.candidate_decisions[0].reason_code == "revert"
 
 
 def test_one_reviewed_lineage_representative_can_count():
