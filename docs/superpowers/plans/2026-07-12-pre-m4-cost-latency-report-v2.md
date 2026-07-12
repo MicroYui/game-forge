@@ -4,6 +4,8 @@
 
 **Goal:** Measure cassette-bound Agent token/record-time latency and controlled deterministic pipeline latency, then publish the complete `bench-report@2` JSON/text/static-HTML model and an honest combined M3 acceptance gate without fabricating the still-pending real QA study.
 
+**Execution status (2026-07-13):** The non-human scope is complete and verified. The product owner explicitly deferred the eight real QA sessions; they remain the sole `qa.evidence_missing` acceptance failure. M3 product acceptance is pending only for that real QA follow-up, and M4 has not started.
+
 **Architecture:** Source-neutral metric and evidence contracts live under `gameforge/bench/`; a thin Agent-cost composition module maps frozen narrative, HED, repair, and playtest request traces to immutable cassette records while preserving each workload's model snapshot. A separate deterministic runtime harness times the existing checker/simulation pipeline under a hash-bound environment manifest. `BenchReport` composes seeded, narrative, external, HED, QA, Agent, cost, latency, and power evidence into one strict v2 model; JSON is canonical authority, and text/HTML render only that model. The acceptance validator consumes the report plus typed manifests and returns structured failures until every PRD gate, including real QA evidence, is genuinely satisfied.
 
 **Tech Stack:** Python 3.12, Pydantic v2, stdlib `time`/`platform`/`importlib.metadata`/`statistics`, existing Model Router/Cassette contracts, pytest, Hypothesis, Graph/ASP/SMT/economy pipeline, canonical JSON, static HTML.
@@ -916,7 +918,7 @@ Ruff, `git diff --check`, and zero-cassette-diff checks pass.
 
 ---
 
-### Task 10: Regression, QA Follow-Up, and Pre-M4 Handoff
+### Task 10: Regression, Deferred QA, and Pre-M4 Handoff
 
 **Files:**
 - Modify: `docs/superpowers/plans/2026-07-12-pre-m4-cost-latency-report-v2.md`
@@ -924,7 +926,7 @@ Ruff, `git diff --check`, and zero-cassette-diff checks pass.
 - Modify after real sessions: `scenarios/bench/bench-report.{json,txt,html}`
 - Modify after real sessions: `tests/bench/test_measured_report_v2.py`
 
-- [ ] **Step 1: Run focused evidence and historical replay regression**
+- [x] **Step 1: Run focused evidence and historical replay regression**
 
 ```bash
 uv run pytest tests/bench/hed tests/bench/qa tests/bench/narrative \
@@ -936,7 +938,7 @@ uv run pytest tests/bench/hed tests/bench/qa tests/bench/narrative \
 git diff --exit-code -- cassettes
 ```
 
-- [ ] **Step 2: Run all repository gates**
+- [x] **Step 2: Run all repository gates**
 
 ```bash
 uv run pytest -q
@@ -946,7 +948,7 @@ uv run ruff check gameforge tests
 git diff --check
 ```
 
-- [ ] **Step 3: Revalidate immutable external, narrative, HED, and cost evidence**
+- [x] **Step 3: Revalidate immutable external, narrative, HED, and cost evidence**
 
 ```bash
 uv run python -m gameforge.bench.external_cases.endless_sky_runner \
@@ -966,13 +968,38 @@ cmp /tmp/agent-cost-final.json \
   scenarios/bench/agent-cost-latency-evidence.json
 ```
 
-- [ ] **Step 4: Keep the current slice open only for real QA evidence**
+- [x] **Step 4: Close the non-human slice and defer real QA**
 
-Before the participant finishes, update `plans/README.md` to state: Cost/Latency, runtime measurement, BenchReport v2, three views, and acceptance automation are complete; real QA evidence and final pre-M4 audit remain open; M3 is still in progress and M4 has not started.
+Per the product-owner decision, update `plans/README.md` to state: Cost/Latency,
+runtime measurement, BenchReport v2, three views, acceptance automation, and the
+non-human pre-M4 audit are complete. Real QA evidence is deferred, M3 remains
+pending only for that evidence, and M4 has not started. Merging this verified
+non-human closure to `master` completes the current goal.
 
-- [ ] **Step 5: After the human-evidence plan imports eight real sessions, rebuild and close**
+- [ ] **Step 5 (deferred follow-up): Import eight real sessions and close M3**
 
-Run the Task 9 report/acceptance commands again. The final acceptance result must be an empty tuple, all measured tests must pass, and only then may this plan and the human-evidence plan be marked complete. Update the AGENTS milestone table and `plans/README.md` in the separate final pre-M4 audit commit; do not begin M4 in this plan.
+This step is outside the current non-human closure. When the product owner
+provides the sessions, run the Task 9 report/acceptance commands again. The final
+acceptance result must be an empty tuple and all measured tests must pass before
+M3 is marked fully complete or M4 begins.
+
+Task 10 non-human result:
+
+- Focused evidence and historical replay regression: `316 passed`; `cassettes/`
+  remained byte-unchanged.
+- The first complete repository run exposed two closure-integration omissions:
+  BenchReport v2 had removed the published legacy external-result import still
+  used by frozen replay, and the older dependency lint did not share the newer
+  two-bridge Agent allowlist. The source-neutral compatibility contract and the
+  exact `agent_metrics.py`/`agent_costs.py` allowlist were restored; the focused
+  compatibility and architecture regression reports `38 passed`.
+- Final repository gates: `1376 passed, 1 skipped`; all 7 import contracts kept;
+  dependency gate `27 passed`; Ruff and whitespace diff clean.
+- External replay remains `8/8` qualified, verification `4/4`, and after-oracle
+  FP `0/8`. External manifest, HED, Narrative, and Agent-cost replays are all
+  byte-identical to their frozen evidence; `cassettes/` remains unchanged.
+- Runtime evidence and all three BenchReport views validate. Combined acceptance
+  returns exactly `qa.evidence_missing` and no non-QA failure.
 
 ---
 

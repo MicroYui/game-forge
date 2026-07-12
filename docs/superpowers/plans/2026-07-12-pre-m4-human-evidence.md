@@ -4,6 +4,8 @@
 
 **Goal:** Measure Human-Edit-Distance against all eight upstream human fixes and collect a protocol-valid four-pair QA-hours case study without introducing game-specific logic into GameForge's Agent, checker, metric, or report contracts.
 
+**Execution status (2026-07-13):** HED evidence and the frozen QA protocol/tooling are complete. The product owner deferred the eight real participant sessions and will provide them later; the remaining Task 8 session import and Task 9 human-evidence closure stay unchecked and are the only outstanding M3 product evidence.
+
 **Architecture:** A source-neutral HED package compares semantic IR deltas produced from the same before snapshot: one target comes from the verifier-gated Repair Agent and one from the upstream author's after commit. A separate source-neutral QA package freezes a counterbalanced matched-pair schedule, records monotonic timer events, and scores the same correctness contract for both arms; a thin Endless Sky composition boundary materializes source files and calls the existing reader, Adapter, predicate, native parser, and generic checkers. New Agent evidence is recorded with `openai/gpt-5.6-sol/pre-m4@1`; all historical Opus 4.8 cassettes remain byte-identical.
 
 **Tech Stack:** Python 3.12, Pydantic v2, pytest, Hypothesis, stdlib `hashlib`/`json`/`random`/`statistics`/`time`, existing Model Router/Cassette contracts, `GraphChecker` + `ASPChecker`, and the existing Endless Sky lossless reader/Adapter/native predicate evidence path.
