@@ -574,7 +574,7 @@ GREEN with `13 passed`; Ruff and `git diff --check` pass.
 - `write_report_bundle(report, output_dir) -> tuple[Path, Path, Path]`
 - CLI: `python -m gameforge.bench.run_bench --output-dir scenarios/bench`
 
-- [ ] **Step 1: Write failing composition tests**
+- [x] **Step 1: Write failing composition tests**
 
 ```python
 def test_v2_report_contains_all_fifteen_measured_class_metrics():
@@ -594,13 +594,13 @@ def test_missing_qa_evidence_is_pending_and_never_fake_zero():
 
 Also assert the report uses Endless Sky `external-corpus-manifest@1`, not the legacy Flare compatibility report; HED contains all 8 outcomes including 2 unusable; Agent metrics preserve their own model snapshots; cost has six workloads; deterministic runtime ref/hash matches; power uses evaluated n; every evidence ref resolves; report canonical round-trip is byte-identical; and small test corpora cannot masquerade as final measured acceptance.
 
-- [ ] **Step 2: Run composition tests and verify RED**
+- [x] **Step 2: Run composition tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_bench_report.py tests/bench/test_run_bench.py -q`
 
 Expected: existing v1 fields/constructors do not satisfy v2 composition.
 
-- [ ] **Step 3: Implement v2 evidence translation**
+- [x] **Step 3: Implement v2 evidence translation**
 
 Translate existing evidence without recomputing or renaming its semantics:
 
@@ -617,7 +617,7 @@ Translate existing evidence without recomputing or renaming its semantics:
 
 Do not silently call live Agent recording. Report composition may recompute deterministic seeded metrics and bounded Agent outcome metrics under REPLAY, but loads cost/runtime/evidence artifacts from explicit paths.
 
-- [ ] **Step 4: Run focused tests and commit**
+- [x] **Step 4: Run focused tests and commit**
 
 Run:
 
@@ -637,6 +637,15 @@ git add gameforge/bench/report.py gameforge/bench/run_bench.py \
 git diff --cached --check
 git commit -m "feat(bench): compose BenchReport v2"
 ```
+
+Task 6 result: RED proved the existing report was still the v1 compatibility
+shape. Composition now translates all fifteen measured BDR rows, four distinct
+FP signals, external development/verification, HED, pending-or-measured QA,
+bounded Agent outcomes, six cost workloads, deterministic runtime, versions,
+and raw artifact hashes into canonical `bench-report@2`. The pure translator
+cross-checks all protocol/model/denominator links; the loader validates frozen
+source evidence and never records live calls. The focused suite is GREEN with
+`20 passed` in 111.43s; CLI help, Ruff, and `git diff --check` pass.
 
 ---
 
