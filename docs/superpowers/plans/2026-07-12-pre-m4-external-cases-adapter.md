@@ -38,7 +38,7 @@
 - Consumes: `DefectClass`, `canonical_json`, and regular files below a trusted fixture root.
 - Produces: `TargetLocator`, `ExternalCaseSpec`, `TreeFile`, `TreeArtifact`, `NativeEvidence`, `PredicateEvidence`, `FindingEvidence`, `HumanTarget`, `ExternalCaseEvidence`, `ExternalCorpusManifest`, `tree_artifact()`, `read_tree()`, `content_sha256()`, and `canonical_bytes()`.
 
-- [ ] **Step 1: Write failing strict-contract and hash-binding tests**
+- [x] **Step 1: Write failing strict-contract and hash-binding tests**
 
 ```python
 def test_case_spec_requires_nonempty_targets_and_config_paths():
@@ -71,13 +71,13 @@ def test_tree_artifact_partitions_exact_regular_files(tmp_path):
         read_tree(tmp_path, artifact)
 ```
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [x] **Step 2: Run the focused tests and verify RED**
 
 Run: `uv run pytest tests/bench/external_cases/test_contracts.py tests/bench/external_cases/test_tree.py -q`
 
 Expected: collection fails because `gameforge.bench.external_cases` does not exist.
 
-- [ ] **Step 3: Implement the full immutable evidence models and canonical self-hashes**
+- [x] **Step 3: Implement the full immutable evidence models and canonical self-hashes**
 
 Use strict frozen Pydantic models. The core field shapes are:
 
@@ -131,13 +131,13 @@ class ExternalCaseEvidence(_StrictModel):
 
 `tree_artifact()` walks only regular files, rejects symlinks and special files, sorts normalized POSIX paths, records byte size and SHA-256, and binds the ordered file descriptors into `tree_sha256`. `read_tree()` rechecks path containment, regular-file type, size, per-file digest, and aggregate digest before returning bytes.
 
-- [ ] **Step 4: Run the focused tests and verify GREEN**
+- [x] **Step 4: Run the focused tests and verify GREEN**
 
 Run: `uv run pytest tests/bench/external_cases/test_contracts.py tests/bench/external_cases/test_tree.py -q`
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit the source-neutral evidence contract**
+- [x] **Step 5: Commit the source-neutral evidence contract**
 
 ```bash
 git add gameforge/bench/external_cases tests/bench/external_cases
