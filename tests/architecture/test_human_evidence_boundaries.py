@@ -57,7 +57,10 @@ def test_agent_cost_composition_is_the_only_cost_layer_importing_agents():
     assert offenders == allowed
 
     for relative in (
+        "gameforge/bench/acceptance.py",
         "gameforge/bench/cost_latency.py",
+        "gameforge/bench/panel.py",
+        "gameforge/bench/report.py",
         "gameforge/bench/report_contracts.py",
     ):
         source = (_ROOT / relative).read_text(encoding="utf-8").lower()

@@ -744,8 +744,10 @@ class M3EvidenceBundle(StrictModel):
     narrative: NarrativeEvidenceManifest
     hed: HedEvidenceManifest
     qa: QaEvidenceManifest | None
-    agent_cost: AgentCostLatencyEvidence
-    deterministic_runtime: DeterministicRuntimeEvidence
+    agent_cost: AgentCostLatencyEvidence | None
+    deterministic_runtime: DeterministicRuntimeEvidence | None
+    artifacts: tuple[EvidenceArtifactRef, ...]
+    views: ReportViewHashes
 
 def validate_m3_acceptance(
     report: BenchReport,
@@ -753,7 +755,7 @@ def validate_m3_acceptance(
 ) -> tuple[GateFailure, ...]: ...
 ```
 
-- [ ] **Step 1: Write a complete synthetic passing bundle and one test per gate**
+- [x] **Step 1: Write a complete synthetic passing bundle and one test per gate**
 
 ```python
 def test_complete_m3_bundle_has_no_gate_failures():
@@ -767,19 +769,19 @@ def test_current_missing_real_qa_evidence_is_a_specific_failure_not_an_exception
 
 Add independent mutations for: corpus <500; missing class; pending/evaluated mismatch; narrative n !=381; narrative clean n !=381; CI half-width >0.05; deterministic oracle-FP nonzero; external !=8 cases/4 classes; missing verification hit/after-clear; external after FP nonzero; HED !=8/protocol failure/missing human target; QA !=4 valid pairs; missing Agent token or latency; missing deterministic runtime; cassette miss/unknown workload denominator; view hashes mismatch; evidence hash/path mismatch; model relabeling; and source-specific report/checker boundary violations.
 
-- [ ] **Step 2: Run acceptance tests and verify RED**
+- [x] **Step 2: Run acceptance tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_m3_acceptance.py tests/architecture/test_human_evidence_boundaries.py -q`
 
 Expected: acceptance module and structured failures do not exist.
 
-- [ ] **Step 3: Implement all ten lean-design machine gates**
+- [x] **Step 3: Implement all ten lean-design machine gates**
 
 Return failures sorted by `(code, path, message)`. Gate validation must cross-check the report against the typed source manifests, not just trust copied report numbers. Unknown historical transport attempts remain reportable and do not fail item 8 because token and record-time latency are measured; a missing/malformed cassette or missing token/latency value does fail.
 
 The current real repository is expected to return only QA-related failures until the participant evidence is imported. Any other failure must be fixed before freezing the report.
 
-- [ ] **Step 4: Run focused tests and commit**
+- [x] **Step 4: Run focused tests and commit**
 
 Run:
 
@@ -798,6 +800,15 @@ git add gameforge/bench/acceptance.py tests/bench/test_m3_acceptance.py \
 git diff --cached --check
 git commit -m "feat(bench): add combined M3 acceptance gate"
 ```
+
+Task 8 result: RED proved that no combined gate existed. The new pure validator
+cross-checks report rows against typed external, narrative, HED, QA, Agent-cost,
+and runtime evidence; preserves current GPT-5.6-Sol versus historical Opus
+model identities; verifies observed artifact and three-view byte hashes; and
+returns all failures sorted by `(code, path, message)`. A correct pending-QA
+bundle returns only `qa.evidence_missing`. The focused acceptance and boundary
+suite is GREEN with `18 passed`; adjacent report/cost/runtime regression is
+GREEN with `44 passed`; CLI help, Ruff, and `git diff --check` pass.
 
 ---
 
