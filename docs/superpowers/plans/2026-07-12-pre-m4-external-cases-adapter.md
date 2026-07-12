@@ -367,7 +367,7 @@ git commit -m "data(bench): freeze eight Endless Sky bug-fix cases"
 - Consumes: fixture file paths, a C++17 compiler, and the standalone parser source.
 - Produces: `compile_native_parser()`, `run_native_parser()`, deterministic node/token summaries, and `NativeEvidence` for each before/after tree.
 
-- [ ] **Step 1: Write a failing compile/run conformance test**
+- [x] **Step 1: Write a failing compile/run conformance test**
 
 ```python
 def test_native_parser_matches_python_node_and_token_counts(tmp_path):
@@ -382,13 +382,13 @@ def test_native_parser_matches_python_node_and_token_counts(tmp_path):
     }
 ```
 
-- [ ] **Step 2: Run the native test and verify RED**
+- [x] **Step 2: Run the native test and verify RED**
 
 Run: `uv run pytest tests/bench/external_cases/test_native_parser.py -q`
 
 Expected: native source/runner is missing.
 
-- [ ] **Step 3: Implement the standalone C++17 parser witness**
+- [x] **Step 3: Implement the standalone C++17 parser witness**
 
 The program accepts one or more file paths, reads binary bytes, validates UTF-8, tokenizes bare/double/backtick tokens, applies strict-smaller indentation parenting, rejects NUL and unterminated quotes, and prints exactly one canonical line:
 
@@ -400,13 +400,13 @@ The source header and `source-provenance.json` bind the derivation to upstream `
 
 `compile_native_parser()` resolves `CXX` or `c++`, captures compiler/version, invokes `-std=c++17 -O2`, and hashes source/binary/stdout/stderr. `run_native_parser()` sorts paths, computes the input-manifest SHA-256 in Python, and never invokes a shell. The C++ witness does parsing only; it does not carry an unnecessary second cryptographic implementation.
 
-- [ ] **Step 4: Verify native/Python conformance over all 16 trees**
+- [x] **Step 4: Verify native/Python conformance over all 16 trees**
 
 Run: `uv run pytest tests/bench/external_cases/test_native_parser.py -q`
 
 Expected: all fixture files parse on both implementations and the node/token totals agree.
 
-- [ ] **Step 5: Commit the native witness**
+- [x] **Step 5: Commit the native witness**
 
 ```bash
 git add scenarios/external_cases/endless_sky/native gameforge/bench/external_cases/native.py tests/bench/external_cases/test_native_parser.py
