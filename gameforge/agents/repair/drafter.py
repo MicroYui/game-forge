@@ -10,17 +10,20 @@ malformed `Patch`.
 
 On a refine round the caller passes the verifier's `counterexample`; it is
 appended to the prompt via the `repair.refine` template so the model re-drafts
-against concrete deterministic feedback (and, because the prompt now differs, the
-request gets a fresh request_hash — the drafted `Patch.id`).
+against concrete deterministic feedback. The changed prompt gets a fresh model
+request hash (`Patch.producer_run_id`); Patch identity separately binds that run
+to the exact base Snapshot and typed ops.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 from gameforge.agents.base import AgentParseError, call_model, parse_json_block
 from gameforge.agents.prompts.library import register_all_prompts
 from gameforge.agents.prompts.registry import get_prompt, render
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.findings import Finding, Patch, TypedOp
 from gameforge.contracts.ir import EdgeType
 from gameforge.runtime.model_router.router import ModelRouter
@@ -39,6 +42,18 @@ _VALID_OP_KINDS = {
 _DROP_OLD_VALUE_OPS = {"add_entity", "add_relation", "delete_entity", "delete_relation"}
 
 _CATALOG_CAP = 50  # per-type cap on the available-entity catalog (bounds token size)
+
+
+def _patch_id(
+    request_hash: str, base_snapshot_id: str, ops: list[TypedOp]
+) -> str:
+    payload = {
+        "request_hash": request_hash,
+        "base_snapshot_id": base_snapshot_id,
+        "ops": [op.model_dump(mode="json") for op in ops],
+    }
+    digest = hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+    return f"sha256:{digest}"
 
 
 class RepairDrafter:
@@ -69,7 +84,7 @@ class RepairDrafter:
             return None  # no well-formed ops survived → no patch proposed
 
         return Patch(
-            id=request_hash,
+            id=_patch_id(request_hash, snapshot.snapshot_id, ops),
             base_snapshot_id=snapshot.snapshot_id,
             target_snapshot_id="",
             side_effect_risk="low",
@@ -102,8 +117,6 @@ class RepairDrafter:
             "as real src_id/dst_id when you add_relation); edge_types = the valid relation types."
         )
         parts.append(self._ir_context(finding, snapshot))
-        parts.append("")
-        parts.append(f"base_snapshot_id: {snapshot.snapshot_id}")
         return "\n".join(parts)
 
     def _ir_context(self, finding: Finding, snapshot: Snapshot) -> str:

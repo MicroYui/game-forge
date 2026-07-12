@@ -2,12 +2,20 @@
 need: real relation ids/types/endpoints (to delete/modify), an available-entity
 catalog (to reference as add_relation src/dst), and the edge-type vocabulary.
 Without these the model invents relation ids that apply_patch rejects."""
+import hashlib
 import json
 
+import pytest
+
 from gameforge.agents.repair.drafter import RepairDrafter
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
+from gameforge.contracts.model_router import ModelResponse
+from gameforge.runtime.cassette.store import CassetteStore
+from gameforge.runtime.model_router.router import ModelRouter, RouterMode
 from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.patch import PatchRejected, apply_patch
 
 
 def _finding(snap, entities):
@@ -79,3 +87,82 @@ def test_ir_context_still_includes_focus_node_attrs():
     ctx = json.loads(RepairDrafter()._ir_context(_finding(snap, ["q"]), snap))
     focus = {n["id"]: n for n in ctx["focus_nodes"]}
     assert focus["q"]["attrs"]["reward_gold"] == 120
+
+
+class _FixedOpsTransport:
+    def __init__(self):
+        self.calls = []
+
+    def complete(self, req):
+        self.calls.append(req)
+        return ModelResponse(
+            response_normalized=json.dumps(
+                [
+                    {
+                        "op": "set_entity_attr",
+                        "target": "q.reward_gold",
+                        "old_value": 120,
+                        "new_value": 80,
+                    }
+                ]
+            )
+        )
+
+
+def _stable_context_snapshot(unrelated_name: str) -> Snapshot:
+    return Snapshot.from_entities_relations(
+        [
+            Entity(id="q", type=NodeType.QUEST, attrs={"reward_gold": 120}),
+            Entity(
+                id="npc:unrelated",
+                type=NodeType.NPC,
+                attrs={"name": unrelated_name},
+            ),
+        ],
+        [],
+    )
+
+
+def _expected_patch_id(patch) -> str:
+    payload = {
+        "request_hash": patch.producer_run_id,
+        "base_snapshot_id": patch.base_snapshot_id,
+        "ops": [op.model_dump(mode="json") for op in patch.ops],
+    }
+    digest = hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+    return f"sha256:{digest}"
+
+
+def test_semantic_request_reuses_model_run_but_patch_identity_binds_base(tmp_path):
+    snap_a = _stable_context_snapshot("before")
+    snap_b = _stable_context_snapshot("after")
+    transport = _FixedOpsTransport()
+    router = ModelRouter(
+        transport,
+        CassetteStore(tmp_path),
+        mode=RouterMode.PASSTHROUGH,
+    )
+    drafter = RepairDrafter()
+
+    patch_a = drafter.draft(_finding(snap_a, ["q"]), snap_a, router)
+    patch_b = drafter.draft(_finding(snap_b, ["q"]), snap_b, router)
+
+    assert patch_a is not None and patch_b is not None
+    assert snap_a.snapshot_id != snap_b.snapshot_id
+    assert len(transport.calls) == 1
+    assert patch_a.producer_run_id == patch_b.producer_run_id
+    assert patch_a.id != patch_b.id
+    assert patch_a.id == _expected_patch_id(patch_a)
+    assert patch_b.id == _expected_patch_id(patch_b)
+    assert patch_a.base_snapshot_id == snap_a.snapshot_id
+    assert patch_b.base_snapshot_id == snap_b.snapshot_id
+    with pytest.raises(PatchRejected, match="base snapshot mismatch"):
+        apply_patch(snap_a, patch_b)
+
+
+def test_user_prompt_omits_base_snapshot_identity():
+    snap = _stable_context_snapshot("irrelevant")
+    prompt = RepairDrafter()._build_user_prompt(_finding(snap, ["q"]), snap)
+
+    assert snap.snapshot_id not in prompt
+    assert "base_snapshot_id" not in prompt

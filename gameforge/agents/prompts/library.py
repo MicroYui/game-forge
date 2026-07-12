@@ -163,8 +163,8 @@ _GENERATION = (
 _PROMPTS: list[tuple[str, str, str]] = [
     ("extraction.system", "extraction@1", _EXTRACTION),
     ("triage.system", "triage@1", _TRIAGE),
-    ("repair.system", "repair@3", _REPAIR),
-    ("repair.refine", "repair@3", _REPAIR_REFINE),
+    ("repair.system", "repair@4", _REPAIR),
+    ("repair.refine", "repair@4", _REPAIR_REFINE),
     ("consistency.system", "consistency@1", _CONSISTENCY),
     ("consistency.perspective.temporal", "consistency@1", _CONSISTENCY_PERSPECTIVE_TEMPORAL),
     ("consistency.perspective.identity", "consistency@1", _CONSISTENCY_PERSPECTIVE_IDENTITY),
