@@ -64,6 +64,16 @@ def _op() -> TypedOp:
     )
 
 
+def _semantic_revision() -> FindingRevisionV1:
+    return FindingRevisionV1(
+        finding_id="finding:semantic",
+        revision=3,
+        supersedes_revision=2,
+        payload=_payload(),
+        created_at="2026-07-13T00:00:00Z",
+    )
+
+
 def test_legacy_finding_and_patch_wire_shapes_remain_unchanged() -> None:
     finding = _legacy_finding()
     patch = Patch(
@@ -106,6 +116,114 @@ def test_finding_revision_digest_excludes_created_at_but_binds_semantics() -> No
     assert finding_revision_digest(first) != finding_revision_digest(changed)
     assert len(finding_revision_digest(first)) == 64
     assert finding_revision_digest(first) == finding_revision_digest(first.model_dump())
+
+
+def test_finding_revision_digest_has_a_domain_separated_golden_value() -> None:
+    assert finding_revision_digest(_semantic_revision()) == (
+        "2cf3a627dd0ee048ab75e8b46a3a19d59d9e074adb59da2307fd915f6c7eb52c"
+    )
+
+
+@pytest.mark.parametrize(
+    ("field_name", "changed_value"),
+    [
+        ("finding_id", "finding:other"),
+        ("revision", 4),
+        ("supersedes_revision", 1),
+        ("source", "sim"),
+        ("producer_id", "simulator"),
+        ("producer_run_id", "run:other"),
+        ("oracle_type", "simulation"),
+        ("defect_class", "economy_collapse"),
+        ("severity", "minor"),
+        ("snapshot_id", "sha256:other"),
+        ("entities", ["quest:2"]),
+        ("relations", ["relation:1"]),
+        ("constraint_id", "constraint:1"),
+        ("evidence", {"path": ["quest:2"]}),
+        ("minimal_repro", {"entity_id": "quest:2"}),
+        ("status", "dismissed"),
+        ("confidence", 0.5),
+        ("message", "changed"),
+    ],
+)
+def test_finding_revision_digest_binds_every_variable_semantic_field(
+    field_name: str,
+    changed_value: object,
+) -> None:
+    base = _semantic_revision()
+    if field_name in {"finding_id", "revision", "supersedes_revision"}:
+        changed = base.model_copy(update={field_name: changed_value})
+    else:
+        changed_payload = base.payload.model_copy(update={field_name: changed_value})
+        changed = base.model_copy(update={"payload": changed_payload})
+
+    assert finding_revision_digest(changed) != finding_revision_digest(base)
+
+
+@pytest.mark.parametrize(
+    ("left_evidence", "right_evidence"),
+    [
+        ({}, {"x": None}),
+        ({"x": 1.0}, {"x": "f:1"}),
+        ({"x": True}, {"x": 1}),
+        ({"x": -0.0}, {"x": 0.0}),
+    ],
+)
+def test_finding_revision_digest_preserves_typed_json_semantics(
+    left_evidence: dict[str, object],
+    right_evidence: dict[str, object],
+) -> None:
+    base = _semantic_revision()
+    left = base.model_copy(
+        update={"payload": base.payload.model_copy(update={"evidence": left_evidence})}
+    )
+    right = base.model_copy(
+        update={"payload": base.payload.model_copy(update={"evidence": right_evidence})}
+    )
+
+    assert finding_revision_digest(left) != finding_revision_digest(right)
+
+
+def test_finding_revision_digest_ignores_map_insertion_order() -> None:
+    base = _semantic_revision()
+    first = base.model_copy(
+        update={
+            "payload": base.payload.model_copy(
+                update={"evidence": {"alpha": 1, "beta": [None, False, 2.5]}}
+            )
+        }
+    )
+    reordered = base.model_copy(
+        update={
+            "payload": base.payload.model_copy(
+                update={"evidence": {"beta": [None, False, 2.5], "alpha": 1}}
+            )
+        }
+    )
+
+    assert finding_revision_digest(first) == finding_revision_digest(reordered)
+
+
+@pytest.mark.parametrize("nonfinite", [float("inf"), float("-inf"), float("nan")])
+@pytest.mark.parametrize("location", ["evidence", "confidence"])
+def test_finding_revision_digest_rejects_nonfinite_values_instead_of_null(
+    nonfinite: float,
+    location: str,
+) -> None:
+    base = _semantic_revision()
+    if location == "evidence":
+        invalid_payload = base.payload.model_copy(update={"evidence": {"value": nonfinite}})
+        null_payload = base.payload.model_copy(update={"evidence": {"value": None}})
+    else:
+        invalid_payload = base.payload.model_copy(update={"confidence": nonfinite})
+        null_payload = base.payload.model_copy(update={"confidence": None})
+    invalid = base.model_copy(update={"payload": invalid_payload})
+    null_value = base.model_copy(update={"payload": null_payload})
+
+    assert len(finding_revision_digest(null_value)) == 64
+    with pytest.raises(ValueError, match="finite floats"):
+        finding_revision_digest(invalid)
 
 
 def test_finding_revision_is_strict_frozen_and_uses_its_own_discriminator() -> None:
@@ -160,15 +278,24 @@ def test_patch_v2_is_an_immutable_revision_without_workflow_status_fields() -> N
 
 
 @pytest.mark.parametrize(
-    ("produced_by", "producer_run_id"),
-    [("agent", None), ("human", "run-1")],
+    ("revision", "supersedes_artifact_id", "produced_by", "producer_run_id"),
+    [
+        (1, "artifact:previous", "agent", "run-1"),
+        (2, None, "agent", "run-1"),
+        (1, None, "agent", None),
+        (1, None, "human", "run-1"),
+    ],
 )
-def test_patch_v2_producer_binding_is_unambiguous(
-    produced_by: str, producer_run_id: str | None
+def test_patch_v2_revision_and_producer_binding_are_unambiguous(
+    revision: int,
+    supersedes_artifact_id: str | None,
+    produced_by: str,
+    producer_run_id: str | None,
 ) -> None:
     with pytest.raises(ValidationError):
         PatchV2(
-            revision=1,
+            revision=revision,
+            supersedes_artifact_id=supersedes_artifact_id,
             base_snapshot_id="sha256:base",
             target_snapshot_id="sha256:target",
             side_effect_risk="low",

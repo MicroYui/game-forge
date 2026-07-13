@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from gameforge.contracts.findings import Patch, TypedOp
+from gameforge.contracts.findings import Patch, PatchV2, TypedOp
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.patch import PatchRejected, apply_patch, dry_run
@@ -25,6 +25,19 @@ def _patch(snap: Snapshot, ops, preconditions=None, patch_id="p1") -> Patch:
         produced_by="agent",
         producer_run_id="r1",
         rationale="test",
+    )
+
+
+def _patch_v2(snap: Snapshot, ops) -> PatchV2:
+    return PatchV2(
+        revision=1,
+        base_snapshot_id=snap.snapshot_id,
+        target_snapshot_id="sha256:declared-target",
+        side_effect_risk="low",
+        ops=ops,
+        produced_by="agent",
+        producer_run_id="run:1",
+        rationale="test M4 revision",
     )
 
 
@@ -50,6 +63,32 @@ def test_set_entity_attr_with_correct_old_value_applies():
     assert snap2.to_graph().get_node("q:1").attrs["reward_gold"] == 80
     assert snap2.snapshot_id != snap.snapshot_id
     # never mutate input: the original snapshot is untouched
+    assert snap.to_graph().get_node("q:1").attrs["reward_gold"] == 120
+
+
+def test_patch_v2_uses_the_same_pure_exact_base_engine():
+    snap = _base_snapshot()
+    patch = _patch_v2(
+        snap,
+        [
+            TypedOp(
+                op_id="o1",
+                op="set_entity_attr",
+                target="q:1.reward_gold",
+                old_value=120,
+                new_value=80,
+            )
+        ],
+    )
+
+    updated = apply_patch(snap, patch)
+    assert updated.to_graph().get_node("q:1").attrs["reward_gold"] == 80
+    assert "q:1" in dry_run(snap, patch).changed_entities
+    assert snap.to_graph().get_node("q:1").attrs["reward_gold"] == 120
+
+    stale = patch.model_copy(update={"base_snapshot_id": "sha256:stale"})
+    with pytest.raises(PatchRejected, match="base snapshot mismatch"):
+        apply_patch(snap, stale)
     assert snap.to_graph().get_node("q:1").attrs["reward_gold"] == 120
 
 

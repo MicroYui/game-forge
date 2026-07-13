@@ -62,7 +62,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from gameforge.contracts.findings import Patch, TypedOp
+from gameforge.contracts.findings import Patch, PatchV2, TypedOp
 from gameforge.contracts.ir import Entity, Relation
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import GraphDiff, IRGraph
@@ -282,11 +282,11 @@ def _apply_op(graph: IRGraph, op: TypedOp) -> None:
         raise PatchRejected(f"unknown op kind: {op.op!r}", op.op_id)
 
 
-def apply_patch(snapshot: Snapshot, patch: Patch) -> Snapshot:
+def apply_patch(snapshot: Snapshot, patch: Patch | PatchV2) -> Snapshot:
     """Apply `patch.ops` to a COPY of `snapshot`'s graph; return a new Snapshot.
 
     Never mutates `snapshot`. Raises `PatchRejected` (rebase-or-reject) if the
-    Patch targets another base, any precondition fails, any op's `old_value` no
+    Patch revision targets another base, any precondition fails, any op's `old_value` no
     longer matches the current value, or any op is otherwise malformed or
     inapplicable.
     """
@@ -315,7 +315,7 @@ def apply_patch(snapshot: Snapshot, patch: Patch) -> Snapshot:
     return Snapshot.from_graph(graph, parent_id=snapshot.snapshot_id)
 
 
-def dry_run(snapshot: Snapshot, patch: Patch) -> GraphDiff:
+def dry_run(snapshot: Snapshot, patch: Patch | PatchV2) -> GraphDiff:
     """Apply `patch` to a copy and return the reviewable diff (contract §7.9).
 
     Lets `PatchRejected` propagate untouched; `snapshot` is never mutated.

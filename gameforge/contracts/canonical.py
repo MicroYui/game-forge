@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from decimal import Decimal
 from typing import Any, Mapping
 
@@ -36,6 +37,52 @@ def canonical_json(payload: Any) -> str:
     return json.dumps(
         _canon(payload),
         sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
+def _typed_json_projection(value: Any) -> list[Any]:
+    """Project a JSON value into a collision-free, explicitly tagged tree."""
+
+    if value is None:
+        return ["null"]
+    if isinstance(value, bool):
+        return ["bool", value]
+    if isinstance(value, int):
+        return ["int", str(value)]
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError("typed canonical JSON requires finite floats")
+        return ["float64", value.hex()]
+    if isinstance(value, str):
+        return ["string", value]
+    if isinstance(value, Mapping):
+        entries: list[list[Any]] = []
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise TypeError("typed canonical JSON object keys must be strings")
+            entries.append([key, _typed_json_projection(item)])
+        entries.sort(key=lambda entry: entry[0])
+        return ["object", entries]
+    if isinstance(value, (list, tuple)):
+        return ["array", [_typed_json_projection(item) for item in value]]
+    raise TypeError(f"typed canonical JSON does not support {type(value).__qualname__}")
+
+
+def typed_canonical_json(payload: Any) -> str:
+    """Canonicalize JSON without collapsing type, presence, or signed zero.
+
+    This additive M4 encoding is deliberately separate from ``canonical_json``:
+    historical snapshot and artifact identities retain their frozen null-dropping
+    and decimal-float behavior. Every JSON value is projected to a disjoint type
+    tag; object entries are key-sorted and finite floats use Python's stable
+    IEEE-754 hexadecimal representation.
+    """
+
+    return json.dumps(
+        _typed_json_projection(payload),
         ensure_ascii=False,
         separators=(",", ":"),
         allow_nan=False,

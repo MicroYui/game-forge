@@ -30,6 +30,42 @@ def test_json_value_state_distinguishes_missing_from_present_null() -> None:
         JsonValueState.model_validate({"presence": "missing", "value": None})
 
 
+@pytest.mark.parametrize(
+    ("before", "after"),
+    [
+        (False, 0),
+        (1, 1.0),
+        (1.0, "f:1"),
+        (-0.0, 0.0),
+        ({"x": None}, {}),
+    ],
+)
+def test_snapshot_diff_entry_compares_json_values_with_type_sensitivity(
+    before: object,
+    after: object,
+) -> None:
+    entry = SnapshotDiffEntry(
+        path="/value",
+        before={"presence": "present", "value": before},
+        after={"presence": "present", "value": after},
+    )
+
+    assert entry.before.value == before
+    assert type(entry.before.value) is type(before)
+    assert entry.after.value == after
+    assert type(entry.after.value) is type(after)
+
+
+@pytest.mark.parametrize("value", [None, False, 0, 1, 1.0, "1", [1], {"a": 1}])
+def test_snapshot_diff_entry_rejects_identical_json_value_states(value: object) -> None:
+    with pytest.raises(ValidationError):
+        SnapshotDiffEntry(
+            path="/value",
+            before={"presence": "present", "value": value},
+            after={"presence": "present", "value": value},
+        )
+
+
 def test_conflict_resolution_requires_custom_value_only_for_custom_choice() -> None:
     custom = ConflictResolution(conflict_id="conflict:1", choice="custom", custom_value=None)
     assert custom.custom_value is None

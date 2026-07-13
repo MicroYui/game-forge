@@ -12,7 +12,7 @@ from typing import Any, Literal, Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.canonical import typed_canonical_json
 from gameforge.contracts.versions import (
     FINDING_PAYLOAD_SCHEMA_VERSION,
     FINDING_REVISION_SCHEMA_VERSION,
@@ -162,7 +162,7 @@ def finding_revision_digest(revision: FindingRevisionV1 | Mapping[str, Any]) -> 
     digest_input = (
         b"gameforge.finding-revision@1"
         + b"\x00"
-        + canonical_json(digest_payload.model_dump()).encode("utf-8")
+        + typed_canonical_json(digest_payload.model_dump(mode="python")).encode("utf-8")
     )
     return hashlib.sha256(digest_input).hexdigest()
 

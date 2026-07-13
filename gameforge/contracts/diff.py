@@ -15,6 +15,7 @@ from pydantic import (
     model_validator,
 )
 
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.storage import PageV1
 
 
@@ -25,6 +26,23 @@ JsonPointer = str
 
 class _FrozenModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, validate_default=True)
+
+
+def _json_wire_equal(left: object, right: object) -> bool:
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict) and isinstance(right, dict):
+        return left.keys() == right.keys() and all(
+            _json_wire_equal(left[key], right[key]) for key in left
+        )
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            _json_wire_equal(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    if isinstance(left, float) and isinstance(right, float):
+        return canonical_json(left) == canonical_json(right)
+    return left == right
 
 
 def _is_json_pointer(value: str) -> bool:
@@ -89,7 +107,9 @@ class SnapshotDiffEntry(_FrozenModel):
 
     @model_validator(mode="after")
     def _changed(self) -> "SnapshotDiffEntry":
-        if self.before == self.after:
+        before_wire = self.before.model_dump(mode="json", exclude_none=False)
+        after_wire = self.after.model_dump(mode="json", exclude_none=False)
+        if _json_wire_equal(before_wire, after_wire):
             raise ValueError("a diff entry must change the value state")
         return self
 
