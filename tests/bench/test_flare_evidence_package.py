@@ -632,8 +632,12 @@ def test_project_status_tracks_the_committed_b0a_decision():
     expected_bindings = {
         ("insufficient_evidence", "stop_flare_heavy_investment"): {
             "CLAUDE.md": {
-                "M3 incomplete": ("| M3 |", "🔄 未完成"),
-                "M4 not started and blocked": ("| M4 |", "⬜ 未开始", "阻塞"),
+                "M3 engineering complete with evidence gap": (
+                    "| M3 |",
+                    "✅ 工程实现完成",
+                    "qa.evidence_missing",
+                ),
+                "M4 implementation unblocked": ("| M4 |", "🔄 实现中", "不阻塞 M4"),
                 "B0B not entered": ("不进入 B0B",),
                 "follow-up external gate": (
                     "Endless Sky",
@@ -642,11 +646,15 @@ def test_project_status_tracks_the_committed_b0a_decision():
                 ),
             },
             "README.md": {
-                "M3 incomplete": ("| **M3** |", "🔄 incomplete"),
-                "M4 not started and blocked": (
+                "M3 engineering complete with evidence gap": (
+                    "| **M3** |",
+                    "engineering complete",
+                    "qa.evidence_missing",
+                ),
+                "M4 implementation unblocked": (
                     "| **M4** |",
-                    "⬜ not started",
-                    "blocked",
+                    "🔄 implementation in progress",
+                    "does not block M4",
                 ),
                 "B0B not entered": ("B0B", "were not entered"),
                 "follow-up external gate": (
@@ -656,8 +664,14 @@ def test_project_status_tracks_the_committed_b0a_decision():
                 ),
             },
             "docs/superpowers/plans/README.md": {
-                "M3 incomplete": ("M3 umbrella 仍未完成",),
-                "M4 not started and blocked": ("M4", "未开始", "阻塞"),
+                "M3 engineering complete with evidence gap": (
+                    "M3 工程实现已完成",
+                    "qa.evidence_missing",
+                ),
+                "M4 implementation unblocked": (
+                    "不阻塞 M4",
+                    "M4a → M4b → M4c → M4d → M4e",
+                ),
                 "B0B not entered": ("Flare B0B", "均未进入"),
                 "follow-up external gate": (
                     "Endless Sky",
@@ -666,10 +680,20 @@ def test_project_status_tracks_the_committed_b0a_decision():
                 ),
             },
             "docs/superpowers/specs/2026-07-10-m3d-flare-rich-design.md": {
-                "M3 incomplete": ("M3 umbrella 仍为未完成",),
-                "M4 blocked": ("M4", "阻塞"),
+                "historical pre-M4 gate state": (
+                    "实际停止点",
+                    "M4 仍受 pre-M4 gate 阻塞",
+                ),
                 "B0B not entered": ("B0B、Corpus Freeze、M3d-1..4 均未进入",),
                 "next source or waiver": ("新的外部真实语料源", "书面 PRD scope waiver"),
+            },
+            "docs/superpowers/specs/2026-07-13-m4-production-hardening-design.md": {
+                "later product-owner governance decision": (
+                    "M3 工程实现已完成",
+                    "不阻塞 M4",
+                    "qa.evidence_missing",
+                    "属产品负责人决定",
+                ),
             },
         }
     }

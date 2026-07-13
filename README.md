@@ -22,8 +22,8 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M2b-2** | MemTrace episodic/transition/skill memory + deterministic recall, compactor comparison, and consistency quorum | ✅ acceptance passing |
 | Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
 | Pre-M4: core contract corrections | Exact-base Patch rejection, producer-to-product `DROPS_FROM`, stable repair request identity, active `gpt-5.6-sol` repair/generation evidence, and checkout-stable benchmark provenance | ✅ `5fdfb32..cc0fbc4`; repair double-REPLAY **10/10**, full gate **962 passed, 1 skipped**, 7 import contracts kept |
-| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | 🔄 incomplete: Flare B0A returned terminal `insufficient_evidence`; Endless Sky remains `awaiting_human_evidence`; PRD §13.3/§16 remain unmet |
-| **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | ⬜ not started; blocked by the pre-M4 gates |
+| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | ✅ engineering complete; real QA evidence is deferred and remains `qa.evidence_missing`, without being rewritten as passing |
+| **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | 🔄 implementation in progress; frozen design is executing in order from M4a through M4e |
 
 ## M3 external-validity status
 
@@ -61,9 +61,10 @@ on stale bases and malformed preconditions; Aureus and Flare emit producer-to-pr
 identity; active repair/generation recordings use `openai/gpt-5.6-sol/pre-m4@1`; and
 the seeded benchmark clean base uses checkout-independent logical source provenance.
 Two zero-live repair replays were byte-identical at 10/10. Historical M2 cassettes and
-frozen external evidence remain unchanged. The full repository gate is 962 passed,
-1 skipped, with all 7 import contracts kept. Narrative BDR, Human-Edit-Distance,
-QA-hours, and BenchReport v2 remain separate pre-M4 debts.
+frozen external evidence remain unchanged. Narrative BDR, Human-Edit-Distance, cost and
+latency evidence, and BenchReport v2 are complete. The product owner deferred the real
+QA sessions; combined acceptance continues to report `qa.evidence_missing`, but that
+missing human evidence does not block M4 implementation.
 
 ## Layout (contract §1)
 
