@@ -4,7 +4,7 @@
 
 **Goal:** Implement the M4a platform core from the frozen M4 design: additive lineage/audit/workflow contracts, immutable artifact and object storage, SQLite UnitOfWork semantics, revisioned refs, RBAC and maker-checker approval, field-level diff/rebase/rollback, and persistent fenced Run state.
 
-**Architecture:** Pure wire DTOs and Protocols live in `gameforge.contracts`; deterministic diff/hash/patch computation stays in `gameforge.spine`; SQLite and local-object-store adapters live in `gameforge.runtime`; transactional business guards and workflows live in `gameforge.platform`. Existing M0b-M3 readers and constructors remain supported. M4a freezes later integration boundaries but does not pull M4b cost governance, M4c API/worker composition, or M4e cloud adapters into this slice.
+**Architecture:** Pure wire DTOs and Protocols live in `gameforge.contracts`; the existing deterministic patch application stays in `gameforge.spine`; product diff/merge and transactional business guards/workflows live in `gameforge.platform`; SQLite and local-object-store adapters live in `gameforge.runtime`. Existing M0b-M3 readers and constructors remain supported. M4a freezes later integration boundaries but does not pull M4b cost governance, M4c API/worker composition, or M4e cloud adapters into this slice.
 
 **Truth sources:**
 
@@ -47,8 +47,8 @@ No M4a result may claim a later-slice acceptance item early. There is no permiss
 
 | Area | Planned files |
 |---|---|
-| Additive wire contracts | `gameforge/contracts/lineage.py`, `findings.py`, `versions.py`, new `storage.py`, `identity.py`, `workflow.py`, `runs.py`, `diff.py`, `errors.py` |
-| Deterministic cores | new `gameforge/spine/diffing/`, existing `gameforge/spine/patch.py`, new lineage/producer validators that depend only on contracts |
+| Additive wire contracts | `gameforge/contracts/lineage.py`, `findings.py`, `versions.py`, new `storage.py`, `identity.py`, `workflow.py`, `jobs.py`, `execution_profiles.py`, `diff.py`, `errors.py` |
+| Deterministic cores | existing `gameforge/spine/patch.py` remains the pure exact-base patch core; new lineage/producer validators depend only on contracts |
 | SQLite/local adapters | `gameforge/runtime/persistence/engine.py`, `models.py`, new `uow.py` and repository modules, new `gameforge/runtime/object_store/`, Alembic `0002+` |
 | Platform services | new `gameforge/platform/storage/`, `rbac/`, `approvals/`, `diff/`, `runs/`, `rollback/`; compatibility adapters in existing `platform/lineage` and `platform/audit` |
 | Tests | `tests/contracts/m4/`, `tests/runtime/persistence/`, `tests/runtime/object_store/`, `tests/platform/m4/`, focused updates to legacy lineage/audit/patch tests |
@@ -100,7 +100,7 @@ uv run pytest tests/contracts/m4/test_artifact_v2.py tests/spine/versioning -q
 **RED tests**
 
 - Freeze `Repository`, `RefStore`, `AuditSink`, `ObjectBindingRepository`, `ObjectStore`, `ObjectGc`, `Transaction`, `UnitOfWork`, and `StorageFacade` signatures.
-- Test signed canonical cursors bind version, sort, filters, read snapshot, principal/authz revision, and expiry; tamper or cross-context reuse is a typed failure.
+- Test bounded opaque cursors bind version, sort, filters, and read snapshot; tampering or reuse against another query shape is a typed failure.
 - Test injected UTC clock for persisted timestamps/deadlines and monotonic clock for durations; never compare or substitute the two.
 - Test transaction handles reject direct construction, nesting, cross-UoW use, and access after commit/rollback.
 
@@ -230,13 +230,13 @@ uv run pytest tests/platform/m4/test_identity_repository.py tests/platform/m4/te
 
 **Implementation**
 
-- Keep `apply_patch` pure and exact-base; add a spine-only canonical diff engine and platform repository-loading facade.
+- Keep `apply_patch` pure and exact-base; add the canonical diff engine and repository-loading facade under `platform/diff`.
 - Persist Finding series/revisions separately from Artifact identity and expose bounded revision pages.
 
 **Verify**
 
 ```bash
-uv run pytest tests/contracts/m4/test_finding_revision.py tests/spine/test_patch.py tests/spine/diffing tests/platform/m4/test_finding_repository.py -q
+uv run pytest tests/contracts/m4/test_finding_revision.py tests/spine/test_patch.py tests/platform/diff tests/platform/m4/test_finding_repository.py -q
 ```
 
 ## Task 10: Implement ApprovalItem, SubjectHead, Routing, and Decisions
@@ -248,6 +248,7 @@ uv run pytest tests/contracts/m4/test_finding_revision.py tests/spine/test_patch
 - Superseding a revision CASes the old item to `superseded`, requests cancellation of an active validation Run, creates a fresh item, and inherits no evidence/decision/proof.
 - Requirements cover the full DomainScope; partial approval remains pending; min/distinct/maker-checker/human/current-permission guards are all enforced.
 - Duplicate decisions are idempotent; same key with different payload conflicts.
+- An agent proposal can only remain a proposal: authority requires a superseding `produced_by=human` author revision followed by another human's approval.
 
 **Implementation**
 
@@ -266,9 +267,10 @@ uv run pytest tests/platform/m4/test_approval_state_machine.py tests/platform/m4
 **RED tests**
 
 - Patch/rollback validation evidence matches the draft-time target binding exactly; constraint candidate binding may transition null→exact once and never change.
-- SubjectHead-vs-validation completion race always leaves old item `superseded`, terminates the old Run as `subject_superseded`, and attaches no EvidenceSet/proof to the new head.
+- SubjectHead-vs-validation completion covers both serializations: supersede-first terminates the old Run as `subject_superseded` without publishing evidence; completion-first may retain completed evidence only on the old item before that item is superseded. Neither path attaches or inherits evidence/proof on the new head.
 - Execution failure/cancel/timeout returns current validating item to draft; deterministic validation failure becomes `validation_failed` and is not disguised as infrastructure failure.
 - Auto-apply proof exists only for the dedicated Patch outcome, all affected domains are allowed and none forbidden, all deterministic oracle/outcome bindings close, and validation/submit/apply rerun the same guard.
+- Constraint validation requires parse/typecheck/compile exactly once, one differential stage per frozen engine, and an explicit golden result or not-applicable reason. Candidate and compile evidence publish in the same completion UoW with acyclic lineage; failed/unproven stages cannot produce a passed EvidenceSet or authority transition.
 
 **Implementation**
 
@@ -292,13 +294,13 @@ uv run pytest tests/platform/m4/test_validation_completion.py tests/platform/m4/
 
 **Implementation**
 
-- Put pure three-way computation in spine and workflow orchestration in platform.
+- Keep both deterministic three-way computation and workflow orchestration in `platform/diff`; this product diff service may consume spine snapshots but does not change the spine dependency surface.
 - Use only `keep_current`, `take_proposed`, or explicit typed custom value.
 
 **Verify**
 
 ```bash
-uv run pytest tests/spine/diffing/test_three_way.py tests/platform/m4/test_rebase_workflow.py -q
+uv run pytest tests/platform/diff/test_three_way.py tests/platform/m4/test_rebase_workflow.py -q
 ```
 
 ## Task 13: Implement Persistent Run Store, Idempotency, and Monotonic Allocation
@@ -372,13 +374,13 @@ uv run pytest tests/platform/m4/test_apply.py tests/platform/m4/test_rollback.py
 - Race flow: validation completion vs superseding subject revision.
 - Multi-connection flow: claim/retry/reaper/event sequencing and stale-worker rejection.
 - GC flow: current and historical rollback objects remain live; orphan generations are collected only after the safe window and second reference check.
-- Pagination flow: concurrent inserts/updates/deletes do not create duplicates/omissions within one read snapshot; cursor tamper/cross-principal/authz-revision/expiry fails without leakage.
+- Pagination flow: concurrent inserts/updates/deletes do not create duplicates/omissions within one read snapshot; cursor tamper or reuse with another query shape fails. Principal/authz-revision/expiry enforcement remains an M4c API responsibility.
 - Legacy flow: M0b-M3 lineage/audit/Finding/Patch/cassette fixtures remain byte-stable and existing public behavior remains green.
 
 **Required gates**
 
 ```bash
-uv run pytest tests/contracts tests/runtime/persistence tests/runtime/object_store tests/platform tests/spine/versioning tests/spine/diffing tests/spine/test_patch.py -q
+uv run pytest tests/contracts tests/runtime/persistence tests/runtime/object_store tests/platform tests/spine/versioning tests/spine/test_patch.py -q
 uv run pytest -q
 uv run lint-imports
 uv run pytest tests/test_dependency_lint.py -q
@@ -406,4 +408,3 @@ git diff --check
 | Run/Attempt/Lease/Event fencing | 13, 14, 16 | multi-connection monotonicity and stale-worker tests |
 | approved apply and exact rollback, no DAG cycle | 15, 16 | end-to-end local service flow |
 | M4b/M4c/M4e integrations | protocol boundaries only in M4a | explicitly remain unchecked until their owning slice |
-
