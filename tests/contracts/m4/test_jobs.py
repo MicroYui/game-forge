@@ -296,6 +296,76 @@ def _payload() -> RunPayloadEnvelope:
     )
 
 
+def _execution_plan() -> ExecutionVersionPlanV1:
+    node = PlannedAgentNodeVersionV1(
+        agent_node_id="checker",
+        prompt_version="checker@1",
+        tool_version="checker-tool@1",
+        allowed_model_snapshots=("model:a",),
+    )
+    raw_plan = {
+        "plan_schema_version": "execution-version-plan@1",
+        "agent_graph_version": "graph@1",
+        "nodes": (node,),
+        "model_catalog_version": 1,
+        "model_catalog_digest": _HASH_A,
+        "routing_policy_version": 1,
+        "routing_policy_digest": _HASH_B,
+    }
+    return ExecutionVersionPlanV1(
+        **raw_plan,
+        plan_digest=execution_version_plan_digest(raw_plan),
+    )
+
+
+def _payload_for_mode(
+    mode: str,
+    *,
+    cassette_artifact_id: str | None = None,
+) -> RunPayloadEnvelope:
+    base = _payload().model_dump(mode="json")
+    if mode == "not_applicable":
+        return RunPayloadEnvelope.model_validate(base)
+    base["llm_execution_mode"] = mode
+    base["execution_version_plan"] = _execution_plan().model_dump(mode="json")
+    if mode == "replay":
+        assert cassette_artifact_id is not None
+        base["cassette_artifact_id"] = cassette_artifact_id
+        base["input_artifact_ids"] = ("artifact:input", cassette_artifact_id)
+    return RunPayloadEnvelope.model_validate(base)
+
+
+def _run_record_fields(payload: RunPayloadEnvelope) -> dict[str, object]:
+    return {
+        "run_schema_version": "run@1",
+        "run_id": "run:1",
+        "kind": RunKindRef(kind="checker.run", version=1),
+        "status": "queued",
+        "revision": 1,
+        "idempotency_scope": "principal:human:a",
+        "idempotency_key": "request:1",
+        "request_hash": _HASH_A,
+        "payload": payload,
+        "payload_hash": canonical_payload_hash(payload),
+        "run_kind_definition_digest": _HASH_A,
+        "outcome_policy_set_digest": _HASH_B,
+        "failure_classifier": _classifier_ref(),
+        "initiated_by": AuditActor(principal_id="human:a", principal_kind="human"),
+        "queue_deadline_utc": "2026-07-13T12:10:00Z",
+        "attempt_timeout_ns": 1_000_000_000,
+        "overall_deadline_utc": "2026-07-13T13:00:00Z",
+        "next_attempt_no": 1,
+        "next_fencing_token": 1,
+        "next_event_seq": 2,
+        "budget_set_snapshot_id": "budget-set:1",
+        "run_budget_hold_group_id": "hold:1",
+        "retry_policy": _retry_ref(),
+        "max_attempts": 3,
+        "created_at": "2026-07-13T12:00:00Z",
+        "updated_at": "2026-07-13T12:00:00Z",
+    }
+
+
 def test_failure_classifier_digest_and_rule_identity_are_closed() -> None:
     rule = FailureClassificationRuleV1(
         cause_code="provider_timeout",
@@ -364,34 +434,7 @@ def test_jobs_reexports_the_execution_profile_run_kind_ref() -> None:
 
 def test_run_record_budget_projection_matches_payload_and_carrier_is_noncanonical() -> None:
     payload = _payload()
-    common = dict(
-        run_schema_version="run@1",
-        run_id="run:1",
-        kind=RunKindRef(kind="checker.run", version=1),
-        status="queued",
-        revision=1,
-        idempotency_scope="principal:human:a",
-        idempotency_key="request:1",
-        request_hash=_HASH_A,
-        payload=payload,
-        payload_hash=canonical_payload_hash(payload),
-        run_kind_definition_digest=_HASH_A,
-        outcome_policy_set_digest=_HASH_B,
-        failure_classifier=_classifier_ref(),
-        initiated_by=AuditActor(principal_id="human:a", principal_kind="human"),
-        queue_deadline_utc="2026-07-13T12:10:00Z",
-        attempt_timeout_ns=1_000_000_000,
-        overall_deadline_utc="2026-07-13T13:00:00Z",
-        next_attempt_no=1,
-        next_fencing_token=1,
-        next_event_seq=2,
-        budget_set_snapshot_id="budget-set:1",
-        run_budget_hold_group_id="hold:1",
-        retry_policy=_retry_ref(),
-        max_attempts=3,
-        created_at="2026-07-13T12:00:00Z",
-        updated_at="2026-07-13T12:00:00Z",
-    )
+    common = _run_record_fields(payload)
     without_carrier = RunRecord(**common)
     with_carrier = RunRecord(
         **common,
@@ -414,6 +457,71 @@ def test_run_record_budget_projection_matches_payload_and_carrier_is_noncanonica
         )
 
 
+@pytest.mark.parametrize("status", ("queued", "leased", "running", "retry_wait"))
+def test_nonterminal_run_forbids_terminal_cassette_projection(status: str) -> None:
+    payload = _payload_for_mode("record")
+    raw = {
+        **_run_record_fields(payload),
+        "status": status,
+        "terminal_cassette_artifact_id": "artifact:cassette-bundle",
+    }
+    if status == "retry_wait":
+        raw["retry_not_before_utc"] = "2026-07-13T12:02:00Z"
+    with pytest.raises(ValidationError, match="non-terminal Run cannot publish a cassette"):
+        RunRecord.model_validate(raw)
+
+
+@pytest.mark.parametrize("status", ("succeeded", "failed", "cancelled", "timed_out"))
+def test_terminal_record_run_requires_a_published_cassette(status: str) -> None:
+    payload = _payload_for_mode("record")
+    raw = {**_run_record_fields(payload), "status": status}
+    if status == "succeeded":
+        raw["result_artifact_id"] = "artifact:result"
+    else:
+        raw["failure_artifact_id"] = "artifact:failure"
+
+    with pytest.raises(ValidationError, match="record Run requires a terminal cassette"):
+        RunRecord.model_validate(raw)
+
+    record = RunRecord.model_validate(
+        {**raw, "terminal_cassette_artifact_id": "artifact:cassette-bundle"}
+    )
+    assert record.terminal_cassette_artifact_id == "artifact:cassette-bundle"
+
+
+def test_terminal_replay_run_projects_its_exact_input_cassette() -> None:
+    payload = _payload_for_mode("replay", cassette_artifact_id="artifact:cassette-input")
+    raw = {
+        **_run_record_fields(payload),
+        "status": "succeeded",
+        "result_artifact_id": "artifact:result",
+    }
+    with pytest.raises(ValidationError, match="replay Run requires its exact input cassette"):
+        RunRecord.model_validate(raw)
+    with pytest.raises(ValidationError, match="replay Run requires its exact input cassette"):
+        RunRecord.model_validate(
+            {**raw, "terminal_cassette_artifact_id": "artifact:other-cassette"}
+        )
+
+    record = RunRecord.model_validate(
+        {**raw, "terminal_cassette_artifact_id": "artifact:cassette-input"}
+    )
+    assert record.terminal_cassette_artifact_id == payload.cassette_artifact_id
+
+
+@pytest.mark.parametrize("mode", ("live", "not_applicable"))
+def test_terminal_nonrecording_run_forbids_a_cassette_projection(mode: str) -> None:
+    payload = _payload_for_mode(mode)
+    raw = {
+        **_run_record_fields(payload),
+        "status": "succeeded",
+        "result_artifact_id": "artifact:result",
+    }
+    assert RunRecord.model_validate(raw).terminal_cassette_artifact_id is None
+    with pytest.raises(ValidationError, match="does not publish a terminal cassette"):
+        RunRecord.model_validate({**raw, "terminal_cassette_artifact_id": "artifact:cassette"})
+
+
 def test_attempt_terminal_failure_projection_is_all_or_none() -> None:
     attempt = RunAttempt(
         run_id="run:1",
@@ -428,10 +536,95 @@ def test_attempt_terminal_failure_projection_is_all_or_none() -> None:
         failure_class="transient_dependency",
         retryable=True,
         failure_artifact_id="artifact:attempt-failure",
+        cassette_bundle_artifact_id="artifact:attempt-cassette",
     )
     assert attempt.failure_artifact_id == "artifact:attempt-failure"
+    assert attempt.cassette_bundle_artifact_id == "artifact:attempt-cassette"
     with pytest.raises(ValidationError):
         RunAttempt.model_validate({**attempt.model_dump(), "failure_artifact_id": None})
+
+
+@pytest.mark.parametrize(
+    ("status", "started_at", "attempt_deadline_utc", "message"),
+    (
+        (
+            "leased",
+            "2026-07-13T12:00:00Z",
+            "2026-07-13T12:01:00Z",
+            "leased attempt cannot contain start timing",
+        ),
+        (
+            "running",
+            None,
+            None,
+            "running attempt requires start timing",
+        ),
+        (
+            "running",
+            "2026-07-13T12:00:00Z",
+            None,
+            "attempt start timing fields are all-or-none",
+        ),
+    ),
+)
+def test_attempt_status_closes_over_start_timing_projection(
+    status: str,
+    started_at: str | None,
+    attempt_deadline_utc: str | None,
+    message: str,
+) -> None:
+    with pytest.raises(ValidationError, match=message):
+        RunAttempt.model_validate(
+            {
+                "run_id": "run:1",
+                "attempt_no": 1,
+                "status": status,
+                "fencing_token": 1,
+                "worker_principal_id": "service:worker",
+                "next_call_ordinal": 1,
+                "started_at": started_at,
+                "attempt_deadline_utc": attempt_deadline_utc,
+            }
+        )
+
+
+@pytest.mark.parametrize("status", ("leased", "running"))
+def test_active_attempt_forbids_a_cassette_bundle(status: str) -> None:
+    raw = {
+        "run_id": "run:1",
+        "attempt_no": 1,
+        "status": status,
+        "fencing_token": 1,
+        "worker_principal_id": "service:worker",
+        "next_call_ordinal": 1,
+        "cassette_bundle_artifact_id": "artifact:attempt-cassette",
+    }
+    if status == "running":
+        raw["started_at"] = "2026-07-13T12:00:00Z"
+        raw["attempt_deadline_utc"] = "2026-07-13T12:01:00Z"
+    with pytest.raises(ValidationError, match="active attempt cannot publish a cassette bundle"):
+        RunAttempt.model_validate(raw)
+
+
+def test_succeeded_attempt_may_publish_or_omit_a_cassette_bundle() -> None:
+    raw = {
+        "run_id": "run:1",
+        "attempt_no": 1,
+        "status": "succeeded",
+        "fencing_token": 1,
+        "worker_principal_id": "service:worker",
+        "next_call_ordinal": 1,
+        "started_at": "2026-07-13T12:00:00Z",
+        "attempt_deadline_utc": "2026-07-13T12:01:00Z",
+        "ended_at": "2026-07-13T12:00:30Z",
+    }
+    assert RunAttempt.model_validate(raw).cassette_bundle_artifact_id is None
+    assert (
+        RunAttempt.model_validate(
+            {**raw, "cassette_bundle_artifact_id": "artifact:attempt-cassette"}
+        ).cassette_bundle_artifact_id
+        == "artifact:attempt-cassette"
+    )
 
 
 def test_run_event_attempt_number_is_null_or_positive() -> None:
@@ -956,6 +1149,13 @@ def test_retry_decision_reasons_partition_retry_from_terminal() -> None:
         reason_code="not_retry_eligible",
     )
     assert terminal.retry_not_before_utc is None
+    deadline_terminal = RetryDecisionV1(
+        **common,
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="attempt_deadline_exhausted",
+    )
+    assert deadline_terminal.retry_not_before_utc is None
 
 
 def test_manifest_and_result_cross_fields_are_exact() -> None:

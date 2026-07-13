@@ -15,6 +15,10 @@ from gameforge.platform.runs.commands import (
     PromptRenderPublicationRequest,
     RunCommandCapabilities,
 )
+from gameforge.platform.runs.lifecycle import (
+    AttemptWriteFence,
+    StartAttemptRequest,
+)
 from gameforge.platform.runs.state import (
     validate_command_binding,
     validate_finding_link_binding,
@@ -29,19 +33,38 @@ from tests.platform.m4.test_run_create_claim import (
 )
 
 
+WORKER = AuditActor(
+    principal_id="service:worker:1",
+    principal_kind="service",
+)
+
+
 def _claim(harness):
     claim = harness.service.claim_next(
         RunClaimRequest(
-            worker=AuditActor(
-                principal_id="service:worker:1",
-                principal_kind="service",
-            ),
+            worker=WORKER,
             lease_id="lease:1",
             lease_duration_ns=30_000_000_000,
         )
     )
     assert claim is not None
     return claim
+
+
+def _claim_and_start(harness):
+    claim = _claim(harness)
+    return harness.lifecycle.start_attempt(
+        StartAttemptRequest(
+            fence=AttemptWriteFence(
+                run_id=claim.run.run_id,
+                attempt_no=claim.attempt.attempt_no,
+                expected_run_revision=claim.run.revision,
+                lease_id=claim.lease.lease_id,
+                fencing_token=claim.attempt.fencing_token,
+            ),
+            actor=WORKER,
+        )
+    )
 
 
 def _publication_request(
@@ -51,20 +74,25 @@ def _publication_request(
     idempotency_key: str = "prompt-call:1",
 ) -> PromptRenderPublicationRequest:
     return PromptRenderPublicationRequest(
-        run_id="run:1",
-        attempt_no=1,
-        expected_fencing_token=1,
+        fence=AttemptWriteFence(
+            run_id="run:1",
+            attempt_no=1,
+            expected_run_revision=3,
+            lease_id="lease:1",
+            fencing_token=1,
+        ),
         artifact_id=artifact_id,
         request_hash=request_hash,
         idempotency_scope="run:1/attempt:1",
         idempotency_key=idempotency_key,
+        actor=WORKER,
     )
 
 
 def test_prompt_publication_consumes_attempt_head_only_with_the_link() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
-    _claim(harness)
+    _claim_and_start(harness)
 
     first = harness.service.publish_prompt_rendered(_publication_request())
     second = harness.service.publish_prompt_rendered(
@@ -90,7 +118,7 @@ def test_prompt_publication_consumes_attempt_head_only_with_the_link() -> None:
 def test_prompt_idempotency_replay_does_not_allocate_a_new_ordinal() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
-    _claim(harness)
+    _claim_and_start(harness)
     first = harness.service.publish_prompt_rendered(_publication_request())
 
     replay = harness.service.publish_prompt_rendered(_publication_request())
@@ -110,7 +138,7 @@ def test_prompt_idempotency_replay_does_not_allocate_a_new_ordinal() -> None:
 def test_prompt_replay_fails_closed_when_gateway_state_is_detached_from_authority() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
-    _claim(harness)
+    _claim_and_start(harness)
     first = harness.service.publish_prompt_rendered(_publication_request())
     del harness.state.intermediate_links[("run:1", 1, first.link.call_ordinal)]
 
@@ -125,7 +153,7 @@ def test_prompt_replay_fails_closed_when_gateway_state_is_detached_from_authorit
 def test_prompt_replay_requires_the_retained_attempt_head_to_have_consumed_ordinal() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
-    _claim(harness)
+    _claim_and_start(harness)
     first = harness.service.publish_prompt_rendered(_publication_request())
     attempt = harness.state.attempts[("run:1", 1)]
     harness.state.attempts[("run:1", 1)] = attempt.model_copy(
@@ -141,15 +169,27 @@ def test_prompt_replay_requires_the_retained_attempt_head_to_have_consumed_ordin
 def test_prompt_publication_rejects_wrong_attempt_or_fencing_without_a_hole() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
-    _claim(harness)
+    _claim_and_start(harness)
 
     with pytest.raises(IntegrityViolation, match="attempt"):
         harness.service.publish_prompt_rendered(
-            _publication_request().model_copy(update={"attempt_no": 2})
+            _publication_request().model_copy(
+                update={
+                    "fence": _publication_request().fence.model_copy(
+                        update={"attempt_no": 2}
+                    )
+                }
+            )
         )
-    with pytest.raises(Conflict, match="fencing"):
+    with pytest.raises(Conflict, match="fence"):
         harness.service.publish_prompt_rendered(
-            _publication_request().model_copy(update={"expected_fencing_token": 2})
+            _publication_request().model_copy(
+                update={
+                    "fence": _publication_request().fence.model_copy(
+                        update={"fencing_token": 2}
+                    )
+                }
+            )
         )
     assert harness.state.attempts[("run:1", 1)].next_call_ordinal == 1
     assert harness.state.intermediate_links == {}
@@ -158,13 +198,14 @@ def test_prompt_publication_rejects_wrong_attempt_or_fencing_without_a_hole() ->
 def test_publication_gateway_is_required_instead_of_a_bare_allocator() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
-    _claim(harness)
+    _claim_and_start(harness)
     harness.service._bind_capabilities = (  # type: ignore[method-assign]
         lambda transaction: RunCommandCapabilities(
             runs=harness.publication.repo,
             registry=harness.registry,
             admission=harness.admission,
             publication=None,
+            accounting=None,
         )
     )
 

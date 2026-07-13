@@ -10,9 +10,17 @@ from typing import Annotated, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
 from gameforge.contracts.execution_profiles import RunKindRef
 from gameforge.contracts.jobs import (
+    CancelRequestedDataV1,
+    CancelRunPayloadV1,
+    CommandAcceptedDataV1,
+    CommandOutcomeDataV1,
+    FailureClassifierV1,
+    OutcomeArtifactPolicyV1,
+    PreparedRunFailure,
+    RetryDecisionV1,
     RetryPolicyRefV1,
     RetryPolicySnapshot,
     RunAttempt,
@@ -26,6 +34,8 @@ from gameforge.contracts.jobs import (
     RunPayloadEnvelope,
     RunQueuedDataV1,
     RunRecord,
+    RunTerminatedDataV1,
+    RunCommandV1,
     canonical_payload_hash,
     outcome_policy_set_digest,
     run_kind_definition_digest,
@@ -37,6 +47,16 @@ from gameforge.platform.runs.state import (
     validate_prompt_link_binding,
     validate_queued_creation,
     validate_run_kind_binding,
+)
+from gameforge.platform.runs.lifecycle import (
+    AttemptWriteFence,
+    RunFailurePublication,
+    RunLifecycleAccountingGateway,
+    resolve_lifecycle_bindings,
+    select_outcome_policy,
+    validate_attempt_write_fence,
+    validate_prepared_failure,
+    validate_terminal_cassette_publication,
 )
 
 
@@ -95,18 +115,42 @@ class RunClaimResult(_FrozenModel):
 
 
 class PromptRenderPublicationRequest(_FrozenModel):
-    run_id: NonEmptyStr
-    attempt_no: PositiveInt
-    expected_fencing_token: PositiveInt
+    fence: AttemptWriteFence
     artifact_id: NonEmptyStr
     request_hash: Sha256Hex
     idempotency_scope: NonEmptyStr
     idempotency_key: NonEmptyStr
+    actor: AuditActor
+
+    @model_validator(mode="after")
+    def _worker_actor(self) -> "PromptRenderPublicationRequest":
+        if self.actor.principal_kind not in {"service", "system"}:
+            raise ValueError("prompt publication requires a service or system actor")
+        return self
 
 
 class PromptRenderPublicationResult(_FrozenModel):
     link: RunIntermediateArtifactLinkV1
     replayed: bool
+
+
+class RunCommandSubmissionResult(_FrozenModel):
+    status: Literal["accepted", "duplicate"]
+    persisted_status: Literal["pending", "claimed", "applied", "rejected"]
+    command_revision: PositiveInt
+    run_revision: PositiveInt
+    event: RunEvent | None = None
+
+
+class PersistedCommandAcceptance(Protocol):
+    @property
+    def run(self) -> RunRecord: ...
+
+    @property
+    def record(self) -> RunCommandRecordV1: ...
+
+    @property
+    def events(self) -> tuple[RunEvent, ...]: ...
 
 
 class PersistedRunClaim(Protocol):
@@ -184,7 +228,53 @@ class RunRepository(Protocol):
 
     def get_command(self, run_id: str, command_id: str) -> RunCommandRecordV1 | None: ...
 
+    def get_command_by_idempotency(
+        self,
+        *,
+        run_id: str,
+        idempotency_key: str,
+    ) -> RunCommandRecordV1 | None: ...
+
+    def get_command_by_client_sequence(
+        self,
+        *,
+        run_id: str,
+        client_id: str,
+        client_seq: int,
+    ) -> RunCommandRecordV1 | None: ...
+
     def put_command(self, record: RunCommandRecordV1) -> RunCommandRecordV1: ...
+
+    def accept_command(
+        self,
+        *,
+        expected_run_revision: int,
+        record: RunCommandRecordV1,
+        events: tuple[RunEvent, ...],
+        terminal_status: Literal["cancelled"] | None = None,
+        terminal_failure_artifact_id: str | None = None,
+        terminal_cassette_artifact_id: str | None = None,
+    ) -> PersistedCommandAcceptance: ...
+
+    def claim_command(
+        self,
+        *,
+        fence: AttemptWriteFence,
+        command_id: str,
+        claimed_at: str,
+    ) -> RunCommandRecordV1: ...
+
+    def complete_command(
+        self,
+        *,
+        fence: AttemptWriteFence,
+        command_id: str,
+        expected_command_revision: int,
+        outcome: Literal["applied", "rejected"],
+        outcome_code: str,
+        occurred_at: str,
+        event: RunEvent,
+    ) -> RunCommandRecordV1: ...
 
 
 class RunRegistryGateway(Protocol):
@@ -193,6 +283,8 @@ class RunRegistryGateway(Protocol):
     def get_run_kind(self, kind: RunKindRef) -> RunKindDefinition | None: ...
 
     def get_retry_policy(self, ref: RetryPolicyRefV1) -> RetryPolicySnapshot | None: ...
+
+    def get_failure_classifier(self, ref: object) -> FailureClassifierV1 | None: ...
 
     def validate_payload_bindings(
         self,
@@ -256,13 +348,54 @@ class RunPublicationGateway(Protocol):
         idempotency_scope: str,
         idempotency_key: str,
         request_hash: str,
+        actor: AuditActor,
     ) -> RunIntermediateArtifactLinkV1:
         """Atomically consume the call head and retain the exact link/replay key.
 
-        Task 14 composes prepared Artifact/ObjectRef, deadline, and audit publication
-        around this transaction-bound participant.
+        The command service supplies the fenced deadline guard while this
+        transaction-bound participant publishes Artifact/ObjectRef and audit state.
         """
         ...
+
+    def publish_run_failure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        attempt_failure_artifact_id: str | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> RunFailurePublication: ...
+
+    def record_command_submitted(
+        self,
+        *,
+        run: RunRecord,
+        record: RunCommandRecordV1,
+        events: tuple[RunEvent, ...],
+        actor: AuditActor,
+    ) -> None: ...
+
+    def record_command_completed(
+        self,
+        *,
+        run: RunRecord,
+        record: RunCommandRecordV1,
+        event: RunEvent,
+        actor: AuditActor,
+    ) -> None: ...
+
+    def record_run_terminal(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        event: RunEvent,
+        actor: AuditActor,
+    ) -> None: ...
 
 
 @dataclass(slots=True)
@@ -271,6 +404,7 @@ class RunCommandCapabilities:
     registry: RunRegistryGateway | None
     admission: RunAdmissionGateway | None
     publication: RunPublicationGateway | None
+    accounting: RunLifecycleAccountingGateway | None = None
 
 
 class RunUnitOfWork(Protocol):
@@ -491,8 +625,10 @@ class RunCommandService:
             previous = runs.get_claim_candidate(now_utc=now_text)
             if previous is None:
                 return None
-            if previous.status != "queued":
-                raise IntegrityViolation("Task 13 claim candidate is not queued")
+            if previous.status not in {"queued", "retry_wait"}:
+                raise IntegrityViolation("Run claim candidate is not claimable")
+            if previous.cancel_requested_at is not None:
+                raise IntegrityViolation("Run repository returned a cancel-requested candidate")
             _resolve_bindings(run=previous, registry=registry)
             queue_deadline = _parse_utc(
                 previous.queue_deadline_utc,
@@ -502,8 +638,19 @@ class RunCommandService:
                 previous.overall_deadline_utc,
                 field_name="stored overall_deadline_utc",
             )
-            if now >= queue_deadline or now >= overall_deadline:
+            if now >= overall_deadline:
                 raise IntegrityViolation("Run repository returned an expired claim candidate")
+            if previous.status == "queued" and now >= queue_deadline:
+                raise IntegrityViolation("Run repository returned an expired queued candidate")
+            if previous.status == "retry_wait":
+                if previous.retry_not_before_utc is None:
+                    raise IntegrityViolation("retry-wait Run omitted retry_not_before_utc")
+                retry_not_before = _parse_utc(
+                    previous.retry_not_before_utc,
+                    field_name="stored retry_not_before_utc",
+                )
+                if now < retry_not_before:
+                    raise IntegrityViolation("Run repository returned an ineligible retry candidate")
             remaining = overall_deadline - now
             remaining_microseconds = (
                 remaining.days * 86_400_000_000
@@ -572,21 +719,396 @@ class RunCommandService:
                 event=persisted.event,
             )
 
+    def submit(
+        self,
+        *,
+        run_id: str,
+        command: RunCommandV1,
+        actor: AuditActor,
+    ) -> RunCommandSubmissionResult:
+        with self._unit_of_work.begin() as transaction:
+            capabilities = self._bind_capabilities(transaction)
+            runs = _required(capabilities.runs, "runs")
+            publication = _required(capabilities.publication, "publication")
+            request_hash = canonical_payload_hash(command)
+            retained = runs.get_command(run_id, command.command_id)
+            if retained is not None:
+                self._validate_command_replay(
+                    retained=retained,
+                    command=command,
+                    request_hash=request_hash,
+                    actor=actor,
+                )
+                event = (
+                    runs.get_event(run_id, retained.result_event_seq)
+                    if retained.result_event_seq is not None
+                    else None
+                )
+                run = runs.get(run_id)
+                if run is None:
+                    raise IntegrityViolation("retained Run command is detached from its Run")
+                return RunCommandSubmissionResult(
+                    status="duplicate",
+                    persisted_status=retained.status,
+                    command_revision=retained.revision,
+                    run_revision=run.revision,
+                    event=event,
+                )
+            idempotent = runs.get_command_by_idempotency(
+                run_id=run_id,
+                idempotency_key=command.idempotency_key,
+            )
+            sequenced = runs.get_command_by_client_sequence(
+                run_id=run_id,
+                client_id=command.client_id,
+                client_seq=command.client_seq,
+            )
+            if idempotent is not None or sequenced is not None:
+                raise Conflict("Run command identity is already bound to another request")
+
+            run = runs.get(run_id)
+            if run is None:
+                raise IntegrityViolation("Run command target does not exist")
+            registry = _required(capabilities.registry, "registry")
+            definition, _ = _resolve_bindings(run=run, registry=registry)
+            if command.expected_run_revision != run.revision:
+                raise Conflict(
+                    "Run command expected revision differs",
+                    expected_revision=command.expected_run_revision,
+                    actual_revision=run.revision,
+                )
+            if command.payload_schema_id not in definition.allowed_command_schema_ids:
+                raise InvalidStateTransition("Run command is not allowed for this Run kind")
+            now = _utc_now(self._clock)
+            now_text = _utc_text(now)
+            if now >= _parse_utc(
+                run.overall_deadline_utc,
+                field_name="run.overall_deadline_utc",
+            ):
+                raise InvalidStateTransition("Run command arrived after the overall deadline")
+
+            if command.type == "provide_input":
+                if run.status not in {"leased", "running"}:
+                    raise InvalidStateTransition("provide_input requires an active Run")
+                record = RunCommandRecordV1(
+                    run_id=run.run_id,
+                    command=command,
+                    request_hash=request_hash,
+                    actor=actor,
+                    status="pending",
+                    revision=1,
+                    created_at=now_text,
+                )
+                event = RunEvent(
+                    run_id=run.run_id,
+                    seq=run.next_event_seq,
+                    event_type="run.command_accepted",
+                    occurred_at=now_text,
+                    data_schema_version="command-accepted@1",
+                    data=CommandAcceptedDataV1(
+                        command_id=command.command_id,
+                        command_type=command.type,
+                        command_revision=record.revision,
+                    ),
+                )
+                persisted = runs.accept_command(
+                    expected_run_revision=run.revision,
+                    record=record,
+                    events=(event,),
+                )
+                publication.record_command_submitted(
+                    run=persisted.run,
+                    record=persisted.record,
+                    events=persisted.events,
+                    actor=actor,
+                )
+                return RunCommandSubmissionResult(
+                    status="accepted",
+                    persisted_status=persisted.record.status,
+                    command_revision=persisted.record.revision,
+                    run_revision=persisted.run.revision,
+                    event=persisted.events[0],
+                )
+
+            if not isinstance(command.payload, CancelRunPayloadV1):
+                raise IntegrityViolation("cancel command has the wrong typed payload")
+            if run.status not in {"queued", "leased", "running", "retry_wait"}:
+                raise InvalidStateTransition("Run is already terminal")
+            cancel_event = RunEvent(
+                run_id=run.run_id,
+                seq=run.next_event_seq,
+                event_type="run.cancel_requested",
+                occurred_at=now_text,
+                data_schema_version="cancel-requested@1",
+                data=CancelRequestedDataV1(
+                    command_id=command.command_id,
+                    reason_code=command.payload.reason_code,
+                ),
+            )
+            record = RunCommandRecordV1(
+                run_id=run.run_id,
+                command=command,
+                request_hash=request_hash,
+                actor=actor,
+                status="applied",
+                revision=1,
+                created_at=now_text,
+                applied_at=now_text,
+                result_event_seq=cancel_event.seq,
+            )
+            if run.status in {"leased", "running"}:
+                persisted = runs.accept_command(
+                    expected_run_revision=run.revision,
+                    record=record,
+                    events=(cancel_event,),
+                )
+                publication.record_command_submitted(
+                    run=persisted.run,
+                    record=persisted.record,
+                    events=persisted.events,
+                    actor=actor,
+                )
+                return RunCommandSubmissionResult(
+                    status="accepted",
+                    persisted_status=persisted.record.status,
+                    command_revision=persisted.record.revision,
+                    run_revision=persisted.run.revision,
+                    event=persisted.events[0],
+                )
+
+            accounting = _required(capabilities.accounting, "accounting")
+            lifecycle_definition, retry_policy, classifier = resolve_lifecycle_bindings(
+                run=run,
+                registry=registry,
+            )
+            latest_attempt = None
+            if run.status == "retry_wait":
+                latest_attempt = runs.get_attempt(run.run_id, run.next_attempt_no - 1)
+                if latest_attempt is None or latest_attempt.status in {"leased", "running"}:
+                    raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
+            if runs.get_current_lease(run.run_id) is not None:
+                raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
+            prepared = PreparedRunFailure(
+                run_id=run.run_id,
+                attempt_no=(latest_attempt.attempt_no if latest_attempt is not None else None),
+                run_kind=run.kind,
+                artifacts=(),
+                requirement_dispositions=(),
+                cause_code="cancelled",
+                failure_class="cancelled",
+                intrinsic_retry_eligible=False,
+                classifier=run.failure_classifier,
+                redacted_message="Run cancellation requested",
+            )
+            validate_prepared_failure(
+                run=run,
+                attempt=latest_attempt,
+                prepared=prepared,
+                classifier=classifier,
+            )
+            decision = RetryDecisionV1(
+                cause_code="cancelled",
+                failure_class="cancelled",
+                intrinsic_retry_eligible=False,
+                decision="terminal",
+                reason_code="not_retry_eligible",
+                classifier=run.failure_classifier,
+                retry_policy=run.retry_policy,
+                evaluated_at_utc=now_text,
+            )
+            if retry_policy.retry_policy_digest != run.retry_policy.retry_policy_digest:
+                raise IntegrityViolation("cancel retry policy differs from Run")
+            policy = select_outcome_policy(
+                definition=lifecycle_definition,
+                outcome_code="cancelled",
+                prepared_outcome="failure",
+                publication_scope="run",
+                run_status="cancelled",
+                attempt_status=None,
+                failure_class="cancelled",
+                retry_disposition="terminal",
+            )
+            run_publication = publication.publish_run_failure(
+                run=run,
+                attempt=latest_attempt,
+                prepared=prepared,
+                retry_decision=decision,
+                policy=policy,
+                attempt_failure_artifact_id=None,
+                occurred_at=now_text,
+                actor=actor,
+            )
+            validate_terminal_cassette_publication(
+                run=run,
+                cassette_artifact_id=run_publication.terminal_cassette_artifact_id,
+            )
+            failure_artifact_id = run_publication.failure_artifact_id
+            accounting.close_run(run=run, terminal_status="cancelled")
+            terminal_event = RunEvent(
+                run_id=run.run_id,
+                seq=run.next_event_seq + 1,
+                event_type="run.cancelled",
+                occurred_at=now_text,
+                data_schema_version="run-terminated@1",
+                data=RunTerminatedDataV1(
+                    attempt_no=(latest_attempt.attempt_no if latest_attempt is not None else None),
+                    failure_artifact_id=failure_artifact_id,
+                    cause_code="cancelled",
+                ),
+            )
+            persisted = runs.accept_command(
+                expected_run_revision=run.revision,
+                record=record,
+                events=(cancel_event, terminal_event),
+                terminal_status="cancelled",
+                terminal_failure_artifact_id=failure_artifact_id,
+                terminal_cassette_artifact_id=(
+                    run_publication.terminal_cassette_artifact_id
+                ),
+            )
+            publication.record_command_submitted(
+                run=persisted.run,
+                record=persisted.record,
+                events=persisted.events,
+                actor=actor,
+            )
+            publication.record_run_terminal(
+                run=persisted.run,
+                attempt=latest_attempt,
+                event=persisted.events[-1],
+                actor=actor,
+            )
+            return RunCommandSubmissionResult(
+                status="accepted",
+                persisted_status=persisted.record.status,
+                command_revision=persisted.record.revision,
+                run_revision=persisted.run.revision,
+                event=persisted.events[0],
+            )
+
+    def claim_command(
+        self,
+        *,
+        fence: AttemptWriteFence,
+        command_id: str,
+        actor: AuditActor,
+    ) -> RunCommandRecordV1:
+        with self._unit_of_work.begin() as transaction:
+            capabilities = self._bind_capabilities(transaction)
+            runs = _required(capabilities.runs, "runs")
+            now = _utc_now(self._clock)
+            run, attempt, lease = self._load_command_fence(runs=runs, fence=fence)
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=fence,
+                actor=actor,
+                now=now,
+                allowed_statuses=frozenset({"running"}),
+            )
+            record = runs.get_command(run.run_id, command_id)
+            if record is None:
+                raise IntegrityViolation("Run command does not exist")
+            if record.status != "pending":
+                raise InvalidStateTransition("Run command is not pending")
+            return runs.claim_command(
+                fence=fence,
+                command_id=command_id,
+                claimed_at=_utc_text(now),
+            )
+
+    def complete_command(
+        self,
+        *,
+        fence: AttemptWriteFence,
+        command_id: str,
+        expected_command_revision: int,
+        outcome: Literal["applied", "rejected"],
+        outcome_code: str,
+        actor: AuditActor,
+    ) -> RunCommandRecordV1:
+        if not outcome_code:
+            raise ValueError("outcome_code must be non-empty")
+        with self._unit_of_work.begin() as transaction:
+            capabilities = self._bind_capabilities(transaction)
+            runs = _required(capabilities.runs, "runs")
+            publication = _required(capabilities.publication, "publication")
+            now = _utc_now(self._clock)
+            now_text = _utc_text(now)
+            run, attempt, lease = self._load_command_fence(runs=runs, fence=fence)
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=fence,
+                actor=actor,
+                now=now,
+                allowed_statuses=frozenset({"running"}),
+            )
+            record = runs.get_command(run.run_id, command_id)
+            if record is None:
+                raise IntegrityViolation("Run command does not exist")
+            if (
+                record.status != "claimed"
+                or record.revision != expected_command_revision
+                or record.claimed_attempt_no != attempt.attempt_no
+                or record.claimed_fencing_token != attempt.fencing_token
+            ):
+                raise Conflict("Run command completion fence differs")
+            event = RunEvent(
+                run_id=run.run_id,
+                seq=run.next_event_seq,
+                event_type=(
+                    "run.command_applied" if outcome == "applied" else "run.command_rejected"
+                ),
+                attempt_no=attempt.attempt_no,
+                occurred_at=now_text,
+                data_schema_version="command-outcome@1",
+                data=CommandOutcomeDataV1(
+                    command_id=command_id,
+                    command_type=record.command.type,
+                    command_revision=record.revision + 1,
+                    outcome_code=outcome_code,
+                ),
+                trace_id=attempt.trace_id,
+            )
+            completed = runs.complete_command(
+                fence=fence,
+                command_id=command_id,
+                expected_command_revision=expected_command_revision,
+                outcome=outcome,
+                outcome_code=outcome_code,
+                occurred_at=now_text,
+                event=event,
+            )
+            updated_run = runs.get(run.run_id)
+            if updated_run is None:
+                raise IntegrityViolation("completed command Run disappeared")
+            publication.record_command_completed(
+                run=updated_run,
+                record=completed,
+                event=event,
+                actor=actor,
+            )
+            return completed
+
     def publish_prompt_rendered(
         self,
         request: PromptRenderPublicationRequest,
     ) -> PromptRenderPublicationResult:
         """Consume a call head only through an atomic publication gateway.
 
-        Task 14 adds the complete deadline, prepared Artifact/ObjectRef, and audit
-        publication guard. This Task-13 primitive deliberately has no bare ordinal
-        allocator and cannot be composed without a transaction-bound publisher.
+        The service validates the current deadline/fence and deliberately exposes no
+        bare ordinal allocator; Artifact/ObjectRef and audit publication stay inside
+        the transaction-bound publisher.
         """
 
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
             runs = _required(capabilities.runs, "runs")
             publication = _required(capabilities.publication, "publication")
+            now = _utc_now(self._clock)
             replay = publication.get_prompt_replay(
                 idempotency_scope=request.idempotency_scope,
                 idempotency_key=request.idempotency_key,
@@ -594,13 +1116,30 @@ class RunCommandService:
             )
             if replay is not None:
                 registry = _required(capabilities.registry, "registry")
-                run = runs.get(request.run_id)
+                run = runs.get(request.fence.run_id)
                 if run is None:
                     raise IntegrityViolation("prompt replay Run does not exist")
                 _resolve_bindings(run=run, registry=registry)
-                attempt = runs.get_attempt(request.run_id, request.attempt_no)
+                attempt = runs.get_attempt(
+                    request.fence.run_id,
+                    request.fence.attempt_no,
+                )
                 if attempt is None:
                     raise IntegrityViolation("prompt replay attempt does not exist")
+                lease = runs.get_current_lease(request.fence.run_id)
+                if lease is None:
+                    raise Conflict("prompt replay has no current active lease")
+                validate_attempt_write_fence(
+                    run=run,
+                    attempt=attempt,
+                    lease=lease,
+                    fence=request.fence,
+                    actor=request.actor,
+                    now=now,
+                    allowed_statuses=frozenset({"running"}),
+                )
+                if attempt.status != "running":
+                    raise InvalidStateTransition("prompt replay attempt is not running")
                 authoritative_link = runs.get_intermediate_link(
                     replay.run_id,
                     replay.attempt_no,
@@ -616,31 +1155,39 @@ class RunCommandService:
                 return PromptRenderPublicationResult(link=replay, replayed=True)
 
             registry = _required(capabilities.registry, "registry")
-            run = runs.get(request.run_id)
+            run = runs.get(request.fence.run_id)
             if run is None:
                 raise IntegrityViolation("prompt publication Run does not exist")
             _resolve_bindings(run=run, registry=registry)
-            attempt = runs.get_attempt(request.run_id, request.attempt_no)
+            attempt = runs.get_attempt(
+                request.fence.run_id,
+                request.fence.attempt_no,
+            )
             if attempt is None:
                 raise IntegrityViolation("prompt publication attempt does not exist")
-            if attempt.fencing_token != request.expected_fencing_token:
-                raise Conflict(
-                    "prompt publication fencing token differs",
-                    expected_fencing_token=request.expected_fencing_token,
-                    actual_fencing_token=attempt.fencing_token,
-                )
-            lease = runs.get_current_lease(request.run_id)
+            lease = runs.get_current_lease(request.fence.run_id)
             if lease is None:
-                raise IntegrityViolation("prompt publication has no active lease")
+                raise Conflict("prompt publication has no current active lease")
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=request.fence,
+                actor=request.actor,
+                now=now,
+                allowed_statuses=frozenset({"running"}),
+            )
+            if attempt.status != "running":
+                raise InvalidStateTransition("prompt publication attempt is not running")
             link = RunIntermediateArtifactLinkV1(
-                run_id=request.run_id,
-                attempt_no=request.attempt_no,
+                run_id=request.fence.run_id,
+                attempt_no=request.fence.attempt_no,
                 call_ordinal=attempt.next_call_ordinal,
                 artifact_id=request.artifact_id,
                 role="prompt_rendered",
                 request_hash=request.request_hash,
-                fencing_token=request.expected_fencing_token,
-                published_at=_utc_text(_utc_now(self._clock)),
+                fencing_token=request.fence.fencing_token,
+                published_at=_utc_text(now),
             )
             validate_prompt_link_binding(
                 run=run,
@@ -653,6 +1200,7 @@ class RunCommandService:
                 idempotency_scope=request.idempotency_scope,
                 idempotency_key=request.idempotency_key,
                 request_hash=request.request_hash,
+                actor=request.actor,
             )
             if stored != link:
                 raise IntegrityViolation("prompt publication gateway retained a different link")
@@ -673,6 +1221,34 @@ class RunCommandService:
             if advanced_attempt != expected_attempt:
                 raise IntegrityViolation("prompt publication did not consume exactly one call head")
             return PromptRenderPublicationResult(link=link, replayed=False)
+
+    @staticmethod
+    def _load_command_fence(
+        *,
+        runs: RunRepository,
+        fence: AttemptWriteFence,
+    ) -> tuple[RunRecord, RunAttempt, RunLease]:
+        run = runs.get(fence.run_id)
+        attempt = runs.get_attempt(fence.run_id, fence.attempt_no)
+        lease = runs.get_current_lease(fence.run_id)
+        if run is None or attempt is None or lease is None:
+            raise Conflict("Run command worker fence is no longer current")
+        return run, attempt, lease
+
+    @staticmethod
+    def _validate_command_replay(
+        *,
+        retained: RunCommandRecordV1,
+        command: RunCommandV1,
+        request_hash: str,
+        actor: AuditActor,
+    ) -> None:
+        if (
+            retained.command != command
+            or retained.request_hash != request_hash
+            or retained.actor != actor
+        ):
+            raise Conflict("Run command identity is bound to a different request")
 
     @staticmethod
     def _validate_create_replay(
@@ -718,11 +1294,11 @@ class RunCommandService:
         authoritative_link: RunIntermediateArtifactLinkV1 | None,
     ) -> None:
         expected = {
-            "run_id": request.run_id,
-            "attempt_no": request.attempt_no,
+            "run_id": request.fence.run_id,
+            "attempt_no": request.fence.attempt_no,
             "artifact_id": request.artifact_id,
             "request_hash": request.request_hash,
-            "fencing_token": request.expected_fencing_token,
+            "fencing_token": request.fence.fencing_token,
             "role": "prompt_rendered",
         }
         for field_name, expected_value in expected.items():
@@ -757,6 +1333,7 @@ __all__ = [
     "RunClaimRequest",
     "RunClaimResult",
     "RunCommandCapabilities",
+    "RunCommandSubmissionResult",
     "RunCommandService",
     "RunCreateRequest",
     "RunCreateResult",

@@ -173,8 +173,8 @@ def validate_claim_transition(
 ) -> None:
     """Validate one queued -> leased transition against the three persisted heads."""
 
-    if previous.status != "queued":
-        raise InvalidStateTransition("Task 13 claim accepts only queued Runs")
+    if previous.status not in {"queued", "retry_wait"}:
+        raise InvalidStateTransition("Run claim accepts only queued or due retry-wait Runs")
     validate_run_immutable_bindings(previous=previous, current=current)
     attempt_no = previous.next_attempt_no
     fencing_token = previous.next_fencing_token

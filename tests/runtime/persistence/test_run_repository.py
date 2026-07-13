@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy import Engine, delete, func, select, update
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import (
     FindingPayloadV1,
@@ -15,10 +15,20 @@ from gameforge.contracts.findings import (
     finding_revision_digest,
 )
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
+    CancelRequestedDataV1,
+    CancelRunPayloadV1,
     CheckerRunPayloadV1,
+    CommandAcceptedDataV1,
+    CommandOutcomeDataV1,
+    ExecutionVersionPlanV1,
     FailureClassifierRefV1,
     GraphSelectionV1,
+    LeaseExpiredDataV1,
     PlaytestProvideInputPayloadV1,
+    PlannedAgentNodeVersionV1,
+    RetryDecisionV1,
+    RetryScheduledDataV1,
     RetryPolicyRefV1,
     RunCommandRecordV1,
     RunCommandV1,
@@ -28,8 +38,12 @@ from gameforge.contracts.jobs import (
     RunPayloadEnvelope,
     RunQueuedDataV1,
     RunRecord,
+    RunSucceededDataV1,
+    RunTerminatedDataV1,
     canonical_payload_hash,
+    execution_version_plan_digest,
 )
+from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.contracts.lineage import AuditActor, VersionTuple
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.engine import get_engine
@@ -43,7 +57,7 @@ from gameforge.runtime.persistence.models import (
     RunLeaseRow,
     RunRow,
 )
-from gameforge.runtime.persistence.runs import SqlRunRepository
+from gameforge.runtime.persistence.runs import RunAttemptStart, RunClaim, SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
 
@@ -53,6 +67,12 @@ HASH_B = "b" * 64
 HASH_C = "c" * 64
 NOW = "2026-07-14T09:00:00Z"
 LEASE_EXPIRES = "2026-07-14T09:01:00Z"
+STARTED = "2026-07-14T09:00:00.100000Z"
+HEARTBEAT = "2026-07-14T09:00:00.200000Z"
+PROGRESSED = "2026-07-14T09:00:00.300000Z"
+ENDED = "2026-07-14T09:00:00.400000Z"
+ATTEMPT_DEADLINE = "2026-07-14T09:00:01.100000Z"
+RENEWED_EXPIRES = "2026-07-14T09:00:00.900000Z"
 
 
 def _payload(*, input_artifact_id: str = "artifact:input") -> RunPayloadEnvelope:
@@ -78,6 +98,40 @@ def _payload(*, input_artifact_id: str = "artifact:input") -> RunPayloadEnvelope
         llm_execution_mode="not_applicable",
         params=params,
     )
+
+
+def _record_payload() -> RunPayloadEnvelope:
+    node = PlannedAgentNodeVersionV1(
+        agent_node_id="checker",
+        prompt_version="checker@1",
+        tool_version="checker@1",
+        allowed_model_snapshots=("model:a",),
+    )
+    plan_fields = {
+        "agent_graph_version": "graph@1",
+        "nodes": (node,),
+        "model_catalog_version": 1,
+        "model_catalog_digest": HASH_A,
+        "routing_policy_version": 1,
+        "routing_policy_digest": HASH_B,
+    }
+    plan = ExecutionVersionPlanV1(
+        **plan_fields,
+        plan_digest=execution_version_plan_digest(plan_fields),
+    )
+    wire = _payload().model_dump(mode="python")
+    wire.update(
+        execution_version_plan=plan,
+        llm_execution_mode="record",
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:1",
+            prompt_version="checker@1",
+            model_snapshot="model:a",
+            agent_graph_version="graph@1",
+            tool_version="checker@1",
+        ),
+    )
+    return RunPayloadEnvelope.model_validate(wire)
 
 
 def _run(
@@ -213,10 +267,13 @@ def test_create_idempotency_replays_original_resource_and_conflicts_on_new_hash(
     original = _run()
     assert _create(engine, original) == original
     with Session(engine) as session:
-        assert SqlRunRepository(session).get_by_idempotency(
-            scope=original.idempotency_scope,
-            key=original.idempotency_key,
-        ) == original
+        assert (
+            SqlRunRepository(session).get_by_idempotency(
+                scope=original.idempotency_scope,
+                key=original.idempotency_key,
+            )
+            == original
+        )
 
     replay = _run(
         "run:retry-generated-id",
@@ -263,9 +320,7 @@ def test_run_reader_fails_closed_when_payload_or_binding_is_changed_in_place(
     corrupted_payload["budget_set_snapshot_id"] = "budget-set:corrupt"
     with engine.begin() as connection:
         connection.execute(
-            update(RunRow)
-            .where(RunRow.run_id == expected.run_id)
-            .values(payload=corrupted_payload)
+            update(RunRow).where(RunRow.run_id == expected.run_id).values(payload=corrupted_payload)
         )
 
     with Session(engine) as session, pytest.raises(IntegrityViolation, match="stored Run"):
@@ -279,10 +334,10 @@ def test_claim_allocates_attempt_fencing_event_and_lease_from_persisted_heads(
     _create(engine, queued)
 
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
-        candidate = transaction.runs.get_claim_candidate(NOW)
+        candidate = transaction.runs.get_claim_candidate(now_utc=NOW)
         assert candidate == queued
         claim = transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=queued.revision,
             worker_principal_id="service:worker:1",
             lease_id="lease:1",
@@ -317,17 +372,39 @@ def test_claim_allocates_attempt_fencing_event_and_lease_from_persisted_heads(
         assert session.scalar(select(func.count()).select_from(RunLeaseRow)) == 1
 
 
+def test_claim_candidate_excludes_a_run_with_persisted_cancel_intent(
+    engine: Engine,
+) -> None:
+    queued = _run()
+    _create(engine, queued)
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunRow)
+            .where(RunRow.run_id == queued.run_id)
+            .values(
+                cancel_requested_at=NOW,
+                cancel_requested_by={
+                    "principal_id": "human:a",
+                    "principal_kind": "human",
+                },
+            )
+        )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        assert transaction.runs.get_claim_candidate(now_utc=NOW) is None
+
+
 def test_two_connections_cannot_claim_the_same_run_or_duplicate_heads(engine: Engine) -> None:
     queued = _run()
     _create(engine, queued)
 
     def claim_from_connection(worker: str) -> str:
         with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
-            candidate = transaction.runs.get_claim_candidate(NOW)
+            candidate = transaction.runs.get_claim_candidate(now_utc=NOW)
             if candidate is None:
                 return "none"
             result = transaction.runs.claim(
-                candidate.run_id,
+                run_id=candidate.run_id,
                 expected_revision=candidate.revision,
                 worker_principal_id=worker,
                 lease_id=f"lease:{worker}",
@@ -354,7 +431,7 @@ def test_two_connections_cannot_claim_the_same_run_or_duplicate_heads(engine: En
         assert session.scalar(select(func.count()).select_from(RunLeaseRow)) == 1
 
 
-def test_task13_claim_skips_and_rejects_retry_wait_until_task14_guards_exist(
+def test_task14_claim_selects_a_due_retry_wait_before_a_later_queued_run(
     engine: Engine,
 ) -> None:
     retry_wait = _run(
@@ -380,17 +457,21 @@ def test_task13_claim_skips_and_rejects_retry_wait_until_task14_guards_exist(
     _create(engine, queued)
 
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
-        assert transaction.runs.get_claim_candidate(NOW) == queued
-        with pytest.raises(InvalidStateTransition, match="only a queued Run"):
-            transaction.runs.claim(
-                retry_wait.run_id,
-                expected_revision=1,
-                worker_principal_id="service:worker",
-                lease_id="lease:retry",
-                acquired_at=NOW,
-                expires_at=LEASE_EXPIRES,
-                permit_group_id="permit:retry",
-            )
+        candidate = transaction.runs.get_claim_candidate(now_utc=NOW)
+        assert candidate is not None
+        assert candidate.run_id == retry_wait.run_id
+        assert candidate.status == "retry_wait"
+        claimed = transaction.runs.claim(
+            run_id=retry_wait.run_id,
+            expected_revision=1,
+            worker_principal_id="service:worker",
+            lease_id="lease:retry",
+            acquired_at=NOW,
+            expires_at=LEASE_EXPIRES,
+            permit_group_id="permit:retry",
+        )
+        assert claimed.run.status == "leased"
+        assert claimed.run.retry_not_before_utc is None
 
 
 def test_active_run_must_point_to_the_attempt_and_fencing_predecessor_heads(
@@ -400,7 +481,7 @@ def test_active_run_must_point_to_the_attempt_and_fencing_predecessor_heads(
     _create(engine, queued)
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         claim = transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=1,
             worker_principal_id="service:worker",
             lease_id="lease:1",
@@ -408,9 +489,7 @@ def test_active_run_must_point_to_the_attempt_and_fencing_predecessor_heads(
             expires_at=LEASE_EXPIRES,
             permit_group_id="permit:1",
         )
-    newer_attempt = claim.attempt.model_copy(
-        update={"attempt_no": 2, "fencing_token": 2}
-    )
+    newer_attempt = claim.attempt.model_copy(update={"attempt_no": 2, "fencing_token": 2})
     with Session(engine) as session:
         session.add(RunAttemptRow(**newer_attempt.model_dump(mode="json")))
         session.execute(
@@ -420,9 +499,12 @@ def test_active_run_must_point_to_the_attempt_and_fencing_predecessor_heads(
         )
         session.commit()
 
-    with Session(engine) as session, pytest.raises(
-        IntegrityViolation,
-        match="consumed attempt head",
+    with (
+        Session(engine) as session,
+        pytest.raises(
+            IntegrityViolation,
+            match="consumed attempt head",
+        ),
     ):
         SqlRunRepository(session).get(queued.run_id)
 
@@ -432,7 +514,7 @@ def test_run_event_head_rejects_a_deleted_historical_sequence(engine: Engine) ->
     _create(engine, queued)
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=1,
             worker_principal_id="service:worker",
             lease_id="lease:1",
@@ -463,7 +545,7 @@ def test_prompt_link_allocates_call_ordinal_atomically_without_preallocating_ret
     _create(engine, queued)
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=1,
             worker_principal_id="service:worker",
             lease_id="lease:1",
@@ -523,7 +605,7 @@ def test_prompt_link_and_attempt_head_roll_back_together(engine: Engine) -> None
     _create(engine, queued)
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=1,
             worker_principal_id="service:worker",
             lease_id="lease:1",
@@ -570,7 +652,7 @@ def test_attempt_call_head_rejects_a_deleted_historical_prompt_link(
     _create(engine, queued)
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=1,
             worker_principal_id="service:worker",
             lease_id="lease:1",
@@ -655,7 +737,7 @@ def _claim(engine: Engine) -> tuple[RunRecord, int]:
     _create(engine, queued)
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         claim = transaction.runs.claim(
-            queued.run_id,
+            run_id=queued.run_id,
             expected_revision=1,
             worker_principal_id="service:worker",
             lease_id="lease:1",
@@ -664,6 +746,68 @@ def _claim(engine: Engine) -> tuple[RunRecord, int]:
             permit_group_id="permit:1",
         )
     return claim.run, claim.attempt.next_call_ordinal
+
+
+def _claim_result(engine: Engine, run: RunRecord | None = None) -> RunClaim:
+    queued = run or _run()
+    if run is None:
+        _create(engine, queued)
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        return transaction.runs.claim(
+            run_id=queued.run_id,
+            expected_revision=queued.revision,
+            worker_principal_id="service:worker",
+            lease_id=f"lease:{queued.run_id}",
+            acquired_at=NOW,
+            expires_at=LEASE_EXPIRES,
+            permit_group_id=f"permit:{queued.run_id}",
+        )
+
+
+def _start_result(engine: Engine, run: RunRecord | None = None) -> RunAttemptStart:
+    claimed = _claim_result(engine, run)
+    fence = AttemptWriteFence(
+        run_id=claimed.run.run_id,
+        attempt_no=claimed.attempt.attempt_no,
+        expected_run_revision=claimed.run.revision,
+        lease_id=claimed.lease.lease_id,
+        fencing_token=claimed.attempt.fencing_token,
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        return transaction.runs.start_attempt(
+            run_id=fence.run_id,
+            attempt_no=fence.attempt_no,
+            expected_run_revision=fence.expected_run_revision,
+            lease_id=fence.lease_id,
+            fencing_token=fence.fencing_token,
+            started_at=STARTED,
+            attempt_deadline_utc=ATTEMPT_DEADLINE,
+        )
+
+
+def _fence(run: RunRecord, *, lease_id: str | None = None) -> AttemptWriteFence:
+    assert run.current_attempt_no is not None
+    return AttemptWriteFence(
+        run_id=run.run_id,
+        attempt_no=run.current_attempt_no,
+        expected_run_revision=run.revision,
+        lease_id=lease_id or f"lease:{run.run_id}",
+        fencing_token=run.next_fencing_token - 1,
+    )
+
+
+def _retry_decision(run: RunRecord) -> RetryDecisionV1:
+    return RetryDecisionV1(
+        cause_code="dependency_unavailable",
+        failure_class="transient_dependency",
+        intrinsic_retry_eligible=True,
+        decision="retry",
+        reason_code="transient_eligible",
+        retry_not_before_utc="2026-07-14T09:00:00.500000Z",
+        classifier=run.failure_classifier,
+        retry_policy=run.retry_policy,
+        evaluated_at_utc=ENDED,
+    )
 
 
 def test_intermediate_finding_and_command_records_are_insert_or_exact_compare(
@@ -785,9 +929,9 @@ def test_intermediate_finding_and_command_records_are_insert_or_exact_compare(
 
     changed_link = intermediate.model_copy(update={"request_hash": HASH_B})
     changed_finding = finding.model_copy(update={"finding_digest": HASH_A})
-    changed_command = command_record.model_copy(update={"actor": AuditActor(
-        principal_id="human:b", principal_kind="human"
-    )})
+    changed_command = command_record.model_copy(
+        update={"actor": AuditActor(principal_id="human:b", principal_kind="human")}
+    )
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         with pytest.raises(IntegrityViolation, match="immutable"):
             transaction.runs.put_intermediate_link(changed_link)
@@ -795,3 +939,959 @@ def test_intermediate_finding_and_command_records_are_insert_or_exact_compare(
             transaction.runs.put_finding_link(changed_finding)
         with pytest.raises(IntegrityViolation, match="immutable"):
             transaction.runs.put_command(changed_command)
+
+
+def test_attempt_start_renew_and_progress_use_exact_cas_and_roll_back_together(
+    engine: Engine,
+) -> None:
+    started = _start_result(engine)
+    assert started.run.status == "running"
+    assert started.run.revision == 3
+    assert started.attempt.status == "running"
+    assert started.attempt.attempt_deadline_utc == ATTEMPT_DEADLINE
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        renewed = transaction.runs.renew_lease(
+            run_id=started.run.run_id,
+            attempt_no=started.attempt.attempt_no,
+            lease_id=started.lease.lease_id,
+            fencing_token=started.attempt.fencing_token,
+            expected_lease_version=1,
+            heartbeat_at=HEARTBEAT,
+            expires_at=RENEWED_EXPIRES,
+        )
+    assert renewed.lease_version == 2
+
+    with pytest.raises(Conflict, match="expired"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.renew_lease(
+                run_id=started.run.run_id,
+                attempt_no=started.attempt.attempt_no,
+                lease_id=started.lease.lease_id,
+                fencing_token=started.attempt.fencing_token,
+                expected_lease_version=renewed.lease_version,
+                heartbeat_at="2026-07-14T09:00:01Z",
+                expires_at="2026-07-14T09:00:01.050000Z",
+            )
+
+    progress_event = RunEvent(
+        run_id=started.run.run_id,
+        seq=started.run.next_event_seq,
+        event_type="attempt.progress",
+        attempt_no=started.attempt.attempt_no,
+        occurred_at=PROGRESSED,
+        data_schema_version="attempt-progress@1",
+        data=AttemptProgressDataV1(
+            attempt_no=started.attempt.attempt_no,
+            phase_code="checker",
+            completed_units=1,
+            total_units=2,
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        progress = transaction.runs.append_progress(
+            fence=_fence(started.run),
+            event=progress_event,
+        )
+    assert progress.run.revision == 4
+    assert progress.run.next_event_seq == progress_event.seq + 1
+
+    rolled_back_event = progress_event.model_copy(
+        update={"seq": progress.run.next_event_seq, "occurred_at": ENDED}
+    )
+    with pytest.raises(RuntimeError, match="rollback sentinel"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.append_progress(
+                fence=_fence(progress.run),
+                event=rolled_back_event,
+            )
+            raise RuntimeError("rollback sentinel")
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(started.run.run_id) == progress.run
+        assert repository.get_event(started.run.run_id, rolled_back_event.seq) is None
+        with pytest.raises(Conflict):
+            repository.renew_lease(
+                run_id=started.run.run_id,
+                attempt_no=started.attempt.attempt_no,
+                lease_id=started.lease.lease_id,
+                fencing_token=started.attempt.fencing_token,
+                expected_lease_version=1,
+                heartbeat_at=PROGRESSED,
+                expires_at=RENEWED_EXPIRES,
+            )
+
+
+def test_attempt_start_requires_the_exact_frozen_timeout_deadline(engine: Engine) -> None:
+    claimed = _claim_result(engine)
+    with pytest.raises(IntegrityViolation, match="exact frozen timeout"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.start_attempt(
+                run_id=claimed.run.run_id,
+                attempt_no=claimed.attempt.attempt_no,
+                expected_run_revision=claimed.run.revision,
+                lease_id=claimed.lease.lease_id,
+                fencing_token=claimed.attempt.fencing_token,
+                started_at=STARTED,
+                attempt_deadline_utc="2026-07-14T09:00:01.099999Z",
+            )
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(claimed.run.run_id) == claimed.run
+        assert repository.get_attempt(claimed.run.run_id, 1) == claimed.attempt
+        assert repository.list_events(claimed.run.run_id)[-1] == claimed.event
+
+
+def test_command_accept_claim_complete_and_acceptance_rollback_are_atomic(
+    engine: Engine,
+) -> None:
+    queued = _run("run:command", idempotency_key="request:command")
+    _create(engine, queued)
+    started = _start_result(engine, queued)
+    command = RunCommandV1(
+        command_id="command:input",
+        client_id="browser:command",
+        client_seq=1,
+        idempotency_key="input:command",
+        expected_run_revision=started.run.revision,
+        type="provide_input",
+        payload_schema_id="playtest-provide-input@1",
+        payload=PlaytestProvideInputPayloadV1(
+            interaction_id="interaction:command",
+            expected_state_hash=HASH_A,
+            choice_id="choice:a",
+        ),
+    )
+    record = RunCommandRecordV1(
+        run_id=started.run.run_id,
+        command=command,
+        request_hash=canonical_payload_hash(command),
+        actor=AuditActor(principal_id="human:a", principal_kind="human"),
+        status="pending",
+        revision=1,
+        created_at=PROGRESSED,
+    )
+    accepted_event = RunEvent(
+        run_id=started.run.run_id,
+        seq=started.run.next_event_seq,
+        event_type="run.command_accepted",
+        occurred_at=PROGRESSED,
+        data_schema_version="command-accepted@1",
+        data=CommandAcceptedDataV1(
+            command_id=command.command_id,
+            command_type=command.type,
+            command_revision=1,
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="nonterminal command cannot publish a cassette"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.accept_command(
+                expected_run_revision=started.run.revision,
+                record=record,
+                events=(accepted_event,),
+                terminal_cassette_artifact_id="artifact:not-terminal",
+            )
+
+    with pytest.raises(RuntimeError, match="rollback sentinel"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.accept_command(
+                expected_run_revision=started.run.revision,
+                record=record,
+                events=(accepted_event,),
+            )
+            raise RuntimeError("rollback sentinel")
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get_command(started.run.run_id, command.command_id) is None
+        assert repository.get_event(started.run.run_id, accepted_event.seq) is None
+        assert repository.get(started.run.run_id) == started.run
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        accepted = transaction.runs.accept_command(
+            expected_run_revision=started.run.revision,
+            record=record,
+            events=(accepted_event,),
+        )
+    assert accepted.run.revision == started.run.revision + 1
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        claimed = transaction.runs.claim_command(
+            fence=_fence(accepted.run),
+            command_id=command.command_id,
+            claimed_at=PROGRESSED,
+        )
+    assert claimed.status == "claimed"
+    outcome_event = RunEvent(
+        run_id=accepted.run.run_id,
+        seq=accepted.run.next_event_seq,
+        event_type="run.command_applied",
+        attempt_no=started.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="command-outcome@1",
+        data=CommandOutcomeDataV1(
+            command_id=command.command_id,
+            command_type=command.type,
+            command_revision=claimed.revision + 1,
+            outcome_code="input_applied",
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        completed = transaction.runs.complete_command(
+            fence=_fence(accepted.run),
+            command_id=command.command_id,
+            expected_command_revision=claimed.revision,
+            outcome="applied",
+            outcome_code="input_applied",
+            occurred_at=ENDED,
+            event=outcome_event,
+        )
+    assert completed.status == "applied"
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert (
+            repository.get_command_by_idempotency(
+                run_id=started.run.run_id,
+                idempotency_key=command.idempotency_key,
+            )
+            == completed
+        )
+        assert (
+            repository.get_command_by_client_sequence(
+                run_id=started.run.run_id,
+                client_id=command.client_id,
+                client_seq=command.client_seq,
+            )
+            == completed
+        )
+        persisted_run = repository.get(started.run.run_id)
+        assert persisted_run is not None
+        assert persisted_run.revision == accepted.run.revision + 1
+        assert repository.get_event(started.run.run_id, outcome_event.seq) == outcome_event
+
+
+def test_inactive_cancel_command_persists_terminal_cassette_atomically(
+    engine: Engine,
+) -> None:
+    queued = _run(
+        "run:command-cancel",
+        idempotency_key="request:command-cancel",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact(
+                    "artifact:command-cancel-failure",
+                    payload_hash=HASH_B,
+                    kind="run_failure",
+                ),
+                _artifact(
+                    "artifact:command-cancel-cassette",
+                    payload_hash=HASH_C,
+                    kind="cassette_bundle",
+                ),
+            ]
+        )
+        session.commit()
+    command = RunCommandV1(
+        command_id="command:cancel",
+        client_id="browser:cancel",
+        client_seq=1,
+        idempotency_key="cancel:command",
+        expected_run_revision=queued.revision,
+        type="cancel",
+        payload_schema_id="run-cancel@1",
+        payload=CancelRunPayloadV1(reason_code="user_requested"),
+    )
+    cancel_event = RunEvent(
+        run_id=queued.run_id,
+        seq=queued.next_event_seq,
+        event_type="run.cancel_requested",
+        occurred_at=STARTED,
+        data_schema_version="cancel-requested@1",
+        data=CancelRequestedDataV1(
+            command_id=command.command_id,
+            reason_code="user_requested",
+        ),
+    )
+    terminal_event = RunEvent(
+        run_id=queued.run_id,
+        seq=cancel_event.seq + 1,
+        event_type="run.cancelled",
+        occurred_at=STARTED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            failure_artifact_id="artifact:command-cancel-failure",
+            cause_code="cancelled",
+        ),
+    )
+    record = RunCommandRecordV1(
+        run_id=queued.run_id,
+        command=command,
+        request_hash=canonical_payload_hash(command),
+        actor=AuditActor(principal_id="human:a", principal_kind="human"),
+        status="applied",
+        revision=1,
+        created_at=STARTED,
+        applied_at=STARTED,
+        result_event_seq=cancel_event.seq,
+    )
+    accept_args = {
+        "expected_run_revision": queued.revision,
+        "record": record,
+        "events": (cancel_event, terminal_event),
+        "terminal_status": "cancelled",
+        "terminal_failure_artifact_id": "artifact:command-cancel-failure",
+        "terminal_cassette_artifact_id": "artifact:command-cancel-cassette",
+    }
+
+    mismatched_events = (
+        (
+            cancel_event.model_copy(
+                update={
+                    "data": CancelRequestedDataV1(
+                        command_id=command.command_id,
+                        reason_code="different_reason",
+                    )
+                }
+            ),
+            terminal_event,
+        ),
+        (
+            cancel_event,
+            terminal_event.model_copy(
+                update={
+                    "data": RunTerminatedDataV1(
+                        failure_artifact_id="artifact:different-failure",
+                        cause_code="cancelled",
+                    )
+                }
+            ),
+        ),
+        (
+            cancel_event,
+            terminal_event.model_copy(
+                update={
+                    "data": RunTerminatedDataV1(
+                        failure_artifact_id="artifact:command-cancel-failure",
+                        cause_code="different_cause",
+                    )
+                }
+            ),
+        ),
+        (
+            cancel_event,
+            terminal_event.model_copy(
+                update={
+                    "data": RunTerminatedDataV1(
+                        attempt_no=1,
+                        failure_artifact_id="artifact:command-cancel-failure",
+                        cause_code="cancelled",
+                    )
+                }
+            ),
+        ),
+    )
+    for events in mismatched_events:
+        with pytest.raises(IntegrityViolation, match="cancel"):
+            with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+                transaction.runs.accept_command(**{**accept_args, "events": events})
+
+    with pytest.raises(IntegrityViolation, match="terminal_cassette_artifact_id"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.accept_command(**{**accept_args, "terminal_cassette_artifact_id": ""})
+    with pytest.raises(RuntimeError, match="rollback sentinel"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.accept_command(**accept_args)
+            raise RuntimeError("rollback sentinel")
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == queued
+        assert repository.get_command(queued.run_id, command.command_id) is None
+        assert repository.list_events(queued.run_id) == (_queued_event(queued),)
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        accepted = transaction.runs.accept_command(**accept_args)
+    assert accepted.run.status == "cancelled"
+    assert accepted.run.failure_artifact_id == "artifact:command-cancel-failure"
+    assert accepted.run.terminal_cassette_artifact_id == "artifact:command-cancel-cassette"
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == accepted.run
+        assert repository.get_command(queued.run_id, command.command_id) == record
+        assert repository.list_events(queued.run_id) == (
+            _queued_event(queued),
+            cancel_event,
+            terminal_event,
+        )
+
+
+def test_retry_close_releases_fence_without_preallocating_and_is_rollback_safe(
+    engine: Engine,
+) -> None:
+    queued = _run(
+        "run:retry",
+        idempotency_key="request:retry",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+    started = _start_result(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:attempt-failure", payload_hash=HASH_A),
+                _artifact(
+                    "artifact:retry-attempt-cassette",
+                    payload_hash=HASH_B,
+                    kind="cassette_bundle",
+                ),
+            ]
+        )
+        session.commit()
+    decision = _retry_decision(started.run)
+    retry_event = RunEvent(
+        run_id=started.run.run_id,
+        seq=started.run.next_event_seq,
+        event_type="attempt.retry_scheduled",
+        attempt_no=started.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="retry-scheduled@1",
+        data=RetryScheduledDataV1(
+            attempt_no=started.attempt.attempt_no,
+            failure_artifact_id="artifact:attempt-failure",
+            cause_code=decision.cause_code,
+            failure_class=decision.failure_class,
+            retry_decision=decision,
+            retry_not_before_utc=decision.retry_not_before_utc or "",
+        ),
+    )
+    close_args = {
+        "fence": _fence(started.run),
+        "ended_at": ENDED,
+        "attempt_status": "failed",
+        "lease_status": "closed",
+        "failure_class": decision.failure_class,
+        "failure_artifact_id": "artifact:attempt-failure",
+        "attempt_cassette_artifact_id": "artifact:retry-attempt-cassette",
+        "retry_decision": decision,
+        "events": (retry_event,),
+    }
+    with pytest.raises(IntegrityViolation, match="RECORD attempt"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.close_attempt_for_retry(
+                **{**close_args, "attempt_cassette_artifact_id": None}
+            )
+    with pytest.raises(RuntimeError, match="rollback sentinel"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.close_attempt_for_retry(**close_args)
+            raise RuntimeError("rollback sentinel")
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(started.run.run_id) == started.run
+        assert repository.get_attempt(started.run.run_id, 1) == started.attempt
+        assert repository.get_current_lease(started.run.run_id) == started.lease
+        assert repository.get_event(started.run.run_id, retry_event.seq) is None
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        closed = transaction.runs.close_attempt_for_retry(**close_args)
+    assert closed.run.status == "retry_wait"
+    assert closed.run.current_attempt_no is None
+    assert closed.run.next_attempt_no == 2
+    assert closed.run.next_fencing_token == 2
+    assert closed.attempt.status == "failed"
+    assert closed.attempt.cassette_bundle_artifact_id == ("artifact:retry-attempt-cassette")
+    assert closed.lease.status == "closed"
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(closed.run.run_id) == closed.run
+        assert repository.get_attempt(closed.run.run_id, 1) == closed.attempt
+
+    retry_at = decision.retry_not_before_utc or ""
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        assert transaction.runs.get_claim_candidate(now_utc=retry_at) == closed.run
+        claimed = transaction.runs.claim(
+            run_id=closed.run.run_id,
+            expected_revision=closed.run.revision,
+            worker_principal_id="service:worker:retry",
+            lease_id="lease:retry:2",
+            acquired_at=retry_at,
+            expires_at="2026-07-14T09:00:00.800000Z",
+            permit_group_id="permit:retry:2",
+        )
+    assert claimed.attempt.attempt_no == 2
+    assert claimed.attempt.fencing_token == 2
+
+
+def test_inactive_terminal_close_publishes_one_terminal_head_and_rejects_stale_cas(
+    engine: Engine,
+) -> None:
+    queued = _run(
+        "run:inactive",
+        idempotency_key="request:inactive",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:run-failure", payload_hash=HASH_B),
+                _artifact(
+                    "artifact:inactive-run-cassette",
+                    payload_hash=HASH_C,
+                    kind="cassette_bundle",
+                ),
+            ]
+        )
+        session.commit()
+    decision = RetryDecisionV1(
+        cause_code="cancelled",
+        failure_class="cancelled",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=queued.failure_classifier,
+        retry_policy=queued.retry_policy,
+        evaluated_at_utc=STARTED,
+    )
+    event = RunEvent(
+        run_id=queued.run_id,
+        seq=queued.next_event_seq,
+        event_type="run.cancelled",
+        occurred_at=STARTED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            failure_artifact_id="artifact:run-failure",
+            cause_code="cancelled",
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        terminal = transaction.runs.terminate_inactive_run(
+            run_id=queued.run_id,
+            expected_run_revision=queued.revision,
+            run_status="cancelled",
+            failure_artifact_id="artifact:run-failure",
+            terminal_cassette_artifact_id="artifact:inactive-run-cassette",
+            retry_decision=decision,
+            event=event,
+        )
+    assert terminal.run.status == "cancelled"
+    assert terminal.run.failure_artifact_id == "artifact:run-failure"
+    assert terminal.run.terminal_cassette_artifact_id == ("artifact:inactive-run-cassette")
+    assert terminal.attempt is None
+    assert terminal.lease is None
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        with pytest.raises(Conflict):
+            transaction.runs.terminate_inactive_run(
+                run_id=queued.run_id,
+                expected_run_revision=queued.revision,
+                run_status="cancelled",
+                failure_artifact_id="artifact:run-failure",
+                terminal_cassette_artifact_id="artifact:inactive-run-cassette",
+                retry_decision=decision,
+                event=event,
+            )
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == terminal.run
+        assert repository.list_events(queued.run_id) == (_queued_event(queued), event)
+
+
+def test_active_success_and_failure_terminal_paths_close_attempt_and_lease(
+    engine: Engine,
+) -> None:
+    success_run = _run(
+        "run:success",
+        idempotency_key="request:success",
+        payload=_record_payload(),
+    )
+    _create(engine, success_run)
+    succeeded_attempt = _start_result(engine, success_run)
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:result", payload_hash=HASH_A),
+                _artifact("artifact:terminal-attempt", payload_hash=HASH_B),
+                _artifact("artifact:terminal-run", payload_hash=HASH_C),
+                _artifact(
+                    "artifact:success-attempt-cassette",
+                    payload_hash=HASH_A,
+                    kind="cassette_bundle",
+                ),
+                _artifact(
+                    "artifact:success-run-cassette",
+                    payload_hash=HASH_B,
+                    kind="cassette_bundle",
+                ),
+                _artifact(
+                    "artifact:failure-attempt-cassette",
+                    payload_hash=HASH_B,
+                    kind="cassette_bundle",
+                ),
+                _artifact(
+                    "artifact:failure-run-cassette",
+                    payload_hash=HASH_C,
+                    kind="cassette_bundle",
+                ),
+            ]
+        )
+        session.commit()
+    success_event = RunEvent(
+        run_id=success_run.run_id,
+        seq=succeeded_attempt.run.next_event_seq,
+        event_type="run.succeeded",
+        attempt_no=succeeded_attempt.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="run-succeeded@1",
+        data=RunSucceededDataV1(
+            attempt_no=succeeded_attempt.attempt.attempt_no,
+            result_artifact_id="artifact:result",
+        ),
+    )
+    with pytest.raises(IntegrityViolation, match="distinct"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.complete_attempt_success(
+                fence=_fence(succeeded_attempt.run),
+                ended_at=ENDED,
+                result_artifact_id="artifact:result",
+                attempt_cassette_artifact_id="artifact:success-attempt-cassette",
+                terminal_cassette_artifact_id="artifact:success-attempt-cassette",
+                event=success_event,
+            )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        succeeded = transaction.runs.complete_attempt_success(
+            fence=_fence(succeeded_attempt.run),
+            ended_at=ENDED,
+            result_artifact_id="artifact:result",
+            attempt_cassette_artifact_id="artifact:success-attempt-cassette",
+            terminal_cassette_artifact_id="artifact:success-run-cassette",
+            event=success_event,
+        )
+    assert succeeded.run.status == "succeeded"
+    assert succeeded.run.terminal_cassette_artifact_id == "artifact:success-run-cassette"
+    assert succeeded.attempt is not None and succeeded.attempt.status == "succeeded"
+    assert succeeded.attempt.cassette_bundle_artifact_id == ("artifact:success-attempt-cassette")
+    assert succeeded.lease is not None and succeeded.lease.status == "closed"
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(success_run.run_id) == succeeded.run
+        assert repository.get_attempt(success_run.run_id, 1) == succeeded.attempt
+
+    failed_run = _run(
+        "run:failed",
+        idempotency_key="request:failed",
+        payload=_record_payload(),
+    )
+    _create(engine, failed_run)
+    failed_attempt = _start_result(engine, failed_run)
+    decision = RetryDecisionV1(
+        cause_code="execution_failed",
+        failure_class="execution",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=failed_run.failure_classifier,
+        retry_policy=failed_run.retry_policy,
+        evaluated_at_utc=ENDED,
+    )
+    failure_event = RunEvent(
+        run_id=failed_run.run_id,
+        seq=failed_attempt.run.next_event_seq,
+        event_type="run.failed",
+        attempt_no=failed_attempt.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            attempt_no=failed_attempt.attempt.attempt_no,
+            failure_artifact_id="artifact:terminal-run",
+            cause_code="execution_failed",
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        failed = transaction.runs.close_attempt_terminal(
+            fence=_fence(failed_attempt.run),
+            ended_at=ENDED,
+            attempt_status="failed",
+            lease_status="closed",
+            run_status="failed",
+            failure_class="execution",
+            attempt_failure_artifact_id="artifact:terminal-attempt",
+            run_failure_artifact_id="artifact:terminal-run",
+            attempt_cassette_artifact_id="artifact:failure-attempt-cassette",
+            terminal_cassette_artifact_id="artifact:failure-run-cassette",
+            retry_decision=decision,
+            leading_events=(),
+            terminal_event=failure_event,
+        )
+    assert failed.run.status == "failed"
+    assert failed.run.terminal_cassette_artifact_id == "artifact:failure-run-cassette"
+    assert failed.attempt is not None and failed.attempt.failure_artifact_id == (
+        "artifact:terminal-attempt"
+    )
+    assert failed.attempt.cassette_bundle_artifact_id == ("artifact:failure-attempt-cassette")
+    assert failed.lease is not None and failed.lease.status == "closed"
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(failed_run.run_id) == failed.run
+        assert repository.get_attempt(failed_run.run_id, 1) == failed.attempt
+
+    reaped_run = _run("run:reaped-cancel", idempotency_key="request:reaped-cancel")
+    _create(engine, reaped_run)
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        reaped_claim = transaction.runs.claim(
+            run_id=reaped_run.run_id,
+            expected_revision=reaped_run.revision,
+            worker_principal_id="service:worker:reaped",
+            lease_id="lease:reaped-cancel",
+            acquired_at=NOW,
+            expires_at="2026-07-14T09:00:00.250000Z",
+            permit_group_id="permit:reaped-cancel",
+        )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        reaped_start = transaction.runs.start_attempt(
+            run_id=reaped_run.run_id,
+            attempt_no=reaped_claim.attempt.attempt_no,
+            expected_run_revision=reaped_claim.run.revision,
+            lease_id=reaped_claim.lease.lease_id,
+            fencing_token=reaped_claim.attempt.fencing_token,
+            started_at=STARTED,
+            attempt_deadline_utc=ATTEMPT_DEADLINE,
+        )
+    reaped_decision = RetryDecisionV1(
+        cause_code="cancelled",
+        failure_class="cancelled",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=reaped_run.failure_classifier,
+        retry_policy=reaped_run.retry_policy,
+        evaluated_at_utc=ENDED,
+    )
+    expiry_event = RunEvent(
+        run_id=reaped_run.run_id,
+        seq=reaped_start.run.next_event_seq,
+        event_type="attempt.lease_expired",
+        attempt_no=reaped_start.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="lease-expired@1",
+        data=LeaseExpiredDataV1(
+            attempt_no=reaped_start.attempt.attempt_no,
+            failure_artifact_id="artifact:terminal-attempt",
+            will_retry=False,
+        ),
+    )
+    cancelled_event = RunEvent(
+        run_id=reaped_run.run_id,
+        seq=expiry_event.seq + 1,
+        event_type="run.cancelled",
+        attempt_no=reaped_start.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            attempt_no=reaped_start.attempt.attempt_no,
+            failure_artifact_id="artifact:terminal-run",
+            cause_code="cancelled",
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        cancelled = transaction.runs.close_attempt_terminal(
+            fence=AttemptWriteFence(
+                run_id=reaped_run.run_id,
+                attempt_no=reaped_start.attempt.attempt_no,
+                expected_run_revision=reaped_start.run.revision,
+                lease_id=reaped_claim.lease.lease_id,
+                fencing_token=reaped_start.attempt.fencing_token,
+            ),
+            ended_at=ENDED,
+            attempt_status="cancelled",
+            lease_status="expired",
+            run_status="cancelled",
+            failure_class="cancelled",
+            attempt_failure_artifact_id="artifact:terminal-attempt",
+            run_failure_artifact_id="artifact:terminal-run",
+            attempt_cassette_artifact_id=None,
+            terminal_cassette_artifact_id=None,
+            retry_decision=reaped_decision,
+            leading_events=(expiry_event,),
+            terminal_event=cancelled_event,
+        )
+    assert cancelled.attempt is not None and cancelled.attempt.status == "cancelled"
+    assert cancelled.lease is not None and cancelled.lease.status == "expired"
+
+
+def test_cancelled_attempt_may_close_after_its_deadline_with_deadline_decision(
+    engine: Engine,
+) -> None:
+    queued = _run(
+        "run:cancelled-at-deadline",
+        idempotency_key="request:cancelled-at-deadline",
+    )
+    _create(engine, queued)
+    started = _start_result(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:cancelled-attempt", payload_hash=HASH_A),
+                _artifact("artifact:cancelled-run", payload_hash=HASH_B),
+            ]
+        )
+        session.commit()
+    decision = RetryDecisionV1(
+        cause_code="cancelled",
+        failure_class="cancelled",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="attempt_deadline_exhausted",
+        classifier=queued.failure_classifier,
+        retry_policy=queued.retry_policy,
+        evaluated_at_utc=ATTEMPT_DEADLINE,
+    )
+    event = RunEvent(
+        run_id=queued.run_id,
+        seq=started.run.next_event_seq,
+        event_type="run.cancelled",
+        attempt_no=started.attempt.attempt_no,
+        occurred_at=ATTEMPT_DEADLINE,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            attempt_no=started.attempt.attempt_no,
+            failure_artifact_id="artifact:cancelled-run",
+            cause_code="cancelled",
+        ),
+    )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        terminal = transaction.runs.close_attempt_terminal(
+            fence=_fence(started.run),
+            ended_at=ATTEMPT_DEADLINE,
+            attempt_status="cancelled",
+            lease_status="closed",
+            run_status="cancelled",
+            failure_class="cancelled",
+            attempt_failure_artifact_id="artifact:cancelled-attempt",
+            run_failure_artifact_id="artifact:cancelled-run",
+            attempt_cassette_artifact_id=None,
+            terminal_cassette_artifact_id=None,
+            retry_decision=decision,
+            leading_events=(),
+            terminal_event=event,
+        )
+
+    assert terminal.run.status == "cancelled"
+    assert terminal.attempt is not None and terminal.attempt.status == "cancelled"
+    assert terminal.lease is not None and terminal.lease.status == "closed"
+
+
+def test_terminal_attempt_cassette_cas_failure_rolls_back_run_and_event(
+    engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queued = _run(
+        "run:cassette-cas",
+        idempotency_key="request:cassette-cas",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+    started = _start_result(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:cassette-cas-result", payload_hash=HASH_A),
+                _artifact(
+                    "artifact:existing-attempt-cassette",
+                    payload_hash=HASH_B,
+                    kind="cassette_bundle",
+                ),
+                _artifact(
+                    "artifact:desired-attempt-cassette",
+                    payload_hash=HASH_C,
+                    kind="cassette_bundle",
+                ),
+                _artifact(
+                    "artifact:desired-run-cassette",
+                    payload_hash=HASH_A,
+                    kind="cassette_bundle",
+                ),
+            ]
+        )
+        session.commit()
+
+    original_close = SqlRunRepository._close_active_attempt
+
+    def race_attempt_cassette(self: SqlRunRepository, **kwargs: object) -> None:
+        self._session.execute(
+            update(RunAttemptRow)
+            .where(
+                RunAttemptRow.run_id == started.run.run_id,
+                RunAttemptRow.attempt_no == started.attempt.attempt_no,
+            )
+            .values(cassette_bundle_artifact_id="artifact:existing-attempt-cassette")
+        )
+        original_close(self, **kwargs)
+
+    monkeypatch.setattr(
+        SqlRunRepository,
+        "_close_active_attempt",
+        race_attempt_cassette,
+    )
+
+    event = RunEvent(
+        run_id=started.run.run_id,
+        seq=started.run.next_event_seq,
+        event_type="run.succeeded",
+        attempt_no=started.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="run-succeeded@1",
+        data=RunSucceededDataV1(
+            attempt_no=started.attempt.attempt_no,
+            result_artifact_id="artifact:cassette-cas-result",
+        ),
+    )
+    for invalid_args, field_name in (
+        (
+            {
+                "attempt_cassette_artifact_id": "",
+                "terminal_cassette_artifact_id": "artifact:desired-run-cassette",
+            },
+            "attempt_cassette_artifact_id",
+        ),
+        (
+            {
+                "attempt_cassette_artifact_id": "artifact:desired-attempt-cassette",
+                "terminal_cassette_artifact_id": "",
+            },
+            "terminal_cassette_artifact_id",
+        ),
+    ):
+        with pytest.raises(IntegrityViolation, match=field_name):
+            with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+                transaction.runs.complete_attempt_success(
+                    fence=_fence(started.run),
+                    ended_at=ENDED,
+                    result_artifact_id="artifact:cassette-cas-result",
+                    event=event,
+                    **invalid_args,
+                )
+
+    with pytest.raises(Conflict, match="Attempt CAS"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.complete_attempt_success(
+                fence=_fence(started.run),
+                ended_at=ENDED,
+                result_artifact_id="artifact:cassette-cas-result",
+                attempt_cassette_artifact_id="artifact:desired-attempt-cassette",
+                terminal_cassette_artifact_id="artifact:desired-run-cassette",
+                event=event,
+            )
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(started.run.run_id) == started.run
+        attempt = repository.get_attempt(started.run.run_id, started.attempt.attempt_no)
+        assert attempt is not None
+        assert attempt.status == "running"
+        assert attempt.cassette_bundle_artifact_id is None
+        assert repository.get_current_lease(started.run.run_id) == started.lease
+        assert repository.get_event(started.run.run_id, event.seq) is None

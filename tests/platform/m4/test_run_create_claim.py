@@ -10,6 +10,7 @@ from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
+    AttemptStartedDataV1,
     CheckerRunPayloadV1,
     FailureClassifierRefV1,
     GraphSelectionV1,
@@ -37,6 +38,10 @@ from gameforge.platform.runs.commands import (
     RunCommandCapabilities,
     RunCommandService,
     RunCreateRequest,
+)
+from gameforge.platform.runs.lifecycle import (
+    RunLifecycleCapabilities,
+    RunLifecycleService,
 )
 from gameforge.runtime.clock import FrozenUtcClock
 
@@ -181,6 +186,14 @@ class _PersistedClaim:
     event: RunEvent
 
 
+@dataclass(frozen=True)
+class _PersistedStart:
+    run: RunRecord
+    attempt: RunAttempt
+    lease: RunLease
+    event: RunEvent
+
+
 class _Repo:
     def __init__(self, state: _State) -> None:
         self.state = state
@@ -207,7 +220,11 @@ class _Repo:
 
     def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
         del now_utc
-        candidates = [run for run in self.state.runs.values() if run.status == "queued"]
+        candidates = [
+            run
+            for run in self.state.runs.values()
+            if run.status == "queued" and run.cancel_requested_at is None
+        ]
         return min(candidates, key=lambda run: (run.created_at, run.run_id), default=None)
 
     def claim(
@@ -284,6 +301,76 @@ class _Repo:
 
     def get_attempt(self, run_id: str, attempt_no: int) -> RunAttempt | None:
         return self.state.attempts.get((run_id, attempt_no))
+
+    def start_attempt(
+        self,
+        *,
+        run_id: str,
+        attempt_no: int,
+        expected_run_revision: int,
+        lease_id: str,
+        fencing_token: int,
+        started_at: str,
+        attempt_deadline_utc: str,
+    ) -> _PersistedStart:
+        run = self.state.runs[run_id]
+        attempt = self.state.attempts[(run_id, attempt_no)]
+        lease = self.state.leases[lease_id]
+        if run.revision != expected_run_revision:
+            raise Conflict("Run revision differs")
+        if (
+            run.status != "leased"
+            or run.current_attempt_no != attempt_no
+            or attempt.status != "leased"
+            or attempt.fencing_token != fencing_token
+            or lease.run_id != run_id
+            or lease.attempt_no != attempt_no
+            or lease.fencing_token != fencing_token
+            or lease.status != "active"
+        ):
+            raise Conflict("attempt start fence differs")
+
+        event_seq = run.next_event_seq
+        updated_run = RunRecord.model_validate(
+            {
+                **run.model_dump(mode="python"),
+                "status": "running",
+                "revision": run.revision + 1,
+                "next_event_seq": event_seq + 1,
+                "updated_at": started_at,
+            }
+        )
+        updated_attempt = RunAttempt.model_validate(
+            {
+                **attempt.model_dump(mode="python"),
+                "status": "running",
+                "started_at": started_at,
+                "attempt_deadline_utc": attempt_deadline_utc,
+            }
+        )
+        event = RunEvent(
+            run_id=run_id,
+            seq=event_seq,
+            event_type="attempt.started",
+            attempt_no=attempt_no,
+            occurred_at=started_at,
+            data_schema_version="attempt-started@1",
+            data=AttemptStartedDataV1(
+                attempt_no=attempt_no,
+                started_at=started_at,
+                attempt_deadline_utc=attempt_deadline_utc,
+            ),
+            trace_id=attempt.trace_id,
+        )
+        self.state.runs[run_id] = updated_run
+        self.state.attempts[(run_id, attempt_no)] = updated_attempt
+        self.state.events[(run_id, event_seq)] = event
+        return _PersistedStart(
+            run=updated_run,
+            attempt=updated_attempt,
+            lease=lease,
+            event=event,
+        )
 
     def get_current_lease(self, run_id: str) -> RunLease | None:
         return next(
@@ -406,6 +493,7 @@ class _Publication:
         self.repo = repo
         self.created: list[str] = []
         self.claimed: list[str] = []
+        self.started: list[str] = []
         self.prompt_publications: list[RunIntermediateArtifactLinkV1] = []
         self.prompt_idempotency: dict[
             tuple[str, str], tuple[str, RunIntermediateArtifactLinkV1]
@@ -430,6 +518,21 @@ class _Publication:
         assert actor.principal_id == attempt.worker_principal_id
         self.claimed.append(run.run_id)
 
+    def record_attempt_started(
+        self,
+        *,
+        previous: RunRecord,
+        run: RunRecord,
+        attempt: RunAttempt,
+        lease: RunLease,
+        event: RunEvent,
+        actor: AuditActor,
+    ) -> None:
+        assert previous.run_id == run.run_id == attempt.run_id == lease.run_id
+        assert event.event_type == "attempt.started"
+        assert actor.principal_id == attempt.worker_principal_id
+        self.started.append(run.run_id)
+
     def get_prompt_replay(
         self,
         *,
@@ -452,6 +555,7 @@ class _Publication:
         idempotency_scope: str,
         idempotency_key: str,
         request_hash: str,
+        actor: AuditActor,
     ) -> RunIntermediateArtifactLinkV1:
         retained = self.get_prompt_replay(
             idempotency_scope=idempotency_scope,
@@ -460,6 +564,8 @@ class _Publication:
         )
         if retained is not None:
             return retained
+        attempt = self.repo.state.attempts[(link.run_id, link.attempt_no)]
+        assert actor.principal_id == attempt.worker_principal_id
         stored = self.repo.put_intermediate_link(link)
         self.prompt_idempotency[(idempotency_scope, idempotency_key)] = (
             request_hash,
@@ -478,6 +584,7 @@ class _Uow:
 @dataclass
 class _Harness:
     service: RunCommandService
+    lifecycle: RunLifecycleService
     state: _State
     registry: _Registry
     admission: _Admission
@@ -492,16 +599,29 @@ def _harness(*, definition: RunKindDefinition | None = None) -> _Harness:
     registry = _Registry(selected_definition, retry)
     admission = _Admission()
     publication = _Publication(repo)
-    capabilities = RunCommandCapabilities(
+    unit_of_work = _Uow()
+    command_capabilities = RunCommandCapabilities(
         runs=repo,
         registry=registry,
         admission=admission,
         publication=publication,
+        accounting=None,
+    )
+    lifecycle_capabilities = RunLifecycleCapabilities(
+        runs=repo,
+        registry=registry,
+        accounting=None,
+        publication=publication,
     )
     return _Harness(
         service=RunCommandService(
-            unit_of_work=_Uow(),
-            bind_capabilities=lambda transaction: capabilities,
+            unit_of_work=unit_of_work,
+            bind_capabilities=lambda transaction: command_capabilities,
+            clock=FrozenUtcClock(NOW_DT),
+        ),
+        lifecycle=RunLifecycleService(
+            unit_of_work=unit_of_work,
+            bind_capabilities=lambda transaction: lifecycle_capabilities,
             clock=FrozenUtcClock(NOW_DT),
         ),
         state=state,

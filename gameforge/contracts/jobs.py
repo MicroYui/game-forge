@@ -276,8 +276,21 @@ class RetryDecisionV1(_FrozenModel):
                 raise ValueError("terminal decision cannot schedule another attempt")
             if self.reason_code in retry_reasons:
                 raise ValueError("terminal decision has a retry reason")
-            if ineligible_reason == self.intrinsic_retry_eligible:
-                raise ValueError("not_retry_eligible must exactly project intrinsic ineligibility")
+            deadline_reasons = {
+                "queue_deadline_exhausted",
+                "attempt_deadline_exhausted",
+                "overall_deadline_exhausted",
+            }
+            if self.intrinsic_retry_eligible and ineligible_reason:
+                raise ValueError("eligible failures cannot use not_retry_eligible")
+            if (
+                not self.intrinsic_retry_eligible
+                and not ineligible_reason
+                and self.reason_code not in deadline_reasons
+            ):
+                raise ValueError(
+                    "ineligible failures require not_retry_eligible unless a deadline is authoritative"
+                )
         return self
 
 
@@ -1050,6 +1063,7 @@ class RunRecord(_FrozenModel):
             raise ValueError("Run budget projection differs from payload binding")
         if (self.cancel_requested_at is None) != (self.cancel_requested_by is None):
             raise ValueError("cancel requester and timestamp are all-or-none")
+        terminal = self.status in {"succeeded", "failed", "cancelled", "timed_out"}
         if self.status == "succeeded":
             if self.result_artifact_id is None or self.failure_artifact_id is not None:
                 raise ValueError("successful Run requires only a result manifest")
@@ -1058,6 +1072,19 @@ class RunRecord(_FrozenModel):
                 raise ValueError("non-success terminal Run requires only a failure manifest")
         elif self.result_artifact_id is not None or self.failure_artifact_id is not None:
             raise ValueError("non-terminal Run cannot publish a terminal manifest")
+        if not terminal:
+            if self.terminal_cassette_artifact_id is not None:
+                raise ValueError("non-terminal Run cannot publish a cassette")
+        elif self.payload.llm_execution_mode == "record":
+            if self.terminal_cassette_artifact_id is None:
+                raise ValueError("record Run requires a terminal cassette")
+        elif self.payload.llm_execution_mode == "replay":
+            if self.terminal_cassette_artifact_id != self.payload.cassette_artifact_id:
+                raise ValueError("replay Run requires its exact input cassette")
+        elif self.terminal_cassette_artifact_id is not None:
+            raise ValueError(
+                f"{self.payload.llm_execution_mode} Run does not publish a terminal cassette"
+            )
         if self.status == "retry_wait" and self.retry_not_before_utc is None:
             raise ValueError("retry_wait requires a retry_not_before timestamp")
         if self.status != "retry_wait" and self.retry_not_before_utc is not None:
@@ -1088,10 +1115,20 @@ class RunAttempt(_FrozenModel):
 
     @model_validator(mode="after")
     def _terminal_projection(self) -> "RunAttempt":
+        has_started_at = self.started_at is not None
+        has_attempt_deadline = self.attempt_deadline_utc is not None
+        if has_started_at != has_attempt_deadline:
+            raise ValueError("attempt start timing fields are all-or-none")
+        if self.status == "leased" and has_started_at:
+            raise ValueError("leased attempt cannot contain start timing")
+        if self.status in {"running", "succeeded"} and not has_started_at:
+            raise ValueError(f"{self.status} attempt requires start timing")
         failure = (self.failure_class, self.retryable, self.failure_artifact_id)
         if self.status in {"leased", "running"}:
             if self.ended_at is not None or any(value is not None for value in failure):
                 raise ValueError("active attempt cannot contain terminal projections")
+            if self.cassette_bundle_artifact_id is not None:
+                raise ValueError("active attempt cannot publish a cassette bundle")
         elif self.status == "succeeded":
             if self.ended_at is None or any(value is not None for value in failure):
                 raise ValueError("successful attempt has no failure projection")
