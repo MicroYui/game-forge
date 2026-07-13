@@ -21,7 +21,7 @@ from __future__ import annotations
 import secrets
 from typing import Callable
 
-from sqlalchemy import Engine, func, select
+from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.lineage import ArtifactV1, ArtifactV2
@@ -29,8 +29,9 @@ from gameforge.contracts.storage import ObjectStore
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
-from gameforge.runtime.persistence.models import ArtifactRow, RefHistoryRow, RefRow
+from gameforge.runtime.persistence.models import ArtifactRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
+from gameforge.runtime.persistence.refs import SqlRefStore as SqlRefRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
 from gameforge.spine.versioning.store import InMemoryArtifactStore, LineageGraph
@@ -129,27 +130,44 @@ class SqlRefStore:
 
     def __init__(self, session_factory: SessionFactory) -> None:
         self._session_factory = session_factory
+        with session_factory() as session:
+            bind = session.get_bind()
+            self._engine = bind if isinstance(bind, Engine) else bind.engine
+        self._clock = SystemUtcClock()
+        self._cursor_signer = CursorSigner(
+            signing_key=secrets.token_bytes(32),
+            clock=self._clock,
+        )
+        self._unit_of_work = SqliteUnitOfWork(self._engine, self._capabilities)
+
+    def _repository(self, session: Session) -> SqlRefRepository:
+        return SqlRefRepository(
+            session,
+            cursor_signer=self._cursor_signer,
+            clock=self._clock,
+        )
+
+    def _capabilities(self, session: Session) -> TransactionCapabilities:
+        unavailable = object()
+        return TransactionCapabilities(
+            refs=self._repository(session),
+            audit=unavailable,
+            approvals=unavailable,
+            lineage=unavailable,
+            object_bindings=unavailable,
+            runs=unavailable,
+            cost=unavailable,
+        )
 
     def set(self, name: str, artifact_id: str) -> None:
-        with self._session_factory() as session:
-            row = session.get(RefRow, name)
-            if row is None:
-                session.add(RefRow(name=name, artifact_id=artifact_id))
-            else:
-                row.artifact_id = artifact_id
-            next_seq = (
-                session.query(func.max(RefHistoryRow.seq))
-                .filter(RefHistoryRow.name == name)
-                .scalar()
-            )
-            next_seq = 1 if next_seq is None else next_seq + 1
-            session.add(RefHistoryRow(name=name, artifact_id=artifact_id, seq=next_seq))
-            session.commit()
+        with self._unit_of_work.begin() as transaction:
+            expected = transaction.refs.get(name)
+            transaction.refs.compare_and_set(name, expected, artifact_id)
 
     def get(self, name: str) -> str | None:
         with self._session_factory() as session:
-            row = session.get(RefRow, name)
-            return None if row is None else row.artifact_id
+            current = self._repository(session).get(name)
+            return None if current is None else current.artifact_id
 
     def rollback(self, name: str, artifact_id: str) -> None:
         """Repoint `name` at a historical `artifact_id`. Never deletes: the
@@ -158,11 +176,13 @@ class SqlRefStore:
         self.set(name, artifact_id)
 
     def history(self, name: str) -> list[str]:
-        with self._session_factory() as session:
-            rows = (
-                session.query(RefHistoryRow)
-                .filter(RefHistoryRow.name == name)
-                .order_by(RefHistoryRow.seq)
-                .all()
-            )
-            return [row.artifact_id for row in rows]
+        with self._session_factory() as session, session.begin():
+            repository = self._repository(session)
+            values: list[str] = []
+            cursor = None
+            while True:
+                page = repository.history(name, cursor)
+                values.extend(item.artifact_id for item in page.items)
+                cursor = page.next_cursor
+                if cursor is None:
+                    return values

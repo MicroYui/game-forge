@@ -1,4 +1,4 @@
-"""Append-only WORM audit log tests (contract §5, §12A.3, Task 13).
+"""Legacy audit@1 append-only interface and tamper-evident chain tests.
 
 `AuditLog` chains each row's `content_hash` from the previous row's hash
 (`prev_hash`), so `verify_chain()` can detect any direct tamper of a stored
@@ -6,7 +6,13 @@ row — the audit trail's whole reason for existing (PRD: enterprise-grade
 audit, not best-effort logging).
 """
 
-from gameforge.contracts.lineage import AuditRecord
+from gameforge.contracts.lineage import (
+    AuditActor,
+    AuditCorrelation,
+    AuditRecord,
+    AuditSubject,
+    build_audit_record_v2,
+)
 from gameforge.platform.audit.log import AuditLog
 from gameforge.runtime.persistence.engine import get_engine, get_sessionmaker
 from gameforge.runtime.persistence.models import AuditRow, Base
@@ -73,3 +79,45 @@ def test_audit_tamper_of_prev_hash_detected(tmp_path):
         row.prev_hash = "sha256:" + "0" * 64
         s.commit()
     assert log.verify_chain() is False
+
+
+def test_legacy_chain_ignores_interleaved_audit_v2_rows(tmp_path):
+    sf = _sf(tmp_path)
+    log = AuditLog(sf)
+    first = log.append("cli", "record_artifact", "a1", ts="2026-07-06T00:00:00Z")
+    current = build_audit_record_v2(
+        chain_id="platform",
+        seq=1,
+        actor=AuditActor(principal_id="worker", principal_kind="service"),
+        initiated_by=AuditActor(principal_id="human-a", principal_kind="human"),
+        action="run.started",
+        subject=AuditSubject(resource_kind="run", resource_id="run-1"),
+        correlation=AuditCorrelation(request_id="request-1", run_id="run-1"),
+        ts="2026-07-06T00:00:00.500000Z",
+        prev_hash=None,
+    )
+    with sf() as session:
+        session.add(
+            AuditRow(
+                audit_schema_version=current.audit_schema_version,
+                actor=current.actor.principal_id,
+                action=current.action,
+                artifact_id=current.subject.artifact_id,
+                ts=current.ts,
+                content_hash=current.content_hash,
+                prev_hash=current.prev_hash,
+                chain_id=current.chain_id,
+                chain_seq=current.seq,
+                actor_v2=current.actor.model_dump(mode="json"),
+                initiated_by=current.initiated_by.model_dump(mode="json"),
+                subject=current.subject.model_dump(mode="json"),
+                correlation=current.correlation.model_dump(mode="json"),
+            )
+        )
+        session.commit()
+
+    second = log.append("cli", "record_artifact", "a2", ts="2026-07-06T00:00:01Z")
+
+    assert second.seq == 3  # physical IDs remain shared; chain identity does not.
+    assert second.prev_hash == first.content_hash
+    assert log.verify_chain() is True

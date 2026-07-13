@@ -19,7 +19,7 @@ from gameforge.contracts.lineage import (
 )
 from gameforge.platform.lineage.store import SqlArtifactStore, SqlRefStore
 from gameforge.runtime.persistence.engine import get_engine, get_sessionmaker
-from gameforge.runtime.persistence.models import Base
+from gameforge.runtime.persistence.models import Base, RefHistoryRow, RefRow
 
 
 def _sf(tmp_path):
@@ -145,3 +145,23 @@ def test_sql_ref_persists_across_store_instances(tmp_path):
     SqlRefStore(sf).set("head", "v1")
     # A brand new SqlRefStore over the same session factory sees the write.
     assert SqlRefStore(sf).get("head") == "v1"
+
+
+def test_sql_ref_legacy_facade_keeps_revision_equal_to_history_sequence(tmp_path):
+    sf = _sf(tmp_path)
+    refs = SqlRefStore(sf)
+    refs.set("head", "v1")
+    refs.set("head", "v2")
+
+    with sf() as session:
+        current = session.get(RefRow, "head")
+        history = (
+            session.query(RefHistoryRow)
+            .filter(RefHistoryRow.name == "head")
+            .order_by(RefHistoryRow.seq)
+            .all()
+        )
+
+    assert current is not None
+    assert (current.artifact_id, current.revision) == ("v2", 2)
+    assert [(row.artifact_id, row.seq) for row in history] == [("v1", 1), ("v2", 2)]

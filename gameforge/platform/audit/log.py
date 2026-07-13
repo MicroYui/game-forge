@@ -1,15 +1,13 @@
-"""Append-only, WORM (write-once-read-many) audit trail (contract §5,
-§12A.3).
+"""Permanent audit@1 compatibility facade with a tamper-evident hash chain.
 
 `AuditLog.append` is the ONLY mutating operation this module exposes — there
 is no `update`/`delete`, by omission rather than by a guarded method, so
 there is nothing to accidentally call. Each row's `content_hash` is a
 content-addressed digest (`contracts.canonical.compute_snapshot_id`) over
 its own fields plus the previous row's `content_hash` (`prev_hash`),
-forming a hash chain: tampering with any stored row (or reordering /
-deleting one) changes what `verify_chain()` recomputes for every row after
-it, so tamper-evidence does not depend on trusting the audit table itself —
-only on recomputing the chain from first principles.
+forming a hash chain. This application interface exposes no mutator for an
+existing row; database-enforced WORM and external tail anchoring belong to
+M4e, so this module claims detection rather than prevention.
 """
 
 from __future__ import annotations
@@ -56,10 +54,8 @@ def _row_to_record(row: AuditRow) -> AuditRecord:
 class AuditLog:
     """`audit` table persistence: INSERT-only hash-chained log.
 
-    No `update`/`delete` method exists on this class — that is the WORM
-    guarantee. (There is deliberately no "guarded" mutator to disable
-    either: a method that raises on every call is still a method; the
-    contract is enforced by its absence.)
+    No `update`/`delete` method exists on this class. That is an application
+    boundary, not a claim that the underlying database prevents tampering.
     """
 
     def __init__(self, session_factory: SessionFactory) -> None:
@@ -69,7 +65,12 @@ class AuditLog:
         """Insert a new audit row, chaining `prev_hash` from the last row's
         `content_hash` (or `None` for the first entry)."""
         with self._session_factory() as session:
-            last = session.query(AuditRow).order_by(AuditRow.seq.desc()).first()
+            last = (
+                session.query(AuditRow)
+                .filter(AuditRow.audit_schema_version == AUDIT_SCHEMA_VERSION)
+                .order_by(AuditRow.seq.desc())
+                .first()
+            )
             prev_hash = last.content_hash if last is not None else None
             content_hash = _content_hash(
                 actor=actor, action=action, artifact_id=artifact_id, ts=ts, prev_hash=prev_hash
@@ -95,7 +96,12 @@ class AuditLog:
         what recomputation produces — which any direct-DB tamper of a
         field, a hash, or the chain linkage triggers."""
         with self._session_factory() as session:
-            rows = session.query(AuditRow).order_by(AuditRow.seq).all()
+            rows = (
+                session.query(AuditRow)
+                .filter(AuditRow.audit_schema_version == AUDIT_SCHEMA_VERSION)
+                .order_by(AuditRow.seq)
+                .all()
+            )
             prev_hash: str | None = None
             for row in rows:
                 if row.prev_hash != prev_hash:
