@@ -14,6 +14,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from gameforge.runtime.persistence.engine import configure_sqlite_engine
 from gameforge.runtime.persistence.models import Base
 
 # Alembic Config object; provides access to values within the .ini in use
@@ -50,6 +51,7 @@ def run_migrations_online() -> None:
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+    configure_sqlite_engine(connectable)
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():

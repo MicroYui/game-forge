@@ -26,6 +26,14 @@ _CAPABILITY_NAMES = frozenset(
         "cost",
     }
 )
+_TerminalState = Literal["committed", "rolled_back"]
+
+
+def ensure_transaction_context_available() -> None:
+    """Fail before acquiring database resources when a UoW is already active."""
+
+    if _ACTIVE_TRANSACTION.get() is not None:
+        raise InvalidStateTransition("nested transactions are forbidden across UnitOfWork owners")
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,6 +57,7 @@ class TransactionHandle:
         _owner_token: object | None = None,
         _capabilities: TransactionCapabilities | None = None,
         _release: Callable[[TransactionHandle], None] | None = None,
+        _finish_transaction: Callable[[_TerminalState], None] | None = None,
     ) -> None:
         if _construction_token is not _CONSTRUCTION_TOKEN:
             raise InvalidStateTransition("transaction handles must be created by their factory")
@@ -64,6 +73,7 @@ class TransactionHandle:
             for name in _CAPABILITY_NAMES
         }
         self.__release = _release
+        self.__finish_transaction = _finish_transaction or (lambda state: None)
         self.__state: Literal["active", "committed", "rolled_back"] = "active"
         self.__entered = False
 
@@ -140,9 +150,16 @@ class TransactionHandle:
             raise InvalidStateTransition("transaction handle belongs to a different owner")
         self.__require_active()
 
-    def __finish(self, state: Literal["committed", "rolled_back"]) -> None:
+    def __finish(self, state: _TerminalState) -> None:
         self.__require_active()
+        # Resetting the token proves this is the exact owning Context, not a
+        # copied asyncio/task context. It must happen before physical commit.
         self.__release(self)
+        try:
+            self.__finish_transaction(state)
+        except BaseException:
+            self.__state = "rolled_back"
+            raise
         self.__state = state
 
     def __require_active(self) -> None:
@@ -199,18 +216,21 @@ class TransactionHandleFactory:
         self.__active: TransactionHandle | None = None
         self.__context_token: object | None = None
 
-    def begin(self, capabilities: TransactionCapabilities) -> TransactionHandle:
+    def begin(
+        self,
+        capabilities: TransactionCapabilities,
+        *,
+        finish_transaction: Callable[[_TerminalState], None] | None = None,
+    ) -> TransactionHandle:
         if self.__active is not None:
             raise InvalidStateTransition("nested transactions are forbidden for the same owner")
-        if _ACTIVE_TRANSACTION.get() is not None:
-            raise InvalidStateTransition(
-                "nested transactions are forbidden across UnitOfWork owners"
-            )
+        ensure_transaction_context_available()
         transaction = TransactionHandle(
             _construction_token=_CONSTRUCTION_TOKEN,
             _owner_token=self.__owner_token,
             _capabilities=capabilities,
             _release=self.__release,
+            _finish_transaction=finish_transaction,
         )
         self.__active = transaction
         self.__context_token = _ACTIVE_TRANSACTION.set(transaction)
@@ -234,6 +254,11 @@ class TransactionHandleFactory:
             raise InvalidStateTransition(
                 "transaction handle is outside its owning UnitOfWork context"
             )
-        _ACTIVE_TRANSACTION.reset(self.__context_token)
+        try:
+            _ACTIVE_TRANSACTION.reset(self.__context_token)
+        except ValueError as exc:
+            raise InvalidStateTransition(
+                "transaction handle is outside its owning UnitOfWork context"
+            ) from exc
         self.__context_token = None
         self.__active = None

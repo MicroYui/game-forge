@@ -18,12 +18,46 @@ its exact value never affects test determinism.
 from __future__ import annotations
 
 import os
+from typing import Any
 
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
 DATABASE_URL_ENV = "DATABASE_URL"
 DEFAULT_URL = "sqlite:///gameforge.db"
+SQLITE_BUSY_TIMEOUT_MS = 5_000
+
+
+def _configure_sqlite_connection(
+    dbapi_connection: Any,
+    connection_record: Any,
+) -> None:
+    del connection_record
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute(f"PRAGMA busy_timeout={SQLITE_BUSY_TIMEOUT_MS}")
+        cursor.execute("PRAGMA journal_mode=WAL")
+        journal_mode_row = cursor.fetchone()
+        journal_mode = "" if journal_mode_row is None else str(journal_mode_row[0]).lower()
+        if journal_mode != "wal":
+            raise RuntimeError(
+                f"SQLite connection requires WAL journal mode; got {journal_mode or 'no result'}"
+            )
+    finally:
+        cursor.close()
+
+
+def configure_sqlite_engine(engine: Engine) -> Engine:
+    """Attach the local SQLite invariants before the engine opens a connection."""
+
+    if engine.dialect.name == "sqlite" and not event.contains(
+        engine,
+        "connect",
+        _configure_sqlite_connection,
+    ):
+        event.listen(engine, "connect", _configure_sqlite_connection)
+    return engine
 
 
 def resolve_url() -> str:
@@ -41,7 +75,7 @@ def get_engine(url: str | None = None) -> Engine:
     its own private database — so callers must not rely on `:memory:` across
     multiple `get_engine()` calls.)
     """
-    return create_engine(url or resolve_url())
+    return configure_sqlite_engine(create_engine(url or resolve_url()))
 
 
 def get_sessionmaker(engine: Engine | None = None) -> sessionmaker[Session]:
