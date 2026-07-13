@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import BinaryIO, get_args, get_type_hints
 
 import pytest
 from pydantic import ValidationError
 
 from gameforge.contracts.lineage import AuditActor, ObjectLocation, ObjectRef
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.storage import (
     GcCandidate,
     MAX_PAGE_ITEMS,
+    MaterializedReadItemV1,
+    MonotonicClock,
     ObjectGc,
     ObjectStat,
     ObjectStore,
@@ -21,6 +25,8 @@ from gameforge.contracts.storage import (
     Repository,
     StoredObject,
     UnitOfWork,
+    UtcClock,
+    compute_page_query_hash,
 )
 
 
@@ -107,6 +113,62 @@ def test_page_cursor_and_page_are_bounded_and_query_bound() -> None:
         )
 
 
+def test_page_query_hash_is_canonical_but_keeps_sort_and_projection_order() -> None:
+    base = {
+        "api_version": "v1",
+        "resource_kind": "runs",
+        "filters": {"status": ["queued", "running"], "domain": "quests"},
+        "stable_sort": ("created_at:asc", "run_id:asc"),
+        "page_projection": ("run_id", "status", "revision"),
+    }
+    digest = compute_page_query_hash(**base)
+    assert digest == compute_page_query_hash(
+        **{
+            **base,
+            "filters": {"domain": "quests", "status": ["queued", "running"]},
+        }
+    )
+    for changed in (
+        {"api_version": "v2"},
+        {"resource_kind": "approvals"},
+        {"filters": {"domain": "combat"}},
+        {"stable_sort": tuple(reversed(base["stable_sort"]))},
+        {"page_projection": tuple(reversed(base["page_projection"]))},
+    ):
+        assert compute_page_query_hash(**{**base, **changed}) != digest
+
+
+def test_materialized_read_item_hash_binds_its_canonical_view() -> None:
+    canonical_view = {
+        "run_id": "run:1",
+        "status": "queued",
+        "labels": ["quests", "review"],
+        "summary": {"finding_count": 0},
+    }
+    item = MaterializedReadItemV1(
+        snapshot_id="read:1",
+        ordinal=1,
+        resource_id="run:1",
+        observed_revision=2,
+        view_schema_id="run-list-view@1",
+        canonical_view=canonical_view,
+        view_hash=canonical_sha256(canonical_view),
+    )
+    assert item.view_hash == canonical_sha256(item.canonical_view)
+    with pytest.raises(ValidationError, match="view_hash"):
+        MaterializedReadItemV1.model_validate(
+            {**item.model_dump(mode="json"), "view_hash": _HASH_B}
+        )
+    with pytest.raises(TypeError, match="immutable"):
+        item.canonical_view["status"] = "running"
+    with pytest.raises(TypeError, match="immutable"):
+        item.canonical_view["summary"]["finding_count"] = 1
+    with pytest.raises(TypeError, match="immutable"):
+        item.canonical_view["labels"].append("changed")
+    assert item.view_hash == canonical_sha256(item.canonical_view)
+    assert item.model_copy(deep=True).model_dump(mode="json") == item.model_dump(mode="json")
+
+
 def test_ref_transition_id_is_content_derived_and_exact() -> None:
     actor = AuditActor(principal_id="human:b", principal_kind="human")
     transition = RefTransitionV1.create(
@@ -151,3 +213,7 @@ def test_storage_protocols_freeze_required_capability_methods() -> None:
     assert "begin" in UnitOfWork.__dict__
     source_type = get_type_hints(ObjectStore.put_verified)["source"]
     assert set(get_args(source_type)) == {bytes, BinaryIO}
+    assert get_type_hints(UtcClock.now_utc)["return"] is datetime
+    assert get_type_hints(MonotonicClock.now_ns)["return"] is int
+    assert "now_ns" not in UtcClock.__dict__
+    assert "now_utc" not in MonotonicClock.__dict__
