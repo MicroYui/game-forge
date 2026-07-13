@@ -24,6 +24,13 @@ from gameforge.contracts.workflow import (
     ApprovalPolicyRefV1,
     ApprovalPolicyRegistryV1,
     ApprovalPolicyV1,
+    AutoApplyPolicyRefV1,
+    AutoApplyPolicyRegistryRefV1,
+    AutoApplyPolicyRegistryV1,
+    AutoApplyPolicyV1,
+    DeterministicOracleRegistryRefV1,
+    DeterministicOracleRegistryV1,
+    compute_auto_apply_policy_digest,
 )
 from gameforge.runtime.persistence.models import PolicySnapshotRow
 
@@ -38,6 +45,11 @@ _APPROVAL_POLICY_KIND = "approval_policy"
 _APPROVAL_POLICY_ID = "platform_approvals"
 _APPROVAL_POLICY_REGISTRY_KIND = "approval_policy_registry"
 _APPROVAL_POLICY_REGISTRY_ID = "platform_approval_policies"
+_DETERMINISTIC_ORACLE_REGISTRY_KIND = "deterministic_oracle_registry"
+_DETERMINISTIC_ORACLE_REGISTRY_ID = "platform_deterministic_oracles"
+_AUTO_APPLY_POLICY_KIND = "auto_apply_policy"
+_AUTO_APPLY_POLICY_REGISTRY_KIND = "auto_apply_policy_registry"
+_AUTO_APPLY_POLICY_REGISTRY_ID = "platform_auto_apply_policies"
 
 PolicyModel = TypeVar("PolicyModel", bound=BaseModel)
 
@@ -339,6 +351,258 @@ class SqlPolicySnapshotRepository:
             digest_field="policy_digest",
         )
 
+    def put_deterministic_oracle_registry(
+        self,
+        registry: DeterministicOracleRegistryV1,
+    ) -> DeterministicOracleRegistryV1:
+        canonical = _canonical_model(registry, DeterministicOracleRegistryV1)
+        self._validate_deterministic_oracle_registry_history(canonical)
+        self._put(
+            document_kind=_DETERMINISTIC_ORACLE_REGISTRY_KIND,
+            document_id=_DETERMINISTIC_ORACLE_REGISTRY_ID,
+            document_version=canonical.registry_version,
+            document_digest=canonical.registry_digest,
+            payload_schema_version=canonical.registry_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_deterministic_oracle_registry(
+        self,
+        ref: DeterministicOracleRegistryRefV1,
+    ) -> DeterministicOracleRegistryV1 | None:
+        if not isinstance(ref, DeterministicOracleRegistryRefV1):
+            raise IntegrityViolation("deterministic oracle registry lookup requires an exact ref")
+        row = self._session.get(
+            PolicySnapshotRow,
+            (
+                _DETERMINISTIC_ORACLE_REGISTRY_KIND,
+                _DETERMINISTIC_ORACLE_REGISTRY_ID,
+                ref.registry_version,
+            ),
+        )
+        if row is None:
+            return None
+        if row.document_digest != ref.registry_digest:
+            raise IntegrityViolation(
+                "retained deterministic oracle registry digest differs from requested exact ref",
+                registry_version=ref.registry_version,
+            )
+        registry = self._parse_row(
+            row,
+            model_type=DeterministicOracleRegistryV1,
+            expected_kind=_DETERMINISTIC_ORACLE_REGISTRY_KIND,
+            expected_id=_DETERMINISTIC_ORACLE_REGISTRY_ID,
+            expected_version=ref.registry_version,
+            version_field="registry_version",
+            expected_schema="deterministic-oracle-registry@1",
+            digest_field="registry_digest",
+        )
+        self._validate_deterministic_oracle_registry_history(registry)
+        return registry
+
+    def put_auto_apply_policy_registry(
+        self,
+        registry: AutoApplyPolicyRegistryV1,
+    ) -> AutoApplyPolicyRegistryV1:
+        canonical = _canonical_model(registry, AutoApplyPolicyRegistryV1)
+        for policy in canonical.policies:
+            self._validate_auto_apply_policy_history(policy)
+            self._put(
+                document_kind=_AUTO_APPLY_POLICY_KIND,
+                document_id=policy.policy_id,
+                document_version=policy.policy_version,
+                document_digest=compute_auto_apply_policy_digest(policy),
+                payload_schema_version=policy.policy_schema_version,
+                payload=policy.model_dump(mode="json"),
+            )
+        self._put(
+            document_kind=_AUTO_APPLY_POLICY_REGISTRY_KIND,
+            document_id=_AUTO_APPLY_POLICY_REGISTRY_ID,
+            document_version=canonical.registry_version,
+            document_digest=canonical.registry_digest,
+            payload_schema_version=canonical.registry_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_auto_apply_policy_registry(
+        self,
+        ref: AutoApplyPolicyRegistryRefV1,
+    ) -> AutoApplyPolicyRegistryV1 | None:
+        if not isinstance(ref, AutoApplyPolicyRegistryRefV1):
+            raise IntegrityViolation("auto-apply policy registry lookup requires an exact ref")
+        row = self._session.get(
+            PolicySnapshotRow,
+            (
+                _AUTO_APPLY_POLICY_REGISTRY_KIND,
+                _AUTO_APPLY_POLICY_REGISTRY_ID,
+                ref.registry_version,
+            ),
+        )
+        if row is None:
+            return None
+        if row.document_digest != ref.registry_digest:
+            raise IntegrityViolation(
+                "retained auto-apply policy registry digest differs from requested exact ref",
+                registry_version=ref.registry_version,
+            )
+        registry = self._parse_row(
+            row,
+            model_type=AutoApplyPolicyRegistryV1,
+            expected_kind=_AUTO_APPLY_POLICY_REGISTRY_KIND,
+            expected_id=_AUTO_APPLY_POLICY_REGISTRY_ID,
+            expected_version=ref.registry_version,
+            version_field="registry_version",
+            expected_schema="auto-apply-policy-registry@1",
+            digest_field="registry_digest",
+        )
+        for policy in registry.policies:
+            digest = compute_auto_apply_policy_digest(policy)
+            retained = self._get_auto_apply_policy_payload(
+                policy_id=policy.policy_id,
+                policy_version=policy.policy_version,
+                policy_digest=digest,
+            )
+            if retained is None or retained != policy:
+                raise IntegrityViolation(
+                    "auto-apply policy registry history is incomplete",
+                    registry_version=registry.registry_version,
+                    policy_id=policy.policy_id,
+                    policy_version=policy.policy_version,
+                )
+            self._validate_auto_apply_policy_history(retained)
+        return registry
+
+    def get_auto_apply_policy(
+        self,
+        ref: AutoApplyPolicyRefV1,
+    ) -> AutoApplyPolicyV1 | None:
+        if not isinstance(ref, AutoApplyPolicyRefV1):
+            raise IntegrityViolation("auto-apply policy lookup requires an exact ref")
+        registry = self.get_auto_apply_policy_registry(ref.registry)
+        if registry is None:
+            return None
+        matches = [
+            policy
+            for policy in registry.policies
+            if (policy.policy_id, policy.policy_version)
+            == (ref.policy_id, ref.policy_version)
+        ]
+        if len(matches) != 1:
+            raise IntegrityViolation(
+                "auto-apply policy exact ref is not a registry member",
+                registry_version=ref.registry.registry_version,
+                policy_id=ref.policy_id,
+                policy_version=ref.policy_version,
+            )
+        policy = matches[0]
+        if compute_auto_apply_policy_digest(policy) != ref.policy_digest:
+            raise IntegrityViolation(
+                "retained auto-apply policy digest differs from requested exact ref",
+                policy_id=ref.policy_id,
+                policy_version=ref.policy_version,
+            )
+        retained = self._get_auto_apply_policy_payload(
+            policy_id=ref.policy_id,
+            policy_version=ref.policy_version,
+            policy_digest=ref.policy_digest,
+        )
+        if retained is None or retained != policy:
+            raise IntegrityViolation(
+                "auto-apply policy registry history is incomplete",
+                registry_version=registry.registry_version,
+                policy_id=ref.policy_id,
+                policy_version=ref.policy_version,
+            )
+        return retained
+
+    def _get_auto_apply_policy_payload(
+        self,
+        *,
+        policy_id: str,
+        policy_version: str,
+        policy_digest: str,
+    ) -> AutoApplyPolicyV1 | None:
+        row = self._session.get(
+            PolicySnapshotRow,
+            (_AUTO_APPLY_POLICY_KIND, policy_id, policy_version),
+        )
+        if row is None:
+            return None
+        if row.document_digest != policy_digest:
+            raise IntegrityViolation(
+                "retained auto-apply policy digest differs from requested exact ref",
+                policy_id=policy_id,
+                policy_version=policy_version,
+            )
+        return self._parse_row(
+            row,
+            model_type=AutoApplyPolicyV1,
+            expected_kind=_AUTO_APPLY_POLICY_KIND,
+            expected_id=policy_id,
+            expected_version=policy_version,
+            version_field="policy_version",
+            expected_schema="auto-apply-policy@1",
+            digest_field=None,
+        )
+
+    def _validate_deterministic_oracle_registry_history(
+        self,
+        registry: DeterministicOracleRegistryV1,
+    ) -> None:
+        for definition in registry.definitions:
+            domain_registry = self.get_domain_registry(definition.domain_registry)
+            if domain_registry is None:
+                raise IntegrityViolation(
+                    "deterministic oracle domain registry history is unavailable",
+                    oracle_id=definition.oracle_id,
+                    oracle_version=definition.oracle_version,
+                )
+            known_ids = {item.domain_id for item in domain_registry.definitions}
+            _validate_scope_ids(definition.supported_domain_scope, known_ids)
+
+    def _validate_auto_apply_policy_history(self, policy: AutoApplyPolicyV1) -> None:
+        domain_registry = self.get_domain_registry(policy.domain_registry)
+        if domain_registry is None:
+            raise IntegrityViolation("auto-apply policy domain registry history is unavailable")
+        known_ids = {item.domain_id for item in domain_registry.definitions}
+        for scope in (*policy.allowed_domain_scopes, *policy.forbidden_domain_scopes):
+            _validate_scope_ids(scope, known_ids)
+
+        oracle_registry = self.get_deterministic_oracle_registry(
+            policy.deterministic_oracle_registry
+        )
+        if oracle_registry is None:
+            raise IntegrityViolation(
+                "auto-apply policy oracle registry history is unavailable",
+                registry_version=policy.deterministic_oracle_registry.registry_version,
+            )
+        definitions = {
+            (definition.oracle_id, definition.oracle_version): definition
+            for definition in oracle_registry.definitions
+        }
+        for oracle_ref in policy.required_deterministic_oracles:
+            definition = definitions.get((oracle_ref.oracle_id, oracle_ref.oracle_version))
+            if definition is None:
+                raise IntegrityViolation(
+                    "auto-apply policy requires an oracle absent from its exact registry",
+                    oracle_id=oracle_ref.oracle_id,
+                    oracle_version=oracle_ref.oracle_version,
+                )
+            if definition.oracle_digest != oracle_ref.oracle_digest:
+                raise IntegrityViolation(
+                    "auto-apply policy oracle digest differs from exact registry history",
+                    oracle_id=oracle_ref.oracle_id,
+                    oracle_version=oracle_ref.oracle_version,
+                )
+            if definition.domain_registry != policy.domain_registry:
+                raise IntegrityViolation(
+                    "auto-apply policy and required oracle domain registries differ",
+                    oracle_id=oracle_ref.oracle_id,
+                    oracle_version=oracle_ref.oracle_version,
+                )
+
     def _put(
         self,
         *,
@@ -396,7 +660,7 @@ class SqlPolicySnapshotRepository:
         expected_version: str,
         version_field: str | None,
         expected_schema: str,
-        digest_field: str,
+        digest_field: str | None,
     ) -> PolicyModel:
         if (
             row.document_kind != expected_kind
@@ -412,7 +676,10 @@ class SqlPolicySnapshotRepository:
             raise IntegrityViolation("stored policy snapshot payload is invalid") from exc
         if (
             (version_field is not None and getattr(parsed, version_field) != expected_version)
-            or getattr(parsed, digest_field) != row.document_digest
+            or (
+                digest_field is not None
+                and getattr(parsed, digest_field) != row.document_digest
+            )
             or canonical_json(parsed.model_dump(mode="json")) != canonical_json(row.payload)
         ):
             raise IntegrityViolation("stored policy snapshot payload is noncanonical")

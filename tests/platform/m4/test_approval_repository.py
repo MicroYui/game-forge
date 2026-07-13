@@ -197,7 +197,7 @@ def _advance_to_pending(
         submitted_at="2026-07-14T10:04:00Z",
     )
     repository.compare_and_set(item.approval_id, 1, validating)
-    repository.compare_and_set(item.approval_id, 2, validated)
+    repository.compare_and_set_validation_completion(item.approval_id, 2, validated)
     repository.compare_and_set(item.approval_id, 3, pending)
     return pending
 

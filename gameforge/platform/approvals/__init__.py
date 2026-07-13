@@ -11,10 +11,28 @@ from gameforge.platform.approvals.state import (
     next_workflow_revision,
     validate_status_transition,
 )
+from gameforge.platform.approvals.validation import (
+    PreparedValidationCompletion,
+    ResolvedValidationProfiles,
+    ValidationAutoApplyGuard,
+    ValidationCompletionCapabilities,
+    ValidationCompletionResult,
+    ValidationCompletionService,
+    ValidationRunBinding,
+    ValidationRunTerminalResult,
+)
 
 __all__ = [
     "ALLOWED_STATUS_TRANSITIONS",
     "ValidationResetReason",
+    "PreparedValidationCompletion",
+    "ResolvedValidationProfiles",
+    "ValidationAutoApplyGuard",
+    "ValidationCompletionCapabilities",
+    "ValidationCompletionResult",
+    "ValidationCompletionService",
+    "ValidationRunBinding",
+    "ValidationRunTerminalResult",
     "apply_approval_decision",
     "build_approval_requirements",
     "next_workflow_revision",

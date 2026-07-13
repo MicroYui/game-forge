@@ -397,6 +397,12 @@ class ApprovalEvidenceGateway(Protocol):
     def project_state(self, *, item: ApprovalItem) -> EvidenceStateProjection: ...
 
 
+class ApprovalAutoApplyGateway(Protocol):
+    """Resolve exact retained inputs and rerun the pure auto-apply guard."""
+
+    def validate_eligibility(self, *, item: ApprovalItem) -> None: ...
+
+
 @dataclass(slots=True)
 class ApprovalCommandCapabilities:
     approvals: ApprovalRepository | None
@@ -409,6 +415,7 @@ class ApprovalCommandCapabilities:
     subjects: SubjectPayloadGateway | None
     lineage: DraftLineageVerifier | None
     evidence: ApprovalEvidenceGateway | None
+    auto_apply: ApprovalAutoApplyGateway | None = None
 
 
 class ApprovalUnitOfWork(Protocol):
@@ -710,7 +717,9 @@ class ApprovalCommandService:
                     operation="submit",
                     approval_id=approval_id,
                     expected_workflow_revision=expected_workflow_revision,
-                    expected_statuses=frozenset({"pending_approval"}),
+                    expected_statuses=frozenset(
+                        {"pending_approval", "auto_apply_eligible"}
+                    ),
                     current=item,
                 )
 
@@ -733,18 +742,24 @@ class ApprovalCommandService:
             }:
                 raise InvalidStateTransition("submission evidence is not passed")
 
+            target_status = "pending_approval"
+            if item.auto_apply_proof is not None:
+                auto_apply = _required(capabilities.auto_apply, "auto_apply")
+                auto_apply.validate_eligibility(item=item)
+                target_status = "auto_apply_eligible"
+
             next_revision = next_workflow_revision(
                 actual=item.workflow_revision,
                 expected=expected_workflow_revision,
             )
             validate_status_transition(
                 current=item.status,
-                target="pending_approval",
+                target=target_status,
                 subject_kind=item.subject_kind,
             )
             replacement = _replace_item(
                 item,
-                status="pending_approval",
+                status=target_status,
                 workflow_revision=next_revision,
                 submitted_at=_utc_text(self._clock),
             )

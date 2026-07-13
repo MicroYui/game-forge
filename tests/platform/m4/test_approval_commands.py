@@ -48,6 +48,9 @@ from gameforge.contracts.workflow import (
     ApprovalItem,
     ApprovalPolicyRefV1,
     ApprovalPolicyV1,
+    AutoApplyPolicyRefV1,
+    AutoApplyPolicyRegistryRefV1,
+    AutoApplyProofBindingV1,
     PatchTargetBindingV1,
     ConstraintTargetBindingV1,
     RollbackRequestV1,
@@ -528,6 +531,17 @@ class _Evidence:
         return self.projection
 
 
+class _AutoApply:
+    def __init__(self) -> None:
+        self.calls: list[ApprovalItem] = []
+        self.fail = False
+
+    def validate_eligibility(self, *, item: ApprovalItem) -> None:
+        self.calls.append(item)
+        if self.fail:
+            raise IntegrityViolation("auto-apply guard rejected eligibility")
+
+
 class _UowContext(AbstractContextManager[object]):
     def __init__(self, owner: "_Uow") -> None:
         self.owner = owner
@@ -567,6 +581,7 @@ class _Harness:
     subjects: _Subjects
     lineage: _Lineage
     evidence: _Evidence
+    auto_apply: _AutoApply
     runs: _Runs
     audit: _Audit
     registry: DomainRegistryV1
@@ -584,6 +599,7 @@ def _harness() -> _Harness:
     subjects = _Subjects()
     lineage = _Lineage()
     evidence = _Evidence()
+    auto_apply = _AutoApply()
     runs = _Runs(state)
     audit = _Audit(state)
     capabilities = ApprovalCommandCapabilities(
@@ -597,6 +613,7 @@ def _harness() -> _Harness:
         subjects=subjects,
         lineage=lineage,
         evidence=evidence,
+        auto_apply=auto_apply,
     )
     uow = _Uow(state)
     service = ApprovalCommandService(
@@ -613,6 +630,7 @@ def _harness() -> _Harness:
         subjects=subjects,
         lineage=lineage,
         evidence=evidence,
+        auto_apply=auto_apply,
         runs=runs,
         audit=audit,
         registry=registry,
@@ -1280,9 +1298,35 @@ def _validated(harness: _Harness) -> tuple[PreparedDraft, ApprovalItem]:
     return prepared, item
 
 
+def _with_auto_apply_proof(item: ApprovalItem) -> ApprovalItem:
+    assert isinstance(item.target_binding, PatchTargetBindingV1)
+    assert item.evidence_set_artifact_id is not None
+    policy = AutoApplyPolicyRefV1(
+        registry=AutoApplyPolicyRegistryRefV1(
+            registry_version="auto-apply@1",
+            registry_digest="7" * 64,
+        ),
+        policy_id="safe-structural-patch",
+        policy_version="1",
+        policy_digest="8" * 64,
+    )
+    return _replace_item(
+        item,
+        auto_apply_proof=AutoApplyProofBindingV1(
+            proof_artifact_id="artifact:auto-proof:1",
+            policy=policy,
+            subject_digest=item.subject_digest,
+            target_digest=item.target_binding.target_digest,
+            expected_ref=item.target_binding.expected_ref,
+            validation_evidence_artifact_id=item.evidence_set_artifact_id,
+        ),
+    )
+
+
 def test_submit_revalidates_current_head_human_subject_evidence_and_policies() -> None:
     harness = _harness()
     _, item = _validated(harness)
+    harness.capabilities.auto_apply = None
 
     submitted = harness.service.submit_for_approval(
         approval_id=item.approval_id,
@@ -1294,6 +1338,62 @@ def test_submit_revalidates_current_head_human_subject_evidence_and_policies() -
     assert submitted.workflow_revision == 3
     assert submitted.submitted_at == NOW
     assert harness.state.audit[-1][0] == "approval.submitted"
+
+
+def test_submit_with_auto_proof_requires_guard_and_enters_eligible_state() -> None:
+    harness = _harness()
+    _, item = _validated(harness)
+    item = _with_auto_apply_proof(item)
+    harness.state.approvals[item.approval_id] = item
+    context = _context(key="submit:auto", request_hash="1" * 64)
+
+    submitted = harness.service.submit_for_approval(
+        approval_id=item.approval_id,
+        expected_workflow_revision=item.workflow_revision,
+        context=context,
+    )
+
+    assert submitted.status == "auto_apply_eligible"
+    assert harness.auto_apply.calls == [item]
+
+    harness.capabilities.auto_apply = None
+    assert (
+        harness.service.submit_for_approval(
+            approval_id=item.approval_id,
+            expected_workflow_revision=item.workflow_revision,
+            context=context,
+        )
+        == submitted
+    )
+    assert harness.auto_apply.calls == [item]
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_submit_with_auto_proof_fails_closed_without_valid_guard(missing: bool) -> None:
+    harness = _harness()
+    _, item = _validated(harness)
+    item = _with_auto_apply_proof(item)
+    harness.state.approvals[item.approval_id] = item
+    if missing:
+        harness.capabilities.auto_apply = None
+    else:
+        harness.auto_apply.fail = True
+    context = _context(key="submit:auto:rejected", request_hash="2" * 64)
+
+    with pytest.raises(IntegrityViolation):
+        harness.service.submit_for_approval(
+            approval_id=item.approval_id,
+            expected_workflow_revision=item.workflow_revision,
+            context=context,
+        )
+
+    assert harness.state.approvals[item.approval_id] == item
+    assert not harness.state.audit or harness.state.audit[-1][0] != "approval.submitted"
+    assert (
+        context.idempotency_scope,
+        "approval.submit",
+        context.idempotency_key,
+    ) not in harness.state.idempotency
 
 
 def test_submit_fails_closed_without_evidence_but_allows_agent_patch_revision() -> None:

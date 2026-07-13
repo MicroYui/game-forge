@@ -1026,8 +1026,17 @@ class ApprovalItem(_FrozenModel):
         if self.auto_apply_proof is not None:
             if self.subject_kind != "patch":
                 raise ValueError("auto_apply_proof is valid only for patch subjects")
-            if self.status not in {"auto_apply_eligible", "applied"}:
-                raise ValueError("auto_apply_proof requires eligible or applied status")
+            if self.status not in {
+                "validated",
+                "auto_apply_eligible",
+                "applied",
+                "rolled_back",
+                "superseded",
+            }:
+                raise ValueError(
+                    "auto_apply_proof requires validated, eligible, applied, "
+                    "rolled_back, or superseded status"
+                )
             if self.target_binding is None:
                 raise ValueError("auto_apply_proof requires target_binding")
             if self.auto_apply_proof.subject_digest != self.subject_digest:

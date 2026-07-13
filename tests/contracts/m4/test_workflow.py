@@ -30,6 +30,7 @@ from gameforge.contracts.workflow import (
     AutoApplyPolicyRegistryRefV1,
     AutoApplyPolicyRegistryV1,
     AutoApplyPolicyV1,
+    AutoApplyProofBindingV1,
     AutoApplyProofV1,
     ConstraintCompileEvidenceV1,
     ConstraintCompileStageV1,
@@ -599,6 +600,115 @@ def test_approval_item_enforces_target_kind_auto_apply_and_maker_checker() -> No
                 "subject_kind": "rollback_request",
                 "target_binding": _patch_binding(),
             }
+        )
+
+
+@pytest.mark.parametrize(
+    "status",
+    ["validated", "auto_apply_eligible", "applied", "superseded", "rolled_back"],
+)
+def test_patch_auto_apply_proof_survives_its_frozen_workflow_history(status: str) -> None:
+    policy = _approval_policy()
+    target = _patch_binding()
+    proof = AutoApplyProofBindingV1(
+        proof_artifact_id="artifact:auto-proof",
+        policy=_auto_policy_ref(),
+        subject_digest="c" * 64,
+        target_digest=target.target_digest,
+        expected_ref=target.expected_ref,
+        validation_evidence_artifact_id="artifact:evidence-set",
+    )
+    item = ApprovalItem(
+        approval_id="approval:auto",
+        subject_series_id="patch-series:auto",
+        subject_revision=1,
+        subject_kind="patch",
+        subject_artifact_id="artifact:patch",
+        subject_digest="c" * 64,
+        status=status,
+        workflow_revision=3,
+        proposer=_actor(),
+        domain_scope=DomainScope(domain_ids=("narrative",)),
+        domain_registry_ref=_domain_ref(),
+        route_policy=_route_ref(),
+        role_policy_version="roles@1",
+        role_policy_digest="e" * 64,
+        approval_policy=ApprovalPolicyRefV1(
+            policy_version=policy.policy_version,
+            policy_digest=policy.policy_digest,
+        ),
+        requirements=(),
+        decisions=(),
+        evidence_set_artifact_id="artifact:evidence-set",
+        regression_evidence_artifact_ids=(),
+        target_binding=target,
+        auto_apply_proof=proof,
+        created_at="2026-07-13T00:00:00Z",
+        applied_at=(
+            "2026-07-13T00:01:00Z" if status in {"applied", "rolled_back"} else None
+        ),
+    )
+
+    assert item.auto_apply_proof == proof
+
+
+def test_auto_apply_proof_remains_patch_only_and_mandatory_for_eligible_state() -> None:
+    policy = _approval_policy()
+    target = _patch_binding()
+    proof = AutoApplyProofBindingV1(
+        proof_artifact_id="artifact:auto-proof",
+        policy=_auto_policy_ref(),
+        subject_digest="c" * 64,
+        target_digest=target.target_digest,
+        expected_ref=target.expected_ref,
+        validation_evidence_artifact_id="artifact:evidence-set",
+    )
+    common = {
+        "approval_id": "approval:auto",
+        "subject_series_id": "patch-series:auto",
+        "subject_revision": 1,
+        "subject_artifact_id": "artifact:patch",
+        "subject_digest": "c" * 64,
+        "workflow_revision": 3,
+        "proposer": _actor(),
+        "domain_scope": DomainScope(domain_ids=("narrative",)),
+        "domain_registry_ref": _domain_ref(),
+        "route_policy": _route_ref(),
+        "role_policy_version": "roles@1",
+        "role_policy_digest": "e" * 64,
+        "approval_policy": ApprovalPolicyRefV1(
+            policy_version=policy.policy_version,
+            policy_digest=policy.policy_digest,
+        ),
+        "requirements": (),
+        "decisions": (),
+        "evidence_set_artifact_id": "artifact:evidence-set",
+        "regression_evidence_artifact_ids": (),
+        "created_at": "2026-07-13T00:00:00Z",
+    }
+
+    with pytest.raises(ValidationError, match="auto_apply_eligible"):
+        ApprovalItem(
+            **common,
+            subject_kind="patch",
+            status="auto_apply_eligible",
+            target_binding=target,
+        )
+
+    constraint_target = ConstraintTargetBindingV1(
+        target_artifact_id=target.target_artifact_id,
+        target_snapshot_id=target.target_snapshot_id,
+        target_digest=target.target_digest,
+        ref_name=target.ref_name,
+        expected_ref=target.expected_ref,
+    )
+    with pytest.raises(ValidationError, match="only for patch"):
+        ApprovalItem(
+            **common,
+            subject_kind="constraint_proposal",
+            status="superseded",
+            target_binding=constraint_target,
+            auto_apply_proof=proof,
         )
 
 

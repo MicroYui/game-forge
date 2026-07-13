@@ -426,7 +426,53 @@ class SqlApprovalRepository:
                 expected_workflow_revision=expected,
                 actual_workflow_revision=current.workflow_revision,
             )
-        self._verify_replacement(current, candidate, allow_new_decision=None)
+        self._verify_replacement(
+            current,
+            candidate,
+            allow_new_decision=None,
+            validation_completion=False,
+        )
+        self._write_replacement(identifier, expected, candidate)
+        return candidate
+
+    def compare_and_set_validation_completion(
+        self,
+        approval_id: str,
+        expected_workflow_revision: int,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        """CAS the one transition allowed to append validation evidence/binding."""
+
+        identifier = _require_nonempty(approval_id, field_name="approval_id")
+        expected = _require_revision(
+            expected_workflow_revision,
+            field_name="expected_workflow_revision",
+        )
+        candidate = _revalidate_contract(
+            replacement,
+            ApprovalItem,
+            label="validation completion replacement",
+        )
+        self._validate_replacement_identity(identifier, expected, candidate)
+        _validate_decision_history(candidate)
+        current = self.get(identifier)
+        if current is None:
+            raise Conflict("ApprovalItem does not exist", approval_id=identifier)
+        if _same_wire(current, candidate):
+            return current
+        if current.workflow_revision != expected:
+            raise Conflict(
+                "ApprovalItem workflow revision did not match",
+                approval_id=identifier,
+                expected_workflow_revision=expected,
+                actual_workflow_revision=current.workflow_revision,
+            )
+        self._verify_replacement(
+            current,
+            candidate,
+            allow_new_decision=None,
+            validation_completion=True,
+        )
         self._write_replacement(identifier, expected, candidate)
         return candidate
 
@@ -497,6 +543,7 @@ class SqlApprovalRepository:
             current,
             candidate,
             allow_new_decision=decision_candidate,
+            validation_completion=False,
         )
 
         try:
@@ -752,6 +799,7 @@ class SqlApprovalRepository:
         replacement: ApprovalItem,
         *,
         allow_new_decision: ApprovalDecision | None,
+        validation_completion: bool,
     ) -> None:
         current_wire = current.model_dump(mode="python")
         replacement_wire = replacement.model_dump(mode="python")
@@ -767,6 +815,8 @@ class SqlApprovalRepository:
 
         if current.target_binding != replacement.target_binding:
             can_bind_constraint_once = (
+                validation_completion
+                and
                 current.subject_kind == "constraint_proposal"
                 and current.target_binding is None
                 and replacement.target_binding is not None
@@ -774,6 +824,31 @@ class SqlApprovalRepository:
             if not can_bind_constraint_once:
                 raise IntegrityViolation(
                     "approval replacement changes an immutable target binding",
+                    approval_id=current.approval_id,
+                )
+
+        evidence_changed = (
+            current.evidence_set_artifact_id != replacement.evidence_set_artifact_id
+            or current.regression_evidence_artifact_ids
+            != replacement.regression_evidence_artifact_ids
+            or current.auto_apply_proof != replacement.auto_apply_proof
+        )
+        if evidence_changed and not validation_completion:
+            raise IntegrityViolation(
+                "approval evidence/proof can only be appended by validation completion",
+                approval_id=current.approval_id,
+            )
+        if validation_completion:
+            if (
+                current.status != "validating"
+                or replacement.status not in {"validated", "validation_failed"}
+                or current.evidence_set_artifact_id is not None
+                or current.regression_evidence_artifact_ids
+                or current.auto_apply_proof is not None
+                or replacement.evidence_set_artifact_id is None
+            ):
+                raise IntegrityViolation(
+                    "validation completion must append one fresh evidence set",
                     approval_id=current.approval_id,
                 )
 
