@@ -49,11 +49,13 @@ from gameforge.contracts.workflow import (
     EvidenceRequirement,
     EvidenceSet,
     PatchTargetBindingV1,
+    RollbackRequestV1,
     RollbackTargetBindingV1,
     SubjectHead,
 )
 from gameforge.platform.approvals.commands import (
     ApprovalCommandContext,
+    DraftSubjectFacts,
     PreparedObjectBinding,
 )
 from gameforge.platform.approvals.validation import (
@@ -841,6 +843,14 @@ class Profiles:
         return self.resolution
 
 
+class Subjects:
+    def __init__(self, facts: dict[str, DraftSubjectFacts]) -> None:
+        self.facts = facts
+
+    def inspect_draft_subject(self, artifact: ArtifactV2) -> DraftSubjectFacts:
+        return self.facts[artifact.artifact_id]
+
+
 class Verifier:
     fail = False
 
@@ -958,6 +968,28 @@ def harness(
     runs = Runs(state, prepared.execution)
     verifier = Verifier()
     auto_apply = AutoGuard()
+    subject_facts: dict[str, DraftSubjectFacts] = {}
+    payload = prepared.execution.payload
+    binding = item.target_binding
+    if isinstance(payload, RollbackValidationPayloadV1):
+        assert isinstance(binding, RollbackTargetBindingV1)
+        subject_facts[item.subject_artifact_id] = DraftSubjectFacts(
+            subject_kind="rollback_request",
+            subject_revision=None,
+            produced_by="human",
+            producer_run_id=None,
+            supersedes_artifact_id=None,
+            target_artifact_id=binding.target_artifact_id,
+            target_snapshot_id=binding.target_snapshot_id,
+            rollback_request=RollbackRequestV1(
+                ref_name=binding.ref_name,
+                expected_current_ref=binding.expected_ref,
+                target_artifact_id=binding.target_artifact_id,
+                target_history_revision=payload.target_history_revision,
+                rollback_profile_binding=binding.rollback_profile_binding,
+                reason="restore retained content",
+            ),
+        )
     capabilities = ValidationCompletionCapabilities(
         approvals=repositories,
         artifacts=repositories,
@@ -967,6 +999,7 @@ def harness(
         verifier=verifier,
         runs=runs,
         audit=Audit(state),
+        subjects=Subjects(subject_facts),
         auto_apply=auto_apply,
     )
     service = ValidationCompletionService(

@@ -39,6 +39,7 @@ from gameforge.contracts.workflow import (
     ConstraintCompileEvidenceV1,
     ConstraintTargetBindingV1,
     EvidenceSet,
+    RollbackRequestV1,
     RollbackTargetBindingV1,
     SubjectHead,
 )
@@ -49,6 +50,7 @@ from gameforge.platform.approvals.commands import (
     BindingRepository,
     IdempotencyRepository,
     PreparedObjectBinding,
+    SubjectPayloadGateway,
 )
 from gameforge.platform.approvals.state import validate_status_transition
 
@@ -344,6 +346,7 @@ class ValidationCompletionCapabilities:
     verifier: ValidationPublicationVerifier | None
     runs: ValidationRunTerminalGateway | None
     audit: ApprovalAuditWriter | None
+    subjects: SubjectPayloadGateway | None = None
     auto_apply: ValidationAutoApplyGuard | None = None
 
 
@@ -451,6 +454,12 @@ class ValidationCompletionService:
             self._validate_profile_resolution(prepared, resolution)
             self._validate_evidence(prepared, item, resolution)
             self._validate_bound_artifacts(prepared, item, artifacts)
+            self._validate_rollback_request_payload(
+                prepared,
+                item,
+                artifacts,
+                capabilities.subjects,
+            )
 
             evidence = prepared.evidence_set
             evidence_artifact = prepared.evidence_set_artifact
@@ -1012,6 +1021,31 @@ class ValidationCompletionService:
                 raise IntegrityViolation(
                     "validation target Artifact VersionTuple differs from binding"
                 )
+
+    @staticmethod
+    def _validate_rollback_request_payload(
+        prepared: PreparedValidationCompletion,
+        item: ApprovalItem,
+        artifacts: ArtifactRepository,
+        subjects: SubjectPayloadGateway | None,
+    ) -> None:
+        payload = prepared.execution.payload
+        if not isinstance(payload, RollbackValidationPayloadV1):
+            return
+        gateway = _required(subjects, "subjects")
+        subject = artifacts.get(item.subject_artifact_id)
+        if not isinstance(subject, ArtifactV2):
+            raise IntegrityViolation("rollback request Artifact is unavailable")
+        facts = gateway.inspect_draft_subject(subject)
+        request = facts.rollback_request
+        if facts.subject_kind != "rollback_request" or not isinstance(
+            request, RollbackRequestV1
+        ):
+            raise IntegrityViolation("rollback subject parser omitted RollbackRequest")
+        if request.target_history_revision != payload.target_history_revision:
+            raise IntegrityViolation(
+                "rollback validation target history revision differs from RollbackRequest"
+            )
 
     @staticmethod
     def _auto_apply_proof_binding(

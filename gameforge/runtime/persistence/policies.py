@@ -6,11 +6,21 @@ from datetime import datetime, timedelta, timezone
 from typing import TypeVar
 
 from pydantic import BaseModel, ValidationError
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileCatalogSnapshotV1,
+    ExecutionProfileDefinitionV1,
+    ExecutionProfileKindV1,
+    ExecutionProfileLifecycleV1,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    execution_profile_payload_hash,
+)
 from gameforge.contracts.identity import (
     DomainRegistryRefV1,
     DomainRegistryV1,
@@ -50,6 +60,9 @@ _DETERMINISTIC_ORACLE_REGISTRY_ID = "platform_deterministic_oracles"
 _AUTO_APPLY_POLICY_KIND = "auto_apply_policy"
 _AUTO_APPLY_POLICY_REGISTRY_KIND = "auto_apply_policy_registry"
 _AUTO_APPLY_POLICY_REGISTRY_ID = "platform_auto_apply_policies"
+_EXECUTION_PROFILE_CATALOG_KIND = "execution_profile_catalog"
+_EXECUTION_PROFILE_CATALOG_ID = "platform_execution_profiles"
+_EXECUTION_PROFILE_DEFINITION_KIND = "execution_profile_definition"
 
 PolicyModel = TypeVar("PolicyModel", bound=BaseModel)
 
@@ -61,6 +74,36 @@ def _utc_text(clock: UtcClock) -> str:
     if now.tzinfo is None or now.utcoffset() != timedelta(0):
         raise IntegrityViolation("policy repository clock must return UTC")
     return now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _parse_lifecycle_changed_at(
+    value: str,
+    *,
+    profile: ProfileRefV1,
+    catalog_version: int,
+) -> datetime:
+    normalized = f"{value[:-1]}+00:00" if value.endswith("Z") else value
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except (TypeError, ValueError) as exc:
+        raise IntegrityViolation(
+            "execution profile lifecycle changed_at must be a UTC timestamp",
+            profile_id=profile.profile_id,
+            profile_version=profile.version,
+            catalog_version=catalog_version,
+        ) from exc
+    if (
+        parsed.tzinfo is None
+        or parsed.utcoffset() is None
+        or parsed.utcoffset() != timedelta(0)
+    ):
+        raise IntegrityViolation(
+            "execution profile lifecycle changed_at must be a UTC timestamp",
+            profile_id=profile.profile_id,
+            profile_version=profile.version,
+            catalog_version=catalog_version,
+        )
+    return parsed.astimezone(timezone.utc)
 
 
 def _canonical_model(value: PolicyModel, model_type: type[PolicyModel]) -> PolicyModel:
@@ -118,6 +161,352 @@ class SqlPolicySnapshotRepository:
     def __init__(self, session: Session, *, clock: UtcClock) -> None:
         self._session = session
         self._clock = clock
+
+    def put_execution_profile_catalog(
+        self,
+        catalog: ExecutionProfileCatalogSnapshotV1,
+    ) -> ExecutionProfileCatalogSnapshotV1:
+        canonical = _canonical_model(catalog, ExecutionProfileCatalogSnapshotV1)
+        self._validate_execution_profile_lifecycle_history(canonical)
+        for definition in canonical.definitions:
+            self._put(
+                document_kind=_EXECUTION_PROFILE_DEFINITION_KIND,
+                document_id=definition.profile.profile_id,
+                document_version=str(definition.profile.version),
+                document_digest=execution_profile_payload_hash(definition),
+                payload_schema_version=definition.definition_schema_version,
+                payload=definition.model_dump(mode="json"),
+            )
+        self._put(
+            document_kind=_EXECUTION_PROFILE_CATALOG_KIND,
+            document_id=_EXECUTION_PROFILE_CATALOG_ID,
+            document_version=str(canonical.catalog_version),
+            document_digest=canonical.catalog_digest,
+            payload_schema_version=canonical.catalog_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_execution_profile_catalog(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+    ) -> ExecutionProfileCatalogSnapshotV1 | None:
+        self._validate_catalog_version(catalog_version)
+        row = self._session.get(
+            PolicySnapshotRow,
+            (
+                _EXECUTION_PROFILE_CATALOG_KIND,
+                _EXECUTION_PROFILE_CATALOG_ID,
+                str(catalog_version),
+            ),
+        )
+        if row is None:
+            return None
+        if row.document_digest != catalog_digest:
+            raise IntegrityViolation(
+                "retained execution profile catalog digest differs from requested exact ref",
+                catalog_version=catalog_version,
+        )
+        catalog = self._parse_execution_profile_catalog_row(row)
+        for definition in catalog.definitions:
+            retained = self._get_execution_profile_definition(definition)
+            if retained != definition:
+                raise IntegrityViolation(
+                    "execution profile catalog definition history is inconsistent",
+                    catalog_version=catalog.catalog_version,
+                    profile_id=definition.profile.profile_id,
+                    profile_version=definition.profile.version,
+                )
+        return catalog
+
+    def resolve_execution_profile(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        field_path: str,
+        profile: ProfileRefV1,
+        expected_profile_kind: ExecutionProfileKindV1,
+    ) -> ResolvedExecutionProfileBindingV1:
+        if type(profile) is not ProfileRefV1:
+            raise IntegrityViolation("execution profile resolution requires an exact ProfileRef")
+        try:
+            canonical_profile = ProfileRefV1.model_validate(profile.model_dump(mode="json"))
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("execution profile ref is invalid") from exc
+        if canonical_profile != profile:
+            raise IntegrityViolation("execution profile ref is noncanonical")
+        catalog = self.get_execution_profile_catalog(
+            catalog_version=catalog_version,
+            catalog_digest=catalog_digest,
+        )
+        if catalog is None:
+            raise IntegrityViolation(
+                "execution profile catalog history is unavailable",
+                catalog_version=catalog_version,
+            )
+        definition, _ = self._resolve_catalog_profile(catalog, canonical_profile)
+        if definition.profile_kind != expected_profile_kind:
+            raise IntegrityViolation(
+                "execution profile kind differs from the requested binding",
+                profile_id=canonical_profile.profile_id,
+                profile_version=canonical_profile.version,
+            )
+        try:
+            binding = ResolvedExecutionProfileBindingV1(
+                field_path=field_path,
+                profile=canonical_profile,
+                expected_profile_kind=expected_profile_kind,
+                profile_payload_hash=execution_profile_payload_hash(definition),
+                catalog_version=catalog.catalog_version,
+                catalog_digest=catalog.catalog_digest,
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("execution profile binding is invalid") from exc
+        self._validate_execution_profile_binding_in_catalog(binding, catalog)
+        return binding
+
+    def resolve_execution_profile_binding(
+        self,
+        binding: ResolvedExecutionProfileBindingV1,
+    ) -> tuple[ExecutionProfileDefinitionV1, ExecutionProfileLifecycleV1]:
+        if type(binding) is not ResolvedExecutionProfileBindingV1:
+            raise IntegrityViolation(
+                "execution profile resolution requires an exact resolved binding"
+            )
+        try:
+            canonical_binding = ResolvedExecutionProfileBindingV1.model_validate(
+                binding.model_dump(mode="json")
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("execution profile binding is invalid") from exc
+        if canonical_binding != binding:
+            raise IntegrityViolation("execution profile binding is noncanonical")
+        catalog = self.get_execution_profile_catalog(
+            catalog_version=canonical_binding.catalog_version,
+            catalog_digest=canonical_binding.catalog_digest,
+        )
+        if catalog is None:
+            raise IntegrityViolation(
+                "execution profile catalog history is unavailable",
+                catalog_version=canonical_binding.catalog_version,
+            )
+        return self._validate_execution_profile_binding_in_catalog(
+            canonical_binding,
+            catalog,
+        )
+
+    @staticmethod
+    def _validate_catalog_version(catalog_version: int) -> None:
+        if (
+            isinstance(catalog_version, bool)
+            or not isinstance(catalog_version, int)
+            or catalog_version < 1
+        ):
+            raise IntegrityViolation("execution profile catalog version is invalid")
+
+    def _parse_execution_profile_catalog_row(
+        self,
+        row: PolicySnapshotRow,
+    ) -> ExecutionProfileCatalogSnapshotV1:
+        try:
+            catalog_version = int(row.document_version)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "stored execution profile catalog metadata is invalid"
+            ) from exc
+        if str(catalog_version) != row.document_version or catalog_version < 1:
+            raise IntegrityViolation("stored execution profile catalog metadata is invalid")
+        catalog = self._parse_row(
+            row,
+            model_type=ExecutionProfileCatalogSnapshotV1,
+            expected_kind=_EXECUTION_PROFILE_CATALOG_KIND,
+            expected_id=_EXECUTION_PROFILE_CATALOG_ID,
+            expected_version=row.document_version,
+            version_field=None,
+            expected_schema="execution-profile-catalog@1",
+            digest_field="catalog_digest",
+        )
+        if catalog.catalog_version != catalog_version:
+            raise IntegrityViolation("stored policy snapshot payload is noncanonical")
+        return catalog
+
+    def _validate_execution_profile_lifecycle_history(
+        self,
+        candidate: ExecutionProfileCatalogSnapshotV1,
+    ) -> None:
+        catalogs: dict[int, ExecutionProfileCatalogSnapshotV1] = {}
+        rows = self._session.scalars(
+            select(PolicySnapshotRow).where(
+                PolicySnapshotRow.document_kind == _EXECUTION_PROFILE_CATALOG_KIND
+            )
+        ).all()
+        for row in rows:
+            retained = self._parse_execution_profile_catalog_row(row)
+            catalogs[retained.catalog_version] = retained
+
+        retained_candidate = catalogs.get(candidate.catalog_version)
+        if retained_candidate is not None and retained_candidate != candidate:
+            raise IntegrityViolation(
+                "execution profile catalog version has different immutable content",
+                catalog_version=candidate.catalog_version,
+            )
+        catalogs[candidate.catalog_version] = candidate
+
+        history: dict[
+            ProfileRefV1,
+            list[tuple[int, ExecutionProfileLifecycleV1]],
+        ] = {}
+        for catalog_version in sorted(catalogs):
+            for lifecycle in catalogs[catalog_version].lifecycle:
+                history.setdefault(lifecycle.profile, []).append(
+                    (catalog_version, lifecycle)
+                )
+
+        for profile, entries in history.items():
+            first = entries[0][1]
+            previous_changed_at = _parse_lifecycle_changed_at(
+                first.changed_at,
+                profile=profile,
+                catalog_version=entries[0][0],
+            )
+            if first.revision != 1:
+                raise IntegrityViolation(
+                    "execution profile lifecycle must start at revision 1",
+                    profile_id=profile.profile_id,
+                    profile_version=profile.version,
+                    catalog_version=entries[0][0],
+                )
+            previous = first
+            for catalog_version, current in entries[1:]:
+                current_changed_at = _parse_lifecycle_changed_at(
+                    current.changed_at,
+                    profile=profile,
+                    catalog_version=catalog_version,
+                )
+                changed = (current.state, current.reason_code) != (
+                    previous.state,
+                    previous.reason_code,
+                )
+                if not changed:
+                    if (
+                        current.revision != previous.revision
+                        or current.changed_at != previous.changed_at
+                    ):
+                        raise IntegrityViolation(
+                            "unchanged lifecycle must copy revision and changed_at exactly",
+                            profile_id=profile.profile_id,
+                            profile_version=profile.version,
+                            catalog_version=catalog_version,
+                        )
+                else:
+                    if current.revision != previous.revision + 1:
+                        raise IntegrityViolation(
+                            "lifecycle state or reason change must increment revision exactly one",
+                            profile_id=profile.profile_id,
+                            profile_version=profile.version,
+                            catalog_version=catalog_version,
+                        )
+                    if current_changed_at <= previous_changed_at:
+                        raise IntegrityViolation(
+                            "lifecycle state or reason change must refresh changed_at "
+                            "to a strictly later UTC timestamp",
+                            profile_id=profile.profile_id,
+                            profile_version=profile.version,
+                            catalog_version=catalog_version,
+                        )
+                previous = current
+                previous_changed_at = current_changed_at
+
+    def _get_execution_profile_definition(
+        self,
+        catalog_definition: ExecutionProfileDefinitionV1,
+    ) -> ExecutionProfileDefinitionV1:
+        profile = catalog_definition.profile
+        expected_hash = execution_profile_payload_hash(catalog_definition)
+        row = self._session.get(
+            PolicySnapshotRow,
+            (
+                _EXECUTION_PROFILE_DEFINITION_KIND,
+                profile.profile_id,
+                str(profile.version),
+            ),
+        )
+        if row is None:
+            raise IntegrityViolation(
+                "execution profile definition history is unavailable",
+                profile_id=profile.profile_id,
+                profile_version=profile.version,
+            )
+        if row.document_digest != expected_hash:
+            raise IntegrityViolation(
+                "retained execution profile definition digest differs from catalog",
+                profile_id=profile.profile_id,
+                profile_version=profile.version,
+            )
+        retained = self._parse_row(
+            row,
+            model_type=ExecutionProfileDefinitionV1,
+            expected_kind=_EXECUTION_PROFILE_DEFINITION_KIND,
+            expected_id=profile.profile_id,
+            expected_version=str(profile.version),
+            version_field=None,
+            expected_schema="execution-profile@1",
+            digest_field=None,
+        )
+        if retained.profile != profile or execution_profile_payload_hash(retained) != expected_hash:
+            raise IntegrityViolation(
+                "stored execution profile definition payload is noncanonical",
+                profile_id=profile.profile_id,
+                profile_version=profile.version,
+            )
+        return retained
+
+    @staticmethod
+    def _resolve_catalog_profile(
+        catalog: ExecutionProfileCatalogSnapshotV1,
+        profile: ProfileRefV1,
+    ) -> tuple[ExecutionProfileDefinitionV1, ExecutionProfileLifecycleV1]:
+        definitions = [item for item in catalog.definitions if item.profile == profile]
+        lifecycle = [item for item in catalog.lifecycle if item.profile == profile]
+        if len(definitions) != 1 or len(lifecycle) != 1:
+            raise IntegrityViolation(
+                "execution profile ref is not a member or is duplicated in the exact catalog",
+                catalog_version=catalog.catalog_version,
+                profile_id=profile.profile_id,
+                profile_version=profile.version,
+            )
+        return definitions[0], lifecycle[0]
+
+    @classmethod
+    def _validate_execution_profile_binding_in_catalog(
+        cls,
+        binding: ResolvedExecutionProfileBindingV1,
+        catalog: ExecutionProfileCatalogSnapshotV1,
+    ) -> tuple[ExecutionProfileDefinitionV1, ExecutionProfileLifecycleV1]:
+        if (
+            binding.catalog_version != catalog.catalog_version
+            or binding.catalog_digest != catalog.catalog_digest
+        ):
+            raise IntegrityViolation(
+                "execution profile binding differs from the exact catalog identity"
+            )
+        definition, lifecycle = cls._resolve_catalog_profile(catalog, binding.profile)
+        if definition.profile_kind != binding.expected_profile_kind:
+            raise IntegrityViolation(
+                "execution profile kind differs from the resolved binding",
+                profile_id=binding.profile.profile_id,
+                profile_version=binding.profile.version,
+            )
+        if execution_profile_payload_hash(definition) != binding.profile_payload_hash:
+            raise IntegrityViolation(
+                "execution profile payload hash differs from the resolved binding",
+                profile_id=binding.profile.profile_id,
+                profile_version=binding.profile.version,
+            )
+        return definition, lifecycle
 
     def put_domain_registry(self, registry: DomainRegistryV1) -> DomainRegistryV1:
         canonical = _canonical_model(registry, DomainRegistryV1)

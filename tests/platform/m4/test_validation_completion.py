@@ -369,6 +369,29 @@ def test_rollback_validation_requires_full_resolved_profile_binding() -> None:
     assert test.state.terminals == []
 
 
+def test_rollback_validation_rejects_history_revision_drift_from_request() -> None:
+    fixture = rollback_prepared()
+    test = harness(fixture)
+    prepared = fixture[0]
+    payload = prepared.execution.payload
+    stale_payload = payload.model_copy(
+        update={"target_history_revision": payload.target_history_revision + 1}
+    )
+    changed = prepared.model_copy(
+        update={
+            "execution": prepared.execution.model_copy(
+                update={"payload": stale_payload}
+            )
+        }
+    )
+    test.runs.expected = changed.execution
+
+    with pytest.raises(IntegrityViolation, match="history revision"):
+        test.service.complete(prepared=changed, context=context())
+
+    assert test.state.terminals == []
+
+
 @pytest.mark.parametrize(
     "stale",
     [

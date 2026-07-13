@@ -102,6 +102,7 @@ def test_absent_get_and_history_are_distinct_from_create(engine: Engine) -> None
         repository = _repository(session)
 
         assert repository.get("head") is None
+        assert repository.get_history_entry("head", 1) is None
         page = repository.history("head")
 
     assert page.items == ()
@@ -133,6 +134,10 @@ def test_update_matches_artifact_and_revision_and_blocks_aba(engine: Engine) -> 
             repository.compare_and_set("head", first, "artifact-c")
 
         assert repository.get("head") == third
+        assert repository.get_history_entry("head", 1) == first
+        assert repository.get_history_entry("head", 2) == second
+        assert repository.get_history_entry("head", 3) == third
+        assert repository.get_history_entry("head", 4) is None
 
     assert [item.artifact_id for item in _collect_history(engine, "head")] == [
         "artifact-a",
@@ -339,7 +344,63 @@ def test_get_and_cas_fail_closed_when_current_history_disagree(engine: Engine) -
         with pytest.raises(IntegrityViolation, match="current/history"):
             repository.get("head")
         with pytest.raises(IntegrityViolation, match="current/history"):
+            repository.get_history_entry("head", 1)
+        with pytest.raises(IntegrityViolation, match="current/history"):
             repository.compare_and_set("head", created, "artifact-b")
+
+
+def test_get_history_entry_fails_closed_when_retained_revision_is_missing(
+    engine: Engine,
+) -> None:
+    with Session(engine) as session, session.begin():
+        repository = _repository(session)
+        first = repository.compare_and_set("head", None, "artifact-a")
+        repository.compare_and_set("head", first, "artifact-b")
+
+    with Session(engine) as session, session.begin():
+        session.execute(
+            delete(RefHistoryRow).where(
+                RefHistoryRow.name == "head",
+                RefHistoryRow.seq == 1,
+            )
+        )
+
+    with Session(engine) as session:
+        with pytest.raises(IntegrityViolation, match="history entry is missing"):
+            _repository(session).get_history_entry("head", 1)
+
+
+def test_get_history_entry_fails_closed_when_intermediate_revision_is_missing(
+    engine: Engine,
+) -> None:
+    with Session(engine) as session, session.begin():
+        repository = _repository(session)
+        first = repository.compare_and_set("head", None, "artifact-a")
+        second = repository.compare_and_set("head", first, "artifact-b")
+        repository.compare_and_set("head", second, "artifact-c")
+
+    with Session(engine) as session, session.begin():
+        session.execute(
+            delete(RefHistoryRow).where(
+                RefHistoryRow.name == "head",
+                RefHistoryRow.seq == 2,
+            )
+        )
+
+    with Session(engine) as session:
+        with pytest.raises(IntegrityViolation, match="noncontiguous"):
+            _repository(session).get_history_entry("head", 1)
+
+
+@pytest.mark.parametrize(("name", "revision"), [("", 1), ("head", 0), ("head", True)])
+def test_get_history_entry_rejects_noncanonical_lookup_keys(
+    engine: Engine,
+    name: str,
+    revision: int,
+) -> None:
+    with Session(engine) as session:
+        with pytest.raises(IntegrityViolation):
+            _repository(session).get_history_entry(name, revision)
 
 
 @pytest.mark.parametrize("corruption", ["missing-middle", "invalid-artifact", "ahead"])

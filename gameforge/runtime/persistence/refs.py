@@ -6,7 +6,7 @@ import uuid
 from datetime import timedelta, timezone
 
 from pydantic import ValidationError
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -49,6 +49,12 @@ def _query_hash(name: str) -> str:
 def _require_nonempty_string(value: object, *, field_name: str) -> str:
     if not isinstance(value, str) or not value:
         raise IntegrityViolation(f"{field_name} must be a non-empty string")
+    return value
+
+
+def _require_revision(value: object, *, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise IntegrityViolation(f"{field_name} must be a positive integer")
     return value
 
 
@@ -149,6 +155,59 @@ class SqlRefStore:
             return None
         self._verify_current_history(ref_name, current)
         return current
+
+    def get_history_entry(self, name: str, revision: int) -> RefValue | None:
+        """Read one retained ref revision in the caller's transaction snapshot."""
+
+        ref_name = _require_nonempty_string(name, field_name="ref name")
+        target_revision = _require_revision(revision, field_name="ref revision")
+        current = self._load_current(ref_name)
+        if current is None:
+            self._require_no_orphan_history(ref_name)
+            return None
+        self._verify_current_history(ref_name, current)
+
+        if target_revision > current.revision:
+            return None
+        history_count, first_revision, last_revision = self._session.execute(
+            select(
+                func.count(RefHistoryRow.seq),
+                func.min(RefHistoryRow.seq),
+                func.max(RefHistoryRow.seq),
+            )
+            .where(
+                RefHistoryRow.name == ref_name,
+                RefHistoryRow.seq >= 1,
+                RefHistoryRow.seq <= current.revision,
+            )
+        ).one()
+        if (
+            history_count != current.revision
+            or first_revision != 1
+            or last_revision != current.revision
+        ):
+            raise IntegrityViolation(
+                "retained ref history entry is missing or noncontiguous",
+                ref_name=ref_name,
+                retained_count=history_count,
+                first_revision=first_revision,
+                last_revision=last_revision,
+                current_revision=current.revision,
+            )
+        target_row = self._session.scalar(
+            select(RefHistoryRow).where(
+                RefHistoryRow.name == ref_name,
+                RefHistoryRow.seq == target_revision,
+            )
+        )
+        if target_row is None:
+            raise IntegrityViolation(
+                "retained ref history entry is missing or noncontiguous",
+                ref_name=ref_name,
+                requested_revision=target_revision,
+                current_revision=current.revision,
+            )
+        return _parse_history_row(target_row, expected_name=ref_name)
 
     def compare_and_set(
         self,

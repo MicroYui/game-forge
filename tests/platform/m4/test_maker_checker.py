@@ -38,6 +38,7 @@ from gameforge.contracts.workflow import (
 from gameforge.platform.approvals import (
     apply_approval_decision,
     build_approval_requirements,
+    reauthorize_approved_item_for_apply,
 )
 
 
@@ -786,3 +787,383 @@ def test_workflow_revision_and_exact_policy_snapshots_fail_closed() -> None:
                 bad_role,
                 bad_approval,
             )
+
+
+def test_apply_reauthorization_replays_approved_history_without_mutation() -> None:
+    registry = _registry()
+    route = _route_policy(registry, distinct=True)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        domain_ids=("economy", "narrative"),
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+    )
+    bob = _principal(
+        "human:bob",
+        _assignment("human:bob", "content_designer", ("narrative",)),
+    )
+    economy_done = _apply(
+        item,
+        _decision(item, "human:alice", "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    approved = _apply(
+        economy_done,
+        _decision(economy_done, "human:bob", "route:narrative"),
+        bob,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    before = approved.model_dump(mode="json")
+    principals = {alice.id: alice, bob.id: bob}
+
+    result = reauthorize_approved_item_for_apply(
+        item=approved,
+        principal_resolver=principals.get,
+        domain_registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+
+    assert result is None
+    assert approved.model_dump(mode="json") == before
+
+
+@pytest.mark.parametrize(
+    ("current_principal", "message"),
+    [
+        (None, "current principal"),
+        (
+            _principal(
+                "human:reviewer",
+                _assignment("human:reviewer", "numeric_designer", ("economy",)),
+                status="disabled",
+            ),
+            "active human",
+        ),
+        (
+            _principal(
+                "human:reviewer",
+                _assignment("human:reviewer", "numeric_designer", ("economy",)),
+                kind="service",
+            ),
+            "current principal",
+        ),
+        (_principal("human:reviewer"), "route role"),
+        (
+            _principal(
+                "human:reviewer",
+                _assignment("human:reviewer", "numeric_designer", ("narrative",)),
+            ),
+            "current permission",
+        ),
+    ],
+)
+def test_apply_reauthorization_uses_each_decision_actors_current_principal(
+    current_principal: Principal | None,
+    message: str,
+) -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    pending = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+    reviewer = _principal(
+        "human:reviewer",
+        _assignment("human:reviewer", "numeric_designer", ("economy",)),
+    )
+    approved = _apply(
+        pending,
+        _decision(pending, reviewer.id, "route:economy"),
+        reviewer,
+        registry,
+        route,
+        role,
+        approval,
+    )
+
+    with pytest.raises(Forbidden, match=message):
+        reauthorize_approved_item_for_apply(
+            item=approved,
+            principal_resolver=lambda principal_id: (
+                current_principal if principal_id == reviewer.id else None
+            ),
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+
+def test_apply_reauthorization_rechecks_maker_checker_and_assignee() -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    pending = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        assignees={"route:economy": ("human:assigned",)},
+    )
+    assigned = _principal(
+        "human:assigned",
+        _assignment("human:assigned", "numeric_designer", ("economy",)),
+    )
+    approved = _apply(
+        pending,
+        _decision(pending, assigned.id, "route:economy"),
+        assigned,
+        registry,
+        route,
+        role,
+        approval,
+    )
+
+    outsider = _principal(
+        "human:outsider",
+        _assignment("human:outsider", "numeric_designer", ("economy",)),
+    )
+    outsider_decision = approved.decisions[0].model_copy(
+        update={
+            "actor": AuditActor(
+                principal_id=outsider.id,
+                principal_kind="human",
+            )
+        }
+    )
+    outsider_history = approved.model_copy(update={"decisions": (outsider_decision,)})
+    with pytest.raises(Forbidden, match="assigned"):
+        reauthorize_approved_item_for_apply(
+            item=outsider_history,
+            principal_resolver=lambda principal_id: (
+                outsider if principal_id == outsider.id else None
+            ),
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+    maker = _principal(
+        "human:maker",
+        _assignment("human:maker", "numeric_designer", ("economy",)),
+    )
+    maker_decision = approved.decisions[0].model_copy(
+        update={
+            "actor": AuditActor(principal_id=maker.id, principal_kind="human")
+        }
+    )
+    maker_history = approved.model_copy(update={"decisions": (maker_decision,)})
+    with pytest.raises(Forbidden, match="maker-checker"):
+        reauthorize_approved_item_for_apply(
+            item=maker_history,
+            principal_resolver=lambda principal_id: maker,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+
+def test_apply_reauthorization_rejects_incomplete_or_non_approve_history() -> None:
+    registry = _registry()
+    route = _route_policy(registry, economy_min=2)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    pending = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+    )
+    partial = _apply(
+        pending,
+        _decision(pending, alice.id, "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    corrupt_approved = partial.model_copy(
+        update={"status": "approved", "decided_at": NOW}
+    )
+    principals = {alice.id: alice}
+
+    with pytest.raises(IntegrityViolation, match="minimum approvals"):
+        reauthorize_approved_item_for_apply(
+            item=corrupt_approved,
+            principal_resolver=principals.get,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+    terminal_decision = partial.decisions[0].model_copy(
+        update={"decision": "request_changes"}
+    )
+    terminal_history = corrupt_approved.model_copy(
+        update={"decisions": (terminal_decision,)}
+    )
+    with pytest.raises(IntegrityViolation, match="approve decisions"):
+        reauthorize_approved_item_for_apply(
+            item=terminal_history,
+            principal_resolver=principals.get,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+
+def test_apply_reauthorization_rejects_duplicate_and_distinct_actor_coverage() -> None:
+    registry = _registry()
+    route = _route_policy(registry, distinct=True)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    pending = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        domain_ids=("economy", "narrative"),
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+        _assignment("human:alice", "content_designer", ("narrative",)),
+    )
+    bob = _principal(
+        "human:bob",
+        _assignment("human:bob", "content_designer", ("narrative",)),
+    )
+    economy_done = _apply(
+        pending,
+        _decision(pending, alice.id, "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    approved = _apply(
+        economy_done,
+        _decision(economy_done, bob.id, "route:narrative"),
+        bob,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    principals = {alice.id: alice, bob.id: bob}
+
+    duplicate_id = approved.model_copy(
+        update={"decisions": (approved.decisions[0], approved.decisions[0])}
+    )
+    with pytest.raises(IntegrityViolation, match="duplicate decision_id"):
+        reauthorize_approved_item_for_apply(
+            item=duplicate_id,
+            principal_resolver=principals.get,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+    economy = next(
+        decision
+        for decision in approved.decisions
+        if decision.requirement_ids == ("route:economy",)
+    )
+    duplicate_actor = economy.model_copy(update={"decision_id": "decision:duplicate"})
+    duplicate_actor_coverage = approved.model_copy(
+        update={"decisions": (*approved.decisions, duplicate_actor)}
+    )
+    with pytest.raises(IntegrityViolation, match="duplicate actor coverage"):
+        reauthorize_approved_item_for_apply(
+            item=duplicate_actor_coverage,
+            principal_resolver=principals.get,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+    narrative = next(
+        decision
+        for decision in approved.decisions
+        if decision.requirement_ids == ("route:narrative",)
+    )
+    same_actor_narrative = narrative.model_copy(
+        update={
+            "actor": AuditActor(principal_id=alice.id, principal_kind="human")
+        }
+    )
+    distinct_violation = approved.model_copy(
+        update={
+            "decisions": tuple(
+                same_actor_narrative
+                if decision.decision_id == narrative.decision_id
+                else decision
+                for decision in approved.decisions
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation, match="distinct requirement"):
+        reauthorize_approved_item_for_apply(
+            item=distinct_violation,
+            principal_resolver=principals.get,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+
+
+def test_apply_reauthorization_accepts_only_approved_items() -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    pending = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+
+    with pytest.raises(InvalidStateTransition, match="approved status"):
+        reauthorize_approved_item_for_apply(
+            item=pending,
+            principal_resolver=lambda principal_id: None,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )

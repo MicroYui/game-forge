@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from gameforge.contracts.errors import (
     Conflict,
     Forbidden,
@@ -341,4 +343,111 @@ def apply_approval_decision(
     return ApprovalItem.model_validate(payload)
 
 
-__all__ = ["apply_approval_decision", "validate_approval_policy_bindings"]
+def reauthorize_approved_item_for_apply(
+    *,
+    item: ApprovalItem,
+    principal_resolver: Callable[[str], Principal | None],
+    domain_registry: DomainRegistryV1,
+    route_policy: DomainRoutePolicy,
+    role_policy: RolePolicy,
+    approval_policy: ApprovalPolicyV1,
+) -> None:
+    """Revalidate every retained human approval against current identities.
+
+    This is a pure apply-time guard. It neither appends decisions nor advances the
+    ApprovalItem; the caller performs the guarded state transition in its UnitOfWork.
+    """
+
+    if item.status != "approved":
+        raise InvalidStateTransition(
+            "apply reauthorization requires approved status",
+            current_status=item.status,
+        )
+    validate_approval_policy_bindings(
+        item=item,
+        domain_registry=domain_registry,
+        route_policy=route_policy,
+        role_policy=role_policy,
+        approval_policy=approval_policy,
+    )
+
+    requirements = {
+        requirement.requirement_id: requirement for requirement in item.requirements
+    }
+    approved_actors: dict[str, set[str]] = {
+        requirement_id: set() for requirement_id in requirements
+    }
+    decision_ids: set[str] = set()
+
+    for decision in item.decisions:
+        if decision.decision_id in decision_ids:
+            raise IntegrityViolation(
+                "approved history contains a duplicate decision_id",
+                decision_id=decision.decision_id,
+            )
+        decision_ids.add(decision.decision_id)
+        if decision.decision != "approve":
+            raise IntegrityViolation(
+                "approved history must contain only approve decisions",
+                decision_id=decision.decision_id,
+                decision=decision.decision,
+            )
+
+        unknown = set(decision.requirement_ids) - requirements.keys()
+        if unknown:
+            raise IntegrityViolation(
+                "approval decision references an unknown requirement",
+                decision_id=decision.decision_id,
+                unknown_requirement_ids=sorted(unknown),
+            )
+
+        principal = principal_resolver(decision.actor.principal_id)
+        if principal is None:
+            raise Forbidden(
+                "approval decision actor has no current principal",
+                decision_id=decision.decision_id,
+                principal_id=decision.actor.principal_id,
+            )
+        _require_current_actor(item=item, decision=decision, principal=principal)
+
+        for requirement_id in decision.requirement_ids:
+            requirement = requirements[requirement_id]
+            _require_current_permission(
+                principal=principal,
+                requirement=requirement,
+                role_policy=role_policy,
+                domain_registry=domain_registry,
+            )
+            if principal.id in approved_actors[requirement_id]:
+                raise IntegrityViolation(
+                    "approved history contains duplicate actor coverage",
+                    principal_id=principal.id,
+                    requirement_id=requirement_id,
+                )
+            approved_actors[requirement_id].add(principal.id)
+
+    for requirement_id, requirement in requirements.items():
+        actors = approved_actors[requirement_id]
+        if len(actors) < requirement.min_approvals:
+            raise IntegrityViolation(
+                "approved history does not satisfy minimum approvals",
+                requirement_id=requirement_id,
+                required=requirement.min_approvals,
+                actual=len(actors),
+            )
+        for distinct_id in _distinct_requirement_ids(requirement_id, requirements):
+            shared_actors = actors.intersection(approved_actors[distinct_id])
+            if shared_actors:
+                raise IntegrityViolation(
+                    "approved history violates distinct requirement constraints",
+                    requirement_id=requirement_id,
+                    distinct_requirement_id=distinct_id,
+                    principal_ids=sorted(shared_actors),
+                )
+
+
+__all__ = [
+    "apply_approval_decision",
+    "reauthorize_approved_item_for_apply",
+    "validate_approval_policy_bindings",
+]
