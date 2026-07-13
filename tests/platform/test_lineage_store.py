@@ -8,7 +8,15 @@ the Task 12 schema and that `ancestors` matches `spine`'s in-memory
 `LineageGraph` semantics.
 """
 
-from gameforge.contracts.lineage import Artifact, VersionTuple
+import pytest
+
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.lineage import (
+    Artifact,
+    VersionTuple,
+    build_artifact_v2,
+    object_ref_for_bytes,
+)
 from gameforge.platform.lineage.store import SqlArtifactStore, SqlRefStore
 from gameforge.runtime.persistence.engine import get_engine, get_sessionmaker
 from gameforge.runtime.persistence.models import Base
@@ -40,6 +48,43 @@ def test_sql_artifact_put_is_idempotent(tmp_path):
     store.put(ir)
     store.put(ir)  # re-put same artifact_id must not raise / must not duplicate
     assert len(store.all()) == 1
+
+
+def test_sql_artifact_put_rejects_same_id_with_changed_content(tmp_path):
+    sf = _sf(tmp_path)
+    store = SqlArtifactStore(sf)
+    vt = VersionTuple(ir_snapshot_id="sha256:s")
+    original = Artifact(
+        artifact_id="a_ir",
+        kind="ir_snapshot",
+        version_tuple=vt,
+        lineage=[],
+        meta={"revision": 1},
+    )
+    changed = original.model_copy(update={"meta": {"revision": 2}})
+    store.put(original)
+
+    with pytest.raises(IntegrityViolation, match="immutable content"):
+        store.put(changed)
+
+    assert store.get("a_ir") == original
+
+
+def test_sql_artifact_store_fails_closed_for_v2_without_object_store_binding(tmp_path):
+    store = SqlArtifactStore(_sf(tmp_path))
+    ref = object_ref_for_bytes(b"payload")
+    artifact = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(ir_snapshot_id=f"sha256:{ref.sha256}"),
+        lineage=(),
+        payload_hash=ref.sha256,
+        object_ref=ref,
+    )
+
+    with pytest.raises(IntegrityViolation, match="active ObjectBinding"):
+        store.put(artifact)
+
+    assert store.get(artifact.artifact_id) is None
 
 
 def test_sql_artifact_round_trips_full_fields(tmp_path):

@@ -18,45 +18,24 @@ so this reuse is intentional, not a layering violation.
 
 from __future__ import annotations
 
+import secrets
 from typing import Callable
 
-from sqlalchemy import func
+from sqlalchemy import Engine, func, select
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.lineage import Artifact, VersionTuple
+from gameforge.contracts.lineage import ArtifactV1, ArtifactV2
+from gameforge.contracts.storage import ObjectStore
+from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
+from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.models import ArtifactRow, RefHistoryRow, RefRow
+from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
+from gameforge.runtime.persistence.transaction import TransactionCapabilities
+from gameforge.runtime.persistence.uow import SqliteUnitOfWork
 from gameforge.spine.versioning.store import InMemoryArtifactStore, LineageGraph
 
 SessionFactory = Callable[[], Session]
-
-
-def _row_to_artifact(row: ArtifactRow) -> Artifact:
-    """Reconstruct a full `Artifact` (all lineage/version-tuple fields) from
-    its persisted row — the Task 12 columns cover every `Artifact` field, so
-    nothing is lost on the round trip."""
-    return Artifact(
-        artifact_id=row.artifact_id,
-        lineage_schema_version=row.lineage_schema_version,
-        kind=row.kind,
-        version_tuple=VersionTuple(**row.version_tuple),
-        lineage=list(row.lineage),
-        payload_hash=row.payload_hash,
-        created_at=row.created_at,
-        meta=dict(row.meta) if row.meta is not None else {},
-    )
-
-
-def _artifact_to_row(artifact: Artifact) -> ArtifactRow:
-    return ArtifactRow(
-        artifact_id=artifact.artifact_id,
-        lineage_schema_version=artifact.lineage_schema_version,
-        kind=artifact.kind,
-        version_tuple=artifact.version_tuple.model_dump(),
-        lineage=list(artifact.lineage),
-        payload_hash=artifact.payload_hash,
-        created_at=artifact.created_at,
-        meta=dict(artifact.meta),
-    )
 
 
 class SqlArtifactStore:
@@ -65,28 +44,73 @@ class SqlArtifactStore:
     `ancestors` (which `spine`'s in-memory store leaves to a separate
     `LineageGraph`)."""
 
-    def __init__(self, session_factory: SessionFactory) -> None:
+    def __init__(
+        self,
+        session_factory: SessionFactory,
+        *,
+        object_store: ObjectStore | None = None,
+        default_store_id: str | None = None,
+    ) -> None:
+        if (object_store is None) != (default_store_id is None):
+            raise ValueError("object_store and default_store_id must be provided together")
         self._session_factory = session_factory
+        with session_factory() as session:
+            bind = session.get_bind()
+            self._engine = bind if isinstance(bind, Engine) else bind.engine
+        self._object_store = object_store
+        self._default_store_id = default_store_id
+        self._clock = SystemUtcClock()
+        self._cursor_signer = CursorSigner(
+            signing_key=secrets.token_bytes(32),
+            clock=self._clock,
+        )
+        self._unit_of_work = SqliteUnitOfWork(self._engine, self._capabilities)
 
-    def put(self, artifact: Artifact) -> str:
-        """Persist `artifact`. Idempotent: artifacts are immutable and
-        content-addressed by `artifact_id`, so re-putting the same id is a
-        no-op overwrite of identical content (a `merge`, not an insert that
-        would raise on a duplicate primary key)."""
-        with self._session_factory() as session:
-            session.merge(_artifact_to_row(artifact))
-            session.commit()
+    def _repository(self, session: Session) -> SqlArtifactRepository:
+        binding_repository = None
+        if self._object_store is not None and self._default_store_id is not None:
+            binding_repository = SqlObjectBindingRepository(
+                session,
+                object_store=self._object_store,
+                default_store_id=self._default_store_id,
+            )
+        return SqlArtifactRepository(
+            session,
+            binding_repository=binding_repository,
+            cursor_signer=self._cursor_signer,
+            clock=self._clock,
+        )
+
+    def _capabilities(self, session: Session) -> TransactionCapabilities:
+        unavailable = object()
+        return TransactionCapabilities(
+            refs=unavailable,
+            audit=unavailable,
+            approvals=unavailable,
+            lineage=self._repository(session),
+            object_bindings=unavailable,
+            runs=unavailable,
+            cost=unavailable,
+        )
+
+    def put(self, artifact: ArtifactV1 | ArtifactV2) -> str:
+        """Publish through the immutable repository and an owning SQLite UoW."""
+        with self._unit_of_work.begin() as transaction:
+            transaction.lineage.put(artifact)
         return artifact.artifact_id
 
-    def get(self, artifact_id: str) -> Artifact | None:
+    def get(self, artifact_id: str) -> ArtifactV1 | ArtifactV2 | None:
         with self._session_factory() as session:
-            row = session.get(ArtifactRow, artifact_id)
-            return None if row is None else _row_to_artifact(row)
+            return self._repository(session).get(artifact_id)
 
-    def all(self) -> list[Artifact]:
+    def all(self) -> list[ArtifactV1 | ArtifactV2]:
         with self._session_factory() as session:
-            rows = session.query(ArtifactRow).all()
-            return [_row_to_artifact(row) for row in rows]
+            repository = self._repository(session)
+            artifact_ids = session.scalars(
+                select(ArtifactRow.artifact_id).order_by(ArtifactRow.artifact_id)
+            ).all()
+            artifacts = [repository.get(artifact_id) for artifact_id in artifact_ids]
+            return [artifact for artifact in artifacts if artifact is not None]
 
     def ancestors(self, artifact_id: str) -> list[str]:
         """Transitive parents, computed by materializing every persisted
@@ -113,9 +137,11 @@ class SqlRefStore:
                 session.add(RefRow(name=name, artifact_id=artifact_id))
             else:
                 row.artifact_id = artifact_id
-            next_seq = session.query(func.max(RefHistoryRow.seq)).filter(
-                RefHistoryRow.name == name
-            ).scalar()
+            next_seq = (
+                session.query(func.max(RefHistoryRow.seq))
+                .filter(RefHistoryRow.name == name)
+                .scalar()
+            )
             next_seq = 1 if next_seq is None else next_seq + 1
             session.add(RefHistoryRow(name=name, artifact_id=artifact_id, seq=next_seq))
             session.commit()
