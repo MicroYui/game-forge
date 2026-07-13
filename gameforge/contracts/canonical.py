@@ -42,6 +42,23 @@ def canonical_json(payload: Any) -> str:
     )
 
 
+def sha256_lowerhex(payload: bytes | bytearray | memoryview) -> str:
+    """Return the canonical bare SHA-256 representation used by M4 digests.
+
+    Artifact ids and other namespaced ids keep their historical ``sha256:``
+    prefix.  M4 integrity fields such as ``ObjectRef.sha256`` and audit content
+    hashes use exactly 64 lowercase hexadecimal characters instead.
+    """
+
+    return hashlib.sha256(bytes(payload)).hexdigest()
+
+
+def canonical_sha256(payload: Any) -> str:
+    """Hash canonical JSON as a bare, lowercase SHA-256 digest."""
+
+    return sha256_lowerhex(canonical_json(payload).encode("utf-8"))
+
+
 def compute_snapshot_id(content_payload: Mapping) -> str:
-    digest = hashlib.sha256(canonical_json(content_payload).encode("utf-8")).hexdigest()
+    digest = canonical_sha256(content_payload)
     return f"sha256:{digest}"

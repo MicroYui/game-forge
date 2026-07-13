@@ -8,6 +8,17 @@ PATCH_SCHEMA_VERSION = "patch@1"
 DSL_GRAMMAR_VERSION = "dsl@1"
 LINEAGE_SCHEMA_VERSION = "lineage@1"
 AUDIT_SCHEMA_VERSION = "audit@1"
+# Additive M4 discriminators.  The legacy constants above intentionally remain
+# unchanged because existing constructors and persisted rows still mean v1.
+LINEAGE_SCHEMA_VERSION_V2 = "lineage@2"
+AUDIT_SCHEMA_VERSION_V2 = "audit@2"
+PATCH_SCHEMA_VERSION_V2 = "patch@2"
+FINDING_REVISION_SCHEMA_VERSION = "finding-revision@1"
+FINDING_PAYLOAD_SCHEMA_VERSION = "finding-payload@1"
+OBJECT_REF_SCHEMA_VERSION = "object-ref@1"
+OBJECT_LOCATION_SCHEMA_VERSION = "object-location@1"
+OBJECT_BINDING_SCHEMA_VERSION = "object-binding@1"
+EXECUTION_IDENTITY_SCHEMA_VERSION = "execution-identity@1"
 REVIEW_SCHEMA_VERSION = "review@1"
 TOOL_VERSION = "gameforge@0.0.0"  # checker/compiler tool version for the version tuple
 MODEL_ROUTER_SCHEMA_VERSION = "model-router@1"

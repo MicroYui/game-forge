@@ -13,7 +13,13 @@ from typing import Any, Literal, Mapping
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from gameforge.contracts.canonical import canonical_json
-from gameforge.contracts.versions import FINDING_SCHEMA_VERSION, PATCH_SCHEMA_VERSION
+from gameforge.contracts.versions import (
+    FINDING_PAYLOAD_SCHEMA_VERSION,
+    FINDING_REVISION_SCHEMA_VERSION,
+    FINDING_SCHEMA_VERSION,
+    PATCH_SCHEMA_VERSION,
+    PATCH_SCHEMA_VERSION_V2,
+)
 
 Severity = Literal["critical", "major", "minor"]
 FindingSource = Literal["checker", "sim", "playtest", "llm"]
@@ -90,7 +96,7 @@ class FindingPayloadV1(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    payload_schema_version: FindingPayloadSchemaVersion = "finding-payload@1"
+    payload_schema_version: FindingPayloadSchemaVersion = FINDING_PAYLOAD_SCHEMA_VERSION
     source: FindingSource
     producer_id: str
     producer_run_id: str
@@ -113,7 +119,7 @@ class FindingRevisionV1(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    revision_schema_version: FindingRevisionSchemaVersion = "finding-revision@1"
+    revision_schema_version: FindingRevisionSchemaVersion = FINDING_REVISION_SCHEMA_VERSION
     finding_id: str = Field(min_length=1)
     revision: int = Field(ge=1)
     supersedes_revision: int | None = Field(default=None, ge=1)
@@ -134,7 +140,7 @@ class FindingDigestPayloadV1(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    revision_schema_version: FindingRevisionSchemaVersion = "finding-revision@1"
+    revision_schema_version: FindingRevisionSchemaVersion = FINDING_REVISION_SCHEMA_VERSION
     finding_id: str
     revision: int
     supersedes_revision: int | None = None
@@ -166,7 +172,7 @@ class PatchV2(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    patch_schema_version: PatchV2SchemaVersion = "patch@2"
+    patch_schema_version: PatchV2SchemaVersion = PATCH_SCHEMA_VERSION_V2
     revision: int = Field(ge=1)
     supersedes_artifact_id: str | None = None
     base_snapshot_id: str = Field(min_length=1)
