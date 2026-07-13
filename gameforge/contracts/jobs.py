@@ -2026,9 +2026,12 @@ class ArtifactParentRuleV1(_FrozenModel):
 
     @model_validator(mode="after")
     def _source_fields(self) -> "ArtifactParentRuleV1":
-        if (self.source == "prepared_rule") != (self.source_rule_id is not None):
+        binding_source = self.source
+        if (binding_source == "prepared_rule") != (self.source_rule_id is not None):
             raise ValueError("source_rule_id belongs only to prepared_rule")
-        if (self.source == "child_payload_reference") != (self.child_payload_pointer is not None):
+        if (binding_source == "child_payload_reference") != (
+            self.child_payload_pointer is not None
+        ):
             raise ValueError("child_payload_pointer belongs only to child_payload_reference")
         if self.max_count is not None and self.max_count < self.min_count:
             raise ValueError("max_count cannot be below min_count")
@@ -2062,7 +2065,8 @@ class VersionFieldProjectionRuleV1(_FrozenModel):
 
     @model_validator(mode="after")
     def _parent_source(self) -> "VersionFieldProjectionRuleV1":
-        if (self.source == "parent_role") != (self.parent_role is not None):
+        projection_source = self.source
+        if (projection_source == "parent_role") != (self.parent_role is not None):
             raise ValueError("parent_role field belongs only to parent_role source")
         return self
 
