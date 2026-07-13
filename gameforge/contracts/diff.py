@@ -15,13 +15,14 @@ from pydantic import (
     model_validator,
 )
 
-from gameforge.contracts.canonical import canonical_json
-from gameforge.contracts.storage import PageV1
+from gameforge.contracts.canonical import canonical_json, sha256_lowerhex, typed_canonical_json
+from gameforge.contracts.storage import PageV1, RefValue
 
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 JsonPointer = str
+MAX_CONFLICT_ITEMS = 1024
 
 
 class _FrozenModel(BaseModel):
@@ -178,9 +179,83 @@ class ConflictSet(_FrozenModel):
     current_snapshot_id: NonEmptyStr
     proposed_patch_artifact_id: NonEmptyStr
     expected_ref_revision: int = Field(ge=1)
-    conflict_count: int = Field(ge=1)
+    conflict_count: int = Field(ge=1, le=MAX_CONFLICT_ITEMS)
     non_conflicting_ops_digest: Sha256Hex
     created_at: NonEmptyStr
+
+
+class CollectionIdentityV1(_FrozenModel):
+    """One exact array path whose members are merged by a stable identity field."""
+
+    path: JsonPointer
+    identity_key: NonEmptyStr
+
+    @field_validator("path")
+    @classmethod
+    def _valid_pointer(cls, value: str) -> str:
+        if not _is_json_pointer(value):
+            raise ValueError("path must be an RFC 6901 JSON Pointer")
+        return value
+
+
+def compute_merge_policy_digest(
+    policy_version: str,
+    collection_identities: tuple[CollectionIdentityV1, ...],
+) -> str:
+    payload = {
+        "policy_schema_version": "three-way-merge-policy@1",
+        "policy_version": policy_version,
+        "collection_identities": [
+            identity.model_dump(mode="json") for identity in collection_identities
+        ],
+    }
+    return sha256_lowerhex(typed_canonical_json(payload).encode("utf-8"))
+
+
+class ThreeWayMergePolicyV1(_FrozenModel):
+    """Exact identity declarations retained so conflict resolution is replayable."""
+
+    policy_schema_version: Literal["three-way-merge-policy@1"] = (
+        "three-way-merge-policy@1"
+    )
+    policy_version: NonEmptyStr
+    collection_identities: tuple[CollectionIdentityV1, ...]
+    policy_digest: Sha256Hex
+
+    @field_validator("collection_identities")
+    @classmethod
+    def _canonical_identities(
+        cls,
+        value: tuple[CollectionIdentityV1, ...],
+    ) -> tuple[CollectionIdentityV1, ...]:
+        paths = tuple(identity.path for identity in value)
+        if paths != tuple(sorted(paths)) or len(paths) != len(set(paths)):
+            raise ValueError("collection identities must be uniquely sorted by path")
+        return value
+
+    @model_validator(mode="after")
+    def _digest_matches(self) -> "ThreeWayMergePolicyV1":
+        expected = compute_merge_policy_digest(
+            self.policy_version,
+            self.collection_identities,
+        )
+        if self.policy_digest != expected:
+            raise ValueError("merge policy digest does not match its payload")
+        return self
+
+
+class ConflictSetContextV1(_FrozenModel):
+    """Internal immutable guard needed to reject stale conflict resolutions."""
+
+    context_schema_version: Literal["conflict-set-context@1"] = "conflict-set-context@1"
+    subject_series_id: NonEmptyStr
+    expected_subject_artifact_id: NonEmptyStr
+    expected_approval_id: NonEmptyStr
+    expected_subject_head_revision: int = Field(ge=1)
+    expected_workflow_revision: int = Field(ge=1)
+    ref_name: NonEmptyStr
+    expected_ref: RefValue
+    merge_policy: ThreeWayMergePolicyV1
 
 
 class _KeepCurrentResolution(_FrozenModel):

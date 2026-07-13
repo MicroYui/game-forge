@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 
+import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from sqlalchemy import Inspector, inspect, text
@@ -112,6 +114,18 @@ def _column_type(url: str, table: str, column_name: str) -> str:
     try:
         columns = {
             str(column["name"]): str(column["type"]).upper()
+            for column in inspector.get_columns(table)
+        }
+        return columns[column_name]
+    finally:
+        engine.dispose()
+
+
+def _column_is_nullable(url: str, table: str, column_name: str) -> bool:
+    inspector, engine = _inspect(url)
+    try:
+        columns = {
+            str(column["name"]): bool(column["nullable"])
             for column in inspector.get_columns(table)
         }
         return columns[column_name]
@@ -255,6 +269,96 @@ def _insert_legacy_fixture(url: str) -> None:
         engine.dispose()
 
 
+def _insert_pre_context_conflict_set(url: str) -> None:
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO artifacts (
+                        artifact_id, lineage_schema_version, kind, version_tuple, lineage
+                    ) VALUES (
+                        'legacy-patch', 'lineage@1', 'patch', '{}', '[]'
+                    )
+                    """
+                )
+            )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO conflict_sets (
+                        conflict_set_id, schema_version, base_snapshot_id,
+                        current_snapshot_id, proposed_patch_artifact_id,
+                        expected_ref_revision, conflict_count,
+                        non_conflicting_ops_digest, created_at
+                    ) VALUES (
+                        'legacy-conflict-set', 'conflict-set@1', 'base-snapshot',
+                        'current-snapshot', 'legacy-patch', 3, 0,
+                        'sha256:legacy-non-conflicting-ops', '2026-07-13T00:00:00Z'
+                    )
+                    """
+                )
+            )
+    finally:
+        engine.dispose()
+
+
+def _insert_pre_context_orphan_merge_conflict(database_path: str) -> None:
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("PRAGMA foreign_keys=OFF")
+        connection.execute(
+            """
+            INSERT INTO merge_conflicts (
+                conflict_set_id, ordinal, conflict_id, path, kind,
+                base, current, proposed, allowed_resolutions
+            ) VALUES (
+                'orphan-set', 1, 'orphan-conflict', '/value', 'concurrent_change',
+                '{"presence":"present","value":1}',
+                '{"presence":"present","value":2}',
+                '{"presence":"present","value":3}',
+                '["keep_current","take_proposed"]'
+            )
+            """
+        )
+
+
+def _insert_current_conflict_set(url: str) -> None:
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO artifacts (
+                        artifact_id, lineage_schema_version, kind, version_tuple, lineage
+                    ) VALUES (
+                        'current-patch', 'lineage@1', 'patch', '{}', '[]'
+                    )
+                    """
+                )
+            )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO conflict_sets (
+                        conflict_set_id, schema_version, base_snapshot_id,
+                        current_snapshot_id, proposed_patch_artifact_id,
+                        expected_ref_revision, conflict_count,
+                        non_conflicting_ops_digest, created_at, context, content_digest
+                    ) VALUES (
+                        'current-conflict-set', 'conflict-set@1', 'base-snapshot',
+                        'current-snapshot', 'current-patch', 3, 1,
+                        :digest, '2026-07-13T00:00:00Z', '{}', :digest
+                    )
+                    """
+                ),
+                {"digest": "a" * 64},
+            )
+    finally:
+        engine.dispose()
+
+
 def _legacy_projection(url: str) -> dict[str, list[tuple[object, ...]]]:
     queries = {
         "artifacts": """
@@ -377,6 +481,7 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
         "path",
         "ordinal",
     )
+    assert "context" not in _column_names(url, "conflict_sets")
     assert "WHERE active_validation_run_id IS NOT NULL" in _sqlite_schema_sql(
         url,
         "index",
@@ -415,6 +520,19 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
     )
     assert ("run_id", "client_id", "client_seq") in _unique_keys(url, "run_commands")
 
+    m.upgrade(url, "0005")
+    assert _current_revision(url) == "0005"
+    assert "context" in _column_names(url, "conflict_sets")
+    assert "content_digest" in _column_names(url, "conflict_sets")
+    assert "content_digest" in _column_names(url, "merge_conflicts")
+    assert not _column_is_nullable(url, "conflict_sets", "context")
+    assert not _column_is_nullable(url, "conflict_sets", "content_digest")
+    assert not _column_is_nullable(url, "merge_conflicts", "content_digest")
+
+    m.downgrade(url, "0004")
+    assert "context" not in _column_names(url, "conflict_sets")
+    assert "content_digest" not in _column_names(url, "conflict_sets")
+    assert "content_digest" not in _column_names(url, "merge_conflicts")
     m.downgrade(url, "0003")
     assert not (_RUN_TABLES & _table_names(url))
     m.downgrade(url, "0002")
@@ -432,7 +550,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0004"
+    assert _current_revision(url) == "0005"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -452,8 +570,86 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0004"
+    assert _current_revision(url) == "0005"
     assert _legacy_projection(url) == expected
+
+
+def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
+    tmp_path,
+) -> None:
+    url = f"sqlite:///{tmp_path / 'empty-conflicts.db'}"
+    m.upgrade(url, "0004")
+    assert "context" not in _column_names(url, "conflict_sets")
+
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0005"
+    assert "context" in _column_names(url, "conflict_sets")
+    assert "content_digest" in _column_names(url, "conflict_sets")
+    assert "content_digest" in _column_names(url, "merge_conflicts")
+    assert not _column_is_nullable(url, "conflict_sets", "context")
+
+    m.downgrade(url, "0004")
+    assert _current_revision(url) == "0004"
+    assert "context" not in _column_names(url, "conflict_sets")
+    assert "content_digest" not in _column_names(url, "conflict_sets")
+    assert "content_digest" not in _column_names(url, "merge_conflicts")
+
+
+def test_0004_nonempty_conflict_store_refuses_to_invent_context(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'nonempty-conflicts.db'}"
+    m.upgrade(url, "0004")
+    _insert_pre_context_conflict_set(url)
+
+    with pytest.raises(
+        RuntimeError,
+        match="cannot add required conflict_sets.context while legacy rows exist",
+    ):
+        m.upgrade(url, "head")
+
+    assert _current_revision(url) == "0004"
+    assert "context" not in _column_names(url, "conflict_sets")
+    assert _fetch_one(
+        url,
+        "SELECT conflict_set_id FROM conflict_sets",
+    ) == ("legacy-conflict-set",)
+
+
+def test_0004_orphan_merge_conflict_refuses_upgrade_before_any_ddl(tmp_path) -> None:
+    database_path = tmp_path / "orphan-conflict.db"
+    url = f"sqlite:///{database_path}"
+    m.upgrade(url, "0004")
+    _insert_pre_context_orphan_merge_conflict(str(database_path))
+
+    with pytest.raises(RuntimeError, match="legacy conflict rows exist"):
+        m.upgrade(url, "head")
+
+    assert _current_revision(url) == "0004"
+    assert "context" not in _column_names(url, "conflict_sets")
+    assert "content_digest" not in _column_names(url, "conflict_sets")
+    assert "content_digest" not in _column_names(url, "merge_conflicts")
+    assert _fetch_one(
+        url,
+        "SELECT conflict_id FROM merge_conflicts",
+    ) == ("orphan-conflict",)
+
+
+def test_0005_downgrade_refuses_to_discard_retained_conflict_authority(
+    tmp_path,
+) -> None:
+    url = f"sqlite:///{tmp_path / 'retained-current-conflict.db'}"
+    m.upgrade(url, "head")
+    _insert_current_conflict_set(url)
+
+    with pytest.raises(RuntimeError, match="cannot remove immutable conflict-set"):
+        m.downgrade(url, "0004")
+
+    assert _current_revision(url) == "0005"
+    assert "context" in _column_names(url, "conflict_sets")
+    assert "content_digest" in _column_names(url, "conflict_sets")
+    assert _fetch_one(
+        url,
+        "SELECT conflict_set_id FROM conflict_sets",
+    ) == ("current-conflict-set",)
 
 
 def test_alembic_head_matches_runtime_metadata(tmp_path) -> None:

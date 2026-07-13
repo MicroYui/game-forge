@@ -38,12 +38,13 @@ from gameforge.contracts.lineage import (
     ObjectLocation,
     ObjectRef,
 )
-from gameforge.contracts.storage import UtcClock
+from gameforge.contracts.storage import RefValue, UtcClock
 from gameforge.contracts.workflow import (
     ApprovalDecision,
     ApprovalItem,
     ApprovalPolicyRefV1,
     ApprovalPolicyV1,
+    PatchTargetBindingV1,
     RollbackRequestV1,
     RollbackTargetBindingV1,
     SubjectHead,
@@ -329,6 +330,10 @@ class IdempotencyRepository(Protocol):
     ) -> dict[str, Any]: ...
 
 
+class RefReader(Protocol):
+    def get(self, name: str) -> RefValue | None: ...
+
+
 class ApprovalAuditWriter(Protocol):
     def append(
         self,
@@ -416,6 +421,7 @@ class ApprovalCommandCapabilities:
     lineage: DraftLineageVerifier | None
     evidence: ApprovalEvidenceGateway | None
     auto_apply: ApprovalAutoApplyGateway | None = None
+    refs: RefReader | None = None
 
 
 class ApprovalUnitOfWork(Protocol):
@@ -473,135 +479,204 @@ class ApprovalCommandService:
     ) -> DraftPublicationResult:
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
-            approvals = _required(capabilities.approvals, "approvals")
-            policies = _required(capabilities.policies, "policies")
-            artifacts = _required(capabilities.artifacts, "artifacts")
-            bindings = _required(capabilities.object_bindings, "object_bindings")
-            idempotency = _required(capabilities.idempotency, "idempotency")
-            audit = _required(capabilities.audit, "audit")
-            runs = capabilities.runs
-            subjects = _required(capabilities.subjects, "subjects")
-            lineage = _required(capabilities.lineage, "lineage")
-
-            item = prepared.approval_item
-            self._validate_new_draft(item, context)
-            registry, route, role, approval_policy = self._resolve_policies(
-                item=item,
-                policies=policies,
-            )
-            validate_approval_policy_bindings(
-                item=item,
-                domain_registry=registry,
-                route_policy=route,
-                role_policy=role,
-                approval_policy=approval_policy,
-            )
-            facts = subjects.inspect_draft_subject(prepared.subject_artifact)
-            self._validate_subject_facts(
+            return self._publish_draft_in_transaction(
                 prepared=prepared,
-                facts=facts,
                 context=context,
-                runs=runs,
-            )
-            retained_parents = self._validate_lineage_parents(prepared, artifacts)
-            lineage.validate_draft_publication(
-                prepared=prepared,
-                retained_parent_ids=retained_parents,
-            )
-            self._validate_target_binding(prepared, facts, artifacts)
-
-            expected_head = self._next_head(prepared)
-            replay = self._get_idempotent(
-                idempotency,
-                context,
+                capabilities=capabilities,
                 operation="approval.publish_draft",
             )
-            if replay is not None:
-                result = self._draft_publication_response(replay)
-                if result.approval_item != item or result.subject_head != expected_head:
-                    raise IntegrityViolation("draft idempotency result differs from prepared draft")
-                return result
 
-            current = approvals.current(item.subject_series_id)
-            old_item: ApprovalItem | None = None
-            if prepared.expected_subject_head is None:
-                if current is not None:
-                    raise Conflict("draft expected no current SubjectHead")
-                if (
-                    item.subject_revision != 1
-                    or item.supersedes_approval_id is not None
-                    or facts.supersedes_artifact_id is not None
-                ):
-                    raise IntegrityViolation(
-                        "initial draft must be revision 1 without supersedes bindings"
-                    )
-            else:
-                if current is None or current[0] != prepared.expected_subject_head:
-                    raise Conflict("draft SubjectHead precondition did not match")
-                old_item = current[1]
-                self._validate_superseding_draft(prepared, facts, old_item)
-
-            for binding in prepared.object_bindings:
-                published_binding = bindings.bind_verified(
-                    binding.object_ref,
-                    binding.location,
-                    binding.expected_revision,
-                )
-                if (
-                    published_binding.object_ref != binding.object_ref
-                    or published_binding.location != binding.location
-                    or published_binding.status != "active"
-                ):
-                    raise IntegrityViolation("ObjectBinding publisher returned another binding")
-            for artifact in self._topological_artifacts(prepared):
-                if artifacts.put(artifact) != artifact:
-                    raise IntegrityViolation("Artifact publisher returned another Artifact")
-
-            if old_item is not None:
-                old_replacement = self._superseded_item(old_item)
-                if old_item.active_validation_run_id is not None:
-                    _required(runs, "runs").request_validation_cancel(
-                        run_id=old_item.active_validation_run_id,
-                        reason="subject_superseded",
-                        requested_by=context.actor,
-                    )
-                approvals.compare_and_set(
-                    old_item.approval_id,
-                    old_item.workflow_revision,
-                    old_replacement,
-                )
-            approvals.insert_draft(item)
-            approvals.compare_and_set_subject_head(
-                item.subject_series_id,
-                prepared.expected_subject_head,
-                expected_head,
+    def publish_rebased_draft(
+        self,
+        *,
+        prepared: PreparedDraft,
+        context: ApprovalCommandContext,
+        expected_ref: RefValue,
+    ) -> DraftPublicationResult:
+        with self._unit_of_work.begin() as transaction:
+            return self.publish_rebased_draft_in_transaction(
+                transaction=transaction,
+                prepared=prepared,
+                context=context,
+                expected_ref=expected_ref,
             )
 
-            if old_item is not None:
-                self._audit(
-                    audit,
-                    context,
-                    action="approval.superseded",
-                    item=old_item,
+    def publish_rebased_draft_in_transaction(
+        self,
+        *,
+        transaction: Any,
+        prepared: PreparedDraft,
+        context: ApprovalCommandContext,
+        expected_ref: RefValue,
+    ) -> DraftPublicationResult:
+        capabilities = self._bind_capabilities(transaction)
+        refs = _required(capabilities.refs, "refs")
+        binding = prepared.approval_item.target_binding
+        if not isinstance(binding, PatchTargetBindingV1):
+            raise IntegrityViolation("rebased draft requires a Patch target binding")
+        if binding.expected_ref != expected_ref:
+            raise IntegrityViolation(
+                "rebased draft expected ref differs from its target binding"
+            )
+        actual_ref = refs.get(binding.ref_name)
+        if actual_ref != expected_ref:
+            raise Conflict(
+                "rebased draft ref precondition did not match",
+                ref_name=binding.ref_name,
+                expected=expected_ref.model_dump(mode="json"),
+                actual=(
+                    None
+                    if actual_ref is None
+                    else actual_ref.model_dump(mode="json")
+                ),
+            )
+        return self._publish_draft_in_transaction(
+            prepared=prepared,
+            context=context,
+            capabilities=capabilities,
+            operation="approval.publish_rebased_draft",
+        )
+
+    def _publish_draft_in_transaction(
+        self,
+        *,
+        prepared: PreparedDraft,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+        operation: Literal[
+            "approval.publish_draft",
+            "approval.publish_rebased_draft",
+        ],
+    ) -> DraftPublicationResult:
+        approvals = _required(capabilities.approvals, "approvals")
+        policies = _required(capabilities.policies, "policies")
+        artifacts = _required(capabilities.artifacts, "artifacts")
+        bindings = _required(capabilities.object_bindings, "object_bindings")
+        idempotency = _required(capabilities.idempotency, "idempotency")
+        audit = _required(capabilities.audit, "audit")
+        runs = capabilities.runs
+        subjects = _required(capabilities.subjects, "subjects")
+        lineage = _required(capabilities.lineage, "lineage")
+
+        item = prepared.approval_item
+        self._validate_new_draft(item, context)
+        registry, route, role, approval_policy = self._resolve_policies(
+            item=item,
+            policies=policies,
+        )
+        validate_approval_policy_bindings(
+            item=item,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval_policy,
+        )
+        facts = subjects.inspect_draft_subject(prepared.subject_artifact)
+        self._validate_subject_facts(
+            prepared=prepared,
+            facts=facts,
+            context=context,
+            runs=runs,
+        )
+        retained_parents = self._validate_lineage_parents(prepared, artifacts)
+        lineage.validate_draft_publication(
+            prepared=prepared,
+            retained_parent_ids=retained_parents,
+        )
+        self._validate_target_binding(prepared, facts, artifacts)
+
+        expected_head = self._next_head(prepared)
+        replay = self._get_idempotent(
+            idempotency,
+            context,
+            operation=operation,
+        )
+        if replay is not None:
+            result = self._draft_publication_response(replay)
+            if result.approval_item != item or result.subject_head != expected_head:
+                raise IntegrityViolation("draft idempotency result differs from prepared draft")
+            return result
+
+        current = approvals.current(item.subject_series_id)
+        old_item: ApprovalItem | None = None
+        if prepared.expected_subject_head is None:
+            if current is not None:
+                raise Conflict("draft expected no current SubjectHead")
+            if (
+                item.subject_revision != 1
+                or item.supersedes_approval_id is not None
+                or facts.supersedes_artifact_id is not None
+            ):
+                raise IntegrityViolation(
+                    "initial draft must be revision 1 without supersedes bindings"
                 )
+        else:
+            if current is None or current[0] != prepared.expected_subject_head:
+                raise Conflict("draft SubjectHead precondition did not match")
+            old_item = current[1]
+            self._validate_superseding_draft(prepared, facts, old_item)
+
+        for binding in prepared.object_bindings:
+            published_binding = bindings.bind_verified(
+                binding.object_ref,
+                binding.location,
+                binding.expected_revision,
+            )
+            if (
+                published_binding.object_ref != binding.object_ref
+                or published_binding.location != binding.location
+                or published_binding.status != "active"
+            ):
+                raise IntegrityViolation("ObjectBinding publisher returned another binding")
+        for artifact in self._topological_artifacts(prepared):
+            if artifacts.put(artifact) != artifact:
+                raise IntegrityViolation("Artifact publisher returned another Artifact")
+
+        if old_item is not None:
+            old_replacement = self._superseded_item(old_item)
+            if old_item.active_validation_run_id is not None:
+                _required(runs, "runs").request_validation_cancel(
+                    run_id=old_item.active_validation_run_id,
+                    reason="subject_superseded",
+                    requested_by=context.actor,
+                )
+            approvals.compare_and_set(
+                old_item.approval_id,
+                old_item.workflow_revision,
+                old_replacement,
+            )
+        approvals.insert_draft(item)
+        approvals.compare_and_set_subject_head(
+            item.subject_series_id,
+            prepared.expected_subject_head,
+            expected_head,
+        )
+
+        if old_item is not None:
             self._audit(
                 audit,
                 context,
-                action="approval.draft_published",
-                item=item,
+                action="approval.superseded",
+                item=old_item,
             )
-            result = DraftPublicationResult(
-                approval_item=item,
-                subject_head=expected_head,
-            )
-            self._put_idempotent(
-                idempotency,
-                context,
-                operation="approval.publish_draft",
-                item=item,
-                response=result.model_dump(mode="json"),
-            )
-            return result
+        self._audit(
+            audit,
+            context,
+            action="approval.draft_published",
+            item=item,
+        )
+        result = DraftPublicationResult(
+            approval_item=item,
+            subject_head=expected_head,
+        )
+        self._put_idempotent(
+            idempotency,
+            context,
+            operation=operation,
+            item=item,
+            response=result.model_dump(mode="json"),
+        )
+        return result
 
     def start_validation(
         self,
@@ -1492,6 +1567,7 @@ __all__ = [
     "PreparedDraft",
     "PreparedObjectBinding",
     "PreparedValidationStart",
+    "RefReader",
     "SubjectPayloadGateway",
     "ValidationStartResult",
 ]

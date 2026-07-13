@@ -400,6 +400,8 @@ class ConflictSetRow(Base):
     conflict_count: Mapped[int] = mapped_column(Integer, nullable=False)
     non_conflicting_ops_digest: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[str] = mapped_column(String, nullable=False)
+    context: Mapped[dict] = mapped_column(JSON, nullable=False)
+    content_digest: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class MergeConflictRow(Base):
@@ -422,6 +424,7 @@ class MergeConflictRow(Base):
     current: Mapped[dict] = mapped_column(JSON, nullable=False)
     proposed: Mapped[dict] = mapped_column(JSON, nullable=False)
     allowed_resolutions: Mapped[list] = mapped_column(JSON, nullable=False)
+    content_digest: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class IdempotencyRecordRow(Base):

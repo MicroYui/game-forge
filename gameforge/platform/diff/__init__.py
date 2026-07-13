@@ -10,6 +10,11 @@ from gameforge.platform.diff.service import (
     SnapshotDiffService,
     SnapshotDiffSlice,
 )
+from gameforge.platform.diff.three_way import (
+    ThreeWayMergePlan,
+    compute_three_way_merge,
+    resolve_three_way_merge,
+)
 
 __all__ = [
     "CollectionIdentity",
@@ -17,5 +22,8 @@ __all__ = [
     "SnapshotCanonicalViewRepository",
     "SnapshotDiffService",
     "SnapshotDiffSlice",
+    "ThreeWayMergePlan",
+    "compute_three_way_merge",
     "iter_snapshot_diff_entries",
+    "resolve_three_way_merge",
 ]

@@ -24,6 +24,10 @@ class Conflict(GameForgeError):
     code = "revision_conflict"
 
 
+class StaleConflictSet(Conflict):
+    code = "stale_conflict_set"
+
+
 class CursorInvalid(GameForgeError):
     code = "invalid_cursor"
 

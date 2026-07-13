@@ -562,7 +562,7 @@ JsonValueState     { presence:missing|present, value? }
 MergeConflict      { id, path, kind, base:JsonValueState, current:JsonValueState, proposed:JsonValueState,
                      allowed_resolutions:[keep_current|take_proposed|custom] }
 ConflictSet        { schema_version, id, base_snapshot_id, current_snapshot_id, proposed_patch_artifact_id,
-                     expected_ref_revision, conflict_count, non_conflicting_ops_digest, created_at }
+                     expected_ref_revision, conflict_count:1..1024, non_conflicting_ops_digest, created_at }
 ConflictResolution { conflict_id, choice, custom_value? }
 RebaseResult       { status:clean|conflicted, new_patch_artifact_id?, conflict_set_id? }
 ```

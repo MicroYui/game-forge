@@ -183,7 +183,9 @@ def _canonicalize_declared_collections(
     value: Any,
     identities: Mapping[str, CollectionIdentity],
 ) -> None:
-    ordered_paths = sorted(identities, key=lambda path: (-path.count("/"), path))
+    # A child pointer containing an array index addresses the parent's canonical
+    # identity order, not its arbitrary input order. Normalize parents first.
+    ordered_paths = sorted(identities, key=lambda path: (path.count("/"), path))
     for path in ordered_paths:
         declaration = identities[path]
         collection = _resolve_pointer(value, path)

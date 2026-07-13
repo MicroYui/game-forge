@@ -242,6 +242,7 @@ class _State:
     audit: list[tuple[str, AuditSubject]] = field(default_factory=list)
     cancellations: list[str] = field(default_factory=list)
     started_runs: list[str] = field(default_factory=list)
+    refs: dict[str, RefValue] = field(default_factory=dict)
 
 
 class _ApprovalRepo:
@@ -302,6 +303,14 @@ class _ApprovalRepo:
         if head is None:
             return None
         return head, self.state.approvals[head.current_approval_id]
+
+
+class _Refs:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+
+    def get(self, name: str) -> RefValue | None:
+        return self.state.refs.get(name)
 
 
 class _Artifacts:
@@ -565,10 +574,12 @@ class _UowContext(AbstractContextManager[object]):
 class _Uow:
     def __init__(self, state: _State) -> None:
         self.state = state
+        self.begins = 0
         self.commits = 0
         self.rollbacks = 0
 
     def begin(self) -> _UowContext:
+        self.begins += 1
         return _UowContext(self)
 
 
@@ -614,6 +625,7 @@ def _harness() -> _Harness:
         lineage=lineage,
         evidence=evidence,
         auto_apply=auto_apply,
+        refs=_Refs(state),
     )
     uow = _Uow(state)
     service = ApprovalCommandService(
@@ -902,6 +914,119 @@ def test_publish_draft_atomically_publishes_bindings_artifacts_item_head_and_aud
             prepared=prepared,
             context=_context(request_hash="8" * 64),
         )
+
+
+def test_publish_draft_does_not_require_the_rebased_ref_participant() -> None:
+    harness = _harness()
+    harness.capabilities.refs = None
+
+    prepared, result = _publish(harness)
+
+    assert result.approval_item == prepared.approval_item
+    assert harness.state.heads[result.subject_head.subject_series_id] == result.subject_head
+
+
+@pytest.mark.parametrize(
+    "actual_ref",
+    [
+        RefValue(artifact_id="artifact:concurrent", revision=1),
+        RefValue(artifact_id="artifact:base", revision=2),
+    ],
+)
+def test_publish_rebased_draft_rejects_ref_drift_before_any_write(
+    actual_ref: RefValue,
+) -> None:
+    harness = _harness()
+    first, first_result = _publish(harness)
+    second = _draft(
+        harness,
+        revision=2,
+        supersedes_artifact_id=first.subject_artifact.artifact_id,
+        supersedes_approval_id=first.approval_item.approval_id,
+        expected_head=first_result.subject_head,
+    )
+    expected_ref = RefValue(artifact_id="artifact:base", revision=1)
+    harness.state.refs["content/head"] = actual_ref
+    before = copy.deepcopy(harness.state)
+
+    with pytest.raises(Conflict, match="ref precondition"):
+        harness.service.publish_rebased_draft(
+            prepared=second,
+            context=_context(key="rebase:2", request_hash="7" * 64),
+            expected_ref=expected_ref,
+        )
+
+    assert harness.state == before
+    assert harness.uow.rollbacks == 1
+
+
+def test_publish_rebased_draft_checks_ref_and_supersedes_in_one_uow() -> None:
+    harness = _harness()
+    first, first_result = _publish(harness)
+    expected_ref = RefValue(artifact_id="artifact:base", revision=1)
+    harness.state.refs["content/head"] = expected_ref
+    second = _draft(
+        harness,
+        revision=2,
+        supersedes_artifact_id=first.subject_artifact.artifact_id,
+        supersedes_approval_id=first.approval_item.approval_id,
+        expected_head=first_result.subject_head,
+    )
+    context = _context(key="rebase:2", request_hash="7" * 64)
+
+    result = harness.service.publish_rebased_draft(
+        prepared=second,
+        context=context,
+        expected_ref=expected_ref,
+    )
+
+    assert harness.state.approvals[first.approval_item.approval_id].status == "superseded"
+    assert result.approval_item == second.approval_item
+    assert harness.state.heads[second.approval_item.subject_series_id] == result.subject_head
+    assert [action for action, _ in harness.state.audit][-2:] == [
+        "approval.superseded",
+        "approval.draft_published",
+    ]
+    assert (
+        context.idempotency_scope,
+        "approval.publish_rebased_draft",
+        context.idempotency_key,
+    ) in harness.state.idempotency
+    assert (
+        context.idempotency_scope,
+        "approval.publish_draft",
+        context.idempotency_key,
+    ) not in harness.state.idempotency
+
+
+def test_publish_rebased_draft_participates_in_callers_transaction_without_nesting() -> None:
+    harness = _harness()
+    first, first_result = _publish(harness)
+    expected_ref = RefValue(artifact_id="artifact:base", revision=1)
+    harness.state.refs["content/head"] = expected_ref
+    second = _draft(
+        harness,
+        revision=2,
+        supersedes_artifact_id=first.subject_artifact.artifact_id,
+        supersedes_approval_id=first.approval_item.approval_id,
+        expected_head=first_result.subject_head,
+    )
+
+    assert harness.uow.begins == 1
+    with harness.uow.begin() as transaction:
+        result = harness.service.publish_rebased_draft_in_transaction(
+            transaction=transaction,
+            prepared=second,
+            context=_context(key="rebase:outer", request_hash="6" * 64),
+            expected_ref=expected_ref,
+        )
+
+        assert harness.uow.begins == 2
+        assert harness.uow.commits == 1
+
+    assert harness.uow.commits == 2
+    assert result.approval_item == second.approval_item
+    assert harness.state.heads[second.approval_item.subject_series_id] == result.subject_head
 
 
 @pytest.mark.parametrize("preview_count", [0, 2])

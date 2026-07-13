@@ -4,16 +4,21 @@ import pytest
 from pydantic import ValidationError
 
 from gameforge.contracts.diff import (
+    CollectionIdentityV1,
     ConflictResolution,
     ConflictSet,
+    ConflictSetContextV1,
     JsonValueState,
+    MAX_CONFLICT_ITEMS,
     MergeConflict,
     RebaseResult,
     SnapshotDiff,
     SnapshotDiffEntry,
     SnapshotDiffEntryPage,
+    ThreeWayMergePolicyV1,
+    compute_merge_policy_digest,
 )
-from gameforge.contracts.storage import PageV1
+from gameforge.contracts.storage import PageV1, RefValue
 
 
 def test_json_value_state_distinguishes_missing_from_present_null() -> None:
@@ -90,6 +95,49 @@ def test_rebase_result_is_a_closed_status_union() -> None:
         RebaseResult(status="conflicted", new_patch_artifact_id="patch:2")
 
 
+def test_conflict_context_retains_exact_workflow_ref_and_merge_policy() -> None:
+    identities = (
+        CollectionIdentityV1(path="/entities", identity_key="id"),
+        CollectionIdentityV1(path="/relations", identity_key="id"),
+    )
+    policy = ThreeWayMergePolicyV1(
+        policy_version="ir-schema@1",
+        collection_identities=identities,
+        policy_digest=compute_merge_policy_digest("ir-schema@1", identities),
+    )
+    context = ConflictSetContextV1(
+        subject_series_id="patch-series:1",
+        expected_subject_artifact_id="artifact:patch:1",
+        expected_approval_id="approval:patch:1",
+        expected_subject_head_revision=3,
+        expected_workflow_revision=7,
+        ref_name="content/head",
+        expected_ref=RefValue(artifact_id="artifact:current", revision=11),
+        merge_policy=policy,
+    )
+
+    assert ConflictSetContextV1.model_validate(context.model_dump(mode="json")) == context
+
+
+def test_merge_policy_rejects_unsorted_duplicate_or_mismatched_identity_bindings() -> None:
+    first = CollectionIdentityV1(path="/z", identity_key="id")
+    second = CollectionIdentityV1(path="/a", identity_key="key")
+    with pytest.raises(ValidationError, match="uniquely sorted"):
+        ThreeWayMergePolicyV1(
+            policy_version="policy@1",
+            collection_identities=(first, second),
+            policy_digest="0" * 64,
+        )
+
+    identities = (second, first)
+    with pytest.raises(ValidationError, match="digest"):
+        ThreeWayMergePolicyV1(
+            policy_version="policy@1",
+            collection_identities=identities,
+            policy_digest="0" * 64,
+        )
+
+
 def test_snapshot_diff_count_and_conflict_count_are_exact() -> None:
     entry = SnapshotDiffEntry(
         path="/entities/q~01/attrs/reward",
@@ -138,6 +186,14 @@ def test_snapshot_diff_count_and_conflict_count_are_exact() -> None:
             {
                 **entry_page.model_dump(mode="json"),
                 "diff": {**diff.model_dump(mode="json"), "entry_count": 0},
+            }
+        )
+
+    with pytest.raises(ValidationError):
+        ConflictSet.model_validate(
+            {
+                **conflict_set.model_dump(mode="json"),
+                "conflict_count": MAX_CONFLICT_ITEMS + 1,
             }
         )
 
