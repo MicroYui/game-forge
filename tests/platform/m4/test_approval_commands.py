@@ -1,0 +1,1665 @@
+from __future__ import annotations
+
+import copy
+from contextlib import AbstractContextManager
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any, Literal
+
+import pytest
+from pydantic import ValidationError
+
+from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.execution_profiles import (
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+)
+from gameforge.contracts.findings import PatchV2
+from gameforge.contracts.identity import (
+    DomainDefinitionV1,
+    DomainRegistryRefV1,
+    DomainRegistryV1,
+    DomainRoutePolicy,
+    DomainRouteRule,
+    DomainScope,
+    Permission,
+    Principal,
+    RoleAssignmentV1,
+    RolePolicy,
+    compute_domain_registry_digest,
+    compute_domain_route_policy_digest,
+    compute_role_policy_digest,
+)
+from gameforge.contracts.lineage import (
+    ArtifactV2,
+    AuditActor,
+    AuditCorrelation,
+    AuditSubject,
+    ObjectBinding,
+    ObjectLocation,
+    ObjectRef,
+    VersionTuple,
+    build_artifact_v2,
+    object_key_for_sha256,
+)
+from gameforge.contracts.storage import RefValue
+from gameforge.contracts.workflow import (
+    ApprovalDecision,
+    ApprovalItem,
+    ApprovalPolicyRefV1,
+    ApprovalPolicyV1,
+    PatchTargetBindingV1,
+    ConstraintTargetBindingV1,
+    RollbackRequestV1,
+    RollbackTargetBindingV1,
+    SubjectHead,
+    compute_approval_policy_digest,
+)
+from gameforge.platform.approvals import build_approval_requirements
+from gameforge.platform.approvals.commands import (
+    ApprovalCommandCapabilities,
+    ApprovalCommandContext,
+    ApprovalCommandService,
+    DraftPublicationResult,
+    DraftSubjectFacts,
+    EvidenceStateProjection,
+    PreparedDraft,
+    PreparedObjectBinding,
+    PreparedValidationStart,
+    ValidationStartResult,
+)
+from gameforge.runtime.clock import FrozenUtcClock
+
+
+NOW_DT = datetime(2026, 7, 14, 12, 0, tzinfo=timezone.utc)
+NOW = "2026-07-14T12:00:00Z"
+
+
+def _registry() -> DomainRegistryV1:
+    definitions = (
+        DomainDefinitionV1(
+            domain_id="economy",
+            display_name="Economy",
+            status="active",
+        ),
+    )
+    return DomainRegistryV1(
+        registry_version="domains@1",
+        definitions=definitions,
+        registry_digest=compute_domain_registry_digest("domains@1", definitions),
+    )
+
+
+def _domain_ref(registry: DomainRegistryV1) -> DomainRegistryRefV1:
+    return DomainRegistryRefV1(
+        registry_version=registry.registry_version,
+        registry_digest=registry.registry_digest,
+    )
+
+
+def _route(registry: DomainRegistryV1) -> DomainRoutePolicy:
+    rules = (
+        DomainRouteRule(
+            rule_id="route:economy",
+            domain_selector=DomainScope(domain_ids=("economy",)),
+            subject_kinds=("patch", "constraint_proposal", "rollback_request"),
+            route_role="numeric_designer",
+            required_action="approval.decide",
+            resource_kind="approval",
+            min_approvals=1,
+        ),
+    )
+    ref = _domain_ref(registry)
+    return DomainRoutePolicy(
+        route_version="routes@1",
+        domain_registry_ref=ref,
+        rules=rules,
+        effective_from=NOW,
+        route_digest=compute_domain_route_policy_digest("routes@1", ref, rules, NOW),
+    )
+
+
+def _roles(registry: DomainRegistryV1) -> RolePolicy:
+    ref = _domain_ref(registry)
+    grants = {
+        "numeric_designer": (
+            Permission(
+                action="approval.decide",
+                resource_kind="approval",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+        )
+    }
+    return RolePolicy(
+        policy_version="roles@1",
+        domain_registry_ref=ref,
+        grants=grants,
+        effective_from=NOW,
+        policy_digest=compute_role_policy_digest("roles@1", ref, grants, NOW),
+    )
+
+
+def _approval_policy() -> ApprovalPolicyV1:
+    fields = {
+        "policy_version": "approval-policy@1",
+        "subject_kinds": ("patch", "constraint_proposal", "rollback_request"),
+        "maker_checker_required": True,
+        "human_approver_required": True,
+        "reauthorize_on_decision": True,
+        "reauthorize_on_apply": True,
+        "rollback_requires_approval": True,
+        "terminal_revision_immutable": True,
+    }
+    return ApprovalPolicyV1(
+        **fields,
+        policy_digest=compute_approval_policy_digest(**fields),
+    )
+
+
+def _artifact(
+    kind: str,
+    digest_char: str,
+    *parents: str,
+    ir_snapshot_id: str | None = "snapshot:base",
+    constraint_snapshot_id: str | None = None,
+) -> ArtifactV2:
+    digest = digest_char * 64
+    ref = ObjectRef(
+        key=object_key_for_sha256(digest),
+        sha256=digest,
+        size_bytes=10,
+    )
+    return build_artifact_v2(
+        kind=kind,  # type: ignore[arg-type]
+        version_tuple=VersionTuple(
+            ir_snapshot_id=ir_snapshot_id,
+            constraint_snapshot_id=constraint_snapshot_id,
+            tool_version="workflow-test@1",
+        ),
+        lineage=parents,
+        payload_hash=digest,
+        object_ref=ref,
+    )
+
+
+def _location(artifact: ArtifactV2) -> ObjectLocation:
+    return ObjectLocation(
+        store_id="local",
+        key=artifact.object_ref.key,
+        backend_generation=f"generation:{artifact.payload_hash[:8]}",
+    )
+
+
+def _patch() -> PatchV2:
+    return PatchV2(
+        revision=1,
+        base_snapshot_id="snapshot:base",
+        target_snapshot_id="snapshot:preview",
+        expected_to_fix=[],
+        preconditions=[],
+        side_effect_risk="low",
+        ops=[],
+        produced_by="human",
+        rationale="author revision",
+    )
+
+
+def _principal(principal_id: str) -> Principal:
+    assignment = RoleAssignmentV1(
+        assignment_id=f"assignment:{principal_id}",
+        principal_id=principal_id,
+        role="numeric_designer",
+        scope=DomainScope(domain_ids=("economy",)),
+        status="active",
+        revision=1,
+        granted_at=NOW,
+        granted_by=AuditActor(principal_id="human:admin", principal_kind="human"),
+    )
+    return Principal(
+        id=principal_id,
+        kind="human",
+        display_name=principal_id,
+        status="active",
+        revision=1,
+        credential_epoch=0,
+        authz_revision=1,
+        roles=(assignment,),
+    )
+
+
+@dataclass
+class _State:
+    approvals: dict[str, ApprovalItem] = field(default_factory=dict)
+    heads: dict[str, SubjectHead] = field(default_factory=dict)
+    artifacts: dict[str, ArtifactV2] = field(default_factory=dict)
+    bindings: dict[tuple[str, str], ObjectBinding] = field(default_factory=dict)
+    idempotency: dict[tuple[str, str, str], tuple[str, dict[str, Any]]] = field(
+        default_factory=dict
+    )
+    audit: list[tuple[str, AuditSubject]] = field(default_factory=list)
+    cancellations: list[str] = field(default_factory=list)
+    started_runs: list[str] = field(default_factory=list)
+
+
+class _ApprovalRepo:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+
+    def insert_draft(self, item: ApprovalItem) -> ApprovalItem:
+        current = self.state.approvals.get(item.approval_id)
+        if current is not None and current != item:
+            raise IntegrityViolation("approval collision")
+        self.state.approvals[item.approval_id] = item
+        return item
+
+    def get(self, approval_id: str) -> ApprovalItem | None:
+        return self.state.approvals.get(approval_id)
+
+    def compare_and_set(
+        self,
+        approval_id: str,
+        expected_workflow_revision: int,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        current = self.state.approvals.get(approval_id)
+        if current is None or current.workflow_revision != expected_workflow_revision:
+            raise Conflict("approval CAS")
+        self.state.approvals[approval_id] = replacement
+        return replacement
+
+    def append_decision_and_compare_and_set(
+        self,
+        approval_id: str,
+        expected_workflow_revision: int,
+        decision: ApprovalDecision,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        return self.compare_and_set(
+            approval_id,
+            expected_workflow_revision,
+            replacement,
+        )
+
+    def get_subject_head(self, subject_series_id: str) -> SubjectHead | None:
+        return self.state.heads.get(subject_series_id)
+
+    def compare_and_set_subject_head(
+        self,
+        subject_series_id: str,
+        expected: SubjectHead | None,
+        replacement: SubjectHead,
+    ) -> SubjectHead:
+        if self.state.heads.get(subject_series_id) != expected:
+            raise Conflict("head CAS")
+        self.state.heads[subject_series_id] = replacement
+        return replacement
+
+    def current(self, subject_series_id: str) -> tuple[SubjectHead, ApprovalItem] | None:
+        head = self.state.heads.get(subject_series_id)
+        if head is None:
+            return None
+        return head, self.state.approvals[head.current_approval_id]
+
+
+class _Artifacts:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+
+    def get(self, artifact_id: str) -> ArtifactV2 | None:
+        return self.state.artifacts.get(artifact_id)
+
+    def put(self, artifact: ArtifactV2) -> ArtifactV2:
+        current = self.get(artifact.artifact_id)
+        if current is not None and current != artifact:
+            raise IntegrityViolation("artifact collision")
+        self.state.artifacts[artifact.artifact_id] = artifact
+        return artifact
+
+
+class _Bindings:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+
+    def bind_verified(
+        self,
+        ref: ObjectRef,
+        location: ObjectLocation,
+        expected_revision: int | None,
+    ) -> ObjectBinding:
+        key = (ref.key, location.store_id)
+        current = self.state.bindings.get(key)
+        if current is not None:
+            return current
+        binding = ObjectBinding(
+            object_ref=ref,
+            location=location,
+            status="active",
+            revision=1,
+            verified_at=NOW,
+        )
+        self.state.bindings[key] = binding
+        return binding
+
+
+class _Policies:
+    def __init__(
+        self,
+        registry: DomainRegistryV1,
+        route: DomainRoutePolicy,
+        roles: RolePolicy,
+        approval: ApprovalPolicyV1,
+    ) -> None:
+        self.registry = registry
+        self.route = route
+        self.roles = roles
+        self.approval = approval
+
+    def get_domain_registry(self, ref: DomainRegistryRefV1) -> DomainRegistryV1 | None:
+        return self.registry if ref == _domain_ref(self.registry) else None
+
+    def get_domain_route_policy(self, ref: Any) -> DomainRoutePolicy | None:
+        return self.route if ref.route_digest == self.route.route_digest else None
+
+    def get_role_policy(self, version: str, digest: str) -> RolePolicy | None:
+        return (
+            self.roles
+            if (version, digest) == (self.roles.policy_version, self.roles.policy_digest)
+            else None
+        )
+
+    def get_approval_policy(self, ref: ApprovalPolicyRefV1) -> ApprovalPolicyV1 | None:
+        expected = ApprovalPolicyRefV1(
+            policy_version=self.approval.policy_version,
+            policy_digest=self.approval.policy_digest,
+        )
+        return self.approval if ref == expected else None
+
+
+class _Idempotency:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+
+    def get_result(
+        self, *, scope: str, operation: str, key: str, request_hash: str
+    ) -> dict[str, Any] | None:
+        retained = self.state.idempotency.get((scope, operation, key))
+        if retained is None:
+            return None
+        retained_hash, response = retained
+        if retained_hash != request_hash:
+            raise Conflict("different request")
+        return copy.deepcopy(response)
+
+    def put_result(
+        self,
+        *,
+        scope: str,
+        operation: str,
+        key: str,
+        request_hash: str,
+        resource_kind: str,
+        resource_id: str,
+        response: dict[str, Any],
+    ) -> dict[str, Any]:
+        self.state.idempotency[(scope, operation, key)] = (
+            request_hash,
+            copy.deepcopy(response),
+        )
+        return copy.deepcopy(response)
+
+
+class _Audit:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+        self.fail = False
+
+    def append(
+        self,
+        *,
+        chain_id: str,
+        actor: AuditActor,
+        initiated_by: AuditActor | None,
+        action: str,
+        subject: AuditSubject,
+        correlation: AuditCorrelation,
+    ) -> object:
+        if self.fail:
+            raise IntegrityViolation("audit unavailable")
+        self.state.audit.append((action, subject))
+        return object()
+
+
+class _Runs:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+        self.produced: set[tuple[str, str, str]] = set()
+
+    def verify_producer_membership(
+        self,
+        *,
+        run_id: str,
+        artifact_id: str,
+        initiated_by: AuditActor,
+    ) -> None:
+        identity = (run_id, artifact_id, initiated_by.principal_id)
+        if identity not in self.produced:
+            raise IntegrityViolation("producer membership is unavailable")
+
+    def start_validation(
+        self,
+        *,
+        prepared: PreparedValidationStart,
+        item: ApprovalItem,
+        initiated_by: AuditActor,
+    ) -> str:
+        self.state.started_runs.append(prepared.run_id)
+        return prepared.run_id
+
+    def request_validation_cancel(
+        self,
+        *,
+        run_id: str,
+        reason: str,
+        requested_by: AuditActor,
+    ) -> None:
+        self.state.cancellations.append(run_id)
+
+
+class _Subjects:
+    def __init__(self) -> None:
+        self.facts: dict[str, DraftSubjectFacts] = {}
+        self.patches: dict[str, PatchV2] = {}
+
+    def inspect_draft_subject(self, artifact: ArtifactV2) -> DraftSubjectFacts:
+        try:
+            return self.facts[artifact.artifact_id]
+        except KeyError as exc:
+            raise IntegrityViolation("subject payload is unavailable") from exc
+
+    def load_patch(self, artifact: ArtifactV2) -> PatchV2:
+        try:
+            return self.patches[artifact.artifact_id]
+        except KeyError as exc:
+            raise IntegrityViolation("patch payload is unavailable") from exc
+
+
+class _Lineage:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.fail = False
+
+    def validate_draft_publication(
+        self,
+        *,
+        prepared: PreparedDraft,
+        retained_parent_ids: tuple[str, ...],
+    ) -> None:
+        self.calls += 1
+        if self.fail:
+            raise IntegrityViolation("lineage policy rejected draft")
+
+
+class _Evidence:
+    def __init__(self) -> None:
+        self.projection = EvidenceStateProjection(
+            validation_status="passed",
+            regression_status="passed",
+        )
+        self.fail = False
+
+    def validate_submission(
+        self,
+        *,
+        item: ApprovalItem,
+        subject_artifact: ArtifactV2,
+        target_artifact: ArtifactV2,
+        evidence_artifact: ArtifactV2,
+        regression_artifacts: tuple[ArtifactV2, ...],
+    ) -> EvidenceStateProjection:
+        if self.fail:
+            raise IntegrityViolation("evidence binding rejected")
+        return self.projection
+
+    def project_state(
+        self,
+        *,
+        item: ApprovalItem,
+    ) -> EvidenceStateProjection:
+        return self.projection
+
+
+class _UowContext(AbstractContextManager[object]):
+    def __init__(self, owner: "_Uow") -> None:
+        self.owner = owner
+        self.snapshot: dict[str, Any] | None = None
+
+    def __enter__(self) -> object:
+        self.snapshot = copy.deepcopy(self.owner.state.__dict__)
+        return object()
+
+    def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> bool:
+        if exc_type is not None:
+            assert self.snapshot is not None
+            self.owner.state.__dict__.clear()
+            self.owner.state.__dict__.update(self.snapshot)
+            self.owner.rollbacks += 1
+        else:
+            self.owner.commits += 1
+        return False
+
+
+class _Uow:
+    def __init__(self, state: _State) -> None:
+        self.state = state
+        self.commits = 0
+        self.rollbacks = 0
+
+    def begin(self) -> _UowContext:
+        return _UowContext(self)
+
+
+@dataclass
+class _Harness:
+    state: _State
+    uow: _Uow
+    capabilities: ApprovalCommandCapabilities
+    service: ApprovalCommandService
+    subjects: _Subjects
+    lineage: _Lineage
+    evidence: _Evidence
+    runs: _Runs
+    audit: _Audit
+    registry: DomainRegistryV1
+    route: DomainRoutePolicy
+    roles: RolePolicy
+    approval_policy: ApprovalPolicyV1
+
+
+def _harness() -> _Harness:
+    state = _State()
+    registry = _registry()
+    route = _route(registry)
+    roles = _roles(registry)
+    approval = _approval_policy()
+    subjects = _Subjects()
+    lineage = _Lineage()
+    evidence = _Evidence()
+    runs = _Runs(state)
+    audit = _Audit(state)
+    capabilities = ApprovalCommandCapabilities(
+        approvals=_ApprovalRepo(state),
+        policies=_Policies(registry, route, roles, approval),
+        artifacts=_Artifacts(state),
+        object_bindings=_Bindings(state),
+        idempotency=_Idempotency(state),
+        audit=audit,
+        runs=runs,
+        subjects=subjects,
+        lineage=lineage,
+        evidence=evidence,
+    )
+    uow = _Uow(state)
+    service = ApprovalCommandService(
+        unit_of_work=uow,
+        bind_capabilities=lambda transaction: capabilities,
+        clock=FrozenUtcClock(NOW_DT),
+        audit_chain_id="authority",
+    )
+    return _Harness(
+        state=state,
+        uow=uow,
+        capabilities=capabilities,
+        service=service,
+        subjects=subjects,
+        lineage=lineage,
+        evidence=evidence,
+        runs=runs,
+        audit=audit,
+        registry=registry,
+        route=route,
+        roles=roles,
+        approval_policy=approval,
+    )
+
+
+def _context(
+    actor: str = "human:maker",
+    *,
+    key: str = "request:1",
+    request_hash: str = "9" * 64,
+) -> ApprovalCommandContext:
+    return ApprovalCommandContext(
+        actor=AuditActor(principal_id=actor, principal_kind="human"),
+        request_id=key,
+        idempotency_scope=f"principal:{actor}",
+        idempotency_key=key,
+        request_hash=request_hash,
+    )
+
+
+def _draft(
+    harness: _Harness,
+    *,
+    revision: int = 1,
+    supersedes_artifact_id: str | None = None,
+    supersedes_approval_id: str | None = None,
+    expected_head: SubjectHead | None = None,
+    preview_snapshot_id: str = "snapshot:preview",
+) -> PreparedDraft:
+    subject = _artifact("patch", "1" if revision == 1 else "3", *(()) if revision == 1 else (supersedes_artifact_id or "",))
+    preview = _artifact(
+        "ir_snapshot",
+        "2" if revision == 1 else "4",
+        subject.artifact_id,
+        ir_snapshot_id=preview_snapshot_id,
+    )
+    scope = DomainScope(domain_ids=("economy",))
+    requirements = build_approval_requirements(
+        registry=harness.registry,
+        policy=harness.route,
+        subject_kind="patch",
+        domain_scope=scope,
+    )
+    item = ApprovalItem(
+        approval_id=f"approval:{revision}",
+        subject_series_id="patch-series:1",
+        subject_revision=revision,
+        subject_kind="patch",
+        subject_artifact_id=subject.artifact_id,
+        subject_digest=subject.payload_hash,
+        status="draft",
+        workflow_revision=1,
+        supersedes_approval_id=supersedes_approval_id,
+        proposer=AuditActor(principal_id="human:maker", principal_kind="human"),
+        domain_scope=scope,
+        domain_registry_ref=_domain_ref(harness.registry),
+        route_policy={
+            "route_version": harness.route.route_version,
+            "route_digest": harness.route.route_digest,
+            "domain_registry_ref": harness.route.domain_registry_ref,
+        },
+        role_policy_version=harness.roles.policy_version,
+        role_policy_digest=harness.roles.policy_digest,
+        approval_policy=ApprovalPolicyRefV1(
+            policy_version=harness.approval_policy.policy_version,
+            policy_digest=harness.approval_policy.policy_digest,
+        ),
+        requirements=requirements,
+        decisions=(),
+        regression_evidence_artifact_ids=(),
+        target_binding=PatchTargetBindingV1(
+            target_artifact_id=preview.artifact_id,
+            target_snapshot_id="snapshot:preview",
+            target_digest=preview.payload_hash,
+            ref_name="content/head",
+            expected_ref=RefValue(artifact_id="artifact:base", revision=1),
+        ),
+        created_at=NOW,
+    )
+    patch = _patch().model_copy(
+        update={
+            "revision": revision,
+            "supersedes_artifact_id": supersedes_artifact_id,
+        }
+    )
+    harness.subjects.facts[subject.artifact_id] = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=revision,
+        produced_by="human",
+        producer_run_id=None,
+        supersedes_artifact_id=supersedes_artifact_id,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    harness.subjects.patches[subject.artifact_id] = patch
+    return PreparedDraft(
+        subject_artifact=subject,
+        companion_artifacts=(preview,),
+        object_bindings=tuple(
+            PreparedObjectBinding(
+                object_ref=artifact.object_ref,
+                location=_location(artifact),
+                expected_revision=None,
+            )
+            for artifact in (subject, preview)
+        ),
+        approval_item=item,
+        expected_subject_head=expected_head,
+    )
+
+
+def _rollback_profile_binding() -> ResolvedExecutionProfileBindingV1:
+    return ResolvedExecutionProfileBindingV1(
+        field_path="/params/rollback_profile",
+        profile=ProfileRefV1(profile_id="rollback.default", version=1),
+        expected_profile_kind="rollback",
+        profile_payload_hash="a" * 64,
+        catalog_version=1,
+        catalog_digest="b" * 64,
+    )
+
+
+def _rollback_draft(
+    harness: _Harness,
+) -> tuple[PreparedDraft, RollbackRequestV1]:
+    current = _artifact(
+        "ir_snapshot",
+        "7",
+        ir_snapshot_id="snapshot:current",
+    )
+    target = _artifact(
+        "ir_snapshot",
+        "8",
+        ir_snapshot_id="snapshot:rollback-target",
+    )
+    subject = _artifact(
+        "rollback_request",
+        "9",
+        current.artifact_id,
+        target.artifact_id,
+        ir_snapshot_id=None,
+    )
+    profile = _rollback_profile_binding()
+    expected_ref = RefValue(artifact_id=current.artifact_id, revision=4)
+    request = RollbackRequestV1(
+        ref_name="content/head",
+        expected_current_ref=expected_ref,
+        target_artifact_id=target.artifact_id,
+        target_history_revision=2,
+        rollback_profile_binding=profile,
+        reason="restore retained content",
+    )
+    scope = DomainScope(domain_ids=("economy",))
+    requirements = build_approval_requirements(
+        registry=harness.registry,
+        policy=harness.route,
+        subject_kind="rollback_request",
+        domain_scope=scope,
+    )
+    item = ApprovalItem(
+        approval_id="approval:rollback:1",
+        subject_series_id="rollback-series:1",
+        subject_revision=1,
+        subject_kind="rollback_request",
+        subject_artifact_id=subject.artifact_id,
+        subject_digest=subject.payload_hash,
+        status="draft",
+        workflow_revision=1,
+        proposer=AuditActor(principal_id="human:maker", principal_kind="human"),
+        domain_scope=scope,
+        domain_registry_ref=_domain_ref(harness.registry),
+        route_policy={
+            "route_version": harness.route.route_version,
+            "route_digest": harness.route.route_digest,
+            "domain_registry_ref": harness.route.domain_registry_ref,
+        },
+        role_policy_version=harness.roles.policy_version,
+        role_policy_digest=harness.roles.policy_digest,
+        approval_policy=ApprovalPolicyRefV1(
+            policy_version=harness.approval_policy.policy_version,
+            policy_digest=harness.approval_policy.policy_digest,
+        ),
+        requirements=requirements,
+        decisions=(),
+        regression_evidence_artifact_ids=(),
+        target_binding=RollbackTargetBindingV1(
+            target_artifact_kind="ir_snapshot",
+            target_artifact_id=target.artifact_id,
+            target_snapshot_id="snapshot:rollback-target",
+            target_digest=target.payload_hash,
+            ref_name=request.ref_name,
+            expected_ref=request.expected_current_ref,
+            rollback_profile_binding=profile,
+        ),
+        created_at=NOW,
+    )
+    harness.state.artifacts[current.artifact_id] = current
+    harness.state.artifacts[target.artifact_id] = target
+    harness.subjects.facts[subject.artifact_id] = DraftSubjectFacts(
+        subject_kind="rollback_request",
+        subject_revision=None,
+        produced_by="human",
+        producer_run_id=None,
+        supersedes_artifact_id=None,
+        target_artifact_id=target.artifact_id,
+        target_snapshot_id="snapshot:rollback-target",
+        rollback_request=request,
+    )
+    return (
+        PreparedDraft(
+            subject_artifact=subject,
+            companion_artifacts=(),
+            object_bindings=(
+                PreparedObjectBinding(
+                    object_ref=subject.object_ref,
+                    location=_location(subject),
+                    expected_revision=None,
+                ),
+            ),
+            approval_item=item,
+            expected_subject_head=None,
+        ),
+        request,
+    )
+
+
+def _publish(harness: _Harness) -> tuple[PreparedDraft, DraftPublicationResult]:
+    prepared = _draft(harness)
+    result = harness.service.publish_draft(prepared=prepared, context=_context())
+    return prepared, result
+
+
+def _replace_item(item: ApprovalItem, **updates: object) -> ApprovalItem:
+    payload = item.model_dump(mode="python")
+    payload.update(updates)
+    return ApprovalItem.model_validate(payload)
+
+
+def test_publish_draft_atomically_publishes_bindings_artifacts_item_head_and_audit() -> None:
+    harness = _harness()
+    prepared, result = _publish(harness)
+
+    assert result.approval_item == prepared.approval_item
+    assert result.subject_head == SubjectHead(
+        subject_series_id="patch-series:1",
+        current_subject_artifact_id=prepared.subject_artifact.artifact_id,
+        current_approval_id=prepared.approval_item.approval_id,
+        revision=1,
+    )
+    assert set(harness.state.artifacts) == {
+        prepared.subject_artifact.artifact_id,
+        prepared.companion_artifacts[0].artifact_id,
+    }
+    assert len(harness.state.bindings) == 2
+    assert harness.lineage.calls == 1
+    assert [action for action, _ in harness.state.audit] == ["approval.draft_published"]
+    assert harness.uow.commits == 1
+
+    replay = harness.service.publish_draft(prepared=prepared, context=_context())
+    assert replay == result
+    assert [action for action, _ in harness.state.audit] == ["approval.draft_published"]
+
+    with pytest.raises(Conflict, match="different request"):
+        harness.service.publish_draft(
+            prepared=prepared,
+            context=_context(request_hash="8" * 64),
+        )
+
+
+@pytest.mark.parametrize("preview_count", [0, 2])
+def test_prepared_patch_requires_exactly_one_preview(preview_count: int) -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    previews = list(prepared.companion_artifacts[:preview_count])
+    if preview_count == 2:
+        previews.append(
+            _artifact(
+                "ir_snapshot",
+                "a",
+                prepared.subject_artifact.artifact_id,
+                ir_snapshot_id="snapshot:other-preview",
+            )
+        )
+    artifacts = (prepared.subject_artifact, *previews)
+
+    with pytest.raises(ValidationError, match="exactly one preview"):
+        PreparedDraft(
+            subject_artifact=prepared.subject_artifact,
+            companion_artifacts=tuple(previews),
+            object_bindings=tuple(
+                PreparedObjectBinding(
+                    object_ref=artifact.object_ref,
+                    location=_location(artifact),
+                    expected_revision=None,
+                )
+                for artifact in artifacts
+            ),
+            approval_item=prepared.approval_item,
+            expected_subject_head=None,
+        )
+
+
+def test_publish_patch_rejects_preview_version_tuple_mismatch() -> None:
+    harness = _harness()
+    prepared = _draft(harness, preview_snapshot_id="snapshot:wrong-preview")
+
+    with pytest.raises(IntegrityViolation, match="VersionTuple"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert harness.state.artifacts == {}
+    assert harness.state.heads == {}
+
+
+def test_publish_rejects_subject_payload_revision_mismatch() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    subject_id = prepared.subject_artifact.artifact_id
+    harness.subjects.facts[subject_id] = harness.subjects.facts[
+        subject_id
+    ].model_copy(update={"subject_revision": 2})
+
+    with pytest.raises(IntegrityViolation, match="payload revision"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert harness.state.artifacts == {}
+    assert harness.state.heads == {}
+
+
+def test_publish_rollback_binds_the_parsed_request_exactly() -> None:
+    harness = _harness()
+    prepared, _ = _rollback_draft(harness)
+
+    result = harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert result.approval_item == prepared.approval_item
+    assert result.subject_head.current_subject_artifact_id == (
+        prepared.subject_artifact.artifact_id
+    )
+
+
+@pytest.mark.parametrize(
+    "mismatch",
+    ["ref_name", "expected_current_ref", "target_artifact_id", "rollback_profile"],
+)
+def test_publish_rollback_rejects_request_binding_mismatch(mismatch: str) -> None:
+    harness = _harness()
+    prepared, request = _rollback_draft(harness)
+    updates: dict[str, object]
+    if mismatch == "ref_name":
+        updates = {"ref_name": "other/head"}
+    elif mismatch == "expected_current_ref":
+        updates = {
+            "expected_current_ref": request.expected_current_ref.model_copy(
+                update={"revision": request.expected_current_ref.revision + 1}
+            )
+        }
+    elif mismatch == "target_artifact_id":
+        updates = {"target_artifact_id": "artifact:other-target"}
+    else:
+        updates = {
+            "rollback_profile_binding": request.rollback_profile_binding.model_copy(
+                update={"profile_payload_hash": "f" * 64}
+            )
+        }
+    subject_id = prepared.subject_artifact.artifact_id
+    harness.subjects.facts[subject_id] = harness.subjects.facts[
+        subject_id
+    ].model_copy(update={"rollback_request": request.model_copy(update=updates)})
+
+    with pytest.raises(IntegrityViolation, match="rollback request"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert prepared.approval_item.approval_id not in harness.state.approvals
+    assert prepared.approval_item.subject_series_id not in harness.state.heads
+
+
+@pytest.mark.parametrize("membership_registered", [False, True])
+def test_agent_patch_publish_requires_exact_producer_membership(
+    membership_registered: bool,
+) -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    subject_id = prepared.subject_artifact.artifact_id
+    harness.subjects.facts[subject_id] = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=prepared.approval_item.subject_revision,
+        produced_by="agent",
+        producer_run_id="run:producer",
+        supersedes_artifact_id=None,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    if membership_registered:
+        harness.runs.produced.add(("run:producer", subject_id, "human:maker"))
+    context = ApprovalCommandContext(
+        actor=AuditActor(principal_id="service:worker", principal_kind="service"),
+        initiated_by=AuditActor(
+            principal_id="human:maker",
+            principal_kind="human",
+        ),
+        request_id="agent-publish",
+        run_id="run:producer",
+        idempotency_scope="run:producer",
+        idempotency_key="agent-publish",
+        request_hash="c" * 64,
+    )
+
+    if not membership_registered:
+        with pytest.raises(IntegrityViolation, match="producer membership"):
+            harness.service.publish_draft(prepared=prepared, context=context)
+        assert harness.state.heads == {}
+        assert harness.state.artifacts == {}
+        return
+
+    result = harness.service.publish_draft(prepared=prepared, context=context)
+    assert result.subject_head.current_subject_artifact_id == subject_id
+
+
+def test_service_proposer_cannot_publish_a_human_authored_revision() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    service_actor = AuditActor(
+        principal_id="service:publisher",
+        principal_kind="service",
+    )
+    service_item = _replace_item(prepared.approval_item, proposer=service_actor)
+    service_prepared = PreparedDraft.model_validate(
+        {
+            **prepared.model_dump(mode="python"),
+            "approval_item": service_item,
+        }
+    )
+    context = ApprovalCommandContext(
+        actor=service_actor,
+        request_id="service-human-publish",
+        idempotency_scope="service:publisher",
+        idempotency_key="service-human-publish",
+        request_hash="e" * 64,
+    )
+
+    with pytest.raises(IntegrityViolation, match="direct publication"):
+        harness.service.publish_draft(prepared=service_prepared, context=context)
+    assert harness.state.artifacts == {}
+    assert harness.state.heads == {}
+
+
+def test_worker_cannot_publish_a_synchronous_human_draft_on_behalf_of_the_author() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    context = ApprovalCommandContext(
+        actor=AuditActor(
+            principal_id="service:publisher",
+            principal_kind="service",
+        ),
+        initiated_by=prepared.approval_item.proposer,
+        request_id="worker-human-publish",
+        idempotency_scope="run:worker-human-publish",
+        idempotency_key="worker-human-publish",
+        request_hash="d" * 64,
+    )
+
+    with pytest.raises(IntegrityViolation, match="direct publication"):
+        harness.service.publish_draft(prepared=prepared, context=context)
+    assert harness.state.artifacts == {}
+    assert harness.state.heads == {}
+
+
+def test_human_cannot_directly_publish_an_agent_produced_draft() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    subject_id = prepared.subject_artifact.artifact_id
+    harness.subjects.facts[subject_id] = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=prepared.approval_item.subject_revision,
+        produced_by="agent",
+        producer_run_id="run:producer",
+        supersedes_artifact_id=None,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    harness.runs.produced.add(("run:producer", subject_id, "human:maker"))
+
+    with pytest.raises(IntegrityViolation, match="service/system worker"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+    assert harness.state.artifacts == {}
+    assert harness.state.heads == {}
+
+
+def test_agent_publication_audit_must_bind_the_exact_producer_run() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    subject_id = prepared.subject_artifact.artifact_id
+    harness.subjects.facts[subject_id] = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=prepared.approval_item.subject_revision,
+        produced_by="agent",
+        producer_run_id="run:producer",
+        supersedes_artifact_id=None,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    harness.runs.produced.add(("run:producer", subject_id, "human:maker"))
+    context = ApprovalCommandContext(
+        actor=AuditActor(principal_id="service:worker", principal_kind="service"),
+        initiated_by=prepared.approval_item.proposer,
+        request_id="agent-wrong-run",
+        run_id="run:other",
+        idempotency_scope="run:producer",
+        idempotency_key="agent-wrong-run",
+        request_hash="1" * 64,
+    )
+
+    with pytest.raises(IntegrityViolation, match="producer Run"):
+        harness.service.publish_draft(prepared=prepared, context=context)
+    assert harness.state.artifacts == {}
+    assert harness.state.heads == {}
+
+
+@pytest.mark.parametrize("missing", ["subjects", "lineage"])
+def test_publish_draft_fails_closed_without_required_verifier(missing: str) -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    setattr(harness.capabilities, missing, None)
+
+    with pytest.raises(IntegrityViolation, match=missing):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+    assert harness.state.artifacts == {}
+
+
+def test_superseding_draft_cancels_validation_and_does_not_inherit_state() -> None:
+    harness = _harness()
+    first, first_result = _publish(harness)
+    old = _replace_item(
+        first.approval_item,
+        status="validating",
+        workflow_revision=2,
+        active_validation_run_id="run:old-validation",
+    )
+    harness.state.approvals[old.approval_id] = old
+    second = _draft(
+        harness,
+        revision=2,
+        supersedes_artifact_id=first.subject_artifact.artifact_id,
+        supersedes_approval_id=old.approval_id,
+        expected_head=first_result.subject_head,
+    )
+
+    result = harness.service.publish_draft(
+        prepared=second,
+        context=_context(key="request:2", request_hash="7" * 64),
+    )
+
+    superseded = harness.state.approvals[old.approval_id]
+    assert superseded.status == "superseded"
+    assert superseded.workflow_revision == 3
+    assert superseded.active_validation_run_id is None
+    assert harness.state.cancellations == ["run:old-validation"]
+    assert result.approval_item.evidence_set_artifact_id is None
+    assert result.approval_item.decisions == ()
+    assert result.subject_head.revision == 2
+    assert [action for action, _ in harness.state.audit][-2:] == [
+        "approval.superseded",
+        "approval.draft_published",
+    ]
+
+
+def test_start_validation_creates_run_and_item_transition_in_one_uow() -> None:
+    harness = _harness()
+    prepared, published = _publish(harness)
+    start = PreparedValidationStart(
+        run_id="run:validation-1",
+        approval_id=published.approval_item.approval_id,
+        subject_artifact_id=prepared.subject_artifact.artifact_id,
+        subject_digest=prepared.subject_artifact.payload_hash,
+        expected_workflow_revision=1,
+    )
+
+    result = harness.service.start_validation(
+        prepared=start,
+        context=_context(key="validate:1", request_hash="6" * 64),
+    )
+
+    assert isinstance(result, ValidationStartResult)
+    assert result.run_id == "run:validation-1"
+    assert result.approval_item.status == "validating"
+    assert result.approval_item.active_validation_run_id == result.run_id
+    assert result.approval_item.workflow_revision == 2
+    assert harness.state.started_runs == [result.run_id]
+    assert harness.state.audit[-1][0] == "approval.validation_started"
+
+    progressed = _replace_item(
+        result.approval_item,
+        status="draft",
+        workflow_revision=3,
+        active_validation_run_id=None,
+    )
+    harness.state.approvals[progressed.approval_id] = progressed
+    assert harness.service.start_validation(
+        prepared=start,
+        context=_context(key="validate:1", request_hash="6" * 64),
+    ) == result
+
+    capabilities = harness.capabilities
+    capabilities.runs = None
+    with pytest.raises(IntegrityViolation, match="runs"):
+        harness.service.start_validation(
+            prepared=start.model_copy(update={"run_id": "run:other"}),
+            context=_context(key="validate:2", request_hash="5" * 64),
+        )
+
+
+def test_malformed_validation_start_replay_fails_as_integrity_violation() -> None:
+    harness = _harness()
+    prepared, published = _publish(harness)
+    start = PreparedValidationStart(
+        run_id="run:validation-1",
+        approval_id=published.approval_item.approval_id,
+        subject_artifact_id=prepared.subject_artifact.artifact_id,
+        subject_digest=prepared.subject_artifact.payload_hash,
+        expected_workflow_revision=1,
+    )
+    context = _context(key="validate:malformed", request_hash="d" * 64)
+    harness.service.start_validation(prepared=start, context=context)
+    retained_hash, _ = harness.state.idempotency[
+        (
+            context.idempotency_scope,
+            "approval.start_validation",
+            context.idempotency_key,
+        )
+    ]
+    harness.state.idempotency[
+        (
+            context.idempotency_scope,
+            "approval.start_validation",
+            context.idempotency_key,
+        )
+    ] = (retained_hash, {"approval_item": {}})
+
+    with pytest.raises(IntegrityViolation, match="malformed"):
+        harness.service.start_validation(prepared=start, context=context)
+
+
+def _validated(harness: _Harness) -> tuple[PreparedDraft, ApprovalItem]:
+    prepared, published = _publish(harness)
+    evidence = _artifact(
+        "validation_evidence", "5", prepared.subject_artifact.artifact_id
+    )
+    regression = _artifact(
+        "regression_evidence", "6", prepared.subject_artifact.artifact_id
+    )
+    for artifact in (evidence, regression):
+        harness.state.artifacts[artifact.artifact_id] = artifact
+    item = _replace_item(
+        published.approval_item,
+        status="validated",
+        workflow_revision=2,
+        evidence_set_artifact_id=evidence.artifact_id,
+        regression_evidence_artifact_ids=(regression.artifact_id,),
+    )
+    harness.state.approvals[item.approval_id] = item
+    return prepared, item
+
+
+def test_submit_revalidates_current_head_human_subject_evidence_and_policies() -> None:
+    harness = _harness()
+    _, item = _validated(harness)
+
+    submitted = harness.service.submit_for_approval(
+        approval_id=item.approval_id,
+        expected_workflow_revision=2,
+        context=_context(key="submit:1", request_hash="4" * 64),
+    )
+
+    assert submitted.status == "pending_approval"
+    assert submitted.workflow_revision == 3
+    assert submitted.submitted_at == NOW
+    assert harness.state.audit[-1][0] == "approval.submitted"
+
+
+def test_submit_fails_closed_without_evidence_but_allows_agent_patch_revision() -> None:
+    harness = _harness()
+    prepared, item = _validated(harness)
+    harness.capabilities.evidence = None
+    with pytest.raises(IntegrityViolation, match="evidence"):
+        harness.service.submit_for_approval(
+            approval_id=item.approval_id,
+            expected_workflow_revision=2,
+            context=_context(key="submit:missing", request_hash="3" * 64),
+        )
+
+    harness.capabilities.evidence = harness.evidence
+    harness.subjects.facts[prepared.subject_artifact.artifact_id] = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=item.subject_revision,
+        produced_by="agent",
+        producer_run_id="run:agent",
+        supersedes_artifact_id=None,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    harness.runs.produced.add(
+        ("run:agent", prepared.subject_artifact.artifact_id, item.proposer.principal_id)
+    )
+    submitted = harness.service.submit_for_approval(
+        approval_id=item.approval_id,
+        expected_workflow_revision=2,
+        context=_context(key="submit:agent", request_hash="2" * 64),
+    )
+    assert submitted.status == "pending_approval"
+
+
+def _agent_constraint_item(
+    harness: _Harness,
+    *,
+    validated: bool,
+    produced_by: Literal["agent", "human"] = "agent",
+    revision: int = 1,
+) -> ApprovalItem:
+    prior = _artifact("constraint_proposal", "b") if revision > 1 else None
+    subject = _artifact(
+        "constraint_proposal",
+        "c",
+        *((prior.artifact_id,) if prior is not None else ()),
+    )
+    scope = DomainScope(domain_ids=("economy",))
+    requirements = build_approval_requirements(
+        registry=harness.registry,
+        policy=harness.route,
+        subject_kind="constraint_proposal",
+        domain_scope=scope,
+    )
+    target = _artifact(
+        "constraint_snapshot",
+        "d",
+        subject.artifact_id,
+        ir_snapshot_id=None,
+        constraint_snapshot_id="constraint-snapshot:1",
+    )
+    evidence = _artifact("validation_evidence", "e", subject.artifact_id)
+    item = ApprovalItem(
+        approval_id=f"approval:constraint:{revision}",
+        subject_series_id="constraint-series:1",
+        subject_revision=revision,
+        subject_kind="constraint_proposal",
+        subject_artifact_id=subject.artifact_id,
+        subject_digest=subject.payload_hash,
+        status="validated" if validated else "draft",
+        workflow_revision=2 if validated else 1,
+        supersedes_approval_id=("approval:constraint:1" if revision > 1 else None),
+        proposer=AuditActor(principal_id="human:maker", principal_kind="human"),
+        domain_scope=scope,
+        domain_registry_ref=_domain_ref(harness.registry),
+        route_policy={
+            "route_version": harness.route.route_version,
+            "route_digest": harness.route.route_digest,
+            "domain_registry_ref": harness.route.domain_registry_ref,
+        },
+        role_policy_version=harness.roles.policy_version,
+        role_policy_digest=harness.roles.policy_digest,
+        approval_policy=ApprovalPolicyRefV1(
+            policy_version=harness.approval_policy.policy_version,
+            policy_digest=harness.approval_policy.policy_digest,
+        ),
+        requirements=requirements,
+        decisions=(),
+        regression_evidence_artifact_ids=(),
+        evidence_set_artifact_id=evidence.artifact_id if validated else None,
+        target_binding=(
+            ConstraintTargetBindingV1(
+                target_artifact_id=target.artifact_id,
+                target_snapshot_id="constraint-snapshot:1",
+                target_digest=target.payload_hash,
+                ref_name="constraints/head",
+                expected_ref=None,
+            )
+            if validated
+            else None
+        ),
+        created_at=NOW,
+    )
+    head = SubjectHead(
+        subject_series_id=item.subject_series_id,
+        current_subject_artifact_id=item.subject_artifact_id,
+        current_approval_id=item.approval_id,
+        revision=revision,
+    )
+    harness.state.approvals[item.approval_id] = item
+    harness.state.heads[item.subject_series_id] = head
+    if prior is not None:
+        harness.state.artifacts[prior.artifact_id] = prior
+    harness.state.artifacts[subject.artifact_id] = subject
+    if validated:
+        harness.state.artifacts[target.artifact_id] = target
+        harness.state.artifacts[evidence.artifact_id] = evidence
+    harness.subjects.facts[subject.artifact_id] = DraftSubjectFacts(
+        subject_kind="constraint_proposal",
+        subject_revision=item.subject_revision,
+        produced_by=produced_by,
+        producer_run_id=("run:constraint-agent" if produced_by == "agent" else None),
+        supersedes_artifact_id=(prior.artifact_id if prior is not None else None),
+        target_artifact_id=None,
+        target_snapshot_id=None,
+    )
+    return item
+
+
+def test_superseding_revision_cannot_change_subject_kind() -> None:
+    harness = _harness()
+    old = _agent_constraint_item(harness, validated=False)
+    old_head = harness.state.heads[old.subject_series_id]
+    patch = _draft(
+        harness,
+        revision=2,
+        supersedes_artifact_id=old.subject_artifact_id,
+        supersedes_approval_id=old.approval_id,
+        expected_head=old_head,
+    )
+    replacement = _replace_item(
+        patch.approval_item,
+        subject_series_id=old.subject_series_id,
+    )
+    prepared = PreparedDraft(
+        subject_artifact=patch.subject_artifact,
+        companion_artifacts=patch.companion_artifacts,
+        object_bindings=patch.object_bindings,
+        approval_item=replacement,
+        expected_subject_head=old_head,
+    )
+
+    with pytest.raises(IntegrityViolation, match="current revision"):
+        harness.service.publish_draft(
+            prepared=prepared,
+            context=_context(key="cross-kind", request_hash="e" * 64),
+        )
+
+    assert harness.state.heads[old.subject_series_id] == old_head
+    assert harness.state.approvals[old.approval_id] == old
+
+
+def test_agent_constraint_requires_human_revision_before_validation_or_submit() -> None:
+    harness = _harness()
+    draft = _agent_constraint_item(harness, validated=False)
+    with pytest.raises(InvalidStateTransition, match="human author revision"):
+        harness.service.start_validation(
+            prepared=PreparedValidationStart(
+                run_id="run:constraint-validation",
+                approval_id=draft.approval_id,
+                subject_artifact_id=draft.subject_artifact_id,
+                subject_digest=draft.subject_digest,
+                expected_workflow_revision=draft.workflow_revision,
+            ),
+            context=_context(key="constraint:start", request_hash="1" * 64),
+        )
+
+    validated = _agent_constraint_item(harness, validated=True)
+    with pytest.raises(InvalidStateTransition, match="human author revision"):
+        harness.service.submit_for_approval(
+            approval_id=validated.approval_id,
+            expected_workflow_revision=validated.workflow_revision,
+            context=_context(key="constraint:submit", request_hash="f" * 64),
+        )
+
+
+@pytest.mark.parametrize("validated", [False, True])
+def test_human_constraint_revision_one_cannot_validate_or_submit(
+    validated: bool,
+) -> None:
+    harness = _harness()
+    item = _agent_constraint_item(
+        harness,
+        validated=validated,
+        produced_by="human",
+    )
+
+    with pytest.raises(InvalidStateTransition, match="human author revision"):
+        if validated:
+            harness.service.submit_for_approval(
+                approval_id=item.approval_id,
+                expected_workflow_revision=item.workflow_revision,
+                context=_context(key="constraint:human-v1-submit", request_hash="7" * 64),
+            )
+        else:
+            harness.service.start_validation(
+                prepared=PreparedValidationStart(
+                    run_id="run:constraint-human-v1",
+                    approval_id=item.approval_id,
+                    subject_artifact_id=item.subject_artifact_id,
+                    subject_digest=item.subject_digest,
+                    expected_workflow_revision=item.workflow_revision,
+                ),
+                context=_context(key="constraint:human-v1-start", request_hash="8" * 64),
+            )
+
+
+def test_superseding_human_constraint_revision_can_validate_and_submit() -> None:
+    start_harness = _harness()
+    draft = _agent_constraint_item(
+        start_harness,
+        validated=False,
+        produced_by="human",
+        revision=2,
+    )
+    started = start_harness.service.start_validation(
+        prepared=PreparedValidationStart(
+            run_id="run:constraint-human-v2",
+            approval_id=draft.approval_id,
+            subject_artifact_id=draft.subject_artifact_id,
+            subject_digest=draft.subject_digest,
+            expected_workflow_revision=draft.workflow_revision,
+        ),
+        context=_context(key="constraint:human-v2-start", request_hash="9" * 64),
+    )
+    assert started.approval_item.status == "validating"
+
+    submit_harness = _harness()
+    validated = _agent_constraint_item(
+        submit_harness,
+        validated=True,
+        produced_by="human",
+        revision=2,
+    )
+    submitted = submit_harness.service.submit_for_approval(
+        approval_id=validated.approval_id,
+        expected_workflow_revision=validated.workflow_revision,
+        context=_context(key="constraint:human-v2-submit", request_hash="a" * 64),
+    )
+    assert submitted.status == "pending_approval"
+
+
+def test_constraint_human_revision_requires_a_human_accountable_proposer() -> None:
+    harness = _harness()
+    item = _agent_constraint_item(
+        harness,
+        validated=False,
+        produced_by="human",
+        revision=2,
+    )
+    service_actor = AuditActor(
+        principal_id="service:constraint-author",
+        principal_kind="service",
+    )
+    service_item = _replace_item(item, proposer=service_actor)
+    harness.state.approvals[item.approval_id] = service_item
+    harness.subjects.facts[item.subject_artifact_id] = DraftSubjectFacts(
+        subject_kind="constraint_proposal",
+        subject_revision=item.subject_revision,
+        produced_by="human",
+        producer_run_id=None,
+        supersedes_artifact_id=harness.subjects.facts[
+            item.subject_artifact_id
+        ].supersedes_artifact_id,
+        target_artifact_id=None,
+        target_snapshot_id=None,
+    )
+
+    with pytest.raises(InvalidStateTransition, match="human author revision"):
+        harness.service.start_validation(
+            prepared=PreparedValidationStart(
+                run_id="run:constraint-service-author",
+                approval_id=service_item.approval_id,
+                subject_artifact_id=service_item.subject_artifact_id,
+                subject_digest=service_item.subject_digest,
+                expected_workflow_revision=service_item.workflow_revision,
+            ),
+            context=_context(key="constraint:service", request_hash="0" * 64),
+        )
+
+
+def test_decide_uses_atomic_repository_primitive_idempotency_and_audit() -> None:
+    harness = _harness()
+    _, item = _validated(harness)
+    pending = harness.service.submit_for_approval(
+        approval_id=item.approval_id,
+        expected_workflow_revision=2,
+        context=_context(key="submit:decision", request_hash="a" * 64),
+    )
+    reviewer = _principal("human:reviewer")
+    decision = ApprovalDecision(
+        decision_id="decision:1",
+        requirement_ids=("route:economy",),
+        decision="approve",
+        actor=AuditActor(principal_id=reviewer.id, principal_kind="human"),
+        expected_workflow_revision=pending.workflow_revision,
+        reason_code="reviewed",
+        occurred_at=NOW,
+    )
+    context = _context(
+        actor=reviewer.id,
+        key="decision:request-1",
+        request_hash="b" * 64,
+    )
+
+    approved = harness.service.decide(
+        approval_id=pending.approval_id,
+        decision=decision,
+        principal=reviewer,
+        context=context,
+    )
+    assert approved.status == "approved"
+    assert approved.workflow_revision == pending.workflow_revision + 1
+    assert harness.state.audit[-1][0] == "approval.approved"
+    audit_count = len(harness.state.audit)
+
+    progressed = _replace_item(
+        approved,
+        status="applied",
+        workflow_revision=approved.workflow_revision + 1,
+        applied_at=NOW,
+    )
+    harness.state.approvals[progressed.approval_id] = progressed
+
+    assert harness.service.decide(
+        approval_id=pending.approval_id,
+        decision=decision,
+        principal=reviewer,
+        context=context,
+    ) == approved
+    assert len(harness.state.audit) == audit_count
+
+
+def test_patch_state_projection_is_derived_from_item_and_evidence_adapter() -> None:
+    harness = _harness()
+    prepared, item = _validated(harness)
+    view = harness.service.project_patch_state(item.approval_id)
+
+    assert view.patch == harness.subjects.patches[prepared.subject_artifact.artifact_id]
+    assert view.validation_status == "passed"
+    assert view.regression_status == "passed"
+    assert view.approval_status == "validated"
+    assert view.workflow_revision == item.workflow_revision
+
+
+def test_audit_failure_rolls_back_every_authoritative_write() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    harness.audit.fail = True
+
+    with pytest.raises(IntegrityViolation, match="audit unavailable"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert harness.state.approvals == {}
+    assert harness.state.heads == {}
+    assert harness.state.artifacts == {}
+    assert harness.state.bindings == {}
+    assert harness.state.idempotency == {}
+    assert harness.uow.rollbacks == 1

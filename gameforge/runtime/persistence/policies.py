@@ -20,6 +20,11 @@ from gameforge.contracts.identity import (
     RolePolicy,
 )
 from gameforge.contracts.storage import UtcClock
+from gameforge.contracts.workflow import (
+    ApprovalPolicyRefV1,
+    ApprovalPolicyRegistryV1,
+    ApprovalPolicyV1,
+)
 from gameforge.runtime.persistence.models import PolicySnapshotRow
 
 
@@ -29,6 +34,10 @@ _ROLE_POLICY_KIND = "role_policy"
 _ROLE_POLICY_ID = "platform_roles"
 _ROUTE_POLICY_KIND = "domain_route_policy"
 _ROUTE_POLICY_ID = "platform_routes"
+_APPROVAL_POLICY_KIND = "approval_policy"
+_APPROVAL_POLICY_ID = "platform_approvals"
+_APPROVAL_POLICY_REGISTRY_KIND = "approval_policy_registry"
+_APPROVAL_POLICY_REGISTRY_ID = "platform_approval_policies"
 
 PolicyModel = TypeVar("PolicyModel", bound=BaseModel)
 
@@ -237,6 +246,99 @@ class SqlPolicySnapshotRepository:
         _validate_route_policy_domains(policy, registry)
         return policy
 
+    def put_approval_policy_registry(
+        self,
+        registry: ApprovalPolicyRegistryV1,
+    ) -> ApprovalPolicyRegistryV1:
+        canonical = _canonical_model(registry, ApprovalPolicyRegistryV1)
+        for policy in canonical.policies:
+            self._put(
+                document_kind=_APPROVAL_POLICY_KIND,
+                document_id=_APPROVAL_POLICY_ID,
+                document_version=policy.policy_version,
+                document_digest=policy.policy_digest,
+                payload_schema_version=policy.policy_schema_version,
+                payload=policy.model_dump(mode="json"),
+            )
+        self._put(
+            document_kind=_APPROVAL_POLICY_REGISTRY_KIND,
+            document_id=_APPROVAL_POLICY_REGISTRY_ID,
+            document_version=canonical.registry_digest,
+            document_digest=canonical.registry_digest,
+            payload_schema_version=canonical.registry_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_approval_policy_registry(
+        self,
+        registry_digest: str,
+    ) -> ApprovalPolicyRegistryV1 | None:
+        row = self._session.get(
+            PolicySnapshotRow,
+            (
+                _APPROVAL_POLICY_REGISTRY_KIND,
+                _APPROVAL_POLICY_REGISTRY_ID,
+                registry_digest,
+            ),
+        )
+        if row is None:
+            return None
+        if row.document_digest != registry_digest:
+            raise IntegrityViolation("retained approval policy registry digest is inconsistent")
+        registry = self._parse_row(
+            row,
+            model_type=ApprovalPolicyRegistryV1,
+            expected_kind=_APPROVAL_POLICY_REGISTRY_KIND,
+            expected_id=_APPROVAL_POLICY_REGISTRY_ID,
+            expected_version=registry_digest,
+            version_field=None,
+            expected_schema="approval-policy-registry@1",
+            digest_field="registry_digest",
+        )
+        for policy in registry.policies:
+            retained = self.get_approval_policy(
+                ApprovalPolicyRefV1(
+                    policy_version=policy.policy_version,
+                    policy_digest=policy.policy_digest,
+                )
+            )
+            if retained is None or retained != policy:
+                raise IntegrityViolation(
+                    "approval policy registry history is incomplete",
+                    registry_digest=registry.registry_digest,
+                    policy_version=policy.policy_version,
+                )
+        return registry
+
+    def get_approval_policy(
+        self,
+        ref: ApprovalPolicyRefV1,
+    ) -> ApprovalPolicyV1 | None:
+        if not isinstance(ref, ApprovalPolicyRefV1):
+            raise IntegrityViolation("approval policy lookup requires an exact ref")
+        row = self._session.get(
+            PolicySnapshotRow,
+            (_APPROVAL_POLICY_KIND, _APPROVAL_POLICY_ID, ref.policy_version),
+        )
+        if row is None:
+            return None
+        if row.document_digest != ref.policy_digest:
+            raise IntegrityViolation(
+                "retained approval policy digest differs from requested exact ref",
+                policy_version=ref.policy_version,
+            )
+        return self._parse_row(
+            row,
+            model_type=ApprovalPolicyV1,
+            expected_kind=_APPROVAL_POLICY_KIND,
+            expected_id=_APPROVAL_POLICY_ID,
+            expected_version=ref.policy_version,
+            version_field="policy_version",
+            expected_schema="approval-policy@1",
+            digest_field="policy_digest",
+        )
+
     def _put(
         self,
         *,
@@ -292,7 +394,7 @@ class SqlPolicySnapshotRepository:
         expected_kind: str,
         expected_id: str,
         expected_version: str,
-        version_field: str,
+        version_field: str | None,
         expected_schema: str,
         digest_field: str,
     ) -> PolicyModel:
@@ -309,7 +411,7 @@ class SqlPolicySnapshotRepository:
         except (TypeError, ValueError, ValidationError) as exc:
             raise IntegrityViolation("stored policy snapshot payload is invalid") from exc
         if (
-            getattr(parsed, version_field) != expected_version
+            (version_field is not None and getattr(parsed, version_field) != expected_version)
             or getattr(parsed, digest_field) != row.document_digest
             or canonical_json(parsed.model_dump(mode="json")) != canonical_json(row.payload)
         ):
