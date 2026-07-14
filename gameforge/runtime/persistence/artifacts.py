@@ -270,6 +270,7 @@ class SqlArtifactRepository:
             snapshot = self._create_snapshot()
             position = None
         else:
+            self._cursor_signer.verify_signature(cursor)
             row = self._session.get(ReadSnapshotRow, cursor.snapshot_id)
             if row is None:
                 raise CursorExpired("artifact read snapshot is no longer retained")

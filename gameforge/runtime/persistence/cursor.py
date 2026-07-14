@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Callable
 
 from gameforge.contracts.canonical import canonical_json
-from gameforge.contracts.errors import CursorExpired, CursorInvalid
+from gameforge.contracts.errors import CursorExpired, CursorInvalid, IntegrityViolation
 from gameforge.contracts.storage import PageCursorV1, ReadSnapshotV1, UtcClock
 
 
@@ -104,6 +104,34 @@ class CursorSigner:
         requested_page_size: int,
         snapshot_is_retained: SnapshotRetentionCheck,
     ) -> PageCursorV1:
+        self.verify_signature(cursor)
+        if cursor.snapshot_id != expected_snapshot.snapshot_id:
+            raise CursorInvalid("cursor belongs to another read snapshot")
+        if cursor.query_hash != expected_query_hash:
+            raise CursorInvalid("cursor belongs to another query")
+        if expected_snapshot.query_hash != cursor.query_hash:
+            raise IntegrityViolation(
+                "stored read snapshot query binding differs from its signed cursor",
+                snapshot_id=expected_snapshot.snapshot_id,
+            )
+        if cursor.page_size != requested_page_size:
+            raise CursorInvalid("cursor page size differs from the request")
+
+        created_at = _parse_utc_timestamp(expected_snapshot.created_at)
+        expires_at = _parse_utc_timestamp(expected_snapshot.expires_at)
+        if created_at > expires_at:
+            raise CursorExpired("read snapshot has an invalid lifetime")
+        if _require_utc_now(self._clock) >= expires_at:
+            raise CursorExpired("read snapshot has expired")
+        if not snapshot_is_retained(expected_snapshot.snapshot_id):
+            raise CursorExpired("read snapshot retention is no longer available")
+        return cursor
+
+    def verify_signature(self, cursor: PageCursorV1) -> PageCursorV1:
+        """Authenticate the complete cursor before using its snapshot identifier."""
+
+        if not isinstance(cursor, PageCursorV1):
+            raise CursorInvalid("page cursor has an invalid schema")
         payload = self._signature_payload(
             cursor_schema_version=cursor.cursor_schema_version,
             snapshot_id=cursor.snapshot_id,
@@ -120,22 +148,4 @@ class CursorSigner:
             raise CursorInvalid("cursor signature is invalid")
         if cursor.cursor_schema_version != "page-cursor@1":
             raise CursorInvalid("cursor schema version is unsupported")
-        if cursor.snapshot_id != expected_snapshot.snapshot_id:
-            raise CursorInvalid("cursor belongs to another read snapshot")
-        if (
-            expected_snapshot.query_hash != expected_query_hash
-            or cursor.query_hash != expected_query_hash
-        ):
-            raise CursorInvalid("cursor belongs to another query")
-        if cursor.page_size != requested_page_size:
-            raise CursorInvalid("cursor page size differs from the request")
-
-        created_at = _parse_utc_timestamp(expected_snapshot.created_at)
-        expires_at = _parse_utc_timestamp(expected_snapshot.expires_at)
-        if created_at > expires_at:
-            raise CursorExpired("read snapshot has an invalid lifetime")
-        if _require_utc_now(self._clock) >= expires_at:
-            raise CursorExpired("read snapshot has expired")
-        if not snapshot_is_retained(expected_snapshot.snapshot_id):
-            raise CursorExpired("read snapshot retention is no longer available")
         return cursor

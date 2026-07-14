@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 import secrets
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 from urllib.parse import urlsplit
 
 from fastapi import Request
@@ -20,6 +20,11 @@ from gameforge.contracts.auth import (
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.errors import AuthRequired
 from gameforge.runtime.observability import AlwaysOffSampler, Tracer
+
+if TYPE_CHECKING:
+    from gameforge.platform.read_models.content import ContentReadService
+    from gameforge.platform.read_models.observability import ObservabilityReadService
+    from gameforge.platform.read_models.workflows import WorkflowReadService
 
 
 class SessionAuthenticationPort(Protocol):
@@ -106,6 +111,9 @@ class ApiDependencies:
     request_id_factory: Callable[[], str] = _new_request_id
     session_cookie: SessionCookieSettings = field(default_factory=SessionCookieSettings)
     allowed_websocket_origins: frozenset[str] = frozenset()
+    content_reads: ContentReadService | None = None
+    workflow_reads: WorkflowReadService | None = None
+    observability_reads: ObservabilityReadService | None = None
 
     def __post_init__(self) -> None:
         if not callable(self.request_id_factory):

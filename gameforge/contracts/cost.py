@@ -23,6 +23,8 @@ CurrencyCode = Annotated[str, StringConstraints(pattern=r"^[A-Z]{3}$")]
 PositiveInt = Annotated[int, Field(gt=0)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
 NonNegativeDecimal = Annotated[Decimal, Field(ge=0)]
+OpaqueCursor = Annotated[str, StringConstraints(min_length=1, max_length=4096)]
+MAX_COST_USAGE_PAGE_SIZE = 1000
 
 CostDimension = Literal[
     "input_token",
@@ -469,6 +471,54 @@ class UsageEntryV1(_FrozenModel):
         return self
 
 
+class CostUsageViewV1(_FrozenModel):
+    """Public cost observation without request, routing, reservation, or fencing internals."""
+
+    usage_schema_version: Literal["cost-usage-view@1"] = "cost-usage-view@1"
+    usage_id: NonEmptyStr
+    scope: Literal["attempt_call", "agent_step"]
+    attempt_no: PositiveInt
+    transport_attempt: PositiveInt | None = None
+    execution_source: ExecutionSource
+    provider_prefix_cache: CacheHitObservationV1
+    retry_index: NonNegativeInt
+    token_usage: TokenUsageObservationV1
+    latency: LatencyObservationV1
+    wall_time_ns: NonNegativeInt
+    monetary: MonetaryObservationV1
+    adjustment_of_usage_id: NonEmptyStr | None = None
+    recorded_at: datetime
+
+    @field_validator("recorded_at")
+    @classmethod
+    def _utc_timestamp(cls, value: datetime) -> datetime:
+        return _require_utc(value)
+
+    @model_validator(mode="after")
+    def _scope_shape(self) -> CostUsageViewV1:
+        if self.scope == "attempt_call" and self.transport_attempt is None:
+            raise ValueError("attempt_call cost usage requires transport_attempt")
+        if self.scope == "agent_step" and self.transport_attempt is not None:
+            raise ValueError("agent_step cost usage excludes transport_attempt")
+        return self
+
+
+class RunCostViewV1(_FrozenModel):
+    """Bounded, cursor-paged public cost view for one authorized Run."""
+
+    view_schema_version: Literal["run-cost-view@1"] = "run-cost-view@1"
+    run_id: NonEmptyStr
+    budget_set: BudgetSetSnapshotV1
+    usage: tuple[CostUsageViewV1, ...] = Field(max_length=MAX_COST_USAGE_PAGE_SIZE)
+    next_cursor: OpaqueCursor | None = None
+
+    @model_validator(mode="after")
+    def _run_binding(self) -> RunCostViewV1:
+        if self.budget_set.run_id != self.run_id:
+            raise ValueError("cost view Run differs from its budget set")
+        return self
+
+
 class PermitGroupV1(_FrozenModel):
     group_schema_version: Literal["permit-group@1"] = "permit-group@1"
     permit_group_id: NonEmptyStr
@@ -616,13 +666,16 @@ __all__ = [
     "CostAmountV1",
     "CostDimension",
     "CostLedger",
+    "CostUsageViewV1",
     "LatencyObservationV1",
     "MonetaryObservationV1",
+    "MAX_COST_USAGE_PAGE_SIZE",
     "PermitGroupV1",
     "PriceBook",
     "PriceQuoteV1",
     "PriceUnavailableV1",
     "ReservationGroupV1",
+    "RunCostViewV1",
     "TokenUsageObservationV1",
     "UsageEntryV1",
 ]

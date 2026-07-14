@@ -10,6 +10,7 @@ import pytest
 from gameforge.contracts.errors import (
     CursorExpired,
     CursorInvalid,
+    Forbidden,
     IntegrityViolation,
     QueryTooBroad,
 )
@@ -32,6 +33,7 @@ from gameforge.runtime.observability.local_store import (
     LocalTelemetryRetention,
     LocalTelemetryStore,
 )
+from gameforge.runtime.observability.cursor import TelemetryCursorState
 from gameforge.runtime.observability.metrics import MetricRegistrySink
 
 
@@ -200,6 +202,31 @@ def _store(
     )
 
 
+def test_telemetry_cursor_state_preserves_m4b_construction_compatibility() -> None:
+    positional = TelemetryCursorState(
+        "logs",
+        "snapshot:1",
+        "a" * 64,
+        "b" * 64,
+        10,
+        25,
+        NOW,
+    )
+    keyword = TelemetryCursorState(
+        kind="logs",
+        snapshot_id="snapshot:1",
+        query_hash="a" * 64,
+        authz_fingerprint="b" * 64,
+        offset=10,
+        page_limit=25,
+        expires_at=NOW,
+    )
+
+    assert positional == keyword
+    assert positional.cursor_schema_version == "telemetry-cursor@1"
+    assert positional.principal_binding is None
+
+
 def test_wal_store_is_restart_readable_and_returns_exact_dtos(tmp_path: Path) -> None:
     path = tmp_path / "telemetry.sqlite3"
     clock = _Clock(NOW)
@@ -339,6 +366,74 @@ def test_read_snapshot_survives_reopen_and_excludes_later_sorted_writes(
                 }
             )
         )
+
+
+def test_v2_cursor_distinguishes_query_principal_and_authz_changes(tmp_path: Path) -> None:
+    path = tmp_path / "telemetry.sqlite3"
+    clock = _Clock(NOW)
+    store = _store(path, clock)
+    store.append(_log(1))
+    store.append(_log(2))
+    query = _log_query(limit=1)
+    principal = "1" * 64
+    cursor = store.query_logs(query, principal_binding=principal).next_cursor
+    assert cursor is not None
+
+    with pytest.raises(Forbidden):
+        store.query_logs(query.model_copy(update={"cursor": cursor}), principal_binding="2" * 64)
+    with pytest.raises(CursorExpired):
+        store.query_logs(
+            query.model_copy(update={"cursor": cursor, "authz_fingerprint": "d" * 64}),
+            principal_binding=principal,
+        )
+    with pytest.raises(CursorInvalid):
+        store.query_logs(
+            query.model_copy(update={"cursor": cursor, "services": ("worker",)}),
+            principal_binding=principal,
+        )
+    with pytest.raises(CursorInvalid):
+        store.query_logs(
+            query.model_copy(update={"cursor": cursor, "limit": 2}),
+            principal_binding=principal,
+        )
+
+
+def test_local_exact_trace_summary_log_filters_and_descriptor_resolution(
+    tmp_path: Path,
+) -> None:
+    store = _store(tmp_path / "telemetry.sqlite3", _Clock(NOW))
+    descriptor = _descriptor()
+    store.register_metric_registry(_registry(descriptor))
+    span = _span(1)
+    store.put(span)
+    matching = _log(1).model_copy(
+        update={
+            "trace_id": span.trace_id,
+            "span_id": span.span_id,
+            "producer_run_id": "producer:1",
+        }
+    )
+    store.append(matching)
+    store.append(
+        _log(2).model_copy(
+            update={
+                "trace_id": span.trace_id,
+                "span_id": "f" * 16,
+                "producer_run_id": "producer:2",
+            }
+        )
+    )
+    query = _log_query().model_copy(
+        update={
+            "trace_id": span.trace_id,
+            "span_id": span.span_id,
+            "producer_run_id": "producer:1",
+        }
+    )
+
+    assert store.get_trace_summary(span.trace_id).trace_id == span.trace_id
+    assert tuple(item.record for item in store.query_logs(query).items) == (matching,)
+    assert store.resolve_metric_descriptors((descriptor.ref,)) == (descriptor,)
 
 
 def test_cursor_tamper_and_expiry_fail_closed(tmp_path: Path) -> None:
@@ -582,3 +677,45 @@ def test_retention_preserves_points_and_descriptors_for_live_authority(
     assert released.deleted_metric_descriptors == 1
     assert store.get_metric_descriptor(historical.ref) is None
     assert store.get_metric_descriptor(current.ref) == current
+
+
+def test_active_run_trace_cursor_pins_old_spans_until_snapshot_expiry(tmp_path: Path) -> None:
+    path = tmp_path / "run-trace-retention.sqlite3"
+    clock = _Clock(NOW)
+    store = _store(
+        path,
+        clock,
+        retention=LocalTelemetryRetention(
+            spans=timedelta(hours=1),
+            read_snapshot_ttl=timedelta(hours=3),
+        ),
+    )
+    old_time = NOW - timedelta(hours=2)
+    run_id = "run:retained-traces"
+    first_span = _span(1, trace_id="1" * 32, started_at=old_time).model_copy(
+        update={"attributes": {"run_id": run_id}}
+    )
+    second_span = _span(2, trace_id="2" * 32, started_at=old_time).model_copy(
+        update={"attributes": {"run_id": run_id}}
+    )
+    store.put(first_span)
+    store.put(second_span)
+
+    first = store.page_run_traces(
+        run_id,
+        cursor=None,
+        limit=1,
+        authz_fingerprint="a" * 64,
+    )
+    assert first.next_cursor is not None
+
+    retained = store.purge_expired()
+    second = store.page_run_traces(
+        run_id,
+        cursor=first.next_cursor,
+        limit=1,
+        authz_fingerprint="a" * 64,
+    )
+
+    assert retained.deleted_spans == 0
+    assert [item.trace_id for item in first.items + second.items] == ["1" * 32, "2" * 32]

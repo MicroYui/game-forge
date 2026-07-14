@@ -174,8 +174,7 @@ class SqlRefStore:
                 func.count(RefHistoryRow.seq),
                 func.min(RefHistoryRow.seq),
                 func.max(RefHistoryRow.seq),
-            )
-            .where(
+            ).where(
                 RefHistoryRow.name == ref_name,
                 RefHistoryRow.seq >= 1,
                 RefHistoryRow.seq <= current.revision,
@@ -316,6 +315,7 @@ class SqlRefStore:
             snapshot = self._create_history_snapshot(ref_name, expected_query_hash)
             position = 0
         else:
+            self._cursor_signer.verify_signature(cursor)
             row = self._session.get(ReadSnapshotRow, cursor.snapshot_id)
             if row is None:
                 raise CursorExpired("ref history read snapshot is no longer retained")

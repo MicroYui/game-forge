@@ -409,6 +409,7 @@ class SqlFindingRepository:
             snapshot = self._create_revision_snapshot(series_id, expected_query_hash)
             position = 0
         else:
+            self._cursor_signer.verify_signature(cursor)
             row = self._session.get(ReadSnapshotRow, cursor.snapshot_id)
             if row is None:
                 raise CursorExpired("finding revision read snapshot is no longer retained")

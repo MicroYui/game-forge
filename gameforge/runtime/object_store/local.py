@@ -358,6 +358,7 @@ class LocalObjectStore:
             snapshot = self._create_list_snapshot()
             position = 0
         else:
+            self._cursor_signer.verify_signature(cursor)
             snapshot = self._get_list_snapshot(cursor.snapshot_id)
             self._cursor_signer.verify(
                 cursor,

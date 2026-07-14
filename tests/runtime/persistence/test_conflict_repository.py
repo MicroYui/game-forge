@@ -174,9 +174,7 @@ def test_same_id_with_any_changed_content_is_integrity_failure(engine: Engine) -
         repository = _repository(session)
         repository.put(conflict_set, context, conflicts)
 
-        changed_set = conflict_set.model_copy(
-            update={"non_conflicting_ops_digest": "c" * 64}
-        )
+        changed_set = conflict_set.model_copy(update={"non_conflicting_ops_digest": "c" * 64})
         with pytest.raises(IntegrityViolation, match="different immutable content"):
             repository.put(changed_set, context, conflicts)
 
@@ -299,9 +297,7 @@ def test_cursor_page_rejects_child_and_row_digest_changed_after_snapshot(
             "digest_schema_version": "merge-conflict-content@1",
             "conflict": tampered.model_dump(mode="json"),
         }
-        row.content_digest = sha256_lowerhex(
-            typed_canonical_json(digest_payload).encode("utf-8")
-        )
+        row.content_digest = sha256_lowerhex(typed_canonical_json(digest_payload).encode("utf-8"))
         session.flush()
 
         with pytest.raises(IntegrityViolation, match="content digest"):
@@ -333,6 +329,11 @@ def test_cursor_is_bound_to_signature_query_and_ttl(engine: Engine) -> None:
             repository.page_conflicts(
                 first_set.id,
                 cursor.model_copy(update={"position": "0"}),
+            )
+        with pytest.raises(CursorInvalid, match="signature"):
+            repository.page_conflicts(
+                first_set.id,
+                cursor.model_copy(update={"snapshot_id": "tampered:snapshot"}),
             )
         with pytest.raises(CursorInvalid):
             repository.page_conflicts(second_set.id, cursor)

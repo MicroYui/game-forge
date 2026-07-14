@@ -74,9 +74,7 @@ def _content_digest(value: MergeConflict) -> str:
         "digest_schema_version": "merge-conflict-content@1",
         "conflict": value.model_dump(mode="json"),
     }
-    return sha256_lowerhex(
-        typed_canonical_json(payload).encode("utf-8")
-    )
+    return sha256_lowerhex(typed_canonical_json(payload).encode("utf-8"))
 
 
 def _set_content_digest(
@@ -90,9 +88,7 @@ def _set_content_digest(
         "context": context.model_dump(mode="json"),
         "conflict_digests": [_content_digest(item) for item in conflicts],
     }
-    return sha256_lowerhex(
-        typed_canonical_json(payload).encode("utf-8")
-    )
+    return sha256_lowerhex(typed_canonical_json(payload).encode("utf-8"))
 
 
 def _require_digest(value: object, *, label: str) -> str:
@@ -130,11 +126,7 @@ def _parse_utc(value: object, *, label: str) -> datetime:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
         raise IntegrityViolation(f"{label} must be a UTC timestamp") from exc
-    if (
-        parsed.tzinfo is None
-        or parsed.utcoffset() is None
-        or parsed.utcoffset() != timedelta(0)
-    ):
+    if parsed.tzinfo is None or parsed.utcoffset() is None or parsed.utcoffset() != timedelta(0):
         raise IntegrityViolation(f"{label} must be a UTC timestamp")
     return parsed.astimezone(timezone.utc)
 
@@ -194,9 +186,7 @@ def _context_from_row(row: ConflictSetRow) -> ConflictSetContextV1:
             "stored ConflictSet context is invalid",
             conflict_set_id=row.conflict_set_id,
         ) from exc
-    if typed_canonical_json(parsed.model_dump(mode="python")) != typed_canonical_json(
-        row.context
-    ):
+    if typed_canonical_json(parsed.model_dump(mode="python")) != typed_canonical_json(row.context):
         raise IntegrityViolation(
             "stored ConflictSet context is noncanonical",
             conflict_set_id=row.conflict_set_id,
@@ -392,6 +382,7 @@ class SqlConflictSetRepository:
             )
             position = 0
         else:
+            self._cursor_signer.verify_signature(cursor)
             snapshot = self._snapshot_from_id(
                 conflict_set,
                 expected_query_hash,
@@ -565,8 +556,7 @@ class SqlConflictSetRepository:
         if not isinstance(conflicts, tuple):
             raise IntegrityViolation("ConflictSet conflicts must be an immutable tuple")
         canonical = tuple(
-            _revalidate(conflict, MergeConflict, label="MergeConflict")
-            for conflict in conflicts
+            _revalidate(conflict, MergeConflict, label="MergeConflict") for conflict in conflicts
         )
         if len(canonical) != conflict_set.conflict_count:
             raise IntegrityViolation("ConflictSet conflict_count differs from supplied conflicts")
@@ -709,11 +699,7 @@ class SqlConflictSetRepository:
     @staticmethod
     def _microseconds_since_epoch(value: datetime) -> int:
         delta = value - _EPOCH
-        return (
-            delta.days * 86_400_000_000
-            + delta.seconds * 1_000_000
-            + delta.microseconds
-        )
+        return delta.days * 86_400_000_000 + delta.seconds * 1_000_000 + delta.microseconds
 
     @staticmethod
     def _snapshot_id(

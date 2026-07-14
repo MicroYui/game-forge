@@ -78,6 +78,7 @@ class _QuerySnapshot:
     kind: str
     query_hash: str
     authz_fingerprint: str
+    principal_binding: str | None
     items: tuple[Any, ...]
     expires_at: datetime
 
@@ -130,6 +131,17 @@ class InMemoryTelemetryStore:
             raise IntegrityViolation("no metric descriptor registry is frozen")
         return self._metric_registry_ref
 
+    def get_metric_descriptor_registry(self) -> MetricDescriptorRegistryV1 | None:
+        if self._metric_registry_ref is None:
+            return None
+        registry = self._registries.get(self._metric_registry_ref.registry_version)
+        if (
+            registry is None
+            or registry.registry_digest != self._metric_registry_ref.registry_digest
+        ):
+            raise IntegrityViolation("active metric registry payload is unavailable")
+        return _detached(registry)
+
     def register_metric_registry(self, registry: MetricDescriptorRegistryV1) -> None:
         registry = _detached(registry)
         key = registry.registry_version
@@ -178,6 +190,14 @@ class InMemoryTelemetryStore:
     def get(self, trace_id: str, span_id: str) -> SpanDataV1 | None:
         span = self._spans.get((trace_id, span_id))
         return None if span is None else redact_span_values(_detached(span))
+
+    def get_trace_summary(self, trace_id: str) -> TraceSummaryV1 | None:
+        spans = [
+            redact_span_values(_detached(span))
+            for span in self._spans.values()
+            if span.trace_id == trace_id
+        ]
+        return None if not spans else self._summarize_trace(trace_id, spans)
 
     def append(self, record: LogRecordV1) -> None:
         record = _detached(record)
@@ -249,11 +269,16 @@ class InMemoryTelemetryStore:
             raise BufferError("in-memory telemetry byte capacity is exhausted")
         return size
 
-    def query_traces(self, query: TraceQueryV1) -> TraceSummaryPageV1:
+    def query_traces(
+        self,
+        query: TraceQueryV1,
+        *,
+        principal_binding: str | None = None,
+    ) -> TraceSummaryPageV1:
         self._validate_range(query.time_range.start_utc, query.time_range.end_utc)
         if query.limit > self._limits.max_trace_page_size:
             raise QueryTooBroad("trace page limit exceeds service cap")
-        query_hash = self._query_hash(query, exclude={"cursor"})
+        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
         authz = query.authz_fingerprint
         if query.cursor is None:
             grouped: dict[str, list[SpanDataV1]] = defaultdict(list)
@@ -274,7 +299,7 @@ class InMemoryTelemetryStore:
                 summaries.append(summary)
             summaries.sort(key=lambda item: (item.started_at, item.trace_id))
             snapshot_id, offset = self._create_snapshot(
-                "traces", query_hash, authz, tuple(summaries)
+                "traces", query_hash, authz, principal_binding, tuple(summaries)
             )
         else:
             snapshot_id, offset = self._resume_snapshot(
@@ -283,6 +308,8 @@ class InMemoryTelemetryStore:
                 query_hash=query_hash,
                 authz=authz,
                 page_limit=query.limit,
+                principal_binding=principal_binding,
+                legacy_query_hash=legacy_query_hash,
             )
         snapshot = self._require_snapshot(snapshot_id, "traces", query_hash, authz)
         page_items = snapshot.items[offset : offset + query.limit]
@@ -303,6 +330,79 @@ class InMemoryTelemetryStore:
         self._check_response_size(page)
         return _detached(page)
 
+    def page_run_traces(
+        self,
+        run_id: str,
+        *,
+        cursor: str | None,
+        limit: int,
+        authz_fingerprint: str,
+        principal_binding: str | None = None,
+    ) -> TraceSummaryPageV1:
+        if limit <= 0 or limit > self._limits.max_trace_page_size:
+            raise QueryTooBroad("trace page limit exceeds service cap")
+        query_hash = canonical_sha256({"run_id": run_id})
+        if cursor is None:
+            grouped: dict[str, list[SpanDataV1]] = defaultdict(list)
+            trace_ids = {
+                span.trace_id
+                for span in self._spans.values()
+                if span.attributes.get("run_id") == run_id
+            }
+            for stored_span in self._spans.values():
+                span = redact_span_values(_detached(stored_span))
+                if span.trace_id in trace_ids:
+                    grouped[span.trace_id].append(span)
+            summaries = tuple(
+                sorted(
+                    (self._summarize_trace(trace_id, spans) for trace_id, spans in grouped.items()),
+                    key=lambda item: (item.started_at, item.trace_id),
+                )
+            )
+            snapshot_id, offset = self._create_snapshot(
+                "run_traces",
+                query_hash,
+                authz_fingerprint,
+                principal_binding,
+                summaries,
+            )
+        else:
+            snapshot_id, offset = self._resume_snapshot(
+                cursor,
+                kind="run_traces",
+                query_hash=query_hash,
+                authz=authz_fingerprint,
+                page_limit=limit,
+                principal_binding=principal_binding,
+            )
+        snapshot = self._require_snapshot(
+            snapshot_id,
+            "run_traces",
+            query_hash,
+            authz_fingerprint,
+        )
+        items = snapshot.items[offset : offset + limit]
+        next_cursor = self._next_cursor(
+            snapshot_id=snapshot_id,
+            snapshot=snapshot,
+            offset=offset + len(items),
+            page_limit=limit,
+        )
+        start = min((item.started_at for item in snapshot.items), default=self._clock.now_utc())
+        end = max(
+            (item.ended_at or item.started_at for item in snapshot.items),
+            default=start,
+        )
+        page = TraceSummaryPageV1(
+            items=items,
+            next_cursor=next_cursor,
+            coverage_start=start,
+            coverage_end=end,
+            truncated=next_cursor is not None,
+        )
+        self._check_response_size(page)
+        return _detached(page)
+
     def page_spans(
         self,
         trace_id: str,
@@ -310,6 +410,7 @@ class InMemoryTelemetryStore:
         cursor: str | None,
         limit: int,
         authz_fingerprint: str,
+        principal_binding: str | None = None,
     ) -> SpanPageV1:
         if limit <= 0 or limit > self._limits.max_span_page_size:
             raise QueryTooBroad("span page limit exceeds service cap")
@@ -325,7 +426,7 @@ class InMemoryTelemetryStore:
             )
             views = tuple(SpanViewV1(span=span) for span in spans)
             snapshot_id, offset = self._create_snapshot(
-                "spans", query_hash, authz_fingerprint, views
+                "spans", query_hash, authz_fingerprint, principal_binding, views
             )
         else:
             snapshot_id, offset = self._resume_snapshot(
@@ -334,6 +435,7 @@ class InMemoryTelemetryStore:
                 query_hash=query_hash,
                 authz=authz_fingerprint,
                 page_limit=limit,
+                principal_binding=principal_binding,
             )
         snapshot = self._require_snapshot(snapshot_id, "spans", query_hash, authz_fingerprint)
         items = snapshot.items[offset : offset + limit]
@@ -353,11 +455,16 @@ class InMemoryTelemetryStore:
         self._check_response_size(page)
         return _detached(page)
 
-    def query_logs(self, query: LogQueryV1) -> LogPageV1:
+    def query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        principal_binding: str | None = None,
+    ) -> LogPageV1:
         self._validate_range(query.time_range.start_utc, query.time_range.end_utc)
         if query.limit > self._limits.max_log_page_size:
             raise QueryTooBroad("log page limit exceeds service cap")
-        query_hash = self._query_hash(query, exclude={"cursor"})
+        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
         authz = query.authz_fingerprint
         if query.cursor is None:
             items = tuple(
@@ -371,11 +478,18 @@ class InMemoryTelemetryStore:
                         and (not query.event_names or record.event_name in query.event_names)
                         and (query.run_id is None or record.run_id == query.run_id)
                         and (query.trace_id is None or record.trace_id == query.trace_id)
+                        and (query.span_id is None or record.span_id == query.span_id)
+                        and (
+                            query.producer_run_id is None
+                            or record.producer_run_id == query.producer_run_id
+                        )
                     ),
                     key=lambda item: (item.ts_utc, item.log_id),
                 )
             )
-            snapshot_id, offset = self._create_snapshot("logs", query_hash, authz, items)
+            snapshot_id, offset = self._create_snapshot(
+                "logs", query_hash, authz, principal_binding, items
+            )
         else:
             snapshot_id, offset = self._resume_snapshot(
                 query.cursor,
@@ -383,6 +497,8 @@ class InMemoryTelemetryStore:
                 query_hash=query_hash,
                 authz=authz,
                 page_limit=query.limit,
+                principal_binding=principal_binding,
+                legacy_query_hash=legacy_query_hash,
             )
         snapshot = self._require_snapshot(snapshot_id, "logs", query_hash, authz)
         page_items = snapshot.items[offset : offset + query.limit]
@@ -403,13 +519,20 @@ class InMemoryTelemetryStore:
         self._check_response_size(page)
         return _detached(page)
 
-    def query_metrics(self, query: MetricQueryV1) -> MetricPageV1:
+    def query_metrics(
+        self,
+        query: MetricQueryV1,
+        *,
+        principal_binding: str | None = None,
+    ) -> MetricPageV1:
         self._validate_metric_query(query)
-        query_hash = self._query_hash(query, exclude={"cursor"})
+        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
         authz = query.authz_fingerprint
         if query.cursor is None:
             series = self._aggregate_metrics(query)
-            snapshot_id, offset = self._create_snapshot("metrics", query_hash, authz, tuple(series))
+            snapshot_id, offset = self._create_snapshot(
+                "metrics", query_hash, authz, principal_binding, tuple(series)
+            )
         else:
             snapshot_id, offset = self._resume_snapshot(
                 query.cursor,
@@ -417,6 +540,8 @@ class InMemoryTelemetryStore:
                 query_hash=query_hash,
                 authz=authz,
                 page_limit=query.series_limit,
+                principal_binding=principal_binding,
+                legacy_query_hash=legacy_query_hash,
             )
         snapshot = self._require_snapshot(snapshot_id, "metrics", query_hash, authz)
         selected: list[MetricSeriesV1] = []
@@ -453,6 +578,18 @@ class InMemoryTelemetryStore:
         """Backward-compatible alias; new consumers use the typed method name."""
 
         return self.query_metrics(query)
+
+    def resolve_metric_descriptors(
+        self,
+        refs: tuple[MetricDescriptorRefV1, ...] | list[MetricDescriptorRefV1],
+    ) -> tuple[MetricDescriptorV1, ...]:
+        result: list[MetricDescriptorV1] = []
+        for ref in refs:
+            descriptor = self._descriptors.get(_ref_key(ref))
+            if descriptor is None:
+                raise IntegrityViolation("metric query references an unknown descriptor")
+            result.append(_detached(descriptor))
+        return tuple(result)
 
     def _aggregate_metrics(self, query: MetricQueryV1) -> list[MetricSeriesV1]:
         return list(aggregate_metric_points(self._points.values(), self._descriptors, query))
@@ -520,11 +657,22 @@ class InMemoryTelemetryStore:
     def _query_hash(query: Any, *, exclude: set[str]) -> str:
         return canonical_sha256(query.model_dump(mode="json", exclude=exclude))
 
+    def _query_hashes(
+        self,
+        query: Any,
+        principal_binding: str | None,
+    ) -> tuple[str, str | None]:
+        legacy = self._query_hash(query, exclude={"cursor"})
+        if principal_binding is None:
+            return legacy, None
+        return self._query_hash(query, exclude={"cursor", "authz_fingerprint"}), legacy
+
     def _create_snapshot(
         self,
         kind: str,
         query_hash: str,
         authz: str,
+        principal_binding: str | None,
         items: tuple[Any, ...],
     ) -> tuple[str, int]:
         self._cleanup_snapshots()
@@ -535,6 +683,7 @@ class InMemoryTelemetryStore:
             kind=kind,
             query_hash=query_hash,
             authz_fingerprint=authz,
+            principal_binding=principal_binding,
             items=items,
             expires_at=expires_at,
         )
@@ -548,6 +697,8 @@ class InMemoryTelemetryStore:
         query_hash: str,
         authz: str,
         page_limit: int,
+        principal_binding: str | None,
+        legacy_query_hash: str | None = None,
     ) -> tuple[str, int]:
         state = self._cursor_codec.verify(
             token,
@@ -555,8 +706,15 @@ class InMemoryTelemetryStore:
             expected_query_hash=query_hash,
             expected_authz_fingerprint=authz,
             expected_page_limit=page_limit,
+            expected_principal_binding=principal_binding,
+            expected_legacy_query_hash=legacy_query_hash,
         )
-        self._require_snapshot(state.snapshot_id, kind, query_hash, authz)
+        self._require_snapshot(
+            state.snapshot_id,
+            kind,
+            state.query_hash,
+            state.authz_fingerprint,
+        )
         return state.snapshot_id, state.offset
 
     def _require_snapshot(
@@ -565,6 +723,7 @@ class InMemoryTelemetryStore:
         kind: str,
         query_hash: str,
         authz: str,
+        alternate_query_hash: str | None = None,
     ) -> _QuerySnapshot:
         snapshot = self._snapshots.get(snapshot_id)
         if snapshot is None or self._clock.now_utc() >= snapshot.expires_at:
@@ -572,7 +731,7 @@ class InMemoryTelemetryStore:
             raise CursorExpired("telemetry query snapshot is no longer retained")
         if (
             snapshot.kind != kind
-            or snapshot.query_hash != query_hash
+            or snapshot.query_hash not in {query_hash, alternate_query_hash}
             or snapshot.authz_fingerprint != authz
         ):
             raise IntegrityViolation("telemetry snapshot binding is inconsistent")
@@ -593,6 +752,7 @@ class InMemoryTelemetryStore:
             snapshot_id=snapshot_id,
             query_hash=snapshot.query_hash,
             authz_fingerprint=snapshot.authz_fingerprint,
+            principal_binding=snapshot.principal_binding,
             offset=offset,
             page_limit=page_limit,
             expires_at=snapshot.expires_at,

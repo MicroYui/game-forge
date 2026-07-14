@@ -6,11 +6,12 @@ import base64
 import hashlib
 import hmac
 import json
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from gameforge.contracts.canonical import canonical_json
-from gameforge.contracts.errors import CursorExpired, CursorInvalid
+from gameforge.contracts.errors import CursorExpired, CursorInvalid, Forbidden
 from gameforge.contracts.storage import UtcClock
 
 
@@ -23,6 +24,8 @@ class TelemetryCursorState:
     offset: int
     page_limit: int
     expires_at: datetime
+    cursor_schema_version: str = "telemetry-cursor@1"
+    principal_binding: str | None = None
 
 
 class OpaqueCursorCodec:
@@ -41,14 +44,23 @@ class OpaqueCursorCodec:
         snapshot_id: str,
         query_hash: str,
         authz_fingerprint: str,
+        principal_binding: str | None = None,
         offset: int,
         page_limit: int,
         expires_at: datetime,
     ) -> str:
         if offset < 0 or page_limit <= 0:
             raise ValueError("telemetry cursor position and page limit are invalid")
+        if (
+            principal_binding is not None
+            and re.fullmatch(r"[0-9a-f]{64}", principal_binding) is None
+        ):
+            raise ValueError("telemetry cursor principal binding must be a SHA-256 digest")
+        schema_version = (
+            "telemetry-cursor@2" if principal_binding is not None else "telemetry-cursor@1"
+        )
         payload = {
-            "cursor_schema_version": "telemetry-cursor@1",
+            "cursor_schema_version": schema_version,
             "kind": kind,
             "snapshot_id": snapshot_id,
             "query_hash": query_hash,
@@ -57,6 +69,8 @@ class OpaqueCursorCodec:
             "page_limit": page_limit,
             "expires_at": self._format_utc(expires_at),
         }
+        if principal_binding is not None:
+            payload["principal_binding"] = principal_binding
         signature = self._sign(payload)
         envelope = canonical_json({"payload": payload, "signature": signature}).encode("utf-8")
         return base64.urlsafe_b64encode(envelope).decode("ascii").rstrip("=")
@@ -69,6 +83,8 @@ class OpaqueCursorCodec:
         expected_query_hash: str,
         expected_authz_fingerprint: str,
         expected_page_limit: int,
+        expected_principal_binding: str | None = None,
+        expected_legacy_query_hash: str | None = None,
     ) -> TelemetryCursorState:
         try:
             padding = "=" * (-len(token) % 4)
@@ -87,7 +103,7 @@ class OpaqueCursorCodec:
         expected_signature = self._sign(payload)
         if not hmac.compare_digest(signature, expected_signature):
             raise CursorInvalid("telemetry cursor signature is invalid")
-        required = {
+        common_required = {
             "cursor_schema_version",
             "kind",
             "snapshot_id",
@@ -97,14 +113,41 @@ class OpaqueCursorCodec:
             "page_limit",
             "expires_at",
         }
-        if set(payload) != required or payload["cursor_schema_version"] != "telemetry-cursor@1":
+        schema_version = payload.get("cursor_schema_version")
+        required = (
+            common_required
+            if schema_version == "telemetry-cursor@1"
+            else common_required | {"principal_binding"}
+            if schema_version == "telemetry-cursor@2"
+            else set()
+        )
+        if not required or set(payload) != required:
             raise CursorInvalid("telemetry cursor schema is invalid")
+        expected_hash = (
+            expected_legacy_query_hash
+            if schema_version == "telemetry-cursor@1" and expected_legacy_query_hash is not None
+            else expected_query_hash
+        )
         if (
             payload["kind"] != expected_kind
-            or payload["query_hash"] != expected_query_hash
-            or payload["authz_fingerprint"] != expected_authz_fingerprint
+            or payload["query_hash"] != expected_hash
             or payload["page_limit"] != expected_page_limit
         ):
+            raise CursorInvalid("telemetry cursor belongs to another query")
+        principal_binding: str | None = None
+        if schema_version == "telemetry-cursor@2":
+            principal_binding = payload["principal_binding"]
+            if (
+                not isinstance(principal_binding, str)
+                or re.fullmatch(r"[0-9a-f]{64}", principal_binding) is None
+                or expected_principal_binding is None
+            ):
+                raise CursorInvalid("telemetry cursor principal binding is invalid")
+            if principal_binding != expected_principal_binding:
+                raise Forbidden("telemetry cursor belongs to another principal")
+            if payload["authz_fingerprint"] != expected_authz_fingerprint:
+                raise CursorExpired("telemetry cursor authorization is no longer current")
+        elif payload["authz_fingerprint"] != expected_authz_fingerprint:
             raise CursorInvalid("telemetry cursor belongs to another query")
         if (
             not isinstance(payload["snapshot_id"], str)
@@ -121,10 +164,12 @@ class OpaqueCursorCodec:
         if now >= expires_at:
             raise CursorExpired("telemetry cursor has expired")
         return TelemetryCursorState(
+            cursor_schema_version=schema_version,
             kind=payload["kind"],
             snapshot_id=payload["snapshot_id"],
             query_hash=payload["query_hash"],
             authz_fingerprint=payload["authz_fingerprint"],
+            principal_binding=principal_binding,
             offset=payload["offset"],
             page_limit=payload["page_limit"],
             expires_at=expires_at,

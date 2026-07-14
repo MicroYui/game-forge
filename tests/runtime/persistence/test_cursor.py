@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from gameforge.contracts.errors import CursorExpired, CursorInvalid
+from gameforge.contracts.errors import CursorExpired, CursorInvalid, IntegrityViolation
 from gameforge.contracts.storage import (
     PageCursorV1,
     ReadSnapshotV1,
@@ -192,6 +192,16 @@ def test_verify_rejects_when_snapshot_query_and_expected_query_differ() -> None:
             snapshot,
             expected_query_hash=OTHER_QUERY_HASH,
         )
+
+
+def test_verify_treats_stored_snapshot_query_drift_as_integrity_failure() -> None:
+    signer = _signer()
+    snapshot = _snapshot()
+    cursor = _issue(signer, snapshot)
+    corrupted = _snapshot(query_hash=OTHER_QUERY_HASH)
+
+    with pytest.raises(IntegrityViolation, match="stored read snapshot query"):
+        _verify(signer, cursor, corrupted, expected_query_hash=QUERY_HASH)
 
 
 def test_verify_rejects_cursor_reuse_against_another_snapshot() -> None:

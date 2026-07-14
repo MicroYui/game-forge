@@ -35,9 +35,12 @@ from gameforge.apps.api.health import (
     RegistryReadinessProbe,
     SloRetentionReadinessProbe,
 )
+from gameforge.apps.api.local_reads import build_local_read_services
 from gameforge.apps.cli.identity import (
     AUDIT_CHAIN_ID_ENV,
     PASSWORD_HASH_POLICY_VERSION_ENV,
+    ROLE_POLICY_DIGEST_ENV,
+    ROLE_POLICY_VERSION_ENV,
 )
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.observability import SpanDataV1
@@ -120,6 +123,12 @@ def _root_secret(source: Mapping[str, str]) -> bytes:
     return value
 
 
+def _lower_sha256(value: str, *, name: str) -> str:
+    if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
+        raise LocalApiConfigurationError(f"{name} must be a lowercase SHA-256 digest")
+    return value
+
+
 def _allowed_websocket_origins(source: Mapping[str, str]) -> frozenset[str]:
     raw = source.get(ALLOWED_WEBSOCKET_ORIGINS_ENV, "")
     if not isinstance(raw, str):
@@ -137,6 +146,8 @@ class LocalApiConfig:
     telemetry_db_path: Path
     current_password_hash_policy_version: str
     session_policy_version: str
+    role_policy_version: str
+    role_policy_digest: str
     audit_chain_id: str
     root_secret: bytes = field(repr=False)
     session_signing_keys: SessionSigningKeyProvider = field(repr=False)
@@ -148,11 +159,14 @@ class LocalApiConfig:
             "object_store_id",
             "current_password_hash_policy_version",
             "session_policy_version",
+            "role_policy_version",
+            "role_policy_digest",
             "audit_chain_id",
         ):
             value = getattr(self, name)
             if not isinstance(value, str) or not value or len(value) > 4096:
                 raise LocalApiConfigurationError(f"{name} must be a non-empty bounded string")
+        _lower_sha256(self.role_policy_digest, name="role_policy_digest")
         if not isinstance(self.root_secret, bytes) or len(self.root_secret) < 32:
             raise LocalApiConfigurationError("root_secret must contain at least 32 bytes")
         if not isinstance(self.session_signing_keys, SessionSigningKeyProvider):
@@ -186,6 +200,11 @@ class LocalApiConfig:
                 PASSWORD_HASH_POLICY_VERSION_ENV,
             ),
             session_policy_version=_required(source, SESSION_POLICY_VERSION_ENV),
+            role_policy_version=_required(source, ROLE_POLICY_VERSION_ENV),
+            role_policy_digest=_lower_sha256(
+                _required(source, ROLE_POLICY_DIGEST_ENV),
+                name=ROLE_POLICY_DIGEST_ENV,
+            ),
             audit_chain_id=source.get(AUDIT_CHAIN_ID_ENV, "identity"),
             root_secret=_root_secret(source),
             session_signing_keys=signing_keys,
@@ -372,8 +391,14 @@ def build_local_api_resources(
             definitions=transaction.slo  # type: ignore[attr-defined]
         ),
     )
+    builtin_registry = build_builtin_registry()
+    execution_profile_catalogs = builtin_registry.list_execution_profile_catalogs()
+    if len(execution_profile_catalogs) != 1:
+        raise LocalApiConfigurationError(
+            "local API requires exactly one built-in execution-profile catalog"
+        )
     registry_validator = PlatformReadinessValidator(
-        registry=build_builtin_registry(),
+        registry=builtin_registry,
         components=components,
     )
     audit_cache = AuditVerificationCache()
@@ -391,11 +416,25 @@ def build_local_api_resources(
             audit_cache=audit_cache.check_ready,
         )
     )
+    read_services = build_local_read_services(
+        engine=engine,
+        object_store=object_store,
+        object_store_id=config.object_store_id,
+        telemetry_store=telemetry_store,
+        role_policy_version=config.role_policy_version,
+        role_policy_digest=config.role_policy_digest,
+        execution_profile_catalog=execution_profile_catalogs[0],
+        cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
+        clock=clock,
+    )
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
         api_key_authentication=api_key_authentication,
         logout_commands=logout_commands,
         readiness=readiness,
+        content_reads=read_services.content,
+        workflow_reads=read_services.workflows,
+        observability_reads=read_services.observability,
         tracer=Tracer(
             exporter=_LocalSpanExporter(telemetry_store),
             sampler=AlwaysOnSampler(),

@@ -54,7 +54,7 @@ from gameforge.runtime.observability.metrics import (
 
 
 _SCHEMA_VERSION = 1
-_READ_KINDS = frozenset({"traces", "spans", "logs", "metrics"})
+_READ_KINDS = frozenset({"traces", "run_traces", "spans", "logs", "metrics"})
 _PIN_OWNER_KINDS = frozenset({"slo", "alert", "saved_query"})
 
 
@@ -138,6 +138,7 @@ class _ReadSnapshot:
     kind: str
     query_hash: str
     authz_fingerprint: str
+    principal_binding: str | None
     high_watermark: int
     expires_at: datetime
     retention_fingerprint: str
@@ -240,6 +241,25 @@ class LocalTelemetryStore:
             return MetricDescriptorRegistryRefV1.model_validate_json(row[0])
         except ValueError as exc:
             raise IntegrityViolation("active metric registry binding is invalid") from exc
+
+    def get_metric_descriptor_registry(self) -> MetricDescriptorRegistryV1 | None:
+        with self._connection() as connection:
+            key = self._active_registry_key(connection)
+            if key is None:
+                return None
+            row = connection.execute(
+                """
+                SELECT payload FROM metric_registries
+                WHERE registry_version = ? AND registry_digest = ?
+                """,
+                key,
+            ).fetchone()
+        if row is None:
+            raise IntegrityViolation("active metric registry payload is unavailable")
+        try:
+            return MetricDescriptorRegistryV1.model_validate_json(row["payload"])
+        except ValueError as exc:
+            raise IntegrityViolation("persisted metric registry payload is invalid") from exc
 
     def _require_open(self) -> None:
         if self._closed:
@@ -679,6 +699,26 @@ class LocalTelemetryStore:
             ).fetchone()
         return None if row is None else self._parse_span(row["payload"])
 
+    def get_trace_summary(self, trace_id: str) -> TraceSummaryV1 | None:
+        if not isinstance(trace_id, str) or not trace_id:
+            raise ValueError("trace_id must be non-empty")
+        with self._connection() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload FROM spans WHERE trace_id = ?
+                ORDER BY started_at, span_id LIMIT ?
+                """,
+                (trace_id, self._limits.max_span_count + 1),
+            ).fetchall()
+        if len(rows) > self._limits.max_span_count:
+            raise QueryTooBroad("trace span count exceeds service cap")
+        if not rows:
+            return None
+        return self._summarize_trace(
+            trace_id,
+            tuple(self._parse_span(row["payload"]) for row in rows),
+        )
+
     def append(self, record: LogRecordV1) -> None:
         payload = _wire(record)
         payload_hash = _wire_hash(payload)
@@ -848,16 +888,23 @@ class LocalTelemetryStore:
             if count >= int(registry["global_series_limit"]):
                 raise BufferError("metric registry global series limit exceeded")
 
-    def query_traces(self, query: TraceQueryV1) -> TraceSummaryPageV1:
+    def query_traces(
+        self,
+        query: TraceQueryV1,
+        *,
+        principal_binding: str | None = None,
+    ) -> TraceSummaryPageV1:
         self._validate_time_range(query.time_range.start_utc, query.time_range.end_utc)
         self._validate_page_limit(query.limit, kind="trace")
-        query_hash = self._query_hash(query.model_dump(mode="json", exclude={"cursor"}))
+        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
         snapshot = self._resolve_snapshot(
             kind="traces",
             query_hash=query_hash,
             authz_fingerprint=query.authz_fingerprint,
+            principal_binding=principal_binding,
             page_limit=query.limit,
             cursor=query.cursor,
+            legacy_query_hash=legacy_query_hash,
         )
         with self._connection() as connection:
             rows = connection.execute(
@@ -906,6 +953,75 @@ class LocalTelemetryStore:
         self._check_response_size(page)
         return page
 
+    def page_run_traces(
+        self,
+        run_id: str,
+        *,
+        cursor: str | None,
+        limit: int,
+        authz_fingerprint: str,
+        principal_binding: str | None = None,
+    ) -> TraceSummaryPageV1:
+        if not isinstance(run_id, str) or not run_id:
+            raise ValueError("run_id must be non-empty")
+        self._validate_page_limit(limit, kind="trace")
+        query_hash = self._query_hash({"run_id": run_id})
+        snapshot = self._resolve_snapshot(
+            kind="run_traces",
+            query_hash=query_hash,
+            authz_fingerprint=authz_fingerprint,
+            principal_binding=principal_binding,
+            page_limit=limit,
+            cursor=cursor,
+        )
+        with self._connection() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload FROM spans
+                WHERE seq <= ? AND trace_id IN (
+                    SELECT DISTINCT trace_id FROM spans
+                    WHERE seq <= ? AND run_id = ?
+                )
+                ORDER BY started_at, trace_id, span_id
+                LIMIT ?
+                """,
+                (
+                    snapshot.high_watermark,
+                    snapshot.high_watermark,
+                    run_id,
+                    self._limits.max_span_count + 1,
+                ),
+            ).fetchall()
+        if len(rows) > self._limits.max_span_count:
+            raise QueryTooBroad("Run trace span count exceeds service cap")
+        grouped: dict[str, list[SpanDataV1]] = defaultdict(list)
+        for row in rows:
+            span = self._parse_span(row["payload"])
+            grouped[span.trace_id].append(span)
+        summaries = sorted(
+            (self._summarize_trace(trace_id, spans) for trace_id, spans in grouped.items()),
+            key=lambda item: (item.started_at, item.trace_id),
+        )
+        items, next_cursor = self._page_items(
+            summaries,
+            snapshot=snapshot,
+            page_limit=limit,
+        )
+        coverage_start = min((item.started_at for item in summaries), default=self._now())
+        coverage_end = max(
+            (item.ended_at or item.started_at for item in summaries),
+            default=coverage_start,
+        )
+        page = TraceSummaryPageV1(
+            items=tuple(items),
+            next_cursor=next_cursor,
+            coverage_start=coverage_start,
+            coverage_end=coverage_end,
+            truncated=next_cursor is not None,
+        )
+        self._check_response_size(page)
+        return page
+
     def page_spans(
         self,
         trace_id: str,
@@ -913,6 +1029,7 @@ class LocalTelemetryStore:
         cursor: str | None,
         limit: int,
         authz_fingerprint: str,
+        principal_binding: str | None = None,
     ) -> SpanPageV1:
         if not trace_id:
             raise ValueError("trace_id must be non-empty")
@@ -924,6 +1041,7 @@ class LocalTelemetryStore:
             kind="spans",
             query_hash=query_hash,
             authz_fingerprint=authz_fingerprint,
+            principal_binding=principal_binding,
             page_limit=limit,
             cursor=cursor,
         )
@@ -966,16 +1084,23 @@ class LocalTelemetryStore:
         self._check_response_size(page)
         return page
 
-    def query_logs(self, query: LogQueryV1) -> LogPageV1:
+    def query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        principal_binding: str | None = None,
+    ) -> LogPageV1:
         self._validate_time_range(query.time_range.start_utc, query.time_range.end_utc)
         self._validate_page_limit(query.limit, kind="log")
-        query_hash = self._query_hash(query.model_dump(mode="json", exclude={"cursor"}))
+        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
         snapshot = self._resolve_snapshot(
             kind="logs",
             query_hash=query_hash,
             authz_fingerprint=query.authz_fingerprint,
+            principal_binding=principal_binding,
             page_limit=query.limit,
             cursor=query.cursor,
+            legacy_query_hash=legacy_query_hash,
         )
         clauses = ["seq <= ?", "ts_utc >= ?", "ts_utc < ?"]
         parameters: list[object] = [
@@ -992,6 +1117,12 @@ class LocalTelemetryStore:
         if query.trace_id is not None:
             clauses.append("trace_id = ?")
             parameters.append(query.trace_id)
+        if query.span_id is not None:
+            clauses.append("span_id = ?")
+            parameters.append(query.span_id)
+        if query.producer_run_id is not None:
+            clauses.append("producer_run_id = ?")
+            parameters.append(query.producer_run_id)
         parameters.extend((query.limit + 1, snapshot.offset))
         statement = (
             "SELECT payload FROM logs WHERE "
@@ -1030,7 +1161,12 @@ class LocalTelemetryStore:
         clauses.append(f"{column} IN ({placeholders})")
         parameters.extend(values)
 
-    def query_metrics(self, query: MetricQueryV1) -> MetricPageV1:
+    def query_metrics(
+        self,
+        query: MetricQueryV1,
+        *,
+        principal_binding: str | None = None,
+    ) -> MetricPageV1:
         self._validate_time_range(query.time_range.start_utc, query.time_range.end_utc)
         if query.series_limit > self._limits.max_series:
             raise QueryTooBroad("metric series limit exceeds service cap")
@@ -1040,15 +1176,17 @@ class LocalTelemetryStore:
             raise QueryTooBroad("metric resolution exceeds service cap")
         descriptors = self._load_descriptors(query.descriptor_refs)
         validate_metric_query_shape(query, descriptors)
-        query_hash = self._query_hash(query.model_dump(mode="json", exclude={"cursor"}))
+        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
         authz = query.authz_fingerprint
         snapshot = self._resolve_snapshot(
             kind="metrics",
             query_hash=query_hash,
             authz_fingerprint=authz,
+            principal_binding=principal_binding,
             page_limit=query.series_limit,
             cursor=query.cursor,
             descriptor_refs=query.descriptor_refs,
+            legacy_query_hash=legacy_query_hash,
         )
         points = self._load_metric_points(query, snapshot.high_watermark)
         series = aggregate_metric_points(points, descriptors, query)
@@ -1112,6 +1250,13 @@ class LocalTelemetryStore:
                 result[metric_descriptor_key(descriptor.ref)] = descriptor
         return result
 
+    def resolve_metric_descriptors(
+        self,
+        refs: Sequence[MetricDescriptorRefV1],
+    ) -> tuple[MetricDescriptorV1, ...]:
+        descriptors = self._load_descriptors(refs)
+        return tuple(descriptors[metric_descriptor_key(ref)] for ref in refs)
+
     def _load_metric_points(
         self,
         query: MetricQueryV1,
@@ -1167,15 +1312,33 @@ class LocalTelemetryStore:
             }
         )
 
+    def _query_hashes(
+        self,
+        query: Any,
+        principal_binding: str | None,
+    ) -> tuple[str, str | None]:
+        legacy = self._query_hash(query.model_dump(mode="json", exclude={"cursor"}))
+        if principal_binding is None:
+            return legacy, None
+        current = self._query_hash(
+            query.model_dump(
+                mode="json",
+                exclude={"cursor", "authz_fingerprint"},
+            )
+        )
+        return current, legacy
+
     def _resolve_snapshot(
         self,
         *,
         kind: str,
         query_hash: str,
         authz_fingerprint: str,
+        principal_binding: str | None,
         page_limit: int,
         cursor: str | None,
         descriptor_refs: Sequence[MetricDescriptorRefV1] = (),
+        legacy_query_hash: str | None = None,
     ) -> _ReadSnapshot:
         if kind not in _READ_KINDS:
             raise ValueError("unknown telemetry read snapshot kind")
@@ -1184,6 +1347,7 @@ class LocalTelemetryStore:
                 kind=kind,
                 query_hash=query_hash,
                 authz_fingerprint=authz_fingerprint,
+                principal_binding=principal_binding,
                 descriptor_refs=descriptor_refs,
             )
         state = self._cursor_codec.verify(
@@ -1192,6 +1356,8 @@ class LocalTelemetryStore:
             expected_query_hash=query_hash,
             expected_authz_fingerprint=authz_fingerprint,
             expected_page_limit=page_limit,
+            expected_principal_binding=principal_binding,
+            expected_legacy_query_hash=legacy_query_hash,
         )
         with self._connection() as connection:
             row = connection.execute(
@@ -1200,13 +1366,17 @@ class LocalTelemetryStore:
             ).fetchone()
         if row is None:
             raise CursorExpired("telemetry query snapshot is no longer retained")
-        snapshot = self._snapshot_from_row(row, offset=state.offset)
+        snapshot = self._snapshot_from_row(
+            row,
+            offset=state.offset,
+            principal_binding=state.principal_binding,
+        )
         if self._now() >= snapshot.expires_at:
             raise CursorExpired("telemetry query snapshot has expired")
         if (
             snapshot.kind != kind
-            or snapshot.query_hash != query_hash
-            or snapshot.authz_fingerprint != authz_fingerprint
+            or snapshot.query_hash != state.query_hash
+            or snapshot.authz_fingerprint != state.authz_fingerprint
             or snapshot.retention_fingerprint != self._retention.fingerprint
             or snapshot.expires_at != state.expires_at
         ):
@@ -1223,11 +1393,12 @@ class LocalTelemetryStore:
         kind: str,
         query_hash: str,
         authz_fingerprint: str,
+        principal_binding: str | None,
         descriptor_refs: Sequence[MetricDescriptorRefV1],
     ) -> _ReadSnapshot:
         now = self._now()
         expires_at = now + self._retention.read_snapshot_ttl
-        table = "spans" if kind in {"traces", "spans"} else kind
+        table = "spans" if kind in {"traces", "run_traces", "spans"} else kind
         if table == "metrics":
             table = "metric_points"
         with self._connection() as connection:
@@ -1278,6 +1449,7 @@ class LocalTelemetryStore:
             kind=kind,
             query_hash=query_hash,
             authz_fingerprint=authz_fingerprint,
+            principal_binding=principal_binding,
             high_watermark=high_watermark,
             expires_at=expires_at,
             retention_fingerprint=self._retention.fingerprint,
@@ -1285,12 +1457,18 @@ class LocalTelemetryStore:
         )
 
     @staticmethod
-    def _snapshot_from_row(row: sqlite3.Row, *, offset: int) -> _ReadSnapshot:
+    def _snapshot_from_row(
+        row: sqlite3.Row,
+        *,
+        offset: int,
+        principal_binding: str | None,
+    ) -> _ReadSnapshot:
         return _ReadSnapshot(
             snapshot_id=row["snapshot_id"],
             kind=row["kind"],
             query_hash=row["query_hash"],
             authz_fingerprint=row["authz_fingerprint"],
+            principal_binding=principal_binding,
             high_watermark=int(row["high_watermark"]),
             expires_at=_parse_utc(row["expires_at"]),
             retention_fingerprint=row["retention_fingerprint"],
@@ -1348,6 +1526,7 @@ class LocalTelemetryStore:
             snapshot_id=snapshot.snapshot_id,
             query_hash=snapshot.query_hash,
             authz_fingerprint=snapshot.authz_fingerprint,
+            principal_binding=snapshot.principal_binding,
             offset=next_offset,
             page_limit=page_limit,
             expires_at=snapshot.expires_at,
@@ -1504,7 +1683,7 @@ class LocalTelemetryStore:
                     ).fetchall()
                 }
                 deleted_spans = 0
-                if not active_kinds.intersection({"traces", "spans"}):
+                if not active_kinds.intersection({"traces", "run_traces", "spans"}):
                     deleted_spans = connection.execute(
                         "DELETE FROM spans WHERE ended_at < ?",
                         (_format_utc(now - self._retention.spans),),
