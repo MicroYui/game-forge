@@ -10,7 +10,7 @@ from typing import Any
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import IdempotencyConflict, IntegrityViolation
 from gameforge.contracts.storage import UtcClock
 from gameforge.runtime.persistence.models import IdempotencyRecordRow
 
@@ -53,11 +53,7 @@ def _validate_timestamp(value: object) -> None:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
         raise IntegrityViolation("stored idempotency timestamp is invalid") from exc
-    if (
-        parsed.tzinfo is None
-        or parsed.utcoffset() is None
-        or parsed.utcoffset() != timedelta(0)
-    ):
+    if parsed.tzinfo is None or parsed.utcoffset() is None or parsed.utcoffset() != timedelta(0):
         raise IntegrityViolation("stored idempotency timestamp is not UTC")
 
 
@@ -124,7 +120,7 @@ class SqlIdempotencyRepository:
             return None
         response = self._validated_response(row, expected_identity=identity)
         if row.request_hash != expected_hash:
-            raise Conflict(
+            raise IdempotencyConflict(
                 "idempotency key is already bound to a different request",
                 scope=identity[0],
                 operation=identity[1],

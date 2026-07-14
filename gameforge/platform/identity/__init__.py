@@ -5,6 +5,7 @@ from gameforge.platform.identity.authentication import (
     TrustedSystemActorFactory,
 )
 from gameforge.platform.identity.bootstrap import BootstrapService
+from gameforge.platform.identity.logout import LogoutCommandService, LogoutResult
 from gameforge.platform.identity.management import IdentityManagementService
 from gameforge.platform.identity.sessions import (
     SessionAuthenticationService,
@@ -15,6 +16,8 @@ __all__ = [
     "ApiKeyAuthenticationService",
     "BootstrapService",
     "IdentityManagementService",
+    "LogoutCommandService",
+    "LogoutResult",
     "SessionAuthenticationService",
     "TransactionalSessionManager",
     "TrustedSystemActorFactory",

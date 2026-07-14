@@ -24,8 +24,24 @@ class Conflict(GameForgeError):
     code = "revision_conflict"
 
 
+class IdempotencyConflict(Conflict):
+    code = "idempotency_conflict"
+
+
 class StaleConflictSet(Conflict):
     code = "stale_conflict_set"
+
+
+class WorkflowGuard(Conflict):
+    code = "workflow_guard"
+
+
+class PatchPreconditionFailed(Conflict):
+    code = "patch_precondition_failed"
+
+
+class StaleTaskSuite(Conflict):
+    code = "stale_task_suite"
 
 
 class CursorInvalid(GameForgeError):
@@ -36,8 +52,16 @@ class CursorExpired(GameForgeError):
     code = "cursor_expired"
 
 
+class NotFound(GameForgeError):
+    code = "not_found"
+
+
 class Forbidden(GameForgeError):
     code = "forbidden"
+
+
+class OriginRejected(Forbidden):
+    code = "origin_rejected"
 
 
 class InvalidStateTransition(GameForgeError):
@@ -56,6 +80,10 @@ class QueryTooBroad(GameForgeError):
     code = "query_too_broad"
 
 
+class PayloadTooLarge(GameForgeError):
+    code = "payload_too_large"
+
+
 class QuotaExceeded(GameForgeError):
     code = "quota_exceeded"
 
@@ -70,8 +98,16 @@ class AuthError(GameForgeError):
     code = "auth_failed"
 
 
+class AuthRequired(AuthError):
+    code = "auth_required"
+
+
 class AuthFailed(AuthError):
     code = "auth_failed"
+
+
+class CsrfFailed(AuthFailed):
+    code = "csrf_failed"
 
 
 class CredentialDisabled(AuthError):
@@ -92,3 +128,7 @@ class SessionRevoked(AuthError):
 
 class OidcStateInvalid(AuthError):
     code = "oidc_state_invalid"
+
+
+class RequestSchemaInvalid(GameForgeError):
+    code = "request_schema_invalid"

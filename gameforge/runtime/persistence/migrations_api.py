@@ -19,6 +19,7 @@ from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
+from alembic.script import ScriptDirectory
 
 # gameforge/runtime/persistence/migrations_api.py -> repo root is 3 parents up.
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -43,3 +44,12 @@ def upgrade(url: str, rev: str = "head") -> None:
 def downgrade(url: str, rev: str = "base") -> None:
     """Run Alembic downgrade to `rev` (default `"base"`) against `url`."""
     command.downgrade(_config(url), rev)
+
+
+def expected_heads(url: str) -> tuple[str, ...]:
+    """Return the stable exact Alembic script heads for readiness checks."""
+
+    return tuple(sorted(ScriptDirectory.from_config(_config(url)).get_heads()))
+
+
+__all__ = ["downgrade", "expected_heads", "upgrade"]

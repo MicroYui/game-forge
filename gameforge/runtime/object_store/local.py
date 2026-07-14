@@ -169,6 +169,45 @@ class LocalObjectStore:
         self._snapshots: dict[str, _ListSnapshot] = {}
         self._snapshot_lock = RLock()
 
+    def check_ready(self) -> None:
+        """Validate local coordination state without scanning or mutating blobs."""
+
+        for directory in (
+            self._root,
+            self._staging_root,
+            self._trash_root,
+            self._locks_root,
+        ):
+            try:
+                directory_stat = directory.lstat()
+            except FileNotFoundError as exc:
+                raise IntegrityViolation(
+                    "object-store readiness directory is missing",
+                    path=str(directory),
+                ) from exc
+            if not stat_module.S_ISDIR(directory_stat.st_mode) or stat_module.S_ISLNK(
+                directory_stat.st_mode
+            ):
+                raise IntegrityViolation(
+                    "object-store readiness path is not a regular directory",
+                    path=str(directory),
+                )
+        for path in (self._initialization_lock_path, self._mutation_lock_path):
+            try:
+                path_stat = path.lstat()
+            except FileNotFoundError as exc:
+                raise IntegrityViolation(
+                    "object-store coordination file is missing",
+                    path=str(path),
+                ) from exc
+            if not stat_module.S_ISREG(path_stat.st_mode) or stat_module.S_ISLNK(path_stat.st_mode):
+                raise IntegrityViolation(
+                    "object-store coordination path is not a regular file",
+                    path=str(path),
+                )
+        with self._coordination_lock(fcntl.LOCK_SH):
+            self._read_catalog_token()
+
     def put_verified(self, source: bytes | BinaryIO) -> StoredObject:
         staging_directory = self._new_staging_directory("put")
         data_path = staging_directory / "data"

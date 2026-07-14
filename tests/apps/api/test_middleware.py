@@ -1,0 +1,228 @@
+from __future__ import annotations
+
+import asyncio
+
+from fastapi import Depends, Request
+from fastapi.testclient import TestClient
+
+from gameforge.apps.api.app import create_app
+from gameforge.apps.api.dependencies import ApiDependencies
+from gameforge.apps.api.health import ReadinessChecks, ReadinessService
+from gameforge.contracts.auth import SecretText, SessionToken
+from gameforge.contracts.identity import (
+    ActorContext,
+    AuthenticationContext,
+    Principal,
+)
+from gameforge.runtime.observability import InMemoryExporter, Tracer
+from gameforge.runtime.observability.context import current_trace_context
+
+
+def _noop() -> None:
+    return None
+
+
+class _Ids:
+    def __init__(self) -> None:
+        self._trace = 0
+        self._span = 0
+
+    def new_trace_id(self) -> str:
+        self._trace += 1
+        return f"{self._trace:032x}"
+
+    def new_span_id(self) -> str:
+        self._span += 1
+        return f"{self._span:016x}"
+
+
+class _RequestIds:
+    def __init__(self) -> None:
+        self._ordinal = 0
+
+    def __call__(self) -> str:
+        self._ordinal += 1
+        return f"request:server:{self._ordinal}"
+
+
+class _SessionAuth:
+    def __init__(self, events: list[str]) -> None:
+        self.events = events
+        self.request_ids: list[str] = []
+
+    def resolve(
+        self,
+        token: SessionToken,
+        *,
+        csrf_token: SecretText | None,
+        request_method: str,
+        request_id: str,
+    ) -> ActorContext:
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("synchronous authentication must not block the event loop")
+        assert token.get_secret_value() == "session-secret"
+        assert csrf_token is None
+        assert request_method == "GET"
+        self.events.append("authn")
+        self.request_ids.append(request_id)
+        return _human_actor(request_id=request_id)
+
+
+def _human_actor(*, request_id: str) -> ActorContext:
+    return ActorContext(
+        principal=Principal(
+            id="human:alice",
+            kind="human",
+            display_name="Alice",
+            status="active",
+            revision=1,
+            credential_epoch=1,
+            authz_revision=1,
+            roles=(),
+        ),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:alice",
+        ),
+        session_id="session:alice:1",
+        request_id=request_id,
+    )
+
+
+def _ready() -> ReadinessService:
+    return ReadinessService(
+        ReadinessChecks(
+            migration_head=_noop,
+            database=_noop,
+            object_store=_noop,
+            cost_ledger=_noop,
+            registry=_noop,
+            slo_retention=_noop,
+            audit_cache=_noop,
+        )
+    )
+
+
+def test_actual_request_context_authn_dependency_and_handler_order() -> None:
+    events: list[str] = []
+    session_auth = _SessionAuth(events)
+    exporter = InMemoryExporter(capacity=10)
+    app = create_app(
+        ApiDependencies(
+            session_authentication=session_auth,
+            tracer=Tracer(exporter=exporter, id_generator=_Ids()),
+            request_id_factory=_RequestIds(),
+            readiness=_ready(),
+        )
+    )
+
+    def resource_authz(request: Request) -> None:
+        events.append("authz")
+        assert request.state.actor.principal.id == "human:alice"
+        assert current_trace_context() is not None
+
+    @app.get("/api/v1/_middleware-order", dependencies=[Depends(resource_authz)])
+    def handler(request: Request) -> dict[str, str]:
+        events.append("handler")
+        context = current_trace_context()
+        assert context is not None
+        return {
+            "request_id": request.state.request_id,
+            "trace_id": context.trace_id,
+        }
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        client.cookies.set("gameforge_session", "session-secret")
+        response = client.get(
+            "/api/v1/_middleware-order",
+            headers={
+                "X-Request-ID": "client-controlled-request",
+                "X-Trace-ID": "f" * 32,
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "request_id": "request:server:1",
+        "trace_id": "00000000000000000000000000000001",
+    }
+    assert response.headers["X-Request-ID"] == "request:server:1"
+    assert response.headers["X-Trace-ID"] == "00000000000000000000000000000001"
+    assert session_auth.request_ids == ["request:server:1"]
+    assert events == ["authn", "authz", "handler"]
+    assert len(exporter.spans) == 1
+    assert exporter.spans[0].name == "http.request"
+    assert exporter.spans[0].attributes["http.response.status_code"] == 200
+    assert exporter.spans[0].status == "ok"
+
+
+def test_problem_wrapper_is_outside_authentication_middleware() -> None:
+    class BrokenSessionAuth:
+        def resolve(self, *args: object, **kwargs: object) -> ActorContext:
+            raise RuntimeError("private authentication implementation detail")
+
+    exporter = InMemoryExporter(capacity=10)
+    app = create_app(
+        ApiDependencies(
+            session_authentication=BrokenSessionAuth(),
+            tracer=Tracer(exporter=exporter, id_generator=_Ids()),
+            request_id_factory=_RequestIds(),
+            readiness=_ready(),
+        )
+    )
+
+    @app.get("/api/v1/protected")
+    def protected() -> dict[str, bool]:
+        raise AssertionError("handler must not run")
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        client.cookies.set("gameforge_session", "session-secret")
+        response = client.get("/api/v1/protected")
+
+    assert response.status_code == 500
+    assert response.headers["content-type"] == "application/problem+json"
+    assert "private authentication implementation detail" not in response.text
+    assert response.json()["request_id"] == "request:server:1"
+    assert exporter.spans[0].attributes["http.response.status_code"] == 500
+    assert exporter.spans[0].status == "error"
+
+
+def test_client_error_span_retains_status_without_blame_as_server_error() -> None:
+    exporter = InMemoryExporter(capacity=10)
+    app = create_app(
+        ApiDependencies(
+            tracer=Tracer(exporter=exporter, id_generator=_Ids()),
+            request_id_factory=_RequestIds(),
+            readiness=_ready(),
+        )
+    )
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        response = client.get("/api/v1/does-not-exist")
+
+    assert response.status_code == 404
+    assert exporter.spans[0].attributes["http.response.status_code"] == 404
+    assert exporter.spans[0].status == "unset"
+
+
+def test_http_middleware_contains_no_cost_governor() -> None:
+    app = create_app(
+        ApiDependencies(
+            tracer=Tracer(exporter=InMemoryExporter(capacity=10), id_generator=_Ids()),
+            request_id_factory=_RequestIds(),
+            readiness=_ready(),
+        )
+    )
+
+    middleware_names = tuple(item.cls.__name__ for item in app.user_middleware)
+
+    assert middleware_names == (
+        "RequestContextMiddleware",
+        "ProblemMiddleware",
+        "AuthenticationMiddleware",
+    )
+    assert all("cost" not in name.lower() for name in middleware_names)

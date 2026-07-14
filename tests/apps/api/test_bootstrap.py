@@ -35,7 +35,7 @@ def test_api_cli_invokes_uvicorn_factory_without_worker(monkeypatch) -> None:
     run_api(host="127.0.0.1", port=8123)
 
     assert observed == {
-        "target": "gameforge.apps.api.app:create_app",
+        "target": "gameforge.apps.api.local:create_local_app",
         "factory": True,
         "host": "127.0.0.1",
         "port": 8123,

@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import IdempotencyConflict, IntegrityViolation
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
@@ -74,14 +74,14 @@ def test_same_scoped_key_with_a_different_request_hash_conflicts(engine: Engine)
         _put(repository)
         session.commit()
 
-        with pytest.raises(Conflict, match="idempotency"):
+        with pytest.raises(IdempotencyConflict, match="idempotency"):
             repository.get_result(
                 scope="principal:human:alice",
                 operation="approval.decide",
                 key="request:1",
                 request_hash="b" * 64,
             )
-        with pytest.raises(Conflict, match="idempotency"):
+        with pytest.raises(IdempotencyConflict, match="idempotency"):
             _put(repository, request_hash="b" * 64)
 
 

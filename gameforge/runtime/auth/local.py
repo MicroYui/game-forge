@@ -33,6 +33,7 @@ from gameforge.contracts.errors import (
     AuthFailed,
     CredentialDisabled,
     CredentialExpired,
+    CsrfFailed,
     IntegrityViolation,
     SessionExpired,
     SessionRevoked,
@@ -44,7 +45,11 @@ from gameforge.runtime.auth.passwords import (
     canonicalize_login_name,
     normalize_login_name,
 )
-from gameforge.runtime.auth.tokens import ApiKeyRuntime, SessionTokenRuntime
+from gameforge.runtime.auth.tokens import (
+    ApiKeyRuntime,
+    SessionTokenRuntime,
+    VerifiedSessionToken,
+)
 from gameforge.runtime.persistence.auth import SqlAuthRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
 
@@ -196,6 +201,13 @@ class LocalPasswordAuthenticator:
         lookup_name = canonicalize_login_name(request.login_name)
         credential = self._auth.get_password_by_normalized_login(lookup_name)
         if credential is None:
+            current_policy = _resolve_hash_policy(
+                self._hash_policy_resolver,
+                self._current_hash_policy.policy_version,
+            )
+            if current_policy != self._current_hash_policy:
+                raise IntegrityViolation("current password hash policy is inconsistent")
+            self._password_runtime.hash_password(request.password, current_policy)
             raise AuthFailed("password authentication failed")
         normalization_policy = _resolve_normalization_policy(
             self._normalization_policy_resolver,
@@ -213,9 +225,6 @@ class LocalPasswordAuthenticator:
             normalized,
             normalization_policy,
         )
-        if credential.status != "active":
-            raise CredentialDisabled("password credential is disabled")
-
         retained_policy = _resolve_hash_policy(
             self._hash_policy_resolver,
             credential.hash_policy_version,
@@ -226,11 +235,14 @@ class LocalPasswordAuthenticator:
         )
         if current_policy != self._current_hash_policy:
             raise IntegrityViolation("current password hash policy is inconsistent")
-        if not self._password_runtime.verify_password(
+        verified = self._password_runtime.verify_password(
             request.password,
             credential.password_hash,
             retained_policy,
-        ):
+        )
+        if credential.status != "active":
+            raise CredentialDisabled("password credential is disabled")
+        if not verified:
             raise AuthFailed("password authentication failed")
 
         _active_principal(
@@ -427,30 +439,7 @@ class LocalSessionRuntime:
         csrf_token: SecretText | None,
         request_method: str,
     ) -> SessionContextV1:
-        if not isinstance(token, SessionToken):
-            raise AuthFailed("session token is invalid")
-        verified = self._token_runtime.verify(token)
-        record = self._auth.get_session(verified.session_id)
-        if record is None:
-            raise AuthFailed("session is unavailable")
-        digest_record = self._auth.get_session_by_token_digest(verified.token_digest)
-        if digest_record is None or digest_record.session_id != record.session_id:
-            raise IntegrityViolation("session token digest authority is inconsistent")
-        if digest_record != record:
-            raise IntegrityViolation("session id and digest lookups returned different content")
-        if not hmac.compare_digest(record.token_digest, verified.token_digest):
-            raise IntegrityViolation("session token digest differs from stored authority")
-        if record.signing_key_id != verified.signing_key_id:
-            raise IntegrityViolation("session signing key differs from stored authority")
-        if record.credential_version != verified.credential_version:
-            raise IntegrityViolation("session credential version differs from signed authority")
-
-        policy = _resolve_session_policy(
-            self._session_policy_resolver,
-            verified.session_policy_version,
-        )
-        if policy.signing_key_set_version != verified.signing_key_set_version:
-            raise IntegrityViolation("session policy signing key set differs from signed authority")
+        verified, record, policy = self._inspect_token_binding(token)
         if record.revoked_at is not None:
             raise SessionRevoked("session is revoked")
 
@@ -483,12 +472,7 @@ class LocalSessionRuntime:
 
         method = self._request_method(request_method)
         if method not in _SAFE_HTTP_METHODS:
-            if not isinstance(csrf_token, SecretText) or not self._token_runtime.verify_csrf(
-                csrf_token,
-                token_digest=record.token_digest,
-                expected_digest=record.csrf_secret_digest,
-            ):
-                raise AuthFailed("CSRF token is invalid")
+            self._require_csrf(record, csrf_token)
 
         if now >= last_seen + timedelta(seconds=policy.touch_interval_s):
             next_idle = min(now + timedelta(seconds=policy.idle_ttl_s), absolute)
@@ -519,6 +503,59 @@ class LocalSessionRuntime:
             idle_expires_at=record.idle_expires_at,
             session_policy_version=verified.session_policy_version,
         )
+
+    def inspect_for_logout(
+        self,
+        token: SessionToken,
+        *,
+        csrf_token: SecretText,
+    ) -> SessionRecordV1:
+        """Resolve immutable session identity while allowing exact logout replay."""
+
+        _, record, _ = self._inspect_token_binding(token)
+        self._require_csrf(record, csrf_token)
+        return record
+
+    def _inspect_token_binding(
+        self,
+        token: SessionToken,
+    ) -> tuple[VerifiedSessionToken, SessionRecordV1, SessionPolicyV1]:
+        if not isinstance(token, SessionToken):
+            raise AuthFailed("session token is invalid")
+        verified = self._token_runtime.verify(token)
+        record = self._auth.get_session(verified.session_id)
+        if record is None:
+            raise AuthFailed("session is unavailable")
+        digest_record = self._auth.get_session_by_token_digest(verified.token_digest)
+        if digest_record is None or digest_record.session_id != record.session_id:
+            raise IntegrityViolation("session token digest authority is inconsistent")
+        if digest_record != record:
+            raise IntegrityViolation("session id and digest lookups returned different content")
+        if not hmac.compare_digest(record.token_digest, verified.token_digest):
+            raise IntegrityViolation("session token digest differs from stored authority")
+        if record.signing_key_id != verified.signing_key_id:
+            raise IntegrityViolation("session signing key differs from stored authority")
+        if record.credential_version != verified.credential_version:
+            raise IntegrityViolation("session credential version differs from signed authority")
+        policy = _resolve_session_policy(
+            self._session_policy_resolver,
+            verified.session_policy_version,
+        )
+        if policy.signing_key_set_version != verified.signing_key_set_version:
+            raise IntegrityViolation("session policy signing key set differs from signed authority")
+        return verified, record, policy
+
+    def _require_csrf(
+        self,
+        record: SessionRecordV1,
+        csrf_token: SecretText | None,
+    ) -> None:
+        if not isinstance(csrf_token, SecretText) or not self._token_runtime.verify_csrf(
+            csrf_token,
+            token_digest=record.token_digest,
+            expected_digest=record.csrf_secret_digest,
+        ):
+            raise CsrfFailed("CSRF token is invalid")
 
     @staticmethod
     def _request_method(value: str) -> str:

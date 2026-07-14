@@ -78,6 +78,25 @@ class _Entropy:
         return (block * ((size // len(block)) + 1))[:size]
 
 
+class _WorkCountingPasswordRuntime(Argon2PasswordRuntime):
+    def __init__(self) -> None:
+        super().__init__(random_bytes=_Entropy())
+        self.hash_work = 0
+        self.verify_work = 0
+
+    @property
+    def work_count(self) -> int:
+        return self.hash_work + self.verify_work
+
+    def hash_password(self, password, policy):
+        self.hash_work += 1
+        return super().hash_password(password, policy)
+
+    def verify_password(self, password, encoded_hash, policy):
+        self.verify_work += 1
+        return super().verify_password(password, encoded_hash, policy)
+
+
 @pytest.fixture
 def engine(tmp_path) -> Iterator[Engine]:
     database = get_engine(f"sqlite:///{tmp_path / 'local-auth.db'}")
@@ -338,6 +357,64 @@ def test_password_login_fails_closed_for_bad_secret_policy_binding_and_principal
             LocalPasswordAuthenticator(**base).verify_password(
                 PasswordAuthRequestV1(login_name="alice", password=SecretText("correct-password"))
             )
+
+
+def test_unknown_and_disabled_password_credentials_both_consume_argon2_work(
+    engine: Engine,
+) -> None:
+    clock = _Clock(T0)
+    password_runtime = _WorkCountingPasswordRuntime()
+    policy = _hash_policy("argon2@1")
+
+    with Session(engine) as session:
+        auth, identities = _repositories(session, clock)
+        credential = _create_human(auth, identities, password_runtime, policy)
+        auth.disable_password(
+            credential.credential_id,
+            expected_revision=credential.revision,
+        )
+        session.commit()
+        base = dict(
+            auth_repository=auth,
+            identity_repository=identities,
+            normalization_policy_resolver=lambda version, digest: (
+                _normalization_policy()
+                if (version, digest)
+                == (
+                    _normalization_policy().policy_version,
+                    _normalization_policy().policy_digest,
+                )
+                else None
+            ),
+            hash_policy_resolver=lambda version: (
+                policy if version == policy.policy_version else None
+            ),
+            current_hash_policy=policy,
+            password_runtime=password_runtime,
+            clock=clock,
+        )
+
+        password_runtime.hash_work = 0
+        password_runtime.verify_work = 0
+        with pytest.raises(AuthFailed):
+            LocalPasswordAuthenticator(**base).verify_password(
+                PasswordAuthRequestV1(
+                    login_name="unknown",
+                    password=SecretText("wrong-password"),
+                )
+            )
+        assert password_runtime.work_count == 1
+
+        password_runtime.hash_work = 0
+        password_runtime.verify_work = 0
+        with pytest.raises(CredentialDisabled):
+            LocalPasswordAuthenticator(**base).verify_password(
+                PasswordAuthRequestV1(
+                    login_name="alice",
+                    password=SecretText("wrong-password"),
+                )
+            )
+        assert password_runtime.work_count == 1
 
 
 def test_password_login_uses_the_credential_bound_historical_normalization_policy(
