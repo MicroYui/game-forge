@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import timedelta, timezone
 from typing import Any
 
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import BigInteger, func, literal_column, select
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import canonical_json, canonical_sha256
@@ -15,7 +16,6 @@ from gameforge.contracts.errors import CursorExpired, CursorInvalid, IntegrityVi
 from gameforge.contracts.lineage import ArtifactV1, ArtifactV2, parse_artifact
 from gameforge.contracts.storage import (
     MAX_PAGE_ITEMS,
-    MaterializedReadItemV1,
     PageCursorV1,
     PageV1,
     ReadSnapshotV1,
@@ -25,7 +25,6 @@ from gameforge.contracts.storage import (
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.models import (
     ArtifactRow,
-    MaterializedReadItemRow,
     ReadSnapshotRow,
 )
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
@@ -52,7 +51,8 @@ _ARTIFACT_AUTHZ_FINGERPRINT = canonical_sha256(
     {"scope": "artifact-repository-internal", "resource_kind": "artifacts"}
 )
 _STABLE_SORT_SCHEMA_ID = "artifact-id-asc@1"
-_MATERIALIZED_VIEW_SCHEMA_ID = "artifact-wire@1"
+# Artifact rows are append-only: DELETE/VACUUM must not run while a read snapshot is retained.
+_ARTIFACT_ROWID = literal_column("artifacts.rowid", type_=BigInteger())
 
 
 def _row_wire(row: ArtifactRow) -> dict[str, Any]:
@@ -174,13 +174,32 @@ def _snapshot_from_row(row: ReadSnapshotRow) -> ReadSnapshotV1:
         snapshot.resource_kind != "artifacts"
         or snapshot.authz_fingerprint != _ARTIFACT_AUTHZ_FINGERPRINT
         or snapshot.stable_sort_schema_id != _STABLE_SORT_SCHEMA_ID
-        or snapshot.strategy != "materialized_view"
+        or snapshot.strategy != "immutable_high_watermark"
     ):
         raise IntegrityViolation(
             "stored artifact read snapshot metadata is invalid",
             snapshot_id=row.snapshot_id,
         )
     return snapshot
+
+
+def _encode_position(artifact_id: str) -> str:
+    return canonical_json({"artifact_id": artifact_id})
+
+
+def _decode_position(position: str) -> str:
+    try:
+        value = json.loads(position)
+    except (TypeError, ValueError) as exc:
+        raise CursorInvalid("artifact cursor position is invalid") from exc
+    if (
+        not isinstance(value, dict)
+        or set(value) != {"artifact_id"}
+        or not isinstance(value["artifact_id"], str)
+        or not value["artifact_id"]
+    ):
+        raise CursorInvalid("artifact cursor position is invalid")
+    return value["artifact_id"]
 
 
 class SqlArtifactRepository:
@@ -248,8 +267,8 @@ class SqlArtifactRepository:
 
     def page(self, cursor: PageCursorV1 | None = None) -> PageV1[ArtifactWire]:
         if cursor is None:
-            snapshot = self._materialize_snapshot()
-            position = 0
+            snapshot = self._create_snapshot()
+            position = None
         else:
             row = self._session.get(ReadSnapshotRow, cursor.snapshot_id)
             if row is None:
@@ -264,41 +283,49 @@ class SqlArtifactRepository:
                     self._session.get(ReadSnapshotRow, snapshot_id) is not None
                 ),
             )
-            if not cursor.position.isascii() or not cursor.position.isdecimal():
-                raise CursorInvalid("artifact cursor position is invalid")
-            position = int(cursor.position)
+            position = _decode_position(cursor.position)
 
-        item_count = snapshot.materialized_item_count
-        if item_count is None:
+        high_watermark = snapshot.high_watermark
+        if high_watermark is None:
             raise IntegrityViolation(
-                "artifact read snapshot is not a materialized view",
+                "artifact read snapshot has no immutable high watermark",
                 snapshot_id=snapshot.snapshot_id,
             )
-        if position < 0 or position > item_count:
-            raise CursorInvalid("artifact cursor position is out of range")
-        end = min(position + self._page_size, item_count)
+        statement = select(ArtifactRow).where(_ARTIFACT_ROWID <= high_watermark)
+        if position is not None:
+            anchor = self._session.scalar(
+                select(_ARTIFACT_ROWID)
+                .select_from(ArtifactRow)
+                .where(
+                    ArtifactRow.artifact_id == position,
+                    _ARTIFACT_ROWID <= high_watermark,
+                )
+            )
+            if anchor is None:
+                raise IntegrityViolation(
+                    "artifact cursor anchor is missing from its read snapshot",
+                    snapshot_id=snapshot.snapshot_id,
+                    artifact_id=position,
+                )
+            statement = statement.where(ArtifactRow.artifact_id > position)
         rows = self._session.scalars(
-            select(MaterializedReadItemRow)
-            .where(
-                MaterializedReadItemRow.snapshot_id == snapshot.snapshot_id,
-                MaterializedReadItemRow.ordinal > position,
-                MaterializedReadItemRow.ordinal <= end,
-            )
-            .order_by(MaterializedReadItemRow.ordinal)
+            statement.order_by(ArtifactRow.artifact_id).limit(self._page_size + 1)
         ).all()
-        expected_ordinals = list(range(position + 1, end + 1))
-        if [row.ordinal for row in rows] != expected_ordinals:
-            raise IntegrityViolation(
-                "artifact read snapshot has missing or reordered items",
-                snapshot_id=snapshot.snapshot_id,
-            )
 
-        items = tuple(self._parse_materialized_item(row) for row in rows)
+        values = tuple(
+            _parse_stored_wire(
+                _row_wire(row),
+                artifact_id=row.artifact_id,
+                source="stored artifact row",
+            )
+            for row in rows
+        )
+        items = values[: self._page_size]
         next_cursor = None
-        if end < item_count:
+        if len(values) > self._page_size:
             next_cursor = self._cursor_signer.issue(
                 snapshot=snapshot,
-                position=str(end),
+                position=_encode_position(items[-1].artifact_id),
                 page_size=self._page_size,
             )
         return PageV1[ArtifactWire](
@@ -308,14 +335,9 @@ class SqlArtifactRepository:
             expires_at=snapshot.expires_at,
         )
 
-    def _materialize_snapshot(self) -> ReadSnapshotV1:
-        artifacts = tuple(
-            _parse_stored_wire(
-                _row_wire(row),
-                artifact_id=row.artifact_id,
-                source="stored artifact row",
-            )
-            for row in self._session.scalars(select(ArtifactRow).order_by(ArtifactRow.artifact_id))
+    def _create_snapshot(self) -> ReadSnapshotV1:
+        high_watermark = self._session.scalar(
+            select(func.coalesce(func.max(_ARTIFACT_ROWID), 0)).select_from(ArtifactRow)
         )
         now = self._clock.now_utc()
         if now.tzinfo is None or now.utcoffset() != timedelta(0):
@@ -328,8 +350,8 @@ class SqlArtifactRepository:
             query_hash=_ARTIFACT_QUERY_HASH,
             authz_fingerprint=_ARTIFACT_AUTHZ_FINGERPRINT,
             stable_sort_schema_id=_STABLE_SORT_SCHEMA_ID,
-            strategy="materialized_view",
-            materialized_item_count=len(artifacts),
+            strategy="immutable_high_watermark",
+            high_watermark=high_watermark,
             created_at=created_at.isoformat().replace("+00:00", "Z"),
             expires_at=expires_at.isoformat().replace("+00:00", "Z"),
         )
@@ -349,53 +371,7 @@ class SqlArtifactRepository:
             )
         )
         self._session.flush()
-        for ordinal, artifact in enumerate(artifacts, start=1):
-            canonical_view = artifact.model_dump(mode="json")
-            self._session.add(
-                MaterializedReadItemRow(
-                    snapshot_id=snapshot.snapshot_id,
-                    ordinal=ordinal,
-                    resource_id=artifact.artifact_id,
-                    observed_revision=1,
-                    view_schema_id=_MATERIALIZED_VIEW_SCHEMA_ID,
-                    canonical_view=canonical_view,
-                    view_hash=canonical_sha256(canonical_view),
-                )
-            )
-        self._session.flush()
         return snapshot
-
-    @staticmethod
-    def _parse_materialized_item(row: MaterializedReadItemRow) -> ArtifactWire:
-        try:
-            materialized = MaterializedReadItemV1(
-                snapshot_id=row.snapshot_id,
-                ordinal=row.ordinal,
-                resource_id=row.resource_id,
-                observed_revision=row.observed_revision,
-                view_schema_id=row.view_schema_id,
-                canonical_view=row.canonical_view,
-                view_hash=row.view_hash,
-            )
-        except (TypeError, ValueError, ValidationError) as exc:
-            raise IntegrityViolation(
-                "materialized artifact view is invalid",
-                snapshot_id=row.snapshot_id,
-                ordinal=row.ordinal,
-            ) from exc
-        if materialized.observed_revision != 1 or materialized.view_schema_id != (
-            _MATERIALIZED_VIEW_SCHEMA_ID
-        ):
-            raise IntegrityViolation(
-                "materialized artifact view metadata is invalid",
-                snapshot_id=row.snapshot_id,
-                ordinal=row.ordinal,
-            )
-        return _parse_stored_wire(
-            materialized.canonical_view,
-            artifact_id=materialized.resource_id,
-            source="materialized artifact view",
-        )
 
 
 __all__ = ["SqlArtifactRepository"]

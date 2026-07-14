@@ -20,6 +20,9 @@ from gameforge.contracts.workflow import (
     ApprovalItem,
     ApprovalPolicyRefV1,
     ApprovalRequirement,
+    AutoApplyPolicyRefV1,
+    AutoApplyPolicyRegistryRefV1,
+    AutoApplyProofBindingV1,
     PatchTargetBindingV1,
     SubjectHead,
 )
@@ -38,6 +41,8 @@ SUBJECT_DIGEST_1 = "1" * 64
 SUBJECT_DIGEST_2 = "2" * 64
 TARGET_DIGEST = "3" * 64
 EVIDENCE_ARTIFACT_ID = "artifact:evidence:1"
+REGRESSION_EVIDENCE_ARTIFACT_ID = "artifact:regression:1"
+AUTO_APPLY_PROOF_ARTIFACT_ID = "artifact:auto-apply-proof:1"
 
 
 @pytest.fixture
@@ -153,6 +158,36 @@ def _replace(item: ApprovalItem, **changes: object) -> ApprovalItem:
             **item.model_dump(mode="json"),
             **changes,
         }
+    )
+
+
+def _validated_with_auto_apply_proof(validating: ApprovalItem) -> ApprovalItem:
+    target = validating.target_binding
+    assert isinstance(target, PatchTargetBindingV1)
+    policy = AutoApplyPolicyRefV1(
+        registry=AutoApplyPolicyRegistryRefV1(
+            registry_version="auto-apply@1",
+            registry_digest="8" * 64,
+        ),
+        policy_id="safe-structural-patch",
+        policy_version="1",
+        policy_digest="9" * 64,
+    )
+    return _replace(
+        validating,
+        status="validated",
+        workflow_revision=validating.workflow_revision + 1,
+        active_validation_run_id=None,
+        evidence_set_artifact_id=EVIDENCE_ARTIFACT_ID,
+        regression_evidence_artifact_ids=(REGRESSION_EVIDENCE_ARTIFACT_ID,),
+        auto_apply_proof=AutoApplyProofBindingV1(
+            proof_artifact_id=AUTO_APPLY_PROOF_ARTIFACT_ID,
+            policy=policy,
+            subject_digest=validating.subject_digest,
+            target_digest=target.target_digest,
+            expected_ref=target.expected_ref,
+            validation_evidence_artifact_id=EVIDENCE_ARTIFACT_ID,
+        ),
     )
 
 
@@ -545,6 +580,116 @@ def test_subject_head_create_update_current_and_aba_protection(engine: Engine) -
         repository = SqlApprovalRepository(session)
         assert repository.get_subject_head(first_head.subject_series_id) == third_head
         assert repository.current(first_head.subject_series_id) == (third_head, third_item)
+
+
+@pytest.mark.parametrize(
+    "serialization",
+    ["validation_first", "supersede_first"],
+)
+def test_validation_completion_and_supersede_serialize_across_two_connections(
+    engine: Engine,
+    serialization: str,
+) -> None:
+    old_item = _item()
+    new_item = _item(
+        approval_id="approval:2",
+        subject_revision=2,
+        subject_artifact_id="artifact:patch:2",
+        subject_digest=SUBJECT_DIGEST_2,
+        supersedes_approval_id=old_item.approval_id,
+    )
+    old_head = SubjectHead(
+        subject_series_id=old_item.subject_series_id,
+        current_subject_artifact_id=old_item.subject_artifact_id,
+        current_approval_id=old_item.approval_id,
+        revision=1,
+    )
+    new_head = SubjectHead(
+        subject_series_id=new_item.subject_series_id,
+        current_subject_artifact_id=new_item.subject_artifact_id,
+        current_approval_id=new_item.approval_id,
+        revision=2,
+    )
+    validating = _replace(
+        old_item,
+        status="validating",
+        workflow_revision=2,
+        active_validation_run_id="run:validation:1",
+    )
+    validated = _validated_with_auto_apply_proof(validating)
+
+    with Session(engine) as setup, setup.begin():
+        _seed_artifacts(setup)
+        repository = SqlApprovalRepository(setup)
+        repository.insert_draft(old_item)
+        repository.compare_and_set(old_item.approval_id, 1, validating)
+        repository.compare_and_set_subject_head(old_item.subject_series_id, None, old_head)
+
+    with engine.connect() as validation_connection, engine.connect() as supersede_connection:
+        with (
+            Session(validation_connection, expire_on_commit=False) as validation_session,
+            Session(supersede_connection, expire_on_commit=False) as supersede_session,
+        ):
+            if serialization == "validation_first":
+                with validation_session.begin():
+                    validation_repository = SqlApprovalRepository(validation_session)
+                    validation_repository.compare_and_set_validation_completion(
+                        old_item.approval_id,
+                        2,
+                        validated,
+                    )
+                supersede_source = validated
+            else:
+                supersede_source = validating
+
+            superseded = _replace(
+                supersede_source,
+                status="superseded",
+                workflow_revision=supersede_source.workflow_revision + 1,
+                active_validation_run_id=None,
+            )
+            with supersede_session.begin():
+                supersede_repository = SqlApprovalRepository(supersede_session)
+                supersede_repository.compare_and_set(
+                    old_item.approval_id,
+                    supersede_source.workflow_revision,
+                    superseded,
+                )
+                supersede_repository.insert_draft(new_item)
+                supersede_repository.compare_and_set_subject_head(
+                    old_item.subject_series_id,
+                    old_head,
+                    new_head,
+                )
+
+            if serialization == "supersede_first":
+                with pytest.raises(Conflict, match="workflow revision"):
+                    with validation_session.begin():
+                        SqlApprovalRepository(
+                            validation_session
+                        ).compare_and_set_validation_completion(
+                            old_item.approval_id,
+                            2,
+                            validated,
+                        )
+
+    with Session(engine) as verification:
+        repository = SqlApprovalRepository(verification)
+        retained_old = repository.get(old_item.approval_id)
+        retained_new = repository.get(new_item.approval_id)
+
+        assert retained_old == superseded
+        assert retained_new == new_item
+        assert retained_new.evidence_set_artifact_id is None
+        assert retained_new.regression_evidence_artifact_ids == ()
+        assert retained_new.auto_apply_proof is None
+        assert repository.current(old_item.subject_series_id) == (new_head, retained_new)
+        if serialization == "validation_first":
+            assert retained_old.evidence_set_artifact_id == EVIDENCE_ARTIFACT_ID
+            assert retained_old.auto_apply_proof == validated.auto_apply_proof
+        else:
+            assert retained_old.evidence_set_artifact_id is None
+            assert retained_old.auto_apply_proof is None
 
 
 def test_subject_head_rejects_approval_that_does_not_bind_replacement(engine: Engine) -> None:
