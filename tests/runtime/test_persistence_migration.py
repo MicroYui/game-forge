@@ -46,7 +46,34 @@ _RUN_TABLES = {
     "run_intermediate_artifact_links",
     "run_finding_links",
 }
-_M4_TABLES = _STORAGE_TABLES | _IDENTITY_WORKFLOW_TABLES | _RUN_TABLES
+_COST_ROUTING_TABLES = {
+    "budgets",
+    "budget_set_snapshots",
+    "budget_snapshots",
+    "reservation_groups",
+    "budget_reservations",
+    "usage_entries",
+    "permit_groups",
+    "concurrency_permits",
+    "model_catalog_snapshots",
+    "routing_policies",
+    "routing_decisions",
+    "legacy_import_routing_decisions",
+}
+_SLO_ALERT_TABLES = {
+    "workload_profiles",
+    "slo_definitions",
+    "alert_rules",
+    "slo_evaluations",
+    "alert_instances",
+}
+_M4_TABLES = (
+    _STORAGE_TABLES
+    | _IDENTITY_WORKFLOW_TABLES
+    | _RUN_TABLES
+    | _COST_ROUTING_TABLES
+    | _SLO_ALERT_TABLES
+)
 
 
 def _inspect(url: str) -> tuple[Inspector, object]:
@@ -125,8 +152,7 @@ def _column_is_nullable(url: str, table: str, column_name: str) -> bool:
     inspector, engine = _inspect(url)
     try:
         columns = {
-            str(column["name"]): bool(column["nullable"])
-            for column in inspector.get_columns(table)
+            str(column["name"]): bool(column["nullable"]) for column in inspector.get_columns(table)
         }
         return columns[column_name]
     finally:
@@ -529,6 +555,61 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
     assert not _column_is_nullable(url, "conflict_sets", "content_digest")
     assert not _column_is_nullable(url, "merge_conflicts", "content_digest")
 
+    m.upgrade(url, "0006")
+    assert _current_revision(url) == "0006"
+    assert _COST_ROUTING_TABLES <= _table_names(url)
+    assert not (_SLO_ALERT_TABLES & _table_names(url))
+    assert _primary_key(url, "budgets") == ("budget_id",)
+    assert _primary_key(url, "budget_snapshots") == ("snapshot_id",)
+    assert ("run_id",) in _unique_keys(url, "budget_set_snapshots")
+    assert ("run_id", "scope", "idempotency_key") in _unique_keys(
+        url,
+        "reservation_groups",
+    )
+    assert ("catalog_version", "catalog_digest") in _unique_keys(
+        url,
+        "model_catalog_snapshots",
+    )
+    assert _primary_key(url, "routing_decisions") == ("decision_id",)
+    assert (
+        "run_id",
+        "attempt_no",
+        "request_hash",
+        "fallback_index",
+    ) not in _unique_keys(url, "routing_decisions")
+    assert ("usage_identity",) in _unique_keys(url, "usage_entries")
+    assert ("run_id", "lease_id", "fencing_token") in _unique_keys(
+        url,
+        "permit_groups",
+    )
+
+    m.upgrade(url, "0007")
+    assert _current_revision(url) == "0007"
+    assert _SLO_ALERT_TABLES <= _table_names(url)
+    assert _primary_key(url, "workload_profiles") == ("profile_id",)
+    assert _primary_key(url, "slo_definitions") == ("slo_id",)
+    assert _primary_key(url, "alert_rules") == ("alert_rule_id",)
+    assert _primary_key(url, "slo_evaluations") == ("evaluation_id",)
+    assert _primary_key(url, "alert_instances") == ("alert_instance_id",)
+    assert ("alert_rule_id", "dedup_key") in _unique_keys(url, "alert_instances")
+    assert _indexes(url, "slo_evaluations")["ix_slo_evaluations_order"] == (
+        "slo_id",
+        "window_start",
+        "window_end",
+        "evaluation_id",
+    )
+    assert _indexes(url, "alert_instances")["ix_alert_instances_state"] == (
+        "state",
+        "alert_rule_id",
+        "alert_instance_id",
+    )
+
+    m.downgrade(url, "0006")
+    assert not (_SLO_ALERT_TABLES & _table_names(url))
+
+    m.downgrade(url, "0005")
+    assert not (_COST_ROUTING_TABLES & _table_names(url))
+
     m.downgrade(url, "0004")
     assert "context" not in _column_names(url, "conflict_sets")
     assert "content_digest" not in _column_names(url, "conflict_sets")
@@ -550,7 +631,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0005"
+    assert _current_revision(url) == "0007"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -570,7 +651,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0005"
+    assert _current_revision(url) == "0007"
     assert _legacy_projection(url) == expected
 
 
@@ -582,7 +663,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0005"
+    assert _current_revision(url) == "0007"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")
@@ -650,6 +731,66 @@ def test_0005_downgrade_refuses_to_discard_retained_conflict_authority(
         url,
         "SELECT conflict_set_id FROM conflict_sets",
     ) == ("current-conflict-set",)
+
+
+def test_0006_downgrade_refuses_to_discard_retained_cost_authority(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'retained-cost.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO budgets (
+                        budget_id, scope_kind, scope_id, policy_version, status,
+                        revision, deadline_utc, created_at, payload
+                    ) VALUES (
+                        'retained-budget', 'system', 'system', 'policy@1',
+                        'active', 1, NULL, '2026-07-14T00:00:00Z', '{}'
+                    )
+                    """
+                )
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="cannot remove authoritative cost/routing"):
+        m.downgrade(url, "0005")
+
+    assert _current_revision(url) == "0006"
+    assert _fetch_one(url, "SELECT budget_id FROM budgets") == ("retained-budget",)
+
+
+def test_0007_downgrade_refuses_to_discard_retained_slo_authority(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'retained-slo.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO workload_profiles (
+                        profile_id, dataset_artifact_id, entity_count, relation_count,
+                        constraint_count, task_count, concurrency,
+                        environment_fingerprint, payload
+                    ) VALUES (
+                        'retained-profile', 'artifact-profile', 1, 1,
+                        1, NULL, 1, :fingerprint, '{}'
+                    )
+                    """
+                ),
+                {"fingerprint": "a" * 64},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="cannot remove authoritative SLO/alert"):
+        m.downgrade(url, "0006")
+
+    assert _current_revision(url) == "0007"
+    assert _fetch_one(url, "SELECT profile_id FROM workload_profiles") == ("retained-profile",)
 
 
 def test_alembic_head_matches_runtime_metadata(tmp_path) -> None:

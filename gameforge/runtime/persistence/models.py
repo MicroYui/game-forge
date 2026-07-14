@@ -685,3 +685,516 @@ class RunFindingLinkRow(Base):
         ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
         nullable=False,
     )
+
+
+class BudgetRow(Base):
+    """Current authoritative budget head; updates use revision CAS in CostLedger."""
+
+    __tablename__ = "budgets"
+    __table_args__ = (
+        Index("ix_budgets_scope_status", "scope_kind", "scope_id", "status", "budget_id"),
+        Index("ix_budgets_deadline", "status", "deadline_utc", "budget_id"),
+    )
+
+    budget_id: Mapped[str] = mapped_column(String, primary_key=True)
+    scope_kind: Mapped[str] = mapped_column(String, nullable=False)
+    scope_id: Mapped[str] = mapped_column(String, nullable=False)
+    policy_version: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    deadline_utc: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class BudgetSetSnapshotRow(Base):
+    """Immutable selection of every budget applicable to one Run."""
+
+    __tablename__ = "budget_set_snapshots"
+    __table_args__ = (
+        UniqueConstraint("run_id", name="uq_budget_set_run"),
+        Index("ix_budget_sets_captured", "captured_at", "budget_set_snapshot_id"),
+    )
+
+    budget_set_snapshot_id: Mapped[str] = mapped_column(String, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String, nullable=False)
+    selection_policy_version: Mapped[str] = mapped_column(String, nullable=False)
+    captured_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class BudgetSnapshotRow(Base):
+    """One immutable member of a BudgetSetSnapshot."""
+
+    __tablename__ = "budget_snapshots"
+    __table_args__ = (
+        UniqueConstraint(
+            "budget_set_snapshot_id",
+            "ordinal",
+            name="uq_budget_snapshot_ordinal",
+        ),
+        UniqueConstraint(
+            "budget_set_snapshot_id",
+            "budget_id",
+            name="uq_budget_snapshot_budget",
+        ),
+    )
+
+    snapshot_id: Mapped[str] = mapped_column(String, primary_key=True)
+    budget_set_snapshot_id: Mapped[str] = mapped_column(
+        ForeignKey("budget_set_snapshots.budget_set_snapshot_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    budget_id: Mapped[str] = mapped_column(
+        ForeignKey("budgets.budget_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    scope_kind: Mapped[str] = mapped_column(String, nullable=False)
+    scope_id: Mapped[str] = mapped_column(String, nullable=False)
+    budget_revision_at_freeze: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ReservationGroupRow(Base):
+    """Reservation lifecycle head with an immutable idempotency identity."""
+
+    __tablename__ = "reservation_groups"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["parent_hold_group_id"],
+            ["reservation_groups.reservation_group_id"],
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "run_id",
+            "scope",
+            "idempotency_key",
+            name="uq_reservation_group_idempotency",
+        ),
+        Index(
+            "ix_reservation_groups_run_attempt",
+            "run_id",
+            "attempt_no",
+            "created_at",
+            "reservation_group_id",
+        ),
+        Index(
+            "ix_reservation_groups_status_expiry",
+            "status",
+            "expires_at",
+            "reservation_group_id",
+        ),
+    )
+
+    reservation_group_id: Mapped[str] = mapped_column(String, primary_key=True)
+    scope: Mapped[str] = mapped_column(String, nullable=False)
+    run_id: Mapped[str] = mapped_column(String, nullable=False)
+    budget_set_snapshot_id: Mapped[str] = mapped_column(
+        ForeignKey("budget_set_snapshots.budget_set_snapshot_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    parent_hold_group_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    attempt_no: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    request_hash: Mapped[str] = mapped_column(String, nullable=False)
+    transport_attempt: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    fencing_token: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    idempotency_key: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    expires_at: Mapped[str | None] = mapped_column(String, nullable=True)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class BudgetReservationRow(Base):
+    """Per-budget member of a reservation group."""
+
+    __tablename__ = "budget_reservations"
+    __table_args__ = (
+        UniqueConstraint(
+            "reservation_group_id",
+            "budget_id",
+            name="uq_budget_reservation_member",
+        ),
+        Index(
+            "ix_budget_reservations_budget_status",
+            "budget_id",
+            "status",
+            "reservation_id",
+        ),
+    )
+
+    reservation_id: Mapped[str] = mapped_column(String, primary_key=True)
+    reservation_group_id: Mapped[str] = mapped_column(
+        ForeignKey("reservation_groups.reservation_group_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    budget_id: Mapped[str] = mapped_column(
+        ForeignKey("budgets.budget_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ModelCatalogSnapshotRow(Base):
+    """Immutable content-addressed model catalog history."""
+
+    __tablename__ = "model_catalog_snapshots"
+    __table_args__ = (
+        UniqueConstraint(
+            "catalog_version",
+            "catalog_digest",
+            name="uq_model_catalog_exact_ref",
+        ),
+        UniqueConstraint("catalog_digest", name="uq_model_catalog_digest"),
+        Index("ix_model_catalog_created", "created_at", "catalog_version"),
+    )
+
+    catalog_version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    catalog_digest: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class RoutingPolicyRow(Base):
+    """Immutable routing policy bound to one exact catalog."""
+
+    __tablename__ = "routing_policies"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["catalog_version", "catalog_digest"],
+            [
+                "model_catalog_snapshots.catalog_version",
+                "model_catalog_snapshots.catalog_digest",
+            ],
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "policy_version",
+            "routing_policy_digest",
+            name="uq_routing_policy_exact_ref",
+        ),
+        UniqueConstraint("routing_policy_digest", name="uq_routing_policy_digest"),
+    )
+
+    policy_version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    routing_policy_digest: Mapped[str] = mapped_column(String, nullable=False)
+    catalog_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    catalog_digest: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class RoutingDecisionRow(Base):
+    """Append-only native route choice made before model execution."""
+
+    __tablename__ = "routing_decisions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["policy_version", "routing_policy_digest"],
+            ["routing_policies.policy_version", "routing_policies.routing_policy_digest"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["catalog_version", "catalog_digest"],
+            [
+                "model_catalog_snapshots.catalog_version",
+                "model_catalog_snapshots.catalog_digest",
+            ],
+            ondelete="RESTRICT",
+        ),
+        Index(
+            "ix_routing_decisions_run",
+            "run_id",
+            "attempt_no",
+            "decided_at",
+            "decision_id",
+        ),
+    )
+
+    decision_id: Mapped[str] = mapped_column(String, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String, nullable=False)
+    attempt_no: Mapped[int] = mapped_column(Integer, nullable=False)
+    request_hash: Mapped[str] = mapped_column(String, nullable=False)
+    rule_id: Mapped[str] = mapped_column(String, nullable=False)
+    model_snapshot: Mapped[str] = mapped_column(String, nullable=False)
+    tier: Mapped[str] = mapped_column(String, nullable=False)
+    budget_set_snapshot_id: Mapped[str] = mapped_column(
+        ForeignKey("budget_set_snapshots.budget_set_snapshot_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    fallback_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    policy_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    routing_policy_digest: Mapped[str] = mapped_column(String, nullable=False)
+    catalog_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    catalog_digest: Mapped[str] = mapped_column(String, nullable=False)
+    execution_source: Mapped[str] = mapped_column(String, nullable=False)
+    decided_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class LegacyImportRoutingDecisionRow(Base):
+    """Verified legacy replay route evidence; never a fabricated native route."""
+
+    __tablename__ = "legacy_import_routing_decisions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["catalog_version", "catalog_digest"],
+            [
+                "model_catalog_snapshots.catalog_version",
+                "model_catalog_snapshots.catalog_digest",
+            ],
+            ondelete="RESTRICT",
+        ),
+        Index("ix_legacy_route_model", "model_snapshot", "decision_id"),
+    )
+
+    decision_id: Mapped[str] = mapped_column(String, primary_key=True)
+    source_wire_sha256: Mapped[str] = mapped_column(String, nullable=False)
+    request_hash: Mapped[str] = mapped_column(String, nullable=False)
+    model_snapshot: Mapped[str] = mapped_column(String, nullable=False)
+    catalog_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    catalog_digest: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class UsageEntryRow(Base):
+    """Append-only one-observation ledger entry."""
+
+    __tablename__ = "usage_entries"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["native_routing_decision_id"],
+            ["routing_decisions.decision_id"],
+            name="fk_usage_native_routing_decision",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["legacy_routing_decision_id"],
+            ["legacy_import_routing_decisions.decision_id"],
+            name="fk_usage_legacy_routing_decision",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["adjustment_of_usage_id"],
+            ["usage_entries.usage_id"],
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint("usage_identity", name="uq_usage_identity"),
+        Index(
+            "ix_usage_run_attempt",
+            "run_id",
+            "attempt_no",
+            "recorded_at",
+            "usage_id",
+        ),
+        Index(
+            "ix_usage_reservation_group",
+            "reservation_group_id",
+            "recorded_at",
+            "usage_id",
+        ),
+    )
+
+    usage_id: Mapped[str] = mapped_column(String, primary_key=True)
+    usage_identity: Mapped[str] = mapped_column(String, nullable=False)
+    reservation_group_id: Mapped[str] = mapped_column(
+        ForeignKey("reservation_groups.reservation_group_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    scope: Mapped[str] = mapped_column(String, nullable=False)
+    run_id: Mapped[str] = mapped_column(String, nullable=False)
+    attempt_no: Mapped[int] = mapped_column(Integer, nullable=False)
+    request_hash: Mapped[str] = mapped_column(String, nullable=False)
+    transport_attempt: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    execution_source: Mapped[str] = mapped_column(String, nullable=False)
+    retry_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    routing_decision_kind: Mapped[str | None] = mapped_column(String, nullable=True)
+    routing_decision_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    native_routing_decision_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    legacy_routing_decision_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    adjustment_of_usage_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    fencing_token_at_reserve: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    recorded_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class PermitGroupRow(Base):
+    """Current concurrency permit-group head for one exact worker lease."""
+
+    __tablename__ = "permit_groups"
+    __table_args__ = (
+        UniqueConstraint(
+            "run_id",
+            "lease_id",
+            "fencing_token",
+            name="uq_permit_group_lease",
+        ),
+        Index(
+            "ix_permit_groups_status_expiry",
+            "status",
+            "expires_at",
+            "permit_group_id",
+        ),
+    )
+
+    permit_group_id: Mapped[str] = mapped_column(String, primary_key=True)
+    budget_set_snapshot_id: Mapped[str] = mapped_column(
+        ForeignKey("budget_set_snapshots.budget_set_snapshot_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    run_id: Mapped[str] = mapped_column(String, nullable=False)
+    lease_id: Mapped[str] = mapped_column(String, nullable=False)
+    fencing_token: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    acquired_at: Mapped[str] = mapped_column(String, nullable=False)
+    expires_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ConcurrencyPermitRow(Base):
+    """Per-budget member of a PermitGroup."""
+
+    __tablename__ = "concurrency_permits"
+    __table_args__ = (
+        UniqueConstraint(
+            "permit_group_id",
+            "budget_id",
+            name="uq_concurrency_permit_member",
+        ),
+        Index(
+            "ix_concurrency_permits_budget_status",
+            "budget_id",
+            "status",
+            "expires_at",
+            "permit_id",
+        ),
+    )
+
+    permit_id: Mapped[str] = mapped_column(String, primary_key=True)
+    permit_group_id: Mapped[str] = mapped_column(
+        ForeignKey("permit_groups.permit_group_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    budget_id: Mapped[str] = mapped_column(
+        ForeignKey("budgets.budget_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    run_id: Mapped[str] = mapped_column(String, nullable=False)
+    lease_id: Mapped[str] = mapped_column(String, nullable=False)
+    fencing_token: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    acquired_at: Mapped[str] = mapped_column(String, nullable=False)
+    expires_at: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class WorkloadProfileRow(Base):
+    """Immutable measured workload identity used by SLO definitions."""
+
+    __tablename__ = "workload_profiles"
+
+    profile_id: Mapped[str] = mapped_column(String, primary_key=True)
+    dataset_artifact_id: Mapped[str] = mapped_column(String, nullable=False)
+    entity_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    relation_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    constraint_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    task_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    concurrency: Mapped[int] = mapped_column(Integer, nullable=False)
+    environment_fingerprint: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class SLODefinitionRow(Base):
+    """Immutable SLI/SLO policy bound to one measured workload profile."""
+
+    __tablename__ = "slo_definitions"
+
+    slo_id: Mapped[str] = mapped_column(String, primary_key=True)
+    workload_profile_id: Mapped[str] = mapped_column(
+        ForeignKey("workload_profiles.profile_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    policy_version: Mapped[str] = mapped_column(String, nullable=False)
+    effective_from: Mapped[str] = mapped_column(String, nullable=False)
+    rolling_window_s: Mapped[int] = mapped_column(Integer, nullable=False)
+    evaluation_interval_s: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class AlertRuleRow(Base):
+    """Immutable alert policy for one exact SLO definition."""
+
+    __tablename__ = "alert_rules"
+
+    alert_rule_id: Mapped[str] = mapped_column(String, primary_key=True)
+    slo_id: Mapped[str] = mapped_column(
+        ForeignKey("slo_definitions.slo_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    severity: Mapped[str] = mapped_column(String, nullable=False)
+    policy_version: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class SLOEvaluationRow(Base):
+    """Content-addressed immutable result for one closed SLO window."""
+
+    __tablename__ = "slo_evaluations"
+    __table_args__ = (
+        Index(
+            "ix_slo_evaluations_order",
+            "slo_id",
+            "window_start",
+            "window_end",
+            "evaluation_id",
+        ),
+    )
+
+    evaluation_id: Mapped[str] = mapped_column(String, primary_key=True)
+    slo_id: Mapped[str] = mapped_column(
+        ForeignKey("slo_definitions.slo_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    window_start: Mapped[str] = mapped_column(String, nullable=False)
+    window_end: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class AlertInstanceRow(Base):
+    """Mutable alert state head guarded by monotonic revision CAS."""
+
+    __tablename__ = "alert_instances"
+    __table_args__ = (
+        UniqueConstraint(
+            "alert_rule_id",
+            "dedup_key",
+            name="uq_alert_instance_rule_dedup",
+        ),
+        Index(
+            "ix_alert_instances_state",
+            "state",
+            "alert_rule_id",
+            "alert_instance_id",
+        ),
+    )
+
+    alert_instance_id: Mapped[str] = mapped_column(String, primary_key=True)
+    alert_rule_id: Mapped[str] = mapped_column(
+        ForeignKey("alert_rules.alert_rule_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    dedup_key: Mapped[str] = mapped_column(String, nullable=False)
+    state: Mapped[str] = mapped_column(String, nullable=False)
+    last_evaluation_id: Mapped[str] = mapped_column(
+        ForeignKey("slo_evaluations.evaluation_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)

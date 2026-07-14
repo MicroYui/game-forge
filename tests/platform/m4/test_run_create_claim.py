@@ -173,8 +173,8 @@ class _State:
     attempts: dict[tuple[str, int], RunAttempt] = field(default_factory=dict)
     leases: dict[str, RunLease] = field(default_factory=dict)
     events: dict[tuple[str, int], RunEvent] = field(default_factory=dict)
-    intermediate_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1] = (
-        field(default_factory=dict)
+    intermediate_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1] = field(
+        default_factory=dict
     )
 
 
@@ -481,9 +481,10 @@ class _Admission:
         attempt_no: int,
         fencing_token: int,
         worker_principal_id: str,
+        lease_id: str,
         expires_at: str,
     ) -> str:
-        del attempt_no, fencing_token, worker_principal_id, expires_at
+        del attempt_no, fencing_token, worker_principal_id, lease_id, expires_at
         self.permits.append(run.run_id)
         return f"permit:{run.run_id}"
 
@@ -647,9 +648,7 @@ def test_create_is_atomic_queued_publication_without_fake_attempt_or_permit() ->
     assert run.concurrency_permit_group_id is None
     assert run.run_budget_hold_group_id == "hold:run:1"
     assert run.payload_hash == canonical_payload_hash(run.payload)
-    assert run.run_kind_definition_digest == run_kind_definition_digest(
-        harness.registry.definition
-    )
+    assert run.run_kind_definition_digest == run_kind_definition_digest(harness.registry.definition)
     assert run.outcome_policy_set_digest == outcome_policy_set_digest(
         run.kind, harness.registry.definition.outcome_policies
     )
@@ -701,9 +700,7 @@ def test_create_replay_precedes_admission_and_keeps_original_trace_carrier() -> 
     assert harness.admission.holds == ["run:1"]
 
     with pytest.raises(Conflict, match="idempotency"):
-        harness.service.create_run(
-            _create_request(run_id="run:other", request_hash=_HASH_C)
-        )
+        harness.service.create_run(_create_request(run_id="run:other", request_hash=_HASH_C))
     assert harness.admission.holds == ["run:1"]
 
 
@@ -773,16 +770,19 @@ def test_claim_consumes_persisted_heads_once_and_publishes_one_event() -> None:
     assert harness.publication.claimed == ["run:1"]
     assert harness.registry.binding_checks == 2
 
-    assert harness.service.claim_next(
-        RunClaimRequest(
-            worker=AuditActor(
-                principal_id="service:worker:2",
-                principal_kind="service",
-            ),
-            lease_id="lease:2",
-            lease_duration_ns=30_000_000_000,
+    assert (
+        harness.service.claim_next(
+            RunClaimRequest(
+                worker=AuditActor(
+                    principal_id="service:worker:2",
+                    principal_kind="service",
+                ),
+                lease_id="lease:2",
+                lease_duration_ns=30_000_000_000,
+            )
         )
-    ) is None
+        is None
+    )
     assert harness.admission.permits == ["run:1"]
 
 

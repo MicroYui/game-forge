@@ -6,7 +6,8 @@ def _req(content="hi"):
     return ModelRequest(
         model_snapshot=ModelSnapshot(provider="anthropic", model="opus4.8", snapshot_tag="s1"),
         messages=[Message(role="user", content=content)],
-        agent_node_id="triage", prompt_version="triage@1",
+        agent_node_id="triage",
+        prompt_version="triage@1",
     )
 
 
@@ -15,20 +16,28 @@ class _FakeChatCompletions:
         class _Msg:  # minimal openai-response shape
             content = "hello from model"
             tool_calls = None
+
         class _Choice:
             message = _Msg()
             finish_reason = "stop"
+
         class _Usage:
-            def model_dump(self): return {"prompt_tokens": 3, "completion_tokens": 4}
+            def model_dump(self):
+                return {"prompt_tokens": 3, "completion_tokens": 4}
+
         class _Resp:
             choices = [_Choice()]
             usage = _Usage()
-            def model_dump(self): return {"id": "x", "choices": []}
+
+            def model_dump(self):
+                return {"id": "x", "choices": []}
+
         return _Resp()
 
 
 class _FakeClient:
-    def __init__(self): self.chat = type("C", (), {"completions": _FakeChatCompletions()})()
+    def __init__(self):
+        self.chat = type("C", (), {"completions": _FakeChatCompletions()})()
 
 
 def test_openai_transport_maps_response():
@@ -37,6 +46,28 @@ def test_openai_transport_maps_response():
     assert resp.response_normalized == "hello from model"
     assert resp.finish_reason == "stop"
     assert resp.token_usage == {"prompt_tokens": 3, "completion_tokens": 4}
+
+
+def test_openai_transport_applies_remaining_attempt_timeout():
+    class _DeadlineClient(_FakeClient):
+        def __init__(self):
+            super().__init__()
+            self.timeout = None
+
+        def with_options(self, *, timeout):
+            self.timeout = timeout
+            return self
+
+    client = _DeadlineClient()
+    transport = OpenAITransport(
+        base_url="http://localhost:4141",
+        api_key="sk-x",
+        client=client,
+    )
+
+    transport.complete_with_timeout(_req(), timeout_s=4.5)
+
+    assert client.timeout == 4.5
 
 
 def test_openai_transport_constructs_default_client_when_not_injected(monkeypatch):
@@ -50,9 +81,7 @@ def test_openai_transport_constructs_default_client_when_not_injected(monkeypatc
             created["base_url"] = base_url
             created["api_key"] = api_key
 
-    monkeypatch.setattr(
-        "gameforge.runtime.model_router.transport.openai.OpenAI", _FakeOpenAI
-    )
+    monkeypatch.setattr("gameforge.runtime.model_router.transport.openai.OpenAI", _FakeOpenAI)
     t = OpenAITransport(base_url="http://localhost:4141", api_key="sk-x")
     assert created == {"base_url": "http://localhost:4141", "api_key": "sk-x"}
     assert isinstance(t._client, _FakeOpenAI)
@@ -60,6 +89,7 @@ def test_openai_transport_constructs_default_client_when_not_injected(monkeypatc
 
 def test_stub_transport_returns_by_request_hash():
     from gameforge.contracts.model_router import ModelResponse
+
     r = _req()
     stub = StubTransport({request_hash(r): ModelResponse(response_normalized="canned")})
     assert stub.complete(r).response_normalized == "canned"
@@ -76,14 +106,18 @@ def test_openai_transport_maps_tool_calls_and_raw_response():
             class _Msg:
                 content = "with tools"
                 tool_calls = [_FakeToolCall()]
+
             class _Choice:
                 message = _Msg()
                 finish_reason = "tool_calls"
+
             class _Resp:
                 choices = [_Choice()]
                 usage = None
+
                 def model_dump(self):
                     return {"id": "resp-1"}
+
             return _Resp()
 
     class _FakeClientTC:

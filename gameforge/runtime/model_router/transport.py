@@ -5,6 +5,7 @@ underlying client is injectable so unit tests exercise response-mapping with a
 fake and never touch the network. StubTransport serves canned responses keyed by
 request_hash for deterministic router/agent tests.
 """
+
 from __future__ import annotations
 
 import time
@@ -24,8 +25,23 @@ class OpenAITransport:
         self._client = client or openai.OpenAI(base_url=base_url, api_key=api_key)
 
     def complete(self, req: ModelRequest) -> ModelResponse:
+        return self._complete(req, client=self._client)
+
+    def complete_with_timeout(
+        self,
+        req: ModelRequest,
+        *,
+        timeout_s: float,
+    ) -> ModelResponse:
+        if timeout_s <= 0:
+            raise TimeoutError("transport deadline has elapsed")
+        client = self._client.with_options(timeout=timeout_s)
+        return self._complete(req, client=client)
+
+    @staticmethod
+    def _complete(req: ModelRequest, *, client) -> ModelResponse:
         started = time.monotonic()
-        resp = self._client.chat.completions.create(
+        resp = client.chat.completions.create(
             model=req.model_snapshot.model,
             messages=[m.model_dump(exclude_none=True) for m in req.messages],
             **req.params,
@@ -53,3 +69,13 @@ class StubTransport:
     def complete(self, req: ModelRequest) -> ModelResponse:
         self.calls.append(req)
         return self._responses[request_hash(req)]
+
+    def complete_with_timeout(
+        self,
+        req: ModelRequest,
+        *,
+        timeout_s: float,
+    ) -> ModelResponse:
+        if timeout_s <= 0:
+            raise TimeoutError("transport deadline has elapsed")
+        return self.complete(req)

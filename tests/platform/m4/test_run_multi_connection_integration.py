@@ -154,9 +154,10 @@ class _Accounting:
         attempt_no: int,
         fencing_token: int,
         worker_principal_id: str,
+        lease_id: str,
         expires_at: str,
     ) -> str:
-        assert worker_principal_id and expires_at
+        assert worker_principal_id and lease_id and expires_at
         return f"permit:{run.run_id}:{attempt_no}:{fencing_token}"
 
     def retry_budget_available(self, *, run: RunRecord) -> bool:

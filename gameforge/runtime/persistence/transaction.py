@@ -24,6 +24,7 @@ _CAPABILITY_NAMES = frozenset(
         "object_bindings",
         "runs",
         "cost",
+        "slo",
     }
 )
 _TerminalState = Literal["committed", "rolled_back"]
@@ -45,6 +46,7 @@ class TransactionCapabilities:
     object_bindings: Any
     runs: Any
     cost: Any
+    slo: Any = None
 
 
 class TransactionHandle:
@@ -144,6 +146,10 @@ class TransactionHandle:
     @property
     def cost(self) -> Any:
         return self.capability("cost")
+
+    @property
+    def slo(self) -> Any:
+        return self.capability("slo")
 
     def _require_owner(self, owner_token: object) -> None:
         if owner_token is not self.__owner_token:

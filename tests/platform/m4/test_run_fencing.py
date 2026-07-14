@@ -865,9 +865,9 @@ class _Repo:
     ) -> _PersistedTerminal:
         run, attempt, lease = self._fenced(fence)
         events = (*leading_events, terminal_event)
-        if retry_decision.decision != "terminal" or tuple(
-            event.seq for event in events
-        ) != tuple(range(run.next_event_seq, run.next_event_seq + len(events))):
+        if retry_decision.decision != "terminal" or tuple(event.seq for event in events) != tuple(
+            range(run.next_event_seq, run.next_event_seq + len(events))
+        ):
             raise Conflict("terminal event head differs")
         updated_run = RunRecord.model_validate(
             {
@@ -964,8 +964,7 @@ class _Repo:
             (
                 record
                 for record in self.state.commands.values()
-                if record.run_id == run_id
-                and record.command.idempotency_key == idempotency_key
+                if record.run_id == run_id and record.command.idempotency_key == idempotency_key
             ),
             None,
         )
@@ -1038,9 +1037,7 @@ class _Repo:
                     "concurrency_permit_group_id": None,
                 }
             )
-        updated = RunRecord.model_validate(
-            {**run.model_dump(mode="python"), **updates}
-        )
+        updated = RunRecord.model_validate({**run.model_dump(mode="python"), **updates})
         self.put_command(record)
         self.state.runs[run.run_id] = updated
         for event in events:
@@ -1281,8 +1278,10 @@ class _Accounting:
         attempt_no: int,
         fencing_token: int,
         worker_principal_id: str,
+        lease_id: str,
         expires_at: str,
     ) -> str:
+        assert lease_id
         permit_group_id = f"permit:{run.run_id}:attempt:{attempt_no}"
         self.state.permit = PermitGroupBinding(
             permit_group_id=permit_group_id,
@@ -1450,9 +1449,7 @@ class _Publication:
         assert policy.publication_scope == "attempt"
         if self.state.fail_publication:
             raise IntegrityViolation("injected terminal publication failure")
-        artifact_id = (
-            f"artifact:attempt-failure:{prepared.cause_code}:{attempt.attempt_no}"
-        )
+        artifact_id = f"artifact:attempt-failure:{prepared.cause_code}:{attempt.attempt_no}"
         self.state.publisher_actions.append(f"attempt-failure:{artifact_id}")
         return AttemptFailurePublication(
             failure_artifact_id=artifact_id,
@@ -2152,9 +2149,7 @@ def test_prompt_replay_rechecks_the_current_attempt_fence_and_deadline() -> None
     before = deepcopy(harness.state)
 
     with pytest.raises(InvalidStateTransition, match="deadline|expired"):
-        harness.command_service_at(NOW_DT + timedelta(seconds=6)).publish_prompt_rendered(
-            request
-        )
+        harness.command_service_at(NOW_DT + timedelta(seconds=6)).publish_prompt_rendered(request)
 
     assert first.replayed is False
     assert harness.state == before

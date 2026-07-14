@@ -8,6 +8,7 @@
 - 全程 TDD；里程碑完成后更新 `CLAUDE.md` 里程碑状态表。
 
 **当前计划文件**：
+- `2026-07-14-m4b-observability-cost-reliability.md` — M4b 可观测、成本治理与可靠性（✅ 已完成；focused 290 passed/1 skipped，修复后全仓分区 2756 passed/1 skipped，7 契约 kept；下一片按冻结顺序进入 M4c）
 - `2026-07-13-m4a-platform-core.md` — M4a 平台核心与持久化地基（✅ 已完成；`b3c40f74`；slice 1230 passed、全仓 2509 passed/1 skipped、7 契约 kept；下一片按冻结顺序进入 M4b）
 - `M0a-vertical-slice.md` — M0a（已完成）
 - `2026-07-06-m0b-foundations.md` — M0b（已完成）
@@ -37,5 +38,5 @@ Flare B0A 与通用 B0A 状态机冻结为历史 replay 资产，不再扩展；
 M3d-1..4 均未进入，也不得继续写 Flare reader/quest/loot-table 计划或进行第三轮搜索。Flare 的
 negative investment decision 保持有效；Endless Sky 使用已完成的精简 external-case 路径。
 `DROPS_FROM` 与 repair cassette/apply 债务已闭合。M3 工程实现已完成；真人 QA 由产品负责人延后，
-combined acceptance 继续如实保留 `qa.evidence_missing`，但不阻塞 M4。M4 完整设计已冻结，当前按
-`M4a → M4b → M4c → M4d → M4e` 顺序实施。M3b/M3c 当时没有独立历史计划文件，不事后补写虚构计划。
+combined acceptance 继续如实保留 `qa.evidence_missing`，但不阻塞 M4。M4 完整设计已冻结，M4a/M4b
+已经完成，下一片按 `M4c → M4d → M4e` 顺序实施。M3b/M3c 当时没有独立历史计划文件，不事后补写虚构计划。

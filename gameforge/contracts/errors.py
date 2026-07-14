@@ -50,3 +50,15 @@ class TransactionClosed(GameForgeError):
 
 class RetentionActive(GameForgeError):
     code = "retention_active"
+
+
+class QueryTooBroad(GameForgeError):
+    code = "query_too_broad"
+
+
+class QuotaExceeded(GameForgeError):
+    code = "quota_exceeded"
+
+
+class DependencyUnavailable(GameForgeError):
+    code = "dependency_unavailable"

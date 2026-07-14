@@ -5,6 +5,7 @@ httpx-shaped client (`.post(url, json=..., headers=...)` -> object with `.json()
 and `.raise_for_status()`) so no network call is ever made here. One live
 integration test is gated on GAMEFORGE_LLM_LIVE=1 so CI stays zero-live.
 """
+
 from __future__ import annotations
 
 import os
@@ -12,14 +13,26 @@ from pathlib import Path
 
 import pytest
 
-from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapshot
+from gameforge.contracts.model_router import (
+    Message,
+    ModelRequest,
+    ModelRequestV2,
+    ModelSnapshot,
+    PrefixCacheDirectiveV1,
+    compute_prefix_hash,
+)
 from gameforge.runtime.model_router.anthropic_transport import AnthropicMessagesTransport
 
 _REAL_SHAPE = {
     "content": [{"text": "pong", "type": "text"}],
     "copilot_usage": {
         "token_details": [
-            {"batch_size": 1000000, "cost_per_batch": 500000000000, "token_count": 18, "token_type": "input"},
+            {
+                "batch_size": 1000000,
+                "cost_per_batch": 500000000000,
+                "token_count": 18,
+                "token_type": "input",
+            },
             {"token_count": 0, "token_type": "cache_read"},
             {"token_count": 0, "token_type": "cache_write"},
             {"token_count": 4, "token_type": "output"},
@@ -60,11 +73,30 @@ class _FakeClient:
 
 def _req(messages, params=None):
     return ModelRequest(
-        model_snapshot=ModelSnapshot(provider="anthropic", model="claude-opus-4-8", snapshot_tag="s1"),
+        model_snapshot=ModelSnapshot(
+            provider="anthropic", model="claude-opus-4-8", snapshot_tag="s1"
+        ),
         messages=messages,
         params=params or {},
         agent_node_id="triage",
         prompt_version="triage@1",
+    )
+
+
+def _prefix_req(messages, *, prefix_message_count: int) -> ModelRequestV2:
+    return ModelRequestV2(
+        model_snapshot=ModelSnapshot(
+            provider="anthropic", model="claude-opus-4-8", snapshot_tag="s1"
+        ),
+        messages=messages,
+        agent_node_id="triage",
+        prompt_version="triage@2",
+        prefix_cache_directive=PrefixCacheDirectiveV1(
+            prefix_message_count=prefix_message_count,
+            prefix_hash=compute_prefix_hash(messages[:prefix_message_count]),
+            provider_scope="anthropic",
+            policy_version="prefix-policy@1",
+        ),
     )
 
 
@@ -83,10 +115,14 @@ def test_maps_real_response_shape():
 def test_system_message_extracted_to_top_level():
     fake = _FakeClient(_REAL_SHAPE)
     t = AnthropicMessagesTransport(base_url="http://localhost:4141", api_key="sk-x", client=fake)
-    t.complete(_req([
-        Message(role="system", content="you are terse"),
-        Message(role="user", content="hi"),
-    ]))
+    t.complete(
+        _req(
+            [
+                Message(role="system", content="you are terse"),
+                Message(role="user", content="hi"),
+            ]
+        )
+    )
 
     assert len(fake.calls) == 1
     body = fake.calls[0]["json"]
@@ -105,11 +141,15 @@ def test_system_message_extracted_to_top_level():
 def test_multiple_system_messages_joined_with_blank_line():
     fake = _FakeClient(_REAL_SHAPE)
     t = AnthropicMessagesTransport(base_url="http://localhost:4141", api_key="sk-x", client=fake)
-    t.complete(_req([
-        Message(role="system", content="first"),
-        Message(role="system", content="second"),
-        Message(role="user", content="hi"),
-    ]))
+    t.complete(
+        _req(
+            [
+                Message(role="system", content="first"),
+                Message(role="system", content="second"),
+                Message(role="user", content="hi"),
+            ]
+        )
+    )
     assert fake.calls[0]["json"]["system"] == "first\n\nsecond"
 
 
@@ -139,7 +179,9 @@ def test_max_tokens_honored_when_present():
 def test_other_params_pass_through_except_max_tokens():
     fake = _FakeClient(_REAL_SHAPE)
     t = AnthropicMessagesTransport(base_url="http://localhost:4141", api_key="sk-x", client=fake)
-    t.complete(_req([Message(role="user", content="hi")], params={"max_tokens": 16, "temperature": 0}))
+    t.complete(
+        _req([Message(role="user", content="hi")], params={"max_tokens": 16, "temperature": 0})
+    )
     body = fake.calls[0]["json"]
     assert body["temperature"] == 0
     assert body["max_tokens"] == 16
@@ -196,6 +238,115 @@ def test_no_usage_at_all_yields_empty_token_usage():
     assert resp.token_usage == {}
 
 
+def test_remaining_attempt_timeout_is_forwarded_to_http_client():
+    class _TimeoutClient(_FakeClient):
+        def post(self, url, json=None, headers=None, timeout=None):  # noqa: A002
+            self.calls.append({"url": url, "json": json, "headers": headers, "timeout": timeout})
+            return _FakeResponse(self._data)
+
+    fake = _TimeoutClient(_REAL_SHAPE)
+    transport = AnthropicMessagesTransport(
+        base_url="http://localhost:4141",
+        api_key="sk-x",
+        client=fake,
+    )
+
+    transport.complete_with_timeout(
+        _req([Message(role="user", content="ping")]),
+        timeout_s=3.25,
+    )
+
+    assert fake.calls[0]["timeout"] == 3.25
+
+
+def test_prefix_cache_marks_exact_anthropic_boundary_and_still_calls_provider():
+    fake = _FakeClient(_REAL_SHAPE)
+    messages = [
+        Message(role="system", content="Stable constraints."),
+        Message(role="user", content="Stable KG."),
+        Message(role="user", content="Case-specific suffix."),
+    ]
+
+    AnthropicMessagesTransport(
+        base_url="http://localhost:4141",
+        api_key="sk-x",
+        client=fake,
+    ).complete(_prefix_req(messages, prefix_message_count=2))
+
+    assert len(fake.calls) == 1
+    body = fake.calls[0]["json"]
+    assert body["system"] == [{"type": "text", "text": "Stable constraints."}]
+    assert body["messages"] == [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Stable KG.",
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "Case-specific suffix."}],
+        },
+    ]
+
+
+def test_prefix_cache_preserves_multiple_system_message_text_semantics() -> None:
+    messages = [
+        Message(role="system", content="first"),
+        Message(role="system", content="second"),
+        Message(role="user", content="hi"),
+    ]
+    cached_request = _prefix_req(messages, prefix_message_count=2)
+    plain_request = cached_request.model_copy(update={"prefix_cache_directive": None})
+    plain_client = _FakeClient(_REAL_SHAPE)
+    cached_client = _FakeClient(_REAL_SHAPE)
+
+    AnthropicMessagesTransport(
+        base_url="http://localhost:4141",
+        api_key="sk-x",
+        client=plain_client,
+    ).complete(plain_request)
+    AnthropicMessagesTransport(
+        base_url="http://localhost:4141",
+        api_key="sk-x",
+        client=cached_client,
+    ).complete(cached_request)
+
+    plain_system = plain_client.calls[0]["json"]["system"]
+    cached_system = cached_client.calls[0]["json"]["system"]
+    assert plain_system == "first\n\nsecond"
+    assert "".join(block["text"] for block in cached_system) == plain_system
+    assert cached_system == [
+        {"type": "text", "text": "first\n\n"},
+        {
+            "type": "text",
+            "text": "second",
+            "cache_control": {"type": "ephemeral"},
+        },
+    ]
+
+
+def test_prefix_cache_rejects_message_order_that_provider_cannot_preserve():
+    fake = _FakeClient(_REAL_SHAPE)
+    messages = [
+        Message(role="user", content="first"),
+        Message(role="system", content="late system"),
+    ]
+
+    with pytest.raises(ValueError, match="leading"):
+        AnthropicMessagesTransport(
+            base_url="http://localhost:4141",
+            api_key="sk-x",
+            client=fake,
+        ).complete(_prefix_req(messages, prefix_message_count=1))
+
+    assert fake.calls == []
+
+
 def test_default_client_is_httpx_when_not_injected():
     import httpx
 
@@ -203,7 +354,10 @@ def test_default_client_is_httpx_when_not_injected():
     assert isinstance(t._client, httpx.Client)
 
 
-@pytest.mark.skipif(os.environ.get("GAMEFORGE_LLM_LIVE") != "1", reason="live gateway call; set GAMEFORGE_LLM_LIVE=1")
+@pytest.mark.skipif(
+    os.environ.get("GAMEFORGE_LLM_LIVE") != "1",
+    reason="live gateway call; set GAMEFORGE_LLM_LIVE=1",
+)
 def test_live_opus_call_via_messages():
     # Load GAMEFORGE_LLM_KEY from the gitignored .env if not already in the environment
     # (mirrors .superpowers/sdd/live_probe.py's approach — no python-dotenv dependency).

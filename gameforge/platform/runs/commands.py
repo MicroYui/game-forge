@@ -313,6 +313,7 @@ class RunAdmissionGateway(Protocol):
         attempt_no: int,
         fencing_token: int,
         worker_principal_id: str,
+        lease_id: str,
         expires_at: str,
     ) -> str: ...
 
@@ -609,7 +610,9 @@ class RunCommandService:
                 != run
                 or runs.get_event(run.run_id, 1) != initial_event
             ):
-                raise IntegrityViolation("Run repository did not retain the exact queued publication")
+                raise IntegrityViolation(
+                    "Run repository did not retain the exact queued publication"
+                )
             publication.record_run_created(run=run, event=initial_event)
             return RunCreateResult(run=run, replayed=False)
 
@@ -650,7 +653,9 @@ class RunCommandService:
                     field_name="stored retry_not_before_utc",
                 )
                 if now < retry_not_before:
-                    raise IntegrityViolation("Run repository returned an ineligible retry candidate")
+                    raise IntegrityViolation(
+                        "Run repository returned an ineligible retry candidate"
+                    )
             remaining = overall_deadline - now
             remaining_microseconds = (
                 remaining.days * 86_400_000_000
@@ -668,6 +673,7 @@ class RunCommandService:
                 attempt_no=previous.next_attempt_no,
                 fencing_token=previous.next_fencing_token,
                 worker_principal_id=request.worker.principal_id,
+                lease_id=request.lease_id,
                 expires_at=expires_at,
             )
             if not permit_group_id:
@@ -702,7 +708,9 @@ class RunCommandService:
                 or runs.get_current_lease(previous.run_id) != persisted.lease
                 or runs.get_event(previous.run_id, persisted.event.seq) != persisted.event
             ):
-                raise IntegrityViolation("Run repository did not retain the exact claim publication")
+                raise IntegrityViolation(
+                    "Run repository did not retain the exact claim publication"
+                )
             publication.record_run_claimed(
                 previous=previous,
                 run=persisted.run,
@@ -962,9 +970,7 @@ class RunCommandService:
                 events=(cancel_event, terminal_event),
                 terminal_status="cancelled",
                 terminal_failure_artifact_id=failure_artifact_id,
-                terminal_cassette_artifact_id=(
-                    run_publication.terminal_cassette_artifact_id
-                ),
+                terminal_cassette_artifact_id=(run_publication.terminal_cassette_artifact_id),
             )
             publication.record_command_submitted(
                 run=persisted.run,

@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import pytest
 
-from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapshot
+from gameforge.contracts.model_router import (
+    Message,
+    ModelRequest,
+    ModelRequestV2,
+    ModelSnapshot,
+    PrefixCacheDirectiveV1,
+    compute_prefix_hash,
+)
 from gameforge.runtime.model_router.openai_responses_transport import (
     OpenAIResponsesTransport,
 )
@@ -43,6 +50,29 @@ def _request(**params) -> ModelRequest:
         params=params or {"max_tokens": 256},
         agent_node_id="external-evidence",
         prompt_version="external-evidence@1",
+    )
+
+
+def _prefix_request() -> ModelRequestV2:
+    messages = [
+        Message(role="system", content="Stable KG and constraints."),
+        Message(role="user", content="Analyze this case."),
+    ]
+    return ModelRequestV2(
+        model_snapshot=ModelSnapshot(
+            provider="openai",
+            model="gpt-5.6-sol",
+            snapshot_tag="2026-07-14",
+        ),
+        messages=messages,
+        agent_node_id="repair",
+        prompt_version="repair@2",
+        prefix_cache_directive=PrefixCacheDirectiveV1(
+            prefix_message_count=1,
+            prefix_hash=compute_prefix_hash(messages[:1]),
+            provider_scope="openai",
+            policy_version="prefix-policy@1",
+        ),
     )
 
 
@@ -97,6 +127,7 @@ def test_responses_transport_maps_request_and_normalizes_text_and_usage():
         "input_tokens": 10,
         "output_tokens": 4,
         "total_tokens": 14,
+        "cache_read_tokens": 0,
     }
     assert response.tool_calls == []
     assert response.raw_response == payload
@@ -151,5 +182,68 @@ def test_responses_transport_rejects_ambiguous_token_params_and_message_tool_cal
     tool_request.messages = [Message(role="tool", content="{}")]
     with pytest.raises(ValueError, match="tool-role"):
         transport.complete(tool_request)
+
+    assert client.calls == []
+
+
+def test_responses_transport_applies_the_remaining_attempt_timeout():
+    class _TimeoutClient(_FakeClient):
+        def post(self, url, *, json, headers, timeout):
+            self.calls.append((url, json, headers, timeout))
+            return _FakeResponse(self._payload)
+
+    client = _TimeoutClient({"status": "completed", "output": []})
+    transport = OpenAIResponsesTransport(
+        base_url="http://localhost:4141",
+        api_key="secret",
+        client=client,
+    )
+
+    transport.complete_with_timeout(_request(), timeout_s=2.5)
+
+    assert client.calls[0][3] == 2.5
+
+
+def test_responses_transport_maps_approved_prefix_without_skipping_provider_call():
+    payload = {
+        "status": "completed",
+        "output": [],
+        "usage": {
+            "input_tokens": 20,
+            "output_tokens": 2,
+            "total_tokens": 22,
+            "input_tokens_details": {"cached_tokens": 12},
+        },
+    }
+    client = _FakeClient(payload)
+    request = _prefix_request()
+
+    response = OpenAIResponsesTransport(
+        base_url="http://localhost:4141",
+        api_key="secret",
+        client=client,
+    ).complete(request)
+
+    assert len(client.calls) == 1
+    assert client.calls[0][1]["prompt_cache_key"] == (
+        request.prefix_cache_directive.prefix_hash.removeprefix("sha256:")
+    )
+    assert client.calls[0][1]["input"] == [
+        {"role": "system", "content": "Stable KG and constraints."},
+        {"role": "user", "content": "Analyze this case."},
+    ]
+    assert response.token_usage["cache_read_tokens"] == 12
+
+
+def test_responses_transport_rejects_prefix_cache_param_bypass():
+    request = _prefix_request().model_copy(update={"params": {"prompt_cache_key": "bypass"}})
+    client = _FakeClient({"status": "completed", "output": []})
+
+    with pytest.raises(ValueError, match="prefix cache directive"):
+        OpenAIResponsesTransport(
+            base_url="http://localhost:4141",
+            api_key="secret",
+            client=client,
+        ).complete(request)
 
     assert client.calls == []
