@@ -374,7 +374,7 @@ uv run pytest tests/platform/m4/test_apply.py tests/platform/m4/test_rollback.py
 - Race flow: validation completion vs superseding subject revision.
 - Multi-connection flow: claim/retry/reaper/event sequencing and stale-worker rejection.
 - GC flow: current and historical rollback objects remain live; orphan generations are collected only after the safe window and second reference check.
-- Pagination flow: concurrent inserts/updates/deletes do not create duplicates/omissions within one read snapshot; cursor tamper or reuse with another query shape fails. Principal/authz-revision/expiry enforcement remains an M4c API responsibility.
+- Pagination flow: immutable Artifact pages use an insertion high-watermark plus `artifact_id` keyset, exclude later inserts without whole-table materialization, and reject cursor tamper or reuse with another query shape. Mutable filtered-list materialization plus principal/authz-revision enforcement remains an M4c API responsibility.
 - Legacy flow: M0b-M3 lineage/audit/Finding/Patch/cassette fixtures remain byte-stable and existing public behavior remains green.
 
 **Required gates**
@@ -394,6 +394,16 @@ git diff --check
 - Fix confirmed findings and rerun every gate.
 - Record the exact passing counts and M4a acceptance evidence in this plan and the progress anchors.
 - Commit without AI attribution, merge linearly into `master`, and push only after M4a is green. Then create the M4b plan from the frozen design.
+
+## Completion Evidence (2026-07-14)
+
+M4a implementation and its frozen acceptance scope are complete at `b3c40f74`. M4b/M4c/M4e integrations remain explicitly unchecked until their owning slices.
+
+- Task 16 focused integration/concurrency set: **43 passed**. The local service flow covers ArtifactV2/ObjectRef publication, `SnapshotDiffService`, immutable Patch/preview, validation, independent-human approval, atomic apply, approved rollback, ref history, `RefTransitionV1`, unchanged lineage DAG, audit@2 verification, and historical-object GC liveness.
+- Both validation-completion/supersede serializations retain immutable evidence correctly; multi-connection Run claim/reap/retry keeps attempt/fencing/event sequences monotonic and rejects the stale worker.
+- Artifact pagination uses SQLite's append-only rowid as the retained insertion high-watermark while externally sorting by `artifact_id`; a 1001-row regression proves one `LIMIT page_size+1` source read, zero materialized copies, and exclusion of an interleaved post-snapshot insert. Artifact DELETE or `VACUUM` is prohibited during the retained cursor TTL; the local adapter exposes neither path.
+- Slice-wide gate: **1230 passed**. Full repository regression: **2509 passed, 1 skipped**. Import contracts: **7 kept, 0 broken**. Dependency lint: **27 passed**. Ruff and `git diff --check`: clean.
+- Final adversarial review found one frozen-scope defect, the first-page O(N) Artifact materialization, and verified the high-watermark/keyset correction. No remaining M4a-owned finding was confirmed.
 
 ## M4a Traceability Matrix
 

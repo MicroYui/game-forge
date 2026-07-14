@@ -8,7 +8,7 @@
 - 全程 TDD；里程碑完成后更新 `CLAUDE.md` 里程碑状态表。
 
 **当前计划文件**：
-- `2026-07-13-m4a-platform-core.md` — M4a 平台核心与持久化地基（🔄 当前执行：additive lineage/audit/workflow contracts、SQLite UoW、本地 ObjectStore、RBAC/审批、diff/回滚、持久 Run/fencing；后续按冻结顺序进入 M4b–M4e）
+- `2026-07-13-m4a-platform-core.md` — M4a 平台核心与持久化地基（✅ 已完成；`b3c40f74`；slice 1230 passed、全仓 2509 passed/1 skipped、7 契约 kept；下一片按冻结顺序进入 M4b）
 - `M0a-vertical-slice.md` — M0a（已完成）
 - `2026-07-06-m0b-foundations.md` — M0b（已完成）
 - `2026-07-06-m1-deterministic-trunk.md` — M1（已完成）
