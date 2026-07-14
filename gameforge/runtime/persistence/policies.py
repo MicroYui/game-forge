@@ -10,7 +10,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.auth import (
+    LoginNameNormalizationPolicyV1,
+    PasswordHashPolicyV1,
+    SessionPolicyV1,
+)
+from gameforge.contracts.canonical import canonical_json, canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
@@ -63,6 +68,12 @@ _AUTO_APPLY_POLICY_REGISTRY_ID = "platform_auto_apply_policies"
 _EXECUTION_PROFILE_CATALOG_KIND = "execution_profile_catalog"
 _EXECUTION_PROFILE_CATALOG_ID = "platform_execution_profiles"
 _EXECUTION_PROFILE_DEFINITION_KIND = "execution_profile_definition"
+_LOGIN_NAME_NORMALIZATION_POLICY_KIND = "login_name_normalization_policy"
+_LOGIN_NAME_NORMALIZATION_POLICY_ID = "platform_login_name_normalization"
+_PASSWORD_HASH_POLICY_KIND = "password_hash_policy"
+_PASSWORD_HASH_POLICY_ID = "platform_password_hash"
+_SESSION_POLICY_KIND = "session_policy"
+_SESSION_POLICY_ID = "platform_session"
 
 PolicyModel = TypeVar("PolicyModel", bound=BaseModel)
 
@@ -92,11 +103,7 @@ def _parse_lifecycle_changed_at(
             profile_version=profile.version,
             catalog_version=catalog_version,
         ) from exc
-    if (
-        parsed.tzinfo is None
-        or parsed.utcoffset() is None
-        or parsed.utcoffset() != timedelta(0)
-    ):
+    if parsed.tzinfo is None or parsed.utcoffset() is None or parsed.utcoffset() != timedelta(0):
         raise IntegrityViolation(
             "execution profile lifecycle changed_at must be a UTC timestamp",
             profile_id=profile.profile_id,
@@ -162,6 +169,125 @@ class SqlPolicySnapshotRepository:
         self._session = session
         self._clock = clock
 
+    def put_login_name_normalization_policy(
+        self,
+        policy: LoginNameNormalizationPolicyV1,
+    ) -> LoginNameNormalizationPolicyV1:
+        canonical = _canonical_model(policy, LoginNameNormalizationPolicyV1)
+        self._put(
+            document_kind=_LOGIN_NAME_NORMALIZATION_POLICY_KIND,
+            document_id=_LOGIN_NAME_NORMALIZATION_POLICY_ID,
+            document_version=canonical.policy_version,
+            document_digest=canonical.policy_digest,
+            payload_schema_version=canonical.policy_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_login_name_normalization_policy(
+        self,
+        *,
+        policy_version: str,
+        policy_digest: str,
+    ) -> LoginNameNormalizationPolicyV1 | None:
+        row = self._session.get(
+            PolicySnapshotRow,
+            (
+                _LOGIN_NAME_NORMALIZATION_POLICY_KIND,
+                _LOGIN_NAME_NORMALIZATION_POLICY_ID,
+                policy_version,
+            ),
+        )
+        if row is None:
+            return None
+        if row.document_digest != policy_digest:
+            raise IntegrityViolation(
+                "retained login-name normalization policy digest differs from requested exact ref",
+                policy_version=policy_version,
+            )
+        return self._parse_row(
+            row,
+            model_type=LoginNameNormalizationPolicyV1,
+            expected_kind=_LOGIN_NAME_NORMALIZATION_POLICY_KIND,
+            expected_id=_LOGIN_NAME_NORMALIZATION_POLICY_ID,
+            expected_version=policy_version,
+            version_field="policy_version",
+            expected_schema="login-name-normalization@1",
+            digest_field="policy_digest",
+        )
+
+    def put_password_hash_policy(
+        self,
+        policy: PasswordHashPolicyV1,
+    ) -> PasswordHashPolicyV1:
+        canonical = _canonical_model(policy, PasswordHashPolicyV1)
+        self._put(
+            document_kind=_PASSWORD_HASH_POLICY_KIND,
+            document_id=_PASSWORD_HASH_POLICY_ID,
+            document_version=canonical.policy_version,
+            document_digest=canonical_sha256(canonical.model_dump(mode="json")),
+            payload_schema_version=canonical.policy_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_password_hash_policy(
+        self,
+        policy_version: str,
+    ) -> PasswordHashPolicyV1 | None:
+        row = self._session.get(
+            PolicySnapshotRow,
+            (_PASSWORD_HASH_POLICY_KIND, _PASSWORD_HASH_POLICY_ID, policy_version),
+        )
+        if row is None:
+            return None
+        policy = self._parse_row(
+            row,
+            model_type=PasswordHashPolicyV1,
+            expected_kind=_PASSWORD_HASH_POLICY_KIND,
+            expected_id=_PASSWORD_HASH_POLICY_ID,
+            expected_version=policy_version,
+            version_field="policy_version",
+            expected_schema="password-hash-policy@1",
+            digest_field=None,
+        )
+        if row.document_digest != canonical_sha256(policy.model_dump(mode="json")):
+            raise IntegrityViolation("stored password-hash policy digest is inconsistent")
+        return policy
+
+    def put_session_policy(self, policy: SessionPolicyV1) -> SessionPolicyV1:
+        canonical = _canonical_model(policy, SessionPolicyV1)
+        self._put(
+            document_kind=_SESSION_POLICY_KIND,
+            document_id=_SESSION_POLICY_ID,
+            document_version=canonical.policy_version,
+            document_digest=canonical_sha256(canonical.model_dump(mode="json")),
+            payload_schema_version=canonical.policy_schema_version,
+            payload=canonical.model_dump(mode="json"),
+        )
+        return canonical
+
+    def get_session_policy(self, policy_version: str) -> SessionPolicyV1 | None:
+        row = self._session.get(
+            PolicySnapshotRow,
+            (_SESSION_POLICY_KIND, _SESSION_POLICY_ID, policy_version),
+        )
+        if row is None:
+            return None
+        policy = self._parse_row(
+            row,
+            model_type=SessionPolicyV1,
+            expected_kind=_SESSION_POLICY_KIND,
+            expected_id=_SESSION_POLICY_ID,
+            expected_version=policy_version,
+            version_field="policy_version",
+            expected_schema="session-policy@1",
+            digest_field=None,
+        )
+        if row.document_digest != canonical_sha256(policy.model_dump(mode="json")):
+            raise IntegrityViolation("stored session policy digest is inconsistent")
+        return policy
+
     def put_execution_profile_catalog(
         self,
         catalog: ExecutionProfileCatalogSnapshotV1,
@@ -208,7 +334,7 @@ class SqlPolicySnapshotRepository:
             raise IntegrityViolation(
                 "retained execution profile catalog digest differs from requested exact ref",
                 catalog_version=catalog_version,
-        )
+            )
         catalog = self._parse_execution_profile_catalog_row(row)
         for definition in catalog.definitions:
             retained = self._get_execution_profile_definition(definition)
@@ -361,9 +487,7 @@ class SqlPolicySnapshotRepository:
         ] = {}
         for catalog_version in sorted(catalogs):
             for lifecycle in catalogs[catalog_version].lifecycle:
-                history.setdefault(lifecycle.profile, []).append(
-                    (catalog_version, lifecycle)
-                )
+                history.setdefault(lifecycle.profile, []).append((catalog_version, lifecycle))
 
         for profile, entries in history.items():
             first = entries[0][1]
@@ -875,8 +999,7 @@ class SqlPolicySnapshotRepository:
         matches = [
             policy
             for policy in registry.policies
-            if (policy.policy_id, policy.policy_version)
-            == (ref.policy_id, ref.policy_version)
+            if (policy.policy_id, policy.policy_version) == (ref.policy_id, ref.policy_version)
         ]
         if len(matches) != 1:
             raise IntegrityViolation(
@@ -1065,10 +1188,7 @@ class SqlPolicySnapshotRepository:
             raise IntegrityViolation("stored policy snapshot payload is invalid") from exc
         if (
             (version_field is not None and getattr(parsed, version_field) != expected_version)
-            or (
-                digest_field is not None
-                and getattr(parsed, digest_field) != row.document_digest
-            )
+            or (digest_field is not None and getattr(parsed, digest_field) != row.document_digest)
             or canonical_json(parsed.model_dump(mode="json")) != canonical_json(row.payload)
         ):
             raise IntegrityViolation("stored policy snapshot payload is noncanonical")

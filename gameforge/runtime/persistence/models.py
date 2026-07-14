@@ -209,6 +209,101 @@ class RoleAssignmentRow(Base):
     revoke_reason: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
+class PasswordCredentialRow(Base):
+    __tablename__ = "password_credentials"
+    __table_args__ = (
+        UniqueConstraint(
+            "normalized_login_name",
+            name="uq_password_credentials_normalized_login",
+        ),
+        Index(
+            "ix_password_credentials_principal_status",
+            "principal_id",
+            "status",
+            "credential_id",
+        ),
+    )
+
+    credential_id: Mapped[str] = mapped_column(String, primary_key=True)
+    principal_id: Mapped[str] = mapped_column(
+        ForeignKey("principals.principal_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    normalized_login_name: Mapped[str] = mapped_column(String, nullable=False)
+    normalization_policy_version: Mapped[str] = mapped_column(String, nullable=False)
+    normalization_policy_digest: Mapped[str] = mapped_column(String, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    hash_policy_version: Mapped[str] = mapped_column(String, nullable=False)
+    credential_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    changed_at: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class ApiKeyRow(Base):
+    __tablename__ = "api_keys"
+    __table_args__ = (
+        UniqueConstraint("key_digest", name="uq_api_keys_digest"),
+        Index(
+            "ix_api_keys_principal_status",
+            "principal_id",
+            "status",
+            "api_key_id",
+        ),
+    )
+
+    api_key_id: Mapped[str] = mapped_column(String, primary_key=True)
+    principal_id: Mapped[str] = mapped_column(
+        ForeignKey("principals.principal_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    key_prefix: Mapped[str] = mapped_column(String, nullable=False)
+    key_digest: Mapped[str] = mapped_column(String, nullable=False)
+    credential_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    expires_at: Mapped[str | None] = mapped_column(String, nullable=True)
+    revoked_at: Mapped[str | None] = mapped_column(String, nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class SessionRow(Base):
+    __tablename__ = "sessions"
+    __table_args__ = (
+        UniqueConstraint("token_digest", name="uq_sessions_token_digest"),
+        Index(
+            "ix_sessions_principal_expiry",
+            "principal_id",
+            "absolute_expires_at",
+            "session_id",
+        ),
+        Index(
+            "ix_sessions_source_credential",
+            "source_credential_id",
+            "credential_version",
+            "session_id",
+        ),
+    )
+
+    session_id: Mapped[str] = mapped_column(String, primary_key=True)
+    principal_id: Mapped[str] = mapped_column(
+        ForeignKey("principals.principal_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    source_credential_id: Mapped[str] = mapped_column(String, nullable=False)
+    credential_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    token_digest: Mapped[str] = mapped_column(String, nullable=False)
+    csrf_secret_digest: Mapped[str] = mapped_column(String, nullable=False)
+    signing_key_id: Mapped[str] = mapped_column(String, nullable=False)
+    issued_at: Mapped[str] = mapped_column(String, nullable=False)
+    absolute_expires_at: Mapped[str] = mapped_column(String, nullable=False)
+    idle_expires_at: Mapped[str] = mapped_column(String, nullable=False)
+    last_seen_at: Mapped[str] = mapped_column(String, nullable=False)
+    revoked_at: Mapped[str | None] = mapped_column(String, nullable=True)
+    revoke_reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
 class PolicySnapshotRow(Base):
     __tablename__ = "policy_snapshots"
     __table_args__ = (
