@@ -2405,6 +2405,12 @@ class RuntimeParentRuleV1(_FrozenModel):
     artifact_kind: ArtifactKind
     payload_schema_ids: tuple[NonEmptyStr, ...] = Field(min_length=1)
     attempt_selector: Literal["none", "current", "all_closed"]
+    enabled_execution_modes: tuple[Literal["not_applicable", "live", "record", "replay"], ...] = (
+        "not_applicable",
+        "live",
+        "record",
+        "replay",
+    )
     min_count: NonNegativeInt
     max_count: NonNegativeInt | None = None
     count_binding: ArtifactCountBindingV1 | None = None
@@ -2413,6 +2419,14 @@ class RuntimeParentRuleV1(_FrozenModel):
     @classmethod
     def _schemas(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         return _canonical_unique_strings(value, allow_empty=False)
+
+    @field_validator("enabled_execution_modes")
+    @classmethod
+    def _execution_modes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        order = {"not_applicable": 0, "live": 1, "record": 2, "replay": 3}
+        if not value or len(value) != len(set(value)):
+            raise ValueError("runtime-parent execution modes must be non-empty and unique")
+        return tuple(sorted(value, key=order.__getitem__))
 
     @model_validator(mode="after")
     def _range(self) -> "RuntimeParentRuleV1":
@@ -2500,11 +2514,11 @@ class RunKindDefinition(_FrozenModel):
 
     @model_validator(mode="after")
     def _seed_and_migration(self) -> "RunKindDefinition":
-        if self.seed_policy == "profile_dependent":
+        if self.seed_policy in {"required", "profile_dependent"}:
             if self.seed_derivation_version is None:
-                raise ValueError("profile-dependent seed needs a derivation version")
+                raise ValueError("seeded Run kinds need a derivation version")
         elif self.seed_derivation_version is not None:
-            raise ValueError("fixed seed policies cannot carry derivation version")
+            raise ValueError("seed-forbidden Run kinds cannot carry a derivation version")
         if (self.kind == "artifact.migrate") != (self.migration_capability_matrix is not None):
             raise ValueError("only artifact.migrate binds a capability matrix")
         return self

@@ -38,6 +38,7 @@ from gameforge.contracts.jobs import (
     RunPayloadEnvelope,
     RunManifestParentBindingV1,
     RunManifestVersionProjectionV1,
+    RuntimeParentRuleV1,
     RunFailureV1,
     RunResultSummaryV1,
     RunResultV1,
@@ -736,3 +737,28 @@ def test_problem_errors_preserve_ordinary_bounded_json() -> None:
     )
 
     assert problem.errors == errors
+
+
+def test_runtime_parent_execution_modes_are_nonempty_unique_and_canonical() -> None:
+    rule = RuntimeParentRuleV1(
+        rule_id="record-shards",
+        manifest_scope="attempt",
+        source="record_shard",
+        parent_role="intermediate",
+        artifact_kind="cassette_bundle",
+        payload_schema_ids=("cassette-record-shard@1",),
+        attempt_selector="current",
+        enabled_execution_modes=("replay", "record"),
+        min_count=0,
+        max_count=None,
+    )
+    assert rule.enabled_execution_modes == ("record", "replay")
+
+    for invalid in ((), ("record", "record")):
+        with pytest.raises(ValidationError):
+            RuntimeParentRuleV1(
+                **{
+                    **rule.model_dump(mode="python"),
+                    "enabled_execution_modes": invalid,
+                }
+            )
