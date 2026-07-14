@@ -70,6 +70,25 @@ def test_profile_refs_and_resolved_binding_are_exact_and_frozen() -> None:
         binding.catalog_version = 4
 
 
+def test_profile_ref_and_direct_profile_identifiers_are_bounded() -> None:
+    boundary_id = "p" * 512
+    assert ProfileRefV1(profile_id=boundary_id, version=1).profile_id == boundary_id
+
+    with pytest.raises(ValidationError):
+        ProfileRefV1(profile_id="p" * 513, version=1)
+    with pytest.raises(ValidationError):
+        RunKindRef(kind="r" * 513, version=1)
+    with pytest.raises(ValidationError):
+        ResolvedExecutionProfileBindingV1(
+            field_path="/" + "f" * 4096,
+            profile=ProfileRefV1(profile_id="checker.default", version=1),
+            expected_profile_kind="checker",
+            profile_payload_hash="a" * 64,
+            catalog_version=1,
+            catalog_digest="b" * 64,
+        )
+
+
 def test_definition_rejects_bad_config_hash_or_wrong_detail_variant() -> None:
     definition = _definition()
     with pytest.raises(ValidationError):

@@ -22,6 +22,7 @@ from gameforge.contracts.execution_profiles import (
     ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
+    VersionTransitionPolicyRefV1,
 )
 from gameforge.contracts.findings import FindingPayloadV1, OracleType, FindingSource
 from gameforge.contracts.identity import DomainScope, Permission
@@ -32,12 +33,27 @@ from gameforge.contracts.lineage import (
     ObjectRef,
     VersionTuple,
 )
+from gameforge.contracts.migration import (  # noqa: F401
+    CanonicalRoundTripCheckResultV1,
+    GoldenReplayCheckResultV1,
+    MigrationCheckResultV1,
+    MigrationCheckV1,
+    MigrationPathResolvedCheckResultV1,
+    MigrationReportV1,
+    PublishBindingCheckResultV1,
+    SemanticInvariantsCheckResultV1,
+    SourceReadableCheckResultV1,
+    TargetPayloadValidCheckResultV1,
+    TargetReaderResolvedCheckResultV1,
+)
+from gameforge.contracts.playtest import CompletionOracleRegistryRefV1
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import FindingEvidenceBindingV1
 
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
 BoundedNonEmptyStr = Annotated[str, StringConstraints(min_length=1, max_length=4096)]
+BoundedJsonKey = Annotated[str, StringConstraints(max_length=4096)]
 BoundedId = Annotated[str, StringConstraints(min_length=1, max_length=512)]
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 JsonPointer = Annotated[
@@ -49,8 +65,11 @@ JsonPointer = Annotated[
 ]
 PositiveInt = Annotated[int, Field(ge=1)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
+Uint64 = Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
 
 MAX_COLLECTION_ITEMS = 1024
+MAX_JSON_BYTES = 64 * 1024
+MAX_JSON_DEPTH = 32
 
 
 class _FrozenModel(BaseModel):
@@ -64,6 +83,32 @@ def _json_data(value: Any) -> Any:
         return {key: _json_data(item) for key, item in value.items()}
     if isinstance(value, (tuple, list)):
         return [_json_data(item) for item in value]
+    return value
+
+
+def _validate_bounded_json(value: JsonValue, *, field_name: str) -> JsonValue:
+    if len(canonical_json(value).encode("utf-8")) > MAX_JSON_BYTES:
+        raise ValueError(f"{field_name} exceeds the canonical JSON byte limit")
+
+    stack: list[tuple[JsonValue, int]] = [(value, 1)]
+    while stack:
+        item, depth = stack.pop()
+        if depth > MAX_JSON_DEPTH:
+            raise ValueError(f"{field_name} exceeds the JSON depth limit")
+        if isinstance(item, str):
+            if len(item) > 4096:
+                raise ValueError(f"{field_name} contains an oversized string")
+        elif isinstance(item, dict):
+            if len(item) > MAX_COLLECTION_ITEMS:
+                raise ValueError(f"{field_name} contains an oversized object")
+            for key, child in item.items():
+                if len(key) > 4096:
+                    raise ValueError(f"{field_name} contains an oversized object key")
+                stack.append((child, depth + 1))
+        elif isinstance(item, list):
+            if len(item) > MAX_COLLECTION_ITEMS:
+                raise ValueError(f"{field_name} contains an oversized array")
+            stack.extend((child, depth + 1) for child in item)
     return value
 
 
@@ -127,9 +172,9 @@ DependencyKind = Literal[
 class DependencyFailureV1(_FrozenModel):
     dependency_schema_version: Literal["dependency-failure@1"] = "dependency-failure@1"
     dependency_kind: DependencyKind
-    dependency_id: NonEmptyStr
-    operation_code: NonEmptyStr
-    classifier_code: NonEmptyStr
+    dependency_id: BoundedNonEmptyStr
+    operation_code: BoundedNonEmptyStr
+    classifier_code: BoundedNonEmptyStr
     upstream_status_code: int | None = Field(default=None, ge=100, le=599)
     retry_after_ms: int | None = Field(default=None, ge=0)
 
@@ -140,11 +185,11 @@ class FailureClassifierRefV1(_FrozenModel):
 
 
 class FailureClassificationRuleV1(_FrozenModel):
-    cause_code: NonEmptyStr
+    cause_code: BoundedNonEmptyStr
     failure_class: FailureClassV1
     intrinsic_retry_eligible: bool
     dependency_required: bool
-    allowed_dependency_kinds: tuple[DependencyKind, ...]
+    allowed_dependency_kinds: tuple[DependencyKind, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
 
     @field_validator("allowed_dependency_kinds")
     @classmethod
@@ -177,7 +222,7 @@ def failure_classifier_digest(payload: Mapping[str, Any] | BaseModel) -> str:
 class FailureClassifierV1(_FrozenModel):
     classifier_schema_version: Literal["failure-classifier@1"] = "failure-classifier@1"
     classifier_version: PositiveInt
-    rules: tuple[FailureClassificationRuleV1, ...]
+    rules: tuple[FailureClassificationRuleV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     classifier_digest: Sha256Hex
 
     @field_validator("rules")
@@ -198,7 +243,7 @@ class FailureClassifierV1(_FrozenModel):
 
 
 class RetryPolicyRefV1(_FrozenModel):
-    retry_policy_id: NonEmptyStr
+    retry_policy_id: BoundedNonEmptyStr
     retry_policy_version: PositiveInt
     retry_policy_digest: Sha256Hex
 
@@ -215,14 +260,14 @@ def retry_policy_digest(payload: Mapping[str, Any] | BaseModel) -> str:
 
 class RetryPolicySnapshot(_FrozenModel):
     retry_schema_version: Literal["retry-policy@1"] = "retry-policy@1"
-    retry_policy_id: NonEmptyStr
+    retry_policy_id: BoundedNonEmptyStr
     retry_policy_version: PositiveInt
     max_attempts: PositiveInt
-    retryable_failure_classes: tuple[FailureClassV1, ...]
+    retryable_failure_classes: tuple[FailureClassV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     backoff: Literal["fixed", "exponential"]
     base_delay_ms: NonNegativeInt
     max_delay_ms: NonNegativeInt
-    jitter_policy: NonEmptyStr
+    jitter_policy: BoundedNonEmptyStr
     honor_retry_after: bool
     retry_policy_digest: Sha256Hex
 
@@ -242,7 +287,7 @@ class RetryPolicySnapshot(_FrozenModel):
 
 class RetryDecisionV1(_FrozenModel):
     decision_schema_version: Literal["retry-decision@1"] = "retry-decision@1"
-    cause_code: NonEmptyStr
+    cause_code: BoundedNonEmptyStr
     failure_class: FailureClassV1
     intrinsic_retry_eligible: bool
     decision: Literal["retry", "terminal"]
@@ -257,10 +302,10 @@ class RetryDecisionV1(_FrozenModel):
         "policy_forbidden",
         "not_retry_eligible",
     ]
-    retry_not_before_utc: NonEmptyStr | None = None
+    retry_not_before_utc: BoundedNonEmptyStr | None = None
     classifier: FailureClassifierRefV1
     retry_policy: RetryPolicyRefV1
-    evaluated_at_utc: NonEmptyStr
+    evaluated_at_utc: BoundedNonEmptyStr
 
     @model_validator(mode="after")
     def _retry_shape(self) -> "RetryDecisionV1":
@@ -295,10 +340,12 @@ class RetryDecisionV1(_FrozenModel):
 
 
 class PlannedAgentNodeVersionV1(_FrozenModel):
-    agent_node_id: NonEmptyStr
-    prompt_version: NonEmptyStr
-    tool_version: NonEmptyStr
-    allowed_model_snapshots: tuple[NonEmptyStr, ...] = Field(min_length=1)
+    agent_node_id: BoundedNonEmptyStr
+    prompt_version: BoundedNonEmptyStr
+    tool_version: BoundedNonEmptyStr
+    allowed_model_snapshots: tuple[BoundedNonEmptyStr, ...] = Field(
+        min_length=1, max_length=MAX_COLLECTION_ITEMS
+    )
 
     @field_validator("allowed_model_snapshots")
     @classmethod
@@ -317,8 +364,10 @@ def execution_version_plan_digest(payload: Mapping[str, Any] | BaseModel) -> str
 
 class ExecutionVersionPlanV1(_FrozenModel):
     plan_schema_version: Literal["execution-version-plan@1"] = "execution-version-plan@1"
-    agent_graph_version: NonEmptyStr
-    nodes: tuple[PlannedAgentNodeVersionV1, ...] = Field(min_length=1)
+    agent_graph_version: BoundedNonEmptyStr
+    nodes: tuple[PlannedAgentNodeVersionV1, ...] = Field(
+        min_length=1, max_length=MAX_COLLECTION_ITEMS
+    )
     model_catalog_version: PositiveInt
     model_catalog_digest: Sha256Hex
     routing_policy_version: PositiveInt
@@ -343,10 +392,10 @@ class ExecutionVersionPlanV1(_FrozenModel):
 
 
 class ResolvedArtifactRequirementV1(_FrozenModel):
-    requirement_id: NonEmptyStr
-    outcome_rule_id: NonEmptyStr
+    requirement_id: BoundedNonEmptyStr
+    outcome_rule_id: BoundedNonEmptyStr
     artifact_kind: ArtifactKind
-    payload_schema_id: NonEmptyStr
+    payload_schema_id: BoundedNonEmptyStr
     producer_profile_field_path: JsonPointer | None = None
     ordinal: PositiveInt
 
@@ -369,10 +418,10 @@ def resolved_policy_snapshot_digest(payload: Mapping[str, Any] | BaseModel) -> s
 
 class ResolvedPolicySnapshotV1(_FrozenModel):
     snapshot_schema_version: Literal["resolved-policy@1"] = "resolved-policy@1"
-    resolved_policy_id: NonEmptyStr
+    resolved_policy_id: BoundedNonEmptyStr
     source_profile_field_path: JsonPointer
     source_profile_payload_hash: Sha256Hex
-    requirements: tuple[ResolvedArtifactRequirementV1, ...]
+    requirements: tuple[ResolvedArtifactRequirementV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     digest: Sha256Hex
 
     @field_validator("requirements")
@@ -398,16 +447,16 @@ class ResolvedPolicySnapshotV1(_FrozenModel):
 
 
 class RunPolicyBindingV1(_FrozenModel):
-    binding_key: NonEmptyStr
-    policy_kind: NonEmptyStr
-    policy_id: NonEmptyStr
+    binding_key: BoundedNonEmptyStr
+    policy_kind: BoundedNonEmptyStr
+    policy_id: BoundedNonEmptyStr
     policy_version: PositiveInt
     policy_digest: Sha256Hex
 
 
 class RunSchemaBindingV1(_FrozenModel):
-    binding_key: NonEmptyStr
-    schema_id: NonEmptyStr
+    binding_key: BoundedNonEmptyStr
+    schema_id: BoundedNonEmptyStr
 
 
 _TRACEPARENT = re.compile(
@@ -417,7 +466,7 @@ _TRACEPARENT = re.compile(
 
 class RunDispatchTraceCarrierV1(_FrozenModel):
     carrier_schema_version: Literal["run-dispatch-trace@1"] = "run-dispatch-trace@1"
-    traceparent: NonEmptyStr
+    traceparent: BoundedNonEmptyStr
     tracestate: Annotated[str, StringConstraints(max_length=512)] | None = None
 
     @field_validator("traceparent")
@@ -472,11 +521,6 @@ class PlaytestEpisodeBindingV1(_FrozenModel):
     scenario_spec_artifact_id: BoundedId
 
 
-class CompletionOracleRegistryRefV1(_FrozenModel):
-    registry_version: PositiveInt
-    digest: Sha256Hex
-
-
 class SolverEngineRefV1(_FrozenModel):
     engine_id: BoundedId
     version: PositiveInt
@@ -504,6 +548,12 @@ class GenerationProposePayloadV1(_FrozenModel):
     @classmethod
     def _profiles(cls, value: tuple[ProfileRefV1, ...]) -> tuple[ProfileRefV1, ...]:
         return _canonical_unique_models(value)
+
+    @model_validator(mode="after")
+    def _export_constraint(self) -> "GenerationProposePayloadV1":
+        if self.candidate_export_profiles and self.constraint_snapshot_artifact_id is None:
+            raise ValueError("candidate_export_profiles require constraint_snapshot_artifact_id")
+        return self
 
 
 class PatchRepairPayloadV1(_FrozenModel):
@@ -539,6 +589,12 @@ class PatchRepairPayloadV1(_FrozenModel):
     @classmethod
     def _regression_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         return _canonical_unique_strings(value)
+
+    @model_validator(mode="after")
+    def _export_constraint(self) -> "PatchRepairPayloadV1":
+        if self.candidate_export_profiles and self.constraint_snapshot_artifact_id is None:
+            raise ValueError("candidate_export_profiles require constraint_snapshot_artifact_id")
+        return self
 
 
 class ConstraintProposalProposePayloadV1(_FrozenModel):
@@ -904,8 +960,8 @@ _RUN_KIND_PAYLOAD_SCHEMAS: dict[tuple[str, int], str] = {
 
 
 class RunPayloadEnvelope(_FrozenModel):
-    payload_schema_version: NonEmptyStr
-    input_artifact_ids: tuple[NonEmptyStr, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    payload_schema_version: BoundedNonEmptyStr
+    input_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     version_tuple: VersionTuple
     execution_version_plan: ExecutionVersionPlanV1 | None = None
     policy_bindings: tuple[RunPolicyBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
@@ -918,10 +974,10 @@ class RunPayloadEnvelope(_FrozenModel):
     resolved_policy_snapshots: tuple[ResolvedPolicySnapshotV1, ...] = Field(
         max_length=MAX_COLLECTION_ITEMS
     )
-    budget_set_snapshot_id: NonEmptyStr
-    seed: int | None = None
+    budget_set_snapshot_id: BoundedId
+    seed: Uint64 | None = None
     llm_execution_mode: Literal["not_applicable", "live", "record", "replay"]
-    cassette_artifact_id: NonEmptyStr | None = None
+    cassette_artifact_id: BoundedId | None = None
     params: RunKindPayload
 
     @field_validator("input_artifact_ids")
@@ -1613,12 +1669,22 @@ class Problem(_FrozenModel):
     request_id: BoundedId
     run_id: BoundedId | None = None
     trace_id: BoundedId | None = None
-    errors: tuple[dict[str, JsonValue], ...] | None = Field(
+    errors: tuple[dict[BoundedJsonKey, JsonValue], ...] | None = Field(
         default=None, max_length=MAX_COLLECTION_ITEMS
     )
     retry_after_s: float | None = Field(default=None, ge=0)
     earliest_cursor: BoundedNonEmptyStr | None = None
     conflict_set_id: BoundedId | None = None
+
+    @field_validator("errors")
+    @classmethod
+    def _errors(
+        cls,
+        value: tuple[dict[str, JsonValue], ...] | None,
+    ) -> tuple[dict[str, JsonValue], ...] | None:
+        if value is not None:
+            _validate_bounded_json(list(value), field_name="errors")
+        return value
 
 
 class RunCommandProblemV1(_FrozenModel):
@@ -1651,14 +1717,8 @@ class RunFindingLinkV1(_FrozenModel):
     evidence_artifact_id: NonEmptyStr
 
 
-class VersionTransitionPolicyRefV1(_FrozenModel):
-    policy_id: NonEmptyStr
-    policy_version: PositiveInt
-    digest: Sha256Hex
-
-
 class RunManifestParentBindingV1(_FrozenModel):
-    artifact_id: NonEmptyStr
+    artifact_id: BoundedNonEmptyStr
     role: Literal["input", "intermediate", "output", "evidence"]
     publication: Literal["existing", "run_published"]
     attempt_no: PositiveInt | None = None
@@ -1703,7 +1763,7 @@ class RunManifestVersionProjectionV1(_FrozenModel):
     frozen_input_version_tuple: VersionTuple
     terminal_version_tuple: VersionTuple
     version_transition_policy_ref: VersionTransitionPolicyRefV1
-    parents: tuple[RunManifestParentBindingV1, ...]
+    parents: tuple[RunManifestParentBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
 
     @field_validator("parents")
     @classmethod
@@ -1723,11 +1783,11 @@ class RunManifestVersionProjectionV1(_FrozenModel):
 
 
 class RequirementDispositionV1(_FrozenModel):
-    resolved_policy_id: NonEmptyStr
-    outcome_rule_id: NonEmptyStr
-    requirement_id: NonEmptyStr
+    resolved_policy_id: BoundedNonEmptyStr
+    outcome_rule_id: BoundedNonEmptyStr
+    requirement_id: BoundedNonEmptyStr
     status: Literal["produced", "not_executed"]
-    reason_code: NonEmptyStr | None = None
+    reason_code: BoundedNonEmptyStr | None = None
 
     @model_validator(mode="after")
     def _reason(self) -> "RequirementDispositionV1":
@@ -1740,11 +1800,11 @@ class RequirementDispositionV1(_FrozenModel):
 
 class PreparedArtifact(_FrozenModel):
     kind: ArtifactKind
-    payload_schema_id: NonEmptyStr
+    payload_schema_id: BoundedNonEmptyStr
     version_tuple: VersionTuple
-    lineage: tuple[NonEmptyStr, ...]
+    lineage: tuple[BoundedNonEmptyStr, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     payload_hash: Sha256Hex
-    meta: dict[str, JsonValue]
+    meta: dict[BoundedJsonKey, JsonValue] = Field(max_length=MAX_COLLECTION_ITEMS)
     object_ref: ObjectRef
     location: ObjectLocation
 
@@ -1752,6 +1812,12 @@ class PreparedArtifact(_FrozenModel):
     @classmethod
     def _canonical_lineage(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         return _canonical_unique_strings(value)
+
+    @field_validator("meta")
+    @classmethod
+    def _meta(cls, value: dict[str, JsonValue]) -> dict[str, JsonValue]:
+        _validate_bounded_json(value, field_name="meta")
+        return value
 
     @model_validator(mode="after")
     def _object_binding(self) -> "PreparedArtifact":
@@ -1761,7 +1827,7 @@ class PreparedArtifact(_FrozenModel):
 
 
 class PreparedFindingV1(_FrozenModel):
-    finding_id: NonEmptyStr
+    finding_id: BoundedNonEmptyStr
     expected_previous_revision: PositiveInt | None
     evidence_artifact_index: NonNegativeInt
     payload: FindingPayloadV1
@@ -1771,7 +1837,7 @@ class PreparedRunResultSummaryV1(_FrozenModel):
     summary_schema_version: Literal["prepared-run-result-summary@1"] = (
         "prepared-run-result-summary@1"
     )
-    outcome_code: NonEmptyStr
+    outcome_code: BoundedNonEmptyStr
     primary_artifact_kind: ArtifactKind
     prepared_domain_artifact_count: NonNegativeInt
     prepared_finding_count: NonNegativeInt
@@ -1779,7 +1845,7 @@ class PreparedRunResultSummaryV1(_FrozenModel):
 
 class RunResultSummaryV1(_FrozenModel):
     summary_schema_version: Literal["run-result-summary@1"] = "run-result-summary@1"
-    outcome_code: NonEmptyStr
+    outcome_code: BoundedNonEmptyStr
     primary_artifact_kind: ArtifactKind
     produced_artifact_count: PositiveInt
     finding_count: NonNegativeInt
@@ -1803,13 +1869,15 @@ def _canonical_dispositions(
 
 class PreparedRunResult(_FrozenModel):
     prepared_schema_version: Literal["prepared-run-result@1"] = "prepared-run-result@1"
-    run_id: NonEmptyStr
+    run_id: BoundedNonEmptyStr
     attempt_no: PositiveInt
     run_kind: RunKindRef
     primary_index: NonNegativeInt
-    artifacts: tuple[PreparedArtifact, ...] = Field(min_length=1)
-    findings: tuple[PreparedFindingV1, ...]
-    requirement_dispositions: tuple[RequirementDispositionV1, ...]
+    artifacts: tuple[PreparedArtifact, ...] = Field(min_length=1, max_length=MAX_COLLECTION_ITEMS)
+    findings: tuple[PreparedFindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
+        max_length=MAX_COLLECTION_ITEMS
+    )
     summary: PreparedRunResultSummaryV1
 
     @field_validator("requirement_dispositions")
@@ -1839,17 +1907,19 @@ class PreparedRunResult(_FrozenModel):
 
 class PreparedRunFailure(_FrozenModel):
     prepared_schema_version: Literal["prepared-run-failure@1"] = "prepared-run-failure@1"
-    run_id: NonEmptyStr
+    run_id: BoundedNonEmptyStr
     attempt_no: PositiveInt | None = None
     run_kind: RunKindRef
-    artifacts: tuple[PreparedArtifact, ...]
-    requirement_dispositions: tuple[RequirementDispositionV1, ...]
-    cause_code: NonEmptyStr
+    artifacts: tuple[PreparedArtifact, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
+        max_length=MAX_COLLECTION_ITEMS
+    )
+    cause_code: BoundedNonEmptyStr
     failure_class: FailureClassV1
     intrinsic_retry_eligible: bool
     classifier: FailureClassifierRefV1
     dependency: DependencyFailureV1 | None = None
-    redacted_message: NonEmptyStr
+    redacted_message: BoundedNonEmptyStr
 
     @field_validator("requirement_dispositions")
     @classmethod
@@ -1877,15 +1947,19 @@ PreparedRunOutcome = Annotated[
 
 class RunResultV1(_FrozenModel):
     result_schema_version: Literal["run-result@1"] = "run-result@1"
-    run_id: NonEmptyStr
+    run_id: BoundedNonEmptyStr
     attempt_no: PositiveInt
     run_kind: RunKindRef
-    primary_artifact_id: NonEmptyStr
-    produced_artifact_ids: tuple[NonEmptyStr, ...] = Field(min_length=1)
+    primary_artifact_id: BoundedNonEmptyStr
+    produced_artifact_ids: tuple[BoundedNonEmptyStr, ...] = Field(
+        min_length=1, max_length=MAX_COLLECTION_ITEMS
+    )
     finding_count: NonNegativeInt
-    outcome_code: NonEmptyStr
+    outcome_code: BoundedNonEmptyStr
     summary: RunResultSummaryV1
-    requirement_dispositions: tuple[RequirementDispositionV1, ...]
+    requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
+        max_length=MAX_COLLECTION_ITEMS
+    )
     version_projection: RunManifestVersionProjectionV1
 
     @field_validator("produced_artifact_ids")
@@ -1921,18 +1995,20 @@ class RunResultV1(_FrozenModel):
 
 class RunFailureV1(_FrozenModel):
     failure_schema_version: Literal["run-failure@1"] = "run-failure@1"
-    run_id: NonEmptyStr
+    run_id: BoundedNonEmptyStr
     attempt_no: PositiveInt | None = None
     run_kind: RunKindRef
-    cause_code: NonEmptyStr
+    cause_code: BoundedNonEmptyStr
     failure_class: FailureClassV1
     retryable: bool
     retry_decision: RetryDecisionV1
     dependency: DependencyFailureV1 | None = None
-    redacted_message: NonEmptyStr
-    evidence_artifact_ids: tuple[NonEmptyStr, ...]
-    requirement_dispositions: tuple[RequirementDispositionV1, ...]
-    occurred_at: NonEmptyStr
+    redacted_message: BoundedNonEmptyStr
+    evidence_artifact_ids: tuple[BoundedNonEmptyStr, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
+        max_length=MAX_COLLECTION_ITEMS
+    )
+    occurred_at: BoundedNonEmptyStr
     version_projection: RunManifestVersionProjectionV1
 
     @field_validator("evidence_artifact_ids")

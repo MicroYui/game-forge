@@ -18,9 +18,18 @@ from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.identity import DomainScope, SubjectKind
 from gameforge.contracts.lineage import ArtifactKind
 
-NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
+MAX_IDENTIFIER_LENGTH = 512
+MAX_JSON_POINTER_LENGTH = 4096
+
+NonEmptyStr = Annotated[
+    str,
+    StringConstraints(min_length=1, max_length=MAX_IDENTIFIER_LENGTH),
+]
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
-JsonPointer = Annotated[str, StringConstraints(pattern=r"^(?:|/.*)$")]
+JsonPointer = Annotated[
+    str,
+    StringConstraints(max_length=MAX_JSON_POINTER_LENGTH, pattern=r"^(?:|/.*)$"),
+]
 
 
 class _FrozenModel(BaseModel):
@@ -367,6 +376,12 @@ class ExecutionProfileViewV1(_FrozenModel):
 
 
 class ArtifactLineagePolicyRefV1(_FrozenModel):
+    policy_id: NonEmptyStr
+    policy_version: int = Field(ge=1)
+    digest: Sha256Hex
+
+
+class VersionTransitionPolicyRefV1(_FrozenModel):
     policy_id: NonEmptyStr
     policy_version: int = Field(ge=1)
     digest: Sha256Hex

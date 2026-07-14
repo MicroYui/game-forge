@@ -62,3 +62,33 @@ class QuotaExceeded(GameForgeError):
 
 class DependencyUnavailable(GameForgeError):
     code = "dependency_unavailable"
+
+
+class AuthError(GameForgeError):
+    """Internal typed authentication failure; transports must mask its detail."""
+
+    code = "auth_failed"
+
+
+class AuthFailed(AuthError):
+    code = "auth_failed"
+
+
+class CredentialDisabled(AuthError):
+    code = "credential_disabled"
+
+
+class CredentialExpired(AuthError):
+    code = "credential_expired"
+
+
+class SessionExpired(AuthError):
+    code = "session_expired"
+
+
+class SessionRevoked(AuthError):
+    code = "session_revoked"
+
+
+class OidcStateInvalid(AuthError):
+    code = "oidc_state_invalid"

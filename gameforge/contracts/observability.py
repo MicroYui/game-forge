@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any, Literal, Protocol
 
 from pydantic import (
@@ -43,6 +43,14 @@ MAX_LINK_COUNT = 32
 MAX_TELEMETRY_STRING_BYTES = 4096
 MAX_TELEMETRY_ARRAY_ITEMS = 32
 MAX_TELEMETRY_PAYLOAD_BYTES = 32 * 1024
+MAX_QUERY_TIME_RANGE = timedelta(days=7)
+MAX_QUERY_PAGE_SIZE = 1000
+MAX_QUERY_FILTER_ITEMS = 64
+MAX_QUERY_DESCRIPTOR_REFS = 64
+MAX_QUERY_MATCHER_VALUES = 64
+MAX_QUERY_RESOLUTION_S = 24 * 60 * 60
+MAX_QUERY_POINTS = 10_000
+MAX_QUERY_SERIES = 500
 FORBIDDEN_METRIC_LABEL_KEYS = frozenset(
     {"run_id", "span_id", "trace_id", "artifact_id", "principal_id"}
 )
@@ -232,6 +240,8 @@ class TimeRangeV1(_FrozenModel):
     def _nonempty_range(self) -> TimeRangeV1:
         if self.start_utc >= self.end_utc:
             raise ValueError("time range uses non-empty [start,end) bounds")
+        if self.end_utc - self.start_utc > MAX_QUERY_TIME_RANGE:
+            raise ValueError("time range exceeds the query limit")
         return self
 
 
@@ -242,7 +252,7 @@ class TraceQueryV1(_FrozenModel):
     status: SpanStatus | None = None
     time_range: TimeRangeV1
     cursor: OpaqueCursor | None = None
-    limit: PositiveInt
+    limit: int = Field(gt=0, le=MAX_QUERY_PAGE_SIZE)
     authz_fingerprint: Sha256Hex
 
 
@@ -272,7 +282,7 @@ class TraceSummaryV1(_FrozenModel):
 
 class TraceSummaryPageV1(_FrozenModel):
     page_schema_version: Literal["trace-summary-page@1"] = "trace-summary-page@1"
-    items: tuple[TraceSummaryV1, ...]
+    items: tuple[TraceSummaryV1, ...] = Field(max_length=MAX_QUERY_PAGE_SIZE)
     next_cursor: OpaqueCursor | None = None
     coverage_start: datetime
     coverage_end: datetime
@@ -298,7 +308,7 @@ class SpanViewV1(_FrozenModel):
 class SpanPageV1(_FrozenModel):
     page_schema_version: Literal["span-page@1"] = "span-page@1"
     trace_id: TraceId
-    items: tuple[SpanViewV1, ...]
+    items: tuple[SpanViewV1, ...] = Field(max_length=MAX_QUERY_PAGE_SIZE)
     next_cursor: OpaqueCursor | None = None
     truncated: bool
 
@@ -427,7 +437,10 @@ class MetricDescriptorRegistryV1(_FrozenModel):
 class MetricLabelMatcherV1(_FrozenModel):
     key: TelemetryKey
     operation: Literal["eq", "in"]
-    values: tuple[NonEmptyStr, ...]
+    values: tuple[NonEmptyStr, ...] = Field(
+        min_length=1,
+        max_length=MAX_QUERY_MATCHER_VALUES,
+    )
 
     @field_validator("values")
     @classmethod
@@ -474,13 +487,18 @@ class MetricPointV1(_FrozenModel):
 
 class MetricQueryV1(_FrozenModel):
     query_schema_version: Literal["metric-query@1"] = "metric-query@1"
-    descriptor_refs: tuple[MetricDescriptorRefV1, ...]
+    descriptor_refs: tuple[MetricDescriptorRefV1, ...] = Field(
+        min_length=1,
+        max_length=MAX_QUERY_DESCRIPTOR_REFS,
+    )
     time_range: TimeRangeV1
-    resolution_s: PositiveInt
-    label_matchers: tuple[MetricLabelMatcherV1, ...]
-    max_points: PositiveInt
+    resolution_s: int = Field(gt=0, le=MAX_QUERY_RESOLUTION_S)
+    label_matchers: tuple[MetricLabelMatcherV1, ...] = Field(
+        max_length=MAX_QUERY_FILTER_ITEMS,
+    )
+    max_points: int = Field(gt=0, le=MAX_QUERY_POINTS)
     cursor: OpaqueCursor | None = None
-    series_limit: PositiveInt
+    series_limit: int = Field(gt=0, le=MAX_QUERY_SERIES)
     authz_fingerprint: Sha256Hex
 
     @field_validator("descriptor_refs")
@@ -603,7 +621,7 @@ class MetricSeriesV1(_FrozenModel):
 
 class MetricPageV1(_FrozenModel):
     page_schema_version: Literal["metric-page@1"] = "metric-page@1"
-    series: tuple[MetricSeriesV1, ...]
+    series: tuple[MetricSeriesV1, ...] = Field(max_length=MAX_QUERY_SERIES)
     next_cursor: OpaqueCursor | None = None
     coverage_start: datetime
     coverage_end: datetime
@@ -655,16 +673,44 @@ class LogRecordV1(_FrozenModel):
         return self
 
 
+class LogRecordViewV1(_FrozenModel):
+    record: LogRecordV1
+    redacted_fields: tuple[TelemetryKey, ...] = Field(
+        default=(),
+        max_length=MAX_ATTRIBUTE_COUNT,
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _wrap_internal_record(cls, value: Any) -> Any:
+        if isinstance(value, LogRecordV1):
+            return {"record": value, "redacted_fields": ()}
+        return value
+
+    @field_validator("redacted_fields")
+    @classmethod
+    def _stable_set(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return _stable_unique_strings(value)
+
+
 class LogQueryV1(_FrozenModel):
     query_schema_version: Literal["log-query@1"] = "log-query@1"
     time_range: TimeRangeV1
-    services: tuple[NonEmptyStr, ...] = ()
-    levels: tuple[LogLevel, ...] = ()
-    event_names: tuple[NonEmptyStr, ...] = ()
+    services: tuple[NonEmptyStr, ...] = Field(
+        default=(),
+        max_length=MAX_QUERY_FILTER_ITEMS,
+    )
+    levels: tuple[LogLevel, ...] = Field(default=(), max_length=5)
+    event_names: tuple[NonEmptyStr, ...] = Field(
+        default=(),
+        max_length=MAX_QUERY_FILTER_ITEMS,
+    )
     run_id: NonEmptyStr | None = None
     trace_id: TraceId | None = None
+    span_id: SpanId | None = None
+    producer_run_id: NonEmptyStr | None = None
     cursor: OpaqueCursor | None = None
-    limit: PositiveInt
+    limit: int = Field(gt=0, le=MAX_QUERY_PAGE_SIZE)
     authz_fingerprint: Sha256Hex
 
     @field_validator("services", "levels", "event_names")
@@ -672,10 +718,16 @@ class LogQueryV1(_FrozenModel):
     def _stable_sets(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         return _stable_unique_strings(value)
 
+    @model_validator(mode="after")
+    def _trace_pair(self) -> LogQueryV1:
+        if self.span_id is not None and self.trace_id is None:
+            raise ValueError("span_id filter requires trace_id")
+        return self
+
 
 class LogPageV1(_FrozenModel):
     page_schema_version: Literal["log-page@1"] = "log-page@1"
-    items: tuple[LogRecordV1, ...]
+    items: tuple[LogRecordViewV1, ...] = Field(max_length=MAX_QUERY_PAGE_SIZE)
     next_cursor: OpaqueCursor | None = None
     coverage_start: datetime
     coverage_end: datetime
@@ -748,6 +800,7 @@ __all__ = [
     "LogQueryStore",
     "LogQueryV1",
     "LogRecordV1",
+    "LogRecordViewV1",
     "MetricDescriptorRefV1",
     "MetricDescriptorRegistryRefV1",
     "MetricDescriptorRegistryV1",

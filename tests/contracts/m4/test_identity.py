@@ -73,6 +73,22 @@ def test_domain_scope_is_nonempty_canonical_and_frozen() -> None:
         DomainScope(domain_ids=("game",), unexpected=True)  # type: ignore[call-arg]
 
 
+def test_domain_scope_and_registry_reject_unbounded_domain_ids() -> None:
+    boundary_id = "d" * 512
+    assert DomainScope(domain_ids=(boundary_id,)).domain_ids == (boundary_id,)
+
+    with pytest.raises(ValidationError):
+        DomainScope(domain_ids=("d" * 513,))
+    with pytest.raises(ValidationError):
+        DomainScope(domain_ids=tuple(f"domain-{index}" for index in range(1025)))
+    with pytest.raises(ValidationError):
+        DomainDefinitionV1(
+            domain_id="d" * 513,
+            display_name="Domain",
+            status="active",
+        )
+
+
 def test_domain_registry_sorts_definitions_and_validates_digest_and_graph() -> None:
     registry = _domain_registry()
 

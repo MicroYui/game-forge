@@ -18,7 +18,13 @@ from gameforge.contracts.canonical import canonical_json, canonical_sha256
 from gameforge.contracts.lineage import AuditActor
 
 
-NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
+MAX_ID_LENGTH = 512
+MAX_DOMAIN_SCOPE_ITEMS = 1024
+
+NonEmptyStr = Annotated[
+    str,
+    StringConstraints(min_length=1, max_length=MAX_ID_LENGTH),
+]
 LowerHexSha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 PositiveInt = Annotated[int, Field(gt=0)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
@@ -69,14 +75,15 @@ def _canonical_subject_kinds(values: Sequence[SubjectKind]) -> tuple[SubjectKind
 
 
 class DomainScope(_FrozenModel):
-    domain_ids: tuple[NonEmptyStr, ...]
+    domain_ids: tuple[NonEmptyStr, ...] = Field(
+        min_length=1,
+        max_length=MAX_DOMAIN_SCOPE_ITEMS,
+    )
 
     @field_validator("domain_ids")
     @classmethod
     def _canonical_domain_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         canonical = _stable_unique_strings(value)
-        if not canonical:
-            raise ValueError("domain_ids must be non-empty")
         return canonical
 
 
@@ -128,7 +135,9 @@ def compute_domain_registry_digest(
 class DomainRegistryV1(_FrozenModel):
     registry_schema_version: Literal["domain-registry@1"] = "domain-registry@1"
     registry_version: NonEmptyStr
-    definitions: tuple[DomainDefinitionV1, ...]
+    definitions: tuple[DomainDefinitionV1, ...] = Field(
+        max_length=MAX_DOMAIN_SCOPE_ITEMS,
+    )
     registry_digest: LowerHexSha256
 
     @field_validator("definitions")

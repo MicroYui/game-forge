@@ -7,17 +7,25 @@ from pydantic import ValidationError
 
 from gameforge.contracts.observability import (
     HistogramMetricSampleV1,
+    LogPageV1,
+    LogQueryV1,
+    LogRecordV1,
+    LogRecordViewV1,
     MetricDescriptorRefV1,
     MetricDescriptorRegistryV1,
     MetricDescriptorV1,
     MetricLabelMatcherV1,
+    MetricPageV1,
     MetricPointV1,
     MetricQueryV1,
     MetricSeriesV1,
     RunCorrelationV1,
     SpanDataV1,
+    SpanPageV1,
     TimeRangeV1,
     TraceContextV1,
+    TraceQueryV1,
+    TraceSummaryPageV1,
     compute_metric_descriptor_digest,
     compute_metric_registry_digest,
 )
@@ -170,6 +178,163 @@ def test_metric_point_and_query_validate_exact_shapes() -> None:
 
     with pytest.raises(ValidationError, match="exactly one"):
         MetricLabelMatcherV1(key="outcome", operation="eq", values=("ok", "failed"))
+
+
+def test_trace_query_freezes_time_page_and_string_bounds() -> None:
+    base = {
+        "time_range": TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(days=7)),
+        "limit": 1000,
+        "authz_fingerprint": "a" * 64,
+    }
+    assert TraceQueryV1(**base).limit == 1000
+    assert TraceQueryV1.model_json_schema()["properties"]["limit"]["maximum"] == 1000
+
+    with pytest.raises(ValidationError):
+        TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(days=7, seconds=1))
+    with pytest.raises(ValidationError):
+        TraceQueryV1(**{**base, "limit": 1001})
+    with pytest.raises(ValidationError):
+        TraceQueryV1(**{**base, "service": "s" * 513})
+
+
+def test_metric_query_freezes_all_collection_and_count_bounds() -> None:
+    ref = _descriptor().ref
+    base = {
+        "descriptor_refs": (ref,),
+        "time_range": TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(minutes=5)),
+        "resolution_s": 60,
+        "label_matchers": (),
+        "max_points": 100,
+        "series_limit": 10,
+        "authz_fingerprint": "a" * 64,
+    }
+
+    schema = MetricQueryV1.model_json_schema()["properties"]
+    assert schema["descriptor_refs"]["maxItems"] == 64
+    assert schema["label_matchers"]["maxItems"] == 64
+    assert MetricLabelMatcherV1.model_json_schema()["properties"]["values"]["maxItems"] == 64
+    with pytest.raises(ValidationError):
+        MetricQueryV1(
+            **{
+                **base,
+                "descriptor_refs": tuple(
+                    MetricDescriptorRefV1(
+                        metric_name=f"metric.{index}",
+                        descriptor_version=1,
+                        descriptor_digest=f"{index:064x}",
+                    )
+                    for index in range(65)
+                ),
+            }
+        )
+    with pytest.raises(ValidationError):
+        MetricQueryV1(
+            **{
+                **base,
+                "label_matchers": tuple(
+                    MetricLabelMatcherV1(key=f"key{index}", operation="eq", values=("value",))
+                    for index in range(65)
+                ),
+            }
+        )
+    with pytest.raises(ValidationError):
+        MetricLabelMatcherV1(
+            key="outcome",
+            operation="in",
+            values=tuple(f"value-{index}" for index in range(65)),
+        )
+    for field, value in (
+        ("resolution_s", 86_401),
+        ("max_points", 10_001),
+        ("series_limit", 501),
+    ):
+        with pytest.raises(ValidationError):
+            MetricQueryV1(**{**base, field: value})
+
+
+def test_log_query_freezes_filter_and_page_bounds() -> None:
+    base = {
+        "time_range": TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(minutes=5)),
+        "limit": 1000,
+        "authz_fingerprint": "a" * 64,
+    }
+    assert LogQueryV1(**base).limit == 1000
+    schema = LogQueryV1.model_json_schema()["properties"]
+    assert schema["services"]["maxItems"] == 64
+    assert schema["levels"]["maxItems"] == 5
+    assert schema["event_names"]["maxItems"] == 64
+    assert schema["span_id"]["anyOf"][0]["pattern"] == "^[0-9a-f]{16}$"
+    assert schema["producer_run_id"]["anyOf"][0]["maxLength"] == 512
+
+    correlated = LogQueryV1(
+        **base,
+        trace_id="1" * 32,
+        span_id="2" * 16,
+        producer_run_id="producer-run-1",
+    )
+    assert correlated.span_id == "2" * 16
+    assert correlated.producer_run_id == "producer-run-1"
+
+    with pytest.raises(ValidationError):
+        LogQueryV1(**{**base, "services": tuple(f"service-{index}" for index in range(65))})
+    with pytest.raises(ValidationError):
+        LogQueryV1(**{**base, "event_names": tuple(f"event-{index}" for index in range(65))})
+    with pytest.raises(ValidationError):
+        LogQueryV1(**{**base, "levels": ("debug", "info", "warning", "error", "critical", "info")})
+    with pytest.raises(ValidationError):
+        LogQueryV1(**{**base, "limit": 1001})
+    with pytest.raises(ValidationError):
+        LogQueryV1(**{**base, "span_id": "2" * 16})
+    with pytest.raises(ValidationError):
+        LogQueryV1(**{**base, "producer_run_id": "p" * 513})
+
+
+def test_log_page_uses_an_explicit_redaction_view() -> None:
+    record = LogRecordV1(
+        log_id="log-1",
+        ts_utc=NOW,
+        level="info",
+        message="completed",
+        service="api",
+        event_name="run.completed",
+        fields={"redacted_fields": ["authorization"]},
+    )
+    explicit = LogRecordViewV1(
+        record=record,
+        redacted_fields=("authorization",),
+    )
+    page = LogPageV1(
+        items=(explicit,),
+        coverage_start=NOW,
+        coverage_end=NOW + timedelta(minutes=1),
+        truncated=False,
+    )
+
+    assert page.items[0].redacted_fields == ("authorization",)
+    assert page.items[0].record.fields["redacted_fields"] == ["authorization"]
+
+    compatibility_page = LogPageV1(
+        items=(record,),
+        coverage_start=NOW,
+        coverage_end=NOW + timedelta(minutes=1),
+        truncated=False,
+    )
+    assert compatibility_page.items[0].record == record
+    assert compatibility_page.items[0].redacted_fields == ()
+    with pytest.raises(ValidationError):
+        LogRecordViewV1(
+            record=record,
+            redacted_fields=("authorization", "authorization"),
+        )
+
+
+def test_observability_pages_publish_exact_collection_bounds() -> None:
+    assert TraceSummaryPageV1.model_json_schema()["properties"]["items"]["maxItems"] == 1000
+    assert SpanPageV1.model_json_schema()["properties"]["items"]["maxItems"] == 1000
+    assert MetricPageV1.model_json_schema()["properties"]["series"]["maxItems"] == 500
+    log_items = LogPageV1.model_json_schema()["properties"]["items"]
+    assert log_items["maxItems"] == 1000
+    assert log_items["items"]["$ref"].endswith("/$defs/LogRecordViewV1")
 
 
 def test_histogram_series_requires_cumulative_plus_infinity_bucket() -> None:

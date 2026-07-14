@@ -128,6 +128,7 @@ def _all_run_kind_payloads() -> tuple[object, ...]:
     return (
         GenerationProposePayloadV1(
             base_snapshot_artifact_id="artifact:base",
+            constraint_snapshot_artifact_id="artifact:constraints",
             findings=(_finding(),),
             objective_goal=PromptGoalBindingV1(
                 source_artifact_id="artifact:goal", expected_payload_hash=_HASH_A
@@ -676,6 +677,7 @@ def test_run_payload_inputs_exactly_cover_every_referenced_artifact() -> None:
     expected_by_schema = {
         "generation-propose@1": {
             "artifact:base",
+            "artifact:constraints",
             "artifact:finding-evidence",
             "artifact:goal",
         },

@@ -237,7 +237,8 @@ def test_wal_store_is_restart_readable_and_returns_exact_dtos(tmp_path: Path) ->
     assert trace_page.items[0].trace_id == span.trace_id
     assert trace_page.items[0].run_ids == ("run-1",)
     assert span_page.items[0].span == span
-    assert log_page.items == (log,)
+    assert tuple(item.record for item in log_page.items) == (log,)
+    assert log_page.items[0].redacted_fields == ()
     assert metric_page.series[0].descriptor == descriptor.ref
     assert metric_page.series[0].scalar_points[0].value == 3
 
@@ -303,14 +304,14 @@ def test_read_snapshot_survives_reopen_and_excludes_later_sorted_writes(
     first_store.append(_log(2))
     query = _log_query(limit=1)
     first_page = first_store.query_logs(query)
-    assert [item.log_id for item in first_page.items] == ["log-1"]
+    assert [item.record.log_id for item in first_page.items] == ["log-1"]
     assert first_page.next_cursor is not None
 
     # This committed row sorts before the first page but is beyond its high watermark.
     first_store.append(_log(0, ts_utc=NOW - timedelta(hours=1)))
     reopened = _store(path, clock)
     second_page = reopened.query_logs(query.model_copy(update={"cursor": first_page.next_cursor}))
-    assert [item.log_id for item in second_page.items] == ["log-2"]
+    assert [item.record.log_id for item in second_page.items] == ["log-2"]
     assert second_page.next_cursor is None
 
     with pytest.raises(CursorInvalid):
@@ -548,7 +549,7 @@ def test_retention_preserves_points_and_descriptors_for_live_authority(
     assert initial.deleted_logs == 1
     assert initial.deleted_metric_points == 0
     assert store.get(current_span.trace_id, current_span.span_id) == current_span
-    assert store.query_logs(_log_query()).items == (current_log,)
+    assert tuple(item.record for item in store.query_logs(_log_query()).items) == (current_log,)
     assert store.metric_point_count == 3
     second = _store(path, clock, retention=retention).query(
         query.model_copy(update={"cursor": first.next_cursor})

@@ -1,0 +1,1 @@
+"""Persistent worker composition boundary."""
