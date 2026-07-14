@@ -11,6 +11,8 @@ Accepts either:
   and prints the deterministic/llm-assisted/simulation/unproven bucket
   counts. Exits non-zero iff any deterministic (oracle-proven) defect was
   found — the only bucket that gates soundly, per contract §6.
+- `identity bootstrap --display-name ... --login-name ...` (M4c) — calls the
+  trusted identity bootstrap platform service through one UnitOfWork.
 
 Dispatch is by path kind: a directory is treated as a CSV workbook, anything
 else as a YAML scenario file.
@@ -21,13 +23,25 @@ from __future__ import annotations
 import json
 import os
 import sys
+from collections.abc import Callable
 
 from gameforge.apps.cli.run_review import run_review
 from gameforge.apps.cli.run_slice import run_slice, run_slice_workbook
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(
+    argv: list[str] | None = None,
+    *,
+    identity_password_reader: Callable[[str], str] | None = None,
+) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+
+    if argv and argv[0] == "identity":
+        from gameforge.apps.identity_cli import main as identity_main
+
+        if identity_password_reader is None:
+            return identity_main(argv[1:])
+        return identity_main(argv[1:], password_reader=identity_password_reader)
 
     if argv and argv[0] == "review":
         scenario_dir, constraints_dir = argv[1], argv[2]

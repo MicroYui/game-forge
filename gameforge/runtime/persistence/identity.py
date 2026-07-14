@@ -191,6 +191,23 @@ class SqlIdentityRepository:
             self._raise_principal_create_collision(actual, candidate)
         return candidate
 
+    def require_empty_for_bootstrap(self) -> None:
+        """Fail unless the current write-transaction view has no principal.
+
+        Bootstrap callers must invoke this through a write UnitOfWork. SQLite's
+        ``BEGIN IMMEDIATE`` then serializes competing first-principal attempts
+        without introducing a second bootstrap authority table.
+        """
+
+        existing_principal_id = self._session.scalar(
+            select(PrincipalRow.principal_id).order_by(PrincipalRow.principal_id).limit(1)
+        )
+        if existing_principal_id is not None:
+            raise Conflict(
+                "identity store is not empty",
+                existing_principal_id=existing_principal_id,
+            )
+
     def get(self, principal_id: str) -> PrincipalRecordV1 | None:
         row = self._session.get(PrincipalRow, principal_id)
         if row is None:
@@ -501,6 +518,60 @@ class SqlIdentityRepository:
             actual = self.get(principal.principal_id)
             raise Conflict(
                 "principal revision changed during disable",
+                principal_id=principal.principal_id,
+                expected_revision=expected,
+                actual_revision=None if actual is None else actual.revision,
+            )
+        self._session.expire_all()
+        return self._require_principal(principal.principal_id)
+
+    def bump_credential_epoch(
+        self,
+        principal_id: str,
+        *,
+        expected_revision: int,
+    ) -> PrincipalRecordV1:
+        """Invalidate cached credentials with an exact active-principal CAS."""
+
+        expected = _require_positive_revision(
+            expected_revision,
+            field_name="expected_revision",
+        )
+        principal = self._require_principal(principal_id)
+        self._require_principal_revision(principal, expected)
+        if principal.status != "active":
+            raise Conflict(
+                "cannot change credentials for a disabled principal",
+                principal_id=principal.principal_id,
+                principal_revision=principal.revision,
+            )
+
+        now = _utc_text(self._clock)
+        result = self._session.execute(
+            update(PrincipalRow)
+            .where(
+                PrincipalRow.principal_id == principal.principal_id,
+                PrincipalRow.revision == expected,
+                PrincipalRow.status == "active",
+            )
+            .values(
+                revision=PrincipalRow.revision + 1,
+                credential_epoch=PrincipalRow.credential_epoch + 1,
+                updated_at=now,
+            )
+            .execution_options(synchronize_session=False)
+        )
+        if result.rowcount != 1:
+            self._session.expire_all()
+            actual = self.get(principal.principal_id)
+            if actual is not None and actual.status != "active":
+                raise Conflict(
+                    "cannot change credentials for a disabled principal",
+                    principal_id=principal.principal_id,
+                    principal_revision=actual.revision,
+                )
+            raise Conflict(
+                "principal revision changed during credential update",
                 principal_id=principal.principal_id,
                 expected_revision=expected,
                 actual_revision=None if actual is None else actual.revision,
