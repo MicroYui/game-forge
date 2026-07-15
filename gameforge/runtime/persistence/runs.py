@@ -718,10 +718,13 @@ class SqlRunRepository:
                 .where(
                     RunLeaseRow.status == "active",
                     RunLeaseRow.released_at.is_(None),
-                    func.julianday(RunLeaseRow.expires_at) < func.julianday(now_utc),
+                    # Canonical UTC strings sort lexically == chronologically, so a
+                    # bare string range keeps the ``ix_run_leases_expiry`` index
+                    # usable for both the predicate and the ORDER BY.
+                    RunLeaseRow.expires_at < now_utc,
                     RunRow.status.in_(("leased", "running")),
                 )
-                .order_by(func.julianday(RunLeaseRow.expires_at), RunLeaseRow.run_id)
+                .order_by(RunLeaseRow.expires_at, RunLeaseRow.run_id)
                 .limit(limit)
             )
             .scalars()

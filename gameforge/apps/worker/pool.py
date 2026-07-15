@@ -1,12 +1,21 @@
-"""Injected bounded blocking-executor pool for the persistent worker.
+"""Injected off-loop execution lanes for the persistent worker.
 
 The worker's control loop (dispatch, heartbeat, terminal hand-off) is asyncio;
-executor work (checker/sim/Agent) is synchronous and CPU/IO blocking. This pool
-runs that blocking work OFF the event loop on a bounded ``ThreadPoolExecutor``
-while an ``asyncio.Semaphore`` bounds the number of concurrently admitted jobs,
-so the heartbeat coroutine keeps renewing leases and the process never admits
-more blocking work than its injected bound. It is a latency/concurrency
-abstraction only: the DB RunStore remains the queue authority.
+executor work (checker/sim/Agent) is synchronous and CPU/IO blocking. Two lanes
+keep them from interfering:
+
+* :class:`ThreadedBlockingExecutorPool` runs the executor's blocking *domain*
+  work on a bounded ``ThreadPoolExecutor`` fronted by an ``asyncio.Semaphore`` so
+  the process never admits more blocking work than its injected bound.
+* :class:`ControlPlanePool` runs latency-critical *control-plane* DB ops
+  (heartbeat renewal, claim, reap, terminal publication) on a separate small
+  ``ThreadPoolExecutor`` that is NOT gated by the executor semaphore — a
+  saturated executor lane (e.g. ``max_concurrency=1`` with a minutes-long run in
+  flight) must never stall a lease heartbeat, which would make the worker reap
+  itself.
+
+Both are latency/concurrency abstractions only: the DB RunStore remains the
+queue authority.
 """
 
 from __future__ import annotations
@@ -20,7 +29,7 @@ T = TypeVar("T")
 
 
 class BlockingExecutorPool(Protocol):
-    """Run one blocking callable off the event loop, bounded by the pool."""
+    """Run one blocking callable off the event loop."""
 
     async def run(self, fn: Callable[[], T]) -> T: ...
 
@@ -44,6 +53,11 @@ class ThreadedBlockingExecutorPool:
         self._bound = bound
         self._semaphore: asyncio.Semaphore | None = None
         self._closed = False
+        self._in_flight = 0
+
+    @property
+    def in_flight(self) -> int:
+        return self._in_flight
 
     async def run(self, fn: Callable[[], T]) -> T:
         if self._closed:
@@ -55,7 +69,11 @@ class ThreadedBlockingExecutorPool:
         async with self._semaphore:
             if self._closed:
                 raise RuntimeError("blocking executor pool is closed")
-            return await loop.run_in_executor(self._executor, fn)
+            self._in_flight += 1
+            try:
+                return await loop.run_in_executor(self._executor, fn)
+            finally:
+                self._in_flight -= 1
 
     def close(self) -> None:
         if self._closed:
@@ -70,4 +88,40 @@ class ThreadedBlockingExecutorPool:
         self.close()
 
 
-__all__ = ["BlockingExecutorPool", "ThreadedBlockingExecutorPool"]
+class ControlPlanePool:
+    """Ungated off-loop lane for latency-critical control-plane DB operations.
+
+    Heartbeat renewals, claim/reap, and terminal publication run here so they are
+    never blocked by the bounded executor lane. It has its own threads and NO
+    concurrency semaphore, so a fully-saturated executor pool cannot stall a
+    lease heartbeat.
+    """
+
+    def __init__(self, *, max_workers: int = 2) -> None:
+        if isinstance(max_workers, bool) or not isinstance(max_workers, int) or max_workers < 1:
+            raise ValueError("max_workers must be a positive integer")
+        self._executor = ThreadPoolExecutor(
+            max_workers=max_workers, thread_name_prefix="gameforge-worker-ctl"
+        )
+        self._closed = False
+
+    async def run(self, fn: Callable[[], T]) -> T:
+        if self._closed:
+            raise RuntimeError("control-plane pool is closed")
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(self._executor, fn)
+
+    def close(self) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        self._executor.shutdown(wait=False, cancel_futures=True)
+
+    def __enter__(self) -> "ControlPlanePool":
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+
+__all__ = ["BlockingExecutorPool", "ControlPlanePool", "ThreadedBlockingExecutorPool"]

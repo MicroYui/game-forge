@@ -59,12 +59,14 @@ class _CapturingTerminal:
         return outcome  # the runner returns whatever the sink returns
 
 
-def _runner(resolve_executor, terminal, pool):
+def _runner(resolve_executor, terminal, pool, *, read_run_revision=None):
     return AttemptRunner(
-        pool=pool,
+        executor_pool=pool,
+        control_pool=pool,
         resolve_executor=resolve_executor,
         model_bridge_factory=lambda **_: object(),
         terminal=terminal,
+        read_run_revision=read_run_revision or (lambda run_id: 3),
         worker_actor=WORKER,
     )
 
@@ -154,3 +156,25 @@ def test_redacted_failure_helper_uses_run_classifier() -> None:
     failure = redacted_execution_failure(run=run, attempt=attempt)
     assert failure.classifier == run.failure_classifier
     assert failure.intrinsic_retry_eligible is False
+
+
+def test_terminal_fence_uses_fresh_current_revision_not_the_stale_claim_revision() -> None:
+    run, attempt, lease = _context_run()  # run.revision == 3 at claim/start time
+    prepared = _prepared_success(artifacts=(_checker_artifact(_Blobs()),))
+
+    def executor(context: ExecutorContext) -> PreparedRunOutcome:
+        return prepared
+
+    terminal = _CapturingTerminal()
+    # A mid-attempt publish_progress / RECORD capture bumped the run revision to 5.
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        runner = _runner(lambda r: executor, terminal, pool, read_run_revision=lambda run_id: 5)
+        asyncio.run(runner.run_attempt(run=run, attempt=attempt, lease=lease, deadline_utc=None))
+
+    fence, _ = terminal.published[0]
+    assert run.revision == 3  # the claim-time revision is now stale
+    assert fence.expected_run_revision == 5  # terminal fences against the CURRENT revision
+    # Attempt-stable fields are unchanged.
+    assert fence.attempt_no == attempt.attempt_no
+    assert fence.lease_id == lease.lease_id
+    assert fence.fencing_token == attempt.fencing_token

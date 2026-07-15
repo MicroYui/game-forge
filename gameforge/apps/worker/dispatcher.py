@@ -28,6 +28,7 @@ from datetime import UTC, datetime
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
 from gameforge.apps.worker.pool import BlockingExecutorPool
 from gameforge.apps.worker.runner import AttemptRunner
+from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
 from gameforge.contracts.jobs import RunRecord
 from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.storage import UtcClock
@@ -43,6 +44,12 @@ from gameforge.runtime.observability.context import TraceCarrier, use_trace_cont
 
 ReaperScan = Callable[..., Sequence[RunRecord]]
 HeartbeatFactory = Callable[..., LeaseHeartbeat]
+ContentionHook = Callable[[str, BaseException], None]
+
+# Benign multi-worker fencing races: a competitor won the revision CAS, the lease
+# was already reaped, or its owner just heartbeat-renewed it. The loser skips and
+# continues — the DB queue authority guarantees the work is rediscovered.
+_CONTENTION = (Conflict, InvalidStateTransition, IntegrityViolation)
 
 
 def _utc_text(value: datetime) -> str:
@@ -64,7 +71,7 @@ class RunDispatcher:
         reaper_scan: ReaperScan,
         runner: AttemptRunner,
         heartbeat_factory: HeartbeatFactory,
-        pool: BlockingExecutorPool,
+        control_pool: BlockingExecutorPool,
         clock: UtcClock,
         worker_actor: AuditActor,
         reaper_actor: AuditActor,
@@ -73,6 +80,7 @@ class RunDispatcher:
         reaper_limit: int = 32,
         poll_interval_s: float = 1.0,
         lease_id_factory: Callable[[], str] | None = None,
+        on_contention: ContentionHook | None = None,
     ) -> None:
         if reaper_actor.principal_kind != "system":
             raise ValueError("the lease reaper requires a system actor")
@@ -83,7 +91,10 @@ class RunDispatcher:
         self._reaper_scan = reaper_scan
         self._runner = runner
         self._heartbeat_factory = heartbeat_factory
-        self._pool = pool
+        # Control-plane DB ops (claim/reap/start) run on the ungated control lane,
+        # never gated by the bounded executor semaphore, so a saturated executor
+        # pool cannot stall discovery or lease management.
+        self._control_pool = control_pool
         self._clock = clock
         self._worker_actor = worker_actor
         self._reaper_actor = reaper_actor
@@ -92,18 +103,26 @@ class RunDispatcher:
         self._reaper_limit = reaper_limit
         self._poll_interval_s = poll_interval_s
         self._lease_id_factory = lease_id_factory or (lambda: f"lease:{secrets.token_hex(16)}")
+        self._on_contention = on_contention
+
+    def _note_contention(self, op: str, exc: BaseException) -> None:
+        if self._on_contention is not None:
+            self._on_contention(op, exc)
 
     async def dispatch_once(self) -> bool:
         """Reap expired leases, then claim + execute at most one Run.
 
-        Returns ``True`` if a Run was claimed and executed this iteration.
+        Returns ``True`` if a Run was claimed this iteration. Benign multi-worker
+        fencing races (Conflict / InvalidStateTransition / IntegrityViolation) are
+        caught per-step so the loop skips the lost race and continues rather than
+        crashing the worker — the DB queue authority rediscovers the work.
         """
 
         await self._reap_expired()
-        claim = await self._pool.run(self._claim)
+        claim = await self._claim_guarded()
         if claim is None:
             return False
-        await self._execute(claim)
+        await self._execute_guarded(claim)
         return True
 
     async def run_forever(
@@ -139,11 +158,15 @@ class RunDispatcher:
     # ------------------------------------------------------------------ steps
     async def _reap_expired(self) -> None:
         now = _utc_text(self._clock.now_utc())
-        expired = await self._pool.run(
+        expired = await self._control_pool.run(
             lambda: tuple(self._reaper_scan(now_utc=now, limit=self._reaper_limit))
         )
         for run in expired:
-            await self._pool.run(lambda run=run: self._reap_one(run))
+            try:
+                await self._control_pool.run(lambda run=run: self._reap_one(run))
+            except _CONTENTION as exc:
+                # Already reaped / owner just heartbeat-renewed: skip this candidate.
+                self._note_contention("reap", exc)
 
     def _reap_one(self, run: RunRecord) -> None:
         self._lifecycle.reap_expired_lease(
@@ -153,6 +176,14 @@ class RunDispatcher:
                 actor=self._reaper_actor,
             )
         )
+
+    async def _claim_guarded(self) -> RunClaimResult | None:
+        try:
+            return await self._control_pool.run(self._claim)
+        except _CONTENTION as exc:
+            # A competing worker won the revision CAS: skip, rediscover next scan.
+            self._note_contention("claim", exc)
+            return None
 
     def _claim(self) -> RunClaimResult | None:
         return self._claim_service.claim_next(
@@ -164,8 +195,16 @@ class RunDispatcher:
             )
         )
 
+    async def _execute_guarded(self, claim: RunClaimResult) -> None:
+        try:
+            await self._execute(claim)
+        except _CONTENTION as exc:
+            # Lost the lease between claim and start (or a fenced terminal publish):
+            # skip and let the reaper / next claim recover the Run.
+            self._note_contention("execute", exc)
+
     async def _execute(self, claim: RunClaimResult) -> None:
-        started = await self._pool.run(lambda: self._start(claim))
+        started = await self._control_pool.run(lambda: self._start(claim))
         run, attempt, lease = started.run, started.attempt, started.lease
         parent = (
             TraceCarrier.extract(run.dispatch_trace_carrier) if run.dispatch_trace_carrier else None
@@ -201,4 +240,4 @@ class RunDispatcher:
         )
 
 
-__all__ = ["HeartbeatFactory", "ReaperScan", "RunDispatcher"]
+__all__ = ["ContentionHook", "HeartbeatFactory", "ReaperScan", "RunDispatcher"]

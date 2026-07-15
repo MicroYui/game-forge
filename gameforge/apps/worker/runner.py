@@ -53,22 +53,30 @@ class TerminalSink(Protocol):
 
 
 ModelBridgeFactory = Callable[..., WorkerModelBridgePort]
+RunRevisionReader = Callable[[str], int]
 
 
 class AttemptRunner:
     def __init__(
         self,
         *,
-        pool: BlockingExecutorPool,
+        executor_pool: BlockingExecutorPool,
+        control_pool: BlockingExecutorPool,
         resolve_executor: ExecutorResolver,
         model_bridge_factory: ModelBridgeFactory,
         terminal: TerminalSink,
+        read_run_revision: RunRevisionReader,
         worker_actor: AuditActor,
     ) -> None:
-        self._pool = pool
+        # Blocking executor domain work runs on the bounded executor lane; the
+        # revision read and terminal publication run on the ungated control lane so
+        # they are never starved by a saturated executor pool.
+        self._executor_pool = executor_pool
+        self._control_pool = control_pool
         self._resolve_executor = resolve_executor
         self._model_bridge_factory = model_bridge_factory
         self._terminal = terminal
+        self._read_run_revision = read_run_revision
         self._worker_actor = worker_actor
 
     async def run_attempt(
@@ -79,13 +87,6 @@ class AttemptRunner:
         lease: RunLease,
         deadline_utc: datetime | None,
     ) -> object:
-        fence = AttemptWriteFence(
-            run_id=run.run_id,
-            attempt_no=attempt.attempt_no,
-            expected_run_revision=run.revision,
-            lease_id=lease.lease_id,
-            fencing_token=attempt.fencing_token,
-        )
         bridge = self._model_bridge_factory(run=run, attempt=attempt, lease=lease)
         context = ExecutorContext(
             run=run,
@@ -95,9 +96,21 @@ class AttemptRunner:
             model_bridge=bridge,
         )
         outcome = await self._execute(context, run=run, attempt=attempt)
-        # The terminal publication is one authoritative DB transaction; run it off
-        # the event loop too so the heartbeat coroutine stays responsive.
-        return await self._pool.run(
+        # Build the terminal fence from a FRESH read of the current run revision:
+        # publish_progress and (once wired) RECORD response capture bump the run
+        # revision mid-attempt, so the claim-time revision would be stale here.
+        # lease_id / fencing_token / attempt_no are attempt-stable.
+        current_revision = await self._control_pool.run(lambda: self._read_run_revision(run.run_id))
+        fence = AttemptWriteFence(
+            run_id=run.run_id,
+            attempt_no=attempt.attempt_no,
+            expected_run_revision=current_revision,
+            lease_id=lease.lease_id,
+            fencing_token=attempt.fencing_token,
+        )
+        # The terminal publication is one authoritative DB transaction on the
+        # control lane so the heartbeat coroutine stays responsive.
+        return await self._control_pool.run(
             lambda: self._terminal.publish(fence=fence, outcome=outcome, actor=self._worker_actor)
         )
 
@@ -110,7 +123,7 @@ class AttemptRunner:
     ) -> PreparedRunOutcome:
         try:
             executor = self._resolve_executor(run)
-            return await self._pool.run(lambda: executor(context))
+            return await self._executor_pool.run(lambda: executor(context))
         except asyncio.CancelledError:
             raise
         except Exception:
@@ -120,4 +133,10 @@ class AttemptRunner:
             return redacted_execution_failure(run=run, attempt=attempt)
 
 
-__all__ = ["AttemptRunner", "ExecutorResolver", "ModelBridgeFactory", "TerminalSink"]
+__all__ = [
+    "AttemptRunner",
+    "ExecutorResolver",
+    "ModelBridgeFactory",
+    "RunRevisionReader",
+    "TerminalSink",
+]

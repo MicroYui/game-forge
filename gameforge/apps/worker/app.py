@@ -38,8 +38,8 @@ from pathlib import Path
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from gameforge.apps.worker.executor import RunExecutor
-from gameforge.apps.worker.pool import ThreadedBlockingExecutorPool
+from gameforge.apps.worker.executor import RunExecutor, deferred_executor_adapter
+from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
 from gameforge.contracts.jobs import RunRecord
 from gameforge.contracts.lineage import AuditActor
 from gameforge.platform.registry import (
@@ -48,6 +48,7 @@ from gameforge.platform.registry import (
     build_builtin_registry,
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
@@ -151,6 +152,14 @@ class LocalWorkerConfig:
             raise WorkerConfigurationError("root_secret must contain at least 32 bytes")
         if self.max_concurrency is not None and self.max_concurrency > self.max_workers:
             raise WorkerConfigurationError("max_concurrency cannot exceed max_workers")
+        # The heartbeat must renew comfortably before the lease expires; a renewal
+        # interval at/above the lease duration self-expires the lease. Require the
+        # interval to be at most half the lease so at least one beat lands in time.
+        lease_duration_s = self.lease_duration_ns / 1_000_000_000
+        if self.heartbeat_interval_s > lease_duration_s / 2:
+            raise WorkerConfigurationError(
+                "heartbeat_interval_s must be at most half the lease duration"
+            )
         object.__setattr__(self, "object_store_root", Path(self.object_store_root))
         object.__setattr__(self, "telemetry_db_path", Path(self.telemetry_db_path))
 
@@ -193,14 +202,16 @@ class WorkerRuntime:
     object_store: LocalObjectStore
     telemetry_store: LocalTelemetryStore
     tracer: Tracer
-    pool: ThreadedBlockingExecutorPool
+    executor_pool: ThreadedBlockingExecutorPool
+    control_pool: ControlPlanePool
     registry: ImmutablePlatformRegistry
     components: TrustedComponentMaps
     worker_actor: AuditActor
     reaper_actor: AuditActor
 
     def close(self) -> None:
-        self.pool.close()
+        self.executor_pool.close()
+        self.control_pool.close()
         self.telemetry_store.close()
         self.engine.dispose()
 
@@ -237,17 +248,21 @@ def build_worker_runtime(
         sampler=AlwaysOnSampler(),
         resource={"service.name": "gameforge-worker"},
     )
-    pool = ThreadedBlockingExecutorPool(
+    executor_pool = ThreadedBlockingExecutorPool(
         max_workers=config.max_workers,
         max_concurrency=config.max_concurrency,
     )
+    # Control-plane DB ops (heartbeat/claim/reap/terminal) run on a separate,
+    # ungated lane so a saturated executor pool never stalls a lease heartbeat.
+    control_pool = ControlPlanePool(max_workers=max(2, config.max_workers))
     return WorkerRuntime(
         config=config,
         engine=engine,
         object_store=object_store,
         telemetry_store=telemetry_store,
         tracer=tracer,
-        pool=pool,
+        executor_pool=executor_pool,
+        control_pool=control_pool,
         registry=build_builtin_registry(),
         components=components,
         worker_actor=AuditActor(principal_id=config.worker_principal_id, principal_kind="service"),
@@ -281,8 +296,13 @@ def build_executor_resolver(
     """Generic ``run -> executor_key -> RunExecutor`` resolution.
 
     Never branches on Run kind: the kind's frozen ``executor_key`` indexes the
-    trusted executor allowlist. A missing executor raises ``KeyError``, which the
-    runner converts into a redacted, fenced failure through the terminal policy.
+    trusted executor allowlist. The two still-deferred executors expose the narrow
+    ``Callable[[DeferredExecutionRequest], PreparedRunFailure]`` signature, so they
+    are wrapped by :func:`deferred_executor_adapter` into the generic
+    :class:`RunExecutor` shape; once Tasks 11-13 register the eleven real executors
+    (already ``RunExecutor``-shaped) they resolve unwrapped. A missing executor
+    raises ``KeyError``, which the runner converts into a redacted, fenced failure
+    through the terminal policy.
     """
 
     executors: Mapping[str, object] = components.executors
@@ -292,6 +312,8 @@ def build_executor_resolver(
         if definition is None:
             raise KeyError(f"unknown run kind {run.kind.kind}@{run.kind.version}")
         executor = executors[definition.executor_key]
+        if definition.executor_key in DEFERRED_EXECUTORS:
+            return deferred_executor_adapter(executor)  # type: ignore[arg-type]
         return executor  # type: ignore[return-value]
 
     return resolve

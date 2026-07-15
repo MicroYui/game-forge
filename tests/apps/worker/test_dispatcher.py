@@ -12,6 +12,7 @@ import asyncio
 
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.pool import ThreadedBlockingExecutorPool
+from gameforge.contracts.errors import Conflict, InvalidStateTransition
 from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
     AttemptStartedDataV1,
@@ -101,14 +102,20 @@ class _FakeClaim:
 
     def claim_next(self, request):
         self.requests.append(request)
-        return self._results.pop(0) if self._results else None
+        if not self._results:
+            return None
+        item = self._results.pop(0)
+        if isinstance(item, BaseException):
+            raise item
+        return item
 
 
 class _FakeLifecycle:
-    def __init__(self, run, attempt, lease) -> None:
+    def __init__(self, run, attempt, lease, *, reap_raises=None) -> None:
         self._run = run
         self._attempt = attempt
         self._lease = lease
+        self._reap_raises = dict(reap_raises or {})
         self.reaped: list[tuple[str, int, str]] = []
         self.started = 0
 
@@ -127,6 +134,9 @@ class _FakeLifecycle:
         )
 
     def reap_expired_lease(self, request):
+        raiser = self._reap_raises.get(request.run_id)
+        if raiser is not None:
+            raise raiser
         self.reaped.append(
             (request.run_id, request.expected_run_revision, request.actor.principal_kind)
         )
@@ -158,19 +168,20 @@ class _FakeRunner:
         return "published"
 
 
-def _dispatcher(*, claim_results, expired, heartbeat, runner, lifecycle, pool):
+def _dispatcher(*, claim_results, expired, heartbeat, runner, lifecycle, pool, on_contention=None):
     return RunDispatcher(
         claim_service=_FakeClaim(claim_results),
         lifecycle=lifecycle,
         reaper_scan=lambda *, now_utc, limit: expired,
         runner=runner,
         heartbeat_factory=lambda **_: heartbeat,
-        pool=pool,
+        control_pool=pool,
         clock=_Clock(),
         worker_actor=WORKER,
         reaper_actor=REAPER,
         lease_duration_ns=30_000_000_000,
         lease_id_factory=lambda: "lease:1",
+        on_contention=on_contention,
     )
 
 
@@ -233,7 +244,7 @@ def test_idle_iteration_returns_false_and_a_missed_hint_loses_nothing() -> None:
             reaper_scan=lambda *, now_utc, limit: (),
             runner=runner,
             heartbeat_factory=lambda **_: heartbeat,
-            pool=pool,
+            control_pool=pool,
             clock=_Clock(),
             worker_actor=WORKER,
             reaper_actor=REAPER,
@@ -246,3 +257,72 @@ def test_idle_iteration_returns_false_and_a_missed_hint_loses_nothing() -> None:
     assert first is False  # nothing to do this iteration
     assert second is True  # rediscovered by DB scan, not by a hint
     assert runner.calls and runner.calls[0][0] == run.run_id
+
+
+def test_dispatch_once_survives_a_lost_claim_race_and_processes_the_next_run() -> None:
+    _, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(update={"status": "leased"})
+    leased_attempt = _leased_attempt()
+    lease = _lease()
+    heartbeat = _FakeHeartbeat()
+    runner = _FakeRunner(heartbeat)
+    lifecycle = _FakeLifecycle(run, _attempt(), lease)
+    contention: list[tuple[str, str]] = []
+
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        dispatcher = _dispatcher(
+            # A competing worker wins the revision CAS first (Conflict), then this
+            # worker claims the next scan. The benign race must NOT kill the loop.
+            claim_results=[
+                Conflict("run revision differs"),
+                _claim_result(run, leased_attempt, lease),
+            ],
+            expired=(),
+            heartbeat=heartbeat,
+            runner=runner,
+            lifecycle=lifecycle,
+            pool=pool,
+            on_contention=lambda op, exc: contention.append((op, type(exc).__name__)),
+        )
+        first = asyncio.run(dispatcher.dispatch_once())
+        second = asyncio.run(dispatcher.dispatch_once())
+
+    assert first is False  # lost the claim race → skipped, did not raise
+    assert second is True  # the next scan claimed and ran
+    assert runner.calls and runner.calls[0][0] == run.run_id
+    assert ("claim", "Conflict") in contention
+
+
+def test_reaper_conflict_is_skipped_and_the_next_expired_run_is_reaped() -> None:
+    _, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(update={"status": "leased"})
+    lease = _lease()
+    expired_a = run.model_copy(update={"run_id": "run:already-reaped", "revision": 5})
+    expired_b = run.model_copy(update={"run_id": "run:reapable", "revision": 9})
+    heartbeat = _FakeHeartbeat()
+    runner = _FakeRunner(heartbeat)
+    # The first expired Run was already reaped / just heartbeat-renewed by its owner.
+    lifecycle = _FakeLifecycle(
+        run,
+        _attempt(),
+        lease,
+        reap_raises={"run:already-reaped": InvalidStateTransition("already reaped")},
+    )
+    contention: list[tuple[str, str]] = []
+
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        dispatcher = _dispatcher(
+            claim_results=[None],
+            expired=(expired_a, expired_b),
+            heartbeat=heartbeat,
+            runner=runner,
+            lifecycle=lifecycle,
+            pool=pool,
+            on_contention=lambda op, exc: contention.append((op, type(exc).__name__)),
+        )
+        worked = asyncio.run(dispatcher.dispatch_once())
+
+    assert worked is False  # nothing claimable, but no crash
+    # The conflicted reap was skipped; the reapable one still settled.
+    assert lifecycle.reaped == [("run:reapable", 9, "system")]
+    assert ("reap", "InvalidStateTransition") in contention
