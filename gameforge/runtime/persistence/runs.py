@@ -1625,11 +1625,15 @@ class SqlRunRepository:
     def get_run_projection(self, run_id: str) -> RunRecord | None:
         """Load a Run for a read projection that tolerates a retention-pruned event log.
 
-        Identical to :meth:`get` except it does NOT assert the write-side event-head
-        contiguity invariant (:meth:`_verify_run_heads`). Event retention legitimately
-        removes the oldest events, so a resumable-read consumer (e.g. the SSE stream)
-        must be able to load the Run and derive its scope even when its earliest events
-        have been pruned. The non-event execution-state invariants still hold.
+        Identical to :meth:`get` except it skips the ENTIRE write-side event-head check
+        (:meth:`_verify_run_heads`) — both the event-count/first/last contiguity guard
+        AND its future attempt/fencing-head guards. Event retention legitimately removes
+        the oldest events, so a resumable-read consumer (e.g. the SSE stream) must be able
+        to load the Run and derive its scope even when its earliest events have been
+        pruned. The non-event execution-state invariants are still enforced by
+        :meth:`_verify_run_state` (attempt/lease/permit consistency for the Run's status),
+        so the projection remains a coherent Run view; only the event-log head guarantee
+        is relaxed.
         """
 
         selected_run_id = _require_nonempty(run_id, field_name="run_id")

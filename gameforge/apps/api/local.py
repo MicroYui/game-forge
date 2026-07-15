@@ -993,6 +993,7 @@ def build_local_api_resources(
             yield RunEventReadScope(
                 runs=SqlRunRepository(session),
                 policies=SqlPolicySnapshotRepository(session, clock=clock),
+                approvals=SqlApprovalRepository(session),
             )
 
     run_event_stream = RunEventStreamService(

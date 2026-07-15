@@ -200,10 +200,15 @@ class RunStreamGrant:
 
 @dataclass(frozen=True, slots=True)
 class RunEventStreamConfig:
-    """Bounded paging + heartbeat cadence for the resumable SSE endpoint."""
+    """Bounded paging + heartbeat cadence for the resumable SSE endpoint.
+
+    ``heartbeat_seconds`` also bounds live delivery latency when no producer calls the
+    notifier (correctness is preserved by the post-wait DB reread either way), so it is
+    kept modest rather than a long keep-alive interval.
+    """
 
     page_limit: int = 256
-    heartbeat_seconds: float = 15.0
+    heartbeat_seconds: float = 2.0
 
     def __post_init__(self) -> None:
         if isinstance(self.page_limit, bool) or not isinstance(self.page_limit, int):

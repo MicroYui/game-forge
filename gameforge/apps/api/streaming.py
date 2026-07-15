@@ -19,6 +19,14 @@ The SQLite event store is the sole authority for both delivery and resumability:
 Backpressure is pull-based: the async body only pages the next bounded window when
 the transport is ready to send, and the notifier never buffers events, so a slow
 consumer throttles the generator instead of growing an unbounded in-memory queue.
+
+Live-latency note: correctness never depends on `notify()` (the loop rereads the DB
+after every wait), so with no producer calling `notify()` live delivery is paced by
+`heartbeat_seconds`. Sub-heartbeat live latency requires calling `notify()` at the
+RunEvent-append site. Because `platform` cannot import `apps`, and the append site can
+live in a separate worker process, that wiring is an INJECTED notifier callback owned by
+the Task-18 publisher/worker composition — a cross-process concern deferred there, not
+built here. This module keeps a modest default heartbeat so delivery is not laggy.
 """
 
 from __future__ import annotations
@@ -58,7 +66,17 @@ from gameforge.contracts.identity import (
     Permission,
     RolePolicy,
 )
-from gameforge.contracts.jobs import RunEvent, RunRecord
+from gameforge.contracts.jobs import (
+    ConstraintProposalProposePayloadV1,
+    ConstraintValidationPayloadV1,
+    DrDrillPayloadV1,
+    GenerationProposePayloadV1,
+    PatchValidationPayloadV1,
+    RollbackValidationPayloadV1,
+    RunEvent,
+    RunRecord,
+)
+from gameforge.contracts.workflow import ApprovalItem
 from gameforge.platform.read_models.authorization import (
     ReadAuthorizationService,
     ReadPolicyRepository,
@@ -97,12 +115,19 @@ class RunEventReadRepository(Protocol):
     ) -> tuple[RunEvent, ...]: ...
 
 
+class ApprovalItemReader(Protocol):
+    """Load one ApprovalItem by id — the validation subject's domain authority."""
+
+    def get(self, approval_id: str) -> ApprovalItem | None: ...
+
+
 @dataclass(frozen=True, slots=True)
 class RunEventReadScope:
     """One short read transaction's capabilities for a single stream operation."""
 
     runs: RunEventReadRepository
     policies: ReadPolicyRepository
+    approvals: ApprovalItemReader | None = None
 
 
 ReadScopeFactory = Callable[[], AbstractContextManager[RunEventReadScope]]
@@ -117,18 +142,42 @@ def _all_active_domain_scope(registry: DomainRegistryV1) -> DomainScope:
     return DomainScope(domain_ids=active)
 
 
-def _resolve_run_read_domain(run: RunRecord, registry: DomainRegistryV1) -> DomainScopeValue:
-    """Derive the Run's read domain SERVER-SIDE from its immutable payload.
+def _resolve_run_read_domain(
+    run: RunRecord,
+    registry: DomainRegistryV1,
+    approvals: ApprovalItemReader | None,
+) -> DomainScopeValue:
+    """Derive the Run's read domain SERVER-SIDE, mirroring admission's derivation.
 
-    Generation/constraint-proposal payloads carry an authoritative ``domain_scope``
-    (proven at admission). Every other kind exposes no per-Run domain binding yet,
-    so — matching admission's posture — read is fail-closed to authority over every
-    active registry domain rather than trusting any narrower claim.
+    (See ``RunAdmissionEngine._resolve_permission_domain``.) The four cases align
+    exactly with admission, so a principal legitimately scoped to a Run's real domain
+    can always read its OWN run's events (no over-restrictive false 403):
+
+    * ``dr.drill`` is the sole domainless kind (admission marker ``None``) -> non-domain;
+    * validation kinds bind the loaded subject's ``ApprovalItem.domain_scope`` (the same
+      subject admission authorized against), loaded here via the subject ``approval_id``;
+    * generation / constraint-proposal carry an authoritative ``domain_scope``;
+    * every other kind exposes no per-Run domain binding yet -> fail-closed to authority
+      over every active registry domain (admission's identical posture).
+
+    Fail-closed nuance: if a validation subject's ApprovalItem is unavailable (pruned, or
+    no approvals reader wired) the read falls back to the all-active scope rather than a
+    500 — conservative (no escalation), never a narrower claim.
     """
 
-    scope = getattr(run.payload.params, "domain_scope", None)
-    if isinstance(scope, DomainScope):
-        return scope
+    params = run.payload.params
+    if isinstance(params, DrDrillPayloadV1):
+        return None
+    if isinstance(
+        params,
+        (PatchValidationPayloadV1, ConstraintValidationPayloadV1, RollbackValidationPayloadV1),
+    ):
+        item = approvals.get(params.subject.approval_id) if approvals is not None else None
+        if isinstance(item, ApprovalItem):
+            return item.domain_scope
+        return _all_active_domain_scope(registry)
+    if isinstance(params, (GenerationProposePayloadV1, ConstraintProposalProposePayloadV1)):
+        return params.domain_scope
     return _all_active_domain_scope(registry)
 
 
@@ -167,7 +216,7 @@ class RunEventStreamService:
             permission = Permission(
                 action="read",
                 resource_kind="run",
-                domain_scope=_resolve_run_read_domain(run, registry),
+                domain_scope=_resolve_run_read_domain(run, registry, scope.approvals),
             )
             query_hash = canonical_sha256(
                 {
@@ -252,7 +301,12 @@ class _RunEventSubscription:
         self._closed = False
 
     def _wake(self) -> None:
-        self._loop.call_soon_threadsafe(self._event.set)
+        try:
+            self._loop.call_soon_threadsafe(self._event.set)
+        except RuntimeError:
+            # The waiter's loop has already closed (a stale subscriber). Skip it so a
+            # cross-thread notify() still fans out to the remaining live waiters.
+            pass
 
     async def wait(self, timeout: float) -> bool:
         try:
