@@ -28,6 +28,7 @@ from datetime import datetime
 from gameforge.contracts.jobs import ExecutionVersionPlanV1
 from gameforge.contracts.model_router import (
     Message,
+    ModelRequest,
     ModelRequestV2,
     ModelResponse,
     ModelSnapshot,
@@ -35,7 +36,7 @@ from gameforge.contracts.model_router import (
     request_hash,
 )
 
-from gameforge.platform.run_handlers.base import ModelBridgePort
+from gameforge.platform.run_handlers.base import ExecutorContextLike, ModelBridgePort
 
 
 @dataclass(frozen=True, slots=True)
@@ -227,10 +228,92 @@ class ModelBridgeAgentAdapter:
         )
 
 
+class BridgeModelRouter:
+    """A ``ModelRouter``-shaped shim that drives one M2 agent through the bridge.
+
+    The M2 agents reach the LLM via ``gameforge.agents.base.call_model`` which
+    reads ``router.default_model_snapshot`` and calls ``router.call(request)`` with
+    a legacy :class:`ModelRequest`. This shim exposes exactly that surface but
+    routes every call through the injected :class:`ModelBridgeAgentAdapter`, so an
+    unmodified agent (``ContentGenerator.run`` / ``RepairDrafter.draft`` /
+    ``ExtractionProposer.run``) issues its LLM calls on the SAME ordered,
+    run-scoped cassette the executor bridge fences — without ``platform`` importing
+    ``gameforge.agents`` or any LLM SDK.
+
+    One shim wraps exactly one agent node (``generation`` / ``repair`` /
+    ``extraction``); ``default_model_snapshot`` is the plan-frozen model for that
+    node so ``resolve_model_snapshot`` pins it onto every request the agent builds.
+    """
+
+    def __init__(
+        self,
+        *,
+        adapter: ModelBridgeAgentAdapter,
+        default_model_snapshot: ModelSnapshot,
+        run_id: str,
+    ) -> None:
+        self._adapter = adapter
+        self.default_model_snapshot = default_model_snapshot
+        self._run_id = run_id
+
+    def call(self, request: ModelRequest) -> ModelResponse:
+        system: str | None = None
+        user = ""
+        for message in request.messages:
+            if message.role == "system":
+                system = message.content
+            elif message.role == "user":
+                user = message.content
+        result = self._adapter.call_model(
+            agent_node_id=request.agent_node_id,
+            user_prompt=user,
+            prompt_version=request.prompt_version,
+            model_snapshot=request.model_snapshot,
+            source_artifact_id=f"{self._run_id}:rendered:{request.agent_node_id}",
+            system=system,
+            params=dict(request.params),
+            tool_schemas=tuple(
+                ToolSchemaRef(name=ref.name, version=ref.version) for ref in request.tool_schemas
+            ),
+        )
+        return result.response
+
+    @property
+    def call_count(self) -> int:
+        return self._adapter.call_count
+
+
+def build_bridge_router(
+    *,
+    context: ExecutorContextLike,
+    agent_node_id: str,
+) -> BridgeModelRouter:
+    """Build the per-node :class:`BridgeModelRouter` for one handler invocation.
+
+    Constructs the ordered run-scoped :class:`ModelBridgeAgentAdapter` over the
+    context bridge and pins the plan-frozen model snapshot for ``agent_node_id``.
+    """
+
+    adapter = ModelBridgeAgentAdapter(
+        model_bridge=context.model_bridge,
+        idempotency_scope=context.run.idempotency_scope,
+        idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
+        deadline_utc=context.deadline_utc,
+    )
+    model_snapshot = plan_node_snapshot(context.payload.execution_version_plan, agent_node_id)
+    return BridgeModelRouter(
+        adapter=adapter,
+        default_model_snapshot=model_snapshot,
+        run_id=context.run.run_id,
+    )
+
+
 __all__ = [
     "AdapterModelResult",
+    "BridgeModelRouter",
     "ModelBridgeAgentAdapter",
     "ModelBridgeCallRequestV1",
+    "build_bridge_router",
     "plan_node_snapshot",
     "router_result_to_model_response",
 ]

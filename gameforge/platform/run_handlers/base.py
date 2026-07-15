@@ -186,10 +186,18 @@ def finding_to_payload(finding: Finding, *, producer_run_id: str) -> FindingPayl
 
 @dataclass(frozen=True, slots=True)
 class FindingEvidence:
-    """One spine finding paired with the prepared-artifact index that evidences it."""
+    """One spine finding paired with the prepared-artifact index that evidences it.
+
+    ``finding_id`` overrides the projected finding-series id; leave it ``None`` to
+    use the spine ``Finding.id``. A composite handler that runs the SAME oracle
+    under several distinct profiles MUST scope the id by profile so two profiles
+    resolving to one oracle id do not collide on a single series head (the
+    finding-series CAS would otherwise reject the duplicate at publish).
+    """
 
     finding: Finding
     evidence_artifact_index: int
+    finding_id: str | None = None
 
 
 def build_prepared_findings(
@@ -203,7 +211,7 @@ def build_prepared_findings(
     for item in evidence:
         prepared.append(
             PreparedFindingV1(
-                finding_id=item.finding.id,
+                finding_id=item.finding_id or item.finding.id,
                 expected_previous_revision=None,
                 evidence_artifact_index=item.evidence_artifact_index,
                 payload=finding_to_payload(item.finding, producer_run_id=run_id),

@@ -2,23 +2,33 @@
 
 from gameforge.platform.run_handlers.bench import BenchRunHandler
 from gameforge.platform.run_handlers.checker import CheckerRunHandler, DefaultCheckerFactory
+from gameforge.platform.run_handlers.constraint_proposal import ConstraintProposalHandler
 from gameforge.platform.run_handlers.deferred import (
     DEFERRED_EXECUTORS,
     DeferredExecutionRequest,
     artifact_migration_deferred,
     dr_drill_deferred,
 )
-from gameforge.platform.run_handlers.model_routing import ModelBridgeAgentAdapter
+from gameforge.platform.run_handlers.generation import GenerationProposalHandler
+from gameforge.platform.run_handlers.model_routing import (
+    BridgeModelRouter,
+    ModelBridgeAgentAdapter,
+)
+from gameforge.platform.run_handlers.repair import RepairSearchHandler
 from gameforge.platform.run_handlers.review import ReviewRunHandler
 from gameforge.platform.run_handlers.simulation import SimulationRunHandler
 
 __all__ = [
     "DEFERRED_EXECUTORS",
     "BenchRunHandler",
+    "BridgeModelRouter",
     "CheckerRunHandler",
+    "ConstraintProposalHandler",
     "DefaultCheckerFactory",
     "DeferredExecutionRequest",
+    "GenerationProposalHandler",
     "ModelBridgeAgentAdapter",
+    "RepairSearchHandler",
     "ReviewRunHandler",
     "SimulationRunHandler",
     "artifact_migration_deferred",

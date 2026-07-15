@@ -197,6 +197,48 @@ def test_review_without_triage_is_byte_deterministic() -> None:
     assert [a.payload_hash for a in out_a.artifacts] == [a.payload_hash for a in out_b.artifacts]
 
 
+def test_review_two_profiles_same_checker_id_emit_distinct_finding_ids() -> None:
+    # M1 carry-forward fix: two checker_profiles resolving to the SAME checker id on
+    # the SAME snapshot must not collide on one finding-series head (the finding CAS
+    # would otherwise reject the duplicate at publish).
+    store = FakeArtifactStore()
+    store.register(SNAPSHOT_ID, _combined_snapshot())
+    payload = ReviewRunPayloadV1(
+        snapshot_artifact_id=SNAPSHOT_ID,
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        review_profile=ProfileRefV1(profile_id="review", version=1),
+        checker_profiles=(
+            ProfileRefV1(profile_id="graph-a", version=1),
+            ProfileRefV1(profile_id="graph-b", version=1),
+        ),
+        simulation_profiles=(),
+        llm_triage_policy=None,
+    )
+    context = build_context(
+        params=payload,
+        kind=REVIEW_KIND,
+        seed=5,
+        resolved_profiles=(
+            resolved_binding(
+                "/params/review_profile", profile_id="review", version=1, kind="review"
+            ),
+            resolved_binding(
+                "/params/checker_profiles", profile_id="graph-a", version=1, kind="checker"
+            ),
+        ),
+    )
+    outcome = _review_handler(store)(context)
+
+    checker_findings = [f for f in outcome.findings if f.payload.oracle_type == "deterministic"]
+    assert checker_findings, "the dangling reference must surface a deterministic finding"
+    finding_ids = [f.finding_id for f in checker_findings]
+    # each deterministic finding is present once per resolving profile, but the ids
+    # are profile-scoped so no two collide on one series head.
+    assert len(finding_ids) == len(set(finding_ids))
+    assert any(fid.startswith("graph-a@1:") for fid in finding_ids)
+    assert any(fid.startswith("graph-b@1:") for fid in finding_ids)
+
+
 # -------------------------------------------------------------------- bench
 class _FakeCaseLoader:
     def __init__(self, cases):

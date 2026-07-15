@@ -104,7 +104,7 @@ class ReviewRunHandler:
         nav = self.nav_loader(self.blobs, payload.snapshot_artifact_id)
         lineage = _snapshot_lineage(payload)
 
-        checker_findings, checker_artifacts, checkers = self._run_checkers(
+        checker_findings, checker_artifacts, checkers, checker_evidence = self._run_checkers(
             payload, snapshot, constraints, nav, lineage
         )
         sim_findings, sim_artifacts = self._run_simulations(payload, snapshot, context, lineage)
@@ -135,13 +135,23 @@ class ReviewRunHandler:
             triage_applied=triage_applied,
         )
         artifacts = (primary, *checker_artifacts, *sim_artifacts)
-        prepared_findings = build_prepared_findings(
-            tuple(
+        # Two checker_profiles may resolve to the SAME checker id on the SAME
+        # snapshot and emit identical spine ``Finding.id``s; scope every checker
+        # finding id by its resolving profile so distinct profiles never collide
+        # on one finding-series head (M1 review carry-forward fix). Sim + triage
+        # findings keep their own ids (each already unique by profile/order).
+        evidence = (
+            *checker_evidence,
+            *(
                 FindingEvidence(finding=finding, evidence_artifact_index=0)
-                for finding in all_findings
+                for finding in sim_findings
             ),
-            run_id=context.run.run_id,
+            *(
+                FindingEvidence(finding=finding, evidence_artifact_index=0)
+                for finding in triage_findings
+            ),
         )
+        prepared_findings = build_prepared_findings(evidence, run_id=context.run.run_id)
         return build_success_result(
             run=context.run,
             attempt=context.attempt,
@@ -163,15 +173,26 @@ class ReviewRunHandler:
         constraints: list[Constraint],
         nav: NavProvider | None,
         lineage: tuple[str, ...],
-    ) -> tuple[list[Finding], tuple[PreparedArtifact, ...], list[Checker]]:
+    ) -> tuple[
+        list[Finding], tuple[PreparedArtifact, ...], list[Checker], tuple[FindingEvidence, ...]
+    ]:
         findings: list[Finding] = []
         artifacts: list[PreparedArtifact] = []
         checkers: list[Checker] = []
+        evidence: list[FindingEvidence] = []
         for profile in payload.checker_profiles:
             checker = self.checker_resolver(profile, constraints)
             checkers.append(checker)
             profile_findings = checker.check(snapshot, nav=nav)
             findings.extend(profile_findings)
+            for finding in profile_findings:
+                evidence.append(
+                    FindingEvidence(
+                        finding=finding,
+                        evidence_artifact_index=0,
+                        finding_id=f"{profile.profile_id}@{profile.version}:{finding.id}",
+                    )
+                )
             artifacts.append(
                 store_prepared_artifact(
                     self.store,
@@ -188,7 +209,7 @@ class ReviewRunHandler:
                     ),
                 )
             )
-        return findings, tuple(artifacts), checkers
+        return findings, tuple(artifacts), checkers, tuple(evidence)
 
     def _run_simulations(
         self,
