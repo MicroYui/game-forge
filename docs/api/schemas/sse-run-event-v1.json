@@ -1,0 +1,754 @@
+{
+  "$defs": {
+    "AttemptLeasedDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "title": "Attempt No",
+          "type": "integer"
+        },
+        "data_schema_version": {
+          "const": "attempt-leased@1",
+          "default": "attempt-leased@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "lease_expires_at": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Lease Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attempt_no",
+        "lease_expires_at"
+      ],
+      "title": "AttemptLeasedDataV1",
+      "type": "object"
+    },
+    "AttemptProgressDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "title": "Attempt No",
+          "type": "integer"
+        },
+        "completed_units": {
+          "minimum": 0,
+          "title": "Completed Units",
+          "type": "integer"
+        },
+        "data_schema_version": {
+          "const": "attempt-progress@1",
+          "default": "attempt-progress@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "detail_artifact_id": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail Artifact Id"
+        },
+        "phase_code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Phase Code",
+          "type": "string"
+        },
+        "total_units": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Units"
+        }
+      },
+      "required": [
+        "attempt_no",
+        "phase_code",
+        "completed_units"
+      ],
+      "title": "AttemptProgressDataV1",
+      "type": "object"
+    },
+    "AttemptStartedDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_deadline_utc": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Attempt Deadline Utc",
+          "type": "string"
+        },
+        "attempt_no": {
+          "minimum": 1,
+          "title": "Attempt No",
+          "type": "integer"
+        },
+        "data_schema_version": {
+          "const": "attempt-started@1",
+          "default": "attempt-started@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "started_at": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attempt_no",
+        "started_at",
+        "attempt_deadline_utc"
+      ],
+      "title": "AttemptStartedDataV1",
+      "type": "object"
+    },
+    "CancelRequestedDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Command Id",
+          "type": "string"
+        },
+        "data_schema_version": {
+          "const": "cancel-requested@1",
+          "default": "cancel-requested@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "reason_code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Reason Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "reason_code"
+      ],
+      "title": "CancelRequestedDataV1",
+      "type": "object"
+    },
+    "CommandAcceptedDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Command Id",
+          "type": "string"
+        },
+        "command_revision": {
+          "minimum": 1,
+          "title": "Command Revision",
+          "type": "integer"
+        },
+        "command_type": {
+          "enum": [
+            "cancel",
+            "provide_input"
+          ],
+          "title": "Command Type",
+          "type": "string"
+        },
+        "data_schema_version": {
+          "const": "command-accepted@1",
+          "default": "command-accepted@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "command_type",
+        "command_revision"
+      ],
+      "title": "CommandAcceptedDataV1",
+      "type": "object"
+    },
+    "CommandOutcomeDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Command Id",
+          "type": "string"
+        },
+        "command_revision": {
+          "minimum": 1,
+          "title": "Command Revision",
+          "type": "integer"
+        },
+        "command_type": {
+          "enum": [
+            "cancel",
+            "provide_input"
+          ],
+          "title": "Command Type",
+          "type": "string"
+        },
+        "data_schema_version": {
+          "const": "command-outcome@1",
+          "default": "command-outcome@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "outcome_code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Outcome Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "command_type",
+        "command_revision",
+        "outcome_code"
+      ],
+      "title": "CommandOutcomeDataV1",
+      "type": "object"
+    },
+    "FailureClassifierRefV1": {
+      "additionalProperties": false,
+      "properties": {
+        "classifier_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Classifier Digest",
+          "type": "string"
+        },
+        "classifier_version": {
+          "minimum": 1,
+          "title": "Classifier Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "classifier_version",
+        "classifier_digest"
+      ],
+      "title": "FailureClassifierRefV1",
+      "type": "object"
+    },
+    "LeaseExpiredDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "title": "Attempt No",
+          "type": "integer"
+        },
+        "data_schema_version": {
+          "const": "lease-expired@1",
+          "default": "lease-expired@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "failure_artifact_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Failure Artifact Id",
+          "type": "string"
+        },
+        "will_retry": {
+          "title": "Will Retry",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "attempt_no",
+        "failure_artifact_id",
+        "will_retry"
+      ],
+      "title": "LeaseExpiredDataV1",
+      "type": "object"
+    },
+    "RetryDecisionV1": {
+      "additionalProperties": false,
+      "properties": {
+        "cause_code": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Cause Code",
+          "type": "string"
+        },
+        "classifier": {
+          "$ref": "#/$defs/FailureClassifierRefV1"
+        },
+        "decision": {
+          "enum": [
+            "retry",
+            "terminal"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "decision_schema_version": {
+          "const": "retry-decision@1",
+          "default": "retry-decision@1",
+          "title": "Decision Schema Version",
+          "type": "string"
+        },
+        "evaluated_at_utc": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Evaluated At Utc",
+          "type": "string"
+        },
+        "failure_class": {
+          "enum": [
+            "business_rule",
+            "validation",
+            "transient_dependency",
+            "permanent_dependency",
+            "quota",
+            "execution",
+            "cancelled",
+            "timeout",
+            "lease",
+            "subject_superseded",
+            "integrity"
+          ],
+          "title": "Failure Class",
+          "type": "string"
+        },
+        "intrinsic_retry_eligible": {
+          "title": "Intrinsic Retry Eligible",
+          "type": "boolean"
+        },
+        "reason_code": {
+          "enum": [
+            "transient_eligible",
+            "retry_after",
+            "max_attempts_exhausted",
+            "queue_deadline_exhausted",
+            "attempt_deadline_exhausted",
+            "overall_deadline_exhausted",
+            "budget_exhausted",
+            "policy_forbidden",
+            "not_retry_eligible"
+          ],
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "retry_not_before_utc": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Not Before Utc"
+        },
+        "retry_policy": {
+          "$ref": "#/$defs/RetryPolicyRefV1"
+        }
+      },
+      "required": [
+        "cause_code",
+        "failure_class",
+        "intrinsic_retry_eligible",
+        "decision",
+        "reason_code",
+        "classifier",
+        "retry_policy",
+        "evaluated_at_utc"
+      ],
+      "title": "RetryDecisionV1",
+      "type": "object"
+    },
+    "RetryPolicyRefV1": {
+      "additionalProperties": false,
+      "properties": {
+        "retry_policy_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Retry Policy Digest",
+          "type": "string"
+        },
+        "retry_policy_id": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Retry Policy Id",
+          "type": "string"
+        },
+        "retry_policy_version": {
+          "minimum": 1,
+          "title": "Retry Policy Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "retry_policy_id",
+        "retry_policy_version",
+        "retry_policy_digest"
+      ],
+      "title": "RetryPolicyRefV1",
+      "type": "object"
+    },
+    "RetryScheduledDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "title": "Attempt No",
+          "type": "integer"
+        },
+        "cause_code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Cause Code",
+          "type": "string"
+        },
+        "data_schema_version": {
+          "const": "retry-scheduled@1",
+          "default": "retry-scheduled@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "failure_artifact_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Failure Artifact Id",
+          "type": "string"
+        },
+        "failure_class": {
+          "enum": [
+            "business_rule",
+            "validation",
+            "transient_dependency",
+            "permanent_dependency",
+            "quota",
+            "execution",
+            "cancelled",
+            "timeout",
+            "lease",
+            "subject_superseded",
+            "integrity"
+          ],
+          "title": "Failure Class",
+          "type": "string"
+        },
+        "retry_decision": {
+          "$ref": "#/$defs/RetryDecisionV1"
+        },
+        "retry_not_before_utc": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Retry Not Before Utc",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attempt_no",
+        "failure_artifact_id",
+        "cause_code",
+        "failure_class",
+        "retry_decision",
+        "retry_not_before_utc"
+      ],
+      "title": "RetryScheduledDataV1",
+      "type": "object"
+    },
+    "RunKindRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "version"
+      ],
+      "title": "RunKindRef",
+      "type": "object"
+    },
+    "RunQueuedDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "data_schema_version": {
+          "const": "run-queued@1",
+          "default": "run-queued@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "overall_deadline_utc": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Overall Deadline Utc",
+          "type": "string"
+        },
+        "queue_deadline_utc": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Queue Deadline Utc",
+          "type": "string"
+        },
+        "run_kind": {
+          "$ref": "#/$defs/RunKindRef"
+        }
+      },
+      "required": [
+        "run_kind",
+        "queue_deadline_utc",
+        "overall_deadline_utc"
+      ],
+      "title": "RunQueuedDataV1",
+      "type": "object"
+    },
+    "RunSucceededDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "title": "Attempt No",
+          "type": "integer"
+        },
+        "data_schema_version": {
+          "const": "run-succeeded@1",
+          "default": "run-succeeded@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "result_artifact_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Result Artifact Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attempt_no",
+        "result_artifact_id"
+      ],
+      "title": "RunSucceededDataV1",
+      "type": "object"
+    },
+    "RunTerminatedDataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_no": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attempt No"
+        },
+        "cause_code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Cause Code",
+          "type": "string"
+        },
+        "data_schema_version": {
+          "const": "run-terminated@1",
+          "default": "run-terminated@1",
+          "title": "Data Schema Version",
+          "type": "string"
+        },
+        "failure_artifact_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Failure Artifact Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "failure_artifact_id",
+        "cause_code"
+      ],
+      "title": "RunTerminatedDataV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://gameforge.dev/api/schemas/sse-run-event-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The `data:` payload object of one Server-Sent Event on GET /runs/{id}/events. The `data` field is a discriminated (`data_schema_version`) RunEventData union; `event_type` is the 14-value RunEventType. The SSE framing itself is `id:{seq}\\nevent:{type}\\ndata:{canonical_json}\\n\\n`.",
+  "properties": {
+    "attempt_no": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Attempt No"
+    },
+    "data": {
+      "discriminator": {
+        "mapping": {
+          "attempt-leased@1": "#/$defs/AttemptLeasedDataV1",
+          "attempt-progress@1": "#/$defs/AttemptProgressDataV1",
+          "attempt-started@1": "#/$defs/AttemptStartedDataV1",
+          "cancel-requested@1": "#/$defs/CancelRequestedDataV1",
+          "command-accepted@1": "#/$defs/CommandAcceptedDataV1",
+          "command-outcome@1": "#/$defs/CommandOutcomeDataV1",
+          "lease-expired@1": "#/$defs/LeaseExpiredDataV1",
+          "retry-scheduled@1": "#/$defs/RetryScheduledDataV1",
+          "run-queued@1": "#/$defs/RunQueuedDataV1",
+          "run-succeeded@1": "#/$defs/RunSucceededDataV1",
+          "run-terminated@1": "#/$defs/RunTerminatedDataV1"
+        },
+        "propertyName": "data_schema_version"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/RunQueuedDataV1"
+        },
+        {
+          "$ref": "#/$defs/CancelRequestedDataV1"
+        },
+        {
+          "$ref": "#/$defs/CommandAcceptedDataV1"
+        },
+        {
+          "$ref": "#/$defs/AttemptLeasedDataV1"
+        },
+        {
+          "$ref": "#/$defs/AttemptStartedDataV1"
+        },
+        {
+          "$ref": "#/$defs/AttemptProgressDataV1"
+        },
+        {
+          "$ref": "#/$defs/LeaseExpiredDataV1"
+        },
+        {
+          "$ref": "#/$defs/RetryScheduledDataV1"
+        },
+        {
+          "$ref": "#/$defs/CommandOutcomeDataV1"
+        },
+        {
+          "$ref": "#/$defs/RunSucceededDataV1"
+        },
+        {
+          "$ref": "#/$defs/RunTerminatedDataV1"
+        }
+      ],
+      "title": "Data"
+    },
+    "data_schema_version": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Data Schema Version",
+      "type": "string"
+    },
+    "event_schema_version": {
+      "const": "run-event@1",
+      "default": "run-event@1",
+      "title": "Event Schema Version",
+      "type": "string"
+    },
+    "event_type": {
+      "enum": [
+        "run.queued",
+        "run.cancel_requested",
+        "run.command_accepted",
+        "attempt.leased",
+        "attempt.started",
+        "attempt.progress",
+        "attempt.lease_expired",
+        "attempt.retry_scheduled",
+        "run.command_applied",
+        "run.command_rejected",
+        "run.succeeded",
+        "run.failed",
+        "run.cancelled",
+        "run.timed_out"
+      ],
+      "title": "Event Type",
+      "type": "string"
+    },
+    "occurred_at": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "run_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "seq": {
+      "minimum": 1,
+      "title": "Seq",
+      "type": "integer"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    }
+  },
+  "required": [
+    "run_id",
+    "seq",
+    "event_type",
+    "occurred_at",
+    "data_schema_version",
+    "data"
+  ],
+  "title": "RunEvent",
+  "type": "object"
+}

@@ -1,0 +1,279 @@
+{
+  "$defs": {
+    "JsonValue": {},
+    "Problem": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "conflict_set_id": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Conflict Set Id"
+        },
+        "detail": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Detail",
+          "type": "string"
+        },
+        "earliest_cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Earliest Cursor"
+        },
+        "errors": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "propertyNames": {
+                  "maxLength": 4096
+                },
+                "type": "object"
+              },
+              "maxItems": 1024,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Errors"
+        },
+        "instance": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Instance",
+          "type": "string"
+        },
+        "request_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "retry_after_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After S"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Run Id"
+        },
+        "status": {
+          "maximum": 599,
+          "minimum": 100,
+          "title": "Status",
+          "type": "integer"
+        },
+        "title": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "trace_id": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trace Id"
+        },
+        "type": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "title",
+        "status",
+        "detail",
+        "instance",
+        "code",
+        "request_id"
+      ],
+      "title": "Problem",
+      "type": "object"
+    },
+    "RunCommandAckV1": {
+      "additionalProperties": false,
+      "properties": {
+        "ack_schema_version": {
+          "const": "run-command-ack@1",
+          "default": "run-command-ack@1",
+          "title": "Ack Schema Version",
+          "type": "string"
+        },
+        "client_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Client Id",
+          "type": "string"
+        },
+        "client_seq": {
+          "minimum": 1,
+          "title": "Client Seq",
+          "type": "integer"
+        },
+        "command_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Command Id",
+          "type": "string"
+        },
+        "command_revision": {
+          "minimum": 1,
+          "title": "Command Revision",
+          "type": "integer"
+        },
+        "persisted_status": {
+          "enum": [
+            "pending",
+            "claimed",
+            "applied",
+            "rejected"
+          ],
+          "title": "Persisted Status",
+          "type": "string"
+        },
+        "run_revision": {
+          "minimum": 1,
+          "title": "Run Revision",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "accepted",
+            "duplicate"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "client_id",
+        "client_seq",
+        "status",
+        "persisted_status",
+        "command_revision",
+        "run_revision"
+      ],
+      "title": "RunCommandAckV1",
+      "type": "object"
+    },
+    "RunCommandProblemV1": {
+      "additionalProperties": false,
+      "properties": {
+        "client_seq": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Client Seq"
+        },
+        "command_id": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command Id"
+        },
+        "problem": {
+          "$ref": "#/$defs/Problem"
+        },
+        "problem_schema_version": {
+          "const": "run-command-problem@1",
+          "default": "run-command-problem@1",
+          "title": "Problem Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "problem"
+      ],
+      "title": "RunCommandProblemV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://gameforge.dev/api/schemas/ws-server-frame-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One WebSocket server frame for POST /runs/{id}:cancel and WS /runs/{id}/commands: exactly one of a RunCommandAckV1 (accepted/duplicate) or a RunCommandProblemV1 (RFC 9457 problem). Lease/fencing worker columns are structurally absent.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/RunCommandAckV1"
+    },
+    {
+      "$ref": "#/$defs/RunCommandProblemV1"
+    }
+  ],
+  "title": "RunCommandServerFrame"
+}

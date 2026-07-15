@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "CancelRunPayloadV1": {
+      "additionalProperties": false,
+      "properties": {
+        "comment": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Comment"
+        },
+        "reason_code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "run-cancel@1",
+          "default": "run-cancel@1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason_code"
+      ],
+      "title": "CancelRunPayloadV1",
+      "type": "object"
+    },
+    "PlaytestProvideInputPayloadV1": {
+      "additionalProperties": false,
+      "properties": {
+        "choice_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Choice Id",
+          "type": "string"
+        },
+        "expected_state_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Expected State Hash",
+          "type": "string"
+        },
+        "interaction_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Interaction Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "playtest-provide-input@1",
+          "default": "playtest-provide-input@1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "interaction_id",
+        "expected_state_hash",
+        "choice_id"
+      ],
+      "title": "PlaytestProvideInputPayloadV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://gameforge.dev/api/schemas/ws-client-command-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A WebSocket client command frame on WS /runs/{id}/commands (cancel or provide_input). `payload` is a discriminated (`schema_version`) RunCommandPayload union.",
+  "properties": {
+    "client_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Client Id",
+      "type": "string"
+    },
+    "client_seq": {
+      "minimum": 1,
+      "title": "Client Seq",
+      "type": "integer"
+    },
+    "command_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Command Id",
+      "type": "string"
+    },
+    "command_schema_version": {
+      "const": "run-command@1",
+      "default": "run-command@1",
+      "title": "Command Schema Version",
+      "type": "string"
+    },
+    "expected_run_revision": {
+      "minimum": 1,
+      "title": "Expected Run Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "payload": {
+      "discriminator": {
+        "mapping": {
+          "playtest-provide-input@1": "#/$defs/PlaytestProvideInputPayloadV1",
+          "run-cancel@1": "#/$defs/CancelRunPayloadV1"
+        },
+        "propertyName": "schema_version"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/CancelRunPayloadV1"
+        },
+        {
+          "$ref": "#/$defs/PlaytestProvideInputPayloadV1"
+        }
+      ],
+      "title": "Payload"
+    },
+    "payload_schema_id": {
+      "enum": [
+        "run-cancel@1",
+        "playtest-provide-input@1"
+      ],
+      "title": "Payload Schema Id",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "cancel",
+        "provide_input"
+      ],
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "command_id",
+    "client_id",
+    "client_seq",
+    "idempotency_key",
+    "expected_run_revision",
+    "type",
+    "payload_schema_id",
+    "payload"
+  ],
+  "title": "RunCommandV1",
+  "type": "object"
+}
