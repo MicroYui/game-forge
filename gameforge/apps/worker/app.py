@@ -220,6 +220,8 @@ def build_worker_runtime(
     config: LocalWorkerConfig,
     *,
     trusted_components: TrustedComponentMaps | None = None,
+    engine: Engine | None = None,
+    object_store: LocalObjectStore | None = None,
 ) -> WorkerRuntime:
     if not isinstance(config, LocalWorkerConfig):
         raise WorkerConfigurationError("local worker requires an exact LocalWorkerConfig")
@@ -228,16 +230,18 @@ def build_worker_runtime(
         raise WorkerConfigurationError("trusted_components must be an exact TrustedComponentMaps")
 
     clock = SystemUtcClock()
-    engine = get_engine(config.database_url)
+    if engine is None:
+        engine = get_engine(config.database_url)
     if engine.dialect.name != "sqlite":
         engine.dispose()
         raise WorkerConfigurationError("local worker composition requires SQLite")
-    object_store = LocalObjectStore(
-        config.object_store_root,
-        store_id=config.object_store_id,
-        clock=clock,
-        cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
-    )
+    if object_store is None:
+        object_store = LocalObjectStore(
+            config.object_store_root,
+            store_id=config.object_store_id,
+            clock=clock,
+            cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
+        )
     telemetry_store = LocalTelemetryStore(
         config.telemetry_db_path,
         clock=clock,

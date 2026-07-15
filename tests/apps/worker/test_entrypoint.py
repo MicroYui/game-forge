@@ -12,7 +12,10 @@ from gameforge.apps.worker.app import (
     build_executor_resolver,
     build_reaper_scan,
     build_worker_runtime,
+    validate_worker_readiness,
 )
+from gameforge.apps.worker.dispatch import build_worker_process
+from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import ExecutorContext
 from gameforge.contracts.jobs import PreparedRunFailure, RunKindRef
 from gameforge.platform.registry import TrustedComponentMaps
@@ -42,6 +45,19 @@ def test_entrypoint_requires_real_configuration_not_a_placeholder(monkeypatch) -
         monkeypatch.delenv(name, raising=False)
     with pytest.raises(WorkerConfigurationError):
         main()
+
+
+def test_build_worker_process_composes_a_ready_fenced_dispatch_loop(tmp_path: Path) -> None:
+    # The full trusted composition genuinely closes platform readiness (all 14 active
+    # RunKinds across the six component maps) and yields a real fenced dispatch loop.
+    process = build_worker_process(_config(tmp_path))
+    try:
+        validate_worker_readiness(process.runtime)  # does not raise -> registry closes
+        assert isinstance(process.dispatcher, RunDispatcher)
+        assert len(process.components.executors) == 14
+        assert "checker_runner@1" in process.components.executors
+    finally:
+        process.close()
 
 
 def test_from_environment_requires_worker_and_secret() -> None:

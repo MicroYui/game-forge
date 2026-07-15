@@ -383,6 +383,27 @@ _KIND_BY_SCHEMA: dict[str, RunKindRef] = {
 }
 
 
+# The producer ``tool_version`` the run's PRIMARY output Artifact carries. The terminal
+# publisher re-derives the primary Artifact's VersionTuple with a ``producer_value``
+# projection off the frozen run payload's ``version_tuple.tool_version`` and fails closed
+# unless it matches the executor's emitted tuple. Admission therefore stamps the exact
+# producer tool so ``executor primary artifact tuple == publisher re-projection``. (The
+# Task-17a first-full-composition surfaced that the prior ``admission-<schema>``
+# placeholder leaked into that authoritative projection and blocked terminal
+# publication for every deterministic Run kind.) Unknown schemas keep the placeholder.
+_PRODUCER_TOOL_VERSIONS: dict[str, str] = {
+    "checker-run@1": "checker@1",
+    "simulation-run@1": "economy-sim@1",
+    "task-suite-derive@1": "task-suite@1",
+    "review-run@1": "review@1",
+    "bench-run@1": "bench@1",
+    "playtest-run@1": "playtest@1",
+    "generation-propose@1": "generation@1",
+    "constraint-proposal-propose@1": "extraction@1",
+    "patch-repair@1": "repair@1",
+}
+
+
 # ── artifact-kind allowlist per §5.3 (exact-input-set kind check) ────────────
 _ANY_KIND: tuple[ArtifactKind, ...] = ()  # sentinel: any ArtifactKind allowed
 _FINDING_EVIDENCE_KINDS: tuple[ArtifactKind, ...] = (
@@ -800,9 +821,14 @@ class RunAdmissionEngine:
 
     @staticmethod
     def _params_version_tuple(params: RunKindPayload) -> VersionTuple:
-        # Admission stamps only a deterministic tool_version; the executor/publisher
-        # projects the authoritative VersionTuple from resolved inputs (Task 9).
-        return VersionTuple(tool_version=f"admission-{params.schema_version}")
+        # Admission stamps the run's producer tool_version; the executor's PRIMARY
+        # output Artifact carries the same value and the publisher re-derives it via a
+        # producer_value projection (see _PRODUCER_TOOL_VERSIONS). Unknown schemas keep
+        # a deterministic placeholder.
+        tool_version = _PRODUCER_TOOL_VERSIONS.get(
+            params.schema_version, f"admission-{params.schema_version}"
+        )
+        return VersionTuple(tool_version=tool_version)
 
     # ── shared admission path ────────────────────────────────────────────────
     def _admit_run(

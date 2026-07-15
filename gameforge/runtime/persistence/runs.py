@@ -1790,6 +1790,64 @@ class SqlRunRepository:
             raise IntegrityViolation("stored intermediate link disagrees with its Attempt head")
         return parsed
 
+    def list_prompt_render_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+    ) -> tuple[RunIntermediateArtifactLinkV1, ...]:
+        """All committed ``prompt_rendered`` intermediate links for a Run.
+
+        Bounded to one attempt when ``attempt_no`` is given (attempt-scope manifest
+        projection) or the whole Run when ``None`` (run-scope). Ordered by
+        ``(attempt_no, call_ordinal)`` so the terminal manifest projection is
+        deterministic. A ``not_applicable``/``live`` Run has no source_rendered links
+        and this returns ``()``.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        query = select(RunIntermediateArtifactLinkRow).where(
+            RunIntermediateArtifactLinkRow.run_id == selected_run_id,
+            RunIntermediateArtifactLinkRow.role == "prompt_rendered",
+        )
+        if attempt_no is not None:
+            selected_attempt = _require_positive(attempt_no, field_name="attempt_no")
+            query = query.where(RunIntermediateArtifactLinkRow.attempt_no == selected_attempt)
+        query = query.order_by(
+            RunIntermediateArtifactLinkRow.attempt_no,
+            RunIntermediateArtifactLinkRow.call_ordinal,
+        )
+        rows = self._session.scalars(query).all()
+        return tuple(
+            _parse_intermediate_row(
+                row,
+                expected_run_id=row.run_id,
+                expected_attempt_no=row.attempt_no,
+                expected_call_ordinal=row.call_ordinal,
+            )
+            for row in rows
+        )
+
+    def list_closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]:
+        """``(attempt_no, failure_artifact_id)`` for each closed failed attempt.
+
+        Feeds the terminal run-aggregate manifest's ``closed_attempt_failure`` runtime
+        parents. A first-attempt success Run has no closed failure and returns ``()``.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        rows = self._session.execute(
+            select(RunAttemptRow.attempt_no, RunAttemptRow.failure_artifact_id)
+            .where(
+                RunAttemptRow.run_id == selected_run_id,
+                RunAttemptRow.failure_artifact_id.is_not(None),
+            )
+            .order_by(RunAttemptRow.attempt_no)
+        ).all()
+        return tuple(
+            (int(attempt_no), str(failure_artifact_id)) for attempt_no, failure_artifact_id in rows
+        )
+
     def put_finding_link(self, link: RunFindingLinkV1) -> RunFindingLinkV1:
         parsed = _revalidate(link, RunFindingLinkV1, label="Run finding link put")
         existing = self.get_finding_link(parsed.run_id, parsed.attempt_no, parsed.ordinal)
