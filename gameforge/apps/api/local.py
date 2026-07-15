@@ -563,6 +563,8 @@ def _build_run_admission_engine(
             artifacts=transaction.artifacts,  # type: ignore[attr-defined]
             object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
         ),
+        role_policy_version=config.role_policy_version,
+        role_policy_digest=config.role_policy_digest,
     )
 
 

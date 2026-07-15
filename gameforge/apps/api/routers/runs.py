@@ -202,7 +202,13 @@ def run_admission_router() -> APIRouter:
         actor: ActorContext = Depends(require_actor),
         dependencies: ApiDependencies = Depends(api_dependencies),
     ) -> RunAcceptedV1:
-        del artifact_id
+        # The path {artifact_id} binds the repair subject. The typed params also carry
+        # the subject patch id; they must agree, so the URL cannot disagree with the
+        # admitted run's subject (the path is never silently discarded).
+        if artifact_id != payload.params.subject_patch_artifact_id:
+            raise RequestSchemaInvalid(
+                "repair path artifact_id must match params.subject_patch_artifact_id"
+            )
         accepted = _port(dependencies).admit_resource_run(
             params=payload.params,
             actor=actor,

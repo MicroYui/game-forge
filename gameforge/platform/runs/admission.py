@@ -48,7 +48,12 @@ from gameforge.contracts.cost import (
     CostAmountV1,
     ReservationGroupV1,
 )
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import (
+    Conflict,
+    DependencyUnavailable,
+    Forbidden,
+    IntegrityViolation,
+)
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
     ExecutionProfileKindV1,
@@ -56,7 +61,14 @@ from gameforge.contracts.execution_profiles import (
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
 )
-from gameforge.contracts.identity import ActorContext, DomainScope
+from gameforge.contracts.identity import (
+    ActorContext,
+    DomainRegistryV1,
+    DomainScope,
+    DomainScopeValue,
+    Permission,
+    RolePolicy,
+)
 from gameforge.contracts.jobs import (
     BenchRunPayloadV1,
     CheckerRunPayloadV1,
@@ -64,7 +76,9 @@ from gameforge.contracts.jobs import (
     ConstraintValidationPayloadV1,
     ExecutionVersionPlanV1,
     GenerationProposePayloadV1,
+    PatchRepairPayloadV1,
     PatchValidationPayloadV1,
+    PlaytestRunPayloadV1,
     PromptGoalBindingV1,
     RefReadBindingV1,
     ReviewRunPayloadV1,
@@ -73,6 +87,7 @@ from gameforge.contracts.jobs import (
     RunKindPayload,
     RunPayloadEnvelope,
     SimulationRunPayloadV1,
+    TaskSuiteDerivePayloadV1,
     ValidationSubjectBindingV1,
     referenced_input_artifact_ids,
 )
@@ -97,6 +112,7 @@ from gameforge.platform.cost_policy.run_accounting import (
     SqlRunCostAccounting,
 )
 from gameforge.platform.provenance.writer import AuthenticatedGoalSourceWriter, MintedSource
+from gameforge.platform.rbac import AuthorizationDecision, authorize
 from gameforge.platform.runs.commands import (
     CapabilityBinder,
     RunCommandCapabilities,
@@ -400,6 +416,8 @@ class RunAdmissionEngine:
         object_store: ObjectStore,
         clock: UtcClock,
         source_uow_capabilities: Callable[[Any], "_SourceWriteCapabilities"],
+        role_policy_version: str,
+        role_policy_digest: str,
         deadline_policy: AdmissionDeadlinePolicy | None = None,
     ) -> None:
         self._run_commands = run_commands
@@ -411,6 +429,18 @@ class RunAdmissionEngine:
         self._objects = object_store
         self._clock = clock
         self._source_capabilities = source_uow_capabilities
+        if not isinstance(role_policy_version, str) or not role_policy_version:
+            raise IntegrityViolation("run admission requires an exact role policy version")
+        if (
+            not isinstance(role_policy_digest, str)
+            or len(role_policy_digest) != 64
+            or any(character not in "0123456789abcdef" for character in role_policy_digest)
+        ):
+            raise IntegrityViolation(
+                "run admission requires a lowercase SHA-256 role policy digest"
+            )
+        self._role_policy_version = role_policy_version
+        self._role_policy_digest = role_policy_digest
         self._deadlines = deadline_policy or AdmissionDeadlinePolicy()
 
     # ── Task-7 ValidationAdmissionPort seam ──────────────────────────────────
@@ -521,6 +551,7 @@ class RunAdmissionEngine:
                 idempotency_key=server.idempotency_key,
                 request_hash=server.request_hash,
                 trace_id=getattr(server, "trace_id", None),
+                validation_item=item,
             )
 
     # ── generic POST /runs (generic_runs_endpoint kinds only) ────────────────
@@ -792,8 +823,20 @@ class RunAdmissionEngine:
         trace_id: str | None,
         execution_version_plan: Any = None,
         cassette_artifact_id: str | None = None,
+        validation_item: ApprovalItem | None = None,
     ) -> RunAcceptedV1:
         definition = self._resolve_definition(kind, creation_mode)
+        # Authorize the actor against the RunKind's required permission with the
+        # server-resolved concrete domain BEFORE any input probing, budget hold, or
+        # Run creation. Fail-closed in one UoW: an unauthorized actor never leaves a
+        # RunRecord or a partial reservation.
+        self._authorize(
+            definition=definition,
+            params=params,
+            read=read,
+            actor=actor,
+            validation_item=validation_item,
+        )
         # Verify every referenced input Artifact resolves with an allowed kind and
         # the exact set (no hidden extras) before the Run is created.
         self._verify_input_artifacts(params=params, read=read)
@@ -945,6 +988,137 @@ class RunAdmissionEngine:
             expected_profile_kind=expected_profile_kind,
         )
 
+    # ── RBAC authorization with the server-resolved resource domain ──────────
+    def _authorize(
+        self,
+        *,
+        definition: RunKindDefinition,
+        params: RunKindPayload,
+        read: AdmissionReadPort,
+        actor: ActorContext,
+        validation_item: ApprovalItem | None,
+    ) -> None:
+        """Reject any actor lacking the RunKind permission for the resolved domain.
+
+        The RunKind's ``required_permission`` carries a registry-only ``domain_scope``
+        marker (``"all"`` for the dynamic content kinds, ``None`` for the non-domain
+        DR kind). Admission replaces that marker with the concrete domain resolved
+        server-side from the loaded subject/resource — never from a client field —
+        and authorizes it with the same pure function every other write path uses
+        (:func:`gameforge.platform.rbac.authorization.authorize`).
+        """
+
+        role_policy = read.policies.get_role_policy(
+            self._role_policy_version,
+            self._role_policy_digest,
+        )
+        if not isinstance(role_policy, RolePolicy):
+            raise DependencyUnavailable(
+                "run admission role policy is unavailable",
+                component="run_admission_authorization",
+            )
+        registry = read.policies.get_domain_registry(role_policy.domain_registry_ref)
+        if not isinstance(registry, DomainRegistryV1):
+            raise DependencyUnavailable(
+                "run admission domain registry is unavailable",
+                component="run_admission_authorization",
+            )
+        requested = self._requested_permission(
+            definition=definition,
+            params=params,
+            registry=registry,
+            validation_item=validation_item,
+        )
+        if (
+            authorize(
+                principal=actor.principal,
+                role_policy=role_policy,
+                requested_permission=requested,
+                domain_registry=registry,
+            )
+            is not AuthorizationDecision.ALLOW
+        ):
+            raise Forbidden(
+                "actor is not authorized to admit this run kind in the resolved domain",
+                action=requested.action,
+                resource_kind=requested.resource_kind,
+            )
+
+    def _requested_permission(
+        self,
+        *,
+        definition: RunKindDefinition,
+        params: RunKindPayload,
+        registry: DomainRegistryV1,
+        validation_item: ApprovalItem | None,
+    ) -> Permission:
+        base = definition.required_permission
+        scope = self._resolve_permission_domain(
+            base=base,
+            params=params,
+            registry=registry,
+            validation_item=validation_item,
+        )
+        return Permission(
+            action=base.action,
+            resource_kind=base.resource_kind,
+            domain_scope=scope,
+        )
+
+    def _resolve_permission_domain(
+        self,
+        *,
+        base: Permission,
+        params: RunKindPayload,
+        registry: DomainRegistryV1,
+        validation_item: ApprovalItem | None,
+    ) -> DomainScopeValue:
+        """Resolve the concrete authorization domain server-side (never a client field).
+
+        ``base.domain_scope`` is the frozen RunKind marker: ``None`` for the sole
+        non-domain kind (``dr.drill``) which stands as-is, or ``"all"`` for the
+        dynamic content kinds whose marker MUST be replaced by the resource-derived
+        scope before authz (see the frozen registry table and design §5.4).
+        """
+
+        if base.domain_scope != "all":
+            return base.domain_scope
+        if isinstance(
+            params,
+            (
+                PatchValidationPayloadV1,
+                ConstraintValidationPayloadV1,
+                RollbackValidationPayloadV1,
+            ),
+        ):
+            # Validation subject domain is authoritative: the loaded ApprovalItem's
+            # exact ``domain_scope`` (subject binding), never a client field.
+            if validation_item is None:
+                raise IntegrityViolation("validation admission lost its loaded subject domain")
+            return validation_item.domain_scope
+        if isinstance(params, (GenerationProposePayloadV1, ConstraintProposalProposePayloadV1)):
+            # The declared target domain is the requested authorization scope; the
+            # actor must independently hold a grant covering it, so a client cannot
+            # escalate to (or smuggle in) a domain it lacks — authorize() governs.
+            return params.domain_scope
+        # repair / checker / simulation / review / bench / task_suite / playtest carry
+        # their subject/selection/dataset domain on resources that do not yet expose a
+        # domain on the admission read port. Until that provenance lands, admission is
+        # fail-closed: it requires authority over every active registry domain rather
+        # than trusting any narrower client claim.
+        return self._all_active_domains(registry)
+
+    @staticmethod
+    def _all_active_domains(registry: DomainRegistryV1) -> DomainScope:
+        active = tuple(
+            definition.domain_id
+            for definition in registry.definitions
+            if definition.status == "active"
+        )
+        if not active:
+            raise IntegrityViolation("domain registry has no active domain for run admission")
+        return DomainScope(domain_ids=active)
+
     # ── exact input-set kind verification ────────────────────────────────────
     def _verify_input_artifacts(self, *, params: RunKindPayload, read: AdmissionReadPort) -> None:
         for artifact_id, allowed in self._input_kind_requirements(params):
@@ -968,10 +1142,16 @@ class RunAdmissionEngine:
             if artifact_id is not None:
                 checks.append((artifact_id, allowed))
 
+        def add_ref(target: RefReadBindingV1, allowed: tuple[ArtifactKind, ...]) -> None:
+            expected = target.expected_ref
+            if expected is not None:
+                checks.append((expected.artifact_id, allowed))
+
         if isinstance(params, PatchValidationPayloadV1):
             add(params.subject.subject_artifact_id, ("patch",))
             add(params.base_snapshot_artifact_id, ("ir_snapshot",))
             add(params.preview_snapshot_artifact_id, ("ir_snapshot",))
+            add_ref(params.target, ("ir_snapshot",))
             for config in params.candidate_config_export_artifact_ids:
                 add(config, ("config_export",))
             for review in params.review_artifact_ids:
@@ -985,19 +1165,34 @@ class RunAdmissionEngine:
         elif isinstance(params, ConstraintValidationPayloadV1):
             add(params.subject.subject_artifact_id, ("constraint_proposal",))
             add(params.base_constraint_snapshot_artifact_id, ("constraint_snapshot",))
+            add_ref(params.target, ("ir_snapshot",))
             add(params.golden_suite_artifact_id, ("golden_suite",))
             for suite in params.regression_suite_artifact_ids:
                 add(suite, ("regression_suite",))
         elif isinstance(params, RollbackValidationPayloadV1):
             add(params.subject.subject_artifact_id, ("rollback_request",))
+            add(params.expected_current_ref.artifact_id, ("ir_snapshot",))
+            add(params.target_artifact_id, ("ir_snapshot",))
             for suite in params.regression_suite_artifact_ids:
                 add(suite, ("regression_suite",))
         elif isinstance(params, GenerationProposePayloadV1):
             add(params.base_snapshot_artifact_id, ("ir_snapshot",))
             add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
             add(params.objective_goal.source_artifact_id, ("source_raw",))
+            add_ref(params.target, ("ir_snapshot",))
             for binding in params.findings:
                 add(binding.evidence_artifact_id, _FINDING_EVIDENCE_KINDS)
+        elif isinstance(params, PatchRepairPayloadV1):
+            add(params.subject_patch_artifact_id, ("patch",))
+            add(params.base_snapshot_artifact_id, ("ir_snapshot",))
+            add(params.preview_snapshot_artifact_id, ("ir_snapshot",))
+            add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
+            add(params.validation_evidence_artifact_id, ("validation_evidence",))
+            add_ref(params.target, ("ir_snapshot",))
+            for binding in params.findings:
+                add(binding.evidence_artifact_id, _FINDING_EVIDENCE_KINDS)
+            for suite in params.regression_suite_artifact_ids:
+                add(suite, ("regression_suite",))
         elif isinstance(params, ConstraintProposalProposePayloadV1):
             add(params.authoring_goal.source_artifact_id, ("source_raw",))
             add(params.base_constraint_snapshot_artifact_id, ("constraint_snapshot",))
@@ -1012,6 +1207,16 @@ class RunAdmissionEngine:
             add(params.scenario_artifact_id, ("scenario_spec",))
         elif isinstance(params, ReviewRunPayloadV1):
             add(params.snapshot_artifact_id, ("ir_snapshot",))
+            add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
+        elif isinstance(params, PlaytestRunPayloadV1):
+            add(params.config_artifact_id, ("config_export",))
+            add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
+            add(params.task_suite_artifact_id, ("task_suite",))
+            for episode in params.episodes:
+                add(episode.scenario_spec_artifact_id, ("scenario_spec",))
+        elif isinstance(params, TaskSuiteDerivePayloadV1):
+            add(params.source_preview_artifact_id, ("ir_snapshot",))
+            add(params.config_artifact_id, ("config_export",))
             add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
         elif isinstance(params, BenchRunPayloadV1):
             add(params.dataset_artifact_id, ("bench_dataset",))
