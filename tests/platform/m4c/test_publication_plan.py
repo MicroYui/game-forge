@@ -12,6 +12,9 @@ import pytest
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
     ArtifactIdentityBindingV1,
+    ExecutionModeCountBindingV1,
+    ExecutionModeCountsV1,
+    IntermediateCountBindingV1,
     JsonCollectionCountBindingV1,
     OutcomeArtifactRuleV1,
     RequirementDispositionV1,
@@ -19,10 +22,13 @@ from gameforge.contracts.jobs import (
     ResolvedPolicyCountBindingV1,
     ResolvedPolicySnapshotV1,
     ResolvedPolicySubsetCountBindingV1,
+    RuntimeParentRuleSetV1,
+    RuntimeParentRuleV1,
     resolved_policy_snapshot_digest,
 )
 from gameforge.contracts.execution_profiles import ArtifactLineagePolicyRefV1
 from gameforge.contracts.lineage import ObjectLocation, VersionTuple, object_ref_for_bytes
+from gameforge.platform.publication.effects import resolve_workflow_effect
 from gameforge.platform.publication.lineage import (
     LineageParentSources,
     ParentInfo,
@@ -31,8 +37,10 @@ from gameforge.platform.publication.lineage import (
 from gameforge.platform.publication.validator import (
     PlanRule,
     PreparedArtifactView,
+    ProjectedRuntimeParent,
     allocate_artifacts,
     validate_rule_cardinality,
+    validate_runtime_parents,
 )
 from gameforge.platform.publication.version import (
     project_domain_version_tuple,
@@ -41,6 +49,7 @@ from gameforge.platform.publication.version import (
 from gameforge.platform.publication.planner import build_publication_plan, resolve_definition
 from gameforge.platform.registry.defaults import (
     _OutcomeBuilder,
+    _runtime_parent_rules,
     _simple_primary_policy,
     _transition_policy,
 )
@@ -460,4 +469,187 @@ def test_duplicate_selectors_fail_registry_load():
                 **definition.model_dump(mode="python"),
                 "outcome_policies": (*definition.outcome_policies, twin),
             }
+        )
+
+
+# -------------------------------------------------------- workflow effects (#1)
+def test_restore_current_draft_effect_is_not_registered():
+    with pytest.raises(IntegrityViolation):
+        resolve_workflow_effect("restore_current_draft@1")
+
+
+def test_no_op_effects_still_resolve():
+    for key in (
+        "no_workflow_change@1",
+        "no_workflow_subject@1",
+        "terminal_only@1",
+        "close_attempt_for_terminal@1",
+        "close_attempt_for_retry@1",
+        "leave_patch_head_unchanged@1",
+    ):
+        assert resolve_workflow_effect(key) is not None
+
+
+# ----------------------------------------------- artifact_id identity guard (#5)
+def test_artifact_id_identity_binding_is_fail_closed():
+    binding = JsonCollectionCountBindingV1(
+        source="prepared_primary_payload",
+        collection_pointer="/episodes",
+        identity_binding=ArtifactIdentityBindingV1(
+            collection_item_pointer="/scenario_spec_artifact_id",
+            artifact_value_source="artifact_id",
+        ),
+    )
+    rule = _rule(
+        rule_id="scenario",
+        role="output",
+        kind="scenario_spec",
+        schemas=("scenario-spec@1",),
+        min_count=1,
+        max_count=None,
+        binding=binding,
+    )
+    view = _view(0, kind="scenario_spec", schema="scenario-spec@1")
+    allocations = allocate_artifacts(plan_rules=[_plan_rule(rule)], artifacts=[view])
+    with pytest.raises(IntegrityViolation):
+        validate_rule_cardinality(
+            allocation=allocations[0],
+            artifacts_by_index={0: view},
+            run_payload={},
+            primary_payload={"episodes": [{"scenario_spec_artifact_id": "x"}]},
+            snapshots_by_id={},
+            dispositions=(),
+        )
+
+
+# ----------------------------------------------------- runtime-parents@1 (#2)
+def _prompt_rule_set(*, scope="attempt", link_scope="current_attempt", enabled=None):
+    return RuntimeParentRuleSetV1(
+        rule_set_id="rp",
+        version=1,
+        rules=(
+            RuntimeParentRuleV1(
+                rule_id="prompts",
+                manifest_scope=scope,
+                source="published_intermediate",
+                parent_role="intermediate",
+                artifact_kind="source_rendered",
+                payload_schema_ids=("source-rendered@1",),
+                attempt_selector="current",
+                enabled_execution_modes=enabled or ("not_applicable", "live", "record", "replay"),
+                min_count=0,
+                max_count=None,
+                count_binding=IntermediateCountBindingV1(
+                    link_role="prompt_rendered", scope=link_scope
+                ),
+            ),
+        ),
+    )
+
+
+def _prompt_parent():
+    return ProjectedRuntimeParent(
+        artifact_id="rendered:1",
+        source="published_intermediate",
+        kind="source_rendered",
+        payload_schema_id="source-rendered@1",
+    )
+
+
+def test_runtime_parents_intermediate_binding_satisfied():
+    validate_runtime_parents(
+        rule_set=_prompt_rule_set(),
+        manifest_scope="attempt",
+        llm_execution_mode="not_applicable",
+        parents=[_prompt_parent()],
+        committed_link_counts={"current_attempt": 1, "all_attempts": 1},
+    )
+
+
+def test_runtime_parents_count_mismatch_fails_closed():
+    with pytest.raises(IntegrityViolation):
+        validate_runtime_parents(
+            rule_set=_prompt_rule_set(),
+            manifest_scope="attempt",
+            llm_execution_mode="not_applicable",
+            parents=[_prompt_parent()],
+            committed_link_counts={"current_attempt": 2, "all_attempts": 2},
+        )
+
+
+def test_runtime_parents_execution_mode_binding_satisfied_and_enforced():
+    rule_set = RuntimeParentRuleSetV1(
+        rule_set_id="rx",
+        version=1,
+        rules=(
+            RuntimeParentRuleV1(
+                rule_id="run-bundle",
+                manifest_scope="run",
+                source="run_bundle",
+                parent_role="intermediate",
+                artifact_kind="cassette_bundle",
+                payload_schema_ids=("cassette-bundle@1",),
+                attempt_selector="all_closed",
+                enabled_execution_modes=("record",),
+                min_count=0,
+                max_count=1,
+                count_binding=ExecutionModeCountBindingV1(
+                    exact_count_by_mode=ExecutionModeCountsV1(
+                        not_applicable=0, live=0, record=1, replay=0
+                    )
+                ),
+            ),
+        ),
+    )
+    bundle = ProjectedRuntimeParent(
+        artifact_id="bundle:1",
+        source="run_bundle",
+        kind="cassette_bundle",
+        payload_schema_id="cassette-bundle@1",
+    )
+    validate_runtime_parents(
+        rule_set=rule_set,
+        manifest_scope="run",
+        llm_execution_mode="record",
+        parents=[bundle],
+        committed_link_counts={"current_attempt": 0, "all_attempts": 0},
+    )
+    with pytest.raises(IntegrityViolation):
+        validate_runtime_parents(
+            rule_set=rule_set,
+            manifest_scope="run",
+            llm_execution_mode="record",
+            parents=[],
+            committed_link_counts={"current_attempt": 0, "all_attempts": 0},
+        )
+
+
+def test_runtime_parent_in_disabled_mode_fails_closed():
+    rule_set = _prompt_rule_set(enabled=("record",))
+    with pytest.raises(IntegrityViolation):
+        validate_runtime_parents(
+            rule_set=rule_set,
+            manifest_scope="attempt",
+            llm_execution_mode="not_applicable",
+            parents=[_prompt_parent()],
+            committed_link_counts={"current_attempt": 0, "all_attempts": 0},
+        )
+
+
+def test_not_applicable_enforces_zero_runtime_parents():
+    rule_set = _runtime_parent_rules()
+    validate_runtime_parents(
+        rule_set=rule_set,
+        manifest_scope="attempt",
+        llm_execution_mode="not_applicable",
+        parents=[],
+        committed_link_counts={"current_attempt": 0, "all_attempts": 0},
+    )
+    with pytest.raises(IntegrityViolation):
+        validate_runtime_parents(
+            rule_set=rule_set,
+            manifest_scope="attempt",
+            llm_execution_mode="not_applicable",
+            parents=[_prompt_parent()],
+            committed_link_counts={"current_attempt": 0, "all_attempts": 0},
         )

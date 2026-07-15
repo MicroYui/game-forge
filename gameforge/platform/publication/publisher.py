@@ -67,9 +67,11 @@ from gameforge.platform.publication.planner import (
 )
 from gameforge.platform.publication.validator import (
     PreparedArtifactView,
+    ProjectedRuntimeParent,
     RuleAllocation,
     allocate_artifacts,
     validate_rule_cardinality,
+    validate_runtime_parents,
 )
 from gameforge.platform.publication.version import (
     project_domain_version_tuple,
@@ -222,13 +224,20 @@ class TerminalPublisher:
         )
 
         output_parents = self._domain_manifest_parents(published)
+        runtime_parents = self._validated_runtime_parents(
+            run=run,
+            plan=plan,
+            manifest_scope="run",
+            current_attempt_no=attempt.attempt_no,
+            closed={},
+        )
         projection = self._manifest_projection(
             run=run,
             attempt_no=attempt.attempt_no,
             scope="run",
             transition_policy=plan.transition_policy,
             transition_ref=plan.policy.version_transition_policy_ref,
-            extra_parents=output_parents,
+            extra_parents=(*output_parents, *runtime_parents),
         )
         produced_ids = tuple(
             parent.artifact_id
@@ -302,9 +311,14 @@ class TerminalPublisher:
         plan = build_publication_plan(
             registry=self._registry, definition=definition, policy=policy, scope="attempt"
         )
+        self._verify_failure_identity(run=run, prepared=prepared, attempt_no=attempt.attempt_no)
         # attempt-close policies never consume business evidence/dispositions.
-        current_prompt_parents = self._runtime_prompt_parents(
-            run.run_id, attempt_no=attempt.attempt_no
+        current_prompt_parents = self._validated_runtime_parents(
+            run=run,
+            plan=plan,
+            manifest_scope="attempt",
+            current_attempt_no=attempt.attempt_no,
+            closed={},
         )
         projection = self._manifest_projection(
             run=run,
@@ -378,6 +392,7 @@ class TerminalPublisher:
             registry=self._registry, definition=definition, policy=policy, scope="run"
         )
         attempt_no = attempt.attempt_no if attempt is not None else None
+        self._verify_failure_identity(run=run, prepared=prepared, attempt_no=attempt_no)
 
         views = self._read_views(prepared.artifacts)
         primary_payload = dict(views[0].payload) if views else None
@@ -393,13 +408,19 @@ class TerminalPublisher:
             run=run, plan=plan, allocations=allocations, views=views, occurred_at=occurred_at
         )
 
+        closed = self._aggregate_closed_attempts(
+            run.run_id,
+            current_attempt_no=attempt_no,
+            current_attempt_failure_id=attempt_failure_artifact_id,
+        )
         extra_parents = list(self._domain_manifest_parents(published))
-        extra_parents.extend(self._runtime_prompt_parents(run.run_id, attempt_no=None))
         extra_parents.extend(
-            self._closed_attempt_parents(
-                run.run_id,
+            self._validated_runtime_parents(
+                run=run,
+                plan=plan,
+                manifest_scope="run",
                 current_attempt_no=attempt_no,
-                current_attempt_failure_id=attempt_failure_artifact_id,
+                closed=closed,
             )
         )
         projection = self._manifest_projection(
@@ -477,6 +498,20 @@ class TerminalPublisher:
         if prepared.summary.prepared_finding_count != len(prepared.findings):
             raise IntegrityViolation("prepared finding count is fabricated")
 
+    @staticmethod
+    def _verify_failure_identity(
+        *,
+        run: RunRecord,
+        prepared: PreparedRunFailure,
+        attempt_no: int | None,
+    ) -> None:
+        if prepared.run_id != run.run_id:
+            raise IntegrityViolation("prepared failure differs from the current Run")
+        if prepared.run_kind != run.kind:
+            raise IntegrityViolation("prepared failure Run kind differs from the RunRecord")
+        if prepared.attempt_no != attempt_no:
+            raise IntegrityViolation("prepared failure attempt differs from the publication scope")
+
     def _read_views(self, artifacts: Sequence[object]) -> tuple[PreparedArtifactView, ...]:
         views: list[PreparedArtifactView] = []
         for index, prepared in enumerate(artifacts):
@@ -492,6 +527,21 @@ class TerminalPublisher:
                     "prepared artifact blob size differs from its ObjectRef", artifact_index=index
                 )
             payload = _decode_payload(blob, index=index)
+            # Re-verify the blob's self-declared schema and require the domain
+            # Artifact meta to carry it, so this artifact can later serve as a typed
+            # lineage parent (which resolves schema from meta["payload_schema_id"]).
+            declared = payload.get("payload_schema_version")
+            if declared is not None and declared != prepared.payload_schema_id:
+                raise IntegrityViolation(
+                    "prepared artifact blob schema differs from its declared payload schema id",
+                    artifact_index=index,
+                )
+            meta = dict(prepared.meta)
+            if meta.get("payload_schema_id") != prepared.payload_schema_id:
+                raise IntegrityViolation(
+                    "prepared artifact meta must declare its exact payload schema id",
+                    artifact_index=index,
+                )
             views.append(
                 PreparedArtifactView(
                     index=index,
@@ -502,7 +552,7 @@ class TerminalPublisher:
                     payload_hash=prepared.payload_hash,
                     object_ref=prepared.object_ref,
                     location=prepared.location,
-                    meta=dict(prepared.meta),
+                    meta=meta,
                     payload=payload,
                 )
             )
@@ -730,13 +780,17 @@ class TerminalPublisher:
         if object_ref != expected_ref:
             raise IntegrityViolation("manifest blob store returned a non-canonical ObjectRef")
         lineage = tuple(sorted({parent.artifact_id for parent in parents}))
+        manifest_schema_id = "run-result@1" if kind == "run_result" else "run-failure@1"
         artifact = build_artifact_v2(
             kind=kind,
             version_tuple=version_tuple,
             lineage=lineage,
             payload_hash=object_ref.sha256,
             object_ref=object_ref,
-            meta={"manifest_scope": payload["version_projection"]["manifest_scope"]},
+            meta={
+                "manifest_scope": payload["version_projection"]["manifest_scope"],
+                "payload_schema_id": manifest_schema_id,
+            },
             created_at=occurred_at,
         )
         if artifact.artifact_id in lineage:
@@ -756,24 +810,75 @@ class TerminalPublisher:
             for artifact_id, role in published.roles.items()
         )
 
-    def _runtime_prompt_parents(
-        self, run_id: str, *, attempt_no: int | None
+    def _validated_runtime_parents(
+        self,
+        *,
+        run: RunRecord,
+        plan: PublicationPlan,
+        manifest_scope: str,
+        current_attempt_no: int | None,
+        closed: Mapping[str, int | None],
     ) -> tuple[RunManifestParentBindingV1, ...]:
-        links = self._ledger.prompt_links(run_id, attempt_no=attempt_no)
-        return tuple(
-            RunManifestParentBindingV1(
-                artifact_id=link.artifact_id,
-                role="intermediate",
-                publication="run_published",
-                attempt_no=link.attempt_no,
-                ordinal=link.call_ordinal,
-            )
-            for link in links
-        )
+        """Project + rule-set-validate the runtime intermediate parents for a scope."""
 
-    def _closed_attempt_parents(
+        current_links = (
+            self._ledger.prompt_links(run.run_id, attempt_no=current_attempt_no)
+            if current_attempt_no is not None
+            else ()
+        )
+        all_links = self._ledger.prompt_links(run.run_id, attempt_no=None)
+        committed = {"current_attempt": len(current_links), "all_attempts": len(all_links)}
+        prompt_links = current_links if manifest_scope == "attempt" else all_links
+
+        bindings: list[RunManifestParentBindingV1] = []
+        projected: list[ProjectedRuntimeParent] = []
+        for link in prompt_links:
+            bindings.append(
+                RunManifestParentBindingV1(
+                    artifact_id=link.artifact_id,
+                    role="intermediate",
+                    publication="run_published",
+                    attempt_no=link.attempt_no,
+                    ordinal=link.call_ordinal,
+                )
+            )
+            projected.append(
+                ProjectedRuntimeParent(
+                    artifact_id=link.artifact_id,
+                    source="published_intermediate",
+                    kind="source_rendered",
+                    payload_schema_id="source-rendered@1",
+                )
+            )
+        for failure_id, attempt_no in closed.items():
+            bindings.append(
+                RunManifestParentBindingV1(
+                    artifact_id=failure_id,
+                    role="intermediate",
+                    publication="run_published",
+                    attempt_no=attempt_no,
+                )
+            )
+            projected.append(
+                ProjectedRuntimeParent(
+                    artifact_id=failure_id,
+                    source="closed_attempt_failure",
+                    kind="run_failure",
+                    payload_schema_id="run-failure@1",
+                )
+            )
+        validate_runtime_parents(
+            rule_set=plan.runtime_rule_set,
+            manifest_scope=manifest_scope,
+            llm_execution_mode=run.payload.llm_execution_mode,
+            parents=projected,
+            committed_link_counts=committed,
+        )
+        return tuple(bindings)
+
+    def _aggregate_closed_attempts(
         self, run_id: str, *, current_attempt_no: int | None, current_attempt_failure_id: str | None
-    ) -> tuple[RunManifestParentBindingV1, ...]:
+    ) -> dict[str, int | None]:
         aggregated: dict[str, int | None] = {}
         for closed_attempt_no, failure_id in self._ledger.closed_attempt_failures(run_id):
             if failure_id in aggregated:
@@ -788,15 +893,7 @@ class TerminalPublisher:
                     failure_id=current_attempt_failure_id,
                 )
             aggregated[current_attempt_failure_id] = current_attempt_no
-        return tuple(
-            RunManifestParentBindingV1(
-                artifact_id=failure_id,
-                role="intermediate",
-                publication="run_published",
-                attempt_no=attempt_no,
-            )
-            for failure_id, attempt_no in aggregated.items()
-        )
+        return aggregated
 
     def _input_parents(self, input_ids: Sequence[str]) -> Mapping[str, ParentInfo]:
         return {input_id: self._parent_info(input_id) for input_id in input_ids}

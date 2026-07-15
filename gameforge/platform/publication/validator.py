@@ -17,6 +17,8 @@ from dataclasses import dataclass
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
     ArtifactIdentityBindingV1,
+    ExecutionModeCountBindingV1,
+    IntermediateCountBindingV1,
     JsonCollectionCountBindingV1,
     OutcomeArtifactRuleV1,
     RequirementDispositionV1,
@@ -24,6 +26,8 @@ from gameforge.contracts.jobs import (
     ResolvedPolicyCountBindingV1,
     ResolvedPolicySnapshotV1,
     ResolvedPolicySubsetCountBindingV1,
+    RuntimeParentRuleSetV1,
+    RuntimeParentRuleV1,
 )
 from gameforge.contracts.lineage import ObjectLocation, ObjectRef, VersionTuple
 
@@ -362,8 +366,14 @@ def _artifact_identity_value(
     identity: ArtifactIdentityBindingV1, view: PreparedArtifactView
 ) -> object:
     if identity.artifact_value_source == "artifact_id":
-        # Resolved after minting; the publisher re-verifies against published ids.
-        return view.meta.get("__artifact_id__", view.index)
+        # The published (content-addressed) id is not known until after minting, so
+        # a full one-to-one artifact_id map needs a post-mint verification pass.
+        # Task 12 implements that; until then this binding is explicitly fail-closed
+        # rather than silently accepted.
+        raise IntegrityViolation(
+            "post-mint artifact_id identity binding not yet supported",
+            artifact_index=view.index,
+        )
     pointer = identity.artifact_payload_pointer
     if pointer is None:  # pragma: no cover - contract guarantees the pointer
         raise IntegrityViolation("payload identity binding lacks a pointer")
@@ -378,11 +388,132 @@ def _hashable(value: object) -> object:
     return value
 
 
+@dataclass(frozen=True, slots=True)
+class ProjectedRuntimeParent:
+    """One runtime intermediate/input parent as classified by its trusted source."""
+
+    artifact_id: str
+    source: str
+    kind: str
+    payload_schema_id: str
+
+
+def validate_runtime_parents(
+    *,
+    rule_set: RuntimeParentRuleSetV1,
+    manifest_scope: str,
+    llm_execution_mode: str,
+    parents: Sequence[ProjectedRuntimeParent],
+    committed_link_counts: Mapping[str, int],
+) -> None:
+    """Cross-check the projected runtime parents against ``runtime-parents@1``.
+
+    Every projected parent must be claimed by exactly one in-scope rule; a parent
+    whose rule is disabled in the current execution mode is fail-closed.  Each
+    rule's observed count must equal the exact count its ``count_binding`` derives
+    (``IntermediateCountBinding`` from committed prompt-link counts;
+    ``ExecutionModeCountBinding`` from the four per-mode counts) and stay within
+    ``[min_count, max_count]``.  For a ``not_applicable`` run every LLM/cassette rule
+    is disabled, so this asserts zero such parents explicitly rather than by
+    accident.
+    """
+
+    scoped = tuple(
+        rule for rule in rule_set.rules if rule.manifest_scope in (manifest_scope, "both")
+    )
+    counts: dict[str, int] = {rule.rule_id: 0 for rule in scoped}
+    for parent in parents:
+        matches = [
+            rule
+            for rule in scoped
+            if rule.source == parent.source
+            and parent.kind == rule.artifact_kind
+            and parent.payload_schema_id in rule.payload_schema_ids
+        ]
+        if len(matches) != 1:
+            raise IntegrityViolation(
+                "runtime parent matched no unique rule-set rule",
+                artifact_id=parent.artifact_id,
+                source=parent.source,
+                matched=[rule.rule_id for rule in matches],
+            )
+        rule = matches[0]
+        if llm_execution_mode not in rule.enabled_execution_modes:
+            raise IntegrityViolation(
+                "runtime parent present in a disabled execution mode",
+                artifact_id=parent.artifact_id,
+                rule_id=rule.rule_id,
+                mode=llm_execution_mode,
+            )
+        counts[rule.rule_id] += 1
+
+    for rule in scoped:
+        observed = counts[rule.rule_id]
+        if llm_execution_mode not in rule.enabled_execution_modes:
+            # A disabled rule contributes an exact count of zero; its [min,max]
+            # range (e.g. replay-input min_count=1) does not apply in this mode.
+            if observed != 0:  # pragma: no cover - already caught in the match loop
+                raise IntegrityViolation(
+                    "runtime parent present for a disabled rule",
+                    rule_id=rule.rule_id,
+                    mode=llm_execution_mode,
+                )
+            continue
+        expected = _expected_runtime_count(
+            rule=rule,
+            llm_execution_mode=llm_execution_mode,
+            committed_link_counts=committed_link_counts,
+        )
+        if expected is not None and observed != expected:
+            raise IntegrityViolation(
+                "runtime parent count differs from its rule-set binding",
+                rule_id=rule.rule_id,
+                expected=expected,
+                actual=observed,
+            )
+        if observed < rule.min_count or (rule.max_count is not None and observed > rule.max_count):
+            raise IntegrityViolation(
+                "runtime parent count is outside its rule range",
+                rule_id=rule.rule_id,
+                min_count=rule.min_count,
+                max_count=rule.max_count,
+                actual=observed,
+            )
+
+
+def _expected_runtime_count(
+    *,
+    rule: RuntimeParentRuleV1,
+    llm_execution_mode: str,
+    committed_link_counts: Mapping[str, int],
+) -> int | None:
+    binding = rule.count_binding
+    if binding is None:
+        return None
+    if isinstance(binding, IntermediateCountBindingV1):
+        if binding.scope not in committed_link_counts:
+            raise IntegrityViolation(
+                "committed intermediate-link count is unavailable for the binding scope",
+                rule_id=rule.rule_id,
+                scope=binding.scope,
+            )
+        return committed_link_counts[binding.scope]
+    if isinstance(binding, ExecutionModeCountBindingV1):
+        return getattr(binding.exact_count_by_mode, llm_execution_mode)
+    raise IntegrityViolation(
+        "runtime-parent rule uses a non-runtime count binding",
+        rule_id=rule.rule_id,
+        binding_source=binding.source,
+    )
+
+
 __all__ = [
     "PlanRule",
     "PreparedArtifactView",
+    "ProjectedRuntimeParent",
     "RuleAllocation",
     "allocate_artifacts",
     "resolve_json_pointer",
     "validate_rule_cardinality",
+    "validate_runtime_parents",
 ]

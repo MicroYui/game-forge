@@ -275,7 +275,7 @@ def _checker_artifact(blobs: _Blobs) -> PreparedArtifact:
         version_tuple=VersionTuple(ir_snapshot_id="snapshot:input", tool_version="checker@1"),
         lineage=("artifact:input",),
         payload_hash=object_ref.sha256,
-        meta={},
+        meta={"payload_schema_id": "checker-report@1"},
         object_ref=object_ref,
         location=ObjectLocation(store_id="s3", key=object_ref.key, backend_generation="g1"),
     )
@@ -598,3 +598,138 @@ def _success_policy(definition: RunKindDefinition):
         failure_class=None,
         retry_disposition=None,
     )
+
+
+def test_success_rejects_meta_without_payload_schema_id():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    checker = _checker_artifact(blobs).model_copy(update={"meta": {}})
+    prepared = _prepared_success(artifacts=(checker,))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_success_rejects_blob_schema_disagreement():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    # Blob self-declares a different schema than the prepared payload_schema_id.
+    blob = json.dumps({"payload_schema_version": "checker-report@2"}).encode()
+    object_ref = blobs.register(blob)
+    checker = PreparedArtifact(
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        version_tuple=VersionTuple(ir_snapshot_id="snapshot:input", tool_version="checker@1"),
+        lineage=("artifact:input",),
+        payload_hash=object_ref.sha256,
+        meta={"payload_schema_id": "checker-report@1"},
+        object_ref=object_ref,
+        location=ObjectLocation(store_id="s3", key=object_ref.key, backend_generation="g1"),
+    )
+    prepared = _prepared_success(artifacts=(checker,))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def _execution_failure(definition, *, run_id="run:1", run_kind=None, attempt_no=1):
+    return PreparedRunFailure(
+        run_id=run_id,
+        attempt_no=attempt_no,
+        run_kind=run_kind or RunKindRef(kind="checker.run", version=1),
+        artifacts=(),
+        requirement_dispositions=(),
+        cause_code="execution_failed",
+        failure_class="execution",
+        intrinsic_retry_eligible=False,
+        classifier=definition.failure_classifier,
+        redacted_message="boom",
+    )
+
+
+def _terminal_decision(definition):
+    return RetryDecisionV1(
+        cause_code="execution_failed",
+        failure_class="execution",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=definition.failure_classifier,
+        retry_policy=definition.retry_policy,
+        evaluated_at_utc=NOW,
+    )
+
+
+def test_attempt_failure_rejects_fabricated_identity():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    attempt_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    publisher = _publisher(registry, _Artifacts(), _Blobs(), _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_attempt_failure(
+            run=run,
+            attempt=attempt,
+            prepared=_execution_failure(definition, run_id="run:OTHER"),
+            retry_decision=_terminal_decision(definition),
+            policy=attempt_policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_run_failure_rejects_fabricated_attempt_no():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    run_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="run",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    publisher = _publisher(registry, _Artifacts(), _Blobs(), _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_failure(
+            run=run,
+            attempt=attempt,
+            prepared=_execution_failure(definition, attempt_no=2),  # attempt.attempt_no is 1
+            retry_decision=_terminal_decision(definition),
+            policy=run_policy,
+            attempt_failure_artifact_id="artifact:attempt-failure",
+            occurred_at=NOW,
+            actor=WORKER,
+        )

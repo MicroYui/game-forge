@@ -9,9 +9,11 @@ state untouched: the ``no_workflow_change`` / ``no_workflow_subject`` family use
 Review/Checker/Simulation/Playtest/TaskSuite success and every non-success close,
 plus the evidence-only reject and terminal-only failure effects.  Draft-creating /
 SubjectHead-CAS effects (generation gate pass, repair verified, constraint
-proposal, validation completion) are intentionally NOT registered yet; a policy
-naming one resolves to a fail-closed error until its approval-workflow body lands,
-rather than being silently skipped.
+proposal, validation completion) and the ``validating→draft`` revert
+(``restore_current_draft@1``) are intentionally NOT registered yet; a policy naming
+one resolves to a fail-closed error until its approval-workflow body lands, rather
+than being silently skipped (a no-op ``restore_current_draft@1`` would let a
+validation-failure terminal silently skip the required revert).
 """
 
 from __future__ import annotations
@@ -58,7 +60,6 @@ WORKFLOW_EFFECTS: Mapping[str, WorkflowEffect] = MappingProxyType(
         "close_attempt_for_terminal@1": _no_workflow_mutation,
         "close_attempt_for_retry@1": _no_workflow_mutation,
         "leave_patch_head_unchanged@1": _no_workflow_mutation,
-        "restore_current_draft@1": _no_workflow_mutation,
     }
 )
 
