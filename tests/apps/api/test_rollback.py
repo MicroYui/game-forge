@@ -218,8 +218,8 @@ def test_rollback_cannot_skip_validation(tmp_path: Path) -> None:
             },
             headers=headers(key="rb:bypass-validate"),
         )
-    # fails closed (validated evidence is absent); the draft never advances
-    assert submit.status_code in {409, 500}
+    # fails closed with a state-machine conflict (the draft is not validated); it never advances
+    assert submit.status_code == 409
     assert harness.load_item(rb_approval).status == "draft"
 
 

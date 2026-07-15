@@ -43,8 +43,16 @@ from gameforge.apps.cli.identity import (
     ROLE_POLICY_DIGEST_ENV,
     ROLE_POLICY_VERSION_ENV,
 )
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.identity import (
+    DomainRegistryV1,
+    DomainRoutePolicy,
+    DomainRoutePolicyRefV1,
+    DomainScope,
+    RolePolicy,
+)
 from gameforge.contracts.observability import SpanDataV1
+from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1
 from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.approvals.apply import (
     ApprovedApplyCapabilities,
@@ -84,6 +92,8 @@ from gameforge.platform.workflow.readers import (
 )
 from gameforge.platform.workflow.service import (
     WorkflowCommandService,
+    WorkflowGovernance,
+    WorkflowGovernanceProvider,
     WorkflowReadPort,
 )
 from gameforge.platform.workflow.spec import (
@@ -132,6 +142,10 @@ OBJECT_STORE_ROOT_ENV = "GAMEFORGE_OBJECT_STORE_ROOT"
 OBJECT_STORE_ID_ENV = "GAMEFORGE_OBJECT_STORE_ID"
 TELEMETRY_DB_PATH_ENV = "GAMEFORGE_TELEMETRY_DB_PATH"
 ALLOWED_WEBSOCKET_ORIGINS_ENV = "GAMEFORGE_ALLOWED_WEBSOCKET_ORIGINS"
+WORKFLOW_ROUTE_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_VERSION"
+WORKFLOW_ROUTE_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_DIGEST"
+WORKFLOW_APPROVAL_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_VERSION"
+WORKFLOW_APPROVAL_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_DIGEST"
 
 
 class LocalApiConfigurationError(ValueError):
@@ -187,6 +201,16 @@ class LocalApiConfig:
     root_secret: bytes = field(repr=False)
     session_signing_keys: SessionSigningKeyProvider = field(repr=False)
     allowed_websocket_origins: frozenset[str] = frozenset()
+    # Workflow governance pointers. When all four are present the maker-checker
+    # composition resolves the exact DomainRoutePolicy and ApprovalPolicy from the
+    # authoritative policy snapshot repository (registry + roles come from the role
+    # policy ref above), enabling every draft/rebase op. Absent (a deployment that
+    # does not provision workflow governance) those ops fail closed with a typed
+    # ``workflow_governance`` dependency error rather than fabricating authority.
+    workflow_route_policy_version: str | None = None
+    workflow_route_policy_digest: str | None = None
+    workflow_approval_policy_version: str | None = None
+    workflow_approval_policy_digest: str | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -202,6 +226,29 @@ class LocalApiConfig:
             if not isinstance(value, str) or not value or len(value) > 4096:
                 raise LocalApiConfigurationError(f"{name} must be a non-empty bounded string")
         _lower_sha256(self.role_policy_digest, name="role_policy_digest")
+        governance = (
+            self.workflow_route_policy_version,
+            self.workflow_route_policy_digest,
+            self.workflow_approval_policy_version,
+            self.workflow_approval_policy_digest,
+        )
+        present = [value for value in governance if value is not None]
+        if present and len(present) != len(governance):
+            raise LocalApiConfigurationError(
+                "workflow governance pointers must be provided together or not at all"
+            )
+        if present:
+            for name in (
+                "workflow_route_policy_version",
+                "workflow_approval_policy_version",
+            ):
+                value = getattr(self, name)
+                if not isinstance(value, str) or not value or len(value) > 4096:
+                    raise LocalApiConfigurationError(f"{name} must be a non-empty bounded string")
+            _lower_sha256(self.workflow_route_policy_digest, name="workflow_route_policy_digest")
+            _lower_sha256(
+                self.workflow_approval_policy_digest, name="workflow_approval_policy_digest"
+            )
         if not isinstance(self.root_secret, bytes) or len(self.root_secret) < 32:
             raise LocalApiConfigurationError("root_secret must contain at least 32 bytes")
         if not isinstance(self.session_signing_keys, SessionSigningKeyProvider):
@@ -244,6 +291,10 @@ class LocalApiConfig:
             root_secret=_root_secret(source),
             session_signing_keys=signing_keys,
             allowed_websocket_origins=_allowed_websocket_origins(source),
+            workflow_route_policy_version=source.get(WORKFLOW_ROUTE_POLICY_VERSION_ENV),
+            workflow_route_policy_digest=source.get(WORKFLOW_ROUTE_POLICY_DIGEST_ENV),
+            workflow_approval_policy_version=source.get(WORKFLOW_APPROVAL_POLICY_VERSION_ENV),
+            workflow_approval_policy_digest=source.get(WORKFLOW_APPROVAL_POLICY_DIGEST_ENV),
         )
 
 
@@ -303,6 +354,138 @@ class _PrincipalGet:
         return self._identities.project(principal_id)  # type: ignore[attr-defined]
 
 
+class _SqlWorkflowGovernanceProvider:
+    """Resolve the exact current :class:`WorkflowGovernance` from the policy authority.
+
+    The registry and roles are resolved from the configured role-policy ref (and the
+    registry ref it declares); the DomainRoutePolicy and ApprovalPolicy are resolved
+    from the configured governance pointers. Resolution runs in a fresh short read
+    transaction per request, so it never touches an unmigrated database at build time
+    and always reflects the retained immutable policy snapshots — never a fixture.
+    """
+
+    def __init__(
+        self,
+        *,
+        engine: Engine,
+        clock: SystemUtcClock,
+        role_policy_version: str,
+        role_policy_digest: str,
+        route_policy_version: str,
+        route_policy_digest: str,
+        approval_policy_version: str,
+        approval_policy_digest: str,
+    ) -> None:
+        self._engine = engine
+        self._clock = clock
+        self._role_policy_version = role_policy_version
+        self._role_policy_digest = role_policy_digest
+        self._route_policy_version = route_policy_version
+        self._route_policy_digest = route_policy_digest
+        self._approval_policy_version = approval_policy_version
+        self._approval_policy_digest = approval_policy_digest
+
+    def current(self) -> WorkflowGovernance:
+        with Session(self._engine) as session:
+            policies = SqlPolicySnapshotRepository(session, clock=self._clock)
+            roles = policies.get_role_policy(
+                self._role_policy_version,
+                self._role_policy_digest,
+            )
+            if not isinstance(roles, RolePolicy):
+                raise DependencyUnavailable(
+                    "workflow role policy is unavailable",
+                    component="workflow_governance",
+                )
+            registry = policies.get_domain_registry(roles.domain_registry_ref)
+            if not isinstance(registry, DomainRegistryV1):
+                raise DependencyUnavailable(
+                    "workflow domain registry is unavailable",
+                    component="workflow_governance",
+                )
+            route = policies.get_domain_route_policy(
+                DomainRoutePolicyRefV1(
+                    route_version=self._route_policy_version,
+                    route_digest=self._route_policy_digest,
+                    domain_registry_ref=roles.domain_registry_ref,
+                )
+            )
+            if not isinstance(route, DomainRoutePolicy):
+                raise DependencyUnavailable(
+                    "workflow domain route policy is unavailable",
+                    component="workflow_governance",
+                )
+            approval = policies.get_approval_policy(
+                ApprovalPolicyRefV1(
+                    policy_version=self._approval_policy_version,
+                    policy_digest=self._approval_policy_digest,
+                )
+            )
+            if not isinstance(approval, ApprovalPolicyV1):
+                raise DependencyUnavailable(
+                    "workflow approval policy is unavailable",
+                    component="workflow_governance",
+                )
+            return WorkflowGovernance(
+                registry=registry,
+                route=route,
+                roles=roles,
+                approval=approval,
+            )
+
+
+class _RoutePolicyDomainScopeResolver:
+    """Derive a patch/rollback subject's affected DomainScope from the route policy.
+
+    Patch and rollback draft requests do not declare a ``domain_scope`` (constraint
+    and spec requests do), so the affected scope is derived from the exact governance:
+    the union of the DomainRoutePolicy selectors that route the subject kind, bounded
+    to the active registry domains. For a single-content-domain deployment this is the
+    exact affected scope; for a multi-domain registry it is a fail-safe superset (it
+    never cherry-picks a "primary" domain). Exact per-entity/field-level affected-scope
+    recomputation from the base->target canonical diff is owned by the validation /
+    auto-apply guard (M4 design 5, ``AutoApplyProofV1.affected_domain_scope``; plan
+    Task 13) and is cross-checked there at validation, submit, and apply time.
+    """
+
+    def __init__(self, governance: WorkflowGovernanceProvider) -> None:
+        self._governance = governance
+
+    def resolve_patch_scope(self, *, base_artifact: object, patch: object) -> DomainScope:
+        del base_artifact, patch
+        return self._scope_for("patch")
+
+    def resolve_rollback_scope(self, *, target_artifact: object, request: object) -> DomainScope:
+        del target_artifact, request
+        return self._scope_for("rollback_request")
+
+    def _scope_for(self, subject_kind: str) -> DomainScope:
+        governance = self._governance.current()
+        active = {
+            definition.domain_id
+            for definition in governance.registry.definitions
+            if definition.status == "active"
+        }
+        selected: set[str] = set()
+        for rule in governance.route.rules:
+            if subject_kind not in rule.subject_kinds:
+                continue
+            if rule.domain_selector == "all":
+                selected |= active
+            else:
+                selected |= {
+                    domain_id
+                    for domain_id in rule.domain_selector.domain_ids
+                    if domain_id in active
+                }
+        if not selected:
+            raise DependencyUnavailable(
+                "workflow domain-scope resolution has no route coverage for the subject",
+                component="workflow_domain_scope",
+            )
+        return DomainScope(domain_ids=tuple(sorted(selected)))
+
+
 def _build_workflow_command_service(
     *,
     config: LocalApiConfig,
@@ -314,10 +497,13 @@ def _build_workflow_command_service(
 ) -> WorkflowCommandAdapter:
     """Compose the synchronous workflow-command port over the real write UoW.
 
-    Governance and domain-scope resolution (draft stamping) and Run admission
-    (``*.validate``) stay deferred (interface-present) until their milestones wire
-    them; those operations fail closed. Spec upload, submit/decide, apply/publish and
-    rebase operate on the real SQLite authority.
+    Workflow governance (registry/route/roles/approval snapshot stamped on new drafts)
+    and patch/rollback domain-scope resolution are resolved from the authoritative
+    policy snapshot repository when the config declares its governance pointers, so
+    every draft/rebase op is functional against real SQLite. Run admission
+    (``*.validate``) stays deferred (interface-present) until Task 8 wires it; those
+    ops fail closed. Spec upload, submit/decide, apply/publish and rebase operate on
+    the real SQLite authority.
     """
 
     draft_verifier = WorkflowDraftLineageVerifier()
@@ -455,6 +641,26 @@ def _build_workflow_command_service(
                 ),
             )
 
+    governance_provider: WorkflowGovernanceProvider | None = None
+    scope_resolver: _RoutePolicyDomainScopeResolver | None = None
+    if (
+        config.workflow_route_policy_version is not None
+        and config.workflow_route_policy_digest is not None
+        and config.workflow_approval_policy_version is not None
+        and config.workflow_approval_policy_digest is not None
+    ):
+        governance_provider = _SqlWorkflowGovernanceProvider(
+            engine=engine,
+            clock=clock,
+            role_policy_version=config.role_policy_version,
+            role_policy_digest=config.role_policy_digest,
+            route_policy_version=config.workflow_route_policy_version,
+            route_policy_digest=config.workflow_route_policy_digest,
+            approval_policy_version=config.workflow_approval_policy_version,
+            approval_policy_digest=config.workflow_approval_policy_digest,
+        )
+        scope_resolver = _RoutePolicyDomainScopeResolver(governance_provider)
+
     service = WorkflowCommandService(
         clock=clock,
         object_store=object_store,
@@ -463,8 +669,8 @@ def _build_workflow_command_service(
         apply_service=applies,
         rebase_service=rebase_service,
         spec_service=spec_service,
-        governance=None,
-        scope_resolver=None,
+        governance=governance_provider,
+        scope_resolver=scope_resolver,
         admission=None,
         execution_profile_catalog=execution_profile_catalog,
     )
@@ -742,6 +948,10 @@ __all__ = [
     "OBJECT_STORE_ROOT_ENV",
     "SESSION_POLICY_VERSION_ENV",
     "TELEMETRY_DB_PATH_ENV",
+    "WORKFLOW_APPROVAL_POLICY_DIGEST_ENV",
+    "WORKFLOW_APPROVAL_POLICY_VERSION_ENV",
+    "WORKFLOW_ROUTE_POLICY_DIGEST_ENV",
+    "WORKFLOW_ROUTE_POLICY_VERSION_ENV",
     "LocalApiConfig",
     "LocalApiConfigurationError",
     "LocalApiResources",

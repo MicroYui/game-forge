@@ -10,6 +10,7 @@ from typing import Any, Protocol
 from pydantic import BaseModel, ValidationError
 
 from gameforge.contracts.canonical import (
+    canonical_json,
     compute_snapshot_id,
     sha256_lowerhex,
     typed_canonical_json,
@@ -755,7 +756,14 @@ class RebaseWorkflowService:
 
         parsed_patch = self._payloads.load_patch(prepared.subject_artifact)
         _require_canonical_model(parsed_patch, PatchV2, label="prepared rebased Patch")
-        if not _same_wire(parsed_patch, compiled.patch):
+        # The prepared Patch is loaded from its canonical stored bytes, so its opaque
+        # replace_subgraph op values have had null-valued keys dropped by canonicalization
+        # (canonical_json omits None). Compare both in the same canonical projection so a
+        # byte-exact rebased Patch is accepted while any real content difference still
+        # fails closed.
+        if canonical_json(parsed_patch.model_dump(mode="json")) != canonical_json(
+            compiled.patch.model_dump(mode="json")
+        ):
             raise IntegrityViolation(
                 "prepared Patch payload differs from deterministic rebase output"
             )

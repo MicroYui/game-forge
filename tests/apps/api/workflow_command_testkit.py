@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -91,6 +92,28 @@ from tests.platform.m4.test_local_service_flow_integration import (
 AUDIT_CHAIN_ID = "platform-authority"
 
 
+class AdvancingUtcClock:
+    """UTC clock that advances by a fixed step on every read.
+
+    Deterministic yet non-frozen: successive ``now_utc`` calls return strictly
+    increasing timestamps, so an idempotent replay whose re-assembly stamps a fresh
+    ``created_at`` cannot silently match the committed value. This is the clock a
+    real deployment (``SystemUtcClock``) approximates; the frozen clock masks the
+    replay-under-real-clock defect.
+    """
+
+    def __init__(self, start: datetime, *, step: timedelta = timedelta(seconds=1)) -> None:
+        if start.tzinfo is None or start.utcoffset() != timedelta(0):
+            raise ValueError("AdvancingUtcClock start must be timezone-aware UTC")
+        self._now = start
+        self._step = step
+
+    def now_utc(self) -> datetime:
+        current = self._now
+        self._now = self._now + self._step
+        return current
+
+
 class _FixedScopeResolver:
     def __init__(self, scope: Any) -> None:
         self._scope = scope
@@ -133,7 +156,7 @@ class WorkflowHarness:
     app: FastAPI
     engine: Engine
     objects: LocalObjectStore
-    clock: FrozenUtcClock
+    clock: Any
     uow: Any
     commands: ApprovalCommandService
     validation: Any
@@ -180,8 +203,8 @@ def actor_context(harness: WorkflowHarness, principal_id: str) -> ActorContext:
     return _actor_context(_principal(harness.engine, harness.clock, principal_id))
 
 
-def build_harness(tmp_path: Path, *, admission: bool = True) -> WorkflowHarness:
-    clock = FrozenUtcClock(NOW_DT)
+def build_harness(tmp_path: Path, *, admission: bool = True, clock: Any = None) -> WorkflowHarness:
+    clock = clock if clock is not None else FrozenUtcClock(NOW_DT)
     engine = get_engine(f"sqlite:///{tmp_path / 'workflow-commands.db'}")
     Base.metadata.create_all(engine)
     objects = LocalObjectStore(
@@ -555,7 +578,22 @@ def drive_to_validated(harness: WorkflowHarness, approval_id: str, *, run_id: st
     return completion.approval_item
 
 
-def _patch_body(harness, *, ref_name, new_value, old_value=120, key="p"):
+def _patch_body(
+    harness, *, ref_name, new_value=None, old_value=120, key="p", ops=None, rationale=None
+):
+    if ops is None:
+        ops = [
+            {
+                "op_id": "set-reward-gold",
+                "op": "set_entity_attr",
+                "target": "q:1.reward_gold",
+                "old_value": old_value,
+                "new_value": new_value,
+            }
+        ]
+        rationale = rationale or f"Set reward to {new_value}."
+    else:
+        rationale = rationale or "Apply a targeted content change."
     return {
         "request_schema_version": "human-patch-draft-request@1",
         "base_snapshot_artifact_id": harness.base_artifact_id,
@@ -565,27 +603,23 @@ def _patch_body(harness, *, ref_name, new_value, old_value=120, key="p"):
         "expected_to_fix": [],
         "preconditions": [],
         "side_effect_risk": "low",
-        "ops": [
-            {
-                "op_id": "set-reward-gold",
-                "op": "set_entity_attr",
-                "target": "q:1.reward_gold",
-                "old_value": old_value,
-                "new_value": new_value,
-            }
-        ],
-        "rationale": f"Set reward to {new_value}.",
+        "ops": ops,
+        "rationale": rationale,
         "candidate_export_profiles": [],
     }
 
 
-def apply_full_patch(harness, client, *, ref_name, new_value, key: str):
+def apply_full_patch(
+    harness, client, *, ref_name, new_value=None, key: str, ops=None, rationale=None
+):
     """Draft→validate→submit→approve→apply a single-op patch; return the new ref value."""
 
     harness.use_actor(maker_actor(harness))
     draft = client.post(
         "/api/v1/patches",
-        json=_patch_body(harness, ref_name=ref_name, new_value=new_value),
+        json=_patch_body(
+            harness, ref_name=ref_name, new_value=new_value, ops=ops, rationale=rationale
+        ),
         headers=headers(key=f"{key}:draft"),
     )
     assert draft.status_code == 201, draft.text

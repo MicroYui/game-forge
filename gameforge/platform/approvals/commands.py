@@ -630,7 +630,12 @@ class ApprovalCommandService:
         )
         if replay is not None:
             result = self._draft_publication_response(replay)
-            if result.approval_item != item or result.subject_head != expected_head:
+            # ``created_at`` is a server-owned timestamp stamped at first creation; a
+            # re-assembled draft under a real advancing clock carries a later value.
+            # Verify the retained committed item matches the prepared item modulo that
+            # timestamp so a duplicate exact request replays instead of failing closed.
+            normalized = item.model_copy(update={"created_at": result.approval_item.created_at})
+            if result.approval_item != normalized or result.subject_head != expected_head:
                 raise IntegrityViolation("draft idempotency result differs from prepared draft")
             return result
 
@@ -1369,7 +1374,10 @@ class ApprovalCommandService:
         evidence: ApprovalEvidenceGateway,
     ) -> EvidenceStateProjection:
         if item.target_binding is None or item.evidence_set_artifact_id is None:
-            raise IntegrityViolation("validated ApprovalItem lacks target or EvidenceSet")
+            raise InvalidStateTransition(
+                "approval subject is not validated: submit requires a validated target and "
+                "EvidenceSet"
+            )
         target = self._load_artifact(artifacts, item.target_binding.target_artifact_id)
         evidence_artifact = self._load_artifact(
             artifacts,

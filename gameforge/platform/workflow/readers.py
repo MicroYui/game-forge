@@ -77,7 +77,14 @@ class WorkflowTypedReaders:
     # ── exact byte resolution ────────────────────────────────────────────────
     def _read(self, artifact: ArtifactV2) -> bytes:
         retained = self._artifacts.get(artifact.artifact_id)
-        if retained is not None and retained != artifact:
+        # ``artifact_id`` encodes kind/version/lineage/payload_hash/meta, so a retained
+        # Artifact sharing that id can differ only in its server-owned ``created_at``
+        # timestamp (e.g. a draft re-assembled on an idempotent replay under a real
+        # clock). That timestamp is not part of identity, so compare modulo it and rely
+        # on the exact ObjectRef verification below for content integrity.
+        if retained is not None and (
+            retained.model_copy(update={"created_at": artifact.created_at}) != artifact
+        ):
             raise IntegrityViolation("typed reader Artifact differs from persistence")
         try:
             location = self._bindings.resolve(artifact.object_ref).location
@@ -275,11 +282,27 @@ class WorkflowDraftLineageVerifier:
         for artifact in prepared.artifacts:
             self._validate(artifact)
         if subject.kind == "patch":
-            if len(subject.lineage) != 1 or len(prepared.companion_artifacts) != 1:
-                raise IntegrityViolation("Patch draft requires its exact base and preview")
+            if len(prepared.companion_artifacts) != 1:
+                raise IntegrityViolation("Patch draft requires exactly one preview companion")
             preview = prepared.companion_artifacts[0]
-            if set(preview.lineage) != {subject.lineage[0], subject.artifact_id}:
-                raise IntegrityViolation("preview direct parents must be base plus Patch")
+            if len(subject.lineage) == 1:
+                # Initial draft: Patch descends from its base; preview = {base, Patch}.
+                if set(preview.lineage) != {subject.lineage[0], subject.artifact_id}:
+                    raise IntegrityViolation("preview direct parents must be base plus Patch")
+            elif len(subject.lineage) == 2:
+                # Rebased draft: Patch descends from {source Patch, current}; the preview
+                # descends from {current, Patch}. The rebased base (current) must be one of
+                # the Patch's exact lineage parents.
+                preview_parents = set(preview.lineage)
+                if subject.artifact_id not in preview_parents:
+                    raise IntegrityViolation("rebased preview must descend from its Patch")
+                rebased_base = preview_parents - {subject.artifact_id}
+                if len(rebased_base) != 1 or not rebased_base <= set(subject.lineage):
+                    raise IntegrityViolation(
+                        "rebased preview base must be an exact Patch lineage parent"
+                    )
+            else:
+                raise IntegrityViolation("Patch draft has an unexpected lineage shape")
             expected_retained = subject.lineage
         elif subject.kind == "constraint_proposal":
             if prepared.companion_artifacts:

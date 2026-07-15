@@ -143,7 +143,14 @@ def test_human_patch_draft_creates_draft_approval(tmp_path: Path) -> None:
 
 
 def test_patch_draft_duplicate_request_replays(tmp_path: Path) -> None:
-    harness = build_harness(tmp_path)
+    # Advance the clock between the two identical requests: the second request
+    # re-assembles a draft whose fresh created_at differs from the committed one, so
+    # a broken replay path would raise IntegrityViolation (500) instead of replaying.
+    from datetime import timedelta
+
+    from tests.apps.api.workflow_command_testkit import NOW_DT, AdvancingUtcClock
+
+    harness = build_harness(tmp_path, clock=AdvancingUtcClock(NOW_DT, step=timedelta(seconds=1)))
     publish_base(harness, entities=_base_entities())
     harness.use_actor(maker_actor(harness))
     with _client(harness) as client:
@@ -153,8 +160,34 @@ def test_patch_draft_duplicate_request_replays(tmp_path: Path) -> None:
         second = client.post(
             "/api/v1/patches", json=_patch_payload(harness), headers=headers(key="patch:draft:2")
         )
-    assert first.status_code == 201 and second.status_code == 201, second.text
+    assert first.status_code == 201, first.text
+    assert second.status_code == 201, second.text
+    # Duplicate exact request replays the committed result byte-for-byte.
     assert first.json() == second.json()
+    assert first.headers["ETag"] == second.headers["ETag"]
+    assert first.json()["artifact"]["created_at"] == second.json()["artifact"]["created_at"]
+
+
+def test_patch_draft_same_key_different_payload_is_idempotency_conflict(tmp_path: Path) -> None:
+    from datetime import timedelta
+
+    from tests.apps.api.workflow_command_testkit import NOW_DT, AdvancingUtcClock
+
+    harness = build_harness(tmp_path, clock=AdvancingUtcClock(NOW_DT, step=timedelta(seconds=1)))
+    publish_base(harness, entities=_base_entities())
+    harness.use_actor(maker_actor(harness))
+    with _client(harness) as client:
+        first = client.post(
+            "/api/v1/patches", json=_patch_payload(harness), headers=headers(key="patch:draft:3")
+        )
+        conflict = client.post(
+            "/api/v1/patches",
+            json={**_patch_payload(harness), "rationale": "A different rationale entirely."},
+            headers=headers(key="patch:draft:3"),
+        )
+    assert first.status_code == 201, first.text
+    assert conflict.status_code == 409
+    assert conflict.json()["code"] == "idempotency_conflict"
 
 
 def test_patch_validate_without_admission_fails_closed(tmp_path: Path) -> None:
@@ -421,6 +454,168 @@ def test_patch_rebase_conflict_persists_conflict_set(tmp_path: Path) -> None:
     body = rebase.json()
     assert body["status"] == "conflicted"
     assert body["conflict_set_id"].startswith("conflict-set:")
+
+
+def test_patch_rebase_clean_compiles_and_publishes_rebased_draft(tmp_path: Path) -> None:
+    from gameforge.contracts.storage import RefValue
+    from tests.apps.api.workflow_command_testkit import apply_full_patch
+
+    harness = build_harness(tmp_path)
+    # a base with two independent fields so the intervening change and the draft touch
+    # disjoint JSON paths -> a conflict-free three-way merge (the clean rebase branch).
+    publish_base(
+        harness,
+        entities=[
+            Entity(
+                id="q:1",
+                type=NodeType.QUEST,
+                attrs={"reward_gold": 120, "difficulty": "normal"},
+            )
+        ],
+    )
+    with _client(harness) as client:
+        # intervening approved apply advances the ref by changing difficulty only
+        apply_full_patch(
+            harness,
+            client,
+            ref_name="content/head",
+            key="intervening",
+            ops=[
+                {
+                    "op_id": "set-difficulty",
+                    "op": "set_entity_attr",
+                    "target": "q:1.difficulty",
+                    "old_value": "normal",
+                    "new_value": "hard",
+                }
+            ],
+        )
+        # competing draft on the ORIGINAL base changes reward_gold only
+        harness.use_actor(maker_actor(harness))
+        draft = client.post(
+            "/api/v1/patches", json=_patch_payload(harness), headers=headers(key="clean:draft")
+        )
+        assert draft.status_code == 201, draft.text
+        patch_artifact = draft.json()["artifact"]["artifact_id"]
+        source_approval_id = f"approval:patch:{patch_artifact}"
+        live_ref = _live_ref(harness, "content/head")
+        rebase = client.post(
+            f"/api/v1/patches/{patch_artifact}:rebase",
+            json={
+                "request_schema_version": "patch-rebase-request@1",
+                "approval_id": source_approval_id,
+                "expected_subject_head_revision": 1,
+                "expected_workflow_revision": 1,
+                "ref_name": "content/head",
+                "expected_ref": live_ref,
+            },
+            headers=headers(key="clean:rebase"),
+        )
+    assert rebase.status_code == 200, rebase.text
+    body = rebase.json()
+    assert body["status"] == "clean"
+    assert body["conflict_set_id"] is None
+    new_patch_artifact_id = body["new_patch_artifact_id"]
+    assert new_patch_artifact_id is not None
+
+    # the byte-exact rebased draft supersedes the source on the same subject series,
+    # carrying its exact preview companion pinned to the live ref (supersession CAS).
+    rebased = harness.load_item(f"approval:patch:{new_patch_artifact_id}")
+    source = harness.load_item(source_approval_id)
+    assert rebased.supersedes_approval_id == source_approval_id
+    assert rebased.subject_series_id == source.subject_series_id
+    assert rebased.subject_revision == source.subject_revision + 1
+    assert rebased.status == "draft"
+    assert rebased.target_binding.expected_ref == RefValue.model_validate(live_ref)
+
+
+def test_patch_resolve_conflicts_publishes_resolved_draft(tmp_path: Path) -> None:
+    from gameforge.contracts.diff import (
+        ThreeWayMergePolicyV1,
+        compute_merge_policy_digest,
+    )
+    from gameforge.contracts.storage import RefValue
+    from gameforge.platform.diff.three_way import compute_three_way_merge
+    from gameforge.spine.ir.snapshot import Snapshot
+    from tests.apps.api.workflow_command_testkit import apply_full_patch
+
+    harness = build_harness(tmp_path)
+    publish_base(harness, entities=_base_entities())
+    with _client(harness) as client:
+        # intervening apply changes the SAME field the draft changes -> conflict
+        apply_full_patch(harness, client, ref_name="content/head", new_value=100, key="intervening")
+        harness.use_actor(maker_actor(harness))
+        draft = client.post(
+            "/api/v1/patches", json=_patch_payload(harness), headers=headers(key="resolve:draft")
+        )
+        assert draft.status_code == 201, draft.text
+        patch_artifact = draft.json()["artifact"]["artifact_id"]
+        source_approval_id = f"approval:patch:{patch_artifact}"
+        live_ref = _live_ref(harness, "content/head")
+        rebase = client.post(
+            f"/api/v1/patches/{patch_artifact}:rebase",
+            json={
+                "request_schema_version": "patch-rebase-request@1",
+                "approval_id": source_approval_id,
+                "expected_subject_head_revision": 1,
+                "expected_workflow_revision": 1,
+                "ref_name": "content/head",
+                "expected_ref": live_ref,
+            },
+            headers=headers(key="resolve:rebase"),
+        )
+        assert rebase.status_code == 200, rebase.text
+        conflict_set_id = rebase.json()["conflict_set_id"]
+        assert conflict_set_id is not None
+
+        # Recompute the exact conflicts the service saw so resolutions cover them.
+        policy = ThreeWayMergePolicyV1(
+            policy_version="workflow-three-way@1",
+            collection_identities=(),
+            policy_digest=compute_merge_policy_digest("workflow-three-way@1", ()),
+        )
+        base_payload = Snapshot.from_entities_relations(
+            [Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120})], []
+        ).content_payload
+        current_payload = Snapshot.from_entities_relations(
+            [Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 100})], []
+        ).content_payload
+        proposed_payload = Snapshot.from_entities_relations(
+            [Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 80})], []
+        ).content_payload
+        plan = compute_three_way_merge(base_payload, current_payload, proposed_payload, policy)
+        assert plan.conflicts, "expected the intervening apply to force a conflict"
+        resolutions = [
+            {"conflict_id": conflict.id, "choice": "take_proposed"} for conflict in plan.conflicts
+        ]
+
+        resolve = client.post(
+            f"/api/v1/patches/{patch_artifact}:resolve-conflicts",
+            json={
+                "request_schema_version": "resolve-conflicts-request@1",
+                "approval_id": source_approval_id,
+                "expected_subject_head_revision": 1,
+                "expected_workflow_revision": 1,
+                "ref_name": "content/head",
+                "expected_ref": live_ref,
+                "conflict_set_id": conflict_set_id,
+                "resolutions": resolutions,
+            },
+            headers=headers(key="resolve:resolve"),
+        )
+    assert resolve.status_code == 200, resolve.text
+    body = resolve.json()
+    assert body["status"] == "clean"
+    new_patch_artifact_id = body["new_patch_artifact_id"]
+    assert new_patch_artifact_id is not None
+
+    resolved = harness.load_item(f"approval:patch:{new_patch_artifact_id}")
+    source = harness.load_item(source_approval_id)
+    assert resolved.supersedes_approval_id == source_approval_id
+    assert resolved.subject_series_id == source.subject_series_id
+    assert resolved.subject_revision == source.subject_revision + 1
+    assert resolved.status == "draft"
+    assert resolved.target_binding.expected_ref == RefValue.model_validate(live_ref)
 
 
 def _live_ref(harness, ref_name: str) -> dict:

@@ -173,6 +173,18 @@ class WorkflowScopeResolver(Protocol):
     ) -> DomainScope: ...
 
 
+class WorkflowGovernanceProvider(Protocol):
+    """Resolve the exact current governance snapshot at request time.
+
+    The production composition resolves governance from the authoritative
+    ``SqlPolicySnapshotRepository`` per request (governance is immutable per exact
+    ref, so a fresh read is cheap and never touches an unmigrated database at build
+    time). Tests may inject a concrete :class:`WorkflowGovernance` directly.
+    """
+
+    def current(self) -> WorkflowGovernance: ...
+
+
 @dataclass(frozen=True, slots=True)
 class WorkflowGovernance:
     """The exact current governance snapshot stamped onto new draft ApprovalItems."""
@@ -274,7 +286,7 @@ class WorkflowCommandService:
         apply_service: ApprovedApplyService,
         rebase_service: RebaseWorkflowService,
         spec_service: SpecUploadService,
-        governance: WorkflowGovernance | None,
+        governance: WorkflowGovernance | WorkflowGovernanceProvider | None,
         scope_resolver: WorkflowScopeResolver | None,
         admission: ValidationAdmissionPort | None,
         execution_profile_catalog: Any = None,
@@ -319,12 +331,18 @@ class WorkflowCommandService:
         )
 
     def _require_governance(self) -> WorkflowGovernance:
-        if self._governance is None:
+        governance = self._governance
+        if governance is None:
             raise DependencyUnavailable(
                 "workflow governance is unavailable",
                 component="workflow_governance",
             )
-        return self._governance
+        if isinstance(governance, WorkflowGovernance):
+            return governance
+        resolved = governance.current()
+        if not isinstance(resolved, WorkflowGovernance):
+            raise IntegrityViolation("workflow governance provider returned an invalid snapshot")
+        return resolved
 
     def _require_scope_resolver(self) -> WorkflowScopeResolver:
         if self._scope_resolver is None:
@@ -392,14 +410,24 @@ class WorkflowCommandService:
             prepared=assembled.prepared,
             context=self._context(server),
         )
-        item = result.approval_item
-        if item != assembled.prepared.approval_item:
+        committed = result.approval_item
+        # An idempotent replay returns the RETAINED committed item, whose server-owned
+        # ``created_at`` is authoritative. The freshly assembled item carries a new
+        # request-time ``created_at`` under a real advancing clock, so verify the
+        # assembled item matches the committed one modulo that server timestamp, then
+        # project the response from the committed creation time. A duplicate exact
+        # request therefore replays identical response bytes instead of raising.
+        normalized = assembled.prepared.approval_item.model_copy(
+            update={"created_at": committed.created_at}
+        )
+        if committed != normalized:
             raise IntegrityViolation("published draft differs from the assembled item")
+        view = _reproject_view_created_at(assembled.view, committed.created_at)
         return WorkflowCommandOutcome(
-            value=assembled.view,
+            value=view,
             resource_kind="approval",
-            resource_id=item.approval_id,
-            revision=item.workflow_revision,
+            resource_id=committed.approval_id,
+            revision=committed.workflow_revision,
         )
 
     def _patch_draft(
@@ -1141,6 +1169,26 @@ class WorkflowCommandService:
         )
 
 
+def _reproject_view_created_at(
+    view: WorkflowCommandResponseV1,
+    created_at: str | None,
+) -> WorkflowCommandResponseV1:
+    """Restamp a draft view's Artifact summary with the committed creation time.
+
+    Each draft read view carries an :class:`ArtifactSummaryV1` whose ``created_at``
+    is the server-owned draft creation time. On idempotent replay the response must
+    reproduce the FIRST creation's bytes, so the re-assembled view's timestamp is
+    replaced with the retained committed value.
+    """
+
+    artifact = getattr(view, "artifact", None)
+    if not isinstance(artifact, ArtifactSummaryV1):
+        raise IntegrityViolation("draft view is missing its Artifact summary")
+    return view.model_copy(
+        update={"artifact": artifact.model_copy(update={"created_at": created_at})}
+    )
+
+
 def _resolve_view(material: RebaseMaterial, payload: ResolveConflictsRequestV1) -> Any:
     from gameforge.platform.diff.three_way import resolve_three_way_merge
 
@@ -1183,6 +1231,7 @@ __all__ = [
     "WorkflowCommandOutcome",
     "WorkflowCommandService",
     "WorkflowGovernance",
+    "WorkflowGovernanceProvider",
     "WorkflowReadPort",
     "WorkflowReadScope",
     "WorkflowScopeResolver",
