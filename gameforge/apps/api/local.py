@@ -86,6 +86,7 @@ from gameforge.platform.registry import (
     PlatformReadinessValidator,
     TrustedComponentMaps,
     build_builtin_registry,
+    build_readiness_component_maps,
 )
 from gameforge.platform.provenance import (
     AuthenticatedGoalSourceWriter,
@@ -1058,6 +1059,25 @@ def create_local_app(
     return app
 
 
+def create_readiness_closed_local_app(
+    config: LocalApiConfig | None = None,
+) -> FastAPI:
+    """Compose the local API with the canonical readiness-closing trusted components.
+
+    The API process never EXECUTES Runs — it admits and serves reads — so it needs only
+    the exact component KEY-SET to close the soft ``/readyz`` registry probe. A KEY-ONLY
+    :class:`TrustedComponentMaps` (each key -> sentinel, from
+    :func:`gameforge.platform.registry.build_readiness_component_maps`) is threaded so
+    ``/readyz`` closes without importing the worker's executor graph into the API process.
+    The worker (``apps/worker``) remains the sole process that supplies real executors.
+    """
+
+    return create_local_app(
+        config,
+        trusted_components=build_readiness_component_maps(build_builtin_registry()),
+    )
+
+
 __all__ = [
     "ALLOWED_WEBSOCKET_ORIGINS_ENV",
     "LOCAL_ROOT_SECRET_ENV",
@@ -1074,4 +1094,5 @@ __all__ = [
     "LocalApiResources",
     "build_local_api_resources",
     "create_local_app",
+    "create_readiness_closed_local_app",
 ]

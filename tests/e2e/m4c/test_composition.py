@@ -15,9 +15,14 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from gameforge.apps.api.local import LocalApiConfig, build_local_api_resources
+from gameforge.apps.api.local import (
+    LocalApiConfig,
+    build_local_api_resources,
+    create_readiness_closed_local_app,
+)
 from gameforge.apps.cli.identity import (
     IdentityBootstrapConfig,
     build_bootstrap_service,
@@ -422,3 +427,14 @@ def test_readiness_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) -
 
     assert "run.succeeded" in event_types
     assert "attempt.started" in event_types
+
+
+def test_composed_api_readyz_closes_with_canonical_readiness_components(tmp_path: Path) -> None:
+    # The API composition path threads the canonical KEY-ONLY readiness components, so the
+    # real soft /readyz registry probe CLOSES (200) instead of returning 503 — the
+    # foundation 17c's HTTP Journey B drives.
+    harness = _Harness(tmp_path)
+    app = create_readiness_closed_local_app(harness.api_config())
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        response = client.get("/readyz")
+    assert response.status_code == 200, response.text

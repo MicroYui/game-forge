@@ -59,6 +59,7 @@ from gameforge.platform.run_handlers.readers import (
 from gameforge.platform.run_handlers.simulation import EconomySimulatorPort
 
 REVIEW_SCHEMA_ID = "review@1"
+REVIEW_TOOL_VERSION = "review@1"
 CHECKER_REPORT_SCHEMA_ID = "checker-report@1"
 SIMULATION_RESULT_SCHEMA_ID = "simulation-result@1"
 TRIAGE_AGENT_NODE_ID = "review-triage"
@@ -337,7 +338,7 @@ def _store_review_report(
         payload_schema_id=REVIEW_SCHEMA_ID,
         version_tuple=VersionTuple(
             ir_snapshot_id=snapshot.snapshot_id,
-            tool_version="review@1",
+            tool_version=REVIEW_TOOL_VERSION,
         ),
         lineage=lineage,
         payload=report.model_dump(mode="json"),

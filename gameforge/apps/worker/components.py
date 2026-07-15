@@ -33,9 +33,12 @@ from sqlalchemy.orm import Session
 
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.lineage import ObjectLocation, ObjectRef
-from gameforge.platform.registry import TrustedComponentMaps
+from gameforge.platform.registry import (
+    TrustedComponentMaps,
+    build_readiness_component_maps,
+)
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
 from gameforge.platform.run_handlers import (
     BenchRunHandler,
@@ -301,62 +304,33 @@ def _playtest_supported_profiles(
     return frozenset(profiles)
 
 
-def _derive_readiness_maps(
-    registry: ImmutablePlatformRegistry,
-) -> tuple[dict[str, object], dict[str, object], dict[str, object], dict[str, object]]:
-    """Derive the four key-set-only readiness maps from the exact registry."""
-
-    active = tuple(item for item in registry.list_run_kinds() if item.status == "active")
-    terminal_hooks: dict[str, object] = {}
-    workflow_effects: dict[str, object] = {}
-    permission_resolvers: dict[str, object] = {}
-    for definition in active:
-        hooks = definition.terminal_hooks
-        for hook in (hooks.on_success, hooks.on_failure, hooks.on_cancel, hooks.on_timeout):
-            terminal_hooks[hook] = hook
-        for policy in definition.outcome_policies:
-            key = policy.workflow_effect_key
-            # Real handler for the no-mutation keys; a documented deferred marker for
-            # the mutating keys (effects.py's resolver stays the fail-closed authority).
-            workflow_effects[key] = WORKFLOW_EFFECTS.get(key, key)
-        if definition.required_permission.domain_scope == "all":
-            resolver_key = registry.get_permission_resolver_key(
-                RunKindRef(kind=definition.kind, version=definition.version)
-            )
-            if resolver_key is not None:
-                permission_resolvers[resolver_key] = resolver_key
-    profile_handlers: dict[str, object] = {}
-    for catalog in registry.list_execution_profile_catalogs():
-        states = {
-            (item.profile.profile_id, item.profile.version): item.state
-            for item in catalog.lifecycle
-        }
-        for definition in catalog.definitions:
-            ref = (definition.profile.profile_id, definition.profile.version)
-            if states[ref] in {"active", "replay_only"}:
-                profile_handlers[definition.handler_key] = definition.handler_key
-    return terminal_hooks, workflow_effects, profile_handlers, permission_resolvers
-
-
 def build_trusted_components(
     *,
     registry: ImmutablePlatformRegistry,
     blobs: ArtifactBlobReader,
     store: PreparedArtifactStore,
 ) -> TrustedComponentMaps:
-    """Build the single canonical ``TrustedComponentMaps`` closing all 6 maps exactly."""
+    """Build the single canonical ``TrustedComponentMaps`` closing all 6 maps exactly.
 
+    The exact 6-map KEY-SET is derived once by
+    :func:`gameforge.platform.registry.build_readiness_component_maps` (the single source
+    of truth shared with the API's key-only readiness composition). The worker EXECUTES
+    Runs, so it replaces the key-only sentinels with the REAL executor + completion-oracle
+    instances and binds each ``workflow_effect_key`` to its ``effects.py`` handler where
+    one is registered (a documented deferred marker otherwise — effects.py's resolver
+    stays the fail-closed authority for the mutating keys).
+    """
+
+    base = build_readiness_component_maps(registry)
     executors = _build_executor_handlers(registry=registry, blobs=blobs, store=store)
-    terminal_hooks, workflow_effects, profile_handlers, permission_resolvers = (
-        _derive_readiness_maps(registry)
-    )
+    workflow_effects = {key: WORKFLOW_EFFECTS.get(key, key) for key in base.workflow_effects}
     return TrustedComponentMaps(
         executors=executors,
-        terminal_hooks=terminal_hooks,
+        terminal_hooks=dict(base.terminal_hooks),
         workflow_effects=workflow_effects,
         completion_oracles=build_completion_oracle_executors(),
-        profile_handlers=profile_handlers,
-        permission_domain_resolvers=permission_resolvers,
+        profile_handlers=dict(base.profile_handlers),
+        permission_domain_resolvers=dict(base.permission_domain_resolvers),
     )
 
 

@@ -45,6 +45,7 @@ from gameforge.platform.run_handlers.model_routing import (
 
 EXTRACTION_AGENT_NODE_ID = "extraction"
 CONSTRAINT_PROPOSAL_SCHEMA_ID = "constraint-proposal@1"
+EXTRACTION_TOOL_VERSION = "extraction@1"
 
 _VALID_KINDS: frozenset[str] = frozenset(("structural", "numeric", "narrative"))
 
@@ -128,7 +129,7 @@ class ConstraintProposalHandler:
             payload_schema_id=CONSTRAINT_PROPOSAL_SCHEMA_ID,
             version_tuple=VersionTuple(
                 constraint_snapshot_id=payload.base_constraint_snapshot_artifact_id,
-                tool_version="extraction@1",
+                tool_version=EXTRACTION_TOOL_VERSION,
             ),
             lineage=self._lineage(payload),
             payload=proposal.model_dump(mode="json"),

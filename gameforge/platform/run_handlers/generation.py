@@ -66,6 +66,7 @@ from gameforge.platform.run_handlers.readers import (
 
 GENERATION_AGENT_NODE_ID = "generation"
 PATCH_SCHEMA_ID = "patch@2"
+GENERATION_TOOL_VERSION = "generation@1"
 IR_SNAPSHOT_SCHEMA_ID = "ir-core@1"
 CONFIG_EXPORT_SCHEMA_ID = "config-export-package@1"
 CHECKER_REPORT_SCHEMA_ID = "checker-report@1"
@@ -293,7 +294,7 @@ class GenerationProposalHandler:
             version_tuple=VersionTuple(
                 ir_snapshot_id=snapshot.snapshot_id,
                 constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
-                tool_version="generation@1",
+                tool_version=GENERATION_TOOL_VERSION,
             ),
             lineage=self._patch_lineage(payload),
             payload=patch.model_dump(mode="json"),
@@ -309,7 +310,7 @@ class GenerationProposalHandler:
             version_tuple=VersionTuple(
                 ir_snapshot_id=outcome.preview_snapshot_id,
                 constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
-                tool_version="generation@1",
+                tool_version=GENERATION_TOOL_VERSION,
             ),
             lineage=self._preview_lineage(payload),
             payload=outcome.preview_payload,

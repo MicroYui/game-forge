@@ -1,5 +1,6 @@
 """Exact, immutable platform registries and readiness validation."""
 
+from gameforge.platform.registry.components import build_readiness_component_maps
 from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.registry.model import (
     FROZEN_ACTIVE_RUN_KIND_IDENTITIES,
@@ -24,4 +25,5 @@ __all__ = [
     "ProfileRequirement",
     "TrustedComponentMaps",
     "build_builtin_registry",
+    "build_readiness_component_maps",
 ]

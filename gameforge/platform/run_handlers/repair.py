@@ -75,6 +75,7 @@ REPAIR_AGENT_NODE_ID = "repair"
 CHECKER_REPORT_SCHEMA_ID = "checker-report@1"
 SIMULATION_RESULT_SCHEMA_ID = "simulation-result@1"
 REGRESSION_EVIDENCE_SCHEMA_ID = "regression-evidence@1"
+REPAIR_TOOL_VERSION = "repair@1"
 RESOLVED_POLICY_ID = "repair-verifier"
 _UNVERIFIED_REASON = "search_exhausted"
 
@@ -254,7 +255,7 @@ class RepairSearchHandler:
             version_tuple=VersionTuple(
                 ir_snapshot_id=base_snapshot.snapshot_id,
                 constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
-                tool_version="repair@1",
+                tool_version=REPAIR_TOOL_VERSION,
             ),
             lineage=self._patch_lineage(payload),
             payload=patch.model_dump(mode="json"),
@@ -274,7 +275,7 @@ class RepairSearchHandler:
             version_tuple=VersionTuple(
                 ir_snapshot_id=outcome.preview_snapshot_id,
                 constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
-                tool_version="repair@1",
+                tool_version=REPAIR_TOOL_VERSION,
             ),
             lineage=(payload.base_snapshot_artifact_id,),
             payload=outcome.preview_payload,  # type: ignore[arg-type]

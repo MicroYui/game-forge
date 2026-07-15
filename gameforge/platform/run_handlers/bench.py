@@ -48,6 +48,7 @@ from gameforge.platform.run_handlers.model_routing import (
 )
 
 BENCH_REPORT_SCHEMA_ID = "bench-report@2"
+BENCH_TOOL_VERSION = "bench@1"
 BENCH_AGENT_NODE_ID = "bench-agent-case"
 BENCH_AGENT_PROMPT_VERSION = "bench-agent@1"
 
@@ -188,7 +189,7 @@ class BenchRunHandler:
             self.store,
             kind="bench_report",
             payload_schema_id=BENCH_REPORT_SCHEMA_ID,
-            version_tuple=VersionTuple(tool_version="bench@1", seed=seed),
+            version_tuple=VersionTuple(tool_version=BENCH_TOOL_VERSION, seed=seed),
             lineage=lineage,
             blob=report_bytes,
             extra_meta={"execution_scope": payload.execution_scope},
