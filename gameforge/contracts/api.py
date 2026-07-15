@@ -23,6 +23,7 @@ from gameforge.contracts.ir import Entity, Relation
 from gameforge.contracts.jobs import (
     MAX_COLLECTION_ITEMS,
     MAX_JSON_BYTES,
+    CancelRunPayloadV1,
     ExecutionVersionPlanV1,
     FindingEvidenceBindingV1,
     PatchRepairPayloadV1,
@@ -329,6 +330,29 @@ class RunViewV1(_FrozenModel):
 def _bounded_request_payload(value: BaseModel) -> None:
     if len(canonical_json(value.model_dump(mode="json")).encode("utf-8")) > MAX_JSON_BYTES:
         raise ValueError("request payload exceeds the API JSON bound")
+
+
+class RunCancelRequestV1(_FrozenModel):
+    """``POST /runs/{id}:cancel`` — the browser-facing cancel command envelope.
+
+    The server builds the authoritative :class:`RunCommandV1` (``type="cancel"``)
+    from these client-supplied identity/OCC fields plus the ``Idempotency-Key``
+    header; the browser never mints the server-scoped command hash directly. The
+    same durable ``RunCommandV1`` flows over the WebSocket command channel, so both
+    surfaces share one ``RunCommandService.submit`` path.
+    """
+
+    request_schema_version: Literal["run-cancel-request@1"] = "run-cancel-request@1"
+    command_id: BoundedId
+    client_id: BoundedId
+    client_seq: PositiveInt
+    expected_run_revision: PositiveInt
+    payload: CancelRunPayloadV1
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "RunCancelRequestV1":
+        _bounded_request_payload(self)
+        return self
 
 
 def _stable_unique_strings(values: tuple[str, ...]) -> tuple[str, ...]:
@@ -912,6 +936,7 @@ __all__ = [
     "RollbackValidationAdmissionRequestV1",
     "ReviewArtifactViewV1",
     "RunAcceptedV1",
+    "RunCancelRequestV1",
     "RunCommandAckV1",
     "RunCommandProblemV1",
     "RunCommandServerFrame",

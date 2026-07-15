@@ -10,7 +10,12 @@ from typing import Annotated, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import (
+    Conflict,
+    IdempotencyConflict,
+    IntegrityViolation,
+    InvalidStateTransition,
+)
 from gameforge.contracts.execution_profiles import RunKindRef
 from gameforge.contracts.jobs import (
     CancelRequestedDataV1,
@@ -772,7 +777,9 @@ class RunCommandService:
                 client_seq=command.client_seq,
             )
             if idempotent is not None or sequenced is not None:
-                raise Conflict("Run command identity is already bound to another request")
+                raise IdempotencyConflict(
+                    "Run command identity is already bound to another request"
+                )
 
             run = runs.get(run_id)
             if run is None:
@@ -1254,7 +1261,7 @@ class RunCommandService:
             or retained.request_hash != request_hash
             or retained.actor != actor
         ):
-            raise Conflict("Run command identity is bound to a different request")
+            raise IdempotencyConflict("Run command identity is bound to a different request")
 
     @staticmethod
     def _validate_create_replay(

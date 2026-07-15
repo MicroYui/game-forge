@@ -27,10 +27,12 @@ from gameforge.contracts.api import (
 from gameforge.runtime.observability import AlwaysOffSampler, Tracer
 
 if TYPE_CHECKING:
-    from gameforge.contracts.jobs import RunEvent
+    from gameforge.contracts.jobs import RunCommandV1, RunEvent
+    from gameforge.contracts.lineage import AuditActor
     from gameforge.platform.read_models.content import ContentReadService
     from gameforge.platform.read_models.observability import ObservabilityReadService
     from gameforge.platform.read_models.workflows import WorkflowReadService
+    from gameforge.platform.runs.commands import RunCommandSubmissionResult
 
 
 class SessionAuthenticationPort(Protocol):
@@ -264,6 +266,77 @@ class RunEventNotifierPort(Protocol):
     def subscribe(self, run_id: str) -> RunEventSubscription: ...
 
 
+class RunCommandSubmitPort(Protocol):
+    """The M4a durable Run-command authority behind ``:cancel`` and the WS channel.
+
+    Both the REST cancel route and the WebSocket handler call this SAME method — no
+    direct cancel-flag path. ``submit`` persists the command, its Run mutation, the
+    RunEvent(s), and audit inside ONE authoritative UoW BEFORE returning, so the ACK
+    the transport derives is durable. A duplicate exact command replays its committed
+    result (``status="duplicate"``); the same idempotency key/sequence bound to a
+    different request raises ``IdempotencyConflict``; a stale ``expected_run_revision``
+    raises ``Conflict``. ``actor`` is the server-derived :class:`AuditActor`; the
+    transport reauthorizes the real Run (RBAC) via :class:`RunCommandAuthorizerPort`
+    BEFORE calling this — this deterministic-trunk method performs no RBAC itself.
+    """
+
+    def submit(
+        self,
+        *,
+        run_id: str,
+        command: "RunCommandV1",
+        actor: "AuditActor",
+    ) -> "RunCommandSubmissionResult": ...
+
+
+class RunCommandAuthorizerPort(Protocol):
+    """Reauthorize a Run command against the loaded Run on EVERY request/message.
+
+    ``authorize`` reloads the current Principal/roles + exact role policy, loads the
+    real Run, derives its domain SERVER-SIDE (mirroring admission), and RBAC-authorizes
+    the RunKind's write permission for that domain — raising ``NotFound`` when the Run
+    is unavailable or ``Forbidden`` when the current principal lacks the permission. The
+    WebSocket handler calls it before every command frame so a revoked grant cannot keep
+    submitting; the REST cancel route calls it once per request.
+    """
+
+    def authorize(self, *, run_id: str, actor: ActorContext) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class RunCommandWebSocketConfig:
+    """Bounds for the ``WS /runs/{id}/commands`` durable command channel.
+
+    ``max_frame_bytes`` caps a single client command frame (defends the parser and
+    memory); ``max_commands_per_connection`` bounds a connection's total processed
+    frames (a per-connection sequence budget, so one socket cannot stream unbounded
+    work); the handler also processes strictly one frame at a time — it only reads the
+    next frame after the current command's server frame is sent, which is the backpressure
+    invariant (no unbounded in-flight buffering).
+    """
+
+    max_frame_bytes: int = 16_384
+    max_commands_per_connection: int = 1_024
+    subprotocol: str = "gameforge.run-commands.v1"
+    csrf_subprotocol_prefix: str = "gameforge.csrf."
+
+    def __post_init__(self) -> None:
+        if isinstance(self.max_frame_bytes, bool) or not isinstance(self.max_frame_bytes, int):
+            raise TypeError("max_frame_bytes must be an integer")
+        if not 256 <= self.max_frame_bytes <= 1_048_576:
+            raise ValueError("max_frame_bytes must be between 256 and 1048576")
+        if isinstance(self.max_commands_per_connection, bool) or not isinstance(
+            self.max_commands_per_connection, int
+        ):
+            raise TypeError("max_commands_per_connection must be an integer")
+        if not 1 <= self.max_commands_per_connection <= 1_000_000:
+            raise ValueError("max_commands_per_connection must be a positive bounded count")
+        for name in ("subprotocol", "csrf_subprotocol_prefix"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value or len(value) > 128:
+                raise ValueError(f"{name} must be a non-empty bounded string")
+
+
 class _DiscardSpanExporter:
     def export(self, spans: object) -> None:
         del spans
@@ -314,6 +387,11 @@ class ApiDependencies:
     run_event_stream: RunEventStreamPort | None = None
     run_event_notifier: RunEventNotifierPort | None = None
     run_event_stream_config: RunEventStreamConfig = field(default_factory=RunEventStreamConfig)
+    run_command_service: RunCommandSubmitPort | None = None
+    run_command_authorizer: RunCommandAuthorizerPort | None = None
+    run_command_ws_config: RunCommandWebSocketConfig = field(
+        default_factory=lambda: RunCommandWebSocketConfig()
+    )
 
     def __post_init__(self) -> None:
         if not callable(self.request_id_factory):
@@ -356,6 +434,9 @@ __all__ = [
     "LogoutCommandPort",
     "ReadinessPort",
     "RunAdmissionPort",
+    "RunCommandAuthorizerPort",
+    "RunCommandSubmitPort",
+    "RunCommandWebSocketConfig",
     "RunEventNotifierPort",
     "RunEventStreamConfig",
     "RunEventStreamPort",
