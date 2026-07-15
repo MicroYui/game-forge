@@ -45,6 +45,25 @@ def _deferred_failure(
 ) -> PreparedRunFailure:
     if request.run_kind != RunKindRef(kind=expected_kind, version=1):
         raise ValueError(f"{capability} deferred executor received another Run kind")
+    # This failure MUST be genuinely publishable: the run boundary runs it through
+    # ``validate_prepared_failure`` against the frozen classifier, and a cause that
+    # is absent from that allowlist detonates with an ``IntegrityViolation`` (the
+    # Task-12b defect).  ``execution_failed``/``execution`` is that honest,
+    # non-retryable, dependency-free cause:
+    #
+    #   * it is a frozen classifier rule (``dependency_required=False``,
+    #     ``intrinsic_retry_eligible=False``), so the failure passes validation and
+    #     is NOT retried (``execution`` is not a retryable failure class);
+    #   * ``permanent_dependency_failed`` was rejected on purpose — it would force a
+    #     ``DependencyFailureV1`` whose ``dependency_kind`` must come from the frozen
+    #     infra allowlist (model_provider/database/object_store/...).  None of those
+    #     honestly names an M4e-absent *platform capability*, and blaming healthy
+    #     infrastructure would fabricate a dependency failure (mis-routing
+    #     dependency-health alerting).  The M4e-absence is carried by the redacted
+    #     message, not by fabricating an infra fault.
+    #
+    # M4e replaces this executor seam with a real success path WITHOUT changing the
+    # RunKind/classifier contract; it never weakens this fail-closed default.
     return PreparedRunFailure(
         run_id=request.run_id,
         attempt_no=request.attempt_no,
@@ -55,7 +74,7 @@ def _deferred_failure(
         failure_class="execution",
         intrinsic_retry_eligible=False,
         classifier=request.classifier,
-        redacted_message=f"{capability} execution is unavailable in M4c",
+        redacted_message=f"{capability} execution is deferred to M4e and unavailable in M4c",
     )
 
 
