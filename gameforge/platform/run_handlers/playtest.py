@@ -387,21 +387,31 @@ class PlaytestRunHandler:
     def _unavailable_failure(
         self, context: ExecutorContextLike, environment_profile: ProfileRefV1
     ) -> PreparedRunFailure:
+        # The cause_code MUST be a cause the frozen failure classifier knows, and the
+        # dependency's classifier_code MUST equal it, or the run boundary's exact
+        # classifier validation (validate_prepared_failure) rejects the failure with an
+        # IntegrityViolation. ``permanent_dependency_failed`` is the frozen
+        # ``permanent_dependency`` cause whose allowlist includes ``game_environment``;
+        # the "unknown environment profile" specificity is carried in the dependency's
+        # operation_code / dependency_id + the redacted message, not in the cause code.
         return PreparedRunFailure(
             run_id=context.run.run_id,
             attempt_no=context.attempt.attempt_no,
             run_kind=context.run.kind,
             artifacts=(),
             requirement_dispositions=(),
-            cause_code="playtest_environment_unavailable",
+            cause_code="permanent_dependency_failed",
             failure_class="permanent_dependency",
             intrinsic_retry_eligible=False,
             classifier=context.run.failure_classifier,
             dependency=DependencyFailureV1(
                 dependency_kind="game_environment",
-                dependency_id=f"{environment_profile.profile_id}@{environment_profile.version}",
+                dependency_id=(
+                    f"unknown_environment_profile:"
+                    f"{environment_profile.profile_id}@{environment_profile.version}"
+                ),
                 operation_code="resolve_environment_profile",
-                classifier_code="unknown_environment_profile",
+                classifier_code="permanent_dependency_failed",
             ),
             redacted_message="requested playtest environment profile is not available",
         )

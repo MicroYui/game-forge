@@ -52,13 +52,14 @@ from gameforge.platform.publication.lineage import (
     ParentInfo,
     _candidate_for_rule,
 )
-from gameforge.platform.registry.defaults import build_builtin_registry
+from gameforge.platform.registry.defaults import _failure_classifier, build_builtin_registry
 from gameforge.platform.run_handlers.playtest import (
     PlaytestEpisodeOutcomeV1,
     PlaytestEpisodeRunRequest,
     PlaytestRunHandler,
     derive_episode_seed,
 )
+from gameforge.platform.runs.lifecycle import validate_prepared_failure
 from gameforge.spine.ir.loader import load_scenario
 from tests.platform.m4c.handler_support import (
     FakeArtifactStore,
@@ -399,17 +400,31 @@ def test_playtest_runs_only_selected_episode_subset() -> None:
 def test_playtest_unknown_environment_is_typed_unavailable() -> None:
     store = _store()
     runner = _FakeRunner(_observe_outcome(), supported=False)
-    outcome = PlaytestRunHandler(blobs=store, store=store, env_runner=runner)(
-        _context(FakeModelBridge(responses=()))
-    )
+    context = _context(FakeModelBridge(responses=()))
+    outcome = PlaytestRunHandler(blobs=store, store=store, env_runner=runner)(context)
     assert isinstance(outcome, PreparedRunFailure)
-    assert outcome.cause_code == "playtest_environment_unavailable"
+    # The cause MUST be a frozen classifier cause (permanent_dependency family),
+    # NOT a non-frozen domain code — otherwise the run boundary rejects it.
+    assert outcome.cause_code == "permanent_dependency_failed"
     assert outcome.failure_class == "permanent_dependency"
     assert outcome.intrinsic_retry_eligible is False
     assert outcome.artifacts == ()
     assert outcome.dependency is not None
     assert outcome.dependency.dependency_kind == "game_environment"
+    assert outcome.dependency.classifier_code == "permanent_dependency_failed"
     assert runner.calls == []  # no episode / LLM ran
+
+    # The failure the handler emits is genuinely PUBLISHABLE: it survives the run
+    # boundary's exact-classifier validation against the frozen classifier (this is
+    # what catches a "constructed-but-unpublishable" cause code, unlike DTO checks).
+    classifier = _failure_classifier()
+    assert any(rule.cause_code == outcome.cause_code for rule in classifier.rules)
+    validate_prepared_failure(
+        run=context.run,
+        attempt=context.attempt,
+        prepared=outcome,
+        classifier=classifier,
+    )
 
 
 @pytest.mark.parametrize(
