@@ -26,11 +26,15 @@ MAX_PLAYTEST_COLLECTION_ITEMS = 1024
 MAX_PLAYTEST_JSON_BYTES = 64 * 1024
 MAX_PLAYTEST_JSON_DEPTH = 32
 MAX_PLAYTEST_STEPS_PER_EPISODE = 10_000_000
+# Byte bound for a single episode's canonical action trace (a bounded playthrough
+# record, distinct from the per-value 64 KiB JSON bound applied to each action).
+MAX_PLAYTEST_TRACE_JSON_BYTES = 8 * 1024 * 1024
 
 BoundedId = Annotated[
     str,
     StringConstraints(min_length=1, max_length=MAX_PLAYTEST_ID_LENGTH),
 ]
+BoundedResult = Annotated[str, StringConstraints(max_length=MAX_PLAYTEST_STRING_LENGTH)]
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 PositiveInt = Annotated[int, Field(ge=1)]
 
@@ -248,4 +252,89 @@ class TaskSuiteV1(_FrozenModel):
             raise ValueError("episode_id values must be unique")
         if len(scenario_ids) != len(set(scenario_ids)):
             raise ValueError("scenario_spec_artifact_id values must be unique")
+        return tuple(sorted(value, key=lambda item: item.episode_id))
+
+
+class PlaytestActionRecordV1(_FrozenModel):
+    """One bounded record of an atomic env step the agent proposed + its outcome.
+
+    ``action`` is the deterministic ``Action.model_dump`` the executor proposed;
+    ``last_action_result`` and ``tick`` are read back from the deterministic
+    engine's post-step observation — the LLM never decides either.
+    """
+
+    action: JsonValue
+    last_action_result: BoundedResult
+    tick: int = Field(ge=0)
+
+    @field_validator("action")
+    @classmethod
+    def _action(cls, value: JsonValue) -> JsonValue:
+        return _validate_bounded_json(value, field_name="action")
+
+
+class PlaytestEpisodeTraceV1(_FrozenModel):
+    """The bounded trace of ONE selected playtest episode.
+
+    ``completed`` is the DETERMINISTIC completion-oracle verdict (env terminal
+    signal), never an LLM claim. ``action_trace`` is the bounded step-by-step
+    record; ``seed`` is the per-episode subseed derived from the run seed.
+    """
+
+    episode_id: BoundedId
+    scenario_spec_artifact_id: BoundedId
+    seed: int
+    step_budget: int = Field(ge=1, le=MAX_PLAYTEST_STEPS_PER_EPISODE)
+    completion_oracle: CompletionOracleRefV1
+    completed: bool
+    action_trace: tuple[PlaytestActionRecordV1, ...] = Field(
+        max_length=MAX_PLAYTEST_STEPS_PER_EPISODE,
+    )
+
+    @model_validator(mode="after")
+    def _bounded_trace(self) -> PlaytestEpisodeTraceV1:
+        if len(self.action_trace) > self.step_budget:
+            raise ValueError("action_trace exceeds the episode step budget")
+        encoded = canonical_json(
+            [record.model_dump(mode="json") for record in self.action_trace]
+        ).encode("utf-8")
+        if len(encoded) > MAX_PLAYTEST_TRACE_JSON_BYTES:
+            raise ValueError("action_trace exceeds the canonical trace byte limit")
+        return self
+
+
+class PlaytestTraceV1(_FrozenModel):
+    """The primary ``playtest_trace[playtest-trace@1]`` artifact.
+
+    Binds the EXACT run inputs (config / constraint / task-suite), the
+    environment + planner profiles, the producer-local ``seed``, and the selected
+    ``{episode_id, scenario_spec_artifact_id}`` episode bindings with their bounded
+    per-episode action traces + deterministic completion verdicts (spec L1155).
+    """
+
+    playtest_trace_schema_version: Literal["playtest-trace@1"] = "playtest-trace@1"
+    config_artifact_id: BoundedId
+    constraint_snapshot_artifact_id: BoundedId
+    task_suite_artifact_id: BoundedId
+    environment_profile: ProfileRefV1
+    planner_policy: ProfileRefV1
+    env_contract_version: BoundedId
+    interaction_mode: Literal["autonomous", "bounded_choice"]
+    seed: int
+    episodes: tuple[PlaytestEpisodeTraceV1, ...] = Field(
+        min_length=1,
+        max_length=MAX_PLAYTEST_COLLECTION_ITEMS,
+    )
+
+    @field_validator("episodes")
+    @classmethod
+    def _episodes(
+        cls, value: tuple[PlaytestEpisodeTraceV1, ...]
+    ) -> tuple[PlaytestEpisodeTraceV1, ...]:
+        episode_ids = [item.episode_id for item in value]
+        scenario_ids = [item.scenario_spec_artifact_id for item in value]
+        if len(episode_ids) != len(set(episode_ids)):
+            raise ValueError("playtest trace episode ids must be unique")
+        if len(scenario_ids) != len(set(scenario_ids)):
+            raise ValueError("playtest trace scenario bindings must be unique")
         return tuple(sorted(value, key=lambda item: item.episode_id))

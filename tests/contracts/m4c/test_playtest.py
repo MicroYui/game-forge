@@ -8,10 +8,15 @@ from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.playtest import (
     MAX_PLAYTEST_JSON_BYTES,
+    MAX_PLAYTEST_STRING_LENGTH,
+    MAX_PLAYTEST_TRACE_JSON_BYTES,
     CompletionOracleDefinitionV1,
     CompletionOracleRefV1,
     CompletionOracleRegistryRefV1,
     CompletionOracleRegistryV1,
+    PlaytestActionRecordV1,
+    PlaytestEpisodeTraceV1,
+    PlaytestTraceV1,
     ScenarioResetBindingV1,
     ScenarioSpecV1,
     TaskEpisodeV1,
@@ -206,3 +211,111 @@ def test_jobs_keeps_completion_registry_ref_compatibility_export() -> None:
     from gameforge.contracts.jobs import CompletionOracleRegistryRefV1 as JobsRegistryRef
 
     assert JobsRegistryRef is CompletionOracleRegistryRefV1
+
+
+def _oracle_ref() -> CompletionOracleRefV1:
+    return CompletionOracleRefV1(
+        oracle_id="state-predicate",
+        version=1,
+        params_schema_id="state-predicate-params@1",
+        params={"predicate": "all_quests_completed"},
+    )
+
+
+def _episode_trace(
+    episode_id: str,
+    scenario_artifact_id: str,
+    *,
+    steps: int = 2,
+    completed: bool = False,
+) -> PlaytestEpisodeTraceV1:
+    return PlaytestEpisodeTraceV1(
+        episode_id=episode_id,
+        scenario_spec_artifact_id=scenario_artifact_id,
+        seed=99,
+        step_budget=250,
+        completion_oracle=_oracle_ref(),
+        completed=completed,
+        action_trace=tuple(
+            PlaytestActionRecordV1(
+                action={"kind": "observe"},
+                last_action_result="observed",
+                tick=i,
+            )
+            for i in range(steps)
+        ),
+    )
+
+
+def _trace(*episodes: PlaytestEpisodeTraceV1) -> PlaytestTraceV1:
+    return PlaytestTraceV1(
+        config_artifact_id="artifact:config",
+        constraint_snapshot_artifact_id="artifact:constraints",
+        task_suite_artifact_id="artifact:suite",
+        environment_profile=ProfileRefV1(profile_id="environment:fixture", version=2),
+        planner_policy=ProfileRefV1(profile_id="planner:layered", version=1),
+        env_contract_version="agent-env@2",
+        interaction_mode="autonomous",
+        seed=7,
+        episodes=episodes,
+    )
+
+
+def test_playtest_trace_binds_selected_episodes_and_sorts() -> None:
+    trace = _trace(
+        _episode_trace("episode:02", "artifact:scenario-02", completed=True),
+        _episode_trace("episode:01", "artifact:scenario-01"),
+    )
+
+    assert trace.playtest_trace_schema_version == "playtest-trace@1"
+    assert tuple(e.episode_id for e in trace.episodes) == ("episode:01", "episode:02")
+    assert trace.interaction_mode == "autonomous"
+    assert trace.env_contract_version == "agent-env@2"
+    assert trace.seed == 7
+    # The DETERMINISTIC completion verdict is carried per episode.
+    assert {e.episode_id: e.completed for e in trace.episodes} == {
+        "episode:01": False,
+        "episode:02": True,
+    }
+
+
+def test_playtest_trace_rejects_duplicate_episode_or_scenario_bindings() -> None:
+    first = _episode_trace("episode:01", "artifact:scenario-01")
+    with pytest.raises(ValidationError, match="episode ids"):
+        _trace(first, first.model_copy(update={"scenario_spec_artifact_id": "artifact:x"}))
+    with pytest.raises(ValidationError, match="scenario bindings"):
+        _trace(
+            first,
+            _episode_trace("episode:02", "artifact:scenario-01"),
+        )
+    with pytest.raises(ValidationError):
+        _trace()  # min_length=1
+
+
+def test_playtest_episode_trace_is_step_budget_and_byte_bounded() -> None:
+    # action_trace longer than the step budget is rejected fail-closed.
+    with pytest.raises(ValidationError, match="step budget"):
+        PlaytestEpisodeTraceV1(
+            episode_id="episode:01",
+            scenario_spec_artifact_id="artifact:scenario-01",
+            seed=1,
+            step_budget=1,
+            completion_oracle=_oracle_ref(),
+            completed=False,
+            action_trace=(
+                PlaytestActionRecordV1(action={"kind": "observe"}, last_action_result="a", tick=0),
+                PlaytestActionRecordV1(action={"kind": "observe"}, last_action_result="b", tick=1),
+            ),
+        )
+    # a single action's JSON is bounded by the per-value string limit.
+    with pytest.raises(ValidationError, match="oversized string"):
+        PlaytestActionRecordV1(
+            action={"kind": "x" * (MAX_PLAYTEST_STRING_LENGTH + 1)},
+            last_action_result="ok",
+            tick=0,
+        )
+
+
+def test_playtest_trace_json_byte_bound_is_larger_than_single_value_bound() -> None:
+    # The whole-trace byte bound is a distinct, larger bound than the per-value one.
+    assert MAX_PLAYTEST_TRACE_JSON_BYTES > MAX_PLAYTEST_JSON_BYTES

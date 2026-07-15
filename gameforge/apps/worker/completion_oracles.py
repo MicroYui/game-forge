@@ -23,6 +23,7 @@ STATE_PREDICATE_ORACLE_KEY = "state_predicate_oracle@1"
 BOUNDED_PROGRESS_ORACLE_KEY = "bounded_progress_oracle@1"
 
 _ALL_QUESTS_COMPLETED = "all_quests_completed"
+_MIN_COMPLETED_QUEST_FRACTION = "min_completed_quest_fraction"
 
 # The scenario-derivation completion oracle: "all quests completed" expressed as a
 # state predicate resolving to the frozen ``state-predicate@1`` registry
@@ -49,10 +50,26 @@ class AureusStatePredicateOracle:
 
 @dataclass(frozen=True, slots=True)
 class AureusBoundedProgressOracle:
-    """Deterministic bounded-progress verdict from the env's terminal signal."""
+    """Deterministic bounded-progress verdict: completed-quest fraction ≥ threshold.
+
+    Unlike the state-predicate ``all_quests_completed`` oracle (which requires EVERY
+    known quest to be completed), the bounded-progress oracle reads the fraction of
+    known quests completed within the bounded playthrough (the agent already stopped
+    at the step budget) and compares it to the ``min_completed_quest_fraction`` param
+    (default ``1.0``). With a threshold below 1.0 this is a genuinely weaker, distinct
+    verdict — e.g. ``0.5`` accepts a run that completed half the quest chains. The
+    verdict is DETERMINISTIC (read straight off the env's quest state), never an LLM
+    claim. An env with no quests can make no progress, so the verdict is ``False``.
+    """
 
     def evaluate(self, env: AureusEnv, params: Mapping[str, object]) -> bool:
-        return env._all_quests_completed()
+        quest_states = getattr(env, "quest_states", {})
+        if not quest_states:
+            return False
+        threshold = params.get(_MIN_COMPLETED_QUEST_FRACTION, 1.0)
+        completed = sum(1 for state in quest_states.values() if state.get("status") == "completed")
+        fraction = completed / len(quest_states)
+        return fraction >= float(threshold)
 
 
 def build_completion_oracle_executors() -> dict[str, object]:

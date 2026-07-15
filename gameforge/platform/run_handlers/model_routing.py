@@ -308,12 +308,112 @@ def build_bridge_router(
     )
 
 
+class MultiNodeBridgeRouter:
+    """A ``ModelRouter``-shaped shim that drives a MULTI-NODE M2 agent.
+
+    Unlike :class:`BridgeModelRouter` (one agent node → one frozen snapshot), the
+    M2b ``PlaytestAgent`` reaches the LLM through FOUR distinct node ids
+    (``playtest.planner`` / ``playtest.executor`` / ``playtest.reflect`` /
+    ``playtest.memory``). Each node's frozen model snapshot is resolved PER node id
+    from the run's ``ExecutionVersionPlanV1`` (:func:`plan_node_snapshot`); every
+    node's calls land, in agent-issue order, on the SAME ordered run-scoped cassette
+    the injected :class:`ModelBridgeAgentAdapter` fences — so one unmodified agent
+    produces one ordered cassette with the correct snapshot per node, without
+    ``platform`` importing ``gameforge.agents`` or any LLM SDK.
+
+    ``default_model_snapshot`` is the pre-call snapshot the agent's
+    ``resolve_model_snapshot`` reads (before the node id is known to that helper);
+    :meth:`call` then OVERRIDES it with the exact per-node plan-frozen snapshot, so
+    the routed model is always the node's own snapshot regardless of the pre-call
+    default.
+    """
+
+    def __init__(
+        self,
+        *,
+        adapter: ModelBridgeAgentAdapter,
+        node_snapshots: dict[str, ModelSnapshot],
+        default_node_id: str,
+        run_id: str,
+    ) -> None:
+        if default_node_id not in node_snapshots:
+            raise ValueError(f"default node {default_node_id!r} is not routed by the plan")
+        self._adapter = adapter
+        self._node_snapshots = dict(node_snapshots)
+        self.default_model_snapshot = node_snapshots[default_node_id]
+        self._run_id = run_id
+
+    def call(self, request: ModelRequest) -> ModelResponse:
+        node_id = request.agent_node_id
+        snapshot = self._node_snapshots.get(node_id)
+        if snapshot is None:
+            raise ValueError(f"agent node {node_id!r} is not routed by the playtest execution plan")
+        system: str | None = None
+        user = ""
+        for message in request.messages:
+            if message.role == "system":
+                system = message.content
+            elif message.role == "user":
+                user = message.content
+        result = self._adapter.call_model(
+            agent_node_id=node_id,
+            user_prompt=user,
+            prompt_version=request.prompt_version,
+            model_snapshot=snapshot,
+            source_artifact_id=f"{self._run_id}:rendered:{node_id}",
+            system=system,
+            params=dict(request.params),
+            tool_schemas=tuple(
+                ToolSchemaRef(name=ref.name, version=ref.version) for ref in request.tool_schemas
+            ),
+        )
+        return result.response
+
+    @property
+    def call_count(self) -> int:
+        return self._adapter.call_count
+
+
+def build_multinode_bridge_router(
+    *,
+    context: ExecutorContextLike,
+    agent_node_ids: tuple[str, ...],
+    default_node_id: str,
+) -> MultiNodeBridgeRouter:
+    """Build the ordered multi-node router for one multi-node agent invocation.
+
+    Resolves each node id's plan-frozen snapshot up front (fail-closed if any node
+    is missing from the plan) and shares ONE ordered adapter across all nodes.
+    """
+
+    if not agent_node_ids:
+        raise ValueError("a multi-node router requires at least one agent node id")
+    adapter = ModelBridgeAgentAdapter(
+        model_bridge=context.model_bridge,
+        idempotency_scope=context.run.idempotency_scope,
+        idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
+        deadline_utc=context.deadline_utc,
+    )
+    node_snapshots = {
+        node_id: plan_node_snapshot(context.payload.execution_version_plan, node_id)
+        for node_id in agent_node_ids
+    }
+    return MultiNodeBridgeRouter(
+        adapter=adapter,
+        node_snapshots=node_snapshots,
+        default_node_id=default_node_id,
+        run_id=context.run.run_id,
+    )
+
+
 __all__ = [
     "AdapterModelResult",
     "BridgeModelRouter",
     "ModelBridgeAgentAdapter",
     "ModelBridgeCallRequestV1",
+    "MultiNodeBridgeRouter",
     "build_bridge_router",
+    "build_multinode_bridge_router",
     "plan_node_snapshot",
     "router_result_to_model_response",
 ]
