@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import base64
 import binascii
-from collections.abc import AsyncIterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from hashlib import sha256
@@ -36,6 +36,11 @@ from gameforge.apps.api.health import (
     SloRetentionReadinessProbe,
 )
 from gameforge.apps.api.local_reads import build_local_read_services
+from gameforge.apps.api.streaming import (
+    RunEventNotifier,
+    RunEventReadScope,
+    RunEventStreamService,
+)
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
 from gameforge.apps.cli.identity import (
     AUDIT_CHAIN_ID_ENV,
@@ -981,6 +986,21 @@ def build_local_api_resources(
         execution_profile_catalog=execution_profile_catalogs[0],
         admission=run_admission,
     )
+
+    @contextmanager
+    def run_event_read_scope() -> Iterator[RunEventReadScope]:
+        with Session(engine) as session:
+            yield RunEventReadScope(
+                runs=SqlRunRepository(session),
+                policies=SqlPolicySnapshotRepository(session, clock=clock),
+            )
+
+    run_event_stream = RunEventStreamService(
+        read_scope=run_event_read_scope,
+        role_policy_version=config.role_policy_version,
+        role_policy_digest=config.role_policy_digest,
+    )
+    run_event_notifier = RunEventNotifier()
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
         api_key_authentication=api_key_authentication,
@@ -991,6 +1011,8 @@ def build_local_api_resources(
         observability_reads=read_services.observability,
         workflow_commands=workflow_commands,
         run_admission=run_admission,
+        run_event_stream=run_event_stream,
+        run_event_notifier=run_event_notifier,
         tracer=Tracer(
             exporter=_LocalSpanExporter(telemetry_store),
             sampler=AlwaysOnSampler(),

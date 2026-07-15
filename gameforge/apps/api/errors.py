@@ -100,6 +100,14 @@ def _safe_context(error: BaseException) -> tuple[dict[str, str], ...] | None:
     return None
 
 
+def _earliest_cursor(error: BaseException) -> str | None:
+    if isinstance(error, CursorExpired):
+        value = error.context.get("earliest_cursor")
+        if isinstance(value, str) and 0 < len(value) <= 512:
+            return value
+    return None
+
+
 def _problem(
     scope: Mapping[str, Any],
     *,
@@ -108,6 +116,7 @@ def _problem(
     title: str,
     detail: str,
     errors: tuple[dict[str, Any], ...] | None = None,
+    earliest_cursor: str | None = None,
 ) -> Problem:
     request_id = _state_value(scope, "request_id") or "request:unavailable"
     trace_id = _state_value(scope, "trace_id")
@@ -121,6 +130,7 @@ def _problem(
         request_id=request_id,
         trace_id=trace_id,
         errors=errors,
+        earliest_cursor=earliest_cursor,
     )
 
 
@@ -133,6 +143,7 @@ def problem_response(scope: Mapping[str, Any], error: BaseException) -> JSONResp
         title=title,
         detail=detail,
         errors=_safe_context(error),
+        earliest_cursor=_earliest_cursor(error),
     )
     return JSONResponse(
         status_code=status,

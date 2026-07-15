@@ -27,6 +27,7 @@ from gameforge.contracts.api import (
 from gameforge.runtime.observability import AlwaysOffSampler, Tracer
 
 if TYPE_CHECKING:
+    from gameforge.contracts.jobs import RunEvent
     from gameforge.platform.read_models.content import ContentReadService
     from gameforge.platform.read_models.observability import ObservabilityReadService
     from gameforge.platform.read_models.workflows import WorkflowReadService
@@ -178,6 +179,86 @@ class RunAdmissionPort(Protocol):
     def admit_constraint_proposal(self, **kwargs: object) -> RunAcceptedV1: ...
 
 
+@dataclass(frozen=True, slots=True)
+class RunStreamGrant:
+    """Result of authorizing one SSE connection/reconnect.
+
+    ``earliest_retained_seq`` is derived from the actual retained event store
+    (MIN seq), never a speculative authority column.
+    """
+
+    earliest_retained_seq: int | None
+
+    def __post_init__(self) -> None:
+        if self.earliest_retained_seq is not None and (
+            isinstance(self.earliest_retained_seq, bool)
+            or not isinstance(self.earliest_retained_seq, int)
+            or self.earliest_retained_seq < 1
+        ):
+            raise ValueError("earliest_retained_seq must be a positive integer or None")
+
+
+@dataclass(frozen=True, slots=True)
+class RunEventStreamConfig:
+    """Bounded paging + heartbeat cadence for the resumable SSE endpoint."""
+
+    page_limit: int = 256
+    heartbeat_seconds: float = 15.0
+
+    def __post_init__(self) -> None:
+        if isinstance(self.page_limit, bool) or not isinstance(self.page_limit, int):
+            raise TypeError("page_limit must be an integer")
+        if not 1 <= self.page_limit <= 1024:
+            raise ValueError("page_limit must be between 1 and 1024")
+        if isinstance(self.heartbeat_seconds, bool) or not isinstance(
+            self.heartbeat_seconds, (int, float)
+        ):
+            raise TypeError("heartbeat_seconds must be a number")
+        if not 0 < self.heartbeat_seconds <= 3600:
+            raise ValueError("heartbeat_seconds must be a positive bounded interval")
+
+
+class RunEventStreamPort(Protocol):
+    """Bounded, reauthorizing read authority for the resumable SSE endpoint.
+
+    ``authorize_stream`` loads the real Run, derives its domain server-side, and
+    RBAC-authorizes a read on EVERY connection/reconnect (raising NotFound /
+    Forbidden / CursorExpired). ``read_events`` pages persisted RunEvents in
+    bounded pages; the SQLite event store is the sole authority.
+    """
+
+    def authorize_stream(
+        self,
+        *,
+        run_id: str,
+        actor: ActorContext,
+        after_seq: int,
+    ) -> RunStreamGrant: ...
+
+    def read_events(
+        self,
+        run_id: str,
+        after_seq: int,
+        limit: int,
+    ) -> tuple["RunEvent", ...]: ...
+
+
+class RunEventSubscription(Protocol):
+    """One latency-hint waiter; a wait timeout is a heartbeat, never data loss."""
+
+    async def wait(self, timeout: float) -> bool: ...
+
+    def close(self) -> None: ...
+
+
+class RunEventNotifierPort(Protocol):
+    """Non-authoritative in-process pub-sub; the DB is always reread after a wait."""
+
+    def notify(self, run_id: str) -> None: ...
+
+    def subscribe(self, run_id: str) -> RunEventSubscription: ...
+
+
 class _DiscardSpanExporter:
     def export(self, spans: object) -> None:
         del spans
@@ -225,6 +306,9 @@ class ApiDependencies:
     observability_reads: ObservabilityReadService | None = None
     workflow_commands: WorkflowCommandPort | None = None
     run_admission: RunAdmissionPort | None = None
+    run_event_stream: RunEventStreamPort | None = None
+    run_event_notifier: RunEventNotifierPort | None = None
+    run_event_stream_config: RunEventStreamConfig = field(default_factory=RunEventStreamConfig)
 
     def __post_init__(self) -> None:
         if not callable(self.request_id_factory):
@@ -267,6 +351,11 @@ __all__ = [
     "LogoutCommandPort",
     "ReadinessPort",
     "RunAdmissionPort",
+    "RunEventNotifierPort",
+    "RunEventStreamConfig",
+    "RunEventStreamPort",
+    "RunEventSubscription",
+    "RunStreamGrant",
     "SessionAuthenticationPort",
     "SessionCookieSettings",
     "WorkflowCommand",

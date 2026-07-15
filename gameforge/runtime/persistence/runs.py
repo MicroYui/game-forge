@@ -1622,6 +1622,71 @@ class SqlRunRepository:
             for row in rows
         )
 
+    def get_run_projection(self, run_id: str) -> RunRecord | None:
+        """Load a Run for a read projection that tolerates a retention-pruned event log.
+
+        Identical to :meth:`get` except it does NOT assert the write-side event-head
+        contiguity invariant (:meth:`_verify_run_heads`). Event retention legitimately
+        removes the oldest events, so a resumable-read consumer (e.g. the SSE stream)
+        must be able to load the Run and derive its scope even when its earliest events
+        have been pruned. The non-event execution-state invariants still hold.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        row = self._session.get(RunRow, selected_run_id)
+        if row is None:
+            return None
+        run = _parse_run_row(row, expected_run_id=selected_run_id)
+        self._verify_run_state(run)
+        return run
+
+    def earliest_event_seq(self, run_id: str) -> int | None:
+        """Return MIN(seq) of the Run's retained events, or None when none remain.
+
+        Derived from the actual event store — the earliest retained cursor for
+        resumable reads — never a speculative retention column.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        earliest = self._session.execute(
+            select(func.min(RunEventRow.seq)).where(RunEventRow.run_id == selected_run_id)
+        ).scalar_one_or_none()
+        return int(earliest) if earliest is not None else None
+
+    def stream_events(
+        self,
+        run_id: str,
+        *,
+        after_seq: int = 0,
+        limit: int = 100,
+    ) -> tuple[RunEvent, ...]:
+        """Bounded, ordered read of retained events after ``after_seq``.
+
+        Like :meth:`list_events` but tolerant of a retention-pruned prefix: it reads
+        the same ``RunEventRow`` store with the same canonical parser and never asserts
+        head contiguity, so a start-gap left by retention yields a bounded page rather
+        than an integrity failure. ``seq`` is always the persisted seq.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        if isinstance(after_seq, bool) or not isinstance(after_seq, int) or after_seq < 0:
+            raise IntegrityViolation("after_seq must be a nonnegative integer")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1024:
+            raise IntegrityViolation("event limit must be between 1 and 1024")
+        rows = self._session.execute(
+            select(RunEventRow)
+            .where(
+                RunEventRow.run_id == selected_run_id,
+                RunEventRow.seq > after_seq,
+            )
+            .order_by(RunEventRow.seq)
+            .limit(limit)
+        ).scalars()
+        return tuple(
+            _parse_event_row(row, expected_run_id=selected_run_id, expected_seq=row.seq)
+            for row in rows
+        )
+
     def put_intermediate_link(
         self,
         link: RunIntermediateArtifactLinkV1,
