@@ -322,7 +322,13 @@ class RepairSearchHandler:
         outcome: RepairSearchOutcomeV1,
     ) -> tuple[PreparedArtifact, ...]:
         assert outcome.preview_snapshot_id is not None
-        lineage = (payload.base_snapshot_artifact_id,)
+        # verifier checker/sim/regression = preview(prepared sibling, publisher-
+        # injected) + optional constraint; the base snapshot is NOT a role here.
+        lineage: tuple[str, ...] = (
+            (payload.constraint_snapshot_artifact_id,)
+            if payload.constraint_snapshot_artifact_id is not None
+            else ()
+        )
         artifacts: list[PreparedArtifact] = []
         for group in (
             outcome.checker_evidence,

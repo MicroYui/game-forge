@@ -24,6 +24,14 @@ from gameforge.agents.extraction.proposer import ExtractionProposer
 from gameforge.agents.generation.gate import _build_ops, _economy_findings
 from gameforge.agents.generation.generator import ContentGenerator
 from gameforge.agents.repair.search import repair_search
+from gameforge.agents.repair.verify import (
+    _SIM_N_AGENTS,
+    _SIM_N_TICKS,
+    _SIM_SEED,
+)
+from gameforge.agents.repair.verify import (
+    _economy_findings as _verifier_economy_findings,
+)
 from gameforge.contracts.agent_io import ConstraintProposal
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import Finding, Patch
@@ -31,7 +39,6 @@ from gameforge.spine.checkers.base import Checker
 from gameforge.spine.checkers.report import build_review_report
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.patch import apply_patch
-from gameforge.spine.sim.economy import EconomyModel, EconomySimulator, to_findings
 
 from gameforge.platform.run_handlers.constraint_proposal import (
     ConstraintProposalOutcomeV1,
@@ -61,6 +68,19 @@ def _findings_payload(schema: str, snapshot_id: str, findings: tuple[Finding, ..
     return {
         "payload_schema_version": schema,
         "snapshot_id": snapshot_id,
+        "findings": [finding.model_dump(mode="json") for finding in findings],
+    }
+
+
+def _verifier_sim_payload(snapshot_id: str, findings: tuple[Finding, ...]) -> dict:
+    """The simulation_run payload for the exact economy budget the verifier judged."""
+
+    return {
+        "payload_schema_version": "simulation-result@1",
+        "snapshot_id": snapshot_id,
+        "seed": _SIM_SEED,
+        "replication_count": _SIM_N_AGENTS,
+        "horizon_steps": _SIM_N_TICKS,
         "findings": [finding.model_dump(mode="json") for finding in findings],
     }
 
@@ -162,23 +182,28 @@ class M2RepairAgentRunner:
             PreparedEvidenceV1(
                 outcome_rule_id="checker",
                 requirement_id=requirement_id_for_profile(profile),
-                payload=_findings_payload(
-                    "checker-report@1", preview_id, tuple(checker.check(patched))
-                ),
-                findings=tuple(checker.check(patched)),
+                payload=_findings_payload("checker-report@1", preview_id, checker_findings),
+                findings=checker_findings,
             )
             for profile, checker in request.checkers
+            for checker_findings in (tuple(checker.check(patched)),)
         )
+        # The published simulation_run evidence MUST represent the run that actually
+        # gated closure: the deterministic verifier judged the regression on the
+        # patched preview with its own fixed economy budget (seed/n_agents/n_ticks),
+        # NOT the M4 simulation profile's population. Re-run the verifier's exact
+        # economy so the evidence is faithful to the verdict (one run, one requirement
+        # per profile — the verifier runs a single economy gate, not one per profile).
+        verifier_findings, _ = _verifier_economy_findings(patched)
+        verifier_sim_findings = tuple(verifier_findings)
         simulation_evidence = tuple(
             PreparedEvidenceV1(
                 outcome_rule_id="simulation",
                 requirement_id=requirement_id_for_profile(profile),
-                payload=_findings_payload(
-                    "simulation-result@1", preview_id, self._economy(patched, config)
-                ),
-                findings=self._economy(patched, config),
+                payload=_verifier_sim_payload(preview_id, verifier_sim_findings),
+                findings=verifier_sim_findings,
             )
-            for profile, config in request.simulation_profiles
+            for profile, _config in request.simulation_profiles
         )
         regression_evidence = tuple(
             PreparedEvidenceV1(
@@ -205,19 +230,6 @@ class M2RepairAgentRunner:
             simulation_evidence=simulation_evidence,
             regression_evidence=regression_evidence,
         )
-
-    @staticmethod
-    def _economy(snapshot: Snapshot, config) -> tuple[Finding, ...]:
-        try:
-            model = EconomyModel.from_snapshot(snapshot)
-            if not model.sources and not model.sinks:
-                return ()
-            result = EconomySimulator().run(
-                model, seed=0, n_agents=config.n_agents, n_ticks=config.n_ticks
-            )
-            return tuple(to_findings(result, snapshot.snapshot_id, model=model))
-        except Exception:  # noqa: BLE001 — an un-modelable economy yields no evidence
-            return ()
 
 
 @dataclass(frozen=True, slots=True)

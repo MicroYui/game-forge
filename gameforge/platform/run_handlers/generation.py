@@ -359,7 +359,10 @@ class GenerationProposalHandler:
         snapshot: Snapshot,
         outcome: GenerationGateOutcomeV1,
     ) -> tuple[PreparedArtifact, ...]:
-        lineage = self._preview_lineage(payload)
+        # Gate checker/sim/review evidence is grounded on the PREVIEW (a prepared
+        # sibling the publisher injects) + optional constraint — NOT the base
+        # snapshot (frozen generation-gate checker/sim/review lineage roles).
+        lineage = self._evidence_lineage(payload)
         artifacts: list[PreparedArtifact] = []
         for group in (
             outcome.checker_evidence,
@@ -395,10 +398,16 @@ class GenerationProposalHandler:
         return tuple(lineage)
 
     def _preview_lineage(self, payload: GenerationProposePayloadV1) -> tuple[str, ...]:
-        lineage = [payload.base_snapshot_artifact_id]
+        # new preview = base + patch(prepared sibling, publisher-injected); the
+        # frozen preview lineage has NO constraint role.
+        return (payload.base_snapshot_artifact_id,)
+
+    def _evidence_lineage(self, payload: GenerationProposePayloadV1) -> tuple[str, ...]:
+        # gate checker/sim/review = preview(prepared sibling) + optional constraint;
+        # the base snapshot is NOT a role on the gate evidence.
         if payload.constraint_snapshot_artifact_id is not None:
-            lineage.append(payload.constraint_snapshot_artifact_id)
-        return tuple(lineage)
+            return (payload.constraint_snapshot_artifact_id,)
+        return ()
 
 
 __all__ = [
