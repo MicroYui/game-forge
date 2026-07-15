@@ -36,6 +36,7 @@ from tests.platform.m4c import (
 )
 from tests.platform.m4c import test_generation_handler as gen_mod
 from tests.platform.m4c import test_repair_handler as repair_mod
+from tests.platform.m4c import test_task_suite as task_suite_mod
 from tests.platform.m4c.handler_support import FakeModelBridge
 
 REGISTRY = build_builtin_registry()
@@ -53,6 +54,9 @@ _RUN_INPUTS: dict[str, tuple[str, str]] = {
     repair_mod.EVIDENCE_ID: ("validation_evidence", "evidence-set@1"),
     repair_mod.FINDING_EVIDENCE_ID: ("checker_run", "checker-report@1"),
     constraint_mod.DOC_ID: ("source_raw", "source-raw@1"),
+    task_suite_mod.PREVIEW_ID: ("ir_snapshot", "ir-core@1"),
+    task_suite_mod.CONFIG_ID: ("config_export", "config-export-package@1"),
+    task_suite_mod.CONSTRAINT_ID: ("constraint_snapshot", "constraint-snapshot@1"),
 }
 
 
@@ -179,3 +183,9 @@ def test_constraint_proposal_lineage_conforms_to_frozen_policy() -> None:
     _assert_artifact_lineage_conforms(
         constraint_mod.CONSTRAINT_KIND, "constraint_proposal_drafted", outcome
     )
+
+
+def test_task_suite_lineage_conforms_to_frozen_policy() -> None:
+    store = task_suite_mod._store()
+    outcome = task_suite_mod._run(store)
+    _assert_artifact_lineage_conforms(task_suite_mod.TASK_SUITE_KIND, "task_suite_derived", outcome)

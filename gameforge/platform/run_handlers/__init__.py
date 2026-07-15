@@ -17,6 +17,12 @@ from gameforge.platform.run_handlers.model_routing import (
 from gameforge.platform.run_handlers.repair import RepairSearchHandler
 from gameforge.platform.run_handlers.review import ReviewRunHandler
 from gameforge.platform.run_handlers.simulation import SimulationRunHandler
+from gameforge.platform.run_handlers.task_suite import (
+    ScenarioDerivationRequest,
+    ScenarioDraftV1,
+    ScenarioShaper,
+    TaskSuiteDeriveHandler,
+)
 
 __all__ = [
     "DEFERRED_EXECUTORS",
@@ -30,7 +36,11 @@ __all__ = [
     "ModelBridgeAgentAdapter",
     "RepairSearchHandler",
     "ReviewRunHandler",
+    "ScenarioDerivationRequest",
+    "ScenarioDraftV1",
+    "ScenarioShaper",
     "SimulationRunHandler",
+    "TaskSuiteDeriveHandler",
     "artifact_migration_deferred",
     "dr_drill_deferred",
 ]
