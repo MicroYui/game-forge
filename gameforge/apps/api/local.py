@@ -82,6 +82,18 @@ from gameforge.platform.registry import (
     TrustedComponentMaps,
     build_builtin_registry,
 )
+from gameforge.platform.provenance import (
+    AuthenticatedGoalSourceWriter,
+    GoalProvenancePolicy,
+    build_source_kind_registry,
+)
+from gameforge.platform.runs.admission import (
+    AdmissionReadPort,
+    RunAdmissionEngine,
+    _SourceWriteCapabilities,
+    build_admission_capability_binder,
+)
+from gameforge.platform.runs.commands import RunCommandService
 from gameforge.platform.slo.service import (
     SLODefinitionCapabilities,
     SLODefinitionService,
@@ -486,6 +498,74 @@ class _RoutePolicyDomainScopeResolver:
         return DomainScope(domain_ids=tuple(sorted(selected)))
 
 
+def _build_run_admission_engine(
+    *,
+    config: LocalApiConfig,
+    clock: SystemUtcClock,
+    engine: Engine,
+    object_store: LocalObjectStore,
+    unit_of_work: SqliteUnitOfWork,
+    registry: object,
+    execution_profile_catalog: object,
+) -> RunAdmissionEngine:
+    """Compose the real Run admission engine over the write UoW + object store.
+
+    Closes the Task-7 ``admission=None`` seam: the three ``*.validate`` operations and
+    every §5.3 Run-creating endpoint now create real queued Runs (202) instead of
+    failing closed. Provisioned deployments must have seeded the built-in
+    execution-profile catalog (governance provisioning); an un-provisioned deployment
+    fails closed at profile resolution rather than fabricating authority.
+    """
+
+    run_commands = RunCommandService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=build_admission_capability_binder(
+            registry=registry,  # type: ignore[arg-type]
+            clock=clock,
+            audit_chain_id=config.audit_chain_id,
+        ),
+        clock=clock,
+    )
+    goal_writer = AuthenticatedGoalSourceWriter(
+        policy=GoalProvenancePolicy(registry=build_source_kind_registry())
+    )
+    cursor_key = _derive_key(config.root_secret, "workflow-cursor")
+
+    @contextmanager
+    def admission_read_scope():
+        with Session(engine) as session:
+            cursor_signer = CursorSigner(signing_key=cursor_key, clock=clock)
+            object_bindings = SqlObjectBindingRepository(
+                session, object_store, config.object_store_id
+            )
+            yield AdmissionReadPort(
+                policies=SqlPolicySnapshotRepository(session, clock=clock),
+                approvals=SqlApprovalRepository(session),
+                artifacts=SqlArtifactRepository(
+                    session,
+                    binding_repository=object_bindings,
+                    cursor_signer=cursor_signer,
+                    clock=clock,
+                ),
+                refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=clock),
+            )
+
+    return RunAdmissionEngine(
+        run_commands=run_commands,
+        unit_of_work=unit_of_work,
+        read_scope=admission_read_scope,
+        registry=registry,  # type: ignore[arg-type]
+        execution_profile_catalog=execution_profile_catalog,  # type: ignore[arg-type]
+        goal_writer=goal_writer,
+        object_store=object_store,
+        clock=clock,
+        source_uow_capabilities=lambda transaction: _SourceWriteCapabilities(
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+        ),
+    )
+
+
 def _build_workflow_command_service(
     *,
     config: LocalApiConfig,
@@ -494,6 +574,7 @@ def _build_workflow_command_service(
     object_store: LocalObjectStore,
     unit_of_work: SqliteUnitOfWork,
     execution_profile_catalog: object,
+    admission: object,
 ) -> WorkflowCommandAdapter:
     """Compose the synchronous workflow-command port over the real write UoW.
 
@@ -671,7 +752,7 @@ def _build_workflow_command_service(
         spec_service=spec_service,
         governance=governance_provider,
         scope_resolver=scope_resolver,
-        admission=None,
+        admission=admission,
         execution_profile_catalog=execution_profile_catalog,
     )
     return WorkflowCommandAdapter(service)
@@ -880,6 +961,15 @@ def build_local_api_resources(
         cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
         clock=clock,
     )
+    run_admission = _build_run_admission_engine(
+        config=config,
+        clock=clock,
+        engine=engine,
+        object_store=object_store,
+        unit_of_work=unit_of_work,
+        registry=builtin_registry,
+        execution_profile_catalog=execution_profile_catalogs[0],
+    )
     workflow_commands = _build_workflow_command_service(
         config=config,
         clock=clock,
@@ -887,6 +977,7 @@ def build_local_api_resources(
         object_store=object_store,
         unit_of_work=unit_of_work,
         execution_profile_catalog=execution_profile_catalogs[0],
+        admission=run_admission,
     )
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
@@ -897,6 +988,7 @@ def build_local_api_resources(
         workflow_reads=read_services.workflows,
         observability_reads=read_services.observability,
         workflow_commands=workflow_commands,
+        run_admission=run_admission,
         tracer=Tracer(
             exporter=_LocalSpanExporter(telemetry_store),
             sampler=AlwaysOnSampler(),

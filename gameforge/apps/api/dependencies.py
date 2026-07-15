@@ -19,7 +19,11 @@ from gameforge.contracts.auth import (
 )
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.errors import AuthRequired
-from gameforge.contracts.api import WorkflowCommandPayloadV1, WorkflowCommandResponseV1
+from gameforge.contracts.api import (
+    RunAcceptedV1,
+    WorkflowCommandPayloadV1,
+    WorkflowCommandResponseV1,
+)
 from gameforge.runtime.observability import AlwaysOffSampler, Tracer
 
 if TYPE_CHECKING:
@@ -158,6 +162,22 @@ class WorkflowCommandPort(Protocol):
     def execute(self, command: WorkflowCommand) -> WorkflowCommandResult: ...
 
 
+class RunAdmissionPort(Protocol):
+    """Task-8 Run admission engine surface used by the resource/generic routers.
+
+    Every method returns ``202 RunAccepted``; asynchronous failures surface later as
+    RunFailure/RunEvent, never as a retroactive HTTP error on the returned 202.
+    """
+
+    def admit_generic_run(self, **kwargs: object) -> RunAcceptedV1: ...
+
+    def admit_resource_run(self, **kwargs: object) -> RunAcceptedV1: ...
+
+    def admit_generation(self, **kwargs: object) -> RunAcceptedV1: ...
+
+    def admit_constraint_proposal(self, **kwargs: object) -> RunAcceptedV1: ...
+
+
 class _DiscardSpanExporter:
     def export(self, spans: object) -> None:
         del spans
@@ -204,6 +224,7 @@ class ApiDependencies:
     workflow_reads: WorkflowReadService | None = None
     observability_reads: ObservabilityReadService | None = None
     workflow_commands: WorkflowCommandPort | None = None
+    run_admission: RunAdmissionPort | None = None
 
     def __post_init__(self) -> None:
         if not callable(self.request_id_factory):
@@ -245,6 +266,7 @@ __all__ = [
     "ApiKeyAuthenticationPort",
     "LogoutCommandPort",
     "ReadinessPort",
+    "RunAdmissionPort",
     "SessionAuthenticationPort",
     "SessionCookieSettings",
     "WorkflowCommand",

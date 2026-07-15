@@ -941,6 +941,17 @@ def _referenced_input_artifact_ids(params: RunKindPayload) -> tuple[str, ...]:
     return _canonical_unique_strings(tuple(value for value in ids if value is not None))
 
 
+def referenced_input_artifact_ids(params: RunKindPayload) -> tuple[str, ...]:
+    """Public view of the exact Artifact input ids referenced by ``params``.
+
+    Run admission uses this to fill ``RunPayloadEnvelope.input_artifact_ids`` from a
+    single source of truth; the envelope validator recomputes the same set and
+    rejects any hidden extra input.
+    """
+
+    return _referenced_input_artifact_ids(params)
+
+
 _RUN_KIND_PAYLOAD_SCHEMAS: dict[tuple[str, int], str] = {
     ("generation.propose", 1): "generation-propose@1",
     ("patch.repair", 1): "patch-repair@1",

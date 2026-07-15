@@ -23,14 +23,19 @@ from gameforge.contracts.ir import Entity, Relation
 from gameforge.contracts.jobs import (
     MAX_COLLECTION_ITEMS,
     MAX_JSON_BYTES,
+    ExecutionVersionPlanV1,
     FindingEvidenceBindingV1,
+    PatchRepairPayloadV1,
+    PlaytestRunPayloadV1,
     Problem,
     RefReadBindingV1,
     RunCommandAckV1,
     RunCommandProblemV1,
     RunEventEnvelope,
+    RunKindPayload,
     RunStatus,
     SolverEngineRefV1,
+    TaskSuiteDerivePayloadV1,
 )
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.contracts.playtest import TaskSuiteV1
@@ -539,6 +544,129 @@ class RollbackValidationAdmissionRequestV1(_FrozenModel):
         return self
 
 
+_BOUNDED_GOAL_TEXT = Annotated[str, StringConstraints(min_length=1, max_length=16384)]
+
+
+class RunSubmissionRequestV1(_FrozenModel):
+    """Generic ``POST /runs`` body. Only ``generic_runs_endpoint`` kinds are admitted.
+
+    The typed ``params`` fixes the RunKind; resource-only or internal-only kinds are
+    rejected by admission, never by a client-supplied kind string.
+    """
+
+    request_schema_version: Literal["run-submission-request@1"] = "run-submission-request@1"
+    params: RunKindPayload
+    llm_execution_mode: Literal["not_applicable", "live", "record", "replay"] = "not_applicable"
+    seed: Annotated[int, Field(ge=0, le=18_446_744_073_709_551_615)] | None = None
+    execution_version_plan: ExecutionVersionPlanV1 | None = None
+    cassette_artifact_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "RunSubmissionRequestV1":
+        _bounded_request_payload(self)
+        return self
+
+
+class GenerationProposeRequestV1(_FrozenModel):
+    """``POST /generations:propose`` — fixes ``generation.propose@1``.
+
+    The naked ``objective_goal_text`` is turned into an authenticated ``source_raw``
+    Artifact by the composition root before the Run is created.
+    """
+
+    request_schema_version: Literal["generation-propose-request@1"] = "generation-propose-request@1"
+    base_snapshot_artifact_id: BoundedId
+    constraint_snapshot_artifact_id: BoundedId | None = None
+    findings: tuple[FindingEvidenceBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    objective_goal_text: _BOUNDED_GOAL_TEXT
+    domain_scope: DomainScope
+    target: RefReadBindingV1
+    generation_policy: ProfileRefV1
+    candidate_export_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    llm_execution_mode: Literal["live", "record", "replay"] = "record"
+    execution_version_plan: ExecutionVersionPlanV1 | None = None
+    cassette_artifact_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "GenerationProposeRequestV1":
+        object.__setattr__(
+            self,
+            "candidate_export_profiles",
+            _stable_unique_profiles(self.candidate_export_profiles),
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class ConstraintProposeRequestV1(_FrozenModel):
+    """``POST /constraints:propose`` — fixes ``constraint_proposal.propose@1``."""
+
+    request_schema_version: Literal["constraint-propose-request@1"] = "constraint-propose-request@1"
+    source_artifact_ids: tuple[BoundedId, ...] = Field(
+        min_length=1, max_length=MAX_COLLECTION_ITEMS
+    )
+    base_constraint_snapshot_artifact_id: BoundedId | None = None
+    authoring_goal_text: _BOUNDED_GOAL_TEXT
+    domain_scope: DomainScope
+    dsl_grammar_version: BoundedId
+    extraction_policy: ProfileRefV1
+    llm_execution_mode: Literal["live", "record", "replay"] = "record"
+    execution_version_plan: ExecutionVersionPlanV1 | None = None
+    cassette_artifact_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "ConstraintProposeRequestV1":
+        object.__setattr__(
+            self, "source_artifact_ids", _stable_unique_strings(self.source_artifact_ids)
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class PatchRepairRequestV1(_FrozenModel):
+    """``POST /patches/{id}:repair`` — fixes ``patch.repair@1`` via typed params."""
+
+    request_schema_version: Literal["patch-repair-request@1"] = "patch-repair-request@1"
+    params: PatchRepairPayloadV1
+    llm_execution_mode: Literal["live", "record", "replay"] = "record"
+    seed: Annotated[int, Field(ge=0, le=18_446_744_073_709_551_615)] | None = None
+    execution_version_plan: ExecutionVersionPlanV1 | None = None
+    cassette_artifact_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "PatchRepairRequestV1":
+        _bounded_request_payload(self)
+        return self
+
+
+class TaskSuiteDeriveRequestV1(_FrozenModel):
+    """``POST /task-suites:derive`` — fixes ``task_suite.derive@1`` via typed params."""
+
+    request_schema_version: Literal["task-suite-derive-request@1"] = "task-suite-derive-request@1"
+    params: TaskSuiteDerivePayloadV1
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "TaskSuiteDeriveRequestV1":
+        _bounded_request_payload(self)
+        return self
+
+
+class PlaytestRunRequestV1(_FrozenModel):
+    """``POST /playtest:run`` — fixes ``playtest.run@1`` via typed params."""
+
+    request_schema_version: Literal["playtest-run-request@1"] = "playtest-run-request@1"
+    params: PlaytestRunPayloadV1
+    llm_execution_mode: Literal["live", "record", "replay"] = "record"
+    seed: Annotated[int, Field(ge=0, le=18_446_744_073_709_551_615)]
+    execution_version_plan: ExecutionVersionPlanV1 | None = None
+    cassette_artifact_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "PlaytestRunRequestV1":
+        _bounded_request_payload(self)
+        return self
+
+
 class SubmitForApprovalRequestV1(_FrozenModel):
     request_schema_version: Literal["submit-for-approval-request@1"] = (
         "submit-for-approval-request@1"
@@ -759,8 +887,10 @@ __all__ = [
     "ArtifactPayloadViewV1",
     "ArtifactSummaryV1",
     "ConstraintProposalReadViewV1",
+    "ConstraintProposeRequestV1",
     "ConstraintSnapshotViewV1",
     "ExecutionProfileReadViewV1",
+    "GenerationProposeRequestV1",
     "GraphItemV1",
     "HumanConstraintDraftRequestV1",
     "HumanConstraintRevisionRequestV1",
@@ -771,7 +901,9 @@ __all__ = [
     "OpaquePageV1",
     "PatchArtifactReadViewV1",
     "PatchRebaseRequestV1",
+    "PatchRepairRequestV1",
     "PatchValidationAdmissionRequestV1",
+    "PlaytestRunRequestV1",
     "Problem",
     "RefHistoryEntryV1",
     "ResolveConflictsRequestV1",
@@ -784,12 +916,14 @@ __all__ = [
     "RunCommandProblemV1",
     "RunCommandServerFrame",
     "RunEventEnvelope",
+    "RunSubmissionRequestV1",
     "RunViewV1",
     "SchemaRegistryDocumentV1",
     "SnapshotDiffHttpPageV1",
     "SpecViewV1",
     "SubmitForApprovalRequestV1",
     "TaskSuiteArtifactViewV1",
+    "TaskSuiteDeriveRequestV1",
     "ConstraintValidationAdmissionRequestV1",
     "WorkflowApplyRequestV1",
     "WorkflowApplyResultV1",
