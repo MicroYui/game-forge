@@ -72,6 +72,26 @@ def _constraint(constraint_id: str, assert_expr: str) -> Constraint:
     )
 
 
+def _structural(constraint_id: str, assert_expr: str) -> Constraint:
+    return Constraint(
+        id=constraint_id,
+        dsl_grammar_version="dsl@1",
+        kind="structural",
+        oracle="deterministic",
+        **{"assert": assert_expr},
+        severity="major",
+    )
+
+
+# A MIXED candidate exercises BOTH engine domains (z3 numeric + Clingo structural),
+# the only shape for which the two domain-partitioned engines can BOTH positively
+# decide and thus reach `constraint_validated` (see the report's co-apply finding).
+_MIXED = (
+    _constraint("C_cap", "reward_gold <= 80"),
+    _structural("C_acyclic", "acyclic(quest_steps)"),
+)
+
+
 def _subject() -> ValidationSubjectBindingV1:
     return ValidationSubjectBindingV1(
         approval_id="approval:1",
@@ -160,8 +180,10 @@ def _evidence_set(store: FakeArtifactStore, outcome: PreparedRunResult) -> Evide
     return EvidenceSet.model_validate(json.loads(store.read_prepared(primary.object_ref)))
 
 
-def test_clean_proposal_validated_with_candidate() -> None:
-    store = _store((_constraint("C_cap", "reward_gold <= 80"),))
+def test_mixed_candidate_validated_when_both_engines_positively_decide() -> None:
+    # ONLY a MIXED candidate exercises BOTH engine domains, so both engines can
+    # positively decide consistency and the differential can genuinely pass.
+    store = _store(_MIXED)
     outcome = _handler(store)(_context(store, _payload()))
 
     assert isinstance(outcome, PreparedRunResult)
@@ -174,14 +196,14 @@ def test_clean_proposal_validated_with_candidate() -> None:
     assert len(candidates) == 1
     store._by_artifact_id["artifact:candidate"] = store.read_prepared(candidates[0].object_ref)
     loaded = load_constraints(store, "artifact:candidate")
-    assert [c.id for c in loaded] == ["C_cap"]
+    assert [c.id for c in loaded] == ["C_acyclic", "C_cap"]
 
     evidence = _compile_evidence(store, outcome)
     assert evidence.overall_status == "passed"
     assert evidence.candidate_constraint_snapshot_artifact_id is not None
     stages = {stage.stage for stage in evidence.stages}
     assert stages == {"parse", "typecheck", "compile", "differential", "golden"}
-    # BOTH real engines ran and agreed (differential passed).
+    # BOTH real engines GENUINELY evaluated their domain and passed — no vacuous pass.
     differential = [s for s in evidence.stages if s.stage == "differential"]
     assert {s.engine_id for s in differential} == {"z3", "clingo"}
     assert all(s.status == "passed" for s in differential)
@@ -192,6 +214,24 @@ def test_clean_proposal_validated_with_candidate() -> None:
     ev_set = _evidence_set(store, outcome)
     assert ev_set.overall_status == "passed"
     assert isinstance(ev_set.target_binding, ConstraintTargetBindingV1)
+
+
+def test_purely_numeric_candidate_is_unproven_not_vacuously_validated() -> None:
+    # z3's domain applies (numeric) and it positively decides consistent; Clingo's
+    # STRUCTURAL domain does NOT apply -> its differential stage is UNPROVEN
+    # (engine_domain_not_applicable), NEVER a vacuous pass. With one engine unable
+    # to decide, the candidate is not fully cross-checked -> NOT `constraint_validated`.
+    store = _store((_constraint("C_cap", "reward_gold <= 80"),))
+    outcome = _handler(store)(_context(store, _payload()))
+
+    assert outcome.summary.outcome_code != "constraint_validated"
+    assert outcome.summary.outcome_code == "constraint_validation_failed_with_candidate"
+    evidence = _compile_evidence(store, outcome)
+    assert evidence.overall_status == "unproven"
+    by_engine = {s.engine_id: s for s in evidence.stages if s.stage == "differential"}
+    assert by_engine["z3"].status == "passed"
+    assert by_engine["clingo"].status == "unproven"
+    assert by_engine["clingo"].reason_code == "engine_domain_not_applicable"
 
 
 def test_uncompilable_proposal_fails_without_candidate() -> None:
@@ -210,9 +250,10 @@ def test_uncompilable_proposal_fails_without_candidate() -> None:
     assert ev_set.target_binding is None
 
 
-def test_engine_disagreement_fails_with_candidate() -> None:
-    # a numeric contradiction compiles, but z3 derives unsat while Clingo does not:
-    # the engines DISAGREE -> differential failed, candidate still published.
+def test_numeric_contradiction_fails_with_candidate() -> None:
+    # a numeric contradiction compiles; z3 GENUINELY derives unsat (inconsistent) ->
+    # its differential stage FAILS. Clingo's structural domain does not apply -> its
+    # stage is unproven (NOT a vacuous consistent). candidate still published.
     store = _store((_constraint("C_contra", "reward_gold <= 80 and reward_gold >= 100"),))
     outcome = _handler(store)(_context(store, _payload()))
 
@@ -221,14 +262,31 @@ def test_engine_disagreement_fails_with_candidate() -> None:
     evidence = _compile_evidence(store, outcome)
     assert evidence.candidate_constraint_snapshot_artifact_id is not None
     assert evidence.overall_status == "failed"
+    by_engine = {s.engine_id: s for s in evidence.stages if s.stage == "differential"}
+    assert by_engine["z3"].status == "failed"
+    assert by_engine["z3"].reason_code == "candidate_inconsistent"
+    assert by_engine["clingo"].status == "unproven"
+
+
+def test_engine_unbindable_candidate_is_never_validated() -> None:
+    # a prob_sum aggregate compiles (SMTChecker constructs), but z3's free-var probe
+    # cannot bind the list attr -> z3 is UNDECIDED (unproven, NOT skipped-as-passed);
+    # Clingo's structural domain does not apply -> unproven. NO engine positively
+    # decided consistency -> the candidate is NEVER `constraint_validated`.
+    store = _store((_constraint("C_prob", "prob_sum(entries) == 1"),))
+    outcome = _handler(store)(_context(store, _payload()))
+
+    assert outcome.summary.outcome_code != "constraint_validated"
+    evidence = _compile_evidence(store, outcome)
     differential = [s for s in evidence.stages if s.stage == "differential"]
-    assert any(
-        s.status == "failed" and s.reason_code == "engine_disagreement" for s in differential
-    )
+    assert all(s.status != "passed" for s in differential)
+    assert {s.status for s in differential} == {"unproven"}
 
 
 def test_failing_regression_fails_with_candidate() -> None:
-    store = _store((_constraint("C_cap", "reward_gold <= 80"),))
+    # a MIXED candidate makes the differential genuinely pass so regression runs;
+    # a failing regression then drives the failed-with-candidate outcome.
+    store = _store(_MIXED)
     outcome = _handler(store, regression_runner=_FailingRegressionRunner())(
         _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
     )
@@ -255,8 +313,7 @@ def test_without_candidate_short_circuits_regression() -> None:
 
 
 def test_constraint_validation_is_byte_deterministic() -> None:
-    constraints = (_constraint("C_cap", "reward_gold <= 80"),)
-    store_a, store_b = _store(constraints), _store(constraints)
+    store_a, store_b = _store(_MIXED), _store(_MIXED)
     out_a = _handler(store_a)(_context(store_a, _payload(base=BASE_ID)))
     out_b = _handler(store_b)(_context(store_b, _payload(base=BASE_ID)))
     assert [a.payload_hash for a in out_a.artifacts] == [a.payload_hash for a in out_b.artifacts]

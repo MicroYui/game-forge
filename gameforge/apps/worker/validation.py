@@ -8,11 +8,14 @@ by the worker composition root.
 ``Z3DifferentialEngine`` / ``ClingoDifferentialEngine`` are the two initial EXACT
 differential engines the constraint validator cross-checks: each wraps a REAL
 spine solver backend (``spine/checkers/smt.py`` z3 / ``spine/checkers/asp.py``
-Clingo) and returns a deterministic per-candidate consistency verdict. The
-constraint validator requires ALL engines to AGREE the candidate is consistent —
-a numeric contradiction z3 derives but Clingo cannot see surfaces as a
-disagreement (``failed``), and a budget-exhausted solver degrades to ``unproven``,
-NEVER a pass. No LLM SDK is imported here.
+Clingo) and reports whether ITS domain applies to the candidate and, if so, a
+deterministic consistency verdict. The two initial engines are DOMAIN-PARTITIONED
+(z3 = numeric SMT, Clingo = structural ASP), so an engine whose domain does not
+apply to the candidate reports ``not_applicable`` (recorded as an ``unproven``
+differential stage — never a vacuous pass), and an in-domain constraint it cannot
+decide reports ``undecided`` (also ``unproven``). Only a genuinely-evaluated
+consistent domain is a ``passed`` stage; any ``unsat`` is a genuine contradiction
+(``failed``). No LLM SDK is imported here.
 """
 
 from __future__ import annotations
@@ -80,38 +83,49 @@ def _field_paths(node: AssertNode) -> set[str]:
 
 @dataclass(frozen=True, slots=True)
 class Z3DifferentialEngine:
-    """Cross-check every numeric constraint's satisfiability with REAL z3.
+    """Cross-check every NUMERIC constraint's satisfiability with REAL z3.
 
-    Each deterministic numeric constraint's ``assert`` predicate is compiled over
-    FREE bounded z3 variables (one per referenced field) and checked for
-    satisfiability: ``unsat`` is a genuine contradiction (``inconsistent``);
-    ``unknown`` degrades the whole run to ``timed_out`` (never a pass); a predicate
-    this engine cannot bind (aggregate/list calls that are Clingo/structural's or
-    another engine's domain) is skipped rather than falsely rejected. A candidate
-    with no z3-decidable numeric constraint is vacuously ``consistent``.
+    z3's domain is the numeric constraints. When the candidate has NONE, this
+    engine reports ``not_applicable`` (the handler records that as an ``unproven``
+    differential stage, NEVER a vacuous pass). Otherwise each deterministic numeric
+    ``assert`` predicate is compiled over FREE bounded z3 variables (one per
+    referenced field) and checked for satisfiability: any ``unsat`` = a genuine
+    contradiction (``evaluated`` / ``inconsistent``); any ``unknown`` OR any
+    in-domain numeric predicate this probe cannot bind (an aggregate/list call) =
+    ``undecided`` (the engine's domain applies but it could not decide — ``unproven``,
+    never a pass). Only when EVERY numeric constraint is satisfiable does it report
+    ``evaluated`` / ``consistent``.
     """
 
     engine_id: str = "z3"
     engine_version: int = 1
 
     def evaluate(self, request: DifferentialEvalRequest) -> DifferentialEngineResultV1:
-        for constraint in request.constraints:
-            if constraint.kind != "numeric" or constraint.has_llm_predicate():
-                continue
-            verdict = self._check(constraint)
-            if verdict == "timed_out":
-                return DifferentialEngineResultV1(
-                    status="timed_out", reason_code="z3_budget_exhausted"
-                )
+        numeric = [
+            constraint
+            for constraint in request.constraints
+            if constraint.kind == "numeric" and not constraint.has_llm_predicate()
+        ]
+        if not numeric:
+            return DifferentialEngineResultV1(
+                status="not_applicable", reason_code="engine_domain_not_applicable"
+            )
+        undecided_reason: str | None = None
+        for constraint in numeric:
+            verdict, reason = self._check(constraint)
             if verdict == "inconsistent":
-                return DifferentialEngineResultV1(status="executed", consistency="inconsistent")
-        return DifferentialEngineResultV1(status="executed", consistency="consistent")
+                return DifferentialEngineResultV1(status="evaluated", consistency="inconsistent")
+            if verdict == "undecided":
+                undecided_reason = reason
+        if undecided_reason is not None:
+            return DifferentialEngineResultV1(status="undecided", reason_code=undecided_reason)
+        return DifferentialEngineResultV1(status="evaluated", consistency="consistent")
 
-    def _check(self, constraint: Constraint) -> str:
+    def _check(self, constraint: Constraint) -> tuple[str, str | None]:
         try:
             node = parse_assert(constraint.assert_)
-        except Exception:  # noqa: BLE001 - unparseable numeric assert -> contradiction
-            return "inconsistent"
+        except Exception:  # noqa: BLE001 - an unparseable numeric assert is a contradiction
+            return "inconsistent", None
         entity = Entity(
             id="differential-probe",
             type="ITEM",
@@ -121,11 +135,13 @@ class Z3DifferentialEngine:
         try:
             expr = _smt_compile(node, ctx)
             if not z3.is_bool(expr):
-                return "skip"
+                # a numeric constraint IN z3's domain it cannot bind to a boolean
+                # predicate -> undecided (never silently skipped-as-passed).
+                return "undecided", "z3_non_boolean_predicate"
         except SmtCompileError:
-            # not a plain numeric predicate this engine binds (e.g. prob_sum over a
-            # list attr) — outside z3's differential domain, not a rejection.
-            return "skip"
+            # an in-domain numeric predicate this free-var probe cannot bind (e.g.
+            # prob_sum over a list attr) -> undecided, NEVER a pass.
+            return "undecided", "z3_cannot_bind_predicate"
         solver = z3.Solver()
         solver.set("timeout", _Z3_TIMEOUT_MS)
         for extra in ctx.extra:
@@ -133,37 +149,47 @@ class Z3DifferentialEngine:
         solver.add(expr)
         result = solver.check()
         if result == z3.unsat:
-            return "inconsistent"
+            return "inconsistent", None
         if result == z3.unknown:
-            return "timed_out"
-        return "consistent"
+            return "undecided", "z3_budget_exhausted"
+        return "consistent", None
 
 
 @dataclass(frozen=True, slots=True)
 class ClingoDifferentialEngine:
-    """Cross-check every structural constraint grounds cleanly with REAL Clingo.
+    """Cross-check every STRUCTURAL constraint grounds cleanly with REAL Clingo.
 
-    Each deterministic structural/narrative constraint is routed through the spine
-    DSL compiler to its ASP/graph backend and run against a canonical single-node
-    probe snapshot; a backend that raises while grounding is an ``inconsistent``
-    candidate, otherwise the structural candidate is ``consistent``. A candidate
-    with no structural constraint is vacuously ``consistent``.
+    Clingo's domain is the structural/narrative constraints. When the candidate has
+    NONE, this engine reports ``not_applicable`` (the handler records an ``unproven``
+    differential stage, NEVER a vacuous pass). Otherwise each constraint is routed
+    through the spine DSL compiler to its ASP/graph backend and grounded against a
+    canonical probe snapshot; a backend that raises while grounding is ``undecided``
+    (the engine could not decide — ``unproven``), otherwise the structural candidate
+    is ``evaluated`` / ``consistent``.
     """
 
     engine_id: str = "clingo"
     engine_version: int = 1
 
     def evaluate(self, request: DifferentialEvalRequest) -> DifferentialEngineResultV1:
+        structural = [
+            constraint
+            for constraint in request.constraints
+            if not constraint.has_llm_predicate() and constraint.kind in ("structural", "narrative")
+        ]
+        if not structural:
+            return DifferentialEngineResultV1(
+                status="not_applicable", reason_code="engine_domain_not_applicable"
+            )
         probe = Snapshot({}, {})
-        for constraint in request.constraints:
-            if constraint.kind == "numeric" or constraint.has_llm_predicate():
-                continue
+        for constraint in structural:
             try:
-                checker = compile_constraint(constraint)
-                checker.check(probe)
-            except Exception:  # noqa: BLE001 - a structural backend that cannot ground
-                return DifferentialEngineResultV1(status="executed", consistency="inconsistent")
-        return DifferentialEngineResultV1(status="executed", consistency="consistent")
+                compile_constraint(constraint).check(probe)
+            except Exception:  # noqa: BLE001 - a structural backend that could not ground
+                return DifferentialEngineResultV1(
+                    status="undecided", reason_code="clingo_grounding_error"
+                )
+        return DifferentialEngineResultV1(status="evaluated", consistency="consistent")
 
 
 def build_differential_engines() -> dict[str, ConstraintDifferentialEngine]:

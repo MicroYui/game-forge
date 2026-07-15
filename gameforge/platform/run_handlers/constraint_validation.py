@@ -5,10 +5,17 @@ Compiles the subject ``constraint_proposal``'s constraints through a fixed
 EVERY stage in a ``ConstraintCompileEvidenceV1`` with its exact status /
 reason_code. The ``differential`` stage runs ≥2 EXACT engines named by
 ``payload.differential_engines`` (the two initial engines wrap ``spine/checkers``:
-Clingo/ASP + z3/SMT) — they must AGREE the candidate is consistent, or the stage is
-``failed`` / ``unproven`` (a timeout / an unavailable engine is NEVER a pass). When
-(and only when) the ``compile`` stage passes, ONE candidate
-``constraint_snapshot[constraint-snapshot@1]`` is published in the exact
+Clingo/ASP + z3/SMT). Each engine authoritatively decides ITS OWN solver domain and
+reports honestly: a ``passed`` differential stage requires the engine to have
+GENUINELY evaluated a candidate in its domain and found it consistent; an engine
+whose domain does not apply (``not_applicable``) or that could not decide
+(``undecided`` — timeout / unbindable) is recorded as ``unproven``, NEVER a vacuous
+pass; a genuine contradiction (z3 ``unsat``) is ``failed``. Because the two initial
+engines are DOMAIN-PARTITIONED (z3 numeric / Clingo structural), ``constraint_validated``
+(overall ``passed``) requires the candidate to exercise BOTH domains so both engines
+positively decide — a single-domain candidate is honestly ``unproven`` (see the task
+report's co-apply finding). When (and only when) the ``compile`` stage passes, ONE
+candidate ``constraint_snapshot[constraint-snapshot@1]`` is published in the exact
 ``readers.load_constraints`` wire shape; otherwise the candidate id is null.
 
 Three frozen outcomes (all run,succeeded — a business result, not a RunFailure):
@@ -106,14 +113,23 @@ class DifferentialEvalRequest:
 
 @dataclass(frozen=True, slots=True)
 class DifferentialEngineResultV1:
-    """One engine's deterministic differential verdict.
+    """One engine's deterministic differential verdict for the candidate.
 
-    ``status='executed'`` with ``consistency`` set is the ONLY way a differential
-    stage can pass; ``timed_out`` / ``skipped`` (a missing execution) always carry a
-    ``reason_code`` and degrade to ``unproven`` — never a pass.
+    An engine reports whether ITS solver domain applies to the candidate and, if
+    so, its consistency verdict:
+
+    * ``evaluated`` + ``consistency`` — the engine's domain applied and it decided;
+    * ``not_applicable`` — the candidate has no constraint in this engine's domain
+      (nothing for it to decide);
+    * ``undecided`` — the engine's domain applied but it could not decide (timeout /
+      ``unknown`` / an in-domain constraint it cannot bind).
+
+    Only ``evaluated`` + ``consistent`` yields a ``passed`` differential stage;
+    ``not_applicable`` and ``undecided`` both degrade to ``unproven`` (a missing or
+    inconclusive execution is NEVER a pass).
     """
 
-    status: Literal["executed", "timed_out", "skipped"]
+    status: Literal["evaluated", "not_applicable", "undecided"]
     consistency: Literal["consistent", "inconsistent"] | None = None
     reason_code: str | None = None
 
@@ -329,48 +345,40 @@ class ConstraintValidationHandler:
                 self._differential_stage(engine_ref, "unproven", _SHORT_CIRCUIT)
                 for engine_ref in payload.differential_engines
             )
-        results: dict[tuple[str, int], DifferentialEngineResultV1] = {}
+        stages: list[ConstraintCompileStageV1] = []
         for engine_ref in payload.differential_engines:
             engine = self.differential_engines.get(engine_ref.engine_id)
             if engine is None:
-                results[(engine_ref.engine_id, engine_ref.version)] = DifferentialEngineResultV1(
-                    status="skipped", reason_code="engine_unavailable"
+                stages.append(
+                    self._differential_stage(engine_ref, "unproven", "engine_unavailable")
                 )
                 continue
-            results[(engine_ref.engine_id, engine_ref.version)] = engine.evaluate(
+            result = engine.evaluate(
                 DifferentialEvalRequest(
                     constraints=candidate, dsl_grammar_version=payload.dsl_grammar_version
                 )
             )
-        executed = [
-            result.consistency
-            for result in results.values()
-            if result.status == "executed" and result.consistency is not None
-        ]
-        agree = len(set(executed)) <= 1
-        stages: list[ConstraintCompileStageV1] = []
-        for engine_ref in payload.differential_engines:
-            result = results[(engine_ref.engine_id, engine_ref.version)]
-            status, reason = self._differential_verdict(result, executed, agree)
+            status, reason = self._differential_verdict(result)
             stages.append(self._differential_stage(engine_ref, status, reason))
         return tuple(stages)
 
     def _differential_verdict(
-        self,
-        result: DifferentialEngineResultV1,
-        executed: list[str],
-        agree: bool,
+        self, result: DifferentialEngineResultV1
     ) -> tuple[StageStatus, str | None]:
-        if result.status != "executed":
-            reason = result.reason_code or (
-                "solver_budget_exhausted" if result.status == "timed_out" else "engine_skipped"
-            )
-            return "unproven", reason
-        if not agree:
-            return "failed", "engine_disagreement"
-        if result.consistency == "consistent":
-            return "passed", None
-        return "failed", "candidate_inconsistent"
+        # Each engine authoritatively decides ITS OWN solver domain — with the two
+        # DOMAIN-PARTITIONED initial engines (z3 numeric / Clingo structural) there is
+        # no cross-engine "agreement" to compute per constraint (they decide disjoint
+        # subsets); see the task report's co-apply finding. Honest labeling:
+        #   not_applicable / undecided -> unproven (NEVER a vacuous pass),
+        #   evaluated + inconsistent   -> failed,
+        #   evaluated + consistent     -> passed.
+        if result.status == "not_applicable":
+            return "unproven", result.reason_code or "engine_domain_not_applicable"
+        if result.status == "undecided":
+            return "unproven", result.reason_code or "engine_could_not_decide"
+        if result.consistency == "inconsistent":
+            return "failed", "candidate_inconsistent"
+        return "passed", None
 
     def _golden_stage(
         self,

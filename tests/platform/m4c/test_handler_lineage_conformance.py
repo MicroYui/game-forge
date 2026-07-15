@@ -227,9 +227,7 @@ def test_patch_validation_lineage_conforms_to_frozen_policy() -> None:
 
 
 def test_constraint_validation_lineage_conforms_to_frozen_policy() -> None:
-    store = constraint_val_mod._store(
-        (constraint_val_mod._constraint("C_cap", "reward_gold <= 80"),)
-    )
+    store = constraint_val_mod._store(constraint_val_mod._MIXED)
     outcome = constraint_val_mod._handler(store)(
         constraint_val_mod._context(
             store, constraint_val_mod._payload(regression=(constraint_val_mod.REGRESSION_SUITE_ID,))
