@@ -42,6 +42,7 @@ from gameforge.contracts.jobs import (
     PreparedFindingV1,
     PreparedRunResult,
     PreparedRunResultSummaryV1,
+    RequirementDispositionV1,
     RunAttempt,
     RunPayloadEnvelope,
     RunRecord,
@@ -228,8 +229,15 @@ def build_success_result(
     primary_index: int,
     artifacts: tuple[PreparedArtifact, ...],
     findings: tuple[PreparedFindingV1, ...] = (),
+    requirement_dispositions: tuple[RequirementDispositionV1, ...] = (),
 ) -> PreparedRunResult:
-    """Assemble the sealed success outcome with a self-consistent summary."""
+    """Assemble the sealed success outcome with a self-consistent summary.
+
+    ``requirement_dispositions`` carry the full produced/not_executed manifest a
+    ``subset(...)`` count binding reconciles against (used by the validation
+    handlers whose failed-outcome policies bind regression by allowed
+    not-executed reason codes); it defaults to empty for the plain policies.
+    """
 
     if not artifacts:
         raise ValueError("a success outcome requires at least one prepared artifact")
@@ -248,7 +256,7 @@ def build_success_result(
         primary_index=primary_index,
         artifacts=artifacts,
         findings=findings,
-        requirement_dispositions=(),
+        requirement_dispositions=requirement_dispositions,
         summary=summary,
     )
 

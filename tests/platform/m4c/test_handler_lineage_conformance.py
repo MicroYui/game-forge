@@ -34,8 +34,11 @@ from gameforge.platform.registry.defaults import build_builtin_registry
 from tests.platform.m4c import (
     test_constraint_proposal_handler as constraint_mod,
 )
+from tests.platform.m4c import test_constraint_validation_handler as constraint_val_mod
 from tests.platform.m4c import test_generation_handler as gen_mod
+from tests.platform.m4c import test_patch_validation_handler as patch_val_mod
 from tests.platform.m4c import test_repair_handler as repair_mod
+from tests.platform.m4c import test_rollback_validation_handler as rollback_val_mod
 from tests.platform.m4c import test_task_suite as task_suite_mod
 from tests.platform.m4c.handler_support import FakeModelBridge
 
@@ -57,6 +60,11 @@ _RUN_INPUTS: dict[str, tuple[str, str]] = {
     task_suite_mod.PREVIEW_ID: ("ir_snapshot", "ir-core@1"),
     task_suite_mod.CONFIG_ID: ("config_export", "config-export-package@1"),
     task_suite_mod.CONSTRAINT_ID: ("constraint_snapshot", "constraint-snapshot@1"),
+    # Task 13 validation subjects + typed run_input supporting parents.
+    patch_val_mod.SUBJECT_ID: ("patch", "patch@2"),
+    patch_val_mod.PREVIEW_ID: ("ir_snapshot", "ir-core@1"),
+    constraint_val_mod.SUBJECT_ID: ("constraint_proposal", "constraint-proposal@1"),
+    rollback_val_mod.SUBJECT_ID: ("rollback_request", "rollback-request@1"),
 }
 
 
@@ -72,9 +80,24 @@ def _run_inputs() -> dict[str, ParentInfo]:
     }
 
 
-def _rule_for_kind(policy, artifact_kind: str):
-    matches = [rule for rule in policy.artifact_rules if rule.artifact_kind == artifact_kind]
-    assert len(matches) == 1, f"expected one rule for {artifact_kind}, got {len(matches)}"
+def _rule_for_artifact(policy, artifact):
+    """Resolve the exact outcome rule for an artifact by (kind, payload schema).
+
+    A single policy may bind two rules of the SAME artifact kind under distinct
+    schemas (the constraint validator's ``validation_evidence`` primary
+    ``evidence-set@1`` and its ``constraint-compile-evidence@1`` evidence rule), so
+    the rule is disambiguated by the artifact's exact payload schema.
+    """
+
+    matches = [
+        rule
+        for rule in policy.artifact_rules
+        if rule.artifact_kind == artifact.kind
+        and artifact.payload_schema_id in rule.payload_schema_ids
+    ]
+    assert len(matches) == 1, (
+        f"expected one rule for {artifact.kind}/{artifact.payload_schema_id}, got {len(matches)}"
+    )
     return matches[0]
 
 
@@ -111,7 +134,7 @@ def _assert_artifact_lineage_conforms(kind: RunKindRef, outcome_code: str, outco
     policy = _success_policy(kind, outcome_code)
     run_inputs = _run_inputs()
     for artifact in outcome.artifacts:
-        rule = _rule_for_kind(policy, artifact.kind)
+        rule = _rule_for_artifact(policy, artifact)
         lineage_policy = REGISTRY.get_lineage_policy(rule.lineage_policy_ref)
         assert lineage_policy is not None
         siblings, injected_ids = _injected_siblings(lineage_policy)
@@ -189,3 +212,41 @@ def test_task_suite_lineage_conforms_to_frozen_policy() -> None:
     store = task_suite_mod._store()
     outcome = task_suite_mod._run(store)
     _assert_artifact_lineage_conforms(task_suite_mod.TASK_SUITE_KIND, "task_suite_derived", outcome)
+
+
+def test_patch_validation_lineage_conforms_to_frozen_policy() -> None:
+    store = patch_val_mod._store()
+    outcome = patch_val_mod._handler(store)(
+        patch_val_mod._context(
+            store, patch_val_mod._payload(simulation_profiles=(patch_val_mod._SIM,))
+        )
+    )
+    _assert_artifact_lineage_conforms(
+        patch_val_mod.PATCH_VALIDATE_KIND, "patch_validation_passed", outcome
+    )
+
+
+def test_constraint_validation_lineage_conforms_to_frozen_policy() -> None:
+    store = constraint_val_mod._store(
+        (constraint_val_mod._constraint("C_cap", "reward_gold <= 80"),)
+    )
+    outcome = constraint_val_mod._handler(store)(
+        constraint_val_mod._context(
+            store, constraint_val_mod._payload(regression=(constraint_val_mod.REGRESSION_SUITE_ID,))
+        )
+    )
+    _assert_artifact_lineage_conforms(
+        constraint_val_mod.CONSTRAINT_VALIDATE_KIND, "constraint_validated", outcome
+    )
+
+
+def test_rollback_validation_lineage_conforms_to_frozen_policy() -> None:
+    store = rollback_val_mod._store()
+    outcome = rollback_val_mod._handler(store)(
+        rollback_val_mod._context(
+            store, rollback_val_mod._payload(regression=(rollback_val_mod.REGRESSION_SUITE_ID,))
+        )
+    )
+    _assert_artifact_lineage_conforms(
+        rollback_val_mod.ROLLBACK_VALIDATE_KIND, "rollback_validation_passed", outcome
+    )
