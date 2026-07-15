@@ -73,6 +73,7 @@ from gameforge.platform.publication.validator import (
     validate_rule_cardinality,
     validate_runtime_parents,
 )
+from gameforge.contracts.jobs import RuntimeParentRuleSetV1
 from gameforge.platform.publication.version import (
     project_domain_version_tuple,
     project_manifest_version_tuple,
@@ -111,6 +112,27 @@ class ManifestLedger(Protocol):
 
     def put_finding_link(self, link: RunFindingLinkV1) -> None: ...
 
+    # --- Task 10 runtime-parent sources (RECORD/REPLAY only) -----------------
+    # These supply the recorded-cassette runtime parents the RECORD/REPLAY
+    # publication projects. A ``not_applicable``/``live`` Run never calls them.
+    def record_shard_links(
+        self, run_id: str, *, attempt_no: int | None
+    ) -> tuple[tuple[int, int, str], ...]:
+        """(attempt_no, call_ordinal, artifact_id) for each RECORD response shard."""
+        ...
+
+    def attempt_cassette_bundle(self, run_id: str, *, attempt_no: int) -> str | None:
+        """The current attempt's aggregate ``cassette_bundle`` artifact id (RECORD)."""
+        ...
+
+    def run_cassette_bundle(self, run_id: str) -> str | None:
+        """The Run aggregate ``cassette_bundle`` artifact id (RECORD)."""
+        ...
+
+    def replay_input_cassette(self, run_id: str) -> str | None:
+        """The REPLAY input ``cassette_bundle`` artifact id (== payload cassette)."""
+        ...
+
 
 class AuditPort(Protocol):
     def record(
@@ -126,6 +148,143 @@ class AuditPort(Protocol):
 
 def _role_for_manifest(rule_role: str) -> str:
     return "evidence" if rule_role == "evidence" else "output"
+
+
+def project_runtime_parents(
+    *,
+    rule_set: RuntimeParentRuleSetV1,
+    manifest_scope: str,
+    llm_execution_mode: str,
+    prompt_links: Sequence[RunIntermediateArtifactLinkV1],
+    record_shards: Sequence[tuple[int, int, str]],
+    closed: Mapping[str, int | None],
+    attempt_bundle_id: str | None,
+    run_bundle_id: str | None,
+    replay_input_id: str | None,
+    committed_link_counts: Mapping[str, int],
+) -> tuple[RunManifestParentBindingV1, ...]:
+    """Project + rule-set-validate every runtime intermediate/input parent.
+
+    Task 9 projected only ``published_intermediate`` (prompt renders) and
+    ``closed_attempt_failure`` parents. Task 10 adds the recorded-cassette parents
+    — ``record_shard`` (one per RECORD response capture), ``attempt_bundle`` and
+    ``run_bundle`` (the RECORD aggregate bundles), and ``replay_input`` (the exact
+    REPLAY input cassette) — so ``validate_runtime_parents`` passes for RECORD and
+    REPLAY. The caller supplies only the sources enabled by the current execution
+    mode; a ``not_applicable``/``live`` Run supplies none, keeping this a no-op for
+    those modes. ``validate_runtime_parents`` still fails closed on any count,
+    kind, or disabled-mode mismatch.
+    """
+
+    bindings: list[RunManifestParentBindingV1] = []
+    projected: list[ProjectedRuntimeParent] = []
+
+    for link in prompt_links:
+        bindings.append(
+            RunManifestParentBindingV1(
+                artifact_id=link.artifact_id,
+                role="intermediate",
+                publication="run_published",
+                attempt_no=link.attempt_no,
+                ordinal=link.call_ordinal,
+            )
+        )
+        projected.append(
+            ProjectedRuntimeParent(
+                artifact_id=link.artifact_id,
+                source="published_intermediate",
+                kind="source_rendered",
+                payload_schema_id="source-rendered@1",
+            )
+        )
+
+    for shard_attempt_no, call_ordinal, artifact_id in record_shards:
+        bindings.append(
+            RunManifestParentBindingV1(
+                artifact_id=artifact_id,
+                role="intermediate",
+                publication="run_published",
+                attempt_no=shard_attempt_no,
+                ordinal=call_ordinal,
+                cassette_scope="record_shard",
+            )
+        )
+        projected.append(
+            ProjectedRuntimeParent(
+                artifact_id=artifact_id,
+                source="record_shard",
+                kind="cassette_bundle",
+                payload_schema_id="cassette-record-shard@1",
+            )
+        )
+
+    for bundle_id, scope in (
+        (attempt_bundle_id, "attempt_bundle"),
+        (run_bundle_id, "run_bundle"),
+    ):
+        if bundle_id is None:
+            continue
+        bindings.append(
+            RunManifestParentBindingV1(
+                artifact_id=bundle_id,
+                role="intermediate",
+                publication="run_published",
+                cassette_scope=scope,
+            )
+        )
+        projected.append(
+            ProjectedRuntimeParent(
+                artifact_id=bundle_id,
+                source=scope,
+                kind="cassette_bundle",
+                payload_schema_id="cassette-bundle@1",
+            )
+        )
+
+    if replay_input_id is not None:
+        bindings.append(
+            RunManifestParentBindingV1(
+                artifact_id=replay_input_id,
+                role="input",
+                publication="existing",
+                cassette_scope="replay_input",
+            )
+        )
+        projected.append(
+            ProjectedRuntimeParent(
+                artifact_id=replay_input_id,
+                source="run_input",
+                kind="cassette_bundle",
+                payload_schema_id="cassette-bundle@1",
+            )
+        )
+
+    for failure_id, closed_attempt_no in closed.items():
+        bindings.append(
+            RunManifestParentBindingV1(
+                artifact_id=failure_id,
+                role="intermediate",
+                publication="run_published",
+                attempt_no=closed_attempt_no,
+            )
+        )
+        projected.append(
+            ProjectedRuntimeParent(
+                artifact_id=failure_id,
+                source="closed_attempt_failure",
+                kind="run_failure",
+                payload_schema_id="run-failure@1",
+            )
+        )
+
+    validate_runtime_parents(
+        rule_set=rule_set,
+        manifest_scope=manifest_scope,
+        llm_execution_mode=llm_execution_mode,
+        parents=projected,
+        committed_link_counts=committed_link_counts,
+    )
+    return tuple(bindings)
 
 
 class TerminalPublisher:
@@ -291,7 +450,7 @@ class TerminalPublisher:
         )
         return RunResultPublication(
             result_artifact_id=manifest_id,
-            attempt_cassette_artifact_id=None,
+            attempt_cassette_artifact_id=self._attempt_cassette_id(run, attempt.attempt_no),
             terminal_cassette_artifact_id=self._terminal_cassette_id(run),
         )
 
@@ -371,7 +530,8 @@ class TerminalPublisher:
             occurred_at=occurred_at,
         )
         return AttemptFailurePublication(
-            failure_artifact_id=manifest_id, cassette_bundle_artifact_id=None
+            failure_artifact_id=manifest_id,
+            cassette_bundle_artifact_id=self._attempt_cassette_id(run, attempt.attempt_no),
         )
 
     # ----------------------------------------------------------- run failure
@@ -821,6 +981,7 @@ class TerminalPublisher:
     ) -> tuple[RunManifestParentBindingV1, ...]:
         """Project + rule-set-validate the runtime intermediate parents for a scope."""
 
+        mode = run.payload.llm_execution_mode
         current_links = (
             self._ledger.prompt_links(run.run_id, attempt_no=current_attempt_no)
             if current_attempt_no is not None
@@ -830,51 +991,37 @@ class TerminalPublisher:
         committed = {"current_attempt": len(current_links), "all_attempts": len(all_links)}
         prompt_links = current_links if manifest_scope == "attempt" else all_links
 
-        bindings: list[RunManifestParentBindingV1] = []
-        projected: list[ProjectedRuntimeParent] = []
-        for link in prompt_links:
-            bindings.append(
-                RunManifestParentBindingV1(
-                    artifact_id=link.artifact_id,
-                    role="intermediate",
-                    publication="run_published",
-                    attempt_no=link.attempt_no,
-                    ordinal=link.call_ordinal,
-                )
+        record_shards: tuple[tuple[int, int, str], ...] = ()
+        attempt_bundle_id: str | None = None
+        run_bundle_id: str | None = None
+        replay_input_id: str | None = None
+        if mode == "record":
+            record_shards = self._ledger.record_shard_links(
+                run.run_id,
+                attempt_no=(current_attempt_no if manifest_scope == "attempt" else None),
             )
-            projected.append(
-                ProjectedRuntimeParent(
-                    artifact_id=link.artifact_id,
-                    source="published_intermediate",
-                    kind="source_rendered",
-                    payload_schema_id="source-rendered@1",
-                )
-            )
-        for failure_id, attempt_no in closed.items():
-            bindings.append(
-                RunManifestParentBindingV1(
-                    artifact_id=failure_id,
-                    role="intermediate",
-                    publication="run_published",
-                    attempt_no=attempt_no,
-                )
-            )
-            projected.append(
-                ProjectedRuntimeParent(
-                    artifact_id=failure_id,
-                    source="closed_attempt_failure",
-                    kind="run_failure",
-                    payload_schema_id="run-failure@1",
-                )
-            )
-        validate_runtime_parents(
+            if manifest_scope == "attempt":
+                if current_attempt_no is not None:
+                    attempt_bundle_id = self._ledger.attempt_cassette_bundle(
+                        run.run_id, attempt_no=current_attempt_no
+                    )
+            else:
+                run_bundle_id = self._ledger.run_cassette_bundle(run.run_id)
+        elif mode == "replay":
+            replay_input_id = self._ledger.replay_input_cassette(run.run_id)
+
+        return project_runtime_parents(
             rule_set=plan.runtime_rule_set,
             manifest_scope=manifest_scope,
-            llm_execution_mode=run.payload.llm_execution_mode,
-            parents=projected,
+            llm_execution_mode=mode,
+            prompt_links=prompt_links,
+            record_shards=record_shards,
+            closed=closed,
+            attempt_bundle_id=attempt_bundle_id,
+            run_bundle_id=run_bundle_id,
+            replay_input_id=replay_input_id,
             committed_link_counts=committed,
         )
-        return tuple(bindings)
 
     def _aggregate_closed_attempts(
         self, run_id: str, *, current_attempt_no: int | None, current_attempt_failure_id: str | None
@@ -931,10 +1078,17 @@ class TerminalPublisher:
                 return plan_rule.rule.rule_id
         raise IntegrityViolation("success policy has no primary artifact rule")
 
-    @staticmethod
-    def _terminal_cassette_id(run: RunRecord) -> str | None:
-        if run.payload.llm_execution_mode == "replay":
+    def _terminal_cassette_id(self, run: RunRecord) -> str | None:
+        mode = run.payload.llm_execution_mode
+        if mode == "replay":
             return run.payload.cassette_artifact_id
+        if mode == "record":
+            return self._ledger.run_cassette_bundle(run.run_id)
+        return None
+
+    def _attempt_cassette_id(self, run: RunRecord, attempt_no: int) -> str | None:
+        if run.payload.llm_execution_mode == "record":
+            return self._ledger.attempt_cassette_bundle(run.run_id, attempt_no=attempt_no)
         return None
 
 
@@ -1011,4 +1165,5 @@ __all__ = [
     "FindingStore",
     "ManifestLedger",
     "TerminalPublisher",
+    "project_runtime_parents",
 ]

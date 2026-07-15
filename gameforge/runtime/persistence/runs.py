@@ -696,6 +696,44 @@ class SqlRunRepository:
             return None
         return self.get(row.run_id)
 
+    def list_expired_leases(self, *, now_utc: str, limit: int) -> tuple[RunRecord, ...]:
+        """Bounded scan of active Runs whose current lease has already expired.
+
+        The queue-authority ``get_claim_candidate`` only surfaces queued/retry_wait
+        Runs; the reaper needs the complementary discovery over ``leased``/``running``
+        Runs whose sole active ``RunLease`` is past ``expires_at``. The scan is bounded
+        by ``limit`` and stably ordered (oldest expiry first) so a worker can drain
+        expired leases deterministically across restarts. Each returned ``RunRecord``
+        carries the current ``revision`` the caller feeds to ``reap_expired_lease`` /
+        ``sweep_timeout`` as the fenced ``expected_run_revision``.
+        """
+
+        _require_canonical_utc(now_utc, field_name="now_utc")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1024:
+            raise IntegrityViolation("expired-lease scan limit must be between 1 and 1024")
+        rows = (
+            self._session.execute(
+                select(RunLeaseRow.run_id)
+                .join(RunRow, RunRow.run_id == RunLeaseRow.run_id)
+                .where(
+                    RunLeaseRow.status == "active",
+                    RunLeaseRow.released_at.is_(None),
+                    func.julianday(RunLeaseRow.expires_at) < func.julianday(now_utc),
+                    RunRow.status.in_(("leased", "running")),
+                )
+                .order_by(func.julianday(RunLeaseRow.expires_at), RunLeaseRow.run_id)
+                .limit(limit)
+            )
+            .scalars()
+            .all()
+        )
+        runs: list[RunRecord] = []
+        for run_id in rows:
+            run = self.get(run_id)
+            if run is not None:
+                runs.append(run)
+        return tuple(runs)
+
     def claim(
         self,
         *,
