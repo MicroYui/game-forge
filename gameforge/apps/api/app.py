@@ -21,6 +21,7 @@ from gameforge.apps.api.routers.auth import auth_router
 from gameforge.apps.api.routers.content import content_read_router
 from gameforge.apps.api.routers.observability import observability_router
 from gameforge.apps.api.routers.workflows import workflow_read_router
+from gameforge.apps.api.routers.workflow_commands import workflow_command_router
 from gameforge.contracts.errors import DependencyUnavailable
 from gameforge.platform.read_models.content import ContentReadService
 from gameforge.platform.read_models.observability import ObservabilityReadService
@@ -78,6 +79,7 @@ def create_app(
     app.include_router(content_read_router(content_reads))
     app.include_router(workflow_read_router(workflow_reads))
     app.include_router(observability_router(observability_reads))
+    app.include_router(workflow_command_router())
     return app
 
 

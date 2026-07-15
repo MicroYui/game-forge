@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 import secrets
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 from urllib.parse import urlsplit
 
 from fastapi import Request
@@ -19,6 +19,7 @@ from gameforge.contracts.auth import (
 )
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.errors import AuthRequired
+from gameforge.contracts.api import WorkflowCommandPayloadV1, WorkflowCommandResponseV1
 from gameforge.runtime.observability import AlwaysOffSampler, Tracer
 
 if TYPE_CHECKING:
@@ -69,6 +70,94 @@ class ReadinessPort(Protocol):
     def check(self) -> tuple[str, ...]: ...
 
 
+WorkflowCommandOperation = Literal[
+    "spec.upload",
+    "patch.draft",
+    "patch.validate",
+    "patch.submit",
+    "patch.apply",
+    "patch.rebase",
+    "patch.resolve_conflicts",
+    "constraint.draft",
+    "constraint.revise",
+    "constraint.validate",
+    "constraint.submit",
+    "constraint.publish",
+    "approval.approve",
+    "approval.reject",
+    "approval.request_changes",
+    "rollback.draft",
+    "rollback.validate",
+    "rollback.submit",
+    "rollback.apply",
+]
+
+
+@dataclass(frozen=True, slots=True)
+class WorkflowCommandMetadata:
+    actor: ActorContext
+    request_id: str
+    trace_id: str | None
+    idempotency_key: str
+    request_hash: str
+    if_match: str
+
+    def __post_init__(self) -> None:
+        for name in ("request_id", "idempotency_key", "if_match"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value or len(value) > 4096:
+                raise ValueError(f"{name} must be a non-empty bounded string")
+        if (
+            not isinstance(self.request_hash, str)
+            or len(self.request_hash) != 64
+            or any(character not in "0123456789abcdef" for character in self.request_hash)
+        ):
+            raise ValueError("request_hash must be a lowercase SHA-256 digest")
+        if self.trace_id is not None and (
+            not isinstance(self.trace_id, str) or not self.trace_id or len(self.trace_id) > 512
+        ):
+            raise ValueError("trace_id must be a bounded string when supplied")
+
+
+@dataclass(frozen=True, slots=True)
+class WorkflowCommand:
+    operation: WorkflowCommandOperation
+    resource_kind: str
+    resource_id: str
+    payload: WorkflowCommandPayloadV1
+    metadata: WorkflowCommandMetadata
+
+    def __post_init__(self) -> None:
+        for name in ("resource_kind", "resource_id"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value or len(value) > 512:
+                raise ValueError(f"{name} must be a non-empty bounded string")
+
+
+@dataclass(frozen=True, slots=True)
+class WorkflowCommandResult:
+    value: WorkflowCommandResponseV1
+    resource_kind: str
+    resource_id: str
+    revision: int
+
+    def __post_init__(self) -> None:
+        for name in ("resource_kind", "resource_id"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value or len(value) > 512:
+                raise ValueError(f"{name} must be a non-empty bounded string")
+        if (
+            not isinstance(self.revision, int)
+            or isinstance(self.revision, bool)
+            or self.revision < 1
+        ):
+            raise ValueError("revision must be a positive integer")
+
+
+class WorkflowCommandPort(Protocol):
+    def execute(self, command: WorkflowCommand) -> WorkflowCommandResult: ...
+
+
 class _DiscardSpanExporter:
     def export(self, spans: object) -> None:
         del spans
@@ -114,6 +203,7 @@ class ApiDependencies:
     content_reads: ContentReadService | None = None
     workflow_reads: WorkflowReadService | None = None
     observability_reads: ObservabilityReadService | None = None
+    workflow_commands: WorkflowCommandPort | None = None
 
     def __post_init__(self) -> None:
         if not callable(self.request_id_factory):
@@ -157,6 +247,11 @@ __all__ = [
     "ReadinessPort",
     "SessionAuthenticationPort",
     "SessionCookieSettings",
+    "WorkflowCommand",
+    "WorkflowCommandMetadata",
+    "WorkflowCommandOperation",
+    "WorkflowCommandPort",
+    "WorkflowCommandResult",
     "api_dependencies",
     "require_actor",
 ]

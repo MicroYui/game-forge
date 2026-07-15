@@ -21,7 +21,13 @@ class _ProbeCapability:
         return self.calls
 
 
-def _capabilities(*, refs: object | None = None) -> TransactionCapabilities:
+def _capabilities(
+    *,
+    refs: object | None = None,
+    artifacts: object | None = None,
+    conflicts: object | None = None,
+    ref_transitions: object | None = None,
+) -> TransactionCapabilities:
     return TransactionCapabilities(
         refs=refs if refs is not None else object(),
         audit=object(),
@@ -30,6 +36,9 @@ def _capabilities(*, refs: object | None = None) -> TransactionCapabilities:
         object_bindings=object(),
         runs=object(),
         cost=object(),
+        artifacts=artifacts,
+        conflicts=conflicts,
+        ref_transitions=ref_transitions,
     )
 
 
@@ -46,6 +55,39 @@ def test_active_handle_exposes_each_transaction_capability() -> None:
         for field in fields(capabilities):
             assert getattr(transaction, field.name) is not getattr(capabilities, field.name)
         assert factory.require_owned(transaction) is transaction
+
+
+def test_existing_positional_capability_construction_remains_compatible() -> None:
+    existing = tuple(object() for _ in range(7))
+
+    capabilities = TransactionCapabilities(*existing)
+
+    assert (
+        tuple(getattr(capabilities, field.name) for field in fields(capabilities)[:7]) == existing
+    )
+    assert capabilities.artifacts is None
+    assert capabilities.conflicts is None
+    assert capabilities.ref_transitions is None
+
+
+@pytest.mark.parametrize("capability_name", ["artifacts", "conflicts", "ref_transitions"])
+def test_active_handle_exposes_new_transaction_capabilities(
+    capability_name: str,
+) -> None:
+    target = _ProbeCapability()
+    transaction = TransactionHandleFactory().begin(_capabilities(**{capability_name: target}))
+
+    assert getattr(transaction, capability_name).ping() == 1
+    transaction.commit()
+
+
+def test_unknown_capability_remains_an_invalid_state_transition() -> None:
+    transaction = TransactionHandleFactory().begin(_capabilities())
+
+    with pytest.raises(InvalidStateTransition, match="unknown transaction capability"):
+        transaction.capability("unknown")
+
+    transaction.rollback()
 
 
 def test_factory_rejects_nested_transaction_for_same_owner() -> None:
@@ -111,6 +153,27 @@ def test_escaped_capability_and_captured_method_remain_lifecycle_bound(
     captured_method = escaped.ping
 
     assert escaped is not target
+    assert escaped.ping() == 1
+    getattr(transaction, terminal_action)()
+
+    with pytest.raises(TransactionClosed, match="closed"):
+        escaped.ping()
+    with pytest.raises(TransactionClosed, match="closed"):
+        captured_method()
+    assert target.calls == 1
+
+
+@pytest.mark.parametrize("capability_name", ["artifacts", "conflicts", "ref_transitions"])
+@pytest.mark.parametrize("terminal_action", ["commit", "rollback"])
+def test_new_escaped_capability_and_captured_method_remain_lifecycle_bound(
+    terminal_action: str,
+    capability_name: str,
+) -> None:
+    target = _ProbeCapability()
+    transaction = TransactionHandleFactory().begin(_capabilities(**{capability_name: target}))
+    escaped = getattr(transaction, capability_name)
+    captured_method = escaped.ping
+
     assert escaped.ping() == 1
     getattr(transaction, terminal_action)()
 

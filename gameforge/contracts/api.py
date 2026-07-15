@@ -9,19 +9,28 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints,
 from gameforge.contracts.auth import *  # noqa: F403 - deliberate compatibility surface
 from gameforge.contracts.auth import __all__ as _auth_exports
 from gameforge.contracts.canonical import canonical_json
-from gameforge.contracts.diff import SnapshotDiff, SnapshotDiffEntry
-from gameforge.contracts.execution_profiles import ExecutionProfileViewV1
-from gameforge.contracts.findings import PatchV2
+from gameforge.contracts.diff import (
+    ConflictResolution,
+    RebaseResult,
+    SnapshotDiff,
+    SnapshotDiffEntry,
+)
+from gameforge.contracts.dsl import Constraint
+from gameforge.contracts.execution_profiles import ExecutionProfileViewV1, ProfileRefV1
+from gameforge.contracts.findings import PatchV2, TypedOp
 from gameforge.contracts.identity import DomainScope, DomainScopeValue, Role
 from gameforge.contracts.ir import Entity, Relation
 from gameforge.contracts.jobs import (
     MAX_COLLECTION_ITEMS,
     MAX_JSON_BYTES,
+    FindingEvidenceBindingV1,
     Problem,
+    RefReadBindingV1,
     RunCommandAckV1,
     RunCommandProblemV1,
     RunEventEnvelope,
     RunStatus,
+    SolverEngineRefV1,
 )
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.contracts.playtest import TaskSuiteV1
@@ -312,6 +321,284 @@ class RunViewV1(_FrozenModel):
         return self
 
 
+def _bounded_request_payload(value: BaseModel) -> None:
+    if len(canonical_json(value.model_dump(mode="json")).encode("utf-8")) > MAX_JSON_BYTES:
+        raise ValueError("request payload exceeds the API JSON bound")
+
+
+def _stable_unique_strings(values: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(sorted(set(values)))
+
+
+def _stable_unique_profiles(values: tuple[ProfileRefV1, ...]) -> tuple[ProfileRefV1, ...]:
+    by_value = {canonical_json(value.model_dump(mode="json")): value for value in values}
+    return tuple(by_value[key] for key in sorted(by_value))
+
+
+class HumanSpecUploadRequestV1(_FrozenModel):
+    request_schema_version: Literal["human-spec-upload-request@1"] = "human-spec-upload-request@1"
+    ref_name: BoundedId
+    expected_ref: RefValue | None
+    schema_registry_version: BoundedId
+    meta_schema_version: BoundedId
+    domain_scope: DomainScope
+    content_payload: dict[BoundedId, JsonValue] = Field(max_length=MAX_COLLECTION_ITEMS)
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "HumanSpecUploadRequestV1":
+        _bounded_request_payload(self)
+        return self
+
+
+class HumanPatchDraftRequestV1(_FrozenModel):
+    request_schema_version: Literal["human-patch-draft-request@1"] = "human-patch-draft-request@1"
+    base_snapshot_artifact_id: BoundedId
+    constraint_snapshot_artifact_id: BoundedId | None = None
+    ref_name: BoundedId
+    expected_ref: RefValue | None
+    expected_to_fix: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    preconditions: tuple[dict[str, JsonValue], ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    side_effect_risk: Annotated[str, StringConstraints(min_length=1, max_length=4096)]
+    ops: tuple[TypedOp, ...] = Field(min_length=1, max_length=MAX_COLLECTION_ITEMS)
+    rationale: Annotated[str, StringConstraints(min_length=1, max_length=16384)]
+    candidate_export_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+
+    @model_validator(mode="after")
+    def _canonical_and_bounded(self) -> "HumanPatchDraftRequestV1":
+        object.__setattr__(self, "expected_to_fix", _stable_unique_strings(self.expected_to_fix))
+        object.__setattr__(
+            self,
+            "candidate_export_profiles",
+            _stable_unique_profiles(self.candidate_export_profiles),
+        )
+        operation_ids = [operation.op_id for operation in self.ops]
+        if len(operation_ids) != len(set(operation_ids)):
+            raise ValueError("patch operation ids must be unique")
+        if self.candidate_export_profiles and self.constraint_snapshot_artifact_id is None:
+            raise ValueError("candidate export profiles require a constraint snapshot")
+        _bounded_request_payload(self)
+        return self
+
+
+class HumanConstraintDraftRequestV1(_FrozenModel):
+    request_schema_version: Literal["human-constraint-draft-request@1"] = (
+        "human-constraint-draft-request@1"
+    )
+    base_constraint_snapshot_artifact_id: BoundedId | None = None
+    ref_name: BoundedId
+    expected_ref: RefValue | None
+    dsl_grammar_version: BoundedId
+    domain_scope: DomainScope
+    constraints: tuple[Constraint, ...] = Field(min_length=1, max_length=MAX_COLLECTION_ITEMS)
+    source_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    rationale: Annotated[str, StringConstraints(min_length=1, max_length=16384)]
+
+    @model_validator(mode="after")
+    def _canonical_and_bounded(self) -> "HumanConstraintDraftRequestV1":
+        constraint_ids = [constraint.id for constraint in self.constraints]
+        if len(constraint_ids) != len(set(constraint_ids)):
+            raise ValueError("constraint ids must be unique")
+        if any(
+            constraint.dsl_grammar_version != self.dsl_grammar_version
+            for constraint in self.constraints
+        ):
+            raise ValueError("constraint grammar versions must match the request")
+        object.__setattr__(
+            self, "constraints", tuple(sorted(self.constraints, key=lambda item: item.id))
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_ids",
+            _stable_unique_strings(self.source_artifact_ids),
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class HumanConstraintRevisionRequestV1(HumanConstraintDraftRequestV1):
+    request_schema_version: Literal["human-constraint-revision-request@1"] = (
+        "human-constraint-revision-request@1"
+    )
+    approval_id: BoundedId
+    expected_subject_head_revision: PositiveInt
+    expected_workflow_revision: PositiveInt
+
+
+class PatchValidationAdmissionRequestV1(_FrozenModel):
+    request_schema_version: Literal["patch-validation-admission-request@1"] = (
+        "patch-validation-admission-request@1"
+    )
+    approval_id: BoundedId
+    expected_subject_head_revision: PositiveInt
+    expected_workflow_revision: PositiveInt
+    subject_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    base_snapshot_artifact_id: BoundedId
+    preview_snapshot_artifact_id: BoundedId
+    candidate_config_export_artifact_ids: tuple[BoundedId, ...] = Field(
+        max_length=MAX_COLLECTION_ITEMS
+    )
+    target: RefReadBindingV1
+    validation_policy: ProfileRefV1
+    checker_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    simulation_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    findings: tuple[FindingEvidenceBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    review_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    playtest_trace_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    regression_suite_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+
+    @model_validator(mode="after")
+    def _canonical_and_bounded(self) -> "PatchValidationAdmissionRequestV1":
+        for field_name in (
+            "candidate_config_export_artifact_ids",
+            "review_artifact_ids",
+            "playtest_trace_artifact_ids",
+            "regression_suite_artifact_ids",
+        ):
+            object.__setattr__(self, field_name, _stable_unique_strings(getattr(self, field_name)))
+        for field_name in ("checker_profiles", "simulation_profiles"):
+            object.__setattr__(self, field_name, _stable_unique_profiles(getattr(self, field_name)))
+        finding_keys = [(item.finding_id, item.finding_revision) for item in self.findings]
+        if len(finding_keys) != len(set(finding_keys)):
+            raise ValueError("finding bindings must identify unique revisions")
+        object.__setattr__(
+            self,
+            "findings",
+            tuple(sorted(self.findings, key=lambda item: (item.finding_id, item.finding_revision))),
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class ConstraintValidationAdmissionRequestV1(_FrozenModel):
+    request_schema_version: Literal["constraint-validation-admission-request@1"] = (
+        "constraint-validation-admission-request@1"
+    )
+    approval_id: BoundedId
+    expected_subject_head_revision: PositiveInt
+    expected_workflow_revision: PositiveInt
+    subject_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    base_constraint_snapshot_artifact_id: BoundedId | None = None
+    target: RefReadBindingV1
+    dsl_grammar_version: BoundedId
+    compiler_profile: ProfileRefV1
+    differential_engines: tuple[SolverEngineRefV1, ...] = Field(
+        min_length=2,
+        max_length=MAX_COLLECTION_ITEMS,
+    )
+    golden_suite_artifact_id: BoundedId | None = None
+    regression_suite_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    validation_policy: ProfileRefV1
+
+    @model_validator(mode="after")
+    def _canonical_and_bounded(self) -> "ConstraintValidationAdmissionRequestV1":
+        engine_keys = [(item.engine_id, item.version) for item in self.differential_engines]
+        if len(engine_keys) != len(set(engine_keys)):
+            raise ValueError("differential engine refs must be unique")
+        object.__setattr__(
+            self,
+            "differential_engines",
+            tuple(
+                sorted(self.differential_engines, key=lambda item: (item.engine_id, item.version))
+            ),
+        )
+        object.__setattr__(
+            self,
+            "regression_suite_artifact_ids",
+            _stable_unique_strings(self.regression_suite_artifact_ids),
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class RollbackValidationAdmissionRequestV1(_FrozenModel):
+    request_schema_version: Literal["rollback-validation-admission-request@1"] = (
+        "rollback-validation-admission-request@1"
+    )
+    approval_id: BoundedId
+    expected_subject_head_revision: PositiveInt
+    expected_workflow_revision: PositiveInt
+    subject_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    ref_name: BoundedId
+    expected_current_ref: RefValue
+    target_artifact_id: BoundedId
+    target_history_revision: PositiveInt
+    rollback_profile: ProfileRefV1
+    schema_compatibility_policy: ProfileRefV1
+    impact_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    regression_suite_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+
+    @model_validator(mode="after")
+    def _canonical_and_bounded(self) -> "RollbackValidationAdmissionRequestV1":
+        object.__setattr__(self, "impact_profiles", _stable_unique_profiles(self.impact_profiles))
+        object.__setattr__(
+            self,
+            "regression_suite_artifact_ids",
+            _stable_unique_strings(self.regression_suite_artifact_ids),
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class SubmitForApprovalRequestV1(_FrozenModel):
+    request_schema_version: Literal["submit-for-approval-request@1"] = (
+        "submit-for-approval-request@1"
+    )
+    approval_id: BoundedId
+    expected_workflow_revision: PositiveInt
+
+
+class WorkflowApplyRequestV1(_FrozenModel):
+    request_schema_version: Literal["workflow-apply-request@1"] = "workflow-apply-request@1"
+    approval_id: BoundedId
+    expected_workflow_revision: PositiveInt
+    subject_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    target_artifact_id: BoundedId
+    target_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    ref_name: BoundedId
+    expected_ref: RefValue | None
+
+
+class PatchRebaseRequestV1(_FrozenModel):
+    request_schema_version: Literal["patch-rebase-request@1"] = "patch-rebase-request@1"
+    approval_id: BoundedId
+    expected_subject_head_revision: PositiveInt
+    expected_workflow_revision: PositiveInt
+    ref_name: BoundedId
+    expected_ref: RefValue
+
+
+class ResolveConflictsRequestV1(PatchRebaseRequestV1):
+    request_schema_version: Literal["resolve-conflicts-request@1"] = "resolve-conflicts-request@1"
+    conflict_set_id: BoundedId
+    resolutions: tuple[ConflictResolution, ...] = Field(
+        min_length=1,
+        max_length=MAX_COLLECTION_ITEMS,
+    )
+
+    @model_validator(mode="after")
+    def _canonical_resolutions(self) -> "ResolveConflictsRequestV1":
+        ids = [item.conflict_id for item in self.resolutions]
+        if len(ids) != len(set(ids)):
+            raise ValueError("conflict resolutions must identify unique conflicts")
+        object.__setattr__(
+            self,
+            "resolutions",
+            tuple(sorted(self.resolutions, key=lambda item: item.conflict_id)),
+        )
+        _bounded_request_payload(self)
+        return self
+
+
+class RollbackDraftRequestV1(_FrozenModel):
+    request_schema_version: Literal["rollback-draft-request@1"] = "rollback-draft-request@1"
+    expected_current_ref: RefValue
+    target_artifact_id: BoundedId
+    target_history_revision: PositiveInt
+    rollback_profile: ProfileRefV1
+    reason: Annotated[str, StringConstraints(min_length=1, max_length=16384)]
+    reverses_approval_id: BoundedId | None = None
+
+
 class ApprovalDecisionRequestV1(_FrozenModel):
     request_schema_version: Literal["approval-decision-request@1"] = "approval-decision-request@1"
     decision: Literal["approve", "reject", "request_changes"]
@@ -405,6 +692,52 @@ class ApprovalViewV1(_FrozenModel):
         return self
 
 
+class WorkflowApplyResultV1(_FrozenModel):
+    result_schema_version: Literal["workflow-apply-result@1"] = "workflow-apply-result@1"
+    approval: ApprovalViewV1
+    ref_name: BoundedId
+    ref_value: RefValue
+    ref_transition_id: BoundedId | None = None
+    reversed_approval_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _subject_shape(self) -> "WorkflowApplyResultV1":
+        is_rollback = self.approval.approval.subject_kind == "rollback_request"
+        if is_rollback != (self.ref_transition_id is not None):
+            raise ValueError("rollback apply requires exactly one ref transition id")
+        if not is_rollback and self.reversed_approval_id is not None:
+            raise ValueError("only rollback apply may identify a reversed approval")
+        return self
+
+
+WorkflowCommandPayloadV1: TypeAlias = (
+    HumanSpecUploadRequestV1
+    | HumanPatchDraftRequestV1
+    | HumanConstraintDraftRequestV1
+    | HumanConstraintRevisionRequestV1
+    | PatchValidationAdmissionRequestV1
+    | ConstraintValidationAdmissionRequestV1
+    | RollbackValidationAdmissionRequestV1
+    | SubmitForApprovalRequestV1
+    | ApprovalDecisionRequestV1
+    | WorkflowApplyRequestV1
+    | PatchRebaseRequestV1
+    | ResolveConflictsRequestV1
+    | RollbackDraftRequestV1
+)
+
+WorkflowCommandResponseV1: TypeAlias = (
+    SpecViewV1
+    | PatchArtifactReadViewV1
+    | ConstraintProposalReadViewV1
+    | RollbackRequestReadViewV1
+    | RunAcceptedV1
+    | ApprovalViewV1
+    | WorkflowApplyResultV1
+    | RebaseResult
+)
+
+
 RunCommandServerFrame: TypeAlias = RunCommandAckV1 | RunCommandProblemV1
 
 
@@ -429,13 +762,22 @@ __all__ = [
     "ConstraintSnapshotViewV1",
     "ExecutionProfileReadViewV1",
     "GraphItemV1",
+    "HumanConstraintDraftRequestV1",
+    "HumanConstraintRevisionRequestV1",
+    "HumanPatchDraftRequestV1",
+    "HumanSpecUploadRequestV1",
     "LineageEntryV1",
     "OpaquePageCursor",
     "OpaquePageV1",
     "PatchArtifactReadViewV1",
+    "PatchRebaseRequestV1",
+    "PatchValidationAdmissionRequestV1",
     "Problem",
     "RefHistoryEntryV1",
+    "ResolveConflictsRequestV1",
+    "RollbackDraftRequestV1",
     "RollbackRequestReadViewV1",
+    "RollbackValidationAdmissionRequestV1",
     "ReviewArtifactViewV1",
     "RunAcceptedV1",
     "RunCommandAckV1",
@@ -446,6 +788,12 @@ __all__ = [
     "SchemaRegistryDocumentV1",
     "SnapshotDiffHttpPageV1",
     "SpecViewV1",
+    "SubmitForApprovalRequestV1",
     "TaskSuiteArtifactViewV1",
+    "ConstraintValidationAdmissionRequestV1",
+    "WorkflowApplyRequestV1",
+    "WorkflowApplyResultV1",
+    "WorkflowCommandPayloadV1",
+    "WorkflowCommandResponseV1",
     "encode_sse_event",
 ]

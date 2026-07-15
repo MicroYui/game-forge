@@ -29,6 +29,9 @@ _CAPABILITY_NAMES = frozenset(
         "auth",
         "policies",
         "idempotency",
+        "artifacts",
+        "conflicts",
+        "ref_transitions",
     }
 )
 _TerminalState = Literal["committed", "rolled_back"]
@@ -55,6 +58,9 @@ class TransactionCapabilities:
     auth: Any = None
     policies: Any = None
     idempotency: Any = None
+    artifacts: Any = None
+    conflicts: Any = None
+    ref_transitions: Any = None
 
 
 class TransactionHandle:
@@ -174,6 +180,18 @@ class TransactionHandle:
     @property
     def idempotency(self) -> Any:
         return self.capability("idempotency")
+
+    @property
+    def artifacts(self) -> Any:
+        return self.capability("artifacts")
+
+    @property
+    def conflicts(self) -> Any:
+        return self.capability("conflicts")
+
+    @property
+    def ref_transitions(self) -> Any:
+        return self.capability("ref_transitions")
 
     def _require_owner(self, owner_token: object) -> None:
         if owner_token is not self.__owner_token:

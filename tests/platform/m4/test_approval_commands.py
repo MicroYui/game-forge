@@ -9,7 +9,12 @@ from typing import Any, Literal
 import pytest
 from pydantic import ValidationError
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import (
+    Conflict,
+    Forbidden,
+    IntegrityViolation,
+    InvalidStateTransition,
+)
 from gameforge.contracts.execution_profiles import (
     ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
@@ -63,6 +68,7 @@ from gameforge.platform.approvals.commands import (
     ApprovalCommandCapabilities,
     ApprovalCommandContext,
     ApprovalCommandService,
+    ApprovalDecisionRequest,
     DraftPublicationResult,
     DraftSubjectFacts,
     EvidenceStateProjection,
@@ -71,8 +77,6 @@ from gameforge.platform.approvals.commands import (
     PreparedValidationStart,
     ValidationStartResult,
 )
-from gameforge.runtime.clock import FrozenUtcClock
-
 
 NOW_DT = datetime(2026, 7, 14, 12, 0, tzinfo=timezone.utc)
 NOW = "2026-07-14T12:00:00Z"
@@ -100,7 +104,11 @@ def _domain_ref(registry: DomainRegistryV1) -> DomainRegistryRefV1:
     )
 
 
-def _route(registry: DomainRegistryV1) -> DomainRoutePolicy:
+def _route(
+    registry: DomainRegistryV1,
+    *,
+    min_approvals: int = 1,
+) -> DomainRoutePolicy:
     rules = (
         DomainRouteRule(
             rule_id="route:economy",
@@ -109,7 +117,7 @@ def _route(registry: DomainRegistryV1) -> DomainRoutePolicy:
             route_role="numeric_designer",
             required_action="approval.decide",
             resource_kind="approval",
-            min_approvals=1,
+            min_approvals=min_approvals,
         ),
     )
     ref = _domain_ref(registry)
@@ -387,6 +395,14 @@ class _Policies:
         return self.approval if ref == expected else None
 
 
+class _Principals:
+    def __init__(self) -> None:
+        self.values: dict[str, Principal] = {}
+
+    def get(self, principal_id: str) -> Principal | None:
+        return self.values.get(principal_id)
+
+
 class _Idempotency:
     def __init__(self, state: _State) -> None:
         self.state = state
@@ -584,6 +600,25 @@ class _Uow:
 
 
 @dataclass
+class _CountingClock:
+    value: datetime
+    calls: int = 0
+
+    def now_utc(self) -> datetime:
+        self.calls += 1
+        return self.value
+
+
+@dataclass
+class _DecisionIdFactory:
+    calls: int = 0
+
+    def __call__(self) -> str:
+        self.calls += 1
+        return f"decision:server:{self.calls}"
+
+
+@dataclass
 class _Harness:
     state: _State
     uow: _Uow
@@ -599,12 +634,15 @@ class _Harness:
     route: DomainRoutePolicy
     roles: RolePolicy
     approval_policy: ApprovalPolicyV1
+    principals: _Principals
+    clock: _CountingClock
+    decision_ids: _DecisionIdFactory
 
 
-def _harness() -> _Harness:
+def _harness(*, min_approvals: int = 1) -> _Harness:
     state = _State()
     registry = _registry()
-    route = _route(registry)
+    route = _route(registry, min_approvals=min_approvals)
     roles = _roles(registry)
     approval = _approval_policy()
     subjects = _Subjects()
@@ -613,6 +651,9 @@ def _harness() -> _Harness:
     auto_apply = _AutoApply()
     runs = _Runs(state)
     audit = _Audit(state)
+    principals = _Principals()
+    clock = _CountingClock(NOW_DT)
+    decision_ids = _DecisionIdFactory()
     capabilities = ApprovalCommandCapabilities(
         approvals=_ApprovalRepo(state),
         policies=_Policies(registry, route, roles, approval),
@@ -626,13 +667,15 @@ def _harness() -> _Harness:
         evidence=evidence,
         auto_apply=auto_apply,
         refs=_Refs(state),
+        principals=principals,
     )
     uow = _Uow(state)
     service = ApprovalCommandService(
         unit_of_work=uow,
         bind_capabilities=lambda transaction: capabilities,
-        clock=FrozenUtcClock(NOW_DT),
+        clock=clock,
         audit_chain_id="authority",
+        decision_id_factory=decision_ids,
     )
     return _Harness(
         state=state,
@@ -649,6 +692,9 @@ def _harness() -> _Harness:
         route=route,
         roles=roles,
         approval_policy=approval,
+        principals=principals,
+        clock=clock,
+        decision_ids=decision_ids,
     )
 
 
@@ -1808,6 +1854,232 @@ def test_constraint_human_revision_requires_a_human_accountable_proposer() -> No
             ),
             context=_context(key="constraint:service", request_hash="0" * 64),
         )
+
+
+def _pending_item(harness: _Harness) -> ApprovalItem:
+    _, item = _validated(harness)
+    return harness.service.submit_for_approval(
+        approval_id=item.approval_id,
+        expected_workflow_revision=item.workflow_revision,
+        context=_context(key="submit:server-decision", request_hash="a" * 64),
+    )
+
+
+def _server_decision_request(item: ApprovalItem) -> ApprovalDecisionRequest:
+    return ApprovalDecisionRequest(
+        requirement_ids=("route:economy",),
+        decision="approve",
+        expected_workflow_revision=item.workflow_revision,
+        reason_code="reviewed",
+        comment="exact evidence reviewed",
+    )
+
+
+def test_decide_current_owns_identity_time_and_id_and_replays_before_generation() -> None:
+    harness = _harness()
+    pending = _pending_item(harness)
+    reviewer = _principal("human:reviewer")
+    harness.principals.values[reviewer.id] = reviewer
+    request = _server_decision_request(pending)
+    context = _context(
+        actor=reviewer.id,
+        key="decision:server-owned",
+        request_hash="b" * 64,
+    )
+    clock_calls = harness.clock.calls
+
+    approved = harness.service.decide_current(
+        approval_id=pending.approval_id,
+        request=request,
+        context=context,
+    )
+
+    assert approved.status == "approved"
+    assert approved.workflow_revision == pending.workflow_revision + 1
+    assert approved.decisions == (
+        ApprovalDecision(
+            decision_id="decision:server:1",
+            requirement_ids=request.requirement_ids,
+            decision=request.decision,
+            actor=context.actor,
+            expected_workflow_revision=request.expected_workflow_revision,
+            reason_code=request.reason_code,
+            comment=request.comment,
+            occurred_at=NOW,
+        ),
+    )
+    assert harness.decision_ids.calls == 1
+    assert harness.clock.calls == clock_calls + 1
+
+    progressed = _replace_item(
+        approved,
+        status="applied",
+        workflow_revision=approved.workflow_revision + 1,
+        applied_at=NOW,
+    )
+    harness.state.approvals[progressed.approval_id] = progressed
+    harness.capabilities.principals = None
+    harness.capabilities.policies = None
+    harness.capabilities.audit = None
+
+    assert (
+        harness.service.decide_current(
+            approval_id=pending.approval_id,
+            request=request,
+            context=context,
+        )
+        == approved
+    )
+    assert harness.decision_ids.calls == 1
+    assert harness.clock.calls == clock_calls + 1
+
+    with pytest.raises(Conflict, match="different request"):
+        harness.service.decide_current(
+            approval_id=pending.approval_id,
+            request=request,
+            context=context.model_copy(update={"request_hash": "c" * 64}),
+        )
+    assert harness.decision_ids.calls == 1
+    assert harness.clock.calls == clock_calls + 1
+
+
+@pytest.mark.parametrize(
+    ("field_name", "value"),
+    [
+        ("decision_id", "decision:client"),
+        (
+            "actor",
+            {"principal_id": "human:attacker", "principal_kind": "human"},
+        ),
+        ("occurred_at", NOW),
+        ("status", "approved"),
+        (
+            "proposer",
+            {"principal_id": "human:attacker", "principal_kind": "human"},
+        ),
+    ],
+)
+def test_decision_request_rejects_server_owned_fields(
+    field_name: str,
+    value: object,
+) -> None:
+    payload = {
+        "requirement_ids": ["route:economy"],
+        "decision": "approve",
+        "expected_workflow_revision": 3,
+        "reason_code": "reviewed",
+        field_name: value,
+    }
+
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        ApprovalDecisionRequest.model_validate(payload)
+
+
+def test_decide_current_supports_partial_requirement_approval() -> None:
+    harness = _harness(min_approvals=2)
+    pending = _pending_item(harness)
+    reviewer = _principal("human:reviewer")
+    harness.principals.values[reviewer.id] = reviewer
+
+    partial = harness.service.decide_current(
+        approval_id=pending.approval_id,
+        request=_server_decision_request(pending),
+        context=_context(
+            actor=reviewer.id,
+            key="decision:partial",
+            request_hash="d" * 64,
+        ),
+    )
+
+    assert partial.status == "pending_approval"
+    assert partial.workflow_revision == pending.workflow_revision + 1
+    assert partial.decisions[0].requirement_ids == ("route:economy",)
+    assert harness.state.audit[-1][0] == "approval.partially_approved"
+
+
+@pytest.mark.parametrize(
+    "current_identity",
+    ["missing", "roles_revoked", "disabled", "nonhuman"],
+)
+def test_decide_current_reloads_current_human_roles_fail_closed(
+    current_identity: str,
+) -> None:
+    harness = _harness()
+    pending = _pending_item(harness)
+    reviewer = _principal("human:reviewer")
+    if current_identity == "roles_revoked":
+        reviewer = reviewer.model_copy(update={"roles": ()})
+    elif current_identity == "disabled":
+        reviewer = reviewer.model_copy(update={"status": "disabled"})
+    elif current_identity == "nonhuman":
+        reviewer = reviewer.model_copy(update={"kind": "service"})
+    if current_identity != "missing":
+        harness.principals.values[reviewer.id] = reviewer
+    before = harness.state.approvals[pending.approval_id]
+
+    with pytest.raises(Forbidden):
+        harness.service.decide_current(
+            approval_id=pending.approval_id,
+            request=_server_decision_request(pending),
+            context=_context(
+                actor=reviewer.id,
+                key=f"decision:{current_identity}",
+                request_hash="e" * 64,
+            ),
+        )
+
+    assert harness.state.approvals[pending.approval_id] == before
+    assert not harness.state.approvals[pending.approval_id].decisions
+
+
+def test_decide_current_requires_exact_retained_policy_snapshot() -> None:
+    harness = _harness()
+    pending = _pending_item(harness)
+    reviewer = _principal("human:reviewer")
+    harness.principals.values[reviewer.id] = reviewer
+    policies = harness.capabilities.policies
+    assert isinstance(policies, _Policies)
+    policies.roles = policies.roles.model_copy(update={"policy_digest": "f" * 64})
+
+    with pytest.raises(IntegrityViolation, match="exact retained governance policy"):
+        harness.service.decide_current(
+            approval_id=pending.approval_id,
+            request=_server_decision_request(pending),
+            context=_context(
+                actor=reviewer.id,
+                key="decision:missing-policy",
+                request_hash="f" * 64,
+            ),
+        )
+
+    assert harness.state.approvals[pending.approval_id] == pending
+
+
+def test_decide_current_rolls_back_decision_cas_when_audit_fails() -> None:
+    harness = _harness()
+    pending = _pending_item(harness)
+    reviewer = _principal("human:reviewer")
+    harness.principals.values[reviewer.id] = reviewer
+    context = _context(
+        actor=reviewer.id,
+        key="decision:audit-failure",
+        request_hash="1" * 64,
+    )
+    harness.audit.fail = True
+
+    with pytest.raises(IntegrityViolation, match="audit unavailable"):
+        harness.service.decide_current(
+            approval_id=pending.approval_id,
+            request=_server_decision_request(pending),
+            context=context,
+        )
+
+    assert harness.state.approvals[pending.approval_id] == pending
+    assert (
+        context.idempotency_scope,
+        "approval.decide",
+        context.idempotency_key,
+    ) not in harness.state.idempotency
 
 
 def test_decide_uses_atomic_repository_primitive_idempotency_and_audit() -> None:

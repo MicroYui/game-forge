@@ -7,6 +7,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any, Literal, Protocol
+from uuid import uuid4
 
 from pydantic import (
     BaseModel,
@@ -18,7 +19,12 @@ from pydantic import (
     model_validator,
 )
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import (
+    Conflict,
+    Forbidden,
+    IntegrityViolation,
+    InvalidStateTransition,
+)
 from gameforge.contracts.findings import PatchV2, PatchView
 from gameforge.contracts.identity import (
     DomainRegistryRefV1,
@@ -81,6 +87,24 @@ class ApprovalCommandContext(_FrozenModel):
     @property
     def accountable_actor(self) -> AuditActor:
         return self.initiated_by or self.actor
+
+
+class ApprovalDecisionRequest(_FrozenModel):
+    """Client-controlled fields for one server-owned approval decision."""
+
+    requirement_ids: tuple[NonEmptyStr, ...]
+    decision: Literal["approve", "reject", "request_changes"]
+    expected_workflow_revision: PositiveInt
+    reason_code: NonEmptyStr
+    comment: NonEmptyStr | None = None
+
+    @field_validator("requirement_ids")
+    @classmethod
+    def _canonical_requirement_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        canonical = tuple(sorted(set(value)))
+        if not canonical:
+            raise ValueError("decision requirement_ids must be non-empty")
+        return canonical
 
 
 class PreparedObjectBinding(_FrozenModel):
@@ -297,6 +321,12 @@ class GovernancePolicyRepository(Protocol):
     ) -> ApprovalPolicyV1 | None: ...
 
 
+class ApprovalDecisionPrincipalRepository(Protocol):
+    """Project the current principal and active roles in the command transaction."""
+
+    def get(self, principal_id: str) -> Principal | None: ...
+
+
 class ArtifactRepository(Protocol):
     def get(self, artifact_id: str) -> ArtifactV2 | None: ...
 
@@ -422,6 +452,7 @@ class ApprovalCommandCapabilities:
     evidence: ApprovalEvidenceGateway | None
     auto_apply: ApprovalAutoApplyGateway | None = None
     refs: RefReader | None = None
+    principals: ApprovalDecisionPrincipalRepository | None = None
 
 
 class ApprovalUnitOfWork(Protocol):
@@ -441,6 +472,10 @@ def _utc_text(clock: UtcClock) -> str:
     ):
         raise IntegrityViolation("approval command clock must return UTC")
     return now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _default_decision_id() -> str:
+    return f"decision:{uuid4()}"
 
 
 def _required[T](value: T | None, name: str) -> T:
@@ -463,6 +498,7 @@ class ApprovalCommandService:
         bind_capabilities: CapabilityBinder,
         clock: UtcClock,
         audit_chain_id: str,
+        decision_id_factory: Callable[[], str] | None = None,
     ) -> None:
         if not audit_chain_id:
             raise ValueError("audit_chain_id must be non-empty")
@@ -470,6 +506,7 @@ class ApprovalCommandService:
         self._bind_capabilities = bind_capabilities
         self._clock = clock
         self._audit_chain_id = audit_chain_id
+        self._decision_id_factory = decision_id_factory or _default_decision_id
 
     def publish_draft(
         self,
@@ -917,6 +954,101 @@ class ApprovalCommandService:
             approvals.append_decision_and_compare_and_set(
                 item.approval_id,
                 decision.expected_workflow_revision,
+                decision,
+                replacement,
+            )
+            action = {
+                "approved": "approval.approved",
+                "rejected": "approval.rejected",
+                "changes_requested": "approval.changes_requested",
+                "pending_approval": "approval.partially_approved",
+            }[replacement.status]
+            self._audit(audit, context, action=action, item=replacement)
+            response = {"approval_item": replacement.model_dump(mode="json")}
+            self._put_idempotent(
+                idempotency,
+                context,
+                operation="approval.decide",
+                item=replacement,
+                response=response,
+            )
+            return replacement
+
+    def decide_current(
+        self,
+        *,
+        approval_id: str,
+        request: ApprovalDecisionRequest,
+        context: ApprovalCommandContext,
+    ) -> ApprovalItem:
+        """Decide using only current server authority and server-owned metadata."""
+
+        with self._unit_of_work.begin() as transaction:
+            capabilities = self._bind_capabilities(transaction)
+            approvals = _required(capabilities.approvals, "approvals")
+            idempotency = _required(capabilities.idempotency, "idempotency")
+            item = self._load_item(approvals, approval_id)
+
+            replay = self._get_idempotent(
+                idempotency,
+                context,
+                operation="approval.decide",
+            )
+            if replay is not None:
+                return self._decision_request_response(
+                    replay,
+                    approval_id=approval_id,
+                    request=request,
+                    actor=context.actor,
+                    current=item,
+                )
+
+            if context.actor.principal_kind != "human" or context.initiated_by is not None:
+                raise Forbidden("approval decisions require a direct human actor")
+            self._require_current_head(approvals, item)
+            policies = _required(capabilities.policies, "policies")
+            principals = _required(capabilities.principals, "principals")
+            audit = _required(capabilities.audit, "audit")
+            principal = principals.get(context.actor.principal_id)
+            if principal is None:
+                raise Forbidden("approval decision actor has no current principal")
+            registry, route, role, approval_policy = self._resolve_policies(
+                item=item,
+                policies=policies,
+            )
+            validate_approval_policy_bindings(
+                item=item,
+                domain_registry=registry,
+                route_policy=route,
+                role_policy=role,
+                approval_policy=approval_policy,
+            )
+
+            decision = ApprovalDecision(
+                decision_id=self._decision_id_factory(),
+                requirement_ids=request.requirement_ids,
+                decision=request.decision,
+                actor=context.actor,
+                expected_workflow_revision=request.expected_workflow_revision,
+                reason_code=request.reason_code,
+                comment=request.comment,
+                occurred_at=_utc_text(self._clock),
+            )
+            replacement = apply_approval_decision(
+                item=item,
+                decision=decision,
+                principal=principal,
+                domain_registry=registry,
+                route_policy=route,
+                role_policy=role,
+                approval_policy=approval_policy,
+            )
+            if any(prior.decision_id == decision.decision_id for prior in item.decisions):
+                raise IntegrityViolation("decision exists without its command idempotency result")
+
+            approvals.append_decision_and_compare_and_set(
+                item.approval_id,
+                request.expected_workflow_revision,
                 decision,
                 replacement,
             )
@@ -1528,6 +1660,47 @@ class ApprovalCommandService:
             )
         return retained
 
+    @classmethod
+    def _decision_request_response(
+        cls,
+        response: Mapping[str, Any],
+        *,
+        approval_id: str,
+        request: ApprovalDecisionRequest,
+        actor: AuditActor,
+        current: ApprovalItem,
+    ) -> ApprovalItem:
+        expected_statuses = {
+            "approve": frozenset({"pending_approval", "approved"}),
+            "reject": frozenset({"rejected"}),
+            "request_changes": frozenset({"changes_requested"}),
+        }[request.decision]
+        retained = cls._approval_item_response(
+            response,
+            operation="decision",
+            approval_id=approval_id,
+            expected_workflow_revision=request.expected_workflow_revision,
+            expected_statuses=expected_statuses,
+            current=current,
+        )
+        matching = tuple(
+            decision
+            for decision in retained.decisions
+            if (
+                decision.requirement_ids == request.requirement_ids
+                and decision.decision == request.decision
+                and decision.actor == actor
+                and decision.expected_workflow_revision == request.expected_workflow_revision
+                and decision.reason_code == request.reason_code
+                and decision.comment == request.comment
+            )
+        )
+        if len(matching) != 1:
+            raise IntegrityViolation(
+                "decision idempotency response does not contain the requested decision"
+            )
+        return retained
+
     def _audit(
         self,
         audit: ApprovalAuditWriter,
@@ -1558,6 +1731,8 @@ __all__ = [
     "ApprovalCommandCapabilities",
     "ApprovalCommandContext",
     "ApprovalCommandService",
+    "ApprovalDecisionPrincipalRepository",
+    "ApprovalDecisionRequest",
     "ApprovalEvidenceGateway",
     "ApprovalRunGateway",
     "DraftLineageVerifier",

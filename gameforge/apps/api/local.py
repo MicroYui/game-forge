@@ -9,7 +9,7 @@ from __future__ import annotations
 import base64
 import binascii
 from collections.abc import AsyncIterator, Mapping, Sequence
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from hashlib import sha256
 import hmac
@@ -36,6 +36,7 @@ from gameforge.apps.api.health import (
     SloRetentionReadinessProbe,
 )
 from gameforge.apps.api.local_reads import build_local_read_services
+from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
 from gameforge.apps.cli.identity import (
     AUDIT_CHAIN_ID_ENV,
     PASSWORD_HASH_POLICY_VERSION_ENV,
@@ -45,6 +46,20 @@ from gameforge.apps.cli.identity import (
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.observability import SpanDataV1
 from gameforge.platform.audit.gate import AuditGate
+from gameforge.platform.approvals.apply import (
+    ApprovedApplyCapabilities,
+    ApprovedApplyService,
+    ExactRollbackExecutionVerifier,
+)
+from gameforge.platform.approvals.commands import (
+    ApprovalCommandCapabilities,
+    ApprovalCommandService,
+)
+from gameforge.platform.diff.rebase import (
+    RebaseWorkflowCapabilities,
+    RebaseWorkflowService,
+)
+from gameforge.platform.read_models.workflows import CurrentApprovalProgressProjector
 from gameforge.platform.identity.authentication import (
     ApiKeyAuthenticationCapabilities,
     ApiKeyAuthenticationService,
@@ -63,6 +78,18 @@ from gameforge.platform.slo.service import (
     SLODefinitionCapabilities,
     SLODefinitionService,
 )
+from gameforge.platform.workflow.readers import (
+    WorkflowDraftLineageVerifier,
+    WorkflowTypedReaders,
+)
+from gameforge.platform.workflow.service import (
+    WorkflowCommandService,
+    WorkflowReadPort,
+)
+from gameforge.platform.workflow.spec import (
+    SpecUploadCapabilities,
+    SpecUploadService,
+)
 from gameforge.runtime.auth.local import (
     LocalApiKeyAuthenticator,
     LocalPasswordAuthenticator,
@@ -77,11 +104,19 @@ from gameforge.runtime.observability import AlwaysOnSampler, Tracer
 from gameforge.runtime.observability.local_store import LocalTelemetryStore
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.audit import SqlAuditSink
+from gameforge.runtime.persistence.approvals import SqlApprovalRepository
+from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.auth import SqlAuthRepository
+from gameforge.runtime.persistence.conflicts import SqlConflictSetRepository
+from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, DEFAULT_URL, get_engine
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
+from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from gameforge.runtime.persistence.ref_transitions import SqlRefTransitionRepository
+from gameforge.runtime.persistence.refs import SqlRefStore
+from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.slo import SqlSloRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
@@ -258,6 +293,201 @@ class LocalApiResources:
         self.engine.dispose()
 
 
+class _PrincipalGet:
+    """Adapt the transaction identity capability to the principal-get Protocol."""
+
+    def __init__(self, identities: object) -> None:
+        self._identities = identities
+
+    def get(self, principal_id: str) -> object | None:
+        return self._identities.project(principal_id)  # type: ignore[attr-defined]
+
+
+def _build_workflow_command_service(
+    *,
+    config: LocalApiConfig,
+    clock: SystemUtcClock,
+    engine: Engine,
+    object_store: LocalObjectStore,
+    unit_of_work: SqliteUnitOfWork,
+    execution_profile_catalog: object,
+) -> WorkflowCommandAdapter:
+    """Compose the synchronous workflow-command port over the real write UoW.
+
+    Governance and domain-scope resolution (draft stamping) and Run admission
+    (``*.validate``) stay deferred (interface-present) until their milestones wire
+    them; those operations fail closed. Spec upload, submit/decide, apply/publish and
+    rebase operate on the real SQLite authority.
+    """
+
+    draft_verifier = WorkflowDraftLineageVerifier()
+
+    def readers(transaction: object) -> WorkflowTypedReaders:
+        return WorkflowTypedReaders(
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+            objects=object_store,
+        )
+
+    def command_capabilities(transaction: object) -> ApprovalCommandCapabilities:
+        bound = readers(transaction)
+        return ApprovalCommandCapabilities(
+            approvals=transaction.approvals,  # type: ignore[attr-defined]
+            policies=transaction.policies,  # type: ignore[attr-defined]
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+            idempotency=transaction.idempotency,  # type: ignore[attr-defined]
+            audit=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
+            runs=None,
+            subjects=bound,
+            lineage=draft_verifier,
+            evidence=bound,
+            refs=transaction.refs,  # type: ignore[attr-defined]
+            principals=_PrincipalGet(transaction.identity),  # type: ignore[attr-defined]
+        )
+
+    def apply_capabilities(transaction: object) -> ApprovedApplyCapabilities:
+        bound = readers(transaction)
+        return ApprovedApplyCapabilities(
+            approvals=transaction.approvals,  # type: ignore[attr-defined]
+            policies=transaction.policies,  # type: ignore[attr-defined]
+            principals=_PrincipalGet(transaction.identity),  # type: ignore[attr-defined]
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            refs=transaction.refs,  # type: ignore[attr-defined]
+            transitions=transaction.ref_transitions,  # type: ignore[attr-defined]
+            idempotency=transaction.idempotency,  # type: ignore[attr-defined]
+            audit=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
+            subjects=bound,
+            evidence=bound,
+            targets=bound,
+            rollback_execution=ExactRollbackExecutionVerifier(
+                runs=transaction.runs,  # type: ignore[attr-defined]
+                profiles=transaction.policies,  # type: ignore[attr-defined]
+            ),
+        )
+
+    def spec_capabilities(transaction: object) -> SpecUploadCapabilities:
+        return SpecUploadCapabilities(
+            refs=transaction.refs,  # type: ignore[attr-defined]
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+            audit=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
+            idempotency=transaction.idempotency,  # type: ignore[attr-defined]
+        )
+
+    commands = ApprovalCommandService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=command_capabilities,
+        clock=clock,
+        audit_chain_id=config.audit_chain_id,
+    )
+    applies = ApprovedApplyService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=apply_capabilities,
+        clock=clock,
+        audit_chain_id=config.audit_chain_id,
+    )
+    spec_service = SpecUploadService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=spec_capabilities,
+        clock=clock,
+        audit_chain_id=config.audit_chain_id,
+    )
+
+    cursor_key = _derive_key(config.root_secret, "workflow-cursor")
+
+    class _RebasePayloads:
+        def load_patch(self, artifact: object) -> object:
+            with Session(engine) as session:
+                return _workflow_readers(
+                    session, object_store, config.object_store_id, cursor_key, clock
+                ).load_patch(artifact)  # type: ignore[arg-type]
+
+        def load_snapshot(self, artifact: object) -> object:
+            with Session(engine) as session:
+                return _workflow_readers(
+                    session, object_store, config.object_store_id, cursor_key, clock
+                ).load_snapshot(artifact)  # type: ignore[arg-type]
+
+    def rebase_capabilities(transaction: object) -> RebaseWorkflowCapabilities:
+        return RebaseWorkflowCapabilities(
+            approval=command_capabilities(transaction),
+            conflicts=transaction.conflicts,  # type: ignore[attr-defined]
+        )
+
+    rebase_service = RebaseWorkflowService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=rebase_capabilities,
+        approval_commands=commands,
+        payloads=_RebasePayloads(),
+        clock=clock,
+        audit_chain_id=config.audit_chain_id,
+    )
+
+    @contextmanager
+    def read_scope():
+        with Session(engine) as session:
+            object_bindings = SqlObjectBindingRepository(
+                session, object_store, config.object_store_id
+            )
+            cursor_signer = CursorSigner(signing_key=cursor_key, clock=clock)
+            artifacts = SqlArtifactRepository(
+                session,
+                binding_repository=object_bindings,
+                cursor_signer=cursor_signer,
+                clock=clock,
+            )
+            policies = SqlPolicySnapshotRepository(session, clock=clock)
+            identities = SqlIdentityRepository(session, clock=clock)
+            yield WorkflowReadPort(
+                artifacts=artifacts,
+                refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=clock),
+                approvals=SqlApprovalRepository(session),
+                policies=policies,
+                readers=WorkflowTypedReaders(
+                    artifacts=artifacts, bindings=object_bindings, objects=object_store
+                ),
+                progress_projector=CurrentApprovalProgressProjector(
+                    policy_repository=policies,
+                    role_policy_version=config.role_policy_version,
+                    role_policy_digest=config.role_policy_digest,
+                    principal_resolver=identities.project,
+                ),
+            )
+
+    service = WorkflowCommandService(
+        clock=clock,
+        object_store=object_store,
+        read_scope=read_scope,
+        approval_commands=commands,
+        apply_service=applies,
+        rebase_service=rebase_service,
+        spec_service=spec_service,
+        governance=None,
+        scope_resolver=None,
+        admission=None,
+        execution_profile_catalog=execution_profile_catalog,
+    )
+    return WorkflowCommandAdapter(service)
+
+
+def _workflow_readers(
+    session: Session,
+    object_store: LocalObjectStore,
+    store_id: str,
+    cursor_key: bytes,
+    clock: SystemUtcClock,
+) -> WorkflowTypedReaders:
+    object_bindings = SqlObjectBindingRepository(session, object_store, store_id)
+    artifacts = SqlArtifactRepository(
+        session,
+        binding_repository=object_bindings,
+        cursor_signer=CursorSigner(signing_key=cursor_key, clock=clock),
+        clock=clock,
+    )
+    return WorkflowTypedReaders(artifacts=artifacts, bindings=object_bindings, objects=object_store)
+
+
 def build_local_api_resources(
     config: LocalApiConfig,
     *,
@@ -295,19 +525,36 @@ def build_local_api_resources(
     password_runtime = Argon2PasswordRuntime()
 
     def capability_factory(session: Session) -> TransactionCapabilities:
+        cursor_signer = CursorSigner(
+            signing_key=_derive_key(config.root_secret, "workflow-cursor"),
+            clock=clock,
+        )
+        object_bindings = SqlObjectBindingRepository(
+            session,
+            object_store,
+            config.object_store_id,
+        )
         return TransactionCapabilities(
-            refs=None,
+            refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=clock),
             audit=SqlAuditSink(session),
-            approvals=None,
+            approvals=SqlApprovalRepository(session),
             lineage=None,
-            object_bindings=None,
-            runs=None,
+            object_bindings=object_bindings,
+            runs=SqlRunRepository(session),
             cost=SqlCostLedger(session, clock=clock),
             slo=SqlSloRepository(session),
             identity=SqlIdentityRepository(session, clock=clock),
             auth=SqlAuthRepository(session, clock=clock),
             policies=SqlPolicySnapshotRepository(session, clock=clock),
             idempotency=SqlIdempotencyRepository(session, clock=clock),
+            artifacts=SqlArtifactRepository(
+                session,
+                binding_repository=object_bindings,
+                cursor_signer=cursor_signer,
+                clock=clock,
+            ),
+            conflicts=SqlConflictSetRepository(session, cursor_signer=cursor_signer, clock=clock),
+            ref_transitions=SqlRefTransitionRepository(session),
         )
 
     unit_of_work = SqliteUnitOfWork(engine, capability_factory)
@@ -427,6 +674,14 @@ def build_local_api_resources(
         cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
         clock=clock,
     )
+    workflow_commands = _build_workflow_command_service(
+        config=config,
+        clock=clock,
+        engine=engine,
+        object_store=object_store,
+        unit_of_work=unit_of_work,
+        execution_profile_catalog=execution_profile_catalogs[0],
+    )
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
         api_key_authentication=api_key_authentication,
@@ -435,6 +690,7 @@ def build_local_api_resources(
         content_reads=read_services.content,
         workflow_reads=read_services.workflows,
         observability_reads=read_services.observability,
+        workflow_commands=workflow_commands,
         tracer=Tracer(
             exporter=_LocalSpanExporter(telemetry_store),
             sampler=AlwaysOnSampler(),
