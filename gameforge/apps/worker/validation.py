@@ -11,11 +11,14 @@ spine solver backend (``spine/checkers/smt.py`` z3 / ``spine/checkers/asp.py``
 Clingo) and reports whether ITS domain applies to the candidate and, if so, a
 deterministic consistency verdict. The two initial engines are DOMAIN-PARTITIONED
 (z3 = numeric SMT, Clingo = structural ASP), so an engine whose domain does not
-apply to the candidate reports ``not_applicable`` (recorded as an ``unproven``
-differential stage — never a vacuous pass), and an in-domain constraint it cannot
-decide reports ``undecided`` (also ``unproven``). Only a genuinely-evaluated
-consistent domain is a ``passed`` stage; any ``unsat`` is a genuine contradiction
-(``failed``). No LLM SDK is imported here.
+apply to the candidate reports ``not_applicable`` (a sound ``not_applicable``
+differential stage — it executed and found nothing to attest; it does NOT block
+validation and is NOT a vacuous pass), and an in-domain constraint it cannot decide
+reports ``undecided`` (``unproven``). Only a genuinely-evaluated consistent domain
+is a ``passed`` stage; any ``unsat`` is a genuine contradiction (``failed``). Each
+engine also reports the constraint ids it positively decided so the handler's
+cross-engine soundness guard can require every constraint to be covered. No LLM SDK
+is imported here.
 """
 
 from __future__ import annotations
@@ -110,16 +113,29 @@ class Z3DifferentialEngine:
             return DifferentialEngineResultV1(
                 status="not_applicable", reason_code="engine_domain_not_applicable"
             )
+        decided: list[str] = []
         undecided_reason: str | None = None
         for constraint in numeric:
             verdict, reason = self._check(constraint)
             if verdict == "inconsistent":
-                return DifferentialEngineResultV1(status="evaluated", consistency="inconsistent")
+                return DifferentialEngineResultV1(
+                    status="evaluated",
+                    consistency="inconsistent",
+                    decided_constraint_ids=tuple(decided),
+                )
             if verdict == "undecided":
                 undecided_reason = reason
+            else:  # consistent
+                decided.append(constraint.id)
         if undecided_reason is not None:
-            return DifferentialEngineResultV1(status="undecided", reason_code=undecided_reason)
-        return DifferentialEngineResultV1(status="evaluated", consistency="consistent")
+            return DifferentialEngineResultV1(
+                status="undecided",
+                reason_code=undecided_reason,
+                decided_constraint_ids=tuple(decided),
+            )
+        return DifferentialEngineResultV1(
+            status="evaluated", consistency="consistent", decided_constraint_ids=tuple(decided)
+        )
 
     def _check(self, constraint: Constraint) -> tuple[str, str | None]:
         try:
@@ -189,7 +205,11 @@ class ClingoDifferentialEngine:
                 return DifferentialEngineResultV1(
                     status="undecided", reason_code="clingo_grounding_error"
                 )
-        return DifferentialEngineResultV1(status="evaluated", consistency="consistent")
+        return DifferentialEngineResultV1(
+            status="evaluated",
+            consistency="consistent",
+            decided_constraint_ids=tuple(constraint.id for constraint in structural),
+        )
 
 
 def build_differential_engines() -> dict[str, ConstraintDifferentialEngine]:

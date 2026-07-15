@@ -216,22 +216,54 @@ def test_mixed_candidate_validated_when_both_engines_positively_decide() -> None
     assert isinstance(ev_set.target_binding, ConstraintTargetBindingV1)
 
 
-def test_purely_numeric_candidate_is_unproven_not_vacuously_validated() -> None:
-    # z3's domain applies (numeric) and it positively decides consistent; Clingo's
-    # STRUCTURAL domain does NOT apply -> its differential stage is UNPROVEN
-    # (engine_domain_not_applicable), NEVER a vacuous pass. With one engine unable
-    # to decide, the candidate is not fully cross-checked -> NOT `constraint_validated`.
+def test_purely_numeric_candidate_validated_via_z3() -> None:
+    # z3's numeric domain applies and it soundly decides `sat`; Clingo's STRUCTURAL
+    # domain is honestly not_applicable (it executed and found nothing in its domain)
+    # -> that stage does NOT block validation. z3's positive decision covers the only
+    # constraint -> `constraint_validated`.
     store = _store((_constraint("C_cap", "reward_gold <= 80"),))
     outcome = _handler(store)(_context(store, _payload()))
 
-    assert outcome.summary.outcome_code != "constraint_validated"
-    assert outcome.summary.outcome_code == "constraint_validation_failed_with_candidate"
+    assert outcome.summary.outcome_code == "constraint_validated"
     evidence = _compile_evidence(store, outcome)
-    assert evidence.overall_status == "unproven"
+    assert evidence.overall_status == "passed"
     by_engine = {s.engine_id: s for s in evidence.stages if s.stage == "differential"}
     assert by_engine["z3"].status == "passed"
-    assert by_engine["clingo"].status == "unproven"
+    assert by_engine["clingo"].status == "not_applicable"
     assert by_engine["clingo"].reason_code == "engine_domain_not_applicable"
+    ev_set = _evidence_set(store, outcome)
+    assert ev_set.overall_status == "passed"
+
+
+def test_purely_structural_candidate_validated_via_clingo() -> None:
+    # symmetric: Clingo's structural domain applies and grounds cleanly; z3's numeric
+    # domain is honestly not_applicable -> `constraint_validated`.
+    store = _store((_structural("C_acyclic", "acyclic(quest_steps)"),))
+    outcome = _handler(store)(_context(store, _payload()))
+
+    assert outcome.summary.outcome_code == "constraint_validated"
+    by_engine = {
+        s.engine_id: s
+        for s in _compile_evidence(store, outcome).stages
+        if s.stage == "differential"
+    }
+    assert by_engine["clingo"].status == "passed"
+    assert by_engine["z3"].status == "not_applicable"
+
+
+def test_empty_candidate_is_unproven_never_validated() -> None:
+    # SOUNDNESS GUARD: no constraint -> no engine positively decides anything ->
+    # every differential stage is not_applicable -> must NOT vacuously validate.
+    store = _store(())
+    outcome = _handler(store)(_context(store, _payload()))
+
+    assert outcome.summary.outcome_code != "constraint_validated"
+    ev_set = _evidence_set(store, outcome)
+    assert ev_set.overall_status == "unproven"
+    differential = [
+        s for s in _compile_evidence(store, outcome).stages if s.stage == "differential"
+    ]
+    assert all(s.status == "not_applicable" for s in differential)
 
 
 def test_uncompilable_proposal_fails_without_candidate() -> None:
@@ -265,7 +297,7 @@ def test_numeric_contradiction_fails_with_candidate() -> None:
     by_engine = {s.engine_id: s for s in evidence.stages if s.stage == "differential"}
     assert by_engine["z3"].status == "failed"
     assert by_engine["z3"].reason_code == "candidate_inconsistent"
-    assert by_engine["clingo"].status == "unproven"
+    assert by_engine["clingo"].status == "not_applicable"
 
 
 def test_engine_unbindable_candidate_is_never_validated() -> None:
@@ -278,9 +310,13 @@ def test_engine_unbindable_candidate_is_never_validated() -> None:
 
     assert outcome.summary.outcome_code != "constraint_validated"
     evidence = _compile_evidence(store, outcome)
-    differential = [s for s in evidence.stages if s.stage == "differential"]
-    assert all(s.status != "passed" for s in differential)
-    assert {s.status for s in differential} == {"unproven"}
+    by_engine = {s.engine_id: s for s in evidence.stages if s.stage == "differential"}
+    # z3's numeric domain APPLIES but it could not bind -> undecided (unproven);
+    # Clingo's structural domain does not apply -> not_applicable. NO engine passed.
+    assert by_engine["z3"].status == "unproven"
+    assert by_engine["z3"].reason_code == "z3_cannot_bind_predicate"
+    assert by_engine["clingo"].status == "not_applicable"
+    assert all(s.status != "passed" for s in evidence.stages if s.stage == "differential")
 
 
 def test_failing_regression_fails_with_candidate() -> None:

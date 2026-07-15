@@ -8,15 +8,19 @@ reason_code. The ``differential`` stage runs ≥2 EXACT engines named by
 Clingo/ASP + z3/SMT). Each engine authoritatively decides ITS OWN solver domain and
 reports honestly: a ``passed`` differential stage requires the engine to have
 GENUINELY evaluated a candidate in its domain and found it consistent; an engine
-whose domain does not apply (``not_applicable``) or that could not decide
-(``undecided`` — timeout / unbindable) is recorded as ``unproven``, NEVER a vacuous
-pass; a genuine contradiction (z3 ``unsat``) is ``failed``. Because the two initial
-engines are DOMAIN-PARTITIONED (z3 numeric / Clingo structural), ``constraint_validated``
-(overall ``passed``) requires the candidate to exercise BOTH domains so both engines
-positively decide — a single-domain candidate is honestly ``unproven`` (see the task
-report's co-apply finding). When (and only when) the ``compile`` stage passes, ONE
-candidate ``constraint_snapshot[constraint-snapshot@1]`` is published in the exact
-``readers.load_constraints`` wire shape; otherwise the candidate id is null.
+whose domain does not apply is a sound ``not_applicable`` stage (it executed and
+found nothing to attest — it does NOT block validation and is NOT a vacuous pass);
+an engine that could not decide an in-domain constraint (``undecided`` — timeout /
+unbindable) is ``unproven`` (never a pass); a genuine contradiction (z3 ``unsat``)
+is ``failed``. The two initial engines are DOMAIN-PARTITIONED (z3 numeric / Clingo
+structural), so a single-domain candidate is validated by its ONE applicable engine
+(the other honestly ``not_applicable``). A cross-engine SOUNDNESS GUARD requires
+that at least one applicable engine POSITIVELY decided EVERY constraint — a
+candidate no engine positively decided (empty constraints / all ``not_applicable`` /
+all ``undecided``) is ``unproven``, NEVER a vacuous pass. When (and only when) the
+``compile`` stage passes, ONE candidate ``constraint_snapshot[constraint-snapshot@1]``
+is published in the exact ``readers.load_constraints`` wire shape; otherwise the
+candidate id is null.
 
 Three frozen outcomes (all run,succeeded — a business result, not a RunFailure):
 
@@ -120,18 +124,24 @@ class DifferentialEngineResultV1:
 
     * ``evaluated`` + ``consistency`` — the engine's domain applied and it decided;
     * ``not_applicable`` — the candidate has no constraint in this engine's domain
-      (nothing for it to decide);
+      (it executed and honestly found nothing to decide — a sound, non-attesting
+      outcome, NOT a missing execution);
     * ``undecided`` — the engine's domain applied but it could not decide (timeout /
       ``unknown`` / an in-domain constraint it cannot bind).
 
-    Only ``evaluated`` + ``consistent`` yields a ``passed`` differential stage;
-    ``not_applicable`` and ``undecided`` both degrade to ``unproven`` (a missing or
-    inconclusive execution is NEVER a pass).
+    ``decided_constraint_ids`` are the ids this engine POSITIVELY decided consistent
+    (its sound coverage contribution); the handler unions them across engines to
+    enforce that every constraint was covered by at least one applicable engine.
+
+    A ``passed`` differential stage requires ``evaluated`` + ``consistent``;
+    ``not_applicable`` maps to a ``not_applicable`` stage (does not block validation)
+    and ``undecided`` to an ``unproven`` stage — neither ever attests consistency.
     """
 
     status: Literal["evaluated", "not_applicable", "undecided"]
     consistency: Literal["consistent", "inconsistent"] | None = None
     reason_code: str | None = None
+    decided_constraint_ids: tuple[str, ...] = ()
 
 
 class ConstraintDifferentialEngine(Protocol):
@@ -166,11 +176,19 @@ def load_proposal(blobs: ArtifactBlobReader, artifact_id: str) -> ConstraintProp
 
 @dataclass(frozen=True, slots=True)
 class _CompilePipelineV1:
-    """The full compile pipeline result: every stage + whether a candidate formed."""
+    """The full compile pipeline result: every stage + whether a candidate formed.
+
+    ``differential_positively_covered`` is the SOUNDNESS GUARD: at least one engine
+    positively decided consistency AND every candidate constraint was covered by some
+    applicable engine that positively decided it. A candidate that no engine
+    positively decided (empty constraints, all stages ``not_applicable``, or every
+    applicable engine ``undecided``) is NEVER validated on it.
+    """
 
     stages: tuple[ConstraintCompileStageV1, ...]
     overall_status: Literal["passed", "failed", "unproven"]
     compile_passed: bool
+    differential_positively_covered: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -296,12 +314,22 @@ class ConstraintValidationHandler:
         stages.append(self._stage("compile", "compile", compile_status, compile_reason))
         compile_passed = compile_status == "passed"
 
-        stages.extend(self._differential_stages(payload, candidate, run=compile_passed))
+        differential_stages, covered_ids = self._differential(
+            payload, candidate, run=compile_passed
+        )
+        stages.extend(differential_stages)
         stages.append(self._golden_stage(payload, candidate, run=compile_passed))
 
         overall = overall_status_of(tuple(stage.status for stage in stages))
+        candidate_ids = {constraint.id for constraint in candidate}
+        # SOUNDNESS GUARD: at least one engine positively decided consistency AND every
+        # constraint is covered by some applicable engine that positively decided it.
+        positively_covered = bool(covered_ids) and candidate_ids <= covered_ids
         return _CompilePipelineV1(
-            stages=tuple(stages), overall_status=overall, compile_passed=compile_passed
+            stages=tuple(stages),
+            overall_status=overall,
+            compile_passed=compile_passed,
+            differential_positively_covered=positively_covered,
         )
 
     def _parse(self, candidate: tuple[Constraint, ...]) -> tuple[StageStatus, str | None]:
@@ -333,23 +361,28 @@ class ConstraintValidationHandler:
             return "failed", "constraint_compile_error"
         return "passed", None
 
-    def _differential_stages(
+    def _differential(
         self,
         payload: ConstraintValidationPayloadV1,
         candidate: tuple[Constraint, ...],
         *,
         run: bool,
-    ) -> tuple[ConstraintCompileStageV1, ...]:
+    ) -> tuple[tuple[ConstraintCompileStageV1, ...], set[str]]:
+        """Run every engine; return its stages + the union of positively-decided ids."""
+
         if not run:
-            return tuple(
+            stages = tuple(
                 self._differential_stage(engine_ref, "unproven", _SHORT_CIRCUIT)
                 for engine_ref in payload.differential_engines
             )
-        stages: list[ConstraintCompileStageV1] = []
+            return stages, set()
+        stages_list: list[ConstraintCompileStageV1] = []
+        covered_ids: set[str] = set()
         for engine_ref in payload.differential_engines:
             engine = self.differential_engines.get(engine_ref.engine_id)
             if engine is None:
-                stages.append(
+                # a missing engine is a MISSING execution -> unproven, never a pass.
+                stages_list.append(
                     self._differential_stage(engine_ref, "unproven", "engine_unavailable")
                 )
                 continue
@@ -359,26 +392,34 @@ class ConstraintValidationHandler:
                 )
             )
             status, reason = self._differential_verdict(result)
-            stages.append(self._differential_stage(engine_ref, status, reason))
-        return tuple(stages)
+            if status == "passed":
+                covered_ids.update(result.decided_constraint_ids)
+            stages_list.append(self._differential_stage(engine_ref, status, reason))
+        return tuple(stages_list), covered_ids
 
     def _differential_verdict(
         self, result: DifferentialEngineResultV1
     ) -> tuple[StageStatus, str | None]:
-        # Each engine authoritatively decides ITS OWN solver domain — with the two
-        # DOMAIN-PARTITIONED initial engines (z3 numeric / Clingo structural) there is
-        # no cross-engine "agreement" to compute per constraint (they decide disjoint
-        # subsets); see the task report's co-apply finding. Honest labeling:
-        #   not_applicable / undecided -> unproven (NEVER a vacuous pass),
-        #   evaluated + inconsistent   -> failed,
-        #   evaluated + consistent     -> passed.
+        # Each engine authoritatively decides ITS OWN solver domain. With the two
+        # DOMAIN-PARTITIONED initial engines (z3 numeric / Clingo structural) each
+        # constraint is decided by exactly one applicable engine; the cross-engine
+        # SOUNDNESS GUARD (`differential_positively_covered`) enforces that every
+        # constraint was positively decided by some applicable engine. Honest labeling:
+        #   not_applicable (domain absent, sound non-attesting) -> not_applicable stage
+        #     (does NOT block validation),
+        #   undecided (in-domain but couldn't decide)           -> unproven (NEVER pass),
+        #   evaluated + inconsistent                            -> failed,
+        #   evaluated + consistent                              -> passed,
+        #   evaluated + no verdict (defensive, fail-closed)     -> unproven.
         if result.status == "not_applicable":
-            return "unproven", result.reason_code or "engine_domain_not_applicable"
+            return "not_applicable", result.reason_code or "engine_domain_not_applicable"
         if result.status == "undecided":
             return "unproven", result.reason_code or "engine_could_not_decide"
         if result.consistency == "inconsistent":
             return "failed", "candidate_inconsistent"
-        return "passed", None
+        if result.consistency == "consistent":
+            return "passed", None
+        return "unproven", "engine_reported_no_verdict"
 
     def _golden_stage(
         self,
@@ -440,7 +481,16 @@ class ConstraintValidationHandler:
         tuple[DimensionResult, ...],
         tuple[RequirementDispositionV1, ...],
     ]:
-        run_regression = pipeline.compile_passed and pipeline.overall_status == "passed"
+        # Regression runs only when the compile pipeline positively validated the
+        # candidate (compile passed + overall passed + the soundness guard: some
+        # applicable engine positively decided every constraint). A candidate no
+        # engine positively decided short-circuits regression exactly like a failed
+        # prior requirement.
+        run_regression = (
+            pipeline.compile_passed
+            and pipeline.overall_status == "passed"
+            and pipeline.differential_positively_covered
+        )
         if run_regression:
             return self._run_regression(payload, lineage, seed)
         reason = (
@@ -632,6 +682,16 @@ class ConstraintValidationHandler:
     ) -> DimensionResult:
         status = pipeline.overall_status
         reason = None if status == "passed" else "compile_evidence_not_passed"
+        # SOUNDNESS GUARD: the raw compile-evidence stage derivation ignores
+        # `not_applicable` differential stages, so a candidate whose ONLY differential
+        # stages are `not_applicable` (empty / all-domain-absent) would otherwise
+        # vacuously derive `passed`. Downgrade the compile DIMENSION to `unproven`
+        # unless some applicable engine positively decided every constraint — this is
+        # the authoritative EvidenceSet verdict, so an unproven-covered candidate is
+        # never validated even though the compile-evidence artifact records `passed`.
+        if status == "passed" and not pipeline.differential_positively_covered:
+            status = "unproven"
+            reason = "no_engine_positively_decided_candidate"
         return DimensionResult(
             requirement_id="compile",
             kind="compile",

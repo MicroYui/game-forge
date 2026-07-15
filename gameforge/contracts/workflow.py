@@ -53,6 +53,11 @@ _STAGE_ORDER: dict[str, int] = {
 }
 _ARTIFACT_KIND_ORDER = {value: index for index, value in enumerate(get_args(ArtifactKind))}
 
+# The allowlisted reason a `differential` compile stage may carry when its engine's
+# solver domain does not apply to the candidate (a sound, non-attesting outcome —
+# never a forged skip of a real check).
+_DIFFERENTIAL_NOT_APPLICABLE_REASONS: frozenset[str] = frozenset({"engine_domain_not_applicable"})
+
 
 class _FrozenModel(BaseModel):
     model_config = ConfigDict(
@@ -335,8 +340,21 @@ class ConstraintCompileStageV1(_FrozenModel):
         elif self.reason_code is None:
             raise ValueError(f"{self.status} compile stage requires reason_code")
 
-        if self.status == "not_applicable" and self.stage != "golden":
-            raise ValueError("only golden stage may be not_applicable")
+        if self.status == "not_applicable":
+            if self.stage == "golden":
+                return self
+            # A `differential` engine whose solver domain does not apply to the
+            # candidate honestly EXECUTED and found nothing in its domain — that is a
+            # sound `not_applicable`, not a missing execution, and (unlike a genuine
+            # `passed`) it does not attest consistency. It is permitted ONLY with the
+            # allowlisted reason so it can never be forged to skip a real check.
+            if self.stage == "differential":
+                if self.reason_code not in _DIFFERENTIAL_NOT_APPLICABLE_REASONS:
+                    raise ValueError(
+                        "not_applicable differential stage requires an allowlisted reason_code"
+                    )
+                return self
+            raise ValueError("only golden and differential stages may be not_applicable")
         return self
 
 
