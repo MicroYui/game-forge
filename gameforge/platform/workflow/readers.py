@@ -12,8 +12,10 @@ import hashlib
 import json
 from typing import Any, Literal
 
-from gameforge.contracts.canonical import compute_snapshot_id
+from gameforge.contracts.canonical import canonical_json, compute_snapshot_id
+from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.lineage import ArtifactV2
 from gameforge.contracts.storage import ObjectStore
@@ -29,12 +31,12 @@ from gameforge.platform.approvals.commands import (
     EvidenceStateProjection,
     PreparedDraft,
 )
+from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
 from gameforge.platform.lineage.validation import (
     ProducerValidationContext,
     validate_artifact_producer,
 )
 from gameforge.spine.ir.snapshot import Snapshot
-from gameforge.spine.ir.store import IRGraph
 
 
 def _producer_context(artifact: ArtifactV2) -> ProducerValidationContext:
@@ -45,6 +47,8 @@ def _producer_context(artifact: ArtifactV2) -> ProducerValidationContext:
         expected["ir_snapshot_id"] = artifact.version_tuple.ir_snapshot_id
     if artifact.version_tuple.constraint_snapshot_id is not None:
         expected["constraint_snapshot_id"] = artifact.version_tuple.constraint_snapshot_id
+    if artifact.version_tuple.env_contract_version is not None:
+        expected["env_contract_version"] = artifact.version_tuple.env_contract_version
     return ProducerValidationContext(expected_versions=expected)
 
 
@@ -53,6 +57,16 @@ class ObjectBindingReader:
 
     def resolve(self, ref: object) -> Any:  # pragma: no cover - Protocol shape
         raise NotImplementedError
+
+
+def workflow_target_snapshot_id(artifact: ArtifactV2) -> str | None:
+    """Project the snapshot identity carried by a workflow target Artifact."""
+
+    if artifact.kind == "ir_snapshot":
+        return artifact.version_tuple.ir_snapshot_id
+    if artifact.kind == "constraint_snapshot":
+        return artifact.version_tuple.constraint_snapshot_id
+    return None
 
 
 class WorkflowTypedReaders:
@@ -156,7 +170,7 @@ class WorkflowTypedReaders:
                 producer_run_id=None,
                 supersedes_artifact_id=None,
                 target_artifact_id=target.artifact_id,
-                target_snapshot_id=target.version_tuple.ir_snapshot_id,
+                target_snapshot_id=workflow_target_snapshot_id(target),
                 rollback_request=request,
             )
         raise IntegrityViolation("unsupported workflow subject kind")
@@ -172,12 +186,31 @@ class WorkflowTypedReaders:
 
     def load_snapshot(self, artifact: ArtifactV2) -> Snapshot:
         payload = self._json(artifact)
-        snapshot = _snapshot_from_canonical_view(payload)
+        snapshot = snapshot_from_canonical_view(payload)
         if artifact.kind == "ir_snapshot" and (
             snapshot.snapshot_id != artifact.version_tuple.ir_snapshot_id
         ):
             raise IntegrityViolation("ir_snapshot payload differs from VersionTuple")
         return snapshot
+
+    def load_constraints(self, artifact: ArtifactV2) -> list[Constraint]:
+        if artifact.kind != "constraint_snapshot":
+            raise IntegrityViolation("constraint reader received another Artifact kind")
+        payload = self._json(artifact)
+        if not isinstance(payload, dict) or set(payload) != {
+            "dsl_grammar_version",
+            "constraints",
+        }:
+            raise IntegrityViolation("constraint snapshot payload has the wrong shape")
+        raw = payload["constraints"]
+        if not isinstance(raw, list):
+            raise IntegrityViolation("constraint snapshot constraints must be a list")
+        constraints = [Constraint.model_validate(item) for item in raw]
+        if any(item.dsl_grammar_version != payload["dsl_grammar_version"] for item in constraints):
+            raise IntegrityViolation(
+                "constraint snapshot grammar differs from a contained Constraint"
+            )
+        return constraints
 
     # ── ApplyEvidenceGateway / ApprovalEvidenceGateway ───────────────────────
     def load_evidence_set(self, artifact: ArtifactV2) -> EvidenceSet:
@@ -290,23 +323,6 @@ class WorkflowTypedReaders:
         )
 
 
-def _snapshot_from_canonical_view(view: Any) -> Snapshot:
-    from gameforge.contracts.ir import Entity, Relation
-
-    if not isinstance(view, dict) or set(view) != {
-        "meta_schema_version",
-        "entities",
-        "relations",
-    }:
-        raise IntegrityViolation("snapshot payload is not the canonical IR shape")
-    graph = IRGraph()
-    for entity_id, payload in view["entities"].items():
-        graph.add_entity(Entity.model_validate({"id": entity_id, **payload}))
-    for relation_id, payload in view["relations"].items():
-        graph.add_relation(Relation.model_validate({"id": relation_id, **payload}))
-    return Snapshot.from_graph(graph)
-
-
 class WorkflowDraftLineageVerifier:
     """Prove draft publications against the exact producer matrix and DAG rules."""
 
@@ -325,9 +341,19 @@ class WorkflowDraftLineageVerifier:
         for artifact in prepared.artifacts:
             self._validate(artifact)
         if subject.kind == "patch":
-            if len(prepared.companion_artifacts) != 1:
+            previews = tuple(
+                artifact
+                for artifact in prepared.companion_artifacts
+                if artifact.kind == "ir_snapshot"
+            )
+            configs = tuple(
+                artifact
+                for artifact in prepared.companion_artifacts
+                if artifact.kind == "config_export"
+            )
+            if len(previews) != 1:
                 raise IntegrityViolation("Patch draft requires exactly one preview companion")
-            preview = prepared.companion_artifacts[0]
+            preview = previews[0]
             if len(subject.lineage) == 1:
                 # Initial draft: Patch descends from its base; preview = {base, Patch}.
                 if set(preview.lineage) != {subject.lineage[0], subject.artifact_id}:
@@ -346,22 +372,57 @@ class WorkflowDraftLineageVerifier:
                     )
             else:
                 raise IntegrityViolation("Patch draft has an unexpected lineage shape")
-            expected_retained = subject.lineage
+            profiles: set[str] = set()
+            for config in configs:
+                if preview.artifact_id not in config.lineage or len(config.lineage) != 2:
+                    raise IntegrityViolation(
+                        "config export must descend from the exact Patch preview and constraint"
+                    )
+                if (
+                    config.version_tuple.ir_snapshot_id != preview.version_tuple.ir_snapshot_id
+                    or config.version_tuple.constraint_snapshot_id is None
+                    or config.meta.get("payload_schema_id") != "config-export-package@1"
+                ):
+                    raise IntegrityViolation(
+                        "config export VersionTuple/schema differs from its Patch candidate"
+                    )
+                try:
+                    parsed_profile = ProfileRefV1.model_validate(config.meta.get("export_profile"))
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation(
+                        "config export has an invalid profile binding"
+                    ) from exc
+                profile = canonical_json(parsed_profile.model_dump(mode="json"))
+                if profile in profiles:
+                    raise IntegrityViolation(
+                        "Patch draft contains duplicate config-export profiles"
+                    )
+                profiles.add(profile)
         elif subject.kind == "constraint_proposal":
             if prepared.companion_artifacts:
                 raise IntegrityViolation("constraint proposal draft carries no companions")
-            expected_retained = subject.lineage
         elif subject.kind == "rollback_request":
             if len(subject.lineage) != 2 or prepared.companion_artifacts:
                 raise IntegrityViolation("RollbackRequest must bind current and target Artifacts")
-            expected_retained = subject.lineage
         else:  # pragma: no cover - PreparedDraft forbids other kinds
             raise IntegrityViolation("unsupported draft subject kind")
-        if retained_parent_ids != tuple(sorted(expected_retained)):
+        prepared_ids = {artifact.artifact_id for artifact in prepared.artifacts}
+        expected_retained = tuple(
+            sorted(
+                {
+                    parent_id
+                    for artifact in prepared.artifacts
+                    for parent_id in artifact.lineage
+                    if parent_id not in prepared_ids
+                }
+            )
+        )
+        if retained_parent_ids != expected_retained:
             raise IntegrityViolation("draft retained parents differ from exact lineage")
 
 
 __all__ = [
     "WorkflowDraftLineageVerifier",
     "WorkflowTypedReaders",
+    "workflow_target_snapshot_id",
 ]

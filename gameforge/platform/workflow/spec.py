@@ -24,6 +24,7 @@ from gameforge.contracts.lineage import (
     AuditSubject,
 )
 from gameforge.contracts.storage import RefValue, UtcClock
+from gameforge.contracts.versions import IR_SCHEMA_VERSION
 from gameforge.platform.approvals.commands import (
     ApprovalCommandContext,
     ApprovalUnitOfWork,
@@ -157,7 +158,7 @@ class SpecUploadService:
                 version_tuple=plan.artifact.version_tuple,
                 parent_artifact_ids=tuple(sorted(set(plan.artifact.lineage))),
                 payload_hash=plan.artifact.payload_hash,
-                payload_schema_id="ir-snapshot@1",
+                payload_schema_id=IR_SCHEMA_VERSION,
                 domain_scope=plan.domain_scope,
                 created_at=plan.artifact.created_at,
             ),

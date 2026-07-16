@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints,
 from gameforge.contracts.auth import *  # noqa: F403 - deliberate compatibility surface
 from gameforge.contracts.auth import __all__ as _auth_exports
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.diff import (
     ConflictResolution,
     RebaseResult,
@@ -61,6 +62,22 @@ T = TypeVar("T")
 
 class _FrozenModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, validate_default=True)
+
+
+def compute_resource_etag(*, resource_kind: str, resource_id: str, revision: int) -> str:
+    """Return the canonical strong ETag shared by reads and write preconditions."""
+
+    if not resource_kind or not resource_id or revision < 1:
+        raise ValueError("resource ETag inputs are invalid")
+    digest = canonical_sha256(
+        {
+            "etag_schema_version": "resource-etag@1",
+            "resource_kind": resource_kind,
+            "resource_id": resource_id,
+            "revision": revision,
+        }
+    )
+    return f'"{digest}"'
 
 
 class OpaquePageV1(_FrozenModel, Generic[T]):
@@ -954,5 +971,6 @@ __all__ = [
     "WorkflowApplyResultV1",
     "WorkflowCommandPayloadV1",
     "WorkflowCommandResponseV1",
+    "compute_resource_etag",
     "encode_sse_event",
 ]

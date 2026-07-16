@@ -46,7 +46,11 @@ from gameforge.contracts.api import (
     WorkflowApplyResultV1,
     WorkflowCommandResponseV1,
 )
-from gameforge.contracts.canonical import canonical_json, compute_snapshot_id
+from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.config_export import (
+    ConfigExportPackageV1,
+    canonical_config_export_bytes,
+)
 from gameforge.contracts.diff import (
     RebaseResult,
     ThreeWayMergePolicyV1,
@@ -56,7 +60,14 @@ from gameforge.contracts.errors import (
     Conflict,
     DependencyUnavailable,
     IntegrityViolation,
+    RequestSchemaInvalid,
 )
+from gameforge.contracts.execution_profiles import (
+    ConfigExportProfileDetailsV1,
+    ExecutionProfileCatalogSnapshotV1,
+    ProfileRefV1,
+)
+from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import (
     ActorContext,
@@ -74,7 +85,8 @@ from gameforge.contracts.lineage import (
     VersionTuple,
     build_artifact_v2,
 )
-from gameforge.contracts.storage import ObjectStore, RefValue, UtcClock
+from gameforge.contracts.storage import ObjectStore, UtcClock
+from gameforge.contracts.versions import META_SCHEMA_VERSION
 from gameforge.contracts.workflow import (
     ApprovalItem,
     ApprovalPolicyRefV1,
@@ -95,11 +107,18 @@ from gameforge.platform.approvals.commands import (
     PreparedDraft,
     PreparedObjectBinding,
 )
-from gameforge.platform.diff.ir_rebase import REBASE_TOOL_VERSION, compile_rebased_patch
+from gameforge.platform.diff.ir_rebase import (
+    REBASE_TOOL_VERSION,
+    compile_rebased_patch,
+    snapshot_from_canonical_view,
+)
 from gameforge.platform.diff.rebase import RebaseMaterial, RebaseWorkflowService
 from gameforge.platform.diff.three_way import compute_three_way_merge
 from gameforge.platform.read_models.workflows import CurrentApprovalProgressProjector
-from gameforge.platform.workflow.readers import WorkflowTypedReaders
+from gameforge.platform.workflow.readers import (
+    WorkflowTypedReaders,
+    workflow_target_snapshot_id,
+)
 from gameforge.platform.workflow.spec import SpecPublicationPlan, SpecUploadService
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.patch import PatchRejected, apply_patch
@@ -162,6 +181,20 @@ class ValidationAdmissionPort(Protocol):
         actor: ActorContext,
         server: WorkflowServerContext,
     ) -> RunAcceptedV1: ...
+
+
+class WorkflowConfigExporter(Protocol):
+    """Game-specific deterministic adapter used only for requested Patch exports."""
+
+    def export(
+        self,
+        *,
+        export_profile: ProfileRefV1,
+        preview_snapshot_id: str,
+        preview_payload: Mapping[str, object],
+        constraint_snapshot_artifact_id: str,
+        constraints: tuple[Constraint, ...],
+    ) -> ConfigExportPackageV1: ...
 
 
 class WorkflowScopeResolver(Protocol):
@@ -298,7 +331,8 @@ class WorkflowCommandService:
         governance: WorkflowGovernance | WorkflowGovernanceProvider | None,
         scope_resolver: WorkflowScopeResolver | None,
         admission: ValidationAdmissionPort | None,
-        execution_profile_catalog: Any = None,
+        execution_profile_catalog: ExecutionProfileCatalogSnapshotV1 | None = None,
+        config_exporter: WorkflowConfigExporter | None = None,
     ) -> None:
         self._clock = clock
         self._objects = object_store
@@ -311,6 +345,7 @@ class WorkflowCommandService:
         self._scope_resolver = scope_resolver
         self._admission = admission
         self._catalog = execution_profile_catalog
+        self._config_exporter = config_exporter
 
     # ── dispatch ─────────────────────────────────────────────────────────────
     def execute(
@@ -337,6 +372,7 @@ class WorkflowCommandService:
             idempotency_scope=f"principal:{principal.id}",
             idempotency_key=server.idempotency_key,
             request_hash=server.request_hash,
+            if_match=server.if_match,
         )
 
     def _require_governance(self) -> WorkflowGovernance:
@@ -371,20 +407,41 @@ class WorkflowCommandService:
         payload: HumanSpecUploadRequestV1,
         server: WorkflowServerContext,
     ) -> WorkflowCommandOutcome:
-        content = payload.content_payload
-        snapshot_id = compute_snapshot_id(content)
+        try:
+            snapshot = snapshot_from_canonical_view(payload.content_payload)
+        except IntegrityViolation as exc:
+            raise RequestSchemaInvalid(
+                "spec content_payload is not a canonical IR snapshot"
+            ) from exc
+        if snapshot.meta_schema_version != payload.meta_schema_version:
+            raise Conflict(
+                "spec payload meta schema differs from the declared version",
+                declared_meta_schema_version=payload.meta_schema_version,
+                payload_meta_schema_version=snapshot.meta_schema_version,
+            )
+        if snapshot.meta_schema_version != META_SCHEMA_VERSION:
+            raise Conflict(
+                "spec payload uses an unsupported meta schema version",
+                meta_schema_version=snapshot.meta_schema_version,
+            )
+        content = snapshot.content_payload
+        snapshot_id = snapshot.snapshot_id
         stored = self._objects.put_verified(canonical_json(content).encode("utf-8"))
         artifact = build_artifact_v2(
             kind="ir_snapshot",
             version_tuple=VersionTuple(
-                doc_version=payload.meta_schema_version,
                 ir_snapshot_id=snapshot_id,
                 tool_version=_SPEC_TOOL_VERSION,
             ),
             lineage=(),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID,
+                "schema_registry_version": payload.schema_registry_version,
+                "meta_schema_version": payload.meta_schema_version,
+                "domain_scope": payload.domain_scope.model_dump(mode="json"),
+            },
             created_at=_utc_text(self._clock),
         )
         plan = SpecPublicationPlan(
@@ -435,8 +492,8 @@ class WorkflowCommandService:
         view = _reproject_view_created_at(assembled.view, committed.created_at)
         return WorkflowCommandOutcome(
             value=view,
-            resource_kind="approval",
-            resource_id=committed.approval_id,
+            resource_kind=committed.subject_kind,
+            resource_id=committed.subject_artifact_id,
             revision=committed.workflow_revision,
         )
 
@@ -451,10 +508,23 @@ class WorkflowCommandService:
             base_artifact = _require_artifact(read, payload.base_snapshot_artifact_id)
             if base_artifact.kind != "ir_snapshot":
                 raise Conflict("patch base Artifact is not an ir_snapshot")
+            if (
+                payload.expected_ref is not None
+                and payload.expected_ref.artifact_id != base_artifact.artifact_id
+            ):
+                raise Conflict(
+                    "patch expected ref does not bind the exact base Artifact",
+                    expected_ref_artifact_id=payload.expected_ref.artifact_id,
+                    base_artifact_id=base_artifact.artifact_id,
+                )
             base_snapshot = read.readers.load_snapshot(base_artifact)
             patch = self._compile_patch(payload, base_snapshot)
             preview = apply_patch(base_snapshot, patch)
             scope = resolver.resolve_patch_scope(base_artifact=base_artifact, patch=patch)
+            constraint_artifact, constraints = self._resolve_patch_export_inputs(
+                payload=payload,
+                read=read,
+            )
         created_at = _utc_text(self._clock)
         patch_stored = self._objects.put_verified(
             canonical_json(patch.model_dump(mode="json")).encode("utf-8")
@@ -486,6 +556,14 @@ class WorkflowCommandService:
             meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
             created_at=created_at,
         )
+        config_artifacts, config_bindings = self._assemble_patch_config_exports(
+            payload=payload,
+            preview=preview,
+            preview_artifact=preview_artifact,
+            constraint_artifact=constraint_artifact,
+            constraints=constraints,
+            created_at=created_at,
+        )
         binding = PatchTargetBindingV1(
             target_artifact_id=preview_artifact.artifact_id,
             target_snapshot_id=preview.snapshot_id,
@@ -505,7 +583,7 @@ class WorkflowCommandService:
         )
         prepared = PreparedDraft(
             subject_artifact=patch_artifact,
-            companion_artifacts=(preview_artifact,),
+            companion_artifacts=(preview_artifact, *config_artifacts),
             object_bindings=(
                 PreparedObjectBinding(
                     object_ref=patch_stored.ref,
@@ -517,6 +595,7 @@ class WorkflowCommandService:
                     location=preview_stored.location,
                     expected_revision=None,
                 ),
+                *config_bindings,
             ),
             approval_item=item,
             expected_subject_head=None,
@@ -538,6 +617,141 @@ class WorkflowCommandService:
             server,
             expected_subject_head=None,
         )
+
+    def _resolve_patch_export_inputs(
+        self,
+        *,
+        payload: HumanPatchDraftRequestV1,
+        read: WorkflowReadPort,
+    ) -> tuple[ArtifactV2 | None, tuple[Constraint, ...]]:
+        if not payload.candidate_export_profiles:
+            return None, ()
+        if self._catalog is None:
+            raise DependencyUnavailable(
+                "Patch config-export profile catalog is unavailable",
+                component="workflow_execution_profiles",
+            )
+        if self._config_exporter is None:
+            raise DependencyUnavailable(
+                "Patch config exporter is unavailable",
+                component="workflow_config_exporter",
+            )
+        constraint_id = payload.constraint_snapshot_artifact_id
+        if constraint_id is None:  # guarded by HumanPatchDraftRequestV1
+            raise IntegrityViolation("Patch export profiles require a constraint snapshot")
+        constraint_artifact = _require_artifact(read, constraint_id)
+        if (
+            constraint_artifact.kind != "constraint_snapshot"
+            or constraint_artifact.version_tuple.constraint_snapshot_id is None
+        ):
+            raise Conflict("Patch export constraint is not a constraint_snapshot Artifact")
+        constraints = tuple(read.readers.load_constraints(constraint_artifact))
+        for index, profile in enumerate(payload.candidate_export_profiles):
+            definitions = tuple(
+                definition
+                for definition in self._catalog.definitions
+                if definition.profile == profile
+            )
+            lifecycle = tuple(item for item in self._catalog.lifecycle if item.profile == profile)
+            if (
+                len(definitions) != 1
+                or len(lifecycle) != 1
+                or definitions[0].profile_kind != "config_export"
+                or lifecycle[0].state != "active"
+            ):
+                raise Conflict(
+                    "Patch export profile is not an active config_export profile",
+                    profile_id=profile.profile_id,
+                    profile_version=profile.version,
+                )
+            read.policies.resolve_execution_profile(
+                catalog_version=self._catalog.catalog_version,
+                catalog_digest=self._catalog.catalog_digest,
+                field_path=f"/candidate_export_profiles/{index}",
+                profile=profile,
+                expected_profile_kind="config_export",
+            )
+        return constraint_artifact, constraints
+
+    def _assemble_patch_config_exports(
+        self,
+        *,
+        payload: HumanPatchDraftRequestV1,
+        preview: Snapshot,
+        preview_artifact: ArtifactV2,
+        constraint_artifact: ArtifactV2 | None,
+        constraints: tuple[Constraint, ...],
+        created_at: str,
+    ) -> tuple[tuple[ArtifactV2, ...], tuple[PreparedObjectBinding, ...]]:
+        if not payload.candidate_export_profiles:
+            return (), ()
+        if self._config_exporter is None or constraint_artifact is None:
+            raise IntegrityViolation("resolved Patch export dependencies are unavailable")
+        artifacts: list[ArtifactV2] = []
+        bindings: list[PreparedObjectBinding] = []
+        for profile in payload.candidate_export_profiles:
+            if self._catalog is None:  # guarded during exact input resolution
+                raise IntegrityViolation("config-export profile catalog is unavailable")
+            definitions = tuple(
+                definition
+                for definition in self._catalog.definitions
+                if definition.profile == profile
+            )
+            if len(definitions) != 1 or not isinstance(
+                definitions[0].details, ConfigExportProfileDetailsV1
+            ):
+                raise IntegrityViolation("resolved config-export profile details are unavailable")
+            details = definitions[0].details
+            package = self._config_exporter.export(
+                export_profile=profile,
+                # The package field is an Artifact ID despite the historical port
+                # parameter name; bind it to the exact prepared preview candidate.
+                preview_snapshot_id=preview_artifact.artifact_id,
+                preview_payload=preview.content_payload,
+                constraint_snapshot_artifact_id=constraint_artifact.artifact_id,
+                constraints=constraints,
+            )
+            if (
+                package.export_profile != profile
+                or package.source_preview_artifact_id != preview_artifact.artifact_id
+                or package.constraint_snapshot_artifact_id != constraint_artifact.artifact_id
+                or package.target_environment_profile != details.target_environment_profile
+                or package.env_contract_version != details.env_contract_version
+                or package.format_schema_id != details.format_schema_id
+                or package.package_schema_version != details.package_schema_version
+            ):
+                raise IntegrityViolation(
+                    "config exporter returned a package bound to different Patch inputs"
+                )
+            stored = self._objects.put_verified(canonical_config_export_bytes(package))
+            artifact = build_artifact_v2(
+                kind="config_export",
+                version_tuple=VersionTuple(
+                    ir_snapshot_id=preview.snapshot_id,
+                    constraint_snapshot_id=(
+                        constraint_artifact.version_tuple.constraint_snapshot_id
+                    ),
+                    tool_version="config-export@1",
+                    env_contract_version=package.env_contract_version,
+                ),
+                lineage=(preview_artifact.artifact_id, constraint_artifact.artifact_id),
+                payload_hash=stored.ref.sha256,
+                object_ref=stored.ref,
+                meta={
+                    "payload_schema_id": "config-export-package@1",
+                    "export_profile": profile.model_dump(mode="json"),
+                },
+                created_at=created_at,
+            )
+            artifacts.append(artifact)
+            bindings.append(
+                PreparedObjectBinding(
+                    object_ref=stored.ref,
+                    location=stored.location,
+                    expected_revision=None,
+                )
+            )
+        return tuple(artifacts), tuple(bindings)
 
     def _compile_patch(
         self,
@@ -601,10 +815,18 @@ class WorkflowCommandService:
                 "constraint proposal has no current head", approval_id=payload.approval_id
             )
         head, current_item = current
+        if current_item.subject_artifact_id != server.resource_id:
+            raise Conflict("constraint revision path does not bind the current subject Artifact")
         if current_item.approval_id != payload.approval_id:
             raise Conflict("constraint revise target is not the current head")
         if head.revision != payload.expected_subject_head_revision:
             raise Conflict("constraint revise subject head is stale")
+        if current_item.workflow_revision != payload.expected_workflow_revision:
+            raise Conflict(
+                "constraint revise workflow revision is stale",
+                expected_workflow_revision=payload.expected_workflow_revision,
+                actual_workflow_revision=current_item.workflow_revision,
+            )
         return self._publish_constraint(
             payload,
             server,
@@ -625,11 +847,18 @@ class WorkflowCommandService:
         governance = self._require_governance()
         with self._read_scope() as read:
             base_snapshot_id: str | None = None
+            base_artifact_id: str | None = None
             source_bindings: list[ConstraintSourceBinding] = []
             if payload.base_constraint_snapshot_artifact_id is not None:
                 base_artifact = _require_artifact(
                     read, payload.base_constraint_snapshot_artifact_id
                 )
+                if (
+                    base_artifact.kind != "constraint_snapshot"
+                    or base_artifact.version_tuple.constraint_snapshot_id is None
+                ):
+                    raise Conflict("constraint proposal base is not a constraint_snapshot")
+                base_artifact_id = base_artifact.artifact_id
                 base_snapshot_id = base_artifact.version_tuple.constraint_snapshot_id
             for source_id in payload.source_artifact_ids:
                 source = _require_artifact(read, source_id)
@@ -655,13 +884,22 @@ class WorkflowCommandService:
         stored = self._objects.put_verified(
             canonical_json(proposal.model_dump(mode="json")).encode("utf-8")
         )
-        lineage = (() if supersedes is None else (supersedes.subject_artifact_id,)) + tuple(
-            payload.source_artifact_ids
+        lineage = tuple(
+            sorted(
+                {
+                    *(() if supersedes is None else (supersedes.subject_artifact_id,)),
+                    *(() if base_artifact_id is None else (base_artifact_id,)),
+                    *payload.source_artifact_ids,
+                }
+            )
         )
         artifact = build_artifact_v2(
             kind="constraint_proposal",
             version_tuple=VersionTuple(
-                doc_version=payload.dsl_grammar_version,
+                # A human typed proposal with no base Snapshot still needs an exact
+                # producer input revision.  Use the complete immutable proposal bytes;
+                # the DSL grammar is schema metadata, never a document revision.
+                doc_version=(None if base_snapshot_id is not None else stored.ref.sha256),
                 constraint_snapshot_id=base_snapshot_id,
                 tool_version=_CONSTRAINT_TOOL_VERSION,
             ),
@@ -700,6 +938,11 @@ class WorkflowCommandService:
             ),
             approval_item=item,
             expected_subject_head=expected_head,
+            expected_previous_workflow_revision=(
+                None
+                if not isinstance(payload, HumanConstraintRevisionRequestV1)
+                else payload.expected_workflow_revision
+            ),
         )
         view = ConstraintProposalReadViewV1(
             artifact=_artifact_summary(
@@ -731,12 +974,14 @@ class WorkflowCommandService:
             )
         ref_name = server.resource_id
         with self._read_scope() as read:
-            current_ref = read.refs.get(ref_name)
-            if current_ref != payload.expected_current_ref:
-                raise Conflict("rollback ref precondition did not match", ref_name=ref_name)
-            current_artifact = _require_artifact(read, current_ref.artifact_id)
+            # Load the immutable parents named by the request here; the mutable
+            # current-ref and history membership are re-read only after the draft
+            # idempotency check, inside the publication UoW.
+            current_artifact = _require_artifact(
+                read,
+                payload.expected_current_ref.artifact_id,
+            )
             target_artifact = _require_artifact(read, payload.target_artifact_id)
-            history = read.refs.get_history_entry(ref_name, payload.target_history_revision)
             profile_binding = read.policies.resolve_execution_profile(
                 catalog_version=self._catalog.catalog_version,
                 catalog_digest=self._catalog.catalog_digest,
@@ -753,12 +998,6 @@ class WorkflowCommandService:
                 reason=payload.reason,
                 reverses_approval_id=payload.reverses_approval_id,
             )
-            expected_history = RefValue(
-                artifact_id=payload.target_artifact_id,
-                revision=payload.target_history_revision,
-            )
-            if history != expected_history:
-                raise Conflict("rollback target is not the exact ref history member")
             scope = resolver.resolve_rollback_scope(
                 target_artifact=target_artifact, request=request
             )
@@ -768,9 +1007,8 @@ class WorkflowCommandService:
         )
         artifact = build_artifact_v2(
             kind="rollback_request",
-            version_tuple=VersionTuple(
-                ir_snapshot_id=target_artifact.version_tuple.ir_snapshot_id,
-                tool_version=_ROLLBACK_TOOL_VERSION,
+            version_tuple=target_artifact.version_tuple.model_copy(
+                update={"tool_version": _ROLLBACK_TOOL_VERSION}
             ),
             lineage=(current_artifact.artifact_id, target_artifact.artifact_id),
             payload_hash=stored.ref.sha256,
@@ -781,7 +1019,7 @@ class WorkflowCommandService:
         binding = RollbackTargetBindingV1(
             target_artifact_kind=target_artifact.kind,
             target_artifact_id=target_artifact.artifact_id,
-            target_snapshot_id=target_artifact.version_tuple.ir_snapshot_id,
+            target_snapshot_id=workflow_target_snapshot_id(target_artifact),
             target_digest=target_artifact.payload_hash,
             ref_name=ref_name,
             expected_ref=payload.expected_current_ref,
@@ -875,11 +1113,15 @@ class WorkflowCommandService:
         self,
         payload: SubmitForApprovalRequestV1,
         server: WorkflowServerContext,
+        *,
+        subject_kind: str,
     ) -> WorkflowCommandOutcome:
         item = self._approvals.submit_for_approval(
             approval_id=payload.approval_id,
             expected_workflow_revision=payload.expected_workflow_revision,
             context=self._context(server),
+            expected_subject_artifact_id=server.resource_id,
+            expected_subject_kind=subject_kind,
         )
         return self._approval_outcome(item, server)
 
@@ -965,11 +1207,18 @@ class WorkflowCommandService:
         payload: PatchRebaseRequestV1,
         server: WorkflowServerContext,
     ) -> WorkflowCommandOutcome:
+        context = self._context(server)
+        replay = self._rebase.replay_command(
+            context=context,
+            resolve_conflicts=False,
+        )
+        if replay is not None:
+            return self._rebase_outcome(replay, server)
         material, prepared = self._assemble_rebase(payload, server)
         result = self._rebase.rebase(
             material=material,
             prepared_draft=prepared,
-            context=self._context(server),
+            context=context,
         )
         return self._rebase_outcome(result, server)
 
@@ -978,6 +1227,13 @@ class WorkflowCommandService:
         payload: ResolveConflictsRequestV1,
         server: WorkflowServerContext,
     ) -> WorkflowCommandOutcome:
+        context = self._context(server)
+        replay = self._rebase.replay_command(
+            context=context,
+            resolve_conflicts=True,
+        )
+        if replay is not None:
+            return self._rebase_outcome(replay, server)
         material, prepared = self._assemble_rebase(payload, server, require_clean=True)
         assert prepared is not None
         result = self._rebase.resolve_conflicts(
@@ -985,7 +1241,7 @@ class WorkflowCommandService:
             conflict_set_id=payload.conflict_set_id,
             resolutions=payload.resolutions,
             prepared_draft=prepared,
-            context=self._context(server),
+            context=context,
         )
         return self._rebase_outcome(result, server)
 
@@ -1022,12 +1278,26 @@ class WorkflowCommandService:
             source_item = read.approvals.get(payload.approval_id)
             if not isinstance(source_item, ApprovalItem) or source_item.subject_kind != "patch":
                 raise Conflict("rebase source is not a patch ApprovalItem")
+            if source_item.subject_artifact_id != server.resource_id:
+                raise Conflict("rebase path does not bind the source Patch Artifact")
+            if source_item.workflow_revision != payload.expected_workflow_revision:
+                raise Conflict(
+                    "rebase source workflow revision is stale",
+                    expected_workflow_revision=payload.expected_workflow_revision,
+                    actual_workflow_revision=source_item.workflow_revision,
+                )
             binding = source_item.target_binding
             if not isinstance(binding, PatchTargetBindingV1) or binding.expected_ref is None:
                 raise Conflict("rebase source patch has no base ref binding")
             head = read.approvals.get_subject_head(source_item.subject_series_id)
             if head is None:
                 raise Conflict("rebase source has no current head")
+            if head.revision != payload.expected_subject_head_revision:
+                raise Conflict(
+                    "rebase subject head revision is stale",
+                    expected_subject_head_revision=payload.expected_subject_head_revision,
+                    actual_subject_head_revision=head.revision,
+                )
             source_patch_artifact = _require_artifact(read, source_item.subject_artifact_id)
             source_patch = read.readers.load_patch(source_patch_artifact)
             base_artifact = _require_artifact(read, binding.expected_ref.artifact_id)
@@ -1154,6 +1424,7 @@ class WorkflowCommandService:
             ),
             approval_item=item,
             expected_subject_head=material.source_head,
+            expected_previous_workflow_revision=material.source_item.workflow_revision,
         )
 
     # ── validate (Task 8 admission) ──────────────────────────────────────────
@@ -1225,9 +1496,9 @@ _HANDLERS: Mapping[
     "constraint.draft": lambda s, p, c: s._constraint_draft(p, c),
     "constraint.revise": lambda s, p, c: s._constraint_revise(p, c),
     "rollback.draft": lambda s, p, c: s._rollback_draft(p, c),
-    "patch.submit": lambda s, p, c: s._submit(p, c),
-    "constraint.submit": lambda s, p, c: s._submit(p, c),
-    "rollback.submit": lambda s, p, c: s._submit(p, c),
+    "patch.submit": lambda s, p, c: s._submit(p, c, subject_kind="patch"),
+    "constraint.submit": lambda s, p, c: s._submit(p, c, subject_kind="constraint_proposal"),
+    "rollback.submit": lambda s, p, c: s._submit(p, c, subject_kind="rollback_request"),
     "approval.approve": lambda s, p, c: s._decide(p, c),
     "approval.reject": lambda s, p, c: s._decide(p, c),
     "approval.request_changes": lambda s, p, c: s._decide(p, c),

@@ -18,6 +18,7 @@ from pydantic import (
     model_validator,
 )
 
+from gameforge.contracts.api import compute_resource_etag
 from gameforge.contracts.errors import (
     Conflict,
     Forbidden,
@@ -346,6 +347,19 @@ class ApprovedApplyService:
                     current=item,
                 )
 
+            if request.context.if_match is not None:
+                expected_etag = compute_resource_etag(
+                    resource_kind=item.subject_kind,
+                    resource_id=item.subject_artifact_id,
+                    revision=item.workflow_revision,
+                )
+                if request.context.if_match != expected_etag:
+                    raise Conflict(
+                        "If-Match does not match the authoritative resource revision",
+                        resource_kind=item.subject_kind,
+                        resource_id=item.subject_artifact_id,
+                        revision=item.workflow_revision,
+                    )
             if item.workflow_revision != request.expected_workflow_revision:
                 raise Conflict(
                     "ApprovalItem workflow revision differs",
@@ -750,9 +764,7 @@ class ApprovedApplyService:
                 or principal.kind != actor.principal_kind
                 or principal.status != "active"
             ):
-                raise Forbidden(
-                    f"approved apply {actor_label} is not a current active principal"
-                )
+                raise Forbidden(f"approved apply {actor_label} is not a current active principal")
             decision = authorize(
                 principal=principal,
                 role_policy=role_policy,

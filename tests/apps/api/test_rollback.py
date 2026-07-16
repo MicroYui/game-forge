@@ -12,6 +12,7 @@ from tests.apps.api.workflow_command_testkit import (
     maker_actor,
     operator_actor,
     publish_base,
+    resource_etag,
     reviewer_actor,
 )
 
@@ -65,7 +66,14 @@ def _apply_patch(harness, client, key: str) -> tuple[str, dict]:
             "approval_id": approval_id,
             "expected_workflow_revision": item.workflow_revision,
         },
-        headers=headers(key=f"{key}:submit"),
+        headers=headers(
+            key=f"{key}:submit",
+            if_match=resource_etag(
+                resource_kind="patch",
+                resource_id=artifact_id,
+                revision=item.workflow_revision,
+            ),
+        ),
     )
     pending = harness.load_item(approval_id)
     harness.use_actor(reviewer_actor(harness))
@@ -78,7 +86,14 @@ def _apply_patch(harness, client, key: str) -> tuple[str, dict]:
             "expected_workflow_revision": pending.workflow_revision,
             "reason_code": "independent_review_passed",
         },
-        headers=headers(key=f"{key}:approve"),
+        headers=headers(
+            key=f"{key}:approve",
+            if_match=resource_etag(
+                resource_kind="approval",
+                resource_id=approval_id,
+                revision=pending.workflow_revision,
+            ),
+        ),
     )
     approved = harness.load_item(approval_id)
     binding = approved.target_binding
@@ -95,7 +110,14 @@ def _apply_patch(harness, client, key: str) -> tuple[str, dict]:
             "ref_name": binding.ref_name,
             "expected_ref": binding.expected_ref.model_dump(mode="json"),
         },
-        headers=headers(key=f"{key}:apply"),
+        headers=headers(
+            key=f"{key}:apply",
+            if_match=resource_etag(
+                resource_kind="patch",
+                resource_id=approved.subject_artifact_id,
+                revision=approved.workflow_revision,
+            ),
+        ),
     )
     assert apply.status_code == 200, apply.text
     return approval_id, apply.json()["ref_value"]
@@ -149,7 +171,14 @@ def test_rollback_request_validate_submit_independent_approval_apply(tmp_path: P
                 "approval_id": rb_approval,
                 "expected_workflow_revision": validated.workflow_revision,
             },
-            headers=headers(key="rb:submit"),
+            headers=headers(
+                key="rb:submit",
+                if_match=resource_etag(
+                    resource_kind="rollback_request",
+                    resource_id=artifact_id,
+                    revision=validated.workflow_revision,
+                ),
+            ),
         )
         assert submit.status_code == 200, submit.text
 
@@ -164,7 +193,14 @@ def test_rollback_request_validate_submit_independent_approval_apply(tmp_path: P
                 "expected_workflow_revision": pending.workflow_revision,
                 "reason_code": "independent_review_passed",
             },
-            headers=headers(key="rb:approve"),
+            headers=headers(
+                key="rb:approve",
+                if_match=resource_etag(
+                    resource_kind="approval",
+                    resource_id=rb_approval,
+                    revision=pending.workflow_revision,
+                ),
+            ),
         )
         assert approve.status_code == 200, approve.text
 
@@ -183,7 +219,14 @@ def test_rollback_request_validate_submit_independent_approval_apply(tmp_path: P
                 "ref_name": binding.ref_name,
                 "expected_ref": binding.expected_ref.model_dump(mode="json"),
             },
-            headers=headers(key="rb:apply"),
+            headers=headers(
+                key="rb:apply",
+                if_match=resource_etag(
+                    resource_kind="rollback_request",
+                    resource_id=approved.subject_artifact_id,
+                    revision=approved.workflow_revision,
+                ),
+            ),
         )
     assert apply.status_code == 200, apply.text
     result = apply.json()
@@ -216,7 +259,14 @@ def test_rollback_cannot_skip_validation(tmp_path: Path) -> None:
                 "approval_id": rb_approval,
                 "expected_workflow_revision": draft_item.workflow_revision,
             },
-            headers=headers(key="rb:bypass-validate"),
+            headers=headers(
+                key="rb:bypass-validate",
+                if_match=resource_etag(
+                    resource_kind="rollback_request",
+                    resource_id=artifact_id,
+                    revision=draft_item.workflow_revision,
+                ),
+            ),
         )
     # fails closed with a state-machine conflict (the draft is not validated); it never advances
     assert submit.status_code == 409
@@ -245,7 +295,14 @@ def test_rollback_cannot_skip_independent_approval(tmp_path: Path) -> None:
                 "approval_id": rb_approval,
                 "expected_workflow_revision": validated.workflow_revision,
             },
-            headers=headers(key="rb:submit"),
+            headers=headers(
+                key="rb:submit",
+                if_match=resource_etag(
+                    resource_kind="rollback_request",
+                    resource_id=artifact_id,
+                    revision=validated.workflow_revision,
+                ),
+            ),
         )
         pending = harness.load_item(rb_approval)
         binding = pending.target_binding
@@ -263,7 +320,14 @@ def test_rollback_cannot_skip_independent_approval(tmp_path: Path) -> None:
                 "ref_name": binding.ref_name,
                 "expected_ref": binding.expected_ref.model_dump(mode="json"),
             },
-            headers=headers(key="rb:bypass-approve"),
+            headers=headers(
+                key="rb:bypass-approve",
+                if_match=resource_etag(
+                    resource_kind="rollback_request",
+                    resource_id=pending.subject_artifact_id,
+                    revision=pending.workflow_revision,
+                ),
+            ),
         )
     assert apply.status_code == 409
     assert harness.load_item(rb_approval).status == "pending_approval"

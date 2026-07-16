@@ -154,6 +154,7 @@ class _CannedAdmission:
 @dataclass
 class WorkflowHarness:
     app: FastAPI
+    service: WorkflowCommandService
     engine: Engine
     objects: LocalObjectStore
     clock: Any
@@ -203,7 +204,14 @@ def actor_context(harness: WorkflowHarness, principal_id: str) -> ActorContext:
     return _actor_context(_principal(harness.engine, harness.clock, principal_id))
 
 
-def build_harness(tmp_path: Path, *, admission: bool = True, clock: Any = None) -> WorkflowHarness:
+def build_harness(
+    tmp_path: Path,
+    *,
+    admission: bool = True,
+    clock: Any = None,
+    execution_profile_catalog: Any = None,
+    config_exporter: Any = None,
+) -> WorkflowHarness:
     clock = clock if clock is not None else FrozenUtcClock(NOW_DT)
     engine = get_engine(f"sqlite:///{tmp_path / 'workflow-commands.db'}")
     Base.metadata.create_all(engine)
@@ -213,7 +221,7 @@ def build_harness(tmp_path: Path, *, admission: bool = True, clock: Any = None) 
         clock=clock,
         cursor_signing_key=OBJECT_CURSOR_KEY,
     )
-    catalog = _profile_catalog()
+    catalog = execution_profile_catalog or _profile_catalog()
     _seed_governance(engine, clock=clock, catalog=catalog)
     run_results: dict[str, Any] = {}
 
@@ -444,6 +452,7 @@ def build_harness(tmp_path: Path, *, admission: bool = True, clock: Any = None) 
         scope_resolver=_FixedScopeResolver(DomainScope(domain_ids=("economy",))),
         admission=admission_port if admission else None,
         execution_profile_catalog=catalog,
+        config_exporter=config_exporter,
     )
     adapter = WorkflowCommandAdapter(service)
 
@@ -458,6 +467,7 @@ def build_harness(tmp_path: Path, *, admission: bool = True, clock: Any = None) 
 
     harness = WorkflowHarness(
         app=app,
+        service=service,
         engine=engine,
         objects=objects,
         clock=clock,
@@ -487,6 +497,16 @@ def operator_actor(harness: WorkflowHarness) -> ActorContext:
 
 def maker_audit() -> AuditActor:
     return AuditActor(principal_id="human:maker", principal_kind="human")
+
+
+def resource_etag(*, resource_kind: str, resource_id: str, revision: int) -> str:
+    from gameforge.contracts.api import compute_resource_etag
+
+    return compute_resource_etag(
+        resource_kind=resource_kind,
+        resource_id=resource_id,
+        revision=revision,
+    )
 
 
 def headers(*, key: str, if_match: str = '"etag:1"') -> dict[str, str]:
@@ -541,6 +561,59 @@ def publish_base(harness: WorkflowHarness, *, entities: list[Any], ref_name: str
     harness.base_ref = ref
     harness.base_snapshot = snapshot
     return snapshot
+
+
+def publish_constraint_snapshot(
+    harness: WorkflowHarness,
+    *,
+    constraints: list[Any],
+    dsl_grammar_version: str = "dsl@1",
+) -> Any:
+    """Publish one immutable constraint_snapshot parent for Patch export tests."""
+
+    from gameforge.contracts.canonical import canonical_sha256
+    from gameforge.contracts.lineage import AuditCorrelation, AuditSubject, VersionTuple
+    from tests.platform.m4.test_local_service_flow_integration import (
+        _payload_bytes,
+        _prepare_artifact,
+    )
+
+    payload = {
+        "dsl_grammar_version": dsl_grammar_version,
+        "constraints": [
+            item.model_dump(mode="json") if hasattr(item, "model_dump") else item
+            for item in constraints
+        ],
+    }
+    prepared = _prepare_artifact(
+        harness.objects,
+        kind="constraint_snapshot",
+        payload=_payload_bytes(payload),
+        version_tuple=VersionTuple(
+            constraint_snapshot_id=canonical_sha256(payload),
+            tool_version="constraint-test@1",
+        ),
+    )
+    with harness.uow.begin() as transaction:
+        transaction.object_bindings.bind_verified(
+            prepared.binding.object_ref,
+            prepared.binding.location,
+            prepared.binding.expected_revision,
+        )
+        transaction.lineage.put(prepared.artifact)
+        AuditGate(sink=transaction.audit, clock=harness.clock).append(
+            chain_id=AUDIT_CHAIN_ID,
+            actor=maker_audit(),
+            initiated_by=None,
+            action="artifact.constraint_test_published",
+            subject=AuditSubject(
+                resource_kind="artifact",
+                resource_id=prepared.artifact.artifact_id,
+                artifact_id=prepared.artifact.artifact_id,
+            ),
+            correlation=AuditCorrelation(request_id="request:constraint-test-publish"),
+        )
+    return prepared.artifact
 
 
 def drive_to_validated(harness: WorkflowHarness, approval_id: str, *, run_id: str) -> Any:
@@ -634,7 +707,14 @@ def apply_full_patch(
             "approval_id": approval_id,
             "expected_workflow_revision": item.workflow_revision,
         },
-        headers=headers(key=f"{key}:submit"),
+        headers=headers(
+            key=f"{key}:submit",
+            if_match=resource_etag(
+                resource_kind="patch",
+                resource_id=artifact_id,
+                revision=item.workflow_revision,
+            ),
+        ),
     )
     pending = harness.load_item(approval_id)
     harness.use_actor(reviewer_actor(harness))
@@ -647,7 +727,14 @@ def apply_full_patch(
             "expected_workflow_revision": pending.workflow_revision,
             "reason_code": "independent_review_passed",
         },
-        headers=headers(key=f"{key}:approve"),
+        headers=headers(
+            key=f"{key}:approve",
+            if_match=resource_etag(
+                resource_kind="approval",
+                resource_id=approval_id,
+                revision=pending.workflow_revision,
+            ),
+        ),
     )
     approved = harness.load_item(approval_id)
     binding = approved.target_binding
@@ -664,7 +751,14 @@ def apply_full_patch(
             "ref_name": binding.ref_name,
             "expected_ref": binding.expected_ref.model_dump(mode="json"),
         },
-        headers=headers(key=f"{key}:apply"),
+        headers=headers(
+            key=f"{key}:apply",
+            if_match=resource_etag(
+                resource_kind="patch",
+                resource_id=approved.subject_artifact_id,
+                revision=approved.workflow_revision,
+            ),
+        ),
     )
     assert apply.status_code == 200, apply.text
     return approval_id, apply.json()["ref_value"]

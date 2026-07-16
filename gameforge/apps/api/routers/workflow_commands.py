@@ -42,6 +42,7 @@ from gameforge.contracts.api import (
     WorkflowApplyRequestV1,
     WorkflowApplyResultV1,
     WorkflowCommandResponseV1,
+    compute_resource_etag,
 )
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.diff import RebaseResult
@@ -148,15 +149,11 @@ def _set_command_headers(response: Response, result: object) -> None:
         or not isinstance(revision, int)
     ):
         raise TypeError("workflow command port returned an invalid result")
-    digest = canonical_sha256(
-        {
-            "etag_schema_version": "resource-etag@1",
-            "resource_kind": resource_kind,
-            "resource_id": resource_id,
-            "revision": revision,
-        }
+    response.headers["ETag"] = compute_resource_etag(
+        resource_kind=resource_kind,
+        resource_id=resource_id,
+        revision=revision,
     )
-    response.headers["ETag"] = f'"{digest}"'
     response.headers["X-Resource-Revision"] = str(revision)
     response.headers["Cache-Control"] = "private, no-cache"
 

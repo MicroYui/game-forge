@@ -25,6 +25,7 @@ from gameforge.contracts.errors import (
     IntegrityViolation,
     InvalidStateTransition,
 )
+from gameforge.contracts.api import compute_resource_etag
 from gameforge.contracts.findings import PatchV2, PatchView
 from gameforge.contracts.identity import (
     DomainRegistryRefV1,
@@ -83,6 +84,7 @@ class ApprovalCommandContext(_FrozenModel):
     idempotency_scope: NonEmptyStr
     idempotency_key: NonEmptyStr
     request_hash: LowerHexSha256
+    if_match: NonEmptyStr | None = None
 
     @property
     def accountable_actor(self) -> AuditActor:
@@ -171,6 +173,7 @@ class PreparedDraft(_FrozenModel):
     object_bindings: tuple[PreparedObjectBinding, ...]
     approval_item: ApprovalItem
     expected_subject_head: SubjectHead | None
+    expected_previous_workflow_revision: PositiveInt | None = None
 
     @field_validator("companion_artifacts")
     @classmethod
@@ -345,6 +348,8 @@ class IdempotencyRepository(Protocol):
 
 class RefReader(Protocol):
     def get(self, name: str) -> RefValue | None: ...
+
+    def get_history_entry(self, name: str, revision: int) -> RefValue | None: ...
 
 
 class ApprovalAuditWriter(Protocol):
@@ -530,20 +535,11 @@ class ApprovalCommandService:
         expected_ref: RefValue,
     ) -> DraftPublicationResult:
         capabilities = self._bind_capabilities(transaction)
-        refs = _required(capabilities.refs, "refs")
         binding = prepared.approval_item.target_binding
         if not isinstance(binding, PatchTargetBindingV1):
             raise IntegrityViolation("rebased draft requires a Patch target binding")
         if binding.expected_ref != expected_ref:
             raise IntegrityViolation("rebased draft expected ref differs from its target binding")
-        actual_ref = refs.get(binding.ref_name)
-        if actual_ref != expected_ref:
-            raise Conflict(
-                "rebased draft ref precondition did not match",
-                ref_name=binding.ref_name,
-                expected=expected_ref.model_dump(mode="json"),
-                actual=(None if actual_ref is None else actual_ref.model_dump(mode="json")),
-            )
         return self._publish_draft_in_transaction(
             prepared=prepared,
             context=context,
@@ -616,6 +612,13 @@ class ApprovalCommandService:
                 raise IntegrityViolation("draft idempotency result differs from prepared draft")
             return result
 
+        if isinstance(item.target_binding, (PatchTargetBindingV1, RollbackTargetBindingV1)):
+            self._verify_fresh_draft_ref_authority(
+                prepared=prepared,
+                facts=facts,
+                refs=_required(capabilities.refs, "refs"),
+            )
+
         current = approvals.current(item.subject_series_id)
         old_item: ApprovalItem | None = None
         if prepared.expected_subject_head is None:
@@ -633,6 +636,12 @@ class ApprovalCommandService:
             if current is None or current[0] != prepared.expected_subject_head:
                 raise Conflict("draft SubjectHead precondition did not match")
             old_item = current[1]
+            self._require_if_match(
+                context,
+                resource_kind=old_item.subject_kind,
+                resource_id=old_item.subject_artifact_id,
+                revision=old_item.workflow_revision,
+            )
             self._validate_superseding_draft(prepared, facts, old_item)
 
         for binding in prepared.object_bindings:
@@ -696,6 +705,48 @@ class ApprovalCommandService:
             response=result.model_dump(mode="json"),
         )
         return result
+
+    @staticmethod
+    def _verify_fresh_draft_ref_authority(
+        *,
+        prepared: PreparedDraft,
+        facts: DraftSubjectFacts,
+        refs: RefReader,
+    ) -> None:
+        binding = prepared.approval_item.target_binding
+        if not isinstance(binding, (PatchTargetBindingV1, RollbackTargetBindingV1)):
+            raise IntegrityViolation("ref-bound draft requires a Patch or Rollback binding")
+        actual = refs.get(binding.ref_name)
+        if actual != binding.expected_ref:
+            raise Conflict(
+                "draft ref precondition did not match",
+                ref_name=binding.ref_name,
+                expected=(
+                    None
+                    if binding.expected_ref is None
+                    else binding.expected_ref.model_dump(mode="json")
+                ),
+                actual=None if actual is None else actual.model_dump(mode="json"),
+            )
+        if isinstance(binding, PatchTargetBindingV1):
+            return
+        request = facts.rollback_request
+        if request is None:
+            raise IntegrityViolation("rollback ref guard requires the typed RollbackRequest")
+        historical = refs.get_history_entry(
+            binding.ref_name,
+            request.target_history_revision,
+        )
+        expected_history = RefValue(
+            artifact_id=binding.target_artifact_id,
+            revision=request.target_history_revision,
+        )
+        if historical != expected_history:
+            raise Conflict(
+                "rollback target is not the exact ref history member",
+                ref_name=binding.ref_name,
+                target_history_revision=request.target_history_revision,
+            )
 
     def start_validation(
         self,
@@ -784,6 +835,8 @@ class ApprovalCommandService:
         approval_id: str,
         expected_workflow_revision: int,
         context: ApprovalCommandContext,
+        expected_subject_artifact_id: str | None = None,
+        expected_subject_kind: str | None = None,
     ) -> ApprovalItem:
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
@@ -796,10 +849,21 @@ class ApprovalCommandService:
             evidence = _required(capabilities.evidence, "evidence")
 
             item = self._load_item(approvals, approval_id)
-            subject = self._load_artifact(artifacts, item.subject_artifact_id)
-            facts = subjects.inspect_draft_subject(subject)
-            self._require_human_constraint_revision(item, facts)
-
+            if (
+                expected_subject_artifact_id is not None
+                and item.subject_artifact_id != expected_subject_artifact_id
+            ):
+                raise Conflict(
+                    "submit path does not bind the ApprovalItem subject Artifact",
+                    expected_subject_artifact_id=expected_subject_artifact_id,
+                    actual_subject_artifact_id=item.subject_artifact_id,
+                )
+            if expected_subject_kind is not None and item.subject_kind != expected_subject_kind:
+                raise Conflict(
+                    "submit endpoint does not match the ApprovalItem subject kind",
+                    expected_subject_kind=expected_subject_kind,
+                    actual_subject_kind=item.subject_kind,
+                )
             replay = self._get_idempotent(
                 idempotency,
                 context,
@@ -815,6 +879,15 @@ class ApprovalCommandService:
                     current=item,
                 )
 
+            self._require_if_match(
+                context,
+                resource_kind=item.subject_kind,
+                resource_id=item.subject_artifact_id,
+                revision=item.workflow_revision,
+            )
+            subject = self._load_artifact(artifacts, item.subject_artifact_id)
+            facts = subjects.inspect_draft_subject(subject)
+            self._require_human_constraint_revision(item, facts)
             self._require_current_head(approvals, item)
             self._validate_bound_policies(item, policies)
             self._verify_agent_producer(
@@ -903,17 +976,6 @@ class ApprovalCommandService:
             item = self._load_item(approvals, approval_id)
             if context.actor != decision.actor or context.initiated_by is not None:
                 raise IntegrityViolation("decision context must be the human decision actor")
-            registry, route, role, approval_policy = self._resolve_policies(
-                item=item,
-                policies=policies,
-            )
-            validate_approval_policy_bindings(
-                item=item,
-                domain_registry=registry,
-                route_policy=route,
-                role_policy=role,
-                approval_policy=approval_policy,
-            )
 
             replay = self._get_idempotent(
                 idempotency,
@@ -928,6 +990,23 @@ class ApprovalCommandService:
                     current=item,
                 )
 
+            self._require_if_match(
+                context,
+                resource_kind="approval",
+                resource_id=item.approval_id,
+                revision=item.workflow_revision,
+            )
+            registry, route, role, approval_policy = self._resolve_policies(
+                item=item,
+                policies=policies,
+            )
+            validate_approval_policy_bindings(
+                item=item,
+                domain_registry=registry,
+                route_policy=route,
+                role_policy=role,
+                approval_policy=approval_policy,
+            )
             self._require_current_head(approvals, item)
             replacement = apply_approval_decision(
                 item=item,
@@ -978,6 +1057,8 @@ class ApprovalCommandService:
             approvals = _required(capabilities.approvals, "approvals")
             idempotency = _required(capabilities.idempotency, "idempotency")
             item = self._load_item(approvals, approval_id)
+            if context.actor.principal_kind != "human" or context.initiated_by is not None:
+                raise Forbidden("approval decisions require a direct human actor")
 
             replay = self._get_idempotent(
                 idempotency,
@@ -993,8 +1074,12 @@ class ApprovalCommandService:
                     current=item,
                 )
 
-            if context.actor.principal_kind != "human" or context.initiated_by is not None:
-                raise Forbidden("approval decisions require a direct human actor")
+            self._require_if_match(
+                context,
+                resource_kind="approval",
+                resource_id=item.approval_id,
+                revision=item.workflow_revision,
+            )
             self._require_current_head(approvals, item)
             policies = _required(capabilities.policies, "policies")
             principals = _required(capabilities.principals, "principals")
@@ -1080,6 +1165,29 @@ class ApprovalCommandService:
                 regression_status=projection.regression_status,
                 approval_status=item.status,
                 workflow_revision=item.workflow_revision,
+            )
+
+    @staticmethod
+    def _require_if_match(
+        context: ApprovalCommandContext,
+        *,
+        resource_kind: str,
+        resource_id: str,
+        revision: int,
+    ) -> None:
+        if context.if_match is None:
+            return
+        expected = compute_resource_etag(
+            resource_kind=resource_kind,
+            resource_id=resource_id,
+            revision=revision,
+        )
+        if context.if_match != expected:
+            raise Conflict(
+                "If-Match does not match the authoritative resource revision",
+                resource_kind=resource_kind,
+                resource_id=resource_id,
+                revision=revision,
             )
 
     @staticmethod
@@ -1234,6 +1342,25 @@ class ApprovalCommandService:
                 raise IntegrityViolation("patch target is not its prepared preview Artifact")
             if facts.target_artifact_id is not None:
                 raise IntegrityViolation("Patch payload cannot bind a target Artifact ID")
+            for config in (
+                artifact
+                for artifact in prepared.companion_artifacts
+                if artifact.kind == "config_export"
+            ):
+                constraint_parent_ids = set(config.lineage) - {target.artifact_id}
+                if len(constraint_parent_ids) != 1:
+                    raise IntegrityViolation("config export must bind one exact constraint parent")
+                constraint = artifacts.get(next(iter(constraint_parent_ids)))
+                if (
+                    not isinstance(constraint, ArtifactV2)
+                    or constraint.kind != "constraint_snapshot"
+                    or constraint.version_tuple.constraint_snapshot_id is None
+                    or config.version_tuple.constraint_snapshot_id
+                    != constraint.version_tuple.constraint_snapshot_id
+                ):
+                    raise IntegrityViolation(
+                        "config export constraint lineage/VersionTuple differs"
+                    )
         else:
             target = artifacts.get(binding.target_artifact_id)
             if not isinstance(target, ArtifactV2):
@@ -1289,6 +1416,15 @@ class ApprovalCommandService:
         old_item: ApprovalItem,
     ) -> None:
         item = prepared.approval_item
+        if (
+            prepared.expected_previous_workflow_revision is not None
+            and old_item.workflow_revision != prepared.expected_previous_workflow_revision
+        ):
+            raise Conflict(
+                "superseded ApprovalItem workflow revision is stale",
+                expected_workflow_revision=prepared.expected_previous_workflow_revision,
+                actual_workflow_revision=old_item.workflow_revision,
+            )
         if (
             item.subject_kind != old_item.subject_kind
             or item.subject_revision != old_item.subject_revision + 1

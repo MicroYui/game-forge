@@ -42,6 +42,7 @@ from gameforge.apps.api.streaming import (
     RunEventStreamService,
 )
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
+from gameforge.apps.worker.config_export import build_aureus_config_exporter
 from gameforge.apps.cli.identity import (
     AUDIT_CHAIN_ID_ENV,
     PASSWORD_HASH_POLICY_VERSION_ENV,
@@ -49,6 +50,7 @@ from gameforge.apps.cli.identity import (
     ROLE_POLICY_VERSION_ENV,
 )
 from gameforge.contracts.errors import Conflict, DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import (
     DomainRegistryV1,
     DomainRoutePolicy,
@@ -56,9 +58,9 @@ from gameforge.contracts.identity import (
     DomainScope,
     RolePolicy,
 )
-from gameforge.contracts.lineage import AuditActor, AuditCorrelation, AuditSubject
+from gameforge.contracts.lineage import ArtifactV2, AuditActor, AuditCorrelation, AuditSubject
 from gameforge.contracts.observability import SpanDataV1
-from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1
+from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1, RollbackRequestV1
 from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.approvals.apply import (
     ApprovedApplyCapabilities,
@@ -455,55 +457,75 @@ class _SqlWorkflowGovernanceProvider:
 
 
 class _RoutePolicyDomainScopeResolver:
-    """Derive a patch/rollback subject's affected DomainScope from the route policy.
+    """Derive patch/rollback scope from the exact immutable content Artifact.
 
-    Patch and rollback draft requests do not declare a ``domain_scope`` (constraint
-    and spec requests do), so the affected scope is derived from the exact governance:
-    the union of the DomainRoutePolicy selectors that route the subject kind, bounded
-    to the active registry domains. For a single-content-domain deployment this is the
-    exact affected scope; for a multi-domain registry it is a fail-safe superset (it
-    never cherry-picks a "primary" domain). Exact per-entity/field-level affected-scope
-    recomputation from the base->target canonical diff is owned by the validation /
-    auto-apply guard (M4 design 5, ``AutoApplyProofV1.affected_domain_scope``; plan
-    Task 13) and is cross-checked there at validation, submit, and apply time.
+    The route policy decides *who* reviews a known affected domain; it is not a
+    substitute for resource identity. Patch and rollback requests therefore inherit
+    the canonical domain binding of their exact base/target Artifact and merely prove
+    that the retained route policy covers that scope. Missing, inactive, forged, or
+    unrouted bindings fail closed instead of expanding to every active domain.
     """
 
     def __init__(self, governance: WorkflowGovernanceProvider) -> None:
         self._governance = governance
 
     def resolve_patch_scope(self, *, base_artifact: object, patch: object) -> DomainScope:
-        del base_artifact, patch
-        return self._scope_for("patch")
+        if not isinstance(base_artifact, ArtifactV2) or not isinstance(patch, PatchV2):
+            raise IntegrityViolation("patch scope resolution requires exact typed inputs")
+        if patch.base_snapshot_id != base_artifact.version_tuple.ir_snapshot_id:
+            raise Conflict("Patch does not bind the exact base snapshot identity")
+        return self._scope_for_artifact(base_artifact, "patch")
 
     def resolve_rollback_scope(self, *, target_artifact: object, request: object) -> DomainScope:
-        del target_artifact, request
-        return self._scope_for("rollback_request")
+        if not isinstance(target_artifact, ArtifactV2) or not isinstance(
+            request, RollbackRequestV1
+        ):
+            raise IntegrityViolation("rollback scope resolution requires exact typed inputs")
+        if request.target_artifact_id != target_artifact.artifact_id:
+            raise Conflict("Rollback request does not bind the exact target Artifact")
+        return self._scope_for_artifact(target_artifact, "rollback_request")
 
-    def _scope_for(self, subject_kind: str) -> DomainScope:
+    def _scope_for_artifact(
+        self,
+        artifact: ArtifactV2,
+        subject_kind: str,
+    ) -> DomainScope:
         governance = self._governance.current()
+        raw_scope = artifact.meta.get("domain_scope")
+        try:
+            scope = DomainScope.model_validate(raw_scope)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "workflow subject Artifact has no valid domain binding",
+                artifact_id=artifact.artifact_id,
+            ) from exc
+        if raw_scope != scope.model_dump(mode="json"):
+            raise IntegrityViolation("workflow subject Artifact domain binding is noncanonical")
         active = {
             definition.domain_id
             for definition in governance.registry.definitions
             if definition.status == "active"
         }
-        selected: set[str] = set()
+        if not set(scope.domain_ids).issubset(active):
+            raise Conflict("workflow subject selects an inactive or unknown domain")
+        routed: set[str] = set()
         for rule in governance.route.rules:
             if subject_kind not in rule.subject_kinds:
                 continue
             if rule.domain_selector == "all":
-                selected |= active
+                routed |= active
             else:
-                selected |= {
+                routed |= {
                     domain_id
                     for domain_id in rule.domain_selector.domain_ids
                     if domain_id in active
                 }
-        if not selected:
+        if not set(scope.domain_ids).issubset(routed):
             raise DependencyUnavailable(
-                "workflow domain-scope resolution has no route coverage for the subject",
+                "workflow route policy does not cover the subject Artifact domain",
                 component="workflow_domain_scope",
             )
-        return DomainScope(domain_ids=tuple(sorted(selected)))
+        return scope
 
 
 class _ValidationStartWriter:
@@ -676,6 +698,7 @@ def _build_workflow_command_service(
     unit_of_work: SqliteUnitOfWork,
     execution_profile_catalog: object,
     admission: object,
+    config_exporter: object,
 ) -> WorkflowCommandAdapter:
     """Compose the synchronous workflow-command port over the real write UoW.
 
@@ -855,6 +878,7 @@ def _build_workflow_command_service(
         scope_resolver=scope_resolver,
         admission=admission,
         execution_profile_catalog=execution_profile_catalog,
+        config_exporter=config_exporter,  # type: ignore[arg-type]
     )
     return WorkflowCommandAdapter(service)
 
@@ -1084,6 +1108,7 @@ def build_local_api_resources(
         unit_of_work=unit_of_work,
         execution_profile_catalog=execution_profile_catalogs[0],
         admission=run_admission,
+        config_exporter=build_aureus_config_exporter(builtin_registry),
     )
 
     @contextmanager

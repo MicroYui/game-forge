@@ -25,6 +25,7 @@ from gameforge.contracts.api import (
     SnapshotDiffHttpPageV1,
     SpecViewV1,
     TaskSuiteArtifactViewV1,
+    compute_resource_etag,
 )
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation, RequestSchemaInvalid
@@ -49,15 +50,11 @@ def _set_resource_headers(
     resource_id: str,
     revision: int,
 ) -> None:
-    digest = canonical_sha256(
-        {
-            "etag_schema_version": "resource-etag@1",
-            "resource_kind": resource_kind,
-            "resource_id": resource_id,
-            "revision": revision,
-        }
+    response.headers["ETag"] = compute_resource_etag(
+        resource_kind=resource_kind,
+        resource_id=resource_id,
+        revision=revision,
     )
-    response.headers["ETag"] = f'"{digest}"'
     response.headers["X-Resource-Revision"] = str(revision)
     response.headers["Cache-Control"] = "private, no-cache"
 

@@ -16,6 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.app import create_app
@@ -31,12 +32,13 @@ from gameforge.contracts.identity import (
 )
 from gameforge.contracts.ir import Entity, NodeType
 from gameforge.contracts.lineage import VersionTuple, build_artifact_v2
+from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
-from gameforge.runtime.persistence.models import Base
+from gameforge.runtime.persistence.models import ArtifactRow, Base
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
@@ -119,6 +121,7 @@ def _seed_base(resources, config, clock) -> tuple[str, dict]:
         lineage=(),
         payload_hash=stored.ref.sha256,
         object_ref=stored.ref,
+        meta={"domain_scope": {"domain_ids": ["economy"]}},
         created_at="2026-07-14T12:00:00Z",
     )
     signer = CursorSigner(signing_key=_SEED_CURSOR_KEY, clock=clock)
@@ -140,6 +143,36 @@ def _seed_base(resources, config, clock) -> tuple[str, dict]:
     return artifact.artifact_id, ref.model_dump(mode="json")
 
 
+def _seed_constraint(resources, config, clock) -> str:
+    payload = canonical_json({"dsl_grammar_version": "dsl@1", "constraints": []}).encode("utf-8")
+    stored = resources.object_store.put_verified(payload)
+    artifact = build_artifact_v2(
+        kind="constraint_snapshot",
+        version_tuple=VersionTuple(
+            constraint_snapshot_id=stored.ref.sha256,
+            tool_version="constraint-test@1",
+        ),
+        lineage=(),
+        payload_hash=stored.ref.sha256,
+        object_ref=stored.ref,
+        meta={"domain_scope": {"domain_ids": ["economy"]}},
+        created_at="2026-07-14T12:00:00Z",
+    )
+    signer = CursorSigner(signing_key=_SEED_CURSOR_KEY, clock=clock)
+    with Session(resources.engine) as session, session.begin():
+        bindings = SqlObjectBindingRepository(
+            session, resources.object_store, config.object_store_id
+        )
+        bindings.bind_verified(stored.ref, stored.location, None)
+        SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=signer,
+            clock=clock,
+        ).put(artifact)
+    return artifact.artifact_id
+
+
 def _headers(key: str) -> dict[str, str]:
     return {"Idempotency-Key": key, "If-Match": '"etag:1"'}
 
@@ -150,12 +183,14 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
     engine = get_engine(database_url)
     Base.metadata.create_all(engine)
     # Provision the exact governance + identities through the trusted policy repository.
-    _seed_governance(engine, clock=clock, catalog=_profile_catalog())
+    catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
+    _seed_governance(engine, clock=clock, catalog=catalog)
     engine.dispose()
 
     config = _config(tmp_path, database_url)
     resources = build_local_api_resources(config)
     base_artifact_id, base_ref = _seed_base(resources, config, clock)
+    constraint_artifact_id = _seed_constraint(resources, config, clock)
 
     app = create_app(resources.dependencies)
     app.dependency_overrides[require_actor] = lambda: _maker_actor(resources.engine, clock)
@@ -166,7 +201,7 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
             json={
                 "request_schema_version": "human-patch-draft-request@1",
                 "base_snapshot_artifact_id": base_artifact_id,
-                "constraint_snapshot_artifact_id": None,
+                "constraint_snapshot_artifact_id": constraint_artifact_id,
                 "ref_name": "content/head",
                 "expected_ref": base_ref,
                 "expected_to_fix": [],
@@ -182,7 +217,9 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
                     }
                 ],
                 "rationale": "Lower the quest reward within the approved envelope.",
-                "candidate_export_profiles": [],
+                "candidate_export_profiles": [
+                    {"profile_id": "builtin.config_export", "version": 1}
+                ],
             },
             headers=_headers("patch:draft:real"),
         )
@@ -213,8 +250,6 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
             headers=_headers("constraint:draft:real"),
         )
 
-    resources.close()
-
     # Both drafts create real approval subjects through the real composition. A
     # governance=None composition would return 503 workflow_governance here.
     assert patch.status_code == 201, patch.text
@@ -223,11 +258,17 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
     assert patch_body["artifact"]["kind"] == "patch"
     # the route-policy scope resolver derived the affected economy domain (not injected)
     assert patch_body["artifact"]["domain_scope"] == {"domain_ids": ["economy"]}
+    with Session(resources.engine) as session:
+        config_count = session.scalar(
+            select(func.count()).select_from(ArtifactRow).where(ArtifactRow.kind == "config_export")
+        )
+    assert config_count == 1
 
     assert constraint.status_code == 201, constraint.text
     constraint_body = constraint.json()
     assert constraint_body["proposal"]["revision"] == 1
     assert constraint_body["artifact"]["kind"] == "constraint_proposal"
+    resources.close()
 
 
 def test_real_local_composition_without_governance_fails_closed(tmp_path: Path) -> None:

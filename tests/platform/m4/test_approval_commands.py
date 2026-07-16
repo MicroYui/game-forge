@@ -251,6 +251,7 @@ class _State:
     cancellations: list[str] = field(default_factory=list)
     started_runs: list[str] = field(default_factory=list)
     refs: dict[str, RefValue] = field(default_factory=dict)
+    ref_history: dict[tuple[str, int], RefValue] = field(default_factory=dict)
 
 
 class _ApprovalRepo:
@@ -319,6 +320,9 @@ class _Refs:
 
     def get(self, name: str) -> RefValue | None:
         return self.state.refs.get(name)
+
+    def get_history_entry(self, name: str, revision: int) -> RefValue | None:
+        return self.state.ref_history.get((name, revision))
 
 
 class _Artifacts:
@@ -641,6 +645,7 @@ class _Harness:
 
 def _harness(*, min_approvals: int = 1) -> _Harness:
     state = _State()
+    state.refs["content/head"] = RefValue(artifact_id="artifact:base", revision=1)
     registry = _registry()
     route = _route(registry, min_approvals=min_approvals)
     roles = _roles(registry)
@@ -722,7 +727,11 @@ def _draft(
     expected_head: SubjectHead | None = None,
     preview_snapshot_id: str = "snapshot:preview",
 ) -> PreparedDraft:
-    subject = _artifact("patch", "1" if revision == 1 else "3", *(()) if revision == 1 else (supersedes_artifact_id or "",))
+    subject = _artifact(
+        "patch",
+        "1" if revision == 1 else "3",
+        *(()) if revision == 1 else (supersedes_artifact_id or "",),
+    )
     preview = _artifact(
         "ir_snapshot",
         "2" if revision == 1 else "4",
@@ -891,6 +900,11 @@ def _rollback_draft(
     )
     harness.state.artifacts[current.artifact_id] = current
     harness.state.artifacts[target.artifact_id] = target
+    harness.state.refs[request.ref_name] = expected_ref
+    harness.state.ref_history[(request.ref_name, request.target_history_revision)] = RefValue(
+        artifact_id=target.artifact_id,
+        revision=request.target_history_revision,
+    )
     harness.subjects.facts[subject.artifact_id] = DraftSubjectFacts(
         subject_kind="rollback_request",
         subject_revision=None,
@@ -962,14 +976,77 @@ def test_publish_draft_atomically_publishes_bindings_artifacts_item_head_and_aud
         )
 
 
-def test_publish_draft_does_not_require_the_rebased_ref_participant() -> None:
+def test_publish_patch_draft_requires_ref_authority() -> None:
     harness = _harness()
     harness.capabilities.refs = None
+    prepared = _draft(harness)
+    before = copy.deepcopy(harness.state)
 
-    prepared, result = _publish(harness)
+    with pytest.raises(IntegrityViolation, match="refs"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
 
-    assert result.approval_item == prepared.approval_item
-    assert harness.state.heads[result.subject_head.subject_series_id] == result.subject_head
+    assert harness.state == before
+
+
+@pytest.mark.parametrize(
+    "actual_ref",
+    [None, RefValue(artifact_id="artifact:concurrent", revision=2)],
+)
+def test_publish_initial_patch_draft_rejects_ref_drift_before_any_write(
+    actual_ref: RefValue | None,
+) -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+    if actual_ref is None:
+        harness.state.refs.pop("content/head")
+    else:
+        harness.state.refs["content/head"] = actual_ref
+    before = copy.deepcopy(harness.state)
+
+    with pytest.raises(Conflict, match="draft ref precondition"):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert harness.state == before
+    assert harness.uow.rollbacks == 1
+
+
+def test_publish_draft_replay_survives_later_ref_movement() -> None:
+    harness = _harness()
+    prepared, first = _publish(harness)
+    harness.state.refs["content/head"] = RefValue(
+        artifact_id="artifact:later",
+        revision=2,
+    )
+
+    replay = harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert replay == first
+    assert [action for action, _ in harness.state.audit] == ["approval.draft_published"]
+
+
+@pytest.mark.parametrize("drift", ["current", "history_missing", "history_target"])
+def test_publish_rollback_draft_rejects_current_or_history_drift(drift: str) -> None:
+    harness = _harness()
+    prepared, request = _rollback_draft(harness)
+    if drift == "current":
+        harness.state.refs[request.ref_name] = RefValue(
+            artifact_id="artifact:later",
+            revision=request.expected_current_ref.revision + 1,
+        )
+    elif drift == "history_missing":
+        harness.state.ref_history.pop((request.ref_name, request.target_history_revision))
+    else:
+        harness.state.ref_history[(request.ref_name, request.target_history_revision)] = RefValue(
+            artifact_id="artifact:other",
+            revision=request.target_history_revision,
+        )
+    before = copy.deepcopy(harness.state)
+
+    with pytest.raises(Conflict):
+        harness.service.publish_draft(prepared=prepared, context=_context())
+
+    assert harness.state == before
+    assert harness.uow.rollbacks == 1
 
 
 @pytest.mark.parametrize(
@@ -1123,9 +1200,9 @@ def test_publish_rejects_subject_payload_revision_mismatch() -> None:
     harness = _harness()
     prepared = _draft(harness)
     subject_id = prepared.subject_artifact.artifact_id
-    harness.subjects.facts[subject_id] = harness.subjects.facts[
-        subject_id
-    ].model_copy(update={"subject_revision": 2})
+    harness.subjects.facts[subject_id] = harness.subjects.facts[subject_id].model_copy(
+        update={"subject_revision": 2}
+    )
 
     with pytest.raises(IntegrityViolation, match="payload revision"):
         harness.service.publish_draft(prepared=prepared, context=_context())
@@ -1171,9 +1248,9 @@ def test_publish_rollback_rejects_request_binding_mismatch(mismatch: str) -> Non
             )
         }
     subject_id = prepared.subject_artifact.artifact_id
-    harness.subjects.facts[subject_id] = harness.subjects.facts[
-        subject_id
-    ].model_copy(update={"rollback_request": request.model_copy(update=updates)})
+    harness.subjects.facts[subject_id] = harness.subjects.facts[subject_id].model_copy(
+        update={"rollback_request": request.model_copy(update=updates)}
+    )
 
     with pytest.raises(IntegrityViolation, match="rollback request"):
         harness.service.publish_draft(prepared=prepared, context=_context())
@@ -1403,10 +1480,13 @@ def test_start_validation_creates_run_and_item_transition_in_one_uow() -> None:
         active_validation_run_id=None,
     )
     harness.state.approvals[progressed.approval_id] = progressed
-    assert harness.service.start_validation(
-        prepared=start,
-        context=_context(key="validate:1", request_hash="6" * 64),
-    ) == result
+    assert (
+        harness.service.start_validation(
+            prepared=start,
+            context=_context(key="validate:1", request_hash="6" * 64),
+        )
+        == result
+    )
 
     capabilities = harness.capabilities
     capabilities.runs = None
@@ -1450,12 +1530,8 @@ def test_malformed_validation_start_replay_fails_as_integrity_violation() -> Non
 
 def _validated(harness: _Harness) -> tuple[PreparedDraft, ApprovalItem]:
     prepared, published = _publish(harness)
-    evidence = _artifact(
-        "validation_evidence", "5", prepared.subject_artifact.artifact_id
-    )
-    regression = _artifact(
-        "regression_evidence", "6", prepared.subject_artifact.artifact_id
-    )
+    evidence = _artifact("validation_evidence", "5", prepared.subject_artifact.artifact_id)
+    regression = _artifact("regression_evidence", "6", prepared.subject_artifact.artifact_id)
     for artifact in (evidence, regression):
         harness.state.artifacts[artifact.artifact_id] = artifact
     item = _replace_item(
@@ -2125,12 +2201,15 @@ def test_decide_uses_atomic_repository_primitive_idempotency_and_audit() -> None
     )
     harness.state.approvals[progressed.approval_id] = progressed
 
-    assert harness.service.decide(
-        approval_id=pending.approval_id,
-        decision=decision,
-        principal=reviewer,
-        context=context,
-    ) == approved
+    assert (
+        harness.service.decide(
+            approval_id=pending.approval_id,
+            decision=decision,
+            principal=reviewer,
+            context=context,
+        )
+        == approved
+    )
     assert len(harness.state.audit) == audit_count
 
 

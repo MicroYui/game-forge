@@ -13,6 +13,7 @@ from tests.apps.api.workflow_command_testkit import (
     drive_to_validated,
     headers,
     maker_actor,
+    resource_etag,
     reviewer_actor,
 )
 
@@ -70,7 +71,14 @@ def _submit_to_pending(harness, client) -> tuple[str, list[str], int]:
             "approval_id": approval_id,
             "expected_workflow_revision": validated.workflow_revision,
         },
-        headers=headers(key="submit"),
+        headers=headers(
+            key="submit",
+            if_match=resource_etag(
+                resource_kind="patch",
+                resource_id=artifact_id,
+                revision=validated.workflow_revision,
+            ),
+        ),
     )
     assert submit.status_code == 200, submit.text
     pending = harness.load_item(approval_id)
@@ -102,7 +110,14 @@ def test_decision_derives_actor_time_and_id_and_supports_requirement_ids(tmp_pat
                 "expected_workflow_revision": revision,
                 "reason_code": "independent_review_passed",
             },
-            headers=headers(key="approve"),
+            headers=headers(
+                key="approve",
+                if_match=resource_etag(
+                    resource_kind="approval",
+                    resource_id=approval_id,
+                    revision=revision,
+                ),
+            ),
         )
     assert approve.status_code == 200, approve.text
     decisions = approve.json()["approval"]["decisions"]
@@ -131,7 +146,14 @@ def test_proposer_self_approval_is_rejected(tmp_path: Path) -> None:
                 "expected_workflow_revision": revision,
                 "reason_code": "self_approval_attempt",
             },
-            headers=headers(key="self-approve"),
+            headers=headers(
+                key="self-approve",
+                if_match=resource_etag(
+                    resource_kind="approval",
+                    resource_id=approval_id,
+                    revision=revision,
+                ),
+            ),
         )
     assert response.status_code in {403, 409}
     assert harness.load_item(approval_id).status == "pending_approval"
@@ -164,7 +186,14 @@ def test_role_revoked_between_submit_and_decide_takes_effect(tmp_path: Path) -> 
                 "expected_workflow_revision": revision,
                 "reason_code": "independent_review_passed",
             },
-            headers=headers(key="approve-after-revoke"),
+            headers=headers(
+                key="approve-after-revoke",
+                if_match=resource_etag(
+                    resource_kind="approval",
+                    resource_id=approval_id,
+                    revision=revision,
+                ),
+            ),
         )
     assert response.status_code in {403, 409}
     assert harness.load_item(approval_id).status == "pending_approval"

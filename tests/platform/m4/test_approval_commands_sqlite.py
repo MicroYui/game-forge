@@ -76,6 +76,7 @@ from gameforge.runtime.persistence.models import (
 )
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
 
@@ -217,10 +218,23 @@ class _SqlRepositories:
         )
         self._policies = SqlPolicySnapshotRepository(session, clock=clock)
         self._idempotency = SqlIdempotencyRepository(session, clock=clock)
+        self._refs = SqlRefStore(
+            session,
+            cursor_signer=CursorSigner(
+                signing_key=b"approval-command-sqlite-ref-cursor-key",
+                clock=clock,
+            ),
+            clock=clock,
+        )
 
-    def get(self, artifact_id: str) -> ArtifactV2 | None:
-        retained = self._artifacts.get(artifact_id)
+    def get(self, identifier: str) -> ArtifactV2 | RefValue | None:
+        if identifier == "content/head":
+            return self._refs.get(identifier)
+        retained = self._artifacts.get(identifier)
         return retained if isinstance(retained, ArtifactV2) else None
+
+    def get_history_entry(self, name: str, revision: int) -> RefValue | None:
+        return self._refs.get_history_entry(name, revision)
 
     def put(self, artifact: ArtifactV2) -> ArtifactV2:
         retained = self._artifacts.put(artifact)
@@ -428,6 +442,15 @@ def _build_harness(tmp_path: Path) -> _Harness:
         roles=roles,
         approval=approval,
     )
+    with Session(engine) as session, session.begin():
+        SqlRefStore(
+            session,
+            cursor_signer=CursorSigner(
+                signing_key=b"approval-command-sqlite-ref-cursor-key",
+                clock=clock,
+            ),
+            clock=clock,
+        ).compare_and_set("content/head", None, "artifact:base")
 
     stored = {
         payload: object_store.put_verified(payload)
@@ -542,6 +565,7 @@ def _build_harness(tmp_path: Path) -> _Harness:
             subjects=subjects,
             lineage=transaction.lineage,
             evidence=None,
+            refs=transaction.refs,
         )
 
     service = ApprovalCommandService(
@@ -621,8 +645,9 @@ def test_publish_draft_commits_all_real_sqlite_repositories_in_one_uow(
         assert artifacts.get(harness.prepared.subject_artifact.artifact_id) == (
             harness.prepared.subject_artifact
         )
-        assert artifacts.get(harness.prepared.companion_artifacts[0].artifact_id) == (
-            harness.prepared.companion_artifacts[0]
+        assert (
+            artifacts.get(harness.prepared.companion_artifacts[0].artifact_id)
+            == (harness.prepared.companion_artifacts[0])
         )
         for binding in harness.prepared.object_bindings:
             assert bindings.resolve(binding.object_ref).location == binding.location

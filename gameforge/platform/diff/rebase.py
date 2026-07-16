@@ -9,6 +9,7 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, ValidationError
 
+from gameforge.contracts.api import compute_resource_etag
 from gameforge.contracts.canonical import (
     canonical_json,
     compute_snapshot_id,
@@ -196,9 +197,8 @@ def _require_snapshot_equal(
 ) -> None:
     _require_snapshot(retained, label=f"loaded {label}")
     _require_snapshot(expected, label=label)
-    if (
-        retained.snapshot_id != expected.snapshot_id
-        or not _same_wire(retained.content_payload, expected.content_payload)
+    if retained.snapshot_id != expected.snapshot_id or not _same_wire(
+        retained.content_payload, expected.content_payload
     ):
         raise IntegrityViolation(f"loaded {label} differs from RebaseMaterial")
 
@@ -300,6 +300,22 @@ class RebaseWorkflowService:
         self._clock = clock
         self._audit_chain_id = audit_chain_id
 
+    def replay_command(
+        self,
+        *,
+        context: ApprovalCommandContext,
+        resolve_conflicts: bool,
+    ) -> RebaseResult | None:
+        """Replay an exact committed command before mutable source-state assembly."""
+
+        self._require_direct_human(context)
+        return self._early_replay(
+            context=context,
+            operation=(_RESOLVE_OPERATION if resolve_conflicts else _REBASE_OPERATION),
+            prepared_draft=None,
+            expected_status="clean" if resolve_conflicts else None,
+        )
+
     def rebase(
         self,
         *,
@@ -344,6 +360,7 @@ class RebaseWorkflowService:
                 self._validate_live_material(
                     material,
                     capabilities.approval,
+                    context,
                     stale=False,
                 )
                 retained = capabilities.conflicts.put(
@@ -352,9 +369,7 @@ class RebaseWorkflowService:
                     plan.conflicts,
                 )
                 if retained != conflict_set:
-                    raise IntegrityViolation(
-                        "ConflictSet repository returned another conflict set"
-                    )
+                    raise IntegrityViolation("ConflictSet repository returned another conflict set")
                 result = RebaseResult(
                     status="conflicted",
                     conflict_set_id=conflict_set.id,
@@ -405,6 +420,7 @@ class RebaseWorkflowService:
             self._validate_live_material(
                 material,
                 capabilities.approval,
+                context,
                 stale=False,
             )
             publication = self._approval_commands.publish_rebased_draft_in_transaction(
@@ -504,6 +520,7 @@ class RebaseWorkflowService:
             self._validate_live_material(
                 material,
                 capabilities.approval,
+                context,
                 stale=True,
             )
             self._validate_retained_conflict_metadata(
@@ -512,13 +529,11 @@ class RebaseWorkflowService:
                 retained=retained_conflicts,
             )
             try:
-                publication = (
-                    self._approval_commands.publish_rebased_draft_in_transaction(
-                        transaction=transaction,
-                        prepared=prepared_draft,
-                        context=context,
-                        expected_ref=material.expected_ref,
-                    )
+                publication = self._approval_commands.publish_rebased_draft_in_transaction(
+                    transaction=transaction,
+                    prepared=prepared_draft,
+                    context=context,
+                    expected_ref=material.expected_ref,
                 )
             except StaleConflictSet:
                 raise
@@ -555,18 +570,14 @@ class RebaseWorkflowService:
             label="rebase command context",
         )
         if context.actor.principal_kind != "human" or context.initiated_by is not None:
-            raise Forbidden(
-                "rebase commands require a direct human actor without an initiator"
-            )
+            raise Forbidden("rebase commands require a direct human actor without an initiator")
 
     def _validate_material_payloads(self, material: RebaseMaterial) -> None:
         self._validate_material_bindings(material)
         loaded_patch = self._payloads.load_patch(material.source_patch_artifact)
         _require_canonical_model(loaded_patch, PatchV2, label="loaded source Patch")
         if not _same_wire(loaded_patch, material.source_patch):
-            raise IntegrityViolation(
-                "loaded source Patch differs from RebaseMaterial"
-            )
+            raise IntegrityViolation("loaded source Patch differs from RebaseMaterial")
         for label, artifact, expected in (
             ("base Snapshot", material.base_artifact, material.base_snapshot),
             ("current Snapshot", material.current_artifact, material.current_snapshot),
@@ -581,16 +592,11 @@ class RebaseWorkflowService:
             raise IntegrityViolation(
                 "source Patch cannot be applied to its exact base Snapshot"
             ) from exc
-        if (
-            reproduced.snapshot_id != material.proposed_snapshot.snapshot_id
-            or not _same_wire(
-                reproduced.content_payload,
-                material.proposed_snapshot.content_payload,
-            )
+        if reproduced.snapshot_id != material.proposed_snapshot.snapshot_id or not _same_wire(
+            reproduced.content_payload,
+            material.proposed_snapshot.content_payload,
         ):
-            raise IntegrityViolation(
-                "source Patch does not reproduce the proposed Snapshot"
-            )
+            raise IntegrityViolation("source Patch does not reproduce the proposed Snapshot")
 
     @staticmethod
     def _validate_material_bindings(material: RebaseMaterial) -> None:
@@ -665,19 +671,14 @@ class RebaseWorkflowService:
             if parsed_artifact.kind != "ir_snapshot":
                 raise IntegrityViolation(f"{label} Artifact must be ir_snapshot")
             if parsed_artifact.version_tuple.ir_snapshot_id != parsed_snapshot.snapshot_id:
-                raise IntegrityViolation(
-                    f"{label} Artifact VersionTuple differs from its Snapshot"
-                )
+                raise IntegrityViolation(f"{label} Artifact VersionTuple differs from its Snapshot")
             if not parsed_artifact.version_tuple.tool_version:
-                raise IntegrityViolation(
-                    f"{label} Artifact VersionTuple lacks tool_version"
-                )
+                raise IntegrityViolation(f"{label} Artifact VersionTuple lacks tool_version")
 
         if (
             source_patch.base_snapshot_id != material.base_snapshot.snapshot_id
             or source_patch.target_snapshot_id != material.proposed_snapshot.snapshot_id
-            or source_artifact.version_tuple.ir_snapshot_id
-            != material.base_snapshot.snapshot_id
+            or source_artifact.version_tuple.ir_snapshot_id != material.base_snapshot.snapshot_id
             or not source_artifact.version_tuple.tool_version
         ):
             raise IntegrityViolation(
@@ -695,9 +696,7 @@ class RebaseWorkflowService:
             or binding.target_digest != material.proposed_artifact.payload_hash
             or binding.ref_name != material.ref_name
         ):
-            raise IntegrityViolation(
-                "source target binding differs from proposed Snapshot or ref"
-            )
+            raise IntegrityViolation("source target binding differs from proposed Snapshot or ref")
         if binding.expected_ref is not None:
             if (
                 binding.expected_ref.artifact_id != material.base_artifact.artifact_id
@@ -779,8 +778,7 @@ class RebaseWorkflowService:
             prepared.subject_artifact.kind != "patch"
             or prepared.subject_artifact.version_tuple.ir_snapshot_id
             != material.current_snapshot.snapshot_id
-            or prepared.subject_artifact.version_tuple.tool_version
-            != REBASE_TOOL_VERSION
+            or prepared.subject_artifact.version_tuple.tool_version != REBASE_TOOL_VERSION
             or prepared.subject_artifact.lineage != expected_patch_parents
         ):
             raise IntegrityViolation(
@@ -788,14 +786,10 @@ class RebaseWorkflowService:
             )
 
         previews = tuple(
-            artifact
-            for artifact in prepared.companion_artifacts
-            if artifact.kind == "ir_snapshot"
+            artifact for artifact in prepared.companion_artifacts if artifact.kind == "ir_snapshot"
         )
         if len(previews) != 1:
-            raise IntegrityViolation(
-                "prepared rebased Patch requires exactly one preview Artifact"
-            )
+            raise IntegrityViolation("prepared rebased Patch requires exactly one preview Artifact")
         preview_artifact = previews[0]
         parsed_preview = self._payloads.load_snapshot(preview_artifact)
         _require_snapshot_equal(
@@ -804,8 +798,7 @@ class RebaseWorkflowService:
             label="prepared preview Snapshot",
         )
         if (
-            preview_artifact.version_tuple.ir_snapshot_id
-            != compiled.preview.snapshot_id
+            preview_artifact.version_tuple.ir_snapshot_id != compiled.preview.snapshot_id
             or preview_artifact.version_tuple.tool_version != REBASE_TOOL_VERSION
             or preview_artifact.lineage
             != tuple(
@@ -836,9 +829,7 @@ class RebaseWorkflowService:
     def _capabilities(self, transaction: Any) -> RebaseWorkflowCapabilities:
         capabilities = self._bind_capabilities(transaction)
         if type(capabilities) is not RebaseWorkflowCapabilities:
-            raise IntegrityViolation(
-                "rebase capability binder returned another capability set"
-            )
+            raise IntegrityViolation("rebase capability binder returned another capability set")
         if not isinstance(capabilities.approval, ApprovalCommandCapabilities):
             raise IntegrityViolation("rebase approval capabilities are invalid")
         if capabilities.conflicts is None:
@@ -849,6 +840,7 @@ class RebaseWorkflowService:
     def _validate_live_material(
         material: RebaseMaterial,
         capabilities: ApprovalCommandCapabilities,
+        context: ApprovalCommandContext,
         *,
         stale: bool,
     ) -> None:
@@ -857,9 +849,7 @@ class RebaseWorkflowService:
         refs = _required(capabilities.refs, label="refs")
 
         retained_item = approvals.get(material.source_item.approval_id)
-        retained_head = approvals.get_subject_head(
-            material.source_item.subject_series_id
-        )
+        retained_head = approvals.get_subject_head(material.source_item.subject_series_id)
         retained_ref = refs.get(material.ref_name)
         if (
             retained_item != material.source_item
@@ -872,6 +862,18 @@ class RebaseWorkflowService:
                 approval_id=material.source_item.approval_id,
                 ref_name=material.ref_name,
             )
+        if context.if_match is not None:
+            expected_etag = compute_resource_etag(
+                resource_kind=retained_item.subject_kind,
+                resource_id=retained_item.subject_artifact_id,
+                revision=retained_item.workflow_revision,
+            )
+            if context.if_match != expected_etag:
+                error_type = StaleConflictSet if stale else Conflict
+                raise error_type(
+                    "If-Match does not match the authoritative rebase source revision",
+                    approval_id=retained_item.approval_id,
+                )
 
         for expected in (
             material.source_patch_artifact,
@@ -930,9 +932,7 @@ class RebaseWorkflowService:
         except (TypeError, ValueError, ValidationError) as exc:
             raise IntegrityViolation("rebase idempotency result is malformed") from exc
         if expected_status is not None and result.status != expected_status:
-            raise IntegrityViolation(
-                "rebase idempotency result has another deterministic status"
-            )
+            raise IntegrityViolation("rebase idempotency result has another deterministic status")
 
         if result.status == "clean":
             artifact_id = result.new_patch_artifact_id
@@ -955,8 +955,7 @@ class RebaseWorkflowService:
             if (
                 parsed_artifact.artifact_id != artifact_id
                 or parsed_artifact.kind != "patch"
-                or parsed_artifact.version_tuple.tool_version
-                != REBASE_TOOL_VERSION
+                or parsed_artifact.version_tuple.tool_version != REBASE_TOOL_VERSION
             ):
                 raise IntegrityViolation(
                     "retained replay Patch Artifact has invalid identity or tool_version",
