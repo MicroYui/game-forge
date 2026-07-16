@@ -6,11 +6,15 @@ import pytest
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.errors import QuotaExceeded
+from gameforge.contracts.cost import BudgetReservationV1, BudgetV1, ReservationGroupV1
+from gameforge.contracts.errors import IntegrityViolation, QuotaExceeded
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.engine import get_engine
 from tests.runtime.cost.ledger_testkit import (
+    NOW,
+    REQUEST_HASH,
+    amount,
     amounts_by_dimension,
     budget,
     budget_set,
@@ -128,6 +132,132 @@ def test_child_reserve_does_not_increment_budget_reserved_and_usage_counts_once_
             }
 
 
+def test_heterogeneous_scope_children_cover_exactly_the_budgets_governing_their_vector(
+    engine: Engine,
+) -> None:
+    def scoped_budget(scope_kind: str, scope_id: str, dimensions: tuple[str, ...]) -> BudgetV1:
+        base = budget(scope_kind, scope_id)
+        values = {
+            "input_token": amount("input_token", 100),
+            "agent_step": amount("agent_step", 10),
+        }
+        return BudgetV1.model_validate(
+            {
+                **base.model_dump(mode="python"),
+                "limits": tuple(values[dimension] for dimension in dimensions),
+                "reserved": (),
+                "consumed": (),
+            }
+        )
+
+    budgets = (
+        scoped_budget("run", "run:1", ("input_token", "agent_step")),
+        scoped_budget("principal", "principal:1", ("agent_step",)),
+        scoped_budget("system", "system:1", ("input_token",)),
+    )
+    selected_set = budget_set("run:1", budgets)
+    parent_id = "hold:run:1:heterogeneous"
+    parent_members = tuple(
+        BudgetReservationV1(
+            reservation_id=f"reservation:{parent_id}:{item.budget_id}",
+            reservation_group_id=parent_id,
+            budget_id=item.budget_id,
+            reserved=tuple(
+                value
+                for value in (amount("input_token", 80), amount("agent_step", 8))
+                if value.dimension in {limit.dimension for limit in item.limits}
+            ),
+            status="reserved",
+            revision=1,
+        )
+        for item in budgets
+    )
+    parent = ReservationGroupV1(
+        reservation_group_id=parent_id,
+        scope="run_budget_hold",
+        run_id=selected_set.run_id,
+        budget_set_snapshot_id=selected_set.budget_set_snapshot_id,
+        request_hash=REQUEST_HASH,
+        idempotency_key="hold-idempotency:heterogeneous",
+        budget_reservation_ids=tuple(item.reservation_id for item in parent_members),
+        status="reserved",
+        revision=1,
+        created_at=NOW,
+    )
+
+    def child(
+        suffix: str,
+        dimension: str,
+        selected_budget_ids: tuple[str, ...],
+    ) -> tuple[ReservationGroupV1, tuple[BudgetReservationV1, ...]]:
+        group_id = f"step:run:1:{suffix}"
+        value = amount(dimension, 1 if dimension == "agent_step" else 10)
+        members = tuple(
+            BudgetReservationV1(
+                reservation_id=f"reservation:{group_id}:{budget_id}",
+                reservation_group_id=group_id,
+                budget_id=budget_id,
+                reserved=(value,),
+                status="reserved",
+                revision=1,
+            )
+            for budget_id in selected_budget_ids
+        )
+        return (
+            ReservationGroupV1(
+                reservation_group_id=group_id,
+                scope="agent_step",
+                run_id=selected_set.run_id,
+                budget_set_snapshot_id=selected_set.budget_set_snapshot_id,
+                parent_hold_group_id=parent_id,
+                attempt_no=1,
+                request_hash=f"sha256:{suffix[-1] * 64}",
+                fencing_token=1,
+                idempotency_key=f"step-idempotency:{suffix}",
+                budget_reservation_ids=tuple(item.reservation_id for item in members),
+                status="reserved",
+                revision=1,
+                created_at=NOW,
+                expires_at=budgets[0].deadline_utc,
+            ),
+            members,
+        )
+
+    step = child(
+        "agent1",
+        "agent_step",
+        (budgets[0].budget_id, budgets[1].budget_id),
+    )
+    call = child(
+        "input2",
+        "input_token",
+        (budgets[0].budget_id, budgets[2].budget_id),
+    )
+    omitted_scope = child("agent3", "agent_step", (budgets[0].budget_id,))
+
+    with uow(engine).begin() as transaction:
+        for item in budgets:
+            transaction.cost.put_budget(item)
+        transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+    with Session(engine) as session, session.begin():
+        seed_current_attempt(session, selected_set=selected_set, parent=parent)
+
+    with uow(engine).begin() as transaction:
+        transaction.cost.reserve_many(*step)
+        transaction.cost.reserve_many(*call)
+        with pytest.raises(IntegrityViolation, match="every parent budget"):
+            transaction.cost.reserve_many(*omitted_scope)
+        assert transaction.cost.get_reservation_group(omitted_scope[0].reservation_group_id) is None
+        assert {
+            item.budget_id
+            for item in transaction.cost.list_budget_reservations(step[0].reservation_group_id)
+        } == {budgets[0].budget_id, budgets[1].budget_id}
+        assert {
+            item.budget_id
+            for item in transaction.cost.list_budget_reservations(call[0].reservation_group_id)
+        } == {budgets[0].budget_id, budgets[2].budget_id}
+
+
 def test_exact_reservation_replay_returns_retained_terminal_state(engine: Engine) -> None:
     selected_budget = budget("run", "run:1")
     selected_set = budget_set("run:1", (selected_budget,))
@@ -151,6 +281,33 @@ def test_exact_reservation_replay_returns_retained_terminal_state(engine: Engine
     assert replay == terminal
     assert replay.status == "reconciled"
     assert replay.revision > child.revision
+
+
+def test_unused_child_release_restores_full_hold_capacity_without_usage(engine: Engine) -> None:
+    selected_budget = budget("run", "run:1")
+    selected_set = budget_set("run:1", (selected_budget,))
+    parent, parent_members = hold(selected_set)
+    child, child_members = step_group(selected_set, parent, suffix="1")
+
+    with uow(engine).begin() as transaction:
+        transaction.cost.put_budget(selected_budget)
+        transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+    with Session(engine) as session, session.begin():
+        seed_current_attempt(session, selected_set=selected_set, parent=parent)
+    with uow(engine).begin() as transaction:
+        transaction.cost.reserve_many(child, child_members)
+        before = amounts_by_dimension(
+            transaction.cost.remaining_hold_amounts(parent.reservation_group_id)
+        )
+        assert before["input_token"] == 50
+        released = transaction.cost.release_unused_group(child.reservation_group_id)
+        assert released.status == "released"
+        assert transaction.cost.release_unused_group(child.reservation_group_id) == released
+        after = amounts_by_dimension(
+            transaction.cost.remaining_hold_amounts(parent.reservation_group_id)
+        )
+        assert after["input_token"] == 80
+        assert transaction.cost.list_usage(run_id=selected_set.run_id) == ()
 
 
 def test_close_hold_releases_only_unallocated_balance_and_has_no_active_orphan(

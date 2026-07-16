@@ -49,6 +49,8 @@ from gameforge.contracts.jobs import (
     RunIntermediateArtifactLinkV1,
     RunManifestParentBindingV1,
     RunManifestVersionProjectionV1,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunRecord,
     RunResultSummaryV1,
     RunResultV1,
@@ -58,6 +60,7 @@ from gameforge.contracts.lineage import (
     ArtifactV2,
     AuditActor,
     ExecutionIdentityV1,
+    InvocationVersionBindingV1,
     ObjectRef,
     VersionTuple,
     artifact_id_v2_for,
@@ -144,6 +147,9 @@ from gameforge.platform.runs.lifecycle import (
 )
 
 
+_CASSETTE_TOOL_VERSION = "cassette@1"
+
+
 class ArtifactPort(Protocol):
     def get(self, artifact_id: str) -> object | None: ...
 
@@ -185,6 +191,34 @@ class ManifestLedger(Protocol):
 
     def get_routing_decision(self, decision_id: str) -> RoutingDecisionV1 | None:
         """Read one reserve-before-use native routing decision exactly."""
+        ...
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelRouteLinkV1 | None: ...
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelResponseConsumptionV1 | None: ...
+
+    def model_route_links(
+        self, run_id: str, *, attempt_no: int | None
+    ) -> tuple[RunModelRouteLinkV1, ...]:
+        """Enumerate every persisted route in the selected terminal scope."""
+        ...
+
+    def model_response_consumptions(
+        self, run_id: str, *, attempt_no: int | None
+    ) -> tuple[RunModelResponseConsumptionV1, ...]:
+        """Enumerate every consumed route in the selected terminal scope."""
         ...
 
     # --- Task 10 runtime-parent sources (RECORD/REPLAY only) -----------------
@@ -326,7 +360,7 @@ def project_runtime_parents(
             )
         )
 
-    prompt_keys: list[tuple[int, int]] = []
+    prompt_keys: list[tuple[int, int, int]] = []
     for link in prompt_links:
         if link.run_id != run_id:
             raise IntegrityViolation("prompt link belongs to another Run")
@@ -336,7 +370,7 @@ def project_runtime_parents(
             current_attempt_no is None or link.attempt_no > current_attempt_no
         ):
             raise IntegrityViolation("run manifest contains a future prompt link")
-        prompt_keys.append((link.attempt_no, link.call_ordinal))
+        prompt_keys.append((link.attempt_no, link.call_ordinal, link.route_ordinal))
         append_parent(
             artifact_id=link.artifact_id,
             source="published_intermediate",
@@ -346,7 +380,7 @@ def project_runtime_parents(
             ordinal=link.call_ordinal,
         )
     if len(prompt_keys) != len(set(prompt_keys)):
-        raise IntegrityViolation("runtime prompt links contain a duplicate logical call")
+        raise IntegrityViolation("runtime prompt links contain a duplicate call route")
 
     shard_keys: list[tuple[int, int]] = []
     for shard_attempt_no, call_ordinal, artifact_id in record_shards:
@@ -369,7 +403,10 @@ def project_runtime_parents(
     if len(shard_keys) != len(set(shard_keys)):
         raise IntegrityViolation("runtime record shards contain a duplicate logical call")
     if llm_execution_mode == "record":
-        if not consumed_response_call_keys.issubset(prompt_keys):
+        prompt_call_keys = {
+            (attempt_no, call_ordinal) for attempt_no, call_ordinal, _ in prompt_keys
+        }
+        if not consumed_response_call_keys.issubset(prompt_call_keys):
             raise IntegrityViolation(
                 "consumed RECORD responses have no committed rendered-prompt links"
             )
@@ -741,10 +778,17 @@ class TerminalPublisher:
             occurred_at=occurred_at,
         )
         self._collector = collector
+        previous_overlay = self._planned_artifact_overlay
+        # Planning may synthesize content-addressed cassette aggregates which later
+        # operations in the same draft must read as if published.  Keep that
+        # in-memory authority strictly draft-local; the active-failure aggregate
+        # explicitly supplies the first draft's immutable operations to the second.
+        self._planned_artifact_overlay = dict(previous_overlay)
         try:
             result = publish()  # type: ignore[operator]
             return collector.freeze(result)
         finally:
+            self._planned_artifact_overlay = previous_overlay
             self._collector = None
 
     def plan_run_result(
@@ -1187,6 +1231,8 @@ class TerminalPublisher:
             manifest_scope="run",
             current_attempt_no=attempt.attempt_no,
             closed=closed,
+            outcome_code=policy.outcome_code,
+            require_complete=True,
         )
 
         published = self._publish_domain_artifacts(
@@ -1342,6 +1388,8 @@ class TerminalPublisher:
             manifest_scope="attempt",
             current_attempt_no=attempt.attempt_no,
             closed={},
+            outcome_code=policy.outcome_code,
+            require_complete=False,
         )
         projection = self._manifest_projection(
             run=run,
@@ -1462,6 +1510,8 @@ class TerminalPublisher:
             manifest_scope="run",
             current_attempt_no=attempt_no,
             closed=closed,
+            outcome_code=policy.outcome_code,
+            require_complete=False,
         )
         published = self._publish_domain_artifacts(
             run=run,
@@ -2335,6 +2385,8 @@ class TerminalPublisher:
         manifest_scope: str,
         current_attempt_no: int | None,
         closed: Mapping[str, int | None],
+        outcome_code: str,
+        require_complete: bool,
     ) -> _TerminalRuntimeProjection:
         """Close runtime links, identity, cassette tree and transition inputs."""
 
@@ -2348,36 +2400,129 @@ class TerminalPublisher:
         committed = {"current_attempt": len(current_links), "all_attempts": len(all_links)}
         prompt_links = current_links if manifest_scope == "attempt" else all_links
 
+        identity: ExecutionIdentityV1 | None = None
+        route_links: tuple[RunModelRouteLinkV1, ...] = ()
+        response_consumptions: tuple[RunModelResponseConsumptionV1, ...] = ()
+        if mode != "not_applicable":
+            selected_attempt = current_attempt_no if manifest_scope == "attempt" else None
+            route_links = self._ledger.model_route_links(
+                run.run_id,
+                attempt_no=selected_attempt,
+            )
+            response_consumptions = self._ledger.model_response_consumptions(
+                run.run_id,
+                attempt_no=selected_attempt,
+            )
+            try:
+                identity = ExecutionIdentityV1.model_validate(
+                    self._ledger.execution_identity(
+                        run.run_id,
+                        attempt_no=selected_attempt,
+                    )
+                )
+            except ValueError as exc:
+                raise IntegrityViolation(
+                    "terminal execution identity is not canonical",
+                    run_id=run.run_id,
+                    manifest_scope=manifest_scope,
+                ) from exc
+            prompt_info = {
+                link.artifact_id: self._runtime_parent_info(link.artifact_id)
+                for link in prompt_links
+            }
+            self._validate_execution_identity(
+                run=run,
+                identity=identity,
+                manifest_scope=manifest_scope,
+                current_attempt_no=current_attempt_no,
+                prompt_links=prompt_links,
+                artifact_info=prompt_info,
+                route_links=route_links,
+                response_consumptions=response_consumptions,
+                require_complete=require_complete,
+            )
+
         record_shards: tuple[tuple[int, int, str], ...] = ()
         attempt_bundle_id: str | None = None
         authoritative_attempt_bundle_ids: dict[int, str] = {}
         run_bundle_id: str | None = None
         replay_input_id: str | None = None
         if mode == "record":
+            if identity is None:  # pragma: no cover - RECORD loads one above
+                raise IntegrityViolation("RECORD terminal publication has no execution identity")
             record_shards = self._ledger.record_shard_links(
                 run.run_id,
                 attempt_no=(current_attempt_no if manifest_scope == "attempt" else None),
             )
-            if current_attempt_no is not None:
-                attempt_numbers = (
+            attempt_numbers = (
+                ()
+                if current_attempt_no is None
+                else (
                     (current_attempt_no,)
                     if manifest_scope == "attempt"
                     else tuple(range(1, current_attempt_no + 1))
                 )
-                for attempt_no in attempt_numbers:
-                    authoritative_id = self._ledger.attempt_cassette_bundle(
-                        run.run_id, attempt_no=attempt_no
+            )
+            for attempt_no in attempt_numbers:
+                authoritative_id = self._ledger.attempt_cassette_bundle(
+                    run.run_id,
+                    attempt_no=attempt_no,
+                )
+                if authoritative_id is None:
+                    retained_attempt = self._ledger.get_attempt(run.run_id, attempt_no)
+                    may_be_planned_now = (
+                        attempt_no == current_attempt_no
+                        and isinstance(retained_attempt, RunAttempt)
+                        and retained_attempt.status in {"leased", "running"}
                     )
-                    if authoritative_id is None:
+                    if not may_be_planned_now:
                         raise IntegrityViolation(
-                            "RECORD terminal publication has no authoritative attempt bundle",
+                            "closed RECORD attempt has no authoritative cassette bundle",
                             run_id=run.run_id,
                             attempt_no=attempt_no,
                         )
-                    authoritative_attempt_bundle_ids[attempt_no] = authoritative_id
+                    attempt_identity = (
+                        identity
+                        if manifest_scope == "attempt"
+                        else self._identity_subset(
+                            identity,
+                            scope="attempt",
+                            attempt_no=attempt_no,
+                        )
+                    )
+                    child_ids = tuple(
+                        artifact_id
+                        for shard_attempt_no, _, artifact_id in sorted(record_shards)
+                        if shard_attempt_no == attempt_no
+                    )
+                    authoritative_id = self._plan_record_cassette_bundle(
+                        payload=CassetteBundleV1(
+                            scope="attempt",
+                            run_id=run.run_id,
+                            attempt_no=attempt_no,
+                            outcome_code=outcome_code,
+                            child_bundle_artifact_ids=child_ids,
+                        ),
+                        identity=attempt_identity,
+                    ).artifact_id
+                authoritative_attempt_bundle_ids[attempt_no] = authoritative_id
+            if current_attempt_no is not None:
                 attempt_bundle_id = authoritative_attempt_bundle_ids[current_attempt_no]
             if manifest_scope == "run":
                 run_bundle_id = self._ledger.run_cassette_bundle(run.run_id)
+                if run_bundle_id is None:
+                    run_bundle_id = self._plan_record_cassette_bundle(
+                        payload=CassetteBundleV1(
+                            scope="run",
+                            run_id=run.run_id,
+                            outcome_code=outcome_code,
+                            child_bundle_artifact_ids=tuple(
+                                authoritative_attempt_bundle_ids[attempt_no]
+                                for attempt_no in attempt_numbers
+                            ),
+                        ),
+                        identity=identity,
+                    ).artifact_id
         elif mode == "replay":
             replay_input_id = self._ledger.replay_input_cassette(run.run_id)
             if replay_input_id != run.payload.cassette_artifact_id:
@@ -2404,30 +2549,6 @@ class TerminalPublisher:
                 run=run,
                 artifact_id=artifact_id,
                 attempt_no=attempt_no,
-            )
-
-        identity: ExecutionIdentityV1 | None = None
-        if mode != "not_applicable":
-            try:
-                identity = ExecutionIdentityV1.model_validate(
-                    self._ledger.execution_identity(
-                        run.run_id,
-                        attempt_no=(current_attempt_no if manifest_scope == "attempt" else None),
-                    )
-                )
-            except ValueError as exc:
-                raise IntegrityViolation(
-                    "terminal execution identity is not canonical",
-                    run_id=run.run_id,
-                    manifest_scope=manifest_scope,
-                ) from exc
-            self._validate_execution_identity(
-                run=run,
-                identity=identity,
-                manifest_scope=manifest_scope,
-                current_attempt_no=current_attempt_no,
-                prompt_links=prompt_links,
-                artifact_info=artifact_info,
             )
 
         consumed_response_call_keys: frozenset[tuple[int, int]] = frozenset()
@@ -2481,6 +2602,8 @@ class TerminalPublisher:
                 authoritative_attempt_bundle_ids=authoritative_attempt_bundle_ids,
                 prompt_links=prompt_links,
                 execution_identity=identity,
+                outcome_code=outcome_code,
+                require_complete=require_complete,
             )
             scope = "attempt_bundle" if manifest_scope == "attempt" else "run_bundle"
             cassette_ids[scope] = self._cassette_id(aggregate.artifact)
@@ -2492,11 +2615,12 @@ class TerminalPublisher:
                 raise IntegrityViolation("REPLAY terminal publication has no execution identity")
             self._validate_replay_cassette_tree(
                 root,
+                run=run,
                 terminal_identity=identity,
                 manifest_scope=manifest_scope,
                 current_attempt_no=current_attempt_no,
                 prompt_links=prompt_links,
-                require_complete=(plan.policy.prepared_outcome == "success"),
+                require_complete=require_complete,
             )
             cassette_ids["replay_input"] = self._cassette_id(root.artifact)
 
@@ -2512,6 +2636,60 @@ class TerminalPublisher:
             ),
         )
 
+    def _plan_record_cassette_bundle(
+        self,
+        *,
+        payload: CassetteBundleV1,
+        identity: ExecutionIdentityV1,
+    ) -> ArtifactV2:
+        """Plan one immutable aggregate inside the terminal publication draft.
+
+        Record shards are already published by response consumption. Attempt and
+        Run aggregates, however, are terminal authority and must be staged with the
+        matching manifest then inserted by the same terminal UoW.  An exact overlay
+        lets an active-failure run draft reuse the attempt draft's not-yet-committed
+        aggregate without precommitting it or staging a duplicate operation.
+        """
+
+        if self._collector is None:
+            raise IntegrityViolation("cassette aggregate planning requires an active draft")
+        encoded = canonical_json(payload.model_dump(mode="json")).encode("utf-8")
+        object_ref = object_ref_for_bytes(encoded)
+        artifact = build_artifact_v2(
+            kind="cassette_bundle",
+            version_tuple=VersionTuple(
+                prompt_version=identity.prompt_projection.tuple_value,
+                model_snapshot=identity.model_projection.tuple_value,
+                agent_graph_version=identity.agent_graph_version,
+                tool_version=_CASSETTE_TOOL_VERSION,
+                cassette_id=f"sha256:{object_ref.sha256}",
+            ),
+            lineage=payload.child_bundle_artifact_ids,
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta={
+                "payload_schema_id": "cassette-bundle@1",
+                "execution_identity": identity,
+                "replayability": "cassette_replay",
+            },
+            created_at=self._collector.occurred_at,
+        )
+        retained = self._planned_artifact_overlay.get(artifact.artifact_id)
+        if retained is not None:
+            if not _same_immutable_artifact(retained[0], artifact) or retained[1] != encoded:
+                raise IntegrityViolation(
+                    "planned cassette aggregate differs from retained overlay",
+                    artifact_id=artifact.artifact_id,
+                )
+            return retained[0]
+
+        staged_ref = self._collector.add_blob(encoded)
+        if staged_ref != object_ref:  # pragma: no cover - shared canonical helper
+            raise IntegrityViolation("cassette aggregate ObjectRef derivation is inconsistent")
+        stored = self._collector.add_artifact(artifact)
+        self._planned_artifact_overlay[stored.artifact_id] = (stored, encoded)
+        return stored
+
     def _validate_execution_identity(
         self,
         *,
@@ -2521,6 +2699,9 @@ class TerminalPublisher:
         current_attempt_no: int | None,
         prompt_links: Sequence[RunIntermediateArtifactLinkV1],
         artifact_info: Mapping[str, ParentInfo],
+        route_links: Sequence[RunModelRouteLinkV1],
+        response_consumptions: Sequence[RunModelResponseConsumptionV1],
+        require_complete: bool,
     ) -> None:
         plan = run.payload.execution_version_plan
         if plan is None:
@@ -2535,7 +2716,73 @@ class TerminalPublisher:
         if identity.agent_graph_version != plan.agent_graph_version:
             raise IntegrityViolation("terminal execution identity escapes the frozen Agent graph")
 
-        links_by_call = {(link.attempt_no, link.call_ordinal): link for link in prompt_links}
+        links_by_route = {
+            (link.attempt_no, link.call_ordinal, link.route_ordinal): link for link in prompt_links
+        }
+        if len(links_by_route) != len(prompt_links):
+            raise IntegrityViolation("rendered-prompt links contain a duplicate call route")
+        route_keys = tuple(
+            (route.attempt_no, route.call_ordinal, route.route_ordinal) for route in route_links
+        )
+        if route_keys != tuple(sorted(route_keys)) or len(route_keys) != len(set(route_keys)):
+            raise IntegrityViolation("model-route authority is not canonical and unique")
+        routes_by_key = dict(zip(route_keys, route_links, strict=True))
+        consumption_keys = tuple(
+            (item.attempt_no, item.call_ordinal, item.route_ordinal)
+            for item in response_consumptions
+        )
+        if consumption_keys != tuple(sorted(consumption_keys)) or len(consumption_keys) != len(
+            set(consumption_keys)
+        ):
+            raise IntegrityViolation("response-consumption authority is not canonical and unique")
+        consumptions_by_key = dict(zip(consumption_keys, response_consumptions, strict=True))
+        identity_keys = tuple(
+            (binding.attempt_no, binding.call_ordinal, binding.route_ordinal)
+            for binding in identity.bindings
+        )
+        if identity_keys != route_keys:
+            raise IntegrityViolation(
+                "terminal execution identity does not enumerate exact model-route authority"
+            )
+        consumed_identity_keys = tuple(
+            (binding.attempt_no, binding.call_ordinal, binding.route_ordinal)
+            for binding in identity.bindings
+            if binding.response_consumed
+        )
+        if consumed_identity_keys != consumption_keys:
+            raise IntegrityViolation(
+                "terminal execution identity does not enumerate exact response-consumption authority"
+            )
+        route_key_set = set(route_keys)
+        prompt_key_set = set(links_by_route)
+        if not route_key_set.issubset(prompt_key_set):
+            raise IntegrityViolation(
+                "terminal prompts differ from exact model-route authority",
+                require_complete=require_complete,
+            )
+        if require_complete:
+            if current_attempt_no is None:
+                raise IntegrityViolation("successful terminal identity has no current attempt")
+            current_route_keys = {key for key in route_key_set if key[0] == current_attempt_no}
+            current_prompt_keys = {key for key in prompt_key_set if key[0] == current_attempt_no}
+            if current_prompt_keys != current_route_keys:
+                raise IntegrityViolation(
+                    "successful current-attempt prompts differ from exact route authority"
+                )
+            logical_calls = {
+                binding.call_ordinal
+                for binding in identity.bindings
+                if binding.attempt_no == current_attempt_no
+            }
+            consumed_calls = {
+                binding.call_ordinal
+                for binding in identity.bindings
+                if binding.attempt_no == current_attempt_no and binding.response_consumed
+            }
+            if logical_calls != consumed_calls:
+                raise IntegrityViolation(
+                    "successful current attempt has an unconsumed logical call"
+                )
         nodes = {node.agent_node_id: node for node in plan.nodes}
         expected_sources = (
             {"cassette_replay"}
@@ -2555,7 +2802,9 @@ class TerminalPublisher:
                     "run execution identity contains a future attempt",
                     attempt_no=binding.attempt_no,
                 )
-            link = links_by_call.get((binding.attempt_no, binding.call_ordinal))
+            link = links_by_route.get(
+                (binding.attempt_no, binding.call_ordinal, binding.route_ordinal)
+            )
             if link is None:
                 raise IntegrityViolation(
                     "execution identity has no committed rendered-prompt link",
@@ -2572,6 +2821,45 @@ class TerminalPublisher:
             ):
                 raise IntegrityViolation(
                     "rendered-prompt link differs from fenced RunAttempt authority"
+                )
+            key = (binding.attempt_no, binding.call_ordinal, binding.route_ordinal)
+            listed_route = routes_by_key[key]
+            route = self._ledger.get_model_route_link(run.run_id, *key)
+            if route != listed_route:
+                raise IntegrityViolation("listed model-route authority changed during projection")
+            listed_consumption = consumptions_by_key.get(key)
+            consumption = self._ledger.get_model_response_consumption(run.run_id, *key)
+            if consumption != listed_consumption:
+                raise IntegrityViolation(
+                    "listed response-consumption authority changed during projection"
+                )
+            if (
+                not isinstance(route, RunModelRouteLinkV1)
+                or route.run_id != run.run_id
+                or route.prompt_artifact_id != link.artifact_id
+                or route.request_hash != link.request_hash
+                or route.routing_decision_kind != binding.routing_decision_kind
+                or route.routing_decision_id != binding.routing_decision_id
+                or route.fencing_token != link.fencing_token
+            ):
+                raise IntegrityViolation(
+                    "execution identity differs from exact model-route authority"
+                )
+            if binding.response_consumed:
+                expected_shard = run.payload.llm_execution_mode == "record"
+                if (
+                    not isinstance(consumption, RunModelResponseConsumptionV1)
+                    or consumption.run_id != run.run_id
+                    or consumption.execution_source != binding.execution_source
+                    or consumption.transport_attempt != binding.transport_attempt
+                    or (consumption.cassette_shard_artifact_id is not None) != expected_shard
+                ):
+                    raise IntegrityViolation(
+                        "execution identity differs from response-consumption authority"
+                    )
+            elif consumption is not None:
+                raise IntegrityViolation(
+                    "unconsumed execution route has response-consumption authority"
                 )
             node = nodes.get(binding.agent_node_id)
             if node is None:
@@ -2601,10 +2889,14 @@ class TerminalPublisher:
                     "LIVE/RECORD identity cannot use a legacy import routing decision"
                 )
             prompt_info = artifact_info[link.artifact_id]
+            prompt_artifact = self._artifact_v2(link.artifact_id)
+            renderer_version = prompt_artifact.meta.get("renderer_version")
             if (
                 prompt_info.version_tuple.prompt_version != binding.prompt_version
-                or prompt_info.version_tuple.model_snapshot != binding.model_snapshot
+                or prompt_info.version_tuple.model_snapshot is not None
                 or prompt_info.version_tuple.agent_graph_version != identity.agent_graph_version
+                or not isinstance(renderer_version, str)
+                or prompt_info.version_tuple.tool_version != renderer_version
             ):
                 raise IntegrityViolation(
                     "execution identity differs from its rendered-prompt Artifact",
@@ -2618,7 +2910,6 @@ class TerminalPublisher:
                     or decision.run_id != run.run_id
                     or decision.attempt_no != binding.attempt_no
                     or decision.request_hash != f"sha256:{link.request_hash}"
-                    or decision.fallback_index + 1 != binding.route_ordinal
                     or decision.model_snapshot != binding.model_snapshot
                     or decision.execution_source != binding.execution_source
                     or decision.budget_set_snapshot_id != run.payload.budget_set_snapshot_id
@@ -2642,6 +2933,8 @@ class TerminalPublisher:
         authoritative_attempt_bundle_ids: Mapping[int, str],
         prompt_links: Sequence[RunIntermediateArtifactLinkV1],
         execution_identity: ExecutionIdentityV1 | None,
+        outcome_code: str,
+        require_complete: bool,
     ) -> None:
         if execution_identity is None:  # defensive: RECORD always obtains one above
             raise IntegrityViolation("RECORD aggregate has no terminal execution identity")
@@ -2653,6 +2946,11 @@ class TerminalPublisher:
             attempt_no=(current_attempt_no if manifest_scope == "attempt" else None),
             ordinal=None,
         )
+        if aggregate.payload.outcome_code != outcome_code:
+            raise IntegrityViolation(
+                "RECORD aggregate outcome differs from terminal policy",
+                artifact_id=aggregate.artifact.artifact_id,
+            )
         if self._cassette_identity(aggregate.artifact) != execution_identity:
             raise IntegrityViolation(
                 "RECORD aggregate identity differs from the authoritative terminal identity"
@@ -2681,6 +2979,11 @@ class TerminalPublisher:
                 aggregate_identity=execution_identity,
                 prompt_links=prompt_links,
             )
+            if require_complete:
+                self._require_complete_record_identity(
+                    execution_identity,
+                    attempt_no=current_attempt_no,
+                )
             return
 
         expected_attempts = (
@@ -2707,6 +3010,17 @@ class TerminalPublisher:
                 attempt_no=attempt_no,
                 ordinal=None,
             )
+            retained_attempt = self._ledger.get_attempt(run.run_id, attempt_no)
+            if (
+                attempt_no == current_attempt_no
+                and isinstance(retained_attempt, RunAttempt)
+                and retained_attempt.status in {"leased", "running"}
+                and attempt.payload.outcome_code != outcome_code
+            ):
+                raise IntegrityViolation(
+                    "current attempt cassette outcome differs from terminal policy",
+                    attempt_no=attempt_no,
+                )
             self._require_aggregate_lineage(attempt)
             expected_identity = self._identity_subset(
                 execution_identity,
@@ -2742,6 +3056,35 @@ class TerminalPublisher:
             raise IntegrityViolation("run cassette child order is not canonical")
         if set(shard_ids_by_attempt).difference(expected_attempts):
             raise IntegrityViolation("record shard belongs to an unknown Run attempt")
+        if require_complete:
+            if current_attempt_no is None:
+                raise IntegrityViolation("successful RECORD Run has no current attempt")
+            self._require_complete_record_identity(
+                execution_identity,
+                attempt_no=current_attempt_no,
+            )
+
+    @staticmethod
+    def _require_complete_record_identity(
+        identity: ExecutionIdentityV1,
+        *,
+        attempt_no: int,
+    ) -> None:
+        logical_calls = {
+            binding.call_ordinal
+            for binding in identity.bindings
+            if binding.attempt_no == attempt_no
+        }
+        consumed_calls = {
+            binding.call_ordinal
+            for binding in identity.bindings
+            if binding.attempt_no == attempt_no and binding.response_consumed
+        }
+        if logical_calls != consumed_calls:
+            raise IntegrityViolation(
+                "successful RECORD attempt contains an incomplete call",
+                attempt_no=attempt_no,
+            )
 
     def _validate_record_shards(
         self,
@@ -2821,10 +3164,19 @@ class TerminalPublisher:
         if plan is None:
             raise IntegrityViolation("native RECORD shard has no frozen execution plan")
 
+        consumed = tuple(
+            binding for binding in expected_identity.bindings if binding.response_consumed
+        )
+        if len(consumed) != 1:
+            raise IntegrityViolation("native RECORD record does not bind one consumed route")
+        binding = consumed[0]
+
         links = tuple(
             link
             for link in prompt_links
-            if link.attempt_no == attempt_no and link.call_ordinal == ordinal
+            if link.attempt_no == attempt_no
+            and link.call_ordinal == ordinal
+            and link.route_ordinal == binding.route_ordinal
         )
         if len(links) != 1:
             raise IntegrityViolation("native RECORD shard lacks one exact rendered-prompt link")
@@ -2842,8 +3194,24 @@ class TerminalPublisher:
             raise IntegrityViolation(
                 "native RECORD prompt link differs from fenced RunAttempt authority"
             )
-        if shard.artifact.lineage != (link.artifact_id,):
-            raise IntegrityViolation("native RECORD shard lineage differs from its prompt")
+        expected_prompt_lineage = (link.artifact_id,)
+        if shard.artifact.lineage != expected_prompt_lineage:
+            raise IntegrityViolation(
+                "native RECORD shard lineage differs from its prompt route closure"
+            )
+        consumption = self._ledger.get_model_response_consumption(
+            run.run_id,
+            attempt_no,
+            ordinal,
+            binding.route_ordinal,
+        )
+        if (
+            not isinstance(consumption, RunModelResponseConsumptionV1)
+            or consumption.cassette_shard_artifact_id != shard.artifact.artifact_id
+        ):
+            raise IntegrityViolation(
+                "native RECORD shard differs from response-consumption authority"
+            )
 
         prompt = self._artifact_v2(link.artifact_id)
         if (
@@ -2861,6 +3229,7 @@ class TerminalPublisher:
             raise IntegrityViolation("native RECORD cassette record is outside the execution plan")
         rendered_hash = request_hash(rendered_request)
         rendered_model = canonical_model_snapshot_id(rendered_request.model_snapshot)
+        renderer_version = prompt.meta.get("renderer_version")
         if (
             rendered_hash != record.request_hash
             or rendered_hash.removeprefix("sha256:") != link.request_hash
@@ -2868,8 +3237,10 @@ class TerminalPublisher:
             or rendered_request.prompt_version != node.prompt_version
             or rendered_model != decision.model_snapshot
             or prompt.version_tuple.prompt_version != rendered_request.prompt_version
-            or prompt.version_tuple.model_snapshot != rendered_model
+            or prompt.version_tuple.model_snapshot is not None
             or prompt.version_tuple.agent_graph_version != plan.agent_graph_version
+            or not isinstance(renderer_version, str)
+            or prompt.version_tuple.tool_version != renderer_version
         ):
             raise IntegrityViolation(
                 "native RECORD rendered request differs from prompt link, record, or plan"
@@ -2891,12 +3262,6 @@ class TerminalPublisher:
                 "native RECORD routing decision differs from Run, shard, or execution plan"
             )
 
-        consumed = tuple(
-            binding for binding in expected_identity.bindings if binding.response_consumed
-        )
-        if len(consumed) != 1:
-            raise IntegrityViolation("native RECORD record does not bind one consumed route")
-        binding = consumed[0]
         retained_decision = self._ledger.get_routing_decision(binding.routing_decision_id)
         if (
             type(retained_decision) is not RoutingDecisionV1
@@ -2914,7 +3279,6 @@ class TerminalPublisher:
             or binding.routing_decision_id != decision.decision_id
             or binding.attempt_no != attempt_no
             or binding.call_ordinal != ordinal
-            or binding.route_ordinal != decision.fallback_index + 1
             or binding.transport_attempt != expected_transport_attempt
             or binding.agent_node_id != record.agent_node_id
             or binding.prompt_version != node.prompt_version
@@ -2945,6 +3309,7 @@ class TerminalPublisher:
         self,
         root: _CassetteNode,
         *,
+        run: RunRecord,
         terminal_identity: ExecutionIdentityV1,
         manifest_scope: str,
         current_attempt_no: int | None,
@@ -2966,59 +3331,6 @@ class TerminalPublisher:
             raise IntegrityViolation(
                 "REPLAY terminal identity Agent graph differs from its input cassette"
             )
-        source_bindings = (
-            root_identity.bindings
-            if manifest_scope == "run"
-            else tuple(
-                binding
-                for binding in root_identity.bindings
-                if binding.attempt_no == current_attempt_no
-            )
-        )
-        if len(terminal_identity.bindings) > len(source_bindings) or (
-            require_complete and len(source_bindings) != len(terminal_identity.bindings)
-        ):
-            raise IntegrityViolation(
-                "REPLAY terminal identity route count differs from its input cassette"
-            )
-        semantic_fields = (
-            "attempt_no",
-            "call_ordinal",
-            "route_ordinal",
-            "routing_decision_kind",
-            "agent_node_id",
-            "prompt_version",
-            "model_snapshot",
-            "tool_version",
-            "response_consumed",
-        )
-        for source, terminal in zip(
-            source_bindings,
-            terminal_identity.bindings,
-            strict=False,
-        ):
-            if any(getattr(source, field) != getattr(terminal, field) for field in semantic_fields):
-                raise IntegrityViolation(
-                    "REPLAY terminal identity route differs from its input cassette"
-                )
-            if (
-                source.routing_decision_kind == "legacy_import"
-                and source.routing_decision_id != terminal.routing_decision_id
-            ):
-                raise IntegrityViolation(
-                    "legacy REPLAY terminal identity uses another imported decision"
-                )
-
-        source_call_keys = {
-            (binding.attempt_no, binding.call_ordinal) for binding in source_bindings
-        }
-        terminal_call_keys = {
-            (binding.attempt_no, binding.call_ordinal) for binding in terminal_identity.bindings
-        }
-        if not terminal_call_keys.issubset(source_call_keys) or (
-            require_complete and source_call_keys != terminal_call_keys
-        ):
-            raise IntegrityViolation("REPLAY terminal logical calls differ from its input cassette")
         source_consumed_keys = [
             (binding.attempt_no, binding.call_ordinal)
             for binding in root_identity.bindings
@@ -3037,21 +3349,17 @@ class TerminalPublisher:
             raise IntegrityViolation(
                 "REPLAY terminal identity consumes more than one route per logical call"
             )
-        prompt_hash_by_call = {
-            (link.attempt_no, link.call_ordinal): link.request_hash for link in prompt_links
+        prompt_hash_by_route = {
+            (link.attempt_no, link.call_ordinal, link.route_ordinal): link.request_hash
+            for link in prompt_links
         }
-        prompt_call_keys = set(prompt_hash_by_call)
-        if (
-            len(prompt_hash_by_call) != len(prompt_links)
-            or not terminal_call_keys.issubset(prompt_call_keys)
-            or (require_complete and prompt_call_keys != source_call_keys)
-        ):
-            raise IntegrityViolation(
-                "REPLAY rendered-prompt links do not close terminal logical calls"
-            )
+        if len(prompt_hash_by_route) != len(prompt_links):
+            raise IntegrityViolation("REPLAY rendered-prompt links contain a duplicate route")
         previous_attempt = 0
         observed_attempts: list[int] = []
         observed_shard_keys: list[tuple[int, int]] = []
+        source_request_hashes: dict[tuple[int, int, int], str] = {}
+        source_native_decisions: dict[tuple[int, int, int], RoutingDecisionV1] = {}
         for attempt_id in root.payload.child_bundle_artifact_ids:
             attempt = self._read_cassette_node(attempt_id)
             attempt_no = attempt.payload.attempt_no
@@ -3120,6 +3428,9 @@ class TerminalPublisher:
                             "native REPLAY record differs from its consumed route identity"
                         )
                     expected_request_hash = record.request_hash.removeprefix("sha256:")
+                    source_native_decisions[(attempt_no, ordinal, binding.route_ordinal)] = (
+                        record.routing_decision
+                    )
                 elif isinstance(record, CassetteRecordV1):
                     evidence = shard.payload.legacy_call_import_evidence
                     if (
@@ -3134,11 +3445,9 @@ class TerminalPublisher:
                     expected_request_hash = evidence.request_hash.removeprefix("sha256:")
                 else:  # pragma: no cover - CassetteBundleV1 closes the union
                     raise IntegrityViolation("REPLAY record uses an unsupported wire schema")
-                linked_hash = prompt_hash_by_call.get((attempt_no, ordinal))
-                if linked_hash is not None and linked_hash != expected_request_hash:
-                    raise IntegrityViolation(
-                        "REPLAY rendered prompt hash differs from its cassette record"
-                    )
+                source_request_hashes[(attempt_no, ordinal, binding.route_ordinal)] = (
+                    expected_request_hash
+                )
                 observed_shard_keys.append((attempt_no, ordinal))
                 previous_ordinal = ordinal
             observed_attempts.append(attempt_no)
@@ -3159,17 +3468,217 @@ class TerminalPublisher:
             raise IntegrityViolation(
                 "REPLAY record-shard tree does not exactly cover consumed source calls"
             )
-        selected_tree_keys = (
-            set(observed_shard_keys)
-            if manifest_scope == "run"
-            else {key for key in observed_shard_keys if key[0] == current_attempt_no}
+
+        selected_source_attempt_no = observed_attempts[-1] if observed_attempts else None
+        selected_bindings = tuple(
+            binding
+            for binding in root_identity.bindings
+            if binding.attempt_no == selected_source_attempt_no
         )
-        terminal_consumed_set = set(terminal_consumed_keys)
-        if not terminal_consumed_set.issubset(selected_tree_keys) or (
-            require_complete and selected_tree_keys != terminal_consumed_set
+        self._require_consumed_route_is_terminal(selected_bindings)
+        current_attempts = {binding.attempt_no for binding in terminal_identity.bindings} | {
+            link.attempt_no for link in prompt_links
+        }
+        if current_attempt_no is not None:
+            current_attempts.add(current_attempt_no)
+        for attempt_no in sorted(current_attempts):
+            current_bindings = tuple(
+                binding
+                for binding in terminal_identity.bindings
+                if binding.attempt_no == attempt_no
+            )
+            current_prompts = tuple(
+                sorted(
+                    (link for link in prompt_links if link.attempt_no == attempt_no),
+                    key=lambda link: (link.call_ordinal, link.route_ordinal),
+                )
+            )
+            complete_attempt = require_complete and attempt_no == current_attempt_no
+            self._validate_replay_attempt_prefix(
+                run=run,
+                root=root,
+                selected_source_attempt_no=selected_source_attempt_no,
+                selected_bindings=selected_bindings,
+                current_attempt_no=attempt_no,
+                current_bindings=current_bindings,
+                current_prompts=current_prompts,
+                source_request_hashes=source_request_hashes,
+                source_native_decisions=source_native_decisions,
+                require_complete=complete_attempt,
+            )
+
+    @staticmethod
+    def _require_consumed_route_is_terminal(
+        bindings: Sequence[InvocationVersionBindingV1],
+    ) -> None:
+        calls: dict[int, list[InvocationVersionBindingV1]] = {}
+        for binding in bindings:
+            calls.setdefault(binding.call_ordinal, []).append(binding)
+        for routes in calls.values():
+            consumed = tuple(route for route in routes if route.response_consumed)
+            if consumed and consumed[0] != routes[-1]:
+                raise IntegrityViolation(
+                    "REPLAY source call has a route after its consumed response"
+                )
+
+    def _validate_replay_attempt_prefix(
+        self,
+        *,
+        run: RunRecord,
+        root: _CassetteNode,
+        selected_source_attempt_no: int | None,
+        selected_bindings: tuple[InvocationVersionBindingV1, ...],
+        current_attempt_no: int,
+        current_bindings: tuple[InvocationVersionBindingV1, ...],
+        current_prompts: tuple[RunIntermediateArtifactLinkV1, ...],
+        source_request_hashes: dict[tuple[int, int, int], str],
+        source_native_decisions: dict[tuple[int, int, int], RoutingDecisionV1],
+        require_complete: bool,
+    ) -> None:
+        if selected_source_attempt_no is None:
+            if current_bindings or current_prompts:
+                raise IntegrityViolation("zero-attempt REPLAY source cannot satisfy a model call")
+            return
+        if len(current_bindings) > len(selected_bindings) or (
+            require_complete and len(current_bindings) != len(selected_bindings)
         ):
             raise IntegrityViolation(
-                "REPLAY terminal consumed calls differ from its record-shard tree"
+                "REPLAY current attempt route count differs from selected source identity"
+            )
+        semantic_fields = (
+            "call_ordinal",
+            "route_ordinal",
+            "routing_decision_kind",
+            "agent_node_id",
+            "prompt_version",
+            "model_snapshot",
+            "tool_version",
+        )
+        for source, current in zip(selected_bindings, current_bindings, strict=False):
+            if any(getattr(source, field) != getattr(current, field) for field in semantic_fields):
+                raise IntegrityViolation(
+                    "REPLAY current attempt is not a stable prefix of selected source identity"
+                )
+            if current.response_consumed and not source.response_consumed:
+                raise IntegrityViolation(
+                    "REPLAY current attempt consumed an unavailable source response"
+                )
+            if require_complete and current.response_consumed != source.response_consumed:
+                raise IntegrityViolation(
+                    "successful REPLAY attempt did not fully consume selected source identity"
+                )
+            if source.routing_decision_kind == "legacy_import":
+                if source.routing_decision_id != current.routing_decision_id:
+                    raise IntegrityViolation(
+                        "legacy REPLAY current attempt uses another imported decision"
+                    )
+                continue
+            source_key = (
+                selected_source_attempt_no,
+                source.call_ordinal,
+                source.route_ordinal,
+            )
+            source_decision = source_native_decisions.get(source_key)
+            if source_decision is None:
+                source_decision = self._ledger.get_routing_decision(source.routing_decision_id)
+            current_decision = self._ledger.get_routing_decision(current.routing_decision_id)
+            self._require_native_replay_decision_projection(
+                run=run,
+                root=root,
+                selected_source_attempt_no=selected_source_attempt_no,
+                current_attempt_no=current_attempt_no,
+                source_binding=source,
+                current_binding=current,
+                source_decision=source_decision,
+                current_decision=current_decision,
+            )
+            source_request_hashes.setdefault(
+                source_key,
+                source_decision.request_hash.removeprefix("sha256:"),
+            )
+
+        selected_prompt_keys = tuple(
+            (binding.call_ordinal, binding.route_ordinal) for binding in selected_bindings
+        )
+        current_prompt_keys = tuple(
+            (link.call_ordinal, link.route_ordinal) for link in current_prompts
+        )
+        if current_prompt_keys != selected_prompt_keys[: len(current_prompt_keys)] or (
+            require_complete and current_prompt_keys != selected_prompt_keys
+        ):
+            raise IntegrityViolation(
+                "REPLAY current attempt prompts are not a stable selected-source prefix"
+            )
+        for link in current_prompts:
+            source_key = (
+                selected_source_attempt_no,
+                link.call_ordinal,
+                link.route_ordinal,
+            )
+            expected_hash = source_request_hashes.get(source_key)
+            if expected_hash is None:
+                source_binding = next(
+                    (
+                        binding
+                        for binding in selected_bindings
+                        if binding.call_ordinal == link.call_ordinal
+                        and binding.route_ordinal == link.route_ordinal
+                    ),
+                    None,
+                )
+                if source_binding is not None and source_binding.routing_decision_kind == "native":
+                    decision = self._ledger.get_routing_decision(source_binding.routing_decision_id)
+                    if isinstance(decision, RoutingDecisionV1):
+                        expected_hash = decision.request_hash.removeprefix("sha256:")
+                        source_request_hashes[source_key] = expected_hash
+            if link.request_hash != expected_hash:
+                raise IntegrityViolation(
+                    "REPLAY current rendered prompt differs from selected source request"
+                )
+
+    @staticmethod
+    def _require_native_replay_decision_projection(
+        *,
+        run: RunRecord,
+        root: _CassetteNode,
+        selected_source_attempt_no: int,
+        current_attempt_no: int,
+        source_binding: InvocationVersionBindingV1,
+        current_binding: InvocationVersionBindingV1,
+        source_decision: RoutingDecisionV1 | None,
+        current_decision: RoutingDecisionV1 | None,
+    ) -> None:
+        semantic_fields = (
+            "request_hash",
+            "rule_id",
+            "model_snapshot",
+            "tier",
+            "fallback_from",
+            "fallback_index",
+            "policy_version",
+            "routing_policy_digest",
+            "catalog_version",
+            "catalog_digest",
+        )
+        if (
+            not isinstance(source_decision, RoutingDecisionV1)
+            or not isinstance(current_decision, RoutingDecisionV1)
+            or source_decision.decision_id != source_binding.routing_decision_id
+            or source_decision.run_id != root.payload.run_id
+            or source_decision.attempt_no != selected_source_attempt_no
+            or current_decision.decision_id != current_binding.routing_decision_id
+            or current_decision.run_id != run.run_id
+            or current_decision.attempt_no != current_attempt_no
+            or current_decision.execution_source != "cassette_replay"
+            or current_decision.reason_code != "recorded_replay"
+            or current_decision.budget_set_snapshot_id != run.payload.budget_set_snapshot_id
+            or any(
+                getattr(source_decision, field) != getattr(current_decision, field)
+                for field in semantic_fields
+            )
+        ):
+            raise IntegrityViolation(
+                "native REPLAY current decision differs from selected source route"
             )
 
     def _read_cassette_node(self, artifact_id: str) -> _CassetteNode:
@@ -3266,6 +3775,7 @@ class TerminalPublisher:
             for binding in identity.bindings
             if binding.attempt_no == attempt_no
             and (call_ordinal is None or binding.call_ordinal == call_ordinal)
+            and (scope != "record_shard" or binding.response_consumed)
         )
         return build_execution_identity(
             scope=scope,  # type: ignore[arg-type]

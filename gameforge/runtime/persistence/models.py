@@ -6,6 +6,7 @@ from sqlalchemy import (
     JSON,
     BigInteger,
     Boolean,
+    CheckConstraint,
     ForeignKey,
     ForeignKeyConstraint,
     Index,
@@ -566,6 +567,7 @@ class RunRow(Base):
     failure_classifier: Mapped[dict] = mapped_column(JSON, nullable=False)
     dispatch_trace_carrier: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     initiated_by: Mapped[dict] = mapped_column(JSON, nullable=False)
+    resource_domain_scope: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     queue_deadline_utc: Mapped[str] = mapped_column(String, nullable=False)
     attempt_timeout_ns: Mapped[int] = mapped_column(BigInteger, nullable=False)
     overall_deadline_utc: Mapped[str] = mapped_column(String, nullable=False)
@@ -732,11 +734,24 @@ class RunIntermediateArtifactLinkRow(Base):
             ["run_attempts.run_id", "run_attempts.attempt_no"],
             ondelete="CASCADE",
         ),
+        CheckConstraint(
+            "route_ordinal >= 1",
+            name="ck_run_intermediate_route_ordinal_positive",
+        ),
+        UniqueConstraint(
+            "run_id",
+            "attempt_no",
+            "call_ordinal",
+            "route_ordinal",
+            "artifact_id",
+            name="uq_run_intermediate_route_artifact",
+        ),
     )
 
     run_id: Mapped[str] = mapped_column(String, primary_key=True)
     attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
     call_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    route_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
     link_schema_version: Mapped[str] = mapped_column(String, nullable=False)
     artifact_id: Mapped[str] = mapped_column(
         ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
@@ -746,6 +761,147 @@ class RunIntermediateArtifactLinkRow(Base):
     request_hash: Mapped[str] = mapped_column(String, nullable=False)
     fencing_token: Mapped[int] = mapped_column(BigInteger, nullable=False)
     published_at: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class RunModelRouteLinkRow(Base):
+    __tablename__ = "run_model_route_links"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["run_id", "attempt_no"],
+            ["run_attempts.run_id", "run_attempts.attempt_no"],
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            [
+                "run_id",
+                "attempt_no",
+                "call_ordinal",
+                "route_ordinal",
+                "prompt_artifact_id",
+            ],
+            [
+                "run_intermediate_artifact_links.run_id",
+                "run_intermediate_artifact_links.attempt_no",
+                "run_intermediate_artifact_links.call_ordinal",
+                "run_intermediate_artifact_links.route_ordinal",
+                "run_intermediate_artifact_links.artifact_id",
+            ],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["native_routing_decision_id"],
+            ["routing_decisions.decision_id"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["legacy_routing_decision_id"],
+            ["legacy_import_routing_decisions.decision_id"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "route_ordinal >= 1",
+            name="ck_run_model_route_ordinal_positive",
+        ),
+        CheckConstraint(
+            "(routing_decision_kind = 'native' "
+            "AND native_routing_decision_id = routing_decision_id "
+            "AND legacy_routing_decision_id IS NULL) OR "
+            "(routing_decision_kind = 'legacy_import' "
+            "AND legacy_routing_decision_id = routing_decision_id "
+            "AND native_routing_decision_id IS NULL)",
+            name="ck_run_model_route_decision_authority",
+        ),
+        UniqueConstraint(
+            "native_routing_decision_id",
+            name="uq_run_model_route_native_decision",
+        ),
+        Index(
+            "ix_run_model_route_links_run",
+            "run_id",
+            "attempt_no",
+            "call_ordinal",
+            "route_ordinal",
+        ),
+    )
+
+    run_id: Mapped[str] = mapped_column(String, primary_key=True)
+    attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
+    call_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    route_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    link_schema_version: Mapped[str] = mapped_column(String, nullable=False)
+    prompt_artifact_id: Mapped[str] = mapped_column(String, nullable=False)
+    request_hash: Mapped[str] = mapped_column(String, nullable=False)
+    routing_decision_kind: Mapped[str] = mapped_column(String, nullable=False)
+    routing_decision_id: Mapped[str] = mapped_column(String, nullable=False)
+    native_routing_decision_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    legacy_routing_decision_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    fencing_token: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    published_at: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class RunModelResponseConsumptionRow(Base):
+    __tablename__ = "run_model_response_consumptions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["run_id", "attempt_no", "call_ordinal", "route_ordinal"],
+            [
+                "run_model_route_links.run_id",
+                "run_model_route_links.attempt_no",
+                "run_model_route_links.call_ordinal",
+                "run_model_route_links.route_ordinal",
+            ],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "route_ordinal >= 1",
+            name="ck_run_model_consumption_route_ordinal_positive",
+        ),
+        CheckConstraint(
+            "(execution_source = 'online' AND transport_attempt IS NOT NULL "
+            "AND transport_attempt >= 1) OR "
+            "(execution_source IN ('full_response_cache', 'cassette_replay') "
+            "AND transport_attempt IS NULL)",
+            name="ck_run_model_consumption_execution_shape",
+        ),
+        UniqueConstraint(
+            "reservation_group_id",
+            name="uq_run_model_consumption_reservation_group",
+        ),
+        UniqueConstraint(
+            "run_id",
+            "attempt_no",
+            "call_ordinal",
+            name="uq_run_model_consumption_logical_call",
+        ),
+        UniqueConstraint(
+            "cassette_shard_artifact_id",
+            name="uq_run_model_consumption_cassette_shard",
+        ),
+        Index(
+            "ix_run_model_response_consumptions_run",
+            "run_id",
+            "attempt_no",
+            "call_ordinal",
+            "route_ordinal",
+        ),
+    )
+
+    run_id: Mapped[str] = mapped_column(String, primary_key=True)
+    attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
+    call_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    route_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    consumption_schema_version: Mapped[str] = mapped_column(String, nullable=False)
+    execution_source: Mapped[str] = mapped_column(String, nullable=False)
+    reservation_group_id: Mapped[str] = mapped_column(
+        ForeignKey("reservation_groups.reservation_group_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    transport_attempt: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    cassette_shard_artifact_id: Mapped[str | None] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    consumed_at: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class RunFindingLinkRow(Base):

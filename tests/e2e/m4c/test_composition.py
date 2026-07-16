@@ -2,8 +2,9 @@
 
 Builds the REAL composed API (admission engine + read APIs + readiness) and the REAL
 persistent worker (dispatch loop + Task-9 ``TerminalPublisher`` + concrete SQL
-adapters) over ONE shared SQLite authority + ObjectStore, proves platform readiness
-GENUINELY closes (all 14 RunKinds across the six component maps), admits a
+adapters) over ONE shared SQLite authority + ObjectStore, proves registry closure
+for all 14 RunKinds while deployment readiness remains honestly closed until the
+model/handler authorities from Tasks 11–13 are provisioned, admits a
 ``checker.run@1`` through the real admission path, drives the worker's
 ``dispatch_once()`` to a published ``RunResult``, and asserts the terminal publisher
 produced the run_result manifest + the ``checker_run`` domain Artifact + the terminal
@@ -17,6 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+import pytest
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import (
@@ -28,7 +30,11 @@ from gameforge.apps.cli.identity import (
     IdentityBootstrapConfig,
     build_bootstrap_service,
 )
-from gameforge.apps.worker.app import LocalWorkerConfig, validate_worker_readiness
+from gameforge.apps.worker.app import (
+    LocalWorkerConfig,
+    WorkerConfigurationError,
+    validate_worker_readiness,
+)
 from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.contracts.auth import (
     LoginNameNormalizationPolicyV1,
@@ -412,7 +418,7 @@ async def _drive_until_terminal(dispatcher, harness: _Harness, run_id: str, *, m
     return harness.run_record(run_id)
 
 
-def test_readiness_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) -> None:
+def test_registry_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) -> None:
     harness = _Harness(tmp_path)
     snapshot_artifact_id = harness.seed_ir_snapshot(artifact_id_tag="ir-source@1")
 
@@ -426,7 +432,8 @@ def test_readiness_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) -
         ).validate()
         assert report.ready is True
         assert report.checked_run_kind_count == 14
-        validate_worker_readiness(process.runtime)
+        with pytest.raises(WorkerConfigurationError, match="model execution authority"):
+            validate_worker_readiness(process.runtime)
 
         # Admit a checker.run@1 through the REAL admission engine (RBAC + budget hold +
         # profile resolution + queued RunRecord), then drive the worker dispatch loop.

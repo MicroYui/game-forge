@@ -72,6 +72,10 @@ class CircuitBreaker:
             self._prune_samples(self._now())
             return self._state
 
+    @property
+    def dependency_id(self) -> str:
+        return self._dependency_id
+
     def before_call(self) -> BreakerPermit:
         with self._lock:
             now = self._now()

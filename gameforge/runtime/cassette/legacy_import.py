@@ -326,12 +326,7 @@ class VerifiedLegacyReplaySource:
         *,
         call_ordinal: int,
     ) -> LegacyReplayCall:
-        call = self._calls.get(call_ordinal)
-        if call is None:
-            raise IntegrityViolation(
-                "verified legacy replay call ordinal is absent",
-                call_ordinal=call_ordinal,
-            )
+        call = self.expected_call(call_ordinal=call_ordinal)
         if call.request.model_dump(mode="json") != request.model_dump(mode="json"):
             raise IntegrityViolation(
                 "verified legacy replay request differs from retained rendered request",
@@ -340,6 +335,17 @@ class VerifiedLegacyReplaySource:
         if call.record.request_hash != request_hash(request):
             raise IntegrityViolation(
                 "verified legacy replay request hash differs",
+                call_ordinal=call_ordinal,
+            )
+        return call
+
+    def expected_call(self, *, call_ordinal: int) -> LegacyReplayCall:
+        """Return the exact retained v1 call authority without accepting a new wire."""
+
+        call = self._calls.get(call_ordinal)
+        if call is None:
+            raise IntegrityViolation(
+                "verified legacy replay call ordinal is absent",
                 call_ordinal=call_ordinal,
             )
         return call

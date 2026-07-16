@@ -41,7 +41,7 @@ from gameforge.contracts.lineage import (
     VersionTuple,
     object_ref_for_bytes,
 )
-from gameforge.contracts.model_router import ModelSnapshot
+from gameforge.contracts.model_router import ModelSnapshot, request_hash
 from gameforge.spine.ir.snapshot import Snapshot
 
 HUMAN = AuditActor(principal_id="human:a", principal_kind="human")
@@ -104,11 +104,13 @@ class _Observation:
 @dataclass
 class _Decision:
     decision_id: str
+    request_hash: str
 
 
 @dataclass
 class _Link:
     call_ordinal: int
+    route_ordinal: int
 
 
 class FakeModelBridge:
@@ -159,8 +161,11 @@ class FakeModelBridge:
         )
         return FakeBridgeResult(
             response=response,
-            decision=_Decision(decision_id=f"decision:{ordinal}"),
-            link=_Link(call_ordinal=ordinal),
+            decision=_Decision(
+                decision_id=f"decision:{ordinal}",
+                request_hash=request_hash(request.model_request),
+            ),
+            link=_Link(call_ordinal=ordinal, route_ordinal=request.route_ordinal),
             replayed=True,
         )
 

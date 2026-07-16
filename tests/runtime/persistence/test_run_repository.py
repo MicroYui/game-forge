@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import Engine, delete, func, select, update
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.cassette_import import (
+    LegacyImportRoutingDecisionV1,
+    LegacyImportVerificationPolicyRefV1,
+)
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import (
     FindingPayloadV1,
@@ -35,6 +41,8 @@ from gameforge.contracts.jobs import (
     RunEvent,
     RunFindingLinkV1,
     RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunPayloadEnvelope,
     RunQueuedDataV1,
     RunRecord,
@@ -43,8 +51,19 @@ from gameforge.contracts.jobs import (
     canonical_payload_hash,
     execution_version_plan_digest,
 )
+from gameforge.contracts.identity import DomainScope
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.contracts.lineage import AuditActor, VersionTuple
+from gameforge.contracts.model_router import ModelSnapshot
+from gameforge.contracts.routing import (
+    ModelCatalogSnapshotV1,
+    ModelDescriptorV1,
+    RoutingDecisionV1,
+    RoutingPolicyV1,
+    canonical_model_snapshot_id,
+    compute_model_catalog_digest,
+    compute_routing_policy_digest,
+)
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.models import (
@@ -52,15 +71,31 @@ from gameforge.runtime.persistence.models import (
     FindingHeadRow,
     FindingRevisionRow,
     RunAttemptRow,
+    RunCommandRow,
     RunEventRow,
     RunFindingLinkRow,
     RunIntermediateArtifactLinkRow,
     RunLeaseRow,
+    LegacyImportRoutingDecisionRow,
+    RunModelResponseConsumptionRow,
+    RunModelRouteLinkRow,
     RunRow,
+    RoutingDecisionRow,
+    UsageEntryRow,
 )
+from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence.runs import RunAttemptStart, RunClaim, SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
+from tests.runtime.cost.test_repository import (
+    REQUEST_HASH as COST_REQUEST_HASH,
+    _budget,
+    _budget_set,
+    _call,
+    _catalog_policy_decision,
+    _hold,
+    _usage,
+)
 
 
 HASH_A = "a" * 64
@@ -208,6 +243,20 @@ def _capabilities(session: Session) -> TransactionCapabilities:
     )
 
 
+def _model_call_capabilities(session: Session) -> TransactionCapabilities:
+    runs = SqlRunRepository(session)
+    cost = SqlCostLedger(session)
+    return TransactionCapabilities(
+        refs=runs,
+        audit=runs,
+        approvals=runs,
+        lineage=runs,
+        object_bindings=runs,
+        runs=runs,
+        cost=cost,
+    )
+
+
 @pytest.fixture
 def engine(tmp_path: Path) -> Engine:
     url = f"sqlite:///{tmp_path / 'runs.db'}"
@@ -225,7 +274,9 @@ def _create(engine: Engine, run: RunRecord) -> RunRecord:
 def test_create_queued_persists_immutable_run_and_initial_event_without_fake_attempt(
     engine: Engine,
 ) -> None:
-    expected = _run()
+    expected = _run().model_copy(
+        update={"resource_domain_scope": DomainScope(domain_ids=("aureus",))}
+    )
 
     assert _create(engine, expected) == expected
 
@@ -238,6 +289,11 @@ def test_create_queued_persists_immutable_run_and_initial_event_without_fake_att
         assert repository.get_current_lease(expected.run_id) is None
         assert session.scalar(select(func.count()).select_from(RunAttemptRow)) == 0
         assert session.scalar(select(func.count()).select_from(RunLeaseRow)) == 0
+
+    with pytest.raises(ValidationError, match="resource_domain_scope"):
+        RunRecord.model_validate(
+            {**_run("run:all-scope").model_dump(mode="python"), "resource_domain_scope": "all"}
+        )
 
 
 @pytest.mark.parametrize(
@@ -287,6 +343,12 @@ def test_create_idempotency_replays_original_resource_and_conflicts_on_new_hash(
     conflicting = replay.model_copy(update={"request_hash": HASH_C})
     with pytest.raises(Conflict, match="idempotency"):
         _create(engine, conflicting)
+
+    conflicting_scope = replay.model_copy(
+        update={"resource_domain_scope": DomainScope(domain_ids=("aureus",))}
+    )
+    with pytest.raises(Conflict, match="resource domain scope"):
+        _create(engine, conflicting_scope)
 
     with Session(engine) as session:
         assert session.scalar(select(func.count()).select_from(RunRow)) == 1
@@ -393,6 +455,47 @@ def test_claim_candidate_excludes_a_run_with_persisted_cancel_intent(
 
     with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
         assert transaction.runs.get_claim_candidate(now_utc=NOW) is None
+
+
+def test_claim_candidate_cursor_rotates_and_wraps_without_becoming_queue_authority(
+    engine: Engine,
+) -> None:
+    runs = tuple(
+        _run(
+            f"run:{index}",
+            idempotency_key=f"request:{index}",
+            created_at=f"2026-07-14T09:00:0{index}Z",
+        )
+        for index in range(4)
+    )
+    for run in runs:
+        _create(engine, run)
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        assert transaction.runs.list_claim_candidates(
+            now_utc="2026-07-14T09:00:04Z",
+            limit=3,
+            after_created_at=runs[1].created_at,
+            after_run_id=runs[1].run_id,
+        ) == (runs[2], runs[3], runs[0])
+
+        # A cursor is only an ordering hint and need not identify a retained row.
+        assert (
+            transaction.runs.list_claim_candidates(
+                now_utc="2026-07-14T09:00:04Z",
+                limit=2,
+                after_created_at="2026-07-14T09:00:09Z",
+                after_run_id="run:already-gone",
+            )
+            == runs[:2]
+        )
+
+        with pytest.raises(IntegrityViolation, match="cursor"):
+            transaction.runs.list_claim_candidates(
+                now_utc="2026-07-14T09:00:04Z",
+                limit=2,
+                after_created_at=runs[1].created_at,
+            )
 
 
 def test_two_connections_cannot_claim_the_same_run_or_duplicate_heads(engine: Engine) -> None:
@@ -646,6 +749,706 @@ def test_prompt_link_and_attempt_head_roll_back_together(engine: Engine) -> None
         assert repository.get_intermediate_link(queued.run_id, 1, 1) is None
 
 
+def test_fallback_prompt_routes_are_contiguous_and_do_not_advance_call_head(
+    engine: Engine,
+) -> None:
+    queued = _run()
+    _create(engine, queued)
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.claim(
+            run_id=queued.run_id,
+            expected_revision=1,
+            worker_principal_id="service:worker",
+            lease_id="lease:1",
+            acquired_at=NOW,
+            expires_at=LEASE_EXPIRES,
+            permit_group_id="permit:1",
+        )
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:prompt:route:1", payload_hash=HASH_A, kind="source_rendered"),
+                _artifact("artifact:prompt:route:2", payload_hash=HASH_B, kind="source_rendered"),
+                _artifact("artifact:prompt:route:3", payload_hash=HASH_A, kind="source_rendered"),
+            ]
+        )
+        session.commit()
+    first = RunIntermediateArtifactLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        artifact_id="artifact:prompt:route:1",
+        role="prompt_rendered",
+        request_hash=HASH_A,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    second_route = first.model_copy(
+        update={
+            "route_ordinal": 2,
+            "artifact_id": "artifact:prompt:route:2",
+            "request_hash": HASH_B,
+        }
+    )
+    skipped_route = second_route.model_copy(
+        update={"route_ordinal": 3, "artifact_id": "artifact:prompt:route:3"}
+    )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.put_intermediate_link(first)
+        with pytest.raises(Conflict, match="contiguous"):
+            transaction.runs.put_intermediate_link(skipped_route)
+        assert transaction.runs.put_intermediate_link(second_route) == second_route
+        assert transaction.runs.put_intermediate_link(second_route) == second_route
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        attempt = repository.get_attempt(queued.run_id, 1)
+        assert attempt is not None and attempt.next_call_ordinal == 2
+        assert repository.list_prompt_render_links(queued.run_id, attempt_no=1) == (
+            first,
+            second_route,
+        )
+        assert repository.get_intermediate_link(queued.run_id, 1, 1, 2) == second_route
+
+
+def test_concurrent_duplicate_fallback_route_is_one_idempotent_row(engine: Engine) -> None:
+    queued = _run()
+    _create(engine, queued)
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.claim(
+            run_id=queued.run_id,
+            expected_revision=1,
+            worker_principal_id="service:worker",
+            lease_id="lease:1",
+            acquired_at=NOW,
+            expires_at=LEASE_EXPIRES,
+            permit_group_id="permit:1",
+        )
+    with Session(engine) as session:
+        session.add_all(
+            [
+                _artifact("artifact:prompt:race:1", payload_hash=HASH_A, kind="source_rendered"),
+                _artifact("artifact:prompt:race:2", payload_hash=HASH_B, kind="source_rendered"),
+            ]
+        )
+        session.commit()
+    first = RunIntermediateArtifactLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        artifact_id="artifact:prompt:race:1",
+        role="prompt_rendered",
+        request_hash=HASH_A,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    fallback = first.model_copy(
+        update={
+            "route_ordinal": 2,
+            "artifact_id": "artifact:prompt:race:2",
+            "request_hash": HASH_B,
+        }
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.put_intermediate_link(first)
+
+    def publish() -> RunIntermediateArtifactLinkV1:
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            return transaction.runs.put_intermediate_link(fallback)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        retained = tuple(pool.map(lambda _: publish(), range(2)))
+
+    assert retained == (fallback, fallback)
+    with Session(engine) as session:
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(RunIntermediateArtifactLinkRow)
+                .where(
+                    RunIntermediateArtifactLinkRow.run_id == queued.run_id,
+                    RunIntermediateArtifactLinkRow.attempt_no == 1,
+                    RunIntermediateArtifactLinkRow.call_ordinal == 1,
+                    RunIntermediateArtifactLinkRow.route_ordinal == 2,
+                )
+            )
+            == 1
+        )
+
+
+def test_model_route_and_response_consumption_close_exact_authorities(
+    engine: Engine,
+) -> None:
+    budget = _budget()
+    budget_set = _budget_set(budget).model_copy(update={"budget_set_snapshot_id": "budget-set:1"})
+    hold, hold_reservation = _hold(budget)
+    hold = hold.model_copy(update={"budget_set_snapshot_id": budget_set.budget_set_snapshot_id})
+    call, call_reservation = _call(budget, hold)
+    catalog, policy, original_decision = _catalog_policy_decision()
+    decision = type(original_decision).create(
+        **original_decision.model_dump(
+            exclude={"decision_schema_version", "decision_id", "budget_set_snapshot_id"}
+        ),
+        budget_set_snapshot_id=budget_set.budget_set_snapshot_id,
+    )
+    usage = _usage(
+        call,
+        call_reservation,
+        routing_decision_id=decision.decision_id,
+    )
+    route_plan_fields = {
+        "agent_graph_version": "graph@1",
+        "nodes": (
+            PlannedAgentNodeVersionV1(
+                agent_node_id="checker",
+                prompt_version="checker@1",
+                tool_version="checker@1",
+                allowed_model_snapshots=(decision.model_snapshot,),
+            ),
+        ),
+        "model_catalog_version": catalog.catalog_version,
+        "model_catalog_digest": catalog.catalog_digest,
+        "routing_policy_version": policy.policy_version,
+        "routing_policy_digest": policy.routing_policy_digest,
+    }
+    route_payload_wire = _record_payload().model_dump(mode="python")
+    route_payload_wire.update(
+        execution_version_plan=ExecutionVersionPlanV1(
+            **route_plan_fields,
+            plan_digest=execution_version_plan_digest(route_plan_fields),
+        ),
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:1",
+            prompt_version="checker@1",
+            model_snapshot=decision.model_snapshot,
+            agent_graph_version="graph@1",
+            tool_version="checker@1",
+        ),
+    )
+    queued = _run(
+        "run-1",
+        payload=RunPayloadEnvelope.model_validate(route_payload_wire),
+    )
+    _create(engine, queued)
+    _start_result(engine, queued)
+    with Session(engine) as session:
+        shard_artifact = _artifact(
+            "artifact:cassette:record-shard:1",
+            payload_hash=HASH_C,
+            kind="cassette_bundle",
+        )
+        shard_artifact.lineage = ["artifact:prompt:model-route:1"]
+        shard_artifact.meta = {"payload_schema_id": "cassette-record-shard@1"}
+        session.add_all(
+            [
+                _artifact(
+                    "artifact:prompt:model-route:1",
+                    payload_hash=HASH_A,
+                    kind="source_rendered",
+                ),
+                _artifact(
+                    "artifact:prompt:model-route:2",
+                    payload_hash=HASH_B,
+                    kind="source_rendered",
+                ),
+                shard_artifact,
+            ]
+        )
+        session.commit()
+
+    bare_request_hash = COST_REQUEST_HASH.removeprefix("sha256:")
+    prompt = RunIntermediateArtifactLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        artifact_id="artifact:prompt:model-route:1",
+        role="prompt_rendered",
+        request_hash=bare_request_hash,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    route = RunModelRouteLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id=prompt.artifact_id,
+        request_hash=prompt.request_hash,
+        routing_decision_kind="native",
+        routing_decision_id=decision.decision_id,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    consumption = RunModelResponseConsumptionV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        execution_source="online",
+        reservation_group_id=call.reservation_group_id,
+        transport_attempt=1,
+        cassette_shard_artifact_id="artifact:cassette:record-shard:1",
+        consumed_at=NOW,
+    )
+    with SqliteUnitOfWork(engine, _model_call_capabilities).begin() as transaction:
+        transaction.cost.put_budget(budget)
+        transaction.cost.put_budget_set(budget_set)
+        transaction.cost.put_reservation_group(hold, (hold_reservation,))
+        transaction.cost.put_reservation_group(call, (call_reservation,))
+        transaction.cost.put_model_catalog(catalog)
+        transaction.cost.put_routing_policy(policy)
+        transaction.cost.put_routing_decision(decision)
+        transaction.runs.put_intermediate_link(prompt)
+        assert transaction.runs.put_model_route_link(route) == route
+        assert transaction.runs.put_model_route_link(route) == route
+        assert transaction.cost.reconcile_group(usage).status == "reconciled"
+        assert transaction.runs.put_model_response_consumption(consumption) == consumption
+        assert transaction.runs.put_model_response_consumption(consumption) == consumption
+
+        fallback_prompt = prompt.model_copy(
+            update={
+                "route_ordinal": 2,
+                "artifact_id": "artifact:prompt:model-route:2",
+                "request_hash": HASH_B,
+            }
+        )
+        with pytest.raises(Conflict, match="already-consumed"):
+            transaction.runs.put_intermediate_link(fallback_prompt)
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get_model_route_link(queued.run_id, 1, 1, 1) == route
+        assert repository.list_model_route_links(queued.run_id, attempt_no=1) == (route,)
+        assert repository.get_model_response_consumption(queued.run_id, 1, 1, 1) == consumption
+        assert repository.list_model_response_consumptions(
+            queued.run_id,
+            attempt_no=1,
+        ) == (consumption,)
+        assert session.scalar(select(func.count()).select_from(RunModelRouteLinkRow)) == 1
+        assert session.scalar(select(func.count()).select_from(RunModelResponseConsumptionRow)) == 1
+
+    noncanonical_now = NOW.replace("Z", "+00:00")
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunIntermediateArtifactLinkRow)
+            .where(
+                RunIntermediateArtifactLinkRow.run_id == queued.run_id,
+                RunIntermediateArtifactLinkRow.attempt_no == 1,
+                RunIntermediateArtifactLinkRow.call_ordinal == 1,
+                RunIntermediateArtifactLinkRow.route_ordinal == 1,
+            )
+            .values(published_at=noncanonical_now)
+        )
+        connection.execute(
+            update(RunModelRouteLinkRow)
+            .where(
+                RunModelRouteLinkRow.run_id == queued.run_id,
+                RunModelRouteLinkRow.attempt_no == 1,
+                RunModelRouteLinkRow.call_ordinal == 1,
+                RunModelRouteLinkRow.route_ordinal == 1,
+            )
+            .values(published_at=noncanonical_now)
+        )
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="stored RunModelRouteLink"),
+    ):
+        SqlRunRepository(session).get_model_route_link(queued.run_id, 1, 1, 1)
+
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunIntermediateArtifactLinkRow)
+            .where(
+                RunIntermediateArtifactLinkRow.run_id == queued.run_id,
+                RunIntermediateArtifactLinkRow.attempt_no == 1,
+                RunIntermediateArtifactLinkRow.call_ordinal == 1,
+                RunIntermediateArtifactLinkRow.route_ordinal == 1,
+            )
+            .values(published_at=NOW)
+        )
+        connection.execute(
+            update(RunModelRouteLinkRow)
+            .where(
+                RunModelRouteLinkRow.run_id == queued.run_id,
+                RunModelRouteLinkRow.attempt_no == 1,
+                RunModelRouteLinkRow.call_ordinal == 1,
+                RunModelRouteLinkRow.route_ordinal == 1,
+            )
+            .values(published_at=NOW)
+        )
+        connection.execute(
+            update(RunModelResponseConsumptionRow)
+            .where(
+                RunModelResponseConsumptionRow.run_id == queued.run_id,
+                RunModelResponseConsumptionRow.attempt_no == 1,
+                RunModelResponseConsumptionRow.call_ordinal == 1,
+                RunModelResponseConsumptionRow.route_ordinal == 1,
+            )
+            .values(consumed_at=noncanonical_now)
+        )
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="stored RunModelResponseConsumption"),
+    ):
+        SqlRunRepository(session).get_model_response_consumption(queued.run_id, 1, 1, 1)
+
+
+def test_response_consumption_rejects_an_older_committed_route(
+    engine: Engine,
+) -> None:
+    budget = _budget()
+    budget_set = _budget_set(budget).model_copy(update={"budget_set_snapshot_id": "budget-set:1"})
+    original_catalog, original_policy, original_decision = _catalog_policy_decision()
+    primary = original_catalog.models[0]
+    fallback_snapshot = canonical_model_snapshot_id(
+        ModelSnapshot(
+            provider=primary.provider,
+            model="gpt-5.6-sol-fallback",
+            snapshot_tag="2026-07",
+        )
+    )
+    fallback = ModelDescriptorV1(
+        **primary.model_dump(exclude={"model_snapshot", "tier"}),
+        model_snapshot=fallback_snapshot,
+        tier="fast",
+    )
+    catalog_body = {
+        "catalog_version": original_catalog.catalog_version,
+        "models": (primary, fallback),
+        "created_at": original_catalog.created_at,
+    }
+    catalog = ModelCatalogSnapshotV1(
+        **catalog_body,
+        catalog_digest=compute_model_catalog_digest(catalog_body),
+    )
+    rule = original_policy.rules[0].model_copy(
+        update={"allowed_fallback_chain": (fallback_snapshot,)}
+    )
+    policy_body = {
+        "policy_version": original_policy.policy_version,
+        "catalog_version": catalog.catalog_version,
+        "catalog_digest": catalog.catalog_digest,
+        "rules": (rule,),
+        "failure_classifier_version": original_policy.failure_classifier_version,
+    }
+    policy = RoutingPolicyV1(
+        **policy_body,
+        routing_policy_digest=compute_routing_policy_digest(policy_body),
+    )
+    decision = RoutingDecisionV1.create(
+        run_id=original_decision.run_id,
+        attempt_no=original_decision.attempt_no,
+        request_hash=COST_REQUEST_HASH,
+        rule_id=rule.rule_id,
+        model_snapshot=primary.model_snapshot,
+        tier=primary.tier,
+        reason_code="primary_rule",
+        budget_set_snapshot_id=budget_set.budget_set_snapshot_id,
+        fallback_from=None,
+        fallback_index=0,
+        policy_version=policy.policy_version,
+        routing_policy_digest=policy.routing_policy_digest,
+        catalog_version=catalog.catalog_version,
+        catalog_digest=catalog.catalog_digest,
+        execution_source="online",
+        decided_at=original_decision.decided_at,
+    )
+    later_decision = RoutingDecisionV1.create(
+        run_id=decision.run_id,
+        attempt_no=decision.attempt_no,
+        request_hash=f"sha256:{HASH_C}",
+        rule_id=rule.rule_id,
+        model_snapshot=fallback.model_snapshot,
+        tier=fallback.tier,
+        reason_code="fallback_rule",
+        budget_set_snapshot_id=decision.budget_set_snapshot_id,
+        fallback_from=decision.model_snapshot,
+        fallback_index=1,
+        policy_version=policy.policy_version,
+        routing_policy_digest=policy.routing_policy_digest,
+        catalog_version=catalog.catalog_version,
+        catalog_digest=catalog.catalog_digest,
+        execution_source="online",
+        decided_at=decision.decided_at + timedelta(microseconds=1),
+    )
+    plan_fields = {
+        "agent_graph_version": "graph@1",
+        "nodes": (
+            PlannedAgentNodeVersionV1(
+                agent_node_id="checker",
+                prompt_version="checker@1",
+                tool_version="checker@1",
+                allowed_model_snapshots=(decision.model_snapshot, later_decision.model_snapshot),
+            ),
+        ),
+        "model_catalog_version": catalog.catalog_version,
+        "model_catalog_digest": catalog.catalog_digest,
+        "routing_policy_version": policy.policy_version,
+        "routing_policy_digest": policy.routing_policy_digest,
+    }
+    payload_wire = _record_payload().model_dump(mode="python")
+    payload_wire.update(
+        llm_execution_mode="live",
+        execution_version_plan=ExecutionVersionPlanV1(
+            **plan_fields,
+            plan_digest=execution_version_plan_digest(plan_fields),
+        ),
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:1",
+            prompt_version="checker@1",
+            model_snapshot=decision.model_snapshot,
+            agent_graph_version="graph@1",
+            tool_version="checker@1",
+        ),
+    )
+    queued = _run("run-1", payload=RunPayloadEnvelope.model_validate(payload_wire))
+    _create(engine, queued)
+    _start_result(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            (
+                _artifact(
+                    "artifact:prompt:old-route:1",
+                    payload_hash=HASH_A,
+                    kind="source_rendered",
+                ),
+                _artifact(
+                    "artifact:prompt:old-route:2",
+                    payload_hash=HASH_B,
+                    kind="source_rendered",
+                ),
+            )
+        )
+        session.commit()
+
+    bare_request_hash = COST_REQUEST_HASH.removeprefix("sha256:")
+    first_prompt = RunIntermediateArtifactLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        artifact_id="artifact:prompt:old-route:1",
+        role="prompt_rendered",
+        request_hash=bare_request_hash,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    second_prompt = first_prompt.model_copy(
+        update={
+            "route_ordinal": 2,
+            "artifact_id": "artifact:prompt:old-route:2",
+            "request_hash": HASH_C,
+        }
+    )
+    first_route = RunModelRouteLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id=first_prompt.artifact_id,
+        request_hash=first_prompt.request_hash,
+        routing_decision_kind="native",
+        routing_decision_id=decision.decision_id,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    second_route = first_route.model_copy(
+        update={
+            "route_ordinal": 2,
+            "prompt_artifact_id": second_prompt.artifact_id,
+            "request_hash": second_prompt.request_hash,
+            "routing_decision_id": later_decision.decision_id,
+        }
+    )
+    stale_consumption = RunModelResponseConsumptionV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        execution_source="online",
+        reservation_group_id="reservation:unused-because-route-is-stale",
+        transport_attempt=1,
+        cassette_shard_artifact_id=None,
+        consumed_at=NOW,
+    )
+    with SqliteUnitOfWork(engine, _model_call_capabilities).begin() as transaction:
+        transaction.cost.put_budget(budget)
+        transaction.cost.put_budget_set(budget_set)
+        transaction.cost.put_model_catalog(catalog)
+        transaction.cost.put_routing_policy(policy)
+        transaction.cost.put_routing_decision(decision)
+        transaction.cost.put_routing_decision(later_decision)
+        transaction.runs.put_intermediate_link(first_prompt)
+        transaction.runs.put_model_route_link(first_route)
+        transaction.runs.put_intermediate_link(second_prompt)
+        transaction.runs.put_model_route_link(second_route)
+
+        with pytest.raises(Conflict, match="latest committed route"):
+            transaction.runs.put_model_response_consumption(stale_consumption)
+
+
+def test_legacy_replay_route_and_usage_keep_exact_import_decision_without_native(
+    engine: Engine,
+) -> None:
+    budget = _budget()
+    budget_set = _budget_set(budget).model_copy(update={"budget_set_snapshot_id": "budget-set:1"})
+    hold, hold_reservation = _hold(budget)
+    hold = hold.model_copy(update={"budget_set_snapshot_id": budget_set.budget_set_snapshot_id})
+    call, call_reservation = _call(budget, hold)
+    catalog, policy, _ = _catalog_policy_decision()
+    legacy = LegacyImportRoutingDecisionV1.create(
+        source_wire_sha256=HASH_C,
+        request_hash=COST_REQUEST_HASH,
+        agent_node_id="checker",
+        model_snapshot=catalog.models[0].model_snapshot,
+        execution_profile_binding_digests=(HASH_A,),
+        model_catalog_version=catalog.catalog_version,
+        model_catalog_digest=catalog.catalog_digest,
+        verification_policy=LegacyImportVerificationPolicyRefV1(
+            policy_id="legacy-import",
+            policy_version=1,
+            policy_digest=HASH_B,
+        ),
+    )
+    plan_fields = {
+        "agent_graph_version": "graph@1",
+        "nodes": (
+            PlannedAgentNodeVersionV1(
+                agent_node_id="checker",
+                prompt_version="checker@1",
+                tool_version="checker@1",
+                allowed_model_snapshots=(legacy.model_snapshot,),
+            ),
+        ),
+        "model_catalog_version": catalog.catalog_version,
+        "model_catalog_digest": catalog.catalog_digest,
+        "routing_policy_version": policy.policy_version,
+        "routing_policy_digest": policy.routing_policy_digest,
+    }
+    plan = ExecutionVersionPlanV1(
+        **plan_fields,
+        plan_digest=execution_version_plan_digest(plan_fields),
+    )
+    cassette_id = "artifact:cassette:legacy:1"
+    payload_wire = _payload().model_dump(mode="python")
+    payload_wire.update(
+        input_artifact_ids=("artifact:input", cassette_id),
+        execution_version_plan=plan,
+        llm_execution_mode="replay",
+        cassette_artifact_id=cassette_id,
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:1",
+            prompt_version="checker@1",
+            model_snapshot=legacy.model_snapshot,
+            agent_graph_version="graph@1",
+            tool_version="checker@1",
+            cassette_id=cassette_id,
+        ),
+    )
+    queued = _run("run-1", payload=RunPayloadEnvelope.model_validate(payload_wire))
+    _create(engine, queued)
+    _start_result(engine, queued)
+    with Session(engine) as session:
+        session.add(
+            _artifact(
+                "artifact:prompt:legacy-route:1",
+                payload_hash=HASH_A,
+                kind="source_rendered",
+            )
+        )
+        session.commit()
+
+    bare_request_hash = COST_REQUEST_HASH.removeprefix("sha256:")
+    prompt = RunIntermediateArtifactLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        artifact_id="artifact:prompt:legacy-route:1",
+        role="prompt_rendered",
+        request_hash=bare_request_hash,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    route = RunModelRouteLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id=prompt.artifact_id,
+        request_hash=prompt.request_hash,
+        routing_decision_kind="legacy_import",
+        routing_decision_id=legacy.decision_id,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    usage = _usage(
+        call,
+        call_reservation,
+        routing_decision_id=legacy.decision_id,
+    ).model_copy(
+        update={
+            "execution_source": "cassette_replay",
+            "routing_decision_kind": "legacy_import",
+        }
+    )
+    consumption = RunModelResponseConsumptionV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        execution_source="cassette_replay",
+        reservation_group_id=call.reservation_group_id,
+        transport_attempt=None,
+        cassette_shard_artifact_id=None,
+        consumed_at=NOW,
+    )
+    with SqliteUnitOfWork(engine, _model_call_capabilities).begin() as transaction:
+        transaction.cost.put_budget(budget)
+        transaction.cost.put_budget_set(budget_set)
+        transaction.cost.put_reservation_group(hold, (hold_reservation,))
+        transaction.cost.put_reservation_group(call, (call_reservation,))
+        transaction.cost.put_model_catalog(catalog)
+        transaction.cost.put_legacy_import_routing_decision(legacy)
+        transaction.runs.put_intermediate_link(prompt)
+        assert transaction.runs.put_model_route_link(route) == route
+        assert transaction.cost.reconcile_group(usage).status == "reconciled"
+        assert transaction.runs.put_model_response_consumption(consumption) == consumption
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get_model_route_link(queued.run_id, 1, 1, 1) == route
+        assert repository.get_model_response_consumption(queued.run_id, 1, 1, 1) == consumption
+        assert session.get(LegacyImportRoutingDecisionRow, legacy.decision_id) is not None
+        usage_row = session.scalar(
+            select(UsageEntryRow).where(
+                UsageEntryRow.reservation_group_id == call.reservation_group_id
+            )
+        )
+        assert usage_row is not None
+        assert usage_row.routing_decision_kind == "legacy_import"
+        assert usage_row.routing_decision_id == legacy.decision_id
+        assert session.scalar(select(func.count()).select_from(RoutingDecisionRow)) == 0
+
+    corrupted = legacy.model_dump(mode="json")
+    corrupted["agent_node_id"] = "another-node"
+    with engine.begin() as connection:
+        connection.execute(
+            update(LegacyImportRoutingDecisionRow)
+            .where(LegacyImportRoutingDecisionRow.decision_id == legacy.decision_id)
+            .values(payload=corrupted)
+        )
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="legacy import routing decision"),
+    ):
+        SqlRunRepository(session).get_model_route_link(queued.run_id, 1, 1, 1)
+
+
 def test_attempt_call_head_rejects_a_deleted_historical_prompt_link(
     engine: Engine,
 ) -> None:
@@ -797,6 +1600,57 @@ def _fence(run: RunRecord, *, lease_id: str | None = None) -> AttemptWriteFence:
     )
 
 
+@pytest.mark.parametrize("authority", ("run", "attempt", "lease", "event"))
+def test_lifecycle_readers_reject_noncanonical_persisted_utc(
+    engine: Engine,
+    authority: str,
+) -> None:
+    started = _start_result(engine)
+    noncanonical = STARTED.replace("Z", "+00:00")
+    with engine.begin() as connection:
+        if authority == "run":
+            connection.execute(
+                update(RunRow)
+                .where(RunRow.run_id == started.run.run_id)
+                .values(updated_at=noncanonical)
+            )
+        elif authority == "attempt":
+            connection.execute(
+                update(RunAttemptRow)
+                .where(
+                    RunAttemptRow.run_id == started.run.run_id,
+                    RunAttemptRow.attempt_no == started.attempt.attempt_no,
+                )
+                .values(started_at=noncanonical)
+            )
+        elif authority == "lease":
+            connection.execute(
+                update(RunLeaseRow)
+                .where(RunLeaseRow.lease_id == started.lease.lease_id)
+                .values(acquired_at=NOW.replace("Z", "+00:00"))
+            )
+        else:
+            connection.execute(
+                update(RunEventRow)
+                .where(
+                    RunEventRow.run_id == started.run.run_id,
+                    RunEventRow.seq == started.event.seq,
+                )
+                .values(occurred_at=noncanonical)
+            )
+
+    with Session(engine) as session, pytest.raises(IntegrityViolation, match="stored Run"):
+        repository = SqlRunRepository(session)
+        if authority == "run":
+            repository.get(started.run.run_id)
+        elif authority == "attempt":
+            repository.get_attempt(started.run.run_id, started.attempt.attempt_no)
+        elif authority == "lease":
+            repository.get_current_lease(started.run.run_id)
+        else:
+            repository.get_event(started.run.run_id, started.event.seq)
+
+
 def _retry_decision(run: RunRecord) -> RetryDecisionV1:
     return RetryDecisionV1(
         cause_code="dependency_unavailable",
@@ -940,6 +1794,72 @@ def test_intermediate_finding_and_command_records_are_insert_or_exact_compare(
             transaction.runs.put_finding_link(changed_finding)
         with pytest.raises(IntegrityViolation, match="immutable"):
             transaction.runs.put_command(changed_command)
+
+    noncanonical_now = NOW.replace("Z", "+00:00")
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunIntermediateArtifactLinkRow)
+            .where(
+                RunIntermediateArtifactLinkRow.run_id == run.run_id,
+                RunIntermediateArtifactLinkRow.attempt_no == 1,
+                RunIntermediateArtifactLinkRow.call_ordinal == ordinal,
+                RunIntermediateArtifactLinkRow.route_ordinal == 1,
+            )
+            .values(published_at=noncanonical_now)
+        )
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="stored RunIntermediateArtifactLink"),
+    ):
+        SqlRunRepository(session).get_intermediate_link(run.run_id, 1, ordinal)
+
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunIntermediateArtifactLinkRow)
+            .where(
+                RunIntermediateArtifactLinkRow.run_id == run.run_id,
+                RunIntermediateArtifactLinkRow.attempt_no == 1,
+                RunIntermediateArtifactLinkRow.call_ordinal == ordinal,
+                RunIntermediateArtifactLinkRow.route_ordinal == 1,
+            )
+            .values(published_at=NOW)
+        )
+        connection.execute(
+            update(RunCommandRow)
+            .where(
+                RunCommandRow.run_id == run.run_id,
+                RunCommandRow.command_id == command.command_id,
+            )
+            .values(created_at=noncanonical_now)
+        )
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="stored RunCommand"),
+    ):
+        SqlRunRepository(session).get_command(run.run_id, command.command_id)
+
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunCommandRow)
+            .where(
+                RunCommandRow.run_id == run.run_id,
+                RunCommandRow.command_id == command.command_id,
+            )
+            .values(created_at=NOW)
+        )
+        connection.execute(
+            update(FindingRevisionRow)
+            .where(
+                FindingRevisionRow.finding_id == finding.finding_id,
+                FindingRevisionRow.revision == finding.finding_revision,
+            )
+            .values(created_at=noncanonical_now)
+        )
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="linked Finding revision"),
+    ):
+        SqlRunRepository(session).get_finding_link(run.run_id, 1, finding.ordinal)
 
 
 def _persist_exact_finding_link(engine: Engine) -> RunFindingLinkV1:

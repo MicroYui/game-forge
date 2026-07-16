@@ -17,13 +17,37 @@ from gameforge.apps.worker.app import (
     validate_worker_readiness,
 )
 from gameforge.apps.worker.dispatch import WorkerProcess, build_worker_process
+from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
 
 
-def build_process() -> WorkerProcess:
+def build_process(
+    *,
+    model_execution_authorities: WorkerModelExecutionAuthorities | None = None,
+) -> WorkerProcess:
     """Compose the worker process and fail closed unless readiness genuinely closes."""
 
-    process = build_worker_process(LocalWorkerConfig.from_environment())
-    validate_worker_readiness(process.runtime)
+    config = LocalWorkerConfig.from_environment()
+    process = (
+        build_worker_process(config)
+        if model_execution_authorities is None
+        else build_worker_process(
+            config,
+            model_execution_authorities=model_execution_authorities,
+        )
+    )
+    try:
+        validate_worker_readiness(process.runtime)
+    except BaseException as original:
+        # Readiness runs after threads, telemetry and the shared engine exist. A
+        # failed startup must join/close all of them just like a driven process.
+        try:
+            process.close()
+        except BaseException as cleanup_error:
+            original.add_note(
+                "worker cleanup after readiness failure also failed "
+                f"({type(cleanup_error).__name__})"
+            )
+        raise
     return process
 
 
@@ -47,7 +71,15 @@ def main() -> None:
 
     try:
         asyncio.run(_drive())
-    finally:
+    except BaseException as original:
+        try:
+            process.close()
+        except BaseException as cleanup_error:
+            original.add_note(
+                f"worker cleanup after drive failure also failed ({type(cleanup_error).__name__})"
+            )
+        raise
+    else:
         process.close()
 
 

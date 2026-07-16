@@ -624,7 +624,7 @@ class _RunReadAuthority:
         self,
         retained: SqlRunRepository,
         synthetic: dict[str, Any],
-        prompt_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1],
+        prompt_links: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1],
     ) -> None:
         self._retained = retained
         self._synthetic = synthetic
@@ -638,10 +638,16 @@ class _RunReadAuthority:
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int = 1,
     ) -> RunIntermediateArtifactLinkV1 | None:
         return self._prompt_links.get(
-            (run_id, attempt_no, call_ordinal)
-        ) or self._retained.get_intermediate_link(run_id, attempt_no, call_ordinal)
+            (run_id, attempt_no, call_ordinal, route_ordinal)
+        ) or self._retained.get_intermediate_link(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
 
     def list_prompt_render_links(
         self,
@@ -658,7 +664,7 @@ class _RunReadAuthority:
         return tuple(
             sorted(
                 (*retained, *synthetic),
-                key=lambda link: (link.attempt_no, link.call_ordinal),
+                key=lambda link: (link.attempt_no, link.call_ordinal, link.route_ordinal),
             )
         )
 
@@ -763,7 +769,9 @@ class Harness:
         self.findings: _FixedFindings | None = None
         self.finding_links: _FixedFindingLinks | None = None
         self.synthetic_runs: dict[str, Any] = {}
-        self.synthetic_prompt_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1] = {}
+        self.synthetic_prompt_links: dict[
+            tuple[str, int, int, int], RunIntermediateArtifactLinkV1
+        ] = {}
         from sqlalchemy.orm import Session
 
         with Session(self.engine) as session, session.begin():
@@ -4801,7 +4809,7 @@ def _seed_review_with_runtime_prompt(
         fencing_token=1,
         published_at=NOW,
     )
-    harness.synthetic_prompt_links[(producer_run_id, 1, 1)] = link
+    harness.synthetic_prompt_links[(producer_run_id, 1, 1, 1)] = link
     return review
 
 
@@ -4966,7 +4974,7 @@ def _seed_playtest_trace_with_runtime_prompt(
         fencing_token=1,
         published_at=NOW,
     )
-    harness.synthetic_prompt_links[(producer_run_id, 1, 1)] = link
+    harness.synthetic_prompt_links[(producer_run_id, 1, 1, 1)] = link
     return trace
 
 

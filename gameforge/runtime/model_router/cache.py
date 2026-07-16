@@ -53,6 +53,8 @@ class ExactResponseCacheEntry(_FrozenModel):
     latency: LatencyObservationV1
     provider_prefix_cache: CacheHitObservationV1
     original_execution_source: Literal["online", "cassette_replay"]
+    original_transport_attempt_count: int = Field(ge=1)
+    original_transport_retry_count: int = Field(ge=0)
     response_digest: Sha256Hex
     recorded_at: datetime
 
@@ -65,6 +67,8 @@ class ExactResponseCacheEntry(_FrozenModel):
 
     @model_validator(mode="after")
     def _digest_matches(self) -> ExactResponseCacheEntry:
+        if self.original_transport_retry_count != self.original_transport_attempt_count - 1:
+            raise ValueError("cached transport retries must equal attempts - 1")
         expected = canonical_sha256(
             {
                 "response_normalized": self.response_normalized,

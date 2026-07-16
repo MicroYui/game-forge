@@ -72,6 +72,10 @@ _AUTH_TABLES = {
     "api_keys",
     "sessions",
 }
+_MODEL_CALL_TABLES = {
+    "run_model_route_links",
+    "run_model_response_consumptions",
+}
 _M4_TABLES = (
     _STORAGE_TABLES
     | _IDENTITY_WORKFLOW_TABLES
@@ -79,6 +83,7 @@ _M4_TABLES = (
     | _COST_ROUTING_TABLES
     | _SLO_ALERT_TABLES
     | _AUTH_TABLES
+    | _MODEL_CALL_TABLES
 )
 
 
@@ -346,6 +351,122 @@ def _insert_pre_context_conflict_set(url: str) -> None:
                     )
                     """
                 )
+            )
+    finally:
+        engine.dispose()
+
+
+def _insert_0008_prompt_link(url: str) -> None:
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO artifacts (
+                        artifact_id, lineage_schema_version, kind, version_tuple,
+                        lineage, payload_hash, created_at, meta, object_ref
+                    ) VALUES (
+                        'artifact:prompt:migration', 'lineage@1', 'source_rendered', '{}',
+                        '[]', :hash, '2026-07-16T00:00:00Z', '{}', NULL
+                    )
+                    """
+                ),
+                {"hash": "a" * 64},
+            )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO idempotency_records (
+                        scope, operation, key, request_hash, resource_kind,
+                        resource_id, created_at, updated_at, response
+                    ) VALUES (
+                        'run:migration/attempt:1', 'worker.prompt-rendered@1',
+                        'prompt:1', :hash, 'source_rendered',
+                        'artifact:prompt:migration', '2026-07-16T00:00:01Z',
+                        '2026-07-16T00:00:01Z', :response
+                    )
+                    """
+                ),
+                {
+                    "hash": "a" * 64,
+                    "response": json.dumps(
+                        {
+                            "artifact_id": "artifact:prompt:migration",
+                            "link": {
+                                "link_schema_version": "run-intermediate-link@1",
+                                "run_id": "run:migration",
+                                "attempt_no": 1,
+                                "call_ordinal": 1,
+                                "artifact_id": "artifact:prompt:migration",
+                                "role": "prompt_rendered",
+                                "request_hash": "a" * 64,
+                                "fencing_token": 1,
+                                "published_at": "2026-07-16T00:00:01Z",
+                            },
+                        },
+                        separators=(",", ":"),
+                    ),
+                },
+            )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO runs (
+                        run_id, run_schema_version, kind, kind_version, status, revision,
+                        idempotency_scope, idempotency_key, request_hash, payload,
+                        payload_hash, run_kind_definition_digest, outcome_policy_set_digest,
+                        migration_capability_matrix, failure_classifier, dispatch_trace_carrier,
+                        initiated_by, queue_deadline_utc, attempt_timeout_ns,
+                        overall_deadline_utc, cancel_requested_at, cancel_requested_by,
+                        current_attempt_no, next_attempt_no, next_fencing_token, next_event_seq,
+                        budget_set_snapshot_id, run_budget_hold_group_id,
+                        concurrency_permit_group_id, retry_policy, max_attempts,
+                        retry_not_before_utc, result_artifact_id, failure_artifact_id,
+                        terminal_cassette_artifact_id, created_at, updated_at
+                    ) VALUES (
+                        'run:migration', 'run@1', 'review.run', 1, 'failed', 1,
+                        'migration', 'prompt-route', :hash, '{}', :hash, :hash, :hash,
+                        NULL, '{}', NULL, '{}', '2026-07-16T00:01:00Z', 1000000000,
+                        '2026-07-16T00:10:00Z', NULL, NULL, 1, 2, 2, 1,
+                        'budget-set:migration', 'reservation:migration', NULL, '{}', 1,
+                        NULL, NULL, NULL, NULL,
+                        '2026-07-16T00:00:00Z', '2026-07-16T00:00:00Z'
+                    )
+                    """
+                ),
+                {"hash": "b" * 64},
+            )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO run_attempts (
+                        run_id, attempt_no, status, fencing_token, worker_principal_id,
+                        trace_id, next_call_ordinal, started_at, attempt_deadline_utc,
+                        ended_at, failure_class, retryable, failure_artifact_id,
+                        cassette_bundle_artifact_id
+                    ) VALUES (
+                        'run:migration', 1, 'failed', 1, 'service:migration', NULL, 2,
+                        '2026-07-16T00:00:00Z', '2026-07-16T00:01:00Z',
+                        '2026-07-16T00:00:30Z', 'provider', 0, NULL, NULL
+                    )
+                    """
+                )
+            )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO run_intermediate_artifact_links (
+                        run_id, attempt_no, call_ordinal, link_schema_version,
+                        artifact_id, role, request_hash, fencing_token, published_at
+                    ) VALUES (
+                        'run:migration', 1, 1, 'run-intermediate-link@1',
+                        'artifact:prompt:migration', 'prompt_rendered', :hash, 1,
+                        '2026-07-16T00:00:01Z'
+                    )
+                    """
+                ),
+                {"hash": "a" * 64},
             )
     finally:
         engine.dispose()
@@ -834,6 +955,40 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
         for foreign_key in _foreign_keys(url, "sessions")
     )
 
+    m.upgrade(url, "0009")
+    assert _current_revision(url) == "0009"
+    assert _MODEL_CALL_TABLES <= _table_names(url)
+    assert "resource_domain_scope" in _column_names(url, "runs")
+    assert "route_ordinal" in _column_names(url, "run_intermediate_artifact_links")
+    assert _primary_key(url, "run_intermediate_artifact_links") == (
+        "run_id",
+        "attempt_no",
+        "call_ordinal",
+        "route_ordinal",
+    )
+    assert _primary_key(url, "run_model_route_links") == (
+        "run_id",
+        "attempt_no",
+        "call_ordinal",
+        "route_ordinal",
+    )
+    assert _primary_key(url, "run_model_response_consumptions") == (
+        "run_id",
+        "attempt_no",
+        "call_ordinal",
+        "route_ordinal",
+    )
+    assert ("run_id", "attempt_no", "call_ordinal") in _unique_keys(
+        url, "run_model_response_consumptions"
+    )
+    assert "route_ordinal >= 1" in _sqlite_schema_sql(
+        url, "table", "run_intermediate_artifact_links"
+    )
+    m.downgrade(url, "0008")
+    assert not (_MODEL_CALL_TABLES & _table_names(url))
+    assert "resource_domain_scope" not in _column_names(url, "runs")
+    assert "route_ordinal" not in _column_names(url, "run_intermediate_artifact_links")
+
     m.downgrade(url, "0007")
     assert not (_AUTH_TABLES & _table_names(url))
 
@@ -864,7 +1019,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0008"
+    assert _current_revision(url) == "0009"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -884,7 +1039,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0008"
+    assert _current_revision(url) == "0009"
     assert _legacy_projection(url) == expected
 
 
@@ -909,6 +1064,154 @@ def test_populated_0007_survives_0008_downgrade_and_reupgrade(tmp_path) -> None:
     assert not any(_fetch_one(url, f"SELECT COUNT(*) FROM {table}")[0] for table in _AUTH_TABLES)
 
 
+def test_0009_upgrades_old_prompt_links_to_route_one_and_round_trips(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'prompt-route-upgrade.db'}"
+    m.upgrade(url, "0008")
+    _insert_0008_prompt_link(url)
+
+    m.upgrade(url, "0009")
+    assert _fetch_one(
+        url,
+        "SELECT resource_domain_scope FROM runs WHERE run_id = 'run:migration'",
+    ) == (None,)
+    assert _fetch_one(
+        url,
+        "SELECT call_ordinal, route_ordinal, artifact_id "
+        "FROM run_intermediate_artifact_links WHERE run_id = 'run:migration'",
+    ) == (1, 1, "artifact:prompt:migration")
+    assert _fetch_one(
+        url,
+        "SELECT json_extract(response, '$.link.route_ordinal') "
+        "FROM idempotency_records WHERE operation = 'worker.prompt-rendered@1'",
+    ) == (1,)
+
+    m.downgrade(url, "0008")
+    assert _fetch_one(
+        url,
+        "SELECT call_ordinal, artifact_id FROM run_intermediate_artifact_links "
+        "WHERE run_id = 'run:migration'",
+    ) == (1, "artifact:prompt:migration")
+    assert _fetch_one(
+        url,
+        "SELECT json_extract(response, '$.link.route_ordinal') "
+        "FROM idempotency_records WHERE operation = 'worker.prompt-rendered@1'",
+    ) == (None,)
+
+
+def test_0009_preflights_corrupt_prompt_json_before_nontransactional_ddl(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'prompt-route-corrupt.db'}"
+    m.upgrade(url, "0008")
+    _insert_0008_prompt_link(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "UPDATE idempotency_records SET response = '{malformed' "
+                    "WHERE operation = 'worker.prompt-rendered@1'"
+                )
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="malformed prompt idempotency JSON"):
+        m.upgrade(url, "0009")
+    assert _current_revision(url) == "0008"
+    assert "resource_domain_scope" not in _column_names(url, "runs")
+    assert "route_ordinal" not in _column_names(url, "run_intermediate_artifact_links")
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "UPDATE idempotency_records SET response = :response "
+                    "WHERE operation = 'worker.prompt-rendered@1'"
+                ),
+                {"response": json.dumps({"artifact_id": "artifact:prompt:migration"})},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="malformed prompt idempotency response"):
+        m.upgrade(url, "0009")
+    assert _current_revision(url) == "0008"
+    assert "resource_domain_scope" not in _column_names(url, "runs")
+    assert "route_ordinal" not in _column_names(url, "run_intermediate_artifact_links")
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "UPDATE idempotency_records SET response = :response "
+                    "WHERE operation = 'worker.prompt-rendered@1'"
+                ),
+                {
+                    "response": json.dumps(
+                        {
+                            "artifact_id": "artifact:prompt:migration",
+                            "link": {
+                                "run_id": "run:migration",
+                                "attempt_no": 1,
+                                "call_ordinal": 1,
+                                "artifact_id": "artifact:prompt:migration",
+                            },
+                        }
+                    )
+                },
+            )
+    finally:
+        engine.dispose()
+
+    m.upgrade(url, "0009")
+    assert _current_revision(url) == "0009"
+
+
+def test_0009_downgrade_refuses_to_collapse_fallback_prompt_route(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'prompt-route-downgrade.db'}"
+    m.upgrade(url, "0008")
+    _insert_0008_prompt_link(url)
+    m.upgrade(url, "0009")
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "UPDATE run_intermediate_artifact_links SET route_ordinal = 2 "
+                    "WHERE run_id = 'run:migration'"
+                )
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="fallback prompt routes"):
+        m.downgrade(url, "0008")
+    assert _current_revision(url) == "0009"
+
+
+def test_0009_downgrade_refuses_to_drop_resolved_run_domain_authority(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'run-domain-downgrade.db'}"
+    m.upgrade(url, "0008")
+    _insert_0008_prompt_link(url)
+    m.upgrade(url, "0009")
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "UPDATE runs SET resource_domain_scope = :scope WHERE run_id = 'run:migration'"
+                ),
+                {"scope": json.dumps({"domain_ids": ["aureus"]})},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="resource-domain authority"):
+        m.downgrade(url, "0008")
+    assert _current_revision(url) == "0009"
+
+
 def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     tmp_path,
 ) -> None:
@@ -917,7 +1220,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0008"
+    assert _current_revision(url) == "0009"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")

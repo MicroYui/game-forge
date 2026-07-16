@@ -107,7 +107,8 @@ def test_constraint_proposal_drafted_is_agent_produced_draft() -> None:
     assert primary.payload_schema_id == "constraint-proposal@1"
     # exactly ONE ordered LLM call went through the bridge.
     assert len(bridge.requests) == 1
-    assert bridge.requests[0].idempotency_key == "run:1:1:model:1"
+    assert bridge.requests[0].idempotency_scope == "run:run:1:attempt:1"
+    assert bridge.requests[0].idempotency_key == "model:1"
 
     proposal = ConstraintProposalV1.model_validate(
         json.loads(store.read_prepared(primary.object_ref))

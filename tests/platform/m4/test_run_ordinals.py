@@ -72,6 +72,9 @@ def _publication_request(
     artifact_id: str = "artifact:prompt:1",
     request_hash: str = _HASH_A,
     idempotency_key: str = "prompt-call:1",
+    logical_call_ordinal: int = 1,
+    call_ordinal: int | None = None,
+    route_ordinal: int = 1,
 ) -> PromptRenderPublicationRequest:
     return PromptRenderPublicationRequest(
         fence=AttemptWriteFence(
@@ -81,6 +84,9 @@ def _publication_request(
             lease_id="lease:1",
             fencing_token=1,
         ),
+        logical_call_ordinal=logical_call_ordinal,
+        call_ordinal=call_ordinal,
+        route_ordinal=route_ordinal,
         artifact_id=artifact_id,
         request_hash=request_hash,
         idempotency_scope="run:1/attempt:1",
@@ -100,6 +106,7 @@ def test_prompt_publication_consumes_attempt_head_only_with_the_link() -> None:
             artifact_id="artifact:prompt:2",
             request_hash=_HASH_B,
             idempotency_key="prompt-call:2",
+            logical_call_ordinal=2,
         )
     )
 
@@ -109,8 +116,8 @@ def test_prompt_publication_consumes_attempt_head_only_with_the_link() -> None:
     attempt = harness.state.attempts[("run:1", 1)]
     assert attempt.next_call_ordinal == 3
     assert tuple(harness.state.intermediate_links) == (
-        ("run:1", 1, 1),
-        ("run:1", 1, 2),
+        ("run:1", 1, 1, 1),
+        ("run:1", 1, 2, 1),
     )
     assert harness.publication.prompt_publications == [first.link, second.link]
 
@@ -135,12 +142,79 @@ def test_prompt_idempotency_replay_does_not_allocate_a_new_ordinal() -> None:
     assert harness.state.attempts[("run:1", 1)].next_call_ordinal == 2
 
 
+def test_fallback_prompt_reuses_open_call_and_does_not_advance_call_head() -> None:
+    harness = _harness()
+    harness.service.create_run(_create_request())
+    _claim_and_start(harness)
+    first = harness.service.publish_prompt_rendered(_publication_request())
+
+    fallback_request = _publication_request(
+        artifact_id="artifact:prompt:1:route:2",
+        request_hash=_HASH_B,
+        idempotency_key="prompt-call:1:route:2",
+        call_ordinal=first.link.call_ordinal,
+        route_ordinal=2,
+    )
+    fallback = harness.service.publish_prompt_rendered(fallback_request)
+    replay = harness.service.publish_prompt_rendered(fallback_request)
+
+    assert fallback.link.call_ordinal == first.link.call_ordinal == 1
+    assert fallback.link.route_ordinal == 2
+    assert replay.replayed is True
+    assert replay.link == fallback.link
+    assert harness.state.attempts[("run:1", 1)].next_call_ordinal == 2
+
+    second_call = harness.service.publish_prompt_rendered(
+        _publication_request(
+            artifact_id="artifact:prompt:2",
+            request_hash=_HASH_A,
+            idempotency_key="prompt-call:2",
+            logical_call_ordinal=2,
+        )
+    )
+    assert second_call.link.call_ordinal == 2
+    assert second_call.link.route_ordinal == 1
+    assert harness.state.attempts[("run:1", 1)].next_call_ordinal == 3
+
+
+def test_fallback_prompt_rejects_unopened_call_and_skipped_route() -> None:
+    harness = _harness()
+    harness.service.create_run(_create_request())
+    _claim_and_start(harness)
+
+    with pytest.raises(IntegrityViolation, match="Attempt head"):
+        harness.service.publish_prompt_rendered(
+            _publication_request(
+                artifact_id="artifact:prompt:unopened",
+                request_hash=_HASH_B,
+                idempotency_key="prompt-call:unopened",
+                call_ordinal=1,
+                route_ordinal=2,
+            )
+        )
+
+    first = harness.service.publish_prompt_rendered(_publication_request())
+    with pytest.raises(Conflict, match="ordinal|token"):
+        harness.service.publish_prompt_rendered(
+            _publication_request(
+                artifact_id="artifact:prompt:route:3",
+                request_hash=_HASH_B,
+                idempotency_key="prompt-call:1:route:3",
+                call_ordinal=first.link.call_ordinal,
+                route_ordinal=3,
+            )
+        )
+    assert harness.state.attempts[("run:1", 1)].next_call_ordinal == 2
+
+
 def test_prompt_replay_fails_closed_when_gateway_state_is_detached_from_authority() -> None:
     harness = _harness()
     harness.service.create_run(_create_request())
     _claim_and_start(harness)
     first = harness.service.publish_prompt_rendered(_publication_request())
-    del harness.state.intermediate_links[("run:1", 1, first.link.call_ordinal)]
+    del harness.state.intermediate_links[
+        ("run:1", 1, first.link.call_ordinal, first.link.route_ordinal)
+    ]
 
     with pytest.raises(IntegrityViolation, match="detached"):
         harness.service.publish_prompt_rendered(_publication_request())
@@ -174,20 +248,14 @@ def test_prompt_publication_rejects_wrong_attempt_or_fencing_without_a_hole() ->
     with pytest.raises(IntegrityViolation, match="attempt"):
         harness.service.publish_prompt_rendered(
             _publication_request().model_copy(
-                update={
-                    "fence": _publication_request().fence.model_copy(
-                        update={"attempt_no": 2}
-                    )
-                }
+                update={"fence": _publication_request().fence.model_copy(update={"attempt_no": 2})}
             )
         )
     with pytest.raises(Conflict, match="fence"):
         harness.service.publish_prompt_rendered(
             _publication_request().model_copy(
                 update={
-                    "fence": _publication_request().fence.model_copy(
-                        update={"fencing_token": 2}
-                    )
+                    "fence": _publication_request().fence.model_copy(update={"fencing_token": 2})
                 }
             )
         )

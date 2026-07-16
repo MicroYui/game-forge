@@ -9,7 +9,8 @@ from itertools import combinations
 from typing import Literal, Protocol
 
 from gameforge.contracts.cost import CostAmountV1, CostDimension
-from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation, QuotaExceeded
+from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.model_router import ModelRequestV2, request_hash
 from gameforge.contracts.routing import (
     ModelCatalogSnapshotV1,
@@ -32,7 +33,7 @@ class RouteRequest:
     run_id: str
     attempt_no: int
     task_kind: str
-    domain: str | None
+    domain_scope: DomainScope
     budget_set_snapshot_id: str
     remaining_budget: tuple[CostAmountV1, ...]
     context_tokens: int
@@ -46,6 +47,8 @@ class RouteRequest:
             raise ValueError("attempt_no must be positive")
         if self.context_tokens < 0 or self.max_output_tokens <= 0:
             raise ValueError("context tokens must be nonnegative and output tokens positive")
+        if not isinstance(self.domain_scope, DomainScope):
+            raise ValueError("route request requires an exact DomainScope")
         dimensions = [item.dimension for item in self.remaining_budget]
         if len(dimensions) != len(set(dimensions)):
             raise ValueError("remaining budget dimensions must be unique")
@@ -105,12 +108,22 @@ class RoutingPolicyService:
         return self._policy
 
     def select(self, request: RouteRequest) -> RouteSelection:
+        selector_matches = tuple(
+            rule for rule in self._policy.rules if self._selector_matches(rule, request)
+        )
+        if not selector_matches:
+            raise IntegrityViolation(
+                "no routing rule covers the frozen task/domain scope",
+                task_kind=request.task_kind,
+                domain_scope=request.domain_scope.model_dump(mode="json"),
+                policy_version=self._policy.policy_version,
+            )
         matching = tuple(rule for rule in self._policy.rules if self._matches(rule, request))
         if not matching:
-            raise DependencyUnavailable(
-                "no routing rule matches the frozen request",
+            raise QuotaExceeded(
+                "no routing rule admits the frozen remaining budget",
                 task_kind=request.task_kind,
-                domain=request.domain,
+                domain_scope=request.domain_scope.model_dump(mode="json"),
                 policy_version=self._policy.policy_version,
             )
         if len(matching) != 1:
@@ -146,12 +159,18 @@ class RoutingPolicyService:
                 "routing fallback chain is exhausted",
                 rule_id=known.rule_id,
             )
-        return self._select_from_index(
-            known,
-            request,
-            start_index=start,
-            reason="fallback_after_failure",
-        )
+        try:
+            return self._select_from_index(
+                known,
+                request,
+                start_index=start,
+                reason="fallback_after_failure",
+            )
+        except IntegrityViolation as exc:
+            raise DependencyUnavailable(
+                "routing fallback chain has no available model",
+                rule_id=known.rule_id,
+            ) from exc
 
     def decide_and_record(
         self,
@@ -221,19 +240,27 @@ class RoutingPolicyService:
                 fallback_index=index,
                 reason_code=reason_code,
             )
-        raise DependencyUnavailable(
-            "routing rule has no viable model within the frozen fallback chain",
+        raise IntegrityViolation(
+            "routing request exceeds every viable model in the frozen fallback chain",
             rule_id=rule.rule_id,
             start_index=start_index,
         )
 
     def _matches(self, rule: RoutingRuleV1, request: RouteRequest) -> bool:
-        if rule.task_kind != request.task_kind:
-            return False
-        if rule.domain_scope is not None and request.domain not in rule.domain_scope:
+        if not self._selector_matches(rule, request):
             return False
         amounts = {item.dimension: item for item in request.remaining_budget}
         return all(_matches_predicate(predicate, amounts) for predicate in rule.budget_predicates)
+
+    @staticmethod
+    def _selector_matches(rule: RoutingRuleV1, request: RouteRequest) -> bool:
+        if rule.task_kind != request.task_kind:
+            return False
+        if rule.domain_scope is not None and not set(request.domain_scope.domain_ids).issubset(
+            rule.domain_scope
+        ):
+            return False
+        return True
 
     @staticmethod
     def _statically_viable(

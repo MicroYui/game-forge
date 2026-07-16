@@ -22,6 +22,7 @@ PLANNING_DOCUMENT = "planning_document"
 OPEN_SOURCE_CONTENT = "open_source_content"
 TOOL_OUTPUT = "tool_output"
 RETRIEVAL_RESULT = "retrieval_result"
+TRUSTED_PROMPT_TEMPLATE = "trusted_prompt_template"
 
 
 _BUILTIN_DEFINITIONS: tuple[SourceKindDefinitionV1, ...] = (
@@ -61,6 +62,12 @@ _BUILTIN_DEFINITIONS: tuple[SourceKindDefinitionV1, ...] = (
         allowed_prompt_purposes=("context", "tool_output"),
         description_code="source.retrieval_result",
     ),
+    SourceKindDefinitionV1(
+        source_kind_id=TRUSTED_PROMPT_TEMPLATE,
+        allowed_trust_levels=("trusted_internal",),
+        allowed_prompt_purposes=("instruction",),
+        description_code="source.trusted_prompt_template",
+    ),
 )
 
 
@@ -80,6 +87,7 @@ __all__ = [
     "PLANNING_DOCUMENT",
     "RETRIEVAL_RESULT",
     "TOOL_OUTPUT",
+    "TRUSTED_PROMPT_TEMPLATE",
     "TRUSTED_SERVICE_GOAL",
     "build_source_kind_registry",
 ]

@@ -20,6 +20,7 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.lineage import InvocationVersionBindingV1
 from gameforge.contracts.model_router import ModelRequestV1, ModelRequestV2, request_hash
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
+from gameforge.contracts.reliability import FailureClassificationV1
 from gameforge.runtime.cassette.store import CassetteRouteKey, CassetteStore
 from gameforge.runtime.cassette.legacy_import import VerifiedLegacyReplaySource
 from gameforge.runtime.model_router.cache import (
@@ -83,6 +84,19 @@ class RoutingDecisionAuthority(Protocol):
     def get_routing_decision(self, decision_id: str) -> RoutingDecisionV1 | None: ...
 
 
+class ProviderRouteFailure(Exception):
+    """A provider transport error left after the exact retry policy is exhausted."""
+
+    def __init__(
+        self,
+        cause: Exception,
+        classification: FailureClassificationV1,
+    ) -> None:
+        super().__init__(str(cause))
+        self.cause = cause
+        self.classification = classification
+
+
 class PrefixCacheAdmission(Protocol):
     def validate(self, request: ModelRequestV2, decision: RoutingDecisionV1) -> None: ...
 
@@ -106,6 +120,7 @@ class M4ModelRouter:
         decision_authority: RoutingDecisionAuthority,
         prefix_cache_admission: PrefixCacheAdmission | None = None,
         circuit_breaker: CircuitBreaker | None = None,
+        circuit_breaker_resolver: Callable[[RoutingDecisionV1], CircuitBreaker] | None = None,
         attempt_admission: Callable[[int], None] | None = None,
         attempt_cancellation: Callable[[int], None] | None = None,
         attempt_observer: Callable[[RetryAttemptResult], None] | None = None,
@@ -117,7 +132,10 @@ class M4ModelRouter:
         self._retry = retry_executor
         self._decision_authority = decision_authority
         self._prefix_cache_admission = prefix_cache_admission
+        if circuit_breaker is not None and circuit_breaker_resolver is not None:
+            raise ValueError("configure either one circuit breaker or a per-route resolver")
         self._breaker = circuit_breaker
+        self._breaker_resolver = circuit_breaker_resolver
         self._attempt_admission = attempt_admission
         self._attempt_cancellation = attempt_cancellation
         self._attempt_observer = attempt_observer
@@ -130,6 +148,9 @@ class M4ModelRouter:
         deadline_utc: datetime,
         recorded_at: datetime,
         cassette_route_key: CassetteRouteKey | None = None,
+        attempt_admission: Callable[[int], None] | None = None,
+        attempt_cancellation: Callable[[int], None] | None = None,
+        attempt_observer: Callable[[RetryAttemptResult], None] | None = None,
     ) -> M4RouterResultV1:
         recorded_at = _require_utc(recorded_at, field_name="recorded_at")
         _require_utc(deadline_utc, field_name="deadline_utc")
@@ -153,7 +174,30 @@ class M4ModelRouter:
         if self._mode is RouterMode.REPLAY:
             raise IntegrityViolation("REPLAY requires a cassette_replay routing decision")
 
-        response, attempts = self._complete_online(request, deadline_utc=deadline_utc)
+        breaker = (
+            self._breaker_resolver(decision)
+            if self._breaker_resolver is not None
+            else self._breaker
+        )
+        if self._breaker_resolver is not None:
+            if not isinstance(breaker, CircuitBreaker):
+                raise IntegrityViolation(
+                    "circuit-breaker resolver returned no exact dependency authority"
+                )
+            expected_dependency = f"model-provider:{decision.model_snapshot}"
+            if breaker.dependency_id != expected_dependency:
+                raise IntegrityViolation(
+                    "resolved circuit breaker differs from the exact model dependency",
+                    expected_dependency_id=expected_dependency,
+                )
+        response, attempts = self._complete_online(
+            request,
+            deadline_utc=deadline_utc,
+            breaker=breaker,
+            attempt_admission=attempt_admission,
+            attempt_cancellation=attempt_cancellation,
+            attempt_observer=attempt_observer,
+        )
         if self._mode is RouterMode.RECORD:
             self._record_v2(
                 request=request,
@@ -163,19 +207,44 @@ class M4ModelRouter:
                 recorded_at=recorded_at,
                 route_key=cassette_route_key,
             )
-        self._cache.put(
-            _cache_entry(
-                request=request,
-                decision=decision,
-                response=response,
-                recorded_at=recorded_at,
-            )
-        )
         return _result(
             response,
             decision=decision,
             execution_source="online",
             attempts=attempts,
+        )
+
+    def commit_response_cache(
+        self,
+        request: ModelRequestV2,
+        *,
+        decision: RoutingDecisionV1,
+        result: M4RouterResultV1,
+        recorded_at: datetime,
+    ) -> None:
+        """Publish a cache entry only after authoritative response consumption.
+
+        The router deliberately does not cache inside :meth:`call`: shard/usage/
+        consumption publication may still roll back after transport success, and
+        an uncommitted response must never leak through the process cache.
+        """
+
+        recorded_at = _require_utc(recorded_at, field_name="recorded_at")
+        self._resolve_committed_decision(decision)
+        self._validate_request_decision(request, decision)
+        if (
+            decision.execution_source != "online"
+            or result.execution_source != "online"
+            or result.routing_decision_id != decision.decision_id
+        ):
+            raise IntegrityViolation("only a consumed online response may enter the cache")
+        self._cache.put(
+            _cache_entry(
+                request=request,
+                decision=decision,
+                response=result,
+                recorded_at=recorded_at,
+            )
         )
 
     def _from_cache(
@@ -195,12 +264,21 @@ class M4ModelRouter:
             finish_reason=entry.finish_reason,
             tool_calls=entry.tool_calls,
             latency=LatencyObservationV1(status="unavailable"),
-            token_usage=TokenUsageObservationV1(status="reported", total_tokens=0),
+            token_usage=TokenUsageObservationV1(
+                status="reported",
+                input_tokens=0,
+                output_tokens=0,
+                cache_read_tokens=0,
+                cache_write_tokens=0,
+                total_tokens=0,
+            ),
             provider_prefix_cache=CacheHitObservationV1(status="unavailable"),
             execution_source="full_response_cache",
             routing_decision_id=decision.decision_id,
             transport_attempt_count=0,
             transport_retry_count=0,
+            recorded_transport_attempt_count=entry.original_transport_attempt_count,
+            recorded_transport_retry_count=entry.original_transport_retry_count,
         )
 
     def _from_cassette(
@@ -238,29 +316,41 @@ class M4ModelRouter:
         request: ModelRequestV2,
         *,
         deadline_utc: datetime,
+        breaker: CircuitBreaker | None,
+        attempt_admission: Callable[[int], None] | None,
+        attempt_cancellation: Callable[[int], None] | None,
+        attempt_observer: Callable[[RetryAttemptResult], None] | None,
     ) -> tuple[TransportResponseV2, int]:
         permits: dict[int, BreakerPermit] = {}
         attempts_started = 0
 
         def admit(attempt_no: int) -> None:
-            permit = self._breaker.before_call() if self._breaker is not None else None
+            permit = breaker.before_call() if breaker is not None else None
             if permit is not None:
                 permits[attempt_no] = permit
             try:
                 if self._attempt_admission is not None:
                     self._attempt_admission(attempt_no)
+                if attempt_admission is not None:
+                    attempt_admission(attempt_no)
             except BaseException:
                 retained = permits.pop(attempt_no, None)
-                if retained is not None and self._breaker is not None:
-                    self._breaker.cancel(retained)
+                if retained is not None and breaker is not None:
+                    breaker.cancel(retained)
+                if self._attempt_cancellation is not None:
+                    self._attempt_cancellation(attempt_no)
+                if attempt_cancellation is not None:
+                    attempt_cancellation(attempt_no)
                 raise
 
         def cancel(attempt_no: int) -> None:
             permit = permits.pop(attempt_no, None)
-            if permit is not None and self._breaker is not None:
-                self._breaker.cancel(permit)
+            if permit is not None and breaker is not None:
+                breaker.cancel(permit)
             if self._attempt_cancellation is not None:
                 self._attempt_cancellation(attempt_no)
+            if attempt_cancellation is not None:
+                attempt_cancellation(attempt_no)
 
         def complete(_: int) -> TransportResponseV2:
             nonlocal attempts_started
@@ -273,14 +363,16 @@ class M4ModelRouter:
 
         def observe(result: RetryAttemptResult) -> None:
             permit = permits.pop(result.attempt_no, None)
-            if permit is not None and self._breaker is not None:
+            if permit is not None and breaker is not None:
                 if result.succeeded:
-                    self._breaker.record_success(permit)
+                    breaker.record_success(permit)
                 else:
                     assert result.classification is not None
-                    self._breaker.record_failure(permit, result.classification)
+                    breaker.record_failure(permit, result.classification)
             if self._attempt_observer is not None:
                 self._attempt_observer(result)
+            if attempt_observer is not None:
+                attempt_observer(result)
 
         response = self._retry.run(
             complete,
@@ -289,6 +381,7 @@ class M4ModelRouter:
             reserve_attempt=admit,
             cancel_attempt=cancel,
             observe_attempt=observe,
+            terminal_error_wrapper=ProviderRouteFailure,
         )
         return response, attempts_started
 
@@ -432,7 +525,7 @@ def _cache_entry(
     *,
     request: ModelRequestV2,
     decision: RoutingDecisionV1,
-    response: TransportResponseV2,
+    response: M4RouterResultV1,
     recorded_at: datetime,
 ) -> ExactResponseCacheEntry:
     payload = {
@@ -451,6 +544,8 @@ def _cache_entry(
         latency=response.latency,
         provider_prefix_cache=response.provider_prefix_cache,
         original_execution_source="online",
+        original_transport_attempt_count=response.transport_attempt_count,
+        original_transport_retry_count=response.transport_retry_count,
         response_digest=canonical_sha256(payload),
         recorded_at=recorded_at,
     )
@@ -493,6 +588,7 @@ __all__ = [
     "M4ModelRouter",
     "M4RouterResultV1",
     "PrefixCacheAdmission",
+    "ProviderRouteFailure",
     "RoutingDecisionAuthority",
     "VerifiedLegacyReplayRouter",
 ]

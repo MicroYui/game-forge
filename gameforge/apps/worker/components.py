@@ -78,7 +78,6 @@ from gameforge.apps.worker.agent_runners import (
 from gameforge.apps.worker.completion_oracles import build_completion_oracle_executors
 from gameforge.apps.worker.config_export import build_aureus_config_exporter
 from gameforge.apps.worker.playtest import build_playtest_handler
-from gameforge.apps.worker.publication import BlobLocationRegistry
 from gameforge.apps.worker.task_suite import build_task_suite_handler
 from gameforge.apps.worker.validation import build_differential_engines
 from gameforge.spine.checkers.graph import GraphChecker
@@ -138,18 +137,16 @@ class WorkerArtifactBlobReader:
 class WorkerPreparedArtifactStore:
     """The handlers' ``PreparedArtifactStore`` over the content-addressed ObjectStore.
 
-    Publishes the prepared blob and records its exact ``ObjectLocation`` into the shared
-    :class:`BlobLocationRegistry` so the later terminal publish can re-read + bind it by
-    ``ObjectRef`` alone.
+    Publishes the prepared blob and returns its exact ``ObjectLocation``. The sealed
+    outcome carries that location to the terminal publisher, which repeats ``stat``
+    against the content-addressed ``ObjectRef`` before reading or binding it.
     """
 
-    def __init__(self, object_store: LocalObjectStore, registry: BlobLocationRegistry) -> None:
+    def __init__(self, object_store: LocalObjectStore) -> None:
         self._object_store = object_store
-        self._registry = registry
 
     def put_prepared(self, payload: bytes) -> tuple[ObjectRef, ObjectLocation]:
         stored = self._object_store.put_verified(payload)
-        self._registry.record(stored.ref, stored.location)
         return stored.ref, stored.location
 
 
@@ -212,6 +209,19 @@ class _DeferredGamePort:
 
     def analyze(self, *_: object, **__: object) -> object:
         self._fail()
+
+
+class _WorkerReadinessBlockedExecutor:
+    """Callable executor whose mandatory nested production port is not yet closed."""
+
+    def __init__(self, executor: object, *, blocker: str) -> None:
+        if not callable(executor) or not blocker:
+            raise ValueError("readiness-blocked executor requires a callable and reason")
+        self._executor = executor
+        self.worker_readiness_blocker = blocker
+
+    def __call__(self, context: object) -> object:
+        return self._executor(context)  # type: ignore[operator]
 
 
 # ── real deterministic rollback ports (platform-generic ref/artifact reads) ──────
@@ -391,12 +401,15 @@ def _build_executor_handlers(
             checker_resolver=_checker_resolver,
             sim_config_resolver=_sim_config_resolver,
         ),
-        "bench_runner@1": BenchRunHandler(
-            blobs=blobs,
-            store=store,
-            case_loader=bench_port,
-            evaluator=bench_port,
-            composer=bench_port,
+        "bench_runner@1": _WorkerReadinessBlockedExecutor(
+            BenchRunHandler(
+                blobs=blobs,
+                store=store,
+                case_loader=bench_port,
+                evaluator=bench_port,
+                composer=bench_port,
+            ),
+            blocker="bench production case/evaluator/composer ports are unavailable",
         ),
         "generation_proposer@1": GenerationProposalHandler(
             blobs=blobs,
@@ -438,12 +451,15 @@ def _build_executor_handlers(
             store=store,
             differential_engines=build_differential_engines(),
         ),
-        "rollback_validator@1": RollbackValidationHandler(
-            blobs=blobs,
-            store=store,
-            history_verifier=history_verifier,
-            schema_analyzer=schema_analyzer,
-            impact_analyzer=rollback_port,
+        "rollback_validator@1": _WorkerReadinessBlockedExecutor(
+            RollbackValidationHandler(
+                blobs=blobs,
+                store=store,
+                history_verifier=history_verifier,
+                schema_analyzer=schema_analyzer,
+                impact_analyzer=rollback_port,
+            ),
+            blocker="rollback impact-analysis production port is unavailable",
         ),
     }
     handlers.update(DEFERRED_EXECUTORS)

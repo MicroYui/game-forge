@@ -39,6 +39,8 @@ from gameforge.contracts.jobs import (
     RunAttempt,
     RunFailureV1,
     RunKindRef,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunPayloadEnvelope,
     RunRecord,
     RunResultV1,
@@ -106,9 +108,26 @@ class ReplayAdmissionReader(Protocol):
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int,
     ) -> RunIntermediateArtifactLinkV1 | None: ...
 
     def get_routing_decision(self, decision_id: str) -> RoutingDecisionV1 | None: ...
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelRouteLinkV1 | None: ...
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelResponseConsumptionV1 | None: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +138,12 @@ class ReplayAdmissionProof:
     legacy_import_id: str | None
     attempt_count: int
     record_count: int
+    selected_source_attempt_no: int | None
+
+    def __post_init__(self) -> None:
+        expected = self.attempt_count if self.attempt_count > 0 else None
+        if self.selected_source_attempt_no != expected:
+            raise ValueError("replay source selection must be the terminal cassette attempt")
 
     def required_permission(self, domain_scope: DomainScopeValue) -> Permission:
         """Return the extra permission admission must authorize for this proof."""
@@ -466,6 +491,7 @@ class ReplayAdmissionValidator:
             legacy_import_id=None,
             attempt_count=len(tree.attempts),
             record_count=tree.record_count,
+            selected_source_attempt_no=source.current_attempt_no,
         )
 
     def _require_native_source(
@@ -626,6 +652,7 @@ class ReplayAdmissionValidator:
         ):
             raise IntegrityViolation("native run cassette execution identity differs from plan")
         self._require_bindings_fit_plan(root_identity.bindings, plan=plan, legacy=False)
+        self._require_consumed_route_is_terminal(root_identity)
         retained_decisions = {
             binding.routing_decision_id: self._retained_native_decision(
                 source=source,
@@ -661,7 +688,7 @@ class ReplayAdmissionValidator:
                 expected_call_bindings = tuple(
                     binding
                     for binding in expected_attempt_bindings
-                    if binding.call_ordinal == ordinal
+                    if binding.call_ordinal == ordinal and binding.response_consumed
                 )
                 shard_identity = self._execution_identity(shard.artifact)
                 if (
@@ -696,6 +723,20 @@ class ReplayAdmissionValidator:
         if consumed_decisions != expected_consumed:
             raise IntegrityViolation("native cassette records differ from consumed route identity")
 
+    @staticmethod
+    def _require_consumed_route_is_terminal(identity: ExecutionIdentityV1) -> None:
+        """A response ends its logical route chain; later routes are impossible."""
+
+        calls: dict[tuple[int, int], list[InvocationVersionBindingV1]] = {}
+        for binding in identity.bindings:
+            calls.setdefault((binding.attempt_no, binding.call_ordinal), []).append(binding)
+        for bindings in calls.values():
+            consumed = tuple(binding for binding in bindings if binding.response_consumed)
+            if consumed and consumed[0] != bindings[-1]:
+                raise IntegrityViolation(
+                    "native cassette logical call has a route after its consumed response"
+                )
+
     def _retained_native_decision(
         self,
         *,
@@ -704,6 +745,18 @@ class ReplayAdmissionValidator:
         binding: InvocationVersionBindingV1,
     ) -> RoutingDecisionV1:
         decision = self._reader.get_routing_decision(binding.routing_decision_id)
+        route = self._reader.get_model_route_link(
+            source.run_id,
+            binding.attempt_no,
+            binding.call_ordinal,
+            binding.route_ordinal,
+        )
+        consumption = self._reader.get_model_response_consumption(
+            source.run_id,
+            binding.attempt_no,
+            binding.call_ordinal,
+            binding.route_ordinal,
+        )
         node = next(
             (item for item in plan.nodes if item.agent_node_id == binding.agent_node_id),
             None,
@@ -713,7 +766,6 @@ class ReplayAdmissionValidator:
             or decision.decision_id != binding.routing_decision_id
             or decision.run_id != source.run_id
             or decision.attempt_no != binding.attempt_no
-            or decision.fallback_index + 1 != binding.route_ordinal
             or decision.model_snapshot != binding.model_snapshot
             or decision.execution_source != binding.execution_source
             or decision.budget_set_snapshot_id != source.payload.budget_set_snapshot_id
@@ -721,12 +773,32 @@ class ReplayAdmissionValidator:
             or decision.routing_policy_digest != plan.routing_policy_digest
             or decision.catalog_version != plan.model_catalog_version
             or decision.catalog_digest != plan.model_catalog_digest
+            or not isinstance(route, RunModelRouteLinkV1)
+            or route.run_id != source.run_id
+            or route.attempt_no != binding.attempt_no
+            or route.call_ordinal != binding.call_ordinal
+            or route.route_ordinal != binding.route_ordinal
+            or route.routing_decision_kind != binding.routing_decision_kind
+            or route.routing_decision_id != binding.routing_decision_id
+            or route.request_hash != decision.request_hash.removeprefix("sha256:")
             or node is None
             or decision.model_snapshot not in node.allowed_model_snapshots
         ):
             raise IntegrityViolation(
                 "native invocation differs from retained RoutingDecision authority"
             )
+        if binding.response_consumed:
+            if (
+                not isinstance(consumption, RunModelResponseConsumptionV1)
+                or consumption.execution_source != binding.execution_source
+                or consumption.transport_attempt != binding.transport_attempt
+                or consumption.cassette_shard_artifact_id is None
+            ):
+                raise IntegrityViolation(
+                    "native consumed invocation differs from response-consumption authority"
+                )
+        elif consumption is not None:
+            raise IntegrityViolation("native unconsumed route has response-consumption authority")
         return decision
 
     def _validate_native_record(
@@ -766,17 +838,42 @@ class ReplayAdmissionValidator:
         )
         if node is None or decision.model_snapshot not in node.allowed_model_snapshots:
             raise IntegrityViolation("native cassette record is outside the execution plan")
-        link = self._reader.get_prompt_link(source.run_id, attempt_no, ordinal)
+        matched = tuple(
+            binding for binding in bindings if binding.routing_decision_id == decision.decision_id
+        )
+        if len(matched) != 1 or not matched[0].response_consumed:
+            raise IntegrityViolation("native cassette record does not bind one consumed route")
+        binding = matched[0]
+        link = self._reader.get_prompt_link(
+            source.run_id,
+            attempt_no,
+            ordinal,
+            binding.route_ordinal,
+        )
         if (
             not isinstance(link, RunIntermediateArtifactLinkV1)
             or link.run_id != source.run_id
             or link.attempt_no != attempt_no
             or link.call_ordinal != ordinal
+            or link.route_ordinal != binding.route_ordinal
             or link.request_hash != record.request_hash.removeprefix("sha256:")
         ):
             raise IntegrityViolation("native cassette shard lacks its exact prompt link")
         if shard.artifact.lineage != (link.artifact_id,):
             raise IntegrityViolation("native record shard lineage differs from its prompt")
+        consumption = self._reader.get_model_response_consumption(
+            source.run_id,
+            attempt_no,
+            ordinal,
+            binding.route_ordinal,
+        )
+        if (
+            not isinstance(consumption, RunModelResponseConsumptionV1)
+            or consumption.cassette_shard_artifact_id != shard.artifact.artifact_id
+        ):
+            raise IntegrityViolation(
+                "native record shard differs from response-consumption authority"
+            )
         prompt = self._require_artifact(link.artifact_id, label="rendered prompt")
         if (
             prompt.kind != "source_rendered"
@@ -795,21 +892,18 @@ class ReplayAdmissionValidator:
             or rendered_request.prompt_version != node.prompt_version
             or rendered_model != decision.model_snapshot
             or prompt.version_tuple.prompt_version != rendered_request.prompt_version
-            or prompt.version_tuple.model_snapshot != rendered_model
+            # The rendered request and retained route close the chosen model.
+            # ``source_rendered`` itself is pre-response renderer evidence and the
+            # producer matrix therefore keeps its model projection null.
+            or prompt.version_tuple.model_snapshot is not None
             or prompt.version_tuple.agent_graph_version != plan.agent_graph_version
+            or not isinstance(prompt.meta.get("renderer_version"), str)
+            or prompt.version_tuple.tool_version != prompt.meta.get("renderer_version")
         ):
             raise IntegrityViolation(
                 "native rendered ModelRequest differs from prompt link, route, or plan"
             )
 
-        matched = tuple(
-            binding
-            for binding in bindings
-            if binding.routing_decision_id == decision.decision_id and binding.response_consumed
-        )
-        if len(matched) != 1:
-            raise IntegrityViolation("native cassette record does not bind one consumed route")
-        binding = matched[0]
         expected_transport_attempt = (
             record.transport_attempt_count if decision.execution_source == "online" else None
         )
@@ -817,7 +911,6 @@ class ReplayAdmissionValidator:
             binding.routing_decision_kind != "native"
             or binding.attempt_no != attempt_no
             or binding.call_ordinal != ordinal
-            or binding.route_ordinal != decision.fallback_index + 1
             or binding.transport_attempt != expected_transport_attempt
             or binding.agent_node_id != record.agent_node_id
             or binding.prompt_version != node.prompt_version
@@ -900,6 +993,7 @@ class ReplayAdmissionValidator:
             legacy_import_id=manifest.import_id,
             attempt_count=len(tree.attempts),
             record_count=source.call_count,
+            selected_source_attempt_no=1,
         )
 
     def _validate_legacy_inputs(

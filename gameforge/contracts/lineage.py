@@ -184,8 +184,12 @@ class InvocationVersionBindingV1(_StrictModel):
 
     @model_validator(mode="after")
     def validate_execution_source(self) -> InvocationVersionBindingV1:
-        if self.execution_source == "online" and self.transport_attempt is None:
-            raise ValueError("online invocation requires a positive transport_attempt")
+        if (
+            self.execution_source == "online"
+            and self.response_consumed
+            and self.transport_attempt is None
+        ):
+            raise ValueError("consumed online invocation requires a positive transport_attempt")
         if self.execution_source != "online" and self.transport_attempt is not None:
             raise ValueError("cache/replay invocation transport_attempt must be null")
         if self.routing_decision_kind == "legacy_import" and (
@@ -254,9 +258,7 @@ def build_version_set_projection(
 
 
 class ExecutionIdentityV1(_StrictModel):
-    identity_schema_version: Literal["execution-identity@1"] = (
-        EXECUTION_IDENTITY_SCHEMA_VERSION
-    )
+    identity_schema_version: Literal["execution-identity@1"] = EXECUTION_IDENTITY_SCHEMA_VERSION
     scope: Literal["record_shard", "attempt", "run", "artifact"]
     agent_graph_version: str | None = None
     bindings: tuple[InvocationVersionBindingV1, ...]
@@ -277,21 +279,29 @@ class ExecutionIdentityV1(_StrictModel):
 
         logical_calls: dict[tuple[int, int], list[InvocationVersionBindingV1]] = {}
         for binding in self.bindings:
-            logical_calls.setdefault(
-                (binding.attempt_no, binding.call_ordinal), []
-            ).append(binding)
+            logical_calls.setdefault((binding.attempt_no, binding.call_ordinal), []).append(binding)
+        if self.scope == "record_shard":
+            if len(self.bindings) != 1 or not self.bindings[0].response_consumed:
+                raise ValueError("record_shard identity requires exactly one consumed route")
         for call_bindings in logical_calls.values():
             route_ordinals = [binding.route_ordinal for binding in call_bindings]
-            if route_ordinals != list(range(1, len(route_ordinals) + 1)):
+            if self.scope != "record_shard" and route_ordinals != list(
+                range(1, len(route_ordinals) + 1)
+            ):
                 raise ValueError("route_ordinal must start at 1 and increase without gaps")
             if sum(binding.response_consumed for binding in call_bindings) > 1:
                 raise ValueError("a logical call may have at most one response_consumed route")
 
+        projection_bindings = (
+            tuple(binding for binding in self.bindings if binding.response_consumed)
+            if self.scope == "record_shard"
+            else self.bindings
+        )
         expected_prompt = build_version_set_projection(
-            "prompt_version", (binding.prompt_version for binding in self.bindings)
+            "prompt_version", (binding.prompt_version for binding in projection_bindings)
         )
         expected_model = build_version_set_projection(
-            "model_snapshot", (binding.model_snapshot for binding in self.bindings)
+            "model_snapshot", (binding.model_snapshot for binding in projection_bindings)
         )
         if self.prompt_projection != expected_prompt:
             raise ValueError("prompt projection does not match invocation bindings")
@@ -318,11 +328,16 @@ def build_execution_identity(
             key=lambda item: (item.attempt_no, item.call_ordinal, item.route_ordinal),
         )
     )
+    projection_bindings = (
+        tuple(binding for binding in ordered if binding.response_consumed)
+        if scope == "record_shard"
+        else ordered
+    )
     prompt_projection = build_version_set_projection(
-        "prompt_version", (binding.prompt_version for binding in ordered)
+        "prompt_version", (binding.prompt_version for binding in projection_bindings)
     )
     model_projection = build_version_set_projection(
-        "model_snapshot", (binding.model_snapshot for binding in ordered)
+        "model_snapshot", (binding.model_snapshot for binding in projection_bindings)
     )
     payload = {
         "identity_schema_version": EXECUTION_IDENTITY_SCHEMA_VERSION,
@@ -412,9 +427,7 @@ class ArtifactV2(_StrictModel):
             }
             for field_name, expected_value in expected.items():
                 if getattr(self.version_tuple, field_name) != expected_value:
-                    raise ValueError(
-                        f"VersionTuple.{field_name} does not match execution identity"
-                    )
+                    raise ValueError(f"VersionTuple.{field_name} does not match execution identity")
 
         expected_id = artifact_id_v2_for(
             kind=self.kind,

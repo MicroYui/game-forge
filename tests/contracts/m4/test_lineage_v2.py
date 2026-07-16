@@ -167,7 +167,8 @@ def _artifact_v2(
     ref = object_ref_for_bytes(payload)
     return build_artifact_v2(
         kind="ir_snapshot",
-        version_tuple=version_tuple or VersionTuple(ir_snapshot_id="sha256:ir", tool_version="tool@1"),
+        version_tuple=version_tuple
+        or VersionTuple(ir_snapshot_id="sha256:ir", tool_version="tool@1"),
         lineage=lineage or [],
         payload_hash=ref.sha256,
         object_ref=ref,
@@ -256,9 +257,7 @@ def _binding(
         route_ordinal=route_ordinal,
         transport_attempt=1 if source == "online" else None,
         routing_decision_kind="native",
-        routing_decision_id=(
-            f"route:{attempt_no}:{call_ordinal}:{route_ordinal}"
-        ),
+        routing_decision_id=(f"route:{attempt_no}:{call_ordinal}:{route_ordinal}"),
         agent_node_id="repair.draft",
         prompt_version=prompt,
         model_snapshot=model,
@@ -346,9 +345,7 @@ def test_execution_identity_rejects_route_and_digest_integrity_failures() -> Non
         ],
     )
     with pytest.raises(ValidationError, match="digest"):
-        ExecutionIdentityV1.model_validate(
-            {**identity.model_dump(mode="json"), "digest": "0" * 64}
-        )
+        ExecutionIdentityV1.model_validate({**identity.model_dump(mode="json"), "digest": "0" * 64})
 
     with pytest.raises(ValidationError, match="transport_attempt"):
         InvocationVersionBindingV1(
@@ -363,6 +360,59 @@ def test_execution_identity_rejects_route_and_digest_integrity_failures() -> Non
                 "transport_attempt": 1,
             }
         )
+
+    unconsumed_online = _binding(
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        model="model",
+    ).model_copy(update={"transport_attempt": None})
+    assert InvocationVersionBindingV1.model_validate(unconsumed_online).transport_attempt is None
+    with pytest.raises(ValidationError, match="transport_attempt"):
+        InvocationVersionBindingV1.model_validate(
+            unconsumed_online.model_copy(update={"response_consumed": True})
+        )
+
+
+def test_record_shard_identity_retains_the_consumed_source_route_ordinal() -> None:
+    consumed_fallback = _binding(
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=2,
+        model="model-b",
+        consumed=True,
+    )
+
+    identity = build_execution_identity(
+        scope="record_shard",
+        bindings=(consumed_fallback,),
+    )
+
+    assert identity.bindings == (consumed_fallback,)
+    assert identity.bindings[0].route_ordinal == 2
+
+
+@pytest.mark.parametrize(
+    "bindings",
+    [
+        (_binding(attempt_no=1, call_ordinal=1, route_ordinal=2, model="model-b"),),
+        (
+            _binding(attempt_no=1, call_ordinal=1, route_ordinal=1, model="model-a"),
+            _binding(
+                attempt_no=1,
+                call_ordinal=1,
+                route_ordinal=2,
+                model="model-b",
+                consumed=True,
+            ),
+        ),
+    ],
+)
+def test_record_shard_identity_requires_exactly_one_consumed_route(
+    bindings: tuple[InvocationVersionBindingV1, ...],
+) -> None:
+    with pytest.raises(ValidationError, match="exactly one consumed route"):
+        build_execution_identity(scope="record_shard", bindings=bindings)
 
 
 def test_artifact_execution_identity_must_match_version_tuple_projections() -> None:

@@ -56,6 +56,9 @@ from gameforge.contracts.jobs import (
     RunKindPayload,
     RunManifestParentBindingV1,
     RunManifestVersionProjectionV1,
+    RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunPayloadEnvelope,
     RunRecord,
     RunQueuedDataV1,
@@ -1304,3 +1307,50 @@ def test_retry_decision_dependency_shape_is_typed() -> None:
     )
     assert dependency.retry_after_ms == 100
     assert decision.retry_not_before_utc is not None
+
+
+def test_model_call_route_contracts_retain_route_one_compatibility_and_exact_keys() -> None:
+    prompt = RunIntermediateArtifactLinkV1(
+        run_id="run:1",
+        attempt_no=1,
+        call_ordinal=1,
+        artifact_id="artifact:prompt:1",
+        role="prompt_rendered",
+        request_hash=_HASH_A,
+        fencing_token=1,
+        published_at="2026-07-16T00:00:00Z",
+    )
+    assert prompt.route_ordinal == 1
+    assert prompt.model_dump(mode="json")["route_ordinal"] == 1
+
+    route = RunModelRouteLinkV1(
+        run_id=prompt.run_id,
+        attempt_no=prompt.attempt_no,
+        call_ordinal=prompt.call_ordinal,
+        route_ordinal=3,
+        prompt_artifact_id=prompt.artifact_id,
+        request_hash=prompt.request_hash,
+        routing_decision_kind="native",
+        routing_decision_id="routing-decision:3",
+        fencing_token=prompt.fencing_token,
+        published_at=prompt.published_at,
+    )
+    consumption = RunModelResponseConsumptionV1(
+        run_id=route.run_id,
+        attempt_no=route.attempt_no,
+        call_ordinal=route.call_ordinal,
+        route_ordinal=route.route_ordinal,
+        execution_source="online",
+        reservation_group_id="reservation:3",
+        transport_attempt=2,
+        cassette_shard_artifact_id="artifact:shard:3",
+        consumed_at="2026-07-16T00:00:01Z",
+    )
+    assert consumption.route_ordinal == 3
+    with pytest.raises(ValidationError, match="transport_attempt"):
+        RunModelResponseConsumptionV1.model_validate(
+            {
+                **consumption.model_dump(mode="json"),
+                "execution_source": "cassette_replay",
+            }
+        )

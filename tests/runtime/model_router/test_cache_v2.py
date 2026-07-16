@@ -85,6 +85,8 @@ def _entry(binding: ResponseCacheBinding, text: str = "fixed") -> ExactResponseC
         latency=LatencyObservationV1(status="reported", provider_latency_ms=120),
         provider_prefix_cache=CacheHitObservationV1(status="reported", hit=True),
         original_execution_source="online",
+        original_transport_attempt_count=1,
+        original_transport_retry_count=0,
         response_digest=canonical_sha256(payload),
         recorded_at=NOW,
     )

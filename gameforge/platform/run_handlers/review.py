@@ -257,8 +257,7 @@ class ReviewRunHandler:
     ) -> list[Finding]:
         adapter = ModelBridgeAgentAdapter(
             model_bridge=context.model_bridge,
-            idempotency_scope=context.run.idempotency_scope,
-            idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
+            idempotency_scope=(f"run:{context.run.run_id}:attempt:{context.attempt.attempt_no}"),
             deadline_utc=context.deadline_utc,
         )
         model_snapshot = plan_node_snapshot(
@@ -272,7 +271,7 @@ class ReviewRunHandler:
             user_prompt=prompt,
             prompt_version=TRIAGE_PROMPT_VERSION,
             model_snapshot=model_snapshot,
-            source_artifact_id=f"{context.run.run_id}:rendered:{TRIAGE_AGENT_NODE_ID}",
+            source_artifact_ids=(context.payload.params.snapshot_artifact_id,),
         )
         return _parse_triage_suggestions(result.response.response_normalized, snapshot.snapshot_id)
 

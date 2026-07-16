@@ -1096,6 +1096,10 @@ class RunRecord(_FrozenModel):
     failure_classifier: FailureClassifierRefV1
     dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
     initiated_by: AuditActor
+    # Admission-resolved authority.  ``None`` is retained only for historical
+    # compatibility and domain-independent Runs; the broad ``all`` selector is
+    # never a resolved resource scope.
+    resource_domain_scope: DomainScope | None = None
     queue_deadline_utc: NonEmptyStr
     attempt_timeout_ns: PositiveInt
     overall_deadline_utc: NonEmptyStr
@@ -1710,11 +1714,54 @@ class RunIntermediateArtifactLinkV1(_FrozenModel):
     run_id: NonEmptyStr
     attempt_no: PositiveInt
     call_ordinal: PositiveInt
+    # Added compatibly to the permanent @1 wire: retained pre-M4 rows are route 1.
+    route_ordinal: PositiveInt = 1
     artifact_id: NonEmptyStr
     role: Literal["prompt_rendered"]
     request_hash: Sha256Hex
     fencing_token: PositiveInt
     published_at: NonEmptyStr
+
+
+class RunModelRouteLinkV1(_FrozenModel):
+    """Immutable authority for one attempted route of one logical model call."""
+
+    link_schema_version: Literal["run-model-route-link@1"] = "run-model-route-link@1"
+    run_id: NonEmptyStr
+    attempt_no: PositiveInt
+    call_ordinal: PositiveInt
+    route_ordinal: PositiveInt
+    prompt_artifact_id: NonEmptyStr
+    request_hash: Sha256Hex
+    routing_decision_kind: Literal["native", "legacy_import"]
+    routing_decision_id: NonEmptyStr
+    fencing_token: PositiveInt
+    published_at: NonEmptyStr
+
+
+class RunModelResponseConsumptionV1(_FrozenModel):
+    """Committed response-consumption authority for one exact attempted route."""
+
+    consumption_schema_version: Literal["run-model-response-consumption@1"] = (
+        "run-model-response-consumption@1"
+    )
+    run_id: NonEmptyStr
+    attempt_no: PositiveInt
+    call_ordinal: PositiveInt
+    route_ordinal: PositiveInt
+    execution_source: Literal["online", "full_response_cache", "cassette_replay"]
+    reservation_group_id: NonEmptyStr
+    transport_attempt: PositiveInt | None = None
+    cassette_shard_artifact_id: NonEmptyStr | None = None
+    consumed_at: NonEmptyStr
+
+    @model_validator(mode="after")
+    def _execution_shape(self) -> "RunModelResponseConsumptionV1":
+        if self.execution_source == "online" and self.transport_attempt is None:
+            raise ValueError("online response consumption requires transport_attempt")
+        if self.execution_source != "online" and self.transport_attempt is not None:
+            raise ValueError("cache/replay response consumption has no transport_attempt")
+        return self
 
 
 class RunFindingLinkV1(_FrozenModel):

@@ -14,16 +14,26 @@ from __future__ import annotations
 from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import UTC
+from email.utils import parsedate_to_datetime
+from hashlib import sha256
+import itertools
+import math
+
+import httpx
 
 from sqlalchemy.orm import Session
 
 from gameforge.apps.worker.app import (
     LocalWorkerConfig,
+    WORKER_RUN_AUDIT_CHAIN_ID,
     WorkerConfigurationError,
     WorkerRuntime,
     _derive_key,
+    _note_cleanup_failure,
     build_executor_resolver,
     build_reaper_scan,
+    build_timeout_scan,
     build_worker_runtime,
 )
 from gameforge.apps.worker.components import (
@@ -35,8 +45,23 @@ from gameforge.apps.worker.components import (
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import WorkerModelBridgePort
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
+from gameforge.apps.worker.artifact_replay_bridge import (
+    ArtifactReplayModelBridge,
+    WorkerReplayRoutePublisher,
+)
+from gameforge.apps.worker.cost_bridge import (
+    WorkerAgentStepCostGateway,
+    WorkerCallCostGateway,
+    WorkerConservativeAttemptUsageProvider,
+)
+from gameforge.apps.worker.model_authority import (
+    WorkerModelExecutionAuthorities,
+    WorkerModelSnapshotResolver,
+)
+from gameforge.apps.worker.model_bridge import WorkerModelBridge
+from gameforge.apps.worker.prompt_rendering import CanonicalPromptRendererAuthority
 from gameforge.apps.worker.publication import (
-    BlobLocationRegistry,
+    PromptRenderMaterialRegistry,
     WorkerArtifactPort,
     WorkerAuditPort,
     WorkerBlobStager,
@@ -44,19 +69,37 @@ from gameforge.apps.worker.publication import (
     WorkerCommandPublicationGateway,
     WorkerCommandTerminalPublicationGateway,
     WorkerManifestLedger,
+    WorkerPromptRenderPublisher,
+)
+from gameforge.apps.worker.replay import ArtifactReplayLoader, LegacyArtifactReplaySource
+from gameforge.apps.worker.response_publication import WorkerResponseConsumptionPublisher
+from gameforge.apps.worker.routing_bridge import (
+    PersistedArtifactResourceDomainResolver,
+    PreparedWorkerRoute,
+    WorkerRoutingDecider,
 )
 from gameforge.apps.worker.terminal import WorkerTerminalPublisher
+from gameforge.contracts.canonical import sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.cost import PriceBook
 from gameforge.contracts.jobs import RunAttempt, RunLease, RunRecord
+from gameforge.contracts.lineage import ArtifactV2
+from gameforge.contracts.model_router import ModelRequestV2, ModelSnapshot, request_hash
+from gameforge.contracts.reliability import (
+    FailureClassificationV1,
+    RetryPolicyV1,
+)
+from gameforge.contracts.routing import RoutingDecisionV1
 from gameforge.contracts.storage import UtcClock
-from gameforge.contracts.model_router import ModelSnapshot
+from gameforge.platform.runs.lifecycle import AttemptWriteFence
+from gameforge.platform.runs.replay import MAX_REPLAY_ARTIFACT_BYTES
 from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
 from gameforge.platform.publication import TerminalPublisher
 from gameforge.platform.registry import TrustedComponentMaps, build_builtin_registry
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.provenance import build_source_kind_registry
 from gameforge.platform.runs.admission import (
-    ConservativeAttemptUsageProvider,
     DefaultRunBudgetPlanProvider,
 )
 from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
@@ -65,8 +108,15 @@ from gameforge.platform.runs.lifecycle import (
     RunLifecycleService,
 )
 from gameforge.apps.worker.runner import AttemptRunner
-from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
+from gameforge.runtime.clock import SystemMonotonicClock, SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
+from gameforge.runtime.cost.price_book import UnavailablePriceBook
+from gameforge.runtime.model_router.cache import ExactResponseCache, ResponseCacheBinding
+from gameforge.runtime.model_router.prefix_cache import CatalogPrefixCacheAdmission
+from gameforge.runtime.model_router.m4_router import M4ModelRouter
+from gameforge.runtime.model_router.router import RouterMode
+from gameforge.runtime.model_router.typed_transport import TypedLlmTransport
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.approvals import SqlApprovalRepository
@@ -74,27 +124,32 @@ from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.findings import SqlFindingRepository
+from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
+from gameforge.runtime.reliability.breaker import CircuitBreaker
+from gameforge.runtime.reliability.retry import RetryExecutor, SystemSleeper
 
 
-WORKER_RUN_AUDIT_CHAIN_ID = "runs"
+def _require_failure_classifier(
+    registry: ImmutablePlatformRegistry,
+    run: RunRecord,
+):
+    classifier = registry.get_failure_classifier(run.failure_classifier)
+    if classifier is None:
+        raise IntegrityViolation("Run failure classifier is absent from exact worker authority")
+    return classifier
 
 
-class _DeferredModelBridge:
-    """A fenced attempt's model bridge for a deterministic / not_applicable Run.
-
-    A ``not_applicable`` executor (checker/simulation/task_suite) never calls the
-    model. The RECORD/REPLAY LLM bridge (prompt render -> route -> cost -> router) is
-    Task 18; until then an LLM executor that reaches for the model fails closed and the
-    runner classifies it into a redacted attempt failure rather than escaping the loop.
-    """
+class _NoModelBridge:
+    """Explicit non-model capability for ``not_applicable`` Runs."""
 
     def call_model(self, request: object) -> object:
-        raise IntegrityViolation("worker model bridge is deferred to Task 18 (RECORD/REPLAY)")
+        del request
+        raise IntegrityViolation("not_applicable Run cannot invoke a model")
 
     def resolve_model_snapshot(
         self,
@@ -104,7 +159,309 @@ class _DeferredModelBridge:
         model_snapshot_id: str,
     ) -> ModelSnapshot:
         del catalog_version, catalog_digest, model_snapshot_id
-        raise IntegrityViolation("worker model bridge is deferred to Task 18 (RECORD/REPLAY)")
+        raise IntegrityViolation("not_applicable Run has no model snapshot authority")
+
+
+class _NoNetworkTransport:
+    def complete(self, request: ModelRequestV2) -> object:
+        del request
+        raise IntegrityViolation("REPLAY cannot access a provider transport")
+
+
+class _DisabledLooseCassetteStore:
+    """Production RECORD capture is Artifact/UoW-owned, never a loose file store."""
+
+    def replay_native(self, key: object) -> object:
+        del key
+        raise IntegrityViolation("loose cassette replay is disabled")
+
+    def record_native(self, key: object, record: object) -> None:
+        del key, record
+        raise IntegrityViolation("loose cassette recording is disabled")
+
+
+class _ProviderFailureClassifier:
+    """Closed provider-transport classifier bound to the retained policy version."""
+
+    def __init__(
+        self,
+        *,
+        version: str,
+        honor_retry_after: bool,
+        clock: UtcClock,
+    ) -> None:
+        if not version:
+            raise IntegrityViolation("routing policy failure classifier version is empty")
+        self.version = version
+        self._honor_retry_after = honor_retry_after
+        self._clock = clock
+
+    def classify(self, error: BaseException) -> FailureClassificationV1:
+        retry_after = None
+        status: int | None = None
+        if isinstance(error, httpx.HTTPStatusError):
+            status = error.response.status_code
+            if self._honor_retry_after:
+                raw = error.response.headers.get("retry-after")
+                if raw is not None:
+                    retry_after = _parse_retry_after_s(raw, clock=self._clock)
+        if status == 429:
+            return FailureClassificationV1(
+                failure_kind="quota",
+                retryable=False,
+                counts_for_breaker=False,
+                idempotency_required=False,
+                reason_code="provider_quota_rejected",
+            )
+        if isinstance(error, (TimeoutError, httpx.TimeoutException, httpx.TransportError)) or (
+            status == 408 or (status is not None and status >= 500)
+        ):
+            return FailureClassificationV1(
+                failure_kind="transient_infrastructure",
+                retryable=True,
+                counts_for_breaker=True,
+                idempotency_required=True,
+                reason_code="provider_transport_transient",
+                retry_after_s=retry_after,
+            )
+        if status in {401, 403}:
+            return FailureClassificationV1(
+                failure_kind="authentication",
+                retryable=False,
+                counts_for_breaker=False,
+                idempotency_required=False,
+                reason_code="provider_authentication_rejected",
+            )
+        if isinstance(error, IntegrityViolation):
+            return FailureClassificationV1(
+                failure_kind="validation",
+                retryable=False,
+                counts_for_breaker=False,
+                idempotency_required=False,
+                reason_code="local_transport_integrity",
+            )
+        if isinstance(error, (ValueError, TypeError)):
+            return FailureClassificationV1(
+                failure_kind="validation",
+                retryable=False,
+                counts_for_breaker=False,
+                idempotency_required=False,
+                reason_code="local_transport_request_invalid",
+            )
+        if status is not None and 400 <= status < 500:
+            return FailureClassificationV1(
+                failure_kind="validation",
+                retryable=False,
+                counts_for_breaker=False,
+                idempotency_required=False,
+                reason_code="provider_request_rejected",
+            )
+        return FailureClassificationV1(
+            failure_kind="permanent_infrastructure",
+            retryable=False,
+            counts_for_breaker=True,
+            idempotency_required=False,
+            reason_code="provider_transport_unclassified",
+        )
+
+
+_MAX_RETRY_AFTER_S = 315_576_000_000
+
+
+def _parse_retry_after_s(raw: str, *, clock: UtcClock) -> int | None:
+    """Parse RFC Retry-After without retaining or exposing the provider header."""
+
+    value = raw.strip()
+    if value.isascii() and value.isdigit():
+        if len(value) > len(str(_MAX_RETRY_AFTER_S)):
+            return _MAX_RETRY_AFTER_S
+        return min(int(value), _MAX_RETRY_AFTER_S)
+    try:
+        target = parsedate_to_datetime(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if target.tzinfo is None:
+        return None
+    now = clock.now_utc()
+    if now.tzinfo is None or now.utcoffset() != UTC.utcoffset(now):
+        raise IntegrityViolation("provider failure classifier clock must return UTC")
+    seconds = max(0, math.ceil((target.astimezone(UTC) - now.astimezone(UTC)).total_seconds()))
+    return min(seconds, _MAX_RETRY_AFTER_S)
+
+
+class _MissingModelSnapshotAuthority:
+    def get_model_snapshot(self, model_snapshot_id: str) -> None:
+        del model_snapshot_id
+        return None
+
+
+class _SqlRoutingAuthority:
+    def __init__(self, *, engine: object, clock: UtcClock, unit_of_work: object) -> None:
+        self._engine = engine
+        self._clock = clock
+        self._unit_of_work = unit_of_work
+
+    def get_routing_decision(self, decision_id: str) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            return SqlCostLedger(session, clock=self._clock).get_routing_decision(decision_id)
+
+    def get_model_catalog(self, catalog_version: int, catalog_digest: str) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            return SqlCostLedger(session, clock=self._clock).get_model_catalog(
+                catalog_version,
+                catalog_digest,
+            )
+
+    def get_legacy_import_routing_decision(self, decision_id: str) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            return SqlCostLedger(session, clock=self._clock).get_legacy_import_routing_decision(
+                decision_id
+            )
+
+    def put_legacy_import_routing_decision(self, decision: object) -> object:
+        with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+            return transaction.cost.put_legacy_import_routing_decision(decision)
+
+
+class _SqlReplayReader:
+    """Session-per-read replay authority safe across executor restarts/threads."""
+
+    def __init__(
+        self,
+        *,
+        engine: object,
+        object_store: object,
+        object_store_id: str,
+        cursor_signing_key: bytes,
+        clock: UtcClock,
+    ) -> None:
+        self._engine = engine
+        self._object_store = object_store
+        self._object_store_id = object_store_id
+        self._cursor_signing_key = cursor_signing_key
+        self._clock = clock
+
+    def _repositories(self, session: Session) -> tuple[object, object, object, object]:
+        bindings = SqlObjectBindingRepository(
+            session,
+            self._object_store,  # type: ignore[arg-type]
+            self._object_store_id,
+        )
+        artifacts = SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=CursorSigner(
+                signing_key=self._cursor_signing_key,
+                clock=self._clock,
+            ),
+            clock=self._clock,
+        )
+        return (
+            artifacts,
+            bindings,
+            SqlRunRepository(session),
+            SqlCostLedger(
+                session,
+                clock=self._clock,
+            ),
+        )
+
+    def get_artifact(self, artifact_id: str) -> ArtifactV2 | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            artifacts, _, _, _ = self._repositories(session)
+            value = artifacts.get(artifact_id)  # type: ignore[attr-defined]
+            return value if isinstance(value, ArtifactV2) else None
+
+    def read_artifact_bytes(self, artifact_id: str) -> bytes:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            artifacts, bindings, _, _ = self._repositories(session)
+            artifact = artifacts.get(artifact_id)  # type: ignore[attr-defined]
+            if not isinstance(artifact, ArtifactV2):
+                raise FileNotFoundError(artifact_id)
+            binding = bindings.resolve(artifact.object_ref)  # type: ignore[attr-defined]
+            with self._object_store.open(binding.location) as stream:  # type: ignore[attr-defined]
+                payload = stream.read(MAX_REPLAY_ARTIFACT_BYTES + 1)
+            if len(payload) > MAX_REPLAY_ARTIFACT_BYTES:
+                raise IntegrityViolation("replay Artifact exceeds the worker byte limit")
+            return payload
+
+    def read_prompt_source_bytes(self, expected: ArtifactV2) -> bytes:
+        """Read no more than the preflighted ObjectRef size for one prompt source."""
+
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            artifacts, bindings, _, _ = self._repositories(session)
+            artifact = artifacts.get(expected.artifact_id)  # type: ignore[attr-defined]
+            if not isinstance(artifact, ArtifactV2) or artifact != expected:
+                raise IntegrityViolation(
+                    "prompt source Artifact changed after metadata preflight",
+                    artifact_id=expected.artifact_id,
+                )
+            binding = bindings.resolve(artifact.object_ref)  # type: ignore[attr-defined]
+            with self._object_store.open(binding.location) as stream:  # type: ignore[attr-defined]
+                payload = stream.read(artifact.object_ref.size_bytes + 1)
+            if (
+                len(payload) != artifact.object_ref.size_bytes
+                or sha256_lowerhex(payload) != artifact.payload_hash
+            ):
+                raise IntegrityViolation(
+                    "prompt source bytes differ from preflighted immutable ObjectRef",
+                    artifact_id=artifact.artifact_id,
+                )
+            return payload
+
+    def get_run(self, run_id: str) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            _, _, runs, _ = self._repositories(session)
+            return runs.get(run_id)  # type: ignore[attr-defined]
+
+    def get_attempt(self, run_id: str, attempt_no: int) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            _, _, runs, _ = self._repositories(session)
+            return runs.get_attempt(run_id, attempt_no)  # type: ignore[attr-defined]
+
+    def get_prompt_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            _, _, runs, _ = self._repositories(session)
+            return runs.get_intermediate_link(  # type: ignore[attr-defined]
+                run_id, attempt_no, call_ordinal, route_ordinal
+            )
+
+    def get_routing_decision(self, decision_id: str) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            _, _, _, cost = self._repositories(session)
+            return cost.get_routing_decision(decision_id)  # type: ignore[attr-defined]
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            _, _, runs, _ = self._repositories(session)
+            return runs.get_model_route_link(  # type: ignore[attr-defined]
+                run_id, attempt_no, call_ordinal, route_ordinal
+            )
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> object | None:
+        with Session(self._engine) as session:  # type: ignore[arg-type]
+            _, _, runs, _ = self._repositories(session)
+            return runs.get_model_response_consumption(  # type: ignore[attr-defined]
+                run_id, attempt_no, call_ordinal, route_ordinal
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,7 +471,6 @@ class WorkerProcess:
     runtime: WorkerRuntime
     dispatcher: RunDispatcher
     components: TrustedComponentMaps
-    blob_registry: BlobLocationRegistry
 
     def close(self) -> None:
         self.runtime.close()
@@ -124,10 +480,15 @@ def build_worker_dispatch(
     *,
     runtime: WorkerRuntime,
     registry: ImmutablePlatformRegistry,
-    blob_registry: BlobLocationRegistry,
     terminal_cursor_signing_key: bytes,
     run_audit_chain_id: str = WORKER_RUN_AUDIT_CHAIN_ID,
     notify: Callable[[str], None] | None = None,
+    model_transport: TypedLlmTransport | None = None,
+    model_snapshot_authority: object | None = None,
+    prompt_renderer_authority: CanonicalPromptRendererAuthority | None = None,
+    price_book: PriceBook | None = None,
+    legacy_import_authority: LegacyImportAuthority | None = None,
+    model_circuit_breaker_resolver: (Callable[[RoutingDecisionV1], CircuitBreaker] | None) = None,
 ) -> RunDispatcher:
     """Assemble the fenced dispatch loop over the worker runtime's shared authority."""
 
@@ -136,6 +497,7 @@ def build_worker_dispatch(
     object_store = runtime.object_store
     object_store_id = runtime.config.object_store_id
     config = runtime.config
+    call_price_book = price_book or UnavailablePriceBook()
 
     def _cursor_signer() -> CursorSigner:
         return CursorSigner(signing_key=terminal_cursor_signing_key, clock=clock)
@@ -158,6 +520,7 @@ def build_worker_dispatch(
                 clock=clock,
             ),
             findings=SqlFindingRepository(session, cursor_signer=cursor_signer, clock=clock),
+            idempotency=SqlIdempotencyRepository(session, clock=clock),
         )
 
     unit_of_work = SqliteUnitOfWork(engine, capability_factory)
@@ -169,7 +532,10 @@ def build_worker_dispatch(
                 ledger=transaction.cost,  # type: ignore[attr-defined]
                 clock=clock,
             ),
-            settlement_provider=ConservativeAttemptUsageProvider(),
+            settlement_provider=WorkerConservativeAttemptUsageProvider(
+                ledger=transaction.cost,  # type: ignore[attr-defined]
+                price_book=call_price_book,
+            ),
             clock=clock,
         )
 
@@ -182,11 +548,14 @@ def build_worker_dispatch(
                 object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
                 object_store=object_store,
             ),
-            blobs=WorkerBlobStore(object_store, blob_registry),
+            blobs=WorkerBlobStore(object_store),
             findings=transaction.findings,  # type: ignore[attr-defined]
             ledger=WorkerManifestLedger(
                 transaction.runs,  # type: ignore[attr-defined]
                 transaction.cost,  # type: ignore[attr-defined]
+                artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+                object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+                object_store=object_store,
             ),
             audit=WorkerAuditPort(audit_gate=audit_gate, chain_id=run_audit_chain_id),
             approvals=transaction.approvals,  # type: ignore[attr-defined]
@@ -211,11 +580,28 @@ def build_worker_dispatch(
                 finally:
                     session.rollback()
 
+    prompt_materials = PromptRenderMaterialRegistry(
+        max_entries=config.max_concurrency or config.max_workers
+    )
+    # Prompt bindings are explicit retained production authority.  Task-specific
+    # handler composition registers them; an absent binding must fail closed and
+    # may never fall back to trusting handler-supplied messages.
+    prompt_renderer = prompt_renderer_authority or CanonicalPromptRendererAuthority(
+        source_kind_registries=(build_source_kind_registry(),), bindings=()
+    )
+
     def bind_commands(transaction: object) -> RunCommandCapabilities:
         accounting = _accounting(transaction)
         command_audit = WorkerCommandPublicationGateway(
             audit_gate=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
             chain_id=run_audit_chain_id,
+            runs=transaction.runs,  # type: ignore[attr-defined]
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+            object_store=object_store,
+            idempotency=transaction.idempotency,  # type: ignore[attr-defined]
+            prompt_materials=prompt_materials,
+            prompt_renderer=prompt_renderer,
         )
         return RunCommandCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]
@@ -256,6 +642,91 @@ def build_worker_dispatch(
     )
     terminal = WorkerTerminalPublisher(lifecycle, notify=notify)
 
+    routing_authority = _SqlRoutingAuthority(
+        engine=engine,
+        clock=clock,
+        unit_of_work=unit_of_work,
+    )
+    replay_reader = _SqlReplayReader(
+        engine=engine,
+        object_store=object_store,
+        object_store_id=object_store_id,
+        cursor_signing_key=terminal_cursor_signing_key,
+        clock=clock,
+    )
+    snapshot_resolver = WorkerModelSnapshotResolver(
+        unit_of_work=unit_of_work,
+        snapshots=model_snapshot_authority or _MissingModelSnapshotAuthority(),
+    )
+
+    def _source_artifact_loader(artifact_id: str) -> ArtifactV2:
+        artifact = replay_reader.get_artifact(artifact_id)
+        if not isinstance(artifact, ArtifactV2):
+            raise IntegrityViolation(
+                "prompt source Artifact authority is unavailable",
+                artifact_id=artifact_id,
+            )
+        return artifact
+
+    def _source_payload_loader(artifact: ArtifactV2) -> bytes:
+        return replay_reader.read_prompt_source_bytes(artifact)
+
+    def _retry_executor(run: RunRecord) -> RetryExecutor:
+        plan = run.payload.execution_version_plan
+        retry = registry.get_retry_policy(run.retry_policy)
+        if plan is None or retry is None:
+            raise IntegrityViolation("model Run lacks exact retry/route authority")
+        with Session(engine) as session:
+            policy = SqlCostLedger(session, clock=clock).get_routing_policy(
+                plan.routing_policy_version,
+                plan.routing_policy_digest,
+            )
+        if policy is None:
+            raise IntegrityViolation("model Run routing policy history is unavailable")
+        if retry.jitter_policy not in {
+            "none@1",
+            "deterministic-request-hash@1",
+        }:
+            raise IntegrityViolation("model retry jitter policy is unsupported")
+        classifier = _ProviderFailureClassifier(
+            version=policy.failure_classifier_version,
+            honor_retry_after=retry.honor_retry_after,
+            clock=clock,
+        )
+        samples = itertools.count(1)
+
+        def deterministic_jitter() -> float:
+            if retry.jitter_policy == "none@1":
+                return 0.0
+            sample = next(samples)
+            digest = sha256(
+                f"{run.run_id}\x00{run.current_attempt_no}\x00{sample}".encode("utf-8")
+            ).digest()
+            unit = int.from_bytes(digest[:8], "big") / ((1 << 64) - 1)
+            return unit * 2 - 1
+
+        return RetryExecutor(
+            policy=RetryPolicyV1(
+                policy_version=(
+                    f"{retry.retry_policy_id}@{retry.retry_policy_version}:"
+                    f"{retry.retry_policy_digest}"
+                ),
+                failure_classifier_version=classifier.version,
+                max_attempts=retry.max_attempts,
+                initial_backoff_ms=retry.base_delay_ms,
+                max_backoff_ms=retry.max_delay_ms,
+                multiplier=2 if retry.backoff == "exponential" else 1,
+                # The retained lifecycle policy freezes the deterministic jitter
+                # algorithm but no amplitude. Zero is the only non-invented value.
+                jitter_ratio=0,
+            ),
+            classifier=classifier,
+            utc_clock=clock,
+            monotonic_clock=SystemMonotonicClock(),
+            sleeper=SystemSleeper(),
+            jitter=deterministic_jitter,
+        )
+
     def _read_run_revision(run_id: str) -> int:
         with Session(engine) as session:
             run = SqlRunRepository(session).get(run_id)
@@ -266,8 +737,161 @@ def build_worker_dispatch(
     def _model_bridge_factory(
         *, run: RunRecord, attempt: RunAttempt, lease: RunLease
     ) -> WorkerModelBridgePort:
-        del run, attempt, lease
-        return _DeferredModelBridge()
+        mode = run.payload.llm_execution_mode
+        if mode == "not_applicable":
+            return _NoModelBridge()
+        fence = AttemptWriteFence(
+            run_id=run.run_id,
+            attempt_no=attempt.attempt_no,
+            expected_run_revision=run.revision,
+            lease_id=lease.lease_id,
+            fencing_token=attempt.fencing_token,
+        )
+        # Full-response cache entries are attempt-local replay optimizations.  Never
+        # accept an injected/shared instance: doing so would let one Run consume
+        # another Run's response authority despite an otherwise exact binding.
+        response_cache = ExactResponseCache()
+        prompt_publisher = WorkerPromptRenderPublisher(
+            run=run,
+            fence=fence,
+            commands=claim_service,
+            object_store=object_store,
+            registry=prompt_materials,
+            clock=clock,
+            source_artifact_loader=_source_artifact_loader,
+            source_payload_loader=_source_payload_loader,
+            prompt_renderer=prompt_renderer,
+        )
+        cost = WorkerCallCostGateway(
+            unit_of_work=unit_of_work,
+            run=run,
+            attempt=attempt,
+            fence=fence,
+            actor=runtime.worker_actor,
+            clock=clock,
+            price_book=call_price_book,
+        )
+        step_cost = WorkerAgentStepCostGateway(
+            unit_of_work=unit_of_work,
+            run=run,
+            attempt=attempt,
+            fence=fence,
+            actor=runtime.worker_actor,
+            clock=clock,
+        )
+        response_publisher = WorkerResponseConsumptionPublisher(
+            unit_of_work=unit_of_work,
+            run=run,
+            cost=cost,
+            object_store=object_store,
+            clock=clock,
+            audit_chain_id=run_audit_chain_id,
+        )
+        if mode in {"live", "record"}:
+            if model_circuit_breaker_resolver is None:
+                raise IntegrityViolation(
+                    "online model execution lacks dependency-scoped circuit-breaker authority"
+                )
+            decider = WorkerRoutingDecider(
+                unit_of_work=unit_of_work,
+                run=run,
+                attempt=attempt,
+                fence=fence,
+                actor=runtime.worker_actor,
+                clock=clock,
+                audit_chain_id=run_audit_chain_id,
+                domain_resolver=PersistedArtifactResourceDomainResolver(),
+            )
+            router = M4ModelRouter(
+                transport=model_transport or _NoNetworkTransport(),  # type: ignore[arg-type]
+                store=_DisabledLooseCassetteStore(),  # type: ignore[arg-type]
+                cache=response_cache,
+                # RECORD shards are published atomically by response_publisher;
+                # RouterMode.RECORD would create a second loose-file authority.
+                mode=RouterMode.PASSTHROUGH,
+                retry_executor=_retry_executor(run),
+                decision_authority=routing_authority,  # type: ignore[arg-type]
+                circuit_breaker_resolver=model_circuit_breaker_resolver,
+                prefix_cache_admission=CatalogPrefixCacheAdmission(
+                    catalog_authority=routing_authority,  # type: ignore[arg-type]
+                    allowed_policy_versions=(prompt_renderer.allowed_prefix_policy_versions),
+                ),
+            )
+
+            def select_execution_source(
+                request: ModelRequestV2,
+                prepared: object,
+            ) -> str:
+                if not isinstance(prepared, PreparedWorkerRoute):
+                    raise IntegrityViolation("cache selection lacks an exact prepared route")
+                binding = ResponseCacheBinding(
+                    request_hash=request_hash(request),
+                    model_snapshot=prepared.model_snapshot_id,
+                    catalog_version=prepared.catalog_version,
+                    catalog_digest=prepared.catalog_digest,
+                    policy_version=prepared.policy_version,
+                    routing_policy_digest=prepared.routing_policy_digest,
+                )
+                return (
+                    "full_response_cache" if response_cache.get(binding) is not None else "online"
+                )
+
+            return WorkerModelBridge(
+                run=run,
+                attempt=attempt,
+                fence=fence,
+                execution_source="online",
+                execution_source_selector=select_execution_source,  # type: ignore[arg-type]
+                prompt_publisher=prompt_publisher,
+                decider=decider,
+                router=router,
+                cost=cost,
+                step_cost=step_cost,
+                model_snapshot_resolver=snapshot_resolver,
+                tracer=runtime.tracer,
+                clock=clock,
+                worker_actor=runtime.worker_actor,
+                response_publisher=response_publisher,
+            )
+        if mode != "replay":
+            raise IntegrityViolation("Run has an unsupported LLM execution mode", mode=mode)
+        source = ArtifactReplayLoader(
+            replay_reader,  # type: ignore[arg-type]
+            current_decision_resolver=routing_authority.get_routing_decision,  # type: ignore[arg-type]
+            legacy_authority=legacy_import_authority,
+            legacy_decisions=routing_authority,  # type: ignore[arg-type]
+        ).load(run)
+        native_router = None
+        if not isinstance(source, LegacyArtifactReplaySource):
+            native_router = M4ModelRouter(
+                transport=_NoNetworkTransport(),  # type: ignore[arg-type]
+                store=source,  # type: ignore[arg-type]
+                cache=response_cache,
+                mode=RouterMode.REPLAY,
+                retry_executor=_retry_executor(run),
+                decision_authority=routing_authority,  # type: ignore[arg-type]
+            )
+        return ArtifactReplayModelBridge(
+            run=run,
+            attempt=attempt,
+            fence=fence,
+            source=source,
+            prompt_publisher=prompt_publisher,
+            route_publisher=WorkerReplayRoutePublisher(
+                unit_of_work=unit_of_work,
+                fence=fence,
+                clock=clock,
+                audit_chain_id=run_audit_chain_id,
+            ),
+            native_router=native_router,
+            cost=cost,
+            step_cost=step_cost,
+            response_publisher=response_publisher,
+            model_snapshot_resolver=snapshot_resolver,
+            tracer=runtime.tracer,
+            clock=clock,
+            worker_actor=runtime.worker_actor,
+        )
 
     runner = AttemptRunner(
         executor_pool=runtime.executor_pool,
@@ -276,15 +900,39 @@ def build_worker_dispatch(
         model_bridge_factory=_model_bridge_factory,
         terminal=terminal,
         read_run_revision=_read_run_revision,
+        resolve_failure_classifier=lambda run: _require_failure_classifier(
+            registry,
+            run,
+        ),
         worker_actor=runtime.worker_actor,
     )
 
     def _heartbeat_factory(
         *, run: RunRecord, attempt: RunAttempt, lease: RunLease
     ) -> LeaseHeartbeat:
+        def _continue_lease() -> bool:
+            with Session(engine) as session:
+                repository = SqlRunRepository(session)
+                current_run = repository.get(run.run_id)
+                current_attempt = repository.get_attempt(run.run_id, attempt.attempt_no)
+                current_lease = repository.get_current_lease(run.run_id)
+                return bool(
+                    current_run is not None
+                    and current_attempt is not None
+                    and current_lease is not None
+                    and current_run.status in {"leased", "running"}
+                    and current_run.current_attempt_no == attempt.attempt_no
+                    and current_run.cancel_requested_at is None
+                    and current_attempt.status == current_run.status
+                    and current_attempt.fencing_token == attempt.fencing_token
+                    and current_lease.lease_id == lease.lease_id
+                    and current_lease.fencing_token == attempt.fencing_token
+                    and current_lease.status == "active"
+                )
+
         return LeaseHeartbeat(
             lifecycle=lifecycle,
-            pool=runtime.control_pool,
+            pool=runtime.heartbeat_pool,
             run_id=run.run_id,
             attempt_no=attempt.attempt_no,
             lease_id=lease.lease_id,
@@ -297,6 +945,7 @@ def build_worker_dispatch(
             # elapses, so no renewal fires and the initial revision is unused.
             initial_permit_revision=1,
             worker_actor=runtime.worker_actor,
+            continue_lease=_continue_lease,
         )
 
     def _on_contention(op: str, exc: BaseException) -> None:
@@ -310,6 +959,7 @@ def build_worker_dispatch(
         claim_service=claim_service,
         lifecycle=lifecycle,
         reaper_scan=build_reaper_scan(engine),
+        timeout_scan=build_timeout_scan(engine),
         runner=runner,
         heartbeat_factory=_heartbeat_factory,
         control_pool=runtime.control_pool,
@@ -317,9 +967,11 @@ def build_worker_dispatch(
         worker_actor=runtime.worker_actor,
         reaper_actor=runtime.reaper_actor,
         lease_duration_ns=config.lease_duration_ns,
+        tracer=runtime.tracer,
         heartbeat_interval_s=config.heartbeat_interval_s,
         reaper_limit=config.reaper_limit,
         poll_interval_s=config.poll_interval_s,
+        max_in_flight=config.max_concurrency or config.max_workers,
         on_contention=_on_contention,
     )
 
@@ -328,66 +980,125 @@ def build_worker_process(
     config: LocalWorkerConfig,
     *,
     notify: Callable[[str], None] | None = None,
+    model_execution_authorities: WorkerModelExecutionAuthorities | None = None,
+    model_transport: TypedLlmTransport | None = None,
+    model_snapshot_authority: object | None = None,
+    prompt_renderer_authority: CanonicalPromptRendererAuthority | None = None,
+    price_book: PriceBook | None = None,
+    legacy_import_authority: LegacyImportAuthority | None = None,
+    model_circuit_breaker_resolver: (Callable[[RoutingDecisionV1], CircuitBreaker] | None) = None,
 ) -> WorkerProcess:
     """Build the whole worker process: shared authority + trusted components + loop."""
 
     if not isinstance(config, LocalWorkerConfig):
         raise WorkerConfigurationError("local worker requires an exact LocalWorkerConfig")
+    legacy_authority_args = (
+        model_transport,
+        model_snapshot_authority,
+        prompt_renderer_authority,
+        price_book,
+        legacy_import_authority,
+        model_circuit_breaker_resolver,
+    )
+    if model_execution_authorities is not None:
+        if not isinstance(model_execution_authorities, WorkerModelExecutionAuthorities):
+            raise WorkerConfigurationError(
+                "model_execution_authorities must be an exact authority closure"
+            )
+        if any(value is not None for value in legacy_authority_args):
+            raise WorkerConfigurationError(
+                "exact model authority closure cannot be mixed with individual authorities"
+            )
+        model_transport = model_execution_authorities.transport
+        model_snapshot_authority = model_execution_authorities.snapshots
+        prompt_renderer_authority = model_execution_authorities.prompt_renderer
+        price_book = model_execution_authorities.price_book
+        legacy_import_authority = model_execution_authorities.legacy_imports
+        model_circuit_breaker_resolver = model_execution_authorities.circuit_breaker_resolver
     clock = SystemUtcClock()
-    engine = get_engine(config.database_url)
-    if engine.dialect.name != "sqlite":
-        engine.dispose()
-        raise WorkerConfigurationError("local worker composition requires SQLite")
-    object_store = LocalObjectStore(
-        config.object_store_root,
-        store_id=config.object_store_id,
-        clock=clock,
-        cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
-    )
-    blob_registry = BlobLocationRegistry()
-    terminal_cursor_key = _derive_key(config.root_secret, "worker-terminal-cursor")
-    registry = build_builtin_registry()
-    blobs = WorkerArtifactBlobReader(
-        engine=engine,
-        object_store=object_store,
-        object_store_id=config.object_store_id,
-        cursor_signing_key=terminal_cursor_key,
-        clock=clock,
-    )
-    store = WorkerPreparedArtifactStore(object_store, blob_registry)
-    rollback_history_verifier, rollback_schema_analyzer = build_rollback_ports(
-        engine=engine,
-        object_store=object_store,
-        object_store_id=config.object_store_id,
-        cursor_signing_key=terminal_cursor_key,
-        clock=clock,
-    )
-    components = build_trusted_components(
-        registry=registry,
-        blobs=blobs,
-        store=store,
-        rollback_history_verifier=rollback_history_verifier,
-        rollback_schema_analyzer=rollback_schema_analyzer,
-    )
-    runtime = build_worker_runtime(
-        config,
-        trusted_components=components,
-        engine=engine,
-        object_store=object_store,
-    )
-    dispatcher = build_worker_dispatch(
-        runtime=runtime,
-        registry=runtime.registry,
-        blob_registry=blob_registry,
-        terminal_cursor_signing_key=terminal_cursor_key,
-        notify=notify,
-    )
-    return WorkerProcess(
-        runtime=runtime,
-        dispatcher=dispatcher,
-        components=components,
-        blob_registry=blob_registry,
-    )
+    engine = None
+    runtime: WorkerRuntime | None = None
+    try:
+        engine = get_engine(config.database_url)
+        if engine.dialect.name != "sqlite":
+            raise WorkerConfigurationError("local worker composition requires SQLite")
+        object_store = LocalObjectStore(
+            config.object_store_root,
+            store_id=config.object_store_id,
+            clock=clock,
+            cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
+        )
+        terminal_cursor_key = _derive_key(config.root_secret, "worker-terminal-cursor")
+        registry = build_builtin_registry()
+        blobs = WorkerArtifactBlobReader(
+            engine=engine,
+            object_store=object_store,
+            object_store_id=config.object_store_id,
+            cursor_signing_key=terminal_cursor_key,
+            clock=clock,
+        )
+        store = WorkerPreparedArtifactStore(object_store)
+        rollback_history_verifier, rollback_schema_analyzer = build_rollback_ports(
+            engine=engine,
+            object_store=object_store,
+            object_store_id=config.object_store_id,
+            cursor_signing_key=terminal_cursor_key,
+            clock=clock,
+        )
+        components = build_trusted_components(
+            registry=registry,
+            blobs=blobs,
+            store=store,
+            rollback_history_verifier=rollback_history_verifier,
+            rollback_schema_analyzer=rollback_schema_analyzer,
+        )
+        runtime = build_worker_runtime(
+            config,
+            trusted_components=components,
+            engine=engine,
+            object_store=object_store,
+            model_execution_authorities=model_execution_authorities,
+        )
+        dispatcher = build_worker_dispatch(
+            runtime=runtime,
+            registry=runtime.registry,
+            terminal_cursor_signing_key=terminal_cursor_key,
+            notify=notify,
+            model_transport=model_transport,
+            model_snapshot_authority=model_snapshot_authority,
+            prompt_renderer_authority=prompt_renderer_authority,
+            price_book=price_book,
+            legacy_import_authority=legacy_import_authority,
+            model_circuit_breaker_resolver=model_circuit_breaker_resolver,
+        )
+        return WorkerProcess(
+            runtime=runtime,
+            dispatcher=dispatcher,
+            components=components,
+        )
+    except BaseException as original:
+        if runtime is not None:
+            try:
+                runtime.close()
+            except BaseException as cleanup_error:
+                _note_cleanup_failure(
+                    original,
+                    label="worker runtime",
+                    error=cleanup_error,
+                )
+        elif engine is not None:
+            try:
+                engine.dispose()
+            except BaseException as cleanup_error:
+                _note_cleanup_failure(
+                    original,
+                    label="business engine",
+                    error=cleanup_error,
+                )
+        # Engine.dispose() is intentionally idempotent: build_worker_runtime also
+        # cleans an injected engine after partial construction, while this outer
+        # owner must still cover failures in its preflight/type-validation window.
+        raise
 
 
 __all__ = [

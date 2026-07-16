@@ -28,7 +28,7 @@ from datetime import UTC, datetime
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
 from gameforge.apps.worker.pool import BlockingExecutorPool
 from gameforge.apps.worker.runner import AttemptRunner
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import Conflict, InvalidStateTransition, QuotaExceeded
 from gameforge.contracts.jobs import RunRecord
 from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.storage import UtcClock
@@ -38,18 +38,21 @@ from gameforge.platform.runs.lifecycle import (
     ReapExpiredLeaseRequest,
     RunLifecycleService,
     StartAttemptRequest,
+    SweepRunTimeoutRequest,
 )
+from gameforge.runtime.observability import Tracer
 from gameforge.runtime.observability.context import TraceCarrier, use_trace_context
 
 
 ReaperScan = Callable[..., Sequence[RunRecord]]
+TimeoutScan = Callable[..., Sequence[RunRecord]]
 HeartbeatFactory = Callable[..., LeaseHeartbeat]
 ContentionHook = Callable[[str, BaseException], None]
 
 # Benign multi-worker fencing races: a competitor won the revision CAS, the lease
 # was already reaped, or its owner just heartbeat-renewed it. The loser skips and
 # continues — the DB queue authority guarantees the work is rediscovered.
-_CONTENTION = (Conflict, InvalidStateTransition, IntegrityViolation)
+_CONTENTION = (Conflict, InvalidStateTransition)
 
 
 def _utc_text(value: datetime) -> str:
@@ -69,6 +72,7 @@ class RunDispatcher:
         claim_service: RunCommandService,
         lifecycle: RunLifecycleService,
         reaper_scan: ReaperScan,
+        timeout_scan: TimeoutScan,
         runner: AttemptRunner,
         heartbeat_factory: HeartbeatFactory,
         control_pool: BlockingExecutorPool,
@@ -76,9 +80,11 @@ class RunDispatcher:
         worker_actor: AuditActor,
         reaper_actor: AuditActor,
         lease_duration_ns: int,
+        tracer: Tracer,
         heartbeat_interval_s: float = 5.0,
         reaper_limit: int = 32,
         poll_interval_s: float = 1.0,
+        max_in_flight: int = 1,
         lease_id_factory: Callable[[], str] | None = None,
         on_contention: ContentionHook | None = None,
     ) -> None:
@@ -89,6 +95,7 @@ class RunDispatcher:
         self._claim_service = claim_service
         self._lifecycle = lifecycle
         self._reaper_scan = reaper_scan
+        self._timeout_scan = timeout_scan
         self._runner = runner
         self._heartbeat_factory = heartbeat_factory
         # Control-plane DB ops (claim/reap/start) run on the ungated control lane,
@@ -99,9 +106,17 @@ class RunDispatcher:
         self._worker_actor = worker_actor
         self._reaper_actor = reaper_actor
         self._lease_duration_ns = lease_duration_ns
+        self._tracer = tracer
         self._heartbeat_interval_s = heartbeat_interval_s
         self._reaper_limit = reaper_limit
         self._poll_interval_s = poll_interval_s
+        if (
+            isinstance(max_in_flight, bool)
+            or not isinstance(max_in_flight, int)
+            or max_in_flight < 1
+        ):
+            raise ValueError("max_in_flight must be a positive integer")
+        self._max_in_flight = max_in_flight
         self._lease_id_factory = lease_id_factory or (lambda: f"lease:{secrets.token_hex(16)}")
         self._on_contention = on_contention
 
@@ -113,11 +128,12 @@ class RunDispatcher:
         """Reap expired leases, then claim + execute at most one Run.
 
         Returns ``True`` if a Run was claimed this iteration. Benign multi-worker
-        fencing races (Conflict / InvalidStateTransition / IntegrityViolation) are
-        caught per-step so the loop skips the lost race and continues rather than
-        crashing the worker — the DB queue authority rediscovers the work.
+        fencing races (Conflict / InvalidStateTransition) are caught per-step so
+        the loop skips the lost race and continues rather than crashing the worker.
+        Integrity failures remain fatal because they signal corrupted authority.
         """
 
+        await self._sweep_timeouts()
         await self._reap_expired()
         claim = await self._claim_guarded()
         if claim is None:
@@ -131,31 +147,97 @@ class RunDispatcher:
         stop: asyncio.Event,
         notify: asyncio.Event | None = None,
     ) -> None:
-        while not stop.is_set():
-            worked = await self.dispatch_once()
-            if worked:
-                continue  # drain eagerly while there is work
-            if notify is not None:
-                # The notify hint only wakes us early; the next iteration still
-                # rediscovers work by scanning the DB, so a lost hint loses nothing.
-                waiters = (asyncio.ensure_future(stop.wait()), asyncio.ensure_future(notify.wait()))
-                try:
-                    await asyncio.wait(
-                        waiters,
-                        timeout=self._poll_interval_s,
-                        return_when=asyncio.FIRST_COMPLETED,
+        active: set[asyncio.Task[None]] = set()
+        try:
+            while not stop.is_set():
+                # Control-plane recovery always runs from persisted DB authority.
+                await self._sweep_timeouts()
+                await self._reap_expired()
+
+                # Fill only the executor capacity. Claiming more Runs than can
+                # execute would consume leases/permits while merely waiting on the
+                # executor semaphore and make shutdown/recovery unnecessarily noisy.
+                while len(active) < self._max_in_flight and not stop.is_set():
+                    claim = await self._claim_guarded()
+                    if claim is None:
+                        break
+                    task = asyncio.create_task(
+                        self._execute_guarded(claim),
+                        name=f"gameforge-run:{claim.run.run_id}:attempt:{claim.attempt.attempt_no}",
                     )
-                finally:
-                    for waiter in waiters:
-                        waiter.cancel()
-                notify.clear()
-            else:
-                try:
-                    await asyncio.wait_for(stop.wait(), timeout=self._poll_interval_s)
-                except asyncio.TimeoutError:
-                    pass
+                    active.add(task)
+
+                if stop.is_set():
+                    break
+                await self._wait_for_wakeup(active=active, stop=stop, notify=notify)
+        except BaseException:
+            # A fatal infrastructure/integrity error stops new claims immediately.
+            # Coroutines are cancelled so their heartbeats stop; synchronous work
+            # already running in a thread cannot publish without its DB fence and is
+            # recovered by lease expiry in another worker/process.
+            for task in active:
+                task.cancel()
+            await asyncio.gather(*active, return_exceptions=True)
+            raise
+        else:
+            # Graceful SIGTERM: stop claiming first, keep heartbeats alive, and drain
+            # every already-claimed attempt before the process closes its pools.
+            if active:
+                await asyncio.gather(*active)
+
+    async def _wait_for_wakeup(
+        self,
+        *,
+        active: set[asyncio.Task[None]],
+        stop: asyncio.Event,
+        notify: asyncio.Event | None,
+    ) -> None:
+        stop_waiter = asyncio.create_task(stop.wait())
+        notify_waiter = asyncio.create_task(notify.wait()) if notify is not None else None
+        control_waiters = {stop_waiter}
+        if notify_waiter is not None:
+            control_waiters.add(notify_waiter)
+        try:
+            done, _ = await asyncio.wait(
+                active | control_waiters,
+                timeout=self._poll_interval_s,
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+        finally:
+            for waiter in control_waiters:
+                if not waiter.done():
+                    waiter.cancel()
+            await asyncio.gather(*control_waiters, return_exceptions=True)
+
+        if notify is not None and notify_waiter in done:
+            # A hint may coalesce, but the next iteration always rescans DB state.
+            notify.clear()
+        completed = tuple(task for task in active if task in done)
+        for task in completed:
+            active.remove(task)
+            task.result()
 
     # ------------------------------------------------------------------ steps
+    async def _sweep_timeouts(self) -> None:
+        now = _utc_text(self._clock.now_utc())
+        timed_out = await self._control_pool.run(
+            lambda: tuple(self._timeout_scan(now_utc=now, limit=self._reaper_limit))
+        )
+        for run in timed_out:
+            try:
+                await self._control_pool.run(lambda run=run: self._sweep_one(run))
+            except _CONTENTION as exc:
+                self._note_contention("timeout", exc)
+
+    def _sweep_one(self, run: RunRecord) -> None:
+        self._lifecycle.sweep_timeout(
+            SweepRunTimeoutRequest(
+                run_id=run.run_id,
+                expected_run_revision=run.revision,
+                actor=self._reaper_actor,
+            )
+        )
+
     async def _reap_expired(self) -> None:
         now = _utc_text(self._clock.now_utc())
         expired = await self._control_pool.run(
@@ -180,6 +262,12 @@ class RunDispatcher:
     async def _claim_guarded(self) -> RunClaimResult | None:
         try:
             return await self._control_pool.run(self._claim)
+        except QuotaExceeded as exc:
+            # Concurrency permits are intentionally admission-time. A saturated
+            # budget means "not claimable now", not a worker-process failure; the
+            # exact transaction has already rolled back every partial permit.
+            self._note_contention("claim_quota", exc)
+            return None
         except _CONTENTION as exc:
             # A competing worker won the revision CAS: skip, rediscover next scan.
             self._note_contention("claim", exc)
@@ -204,28 +292,44 @@ class RunDispatcher:
             self._note_contention("execute", exc)
 
     async def _execute(self, claim: RunClaimResult) -> None:
-        started = await self._control_pool.run(lambda: self._start(claim))
-        run, attempt, lease = started.run, started.attempt, started.lease
         parent = (
-            TraceCarrier.extract(run.dispatch_trace_carrier) if run.dispatch_trace_carrier else None
+            TraceCarrier.extract(claim.run.dispatch_trace_carrier)
+            if claim.run.dispatch_trace_carrier
+            else None
         )
-        scope = use_trace_context(parent) if parent is not None else nullcontext()
-        heartbeat = self._heartbeat_factory(run=run, attempt=attempt, lease=lease)
-        stop = asyncio.Event()
-        heartbeat_task = asyncio.ensure_future(heartbeat.run(stop))
-        try:
-            with scope:
-                await self._runner.run_attempt(
-                    run=run,
-                    attempt=attempt,
-                    lease=lease,
-                    deadline_utc=_parse_utc(attempt.attempt_deadline_utc),
+        parent_scope = use_trace_context(parent) if parent is not None else nullcontext()
+        with parent_scope:
+            with self._tracer.span(
+                "worker.attempt",
+                attributes={
+                    "run_id": claim.run.run_id,
+                    "attempt_no": claim.attempt.attempt_no,
+                    "run.kind": claim.run.kind.kind,
+                    "run.kind_version": claim.run.kind.version,
+                },
+            ) as span:
+                trace_id = None if span.context is None else span.context.trace_id
+                started = await self._control_pool.run(lambda: self._start(claim, trace_id))
+                run, attempt, lease = started.run, started.attempt, started.lease
+                heartbeat = self._heartbeat_factory(run=run, attempt=attempt, lease=lease)
+                heartbeat_stop = asyncio.Event()
+                heartbeat_task = asyncio.create_task(
+                    heartbeat.run(heartbeat_stop),
+                    name=f"gameforge-heartbeat:{run.run_id}:attempt:{attempt.attempt_no}",
                 )
-        finally:
-            stop.set()
-            await heartbeat_task
+                try:
+                    await self._runner.run_attempt(
+                        run=run,
+                        attempt=attempt,
+                        lease=lease,
+                        deadline_utc=_parse_utc(attempt.attempt_deadline_utc),
+                    )
+                    span.set_status("ok")
+                finally:
+                    heartbeat_stop.set()
+                    await heartbeat_task
 
-    def _start(self, claim: RunClaimResult):
+    def _start(self, claim: RunClaimResult, trace_id: str | None):
         return self._lifecycle.start_attempt(
             StartAttemptRequest(
                 fence=AttemptWriteFence(
@@ -235,9 +339,16 @@ class RunDispatcher:
                     lease_id=claim.lease.lease_id,
                     fencing_token=claim.attempt.fencing_token,
                 ),
+                trace_id=trace_id,
                 actor=self._worker_actor,
             )
         )
 
 
-__all__ = ["ContentionHook", "HeartbeatFactory", "ReaperScan", "RunDispatcher"]
+__all__ = [
+    "ContentionHook",
+    "HeartbeatFactory",
+    "ReaperScan",
+    "RunDispatcher",
+    "TimeoutScan",
+]

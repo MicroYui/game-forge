@@ -5,7 +5,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import pytest
 
-from gameforge.contracts.errors import Conflict, IdempotencyConflict, IntegrityViolation
+from gameforge.contracts.errors import (
+    Conflict,
+    IdempotencyConflict,
+    IntegrityViolation,
+    QuotaExceeded,
+)
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.jobs import (
@@ -174,7 +179,7 @@ class _State:
     attempts: dict[tuple[str, int], RunAttempt] = field(default_factory=dict)
     leases: dict[str, RunLease] = field(default_factory=dict)
     events: dict[tuple[str, int], RunEvent] = field(default_factory=dict)
-    intermediate_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1] = field(
+    intermediate_links: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1] = field(
         default_factory=dict
     )
 
@@ -219,14 +224,32 @@ class _Repo:
         self.state.events[(run.run_id, initial_event.seq)] = initial_event
         return run
 
-    def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
+    def list_claim_candidates(
+        self,
+        *,
+        now_utc: str,
+        limit: int,
+        after_created_at: str | None = None,
+        after_run_id: str | None = None,
+    ) -> tuple[RunRecord, ...]:
         del now_utc
         candidates = [
             run
             for run in self.state.runs.values()
             if run.status == "queued" and run.cancel_requested_at is None
         ]
-        return min(candidates, key=lambda run: (run.created_at, run.run_id), default=None)
+        ordered = sorted(candidates, key=lambda run: (run.created_at, run.run_id))
+        if after_created_at is not None and after_run_id is not None:
+            cursor = (after_created_at, after_run_id)
+            ordered = [
+                *[run for run in ordered if (run.created_at, run.run_id) > cursor],
+                *[run for run in ordered if (run.created_at, run.run_id) <= cursor],
+            ]
+        return tuple(ordered[:limit])
+
+    def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
+        candidates = self.list_claim_candidates(now_utc=now_utc, limit=1)
+        return candidates[0] if candidates else None
 
     def claim(
         self,
@@ -313,6 +336,7 @@ class _Repo:
         fencing_token: int,
         started_at: str,
         attempt_deadline_utc: str,
+        trace_id: str | None = None,
     ) -> _PersistedStart:
         run = self.state.runs[run_id]
         attempt = self.state.attempts[(run_id, attempt_no)]
@@ -347,6 +371,7 @@ class _Repo:
                 "status": "running",
                 "started_at": started_at,
                 "attempt_deadline_utc": attempt_deadline_utc,
+                "trace_id": attempt.trace_id or trace_id,
             }
         )
         event = RunEvent(
@@ -361,7 +386,7 @@ class _Repo:
                 started_at=started_at,
                 attempt_deadline_utc=attempt_deadline_utc,
             ),
-            trace_id=attempt.trace_id,
+            trace_id=attempt.trace_id or trace_id,
         )
         self.state.runs[run_id] = updated_run
         self.state.attempts[(run_id, attempt_no)] = updated_attempt
@@ -398,32 +423,43 @@ class _Repo:
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int = 1,
     ) -> RunIntermediateArtifactLinkV1 | None:
-        return self.state.intermediate_links.get((run_id, attempt_no, call_ordinal))
+        return self.state.intermediate_links.get((run_id, attempt_no, call_ordinal, route_ordinal))
 
     def put_intermediate_link(
         self,
         link: RunIntermediateArtifactLinkV1,
     ) -> RunIntermediateArtifactLinkV1:
-        identity = (link.run_id, link.attempt_no, link.call_ordinal)
+        identity = (link.run_id, link.attempt_no, link.call_ordinal, link.route_ordinal)
         retained = self.state.intermediate_links.get(identity)
         if retained is not None:
             if retained != link:
                 raise IntegrityViolation("intermediate link collision")
             return retained
         attempt = self.state.attempts[(link.run_id, link.attempt_no)]
+        expected_call = (
+            attempt.next_call_ordinal
+            if link.route_ordinal == 1
+            else min(attempt.next_call_ordinal - 1, link.call_ordinal)
+        )
+        predecessor = self.state.intermediate_links.get(
+            (link.run_id, link.attempt_no, link.call_ordinal, link.route_ordinal - 1)
+        )
         if (
-            attempt.next_call_ordinal != link.call_ordinal
+            expected_call != link.call_ordinal
             or attempt.fencing_token != link.fencing_token
+            or (link.route_ordinal > 1 and predecessor is None)
         ):
             raise Conflict("attempt call ordinal or fencing token differs")
-        replacement = RunAttempt.model_validate(
-            {
-                **attempt.model_dump(mode="python"),
-                "next_call_ordinal": attempt.next_call_ordinal + 1,
-            }
-        )
-        self.state.attempts[(link.run_id, link.attempt_no)] = replacement
+        if link.route_ordinal == 1:
+            replacement = RunAttempt.model_validate(
+                {
+                    **attempt.model_dump(mode="python"),
+                    "next_call_ordinal": attempt.next_call_ordinal + 1,
+                }
+            )
+            self.state.attempts[(link.run_id, link.attempt_no)] = replacement
         self.state.intermediate_links[identity] = link
         return link
 
@@ -462,6 +498,7 @@ class _Admission:
     def __init__(self) -> None:
         self.holds: list[str] = []
         self.permits: list[str] = []
+        self.blocked_runs: set[str] = set()
 
     def reserve_run_budget(
         self,
@@ -486,6 +523,8 @@ class _Admission:
         expires_at: str,
     ) -> str:
         del attempt_no, fencing_token, worker_principal_id, lease_id, expires_at
+        if run.run_id in self.blocked_runs:
+            raise QuotaExceeded("candidate concurrency budget is saturated")
         self.permits.append(run.run_id)
         return f"permit:{run.run_id}"
 
@@ -794,6 +833,32 @@ def test_claim_consumes_persisted_heads_once_and_publishes_one_event() -> None:
     assert claim.event.attempt_no == 1
     assert claim.event.trace_id == "trace:attempt:1"
     assert harness.admission.permits == ["run:1"]
+
+
+def test_claim_derives_attempt_and_leased_event_trace_from_persisted_carrier() -> None:
+    harness = _harness()
+    trace_id = "a" * 32
+    carrier = RunDispatchTraceCarrierV1(
+        traceparent=f"00-{trace_id}-{'b' * 16}-01",
+        tracestate="vendor=state",
+    )
+    harness.service.create_run(_create_request(carrier=carrier))
+
+    claim = harness.service.claim_next(
+        RunClaimRequest(
+            worker=AuditActor(
+                principal_id="service:worker:1",
+                principal_kind="service",
+            ),
+            lease_id="lease:carrier",
+            lease_duration_ns=30_000_000_000,
+            trace_id=None,
+        )
+    )
+
+    assert claim is not None
+    assert claim.attempt.trace_id == trace_id
+    assert claim.event.trace_id == trace_id
     assert harness.publication.claimed == ["run:1"]
     assert harness.registry.binding_checks == 2
 
@@ -811,6 +876,83 @@ def test_claim_consumes_persisted_heads_once_and_publishes_one_event() -> None:
         is None
     )
     assert harness.admission.permits == ["run:1"]
+
+
+def test_claim_skips_oldest_quota_blocked_candidate_without_starving_next_scope() -> None:
+    harness = _harness()
+    first = harness.service.create_run(_create_request(run_id="run:1")).run
+    second = harness.service.create_run(
+        _create_request(run_id="run:2").model_copy(update={"idempotency_key": "request:2"})
+    ).run
+    harness.admission.blocked_runs.add(first.run_id)
+
+    claim = harness.service.claim_next(
+        RunClaimRequest(
+            worker=AuditActor(
+                principal_id="service:worker:1",
+                principal_kind="service",
+            ),
+            lease_id="lease:next-eligible",
+            lease_duration_ns=30_000_000_000,
+            max_candidate_count=2,
+        )
+    )
+
+    assert claim is not None and claim.run.run_id == second.run_id
+    assert harness.state.runs[first.run_id].status == "queued"
+    assert harness.state.runs[second.run_id].status == "leased"
+    assert harness.admission.permits == [second.run_id]
+
+
+def test_claim_rotation_reaches_candidate_after_thirty_three_blocked_runs_and_restart() -> None:
+    harness = _harness()
+    queued = []
+    for index in range(34):
+        queued.append(
+            harness.service.create_run(
+                _create_request(run_id=f"run:{index:02d}").model_copy(
+                    update={"idempotency_key": f"request:{index:02d}"}
+                )
+            ).run
+        )
+    harness.admission.blocked_runs.update(run.run_id for run in queued[:33])
+
+    def request(lease_id: str) -> RunClaimRequest:
+        return RunClaimRequest(
+            worker=AuditActor(
+                principal_id="service:worker:1",
+                principal_kind="service",
+            ),
+            lease_id=lease_id,
+            lease_duration_ns=30_000_000_000,
+            max_candidate_count=32,
+        )
+
+    # The first bounded page is entirely quota-blocked.
+    assert harness.service.claim_next(request("lease:first-page")) is None
+
+    # A process restart may discard the scheduling hint, but it cannot discard DB
+    # queue authority. The fresh service simply restarts the bounded rotation and
+    # still reaches the later eligible Run on its next repeated scan.
+    restarted_repo = _Repo(harness.state)
+    restarted_capabilities = RunCommandCapabilities(
+        runs=restarted_repo,
+        registry=harness.registry,
+        admission=harness.admission,
+        publication=harness.publication,
+        accounting=None,
+    )
+    restarted = RunCommandService(
+        unit_of_work=_Uow(),
+        bind_capabilities=lambda transaction: restarted_capabilities,
+        clock=FrozenUtcClock(NOW_DT),
+    )
+    assert restarted.claim_next(request("lease:restart-first-page")) is None
+    claim = restarted.claim_next(request("lease:rotated-page"))
+
+    assert claim is not None and claim.run.run_id == queued[-1].run_id
+    assert all(harness.state.runs[run.run_id].status == "queued" for run in queued[:33])
+    assert harness.admission.permits == [queued[-1].run_id]
 
 
 def test_missing_tx_bound_capability_fails_closed() -> None:

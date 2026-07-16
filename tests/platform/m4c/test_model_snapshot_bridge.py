@@ -137,7 +137,11 @@ def test_plan_to_handler_resolves_opaque_id_through_exact_catalog_authority() ->
     bridge = _Bridge(resolver)
     plan = _plan(catalog, model_snapshot_id)
     context = SimpleNamespace(
-        payload=SimpleNamespace(execution_version_plan=plan),
+        payload=SimpleNamespace(
+            execution_version_plan=plan,
+            input_artifact_ids=("artifact:source",),
+            cassette_artifact_id=None,
+        ),
         run=SimpleNamespace(run_id="run:1", idempotency_scope="principal:human:a"),
         attempt=SimpleNamespace(attempt_no=1),
         deadline_utc=NOW,

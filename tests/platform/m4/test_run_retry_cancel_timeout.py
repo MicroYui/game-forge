@@ -618,6 +618,27 @@ def test_active_cancel_takes_precedence_over_a_retryable_worker_failure() -> Non
     assert _event_types(harness)[-2:] == ("run.cancel_requested", "run.cancelled")
 
 
+def test_active_cancel_takes_precedence_over_a_concurrent_prepared_success() -> None:
+    harness = _run_harness()
+    _start(harness)
+    prepared_success = _prepared_success(harness)
+    _submit_cancel(harness)
+
+    outcome = harness.service_at(NOW_DT + timedelta(seconds=2)).publish_attempt_outcome(
+        PublishAttemptOutcomeRequest(
+            fence=_fence(harness),
+            prepared_outcome=prepared_success,
+            actor=WORKER,
+        )
+    )
+
+    assert outcome.run.status == "cancelled"
+    assert outcome.result_artifact_id is None
+    assert outcome.run_failure_artifact_id == outcome.run.failure_artifact_id
+    assert outcome.attempt is not None and outcome.attempt.status == "cancelled"
+    assert _event_types(harness)[-2:] == ("run.cancel_requested", "run.cancelled")
+
+
 def test_queued_and_retry_wait_cancel_directly_without_allocating_an_attempt() -> None:
     queued = _run_harness()
     _as_queued(queued)

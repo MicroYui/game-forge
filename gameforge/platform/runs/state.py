@@ -257,10 +257,15 @@ def validate_prompt_link_binding(
         or lease.fencing_token != attempt.fencing_token
     ):
         raise IntegrityViolation("prompt publication lease differs from the current attempt")
+    call_head_matches = (
+        link.call_ordinal == attempt.next_call_ordinal
+        if link.route_ordinal == 1
+        else link.call_ordinal < attempt.next_call_ordinal
+    )
     if (
         link.run_id != run.run_id
         or link.attempt_no != attempt.attempt_no
-        or link.call_ordinal != attempt.next_call_ordinal
+        or not call_head_matches
         or link.fencing_token != attempt.fencing_token
     ):
         raise IntegrityViolation("prompt link differs from the current Attempt head")

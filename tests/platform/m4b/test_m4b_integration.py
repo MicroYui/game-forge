@@ -16,6 +16,7 @@ from gameforge.contracts.cost import (
     TokenUsageObservationV1,
     UsageEntryV1,
 )
+from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.model_router import ModelRequestV2, request_hash
 from gameforge.contracts.observability import (
     MetricDescriptorRegistryV1,
@@ -395,7 +396,7 @@ def test_native_route_retry_cost_replay_metrics_and_slo_are_one_correlatable_cha
         run_id="run-1",
         attempt_no=1,
         task_kind="patch_repair",
-        domain=None,
+        domain_scope=DomainScope(domain_ids=("default",)),
         budget_set_snapshot_id=selected_set.budget_set_snapshot_id,
         remaining_budget=(amount("input_token", 80),),
         context_tokens=1_000,

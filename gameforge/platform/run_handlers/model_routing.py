@@ -15,9 +15,8 @@ optional system/params/tools) — and get back the M2 ``ModelResponse`` the agen
 code expects, while every side effect flows through the injected bridge.
 
 Dependency direction: ``platform`` must not import ``gameforge.apps`` or any LLM
-SDK, so the bridge request is a *structurally* identical local dataclass (the
-concrete ``gameforge.apps.worker.model_bridge.ModelCallRequest`` reads the exact
-same attribute names) and the bridge result is consumed by attribute access.
+SDK, so both sides consume the shared contracts-layer request and the bridge result
+is consumed by attribute access.
 """
 
 from __future__ import annotations
@@ -30,12 +29,12 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import ExecutionVersionPlanV1
 from gameforge.contracts.model_router import (
     Message,
+    ModelBridgeCallRequestV1,
     ModelRequest,
     ModelRequestV2,
     ModelResponse,
     ModelSnapshot,
     ToolSchemaRef,
-    request_hash,
 )
 from gameforge.contracts.routing import (
     ModelCatalogSnapshotV1,
@@ -43,24 +42,6 @@ from gameforge.contracts.routing import (
 )
 
 from gameforge.platform.run_handlers.base import ExecutorContextLike, ModelBridgePort
-
-
-@dataclass(frozen=True, slots=True)
-class ModelBridgeCallRequestV1:
-    """A rendered model call for the bridge.
-
-    Field-for-field structurally identical to
-    ``gameforge.apps.worker.model_bridge.ModelCallRequest`` so the injected
-    ``WorkerModelBridge`` consumes it verbatim without ``platform`` importing
-    ``gameforge.apps``.
-    """
-
-    model_request: ModelRequestV2
-    source_artifact_id: str
-    idempotency_scope: str
-    idempotency_key: str
-    route_ordinal: int = 1
-    deadline_utc: datetime | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -248,12 +229,10 @@ class ModelBridgeAgentAdapter:
         *,
         model_bridge: ModelBridgePort,
         idempotency_scope: str,
-        idempotency_prefix: str,
         deadline_utc: datetime | None = None,
     ) -> None:
         self._bridge = model_bridge
         self._idempotency_scope = idempotency_scope
-        self._idempotency_prefix = idempotency_prefix
         self._deadline = deadline_utc
         self._call_index = 0
 
@@ -268,7 +247,7 @@ class ModelBridgeAgentAdapter:
         user_prompt: str,
         prompt_version: str,
         model_snapshot: ModelSnapshot,
-        source_artifact_id: str,
+        source_artifact_ids: tuple[str, ...],
         system: str | None = None,
         params: dict[str, object] | None = None,
         tool_schemas: tuple[ToolSchemaRef, ...] = (),
@@ -291,9 +270,9 @@ class ModelBridgeAgentAdapter:
         self._call_index += 1
         bridge_request = ModelBridgeCallRequestV1(
             model_request=model_request,
-            source_artifact_id=source_artifact_id,
+            source_artifact_ids=source_artifact_ids,
             idempotency_scope=self._idempotency_scope,
-            idempotency_key=f"{self._idempotency_prefix}:model:{self._call_index}",
+            idempotency_key=f"model:{self._call_index}",
             route_ordinal=route_ordinal,
             deadline_utc=self._deadline,
         )
@@ -302,10 +281,10 @@ class ModelBridgeAgentAdapter:
         link = getattr(result, "link")
         return AdapterModelResult(
             response=response,
-            request_hash=request_hash(model_request),
+            request_hash=getattr(getattr(result, "decision"), "request_hash"),
             routing_decision_id=getattr(getattr(result, "decision"), "decision_id"),
             call_ordinal=getattr(link, "call_ordinal"),
-            route_ordinal=route_ordinal,
+            route_ordinal=getattr(link, "route_ordinal"),
             replayed=bool(getattr(result, "replayed")),
             execution_source=getattr(getattr(result, "response"), "execution_source", ""),
         )
@@ -333,11 +312,11 @@ class BridgeModelRouter:
         *,
         adapter: ModelBridgeAgentAdapter,
         default_model_snapshot: ModelSnapshot,
-        run_id: str,
+        source_artifact_ids: tuple[str, ...],
     ) -> None:
         self._adapter = adapter
         self.default_model_snapshot = default_model_snapshot
-        self._run_id = run_id
+        self._source_artifact_ids = source_artifact_ids
 
     def call(self, request: ModelRequest) -> ModelResponse:
         system: str | None = None
@@ -352,7 +331,7 @@ class BridgeModelRouter:
             user_prompt=user,
             prompt_version=request.prompt_version,
             model_snapshot=request.model_snapshot,
-            source_artifact_id=f"{self._run_id}:rendered:{request.agent_node_id}",
+            source_artifact_ids=self._source_artifact_ids,
             system=system,
             params=dict(request.params),
             tool_schemas=tuple(
@@ -379,8 +358,7 @@ def build_bridge_router(
 
     adapter = ModelBridgeAgentAdapter(
         model_bridge=context.model_bridge,
-        idempotency_scope=context.run.idempotency_scope,
-        idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
+        idempotency_scope=(f"run:{context.run.run_id}:attempt:{context.attempt.attempt_no}"),
         deadline_utc=context.deadline_utc,
     )
     model_snapshot = plan_node_snapshot(
@@ -391,7 +369,7 @@ def build_bridge_router(
     return BridgeModelRouter(
         adapter=adapter,
         default_model_snapshot=model_snapshot,
-        run_id=context.run.run_id,
+        source_artifact_ids=_prompt_sources(context),
     )
 
 
@@ -421,14 +399,14 @@ class MultiNodeBridgeRouter:
         adapter: ModelBridgeAgentAdapter,
         node_snapshots: dict[str, ModelSnapshot],
         default_node_id: str,
-        run_id: str,
+        source_artifact_ids: tuple[str, ...],
     ) -> None:
         if default_node_id not in node_snapshots:
             raise ValueError(f"default node {default_node_id!r} is not routed by the plan")
         self._adapter = adapter
         self._node_snapshots = dict(node_snapshots)
         self.default_model_snapshot = node_snapshots[default_node_id]
-        self._run_id = run_id
+        self._source_artifact_ids = source_artifact_ids
 
     def call(self, request: ModelRequest) -> ModelResponse:
         node_id = request.agent_node_id
@@ -447,7 +425,7 @@ class MultiNodeBridgeRouter:
             user_prompt=user,
             prompt_version=request.prompt_version,
             model_snapshot=snapshot,
-            source_artifact_id=f"{self._run_id}:rendered:{node_id}",
+            source_artifact_ids=self._source_artifact_ids,
             system=system,
             params=dict(request.params),
             tool_schemas=tuple(
@@ -477,8 +455,7 @@ def build_multinode_bridge_router(
         raise ValueError("a multi-node router requires at least one agent node id")
     adapter = ModelBridgeAgentAdapter(
         model_bridge=context.model_bridge,
-        idempotency_scope=context.run.idempotency_scope,
-        idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
+        idempotency_scope=(f"run:{context.run.run_id}:attempt:{context.attempt.attempt_no}"),
         deadline_utc=context.deadline_utc,
     )
     node_snapshots = {
@@ -493,8 +470,30 @@ def build_multinode_bridge_router(
         adapter=adapter,
         node_snapshots=node_snapshots,
         default_node_id=default_node_id,
-        run_id=context.run.run_id,
+        source_artifact_ids=_prompt_sources(context),
     )
+
+
+def _prompt_sources(context: ExecutorContextLike) -> tuple[str, ...]:
+    """Return real frozen handler inputs, never the REPLAY cassette container.
+
+    Task-specific retained prompt bindings decide which complete source set is
+    renderable.  This adapter must not collapse that authority to the first input,
+    and the cassette authenticates a prior request rather than serving as source
+    content for the current render.
+    """
+
+    payload = context.payload
+    source_ids = tuple(
+        artifact_id
+        for artifact_id in payload.input_artifact_ids
+        if artifact_id != payload.cassette_artifact_id
+    )
+    if not source_ids:
+        raise IntegrityViolation("model Run has no exact non-cassette prompt source Artifact")
+    if source_ids != tuple(sorted(set(source_ids))):
+        raise IntegrityViolation("model Run prompt sources are not stable-unique")
+    return source_ids
 
 
 __all__ = [

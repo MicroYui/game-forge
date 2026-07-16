@@ -25,10 +25,16 @@ from gameforge.apps.worker.executor import (
 )
 from gameforge.apps.worker.pool import BlockingExecutorPool
 from gameforge.contracts.jobs import (
+    FailureClassifierV1,
     PreparedRunOutcome,
     RunAttempt,
     RunLease,
     RunRecord,
+)
+from gameforge.contracts.errors import (
+    AttemptFenceConflict,
+    AttemptFenceStateRejected,
+    IntegrityViolation,
 )
 from gameforge.contracts.lineage import AuditActor
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
@@ -54,6 +60,7 @@ class TerminalSink(Protocol):
 
 ModelBridgeFactory = Callable[..., WorkerModelBridgePort]
 RunRevisionReader = Callable[[str], int]
+FailureClassifierResolver = Callable[[RunRecord], FailureClassifierV1]
 
 
 class AttemptRunner:
@@ -66,6 +73,7 @@ class AttemptRunner:
         model_bridge_factory: ModelBridgeFactory,
         terminal: TerminalSink,
         read_run_revision: RunRevisionReader,
+        resolve_failure_classifier: FailureClassifierResolver,
         worker_actor: AuditActor,
     ) -> None:
         # Blocking executor domain work runs on the bounded executor lane; the
@@ -77,6 +85,7 @@ class AttemptRunner:
         self._model_bridge_factory = model_bridge_factory
         self._terminal = terminal
         self._read_run_revision = read_run_revision
+        self._resolve_failure_classifier = resolve_failure_classifier
         self._worker_actor = worker_actor
 
     async def run_attempt(
@@ -87,15 +96,12 @@ class AttemptRunner:
         lease: RunLease,
         deadline_utc: datetime | None,
     ) -> object:
-        bridge = self._model_bridge_factory(run=run, attempt=attempt, lease=lease)
-        context = ExecutorContext(
+        outcome = await self._execute(
             run=run,
             attempt=attempt,
-            payload=run.payload,
+            lease=lease,
             deadline_utc=deadline_utc,
-            model_bridge=bridge,
         )
-        outcome = await self._execute(context, run=run, attempt=attempt)
         # Build the terminal fence from a FRESH read of the current run revision:
         # publish_progress and (once wired) RECORD response capture bump the run
         # revision mid-attempt, so the claim-time revision would be stale here.
@@ -116,26 +122,57 @@ class AttemptRunner:
 
     async def _execute(
         self,
-        context: ExecutorContext,
         *,
         run: RunRecord,
         attempt: RunAttempt,
+        lease: RunLease,
+        deadline_utc: datetime | None,
     ) -> PreparedRunOutcome:
         try:
-            executor = self._resolve_executor(run)
-            return await self._executor_pool.run(lambda: executor(context))
+
+            def execute() -> PreparedRunOutcome:
+                # Bridge composition may load exact DB/ObjectStore replay authority;
+                # keep it on the same bounded blocking lane as the executor.
+                bridge = self._model_bridge_factory(run=run, attempt=attempt, lease=lease)
+                context = ExecutorContext(
+                    run=run,
+                    attempt=attempt,
+                    payload=run.payload,
+                    deadline_utc=deadline_utc,
+                    model_bridge=bridge,
+                )
+                executor = self._resolve_executor(run)
+                return executor(context)
+
+            return await self._executor_pool.run(execute)
         except asyncio.CancelledError:
             raise
-        except Exception:
+        except (AttemptFenceConflict, AttemptFenceStateRejected):
+            # A bridge/lifecycle fence loss is control-plane authority, not an
+            # executor business failure.  Never let a stale worker manufacture a
+            # new terminal outcome from it.
+            raise
+        except Exception as exc:
             # Executor faults (including a missing/unresolvable executor) are
             # classified into a conservative, non-leaking failure and published
             # through the terminal policy rather than crashing the worker loop.
-            return redacted_execution_failure(run=run, attempt=attempt)
+            classifier = self._resolve_failure_classifier(run)
+            if not isinstance(classifier, FailureClassifierV1):
+                raise IntegrityViolation(
+                    "worker failure classifier authority returned an invalid value"
+                )
+            return redacted_execution_failure(
+                run=run,
+                attempt=attempt,
+                classifier=classifier,
+                error=exc,
+            )
 
 
 __all__ = [
     "AttemptRunner",
     "ExecutorResolver",
+    "FailureClassifierResolver",
     "ModelBridgeFactory",
     "RunRevisionReader",
     "TerminalSink",

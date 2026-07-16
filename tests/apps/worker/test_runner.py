@@ -13,6 +13,8 @@ from __future__ import annotations
 import asyncio
 import threading
 
+import pytest
+
 from gameforge.apps.worker.executor import ExecutorContext, redacted_execution_failure
 from gameforge.apps.worker.pool import ThreadedBlockingExecutorPool
 from gameforge.apps.worker.runner import AttemptRunner
@@ -22,6 +24,14 @@ from gameforge.contracts.jobs import (
     RunLease,
 )
 from gameforge.contracts.lineage import AuditActor
+from gameforge.contracts.errors import (
+    AttemptFenceConflict,
+    Conflict,
+    DependencyUnavailable,
+    IntegrityViolation,
+    PermanentDependencyFailure,
+    QuotaExceeded,
+)
 from tests.platform.m4c.test_terminal_publisher import (
     _attempt,
     _prepared_success,
@@ -60,6 +70,7 @@ class _CapturingTerminal:
 
 
 def _runner(resolve_executor, terminal, pool, *, read_run_revision=None):
+    registry, _ = _registry_and_definition()
     return AttemptRunner(
         executor_pool=pool,
         control_pool=pool,
@@ -67,6 +78,9 @@ def _runner(resolve_executor, terminal, pool, *, read_run_revision=None):
         model_bridge_factory=lambda **_: object(),
         terminal=terminal,
         read_run_revision=read_run_revision or (lambda run_id: 3),
+        resolve_failure_classifier=lambda run: registry.get_failure_classifier(
+            run.failure_classifier
+        ),
         worker_actor=WORKER,
     )
 
@@ -153,9 +167,144 @@ def test_missing_executor_is_fenced_failure_not_a_leaked_exception() -> None:
 
 def test_redacted_failure_helper_uses_run_classifier() -> None:
     run, attempt, _ = _context_run()
-    failure = redacted_execution_failure(run=run, attempt=attempt)
+    registry, _ = _registry_and_definition()
+    classifier = registry.get_failure_classifier(run.failure_classifier)
+    assert classifier is not None
+    failure = redacted_execution_failure(
+        run=run,
+        attempt=attempt,
+        classifier=classifier,
+        error=RuntimeError("secret"),
+    )
     assert failure.classifier == run.failure_classifier
     assert failure.intrinsic_retry_eligible is False
+
+
+@pytest.mark.parametrize(
+    ("error", "cause", "failure_class"),
+    [
+        (IntegrityViolation("secret payload"), "integrity_violation", "integrity"),
+        (QuotaExceeded("secret budget"), "quota_exceeded", "quota"),
+        (TimeoutError("secret timeout"), "timed_out", "timeout"),
+    ],
+)
+def test_typed_executor_faults_use_frozen_classifier_without_leaking(
+    error, cause, failure_class
+) -> None:
+    run, attempt, lease = _context_run()
+
+    def exploding(context: ExecutorContext) -> PreparedRunOutcome:
+        raise error
+
+    terminal = _CapturingTerminal()
+    with ThreadedBlockingExecutorPool(max_workers=1) as pool:
+        asyncio.run(
+            _runner(lambda r: exploding, terminal, pool).run_attempt(
+                run=run, attempt=attempt, lease=lease, deadline_utc=None
+            )
+        )
+
+    outcome = terminal.published[0][1]
+    assert isinstance(outcome, PreparedRunFailure)
+    assert outcome.cause_code == cause
+    assert outcome.failure_class == failure_class
+    assert "secret" not in outcome.redacted_message
+
+
+def test_complete_typed_dependency_is_retryable_but_incomplete_metadata_is_not() -> None:
+    run, attempt, _ = _context_run()
+    registry, _ = _registry_and_definition()
+    classifier = registry.get_failure_classifier(run.failure_classifier)
+    assert classifier is not None
+    complete = redacted_execution_failure(
+        run=run,
+        attempt=attempt,
+        classifier=classifier,
+        error=DependencyUnavailable(
+            "provider leaked detail",
+            dependency_kind="model_provider",
+            dependency_id="gateway:primary",
+            operation_code="model.complete",
+            classifier_code="gateway_unavailable",
+        ),
+    )
+    incomplete = redacted_execution_failure(
+        run=run,
+        attempt=attempt,
+        classifier=classifier,
+        error=DependencyUnavailable("secret", component="gateway"),
+    )
+
+    assert complete.cause_code == "dependency_unavailable"
+    assert complete.failure_class == "transient_dependency"
+    assert complete.intrinsic_retry_eligible is True
+    assert complete.dependency is not None
+    assert incomplete.cause_code == "execution_failed"
+    assert incomplete.dependency is None
+
+
+def test_permanent_dependency_failure_uses_nonretryable_frozen_rule() -> None:
+    run, attempt, _ = _context_run()
+    registry, _ = _registry_and_definition()
+    classifier = registry.get_failure_classifier(run.failure_classifier)
+    assert classifier is not None
+
+    failure = redacted_execution_failure(
+        run=run,
+        attempt=attempt,
+        classifier=classifier,
+        error=PermanentDependencyFailure(
+            "provider detail must remain redacted",
+            dependency_kind="model_provider",
+            dependency_id="openai:model:sha256:abc",
+            operation_code="model.complete",
+            classifier_code="provider_authentication_rejected",
+            upstream_status_code=401,
+        ),
+    )
+
+    assert failure.cause_code == "permanent_dependency_failed"
+    assert failure.failure_class == "permanent_dependency"
+    assert failure.intrinsic_retry_eligible is False
+    assert failure.dependency is not None
+    assert failure.dependency.upstream_status_code == 401
+    assert "provider detail" not in failure.redacted_message
+
+
+def test_executor_conflict_is_classified_instead_of_masquerading_as_fence_loss() -> None:
+    run, attempt, lease = _context_run()
+
+    def conflicting(context: ExecutorContext) -> PreparedRunOutcome:
+        raise Conflict("domain conflict with secret detail")
+
+    terminal = _CapturingTerminal()
+    with ThreadedBlockingExecutorPool(max_workers=1) as pool:
+        asyncio.run(
+            _runner(lambda r: conflicting, terminal, pool).run_attempt(
+                run=run, attempt=attempt, lease=lease, deadline_utc=None
+            )
+        )
+    outcome = terminal.published[0][1]
+    assert isinstance(outcome, PreparedRunFailure)
+    assert outcome.cause_code == "execution_failed"
+    assert "secret" not in outcome.redacted_message
+
+
+def test_dedicated_fence_conflict_is_not_reclassified_into_a_terminal_outcome() -> None:
+    run, attempt, lease = _context_run()
+
+    def stale(context: ExecutorContext) -> PreparedRunOutcome:
+        raise AttemptFenceConflict("stale secret fence")
+
+    terminal = _CapturingTerminal()
+    with ThreadedBlockingExecutorPool(max_workers=1) as pool:
+        with pytest.raises(AttemptFenceConflict):
+            asyncio.run(
+                _runner(lambda r: stale, terminal, pool).run_attempt(
+                    run=run, attempt=attempt, lease=lease, deadline_utc=None
+                )
+            )
+    assert terminal.published == []
 
 
 def test_terminal_fence_uses_fresh_current_revision_not_the_stale_claim_revision() -> None:

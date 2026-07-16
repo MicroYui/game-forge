@@ -589,15 +589,53 @@ class _AdmissionReplayReader(ReplayAdmissionReader):
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int,
     ) -> Any:
         if self._read.runs is None:
             return None
-        return self._read.runs.get_intermediate_link(run_id, attempt_no, call_ordinal)
+        return self._read.runs.get_intermediate_link(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
 
     def get_routing_decision(self, decision_id: str) -> Any:
         if self._read.routing is None:
             return None
         return self._read.routing.get_routing_decision(decision_id)
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> Any:
+        if self._read.runs is None:
+            return None
+        return self._read.runs.get_model_route_link(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> Any:
+        if self._read.runs is None:
+            return None
+        return self._read.runs.get_model_response_consumption(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1390,6 +1428,7 @@ class RunAdmissionEngine:
                 request_hash=retained.request_hash,
                 request_id=actor.request_id,
                 payload=retained.payload,
+                resource_domain_scope=retained.resource_domain_scope,
                 dispatch_trace_carrier=retained.dispatch_trace_carrier,
                 initiated_by=retained.initiated_by,
                 queue_deadline_utc=retained.queue_deadline_utc,
@@ -1648,6 +1687,11 @@ class RunAdmissionEngine:
             request_hash=request_hash,
             request_id=request_id,
             payload=payload,
+            resource_domain_scope=(
+                authorization.resource_domain
+                if isinstance(authorization.resource_domain, DomainScope)
+                else None
+            ),
             dispatch_trace_carrier=carrier,
             initiated_by=AuditActor(
                 principal_id=actor.principal.id,
@@ -2203,7 +2247,13 @@ class RunAdmissionEngine:
                 if (
                     link.artifact_id != prompt_id
                     or link.role != "prompt_rendered"
-                    or get_link(link.run_id, link.attempt_no, link.call_ordinal) != link
+                    or get_link(
+                        link.run_id,
+                        link.attempt_no,
+                        link.call_ordinal,
+                        link.route_ordinal,
+                    )
+                    != link
                 ):
                     raise IntegrityViolation(
                         "prompt reverse lookup differs from its exact intermediate link"

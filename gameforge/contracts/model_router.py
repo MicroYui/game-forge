@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -100,6 +102,24 @@ class ModelRequestV2(BaseModel):
         return self
 
 
+@dataclass(frozen=True, slots=True)
+class ModelBridgeCallRequestV1:
+    """Exact executor-to-worker request for one ordered model call."""
+
+    model_request: ModelRequestV2
+    source_artifact_ids: tuple[str, ...]
+    idempotency_scope: str
+    idempotency_key: str
+    route_ordinal: int = 1
+    deadline_utc: datetime | None = None
+
+    def __post_init__(self) -> None:
+        if self.source_artifact_ids != tuple(sorted(set(self.source_artifact_ids))) or not (
+            self.source_artifact_ids
+        ):
+            raise ValueError("model-call source_artifact_ids must be stable-unique")
+
+
 class ModelResponse(BaseModel):
     response_normalized: str
     raw_response: dict[str, Any] = Field(default_factory=dict)
@@ -133,6 +153,7 @@ def parse_model_request(payload: Mapping[str, Any]) -> ModelRequest | ModelReque
 
 __all__ = [
     "Message",
+    "ModelBridgeCallRequestV1",
     "ModelRequest",
     "ModelRequestV1",
     "ModelRequestV2",

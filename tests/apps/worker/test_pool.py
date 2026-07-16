@@ -15,6 +15,8 @@ import time
 import pytest
 
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
+from gameforge.contracts.observability import TraceContextV1
+from gameforge.runtime.observability.context import current_trace_context, use_trace_context
 
 
 def test_blocking_work_runs_off_the_event_loop_while_a_heartbeat_keeps_ticking() -> None:
@@ -148,3 +150,31 @@ def test_control_plane_run_after_close_is_rejected() -> None:
             await pool.run(lambda: 1)
 
     asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "pool_factory",
+    [
+        lambda: ThreadedBlockingExecutorPool(max_workers=1),
+        lambda: ControlPlanePool(max_workers=1),
+    ],
+)
+def test_off_loop_lanes_propagate_the_current_trace_context(pool_factory) -> None:
+    pool = pool_factory()
+    context = TraceContextV1(
+        trace_id="a" * 32,
+        span_id="b" * 16,
+        trace_flags="01",
+        trace_state="vendor=state",
+    )
+
+    async def scenario() -> TraceContextV1 | None:
+        with use_trace_context(context):
+            return await pool.run(current_trace_context)
+
+    try:
+        observed = asyncio.run(scenario())
+    finally:
+        pool.close()
+
+    assert observed == context

@@ -14,6 +14,7 @@ from gameforge.platform.provenance.registry import (
     PLANNING_DOCUMENT,
     RETRIEVAL_RESULT,
     TOOL_OUTPUT,
+    TRUSTED_PROMPT_TEMPLATE,
     TRUSTED_SERVICE_GOAL,
     build_source_kind_registry,
 )
@@ -33,6 +34,7 @@ __all__ = [
     "PLANNING_DOCUMENT",
     "RETRIEVAL_RESULT",
     "TOOL_OUTPUT",
+    "TRUSTED_PROMPT_TEMPLATE",
     "TRUSTED_SERVICE_GOAL",
     "build_source_kind_registry",
 ]

@@ -21,6 +21,7 @@ from gameforge.contracts.model_router import (
     request_hash,
 )
 from gameforge.contracts.reliability import FailureClassificationV1, RetryPolicyV1
+from gameforge.contracts.reliability import CircuitBreakerConfigV1
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
 from gameforge.runtime.cassette.store import CassetteRouteKey, CassetteStore
 from gameforge.runtime.clock import ManualMonotonicClock
@@ -32,6 +33,7 @@ from gameforge.runtime.model_router.typed_transport import (
     TransportResponseV2,
 )
 from gameforge.runtime.reliability.retry import RetryExecutor
+from gameforge.runtime.reliability.breaker import CircuitBreaker
 
 
 NOW = datetime(2026, 7, 14, tzinfo=UTC)
@@ -183,6 +185,128 @@ def _retry(clock: _Clock) -> RetryExecutor:
     )
 
 
+def _breaker(snapshot_id: str, clock: _Clock) -> CircuitBreaker:
+    return CircuitBreaker(
+        dependency_id=f"model-provider:{snapshot_id}",
+        config=CircuitBreakerConfigV1(
+            config_version="breaker@1",
+            rolling_window_s=60,
+            minimum_samples=2,
+            failure_threshold=1,
+            open_cooldown_s=10,
+            half_open_max_concurrent_probes=1,
+            half_open_success_threshold=1,
+        ),
+        clock=clock,
+    )
+
+
+def test_online_route_breaker_resolver_fails_closed_without_exact_authority(tmp_path) -> None:
+    clock = _Clock()
+    request = _request()
+    decision = _decision(request, source="online")
+    router = M4ModelRouter(
+        transport=_TypedTransport(_response()),
+        store=CassetteStore(tmp_path),
+        cache=ExactResponseCache(),
+        mode=RouterMode.PASSTHROUGH,
+        retry_executor=_retry(clock),
+        decision_authority=_DecisionAuthority(decision),
+        circuit_breaker_resolver=lambda _: None,  # type: ignore[arg-type,return-value]
+    )
+
+    with pytest.raises(IntegrityViolation, match="no exact dependency authority"):
+        router.call(
+            request,
+            decision=decision,
+            deadline_utc=NOW + timedelta(seconds=10),
+            recorded_at=NOW,
+        )
+
+
+def test_online_route_breaker_resolver_rejects_another_model_dependency(tmp_path) -> None:
+    clock = _Clock()
+    request = _request()
+    decision = _decision(request, source="online")
+    wrong = CircuitBreaker(
+        dependency_id="model-provider:another-snapshot",
+        config=CircuitBreakerConfigV1(
+            config_version="breaker@1",
+            rolling_window_s=60,
+            minimum_samples=2,
+            failure_threshold=1,
+            open_cooldown_s=10,
+            half_open_max_concurrent_probes=1,
+            half_open_success_threshold=1,
+        ),
+        clock=clock,
+    )
+    router = M4ModelRouter(
+        transport=_TypedTransport(_response()),
+        store=CassetteStore(tmp_path),
+        cache=ExactResponseCache(),
+        mode=RouterMode.PASSTHROUGH,
+        retry_executor=_retry(clock),
+        decision_authority=_DecisionAuthority(decision),
+        circuit_breaker_resolver=lambda _: wrong,
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact model dependency"):
+        router.call(
+            request,
+            decision=decision,
+            deadline_utc=NOW + timedelta(seconds=10),
+            recorded_at=NOW,
+        )
+
+
+def test_online_primary_and_fallback_resolve_distinct_exact_breakers(tmp_path) -> None:
+    clock = _Clock()
+    primary_request = _request("primary")
+    fallback_request = primary_request.model_copy(
+        update={
+            "model_snapshot": ModelSnapshot(
+                provider="anthropic",
+                model="claude-opus-4-8",
+                snapshot_tag="2026-07-14",
+            ),
+            "messages": [Message(role="user", content="fallback")],
+        }
+    )
+    primary = _decision(primary_request, source="online")
+    fallback = _decision(fallback_request, source="online")
+    breakers = {
+        primary.model_snapshot: _breaker(primary.model_snapshot, clock),
+        fallback.model_snapshot: _breaker(fallback.model_snapshot, clock),
+    }
+    resolved: list[str] = []
+
+    def resolve(decision: RoutingDecisionV1) -> CircuitBreaker:
+        resolved.append(decision.model_snapshot)
+        return breakers[decision.model_snapshot]
+
+    router = M4ModelRouter(
+        transport=_TypedTransport(_response()),
+        store=CassetteStore(tmp_path),
+        cache=ExactResponseCache(),
+        mode=RouterMode.PASSTHROUGH,
+        retry_executor=_retry(clock),
+        decision_authority=_DecisionAuthority(primary, fallback),
+        circuit_breaker_resolver=resolve,
+    )
+
+    for request, decision in ((primary_request, primary), (fallback_request, fallback)):
+        router.call(
+            request,
+            decision=decision,
+            deadline_utc=NOW + timedelta(seconds=10),
+            recorded_at=NOW,
+        )
+
+    assert resolved == [primary.model_snapshot, fallback.model_snapshot]
+    assert all(len(breaker.snapshot().samples) == 1 for breaker in breakers.values())
+
+
 def test_record_writes_only_cassette_v2_and_preserves_typed_observations(tmp_path) -> None:
     clock = _Clock()
     transport = _TypedTransport(_response())
@@ -238,10 +362,16 @@ def test_full_response_cache_is_an_explicit_route_and_never_uses_prefix_only(tmp
             miss_decision,
         ),
     )
-    router.call(
+    online = router.call(
         first,
         decision=online_decision,
         deadline_utc=NOW + timedelta(seconds=10),
+        recorded_at=NOW,
+    )
+    router.commit_response_cache(
+        first,
+        decision=online_decision,
+        result=online,
         recorded_at=NOW,
     )
     cached = router.call(
@@ -252,6 +382,8 @@ def test_full_response_cache_is_an_explicit_route_and_never_uses_prefix_only(tmp
     )
     assert cached.execution_source == "full_response_cache"
     assert cached.token_usage.total_tokens == 0
+    assert cached.recorded_transport_attempt_count == 1
+    assert cached.recorded_transport_retry_count == 0
     assert len(transport.calls) == 1
 
     with pytest.raises(IntegrityViolation, match="miss"):

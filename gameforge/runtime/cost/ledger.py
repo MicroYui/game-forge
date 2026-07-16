@@ -96,6 +96,35 @@ def _same_amount_identity(left: CostAmountV1, right: CostAmountV1) -> bool:
     )
 
 
+def _require_complete_child_projection(
+    *,
+    parent_members: dict[str, BudgetReservationV1],
+    child_members: dict[str, BudgetReservationV1],
+) -> None:
+    """Require every parent budget that governs the child's declared vector."""
+
+    declared_dimensions = {
+        amount.dimension for member in child_members.values() for amount in member.reserved
+    }
+    expected_dimensions: dict[str, set[str]] = {}
+    for budget_id, parent in parent_members.items():
+        parent_dimensions = {amount.dimension for amount in parent.reserved}
+        governed = parent_dimensions & declared_dimensions
+        if governed:
+            expected_dimensions[budget_id] = governed
+    if set(child_members) != set(expected_dimensions):
+        raise IntegrityViolation(
+            "child reservation does not cover every parent budget governing its dimensions"
+        )
+    for budget_id, child in child_members.items():
+        actual_dimensions = {amount.dimension for amount in child.reserved}
+        if actual_dimensions != expected_dimensions[budget_id]:
+            raise IntegrityViolation(
+                "child reservation dimension projection differs from its parent hold",
+                budget_id=budget_id,
+            )
+
+
 def _without_mutable_reservation_fields(value: ReservationGroupV1) -> dict[str, object]:
     payload = value.model_dump(mode="json")
     payload.pop("status")
@@ -327,8 +356,10 @@ class SqlCostLedger(SqlCostRepository):
             for item in self.list_budget_reservations(parent.reservation_group_id)
         }
         requested_members = {item.budget_id: item for item in reservations}
-        if set(parent_members) != set(requested_members):
-            raise IntegrityViolation("child reservation must include every parent budget member")
+        _require_complete_child_projection(
+            parent_members=parent_members,
+            child_members=requested_members,
+        )
         now = _now_utc(self._clock)
         for budget_id in sorted(parent_members):
             budget = self.get_budget(budget_id)
@@ -431,6 +462,58 @@ class SqlCostLedger(SqlCostRepository):
         transitioned = self._transition_reservation(group, members, "held_unknown")
         self._bump_parent_for_child(group)
         return transitioned
+
+    def release_unused_group(self, reservation_group_id: str) -> ReservationGroupV1:
+        """Release a reservation whose protected operation never started.
+
+        This is deliberately distinct from zero usage: ``attempt_call`` usage
+        always carries the fixed request charge, while a deadline/fence failure
+        between reserve and transport start incurred no request at all.
+        """
+
+        group = self.get_reservation_group(reservation_group_id)
+        if group is None or group.scope == "run_budget_hold":
+            raise IntegrityViolation("unused release requires a retained child reservation")
+        members = self.list_budget_reservations(group.reservation_group_id)
+        if group.status == "released":
+            return group
+        if group.status != "reserved":
+            raise InvalidStateTransition("only a reserved, unused child group may be released")
+        transitioned = self._transition_reservation(group, members, "released")
+        self._bump_parent_for_child(group)
+        return transitioned
+
+    def remaining_hold_amounts(
+        self,
+        reservation_group_id: str,
+    ) -> tuple[CostAmountV1, ...]:
+        """Return the most restrictive exact remaining amount across all scopes."""
+
+        hold = self.get_reservation_group(reservation_group_id)
+        if hold is None or hold.scope != "run_budget_hold" or hold.status != "reserved":
+            raise IntegrityViolation("remaining budget requires an active run hold")
+        members = {
+            item.budget_id: item for item in self.list_budget_reservations(reservation_group_id)
+        }
+        available = self._hold_available(hold, members)
+        identities: dict[str, CostAmountV1] = {}
+        minima: dict[str, Decimal] = {}
+        for budget_id in sorted(members):
+            member_identities = _amount_map(members[budget_id].reserved)
+            for dimension, value in available[budget_id].items():
+                identity = member_identities[dimension]
+                retained = identities.get(dimension)
+                if retained is not None and not _same_amount_identity(retained, identity):
+                    raise IntegrityViolation(
+                        "applicable budget scopes disagree on a cost identity",
+                        dimension=dimension,
+                    )
+                identities[dimension] = identity
+                minima[dimension] = min(minima.get(dimension, value), value)
+        return tuple(
+            identities[dimension].model_copy(update={"value": value})
+            for dimension, value in sorted(minima.items())
+        )
 
     def list_attempt_reservation_groups(
         self,
@@ -798,8 +881,10 @@ class SqlCostLedger(SqlCostRepository):
                 item.budget_id: item
                 for item in self.list_budget_reservations(child.reservation_group_id)
             }
-            if set(child_members) != set(parent_members):
-                raise IntegrityViolation("child reservation members differ from parent hold")
+            _require_complete_child_projection(
+                parent_members=parent_members,
+                child_members=child_members,
+            )
             for budget_id, child_member in child_members.items():
                 impact = self._child_impact(child, child_member)
                 for dimension, value in impact.items():

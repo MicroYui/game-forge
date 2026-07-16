@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Literal, Protocol, TypeVar
 
 from pydantic import BaseModel, ValidationError
-from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy import and_, case, func, or_, select, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
@@ -24,6 +24,8 @@ from gameforge.contracts.jobs import (
     RunFindingLinkV1,
     RunIntermediateArtifactLinkV1,
     RunLease,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunQueuedDataV1,
     RunRecord,
 )
@@ -36,8 +38,13 @@ from gameforge.runtime.persistence.models import (
     RunFindingLinkRow,
     RunIntermediateArtifactLinkRow,
     RunLeaseRow,
+    RunModelResponseConsumptionRow,
+    RunModelRouteLinkRow,
     RunRow,
+    ReservationGroupRow,
+    UsageEntryRow,
 )
+from gameforge.runtime.persistence.cost import SqlCostRepository
 
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
@@ -147,6 +154,24 @@ def _require_canonical_utc(value: object, *, field_name: str) -> datetime:
     return parsed
 
 
+def _utc_sql_key(value: Any) -> Any:
+    """Normalize canonical UTC text to a fixed-width, microsecond-exact key.
+
+    Python's canonical form is either ``...:SSZ`` or ``...:SS.ffffffZ``. Bare
+    lexical comparison orders the ``Z`` form after the fractional form, while
+    SQLite ``julianday`` rounds sub-millisecond differences. Normalizing the
+    zero-fraction form preserves exact chronological ordering for both shapes.
+    """
+
+    return case(
+        (
+            func.length(value) == 20,
+            func.printf("%s.000000Z", func.substr(value, 1, 19)),
+        ),
+        else_=value,
+    )
+
+
 def _canonical_wire(value: BaseModel) -> str:
     return typed_canonical_json(value.model_dump(mode="python"))
 
@@ -220,6 +245,7 @@ def _run_wire(row: RunRow) -> dict[str, Any]:
         "failure_classifier": row.failure_classifier,
         "dispatch_trace_carrier": row.dispatch_trace_carrier,
         "initiated_by": row.initiated_by,
+        "resource_domain_scope": row.resource_domain_scope,
         "queue_deadline_utc": row.queue_deadline_utc,
         "attempt_timeout_ns": row.attempt_timeout_ns,
         "overall_deadline_utc": row.overall_deadline_utc,
@@ -257,11 +283,17 @@ def _parse_run_row(row: RunRow, *, expected_run_id: str) -> RunRecord:
             "created_at",
             "updated_at",
         ):
-            _parse_utc(getattr(parsed, field_name), field_name=field_name)
+            _require_canonical_utc(getattr(parsed, field_name), field_name=field_name)
         if parsed.cancel_requested_at is not None:
-            _parse_utc(parsed.cancel_requested_at, field_name="cancel_requested_at")
+            _require_canonical_utc(
+                parsed.cancel_requested_at,
+                field_name="cancel_requested_at",
+            )
         if parsed.retry_not_before_utc is not None:
-            _parse_utc(parsed.retry_not_before_utc, field_name="retry_not_before_utc")
+            _require_canonical_utc(
+                parsed.retry_not_before_utc,
+                field_name="retry_not_before_utc",
+            )
     except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
         raise IntegrityViolation("stored Run is invalid", run_id=expected_run_id) from exc
     return parsed
@@ -310,7 +342,7 @@ def _parse_attempt_row(
         for field_name in ("started_at", "attempt_deadline_utc", "ended_at"):
             value = getattr(parsed, field_name)
             if value is not None:
-                _parse_utc(value, field_name=field_name)
+                _require_canonical_utc(value, field_name=field_name)
     except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
         raise IntegrityViolation(
             "stored RunAttempt is invalid",
@@ -348,9 +380,9 @@ def _parse_lease_row(row: RunLeaseRow, *, expected_lease_id: str) -> RunLease:
         if _canonical_wire(parsed) != typed_canonical_json(wire):
             raise ValueError("lease row is not canonical")
         for field_name in ("acquired_at", "heartbeat_at", "expires_at"):
-            _parse_utc(getattr(parsed, field_name), field_name=field_name)
+            _require_canonical_utc(getattr(parsed, field_name), field_name=field_name)
         if row.released_at is not None:
-            _parse_utc(row.released_at, field_name="released_at")
+            _require_canonical_utc(row.released_at, field_name="released_at")
         if parsed.status == "active" and row.released_at is not None:
             raise ValueError("active lease cannot have a release timestamp")
         if parsed.status != "active" and row.released_at is None:
@@ -393,7 +425,7 @@ def _parse_event_row(
         parsed = RunEvent.model_validate(wire)
         if _canonical_wire(parsed) != typed_canonical_json(wire):
             raise ValueError("event row is not canonical")
-        _parse_utc(parsed.occurred_at, field_name="occurred_at")
+        _require_canonical_utc(parsed.occurred_at, field_name="occurred_at")
     except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
         raise IntegrityViolation(
             "stored RunEvent is invalid",
@@ -452,7 +484,7 @@ def _parse_command_row(
         for field_name in ("created_at", "claimed_at", "applied_at"):
             value = getattr(parsed, field_name)
             if value is not None:
-                _parse_utc(value, field_name=field_name)
+                _require_canonical_utc(value, field_name=field_name)
     except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
         raise IntegrityViolation(
             "stored RunCommand is invalid",
@@ -475,6 +507,7 @@ def _intermediate_wire(row: RunIntermediateArtifactLinkRow) -> dict[str, Any]:
         "run_id": row.run_id,
         "attempt_no": row.attempt_no,
         "call_ordinal": row.call_ordinal,
+        "route_ordinal": row.route_ordinal,
         "artifact_id": row.artifact_id,
         "role": row.role,
         "request_hash": row.request_hash,
@@ -489,6 +522,7 @@ def _parse_intermediate_row(
     expected_run_id: str,
     expected_attempt_no: int,
     expected_call_ordinal: int,
+    expected_route_ordinal: int,
 ) -> RunIntermediateArtifactLinkV1:
     wire = _intermediate_wire(row)
     try:
@@ -496,18 +530,98 @@ def _parse_intermediate_row(
             row.run_id != expected_run_id
             or row.attempt_no != expected_attempt_no
             or row.call_ordinal != expected_call_ordinal
+            or row.route_ordinal != expected_route_ordinal
         ):
             raise ValueError("intermediate-link storage key differs from requested identity")
         parsed = RunIntermediateArtifactLinkV1.model_validate(wire)
         if _canonical_wire(parsed) != typed_canonical_json(wire):
             raise ValueError("intermediate-link row is not canonical")
-        _parse_utc(parsed.published_at, field_name="published_at")
+        _require_canonical_utc(parsed.published_at, field_name="published_at")
     except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
         raise IntegrityViolation(
             "stored RunIntermediateArtifactLink is invalid",
             run_id=expected_run_id,
             attempt_no=expected_attempt_no,
             call_ordinal=expected_call_ordinal,
+        ) from exc
+    return parsed
+
+
+def _model_route_wire(row: RunModelRouteLinkRow) -> dict[str, Any]:
+    return {
+        "link_schema_version": row.link_schema_version,
+        "run_id": row.run_id,
+        "attempt_no": row.attempt_no,
+        "call_ordinal": row.call_ordinal,
+        "route_ordinal": row.route_ordinal,
+        "prompt_artifact_id": row.prompt_artifact_id,
+        "request_hash": row.request_hash,
+        "routing_decision_kind": row.routing_decision_kind,
+        "routing_decision_id": row.routing_decision_id,
+        "fencing_token": row.fencing_token,
+        "published_at": row.published_at,
+    }
+
+
+def _parse_model_route_row(row: RunModelRouteLinkRow) -> RunModelRouteLinkV1:
+    wire = _model_route_wire(row)
+    try:
+        parsed = RunModelRouteLinkV1.model_validate(wire)
+        expected_native = (
+            parsed.routing_decision_id if parsed.routing_decision_kind == "native" else None
+        )
+        expected_legacy = (
+            parsed.routing_decision_id if parsed.routing_decision_kind == "legacy_import" else None
+        )
+        if (
+            _canonical_wire(parsed) != typed_canonical_json(wire)
+            or row.native_routing_decision_id != expected_native
+            or row.legacy_routing_decision_id != expected_legacy
+        ):
+            raise ValueError("model-route row is not canonical")
+        _require_canonical_utc(parsed.published_at, field_name="published_at")
+    except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
+        raise IntegrityViolation(
+            "stored RunModelRouteLink is invalid",
+            run_id=row.run_id,
+            attempt_no=row.attempt_no,
+            call_ordinal=row.call_ordinal,
+            route_ordinal=row.route_ordinal,
+        ) from exc
+    return parsed
+
+
+def _model_consumption_wire(row: RunModelResponseConsumptionRow) -> dict[str, Any]:
+    return {
+        "consumption_schema_version": row.consumption_schema_version,
+        "run_id": row.run_id,
+        "attempt_no": row.attempt_no,
+        "call_ordinal": row.call_ordinal,
+        "route_ordinal": row.route_ordinal,
+        "execution_source": row.execution_source,
+        "reservation_group_id": row.reservation_group_id,
+        "transport_attempt": row.transport_attempt,
+        "cassette_shard_artifact_id": row.cassette_shard_artifact_id,
+        "consumed_at": row.consumed_at,
+    }
+
+
+def _parse_model_consumption_row(
+    row: RunModelResponseConsumptionRow,
+) -> RunModelResponseConsumptionV1:
+    wire = _model_consumption_wire(row)
+    try:
+        parsed = RunModelResponseConsumptionV1.model_validate(wire)
+        if _canonical_wire(parsed) != typed_canonical_json(wire):
+            raise ValueError("model-response-consumption row is not canonical")
+        _require_canonical_utc(parsed.consumed_at, field_name="consumed_at")
+    except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
+        raise IntegrityViolation(
+            "stored RunModelResponseConsumption is invalid",
+            run_id=row.run_id,
+            attempt_no=row.attempt_no,
+            call_ordinal=row.call_ordinal,
+            route_ordinal=row.route_ordinal,
         ) from exc
     return parsed
 
@@ -568,7 +682,7 @@ def _parse_linked_finding(row: FindingRevisionRow) -> FindingRevisionV1:
             raise ValueError("Finding revision row is not canonical")
         if finding_revision_digest(parsed) != row.finding_digest:
             raise ValueError("Finding revision digest differs from its content")
-        _parse_utc(parsed.created_at, field_name="created_at")
+        _require_canonical_utc(parsed.created_at, field_name="created_at")
     except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
         raise IntegrityViolation(
             "linked Finding revision is invalid",
@@ -632,6 +746,12 @@ class SqlRunRepository:
                     expected_request_hash=parsed.request_hash,
                     actual_request_hash=retained.request_hash,
                 )
+            if retained.resource_domain_scope != parsed.resource_domain_scope:
+                raise Conflict(
+                    "Run idempotency key is bound to a different resource domain scope",
+                    scope=parsed.idempotency_scope,
+                    key=parsed.idempotency_key,
+                )
             return retained
 
         existing = self._session.get(RunRow, parsed.run_id)
@@ -670,31 +790,208 @@ class SqlRunRepository:
         self._session.flush()
         return parsed
 
-    def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
+    def list_claim_candidates(
+        self,
+        *,
+        now_utc: str,
+        limit: int,
+        after_created_at: str | None = None,
+        after_run_id: str | None = None,
+    ) -> tuple[RunRecord, ...]:
         _require_canonical_utc(now_utc, field_name="now_utc")
-        row = self._session.execute(
-            select(RunRow)
-            .where(
-                RunRow.cancel_requested_at.is_(None),
-                func.julianday(RunRow.overall_deadline_utc) > func.julianday(now_utc),
-                or_(
-                    and_(
-                        RunRow.status == "queued",
-                        func.julianday(RunRow.queue_deadline_utc) > func.julianday(now_utc),
-                    ),
-                    and_(
-                        RunRow.status == "retry_wait",
-                        RunRow.retry_not_before_utc.is_not(None),
-                        func.julianday(RunRow.retry_not_before_utc) <= func.julianday(now_utc),
-                    ),
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1024:
+            raise IntegrityViolation("Run claim candidate limit must be between 1 and 1024")
+        if (after_created_at is None) != (after_run_id is None):
+            raise IntegrityViolation("Run claim rotation cursor must be complete")
+        rotation_order: tuple[Any, ...] = ()
+        if after_created_at is not None and after_run_id is not None:
+            _require_canonical_utc(after_created_at, field_name="after_created_at")
+            _require_nonempty(after_run_id, field_name="after_run_id")
+            after_cursor = or_(
+                _utc_sql_key(RunRow.created_at) > _utc_sql_key(after_created_at),
+                and_(
+                    _utc_sql_key(RunRow.created_at) == _utc_sql_key(after_created_at),
+                    RunRow.run_id > after_run_id,
                 ),
             )
-            .order_by(func.julianday(RunRow.created_at), RunRow.run_id)
-            .limit(1)
-        ).scalar_one_or_none()
-        if row is None:
-            return None
-        return self.get(row.run_id)
+            # The cursor only rotates this bounded discovery view. It is never a
+            # claim/fencing authority: every selected Run is re-read and CASed in
+            # its own UoW. Wrapping here also means a disappeared cursor row cannot
+            # hide the beginning of the persistent queue.
+            rotation_order = (case((after_cursor, 0), else_=1),)
+        run_ids = (
+            self._session.execute(
+                select(RunRow.run_id)
+                .where(
+                    RunRow.cancel_requested_at.is_(None),
+                    _utc_sql_key(RunRow.overall_deadline_utc) > _utc_sql_key(now_utc),
+                    or_(
+                        and_(
+                            RunRow.status == "queued",
+                            _utc_sql_key(RunRow.queue_deadline_utc) > _utc_sql_key(now_utc),
+                        ),
+                        and_(
+                            RunRow.status == "retry_wait",
+                            RunRow.retry_not_before_utc.is_not(None),
+                            _utc_sql_key(RunRow.retry_not_before_utc) <= _utc_sql_key(now_utc),
+                        ),
+                    ),
+                )
+                .order_by(
+                    *rotation_order,
+                    _utc_sql_key(RunRow.created_at),
+                    RunRow.run_id,
+                )
+                .limit(limit)
+            )
+            .scalars()
+            .all()
+        )
+        candidates: list[RunRecord] = []
+        for run_id in run_ids:
+            run = self.get(run_id)
+            if run is not None:
+                candidates.append(run)
+        return tuple(candidates)
+
+    def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
+        candidates = self.list_claim_candidates(now_utc=now_utc, limit=1)
+        return candidates[0] if candidates else None
+
+    def list_inactive_timeout_candidates(
+        self,
+        *,
+        now_utc: str,
+        limit: int,
+    ) -> tuple[RunRecord, ...]:
+        """Discover queued/retry-wait Runs whose authoritative deadline elapsed.
+
+        Claim discovery deliberately excludes these rows. Without a complementary
+        persisted scan, a lost process hint or worker restart leaves them stranded
+        forever in a non-terminal state. The caller feeds each retained revision to
+        ``RunLifecycleService.sweep_timeout``; its write UoW rechecks the deadline,
+        lack of an active lease, and the revision before publishing authority.
+        """
+
+        _require_canonical_utc(now_utc, field_name="now_utc")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1024:
+            raise IntegrityViolation("inactive-timeout scan limit must be between 1 and 1024")
+        effective_deadline = case(
+            (RunRow.status == "queued", RunRow.queue_deadline_utc),
+            else_=RunRow.overall_deadline_utc,
+        )
+        run_ids = (
+            self._session.execute(
+                select(RunRow.run_id)
+                .where(
+                    or_(
+                        and_(
+                            RunRow.status == "queued",
+                            _utc_sql_key(RunRow.queue_deadline_utc) <= _utc_sql_key(now_utc),
+                        ),
+                        and_(
+                            RunRow.status == "retry_wait",
+                            _utc_sql_key(RunRow.overall_deadline_utc) <= _utc_sql_key(now_utc),
+                        ),
+                    )
+                )
+                .order_by(
+                    _utc_sql_key(effective_deadline),
+                    _utc_sql_key(RunRow.created_at),
+                    RunRow.run_id,
+                )
+                .limit(limit)
+            )
+            .scalars()
+            .all()
+        )
+        runs: list[RunRecord] = []
+        for run_id in run_ids:
+            run = self.get(run_id)
+            if run is not None:
+                runs.append(run)
+        return tuple(runs)
+
+    def list_timeout_candidates(
+        self,
+        *,
+        now_utc: str,
+        limit: int,
+    ) -> tuple[RunRecord, ...]:
+        """Discover every non-terminal Run whose applicable deadline elapsed.
+
+        Active attempt deadlines are deliberately discovered separately from
+        lease expiry. A healthy heartbeat may keep a lease live until the frozen
+        attempt deadline; routing that row through the lease reaper would classify
+        the attempt as ``lease_expired`` and could retry it instead of publishing
+        the required ``timed_out`` outcome.
+        """
+
+        _require_canonical_utc(now_utc, field_name="now_utc")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1024:
+            raise IntegrityViolation("timeout scan limit must be between 1 and 1024")
+        attempt_deadline = RunAttemptRow.attempt_deadline_utc
+        active_effective_deadline = case(
+            (attempt_deadline.is_(None), RunRow.overall_deadline_utc),
+            (
+                _utc_sql_key(attempt_deadline) <= _utc_sql_key(RunRow.overall_deadline_utc),
+                attempt_deadline,
+            ),
+            else_=RunRow.overall_deadline_utc,
+        )
+        effective_deadline = case(
+            (RunRow.status == "queued", RunRow.queue_deadline_utc),
+            (RunRow.status == "retry_wait", RunRow.overall_deadline_utc),
+            else_=active_effective_deadline,
+        )
+        run_ids = (
+            self._session.execute(
+                select(RunRow.run_id)
+                .outerjoin(
+                    RunAttemptRow,
+                    and_(
+                        RunAttemptRow.run_id == RunRow.run_id,
+                        RunAttemptRow.attempt_no == RunRow.current_attempt_no,
+                    ),
+                )
+                .where(
+                    or_(
+                        and_(
+                            RunRow.status == "queued",
+                            _utc_sql_key(RunRow.queue_deadline_utc) <= _utc_sql_key(now_utc),
+                        ),
+                        and_(
+                            RunRow.status == "retry_wait",
+                            _utc_sql_key(RunRow.overall_deadline_utc) <= _utc_sql_key(now_utc),
+                        ),
+                        and_(
+                            RunRow.status.in_(("leased", "running")),
+                            or_(
+                                _utc_sql_key(RunRow.overall_deadline_utc) <= _utc_sql_key(now_utc),
+                                and_(
+                                    attempt_deadline.is_not(None),
+                                    _utc_sql_key(attempt_deadline) <= _utc_sql_key(now_utc),
+                                ),
+                            ),
+                        ),
+                    )
+                )
+                .order_by(
+                    _utc_sql_key(effective_deadline),
+                    _utc_sql_key(RunRow.created_at),
+                    RunRow.run_id,
+                )
+                .limit(limit)
+            )
+            .scalars()
+            .all()
+        )
+        runs: list[RunRecord] = []
+        for run_id in run_ids:
+            run = self.get(run_id)
+            if run is not None:
+                runs.append(run)
+        return tuple(runs)
 
     def list_expired_leases(self, *, now_utc: str, limit: int) -> tuple[RunRecord, ...]:
         """Bounded scan of active Runs whose current lease has already expired.
@@ -718,13 +1015,12 @@ class SqlRunRepository:
                 .where(
                     RunLeaseRow.status == "active",
                     RunLeaseRow.released_at.is_(None),
-                    # Canonical UTC strings sort lexically == chronologically, so a
-                    # bare string range keeps the ``ix_run_leases_expiry`` index
-                    # usable for both the predicate and the ORDER BY.
-                    RunLeaseRow.expires_at < now_utc,
+                    # Canonical UTC permits optional fractional seconds, so lexical
+                    # ordering is not chronological at ``...00Z``/``...00.5Z``.
+                    _utc_sql_key(RunLeaseRow.expires_at) <= _utc_sql_key(now_utc),
                     RunRow.status.in_(("leased", "running")),
                 )
-                .order_by(RunLeaseRow.expires_at, RunLeaseRow.run_id)
+                .order_by(_utc_sql_key(RunLeaseRow.expires_at), RunLeaseRow.run_id)
                 .limit(limit)
             )
             .scalars()
@@ -892,6 +1188,7 @@ class SqlRunRepository:
         fencing_token: int,
         started_at: str,
         attempt_deadline_utc: str,
+        trace_id: str | None = None,
     ) -> RunAttemptStart:
         started = _require_canonical_utc(started_at, field_name="started_at")
         attempt_deadline = _require_canonical_utc(
@@ -900,6 +1197,9 @@ class SqlRunRepository:
         )
         if attempt_deadline <= started:
             raise IntegrityViolation("attempt deadline must be after its start")
+        selected_trace_id = (
+            None if trace_id is None else _require_nonempty(trace_id, field_name="trace_id")
+        )
         fence = _RepositoryAttemptFence(
             run_id=_require_nonempty(run_id, field_name="run_id"),
             attempt_no=_require_positive(attempt_no, field_name="attempt_no"),
@@ -917,6 +1217,12 @@ class SqlRunRepository:
         )
         if attempt.status != "leased" or attempt.started_at is not None:
             raise Conflict("Run attempt start compare-and-set did not match")
+        if attempt.trace_id is not None and selected_trace_id not in {
+            None,
+            attempt.trace_id,
+        }:
+            raise IntegrityViolation("attempt start trace differs from the claimed trace")
+        effective_trace_id = attempt.trace_id or selected_trace_id
         overall_deadline = _parse_utc(
             run.overall_deadline_utc,
             field_name="overall_deadline_utc",
@@ -940,7 +1246,7 @@ class SqlRunRepository:
                 started_at=started_at,
                 attempt_deadline_utc=attempt_deadline_utc,
             ),
-            trace_id=attempt.trace_id,
+            trace_id=effective_trace_id,
         )
         updated_run = RunRecord.model_validate(
             {
@@ -957,6 +1263,7 @@ class SqlRunRepository:
                 "status": "running",
                 "started_at": started_at,
                 "attempt_deadline_utc": attempt_deadline_utc,
+                "trace_id": effective_trace_id,
             }
         )
         run_result = self._session.execute(
@@ -981,11 +1288,17 @@ class SqlRunRepository:
                 RunAttemptRow.started_at.is_(None),
                 RunAttemptRow.attempt_deadline_utc.is_(None),
                 RunAttemptRow.ended_at.is_(None),
+                (
+                    RunAttemptRow.trace_id.is_(None)
+                    if attempt.trace_id is None
+                    else RunAttemptRow.trace_id == attempt.trace_id
+                ),
             )
             .values(
                 status="running",
                 started_at=started_at,
                 attempt_deadline_utc=attempt_deadline_utc,
+                trace_id=effective_trace_id,
             )
         )
         if attempt_result.rowcount != 1:
@@ -1704,6 +2017,7 @@ class SqlRunRepository:
             parsed.run_id,
             parsed.attempt_no,
             parsed.call_ordinal,
+            parsed.route_ordinal,
         )
         if existing is not None:
             if _canonical_wire(existing) != _canonical_wire(parsed):
@@ -1730,12 +2044,47 @@ class SqlRunRepository:
             or attempt.fencing_token != parsed.fencing_token
         ):
             raise InvalidStateTransition("intermediate link requires the current fenced lease")
-        if attempt.next_call_ordinal != parsed.call_ordinal:
-            raise Conflict(
-                "call ordinal does not match the Attempt head",
-                expected_call_ordinal=attempt.next_call_ordinal,
-                actual_call_ordinal=parsed.call_ordinal,
+        if parsed.route_ordinal == 1:
+            if attempt.next_call_ordinal != parsed.call_ordinal:
+                raise Conflict(
+                    "call ordinal does not match the Attempt head",
+                    expected_call_ordinal=attempt.next_call_ordinal,
+                    actual_call_ordinal=parsed.call_ordinal,
+                )
+        else:
+            if parsed.call_ordinal >= attempt.next_call_ordinal:
+                raise Conflict(
+                    "fallback route requires an already-open logical call",
+                    call_ordinal=parsed.call_ordinal,
+                    next_call_ordinal=attempt.next_call_ordinal,
+                )
+            predecessor = self.get_intermediate_link(
+                parsed.run_id,
+                parsed.attempt_no,
+                parsed.call_ordinal,
+                parsed.route_ordinal - 1,
             )
+            if predecessor is None:
+                raise Conflict(
+                    "fallback route ordinal is not contiguous",
+                    call_ordinal=parsed.call_ordinal,
+                    route_ordinal=parsed.route_ordinal,
+                )
+            consumed = self._session.execute(
+                select(RunModelResponseConsumptionRow.route_ordinal)
+                .where(
+                    RunModelResponseConsumptionRow.run_id == parsed.run_id,
+                    RunModelResponseConsumptionRow.attempt_no == parsed.attempt_no,
+                    RunModelResponseConsumptionRow.call_ordinal == parsed.call_ordinal,
+                )
+                .limit(1)
+            ).scalar_one_or_none()
+            if consumed is not None:
+                raise Conflict(
+                    "fallback prompt cannot extend an already-consumed logical call",
+                    call_ordinal=parsed.call_ordinal,
+                    consumed_route_ordinal=consumed,
+                )
         artifact = self._session.get(ArtifactRow, parsed.artifact_id)
         if artifact is None or artifact.kind != "source_rendered":
             raise IntegrityViolation(
@@ -1743,19 +2092,20 @@ class SqlRunRepository:
                 artifact_id=parsed.artifact_id,
             )
 
-        result = self._session.execute(
-            update(RunAttemptRow)
-            .where(
-                RunAttemptRow.run_id == parsed.run_id,
-                RunAttemptRow.attempt_no == parsed.attempt_no,
-                RunAttemptRow.fencing_token == parsed.fencing_token,
-                RunAttemptRow.status.in_(_ACTIVE_ATTEMPT_STATUSES),
-                RunAttemptRow.next_call_ordinal == parsed.call_ordinal,
+        if parsed.route_ordinal == 1:
+            result = self._session.execute(
+                update(RunAttemptRow)
+                .where(
+                    RunAttemptRow.run_id == parsed.run_id,
+                    RunAttemptRow.attempt_no == parsed.attempt_no,
+                    RunAttemptRow.fencing_token == parsed.fencing_token,
+                    RunAttemptRow.status.in_(_ACTIVE_ATTEMPT_STATUSES),
+                    RunAttemptRow.next_call_ordinal == parsed.call_ordinal,
+                )
+                .values(next_call_ordinal=parsed.call_ordinal + 1)
             )
-            .values(next_call_ordinal=parsed.call_ordinal + 1)
-        )
-        if result.rowcount != 1:
-            raise Conflict("Attempt call-ordinal compare-and-set did not match")
+            if result.rowcount != 1:
+                raise Conflict("Attempt call-ordinal compare-and-set did not match")
         self._session.add(RunIntermediateArtifactLinkRow(**parsed.model_dump(mode="json")))
         self._session.flush()
         return parsed
@@ -1765,13 +2115,15 @@ class SqlRunRepository:
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int = 1,
     ) -> RunIntermediateArtifactLinkV1 | None:
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
         selected_attempt = _require_positive(attempt_no, field_name="attempt_no")
         selected_ordinal = _require_positive(call_ordinal, field_name="call_ordinal")
+        selected_route = _require_positive(route_ordinal, field_name="route_ordinal")
         row = self._session.get(
             RunIntermediateArtifactLinkRow,
-            (selected_run_id, selected_attempt, selected_ordinal),
+            (selected_run_id, selected_attempt, selected_ordinal, selected_route),
         )
         if row is None:
             return None
@@ -1780,6 +2132,7 @@ class SqlRunRepository:
             expected_run_id=selected_run_id,
             expected_attempt_no=selected_attempt,
             expected_call_ordinal=selected_ordinal,
+            expected_route_ordinal=selected_route,
         )
         attempt = self.get_attempt(selected_run_id, selected_attempt)
         if (
@@ -1800,7 +2153,7 @@ class SqlRunRepository:
 
         Bounded to one attempt when ``attempt_no`` is given (attempt-scope manifest
         projection) or the whole Run when ``None`` (run-scope). Ordered by
-        ``(attempt_no, call_ordinal)`` so the terminal manifest projection is
+        ``(attempt_no, call_ordinal, route_ordinal)`` so the terminal manifest projection is
         deterministic. A ``not_applicable``/``live`` Run has no source_rendered links
         and this returns ``()``.
         """
@@ -1816,6 +2169,7 @@ class SqlRunRepository:
         query = query.order_by(
             RunIntermediateArtifactLinkRow.attempt_no,
             RunIntermediateArtifactLinkRow.call_ordinal,
+            RunIntermediateArtifactLinkRow.route_ordinal,
         )
         rows = self._session.scalars(query).all()
         return tuple(
@@ -1824,6 +2178,7 @@ class SqlRunRepository:
                 expected_run_id=row.run_id,
                 expected_attempt_no=row.attempt_no,
                 expected_call_ordinal=row.call_ordinal,
+                expected_route_ordinal=row.route_ordinal,
             )
             for row in rows
         )
@@ -1848,6 +2203,7 @@ class SqlRunRepository:
                 RunIntermediateArtifactLinkRow.run_id,
                 RunIntermediateArtifactLinkRow.attempt_no,
                 RunIntermediateArtifactLinkRow.call_ordinal,
+                RunIntermediateArtifactLinkRow.route_ordinal,
             )
             .limit(selected_limit + 1)
         ).all()
@@ -1863,9 +2219,518 @@ class SqlRunRepository:
                 expected_run_id=row.run_id,
                 expected_attempt_no=row.attempt_no,
                 expected_call_ordinal=row.call_ordinal,
+                expected_route_ordinal=row.route_ordinal,
             )
             for row in rows
         )
+
+    def put_model_route_link(self, link: RunModelRouteLinkV1) -> RunModelRouteLinkV1:
+        parsed = _revalidate(link, RunModelRouteLinkV1, label="Run model route link put")
+        existing = self.get_model_route_link(
+            parsed.run_id,
+            parsed.attempt_no,
+            parsed.call_ordinal,
+            parsed.route_ordinal,
+        )
+        if existing is not None:
+            if _canonical_wire(existing) != _canonical_wire(parsed):
+                raise IntegrityViolation(
+                    "immutable Run model route differs from retained content",
+                    run_id=parsed.run_id,
+                    attempt_no=parsed.attempt_no,
+                    call_ordinal=parsed.call_ordinal,
+                    route_ordinal=parsed.route_ordinal,
+                )
+            return existing
+
+        run = self.get(parsed.run_id)
+        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
+        lease = self.get_current_lease(parsed.run_id)
+        if (
+            run is None
+            or run.current_attempt_no != parsed.attempt_no
+            or run.status not in _ACTIVE_RUN_STATUSES
+            or attempt is None
+            or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
+            or lease is None
+            or lease.attempt_no != parsed.attempt_no
+            or lease.fencing_token != parsed.fencing_token
+            or attempt.fencing_token != parsed.fencing_token
+        ):
+            raise InvalidStateTransition("model route requires the current fenced lease")
+        prompt = self.get_intermediate_link(
+            parsed.run_id,
+            parsed.attempt_no,
+            parsed.call_ordinal,
+            parsed.route_ordinal,
+        )
+        if (
+            prompt is None
+            or prompt.artifact_id != parsed.prompt_artifact_id
+            or prompt.request_hash != parsed.request_hash
+            or prompt.fencing_token != parsed.fencing_token
+            or prompt.published_at != parsed.published_at
+        ):
+            raise IntegrityViolation("model route differs from its exact rendered prompt")
+        predecessor: RunModelRouteLinkV1 | None = None
+        if parsed.route_ordinal > 1:
+            predecessor = self.get_model_route_link(
+                parsed.run_id,
+                parsed.attempt_no,
+                parsed.call_ordinal,
+                parsed.route_ordinal - 1,
+            )
+            if predecessor is None:
+                raise Conflict("fallback model route lacks its retained predecessor")
+        consumed = self._session.execute(
+            select(RunModelResponseConsumptionRow.route_ordinal)
+            .where(
+                RunModelResponseConsumptionRow.run_id == parsed.run_id,
+                RunModelResponseConsumptionRow.attempt_no == parsed.attempt_no,
+                RunModelResponseConsumptionRow.call_ordinal == parsed.call_ordinal,
+            )
+            .limit(1)
+        ).scalar_one_or_none()
+        if consumed is not None:
+            raise Conflict("model route cannot extend an already-consumed logical call")
+
+        native_id: str | None = None
+        legacy_id: str | None = None
+        plan = run.payload.execution_version_plan
+        if plan is None:
+            raise IntegrityViolation("model route requires a frozen execution version plan")
+        expected_sources = (
+            {"cassette_replay"}
+            if run.payload.llm_execution_mode == "replay"
+            else (
+                {"online", "full_response_cache"}
+                if run.payload.llm_execution_mode in {"live", "record"}
+                else set()
+            )
+        )
+        cost_authority = SqlCostRepository(self._session)
+        if parsed.routing_decision_kind == "native":
+            decision = cost_authority.get_routing_decision(parsed.routing_decision_id)
+            if (
+                decision is None
+                or decision.run_id != parsed.run_id
+                or decision.attempt_no != parsed.attempt_no
+                or decision.request_hash != f"sha256:{parsed.request_hash}"
+                or decision.budget_set_snapshot_id != run.payload.budget_set_snapshot_id
+                or decision.policy_version != plan.routing_policy_version
+                or decision.routing_policy_digest != plan.routing_policy_digest
+                or decision.catalog_version != plan.model_catalog_version
+                or decision.catalog_digest != plan.model_catalog_digest
+                or decision.execution_source not in expected_sources
+                or decision.fallback_index + 1 != parsed.route_ordinal
+            ):
+                raise IntegrityViolation("model route differs from native RoutingDecision")
+            if predecessor is not None:
+                if predecessor.routing_decision_kind != "native":
+                    raise IntegrityViolation("native fallback route has a non-native predecessor")
+                predecessor_decision = cost_authority.get_routing_decision(
+                    predecessor.routing_decision_id
+                )
+                if (
+                    predecessor_decision is None
+                    or decision.fallback_index != predecessor_decision.fallback_index + 1
+                    or decision.fallback_from != predecessor_decision.model_snapshot
+                    or decision.rule_id != predecessor_decision.rule_id
+                ):
+                    raise IntegrityViolation(
+                        "native fallback decision differs from its retained predecessor"
+                    )
+            native_id = parsed.routing_decision_id
+        else:
+            decision = cost_authority.get_legacy_import_routing_decision(parsed.routing_decision_id)
+            node = (
+                None
+                if decision is None
+                else next(
+                    (item for item in plan.nodes if item.agent_node_id == decision.agent_node_id),
+                    None,
+                )
+            )
+            if (
+                decision is None
+                or decision.request_hash != f"sha256:{parsed.request_hash}"
+                or run.payload.llm_execution_mode != "replay"
+                or decision.model_catalog_version != plan.model_catalog_version
+                or decision.model_catalog_digest != plan.model_catalog_digest
+                or node is None
+                or decision.model_snapshot not in node.allowed_model_snapshots
+                or parsed.route_ordinal != 1
+            ):
+                raise IntegrityViolation("model route differs from legacy routing authority")
+            legacy_id = parsed.routing_decision_id
+
+        self._session.add(
+            RunModelRouteLinkRow(
+                **parsed.model_dump(mode="json"),
+                native_routing_decision_id=native_id,
+                legacy_routing_decision_id=legacy_id,
+            )
+        )
+        self._session.flush()
+        return parsed
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelRouteLinkV1 | None:
+        key = (
+            _require_nonempty(run_id, field_name="run_id"),
+            _require_positive(attempt_no, field_name="attempt_no"),
+            _require_positive(call_ordinal, field_name="call_ordinal"),
+            _require_positive(route_ordinal, field_name="route_ordinal"),
+        )
+        row = self._session.get(RunModelRouteLinkRow, key)
+        if row is None:
+            return None
+        parsed = _parse_model_route_row(row)
+        prompt = self.get_intermediate_link(*key)
+        if (
+            prompt is None
+            or prompt.artifact_id != parsed.prompt_artifact_id
+            or prompt.request_hash != parsed.request_hash
+            or prompt.fencing_token != parsed.fencing_token
+            or prompt.published_at != parsed.published_at
+        ):
+            raise IntegrityViolation("stored model route differs from rendered-prompt authority")
+        run = self.get(parsed.run_id)
+        plan = None if run is None else run.payload.execution_version_plan
+        if run is None or plan is None:
+            raise IntegrityViolation("stored model route lacks its frozen execution plan")
+        cost_authority = SqlCostRepository(self._session)
+        if parsed.routing_decision_kind == "native":
+            decision = cost_authority.get_routing_decision(parsed.routing_decision_id)
+            expected_sources = (
+                {"cassette_replay"}
+                if run.payload.llm_execution_mode == "replay"
+                else (
+                    {"online", "full_response_cache"}
+                    if run.payload.llm_execution_mode in {"live", "record"}
+                    else set()
+                )
+            )
+            if (
+                decision is None
+                or decision.run_id != parsed.run_id
+                or decision.attempt_no != parsed.attempt_no
+                or decision.request_hash != f"sha256:{parsed.request_hash}"
+                or decision.budget_set_snapshot_id != run.payload.budget_set_snapshot_id
+                or decision.policy_version != plan.routing_policy_version
+                or decision.routing_policy_digest != plan.routing_policy_digest
+                or decision.catalog_version != plan.model_catalog_version
+                or decision.catalog_digest != plan.model_catalog_digest
+                or decision.execution_source not in expected_sources
+                or decision.fallback_index + 1 != parsed.route_ordinal
+            ):
+                raise IntegrityViolation("stored model route differs from RoutingDecision")
+        else:
+            decision = cost_authority.get_legacy_import_routing_decision(parsed.routing_decision_id)
+            node = (
+                None
+                if decision is None
+                else next(
+                    (item for item in plan.nodes if item.agent_node_id == decision.agent_node_id),
+                    None,
+                )
+            )
+            if (
+                decision is None
+                or run.payload.llm_execution_mode != "replay"
+                or decision.request_hash != f"sha256:{parsed.request_hash}"
+                or decision.model_catalog_version != plan.model_catalog_version
+                or decision.model_catalog_digest != plan.model_catalog_digest
+                or node is None
+                or decision.model_snapshot not in node.allowed_model_snapshots
+                or parsed.route_ordinal != 1
+            ):
+                raise IntegrityViolation("stored model route differs from legacy authority")
+        return parsed
+
+    def list_model_route_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = 8192,
+    ) -> tuple[RunModelRouteLinkV1, ...]:
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 8192:
+            raise IntegrityViolation("model-route limit must be between 1 and 8192")
+        query = select(RunModelRouteLinkRow).where(RunModelRouteLinkRow.run_id == selected_run_id)
+        if attempt_no is not None:
+            query = query.where(
+                RunModelRouteLinkRow.attempt_no
+                == _require_positive(attempt_no, field_name="attempt_no")
+            )
+        rows = self._session.scalars(
+            query.order_by(
+                RunModelRouteLinkRow.attempt_no,
+                RunModelRouteLinkRow.call_ordinal,
+                RunModelRouteLinkRow.route_ordinal,
+            ).limit(limit + 1)
+        ).all()
+        if len(rows) > limit:
+            raise IntegrityViolation("model-route listing exceeds its admission bound")
+        retained: list[RunModelRouteLinkV1] = []
+        for row in rows:
+            link = self.get_model_route_link(
+                row.run_id,
+                row.attempt_no,
+                row.call_ordinal,
+                row.route_ordinal,
+            )
+            if link is None:  # pragma: no cover - selected row cannot disappear in one UoW
+                raise IntegrityViolation("listed model route disappeared")
+            retained.append(link)
+        return tuple(retained)
+
+    def put_model_response_consumption(
+        self,
+        consumption: RunModelResponseConsumptionV1,
+    ) -> RunModelResponseConsumptionV1:
+        parsed = _revalidate(
+            consumption,
+            RunModelResponseConsumptionV1,
+            label="Run model response consumption put",
+        )
+        key = (
+            parsed.run_id,
+            parsed.attempt_no,
+            parsed.call_ordinal,
+            parsed.route_ordinal,
+        )
+        existing = self.get_model_response_consumption(*key)
+        if existing is not None:
+            if _canonical_wire(existing) != _canonical_wire(parsed):
+                raise IntegrityViolation(
+                    "immutable model response consumption differs from retained content"
+                )
+            return existing
+        prior_consumption = self._session.execute(
+            select(RunModelResponseConsumptionRow.route_ordinal)
+            .where(
+                RunModelResponseConsumptionRow.run_id == parsed.run_id,
+                RunModelResponseConsumptionRow.attempt_no == parsed.attempt_no,
+                RunModelResponseConsumptionRow.call_ordinal == parsed.call_ordinal,
+            )
+            .limit(1)
+        ).scalar_one_or_none()
+        if prior_consumption is not None:
+            raise Conflict(
+                "logical model call already consumed another route",
+                consumed_route_ordinal=prior_consumption,
+            )
+        latest_route_ordinal = self._session.execute(
+            select(func.max(RunModelRouteLinkRow.route_ordinal)).where(
+                RunModelRouteLinkRow.run_id == parsed.run_id,
+                RunModelRouteLinkRow.attempt_no == parsed.attempt_no,
+                RunModelRouteLinkRow.call_ordinal == parsed.call_ordinal,
+            )
+        ).scalar_one()
+        if latest_route_ordinal != parsed.route_ordinal:
+            raise Conflict(
+                "model response can consume only the latest committed route",
+                requested_route_ordinal=parsed.route_ordinal,
+                latest_route_ordinal=latest_route_ordinal,
+            )
+        route = self.get_model_route_link(*key)
+        run = self.get(parsed.run_id)
+        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
+        lease = self.get_current_lease(parsed.run_id)
+        if (
+            route is None
+            or run is None
+            or run.current_attempt_no != parsed.attempt_no
+            or run.status not in _ACTIVE_RUN_STATUSES
+            or attempt is None
+            or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
+            or lease is None
+            or lease.attempt_no != parsed.attempt_no
+            or lease.fencing_token != route.fencing_token
+            or attempt.fencing_token != route.fencing_token
+        ):
+            raise InvalidStateTransition("response consumption requires the current fenced route")
+
+        cost_authority = SqlCostRepository(self._session)
+        decision = (
+            cost_authority.get_routing_decision(route.routing_decision_id)
+            if route.routing_decision_kind == "native"
+            else cost_authority.get_legacy_import_routing_decision(route.routing_decision_id)
+        )
+        if decision is None or decision.execution_source != parsed.execution_source:
+            raise IntegrityViolation("response consumption differs from routing authority")
+
+        group = self._session.get(ReservationGroupRow, parsed.reservation_group_id)
+        if (
+            group is None
+            or group.scope != "attempt_call"
+            or group.status not in {"reconciled", "conservatively_settled", "late_reconciled"}
+            or group.run_id != parsed.run_id
+            or group.attempt_no != parsed.attempt_no
+            or group.request_hash != f"sha256:{route.request_hash}"
+            or group.fencing_token != route.fencing_token
+        ):
+            raise IntegrityViolation("response consumption differs from reservation authority")
+        usages = self._session.scalars(
+            select(UsageEntryRow).where(
+                UsageEntryRow.reservation_group_id == parsed.reservation_group_id,
+                UsageEntryRow.adjustment_of_usage_id.is_(None),
+            )
+        ).all()
+        if len(usages) != 1:
+            raise IntegrityViolation("response consumption requires one reconciled base usage")
+        usage = usages[0]
+        if (
+            usage.run_id != parsed.run_id
+            or usage.attempt_no != parsed.attempt_no
+            or usage.request_hash != f"sha256:{route.request_hash}"
+            or usage.execution_source != parsed.execution_source
+            or usage.routing_decision_kind != route.routing_decision_kind
+            or usage.routing_decision_id != route.routing_decision_id
+            or usage.fencing_token_at_reserve != route.fencing_token
+            or (
+                parsed.execution_source == "online"
+                and usage.transport_attempt != parsed.transport_attempt
+            )
+        ):
+            raise IntegrityViolation("response consumption differs from reconciled usage")
+
+        shard_id = parsed.cassette_shard_artifact_id
+        if (run.payload.llm_execution_mode == "record") != (shard_id is not None):
+            raise IntegrityViolation("RECORD response consumption requires exactly one shard")
+        if shard_id is not None:
+            artifact = self._session.get(ArtifactRow, shard_id)
+            if (
+                artifact is None
+                or artifact.kind != "cassette_bundle"
+                or not isinstance(artifact.meta, dict)
+                or artifact.meta.get("payload_schema_id") != "cassette-record-shard@1"
+                or tuple(artifact.lineage) != (route.prompt_artifact_id,)
+            ):
+                raise IntegrityViolation(
+                    "response shard is not the exact prompt-derived cassette bundle"
+                )
+
+        self._session.add(RunModelResponseConsumptionRow(**parsed.model_dump(mode="json")))
+        self._session.flush()
+        return parsed
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelResponseConsumptionV1 | None:
+        key = (
+            _require_nonempty(run_id, field_name="run_id"),
+            _require_positive(attempt_no, field_name="attempt_no"),
+            _require_positive(call_ordinal, field_name="call_ordinal"),
+            _require_positive(route_ordinal, field_name="route_ordinal"),
+        )
+        row = self._session.get(RunModelResponseConsumptionRow, key)
+        if row is None:
+            return None
+        parsed = _parse_model_consumption_row(row)
+        route = self.get_model_route_link(*key)
+        if route is None:
+            raise IntegrityViolation("stored response consumption lacks its exact model route")
+        run = self.get(parsed.run_id)
+        group = self._session.get(ReservationGroupRow, parsed.reservation_group_id)
+        usages = self._session.scalars(
+            select(UsageEntryRow).where(
+                UsageEntryRow.reservation_group_id == parsed.reservation_group_id,
+                UsageEntryRow.adjustment_of_usage_id.is_(None),
+            )
+        ).all()
+        if (
+            run is None
+            or group is None
+            or group.scope != "attempt_call"
+            or group.status not in {"reconciled", "conservatively_settled", "late_reconciled"}
+            or group.run_id != parsed.run_id
+            or group.attempt_no != parsed.attempt_no
+            or group.request_hash != f"sha256:{route.request_hash}"
+            or group.fencing_token != route.fencing_token
+            or len(usages) != 1
+        ):
+            raise IntegrityViolation("stored response consumption differs from cost authority")
+        usage = usages[0]
+        if (
+            usage.run_id != parsed.run_id
+            or usage.attempt_no != parsed.attempt_no
+            or usage.request_hash != f"sha256:{route.request_hash}"
+            or usage.execution_source != parsed.execution_source
+            or usage.routing_decision_kind != route.routing_decision_kind
+            or usage.routing_decision_id != route.routing_decision_id
+            or usage.fencing_token_at_reserve != route.fencing_token
+            or (
+                parsed.execution_source == "online"
+                and usage.transport_attempt != parsed.transport_attempt
+            )
+        ):
+            raise IntegrityViolation("stored response consumption differs from usage authority")
+        shard_id = parsed.cassette_shard_artifact_id
+        if (run.payload.llm_execution_mode == "record") != (shard_id is not None):
+            raise IntegrityViolation("stored response consumption has the wrong shard mode")
+        if shard_id is not None:
+            artifact = self._session.get(ArtifactRow, shard_id)
+            if (
+                artifact is None
+                or artifact.kind != "cassette_bundle"
+                or not isinstance(artifact.meta, dict)
+                or artifact.meta.get("payload_schema_id") != "cassette-record-shard@1"
+                or tuple(artifact.lineage) != (route.prompt_artifact_id,)
+            ):
+                raise IntegrityViolation("stored response consumption has a detached shard")
+        return parsed
+
+    def list_model_response_consumptions(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = 8192,
+    ) -> tuple[RunModelResponseConsumptionV1, ...]:
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 8192:
+            raise IntegrityViolation("model-consumption limit must be between 1 and 8192")
+        query = select(RunModelResponseConsumptionRow).where(
+            RunModelResponseConsumptionRow.run_id == selected_run_id
+        )
+        if attempt_no is not None:
+            query = query.where(
+                RunModelResponseConsumptionRow.attempt_no
+                == _require_positive(attempt_no, field_name="attempt_no")
+            )
+        rows = self._session.scalars(
+            query.order_by(
+                RunModelResponseConsumptionRow.attempt_no,
+                RunModelResponseConsumptionRow.call_ordinal,
+                RunModelResponseConsumptionRow.route_ordinal,
+            ).limit(limit + 1)
+        ).all()
+        if len(rows) > limit:
+            raise IntegrityViolation("model-consumption listing exceeds its admission bound")
+        retained: list[RunModelResponseConsumptionV1] = []
+        for row in rows:
+            consumption = self.get_model_response_consumption(
+                row.run_id,
+                row.attempt_no,
+                row.call_ordinal,
+                row.route_ordinal,
+            )
+            if consumption is None:  # pragma: no cover - selected row cannot disappear in one UoW
+                raise IntegrityViolation("listed model response consumption disappeared")
+            retained.append(consumption)
+        return tuple(retained)
 
     def list_closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]:
         """``(attempt_no, failure_artifact_id)`` for each closed failed attempt.
@@ -2834,26 +3699,29 @@ class SqlRunRepository:
                     raise IntegrityViolation("terminal Run/Attempt projection is inconsistent")
 
     def _verify_call_ordinal_head(self, attempt: RunAttempt) -> None:
-        link_count, first_ordinal, last_ordinal = self._session.execute(
+        rows = self._session.execute(
             select(
-                func.count(RunIntermediateArtifactLinkRow.call_ordinal),
-                func.min(RunIntermediateArtifactLinkRow.call_ordinal),
-                func.max(RunIntermediateArtifactLinkRow.call_ordinal),
-            ).where(
+                RunIntermediateArtifactLinkRow.call_ordinal,
+                RunIntermediateArtifactLinkRow.route_ordinal,
+            )
+            .where(
                 RunIntermediateArtifactLinkRow.run_id == attempt.run_id,
                 RunIntermediateArtifactLinkRow.attempt_no == attempt.attempt_no,
             )
-        ).one()
-        expected_link_count = attempt.next_call_ordinal - 1
-        expected_first = 1 if expected_link_count else None
-        expected_last = expected_link_count if expected_link_count else None
-        if (
-            link_count != expected_link_count
-            or first_ordinal != expected_first
-            or last_ordinal != expected_last
+            .order_by(
+                RunIntermediateArtifactLinkRow.call_ordinal,
+                RunIntermediateArtifactLinkRow.route_ordinal,
+            )
+        ).all()
+        routes_by_call: dict[int, list[int]] = {}
+        for call_ordinal, route_ordinal in rows:
+            routes_by_call.setdefault(call_ordinal, []).append(route_ordinal)
+        expected_calls = list(range(1, attempt.next_call_ordinal))
+        if list(routes_by_call) != expected_calls or any(
+            routes != list(range(1, len(routes) + 1)) for routes in routes_by_call.values()
         ):
             raise IntegrityViolation(
-                "Attempt call-ordinal head is not closed over prompt links",
+                "Attempt call-ordinal head and route chains are not closed over prompt links",
                 run_id=attempt.run_id,
                 attempt_no=attempt.attempt_no,
             )

@@ -6,6 +6,7 @@ from collections.abc import Callable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
@@ -15,6 +16,7 @@ from gameforge.contracts.errors import (
     IdempotencyConflict,
     IntegrityViolation,
     InvalidStateTransition,
+    QuotaExceeded,
 )
 from gameforge.contracts.execution_graphs import AgentExecutionGraphV1
 from gameforge.contracts.execution_profiles import (
@@ -42,6 +44,8 @@ from gameforge.contracts.jobs import (
     RunIntermediateArtifactLinkV1,
     RunKindDefinition,
     RunLease,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunPayloadEnvelope,
     RunPolicyBindingV1,
     RunQueuedDataV1,
@@ -54,6 +58,7 @@ from gameforge.contracts.jobs import (
     run_kind_definition_digest,
 )
 from gameforge.contracts.lineage import AuditActor
+from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.storage import UtcClock
 from gameforge.platform.runs.state import (
     validate_claim_transition,
@@ -72,6 +77,7 @@ from gameforge.platform.runs.lifecycle import (
     validate_terminal_cassette_publication,
 )
 from gameforge.platform.registry.model import ProfileRequirement
+from gameforge.runtime.observability.context import TraceCarrier
 
 if TYPE_CHECKING:
     from gameforge.platform.terminal_staging import (
@@ -103,6 +109,7 @@ class RunCreateRequest(_FrozenModel):
     request_hash: Sha256Hex
     request_id: NonEmptyStr | None = None
     payload: RunPayloadEnvelope
+    resource_domain_scope: DomainScope | None = None
     dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
     initiated_by: AuditActor
     queue_deadline_utc: NonEmptyStr
@@ -120,11 +127,14 @@ class RunClaimRequest(_FrozenModel):
     lease_id: NonEmptyStr
     lease_duration_ns: PositiveInt
     trace_id: NonEmptyStr | None = None
+    max_candidate_count: PositiveInt = 32
 
     @model_validator(mode="after")
     def _trusted_worker_kind(self) -> "RunClaimRequest":
         if self.worker.principal_kind not in {"service", "system"}:
             raise ValueError("Run claims require a service or system worker")
+        if self.max_candidate_count > 1024:
+            raise ValueError("Run claim candidate bound cannot exceed 1024")
         return self
 
 
@@ -138,6 +148,9 @@ class RunClaimResult(_FrozenModel):
 
 class PromptRenderPublicationRequest(_FrozenModel):
     fence: AttemptWriteFence
+    logical_call_ordinal: PositiveInt
+    call_ordinal: PositiveInt | None = None
+    route_ordinal: PositiveInt = 1
     artifact_id: NonEmptyStr
     request_hash: Sha256Hex
     idempotency_scope: NonEmptyStr
@@ -148,6 +161,12 @@ class PromptRenderPublicationRequest(_FrozenModel):
     def _worker_actor(self) -> "PromptRenderPublicationRequest":
         if self.actor.principal_kind not in {"service", "system"}:
             raise ValueError("prompt publication requires a service or system actor")
+        if self.route_ordinal == 1 and self.call_ordinal is not None:
+            raise ValueError("first route must acquire call_ordinal from the Attempt head")
+        if self.route_ordinal > 1 and self.call_ordinal is None:
+            raise ValueError("fallback route requires the already-open call_ordinal")
+        if self.call_ordinal is not None and self.call_ordinal != self.logical_call_ordinal:
+            raise ValueError("fallback call_ordinal differs from the logical call identity")
         return self
 
 
@@ -198,6 +217,15 @@ class RunRepository(Protocol):
 
     def create_queued(self, run: RunRecord, initial_event: RunEvent) -> RunRecord: ...
 
+    def list_claim_candidates(
+        self,
+        *,
+        now_utc: str,
+        limit: int,
+        after_created_at: str | None = None,
+        after_run_id: str | None = None,
+    ) -> tuple[RunRecord, ...]: ...
+
     def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None: ...
 
     def claim(
@@ -232,6 +260,7 @@ class RunRepository(Protocol):
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int = 1,
     ) -> RunIntermediateArtifactLinkV1 | None: ...
 
     def list_prompt_render_links_by_artifact_id(
@@ -245,6 +274,45 @@ class RunRepository(Protocol):
         self,
         link: RunIntermediateArtifactLinkV1,
     ) -> RunIntermediateArtifactLinkV1: ...
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelRouteLinkV1 | None: ...
+
+    def put_model_route_link(self, link: RunModelRouteLinkV1) -> RunModelRouteLinkV1: ...
+
+    def list_model_route_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = 8192,
+    ) -> tuple[RunModelRouteLinkV1, ...]: ...
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelResponseConsumptionV1 | None: ...
+
+    def put_model_response_consumption(
+        self,
+        consumption: RunModelResponseConsumptionV1,
+    ) -> RunModelResponseConsumptionV1: ...
+
+    def list_model_response_consumptions(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = 8192,
+    ) -> tuple[RunModelResponseConsumptionV1, ...]: ...
 
     def get_finding_link(
         self,
@@ -588,6 +656,12 @@ class RunCommandService:
         self._planning_scope = planning_scope
         self._bind_planning_capabilities = bind_planning_capabilities
         self._stage_publications = stage_publications
+        # Scheduling fairness is an operational hint, never queue authority. The
+        # persistent Run rows remain the complete source of candidates and each
+        # claim is re-read/fenced in its own UoW. Losing this cursor on restart only
+        # restarts a bounded rotation; it cannot lose or mutate a Run.
+        self._claim_rotation_lock = Lock()
+        self._claim_rotation_cursor: tuple[str, str] | None = None
 
     def create_run(
         self,
@@ -698,6 +772,7 @@ class RunCommandService:
                 migration_capability_matrix=definition.migration_capability_matrix,
                 failure_classifier=definition.failure_classifier,
                 dispatch_trace_carrier=request.dispatch_trace_carrier,
+                resource_domain_scope=request.resource_domain_scope,
                 initiated_by=request.initiated_by,
                 queue_deadline_utc=request.queue_deadline_utc,
                 attempt_timeout_ns=request.attempt_timeout_ns,
@@ -754,6 +829,38 @@ class RunCommandService:
             return RunCreateResult(run=run, replayed=False)
 
     def claim_next(self, request: RunClaimRequest) -> RunClaimResult | None:
+        discovery_now = _utc_text(_utc_now(self._clock))
+        with self._claim_rotation_lock:
+            cursor = self._claim_rotation_cursor
+            with self._unit_of_work.begin() as transaction:
+                capabilities = self._bind_capabilities(transaction)
+                runs = _required(capabilities.runs, "runs")
+                candidates = runs.list_claim_candidates(
+                    now_utc=discovery_now,
+                    limit=request.max_candidate_count,
+                    after_created_at=None if cursor is None else cursor[0],
+                    after_run_id=None if cursor is None else cursor[1],
+                )
+            self._claim_rotation_cursor = (
+                None if not candidates else (candidates[-1].created_at, candidates[-1].run_id)
+            )
+        for candidate in candidates:
+            try:
+                return self._claim_candidate(request=request, candidate=candidate)
+            except (Conflict, InvalidStateTransition, QuotaExceeded):
+                # Each candidate owns a distinct UoW, so a lost revision race or
+                # rejected permit group rolls back completely before trying the
+                # next bounded candidate. This prevents an oldest quota-blocked Run
+                # from starving unrelated principal/domain scopes.
+                continue
+        return None
+
+    def _claim_candidate(
+        self,
+        *,
+        request: RunClaimRequest,
+        candidate: RunRecord,
+    ) -> RunClaimResult:
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
             runs = _required(capabilities.runs, "runs")
@@ -762,13 +869,13 @@ class RunCommandService:
             publication = _required(capabilities.publication, "publication")
             now = _utc_now(self._clock)
             now_text = _utc_text(now)
-            previous = runs.get_claim_candidate(now_utc=now_text)
-            if previous is None:
-                return None
+            previous = runs.get(candidate.run_id)
+            if previous is None or previous.revision != candidate.revision:
+                raise Conflict("Run claim candidate revision is no longer current")
             if previous.status not in {"queued", "retry_wait"}:
-                raise IntegrityViolation("Run claim candidate is not claimable")
+                raise Conflict("Run claim candidate is no longer claimable")
             if previous.cancel_requested_at is not None:
-                raise IntegrityViolation("Run repository returned a cancel-requested candidate")
+                raise Conflict("Run claim candidate is now cancel-requested")
             _resolve_bindings(run=previous, registry=registry)
             queue_deadline = _parse_utc(
                 previous.queue_deadline_utc,
@@ -779,9 +886,9 @@ class RunCommandService:
                 field_name="stored overall_deadline_utc",
             )
             if now >= overall_deadline:
-                raise IntegrityViolation("Run repository returned an expired claim candidate")
+                raise Conflict("Run claim candidate expired before claim")
             if previous.status == "queued" and now >= queue_deadline:
-                raise IntegrityViolation("Run repository returned an expired queued candidate")
+                raise Conflict("queued Run candidate expired before claim")
             if previous.status == "retry_wait":
                 if previous.retry_not_before_utc is None:
                     raise IntegrityViolation("retry-wait Run omitted retry_not_before_utc")
@@ -790,9 +897,21 @@ class RunCommandService:
                     field_name="stored retry_not_before_utc",
                 )
                 if now < retry_not_before:
-                    raise IntegrityViolation(
-                        "Run repository returned an ineligible retry candidate"
-                    )
+                    raise Conflict("retry-wait Run candidate is not yet eligible")
+            carrier_context = (
+                TraceCarrier.extract(previous.dispatch_trace_carrier)
+                if previous.dispatch_trace_carrier is not None
+                else None
+            )
+            authoritative_trace_id = (
+                carrier_context.trace_id if carrier_context is not None else request.trace_id
+            )
+            if (
+                carrier_context is not None
+                and request.trace_id is not None
+                and request.trace_id != carrier_context.trace_id
+            ):
+                raise IntegrityViolation("worker claim trace differs from the persisted carrier")
             remaining = overall_deadline - now
             remaining_microseconds = (
                 remaining.days * 86_400_000_000
@@ -823,7 +942,7 @@ class RunCommandService:
                 acquired_at=now_text,
                 expires_at=expires_at,
                 permit_group_id=permit_group_id,
-                trace_id=request.trace_id,
+                trace_id=authoritative_trace_id,
             )
             validate_claim_transition(
                 previous=previous,
@@ -836,7 +955,7 @@ class RunCommandService:
                 expires_at=expires_at,
                 worker_principal_id=request.worker.principal_id,
                 lease_id=request.lease_id,
-                trace_id=request.trace_id,
+                trace_id=authoritative_trace_id,
             )
             if (
                 runs.get(previous.run_id) != persisted.run
@@ -1485,6 +1604,7 @@ class RunCommandService:
                     replay.run_id,
                     replay.attempt_no,
                     replay.call_ordinal,
+                    replay.route_ordinal,
                 )
                 self._validate_prompt_replay(
                     request=request,
@@ -1520,10 +1640,22 @@ class RunCommandService:
             )
             if attempt.status != "running":
                 raise InvalidStateTransition("prompt publication attempt is not running")
+            call_ordinal = (
+                attempt.next_call_ordinal if request.route_ordinal == 1 else request.call_ordinal
+            )
+            if call_ordinal is None:  # closed by request validation; defensive at authority edge
+                raise IntegrityViolation("fallback prompt publication has no logical call")
+            if call_ordinal != request.logical_call_ordinal:
+                raise Conflict(
+                    "prompt logical call differs from the authoritative Attempt head",
+                    expected_call_ordinal=call_ordinal,
+                    requested_call_ordinal=request.logical_call_ordinal,
+                )
             link = RunIntermediateArtifactLinkV1(
                 run_id=request.fence.run_id,
                 attempt_no=request.fence.attempt_no,
-                call_ordinal=attempt.next_call_ordinal,
+                call_ordinal=call_ordinal,
+                route_ordinal=request.route_ordinal,
                 artifact_id=request.artifact_id,
                 role="prompt_rendered",
                 request_hash=request.request_hash,
@@ -1549,18 +1681,23 @@ class RunCommandService:
                 link.run_id,
                 link.attempt_no,
                 link.call_ordinal,
+                link.route_ordinal,
             )
             advanced_attempt = runs.get_attempt(link.run_id, link.attempt_no)
             if retained != link or advanced_attempt is None:
                 raise IntegrityViolation("prompt publication did not atomically retain its link")
-            expected_attempt = RunAttempt.model_validate(
-                {
-                    **attempt.model_dump(mode="python"),
-                    "next_call_ordinal": attempt.next_call_ordinal + 1,
-                }
+            expected_attempt = (
+                RunAttempt.model_validate(
+                    {
+                        **attempt.model_dump(mode="python"),
+                        "next_call_ordinal": attempt.next_call_ordinal + 1,
+                    }
+                )
+                if request.route_ordinal == 1
+                else attempt
             )
             if advanced_attempt != expected_attempt:
-                raise IntegrityViolation("prompt publication did not consume exactly one call head")
+                raise IntegrityViolation("prompt publication changed the wrong logical-call head")
             return PromptRenderPublicationResult(link=link, replayed=False)
 
     @staticmethod
@@ -1609,6 +1746,7 @@ class RunCommandService:
             "idempotency_scope": request.idempotency_scope,
             "idempotency_key": request.idempotency_key,
             "payload": request.payload,
+            "resource_domain_scope": request.resource_domain_scope,
             "initiated_by": request.initiated_by,
         }
         for field_name, expected in semantic_fields.items():
@@ -1638,6 +1776,8 @@ class RunCommandService:
             "request_hash": request.request_hash,
             "fencing_token": request.fence.fencing_token,
             "role": "prompt_rendered",
+            "route_ordinal": request.route_ordinal,
+            "call_ordinal": request.logical_call_ordinal,
         }
         for field_name, expected_value in expected.items():
             if getattr(replay, field_name) != expected_value:

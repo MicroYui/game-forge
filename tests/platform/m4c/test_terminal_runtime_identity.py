@@ -21,6 +21,8 @@ from gameforge.contracts.jobs import (
     PlannedAgentNodeVersionV1,
     RunAttempt,
     RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunPayloadEnvelope,
     canonical_payload_hash,
     execution_version_plan_digest,
@@ -33,7 +35,7 @@ from gameforge.contracts.lineage import (
 )
 from gameforge.contracts.model_router import Message, ModelRequestV2, ModelSnapshot, request_hash
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
-from gameforge.platform.publication import TerminalPublisher
+from gameforge.platform.publication import TerminalPublisher, build_publication_plan
 from gameforge.platform.runs.lifecycle import select_outcome_policy
 from tests.platform.m4.test_run_create_claim import _payload
 from tests.platform.m4c.test_terminal_publisher import (
@@ -112,6 +114,8 @@ class _RuntimeLedger:
     alternate_run_bundle_id: str | None = None
     attempt_bundle_reads: int = 0
     run_bundle_reads: int = 0
+    route_rows_override: tuple[RunModelRouteLinkV1, ...] | None = None
+    consumption_rows_override: tuple[RunModelResponseConsumptionV1, ...] | None = None
 
     def prompt_links(self, run_id: str, *, attempt_no: int | None):
         assert run_id == "run:1"
@@ -140,6 +144,130 @@ class _RuntimeLedger:
 
     def get_routing_decision(self, decision_id: str):
         return self.routing_decisions.get(decision_id)
+
+    def _route_binding(self, attempt_no: int, call_ordinal: int, route_ordinal: int):
+        identities = (self.attempt_identity, self.run_identity)
+        for identity in identities:
+            for binding in getattr(identity, "bindings", ()):
+                if (
+                    binding.attempt_no,
+                    binding.call_ordinal,
+                    binding.route_ordinal,
+                ) == (attempt_no, call_ordinal, route_ordinal):
+                    return binding
+        return None
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ):
+        binding = self._route_binding(attempt_no, call_ordinal, route_ordinal)
+        prompt = next(
+            (
+                link
+                for link in self.prompts
+                if (link.attempt_no, link.call_ordinal, link.route_ordinal)
+                == (attempt_no, call_ordinal, route_ordinal)
+            ),
+            None,
+        )
+        if run_id != "run:1" or binding is None or prompt is None:
+            return None
+        return RunModelRouteLinkV1(
+            run_id=run_id,
+            attempt_no=attempt_no,
+            call_ordinal=call_ordinal,
+            route_ordinal=route_ordinal,
+            prompt_artifact_id=prompt.artifact_id,
+            request_hash=prompt.request_hash,
+            routing_decision_kind=binding.routing_decision_kind,
+            routing_decision_id=binding.routing_decision_id,
+            fencing_token=prompt.fencing_token,
+            published_at=prompt.published_at,
+        )
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ):
+        binding = self._route_binding(attempt_no, call_ordinal, route_ordinal)
+        if run_id != "run:1" or binding is None or not binding.response_consumed:
+            return None
+        shard_id = next(
+            (
+                artifact_id
+                for shard_attempt, shard_call, artifact_id in self.shards
+                if (shard_attempt, shard_call) == (attempt_no, call_ordinal)
+            ),
+            None,
+        )
+        return RunModelResponseConsumptionV1(
+            run_id=run_id,
+            attempt_no=attempt_no,
+            call_ordinal=call_ordinal,
+            route_ordinal=route_ordinal,
+            execution_source=binding.execution_source,
+            reservation_group_id=f"reservation:{attempt_no}:{call_ordinal}:{route_ordinal}",
+            transport_attempt=binding.transport_attempt,
+            cassette_shard_artifact_id=shard_id,
+            consumed_at=NOW,
+        )
+
+    def model_route_links(self, run_id: str, *, attempt_no: int | None):
+        if self.route_rows_override is not None:
+            return tuple(
+                item
+                for item in self.route_rows_override
+                if attempt_no is None or item.attempt_no == attempt_no
+            )
+        identity = self.run_identity if attempt_no is None else self.attempt_identity
+        if identity is None:
+            return ()
+        return tuple(
+            route
+            for binding in identity.bindings
+            if attempt_no is None or binding.attempt_no == attempt_no
+            if (
+                route := self.get_model_route_link(
+                    run_id,
+                    binding.attempt_no,
+                    binding.call_ordinal,
+                    binding.route_ordinal,
+                )
+            )
+            is not None
+        )
+
+    def model_response_consumptions(self, run_id: str, *, attempt_no: int | None):
+        if self.consumption_rows_override is not None:
+            return tuple(
+                item
+                for item in self.consumption_rows_override
+                if attempt_no is None or item.attempt_no == attempt_no
+            )
+        identity = self.run_identity if attempt_no is None else self.attempt_identity
+        if identity is None:
+            return ()
+        return tuple(
+            consumption
+            for binding in identity.bindings
+            if attempt_no is None or binding.attempt_no == attempt_no
+            if (
+                consumption := self.get_model_response_consumption(
+                    run_id,
+                    binding.attempt_no,
+                    binding.call_ordinal,
+                    binding.route_ordinal,
+                )
+            )
+            is not None
+        )
 
     def record_shard_links(self, run_id: str, *, attempt_no: int | None):
         assert run_id == "run:1"
@@ -190,6 +318,7 @@ def _routing_decision(
     request_hash_value: str,
     source: str = "online",
     reason_code: str = "primary_rule",
+    fallback_index: int = 0,
 ) -> RoutingDecisionV1:
     plan = _plan()
     return RoutingDecisionV1.create(
@@ -201,8 +330,8 @@ def _routing_decision(
         tier="best",
         reason_code=reason_code,
         budget_set_snapshot_id="budget-set:1",
-        fallback_from=None,
-        fallback_index=0,
+        fallback_from=(None if fallback_index == 0 else "skipped-model@1"),
+        fallback_index=fallback_index,
         policy_version=plan.routing_policy_version,
         routing_policy_digest=plan.routing_policy_digest,
         catalog_version=plan.model_catalog_version,
@@ -219,14 +348,21 @@ def _source_rendered(artifacts: _RuntimeArtifacts, blobs: _Blobs, *, kind="sourc
         kind=kind,
         version_tuple=VersionTuple(
             prompt_version=PROMPT,
-            model_snapshot=MODEL,
             agent_graph_version=GRAPH,
             tool_version="renderer@1",
         ),
         lineage=(),
         payload_hash=object_ref.sha256,
         object_ref=object_ref,
-        meta={"payload_schema_id": "source-rendered@1"},
+        meta={
+            "payload_schema_id": "source-rendered@1",
+            "renderer_version": "renderer@1",
+            "agent_tool_version": TOOL,
+            "producer_run_id": "run:1",
+            "producer_attempt_no": 1,
+            "logical_call_ordinal": 1,
+            "route_ordinal": 1,
+        },
         created_at=NOW,
     )
     artifacts.add(artifact)
@@ -346,6 +482,7 @@ def _publish_record_attempt(
     another_record: bool = False,
     wrong_prompt_lineage: bool = False,
     wrong_prompt_fence: bool = False,
+    wrong_prompt_route: bool = False,
     retained_decision: str = "exact",
 ):
     registry, definition = _registry_and_definition()
@@ -360,14 +497,21 @@ def _publish_record_attempt(
         kind="source_rendered",
         version_tuple=VersionTuple(
             prompt_version=PROMPT,
-            model_snapshot=MODEL,
             agent_graph_version=GRAPH,
             tool_version="renderer@1",
         ),
         lineage=(),
         payload_hash=rendered_ref.sha256,
         object_ref=rendered_ref,
-        meta={"payload_schema_id": "source-rendered@1"},
+        meta={
+            "payload_schema_id": "source-rendered@1",
+            "renderer_version": "renderer@1",
+            "agent_tool_version": TOOL,
+            "producer_run_id": run.run_id,
+            "producer_attempt_no": 1,
+            "logical_call_ordinal": 1,
+            "route_ordinal": 1,
+        },
         created_at=NOW,
     )
     artifacts.add(prompt)
@@ -375,6 +519,7 @@ def _publish_record_attempt(
         run_id=run.run_id,
         attempt_no=1,
         call_ordinal=1,
+        route_ordinal=2 if wrong_prompt_route else 1,
         artifact_id=prompt.artifact_id,
         role="prompt_rendered",
         request_hash=request_hash(rendered).removeprefix("sha256:"),
@@ -409,6 +554,7 @@ def _publish_record_attempt(
             scope="attempt",
             run_id=run.run_id,
             attempt_no=1,
+            outcome_code="execution_failed",
             child_bundle_artifact_ids=(shard.artifact_id,),
         ),
         identity=attempt_identity,
@@ -501,7 +647,7 @@ def _mode_run(definition, *, mode: str, cassette=None):
     )
 
 
-def _record_run_authority():
+def _record_run_authority(*, outcome_code: str = "checker_completed"):
     """Build exact attempt + run RECORD authority for run-scope terminal tests."""
 
     registry, definition = _registry_and_definition()
@@ -516,14 +662,21 @@ def _record_run_authority():
         kind="source_rendered",
         version_tuple=VersionTuple(
             prompt_version=PROMPT,
-            model_snapshot=MODEL,
             agent_graph_version=GRAPH,
             tool_version="renderer@1",
         ),
         lineage=(),
         payload_hash=rendered_ref.sha256,
         object_ref=rendered_ref,
-        meta={"payload_schema_id": "source-rendered@1"},
+        meta={
+            "payload_schema_id": "source-rendered@1",
+            "renderer_version": "renderer@1",
+            "agent_tool_version": TOOL,
+            "producer_run_id": run.run_id,
+            "producer_attempt_no": 1,
+            "logical_call_ordinal": 1,
+            "route_ordinal": 1,
+        },
         created_at=NOW,
     )
     artifacts.add(prompt)
@@ -572,6 +725,7 @@ def _record_run_authority():
             scope="attempt",
             run_id=run.run_id,
             attempt_no=1,
+            outcome_code=outcome_code,
             child_bundle_artifact_ids=(shard.artifact_id,),
         ),
         identity=attempt_identity,
@@ -582,6 +736,7 @@ def _record_run_authority():
         payload=CassetteBundleV1(
             scope="run",
             run_id=run.run_id,
+            outcome_code=outcome_code,
             child_bundle_artifact_ids=(attempt_bundle.artifact_id,),
         ),
         identity=run_identity,
@@ -618,6 +773,210 @@ def _record_run_authority():
     )
 
 
+def _replay_retry_terminal_authority(*, final_consumed: bool):
+    registry, definition = _registry_and_definition()
+    blobs = _Blobs()
+    artifacts = _RuntimeArtifacts(blobs)
+    rendered, record, source_binding = _native_record(run_id="source:run")
+    rendered_blob = canonical_json(rendered.model_dump(mode="json")).encode()
+    rendered_ref = blobs.register(rendered_blob)
+    source_prompt = build_artifact_v2(
+        kind="source_rendered",
+        version_tuple=VersionTuple(
+            prompt_version=PROMPT,
+            agent_graph_version=GRAPH,
+            tool_version="renderer@1",
+        ),
+        lineage=(),
+        payload_hash=rendered_ref.sha256,
+        object_ref=rendered_ref,
+        meta={
+            "payload_schema_id": "source-rendered@1",
+            "renderer_version": "renderer@1",
+            "agent_tool_version": TOOL,
+            "producer_run_id": "source:run",
+            "producer_attempt_no": 1,
+            "logical_call_ordinal": 1,
+            "route_ordinal": 1,
+        },
+        created_at=NOW,
+    )
+    artifacts.add(source_prompt)
+    shard = _bundle(
+        artifacts,
+        blobs,
+        payload=CassetteBundleV1(
+            scope="record_shard",
+            run_id="source:run",
+            attempt_no=1,
+            ordinal=1,
+            records=(record,),
+        ),
+        identity=build_execution_identity(
+            scope="record_shard",
+            bindings=(source_binding,),
+            agent_graph_version=GRAPH,
+        ),
+        lineage=(source_prompt.artifact_id,),
+    )
+    source_attempt = _bundle(
+        artifacts,
+        blobs,
+        payload=CassetteBundleV1(
+            scope="attempt",
+            run_id="source:run",
+            attempt_no=1,
+            child_bundle_artifact_ids=(shard.artifact_id,),
+        ),
+        identity=build_execution_identity(
+            scope="attempt",
+            bindings=(source_binding,),
+            agent_graph_version=GRAPH,
+        ),
+    )
+    root = _bundle(
+        artifacts,
+        blobs,
+        payload=CassetteBundleV1(
+            scope="run",
+            run_id="source:run",
+            child_bundle_artifact_ids=(source_attempt.artifact_id,),
+        ),
+        identity=build_execution_identity(
+            scope="run",
+            bindings=(source_binding,),
+            agent_graph_version=GRAPH,
+        ),
+    )
+    run = _mode_run(definition, mode="replay", cassette=root).model_copy(
+        update={
+            "current_attempt_no": 2,
+            "next_attempt_no": 3,
+            "next_fencing_token": 3,
+        }
+    )
+
+    def current_decision(attempt_no: int) -> RoutingDecisionV1:
+        source = record.routing_decision
+        return RoutingDecisionV1.create(
+            run_id=run.run_id,
+            attempt_no=attempt_no,
+            request_hash=source.request_hash,
+            rule_id=source.rule_id,
+            model_snapshot=source.model_snapshot,
+            tier=source.tier,
+            reason_code="recorded_replay",
+            budget_set_snapshot_id=run.payload.budget_set_snapshot_id,
+            fallback_from=source.fallback_from,
+            fallback_index=source.fallback_index,
+            policy_version=source.policy_version,
+            routing_policy_digest=source.routing_policy_digest,
+            catalog_version=source.catalog_version,
+            catalog_digest=source.catalog_digest,
+            execution_source="cassette_replay",
+            decided_at=datetime(2026, 7, 16, tzinfo=UTC),
+        )
+
+    decisions = (current_decision(1), current_decision(2))
+    current_bindings = tuple(
+        source_binding.model_copy(
+            update={
+                "attempt_no": attempt_no,
+                "transport_attempt": None,
+                "routing_decision_id": decision.decision_id,
+                "execution_source": "cassette_replay",
+                "response_consumed": consumed,
+            }
+        )
+        for attempt_no, decision, consumed in (
+            (1, decisions[0], False),
+            (2, decisions[1], final_consumed),
+        )
+    )
+    current_prompts = tuple(
+        build_artifact_v2(
+            kind="source_rendered",
+            version_tuple=VersionTuple(
+                prompt_version=PROMPT,
+                agent_graph_version=GRAPH,
+                tool_version="renderer@1",
+            ),
+            lineage=(),
+            payload_hash=rendered_ref.sha256,
+            object_ref=rendered_ref,
+            meta={
+                "payload_schema_id": "source-rendered@1",
+                "renderer_version": "renderer@1",
+                "agent_tool_version": TOOL,
+                "producer_run_id": run.run_id,
+                "producer_attempt_no": attempt_no,
+                "logical_call_ordinal": 1,
+                "route_ordinal": 1,
+            },
+            created_at=NOW,
+        )
+        for attempt_no in (1, 2)
+    )
+    for prompt in current_prompts:
+        artifacts.add(prompt)
+    prompt_links = tuple(
+        RunIntermediateArtifactLinkV1(
+            run_id=run.run_id,
+            attempt_no=attempt_no,
+            call_ordinal=1,
+            route_ordinal=1,
+            artifact_id=prompt.artifact_id,
+            role="prompt_rendered",
+            request_hash=record.request_hash.removeprefix("sha256:"),
+            fencing_token=attempt_no,
+            published_at=NOW,
+        )
+        for attempt_no, prompt in zip((1, 2), current_prompts, strict=True)
+    )
+    run_identity = build_execution_identity(
+        scope="run",
+        bindings=current_bindings,
+        agent_graph_version=GRAPH,
+    )
+    ledger = _RuntimeLedger(
+        prompts=prompt_links,
+        run_identity=run_identity,
+        replay_id=root.artifact_id,
+        attempts={
+            1: _attempt().model_copy(
+                update={
+                    "status": "failed",
+                    "next_call_ordinal": 2,
+                    "ended_at": NOW,
+                }
+            ),
+            2: _attempt().model_copy(
+                update={
+                    "attempt_no": 2,
+                    "fencing_token": 2,
+                    "next_call_ordinal": 2,
+                }
+            ),
+        },
+        routing_decisions={decision.decision_id: decision for decision in decisions},
+    )
+    publisher = TerminalPublisher(
+        registry=registry,
+        artifacts=artifacts,
+        blobs=blobs,
+        findings=_Findings(),
+        ledger=ledger,
+        audit=_Audit(),
+    )
+    publication_plan = build_publication_plan(
+        registry=registry,
+        definition=definition,
+        policy=_success_policy(definition),
+        scope="run",
+    )
+    return publisher, root, run, current_bindings, prompt_links, publication_plan
+
+
 def _draft_manifest(draft, artifact_id: str):
     return next(
         operation.artifact
@@ -625,6 +984,18 @@ def _draft_manifest(draft, artifact_id: str):
         if getattr(operation, "artifact", None) is not None
         and operation.artifact.artifact_id == artifact_id
     )
+
+
+def _draft_cassette_payloads(draft):
+    materials = {item.slot: item.payload for item in draft.materials}
+    return {
+        operation.artifact.artifact_id: CassetteBundleV1.model_validate_json(
+            materials[operation.slot]
+        )
+        for operation in draft.operations
+        if getattr(operation, "artifact", None) is not None
+        and operation.artifact.kind == "cassette_bundle"
+    }
 
 
 def _publish_attempt(
@@ -637,8 +1008,10 @@ def _publish_attempt(
     replay_source_call: bool = False,
     replay_omit_shard: bool = False,
     replay_terminal_consumed: bool = False,
+    replay_terminal_routed: bool = False,
     record_prompt_without_response: bool = False,
     retained_decision: str = "exact",
+    decision_fallback_index: int = 0,
     flip_attempt_bundle_on_second_read: bool = False,
     include_context: bool = False,
 ):
@@ -740,7 +1113,10 @@ def _publish_attempt(
                 published_at=NOW,
             ),
         )
-        decision = _routing_decision(request_hash_value="c" * 64)
+        decision = _routing_decision(
+            request_hash_value="c" * 64,
+            fallback_index=decision_fallback_index,
+        )
         bindings = (
             _binding(
                 source="online",
@@ -786,10 +1162,11 @@ def _publish_attempt(
                 published_at=NOW,
             ),
         )
-        if replay_terminal_consumed:
+        if replay_terminal_consumed or replay_terminal_routed:
             replay_decision = _routing_decision(
                 request_hash_value=replay_record.request_hash.removeprefix("sha256:"),
                 source="cassette_replay",
+                reason_code="recorded_replay",
             )
             bindings = (
                 replay_source_binding.model_copy(
@@ -797,6 +1174,7 @@ def _publish_attempt(
                         "transport_attempt": None,
                         "routing_decision_id": replay_decision.decision_id,
                         "execution_source": "cassette_replay",
+                        "response_consumed": replay_terminal_consumed,
                     }
                 ),
             )
@@ -810,7 +1188,12 @@ def _publish_attempt(
         _bundle(
             artifacts,
             blobs,
-            payload=CassetteBundleV1(scope="attempt", run_id=run.run_id, attempt_no=1),
+            payload=CassetteBundleV1(
+                scope="attempt",
+                run_id=run.run_id,
+                attempt_no=1,
+                outcome_code="execution_failed",
+            ),
             identity=attempt_identity,
         )
         if mode == "record"
@@ -896,6 +1279,15 @@ def test_four_modes_publish_exact_identity_transition_and_replayability(mode, re
         assert manifest.version_tuple.agent_graph_version is None
 
 
+def test_first_actual_route_is_one_when_policy_selection_skips_candidates():
+    manifest, identity, _, _ = _publish_attempt(
+        mode="live",
+        decision_fallback_index=2,
+    )
+    assert identity.bindings[0].route_ordinal == 1
+    assert manifest.meta["replayability"] == "online_only"
+
+
 def test_record_run_success_projects_only_the_run_bundle_as_cassette_parent():
     (
         definition,
@@ -943,7 +1335,7 @@ def test_record_run_failure_aggregate_projects_attempt_then_run_bundle_by_scope(
         harness,
         attempt_bundle,
         run_bundle,
-    ) = _record_run_authority()
+    ) = _record_run_authority(outcome_code="execution_failed")
     attempt_policy = select_outcome_policy(
         definition=definition,
         outcome_code="execution_failed",
@@ -990,6 +1382,342 @@ def test_record_run_failure_aggregate_projects_attempt_then_run_bundle_by_scope(
     committed = publisher.commit_many(tuple(zip(drafts, staged, strict=True)))
     assert committed == (attempt_result, run_result)
     assert run_result.failure_artifact_id in artifacts.by_id
+
+
+def test_record_success_synthesizes_attempt_and_run_bundles_in_terminal_draft():
+    (
+        definition,
+        run,
+        attempt,
+        artifacts,
+        blobs,
+        publisher,
+        harness,
+        retained_attempt_bundle,
+        retained_run_bundle,
+    ) = _record_run_authority()
+    ledger = publisher._ledger  # noqa: SLF001
+    assert isinstance(ledger, _RuntimeLedger)
+    ledger.attempt_bundle_id = None
+    ledger.run_bundle_id = None
+    artifacts.by_id.pop(retained_attempt_bundle.artifact_id)
+    artifacts.by_id.pop(retained_run_bundle.artifact_id)
+
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=_prepared_success(artifacts=(_checker_artifact(blobs),)),
+        policy=_success_policy(definition),
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    result = draft.result
+    payloads = _draft_cassette_payloads(draft)
+    assert set(payloads) == {
+        result.attempt_cassette_artifact_id,
+        result.terminal_cassette_artifact_id,
+    }
+    attempt_payload = payloads[result.attempt_cassette_artifact_id]
+    run_payload = payloads[result.terminal_cassette_artifact_id]
+    assert attempt_payload.scope == "attempt"
+    assert attempt_payload.outcome_code == "checker_completed"
+    assert run_payload.scope == "run"
+    assert run_payload.outcome_code == "checker_completed"
+    assert run_payload.child_bundle_artifact_ids == (result.attempt_cassette_artifact_id,)
+    assert result.attempt_cassette_artifact_id not in artifacts.by_id
+    assert result.terminal_cassette_artifact_id not in artifacts.by_id
+
+    assert publisher.commit(draft, harness._stage(draft)) == result  # noqa: SLF001
+    assert result.attempt_cassette_artifact_id in artifacts.by_id
+    assert result.terminal_cassette_artifact_id in artifacts.by_id
+
+
+def test_record_failure_aggregate_reuses_planned_attempt_bundle_without_precommit():
+    (
+        definition,
+        run,
+        attempt,
+        artifacts,
+        _,
+        publisher,
+        harness,
+        retained_attempt_bundle,
+        retained_run_bundle,
+    ) = _record_run_authority(outcome_code="execution_failed")
+    ledger = publisher._ledger  # noqa: SLF001
+    assert isinstance(ledger, _RuntimeLedger)
+    ledger.attempt_bundle_id = None
+    ledger.run_bundle_id = None
+    artifacts.by_id.pop(retained_attempt_bundle.artifact_id)
+    artifacts.by_id.pop(retained_run_bundle.artifact_id)
+    attempt_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    run_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="run",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+
+    drafts = publisher.plan_active_failure_aggregate(
+        run=run,
+        attempt=attempt,
+        prepared=_execution_failure(definition),
+        retry_decision=_terminal_decision(definition),
+        attempt_policy=attempt_policy,
+        run_policy=run_policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    attempt_result, run_result = (draft.result for draft in drafts)
+    attempt_payloads = _draft_cassette_payloads(drafts[0])
+    run_payloads = _draft_cassette_payloads(drafts[1])
+    assert set(attempt_payloads) == {attempt_result.cassette_bundle_artifact_id}
+    assert set(run_payloads) == {run_result.terminal_cassette_artifact_id}
+    assert run_payloads[run_result.terminal_cassette_artifact_id].child_bundle_artifact_ids == (
+        attempt_result.cassette_bundle_artifact_id,
+    )
+    assert attempt_result.cassette_bundle_artifact_id not in artifacts.by_id
+    assert run_result.terminal_cassette_artifact_id not in artifacts.by_id
+
+    staged = tuple(harness._stage(draft) for draft in drafts)  # noqa: SLF001
+    assert publisher.commit_many(tuple(zip(drafts, staged, strict=True))) == (
+        attempt_result,
+        run_result,
+    )
+    assert attempt_result.cassette_bundle_artifact_id in artifacts.by_id
+    assert run_result.terminal_cassette_artifact_id in artifacts.by_id
+
+
+def test_record_zero_call_success_publishes_empty_attempt_and_run_bundles():
+    (
+        definition,
+        run,
+        attempt,
+        artifacts,
+        blobs,
+        publisher,
+        _,
+        retained_attempt_bundle,
+        retained_run_bundle,
+    ) = _record_run_authority()
+    ledger = publisher._ledger  # noqa: SLF001
+    assert isinstance(ledger, _RuntimeLedger)
+    ledger.prompts = ()
+    ledger.shards = ()
+    ledger.routing_decisions = {}
+    ledger.attempt_identity = build_execution_identity(
+        scope="attempt", bindings=(), agent_graph_version=GRAPH
+    )
+    ledger.run_identity = build_execution_identity(
+        scope="run", bindings=(), agent_graph_version=GRAPH
+    )
+    ledger.attempt_bundle_id = None
+    ledger.run_bundle_id = None
+    ledger.attempts = {1: attempt.model_copy(update={"next_call_ordinal": 1})}
+    artifacts.by_id.pop(retained_attempt_bundle.artifact_id)
+    artifacts.by_id.pop(retained_run_bundle.artifact_id)
+
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=ledger.attempts[1],
+        prepared=_prepared_success(artifacts=(_checker_artifact(blobs),)),
+        policy=_success_policy(definition),
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    result = draft.result
+    payloads = _draft_cassette_payloads(draft)
+    attempt_payload = payloads[result.attempt_cassette_artifact_id]
+    run_payload = payloads[result.terminal_cassette_artifact_id]
+    assert attempt_payload.child_bundle_artifact_ids == ()
+    assert run_payload.child_bundle_artifact_ids == (result.attempt_cassette_artifact_id,)
+
+
+def test_terminal_identity_cannot_omit_a_persisted_fallback_route():
+    (
+        definition,
+        run,
+        attempt,
+        artifacts,
+        blobs,
+        publisher,
+        _,
+        _,
+        _,
+    ) = _record_run_authority()
+    ledger = publisher._ledger  # noqa: SLF001
+    assert isinstance(ledger, _RuntimeLedger)
+    first_prompt = ledger.prompts[0]
+    first_route = ledger.get_model_route_link(run.run_id, 1, 1, 1)
+    assert first_route is not None
+    ledger.prompts = (
+        first_prompt,
+        first_prompt.model_copy(update={"route_ordinal": 2}),
+    )
+    ledger.route_rows_override = (
+        first_route,
+        first_route.model_copy(update={"route_ordinal": 2}),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact model-route authority"):
+        publisher.plan_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=_prepared_success(artifacts=(_checker_artifact(blobs),)),
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_record_shard_projection_contains_only_the_consumed_fallback_route() -> None:
+    failed = _binding(source="online").model_copy(update={"response_consumed": False})
+    consumed = _binding(source="online", decision_id="decision:2").model_copy(
+        update={"route_ordinal": 2}
+    )
+    aggregate = build_execution_identity(
+        scope="attempt",
+        bindings=(failed, consumed),
+        agent_graph_version=GRAPH,
+    )
+
+    shard = TerminalPublisher._identity_subset(
+        aggregate,
+        scope="record_shard",
+        attempt_no=1,
+        call_ordinal=1,
+    )
+
+    assert shard.bindings == (consumed,)
+    assert shard.prompt_projection.mode == "single"
+    assert shard.model_projection.mode == "single"
+
+
+def test_successful_record_run_allows_incomplete_calls_in_prior_failed_attempts() -> None:
+    prior_failed = _binding(source="online").model_copy(update={"response_consumed": False})
+    successful_retry = _binding(source="online", decision_id="decision:retry").model_copy(
+        update={"attempt_no": 2}
+    )
+    identity = build_execution_identity(
+        scope="run",
+        bindings=(prior_failed, successful_retry),
+        agent_graph_version=GRAPH,
+    )
+
+    TerminalPublisher._require_complete_record_identity(identity, attempt_no=2)
+
+
+def test_successful_replay_retry_maps_each_attempt_to_selected_source_prefix() -> None:
+    publisher, root, run, bindings, prompt_links, _ = _replay_retry_terminal_authority(
+        final_consumed=True
+    )
+    identity = build_execution_identity(
+        scope="run",
+        bindings=bindings,
+        agent_graph_version=GRAPH,
+    )
+
+    publisher._validate_replay_cassette_tree(  # noqa: SLF001
+        publisher._read_cassette_node(root.artifact_id),  # noqa: SLF001
+        run=run,
+        terminal_identity=identity,
+        manifest_scope="run",
+        current_attempt_no=2,
+        prompt_links=prompt_links,
+        require_complete=True,
+    )
+
+
+def test_successful_replay_retry_projects_distinct_prompt_parents_per_attempt() -> None:
+    publisher, _, run, _, prompt_links, publication_plan = _replay_retry_terminal_authority(
+        final_consumed=True
+    )
+
+    runtime = publisher._validated_runtime_parents(  # noqa: SLF001
+        run=run,
+        plan=publication_plan,
+        manifest_scope="run",
+        current_attempt_no=2,
+        closed={},
+        outcome_code="checker_completed",
+        require_complete=True,
+    )
+
+    prompt_parent_ids = tuple(
+        parent.artifact_id
+        for parent in runtime.parents
+        if parent.attempt_no is not None and parent.cassette_scope is None
+    )
+    assert prompt_parent_ids == tuple(link.artifact_id for link in prompt_links)
+    assert len(set(prompt_parent_ids)) == 2
+
+
+def test_successful_replay_retry_rejects_incomplete_final_attempt() -> None:
+    publisher, root, run, bindings, prompt_links, _ = _replay_retry_terminal_authority(
+        final_consumed=False
+    )
+    identity = build_execution_identity(
+        scope="run",
+        bindings=bindings,
+        agent_graph_version=GRAPH,
+    )
+
+    with pytest.raises(IntegrityViolation, match="did not fully consume"):
+        publisher._validate_replay_cassette_tree(  # noqa: SLF001
+            publisher._read_cassette_node(root.artifact_id),  # noqa: SLF001
+            run=run,
+            terminal_identity=identity,
+            manifest_scope="run",
+            current_attempt_no=2,
+            prompt_links=prompt_links,
+            require_complete=True,
+        )
+
+
+def test_success_rejects_prompt_persisted_without_route_authority():
+    (
+        definition,
+        run,
+        attempt,
+        artifacts,
+        blobs,
+        publisher,
+        _,
+        _,
+        _,
+    ) = _record_run_authority()
+    ledger = publisher._ledger  # noqa: SLF001
+    assert isinstance(ledger, _RuntimeLedger)
+    ledger.prompts = (
+        ledger.prompts[0],
+        ledger.prompts[0].model_copy(update={"route_ordinal": 2}),
+    )
+
+    with pytest.raises(IntegrityViolation, match="prompts differ"):
+        publisher.plan_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=_prepared_success(artifacts=(_checker_artifact(blobs),)),
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
 
 
 def test_identity_outside_frozen_plan_fails_closed():
@@ -1082,6 +1810,17 @@ def test_replay_failure_can_close_after_prompt_before_response_consumption():
     assert replay.artifact_id in manifest.lineage
 
 
+def test_replay_failure_can_close_after_route_before_response_consumption():
+    manifest, identity, _, replay = _publish_attempt(
+        mode="replay",
+        replay_source_call=True,
+        replay_terminal_routed=True,
+    )
+    assert len(identity.bindings) == 1
+    assert not identity.bindings[0].response_consumed
+    assert replay.artifact_id in manifest.lineage
+
+
 def test_replay_root_tree_must_not_omit_a_consumed_source_shard():
     with pytest.raises(IntegrityViolation, match="record-shard tree"):
         _publish_attempt(
@@ -1139,3 +1878,8 @@ def test_record_shard_requires_exact_retained_routing_decision(retained_decision
 def test_record_prompt_link_must_match_retained_attempt_fence():
     with pytest.raises(IntegrityViolation, match="fenced RunAttempt authority"):
         _publish_record_attempt(wrong_prompt_fence=True)
+
+
+def test_record_prompt_link_must_match_consumed_fallback_route():
+    with pytest.raises(IntegrityViolation, match="exact model-route authority"):
+        _publish_record_attempt(wrong_prompt_route=True)

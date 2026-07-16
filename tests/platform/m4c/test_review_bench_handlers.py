@@ -370,8 +370,10 @@ def test_bench_execute_cases_runs_ordered_agent_cassette_and_seals_report() -> N
     assert evaluator.deterministic_calls == 1 and evaluator.agent_calls == 2
     # ONE ordered run-scoped cassette: both agent calls share a monotonic ordinal.
     assert len(bridge.requests) == 2
+    scopes = [request.idempotency_scope for request in bridge.requests]
+    assert scopes == ["run:run:1:attempt:1", "run:run:1:attempt:1"]
     keys = [request.idempotency_key for request in bridge.requests]
-    assert keys == ["run:1:1:model:1", "run:1:1:model:2"]
+    assert keys == ["model:1", "model:2"]
 
 
 def test_bench_aggregate_consumes_case_results_and_binds_lineage() -> None:

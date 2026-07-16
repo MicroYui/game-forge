@@ -6,8 +6,13 @@ from decimal import Decimal
 import pytest
 
 from gameforge.contracts.cost import CostAmountV1
-from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.errors import (
+    DependencyUnavailable,
+    IntegrityViolation,
+    QuotaExceeded,
+)
 from gameforge.contracts.model_router import Message, ModelRequestV2, ModelSnapshot, request_hash
+from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.routing import (
     ModelCatalogSnapshotV1,
     ModelDescriptorV1,
@@ -101,7 +106,7 @@ def _policy(catalog: ModelCatalogSnapshotV1, *rules: RoutingRuleV1) -> RoutingPo
 def _request(
     *,
     remaining: tuple[CostAmountV1, ...] = (),
-    domain: str | None = None,
+    domain: str = "default",
     output_tokens: int = 1_000,
     context_tokens: int = 10_000,
 ) -> RouteRequest:
@@ -109,7 +114,7 @@ def _request(
         run_id="run-1",
         attempt_no=1,
         task_kind="patch_repair",
-        domain=domain,
+        domain_scope=DomainScope(domain_ids=(domain,)),
         budget_set_snapshot_id="budget-set-1",
         remaining_budget=remaining,
         context_tokens=context_tokens,
@@ -249,10 +254,33 @@ def test_domain_and_missing_budget_do_not_fall_through_to_arbitrary_rule() -> No
     )
     service = RoutingPolicyService(catalog=catalog, policy=_policy(catalog, rule))
 
-    with pytest.raises(DependencyUnavailable, match="no routing rule"):
+    with pytest.raises(IntegrityViolation, match="no routing rule"):
         service.select(_request(domain="quest"))
-    with pytest.raises(DependencyUnavailable, match="no routing rule"):
+    with pytest.raises(QuotaExceeded, match="remaining budget"):
         service.select(_request(domain="gacha"))
+
+
+def test_multi_domain_request_requires_one_rule_covering_the_complete_scope() -> None:
+    catalog = _catalog(_descriptor(MODEL_A), _descriptor(MODEL_B))
+    rule = _rule(
+        rule_id="quest-and-economy",
+        domain_scope=("economy", "quest"),
+    )
+    service = RoutingPolicyService(catalog=catalog, policy=_policy(catalog, rule))
+    request = RouteRequest(
+        run_id="run-1",
+        attempt_no=1,
+        task_kind="patch_repair",
+        domain_scope=DomainScope(domain_ids=("quest", "economy")),
+        budget_set_snapshot_id="budget-set-1",
+        remaining_budget=(),
+        context_tokens=10_000,
+        max_output_tokens=1_000,
+    )
+
+    selected = service.select(request)
+
+    assert selected.rule.rule_id == "quest-and-economy"
 
 
 def test_model_bounds_capabilities_and_status_are_enforced_through_ordered_fallback() -> None:
@@ -271,7 +299,7 @@ def test_model_bounds_capabilities_and_status_are_enforced_through_ordered_fallb
     assert selection.fallback_index == 1
     assert selection.fallback_from == MODEL_A
 
-    with pytest.raises(DependencyUnavailable, match="no viable model"):
+    with pytest.raises(IntegrityViolation, match="exceeds every viable model"):
         service.select(_request(output_tokens=3_000))
 
 
@@ -294,6 +322,22 @@ def test_next_fallback_cannot_skip_or_leave_frozen_chain() -> None:
 
     with pytest.raises(DependencyUnavailable, match="exhausted"):
         service.next_fallback(third, request=_request())
+
+
+def test_next_fallback_reports_dependency_exhaustion_when_remaining_models_are_inviable() -> None:
+    catalog = _catalog(
+        _descriptor(MODEL_A),
+        _descriptor(MODEL_B, status="disabled"),
+        _descriptor(MODEL_C, max_output_tokens=10),
+    )
+    service = RoutingPolicyService(
+        catalog=catalog,
+        policy=_policy(catalog, _rule(fallbacks=(MODEL_B, MODEL_C))),
+    )
+    primary = service.select(_request())
+
+    with pytest.raises(DependencyUnavailable, match="no available model"):
+        service.next_fallback(primary, request=_request(output_tokens=1_000))
 
 
 def test_policy_catalog_closure_and_model_capability_are_readiness_gates() -> None:

@@ -12,9 +12,11 @@ from __future__ import annotations
 import asyncio
 import threading
 
+import pytest
+
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
-from gameforge.contracts.errors import Conflict
+from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.jobs import RunLease
 from gameforge.contracts.lineage import AuditActor
 from gameforge.platform.runs.lifecycle import PermitGroupBinding, RenewLeaseResult
@@ -51,7 +53,7 @@ class _FakeLifecycle:
         return RenewLeaseResult(lease=lease, permit=permit)
 
 
-def _heartbeat(lifecycle, control_pool) -> LeaseHeartbeat:
+def _heartbeat(lifecycle, control_pool, *, continue_lease=None) -> LeaseHeartbeat:
     return LeaseHeartbeat(
         lifecycle=lifecycle,
         pool=control_pool,
@@ -64,6 +66,7 @@ def _heartbeat(lifecycle, control_pool) -> LeaseHeartbeat:
         initial_lease_version=1,
         initial_permit_revision=1,
         worker_actor=WORKER,
+        continue_lease=continue_lease,
     )
 
 
@@ -108,6 +111,46 @@ def test_heartbeat_renews_while_the_executor_lane_is_saturated() -> None:
     assert heartbeat.fenced is False
 
 
+def test_heartbeat_lane_is_not_starved_by_saturated_terminal_control_threads() -> None:
+    control_pool = ControlPlanePool(max_workers=2)
+    heartbeat_pool = ControlPlanePool(
+        max_workers=1,
+        thread_name_prefix="test-heartbeat",
+    )
+    lifecycle = _FakeLifecycle()
+    heartbeat = _heartbeat(lifecycle, heartbeat_pool)
+    release = threading.Event()
+    started = threading.Barrier(3)
+
+    def blocking_control() -> None:
+        started.wait(timeout=5)
+        assert release.wait(timeout=5)
+
+    async def scenario() -> None:
+        blocked = [asyncio.create_task(control_pool.run(blocking_control)) for _ in range(2)]
+        await asyncio.to_thread(started.wait, 5)
+        stop = asyncio.Event()
+        beats = asyncio.create_task(heartbeat.run(stop))
+        for _ in range(30):
+            await asyncio.sleep(0.01)
+            if lifecycle.renews >= 2:
+                break
+        assert lifecycle.renews >= 2
+        stop.set()
+        release.set()
+        await beats
+        await asyncio.gather(*blocked)
+
+    try:
+        asyncio.run(scenario())
+    finally:
+        release.set()
+        heartbeat_pool.close()
+        control_pool.close()
+
+    assert heartbeat.fenced is False
+
+
 def test_heartbeat_marks_fenced_and_stops_when_renewal_is_conflicted() -> None:
     control_pool = ControlPlanePool(max_workers=1)
     lifecycle = _FakeLifecycle(fail_after=1)  # second renewal raises Conflict
@@ -124,3 +167,35 @@ def test_heartbeat_marks_fenced_and_stops_when_renewal_is_conflicted() -> None:
 
     assert heartbeat.fenced is True
     assert lifecycle.renews == 2  # one success, then the conflicted renewal
+
+
+def test_heartbeat_stops_extending_lease_after_authoritative_cancel_observation() -> None:
+    control_pool = ControlPlanePool(max_workers=1)
+    lifecycle = _FakeLifecycle()
+    heartbeat = _heartbeat(lifecycle, control_pool, continue_lease=lambda: False)
+
+    try:
+        asyncio.run(asyncio.wait_for(heartbeat.run(asyncio.Event()), timeout=5.0))
+    finally:
+        control_pool.close()
+
+    assert heartbeat.stopped_by_authority is True
+    assert heartbeat.fenced is False
+    assert lifecycle.renews == 0
+
+
+def test_heartbeat_propagates_integrity_corruption_instead_of_calling_it_a_fence() -> None:
+    class CorruptLifecycle:
+        def renew_lease(self, request):
+            del request
+            raise IntegrityViolation("permit projection is corrupt")
+
+    control_pool = ControlPlanePool(max_workers=1)
+    heartbeat = _heartbeat(CorruptLifecycle(), control_pool)
+    try:
+        with pytest.raises(IntegrityViolation, match="permit projection"):
+            asyncio.run(asyncio.wait_for(heartbeat.run(asyncio.Event()), timeout=5.0))
+    finally:
+        control_pool.close()
+
+    assert heartbeat.fenced is False

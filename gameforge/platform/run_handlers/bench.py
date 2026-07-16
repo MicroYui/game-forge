@@ -141,13 +141,13 @@ class _BoundAgentInvoker:
         *,
         adapter: ModelBridgeAgentAdapter,
         model_snapshot: object,
-        run_id: str,
+        source_artifact_ids: tuple[str, ...],
         node_id: str,
         prompt_version: str,
     ) -> None:
         self.adapter = adapter
         self._model_snapshot = model_snapshot
-        self._run_id = run_id
+        self._source_artifact_ids = source_artifact_ids
         self._node_id = node_id
         self._prompt_version = prompt_version
 
@@ -157,7 +157,7 @@ class _BoundAgentInvoker:
             user_prompt=prompt,
             prompt_version=self._prompt_version,
             model_snapshot=self._model_snapshot,
-            source_artifact_id=f"{self._run_id}:rendered:bench:{source_suffix}",
+            source_artifact_ids=self._source_artifact_ids,
         )
         return result.response.response_normalized
 
@@ -260,8 +260,7 @@ class BenchRunHandler:
             return None
         adapter = ModelBridgeAgentAdapter(
             model_bridge=context.model_bridge,
-            idempotency_scope=context.run.idempotency_scope,
-            idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
+            idempotency_scope=(f"run:{context.run.run_id}:attempt:{context.attempt.attempt_no}"),
             deadline_utc=context.deadline_utc,
         )
         model_snapshot = plan_node_snapshot(
@@ -272,7 +271,7 @@ class BenchRunHandler:
         return _BoundAgentInvoker(
             adapter=adapter,
             model_snapshot=model_snapshot,
-            run_id=context.run.run_id,
+            source_artifact_ids=(context.payload.params.dataset_artifact_id,),
             node_id=self.agent_node_id,
             prompt_version=self.agent_prompt_version,
         )

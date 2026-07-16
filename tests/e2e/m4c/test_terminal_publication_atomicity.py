@@ -212,7 +212,7 @@ def test_late_run_cas_failure_rolls_back_every_terminal_authority_and_duplicate_
     try:
         claim = process.dispatcher._claim()
         assert claim is not None and claim.run.run_id == run_id
-        started = process.dispatcher._start(claim)
+        started = process.dispatcher._start(claim, trace_id=None)
         assert started.run.status == "running"
 
         before = _database_snapshot(harness.database_url)

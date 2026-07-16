@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Generic, Protocol, TypeVar
 
 from gameforge.contracts.reliability import (
@@ -76,6 +76,9 @@ class RetryExecutor(Generic[T]):
         reserve_attempt: Callable[[int], None] | None = None,
         cancel_attempt: Callable[[int], None] | None = None,
         observe_attempt: Callable[[RetryAttemptResult], None] | None = None,
+        terminal_error_wrapper: (
+            Callable[[Exception, FailureClassificationV1], Exception] | None
+        ) = None,
     ) -> T:
         deadline = _require_utc(deadline_utc, field_name="deadline_utc")
         reserve = reserve_attempt or _noop_reserve
@@ -109,12 +112,21 @@ class RetryExecutor(Generic[T]):
                     idempotent=idempotent,
                     attempt_no=attempt_no,
                 ):
+                    if terminal_error_wrapper is not None and isinstance(error, Exception):
+                        raise terminal_error_wrapper(error, classification) from error
+                    raise
+                remaining_s = (deadline - self._now_utc()).total_seconds()
+                if (classification.retry_after_s or 0) >= remaining_s:
+                    if terminal_error_wrapper is not None and isinstance(error, Exception):
+                        raise terminal_error_wrapper(error, classification) from error
                     raise
                 delay_s = self._retry_delay_s(
                     attempt_no=attempt_no,
                     classification=classification,
                 )
-                if self._now_utc() + timedelta(seconds=delay_s) >= deadline:
+                if delay_s >= remaining_s:
+                    if terminal_error_wrapper is not None and isinstance(error, Exception):
+                        raise terminal_error_wrapper(error, classification) from error
                     raise
                 self._sleeper.sleep(delay_s)
             else:

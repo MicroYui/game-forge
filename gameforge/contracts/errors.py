@@ -24,6 +24,10 @@ class Conflict(GameForgeError):
     code = "revision_conflict"
 
 
+class AttemptFenceConflict(Conflict):
+    """A worker write lost the immutable attempt/lease compare-and-set fence."""
+
+
 class IdempotencyConflict(Conflict):
     code = "idempotency_conflict"
 
@@ -68,6 +72,10 @@ class InvalidStateTransition(GameForgeError):
     code = "invalid_state_transition"
 
 
+class AttemptFenceStateRejected(InvalidStateTransition):
+    """A worker write is no longer allowed by attempt status or deadline authority."""
+
+
 class TransactionClosed(GameForgeError):
     code = "transaction_closed"
 
@@ -90,6 +98,12 @@ class QuotaExceeded(GameForgeError):
 
 class DependencyUnavailable(GameForgeError):
     code = "dependency_unavailable"
+
+
+class PermanentDependencyFailure(GameForgeError):
+    """A typed dependency rejection that is known not to be retryable."""
+
+    code = "permanent_dependency_failed"
 
 
 class AuthError(GameForgeError):

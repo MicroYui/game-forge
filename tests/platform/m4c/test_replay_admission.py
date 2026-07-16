@@ -47,6 +47,8 @@ from gameforge.contracts.jobs import (
     RetryPolicyRefV1,
     ReviewRunPayloadV1,
     RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunManifestParentBindingV1,
     RunAttempt,
     RunPayloadEnvelope,
@@ -108,7 +110,11 @@ class MemoryReplayReader:
     runs: dict[str, RunRecord] = field(default_factory=dict)
     attempts: dict[tuple[str, int], RunAttempt] = field(default_factory=dict)
     routing_decisions: dict[str, RoutingDecisionV1] = field(default_factory=dict)
-    prompt_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1] = field(
+    prompt_links: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1] = field(
+        default_factory=dict
+    )
+    model_routes: dict[tuple[str, int, int, int], RunModelRouteLinkV1] = field(default_factory=dict)
+    model_consumptions: dict[tuple[str, int, int, int], RunModelResponseConsumptionV1] = field(
         default_factory=dict
     )
 
@@ -129,11 +135,30 @@ class MemoryReplayReader:
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int,
     ) -> RunIntermediateArtifactLinkV1 | None:
-        return self.prompt_links.get((run_id, attempt_no, call_ordinal))
+        return self.prompt_links.get((run_id, attempt_no, call_ordinal, route_ordinal))
 
     def get_routing_decision(self, decision_id: str) -> RoutingDecisionV1 | None:
         return self.routing_decisions.get(decision_id)
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelRouteLinkV1 | None:
+        return self.model_routes.get((run_id, attempt_no, call_ordinal, route_ordinal))
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelResponseConsumptionV1 | None:
+        return self.model_consumptions.get((run_id, attempt_no, call_ordinal, route_ordinal))
 
 
 class _ReplayBindingAuthority:
@@ -172,8 +197,42 @@ class _ReplayRunAuthority:
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int,
     ) -> RunIntermediateArtifactLinkV1 | None:
-        return self._reader.get_prompt_link(run_id, attempt_no, call_ordinal)
+        return self._reader.get_prompt_link(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
+
+    def get_model_route_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelRouteLinkV1 | None:
+        return self._reader.get_model_route_link(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
+
+    def get_model_response_consumption(
+        self,
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> RunModelResponseConsumptionV1 | None:
+        return self._reader.get_model_response_consumption(
+            run_id,
+            attempt_no,
+            call_ordinal,
+            route_ordinal,
+        )
 
 
 class _ReplayRoutingAuthority:
@@ -767,7 +826,11 @@ def _native_fixture() -> NativeFixture:
     )
 
 
-def _native_record_fixture() -> NativeFixture:
+def _native_record_fixture(
+    *,
+    fallback_index: int = 0,
+    route_after_consumed: bool = False,
+) -> NativeFixture:
     reader = MemoryReplayReader()
     input_artifact, input_blob = _artifact(
         kind="ir_snapshot",
@@ -803,8 +866,8 @@ def _native_record_fixture() -> NativeFixture:
         tier="best",
         reason_code="primary_rule",
         budget_set_snapshot_id="budget-set:replay",
-        fallback_from=None,
-        fallback_index=0,
+        fallback_from=(None if fallback_index == 0 else "skipped-model@1"),
+        fallback_index=fallback_index,
         policy_version=plan.routing_policy_version,
         routing_policy_digest=plan.routing_policy_digest,
         catalog_version=plan.model_catalog_version,
@@ -847,6 +910,20 @@ def _native_record_fixture() -> NativeFixture:
         execution_source="online",
         response_consumed=True,
     )
+    attempt_bindings = (invocation,)
+    if route_after_consumed:
+        attempt_bindings = (
+            invocation,
+            invocation.model_copy(
+                update={
+                    "route_ordinal": 2,
+                    "transport_attempt": None,
+                    "routing_decision_id": "decision:impossible-after-consumption",
+                    "execution_source": "full_response_cache",
+                    "response_consumed": False,
+                }
+            ),
+        )
     shard_identity = build_execution_identity(
         scope="record_shard",
         bindings=(invocation,),
@@ -854,12 +931,12 @@ def _native_record_fixture() -> NativeFixture:
     )
     attempt_identity = build_execution_identity(
         scope="attempt",
-        bindings=(invocation,),
+        bindings=attempt_bindings,
         agent_graph_version=plan.agent_graph_version,
     )
     run_identity = build_execution_identity(
         scope="run",
-        bindings=(invocation,),
+        bindings=attempt_bindings,
         agent_graph_version=plan.agent_graph_version,
     )
     prompt, prompt_blob = _artifact(
@@ -867,11 +944,11 @@ def _native_record_fixture() -> NativeFixture:
         payload=rendered_request,
         version_tuple=VersionTuple(
             prompt_version=plan.nodes[0].prompt_version,
-            model_snapshot=model_id,
             agent_graph_version=plan.agent_graph_version,
             tool_version="prompt-renderer@1",
         ),
         payload_schema_id="source-rendered@1",
+        meta_extra={"renderer_version": "prompt-renderer@1"},
     )
     shard_bundle = CassetteBundleV1(
         scope="record_shard",
@@ -915,7 +992,7 @@ def _native_record_fixture() -> NativeFixture:
     ):
         reader.artifacts[artifact.artifact_id] = artifact
         reader.blobs[artifact.artifact_id] = blob
-    reader.prompt_links[(SOURCE_RUN_ID, 1, 1)] = RunIntermediateArtifactLinkV1(
+    reader.prompt_links[(SOURCE_RUN_ID, 1, 1, 1)] = RunIntermediateArtifactLinkV1(
         run_id=SOURCE_RUN_ID,
         attempt_no=1,
         call_ordinal=1,
@@ -924,6 +1001,29 @@ def _native_record_fixture() -> NativeFixture:
         request_hash=bare_request_hash,
         fencing_token=1,
         published_at=NOW,
+    )
+    reader.model_routes[(SOURCE_RUN_ID, 1, 1, 1)] = RunModelRouteLinkV1(
+        run_id=SOURCE_RUN_ID,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id=prompt.artifact_id,
+        request_hash=bare_request_hash,
+        routing_decision_kind="native",
+        routing_decision_id=decision.decision_id,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    reader.model_consumptions[(SOURCE_RUN_ID, 1, 1, 1)] = RunModelResponseConsumptionV1(
+        run_id=SOURCE_RUN_ID,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        execution_source="online",
+        reservation_group_id="reservation-group:recorded:1",
+        transport_attempt=1,
+        cassette_shard_artifact_id=shard.artifact_id,
+        consumed_at=NOW,
     )
     params = _params(input_artifact.artifact_id)
     source_payload = _payload(
@@ -972,6 +1072,129 @@ def _native_record_fixture() -> NativeFixture:
         root_bundle=root_bundle,
         attempt=attempt,
         input_artifact=input_artifact,
+    )
+
+
+def _native_retry_with_empty_terminal_attempt_fixture() -> NativeFixture:
+    """A failed recorded attempt has a call; terminal attempt 2 has none."""
+
+    fixture = _native_record_fixture()
+    reader = fixture.reader
+    plan = fixture.source_payload.execution_version_plan
+    assert plan is not None
+    terminal_identity = build_execution_identity(
+        scope="attempt",
+        bindings=(),
+        agent_graph_version=plan.agent_graph_version,
+    )
+    terminal_bundle = CassetteBundleV1(
+        scope="attempt",
+        run_id=SOURCE_RUN_ID,
+        attempt_no=2,
+    )
+    terminal_attempt, terminal_blob = _bundle_artifact(
+        terminal_bundle,
+        lineage=(),
+        identity=terminal_identity,
+    )
+    root_identity = ExecutionIdentityV1.model_validate(fixture.root.meta["execution_identity"])
+    root_bundle = CassetteBundleV1(
+        scope="run",
+        run_id=SOURCE_RUN_ID,
+        child_bundle_artifact_ids=(fixture.attempt.artifact_id, terminal_attempt.artifact_id),
+        outcome_code="review_completed",
+    )
+    root, root_blob = _bundle_artifact(
+        root_bundle,
+        lineage=root_bundle.child_bundle_artifact_ids,
+        identity=root_identity,
+    )
+    reader.artifacts.update(
+        {
+            terminal_attempt.artifact_id: terminal_attempt,
+            root.artifact_id: root,
+        }
+    )
+    reader.blobs.update(
+        {
+            terminal_attempt.artifact_id: terminal_blob,
+            root.artifact_id: root_blob,
+        }
+    )
+
+    replay_payload = _payload(
+        params=fixture.source_payload.params,
+        plan=plan,
+        profile=fixture.source_payload.resolved_profiles[0],
+        mode="replay",
+        cassette=root,
+    )
+    primary, initial_result = _terminal_result_artifacts(
+        payload=fixture.source_payload,
+        cassette=root,
+    )
+    initial_payload = RunResultV1.model_validate(json.loads(initial_result[1]))
+    result_payload = initial_payload.model_copy(
+        update={
+            "attempt_no": 2,
+            "version_projection": initial_payload.version_projection.model_copy(
+                update={"attempt_no": 2}
+            ),
+        }
+    )
+    result = _artifact(
+        kind="run_result",
+        payload=result_payload,
+        version_tuple=result_payload.version_projection.terminal_version_tuple,
+        lineage=(primary[0].artifact_id, root.artifact_id),
+        payload_schema_id="run-result@1",
+    )
+    for artifact, blob in (primary, result):
+        reader.artifacts[artifact.artifact_id] = artifact
+        reader.blobs[artifact.artifact_id] = blob
+
+    source = _source_run(
+        fixture.source_payload,
+        cassette_artifact_id=root.artifact_id,
+        result_artifact_id=result[0].artifact_id,
+    ).model_copy(
+        update={
+            "current_attempt_no": 2,
+            "next_attempt_no": 3,
+            "next_fencing_token": 3,
+        }
+    )
+    reader.runs[source.run_id] = source
+    reader.attempts[(source.run_id, 1)] = reader.attempts[(source.run_id, 1)].model_copy(
+        update={
+            "status": "failed",
+            "failure_class": "transient_dependency",
+            "retryable": True,
+            "failure_artifact_id": "artifact:attempt-1-failure",
+        }
+    )
+    reader.attempts[(source.run_id, 2)] = RunAttempt(
+        run_id=source.run_id,
+        attempt_no=2,
+        status="succeeded",
+        fencing_token=2,
+        worker_principal_id="service:worker",
+        next_call_ordinal=1,
+        started_at=NOW,
+        attempt_deadline_utc="2026-07-16T00:30:00Z",
+        ended_at=NOW,
+        cassette_bundle_artifact_id=terminal_attempt.artifact_id,
+    )
+    return NativeFixture(
+        reader=reader,
+        validator=ReplayAdmissionValidator(reader),
+        source=source,
+        source_payload=fixture.source_payload,
+        replay_payload=replay_payload,
+        root=root,
+        root_bundle=root_bundle,
+        attempt=terminal_attempt,
+        input_artifact=fixture.input_artifact,
     )
 
 
@@ -1288,6 +1511,7 @@ def test_native_replay_closes_terminal_source_and_returns_permission_hook() -> N
     assert proof.source_run_id == SOURCE_RUN_ID
     assert proof.attempt_count == 1
     assert proof.record_count == 0
+    assert proof.selected_source_attempt_no == 1
     permission = proof.required_permission(DomainScope(domain_ids=("economy",)))
     assert permission.action == "replay"
     assert permission.resource_kind == "run"
@@ -1309,6 +1533,7 @@ def test_native_replay_accepts_terminal_record_source_without_an_attempt(
     assert proof.source_run_id == SOURCE_RUN_ID
     assert proof.attempt_count == 0
     assert proof.record_count == 0
+    assert proof.selected_source_attempt_no is None
 
 
 def test_native_zero_attempt_replay_rejects_a_fabricated_attempt_head() -> None:
@@ -1356,6 +1581,82 @@ def test_native_replay_closes_record_shard_prompt_route_and_identity() -> None:
     assert proof.source_kind == "native"
     assert proof.attempt_count == 1
     assert proof.record_count == 1
+    assert proof.selected_source_attempt_no == 1
+
+
+def test_native_replay_rejects_a_route_after_the_consumed_response() -> None:
+    fixture = _native_record_fixture(route_after_consumed=True)
+
+    with pytest.raises(IntegrityViolation, match="route after its consumed response"):
+        fixture.validator.validate(
+            kind=fixture.source.kind,
+            payload=fixture.replay_payload,
+        )
+
+
+def test_native_replay_selects_the_terminal_attempt_not_prior_call_history() -> None:
+    fixture = _native_retry_with_empty_terminal_attempt_fixture()
+
+    proof = fixture.validator.validate(
+        kind=fixture.source.kind,
+        payload=fixture.replay_payload,
+    )
+
+    assert proof.attempt_count == 2
+    assert proof.record_count == 1
+    assert proof.selected_source_attempt_no == 2
+
+
+def test_native_replay_keeps_actual_route_one_when_policy_index_skips_candidates() -> None:
+    fixture = _native_record_fixture(fallback_index=2)
+
+    proof = fixture.validator.validate(
+        kind=fixture.source.kind,
+        payload=fixture.replay_payload,
+    )
+
+    assert proof.record_count == 1
+    assert (SOURCE_RUN_ID, 1, 1, 1) in fixture.reader.model_routes
+
+
+def test_native_replay_rejects_prompt_link_from_another_fallback_route() -> None:
+    fixture = _native_record_fixture()
+    link = fixture.reader.prompt_links.pop((SOURCE_RUN_ID, 1, 1, 1))
+    fixture.reader.prompt_links[(SOURCE_RUN_ID, 1, 1, 2)] = link.model_copy(
+        update={"route_ordinal": 2}
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact prompt link"):
+        fixture.validator.validate(
+            kind=fixture.source.kind,
+            payload=fixture.replay_payload,
+        )
+
+
+@pytest.mark.parametrize(
+    "version_updates",
+    (
+        {"model_snapshot": "openai/gpt-test/forbidden-artifact-projection"},
+        {"tool_version": "another-renderer@1"},
+    ),
+)
+def test_native_replay_enforces_source_rendered_producer_projection(
+    version_updates: dict[str, str],
+) -> None:
+    fixture = _native_record_fixture()
+    link = fixture.reader.prompt_links[(SOURCE_RUN_ID, 1, 1, 1)]
+    prompt = fixture.reader.artifacts[link.artifact_id]
+    fixture.reader.artifacts[link.artifact_id] = prompt.model_copy(
+        update={
+            "version_tuple": prompt.version_tuple.model_copy(update=version_updates),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="rendered ModelRequest differs"):
+        fixture.validator.validate(
+            kind=fixture.source.kind,
+            payload=fixture.replay_payload,
+        )
 
 
 def test_admission_replay_adapter_exposes_attempt_and_routing_authorities() -> None:
@@ -1533,6 +1834,7 @@ def test_verified_legacy_replay_closes_authority_tree_and_plan() -> None:
     assert proof.legacy_import_id is not None
     assert proof.attempt_count == 1
     assert proof.record_count == 1
+    assert proof.selected_source_attempt_no == 1
 
 
 def test_verified_legacy_replay_reports_missing_external_authority_as_dependency() -> None:

@@ -423,7 +423,7 @@ class _State:
     leases: dict[str, RunLease] = field(default_factory=dict)
     events: dict[tuple[str, int], RunEvent] = field(default_factory=dict)
     commands: dict[tuple[str, str], RunCommandRecordV1] = field(default_factory=dict)
-    intermediate_links: dict[tuple[str, int, int], RunIntermediateArtifactLinkV1] = field(
+    intermediate_links: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1] = field(
         default_factory=dict
     )
     permit: PermitGroupBinding | None = None
@@ -521,7 +521,14 @@ class _Repo:
             if candidate_run_id == run_id and seq > after_seq
         )[:limit]
 
-    def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
+    def list_claim_candidates(
+        self,
+        *,
+        now_utc: str,
+        limit: int,
+        after_created_at: str | None = None,
+        after_run_id: str | None = None,
+    ) -> tuple[RunRecord, ...]:
         candidates = tuple(
             run
             for run in self.state.runs.values()
@@ -535,7 +542,18 @@ class _Repo:
                 )
             )
         )
-        return min(candidates, key=lambda run: (run.created_at, run.run_id), default=None)
+        ordered = sorted(candidates, key=lambda run: (run.created_at, run.run_id))
+        if after_created_at is not None and after_run_id is not None:
+            cursor = (after_created_at, after_run_id)
+            ordered = [
+                *[run for run in ordered if (run.created_at, run.run_id) > cursor],
+                *[run for run in ordered if (run.created_at, run.run_id) <= cursor],
+            ]
+        return tuple(ordered[:limit])
+
+    def get_claim_candidate(self, *, now_utc: str) -> RunRecord | None:
+        candidates = self.list_claim_candidates(now_utc=now_utc, limit=1)
+        return candidates[0] if candidates else None
 
     def claim(
         self,
@@ -620,6 +638,7 @@ class _Repo:
         fencing_token: int,
         started_at: str,
         attempt_deadline_utc: str,
+        trace_id: str | None = None,
     ) -> _PersistedStart:
         run = self.state.runs[run_id]
         attempt = self.state.attempts[(run_id, attempt_no)]
@@ -654,6 +673,7 @@ class _Repo:
                 "status": "running",
                 "started_at": started_at,
                 "attempt_deadline_utc": attempt_deadline_utc,
+                "trace_id": attempt.trace_id or trace_id,
             }
         )
         event = RunEvent(
@@ -668,7 +688,7 @@ class _Repo:
                 started_at=started_at,
                 attempt_deadline_utc=attempt_deadline_utc,
             ),
-            trace_id=attempt.trace_id,
+            trace_id=attempt.trace_id or trace_id,
         )
         self.state.runs[run_id] = updated_run
         self.state.attempts[(run_id, attempt_no)] = updated_attempt
@@ -1169,31 +1189,42 @@ class _Repo:
         run_id: str,
         attempt_no: int,
         call_ordinal: int,
+        route_ordinal: int = 1,
     ) -> RunIntermediateArtifactLinkV1 | None:
-        return self.state.intermediate_links.get((run_id, attempt_no, call_ordinal))
+        return self.state.intermediate_links.get((run_id, attempt_no, call_ordinal, route_ordinal))
 
     def put_intermediate_link(
         self,
         link: RunIntermediateArtifactLinkV1,
     ) -> RunIntermediateArtifactLinkV1:
-        identity = (link.run_id, link.attempt_no, link.call_ordinal)
+        identity = (link.run_id, link.attempt_no, link.call_ordinal, link.route_ordinal)
         retained = self.state.intermediate_links.get(identity)
         if retained is not None:
             if retained != link:
                 raise IntegrityViolation("intermediate link collision")
             return retained
         attempt = self.state.attempts[(link.run_id, link.attempt_no)]
+        expected_call = (
+            attempt.next_call_ordinal
+            if link.route_ordinal == 1
+            else min(attempt.next_call_ordinal - 1, link.call_ordinal)
+        )
+        predecessor = self.state.intermediate_links.get(
+            (link.run_id, link.attempt_no, link.call_ordinal, link.route_ordinal - 1)
+        )
         if (
-            attempt.next_call_ordinal != link.call_ordinal
+            expected_call != link.call_ordinal
             or attempt.fencing_token != link.fencing_token
+            or (link.route_ordinal > 1 and predecessor is None)
         ):
             raise Conflict("attempt call ordinal or fencing token differs")
-        self.state.attempts[(link.run_id, link.attempt_no)] = RunAttempt.model_validate(
-            {
-                **attempt.model_dump(mode="python"),
-                "next_call_ordinal": attempt.next_call_ordinal + 1,
-            }
-        )
+        if link.route_ordinal == 1:
+            self.state.attempts[(link.run_id, link.attempt_no)] = RunAttempt.model_validate(
+                {
+                    **attempt.model_dump(mode="python"),
+                    "next_call_ordinal": attempt.next_call_ordinal + 1,
+                }
+            )
         self.state.intermediate_links[identity] = link
         return link
 
@@ -1897,6 +1928,41 @@ def test_heartbeat_is_capped_by_overall_deadline_before_start() -> None:
     assert result.lease.expires_at == "2026-07-14T12:00:08Z"
 
 
+def test_heartbeat_cannot_extend_after_cancel_commits_in_authoritative_uow() -> None:
+    harness = _harness()
+    started = _start(harness)
+    harness.state.runs["run:1"] = started.run.model_copy(
+        update={
+            "revision": started.run.revision + 1,
+            "cancel_requested_at": "2026-07-14T12:00:01Z",
+            "cancel_requested_by": AuditActor(
+                principal_id="human:cancel",
+                principal_kind="human",
+            ),
+            "updated_at": "2026-07-14T12:00:01Z",
+        }
+    )
+    before_lease = harness.state.leases["lease:1"]
+    before_permit = harness.state.permit
+
+    with pytest.raises(InvalidStateTransition, match="cancel-requested"):
+        harness.service_at(NOW_DT + timedelta(seconds=2)).renew_lease(
+            RenewLeaseRequest(
+                run_id="run:1",
+                attempt_no=1,
+                lease_id="lease:1",
+                fencing_token=1,
+                expected_lease_version=1,
+                expected_permit_revision=1,
+                lease_duration_ns=30_000_000_000,
+                actor=WORKER,
+            )
+        )
+
+    assert harness.state.leases["lease:1"] == before_lease
+    assert harness.state.permit == before_permit
+
+
 def test_permit_renewal_failure_rolls_back_the_lease_and_permit_together() -> None:
     harness = _harness()
     _start(harness)
@@ -1954,6 +2020,7 @@ def test_progress_and_prompt_ignore_heartbeat_version_but_keep_the_run_fence() -
     prompt_fence = fence.model_copy(update={"expected_run_revision": progress.run.revision})
     prompt_request = PromptRenderPublicationRequest(
         fence=prompt_fence,
+        logical_call_ordinal=1,
         artifact_id="artifact:prompt:1",
         request_hash=_HASH_A,
         idempotency_scope="run:1/attempt:1",
@@ -1991,6 +2058,7 @@ def test_expired_or_replaced_worker_cannot_publish_progress_or_prompt() -> None:
         harness.command_service_at(NOW_DT + timedelta(seconds=6)).publish_prompt_rendered(
             PromptRenderPublicationRequest(
                 fence=stale_fence,
+                logical_call_ordinal=1,
                 artifact_id="artifact:prompt:expired",
                 request_hash=_HASH_A,
                 idempotency_scope="run:1/attempt:1",
@@ -2142,6 +2210,7 @@ def test_expired_or_replaced_worker_cannot_publish_progress_or_prompt() -> None:
         harness.command_service_at(NOW_DT + timedelta(seconds=1)).publish_prompt_rendered(
             PromptRenderPublicationRequest(
                 fence=stale_fence,
+                logical_call_ordinal=1,
                 artifact_id="artifact:prompt:replaced",
                 request_hash=_HASH_A,
                 idempotency_scope="run:1/attempt:1",
@@ -2158,6 +2227,7 @@ def test_prompt_replay_rechecks_the_current_attempt_fence_and_deadline() -> None
     _start(harness)
     request = PromptRenderPublicationRequest(
         fence=_fence(harness),
+        logical_call_ordinal=1,
         artifact_id="artifact:prompt:replay-expired",
         request_hash=_HASH_A,
         idempotency_scope="run:1/attempt:1",
@@ -2190,6 +2260,7 @@ def test_prompt_publication_uses_one_authoritative_time_for_fence_and_link() -> 
     result = harness.commands.publish_prompt_rendered(
         PromptRenderPublicationRequest(
             fence=_fence(harness),
+            logical_call_ordinal=1,
             artifact_id="artifact:prompt:deadline-edge",
             request_hash=_HASH_A,
             idempotency_scope="run:1/attempt:1",

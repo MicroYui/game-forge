@@ -25,12 +25,21 @@ from datetime import datetime
 from typing import Protocol
 
 from gameforge.contracts.jobs import (
+    DependencyFailureV1,
+    FailureClassifierV1,
     PreparedRunFailure,
     PreparedRunOutcome,
     RunAttempt,
     RunPayloadEnvelope,
     RunRecord,
 )
+from gameforge.contracts.errors import (
+    DependencyUnavailable,
+    IntegrityViolation,
+    PermanentDependencyFailure,
+    QuotaExceeded,
+)
+from gameforge.runtime.model_router.router import CassetteReplayMiss
 from gameforge.contracts.model_router import ModelSnapshot
 from gameforge.platform.run_handlers.deferred import (
     DeferredExecutionRequest,
@@ -77,15 +86,35 @@ def redacted_execution_failure(
     *,
     run: RunRecord,
     attempt: RunAttempt,
-    cause_code: str = "execution_failed",
-    redacted_message: str = "worker executor raised an unhandled error",
+    classifier: FailureClassifierV1,
+    error: BaseException,
 ) -> PreparedRunFailure:
-    """Build the conservative, non-leaking failure for an executor that raised.
+    """Classify one executor fault through the exact frozen classifier.
 
-    Uses the Run's frozen failure classifier and the ``execution`` class with no
-    intrinsic retry eligibility (the terminal outcome policy + retry policy decide
-    retry vs. terminal). No exception text or payload is copied into the message.
+    Only typed, complete dependency metadata may become a dependency failure.  All
+    messages are fixed redactions: exception text/context may contain prompts,
+    credentials, provider payloads, or other sensitive values and is never copied.
     """
+
+    cause_code, dependency, message = _exception_projection(error)
+    rule = next((item for item in classifier.rules if item.cause_code == cause_code), None)
+    if rule is None or (
+        rule.dependency_required != (dependency is not None)
+        or (
+            dependency is not None
+            and dependency.dependency_kind not in rule.allowed_dependency_kinds
+        )
+    ):
+        # An unknown/incomplete exception cannot self-assert classifier semantics.
+        cause_code = "execution_failed"
+        dependency = None
+        message = "worker executor raised an unhandled error"
+        rule = next(
+            (item for item in classifier.rules if item.cause_code == cause_code),
+            None,
+        )
+    if rule is None:
+        raise IntegrityViolation("frozen failure classifier lacks execution_failed")
 
     return PreparedRunFailure(
         run_id=run.run_id,
@@ -93,12 +122,70 @@ def redacted_execution_failure(
         run_kind=run.kind,
         artifacts=(),
         requirement_dispositions=(),
-        cause_code=cause_code,
-        failure_class="execution",
-        intrinsic_retry_eligible=False,
+        cause_code=rule.cause_code,
+        failure_class=rule.failure_class,
+        intrinsic_retry_eligible=rule.intrinsic_retry_eligible,
         classifier=run.failure_classifier,
-        redacted_message=redacted_message,
+        dependency=dependency,
+        redacted_message=message,
     )
+
+
+def _exception_projection(
+    error: BaseException,
+) -> tuple[str, DependencyFailureV1 | None, str]:
+    if isinstance(error, (IntegrityViolation, CassetteReplayMiss)):
+        return (
+            "integrity_violation",
+            None,
+            "worker execution evidence failed an integrity check",
+        )
+    if isinstance(error, QuotaExceeded):
+        return "quota_exceeded", None, "worker execution quota was exhausted"
+    if isinstance(error, TimeoutError):
+        return "timed_out", None, "worker execution exceeded its deadline"
+    if isinstance(error, DependencyUnavailable):
+        dependency = _typed_dependency(error)
+        if dependency is not None:
+            return (
+                "dependency_unavailable",
+                dependency,
+                "a required worker dependency is temporarily unavailable",
+            )
+    if isinstance(error, PermanentDependencyFailure):
+        dependency = _typed_dependency(error)
+        if dependency is not None:
+            return (
+                "permanent_dependency_failed",
+                dependency,
+                "a required worker dependency permanently rejected the operation",
+            )
+    return "execution_failed", None, "worker executor raised an unhandled error"
+
+
+def _typed_dependency(
+    error: DependencyUnavailable | PermanentDependencyFailure,
+) -> DependencyFailureV1 | None:
+    context = error.context
+    required = (
+        "dependency_kind",
+        "dependency_id",
+        "operation_code",
+        "classifier_code",
+    )
+    if any(not isinstance(context.get(key), str) or not context[key] for key in required):
+        return None
+    try:
+        return DependencyFailureV1(
+            dependency_kind=context["dependency_kind"],
+            dependency_id=context["dependency_id"],
+            operation_code=context["operation_code"],
+            classifier_code=context["classifier_code"],
+            upstream_status_code=context.get("upstream_status_code"),
+            retry_after_ms=context.get("retry_after_ms"),
+        )
+    except (TypeError, ValueError):
+        return None
 
 
 def deferred_executor_adapter(deferred: DeferredExecutor) -> RunExecutor:

@@ -32,13 +32,20 @@ import base64
 import binascii
 from hashlib import sha256
 import hmac
+import math
 import os
 from pathlib import Path
+from urllib.parse import unquote
 
-from sqlalchemy import Engine
+from alembic.runtime.migration import MigrationContext
+from sqlalchemy import Engine, inspect, select
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import Session
+from sqlalchemy.util import asbool
 
 from gameforge.apps.worker.executor import RunExecutor, deferred_executor_adapter
+from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
 from gameforge.contracts.jobs import RunRecord
 from gameforge.contracts.lineage import AuditActor
@@ -54,6 +61,10 @@ from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
 from gameforge.runtime.observability.local_store import LocalTelemetryStore
 from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, DEFAULT_URL, get_engine
+from gameforge.runtime.persistence import migrations_api
+from gameforge.runtime.persistence.audit import SqlAuditSink
+from gameforge.runtime.persistence.cost import SqlCostRepository
+from gameforge.runtime.persistence.models import ModelCatalogSnapshotRow
 from gameforge.runtime.persistence.runs import SqlRunRepository
 
 
@@ -69,10 +80,93 @@ WORKER_MAX_WORKERS_ENV = "GAMEFORGE_WORKER_MAX_WORKERS"
 WORKER_MAX_CONCURRENCY_ENV = "GAMEFORGE_WORKER_MAX_CONCURRENCY"
 WORKER_REAPER_LIMIT_ENV = "GAMEFORGE_WORKER_REAPER_LIMIT"
 LOCAL_ROOT_SECRET_ENV = "GAMEFORGE_LOCAL_SECRET_BASE64"
+WORKER_RUN_AUDIT_CHAIN_ID = "runs"
+_MAX_WORKER_THREADS = 1024
+_MAX_LEASE_DURATION_NS = 86_400_000_000_000  # one day
+_MAX_CONTROL_INTERVAL_S = 3_600.0
+_REQUIRED_WORKER_TABLES = frozenset(
+    {
+        "alembic_version",
+        "approval_decisions",
+        "approval_items",
+        "artifacts",
+        "audit",
+        "audit_heads",
+        "budget_reservations",
+        "budget_snapshots",
+        "object_bindings",
+        "budgets",
+        "runs",
+        "run_attempts",
+        "run_commands",
+        "run_leases",
+        "run_events",
+        "run_finding_links",
+        "run_intermediate_artifact_links",
+        "run_model_response_consumptions",
+        "run_model_route_links",
+        "budget_set_snapshots",
+        "concurrency_permits",
+        "finding_heads",
+        "finding_revisions",
+        "idempotency_records",
+        "legacy_import_routing_decisions",
+        "model_catalog_snapshots",
+        "reservation_groups",
+        "permit_groups",
+        "ref_history",
+        "ref_transitions",
+        "refs",
+        "routing_decisions",
+        "routing_policies",
+        "subject_heads",
+        "usage_entries",
+    }
+)
 
 
 class WorkerConfigurationError(ValueError):
     """The trusted local worker composition is incomplete or unsafe."""
+
+
+def _sqlite_file_path(database_url: str) -> Path | None:
+    """Return the physical SQLite file target, excluding in-memory databases."""
+
+    try:
+        url = make_url(database_url)
+    except ArgumentError as exc:
+        raise WorkerConfigurationError("database_url must be a valid SQLAlchemy URL") from exc
+    if url.get_backend_name() != "sqlite":
+        return None
+    database = url.database
+    if database in {None, "", ":memory:"}:
+        return None
+    try:
+        is_sqlite_uri = asbool(url.query.get("uri", False))
+    except ValueError as exc:
+        raise WorkerConfigurationError("database_url SQLite uri flag must be boolean") from exc
+    if database.startswith("file:") and is_sqlite_uri:
+        database = unquote(database.removeprefix("file:"))
+        if database == ":memory:" or url.query.get("mode") == "memory":
+            return None
+    return Path(database).expanduser().resolve(strict=False)
+
+
+def _same_physical_file(left: Path, right: Path) -> bool:
+    left = left.expanduser().resolve(strict=False)
+    right = right.expanduser().resolve(strict=False)
+    if left == right:
+        return True
+    try:
+        return left.samefile(right)
+    except (FileNotFoundError, OSError):
+        return False
+
+
+def _note_cleanup_failure(original: BaseException, *, label: str, error: BaseException) -> None:
+    """Retain the primary failure without copying cleanup exception text."""
+
+    original.add_note(f"{label} cleanup also failed ({type(error).__name__})")
 
 
 def _root_secret(source: Mapping[str, str]) -> bytes:
@@ -117,7 +211,7 @@ def _positive_float(source: Mapping[str, str], name: str, default: float) -> flo
         value = float(raw)
     except ValueError:
         raise WorkerConfigurationError(f"{name} must be a positive number") from None
-    if value <= 0:
+    if not math.isfinite(value) or value <= 0:
         raise WorkerConfigurationError(f"{name} must be a positive number")
     return value
 
@@ -150,18 +244,61 @@ class LocalWorkerConfig:
                 raise WorkerConfigurationError(f"{name} must be a non-empty bounded string")
         if not isinstance(self.root_secret, bytes) or len(self.root_secret) < 32:
             raise WorkerConfigurationError("root_secret must contain at least 32 bytes")
+        for name in ("lease_duration_ns", "reaper_limit", "max_workers"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+                raise WorkerConfigurationError(f"{name} must be a positive integer")
+        if self.lease_duration_ns > _MAX_LEASE_DURATION_NS:
+            raise WorkerConfigurationError("lease_duration_ns must be at most one day")
+        if self.reaper_limit > 1024:
+            raise WorkerConfigurationError("reaper_limit must be at most 1024")
+        if self.max_workers > _MAX_WORKER_THREADS:
+            raise WorkerConfigurationError("max_workers must be at most 1024")
+        for name in ("heartbeat_interval_s", "poll_interval_s"):
+            value = getattr(self, name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+                or value <= 0
+            ):
+                raise WorkerConfigurationError(f"{name} must be a positive finite number")
+            if value > _MAX_CONTROL_INTERVAL_S:
+                raise WorkerConfigurationError(f"{name} must be at most one hour")
+        if self.max_concurrency is not None and (
+            isinstance(self.max_concurrency, bool)
+            or not isinstance(self.max_concurrency, int)
+            or self.max_concurrency < 1
+        ):
+            raise WorkerConfigurationError("max_concurrency must be a positive integer")
+        if self.max_concurrency is not None and self.max_concurrency > _MAX_WORKER_THREADS:
+            raise WorkerConfigurationError("max_concurrency must be at most 1024")
         if self.max_concurrency is not None and self.max_concurrency > self.max_workers:
             raise WorkerConfigurationError("max_concurrency cannot exceed max_workers")
         # The heartbeat must renew comfortably before the lease expires; a renewal
         # interval at/above the lease duration self-expires the lease. Require the
         # interval to be at most half the lease so at least one beat lands in time.
         lease_duration_s = self.lease_duration_ns / 1_000_000_000
-        if self.heartbeat_interval_s > lease_duration_s / 2:
+        if self.heartbeat_interval_s >= lease_duration_s / 2:
             raise WorkerConfigurationError(
-                "heartbeat_interval_s must be at most half the lease duration"
+                "heartbeat_interval_s must be less than half the lease duration"
             )
-        object.__setattr__(self, "object_store_root", Path(self.object_store_root))
-        object.__setattr__(self, "telemetry_db_path", Path(self.telemetry_db_path))
+        if self.poll_interval_s >= lease_duration_s / 2:
+            raise WorkerConfigurationError(
+                "poll_interval_s must be less than half the lease duration"
+            )
+        object_store_root = Path(self.object_store_root).expanduser()
+        telemetry_db_path = Path(self.telemetry_db_path).expanduser()
+        business_db_path = _sqlite_file_path(self.database_url)
+        if business_db_path is not None and _same_physical_file(
+            business_db_path,
+            telemetry_db_path,
+        ):
+            raise WorkerConfigurationError(
+                "telemetry SQLite must be physically separate from the business SQLite"
+            )
+        object.__setattr__(self, "object_store_root", object_store_root)
+        object.__setattr__(self, "telemetry_db_path", telemetry_db_path)
 
     @classmethod
     def from_environment(cls, environment: Mapping[str, str] | None = None) -> "LocalWorkerConfig":
@@ -204,16 +341,31 @@ class WorkerRuntime:
     tracer: Tracer
     executor_pool: ThreadedBlockingExecutorPool
     control_pool: ControlPlanePool
+    heartbeat_pool: ControlPlanePool
     registry: ImmutablePlatformRegistry
     components: TrustedComponentMaps
     worker_actor: AuditActor
     reaper_actor: AuditActor
+    model_execution_authorities: WorkerModelExecutionAuthorities | None = None
 
     def close(self) -> None:
-        self.executor_pool.close()
-        self.control_pool.close()
-        self.telemetry_store.close()
-        self.engine.dispose()
+        first_error: BaseException | None = None
+        for label, close in (
+            ("executor pool", self.executor_pool.close),
+            ("heartbeat pool", self.heartbeat_pool.close),
+            ("control pool", self.control_pool.close),
+            ("telemetry store", self.telemetry_store.close),
+            ("business engine", self.engine.dispose),
+        ):
+            try:
+                close()
+            except BaseException as error:
+                if first_error is None:
+                    first_error = error
+                else:
+                    _note_cleanup_failure(first_error, label=label, error=error)
+        if first_error is not None:
+            raise first_error
 
 
 def build_worker_runtime(
@@ -222,56 +374,96 @@ def build_worker_runtime(
     trusted_components: TrustedComponentMaps | None = None,
     engine: Engine | None = None,
     object_store: LocalObjectStore | None = None,
+    model_execution_authorities: WorkerModelExecutionAuthorities | None = None,
 ) -> WorkerRuntime:
-    if not isinstance(config, LocalWorkerConfig):
-        raise WorkerConfigurationError("local worker requires an exact LocalWorkerConfig")
-    components = trusted_components or TrustedComponentMaps()
-    if not isinstance(components, TrustedComponentMaps):
-        raise WorkerConfigurationError("trusted_components must be an exact TrustedComponentMaps")
-
     clock = SystemUtcClock()
-    if engine is None:
-        engine = get_engine(config.database_url)
-    if engine.dialect.name != "sqlite":
-        engine.dispose()
-        raise WorkerConfigurationError("local worker composition requires SQLite")
-    if object_store is None:
-        object_store = LocalObjectStore(
-            config.object_store_root,
-            store_id=config.object_store_id,
+    runtime_engine: Engine | None = engine
+    telemetry_store: LocalTelemetryStore | None = None
+    executor_pool: ThreadedBlockingExecutorPool | None = None
+    control_pool: ControlPlanePool | None = None
+    heartbeat_pool: ControlPlanePool | None = None
+    try:
+        if not isinstance(config, LocalWorkerConfig):
+            raise WorkerConfigurationError("local worker requires an exact LocalWorkerConfig")
+        components = trusted_components or TrustedComponentMaps()
+        if not isinstance(components, TrustedComponentMaps):
+            raise WorkerConfigurationError(
+                "trusted_components must be an exact TrustedComponentMaps"
+            )
+        runtime_engine = runtime_engine or get_engine(config.database_url)
+        if runtime_engine.dialect.name != "sqlite":
+            raise WorkerConfigurationError("local worker composition requires SQLite")
+        if object_store is None:
+            object_store = LocalObjectStore(
+                config.object_store_root,
+                store_id=config.object_store_id,
+                clock=clock,
+                cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
+            )
+        telemetry_store = LocalTelemetryStore(
+            config.telemetry_db_path,
             clock=clock,
-            cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
+            signing_key=_derive_key(config.root_secret, "telemetry-cursor"),
         )
-    telemetry_store = LocalTelemetryStore(
-        config.telemetry_db_path,
-        clock=clock,
-        signing_key=_derive_key(config.root_secret, "telemetry-cursor"),
-    )
-    tracer = Tracer(
-        exporter=_TelemetryExporter(telemetry_store),
-        sampler=AlwaysOnSampler(),
-        resource={"service.name": "gameforge-worker"},
-    )
-    executor_pool = ThreadedBlockingExecutorPool(
-        max_workers=config.max_workers,
-        max_concurrency=config.max_concurrency,
-    )
-    # Control-plane DB ops (heartbeat/claim/reap/terminal) run on a separate,
-    # ungated lane so a saturated executor pool never stalls a lease heartbeat.
-    control_pool = ControlPlanePool(max_workers=max(2, config.max_workers))
-    return WorkerRuntime(
-        config=config,
-        engine=engine,
-        object_store=object_store,
-        telemetry_store=telemetry_store,
-        tracer=tracer,
-        executor_pool=executor_pool,
-        control_pool=control_pool,
-        registry=build_builtin_registry(),
-        components=components,
-        worker_actor=AuditActor(principal_id=config.worker_principal_id, principal_kind="service"),
-        reaper_actor=AuditActor(principal_id=config.reaper_principal_id, principal_kind="system"),
-    )
+        tracer = Tracer(
+            exporter=_TelemetryExporter(telemetry_store),
+            sampler=AlwaysOnSampler(),
+            resource={"service.name": "gameforge-worker"},
+        )
+        executor_pool = ThreadedBlockingExecutorPool(
+            max_workers=config.max_workers,
+            max_concurrency=config.max_concurrency,
+        )
+        # Ordinary control work cannot occupy the dedicated heartbeat-renewal lane.
+        control_pool = ControlPlanePool(max_workers=max(2, config.max_workers))
+        heartbeat_pool = ControlPlanePool(
+            max_workers=config.max_concurrency or config.max_workers,
+            thread_name_prefix="gameforge-worker-heartbeat",
+        )
+        return WorkerRuntime(
+            config=config,
+            engine=runtime_engine,
+            object_store=object_store,
+            telemetry_store=telemetry_store,
+            tracer=tracer,
+            executor_pool=executor_pool,
+            control_pool=control_pool,
+            heartbeat_pool=heartbeat_pool,
+            registry=build_builtin_registry(),
+            components=components,
+            worker_actor=AuditActor(
+                principal_id=config.worker_principal_id,
+                principal_kind="service",
+            ),
+            reaper_actor=AuditActor(
+                principal_id=config.reaper_principal_id,
+                principal_kind="system",
+            ),
+            model_execution_authorities=model_execution_authorities,
+        )
+    except BaseException as original:
+        for label, resource in (
+            ("executor pool", executor_pool),
+            ("heartbeat pool", heartbeat_pool),
+            ("control pool", control_pool),
+            ("telemetry store", telemetry_store),
+        ):
+            if resource is None:
+                continue
+            try:
+                resource.close()
+            except BaseException as cleanup_error:
+                _note_cleanup_failure(original, label=label, error=cleanup_error)
+        if runtime_engine is not None:
+            try:
+                runtime_engine.dispose()
+            except BaseException as cleanup_error:
+                _note_cleanup_failure(
+                    original,
+                    label="business engine",
+                    error=cleanup_error,
+                )
+        raise
 
 
 class _TelemetryExporter:
@@ -289,6 +481,19 @@ def build_reaper_scan(engine: Engine) -> Callable[..., tuple[RunRecord, ...]]:
     def scan(*, now_utc: str, limit: int) -> tuple[RunRecord, ...]:
         with Session(engine) as session:
             return SqlRunRepository(session).list_expired_leases(now_utc=now_utc, limit=limit)
+
+    return scan
+
+
+def build_timeout_scan(engine: Engine) -> Callable[..., tuple[RunRecord, ...]]:
+    """Bounded inactive-deadline discovery over the shared SQLite authority."""
+
+    def scan(*, now_utc: str, limit: int) -> tuple[RunRecord, ...]:
+        with Session(engine) as session:
+            return SqlRunRepository(session).list_timeout_candidates(
+                now_utc=now_utc,
+                limit=limit,
+            )
 
     return scan
 
@@ -324,20 +529,106 @@ def build_executor_resolver(
 
 
 def validate_worker_readiness(runtime: WorkerRuntime) -> None:
-    """Fail closed unless every active Run kind's executor is provisioned."""
+    """Fail closed unless schema, audit, storage and registry authority are ready."""
 
-    PlatformReadinessValidator(
+    expected_heads = migrations_api.expected_heads(runtime.config.database_url)
+    with runtime.engine.connect() as connection:
+        current_heads = tuple(sorted(MigrationContext.configure(connection).get_current_heads()))
+    if current_heads != expected_heads:
+        raise WorkerConfigurationError("database migration head does not match the worker")
+    retained_tables = frozenset(inspect(runtime.engine).get_table_names())
+    missing_tables = tuple(sorted(_REQUIRED_WORKER_TABLES - retained_tables))
+    if missing_tables:
+        raise WorkerConfigurationError(
+            f"worker database is missing required tables: {', '.join(missing_tables)}"
+        )
+    runtime.object_store.check_ready()
+    with Session(runtime.engine) as session:
+        if SqlAuditSink(session).verify_chain(WORKER_RUN_AUDIT_CHAIN_ID) is not True:
+            raise WorkerConfigurationError("worker Run audit chain verification failed")
+
+    report = PlatformReadinessValidator(
         registry=runtime.registry,
         components=runtime.components,
     ).validate()
+    if report.ready is not True:
+        raise WorkerConfigurationError("worker registry closure is not ready")
+    required_heartbeat_capacity = runtime.config.max_concurrency or runtime.config.max_workers
+    if runtime.heartbeat_pool.max_workers < required_heartbeat_capacity:
+        raise WorkerConfigurationError("worker heartbeat lane cannot cover every active attempt")
+    authorities = runtime.model_execution_authorities
+    if not isinstance(authorities, WorkerModelExecutionAuthorities):
+        raise WorkerConfigurationError("worker model execution authority closure is not configured")
+    required_prompt_keys = {
+        (node.agent_node_id, node.prompt_version, node.tool_version)
+        for graph in runtime.registry.list_agent_execution_graphs()
+        if graph.status in {"active", "replay_only"}
+        for node in graph.nodes
+    }
+    retained_prompt_keys = set(authorities.prompt_renderer.binding_plan_keys)
+    missing_prompt_keys = tuple(sorted(required_prompt_keys - retained_prompt_keys))
+    if missing_prompt_keys:
+        raise WorkerConfigurationError(
+            "worker canonical prompt authority misses frozen Agent graph bindings: "
+            + ", ".join("/".join(item) for item in missing_prompt_keys)
+        )
+    snapshot_ids = authorities.snapshots.model_snapshot_ids
+    breaker_ids = authorities.circuit_breaker_resolver.model_snapshot_ids
+    if snapshot_ids != breaker_ids:
+        raise WorkerConfigurationError(
+            "worker model snapshots and dependency-scoped breakers differ"
+        )
+    with Session(runtime.engine) as session:
+        catalog_rows = session.scalars(
+            select(ModelCatalogSnapshotRow)
+            .order_by(ModelCatalogSnapshotRow.catalog_version)
+            .limit(1025)
+        ).all()
+        if not catalog_rows or len(catalog_rows) > 1024:
+            raise WorkerConfigurationError(
+                "worker retained model-catalog closure is empty or exceeds its bound"
+            )
+        catalogs = SqlCostRepository(session)
+        catalog_model_ids: set[str] = set()
+        for row in catalog_rows:
+            catalog = catalogs.get_model_catalog(row.catalog_version, row.catalog_digest)
+            if catalog is None:
+                raise WorkerConfigurationError(
+                    "worker retained model-catalog authority is unreadable"
+                )
+            catalog_model_ids.update(item.model_snapshot for item in catalog.models)
+    missing_model_ids = tuple(sorted(catalog_model_ids - set(snapshot_ids)))
+    if missing_model_ids:
+        raise WorkerConfigurationError(
+            "worker model authority misses retained catalog snapshots: "
+            + ", ".join(missing_model_ids)
+        )
+    blocked_components = tuple(
+        sorted(
+            (key, blocker)
+            for key, component in runtime.components.executors.items()
+            if isinstance(
+                blocker := getattr(component, "worker_readiness_blocker", None),
+                str,
+            )
+            and blocker
+        )
+    )
+    if blocked_components:
+        raise WorkerConfigurationError(
+            "worker active executor closure is incomplete: "
+            + "; ".join(f"{key}: {reason}" for key, reason in blocked_components)
+        )
 
 
 __all__ = [
     "LocalWorkerConfig",
+    "WORKER_RUN_AUDIT_CHAIN_ID",
     "WorkerConfigurationError",
     "WorkerRuntime",
     "build_executor_resolver",
     "build_reaper_scan",
+    "build_timeout_scan",
     "build_worker_runtime",
     "validate_worker_readiness",
 ]

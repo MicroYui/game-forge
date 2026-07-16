@@ -171,6 +171,24 @@ def test_retry_after_and_deadline_prevent_late_attempt() -> None:
     assert sleeper.calls == []
 
 
+def test_huge_retry_after_cannot_overflow_deadline_arithmetic() -> None:
+    utc = _Clock()
+    monotonic = ManualMonotonicClock()
+    sleeper = _Sleeper(utc, monotonic)
+    executor = _executor(clock=utc, monotonic=monotonic, sleeper=sleeper)
+    error = _Transient("retry far later")
+    error.retry_after_s = 10**10_000
+
+    with pytest.raises(_Transient, match="retry far later"):
+        executor.run(
+            lambda _: (_ for _ in ()).throw(error),
+            idempotent=True,
+            deadline_utc=utc.current + timedelta(seconds=1),
+        )
+
+    assert sleeper.calls == []
+
+
 def test_budget_reservation_failure_stops_before_transport_attempt() -> None:
     utc = _Clock()
     monotonic = ManualMonotonicClock()

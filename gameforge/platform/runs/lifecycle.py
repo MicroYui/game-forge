@@ -10,7 +10,13 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import (
+    AttemptFenceConflict,
+    AttemptFenceStateRejected,
+    Conflict,
+    IntegrityViolation,
+    InvalidStateTransition,
+)
 from gameforge.contracts.jobs import (
     AttemptProgressDataV1,
     AttemptStartedDataV1,
@@ -68,6 +74,7 @@ class PermitGroupBinding(_FrozenModel):
 
 class StartAttemptRequest(_FrozenModel):
     fence: AttemptWriteFence
+    trace_id: NonEmptyStr | None = None
     actor: AuditActor
 
     @model_validator(mode="after")
@@ -275,6 +282,7 @@ class RunLifecycleRepository(Protocol):
         fencing_token: int,
         started_at: str,
         attempt_deadline_utc: str,
+        trace_id: str | None = None,
     ) -> PersistedAttemptStart: ...
 
     def renew_lease(
@@ -665,13 +673,13 @@ def validate_attempt_write_fence(
 
     _validate_worker_actor(actor)
     if run.revision != fence.expected_run_revision:
-        raise Conflict(
+        raise AttemptFenceConflict(
             "Run write revision differs",
             expected_revision=fence.expected_run_revision,
             actual_revision=run.revision,
         )
     if run.status not in allowed_statuses:
-        raise InvalidStateTransition(
+        raise AttemptFenceStateRejected(
             "Run status does not allow this attempt write",
             status=run.status,
         )
@@ -687,9 +695,9 @@ def validate_attempt_write_fence(
         or lease.fencing_token != fence.fencing_token
         or lease.status != "active"
     ):
-        raise Conflict("Run attempt write fence differs from the current lease")
+        raise AttemptFenceConflict("Run attempt write fence differs from the current lease")
     if actor.principal_kind == "service" and lease.owner_principal_id != actor.principal_id:
-        raise Conflict("Run attempt write actor does not own the current lease")
+        raise AttemptFenceConflict("Run attempt write actor does not own the current lease")
 
     lease_expiry = _parse_utc(lease.expires_at, field_name="lease.expires_at")
     overall_deadline = _parse_utc(
@@ -697,16 +705,16 @@ def validate_attempt_write_fence(
         field_name="run.overall_deadline_utc",
     )
     if now >= lease_expiry:
-        raise InvalidStateTransition("Run attempt lease is expired")
+        raise AttemptFenceStateRejected("Run attempt lease is expired")
     if now >= overall_deadline:
-        raise InvalidStateTransition("Run overall deadline is exhausted")
+        raise AttemptFenceStateRejected("Run overall deadline is exhausted")
     if attempt.attempt_deadline_utc is not None:
         attempt_deadline = _parse_utc(
             attempt.attempt_deadline_utc,
             field_name="attempt.attempt_deadline_utc",
         )
         if now >= attempt_deadline:
-            raise InvalidStateTransition("Run attempt deadline is exhausted")
+            raise AttemptFenceStateRejected("Run attempt deadline is exhausted")
 
 
 def resolve_lifecycle_bindings(
@@ -921,6 +929,7 @@ class RunLifecycleService:
                 fencing_token=attempt.fencing_token,
                 started_at=_utc_text(now),
                 attempt_deadline_utc=_utc_text(attempt_deadline),
+                trace_id=request.trace_id,
             )
             self._validate_start_result(
                 previous=run,
@@ -929,6 +938,7 @@ class RunLifecycleService:
                 persisted=persisted,
                 started_at=_utc_text(now),
                 attempt_deadline_utc=_utc_text(attempt_deadline),
+                trace_id=request.trace_id,
             )
             publication.record_attempt_started(
                 previous=run,
@@ -973,6 +983,12 @@ class RunLifecycleService:
                 now=now,
                 allowed_statuses=frozenset({"leased", "running"}),
             )
+            if run.cancel_requested_at is not None:
+                # The cancellation flag and this renewal are serialized in the
+                # same authoritative UoW. A pre-renewal worker probe is only a
+                # latency optimization and cannot authorize one extra extension
+                # after cancellation committed.
+                raise InvalidStateTransition("cancel-requested Run lease cannot renew")
             if lease.lease_version != request.expected_lease_version:
                 raise Conflict("Run lease version differs")
             if run.concurrency_permit_group_id is None:
@@ -1136,6 +1152,26 @@ class RunLifecycleService:
                 attempt=attempt,
                 prepared=request.prepared_outcome,
             )
+            if run.cancel_requested_at is not None and (
+                not isinstance(prepared, PreparedRunFailure)
+                or prepared.failure_class != "subject_superseded"
+            ):
+                # Cancellation is fresh control-plane authority and wins over a
+                # concurrently completed success as well as ordinary failures.
+                # Discard prepared business outputs and close through the typed
+                # cancellation policy in this same terminal UoW.
+                prepared = PreparedRunFailure(
+                    run_id=run.run_id,
+                    attempt_no=attempt.attempt_no,
+                    run_kind=run.kind,
+                    artifacts=(),
+                    requirement_dispositions=(),
+                    cause_code="cancelled",
+                    failure_class="cancelled",
+                    intrinsic_retry_eligible=False,
+                    classifier=run.failure_classifier,
+                    redacted_message="Run cancellation requested",
+                )
             if isinstance(prepared, PreparedRunResult):
                 if (
                     prepared.run_id != run.run_id
@@ -1143,8 +1179,6 @@ class RunLifecycleService:
                     or prepared.run_kind != run.kind
                 ):
                     raise IntegrityViolation("prepared result differs from the current Run attempt")
-                if run.cancel_requested_at is not None:
-                    raise InvalidStateTransition("cancel-requested Run cannot publish success")
                 policy = select_outcome_policy(
                     definition=definition,
                     outcome_code=prepared.summary.outcome_code,
@@ -1238,22 +1272,6 @@ class RunLifecycleService:
                     result_artifact_id=result_artifact_id,
                 )
 
-            if (
-                run.cancel_requested_at is not None
-                and prepared.failure_class != "subject_superseded"
-            ):
-                prepared = PreparedRunFailure(
-                    run_id=run.run_id,
-                    attempt_no=attempt.attempt_no,
-                    run_kind=run.kind,
-                    artifacts=(),
-                    requirement_dispositions=(),
-                    cause_code="cancelled",
-                    failure_class="cancelled",
-                    intrinsic_retry_eligible=False,
-                    classifier=run.failure_classifier,
-                    redacted_message="Run cancellation requested",
-                )
             validate_prepared_failure(
                 run=run,
                 attempt=attempt,
@@ -1326,6 +1344,22 @@ class RunLifecycleService:
                 attempt=attempt,
                 prepared=request.prepared_outcome,
             )
+            if run.cancel_requested_at is not None and (
+                not isinstance(prepared, PreparedRunFailure)
+                or prepared.failure_class != "subject_superseded"
+            ):
+                prepared = PreparedRunFailure(
+                    run_id=run.run_id,
+                    attempt_no=attempt.attempt_no,
+                    run_kind=run.kind,
+                    artifacts=(),
+                    requirement_dispositions=(),
+                    cause_code="cancelled",
+                    failure_class="cancelled",
+                    intrinsic_retry_eligible=False,
+                    classifier=run.failure_classifier,
+                    redacted_message="Run cancellation requested",
+                )
             if isinstance(prepared, PreparedRunResult):
                 if (
                     prepared.run_id != run.run_id
@@ -1333,8 +1367,6 @@ class RunLifecycleService:
                     or prepared.run_kind != run.kind
                 ):
                     raise IntegrityViolation("prepared result differs from the current Run attempt")
-                if run.cancel_requested_at is not None:
-                    raise InvalidStateTransition("cancel-requested Run cannot publish success")
                 policy = select_outcome_policy(
                     definition=definition,
                     outcome_code=prepared.summary.outcome_code,
@@ -1356,22 +1388,6 @@ class RunLifecycleService:
                     ),
                 )
 
-            if (
-                run.cancel_requested_at is not None
-                and prepared.failure_class != "subject_superseded"
-            ):
-                prepared = PreparedRunFailure(
-                    run_id=run.run_id,
-                    attempt_no=attempt.attempt_no,
-                    run_kind=run.kind,
-                    artifacts=(),
-                    requirement_dispositions=(),
-                    cause_code="cancelled",
-                    failure_class="cancelled",
-                    intrinsic_retry_eligible=False,
-                    classifier=run.failure_classifier,
-                    redacted_message="Run cancellation requested",
-                )
             validate_prepared_failure(
                 run=run,
                 attempt=attempt,
@@ -2747,7 +2763,14 @@ class RunLifecycleService:
         persisted: PersistedAttemptStart,
         started_at: str,
         attempt_deadline_utc: str,
+        trace_id: str | None,
     ) -> None:
+        if previous_attempt.trace_id is not None and trace_id not in {
+            None,
+            previous_attempt.trace_id,
+        }:
+            raise IntegrityViolation("attempt start trace differs from the claimed trace")
+        effective_trace_id = previous_attempt.trace_id or trace_id
         expected_run = RunRecord.model_validate(
             {
                 **previous.model_dump(mode="python"),
@@ -2763,6 +2786,7 @@ class RunLifecycleService:
                 "status": "running",
                 "started_at": started_at,
                 "attempt_deadline_utc": attempt_deadline_utc,
+                "trace_id": effective_trace_id,
             }
         )
         expected_event = RunEvent(
@@ -2777,7 +2801,7 @@ class RunLifecycleService:
                 started_at=started_at,
                 attempt_deadline_utc=attempt_deadline_utc,
             ),
-            trace_id=previous_attempt.trace_id,
+            trace_id=effective_trace_id,
         )
         if (
             persisted.run != expected_run
