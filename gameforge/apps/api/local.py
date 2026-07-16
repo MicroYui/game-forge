@@ -48,7 +48,7 @@ from gameforge.apps.cli.identity import (
     ROLE_POLICY_DIGEST_ENV,
     ROLE_POLICY_VERSION_ENV,
 )
-from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.errors import Conflict, DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.identity import (
     DomainRegistryV1,
     DomainRoutePolicy,
@@ -56,6 +56,7 @@ from gameforge.contracts.identity import (
     DomainScope,
     RolePolicy,
 )
+from gameforge.contracts.lineage import AuditActor, AuditCorrelation, AuditSubject
 from gameforge.contracts.observability import SpanDataV1
 from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1
 from gameforge.platform.audit.gate import AuditGate
@@ -68,6 +69,7 @@ from gameforge.platform.approvals.commands import (
     ApprovalCommandCapabilities,
     ApprovalCommandService,
 )
+from gameforge.platform.approvals.state import validate_status_transition
 from gameforge.platform.diff.rebase import (
     RebaseWorkflowCapabilities,
     RebaseWorkflowService,
@@ -502,6 +504,107 @@ class _RoutePolicyDomainScopeResolver:
                 component="workflow_domain_scope",
             )
         return DomainScope(domain_ids=tuple(sorted(selected)))
+
+
+class _ValidationStartingAdmission:
+    """Complete the ``:validate`` composition: admit the Run AND start validation.
+
+    Design §"validation start" (m4 design L116/L315) makes ``POST /{subject}:validate``
+    atomically (1) create the queued validation Run and (2) CAS the ApprovalItem
+    ``draft→validating`` bound to that Run, so the worker's terminal validation-effect
+    observes a ``validating`` item at ``expected_workflow_revision + 1`` bound to the
+    published run. The :class:`RunAdmissionEngine` owns the Run create; it deliberately
+    does NOT mutate the ApprovalItem. Task 17a/17b wired the Run create + terminal
+    effect but left the ``draft→validating`` workflow half unwired at the endpoint
+    (17b performed it out-of-band in its own harness). This composition adapter closes
+    that integration gap: after the engine admits the Run it performs the workflow CAS
+    in the write authority, in a fresh short transaction (the engine already committed
+    the queued Run), so the public ``:validate`` endpoint leaves exactly the state
+    Journey B requires. It is idempotent — a ``:validate`` replay (same run already
+    started on this item) is a no-op — and fails closed on a non-current/non-draft or
+    stale-revision subject rather than fabricating a transition.
+    """
+
+    def __init__(
+        self,
+        *,
+        engine: RunAdmissionEngine,
+        unit_of_work: SqliteUnitOfWork,
+        clock: SystemUtcClock,
+        audit_chain_id: str,
+    ) -> None:
+        self._engine = engine
+        self._unit_of_work = unit_of_work
+        self._clock = clock
+        self._audit_chain_id = audit_chain_id
+
+    def admit(
+        self, *, operation: str, resource_id: str, request: object, actor: object, server: object
+    ):
+        accepted = self._engine.admit(
+            operation=operation,
+            resource_id=resource_id,
+            request=request,  # type: ignore[arg-type]
+            actor=actor,  # type: ignore[arg-type]
+            server=server,
+        )
+        self._start_validation(request=request, run_id=accepted.run_id, actor=actor, server=server)
+        return accepted
+
+    def _start_validation(
+        self, *, request: object, run_id: str, actor: object, server: object
+    ) -> None:
+        approval_id = request.approval_id  # type: ignore[attr-defined]
+        expected = request.expected_workflow_revision  # type: ignore[attr-defined]
+        with self._unit_of_work.begin() as transaction:
+            approvals = transaction.approvals  # type: ignore[attr-defined]
+            item = approvals.get(approval_id)
+            if item is None:
+                raise Conflict("validation start subject is unavailable", approval_id=approval_id)
+            if item.status == "validating" and item.active_validation_run_id == run_id:
+                # Idempotent ``:validate`` replay: the Run was already started on this item.
+                return
+            head = approvals.get_subject_head(item.subject_series_id)
+            if head is None or head.current_approval_id != item.approval_id:
+                raise Conflict(
+                    "validation start subject is not the current head",
+                    approval_id=approval_id,
+                )
+            if item.status != "draft" or item.workflow_revision != expected:
+                raise Conflict(
+                    "validation start requires the exact current draft revision",
+                    approval_id=approval_id,
+                    expected_revision=expected,
+                    actual_revision=item.workflow_revision,
+                    status=item.status,
+                )
+            validate_status_transition(
+                current="draft", target="validating", subject_kind=item.subject_kind
+            )
+            replacement = item.model_copy(
+                update={
+                    "status": "validating",
+                    "workflow_revision": expected + 1,
+                    "active_validation_run_id": run_id,
+                    "last_validation_failure_artifact_id": None,
+                }
+            )
+            approvals.compare_and_set(item.approval_id, expected, replacement)
+            AuditGate(sink=transaction.audit, clock=self._clock).append(  # type: ignore[attr-defined]
+                chain_id=self._audit_chain_id,
+                actor=AuditActor(
+                    principal_id=actor.principal.id,  # type: ignore[attr-defined]
+                    principal_kind=actor.principal.kind,  # type: ignore[attr-defined]
+                ),
+                initiated_by=None,
+                action="approval.validation_started",
+                subject=AuditSubject(resource_kind="approval", resource_id=item.approval_id),
+                correlation=AuditCorrelation(
+                    request_id=getattr(server, "request_id", None),
+                    run_id=run_id,
+                    trace_id=getattr(server, "trace_id", None),
+                ),
+            )
 
 
 def _build_run_admission_engine(
@@ -978,6 +1081,18 @@ def build_local_api_resources(
         registry=builtin_registry,
         execution_profile_catalog=execution_profile_catalogs[0],
     )
+    # The synchronous ``:validate`` endpoint must ALSO start validation (CAS the
+    # ApprovalItem ``draft→validating`` bound to the admitted Run) per design
+    # §"validation start". The generic ``POST /runs`` admission path
+    # (``dependencies.run_admission``) stays the raw engine — it never mutates an
+    # ApprovalItem — so only the workflow-command ``*.validate`` operations get the
+    # validation-starting wrapper.
+    validation_admission = _ValidationStartingAdmission(
+        engine=run_admission,
+        unit_of_work=unit_of_work,
+        clock=clock,
+        audit_chain_id=config.audit_chain_id,
+    )
     workflow_commands = _build_workflow_command_service(
         config=config,
         clock=clock,
@@ -985,7 +1100,7 @@ def build_local_api_resources(
         object_store=object_store,
         unit_of_work=unit_of_work,
         execution_profile_catalog=execution_profile_catalogs[0],
-        admission=run_admission,
+        admission=validation_admission,
     )
 
     @contextmanager

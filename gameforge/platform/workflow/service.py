@@ -109,6 +109,15 @@ _SPEC_TOOL_VERSION = "human-spec-upload@1"
 _PATCH_TOOL_VERSION = "human-patch-draft@1"
 _CONSTRAINT_TOOL_VERSION = "human-constraint-draft@1"
 _ROLLBACK_TOOL_VERSION = "human-rollback-draft@1"
+# Canonical payload schema ids stamped into each produced Artifact's immutable meta.
+# Every producer declares the schema of its payload so the terminal publisher's
+# input-parent lineage resolution (publisher._parent_info) can read it; the M4c
+# read models resolve the same value from the artifact kind. Omitting it fails the
+# publisher closed when one of these drafts is later a validation-Run input parent.
+_PATCH_SCHEMA_ID = "patch@2"
+_IR_SNAPSHOT_SCHEMA_ID = "ir-core@1"
+_CONSTRAINT_PROPOSAL_SCHEMA_ID = "constraint-proposal@1"
+_ROLLBACK_REQUEST_SCHEMA_ID = "rollback-request@1"
 _WORKFLOW_MERGE_POLICY = ThreeWayMergePolicyV1(
     policy_version="workflow-three-way@1",
     collection_identities=(),
@@ -375,6 +384,7 @@ class WorkflowCommandService:
             lineage=(),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
+            meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
             created_at=_utc_text(self._clock),
         )
         plan = SpecPublicationPlan(
@@ -458,6 +468,7 @@ class WorkflowCommandService:
             lineage=(base_artifact.artifact_id,),
             payload_hash=patch_stored.ref.sha256,
             object_ref=patch_stored.ref,
+            meta={"payload_schema_id": _PATCH_SCHEMA_ID},
             created_at=created_at,
         )
         preview_stored = self._objects.put_verified(
@@ -472,6 +483,7 @@ class WorkflowCommandService:
             lineage=(base_artifact.artifact_id, patch_artifact.artifact_id),
             payload_hash=preview_stored.ref.sha256,
             object_ref=preview_stored.ref,
+            meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
             created_at=created_at,
         )
         binding = PatchTargetBindingV1(
@@ -656,6 +668,7 @@ class WorkflowCommandService:
             lineage=lineage,
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
+            meta={"payload_schema_id": _CONSTRAINT_PROPOSAL_SCHEMA_ID},
             created_at=created_at,
         )
         series_id = (
@@ -762,6 +775,7 @@ class WorkflowCommandService:
             lineage=(current_artifact.artifact_id, target_artifact.artifact_id),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
+            meta={"payload_schema_id": _ROLLBACK_REQUEST_SCHEMA_ID},
             created_at=created_at,
         )
         binding = RollbackTargetBindingV1(
@@ -1086,6 +1100,7 @@ class WorkflowCommandService:
             ),
             payload_hash=patch_stored.ref.sha256,
             object_ref=patch_stored.ref,
+            meta={"payload_schema_id": _PATCH_SCHEMA_ID},
             created_at=created_at,
         )
         preview_stored = self._objects.put_verified(
@@ -1100,6 +1115,7 @@ class WorkflowCommandService:
             lineage=(material.current_artifact.artifact_id, patch_artifact.artifact_id),
             payload_hash=preview_stored.ref.sha256,
             object_ref=preview_stored.ref,
+            meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
             created_at=created_at,
         )
         binding = PatchTargetBindingV1(

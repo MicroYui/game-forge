@@ -174,9 +174,7 @@ class PreparedDraft(_FrozenModel):
 
     @field_validator("companion_artifacts")
     @classmethod
-    def _unique_companions(
-        cls, value: tuple[ArtifactV2, ...]
-    ) -> tuple[ArtifactV2, ...]:
+    def _unique_companions(cls, value: tuple[ArtifactV2, ...]) -> tuple[ArtifactV2, ...]:
         ids = [artifact.artifact_id for artifact in value]
         if len(ids) != len(set(ids)):
             raise ValueError("prepared companion artifact IDs must be unique")
@@ -187,9 +185,7 @@ class PreparedDraft(_FrozenModel):
     def _unique_bindings(
         cls, value: tuple[PreparedObjectBinding, ...]
     ) -> tuple[PreparedObjectBinding, ...]:
-        identities = [
-            (binding.object_ref.key, binding.location.store_id) for binding in value
-        ]
+        identities = [(binding.object_ref.key, binding.location.store_id) for binding in value]
         if len(identities) != len(set(identities)):
             raise ValueError("prepared object binding identities must be unique")
         return tuple(
@@ -234,9 +230,10 @@ class PreparedDraft(_FrozenModel):
         }[item.subject_kind]
         if any(artifact.kind not in allowed_companions for artifact in self.companion_artifacts):
             raise ValueError("prepared draft contains an unsupported companion Artifact")
-        if item.subject_kind == "patch" and sum(
-            artifact.kind == "ir_snapshot" for artifact in self.companion_artifacts
-        ) != 1:
+        if (
+            item.subject_kind == "patch"
+            and sum(artifact.kind == "ir_snapshot" for artifact in self.companion_artifacts) != 1
+        ):
             raise ValueError("prepared patch draft requires exactly one preview Artifact")
         return self
 
@@ -254,17 +251,13 @@ class PreparedValidationStart(_FrozenModel):
 
 
 class DraftPublicationResult(_FrozenModel):
-    result_schema_version: Literal["draft-publication-result@1"] = (
-        "draft-publication-result@1"
-    )
+    result_schema_version: Literal["draft-publication-result@1"] = "draft-publication-result@1"
     approval_item: ApprovalItem
     subject_head: SubjectHead
 
 
 class ValidationStartResult(_FrozenModel):
-    result_schema_version: Literal["validation-start-result@1"] = (
-        "validation-start-result@1"
-    )
+    result_schema_version: Literal["validation-start-result@1"] = "validation-start-result@1"
     approval_item: ApprovalItem
     run_id: NonEmptyStr
 
@@ -298,27 +291,17 @@ class ApprovalRepository(Protocol):
         replacement: SubjectHead,
     ) -> SubjectHead: ...
 
-    def current(
-        self, subject_series_id: str
-    ) -> tuple[SubjectHead, ApprovalItem] | None: ...
+    def current(self, subject_series_id: str) -> tuple[SubjectHead, ApprovalItem] | None: ...
 
 
 class GovernancePolicyRepository(Protocol):
-    def get_domain_registry(
-        self, ref: DomainRegistryRefV1
-    ) -> DomainRegistryV1 | None: ...
+    def get_domain_registry(self, ref: DomainRegistryRefV1) -> DomainRegistryV1 | None: ...
 
-    def get_domain_route_policy(
-        self, ref: DomainRoutePolicyRefV1
-    ) -> DomainRoutePolicy | None: ...
+    def get_domain_route_policy(self, ref: DomainRoutePolicyRefV1) -> DomainRoutePolicy | None: ...
 
-    def get_role_policy(
-        self, policy_version: str, policy_digest: str
-    ) -> RolePolicy | None: ...
+    def get_role_policy(self, policy_version: str, policy_digest: str) -> RolePolicy | None: ...
 
-    def get_approval_policy(
-        self, ref: ApprovalPolicyRefV1
-    ) -> ApprovalPolicyV1 | None: ...
+    def get_approval_policy(self, ref: ApprovalPolicyRefV1) -> ApprovalPolicyV1 | None: ...
 
 
 class ApprovalDecisionPrincipalRepository(Protocol):
@@ -552,20 +535,14 @@ class ApprovalCommandService:
         if not isinstance(binding, PatchTargetBindingV1):
             raise IntegrityViolation("rebased draft requires a Patch target binding")
         if binding.expected_ref != expected_ref:
-            raise IntegrityViolation(
-                "rebased draft expected ref differs from its target binding"
-            )
+            raise IntegrityViolation("rebased draft expected ref differs from its target binding")
         actual_ref = refs.get(binding.ref_name)
         if actual_ref != expected_ref:
             raise Conflict(
                 "rebased draft ref precondition did not match",
                 ref_name=binding.ref_name,
                 expected=expected_ref.model_dump(mode="json"),
-                actual=(
-                    None
-                    if actual_ref is None
-                    else actual_ref.model_dump(mode="json")
-                ),
+                actual=(None if actual_ref is None else actual_ref.model_dump(mode="json")),
             )
         return self._publish_draft_in_transaction(
             prepared=prepared,
@@ -834,9 +811,7 @@ class ApprovalCommandService:
                     operation="submit",
                     approval_id=approval_id,
                     expected_workflow_revision=expected_workflow_revision,
-                    expected_statuses=frozenset(
-                        {"pending_approval", "auto_apply_eligible"}
-                    ),
+                    expected_statuses=frozenset({"pending_approval", "auto_apply_eligible"}),
                     current=item,
                 )
 
@@ -847,6 +822,16 @@ class ApprovalCommandService:
                 facts=facts,
                 runs=capabilities.runs,
             )
+            # Fail closed with a workflow guard BEFORE inspecting evidence: submit is a
+            # ``validated → pending_approval`` transition, so a draft / validating /
+            # validation_failed / already-decided subject is rejected here rather than
+            # tripping a downstream evidence integrity check (a validation_failed subject
+            # carries the failed regression evidence, which the submission-evidence guard
+            # would otherwise surface as an internal error instead of this guard).
+            if item.status != "validated":
+                raise InvalidStateTransition(
+                    "approval subject is not validated: submit requires a validated subject"
+                )
             projection = self._validate_submission_evidence(
                 item=item,
                 subject=subject,
@@ -1181,13 +1166,8 @@ class ApprovalCommandService:
         item: ApprovalItem,
         facts: DraftSubjectFacts,
     ) -> None:
-        if (
-            facts.subject_revision is not None
-            and facts.subject_revision != item.subject_revision
-        ):
-            raise IntegrityViolation(
-                "subject payload revision differs from ApprovalItem"
-            )
+        if facts.subject_revision is not None and facts.subject_revision != item.subject_revision:
+            raise IntegrityViolation("subject payload revision differs from ApprovalItem")
 
     @staticmethod
     def _verify_agent_producer(
@@ -1269,9 +1249,7 @@ class ApprovalCommandService:
                 or request.target_artifact_id != binding.target_artifact_id
                 or request.rollback_profile_binding != binding.rollback_profile_binding
             ):
-                raise IntegrityViolation(
-                    "rollback request differs from exact target binding"
-                )
+                raise IntegrityViolation("rollback request differs from exact target binding")
         if (
             target.kind != binding.target_artifact_kind
             or target.payload_hash != binding.target_digest
@@ -1590,9 +1568,7 @@ class ApprovalCommandService:
         try:
             result = ValidationStartResult.model_validate(response)
         except ValidationError as exc:
-            raise IntegrityViolation(
-                "validation start idempotency response is malformed"
-            ) from exc
+            raise IntegrityViolation("validation start idempotency response is malformed") from exc
         retained = result.approval_item
         cls._require_same_subject_identity(
             retained,
@@ -1635,9 +1611,7 @@ class ApprovalCommandService:
             or retained.workflow_revision != expected_workflow_revision + 1
             or retained.status not in expected_statuses
         ):
-            raise IntegrityViolation(
-                f"{operation} idempotency response differs from the command"
-            )
+            raise IntegrityViolation(f"{operation} idempotency response differs from the command")
         return retained
 
     @classmethod
