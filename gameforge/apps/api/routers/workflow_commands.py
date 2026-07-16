@@ -53,6 +53,7 @@ from gameforge.contracts.errors import (
     WorkflowGuard,
 )
 from gameforge.contracts.identity import ActorContext
+from gameforge.runtime.observability.context import TraceCarrier, current_trace_context
 
 
 _PayloadT = TypeVar("_PayloadT", bound=BaseModel)
@@ -97,6 +98,7 @@ def _command_metadata(
             "payload": payload.model_dump(mode="json", by_alias=True),
         }
     )
+    trace_context = current_trace_context()
     return WorkflowCommandMetadata(
         actor=actor,
         request_id=request.state.request_id,
@@ -104,6 +106,9 @@ def _command_metadata(
         idempotency_key=idempotency_key,
         request_hash=request_hash,
         if_match=if_match,
+        dispatch_trace_carrier=(
+            None if trace_context is None else TraceCarrier.inject(trace_context)
+        ),
     )
 
 

@@ -347,6 +347,37 @@ class SqlPolicySnapshotRepository:
                 )
         return catalog
 
+    def list_execution_profile_catalogs(
+        self,
+    ) -> tuple[ExecutionProfileCatalogSnapshotV1, ...]:
+        """Return every retained catalog in canonical version order.
+
+        This is an exact-history read, not a mutable ``current`` alias.  Each row is
+        revalidated through the same catalog/definition closure as point lookup, and
+        the lifecycle transition chain is checked before any caller may compose a
+        current-plus-history registry for replay admission.
+        """
+
+        rows = self._session.scalars(
+            select(PolicySnapshotRow)
+            .where(PolicySnapshotRow.document_kind == _EXECUTION_PROFILE_CATALOG_KIND)
+            .order_by(PolicySnapshotRow.document_version)
+        ).all()
+        catalogs: list[ExecutionProfileCatalogSnapshotV1] = []
+        for row in rows:
+            parsed = self._parse_execution_profile_catalog_row(row)
+            catalog = self.get_execution_profile_catalog(
+                catalog_version=parsed.catalog_version,
+                catalog_digest=parsed.catalog_digest,
+            )
+            if catalog is None:  # pragma: no cover - row was selected in this transaction
+                raise IntegrityViolation("execution profile catalog disappeared during read")
+            catalogs.append(catalog)
+        catalogs.sort(key=lambda item: item.catalog_version)
+        if catalogs:
+            self._validate_execution_profile_lifecycle_history(catalogs[-1])
+        return tuple(catalogs)
+
     def resolve_execution_profile(
         self,
         *,

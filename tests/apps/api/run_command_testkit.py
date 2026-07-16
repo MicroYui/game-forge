@@ -36,6 +36,7 @@ from gameforge.apps.api.dependencies import (
 from gameforge.apps.api.streaming import RunEventNotifier, RunEventReadScope, RunEventStreamService
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
 from gameforge.contracts.auth import ApiKeyAuthRequestV1, PasswordAuthRequestV1, SessionToken
+from gameforge.contracts.cost import BudgetV1, CostAmountV1
 from gameforge.contracts.errors import AuthFailed, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.identity import (
@@ -110,6 +111,24 @@ _TOOLING_GRANTS: tuple[tuple[str, str], ...] = (
 SESSION_COOKIE = "gameforge_session"
 SESSION_TOKEN = "runcmd-session-token"
 API_KEY = "gfk_service.runcmd"
+
+
+def _shared_budget(*, budget_id: str, scope_kind: str, scope_id: str) -> BudgetV1:
+    return BudgetV1(
+        budget_id=budget_id,
+        scope_kind=scope_kind,  # type: ignore[arg-type]
+        scope_id=scope_id,
+        policy_version="runcmd-shared-budget@1",
+        limits=(
+            CostAmountV1(dimension="request", value=10_000_000, unit="request"),
+            CostAmountV1(dimension="concurrent_run", value=16, unit="count"),
+        ),
+        reserved=(),
+        consumed=(),
+        status="active",
+        revision=1,
+        created_at=NOW_DT,
+    )
 
 
 def build_cancel_command(
@@ -290,7 +309,14 @@ class _CommandPublicationGateway:
             correlation=AuditCorrelation(request_id=None, run_id=run.run_id, trace_id=None),
         )
 
-    def record_run_created(self, *, run: Any, event: Any) -> None:
+    def record_run_created(
+        self,
+        *,
+        run: Any,
+        event: Any,
+        request_id: str | None = None,
+    ) -> None:
+        del request_id
         self._record(action="run.queued", run=run, actor=run.initiated_by)
 
     def record_run_claimed(self, *, previous, run, attempt, lease, event, actor) -> None:  # type: ignore[no-untyped-def]
@@ -358,6 +384,21 @@ class CommandAppHarness:
             policies.put_execution_profile_catalog(self.catalog)
             policies.put_domain_registry(self.domain_registry)
             policies.put_role_policy(self.role_policy)
+            costs = SqlCostLedger(session, clock=self.clock)
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:principal:human:maker",
+                    scope_kind="principal",
+                    scope_id="human:maker",
+                )
+            )
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:system:global",
+                    scope_kind="system",
+                    scope_id="global",
+                )
+            )
         self.uow = SqliteUnitOfWork(self.engine, self._capability_factory)
         self.approvals = None
         self._failure_artifact_id = self._seed_failure_artifact()
@@ -382,6 +423,7 @@ class CommandAppHarness:
             source_uow_capabilities=lambda tx: _SourceWriteCapabilities(
                 artifacts=tx.artifacts, object_bindings=tx.object_bindings
             ),
+            current_principal_resolver=lambda _tx, actor: actor.principal,
             role_policy_version=ROLE_POLICY_VERSION,
             role_policy_digest=self.role_policy.policy_digest,
         )
@@ -502,6 +544,9 @@ class CommandAppHarness:
                     clock=self.clock,
                 ),
                 refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=self.clock),
+                object_bindings=bindings,
+                runs=SqlRunRepository(session),
+                routing=SqlCostLedger(session, clock=self.clock),
             )
 
     @contextmanager
@@ -577,6 +622,10 @@ class CommandAppHarness:
             lineage=(),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
+            meta={
+                "payload_schema_id": "ir-core@1",
+                "domain_scope": {"domain_ids": ["builtin"]},
+            },
             created_at=NOW,
         )
         with Session(self.engine) as session, session.begin():

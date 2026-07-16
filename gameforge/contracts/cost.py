@@ -225,11 +225,8 @@ class BudgetSetSnapshotV1(_FrozenModel):
         cls, value: tuple[BudgetSnapshotV1, ...]
     ) -> tuple[BudgetSnapshotV1, ...]:
         budget_ids = [item.budget_id for item in value]
-        scopes = [(item.scope_kind, item.scope_id) for item in value]
         if not value or len(budget_ids) != len(set(budget_ids)):
             raise ValueError("budget set snapshots must be non-empty with unique budget ids")
-        if len(scopes) != len(set(scopes)):
-            raise ValueError("budget set may contain only one budget for a scope identity")
         return tuple(
             sorted(value, key=lambda item: (_SCOPE_ORDER[item.scope_kind], item.budget_id))
         )

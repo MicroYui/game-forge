@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import pytest
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import Conflict, IdempotencyConflict, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.jobs import (
@@ -500,7 +500,14 @@ class _Publication:
             tuple[str, str], tuple[str, RunIntermediateArtifactLinkV1]
         ] = {}
 
-    def record_run_created(self, *, run: RunRecord, event: RunEvent) -> None:
+    def record_run_created(
+        self,
+        *,
+        run: RunRecord,
+        event: RunEvent,
+        request_id: str | None = None,
+    ) -> None:
+        del request_id
         assert event.event_type == "run.queued"
         self.created.append(run.run_id)
 
@@ -699,8 +706,17 @@ def test_create_replay_precedes_admission_and_keeps_original_trace_carrier() -> 
         harness.service.create_run(wrong_surface)
     assert harness.admission.holds == ["run:1"]
 
-    with pytest.raises(Conflict, match="idempotency"):
+    with pytest.raises(IdempotencyConflict, match="idempotency"):
         harness.service.create_run(_create_request(run_id="run:other", request_hash=_HASH_C))
+    changed_payload = _create_request(run_id="run:changed-payload").model_copy(
+        update={
+            "payload": _payload().model_copy(
+                update={"budget_set_snapshot_id": "budget-set:different"}
+            )
+        }
+    )
+    with pytest.raises(IdempotencyConflict, match="matching request hash"):
+        harness.service.create_run(changed_payload)
     assert harness.admission.holds == ["run:1"]
 
 

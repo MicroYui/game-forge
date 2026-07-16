@@ -180,7 +180,7 @@ class RollbackValidationHandler:
         inspector = self.subject_inspector or _DefaultSubjectInspector(self.blobs)
         request = inspector.inspect(payload.subject.subject_artifact_id)
         rollback_profile_binding = resolved_profile(context.payload, ROLLBACK_PROFILE_FIELD)
-        seed = int(context.payload.seed) if context.payload.seed is not None else 0
+        seed = context.payload.seed
         lineage = (payload.subject.subject_artifact_id,)
 
         inspection = self.schema_analyzer.analyze(
@@ -228,7 +228,7 @@ class RollbackValidationHandler:
 
     # --------------------------------------------------------------- dimensions
     def _history_dimension(
-        self, payload: RollbackValidationPayloadV1, lineage: tuple[str, ...], seed: int
+        self, payload: RollbackValidationPayloadV1, lineage: tuple[str, ...], seed: int | None
     ) -> tuple[DimensionResult, PreparedArtifact]:
         check = self.history_verifier.verify(
             RollbackHistoryRequest(
@@ -246,7 +246,7 @@ class RollbackValidationHandler:
         payload: RollbackValidationPayloadV1,
         inspection: RollbackTargetInspectionV1,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[DimensionResult, PreparedArtifact]:
         try:
             require_exists(self.blobs, payload.target_artifact_id)
@@ -263,7 +263,7 @@ class RollbackValidationHandler:
         return self._seal_dimension("artifact", "artifact", check, lineage, seed)
 
     def _schema_dimension(
-        self, inspection: RollbackTargetInspectionV1, lineage: tuple[str, ...], seed: int
+        self, inspection: RollbackTargetInspectionV1, lineage: tuple[str, ...], seed: int | None
     ) -> tuple[DimensionResult, PreparedArtifact]:
         check = DimensionCheckV1(
             status=inspection.status,
@@ -281,7 +281,7 @@ class RollbackValidationHandler:
         request: RollbackRequestV1,
         rollback_profile_binding: ResolvedExecutionProfileBindingV1,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[DimensionResult, PreparedArtifact]:
         mismatch = (
             request.ref_name != payload.ref_name
@@ -303,7 +303,7 @@ class RollbackValidationHandler:
         return self._seal_dimension("profile", "profile", check, lineage, seed)
 
     def _impact_dimensions(
-        self, payload: RollbackValidationPayloadV1, lineage: tuple[str, ...], seed: int
+        self, payload: RollbackValidationPayloadV1, lineage: tuple[str, ...], seed: int | None
     ) -> tuple[tuple[DimensionResult, PreparedArtifact], ...]:
         dims: list[tuple[DimensionResult, PreparedArtifact]] = []
         for profile in payload.impact_profiles:
@@ -320,13 +320,17 @@ class RollbackValidationHandler:
         return tuple(dims)
 
     def _regression_dimensions(
-        self, payload: RollbackValidationPayloadV1, lineage: tuple[str, ...], seed: int
+        self, payload: RollbackValidationPayloadV1, lineage: tuple[str, ...], seed: int | None
     ) -> tuple[tuple[DimensionResult, PreparedArtifact], ...]:
         dims: list[tuple[DimensionResult, PreparedArtifact]] = []
         for suite_id in payload.regression_suite_artifact_ids:
             require_exists(self.blobs, suite_id)
             outcome = self.regression_runner.run(
-                RegressionRunRequest(suite_artifact_id=suite_id, snapshot_id=None, seed=seed)
+                RegressionRunRequest(
+                    suite_artifact_id=suite_id,
+                    snapshot_id=None,
+                    seed=0 if seed is None else seed,
+                )
             )
             status = "unproven" if outcome.status == "not_executed" else outcome.status
             reason = outcome.reason_code
@@ -349,7 +353,7 @@ class RollbackValidationHandler:
         kind: str,
         check: DimensionCheckV1,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[DimensionResult, PreparedArtifact]:
         artifact = store_prepared_artifact(
             self.store,
@@ -394,7 +398,7 @@ class RollbackValidationHandler:
         supporting: tuple[str, ...],
         lineage: tuple[str, ...],
         overall: str,
-        seed: int,
+        seed: int | None,
     ) -> PreparedArtifact:
         evidence_set = EvidenceSet(
             subject_artifact_id=payload.subject.subject_artifact_id,

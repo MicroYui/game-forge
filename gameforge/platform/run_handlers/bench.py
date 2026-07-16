@@ -179,7 +179,8 @@ class BenchRunHandler:
         if not isinstance(payload, BenchRunPayloadV1):
             raise TypeError("bench_runner@1 requires a bench-run@1 payload")
 
-        seed = int(context.payload.seed) if context.payload.seed is not None else 0
+        root_seed = context.payload.seed
+        seed = int(root_seed) if root_seed is not None else 0
         if payload.execution_scope == "execute_cases":
             report_bytes, lineage = self._execute_cases(context, payload, seed)
         else:
@@ -189,7 +190,7 @@ class BenchRunHandler:
             self.store,
             kind="bench_report",
             payload_schema_id=BENCH_REPORT_SCHEMA_ID,
-            version_tuple=VersionTuple(tool_version=BENCH_TOOL_VERSION, seed=seed),
+            version_tuple=VersionTuple(tool_version=BENCH_TOOL_VERSION, seed=root_seed),
             lineage=lineage,
             blob=report_bytes,
             extra_meta={"execution_scope": payload.execution_scope},

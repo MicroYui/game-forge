@@ -511,11 +511,121 @@ def test_patch_validate_with_admission_returns_accepted_run(tmp_path: Path) -> N
         response = client.post(
             "/api/v1/patches/artifact-patch:validate",
             json=payload,
-            headers=headers(key="patch:validate:2"),
+            headers=headers(
+                key="patch:validate:2",
+                if_match=resource_etag(
+                    resource_kind="patch",
+                    resource_id="artifact-patch",
+                    revision=1,
+                ),
+            ),
         )
     assert response.status_code == 202, response.text
     assert response.json()["run_id"].startswith("run:patch.validate:")
     assert harness.admission.calls[-1]["idempotency_key"] == "patch:validate:2"
+
+
+def test_all_validation_routes_reject_etag_for_another_subject(tmp_path: Path) -> None:
+    harness = build_harness(tmp_path)
+    publish_base(harness, entities=_base_entities())
+    harness.use_actor(maker_actor(harness))
+    common = {
+        "expected_subject_head_revision": 1,
+        "expected_workflow_revision": 1,
+        "subject_digest": "1" * 64,
+    }
+    cases = (
+        (
+            "/api/v1/patches/artifact-patch:validate",
+            "patch",
+            "artifact-patch",
+            {
+                "request_schema_version": "patch-validation-admission-request@1",
+                "approval_id": "approval:patch:x",
+                **common,
+                "base_snapshot_artifact_id": harness.base_artifact_id,
+                "preview_snapshot_artifact_id": harness.base_artifact_id,
+                "candidate_config_export_artifact_ids": [],
+                "target": {
+                    "ref_name": "content/head",
+                    "expected_ref": harness.base_ref.model_dump(mode="json"),
+                },
+                "validation_policy": {"profile_id": "validation.patch", "version": 1},
+                "checker_profiles": [],
+                "simulation_profiles": [],
+                "findings": [],
+                "review_artifact_ids": [],
+                "playtest_trace_artifact_ids": [],
+                "regression_suite_artifact_ids": [],
+            },
+        ),
+        (
+            "/api/v1/constraint-proposals/artifact-constraint:validate",
+            "constraint_proposal",
+            "artifact-constraint",
+            {
+                "request_schema_version": "constraint-validation-admission-request@1",
+                "approval_id": "approval:constraint:x",
+                **common,
+                "base_constraint_snapshot_artifact_id": None,
+                "target": {
+                    "ref_name": "content/head",
+                    "expected_ref": harness.base_ref.model_dump(mode="json"),
+                },
+                "dsl_grammar_version": "dsl@1",
+                "compiler_profile": {"profile_id": "compiler", "version": 1},
+                "differential_engines": [
+                    {"engine_id": "clingo", "version": 1},
+                    {"engine_id": "z3", "version": 1},
+                ],
+                "golden_suite_artifact_id": None,
+                "regression_suite_artifact_ids": [],
+                "validation_policy": {
+                    "profile_id": "validation.constraint",
+                    "version": 1,
+                },
+            },
+        ),
+        (
+            "/api/v1/rollback-requests/artifact-rollback:validate",
+            "rollback_request",
+            "artifact-rollback",
+            {
+                "request_schema_version": "rollback-validation-admission-request@1",
+                "approval_id": "approval:rollback:x",
+                **common,
+                "ref_name": "content/head",
+                "expected_current_ref": harness.base_ref.model_dump(mode="json"),
+                "target_artifact_id": harness.base_artifact_id,
+                "target_history_revision": 1,
+                "rollback_profile": {"profile_id": "rollback", "version": 1},
+                "schema_compatibility_policy": {
+                    "profile_id": "schema-compatibility",
+                    "version": 1,
+                },
+                "impact_profiles": [],
+                "regression_suite_artifact_ids": [],
+            },
+        ),
+    )
+
+    with _client(harness) as client:
+        for index, (path, resource_kind, resource_id, payload) in enumerate(cases):
+            response = client.post(
+                path,
+                json=payload,
+                headers=headers(
+                    key=f"validate:wrong-etag:{index}",
+                    if_match=resource_etag(
+                        resource_kind=resource_kind,
+                        resource_id=f"{resource_id}:another",
+                        revision=1,
+                    ),
+                ),
+            )
+            assert response.status_code == 409, response.text
+
+    assert harness.admission.calls == []
 
 
 def _draft_and_validate(harness, client) -> tuple[str, str]:

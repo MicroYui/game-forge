@@ -10,12 +10,14 @@ from pydantic import BaseModel
 
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_graphs import AgentExecutionGraphV1
 from gameforge.contracts.execution_profiles import (
     ArtifactLineagePolicyRefV1,
     ExecutionProfileCatalogSnapshotV1,
     MigrationCapabilityMatrixRefV1,
     MigrationCapabilityMatrixRegistryV1,
     MigrationCapabilityMatrixV1,
+    ResolvedExecutionProfileBindingV1,
     RunKindRef,
     VersionTransitionPolicyRefV1,
     execution_profile_payload_hash,
@@ -32,7 +34,9 @@ from gameforge.contracts.jobs import (
     ReviewRunPayloadV1,
     RunEventRegistryV1,
     RunKindDefinition,
+    RunPolicyBindingV1,
     RunPayloadEnvelope,
+    RunSchemaBindingV1,
     RuntimeParentRuleSetRef,
     RuntimeParentRuleSetV1,
     VersionTransitionPolicyV1,
@@ -148,6 +152,7 @@ class ImmutablePlatformRegistry:
         finding_output_policies: Iterable[FindingOutputPolicyV1],
         run_event_registries: Iterable[RunEventRegistryV1],
         completion_oracle_registries: Iterable[CompletionOracleRegistryV1],
+        agent_execution_graphs: Iterable[AgentExecutionGraphV1] = (),
         execution_profile_catalogs: Iterable[ExecutionProfileCatalogSnapshotV1] = (),
         migration_capability_matrices: Iterable[MigrationCapabilityMatrixV1] = (),
         migration_capability_registries: Iterable[MigrationCapabilityMatrixRegistryV1] = (),
@@ -201,6 +206,20 @@ class ImmutablePlatformRegistry:
             identity=lambda item: item.registry_version,
             label="completion-oracle registry",
         )
+        self._agent_execution_graphs = _index_exact(
+            agent_execution_graphs,
+            identity=lambda item: (
+                item.run_kind.kind,
+                item.run_kind.version,
+                item.agent_graph_version,
+            ),
+            label="Agent execution graph",
+        )
+        graph_versions = [
+            item.agent_graph_version for item in self._agent_execution_graphs.values()
+        ]
+        if len(graph_versions) != len(set(graph_versions)):
+            raise IntegrityViolation("Agent execution graph versions must be globally unique")
         self._execution_profile_catalogs = _index_exact(
             execution_profile_catalogs,
             identity=lambda item: item.catalog_version,
@@ -309,6 +328,17 @@ class ImmutablePlatformRegistry:
         value = self._completion_oracle_registries.get(ref.registry_version)
         return value if value is not None and value.registry_digest == ref.digest else None
 
+    def get_agent_execution_graph(
+        self,
+        run_kind: RunKindRef,
+        agent_graph_version: str,
+    ) -> AgentExecutionGraphV1 | None:
+        """Resolve retained graph authority without a mutable current alias."""
+
+        return self._agent_execution_graphs.get(
+            (run_kind.kind, run_kind.version, agent_graph_version)
+        )
+
     def get_execution_profile_catalog(
         self, catalog_version: int, catalog_digest: str
     ) -> ExecutionProfileCatalogSnapshotV1 | None:
@@ -331,6 +361,57 @@ class ImmutablePlatformRegistry:
 
     def get_permission_resolver_key(self, kind: RunKindRef) -> str | None:
         return self._permission_resolver_keys.get((kind.kind, kind.version))
+
+    def resolve_required_run_bindings(
+        self,
+        *,
+        definition: RunKindDefinition,
+        resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
+    ) -> tuple[tuple[RunPolicyBindingV1, ...], tuple[RunSchemaBindingV1, ...]]:
+        """Resolve the complete typed policy/schema binding key set for a Run.
+
+        M4c's built-in Run kinds have no additional free-standing policy bindings:
+        their policy authorities are already embedded in the exact RunKindDefinition
+        or execution-profile payload hash.  Every kind does, however, bind its
+        executable payload schema under the stable ``run_payload`` key.  Keeping
+        this resolver on the immutable registry makes the empty/non-empty sets
+        explicit and gives future versioned profiles one authority point for adding
+        keys without trusting a client map.
+        """
+
+        retained = self._run_kinds.get((definition.kind, definition.version))
+        if retained != definition:
+            raise IntegrityViolation("Run binding resolution uses an unretained definition")
+        for binding in resolved_profiles:
+            catalog = self.get_execution_profile_catalog(
+                binding.catalog_version,
+                binding.catalog_digest,
+            )
+            profile = next(
+                (
+                    item
+                    for item in (() if catalog is None else catalog.definitions)
+                    if item.profile == binding.profile
+                ),
+                None,
+            )
+            if (
+                profile is None
+                or profile.profile_kind != binding.expected_profile_kind
+                or execution_profile_payload_hash(profile) != binding.profile_payload_hash
+            ):
+                raise IntegrityViolation(
+                    "Run binding resolution received an unretained execution profile"
+                )
+        return (
+            (),
+            (
+                RunSchemaBindingV1(
+                    binding_key="run_payload",
+                    schema_id=definition.payload_schema_id,
+                ),
+            ),
+        )
 
     def validate_payload_bindings(
         self,
@@ -445,6 +526,19 @@ class ImmutablePlatformRegistry:
             ):
                 raise IntegrityViolation("profile lifecycle state forbids this Run")
 
+        expected_policy_bindings, expected_schema_bindings = self.resolve_required_run_bindings(
+            definition=definition,
+            resolved_profiles=payload.resolved_profiles,
+        )
+        if payload.policy_bindings != expected_policy_bindings:
+            raise IntegrityViolation(
+                "Run payload policy bindings differ from the complete registry key set"
+            )
+        if payload.schema_bindings != expected_schema_bindings:
+            raise IntegrityViolation(
+                "Run payload schema bindings differ from the complete registry key set"
+            )
+
         if definition.seed_policy == "profile_dependent":
             stochastic = any(
                 definitions_by_ref[(binding.profile.profile_id, binding.profile.version)].stochastic
@@ -494,12 +588,60 @@ class ImmutablePlatformRegistry:
     def run_event_registries(self) -> tuple[RunEventRegistryV1, ...]:
         return tuple(self._run_event_registries[key] for key in sorted(self._run_event_registries))
 
+    def with_execution_profile_catalogs(
+        self,
+        catalogs: Iterable[ExecutionProfileCatalogSnapshotV1],
+        *,
+        replace: bool = False,
+    ) -> "ImmutablePlatformRegistry":
+        """Clone this registry with an exact catalog-history set.
+
+        Persisted historical catalogs are needed to validate old REPLAY Run payloads,
+        while all non-profile platform registries remain the immutable process
+        authority. ``replace=True`` selects a provisioned deployment's complete
+        persisted history instead of the development built-in catalog; otherwise
+        equal versions must be byte-for-byte equal and cannot override one another.
+        """
+
+        merged = {} if replace else dict(self._execution_profile_catalogs)
+        for catalog in catalogs:
+            if type(catalog) is not ExecutionProfileCatalogSnapshotV1:
+                raise IntegrityViolation("execution-profile catalog history is invalid")
+            retained = merged.get(catalog.catalog_version)
+            if retained is not None and retained != catalog:
+                raise IntegrityViolation(
+                    "execution-profile catalog version has conflicting history",
+                    catalog_version=catalog.catalog_version,
+                )
+            merged[catalog.catalog_version] = catalog
+        return ImmutablePlatformRegistry(
+            run_kinds=self._run_kinds.values(),
+            retry_policies=self._retry_policies.values(),
+            failure_classifiers=self._failure_classifiers.values(),
+            lineage_policies=self._lineage_policies.values(),
+            version_transition_policies=self._version_transition_policies.values(),
+            runtime_parent_rule_sets=self._runtime_parent_rule_sets.values(),
+            finding_output_policies=self._finding_output_policies.values(),
+            run_event_registries=self._run_event_registries.values(),
+            completion_oracle_registries=self._completion_oracle_registries.values(),
+            agent_execution_graphs=self._agent_execution_graphs.values(),
+            execution_profile_catalogs=merged.values(),
+            migration_capability_matrices=self._migration_capability_matrices.values(),
+            profile_requirements=self._profile_requirements,
+            permission_resolver_keys=self._permission_resolver_keys,
+        )
+
     def list_execution_profile_catalogs(
         self,
     ) -> tuple[ExecutionProfileCatalogSnapshotV1, ...]:
         return tuple(
             self._execution_profile_catalogs[key]
             for key in sorted(self._execution_profile_catalogs)
+        )
+
+    def list_agent_execution_graphs(self) -> tuple[AgentExecutionGraphV1, ...]:
+        return tuple(
+            self._agent_execution_graphs[key] for key in sorted(self._agent_execution_graphs)
         )
 
     def list_completion_oracle_registries(self) -> tuple[CompletionOracleRegistryV1, ...]:

@@ -18,6 +18,7 @@ from gameforge.contracts.auth import (
     SessionToken,
 )
 from gameforge.contracts.identity import ActorContext
+from gameforge.contracts.jobs import RunDispatchTraceCarrierV1
 from gameforge.contracts.errors import AuthRequired
 from gameforge.contracts.api import (
     RunAcceptedV1,
@@ -108,6 +109,7 @@ class WorkflowCommandMetadata:
     idempotency_key: str
     request_hash: str
     if_match: str
+    dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
 
     def __post_init__(self) -> None:
         for name in ("request_id", "idempotency_key", "if_match"):

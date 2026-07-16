@@ -22,6 +22,8 @@ from gameforge.contracts.findings import PatchV2, TypedOp
 from gameforge.contracts.identity import DomainScope, DomainScopeValue, Role
 from gameforge.contracts.ir import Entity, Relation
 from gameforge.contracts.jobs import (
+    BenchRunPayloadV1,
+    CheckerRunPayloadV1,
     MAX_COLLECTION_ITEMS,
     MAX_JSON_BYTES,
     CancelRunPayloadV1,
@@ -31,13 +33,15 @@ from gameforge.contracts.jobs import (
     PlaytestRunPayloadV1,
     Problem,
     RefReadBindingV1,
+    ReviewRunPayloadV1,
     RunCommandAckV1,
     RunCommandProblemV1,
     RunEventEnvelope,
-    RunKindPayload,
     RunStatus,
+    SimulationRunPayloadV1,
     SolverEngineRefV1,
     TaskSuiteDerivePayloadV1,
+    Uint64,
 )
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.contracts.playtest import TaskSuiteV1
@@ -491,6 +495,7 @@ class PatchValidationAdmissionRequestV1(_FrozenModel):
     review_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     playtest_trace_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     regression_suite_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    seed: Uint64 | None = None
 
     @model_validator(mode="after")
     def _canonical_and_bounded(self) -> "PatchValidationAdmissionRequestV1":
@@ -503,13 +508,13 @@ class PatchValidationAdmissionRequestV1(_FrozenModel):
             object.__setattr__(self, field_name, _stable_unique_strings(getattr(self, field_name)))
         for field_name in ("checker_profiles", "simulation_profiles"):
             object.__setattr__(self, field_name, _stable_unique_profiles(getattr(self, field_name)))
-        finding_keys = [(item.finding_id, item.finding_revision) for item in self.findings]
-        if len(finding_keys) != len(set(finding_keys)):
-            raise ValueError("finding bindings must identify unique revisions")
+        finding_ids = [item.finding_id for item in self.findings]
+        if len(finding_ids) != len(set(finding_ids)):
+            raise ValueError("each finding series may be bound only once")
         object.__setattr__(
             self,
             "findings",
-            tuple(sorted(self.findings, key=lambda item: (item.finding_id, item.finding_revision))),
+            tuple(sorted(self.findings, key=lambda item: item.finding_id)),
         )
         _bounded_request_payload(self)
         return self
@@ -534,6 +539,7 @@ class ConstraintValidationAdmissionRequestV1(_FrozenModel):
     golden_suite_artifact_id: BoundedId | None = None
     regression_suite_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     validation_policy: ProfileRefV1
+    seed: Uint64 | None = None
 
     @model_validator(mode="after")
     def _canonical_and_bounded(self) -> "ConstraintValidationAdmissionRequestV1":
@@ -572,6 +578,7 @@ class RollbackValidationAdmissionRequestV1(_FrozenModel):
     schema_compatibility_policy: ProfileRefV1
     impact_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     regression_suite_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    seed: Uint64 | None = None
 
     @model_validator(mode="after")
     def _canonical_and_bounded(self) -> "RollbackValidationAdmissionRequestV1":
@@ -588,15 +595,21 @@ class RollbackValidationAdmissionRequestV1(_FrozenModel):
 _BOUNDED_GOAL_TEXT = Annotated[str, StringConstraints(min_length=1, max_length=16384)]
 
 
+GenericRunKindPayload: TypeAlias = Annotated[
+    ReviewRunPayloadV1 | CheckerRunPayloadV1 | SimulationRunPayloadV1 | BenchRunPayloadV1,
+    Field(discriminator="schema_version"),
+]
+
+
 class RunSubmissionRequestV1(_FrozenModel):
     """Generic ``POST /runs`` body. Only ``generic_runs_endpoint`` kinds are admitted.
 
-    The typed ``params`` fixes the RunKind; resource-only or internal-only kinds are
-    rejected by admission, never by a client-supplied kind string.
+    The typed ``params`` exposes exactly the four public generic Run kinds;
+    resource-only and internal-only discriminators fail at the transport boundary.
     """
 
     request_schema_version: Literal["run-submission-request@1"] = "run-submission-request@1"
-    params: RunKindPayload
+    params: GenericRunKindPayload
     llm_execution_mode: Literal["not_applicable", "live", "record", "replay"] = "not_applicable"
     seed: Annotated[int, Field(ge=0, le=18_446_744_073_709_551_615)] | None = None
     execution_version_plan: ExecutionVersionPlanV1 | None = None
@@ -609,7 +622,7 @@ class RunSubmissionRequestV1(_FrozenModel):
 
 
 class GenerationProposeRequestV1(_FrozenModel):
-    """``POST /generations:propose`` — fixes ``generation.propose@1``.
+    """``POST /generation:propose`` — fixes ``generation.propose@1``.
 
     The naked ``objective_goal_text`` is turned into an authenticated ``source_raw``
     Artifact by the composition root before the Run is created.
@@ -630,17 +643,27 @@ class GenerationProposeRequestV1(_FrozenModel):
 
     @model_validator(mode="after")
     def _bounded(self) -> "GenerationProposeRequestV1":
+        finding_ids = [item.finding_id for item in self.findings]
+        if len(finding_ids) != len(set(finding_ids)):
+            raise ValueError("each finding series may be bound only once")
+        object.__setattr__(
+            self,
+            "findings",
+            tuple(sorted(self.findings, key=lambda item: item.finding_id)),
+        )
         object.__setattr__(
             self,
             "candidate_export_profiles",
             _stable_unique_profiles(self.candidate_export_profiles),
         )
+        if self.candidate_export_profiles and self.constraint_snapshot_artifact_id is None:
+            raise ValueError("candidate export profiles require a constraint snapshot Artifact")
         _bounded_request_payload(self)
         return self
 
 
 class ConstraintProposeRequestV1(_FrozenModel):
-    """``POST /constraints:propose`` — fixes ``constraint_proposal.propose@1``."""
+    """``POST /constraint-proposals:propose`` — fixes ``constraint_proposal.propose@1``."""
 
     request_schema_version: Literal["constraint-propose-request@1"] = "constraint-propose-request@1"
     source_artifact_ids: tuple[BoundedId, ...] = Field(
@@ -932,6 +955,7 @@ __all__ = [
     "ConstraintSnapshotViewV1",
     "ExecutionProfileReadViewV1",
     "GenerationProposeRequestV1",
+    "GenericRunKindPayload",
     "GraphItemV1",
     "HumanConstraintDraftRequestV1",
     "HumanConstraintRevisionRequestV1",

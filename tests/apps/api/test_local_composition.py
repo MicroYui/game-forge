@@ -30,6 +30,11 @@ from gameforge.contracts.auth import (
     compute_login_name_normalization_policy_digest,
 )
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.cassette_import import LegacyImportVerificationPolicyRegistryV1
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileCatalogSnapshotV1,
+    execution_profile_catalog_digest,
+)
 from gameforge.contracts.identity import (
     DomainDefinitionV1,
     DomainRegistryRefV1,
@@ -52,7 +57,9 @@ from gameforge.contracts.workflow import (
     SubjectHead,
 )
 from gameforge.platform.identity.bootstrap import BootstrapAdminRequest
+from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
+from gameforge.runtime.cassette.legacy_import import InMemoryLegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.audit import SqlAuditSink
@@ -501,6 +508,84 @@ def test_real_local_composition_mounts_request_scoped_bounded_reads(tmp_path) ->
         problem = Problem.model_validate(response.json())
         assert problem.code == "dependency_unavailable"
         assert problem.errors == ({"component": component},)
+
+
+def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'profile-history.db'}"
+    _seed_and_bootstrap(database_url)
+    base = build_builtin_registry().list_execution_profile_catalogs()[0]
+    lifecycle = tuple(
+        item.model_copy(
+            update={
+                "state": "replay_only",
+                "revision": item.revision + 1,
+                "reason_code": "superseded",
+                "changed_at": "2026-07-16T00:00:00Z",
+            }
+        )
+        if item.profile.profile_id == "builtin.validation"
+        else item
+        for item in base.lifecycle
+    )
+    payload = {
+        "catalog_schema_version": base.catalog_schema_version,
+        "catalog_version": base.catalog_version + 1,
+        "definitions": base.definitions,
+        "lifecycle": lifecycle,
+    }
+    latest = ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+    engine = get_engine(database_url)
+    with Session(engine) as session, session.begin():
+        policies = SqlPolicySnapshotRepository(session, clock=SystemUtcClock())
+        policies.put_execution_profile_catalog(base)
+        policies.put_execution_profile_catalog(latest)
+    engine.dispose()
+
+    app = create_local_app(config=_config(tmp_path, database_url))
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        client.post(
+            "/api/v1/auth/login",
+            json={"login_name": "admin", "password": "correct-password"},
+        )
+        profile = client.get("/api/v1/execution-profiles/builtin.validation/versions/1")
+
+    assert profile.status_code == 200
+    assert profile.json()["status"] == "replay_only"
+    admission = app.state.local_resources.dependencies.run_admission
+    assert tuple(
+        item.catalog_version
+        for item in admission._registry.list_execution_profile_catalogs()  # noqa: SLF001
+    ) == (base.catalog_version, latest.catalog_version)
+
+
+def test_local_composition_wires_trusted_legacy_import_authority(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'legacy-authority.db'}"
+    _seed_and_bootstrap(database_url)
+    authority = InMemoryLegacyImportAuthority(
+        verification_policy_registry=LegacyImportVerificationPolicyRegistryV1.create(
+            registry_version=1,
+            policies=(),
+        ),
+        model_catalogs={},
+        input_bindings={},
+        profile_bindings={},
+        policy_bindings={},
+        schema_bindings={},
+        rendered_requests={},
+        frozen_version_tuples={},
+        call_tool_versions={},
+    )
+
+    app = create_local_app(
+        config=_config(tmp_path, database_url),
+        legacy_import_authority=authority,
+    )
+    with TestClient(app, base_url="https://gameforge.test"):
+        admission = app.state.local_resources.dependencies.run_admission
+        assert admission._legacy_import_authority is authority  # noqa: SLF001
 
 
 def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> None:

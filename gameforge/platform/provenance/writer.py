@@ -1,7 +1,7 @@
 """Trusted authenticated-goal provenance composition (design §7.F, §5.3).
 
 ``apps.api`` accepts naked user goal text on ``generation:propose`` /
-``constraints:propose``. Before any Run is created the composition root must turn
+``constraint-proposals:propose``. Before any Run is created the composition root must turn
 that text into an immutable ``source_raw`` Artifact whose :class:`ProvenanceV1` is
 SERVER-ASSIGNED from the authenticated actor — never from a client field. This
 module owns that assignment (the connector/trust policy) and the blob-first writer.
@@ -138,11 +138,14 @@ class AuthenticatedGoalSourceWriter:
         provenance = self._policy.assign(actor=actor, source_hash=stored.ref.sha256)
         artifact = build_artifact_v2(
             kind="source_raw",
-            version_tuple=VersionTuple(tool_version=provenance.connector_id),
+            version_tuple=VersionTuple(doc_version=provenance.origin_ref.source_revision),
             lineage=(),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"provenance": provenance.model_dump(mode="json")},
+            meta={
+                "payload_schema_id": "source-raw@1",
+                "provenance": provenance.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         return MintedSource(artifact=artifact, stored=stored, provenance=provenance)

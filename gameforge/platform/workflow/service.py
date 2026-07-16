@@ -45,6 +45,7 @@ from gameforge.contracts.api import (
     WorkflowApplyRequestV1,
     WorkflowApplyResultV1,
     WorkflowCommandResponseV1,
+    compute_resource_etag,
 )
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.config_export import (
@@ -79,6 +80,7 @@ from gameforge.contracts.identity import (
     Principal,
     RolePolicy,
 )
+from gameforge.contracts.jobs import RunDispatchTraceCarrierV1
 from gameforge.contracts.lineage import (
     ArtifactV2,
     AuditActor,
@@ -156,6 +158,7 @@ class WorkflowServerContext:
     request_hash: str
     if_match: str
     resource_id: str
+    dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -538,7 +541,10 @@ class WorkflowCommandService:
             lineage=(base_artifact.artifact_id,),
             payload_hash=patch_stored.ref.sha256,
             object_ref=patch_stored.ref,
-            meta={"payload_schema_id": _PATCH_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _PATCH_SCHEMA_ID,
+                "domain_scope": scope.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         preview_stored = self._objects.put_verified(
@@ -553,7 +559,10 @@ class WorkflowCommandService:
             lineage=(base_artifact.artifact_id, patch_artifact.artifact_id),
             payload_hash=preview_stored.ref.sha256,
             object_ref=preview_stored.ref,
-            meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID,
+                "domain_scope": scope.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         config_artifacts, config_bindings = self._assemble_patch_config_exports(
@@ -562,6 +571,7 @@ class WorkflowCommandService:
             preview_artifact=preview_artifact,
             constraint_artifact=constraint_artifact,
             constraints=constraints,
+            domain_scope=scope,
             created_at=created_at,
         )
         binding = PatchTargetBindingV1(
@@ -681,6 +691,7 @@ class WorkflowCommandService:
         preview_artifact: ArtifactV2,
         constraint_artifact: ArtifactV2 | None,
         constraints: tuple[Constraint, ...],
+        domain_scope: DomainScope,
         created_at: str,
     ) -> tuple[tuple[ArtifactV2, ...], tuple[PreparedObjectBinding, ...]]:
         if not payload.candidate_export_profiles:
@@ -740,6 +751,7 @@ class WorkflowCommandService:
                 meta={
                     "payload_schema_id": "config-export-package@1",
                     "export_profile": profile.model_dump(mode="json"),
+                    "domain_scope": domain_scope.model_dump(mode="json"),
                 },
                 created_at=created_at,
             )
@@ -906,7 +918,10 @@ class WorkflowCommandService:
             lineage=lineage,
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"payload_schema_id": _CONSTRAINT_PROPOSAL_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _CONSTRAINT_PROPOSAL_SCHEMA_ID,
+                "domain_scope": payload.domain_scope.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         series_id = (
@@ -1013,7 +1028,10 @@ class WorkflowCommandService:
             lineage=(current_artifact.artifact_id, target_artifact.artifact_id),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"payload_schema_id": _ROLLBACK_REQUEST_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _ROLLBACK_REQUEST_SCHEMA_ID,
+                "domain_scope": scope.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         binding = RollbackTargetBindingV1(
@@ -1370,7 +1388,10 @@ class WorkflowCommandService:
             ),
             payload_hash=patch_stored.ref.sha256,
             object_ref=patch_stored.ref,
-            meta={"payload_schema_id": _PATCH_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _PATCH_SCHEMA_ID,
+                "domain_scope": material.source_item.domain_scope.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         preview_stored = self._objects.put_verified(
@@ -1385,7 +1406,10 @@ class WorkflowCommandService:
             lineage=(material.current_artifact.artifact_id, patch_artifact.artifact_id),
             payload_hash=preview_stored.ref.sha256,
             object_ref=preview_stored.ref,
-            meta={"payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID},
+            meta={
+                "payload_schema_id": _IR_SNAPSHOT_SCHEMA_ID,
+                "domain_scope": material.source_item.domain_scope.model_dump(mode="json"),
+            },
             created_at=created_at,
         )
         binding = PatchTargetBindingV1(
@@ -1438,6 +1462,25 @@ class WorkflowCommandService:
             raise DependencyUnavailable(
                 "Run admission is unavailable",
                 component="run_admission",
+            )
+        resource_kind = {
+            "patch.validate": "patch",
+            "constraint.validate": "constraint_proposal",
+            "rollback.validate": "rollback_request",
+        }.get(operation)
+        if resource_kind is None:
+            raise IntegrityViolation("unknown validation operation", operation=operation)
+        expected_etag = compute_resource_etag(
+            resource_kind=resource_kind,
+            resource_id=server.resource_id,
+            revision=payload.expected_workflow_revision,
+        )
+        if server.if_match != expected_etag:
+            raise Conflict(
+                "If-Match does not bind the exact validation subject revision",
+                resource_kind=resource_kind,
+                resource_id=server.resource_id,
+                revision=payload.expected_workflow_revision,
             )
         accepted = self._admission.admit(
             operation=operation,

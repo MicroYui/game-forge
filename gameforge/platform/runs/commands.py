@@ -16,7 +16,13 @@ from gameforge.contracts.errors import (
     IntegrityViolation,
     InvalidStateTransition,
 )
-from gameforge.contracts.execution_profiles import RunKindRef
+from gameforge.contracts.execution_graphs import AgentExecutionGraphV1
+from gameforge.contracts.execution_profiles import (
+    MigrationCapabilityMatrixRefV1,
+    MigrationCapabilityMatrixV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.jobs import (
     CancelRequestedDataV1,
     CancelRunPayloadV1,
@@ -37,8 +43,10 @@ from gameforge.contracts.jobs import (
     RunKindDefinition,
     RunLease,
     RunPayloadEnvelope,
+    RunPolicyBindingV1,
     RunQueuedDataV1,
     RunRecord,
+    RunSchemaBindingV1,
     RunTerminatedDataV1,
     RunCommandV1,
     canonical_payload_hash,
@@ -63,6 +71,7 @@ from gameforge.platform.runs.lifecycle import (
     validate_prepared_failure,
     validate_terminal_cassette_publication,
 )
+from gameforge.platform.registry.model import ProfileRequirement
 
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
@@ -85,6 +94,7 @@ class RunCreateRequest(_FrozenModel):
     idempotency_scope: NonEmptyStr
     idempotency_key: NonEmptyStr
     request_hash: Sha256Hex
+    request_id: NonEmptyStr | None = None
     payload: RunPayloadEnvelope
     dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
     initiated_by: AuditActor
@@ -217,6 +227,13 @@ class RunRepository(Protocol):
         call_ordinal: int,
     ) -> RunIntermediateArtifactLinkV1 | None: ...
 
+    def list_prompt_render_links_by_artifact_id(
+        self,
+        artifact_id: str,
+        *,
+        limit: int,
+    ) -> tuple[RunIntermediateArtifactLinkV1, ...]: ...
+
     def put_intermediate_link(
         self,
         link: RunIntermediateArtifactLinkV1,
@@ -287,6 +304,31 @@ class RunRegistryGateway(Protocol):
 
     def get_run_kind(self, kind: RunKindRef) -> RunKindDefinition | None: ...
 
+    def get_agent_execution_graph(
+        self,
+        run_kind: RunKindRef,
+        agent_graph_version: str,
+    ) -> AgentExecutionGraphV1 | None: ...
+
+    def get_profile_requirements(
+        self,
+        kind: RunKindRef,
+    ) -> tuple[ProfileRequirement, ...] | None: ...
+
+    def get_permission_resolver_key(self, kind: RunKindRef) -> str | None: ...
+
+    def get_migration_capability_matrix(
+        self,
+        ref: MigrationCapabilityMatrixRefV1,
+    ) -> MigrationCapabilityMatrixV1 | None: ...
+
+    def resolve_required_run_bindings(
+        self,
+        *,
+        definition: RunKindDefinition,
+        resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
+    ) -> tuple[tuple[RunPolicyBindingV1, ...], tuple[RunSchemaBindingV1, ...]]: ...
+
     def get_retry_policy(self, ref: RetryPolicyRefV1) -> RetryPolicySnapshot | None: ...
 
     def get_failure_classifier(self, ref: object) -> FailureClassifierV1 | None: ...
@@ -326,7 +368,13 @@ class RunAdmissionGateway(Protocol):
 class RunPublicationGateway(Protocol):
     """Same-UoW audit/publication hooks; there is no permissive no-op adapter."""
 
-    def record_run_created(self, *, run: RunRecord, event: RunEvent) -> None: ...
+    def record_run_created(
+        self,
+        *,
+        run: RunRecord,
+        event: RunEvent,
+        request_id: str | None = None,
+    ) -> None: ...
 
     def record_run_claimed(
         self,
@@ -494,6 +542,7 @@ class RunCommandService:
         request: RunCreateRequest,
         *,
         companion_write: Callable[[Any], None] | None = None,
+        fresh_admission_guard: Callable[[Any], None] | None = None,
     ) -> RunCreateResult:
         """Create (or idempotently replay) a queued Run.
 
@@ -504,6 +553,11 @@ class RunCommandService:
         two can never leave the Run and the workflow subject inconsistent. It runs on
         both the create and the idempotent-replay path (a ``:validate`` retry re-drives
         the CAS, which must be idempotent).
+
+        ``fresh_admission_guard`` is a read/CAS guard for mutable authorities used to
+        build a new Run (for example an exact content ref). It runs only after the
+        idempotency lookup proves this is a fresh creation, so a legitimate replay of
+        an already-created Run is not invalidated by later external state changes.
         """
 
         with self._unit_of_work.begin() as transaction:
@@ -550,6 +604,8 @@ class RunCommandService:
                 payload=request.payload,
                 definition=definition,
             )
+            if fresh_admission_guard is not None:
+                fresh_admission_guard(transaction)
 
             now = _utc_now(self._clock)
             now_text = _utc_text(now)
@@ -636,7 +692,11 @@ class RunCommandService:
                 raise IntegrityViolation(
                     "Run repository did not retain the exact queued publication"
                 )
-            publication.record_run_created(run=run, event=initial_event)
+            publication.record_run_created(
+                run=run,
+                event=initial_event,
+                request_id=request.request_id,
+            )
             if companion_write is not None:
                 companion_write(transaction)
             return RunCreateResult(run=run, replayed=False)
@@ -1291,7 +1351,7 @@ class RunCommandService:
         definition: RunKindDefinition,
     ) -> None:
         if retained.request_hash != request.request_hash:
-            raise Conflict(
+            raise IdempotencyConflict(
                 "Run idempotency key is bound to a different request",
                 expected_request_hash=request.request_hash,
                 actual_request_hash=retained.request_hash,
@@ -1302,13 +1362,10 @@ class RunCommandService:
             "idempotency_key": request.idempotency_key,
             "payload": request.payload,
             "initiated_by": request.initiated_by,
-            "queue_deadline_utc": request.queue_deadline_utc,
-            "attempt_timeout_ns": request.attempt_timeout_ns,
-            "overall_deadline_utc": request.overall_deadline_utc,
         }
         for field_name, expected in semantic_fields.items():
             if getattr(retained, field_name) != expected:
-                raise Conflict(
+                raise IdempotencyConflict(
                     "Run idempotency request differs despite a matching request hash",
                     field_name=field_name,
                 )

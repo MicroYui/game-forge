@@ -29,6 +29,7 @@ from gameforge.apps.api.local import build_local_api_resources
 from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.contracts.api import PatchValidationAdmissionRequestV1
 from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import DomainRegistryRefV1, DomainScope, Permission
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.jobs import RefReadBindingV1
@@ -49,11 +50,12 @@ from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
+from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.spine.ir.snapshot import Snapshot
 
 from tests.e2e.m4c.test_composition import NOW, OBJECT_STORE_ID, _Harness, _tooling_actor
 
-DOMAIN = "game-content"
+DOMAIN = "builtin"
 REF_NAME = "content/head"
 _GRAPH_CHECKER = ProfileRefV1(profile_id="builtin.checker", version=1)
 
@@ -76,7 +78,7 @@ def _dangling_snapshot() -> tuple[bytes, str]:
     return _canonical(snapshot.content_payload), snapshot.snapshot_id
 
 
-def _store_artifact(harness, *, kind, schema, blob, version_tuple):
+def _store_artifact(harness, *, kind, schema, blob, version_tuple, lineage=()):
     objects = LocalObjectStore(
         harness.object_root,
         store_id=OBJECT_STORE_ID,
@@ -87,10 +89,13 @@ def _store_artifact(harness, *, kind, schema, blob, version_tuple):
     artifact = build_artifact_v2(
         kind=kind,
         version_tuple=version_tuple,
-        lineage=(),
+        lineage=lineage,
         payload_hash=stored.ref.sha256,
         object_ref=stored.ref,
-        meta={"payload_schema_id": schema},
+        meta={
+            "payload_schema_id": schema,
+            "domain_scope": {"domain_ids": [DOMAIN]},
+        },
         created_at=NOW,
     )
     engine = get_engine(harness.database_url)
@@ -198,13 +203,6 @@ def _run_validation(
     (terminal RunRecord, completed ApprovalItem)."""
 
     harness = _Harness(tmp_path)
-    patch = _store_artifact(
-        harness,
-        kind="patch",
-        schema="patch@2",
-        blob=_canonical({"payload_schema_version": "patch@2", "ops": []}),
-        version_tuple=VersionTuple(tool_version="patch@2"),
-    )
     base_blob, base_snap = _clean_snapshot()
     base = _store_artifact(
         harness,
@@ -213,13 +211,40 @@ def _run_validation(
         blob=base_blob,
         version_tuple=VersionTuple(ir_snapshot_id=base_snap, tool_version="ir-core@1"),
     )
+    patch_payload = PatchV2(
+        revision=1,
+        base_snapshot_id=base_snap,
+        target_snapshot_id=preview_snapshot_id,
+        side_effect_risk="low",
+        ops=[],
+        produced_by="human",
+        rationale="E2E validation fixture.",
+    )
+    patch = _store_artifact(
+        harness,
+        kind="patch",
+        schema="patch@2",
+        blob=_canonical(patch_payload.model_dump(mode="json")),
+        version_tuple=VersionTuple(ir_snapshot_id=base_snap, tool_version="patch@2"),
+        lineage=(base.artifact_id,),
+    )
     preview = _store_artifact(
         harness,
         kind="ir_snapshot",
         schema="ir-core@1",
         blob=preview_blob,
         version_tuple=VersionTuple(ir_snapshot_id=preview_snapshot_id, tool_version="ir-core@1"),
+        lineage=(base.artifact_id, patch.artifact_id),
     )
+    engine = get_engine(harness.database_url)
+    with Session(engine) as session, session.begin():
+        ref = SqlRefStore(
+            session,
+            cursor_signer=CursorSigner(signing_key=b"a" * 32, clock=harness.clock),
+            clock=harness.clock,
+        ).compare_and_set(REF_NAME, None, base.artifact_id)
+        assert ref == RefValue(artifact_id=base.artifact_id, revision=1)
+    engine.dispose()
     item = _draft_item(
         harness,
         approval_id=approval_id,
@@ -264,9 +289,9 @@ def _run_validation(
         )
         accepted = resources.dependencies.run_admission.admit(
             operation="patch.validate",
-            resource_id=approval_id,
+            resource_id=patch.artifact_id,
             request=request,
-            actor=_tooling_actor(),
+            actor=_tooling_actor(harness),
             server=AdmissionRequestContext(
                 idempotency_key=idem, request_hash="d" * 64, trace_id=None
             ),

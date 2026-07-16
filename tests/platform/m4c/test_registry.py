@@ -20,6 +20,7 @@ from gameforge.contracts.jobs import (
     JsonCollectionCountBindingV1,
     ReviewRunPayloadV1,
     RunPayloadEnvelope,
+    RunSchemaBindingV1,
     artifact_lineage_policy_digest,
     outcome_policy_set_digest,
     run_event_registry_digest,
@@ -775,7 +776,12 @@ def _review_envelope(
             tool_version="review@1",
         ),
         policy_bindings=(),
-        schema_bindings=(),
+        schema_bindings=(
+            RunSchemaBindingV1(
+                binding_key="run_payload",
+                schema_id="review-run@1",
+            ),
+        ),
         execution_profile_catalog_version=selection.catalog.catalog_version,
         execution_profile_catalog_digest=selection.catalog.catalog_digest,
         resolved_profiles=resolved_profiles,

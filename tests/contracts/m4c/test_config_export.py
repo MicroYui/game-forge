@@ -10,6 +10,7 @@ from gameforge.contracts.config_export import (
     ConfigExportFileV1,
     ConfigExportPackageV1,
     canonical_config_export_bytes,
+    decode_config_export_bytes,
 )
 from gameforge.contracts.execution_profiles import ProfileRefV1
 
@@ -117,3 +118,15 @@ def test_package_framing_is_order_independent_and_binds_manifest_and_raw_bytes()
 def test_package_requires_at_least_one_file() -> None:
     with pytest.raises(ValidationError):
         _package()
+
+
+def test_package_decoder_round_trips_and_rejects_tampering_or_trailing_bytes() -> None:
+    package = _package(_file("tables/economy.csv", b"economy"))
+    framed = canonical_config_export_bytes(package)
+
+    assert decode_config_export_bytes(framed) == package
+    with pytest.raises(ValueError):
+        decode_config_export_bytes(framed + b"trailing")
+    tampered = framed[:-1] + bytes([framed[-1] ^ 1])
+    with pytest.raises((ValueError, ValidationError)):
+        decode_config_export_bytes(tampered)

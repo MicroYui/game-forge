@@ -18,7 +18,7 @@ from pathlib import Path
 import secrets
 
 from fastapi import FastAPI
-from sqlalchemy import Engine
+from sqlalchemy import Engine, inspect
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
@@ -129,6 +129,7 @@ from gameforge.runtime.auth.local import (
 )
 from gameforge.runtime.auth.passwords import Argon2PasswordRuntime
 from gameforge.runtime.auth.tokens import ApiKeyRuntime, SessionTokenRuntime
+from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.object_store import LocalObjectStore
@@ -142,6 +143,7 @@ from gameforge.runtime.persistence.auth import SqlAuthRepository
 from gameforge.runtime.persistence.conflicts import SqlConflictSetRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, DEFAULT_URL, get_engine
+from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
@@ -621,6 +623,7 @@ def _build_run_admission_engine(
     unit_of_work: SqliteUnitOfWork,
     registry: object,
     execution_profile_catalog: object,
+    legacy_import_authority: LegacyImportAuthority | None,
 ) -> RunAdmissionEngine:
     """Compose the real Run admission engine over the write UoW + object store.
 
@@ -662,6 +665,15 @@ def _build_run_admission_engine(
                     clock=clock,
                 ),
                 refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=clock),
+                object_bindings=object_bindings,
+                findings=SqlFindingRepository(
+                    session,
+                    cursor_signer=cursor_signer,
+                    clock=clock,
+                ),
+                finding_links=SqlRunRepository(session),
+                runs=SqlRunRepository(session),
+                routing=SqlCostLedger(session, clock=clock),
             )
 
     return RunAdmissionEngine(
@@ -677,6 +689,9 @@ def _build_run_admission_engine(
             artifacts=transaction.artifacts,  # type: ignore[attr-defined]
             object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
         ),
+        current_principal_resolver=lambda transaction, actor: transaction.identity.project(  # type: ignore[attr-defined]
+            actor.principal.id
+        ),
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
         # The ``:validate`` admission CASes the ApprovalItem draft→validating in the SAME
@@ -686,6 +701,7 @@ def _build_run_admission_engine(
         validation_start_writer=_ValidationStartWriter(
             clock=clock, audit_chain_id=config.audit_chain_id
         ),
+        legacy_import_authority=legacy_import_authority,
     )
 
 
@@ -904,6 +920,7 @@ def build_local_api_resources(
     config: LocalApiConfig,
     *,
     trusted_components: TrustedComponentMaps | None = None,
+    legacy_import_authority: LegacyImportAuthority | None = None,
 ) -> LocalApiResources:
     if not isinstance(config, LocalApiConfig):
         raise LocalApiConfigurationError("local API requires an exact LocalApiConfig")
@@ -1051,11 +1068,30 @@ def build_local_api_resources(
         ),
     )
     builtin_registry = build_builtin_registry()
-    execution_profile_catalogs = builtin_registry.list_execution_profile_catalogs()
-    if len(execution_profile_catalogs) != 1:
-        raise LocalApiConfigurationError(
-            "local API requires exactly one built-in execution-profile catalog"
+    persisted_catalogs = ()
+    # Keep an unmigrated deployment constructible so `/readyz` can report the
+    # migration-head dependency without creating tables.  Once policy storage
+    # exists, compose every retained catalog into the immutable process registry;
+    # exact historical REPLAY then works through the real local API rather than
+    # only in a hand-built test engine.
+    if inspect(engine).has_table("policy_snapshots"):
+        with Session(engine) as session:
+            persisted_catalogs = SqlPolicySnapshotRepository(
+                session,
+                clock=clock,
+            ).list_execution_profile_catalogs()
+    if persisted_catalogs:
+        builtin_registry = builtin_registry.with_execution_profile_catalogs(
+            persisted_catalogs,
+            replace=True,
         )
+    execution_profile_catalogs = builtin_registry.list_execution_profile_catalogs()
+    if not execution_profile_catalogs:
+        raise LocalApiConfigurationError("local API requires an execution-profile catalog")
+    current_execution_profile_catalog = max(
+        execution_profile_catalogs,
+        key=lambda item: item.catalog_version,
+    )
     registry_validator = PlatformReadinessValidator(
         registry=builtin_registry,
         components=components,
@@ -1082,7 +1118,7 @@ def build_local_api_resources(
         telemetry_store=telemetry_store,
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
-        execution_profile_catalog=execution_profile_catalogs[0],
+        execution_profile_catalog=current_execution_profile_catalog,
         cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
         clock=clock,
     )
@@ -1093,7 +1129,8 @@ def build_local_api_resources(
         object_store=object_store,
         unit_of_work=unit_of_work,
         registry=builtin_registry,
-        execution_profile_catalog=execution_profile_catalogs[0],
+        execution_profile_catalog=current_execution_profile_catalog,
+        legacy_import_authority=legacy_import_authority,
     )
     # The synchronous ``:validate`` admission atomically starts validation: its injected
     # ``_ValidationStartWriter`` CASes the ApprovalItem ``draft→validating`` INSIDE the
@@ -1106,7 +1143,7 @@ def build_local_api_resources(
         engine=engine,
         object_store=object_store,
         unit_of_work=unit_of_work,
-        execution_profile_catalog=execution_profile_catalogs[0],
+        execution_profile_catalog=current_execution_profile_catalog,
         admission=run_admission,
         config_exporter=build_aureus_config_exporter(builtin_registry),
     )
@@ -1172,10 +1209,12 @@ def create_local_app(
     config: LocalApiConfig | None = None,
     *,
     trusted_components: TrustedComponentMaps | None = None,
+    legacy_import_authority: LegacyImportAuthority | None = None,
 ) -> FastAPI:
     resources = build_local_api_resources(
         config or LocalApiConfig.from_environment(),
         trusted_components=trusted_components,
+        legacy_import_authority=legacy_import_authority,
     )
     app = create_app(resources.dependencies, lifespan=_local_lifespan(resources))
     app.state.local_resources = resources
@@ -1184,6 +1223,8 @@ def create_local_app(
 
 def create_readiness_closed_local_app(
     config: LocalApiConfig | None = None,
+    *,
+    legacy_import_authority: LegacyImportAuthority | None = None,
 ) -> FastAPI:
     """Compose the local API with the canonical readiness-closing trusted components.
 
@@ -1198,6 +1239,7 @@ def create_readiness_closed_local_app(
     return create_local_app(
         config,
         trusted_components=build_readiness_component_maps(build_builtin_registry()),
+        legacy_import_authority=legacy_import_authority,
     )
 
 

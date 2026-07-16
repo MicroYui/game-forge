@@ -1828,6 +1828,45 @@ class SqlRunRepository:
             for row in rows
         )
 
+    def list_prompt_render_links_by_artifact_id(
+        self,
+        artifact_id: str,
+        *,
+        limit: int,
+    ) -> tuple[RunIntermediateArtifactLinkV1, ...]:
+        """Bounded reverse lookup used to authenticate runtime lineage parents."""
+
+        selected_artifact_id = _require_nonempty(artifact_id, field_name="artifact_id")
+        selected_limit = _require_positive(limit, field_name="limit")
+        rows = self._session.scalars(
+            select(RunIntermediateArtifactLinkRow)
+            .where(
+                RunIntermediateArtifactLinkRow.artifact_id == selected_artifact_id,
+                RunIntermediateArtifactLinkRow.role == "prompt_rendered",
+            )
+            .order_by(
+                RunIntermediateArtifactLinkRow.run_id,
+                RunIntermediateArtifactLinkRow.attempt_no,
+                RunIntermediateArtifactLinkRow.call_ordinal,
+            )
+            .limit(selected_limit + 1)
+        ).all()
+        if len(rows) > selected_limit:
+            raise IntegrityViolation(
+                "prompt Artifact reverse lookup exceeds the admission bound",
+                artifact_id=selected_artifact_id,
+                limit=selected_limit,
+            )
+        return tuple(
+            _parse_intermediate_row(
+                row,
+                expected_run_id=row.run_id,
+                expected_attempt_no=row.attempt_no,
+                expected_call_ordinal=row.call_ordinal,
+            )
+            for row in rows
+        )
+
     def list_closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]:
         """``(attempt_no, failure_artifact_id)`` for each closed failed attempt.
 
@@ -1929,6 +1968,56 @@ class SqlRunRepository:
         retained_finding = _parse_linked_finding(finding)
         if finding_revision_digest(retained_finding) != parsed.finding_digest:
             raise IntegrityViolation("stored finding link disagrees with its Finding revision")
+        return parsed
+
+    def get_finding_link_by_revision(
+        self,
+        *,
+        run_id: str,
+        finding_id: str,
+        finding_revision: int,
+    ) -> RunFindingLinkV1 | None:
+        """Read the exact immutable Finding revision linked by one Run."""
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        selected_finding_id = _require_nonempty(finding_id, field_name="finding_id")
+        selected_revision = _require_positive(
+            finding_revision,
+            field_name="finding_revision",
+        )
+        rows = self._session.scalars(
+            select(RunFindingLinkRow)
+            .where(
+                RunFindingLinkRow.run_id == selected_run_id,
+                RunFindingLinkRow.finding_id == selected_finding_id,
+                RunFindingLinkRow.finding_revision == selected_revision,
+            )
+            .order_by(RunFindingLinkRow.attempt_no, RunFindingLinkRow.ordinal)
+            .limit(2)
+        ).all()
+        if not rows:
+            return None
+        if len(rows) != 1:
+            raise IntegrityViolation(
+                "stored Run finding links duplicate an immutable Finding revision",
+                run_id=selected_run_id,
+                finding_id=selected_finding_id,
+                finding_revision=selected_revision,
+            )
+
+        row = rows[0]
+        parsed = self.get_finding_link(row.run_id, row.attempt_no, row.ordinal)
+        if parsed is None or (
+            parsed.run_id != selected_run_id
+            or parsed.finding_id != selected_finding_id
+            or parsed.finding_revision != selected_revision
+        ):
+            raise IntegrityViolation(
+                "stored Run finding link disagrees with its semantic identity",
+                run_id=selected_run_id,
+                finding_id=selected_finding_id,
+                finding_revision=selected_revision,
+            )
         return parsed
 
     def put_command(self, record: RunCommandRecordV1) -> RunCommandRecordV1:

@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from typing import Any, get_args
+
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_graphs import AgentExecutionProfileSelectorV1
 from gameforge.contracts.execution_profiles import (
     ConfigExportProfileDetailsV1,
     EnvironmentProfileDetailsV1,
     ExecutionProfileCatalogSnapshotV1,
     MigrationProfileDetailsV1,
+    PlaytestPlannerProfileConfigV1,
     RunKindRef,
 )
 from gameforge.contracts.jobs import (
@@ -43,6 +47,27 @@ def _require_exact_keys(*, label: str, actual: set[str], expected: set[str]) -> 
     )
 
 
+_PROFILE_SELECTOR_ENUMS = {
+    ("playtest_planner", "/memory_mode"): frozenset(
+        value
+        for value in get_args(PlaytestPlannerProfileConfigV1.model_fields["memory_mode"].annotation)
+        if isinstance(value, str)
+    ),
+}
+
+
+def _resolve_config_pointer(document: Any, pointer: str) -> Any:
+    current = document
+    for token in pointer.removeprefix("/").split("/"):
+        token = token.replace("~1", "/").replace("~0", "~")
+        if not isinstance(current, dict) or token not in current:
+            raise IntegrityViolation(
+                "Agent graph selector config pointer is absent from a retained profile"
+            )
+        current = current[token]
+    return current
+
+
 class PlatformReadinessValidator:
     """Validate registry references and trusted component maps as one closure."""
 
@@ -61,6 +86,143 @@ class PlatformReadinessValidator:
         active_ids = {(item.kind, item.version) for item in active}
         if active_ids != FROZEN_ACTIVE_RUN_KIND_IDENTITIES or len(active) != 14:
             raise IntegrityViolation("registry must contain exactly the 14 frozen active Run kinds")
+        agent_graphs = self._registry.list_agent_execution_graphs()
+        llm_kind_ids = {
+            (item.kind, item.version)
+            for item in active
+            if any(mode != "not_applicable" for mode in item.allowed_llm_execution_modes)
+        }
+        active_graph_selectors: dict[
+            tuple[str, int], list[AgentExecutionProfileSelectorV1 | None]
+        ] = {identity: [] for identity in llm_kind_ids}
+        definitions_by_id = {(item.kind, item.version): item for item in definitions}
+        for graph in agent_graphs:
+            retained = self._registry.get_agent_execution_graph(
+                graph.run_kind,
+                graph.agent_graph_version,
+            )
+            if retained != graph:
+                raise IntegrityViolation("Agent execution graph does not resolve exactly")
+            identity = (graph.run_kind.kind, graph.run_kind.version)
+            definition = definitions_by_id.get(identity)
+            retained_definition = self._registry.get_run_kind(graph.run_kind)
+            if definition is None or retained_definition != definition:
+                raise IntegrityViolation(
+                    "Agent execution graph does not bind an exact retained Run kind definition"
+                )
+            if definition.executor_key != graph.executor_key:
+                raise IntegrityViolation("Agent execution graph executor differs from its Run kind")
+            if not any(mode != "not_applicable" for mode in definition.allowed_llm_execution_modes):
+                raise IntegrityViolation(
+                    "Agent execution graph binds a Run kind without LLM execution"
+                )
+            if graph.status == "active":
+                if definition.status != "active" or identity not in active_graph_selectors:
+                    raise IntegrityViolation(
+                        "active Agent execution graph requires an active LLM-capable Run kind"
+                    )
+                active_graph_selectors[identity].append(graph.profile_selector)
+            elif (
+                graph.status == "replay_only"
+                and "replay" not in definition.allowed_llm_execution_modes
+            ):
+                raise IntegrityViolation(
+                    "replay-only Agent execution graph requires a replay-capable Run kind"
+                )
+            # Selector metadata is creation-time authority. A disabled Run kind's
+            # retained graph is historical evidence only: admission cannot select
+            # that definition, and active-only profile metadata need not be kept as
+            # a mutable/current alias merely to preserve exact old graph bytes.
+            if (
+                graph.profile_selector is not None
+                and definition.status == "active"
+                and graph.status in {"active", "replay_only"}
+            ):
+                requirements = self._registry.get_profile_requirements(graph.run_kind)
+                if requirements is None or graph.profile_selector.profile_field_path not in {
+                    item.field_path for item in requirements
+                }:
+                    raise IntegrityViolation(
+                        "Agent graph selector does not name a registered profile field"
+                    )
+            if any(
+                "*" in value
+                for node in graph.nodes
+                for value in (
+                    node.agent_node_id,
+                    node.prompt_version,
+                    node.tool_version,
+                    *node.required_capabilities,
+                )
+            ):
+                raise IntegrityViolation("Agent execution graph fields forbid wildcards")
+        catalogs = self._registry.list_execution_profile_catalogs()
+        for identity, selectors in active_graph_selectors.items():
+            if not selectors:
+                raise IntegrityViolation(
+                    "active Agent graph selectors must be non-overlapping and complete"
+                )
+            unconditional = [selector for selector in selectors if selector is None]
+            if unconditional:
+                if len(selectors) != 1:
+                    raise IntegrityViolation(
+                        "an unconditional active Agent graph must be the only branch"
+                    )
+                continue
+
+            conditional = tuple(selector for selector in selectors if selector is not None)
+            selector_keys = {
+                (selector.profile_field_path, selector.config_pointer) for selector in conditional
+            }
+            if len(selector_keys) != 1:
+                raise IntegrityViolation(
+                    "active Agent graph selectors must use one exact profile config enum"
+                )
+            field_path, config_pointer = next(iter(selector_keys))
+            expected_values = [selector.expected_value for selector in conditional]
+            if len(expected_values) != len(set(expected_values)):
+                raise IntegrityViolation("active Agent graph selector branches overlap")
+
+            requirements = self._registry.get_profile_requirements(
+                RunKindRef(kind=identity[0], version=identity[1])
+            )
+            requirement = next(
+                (item for item in requirements or () if item.field_path == field_path),
+                None,
+            )
+            if requirement is None:
+                raise IntegrityViolation(
+                    "Agent graph selector does not name a registered profile field"
+                )
+            enum_values = _PROFILE_SELECTOR_ENUMS.get(
+                (requirement.expected_profile_kind, config_pointer)
+            )
+            if not enum_values or not set(expected_values).issubset(enum_values):
+                raise IntegrityViolation(
+                    "Agent graph selector values are outside the versioned profile config enum"
+                )
+
+            run_kind = RunKindRef(kind=identity[0], version=identity[1])
+            reachable_values: set[str] = set()
+            for catalog in catalogs:
+                lifecycle = {item.profile: item.state for item in catalog.lifecycle}
+                for profile in catalog.definitions:
+                    if (
+                        profile.profile_kind != requirement.expected_profile_kind
+                        or run_kind not in profile.compatible_run_kinds
+                        or lifecycle.get(profile.profile) not in {"active", "replay_only"}
+                    ):
+                        continue
+                    actual = _resolve_config_pointer(profile.config, config_pointer)
+                    if not isinstance(actual, str) or actual not in enum_values:
+                        raise IntegrityViolation(
+                            "retained profile config is outside its selector enum"
+                        )
+                    reachable_values.add(actual)
+            if not reachable_values or not reachable_values.issubset(expected_values):
+                raise IntegrityViolation(
+                    "active Agent graph selectors do not cover reachable profile config values"
+                )
         if self._registry.profile_requirement_identities != active_ids:
             raise IntegrityViolation("profile requirement metadata does not cover active Run kinds")
         expected_resolver_identities = {
@@ -189,7 +351,7 @@ class PlatformReadinessValidator:
         expected_workflow_effects: set[str] = set()
         expected_profile_handlers: set[str] = set()
         expected_permission_resolvers: set[str] = set()
-        reference_checks = 0
+        reference_checks = sum(len(graph.nodes) + 1 for graph in agent_graphs)
 
         for definition in active:
             identity = (definition.kind, definition.version)
@@ -546,6 +708,21 @@ class PlatformReadinessValidator:
         if producer_rule is None:
             raise IntegrityViolation("lineage child kind lacks a frozen producer-matrix rule")
         projections = {item.field: item for item in lineage_policy.version_projection}
+        if lineage_policy.policy_id.startswith("task-suite-derived/"):
+            doc_projection = projections.get("doc_version")
+            expected_doc_equality = (
+                {"config", "scenarios"} if lineage_policy.child_kind == "task_suite" else {"config"}
+            )
+            if (
+                lineage_policy.child_kind not in {"task_suite", "scenario_spec"}
+                or doc_projection is None
+                or doc_projection.source != "parent_role"
+                or doc_projection.parent_role != "preview"
+                or set(doc_projection.equality_parent_roles) != expected_doc_equality
+            ):
+                raise IntegrityViolation(
+                    "TaskSuite lineage doc version must close preview, config, and scenarios"
+                )
         inherited_fields = {
             field for field, item in projections.items() if item.source == "parent_role"
         }

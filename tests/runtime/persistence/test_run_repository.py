@@ -53,6 +53,7 @@ from gameforge.runtime.persistence.models import (
     FindingRevisionRow,
     RunAttemptRow,
     RunEventRow,
+    RunFindingLinkRow,
     RunIntermediateArtifactLinkRow,
     RunLeaseRow,
     RunRow,
@@ -939,6 +940,160 @@ def test_intermediate_finding_and_command_records_are_insert_or_exact_compare(
             transaction.runs.put_finding_link(changed_finding)
         with pytest.raises(IntegrityViolation, match="immutable"):
             transaction.runs.put_command(changed_command)
+
+
+def _persist_exact_finding_link(engine: Engine) -> RunFindingLinkV1:
+    run, _ = _claim(engine)
+    finding_revision = FindingRevisionV1(
+        finding_id="finding:exact",
+        revision=1,
+        created_at=NOW,
+        payload=FindingPayloadV1(
+            source="checker",
+            producer_id="graph-checker@1",
+            producer_run_id=run.run_id,
+            oracle_type="deterministic",
+            defect_class="dangling_reference",
+            severity="major",
+            snapshot_id="snapshot:1",
+            entities=["quest:1"],
+            relations=[],
+            evidence={"missing_entity_id": "item:missing"},
+            minimal_repro={"entity_id": "quest:1"},
+            status="confirmed",
+            confidence=1.0,
+            message="missing item",
+        ),
+    )
+    finding_digest = finding_revision_digest(finding_revision)
+    with Session(engine) as session:
+        session.add(_artifact("artifact:evidence:exact", payload_hash=HASH_B))
+        session.add(
+            FindingRevisionRow(
+                finding_id=finding_revision.finding_id,
+                revision=finding_revision.revision,
+                revision_schema_version=finding_revision.revision_schema_version,
+                supersedes_revision=finding_revision.supersedes_revision,
+                created_at=finding_revision.created_at,
+                payload=finding_revision.payload.model_dump(mode="json"),
+                finding_digest=finding_digest,
+            )
+        )
+        session.flush()
+        session.add(
+            FindingHeadRow(
+                finding_id=finding_revision.finding_id,
+                current_revision=finding_revision.revision,
+                current_digest=finding_digest,
+                row_revision=1,
+                updated_at=NOW,
+            )
+        )
+        session.commit()
+
+    link = RunFindingLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        ordinal=1,
+        finding_id=finding_revision.finding_id,
+        finding_revision=finding_revision.revision,
+        finding_digest=finding_digest,
+        evidence_artifact_id="artifact:evidence:exact",
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.put_finding_link(link)
+    return link
+
+
+def test_finding_link_can_be_read_by_its_exact_run_and_finding_revision(
+    engine: Engine,
+) -> None:
+    expected = _persist_exact_finding_link(engine)
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert (
+            repository.get_finding_link_by_revision(
+                run_id=expected.run_id,
+                finding_id=expected.finding_id,
+                finding_revision=expected.finding_revision,
+            )
+            == expected
+        )
+        assert (
+            repository.get_finding_link_by_revision(
+                run_id="run:missing",
+                finding_id=expected.finding_id,
+                finding_revision=expected.finding_revision,
+            )
+            is None
+        )
+        assert (
+            repository.get_finding_link_by_revision(
+                run_id=expected.run_id,
+                finding_id="finding:missing",
+                finding_revision=expected.finding_revision,
+            )
+            is None
+        )
+        assert (
+            repository.get_finding_link_by_revision(
+                run_id=expected.run_id,
+                finding_id=expected.finding_id,
+                finding_revision=2,
+            )
+            is None
+        )
+
+
+def test_exact_finding_link_reader_reuses_retained_revision_integrity_checks(
+    engine: Engine,
+) -> None:
+    expected = _persist_exact_finding_link(engine)
+    with engine.begin() as connection:
+        connection.execute(
+            update(RunFindingLinkRow)
+            .where(
+                RunFindingLinkRow.run_id == expected.run_id,
+                RunFindingLinkRow.attempt_no == expected.attempt_no,
+                RunFindingLinkRow.ordinal == expected.ordinal,
+            )
+            .values(finding_digest=HASH_A)
+        )
+
+    with (
+        Session(engine) as session,
+        pytest.raises(
+            IntegrityViolation,
+            match="Finding revision",
+        ),
+    ):
+        SqlRunRepository(session).get_finding_link_by_revision(
+            run_id=expected.run_id,
+            finding_id=expected.finding_id,
+            finding_revision=expected.finding_revision,
+        )
+
+
+def test_finding_link_semantic_revision_cannot_be_duplicated_at_another_ordinal(
+    engine: Engine,
+) -> None:
+    retained = _persist_exact_finding_link(engine)
+    duplicate = retained.model_copy(update={"ordinal": 2})
+
+    with pytest.raises(IntegrityViolation, match="another ordinal"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.put_finding_link(duplicate)
+
+    with Session(engine) as session:
+        assert (
+            SqlRunRepository(session).get_finding_link_by_revision(
+                run_id=retained.run_id,
+                finding_id=retained.finding_id,
+                finding_revision=retained.finding_revision,
+            )
+            == retained
+        )
 
 
 def test_attempt_start_renew_and_progress_use_exact_cas_and_roll_back_together(

@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from types import MappingProxyType
 from typing import Any, get_args
 
 from pydantic import BaseModel
 
 from gameforge.contracts.canonical import canonical_sha256
+from gameforge.contracts.execution_graphs import (
+    AgentExecutionGraphV1,
+    AgentExecutionNodeV1,
+    AgentExecutionProfileSelectorV1,
+    agent_execution_graph_digest,
+)
 from gameforge.contracts.execution_profiles import (
+    ArtifactCollectionResolvedPolicyRequirementConfigV1,
     ArtifactLineagePolicyRefV1,
     ConfigExportProfileDetailsV1,
     EnvironmentContractDescriptorV1,
@@ -18,12 +26,18 @@ from gameforge.contracts.execution_profiles import (
     ExecutionProfileKindV1,
     ExecutionProfileLifecycleV1,
     GenericProfileDetailsV1,
+    GenerationProfileConfigV1,
     MigrationCapabilityMatrixRefV1,
     MigrationCapabilityMatrixRegistryV1,
     MigrationCapabilityMatrixV1,
     MigrationKindDefaultV1,
     MigrationProfileDetailsV1,
+    PatchRepairProfileConfigV1,
+    PlaytestPlannerProfileConfigV1,
     ProfileRefV1,
+    ProfileCollectionResolvedPolicyRequirementConfigV1,
+    FixedResolvedPolicyRequirementConfigV1,
+    ResolvedPolicyProfileConfigV1,
     RunKindRef,
     ValidationProfileDetailsV1,
     VersionTransitionPolicyRefV1,
@@ -121,6 +135,59 @@ _ARTIFACT_SCHEMAS: dict[ArtifactKind, tuple[str, ...]] = {
     "bench_report": ("bench-report@2",),
     "operational_evidence": ("backup-object-manifest@1", "dr-drill-evidence@1"),
 }
+ARTIFACT_PAYLOAD_SCHEMAS = MappingProxyType(_ARTIFACT_SCHEMAS)
+
+# Complete output interface advertised by each semantic profile kind.  A profile may
+# participate in several RunKinds (for example checker output is a standalone report
+# in ``checker.run`` and a re-verification evidence row in ``patch.validate``), so the
+# retained catalog declares the union instead of a placeholder string. Admission can
+# then reject a selected profile whose frozen interface cannot produce the schemas its
+# profile kind promises, before any Run or budget hold is created.
+PROFILE_OUTPUT_SCHEMA_REQUIREMENTS: MappingProxyType[ExecutionProfileKindV1, tuple[str, ...]] = (
+    MappingProxyType(
+        {
+            "generation": (
+                "checker-report@1",
+                "config-export-package@1",
+                "ir-core@1",
+                "patch@2",
+                "review@1",
+                "simulation-result@1",
+            ),
+            "patch_repair": (
+                "checker-report@1",
+                "config-export-package@1",
+                "ir-core@1",
+                "patch@2",
+                "regression-evidence@1",
+                "simulation-result@1",
+            ),
+            "constraint_extraction": ("constraint-proposal@1",),
+            "review": ("review@1",),
+            "llm_triage": ("review@1",),
+            "checker": ("checker-report@1", "regression-evidence@1"),
+            "simulation": ("regression-evidence@1", "simulation-result@1"),
+            "workload": ("simulation-result@1",),
+            "config_export": ("config-export-package@1",),
+            "task_suite_derivation": ("scenario-spec@1", "task-suite@1"),
+            "environment": ("playtest-trace@1", "scenario-spec@1"),
+            "playtest_planner": ("playtest-trace@1",),
+            "validation": ("auto-apply-proof@1", "evidence-set@1"),
+            "constraint_compiler": (
+                "constraint-compile-evidence@1",
+                "constraint-snapshot@1",
+            ),
+            "rollback": ("evidence-set@1", "regression-evidence@1"),
+            "schema_compatibility": ("regression-evidence@1",),
+            "impact_analysis": ("regression-evidence@1",),
+            "bench_evaluator": ("bench-report@2",),
+            "artifact_migrator": ("migration-report@1",),
+            "dr_plan": ("dr-drill-evidence@1",),
+            "restore_target": ("dr-drill-evidence@1",),
+            "dr_verifier": ("dr-drill-evidence@1",),
+        }
+    )
+)
 
 
 def _model_digest(value: BaseModel) -> str:
@@ -839,7 +906,7 @@ def _lineage_spec(
         scenario_equality = ("scenarios",) if rule_id == "primary" else ()
         projection.update(
             {
-                "doc_version": ("preview", scenario_equality),
+                "doc_version": ("preview", ("config", *scenario_equality)),
                 "ir_snapshot_id": ("preview", ("config", *scenario_equality)),
                 "constraint_snapshot_id": (
                     "constraint",
@@ -2259,6 +2326,72 @@ def _profile_compatibility() -> dict[ExecutionProfileKindV1, tuple[RunKindRef, .
     }
 
 
+def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dict[str, Any]:
+    if profile_kind == "generation":
+        config = GenerationProfileConfigV1(
+            resolved_policy=ResolvedPolicyProfileConfigV1(
+                resolved_policy_id="generation-gate",
+                requirement_sources=(
+                    FixedResolvedPolicyRequirementConfigV1(
+                        outcome_rule_id="checker",
+                        requirement_id="generation-gate:checker",
+                        artifact_kind="checker_run",
+                        payload_schema_id="checker-report@1",
+                        producer_profile_field_path="/params/generation_policy",
+                        ordinal=1,
+                    ),
+                    FixedResolvedPolicyRequirementConfigV1(
+                        outcome_rule_id="simulation",
+                        requirement_id="generation-gate:simulation",
+                        artifact_kind="simulation_run",
+                        payload_schema_id="simulation-result@1",
+                        producer_profile_field_path="/params/generation_policy",
+                        ordinal=1,
+                    ),
+                    FixedResolvedPolicyRequirementConfigV1(
+                        outcome_rule_id="review",
+                        requirement_id="generation-gate:review",
+                        artifact_kind="review_report",
+                        payload_schema_id="review@1",
+                        producer_profile_field_path="/params/generation_policy",
+                        ordinal=1,
+                    ),
+                ),
+            )
+        )
+        return config.model_dump(mode="json")
+    if profile_kind == "patch_repair":
+        config = PatchRepairProfileConfigV1(
+            resolved_policy=ResolvedPolicyProfileConfigV1(
+                resolved_policy_id="repair-verifier",
+                requirement_sources=(
+                    ProfileCollectionResolvedPolicyRequirementConfigV1(
+                        outcome_rule_id="checker",
+                        artifact_kind="checker_run",
+                        payload_schema_id="checker-report@1",
+                        collection_field_path="/params/checker_profiles",
+                    ),
+                    ProfileCollectionResolvedPolicyRequirementConfigV1(
+                        outcome_rule_id="simulation",
+                        artifact_kind="simulation_run",
+                        payload_schema_id="simulation-result@1",
+                        collection_field_path="/params/simulation_profiles",
+                    ),
+                    ArtifactCollectionResolvedPolicyRequirementConfigV1(
+                        outcome_rule_id="regression",
+                        artifact_kind="regression_evidence",
+                        payload_schema_id="regression-evidence@1",
+                        collection_field_path="/params/regression_suite_artifact_ids",
+                    ),
+                ),
+            )
+        )
+        return config.model_dump(mode="json")
+    if profile_kind == "playtest_planner":
+        return PlaytestPlannerProfileConfigV1(memory_mode="off").model_dump(mode="json")
+    return {}
+
+
 def _execution_profile_catalog() -> ExecutionProfileCatalogSnapshotV1:
     compatibility = _profile_compatibility()
     environment_ref = ProfileRefV1(profile_id="builtin.environment", version=1)
@@ -2288,7 +2421,7 @@ def _execution_profile_catalog() -> ExecutionProfileCatalogSnapshotV1:
             details = MigrationProfileDetailsV1(edges=())
         else:
             details = GenericProfileDetailsV1()
-        config: dict[str, Any] = {}
+        config = _resolved_policy_profile_config(profile_kind)
         definitions.append(
             ExecutionProfileDefinitionV1(
                 profile=profile,
@@ -2300,7 +2433,7 @@ def _execution_profile_catalog() -> ExecutionProfileCatalogSnapshotV1:
                     FROZEN_RUN_KIND_SHAPES[(item.kind, item.version)].payload_schema_id
                     for item in run_kinds
                 ),
-                output_schema_ids=(f"{profile_kind}-profile-output@1",),
+                output_schema_ids=PROFILE_OUTPUT_SCHEMA_REQUIREMENTS[profile_kind],
                 required_capabilities=(),
                 display_name=f"Built-in {profile_kind.replace('_', ' ')} profile",
                 handler_key=f"builtin_{profile_kind}_profile@1",
@@ -2342,6 +2475,123 @@ def _profile_requirements() -> dict[RunKindIdentity, tuple[ProfileRequirement, .
         )
         for run_kind, requirements in FROZEN_PROFILE_REQUIREMENT_SHAPES.items()
     }
+
+
+def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
+    """Freeze the exact Agent nodes implemented by each LLM-capable executor.
+
+    Model allowlists remain Run-specific in ``ExecutionVersionPlanV1``.  This
+    retained authority owns the graph/node/prompt/tool half of that plan so clients
+    cannot queue a Run whose executor can never issue the declared calls.
+    """
+
+    shapes: tuple[
+        tuple[
+            str,
+            RunKindIdentity,
+            str,
+            AgentExecutionProfileSelectorV1 | None,
+            tuple[tuple[str, str, str], ...],
+        ],
+        ...,
+    ] = (
+        (
+            "generation-graph@1",
+            ("generation.propose", 1),
+            "generation_proposer@1",
+            None,
+            (("generation", "generation@1", "generation@1"),),
+        ),
+        (
+            "repair-graph@1",
+            ("patch.repair", 1),
+            "repair_search@1",
+            None,
+            (("repair", "repair@4", "repair@1"),),
+        ),
+        (
+            "constraint-proposal-graph@1",
+            ("constraint_proposal.propose", 1),
+            "constraint_proposer@1",
+            None,
+            (("extraction", "extraction@1", "extraction@1"),),
+        ),
+        (
+            "review-triage-graph@1",
+            ("review.run", 1),
+            "review_runner@1",
+            None,
+            (("review-triage", "review-triage@1", "review-triage@1"),),
+        ),
+        (
+            "playtest-core-graph@1",
+            ("playtest.run", 1),
+            "playtest_runner@1",
+            AgentExecutionProfileSelectorV1(
+                profile_field_path="/params/planner_policy",
+                config_pointer="/memory_mode",
+                expected_value="off",
+            ),
+            (
+                ("playtest.planner", "playtest@1", "playtest@1"),
+                ("playtest.executor", "playtest@2", "playtest@1"),
+                ("playtest.reflect", "playtest@1", "playtest@1"),
+            ),
+        ),
+        (
+            "playtest-memory-graph@1",
+            ("playtest.run", 1),
+            "playtest_runner@1",
+            AgentExecutionProfileSelectorV1(
+                profile_field_path="/params/planner_policy",
+                config_pointer="/memory_mode",
+                expected_value="llm_compaction",
+            ),
+            (
+                ("playtest.planner", "playtest@1", "playtest@1"),
+                ("playtest.executor", "playtest@2", "playtest@1"),
+                ("playtest.reflect", "playtest@1", "playtest@1"),
+                (
+                    "playtest.memory",
+                    "playtest.memory.compact@1",
+                    "playtest@1",
+                ),
+            ),
+        ),
+        (
+            "bench-agent-graph@1",
+            ("bench.run", 1),
+            "bench_runner@1",
+            None,
+            (("bench-agent-case", "bench-agent@1", "bench@1"),),
+        ),
+    )
+    graphs: list[AgentExecutionGraphV1] = []
+    for graph_version, run_kind, executor_key, profile_selector, node_shapes in shapes:
+        nodes = tuple(
+            AgentExecutionNodeV1(
+                agent_node_id=node_id,
+                prompt_version=prompt_version,
+                tool_version=tool_version,
+                required_capabilities=("reasoning",),
+            )
+            for node_id, prompt_version, tool_version in node_shapes
+        )
+        body = {
+            "agent_graph_version": graph_version,
+            "run_kind": RunKindRef(kind=run_kind[0], version=run_kind[1]),
+            "executor_key": executor_key,
+            "status": "active",
+            "profile_selector": profile_selector,
+            "nodes": nodes,
+        }
+        graphs.append(
+            AgentExecutionGraphV1(
+                **body,
+                graph_digest=agent_execution_graph_digest(body),
+            )
+        )
+    return tuple(graphs)
 
 
 def _run_definitions(
@@ -2458,6 +2708,7 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
         finding_output_policies=finding_policies,
         run_event_registries=(_run_event_registry(),),
         completion_oracle_registries=(_completion_oracle_registry(),),
+        agent_execution_graphs=_agent_execution_graphs(),
         execution_profile_catalogs=(_execution_profile_catalog(),),
         migration_capability_registries=(migration_registry,),
         profile_requirements=_profile_requirements(),
@@ -2465,4 +2716,8 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
     )
 
 
-__all__ = ["build_builtin_registry"]
+__all__ = [
+    "ARTIFACT_PAYLOAD_SCHEMAS",
+    "PROFILE_OUTPUT_SCHEMA_REQUIREMENTS",
+    "build_builtin_registry",
+]

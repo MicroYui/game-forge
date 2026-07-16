@@ -96,6 +96,7 @@ def test_budget_set_is_stably_ordered_and_scope_complete() -> None:
     budgets = (
         _budget(budget_id="system", scope_kind="system", scope_id="global"),
         _budget(budget_id="run", scope_kind="run", scope_id="run-1"),
+        _budget(budget_id="principal-daily", scope_kind="principal", scope_id="human-1"),
         _budget(budget_id="principal", scope_kind="principal", scope_id="human-1"),
     )
     snapshots = tuple(
@@ -124,6 +125,7 @@ def test_budget_set_is_stably_ordered_and_scope_complete() -> None:
     assert [(item.scope_kind, item.budget_id) for item in budget_set.snapshots] == [
         ("run", "run"),
         ("principal", "principal"),
+        ("principal", "principal-daily"),
         ("system", "system"),
     ]
 

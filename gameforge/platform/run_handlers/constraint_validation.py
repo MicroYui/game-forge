@@ -50,6 +50,7 @@ from gameforge.contracts.jobs import (
     RequirementDispositionV1,
     SolverEngineRefV1,
 )
+from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.workflow import (
     ConstraintCompileEvidenceV1,
     ConstraintCompileStageV1,
@@ -212,7 +213,7 @@ class ConstraintValidationHandler:
 
         proposal = load_proposal(self.blobs, payload.subject.subject_artifact_id)
         candidate = tuple(proposal.constraints)
-        seed = int(context.payload.seed) if context.payload.seed is not None else 0
+        seed = context.payload.seed
         lineage = self._artifact_lineage(payload)
 
         pipeline = self._run_pipeline(payload, candidate)
@@ -475,7 +476,7 @@ class ConstraintValidationHandler:
         payload: ConstraintValidationPayloadV1,
         pipeline: _CompilePipelineV1,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[
         tuple[PreparedArtifact, ...],
         tuple[DimensionResult, ...],
@@ -512,7 +513,7 @@ class ConstraintValidationHandler:
         self,
         payload: ConstraintValidationPayloadV1,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[
         tuple[PreparedArtifact, ...],
         tuple[DimensionResult, ...],
@@ -524,7 +525,11 @@ class ConstraintValidationHandler:
         for suite_id in payload.regression_suite_artifact_ids:
             require_exists(self.blobs, suite_id)
             outcome = self.regression_runner.run(
-                RegressionRunRequest(suite_artifact_id=suite_id, snapshot_id=None, seed=seed)
+                RegressionRunRequest(
+                    suite_artifact_id=suite_id,
+                    snapshot_id=None,
+                    seed=0 if seed is None else seed,
+                )
             )
             status = "unproven" if outcome.status == "not_executed" else outcome.status
             reason = outcome.reason_code
@@ -588,11 +593,9 @@ class ConstraintValidationHandler:
             self.store,
             kind=CONSTRAINT_SNAPSHOT_KIND,
             payload_schema_id=CONSTRAINT_SNAPSHOT_SCHEMA_ID,
-            version_tuple=evidence_version_tuple(
-                ir_snapshot_id=None,
+            version_tuple=VersionTuple(
                 constraint_snapshot_id=snapshot_id,
                 tool_version=COMPILE_TOOL_VERSION,
-                seed=0,
             ),
             lineage=candidate_lineage,
             blob=blob,
@@ -604,7 +607,7 @@ class ConstraintValidationHandler:
         pipeline: _CompilePipelineV1,
         candidate_id: str | None,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> PreparedArtifact:
         evidence = ConstraintCompileEvidenceV1(
             proposal_artifact_id=payload.subject.subject_artifact_id,
@@ -645,7 +648,7 @@ class ConstraintValidationHandler:
         supporting: tuple[str, ...],
         lineage: tuple[str, ...],
         overall: str,
-        seed: int,
+        seed: int | None,
     ) -> PreparedArtifact:
         evidence_set = EvidenceSet(
             subject_artifact_id=payload.subject.subject_artifact_id,

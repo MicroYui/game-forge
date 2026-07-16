@@ -172,10 +172,10 @@ def test_resolution_uses_the_bound_historical_catalog_not_a_current_alias(
     )
     with Session(engine) as session:
         repository = _repository(session)
+        assert repository.list_execution_profile_catalogs() == (active, replay_only)
         assert repository.resolve_execution_profile_binding(active_binding)[1].state == "active"
         assert (
-            repository.resolve_execution_profile_binding(replay_binding)[1].state
-            == "replay_only"
+            repository.resolve_execution_profile_binding(replay_binding)[1].state == "replay_only"
         )
 
 
@@ -413,9 +413,7 @@ def test_wrong_catalog_digest_and_corrupt_catalog_history_fail_closed(
 
     with Session(engine) as session, session.begin():
         row = session.scalar(
-            select(PolicySnapshotRow).where(
-                PolicySnapshotRow.document_kind == document_kind
-            )
+            select(PolicySnapshotRow).where(PolicySnapshotRow.document_kind == document_kind)
         )
         assert row is not None
         row.payload_schema_version = "corrupt@1"

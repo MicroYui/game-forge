@@ -183,6 +183,42 @@ class SqlCostRepository:
         )
         return parsed
 
+    def list_budgets_by_scope_identity(
+        self,
+        *,
+        scope_kind: str,
+        scope_id: str,
+        limit: int,
+    ) -> tuple[BudgetV1, ...]:
+        """Return retained current Budget heads for one exact scope identity.
+
+        Callers must provide an explicit bounded limit.  Ordering by the immutable
+        budget id makes policy selection stable.  Multiple independently versioned
+        policies may apply to the same identity; closed/exhausted heads remain in the
+        result so admission cannot bypass a rejecting applicable budget.
+        """
+
+        limit = _validate_limit(limit)
+        rows = self._session.scalars(
+            select(BudgetRow)
+            .where(
+                BudgetRow.scope_kind == scope_kind,
+                BudgetRow.scope_id == scope_id,
+            )
+            .order_by(BudgetRow.budget_id)
+            .limit(limit)
+        ).all()
+        budgets: list[BudgetV1] = []
+        for row in rows:
+            budget = self.get_budget(row.budget_id)
+            if budget is None:
+                raise IntegrityViolation(
+                    "budget scope query lost an authoritative row",
+                    budget_id=row.budget_id,
+                )
+            budgets.append(budget)
+        return tuple(budgets)
+
     def put_budget_set(self, budget_set: BudgetSetSnapshotV1) -> BudgetSetSnapshotV1:
         canonical = _canonical_model(
             budget_set,

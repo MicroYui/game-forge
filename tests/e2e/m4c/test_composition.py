@@ -13,6 +13,7 @@ produced the run_result manifest + the ``checker_run`` domain Artifact + the ter
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -37,6 +38,7 @@ from gameforge.contracts.auth import (
     compute_login_name_normalization_policy_digest,
 )
 from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.cost import BudgetV1, CostAmountV1
 from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
@@ -44,8 +46,6 @@ from gameforge.contracts.identity import (
     DomainRegistryRefV1,
     DomainRegistryV1,
     Permission,
-    Principal,
-    RoleAssignmentV1,
     RolePolicy,
     compute_domain_registry_digest,
     compute_role_policy_digest,
@@ -58,6 +58,7 @@ from gameforge.platform.registry import PlatformReadinessValidator, build_builti
 from gameforge.platform.runs.admission import AdmissionRequestContext
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
@@ -186,33 +187,25 @@ def _signing_keys() -> SessionSigningKeyProvider:
     )
 
 
-def _tooling_actor() -> ActorContext:
-    principal = Principal(
-        id="human:maker",
-        kind="human",
-        display_name="Maker",
+def _tooling_actor(harness: _Harness) -> ActorContext:
+    return harness.tooling_actor()
+
+
+def _shared_budget(*, budget_id: str, scope_kind: str, scope_id: str) -> BudgetV1:
+    return BudgetV1(
+        budget_id=budget_id,
+        scope_kind=scope_kind,  # type: ignore[arg-type]
+        scope_id=scope_id,
+        policy_version="e2e-shared-budget@1",
+        limits=(
+            CostAmountV1(dimension="request", value=10_000_000, unit="request"),
+            CostAmountV1(dimension="concurrent_run", value=16, unit="count"),
+        ),
+        reserved=(),
+        consumed=(),
         status="active",
         revision=1,
-        credential_epoch=1,
-        authz_revision=1,
-        roles=(
-            RoleAssignmentV1(
-                assignment_id="assign:tooling",
-                principal_id="human:maker",
-                role="tooling",
-                scope="all",
-                status="active",
-                revision=1,
-                granted_at=NOW,
-                granted_by=AuditActor(principal_id="human:admin", principal_kind="human"),
-            ),
-        ),
-    )
-    return ActorContext(
-        principal=principal,
-        authentication=AuthenticationContext(mechanism="session", credential_id="credential:maker"),
-        session_id="session:maker",
-        request_id="request:maker",
+        created_at=datetime.fromisoformat(NOW.replace("Z", "+00:00")).astimezone(UTC),
     )
 
 
@@ -238,6 +231,7 @@ class _Harness:
         self.catalog = self.registry.list_execution_profile_catalogs()[0]
         self._seed_policies()
         self._bootstrap_admin()
+        self._provision_tooling_actor()
 
     def _seed_policies(self) -> None:
         engine = get_engine(self.database_url)
@@ -249,6 +243,21 @@ class _Harness:
             policies.put_domain_registry(self.domain_registry)
             policies.put_role_policy(self.role_policy)
             policies.put_execution_profile_catalog(self.catalog)
+            costs = SqlCostLedger(session, clock=self.clock)
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:principal:human:maker",
+                    scope_kind="principal",
+                    scope_id="human:maker",
+                )
+            )
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:system:global",
+                    scope_kind="system",
+                    scope_id="global",
+                )
+            )
         engine.dispose()
 
     def _bootstrap_admin(self) -> None:
@@ -270,6 +279,50 @@ class _Harness:
             )
         )
 
+    def _provision_tooling_actor(self) -> None:
+        from gameforge.runtime.persistence.identity import SqlIdentityRepository
+
+        engine = get_engine(self.database_url)
+        with Session(engine) as session, session.begin():
+            identities = SqlIdentityRepository(session, clock=self.clock)
+            principal = identities.create(
+                principal_id="human:maker",
+                kind="human",
+                display_name="Maker",
+            )
+            identities.grant(
+                assignment_id="assign:tooling",
+                principal_id=principal.principal_id,
+                role="tooling",
+                scope="all",
+                granted_by=AuditActor(
+                    principal_id="human:admin",
+                    principal_kind="human",
+                ),
+                expected_principal_revision=principal.revision,
+            )
+        engine.dispose()
+
+    def tooling_actor(self) -> ActorContext:
+        from gameforge.runtime.persistence.identity import SqlIdentityRepository
+
+        engine = get_engine(self.database_url)
+        try:
+            with Session(engine) as session:
+                principal = SqlIdentityRepository(session, clock=self.clock).project("human:maker")
+                assert principal is not None
+        finally:
+            engine.dispose()
+        return ActorContext(
+            principal=principal,
+            authentication=AuthenticationContext(
+                mechanism="session",
+                credential_id="credential:maker",
+            ),
+            session_id="session:maker",
+            request_id="request:maker",
+        )
+
     def seed_ir_snapshot(self, *, artifact_id_tag: str) -> str:
         blob, snapshot_id = _clean_snapshot()
         objects = LocalObjectStore(
@@ -285,7 +338,10 @@ class _Harness:
             lineage=(),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"payload_schema_id": "ir-core@1"},
+            meta={
+                "payload_schema_id": "ir-core@1",
+                "domain_scope": {"domain_ids": ["builtin"]},
+            },
             created_at=NOW,
         )
         engine = get_engine(self.database_url)
@@ -376,7 +432,7 @@ def test_readiness_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) -
         # profile resolution + queued RunRecord), then drive the worker dispatch loop.
         accepted = resources.dependencies.run_admission.admit_generic_run(
             params=_checker_params(snapshot_artifact_id),
-            actor=_tooling_actor(),
+            actor=_tooling_actor(harness),
             server=AdmissionRequestContext(
                 idempotency_key="checker:e2e:1",
                 request_hash="c" * 64,

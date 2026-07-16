@@ -50,6 +50,7 @@ from sqlalchemy.orm import Session
 from gameforge.apps.api.local import LocalApiConfig, create_readiness_closed_local_app
 from gameforge.apps.worker.app import LocalWorkerConfig
 from gameforge.apps.worker.dispatch import build_worker_process
+from gameforge.contracts.api import compute_resource_etag
 from gameforge.contracts.auth import (
     PasswordCredentialRecordV1,
     SecretText,
@@ -93,6 +94,7 @@ from tests.e2e.m4c.test_composition import (
     _normalization_policy,
     _password_policy,
     _session_policy,
+    _shared_budget,
     _signing_keys,
 )
 from tests.platform.m4 import apply_testkit
@@ -242,6 +244,21 @@ class _Harness:
             policies.put_role_policy(self.role_policy)
             policies.put_approval_policy_registry(approval_registry)
             policies.put_execution_profile_catalog(self.catalog)
+            costs = SqlCostLedger(session, clock=self.clock)
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:principal:human:maker",
+                    scope_kind="principal",
+                    scope_id="human:maker",
+                )
+            )
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:system:global",
+                    scope_kind="system",
+                    scope_id="global",
+                )
+            )
         engine.dispose()
 
     def _provision_humans(self) -> None:
@@ -326,7 +343,10 @@ class _Harness:
             lineage=(),
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"payload_schema_id": "ir-core@1"},
+            meta={
+                "payload_schema_id": "ir-core@1",
+                "domain_scope": _DOMAIN.model_dump(mode="json"),
+            },
             created_at=NOW,
         )
         engine = get_engine(self.database_url)
@@ -456,10 +476,24 @@ def _login(app, login_name: str, password: str) -> _Session:
     return _Session(client=client, csrf=response.headers["X-CSRF-Token"])
 
 
-def _headers(session: _Session, *, idempotency_key: str) -> dict[str, str]:
+def _headers(
+    session: _Session,
+    *,
+    idempotency_key: str,
+    resource_kind: str | None = None,
+    resource_id: str | None = None,
+    revision: int | None = None,
+) -> dict[str, str]:
+    etag = '"etag:journey-b"'
+    if resource_kind is not None and resource_id is not None and revision is not None:
+        etag = compute_resource_etag(
+            resource_kind=resource_kind,
+            resource_id=resource_id,
+            revision=revision,
+        )
     return {
         "Idempotency-Key": idempotency_key,
-        "If-Match": '"etag:journey-b"',
+        "If-Match": etag,
         "X-CSRF-Token": session.csrf,
     }
 
@@ -602,7 +636,13 @@ def _run_patch_cycle(
         json=_validation_body(
             item, base_artifact_id=base_artifact_id, expected_ref=expected_ref, checker_graph=True
         ),
-        headers=_headers(maker, idempotency_key=f"{key}:validate"),
+        headers=_headers(
+            maker,
+            idempotency_key=f"{key}:validate",
+            resource_kind="patch",
+            resource_id=patch_artifact_id,
+            revision=item.workflow_revision,
+        ),
     )
     assert validate.status_code == 202, validate.text
     run_id = validate.json()["run_id"]
@@ -627,7 +667,13 @@ def _run_patch_cycle(
             "approval_id": approval_id,
             "expected_workflow_revision": validated.workflow_revision,
         },
-        headers=_headers(maker, idempotency_key=f"{key}:submit"),
+        headers=_headers(
+            maker,
+            idempotency_key=f"{key}:submit",
+            resource_kind="patch",
+            resource_id=patch_artifact_id,
+            revision=validated.workflow_revision,
+        ),
     )
     assert submit.status_code == 200, submit.text
     pending = harness.load_item(approval_id)
@@ -643,7 +689,13 @@ def _run_patch_cycle(
             "expected_workflow_revision": pending.workflow_revision,
             "reason_code": "independent_review_passed",
         },
-        headers=_headers(approver, idempotency_key=f"{key}:approve"),
+        headers=_headers(
+            approver,
+            idempotency_key=f"{key}:approve",
+            resource_kind="approval",
+            resource_id=approval_id,
+            revision=pending.workflow_revision,
+        ),
     )
     assert approve.status_code == 200, approve.text
     approved = harness.load_item(approval_id)
@@ -663,7 +715,13 @@ def _run_patch_cycle(
             "ref_name": REF_NAME,
             "expected_ref": binding.expected_ref.model_dump(mode="json"),
         },
-        headers=_headers(approver, idempotency_key=f"{key}:apply"),
+        headers=_headers(
+            approver,
+            idempotency_key=f"{key}:apply",
+            resource_kind="patch",
+            resource_id=approved.subject_artifact_id,
+            revision=approved.workflow_revision,
+        ),
     )
     assert apply.status_code == 200, apply.text
     new_ref = apply.json()["ref_value"]
@@ -711,9 +769,10 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
         first = maker.client.post(
             "/api/v1/patches",
             json=_patch_body(
-                base_artifact_id=base_artifact_id,
-                expected_ref=base_ref,
+                base_artifact_id=cycle1.new_ref["artifact_id"],
+                expected_ref=cycle1.new_ref,
                 new_value=70,
+                old_value=80,
                 rationale="Idempotent draft.",
             ),
             headers=_headers(maker, idempotency_key="idem:dup"),
@@ -722,9 +781,10 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
         conflict = maker.client.post(
             "/api/v1/patches",
             json=_patch_body(
-                base_artifact_id=base_artifact_id,
-                expected_ref=base_ref,
+                base_artifact_id=cycle1.new_ref["artifact_id"],
+                expected_ref=cycle1.new_ref,
                 new_value=71,
+                old_value=80,
                 rationale="Different payload, same idempotency key.",
             ),
             headers=_headers(maker, idempotency_key="idem:dup"),
@@ -775,7 +835,13 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             json=_validation_body(
                 item2, base_artifact_id=head_artifact_id, expected_ref=head_ref, checker_graph=True
             ),
-            headers=_headers(maker2, idempotency_key="c2:validate"),
+            headers=_headers(
+                maker2,
+                idempotency_key="c2:validate",
+                resource_kind="patch",
+                resource_id=patch2,
+                revision=item2.workflow_revision,
+            ),
         )
         assert validate.status_code == 202, validate.text
         run_id2 = validate.json()["run_id"]
@@ -813,7 +879,13 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
                 "approval_id": approval_id2,
                 "expected_workflow_revision": validated2.workflow_revision,
             },
-            headers=_headers(maker3, idempotency_key="c2:submit"),
+            headers=_headers(
+                maker3,
+                idempotency_key="c2:submit",
+                resource_kind="patch",
+                resource_id=validated2.subject_artifact_id,
+                revision=validated2.workflow_revision,
+            ),
         )
         assert submit.status_code == 200, submit.text
         pending2 = harness.load_item(approval_id2)
@@ -828,7 +900,13 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
                 "expected_workflow_revision": pending2.workflow_revision,
                 "reason_code": "self_approval_attempt",
             },
-            headers=_headers(maker3, idempotency_key="c2:self-approve"),
+            headers=_headers(
+                maker3,
+                idempotency_key="c2:self-approve",
+                resource_kind="approval",
+                resource_id=approval_id2,
+                revision=pending2.workflow_revision,
+            ),
         )
         assert self_approve.status_code == 403, self_approve.text
 
@@ -842,7 +920,13 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
                 "expected_workflow_revision": pending2.workflow_revision + 99,
                 "reason_code": "independent_review_passed",
             },
-            headers=_headers(approver3, idempotency_key="c2:stale-approve"),
+            headers=_headers(
+                approver3,
+                idempotency_key="c2:stale-approve",
+                resource_kind="approval",
+                resource_id=approval_id2,
+                revision=pending2.workflow_revision,
+            ),
         )
         assert stale.status_code == 409, stale.text
 
@@ -856,7 +940,13 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
                 "expected_workflow_revision": pending2.workflow_revision,
                 "reason_code": "independent_review_passed",
             },
-            headers=_headers(approver3, idempotency_key="c2:approve"),
+            headers=_headers(
+                approver3,
+                idempotency_key="c2:approve",
+                resource_kind="approval",
+                resource_id=approval_id2,
+                revision=pending2.workflow_revision,
+            ),
         )
         assert approve.status_code == 200, approve.text
         approved2 = harness.load_item(approval_id2)
@@ -873,7 +963,13 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
                 "ref_name": REF_NAME,
                 "expected_ref": binding2.expected_ref.model_dump(mode="json"),
             },
-            headers=_headers(approver3, idempotency_key="c2:apply"),
+            headers=_headers(
+                approver3,
+                idempotency_key="c2:apply",
+                resource_kind="patch",
+                resource_id=approved2.subject_artifact_id,
+                revision=approved2.workflow_revision,
+            ),
         )
         assert apply.status_code == 200, apply.text
         assert apply.json()["ref_value"]["revision"] == 3
@@ -980,7 +1076,13 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
             json=_validation_body(
                 item, base_artifact_id=base_artifact_id, expected_ref=base_ref, checker_graph=True
             ),
-            headers=_headers(maker, idempotency_key="fail:validate"),
+            headers=_headers(
+                maker,
+                idempotency_key="fail:validate",
+                resource_kind="patch",
+                resource_id=patch_id,
+                revision=item.workflow_revision,
+            ),
         )
         assert validate.status_code == 202, validate.text
         run_id = validate.json()["run_id"]
@@ -1000,7 +1102,13 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
                 "approval_id": approval_id,
                 "expected_workflow_revision": failed.workflow_revision,
             },
-            headers=_headers(maker, idempotency_key="fail:submit"),
+            headers=_headers(
+                maker,
+                idempotency_key="fail:submit",
+                resource_kind="patch",
+                resource_id=patch_id,
+                revision=failed.workflow_revision,
+            ),
         )
         assert submit.status_code == 409, submit.text
 
@@ -1018,7 +1126,13 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
                 "ref_name": REF_NAME,
                 "expected_ref": base_ref,
             },
-            headers=_headers(approver, idempotency_key="fail:apply"),
+            headers=_headers(
+                approver,
+                idempotency_key="fail:apply",
+                resource_kind="patch",
+                resource_id=failed.subject_artifact_id,
+                revision=failed.workflow_revision,
+            ),
         )
         assert apply.status_code == 409, apply.text
 
@@ -1122,7 +1236,13 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
             json=_rollback_validation_body(
                 item, head_ref=head_ref, target_artifact_id=base_artifact_id, target_revision=1
             ),
-            headers=_headers(maker, idempotency_key="rb:validate"),
+            headers=_headers(
+                maker,
+                idempotency_key="rb:validate",
+                resource_kind="rollback_request",
+                resource_id=rollback_id,
+                revision=item.workflow_revision,
+            ),
         )
         assert validate.status_code == 202, validate.text
         run_id = validate.json()["run_id"]
@@ -1143,7 +1263,13 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
                 "approval_id": approval_id,
                 "expected_workflow_revision": validated.workflow_revision,
             },
-            headers=_headers(maker, idempotency_key="rb:submit"),
+            headers=_headers(
+                maker,
+                idempotency_key="rb:submit",
+                resource_kind="rollback_request",
+                resource_id=rollback_id,
+                revision=validated.workflow_revision,
+            ),
         )
         assert submit.status_code == 200, submit.text
         pending = harness.load_item(approval_id)
@@ -1156,7 +1282,13 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
                 "expected_workflow_revision": pending.workflow_revision,
                 "reason_code": "independent_review_passed",
             },
-            headers=_headers(approver, idempotency_key="rb:approve"),
+            headers=_headers(
+                approver,
+                idempotency_key="rb:approve",
+                resource_kind="approval",
+                resource_id=approval_id,
+                revision=pending.workflow_revision,
+            ),
         )
         assert approve.status_code == 200, approve.text
         approved = harness.load_item(approval_id)
@@ -1173,7 +1305,13 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
                 "ref_name": REF_NAME,
                 "expected_ref": binding.expected_ref.model_dump(mode="json"),
             },
-            headers=_headers(approver, idempotency_key="rb:apply"),
+            headers=_headers(
+                approver,
+                idempotency_key="rb:apply",
+                resource_kind="rollback_request",
+                resource_id=approved.subject_artifact_id,
+                revision=approved.workflow_revision,
+            ),
         )
         assert apply.status_code == 200, apply.text
         result = apply.json()
@@ -1242,32 +1380,40 @@ def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
         )
         assert harness.current_ref()["revision"] == 3
 
-        # Validating the now-stale rollback fails the history dimension (current rev 3 ≠
-        # the bound expected rev 2) → validation_failed.
+        # Exact admission re-reads the bound ref and rejects the now-stale rollback before
+        # creating a Run (current rev 3 != the retained expected rev 2).
         validate = maker.client.post(
             f"/api/v1/rollback-requests/{rollback_id}:validate",
             json=_rollback_validation_body(
                 item, head_ref=head_ref, target_artifact_id=base_artifact_id, target_revision=1
             ),
-            headers=_headers(maker, idempotency_key="rbf:validate"),
+            headers=_headers(
+                maker,
+                idempotency_key="rbf:validate",
+                resource_kind="rollback_request",
+                resource_id=rollback_id,
+                revision=item.workflow_revision,
+            ),
         )
-        assert validate.status_code == 202, validate.text
-        run_id = validate.json()["run_id"]
-        terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
-        assert terminal is not None and terminal.status == "succeeded", (
-            f"rollback validation terminated as {None if terminal is None else terminal.status!r}"
-        )
-        failed = harness.load_item(approval_id)
-        assert failed.status == "validation_failed", failed.status
+        assert validate.status_code == 409, validate.text
+        rejected = harness.load_item(approval_id)
+        assert rejected.status == "draft"
+        assert rejected.active_validation_run_id is None
 
         submit = maker.client.post(
             f"/api/v1/rollback-requests/{rollback_id}:submit-for-approval",
             json={
                 "request_schema_version": "submit-for-approval-request@1",
                 "approval_id": approval_id,
-                "expected_workflow_revision": failed.workflow_revision,
+                "expected_workflow_revision": rejected.workflow_revision,
             },
-            headers=_headers(maker, idempotency_key="rbf:submit"),
+            headers=_headers(
+                maker,
+                idempotency_key="rbf:submit",
+                resource_kind="rollback_request",
+                resource_id=rollback_id,
+                revision=rejected.workflow_revision,
+            ),
         )
         assert submit.status_code == 409, submit.text
         assert harness.current_ref()["revision"] == 3

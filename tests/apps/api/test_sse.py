@@ -40,8 +40,12 @@ from gameforge.apps.api.streaming import (
     render_run_event_stream,
 )
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
-from gameforge.contracts.api import encode_sse_event
+from gameforge.contracts.api import compute_resource_etag, encode_sse_event
+from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.cost import BudgetV1, CostAmountV1
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
@@ -62,8 +66,9 @@ from gameforge.contracts.jobs import (
     RunEvent,
     RunTerminatedDataV1,
 )
-from gameforge.contracts.lineage import AuditActor
+from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
 from gameforge.contracts.storage import RefValue
+from gameforge.contracts.workflow import ApprovalItem, PatchTargetBindingV1, SubjectHead
 from gameforge.platform.provenance import (
     AuthenticatedGoalSourceWriter,
     GoalProvenancePolicy,
@@ -115,6 +120,24 @@ _TOOLING_GRANTS: tuple[tuple[str, str], ...] = (
     ("validate", "patch"),
     ("read", "run"),
 )
+
+
+def _shared_budget(*, budget_id: str, scope_kind: str, scope_id: str) -> BudgetV1:
+    return BudgetV1(
+        budget_id=budget_id,
+        scope_kind=scope_kind,  # type: ignore[arg-type]
+        scope_id=scope_id,
+        policy_version="sse-shared-budget@1",
+        limits=(
+            CostAmountV1(dimension="request", value=10_000_000, unit="request"),
+            CostAmountV1(dimension="concurrent_run", value=16, unit="count"),
+        ),
+        reserved=(),
+        consumed=(),
+        status="active",
+        revision=1,
+        created_at=NOW_DT,
+    )
 
 
 def _domain_registry() -> DomainRegistryV1:
@@ -195,6 +218,69 @@ class _FixedApprovals:
     def get(self, approval_id: str) -> Any:
         return self._item if approval_id == self._item.approval_id else None
 
+    def get_subject_head(self, subject_series_id: str) -> SubjectHead | None:
+        if subject_series_id != self._item.subject_series_id:
+            return None
+        return SubjectHead(
+            subject_series_id=self._item.subject_series_id,
+            current_subject_artifact_id=self._item.subject_artifact_id,
+            current_approval_id=self._item.approval_id,
+            revision=self._item.subject_revision,
+        )
+
+    def compare_and_set(
+        self,
+        approval_id: str,
+        expected_revision: int,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        if (
+            approval_id != self._item.approval_id
+            or expected_revision != self._item.workflow_revision
+        ):
+            raise IntegrityViolation("test approval CAS is stale")
+        self._item = replacement
+        return replacement
+
+
+class _TestValidationStartWriter:
+    def start(
+        self,
+        transaction: Any,
+        *,
+        item: ApprovalItem,
+        run_id: str,
+        actor: ActorContext,
+        request_id: str | None,
+        trace_id: str | None,
+    ) -> None:
+        del actor, request_id, trace_id
+        current = transaction.approvals.get(item.approval_id)
+        if (
+            current is not None
+            and current.status == "validating"
+            and current.active_validation_run_id == run_id
+        ):
+            return
+        if (
+            current is None
+            or current.status != "draft"
+            or current.workflow_revision != item.workflow_revision
+        ):
+            raise IntegrityViolation("test validation start requires the exact draft")
+        replacement = current.model_copy(
+            update={
+                "status": "validating",
+                "workflow_revision": current.workflow_revision + 1,
+                "active_validation_run_id": run_id,
+            }
+        )
+        transaction.approvals.compare_and_set(
+            current.approval_id,
+            current.workflow_revision,
+            replacement,
+        )
+
 
 class _Stub:
     """Placeholder for the non-validate workflow collaborators (never invoked)."""
@@ -226,6 +312,21 @@ class AppHarness:
             policies.put_execution_profile_catalog(self.catalog)
             policies.put_domain_registry(self.domain_registry)
             policies.put_role_policy(self.role_policy)
+            costs = SqlCostLedger(session, clock=self.clock)
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:principal:human:maker",
+                    scope_kind="principal",
+                    scope_id="human:maker",
+                )
+            )
+            costs.put_budget(
+                _shared_budget(
+                    budget_id="budget:system:global",
+                    scope_kind="system",
+                    scope_id="global",
+                )
+            )
         self.uow = SqliteUnitOfWork(self.engine, self._capability_factory)
         self.approvals: _FixedApprovals | None = None
         run_commands = RunCommandService(
@@ -249,8 +350,10 @@ class AppHarness:
             source_uow_capabilities=lambda tx: _SourceWriteCapabilities(
                 artifacts=tx.artifacts, object_bindings=tx.object_bindings
             ),
+            current_principal_resolver=lambda _tx, actor: actor.principal,
             role_policy_version=ROLE_POLICY_VERSION,
             role_policy_digest=self.role_policy.policy_digest,
+            validation_start_writer=_TestValidationStartWriter(),
         )
         self.notifier = RunEventNotifier()
         self.stream = RunEventStreamService(
@@ -298,7 +401,7 @@ class AppHarness:
         return TransactionCapabilities(
             refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=self.clock),
             audit=SqlAuditSink(session),
-            approvals=None,
+            approvals=self.approvals,
             lineage=None,
             object_bindings=bindings,
             runs=SqlRunRepository(session),
@@ -328,6 +431,9 @@ class AppHarness:
                     clock=self.clock,
                 ),
                 refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=self.clock),
+                object_bindings=bindings,
+                runs=SqlRunRepository(session),
+                routing=SqlCostLedger(session, clock=self.clock),
             )
 
     @contextmanager
@@ -344,26 +450,16 @@ class AppHarness:
 
     # ── run + event seeding ──────────────────────────────────────────────
     def admit_checker_run(self, tag: str = "snap") -> str:
-        stored = self.objects.put_verified(f"ir_snapshot:{tag}".encode("utf-8"))
-        from gameforge.contracts.lineage import VersionTuple, build_artifact_v2
-
-        artifact = build_artifact_v2(
+        artifact = self.seed_payload_artifact(
             kind="ir_snapshot",
-            version_tuple=VersionTuple(ir_snapshot_id=stored.ref.sha256, tool_version=f"{tag}@1"),
+            payload={"snapshot_id": f"snapshot:{tag}", "entities": [], "relations": []},
+            version_tuple=VersionTuple(
+                ir_snapshot_id=f"snapshot:{tag}",
+                tool_version=f"{tag}@1",
+            ),
             lineage=(),
-            payload_hash=stored.ref.sha256,
-            object_ref=stored.ref,
-            created_at=NOW,
+            payload_schema_id="ir-core@1",
         )
-        with Session(self.engine) as session, session.begin():
-            bindings = SqlObjectBindingRepository(session, self.objects, "local")
-            bindings.bind_verified(stored.ref, stored.location, None)
-            SqlArtifactRepository(
-                session,
-                binding_repository=bindings,
-                cursor_signer=CursorSigner(signing_key=CURSOR_KEY, clock=self.clock),
-                clock=self.clock,
-            ).put(artifact)
         body = {
             "request_schema_version": "run-submission-request@1",
             "params": {
@@ -387,16 +483,27 @@ class AppHarness:
         assert response.status_code == 202, response.text
         return response.json()["run_id"]
 
-    def seed_artifact(self, *, kind: str, tag: str) -> Any:
-        from gameforge.contracts.lineage import VersionTuple, build_artifact_v2
-
-        stored = self.objects.put_verified(f"{kind}:{tag}".encode("utf-8"))
+    def seed_payload_artifact(
+        self,
+        *,
+        kind: str,
+        payload: dict[str, Any],
+        version_tuple: VersionTuple,
+        lineage: tuple[str, ...],
+        payload_schema_id: str,
+    ) -> Any:
+        blob = canonical_json(payload).encode("utf-8")
+        stored = self.objects.put_verified(blob)
         artifact = build_artifact_v2(
             kind=kind,  # type: ignore[arg-type]
-            version_tuple=VersionTuple(ir_snapshot_id=stored.ref.sha256, tool_version=f"{tag}@1"),
-            lineage=(),
+            version_tuple=version_tuple,
+            lineage=lineage,
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
+            meta={
+                "payload_schema_id": payload_schema_id,
+                "domain_scope": DomainScope(domain_ids=("builtin",)).model_dump(mode="json"),
+            },
             created_at=NOW,
         )
         with Session(self.engine) as session, session.begin():
@@ -411,19 +518,118 @@ class AppHarness:
         return artifact
 
     def admit_patch_validate_run(self, tag: str = "pv") -> str:
-        """Admit a real patch.validate Run whose subject domain is ``narrative``.
+        """Admit a real patch.validate Run whose subject domain is ``builtin``.
 
-        The subject ApprovalItem (domain_scope=narrative) is served to BOTH the
+        The subject ApprovalItem (domain_scope=builtin) is served to BOTH the
         admission read port and the stream's domain reader via ``self.approvals``.
         """
 
-        subject = self.seed_artifact(kind="patch", tag=f"{tag}-subject")
-        base = self.seed_artifact(kind="ir_snapshot", tag=f"{tag}-base")
-        preview = self.seed_artifact(kind="ir_snapshot", tag=f"{tag}-preview")
-        item = validation_testkit.approval_item(
-            subject=subject, target=base, kind="patch", approval_id=f"approval:{tag}"
+        base = self.seed_payload_artifact(
+            kind="ir_snapshot",
+            payload={
+                "snapshot_id": f"snapshot:{tag}:base",
+                "entities": [],
+                "relations": [],
+            },
+            version_tuple=VersionTuple(
+                ir_snapshot_id=f"snapshot:{tag}:base",
+                tool_version="ir@1",
+            ),
+            lineage=(),
+            payload_schema_id="ir-core@1",
+        )
+        patch = PatchV2(
+            revision=1,
+            base_snapshot_id=base.version_tuple.ir_snapshot_id,
+            target_snapshot_id=f"snapshot:{tag}:preview",
+            expected_to_fix=[],
+            preconditions=[],
+            side_effect_risk="low",
+            ops=[],
+            produced_by="human",
+            producer_run_id=None,
+            rationale="SSE validation fixture",
+        )
+        subject = self.seed_payload_artifact(
+            kind="patch",
+            payload=patch.model_dump(mode="json"),
+            version_tuple=VersionTuple(
+                ir_snapshot_id=base.version_tuple.ir_snapshot_id,
+                tool_version="patch@2",
+            ),
+            lineage=(base.artifact_id,),
+            payload_schema_id="patch@2",
+        )
+        preview = self.seed_payload_artifact(
+            kind="ir_snapshot",
+            payload={
+                "snapshot_id": patch.target_snapshot_id,
+                "entities": [],
+                "relations": [],
+            },
+            version_tuple=VersionTuple(
+                ir_snapshot_id=patch.target_snapshot_id,
+                tool_version="patch@2",
+            ),
+            lineage=(base.artifact_id, subject.artifact_id),
+            payload_schema_id="ir-core@1",
+        )
+        initial = validation_testkit.approval_item(
+            subject=subject,
+            target=preview,
+            kind="patch",
+            approval_id=f"approval:{tag}",
+        )
+        expected_ref = RefValue(artifact_id=base.artifact_id, revision=1)
+        binding = PatchTargetBindingV1(
+            target_artifact_id=preview.artifact_id,
+            target_snapshot_id=preview.version_tuple.ir_snapshot_id,
+            target_digest=preview.payload_hash,
+            ref_name="content/head",
+            expected_ref=expected_ref,
+        )
+        item = ApprovalItem.model_validate(
+            {
+                **initial.model_dump(mode="json"),
+                "target_binding": binding.model_dump(mode="json"),
+            }
+        )
+        registry_ref = DomainRegistryRefV1(
+            registry_version=self.domain_registry.registry_version,
+            registry_digest=self.domain_registry.registry_digest,
+        )
+        scope = DomainScope(domain_ids=("builtin",))
+        item = item.model_copy(
+            update={
+                "status": "draft",
+                "active_validation_run_id": None,
+                "domain_scope": scope,
+                "domain_registry_ref": registry_ref,
+                "route_policy": item.route_policy.model_copy(
+                    update={"domain_registry_ref": registry_ref}
+                ),
+                "role_policy_version": self.role_policy.policy_version,
+                "role_policy_digest": self.role_policy.policy_digest,
+                "requirements": tuple(
+                    requirement.model_copy(
+                        update={
+                            "domain_scope": scope,
+                            "required_permission": requirement.required_permission.model_copy(
+                                update={"domain_scope": scope}
+                            ),
+                        }
+                    )
+                    for requirement in item.requirements
+                ),
+            }
         )
         self.approvals = _FixedApprovals(item)
+        with Session(self.engine) as session, session.begin():
+            SqlRefStore(
+                session,
+                cursor_signer=CursorSigner(signing_key=CURSOR_KEY, clock=self.clock),
+                clock=self.clock,
+            ).compare_and_set("content/head", None, base.artifact_id)
         body = {
             "request_schema_version": "patch-validation-admission-request@1",
             "approval_id": item.approval_id,
@@ -435,9 +641,7 @@ class AppHarness:
             "candidate_config_export_artifact_ids": [],
             "target": {
                 "ref_name": "content/head",
-                "expected_ref": RefValue(artifact_id=base.artifact_id, revision=1).model_dump(
-                    mode="json"
-                ),
+                "expected_ref": expected_ref.model_dump(mode="json"),
             },
             "validation_policy": VALIDATION_PROFILE.model_dump(mode="json"),
             "checker_profiles": [],
@@ -451,7 +655,14 @@ class AppHarness:
             response = client.post(
                 f"/api/v1/patches/{subject.artifact_id}:validate",
                 json=body,
-                headers={"Idempotency-Key": f"patch-validate:{tag}", "If-Match": '"etag:1"'},
+                headers={
+                    "Idempotency-Key": f"patch-validate:{tag}",
+                    "If-Match": compute_resource_etag(
+                        resource_kind="patch",
+                        resource_id=subject.artifact_id,
+                        revision=item.workflow_revision,
+                    ),
+                },
             )
         assert response.status_code == 202, response.text
         return response.json()["run_id"]
@@ -684,12 +895,12 @@ def test_validation_run_events_readable_by_subject_domain_scoped_principal(
     tmp_path: Path,
 ) -> None:
     # A patch.validate run's read domain is its loaded subject's ApprovalItem domain
-    # (here "narrative"), NOT all-active. A principal scoped only to "narrative" must
+    # (here "builtin"), NOT all-active. A principal scoped only to "builtin" must
     # be able to read its OWN validation run's events (200, not a wrong 403).
     harness = AppHarness(tmp_path)
     run_id = harness.admit_patch_validate_run()
     harness.seed_event(run_id, terminal=True)
-    harness.set_actor(_actor(scope=DomainScope(domain_ids=("narrative",))))
+    harness.set_actor(_actor(scope=DomainScope(domain_ids=("builtin",))))
     with TestClient(harness.app) as client:
         response = client.get(f"/api/v1/runs/{run_id}/events")
     assert response.status_code == 200, response.text
@@ -698,12 +909,12 @@ def test_validation_run_events_readable_by_subject_domain_scoped_principal(
 
 def test_all_active_run_forbidden_for_subject_domain_scoped_principal(tmp_path: Path) -> None:
     # Contrast: a checker run resolves fail-closed to authority over ALL active
-    # domains, so a "narrative"-only principal is correctly forbidden — proving the
+    # domains, so a "builtin"-only principal is correctly forbidden — proving the
     # validation 200 above comes from the narrower, admission-aligned domain.
     harness = AppHarness(tmp_path)
     run_id = harness.admit_checker_run()
     harness.seed_event(run_id, terminal=True)
-    harness.set_actor(_actor(scope=DomainScope(domain_ids=("narrative",))))
+    harness.set_actor(_actor(scope=DomainScope(domain_ids=("builtin",))))
     with TestClient(harness.app) as client:
         response = client.get(f"/api/v1/runs/{run_id}/events")
     assert response.status_code == 403, response.text

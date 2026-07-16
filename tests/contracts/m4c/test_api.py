@@ -12,6 +12,7 @@ from gameforge.contracts.api import (
     ApiKeyRecordV1,
     ApiKeySecret,
     AuthenticationResultV1,
+    GenerationProposeRequestV1,
     IdentityAuthenticator,
     LoginNameNormalizationPolicyV1,
     OidcCallbackV1,
@@ -20,7 +21,9 @@ from gameforge.contracts.api import (
     PasswordAuthRequestV1,
     PasswordCredentialRecordV1,
     PasswordHashPolicyV1,
+    PatchValidationAdmissionRequestV1,
     RunAcceptedV1,
+    RunSubmissionRequestV1,
     RunViewV1,
     SecretText,
     SessionIssueV1,
@@ -31,9 +34,17 @@ from gameforge.contracts.api import (
     compute_login_name_normalization_policy_digest,
     encode_sse_event,
 )
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import DomainScope
-from gameforge.contracts.jobs import Problem, RunEvent, RunEventEnvelope, RunQueuedDataV1
-from gameforge.contracts.execution_profiles import RunKindRef
+from gameforge.contracts.jobs import (
+    FindingEvidenceBindingV1,
+    Problem,
+    RefReadBindingV1,
+    RunEvent,
+    RunEventEnvelope,
+    RunQueuedDataV1,
+)
+from gameforge.contracts.storage import RefValue
 
 
 def _normalization_policy() -> LoginNameNormalizationPolicyV1:
@@ -435,3 +446,117 @@ def test_sse_wire_is_canonical_and_contains_no_worker_lease_data() -> None:
     assert '"run_id":"run-1"' in wire
     assert "lease_id" not in wire
     assert "fencing_token" not in wire
+
+
+def _finding_binding(finding_id: str, *, revision: int) -> FindingEvidenceBindingV1:
+    return FindingEvidenceBindingV1(
+        finding_id=finding_id,
+        finding_revision=revision,
+        evidence_artifact_id=f"artifact:evidence:{finding_id}:{revision}",
+        finding_digest=f"{revision:064x}",
+    )
+
+
+def test_generic_run_submission_contract_exposes_exactly_the_four_public_kinds() -> None:
+    params_schema = RunSubmissionRequestV1.model_json_schema()["properties"]["params"]
+
+    assert set(params_schema["discriminator"]["mapping"]) == {
+        "review-run@1",
+        "checker-run@1",
+        "simulation-run@1",
+        "bench-run@1",
+    }
+    with pytest.raises(ValidationError, match="union_tag_invalid"):
+        RunSubmissionRequestV1.model_validate(
+            {
+                "params": {
+                    "schema_version": "artifact-migration@1",
+                    "source_artifact_id": "artifact:source",
+                    "target_payload_schema_id": "payload@2",
+                    "target_meta_schema_version": "meta@1",
+                    "target_dsl_grammar_version": None,
+                    "migrator": {"profile_id": "migration", "version": 1},
+                    "publish_mode": "report_only",
+                }
+            }
+        )
+
+
+def test_generation_request_canonicalizes_findings_and_rejects_duplicate_series() -> None:
+    request = GenerationProposeRequestV1(
+        base_snapshot_artifact_id="artifact:base",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        findings=(
+            _finding_binding("finding:z", revision=1),
+            _finding_binding("finding:a", revision=2),
+        ),
+        objective_goal_text="Generate a bounded candidate.",
+        domain_scope=DomainScope(domain_ids=("economy",)),
+        target=RefReadBindingV1(
+            ref_name="content/head",
+            expected_ref=RefValue(artifact_id="artifact:base", revision=1),
+        ),
+        generation_policy=ProfileRefV1(profile_id="generation", version=1),
+        candidate_export_profiles=(),
+    )
+
+    assert [item.finding_id for item in request.findings] == ["finding:a", "finding:z"]
+    with pytest.raises(ValidationError, match="each finding series"):
+        GenerationProposeRequestV1(
+            **{
+                **request.model_dump(mode="python"),
+                "findings": (
+                    _finding_binding("finding:a", revision=1),
+                    _finding_binding("finding:a", revision=2),
+                ),
+            }
+        )
+
+
+def test_generation_candidate_exports_require_exact_constraint_input() -> None:
+    with pytest.raises(ValidationError, match="require a constraint snapshot"):
+        GenerationProposeRequestV1(
+            base_snapshot_artifact_id="artifact:base",
+            constraint_snapshot_artifact_id=None,
+            findings=(),
+            objective_goal_text="Generate a bounded candidate.",
+            domain_scope=DomainScope(domain_ids=("economy",)),
+            target=RefReadBindingV1(ref_name="content/head", expected_ref=None),
+            generation_policy=ProfileRefV1(profile_id="generation", version=1),
+            candidate_export_profiles=(ProfileRefV1(profile_id="config-export", version=1),),
+        )
+
+
+def test_patch_validation_request_canonicalizes_and_deduplicates_finding_series() -> None:
+    request = PatchValidationAdmissionRequestV1(
+        approval_id="approval:patch:1",
+        expected_subject_head_revision=1,
+        expected_workflow_revision=2,
+        subject_digest="a" * 64,
+        base_snapshot_artifact_id="artifact:base",
+        preview_snapshot_artifact_id="artifact:preview",
+        candidate_config_export_artifact_ids=(),
+        target=RefReadBindingV1(ref_name="content/head", expected_ref=None),
+        validation_policy=ProfileRefV1(profile_id="validation", version=1),
+        checker_profiles=(),
+        simulation_profiles=(),
+        findings=(
+            _finding_binding("finding:z", revision=1),
+            _finding_binding("finding:a", revision=2),
+        ),
+        review_artifact_ids=(),
+        playtest_trace_artifact_ids=(),
+        regression_suite_artifact_ids=(),
+    )
+
+    assert [item.finding_id for item in request.findings] == ["finding:a", "finding:z"]
+    with pytest.raises(ValidationError, match="each finding series"):
+        PatchValidationAdmissionRequestV1(
+            **{
+                **request.model_dump(mode="python"),
+                "findings": (
+                    _finding_binding("finding:a", revision=1),
+                    _finding_binding("finding:a", revision=2),
+                ),
+            }
+        )

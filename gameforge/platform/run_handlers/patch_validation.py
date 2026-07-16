@@ -173,7 +173,7 @@ class PatchValidationHandler:
 
         preview = self.snapshot_loader(self.blobs, payload.preview_snapshot_artifact_id)
         nav = self.nav_loader(self.blobs, payload.preview_snapshot_artifact_id)
-        seed = int(context.payload.seed) if context.payload.seed is not None else 0
+        seed = context.payload.seed
         self._reverify_supporting(payload)
 
         lineage = self._artifact_lineage(payload)
@@ -249,7 +249,7 @@ class PatchValidationHandler:
         preview: Snapshot,
         nav: NavProvider | None,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[_DimensionArtifact, ...]:
         dims: list[_DimensionArtifact] = []
         for profile in payload.checker_profiles:
@@ -275,7 +275,7 @@ class PatchValidationHandler:
         payload: PatchValidationPayloadV1,
         preview: Snapshot,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[_DimensionArtifact, ...]:
         if not payload.simulation_profiles:
             return ()
@@ -307,7 +307,7 @@ class PatchValidationHandler:
         payload: PatchValidationPayloadV1,
         preview: Snapshot,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> tuple[_DimensionArtifact, ...]:
         dims: list[_DimensionArtifact] = []
         for suite_id in payload.regression_suite_artifact_ids:
@@ -316,7 +316,7 @@ class PatchValidationHandler:
                 RegressionRunRequest(
                     suite_artifact_id=suite_id,
                     snapshot_id=preview.snapshot_id,
-                    seed=seed,
+                    seed=0 if seed is None else seed,
                 )
             )
             status = "unproven" if outcome.status == "not_executed" else outcome.status
@@ -364,7 +364,7 @@ class PatchValidationHandler:
         payload: PatchValidationPayloadV1,
         preview: Snapshot,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
         *,
         kind: str,
         tool_version: str,
@@ -420,7 +420,7 @@ class PatchValidationHandler:
         companion_ids: tuple[str, ...],
         lineage: tuple[str, ...],
         overall: str,
-        seed: int,
+        seed: int | None,
     ) -> PreparedArtifact:
         supporting = (
             *companion_ids,
@@ -486,7 +486,7 @@ class PatchValidationHandler:
         preview: Snapshot,
         proof: AutoApplyProofV1,
         lineage: tuple[str, ...],
-        seed: int,
+        seed: int | None,
     ) -> PreparedArtifact:
         return store_prepared_artifact(
             self.store,

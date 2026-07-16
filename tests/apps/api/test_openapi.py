@@ -31,10 +31,7 @@ _FORBIDDEN_FIELD_SUBSTRINGS = (
     "RunCommandRecordV1",
 )
 
-# Every §5.3 operation, FROZEN TO THE CODE's real paths (see the report for the two
-# spec-prose path discrepancies flagged for the product owner):
-#   code /generations:propose   vs prose /generation:propose
-#   code /constraints:propose   vs prose /constraint-proposals:propose
+# Every §5.3 operation on its frozen path.
 _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("post", "/api/v1/auth/login", "204"),
     ("post", "/api/v1/auth/logout", "204"),
@@ -49,12 +46,12 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("get", "/api/v1/constraint-proposals", "200"),
     ("post", "/api/v1/constraint-proposals", "201"),
     ("get", "/api/v1/constraint-proposals/{artifact_id}", "200"),
-    ("post", "/api/v1/constraints:propose", "202"),
+    ("post", "/api/v1/constraint-proposals:propose", "202"),
     ("post", "/api/v1/constraint-proposals/{artifact_id}:revise", "201"),
     ("post", "/api/v1/constraint-proposals/{artifact_id}:validate", "202"),
     ("post", "/api/v1/constraint-proposals/{artifact_id}:submit-for-approval", "200"),
     ("post", "/api/v1/constraint-proposals/{artifact_id}:publish", "200"),
-    ("post", "/api/v1/generations:propose", "202"),
+    ("post", "/api/v1/generation:propose", "202"),
     ("get", "/api/v1/reviews", "200"),
     ("get", "/api/v1/reviews/{artifact_id}", "200"),
     ("get", "/api/v1/findings", "200"),
@@ -136,6 +133,12 @@ def test_every_5_3_operation_is_present() -> None:
         assert method in paths[path], f"missing {method.upper()} {path}"
         responses = paths[path][method]["responses"]
         assert success in responses, f"{method.upper()} {path} missing success status {success}"
+
+
+def test_proposal_endpoints_do_not_retain_drifted_aliases() -> None:
+    paths = _openapi()["paths"]
+    assert "/api/v1/generations:propose" not in paths
+    assert "/api/v1/constraints:propose" not in paths
 
 
 def test_security_schemes_and_per_operation_security() -> None:

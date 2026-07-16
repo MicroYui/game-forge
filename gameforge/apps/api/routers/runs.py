@@ -32,6 +32,7 @@ from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import DependencyUnavailable, RequestSchemaInvalid
 from gameforge.contracts.identity import ActorContext
 from gameforge.platform.runs.admission import AdmissionRequestContext
+from gameforge.runtime.observability.context import TraceCarrier, current_trace_context
 
 _IDEMPOTENCY_HEADER = "Idempotency-Key"
 
@@ -82,10 +83,15 @@ def _admission_context(
             "payload": payload.model_dump(mode="json", by_alias=True),  # type: ignore[attr-defined]
         }
     )
+    trace_context = current_trace_context()
     return AdmissionRequestContext(
         idempotency_key=idempotency_key,
         request_hash=request_hash,
+        request_id=getattr(request.state, "request_id", None),
         trace_id=getattr(request.state, "trace_id", None),
+        dispatch_trace_carrier=(
+            None if trace_context is None else TraceCarrier.inject(trace_context)
+        ),
     )
 
 
@@ -132,7 +138,7 @@ def run_admission_router() -> APIRouter:
         return accepted
 
     @router.post(
-        "/generations:propose",
+        "/generation:propose",
         response_model=RunAcceptedV1,
         status_code=status.HTTP_202_ACCEPTED,
     )
@@ -162,7 +168,7 @@ def run_admission_router() -> APIRouter:
         return accepted
 
     @router.post(
-        "/constraints:propose",
+        "/constraint-proposals:propose",
         response_model=RunAcceptedV1,
         status_code=status.HTTP_202_ACCEPTED,
     )

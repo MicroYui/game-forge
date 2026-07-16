@@ -30,6 +30,7 @@ class WorkflowCommandAdapter:
             request_hash=metadata.request_hash,
             if_match=metadata.if_match,
             resource_id=command.resource_id,
+            dispatch_trace_carrier=metadata.dispatch_trace_carrier,
         )
         outcome = self._service.execute(
             operation=command.operation,

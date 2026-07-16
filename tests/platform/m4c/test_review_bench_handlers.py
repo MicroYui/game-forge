@@ -396,9 +396,11 @@ def test_bench_aggregate_consumes_case_results_and_binds_lineage() -> None:
     primary = outcome.artifacts[outcome.primary_index]
     assert primary.kind == "bench_report"
     assert primary.lineage == ("artifact:dataset", "artifact:spec", "case:1", "case:2")
+    assert primary.version_tuple.seed is None
     assert outcome.findings == ()
     assert evaluator.agent_calls == 0  # aggregation never evaluates cases
     assert len(composer.aggregate_calls) == 1
+    assert composer.aggregate_calls[0][1] == 0
     consumed_ids = [cid for cid, _ in composer.aggregate_calls[0][0]]
     assert consumed_ids == ["case:1", "case:2"]
 

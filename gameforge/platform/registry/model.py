@@ -420,7 +420,7 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
         (
             "task_suite.derive",
             1,
-        ): "ce3d34826c7389da88d27e105254fcf2af319615d254c9b0bb65cd835e1d1b49",
+        ): "e92ab82897e282c09f1e5fbe7b9b5881dcf34fda7ab176e8ee9d9d7470bb6058",
     }
 )
 if set(FROZEN_PROFILE_REQUIREMENT_SHAPES) != set(FROZEN_RUN_KIND_SHAPES):

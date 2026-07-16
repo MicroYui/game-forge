@@ -13,6 +13,11 @@ from gameforge.contracts.identity import (
     Principal,
 )
 from gameforge.contracts.provenance import ProvenanceV1
+from gameforge.platform.lineage.validation import (
+    ProducerValidationContext,
+    validate_artifact_producer,
+)
+from gameforge.platform.publication import TerminalPublisher
 from gameforge.platform.provenance import (
     AUTHENTICATED_HUMAN_GOAL,
     TRUSTED_SERVICE_GOAL,
@@ -112,11 +117,52 @@ def test_writer_mints_immutable_source_raw_with_provenance(tmp_path: Path) -> No
     assert minted.artifact.kind == "source_raw"
     assert minted.artifact.lineage == ()
     assert minted.artifact.payload_hash == minted.stored.ref.sha256
+    assert minted.artifact.version_tuple.doc_version == minted.stored.ref.sha256
+    assert minted.artifact.version_tuple.tool_version is None
+    assert minted.artifact.meta["payload_schema_id"] == "source-raw@1"
     # Provenance folds into the content-addressed artifact id (immutable/hash-bound).
     reparsed = ProvenanceV1.model_validate(minted.artifact.meta["provenance"])
     assert reparsed == minted.provenance
+    assert (
+        validate_artifact_producer(
+            minted.artifact,
+            ProducerValidationContext(),
+        ).status
+        == "valid"
+    )
     # The naked text is not present in the artifact record (only its hash/ref).
     assert "Reduce boss gold" not in minted.artifact.model_dump_json()
+
+
+def test_authenticated_source_is_resolvable_as_a_terminal_lineage_parent(
+    tmp_path: Path,
+) -> None:
+    writer = AuthenticatedGoalSourceWriter(
+        policy=GoalProvenancePolicy(registry=build_source_kind_registry())
+    )
+    minted = writer.mint(
+        object_store=_object_store(tmp_path),
+        actor=_actor("human"),
+        text="Keep the authored goal bound to its exact source revision.",
+        created_at=_NOW,
+    )
+
+    class _Artifacts:
+        def get(self, artifact_id: str):
+            return minted.artifact if artifact_id == minted.artifact.artifact_id else None
+
+    publisher = TerminalPublisher(
+        registry=object(),  # type: ignore[arg-type]
+        artifacts=_Artifacts(),  # type: ignore[arg-type]
+        blobs=object(),  # type: ignore[arg-type]
+        findings=object(),  # type: ignore[arg-type]
+        ledger=object(),  # type: ignore[arg-type]
+        audit=object(),  # type: ignore[arg-type]
+    )
+    parent = publisher._parent_info(minted.artifact.artifact_id)
+    assert parent.kind == "source_raw"
+    assert parent.payload_schema_id == "source-raw@1"
+    assert parent.version_tuple.doc_version == minted.stored.ref.sha256
 
 
 def test_writer_rejects_empty_goal_text(tmp_path: Path) -> None:

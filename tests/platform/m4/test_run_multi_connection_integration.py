@@ -54,7 +54,14 @@ class _SqlPublication:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    def record_run_created(self, *, run: RunRecord, event: RunEvent) -> None:
+    def record_run_created(
+        self,
+        *,
+        run: RunRecord,
+        event: RunEvent,
+        request_id: str | None = None,
+    ) -> None:
+        del request_id
         assert event.run_id == run.run_id
         assert event.event_type == "run.queued"
 

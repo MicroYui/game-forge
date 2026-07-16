@@ -22,7 +22,7 @@ from gameforge.contracts.cost import (
     TokenUsageObservationV1,
     UsageEntryV1,
 )
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import IntegrityViolation, QueryTooBroad
 from gameforge.contracts.model_router import ModelSnapshot
 from gameforge.contracts.routing import (
     ModelCatalogSnapshotV1,
@@ -321,6 +321,54 @@ def test_cost_repository_round_trips_authoritative_records(engine: Engine) -> No
         assert repository.get_model_catalog(1, catalog.catalog_digest) == catalog
         assert repository.get_routing_policy(1, policy.routing_policy_digest) == policy
         assert repository.get_routing_decision(decision.decision_id) == decision
+
+
+def test_budget_scope_identity_query_is_exact_stable_and_bounded(engine: Engine) -> None:
+    first = _budget().model_copy(
+        update={
+            "budget_id": "budget-principal-a",
+            "scope_kind": "principal",
+            "scope_id": "human:actor",
+        }
+    )
+    second = first.model_copy(update={"budget_id": "budget-principal-b"})
+    other = first.model_copy(
+        update={
+            "budget_id": "budget-principal-other",
+            "scope_id": "human:other",
+        }
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        for budget in (second, other, first):
+            transaction.cost.put_budget(budget)
+
+    with Session(engine) as session:
+        repository = SqlCostRepository(session)
+        assert repository.list_budgets_by_scope_identity(
+            scope_kind="principal",
+            scope_id="human:actor",
+            limit=2,
+        ) == (first, second)
+        assert (
+            repository.list_budgets_by_scope_identity(
+                scope_kind="principal",
+                scope_id="human:missing",
+                limit=1,
+            )
+            == ()
+        )
+        with pytest.raises(QueryTooBroad):
+            repository.list_budgets_by_scope_identity(
+                scope_kind="principal",
+                scope_id="human:actor",
+                limit=0,
+            )
+        with pytest.raises(QueryTooBroad):
+            repository.list_budgets_by_scope_identity(
+                scope_kind="principal",
+                scope_id="human:actor",
+                limit=1_001,
+            )
 
 
 def test_routing_decisions_do_not_conflate_repeated_logical_calls(engine: Engine) -> None:

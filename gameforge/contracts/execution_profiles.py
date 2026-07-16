@@ -144,6 +144,94 @@ class GenericProfileDetailsV1(_FrozenModel):
     details_kind: Literal["generic"] = "generic"
 
 
+class FixedResolvedPolicyRequirementConfigV1(_FrozenModel):
+    """One exact requirement declared by a versioned execution profile."""
+
+    source: Literal["fixed"] = "fixed"
+    outcome_rule_id: NonEmptyStr
+    requirement_id: NonEmptyStr
+    artifact_kind: ArtifactKind
+    payload_schema_id: NonEmptyStr
+    producer_profile_field_path: JsonPointer
+    ordinal: int = Field(ge=1)
+
+
+class ProfileCollectionResolvedPolicyRequirementConfigV1(_FrozenModel):
+    """Derive one requirement per exact ProfileRef in a Run payload collection."""
+
+    source: Literal["profile_collection"] = "profile_collection"
+    outcome_rule_id: NonEmptyStr
+    artifact_kind: ArtifactKind
+    payload_schema_id: NonEmptyStr
+    collection_field_path: JsonPointer
+
+
+class ArtifactCollectionResolvedPolicyRequirementConfigV1(_FrozenModel):
+    """Derive one requirement per exact Artifact id in a Run payload collection."""
+
+    source: Literal["artifact_collection"] = "artifact_collection"
+    outcome_rule_id: NonEmptyStr
+    artifact_kind: ArtifactKind
+    payload_schema_id: NonEmptyStr
+    collection_field_path: JsonPointer
+
+
+ResolvedPolicyRequirementConfigV1 = Annotated[
+    FixedResolvedPolicyRequirementConfigV1
+    | ProfileCollectionResolvedPolicyRequirementConfigV1
+    | ArtifactCollectionResolvedPolicyRequirementConfigV1,
+    Field(discriminator="source"),
+]
+
+
+class ResolvedPolicyProfileConfigV1(_FrozenModel):
+    """Versioned authority for terminal resolved-policy cardinality requirements."""
+
+    resolved_policy_id: NonEmptyStr
+    requirement_sources: tuple[ResolvedPolicyRequirementConfigV1, ...] = Field(min_length=1)
+
+    @field_validator("requirement_sources")
+    @classmethod
+    def _canonical_sources(
+        cls, value: tuple[ResolvedPolicyRequirementConfigV1, ...]
+    ) -> tuple[ResolvedPolicyRequirementConfigV1, ...]:
+        def identity(item: ResolvedPolicyRequirementConfigV1) -> tuple[str, str, str]:
+            if isinstance(item, FixedResolvedPolicyRequirementConfigV1):
+                return (item.outcome_rule_id, item.source, item.requirement_id)
+            return (item.outcome_rule_id, item.source, item.collection_field_path)
+
+        identities = [identity(item) for item in value]
+        if len(identities) != len(set(identities)):
+            raise ValueError("resolved-policy requirement sources must be unique")
+        return tuple(sorted(value, key=identity))
+
+
+class GenerationProfileConfigV1(_FrozenModel):
+    config_schema_version: Literal["generation-profile-config@1"] = "generation-profile-config@1"
+    resolved_policy: ResolvedPolicyProfileConfigV1
+
+
+class PatchRepairProfileConfigV1(_FrozenModel):
+    config_schema_version: Literal["patch_repair-profile-config@1"] = (
+        "patch_repair-profile-config@1"
+    )
+    resolved_policy: ResolvedPolicyProfileConfigV1
+
+
+class PlaytestPlannerProfileConfigV1(_FrozenModel):
+    """Versioned planner behavior that determines the executable Agent graph.
+
+    ``memory_mode`` is deliberately explicit: admission and the worker must never
+    infer whether the optional memory-compaction LLM node exists from an injected
+    process default.
+    """
+
+    config_schema_version: Literal["playtest_planner-profile-config@1"] = (
+        "playtest_planner-profile-config@1"
+    )
+    memory_mode: Literal["off", "llm_compaction"]
+
+
 class EnvironmentProfileDetailsV1(_FrozenModel):
     details_kind: Literal["environment"] = "environment"
     contract: EnvironmentContractDescriptorV1
@@ -278,6 +366,20 @@ class ExecutionProfileDefinitionV1(_FrozenModel):
         }.get(self.profile_kind, "generic")
         if self.details.details_kind != expected_details:
             raise ValueError("details variant does not match profile_kind")
+        config_models = {
+            "generation": ("generation-profile-config@1", GenerationProfileConfigV1),
+            "patch_repair": ("patch_repair-profile-config@1", PatchRepairProfileConfigV1),
+            "playtest_planner": (
+                "playtest_planner-profile-config@1",
+                PlaytestPlannerProfileConfigV1,
+            ),
+        }
+        config_contract = config_models.get(self.profile_kind)
+        if config_contract is not None:
+            expected_schema_id, model = config_contract
+            if self.config_schema_id != expected_schema_id:
+                raise ValueError("profile config schema does not match profile kind")
+            model.model_validate(self.config)
         return self
 
 

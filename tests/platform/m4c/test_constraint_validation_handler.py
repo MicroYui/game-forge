@@ -160,7 +160,7 @@ def _context(store: FakeArtifactStore, payload: ConstraintValidationPayloadV1):
                 kind="constraint_compiler",
             ),
         ),
-        seed=3,
+        seed=None,
     )
 
 
@@ -190,6 +190,9 @@ def test_mixed_candidate_validated_when_both_engines_positively_decide() -> None
     assert outcome.summary.outcome_code == "constraint_validated"
     primary = outcome.artifacts[outcome.primary_index]
     assert primary.payload_schema_id == "evidence-set@1"
+    # None means seed is not applicable for this all-deterministic profile closure;
+    # the handler must not fabricate the old seed=0 on primary/compile/candidate.
+    assert all(artifact.version_tuple.seed is None for artifact in outcome.artifacts)
 
     # exactly one candidate constraint_snapshot, re-loadable via load_constraints.
     candidates = [a for a in outcome.artifacts if a.kind == "constraint_snapshot"]

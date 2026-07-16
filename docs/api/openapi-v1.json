@@ -707,68 +707,6 @@
         "title": "ApprovalViewV1",
         "type": "object"
       },
-      "ArtifactMigrationPayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "migrator": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "publish_mode": {
-            "enum": [
-              "report_only",
-              "publish_migrated_artifact"
-            ],
-            "title": "Publish Mode",
-            "type": "string"
-          },
-          "schema_version": {
-            "const": "artifact-migration@1",
-            "default": "artifact-migration@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "source_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Source Artifact Id",
-            "type": "string"
-          },
-          "target_dsl_grammar_version": {
-            "anyOf": [
-              {
-                "maxLength": 4096,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Target Dsl Grammar Version"
-          },
-          "target_meta_schema_version": {
-            "maxLength": 4096,
-            "minLength": 1,
-            "title": "Target Meta Schema Version",
-            "type": "string"
-          },
-          "target_payload_schema_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Target Payload Schema Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "source_artifact_id",
-          "target_payload_schema_id",
-          "target_meta_schema_version",
-          "migrator",
-          "publish_mode"
-        ],
-        "title": "ArtifactMigrationPayloadV1",
-        "type": "object"
-      },
       "ArtifactPayloadViewV1": {
         "additionalProperties": false,
         "description": "Verified, schema-bound payload for an already authorized Artifact.",
@@ -1832,65 +1770,6 @@
         "title": "Constraint",
         "type": "object"
       },
-      "ConstraintProposalProposePayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "authoring_goal": {
-            "$ref": "#/components/schemas/PromptGoalBindingV1"
-          },
-          "base_constraint_snapshot_artifact_id": {
-            "anyOf": [
-              {
-                "maxLength": 512,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Constraint Snapshot Artifact Id"
-          },
-          "domain_scope": {
-            "$ref": "#/components/schemas/DomainScope"
-          },
-          "dsl_grammar_version": {
-            "maxLength": 4096,
-            "minLength": 1,
-            "title": "Dsl Grammar Version",
-            "type": "string"
-          },
-          "extraction_policy": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "schema_version": {
-            "const": "constraint-proposal-propose@1",
-            "default": "constraint-proposal-propose@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "source_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "minItems": 1,
-            "title": "Source Artifact Ids",
-            "type": "array"
-          }
-        },
-        "required": [
-          "source_artifact_ids",
-          "domain_scope",
-          "authoring_goal",
-          "dsl_grammar_version",
-          "extraction_policy"
-        ],
-        "title": "ConstraintProposalProposePayloadV1",
-        "type": "object"
-      },
       "ConstraintProposalReadViewV1": {
         "additionalProperties": false,
         "properties": {
@@ -2027,7 +1906,7 @@
       },
       "ConstraintProposeRequestV1": {
         "additionalProperties": false,
-        "description": "``POST /constraints:propose`` — fixes ``constraint_proposal.propose@1``.",
+        "description": "``POST /constraint-proposals:propose`` — fixes ``constraint_proposal.propose@1``.",
         "properties": {
           "authoring_goal_text": {
             "maxLength": 16384,
@@ -2327,6 +2206,19 @@
             "title": "Request Schema Version",
             "type": "string"
           },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 1.8446744073709552e+19,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
           "subject_digest": {
             "pattern": "^[0-9a-f]{64}$",
             "title": "Subject Digest",
@@ -2352,91 +2244,6 @@
           "validation_policy"
         ],
         "title": "ConstraintValidationAdmissionRequestV1",
-        "type": "object"
-      },
-      "ConstraintValidationPayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "base_constraint_snapshot_artifact_id": {
-            "anyOf": [
-              {
-                "maxLength": 512,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Constraint Snapshot Artifact Id"
-          },
-          "compiler_profile": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "differential_engines": {
-            "items": {
-              "$ref": "#/components/schemas/SolverEngineRefV1"
-            },
-            "maxItems": 1024,
-            "minItems": 2,
-            "title": "Differential Engines",
-            "type": "array"
-          },
-          "dsl_grammar_version": {
-            "maxLength": 4096,
-            "minLength": 1,
-            "title": "Dsl Grammar Version",
-            "type": "string"
-          },
-          "golden_suite_artifact_id": {
-            "anyOf": [
-              {
-                "maxLength": 512,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Golden Suite Artifact Id"
-          },
-          "regression_suite_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "title": "Regression Suite Artifact Ids",
-            "type": "array"
-          },
-          "schema_version": {
-            "const": "constraint-validation@1",
-            "default": "constraint-validation@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "subject": {
-            "$ref": "#/components/schemas/ValidationSubjectBindingV1"
-          },
-          "target": {
-            "$ref": "#/components/schemas/RefReadBindingV1"
-          },
-          "validation_policy": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          }
-        },
-        "required": [
-          "subject",
-          "target",
-          "dsl_grammar_version",
-          "compiler_profile",
-          "differential_engines",
-          "regression_suite_artifact_ids",
-          "validation_policy"
-        ],
-        "title": "ConstraintValidationPayloadV1",
         "type": "object"
       },
       "CostAmountV1": {
@@ -2937,52 +2744,6 @@
           "domain_ids"
         ],
         "title": "DomainScope",
-        "type": "object"
-      },
-      "DrDrillPayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "destroy_restored_target_after_verification": {
-            "title": "Destroy Restored Target After Verification",
-            "type": "boolean"
-          },
-          "dr_plan": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "expected_checkpoint_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Expected Checkpoint Id",
-            "type": "string"
-          },
-          "recovery_catalog_entry_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Recovery Catalog Entry Id",
-            "type": "string"
-          },
-          "restore_target_profile": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "schema_version": {
-            "const": "dr-drill@1",
-            "default": "dr-drill@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "verification_profile": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          }
-        },
-        "required": [
-          "dr_plan",
-          "recovery_catalog_entry_id",
-          "expected_checkpoint_id",
-          "restore_target_profile",
-          "verification_profile",
-          "destroy_restored_target_after_verification"
-        ],
-        "title": "DrDrillPayloadV1",
         "type": "object"
       },
       "EdgeType": {
@@ -3749,78 +3510,9 @@
         "title": "FindingRevisionV1",
         "type": "object"
       },
-      "GenerationProposePayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "base_snapshot_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Base Snapshot Artifact Id",
-            "type": "string"
-          },
-          "candidate_export_profiles": {
-            "items": {
-              "$ref": "#/components/schemas/ProfileRefV1"
-            },
-            "maxItems": 1024,
-            "title": "Candidate Export Profiles",
-            "type": "array"
-          },
-          "constraint_snapshot_artifact_id": {
-            "anyOf": [
-              {
-                "maxLength": 512,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Constraint Snapshot Artifact Id"
-          },
-          "domain_scope": {
-            "$ref": "#/components/schemas/DomainScope"
-          },
-          "findings": {
-            "items": {
-              "$ref": "#/components/schemas/FindingEvidenceBindingV1"
-            },
-            "maxItems": 1024,
-            "title": "Findings",
-            "type": "array"
-          },
-          "generation_policy": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "objective_goal": {
-            "$ref": "#/components/schemas/PromptGoalBindingV1"
-          },
-          "schema_version": {
-            "const": "generation-propose@1",
-            "default": "generation-propose@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "target": {
-            "$ref": "#/components/schemas/RefReadBindingV1"
-          }
-        },
-        "required": [
-          "base_snapshot_artifact_id",
-          "findings",
-          "objective_goal",
-          "domain_scope",
-          "target",
-          "generation_policy",
-          "candidate_export_profiles"
-        ],
-        "title": "GenerationProposePayloadV1",
-        "type": "object"
-      },
       "GenerationProposeRequestV1": {
         "additionalProperties": false,
-        "description": "``POST /generations:propose`` — fixes ``generation.propose@1``.\n\nThe naked ``objective_goal_text`` is turned into an authenticated ``source_raw``\nArtifact by the composition root before the Run is created.",
+        "description": "``POST /generation:propose`` — fixes ``generation.propose@1``.\n\nThe naked ``objective_goal_text`` is turned into an authenticated ``source_raw``\nArtifact by the composition root before the Run is created.",
         "properties": {
           "base_snapshot_artifact_id": {
             "maxLength": 512,
@@ -6778,6 +6470,19 @@
             "title": "Review Artifact Ids",
             "type": "array"
           },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 1.8446744073709552e+19,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
           "simulation_profiles": {
             "items": {
               "$ref": "#/components/schemas/ProfileRefV1"
@@ -6816,118 +6521,6 @@
           "regression_suite_artifact_ids"
         ],
         "title": "PatchValidationAdmissionRequestV1",
-        "type": "object"
-      },
-      "PatchValidationPayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "base_snapshot_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Base Snapshot Artifact Id",
-            "type": "string"
-          },
-          "candidate_config_export_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "title": "Candidate Config Export Artifact Ids",
-            "type": "array"
-          },
-          "checker_profiles": {
-            "items": {
-              "$ref": "#/components/schemas/ProfileRefV1"
-            },
-            "maxItems": 1024,
-            "title": "Checker Profiles",
-            "type": "array"
-          },
-          "findings": {
-            "items": {
-              "$ref": "#/components/schemas/FindingEvidenceBindingV1"
-            },
-            "maxItems": 1024,
-            "title": "Findings",
-            "type": "array"
-          },
-          "playtest_trace_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "title": "Playtest Trace Artifact Ids",
-            "type": "array"
-          },
-          "preview_snapshot_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Preview Snapshot Artifact Id",
-            "type": "string"
-          },
-          "regression_suite_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "title": "Regression Suite Artifact Ids",
-            "type": "array"
-          },
-          "review_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "title": "Review Artifact Ids",
-            "type": "array"
-          },
-          "schema_version": {
-            "const": "patch-validation@1",
-            "default": "patch-validation@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "simulation_profiles": {
-            "items": {
-              "$ref": "#/components/schemas/ProfileRefV1"
-            },
-            "maxItems": 1024,
-            "title": "Simulation Profiles",
-            "type": "array"
-          },
-          "subject": {
-            "$ref": "#/components/schemas/ValidationSubjectBindingV1"
-          },
-          "target": {
-            "$ref": "#/components/schemas/RefReadBindingV1"
-          },
-          "validation_policy": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          }
-        },
-        "required": [
-          "subject",
-          "base_snapshot_artifact_id",
-          "preview_snapshot_artifact_id",
-          "candidate_config_export_artifact_ids",
-          "target",
-          "validation_policy",
-          "checker_profiles",
-          "simulation_profiles",
-          "findings",
-          "review_artifact_ids",
-          "playtest_trace_artifact_ids",
-          "regression_suite_artifact_ids"
-        ],
-        "title": "PatchValidationPayloadV1",
         "type": "object"
       },
       "Permission": {
@@ -7485,28 +7078,6 @@
           "version"
         ],
         "title": "ProfileRefV1",
-        "type": "object"
-      },
-      "PromptGoalBindingV1": {
-        "additionalProperties": false,
-        "properties": {
-          "expected_payload_hash": {
-            "pattern": "^[0-9a-f]{64}$",
-            "title": "Expected Payload Hash",
-            "type": "string"
-          },
-          "source_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Source Artifact Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "source_artifact_id",
-          "expected_payload_hash"
-        ],
-        "title": "PromptGoalBindingV1",
         "type": "object"
       },
       "QaSection": {
@@ -8462,6 +8033,19 @@
           "schema_compatibility_policy": {
             "$ref": "#/components/schemas/ProfileRefV1"
           },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 1.8446744073709552e+19,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
           "subject_digest": {
             "pattern": "^[0-9a-f]{64}$",
             "title": "Subject Digest",
@@ -8494,77 +8078,6 @@
           "regression_suite_artifact_ids"
         ],
         "title": "RollbackValidationAdmissionRequestV1",
-        "type": "object"
-      },
-      "RollbackValidationPayloadV1": {
-        "additionalProperties": false,
-        "properties": {
-          "expected_current_ref": {
-            "$ref": "#/components/schemas/RefValue"
-          },
-          "impact_profiles": {
-            "items": {
-              "$ref": "#/components/schemas/ProfileRefV1"
-            },
-            "maxItems": 1024,
-            "title": "Impact Profiles",
-            "type": "array"
-          },
-          "ref_name": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Ref Name",
-            "type": "string"
-          },
-          "regression_suite_artifact_ids": {
-            "items": {
-              "maxLength": 512,
-              "minLength": 1,
-              "type": "string"
-            },
-            "maxItems": 1024,
-            "title": "Regression Suite Artifact Ids",
-            "type": "array"
-          },
-          "rollback_profile": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "schema_compatibility_policy": {
-            "$ref": "#/components/schemas/ProfileRefV1"
-          },
-          "schema_version": {
-            "const": "rollback-validation@1",
-            "default": "rollback-validation@1",
-            "title": "Schema Version",
-            "type": "string"
-          },
-          "subject": {
-            "$ref": "#/components/schemas/ValidationSubjectBindingV1"
-          },
-          "target_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Target Artifact Id",
-            "type": "string"
-          },
-          "target_history_revision": {
-            "minimum": 1.0,
-            "title": "Target History Revision",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "subject",
-          "ref_name",
-          "expected_current_ref",
-          "target_artifact_id",
-          "target_history_revision",
-          "rollback_profile",
-          "schema_compatibility_policy",
-          "impact_profiles",
-          "regression_suite_artifact_ids"
-        ],
-        "title": "RollbackValidationPayloadV1",
         "type": "object"
       },
       "RunAcceptedV1": {
@@ -8905,7 +8418,7 @@
       },
       "RunSubmissionRequestV1": {
         "additionalProperties": false,
-        "description": "Generic ``POST /runs`` body. Only ``generic_runs_endpoint`` kinds are admitted.\n\nThe typed ``params`` fixes the RunKind; resource-only or internal-only kinds are\nrejected by admission, never by a client-supplied kind string.",
+        "description": "Generic ``POST /runs`` body. Only ``generic_runs_endpoint`` kinds are admitted.\n\nThe typed ``params`` exposes exactly the four public generic Run kinds;\nresource-only and internal-only discriminators fail at the transport boundary.",
         "properties": {
           "cassette_artifact_id": {
             "anyOf": [
@@ -8944,33 +8457,14 @@
           "params": {
             "discriminator": {
               "mapping": {
-                "artifact-migration@1": "#/components/schemas/ArtifactMigrationPayloadV1",
                 "bench-run@1": "#/components/schemas/BenchRunPayloadV1",
                 "checker-run@1": "#/components/schemas/CheckerRunPayloadV1",
-                "constraint-proposal-propose@1": "#/components/schemas/ConstraintProposalProposePayloadV1",
-                "constraint-validation@1": "#/components/schemas/ConstraintValidationPayloadV1",
-                "dr-drill@1": "#/components/schemas/DrDrillPayloadV1",
-                "generation-propose@1": "#/components/schemas/GenerationProposePayloadV1",
-                "patch-repair@1": "#/components/schemas/PatchRepairPayloadV1",
-                "patch-validation@1": "#/components/schemas/PatchValidationPayloadV1",
-                "playtest-run@1": "#/components/schemas/PlaytestRunPayloadV1",
                 "review-run@1": "#/components/schemas/ReviewRunPayloadV1",
-                "rollback-validation@1": "#/components/schemas/RollbackValidationPayloadV1",
-                "simulation-run@1": "#/components/schemas/SimulationRunPayloadV1",
-                "task-suite-derive@1": "#/components/schemas/TaskSuiteDerivePayloadV1"
+                "simulation-run@1": "#/components/schemas/SimulationRunPayloadV1"
               },
               "propertyName": "schema_version"
             },
             "oneOf": [
-              {
-                "$ref": "#/components/schemas/GenerationProposePayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/PatchRepairPayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/ConstraintProposalProposePayloadV1"
-              },
               {
                 "$ref": "#/components/schemas/ReviewRunPayloadV1"
               },
@@ -8981,28 +8475,7 @@
                 "$ref": "#/components/schemas/SimulationRunPayloadV1"
               },
               {
-                "$ref": "#/components/schemas/PlaytestRunPayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/TaskSuiteDerivePayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/PatchValidationPayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/ConstraintValidationPayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/RollbackValidationPayloadV1"
-              },
-              {
                 "$ref": "#/components/schemas/BenchRunPayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/ArtifactMigrationPayloadV1"
-              },
-              {
-                "$ref": "#/components/schemas/DrDrillPayloadV1"
               }
             ],
             "title": "Params"
@@ -10430,54 +9903,6 @@
           "target"
         ],
         "title": "TypedOp",
-        "type": "object"
-      },
-      "ValidationSubjectBindingV1": {
-        "additionalProperties": false,
-        "properties": {
-          "active_validation_run_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Active Validation Run Id",
-            "type": "string"
-          },
-          "approval_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Approval Id",
-            "type": "string"
-          },
-          "expected_workflow_revision": {
-            "minimum": 1.0,
-            "title": "Expected Workflow Revision",
-            "type": "integer"
-          },
-          "subject_artifact_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Subject Artifact Id",
-            "type": "string"
-          },
-          "subject_digest": {
-            "pattern": "^[0-9a-f]{64}$",
-            "title": "Subject Digest",
-            "type": "string"
-          },
-          "subject_head_revision": {
-            "minimum": 1.0,
-            "title": "Subject Head Revision",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "approval_id",
-          "expected_workflow_revision",
-          "subject_head_revision",
-          "subject_artifact_id",
-          "subject_digest",
-          "active_validation_run_id"
-        ],
-        "title": "ValidationSubjectBindingV1",
         "type": "object"
       },
       "VersionRef": {
@@ -14203,6 +13628,182 @@
         ]
       }
     },
+    "/api/v1/constraint-proposals:propose": {
+      "post": {
+        "operationId": "propose_constraint_api_v1_constraint_proposals_propose_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstraintProposeRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunAcceptedV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the accepted Run.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Propose Constraint",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
     "/api/v1/constraints": {
       "get": {
         "operationId": "constraints_api_v1_constraints_get",
@@ -14501,182 +14102,6 @@
         "summary": "Constraint",
         "tags": [
           "content-reads"
-        ]
-      }
-    },
-    "/api/v1/constraints:propose": {
-      "post": {
-        "operationId": "propose_constraint_api_v1_constraints_propose_post",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Idempotency-Key",
-            "required": true,
-            "schema": {
-              "maxLength": 512,
-              "minLength": 1,
-              "title": "Idempotency-Key",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "maxLength": 4096,
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConstraintProposeRequestV1"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "202": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunAcceptedV1"
-                }
-              }
-            },
-            "description": "Successful Response",
-            "headers": {
-              "Cache-Control": {
-                "description": "Always `private, no-cache`.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Location": {
-                "description": "Relative status URL of the accepted Run.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "Authentication is required or failed (problem+json)."
-          },
-          "403": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
-          },
-          "404": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "The requested resource was not found (problem+json)."
-          },
-          "409": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
-          },
-          "413": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "The request payload exceeds its bound (problem+json)."
-          },
-          "422": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "The request does not match the required schema or is too broad (problem+json)."
-          },
-          "429": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "A configured quota was exceeded (problem+json)."
-          },
-          "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "A sanitized internal error (problem+json)."
-          },
-          "503": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "A required dependency is unavailable (problem+json)."
-          },
-          "default": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An unexpected error rendered as RFC 9457 problem+json."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          },
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "summary": "Propose Constraint",
-        "tags": [
-          "runs"
         ]
       }
     },
@@ -15894,9 +15319,9 @@
         ]
       }
     },
-    "/api/v1/generations:propose": {
+    "/api/v1/generation:propose": {
       "post": {
-        "operationId": "propose_generation_api_v1_generations_propose_post",
+        "operationId": "propose_generation_api_v1_generation_propose_post",
         "parameters": [
           {
             "in": "header",

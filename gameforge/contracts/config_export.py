@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from typing import Annotated, Literal
@@ -25,6 +26,7 @@ MAX_CONFIG_EXPORT_ID_LENGTH = 512
 MAX_CONFIG_EXPORT_FILES = 1024
 MAX_CONFIG_EXPORT_FILE_BYTES = 16 * 1024 * 1024
 MAX_CONFIG_EXPORT_PACKAGE_BYTES = 64 * 1024 * 1024
+MAX_CONFIG_EXPORT_MANIFEST_BYTES = 8 * 1024 * 1024
 
 RelativePath = Annotated[
     str,
@@ -158,3 +160,57 @@ def canonical_config_export_bytes(package: ConfigExportPackageV1) -> bytes:
     for item in package.files:
         chunks.extend((item.size_bytes.to_bytes(8, "big"), item.content_bytes))
     return b"".join(chunks)
+
+
+def decode_config_export_bytes(blob: bytes) -> ConfigExportPackageV1:
+    """Decode and re-verify the canonical framed package representation.
+
+    The manifest intentionally omits raw file bytes, so decoding walks its exact
+    file order and consumes one length-prefixed byte string per manifest row.  A
+    successful decode proves the manifest is canonical, every file hash/size is
+    correct, and no trailing or unframed bytes were accepted.
+    """
+
+    if not isinstance(blob, bytes):
+        raise TypeError("config export package must be bytes")
+    header_size = len(_PACKAGE_MAGIC) + 8
+    if len(blob) < header_size or not blob.startswith(_PACKAGE_MAGIC):
+        raise ValueError("config export package magic is invalid")
+    manifest_size = int.from_bytes(blob[len(_PACKAGE_MAGIC) : header_size], "big")
+    if not 1 <= manifest_size <= MAX_CONFIG_EXPORT_MANIFEST_BYTES:
+        raise ValueError("config export manifest length is invalid")
+    manifest_end = header_size + manifest_size
+    if manifest_end > len(blob):
+        raise ValueError("config export manifest is truncated")
+    manifest_bytes = blob[header_size:manifest_end]
+    try:
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("config export manifest is invalid JSON") from exc
+    if not isinstance(manifest, dict) or canonical_json(manifest).encode("utf-8") != manifest_bytes:
+        raise ValueError("config export manifest is not canonical")
+    file_manifests = manifest.get("files")
+    if not isinstance(file_manifests, list):
+        raise ValueError("config export manifest files must be an array")
+
+    offset = manifest_end
+    files: list[dict[str, object]] = []
+    for item in file_manifests:
+        if not isinstance(item, dict):
+            raise ValueError("config export file manifest must be an object")
+        if offset + 8 > len(blob):
+            raise ValueError("config export file length is truncated")
+        framed_size = int.from_bytes(blob[offset : offset + 8], "big")
+        offset += 8
+        if framed_size > MAX_CONFIG_EXPORT_FILE_BYTES or offset + framed_size > len(blob):
+            raise ValueError("config export file content is truncated or oversized")
+        content = blob[offset : offset + framed_size]
+        offset += framed_size
+        files.append({**item, "content_bytes": content})
+    if offset != len(blob):
+        raise ValueError("config export package contains trailing bytes")
+
+    package = ConfigExportPackageV1.model_validate({**manifest, "files": files})
+    if canonical_config_export_bytes(package) != blob:
+        raise ValueError("config export package is not canonical")
+    return package

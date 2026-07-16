@@ -6,16 +6,22 @@ from typing import Any
 import pytest
 
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import RunKindRef
+from gameforge.contracts.execution_graphs import (
+    AgentExecutionGraphV1,
+    AgentExecutionProfileSelectorV1,
+    agent_execution_graph_digest,
+)
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
     MigrationEdgeV1,
     MigrationProfileDetailsV1,
     ProfileRefV1,
+    RunKindRef,
     execution_profile_catalog_digest,
 )
 from gameforge.contracts.jobs import PreparedRunFailure
 from gameforge.platform.registry import (
+    ImmutablePlatformRegistry,
     PlatformReadinessValidator,
     TrustedComponentMaps,
     build_builtin_registry,
@@ -154,6 +160,197 @@ def test_builtin_registry_and_exact_trusted_maps_are_ready() -> None:
     assert report.deferred_executor_keys == _DEFERRED_EXECUTOR_KEYS
 
 
+def test_builtin_playtest_graph_selectors_cover_exact_versioned_memory_config() -> None:
+    registry = build_builtin_registry()
+    playtest = RunKindRef(kind="playtest.run", version=1)
+    graphs = tuple(
+        graph
+        for graph in registry.list_agent_execution_graphs()
+        if graph.run_kind == playtest and graph.status == "active"
+    )
+
+    assert {
+        (
+            graph.profile_selector.profile_field_path,
+            graph.profile_selector.config_pointer,
+            graph.profile_selector.expected_value,
+        )
+        for graph in graphs
+        if graph.profile_selector is not None
+    } == {
+        ("/params/planner_policy", "/memory_mode", "off"),
+        ("/params/planner_policy", "/memory_mode", "llm_compaction"),
+    }
+    catalog = registry.list_execution_profile_catalogs()[0]
+    planner = next(
+        definition
+        for definition in catalog.definitions
+        if definition.profile_kind == "playtest_planner"
+    )
+    assert planner.config["memory_mode"] == "off"
+
+
+def test_readiness_rejects_selector_graphs_that_miss_reachable_profile_config() -> None:
+    registry = build_builtin_registry()
+    graphs = tuple(
+        graph
+        for graph in registry.list_agent_execution_graphs()
+        if graph.agent_graph_version != "playtest-core-graph@1"
+    )
+
+    with pytest.raises(IntegrityViolation, match="reachable profile config"):
+        PlatformReadinessValidator(
+            registry=_GraphsOverrideRegistry(registry, graphs),
+            components=_components(registry),
+        ).validate()
+
+
+def test_readiness_rejects_overlapping_playtest_selector_branches() -> None:
+    registry = build_builtin_registry()
+    graphs = tuple(registry.list_agent_execution_graphs())
+    memory = next(
+        graph for graph in graphs if graph.agent_graph_version == "playtest-memory-graph@1"
+    )
+    duplicate = _replace_graph(
+        memory,
+        profile_selector=AgentExecutionProfileSelectorV1(
+            profile_field_path="/params/planner_policy",
+            config_pointer="/memory_mode",
+            expected_value="off",
+        ),
+    )
+    changed = tuple(duplicate if graph is memory else graph for graph in graphs)
+
+    with pytest.raises(IntegrityViolation, match="branches overlap"):
+        PlatformReadinessValidator(
+            registry=_GraphsOverrideRegistry(registry, changed),
+            components=_components(registry),
+        ).validate()
+
+
+def test_readiness_rejects_mixed_unconditional_and_selector_graph_branches() -> None:
+    registry = build_builtin_registry()
+    graphs = tuple(registry.list_agent_execution_graphs())
+    core = next(graph for graph in graphs if graph.agent_graph_version == "playtest-core-graph@1")
+    unconditional = _replace_graph(core, profile_selector=None)
+    changed = tuple(unconditional if graph is core else graph for graph in graphs)
+
+    with pytest.raises(IntegrityViolation, match="unconditional active Agent graph"):
+        PlatformReadinessValidator(
+            registry=_GraphsOverrideRegistry(registry, changed),
+            components=_components(registry),
+        ).validate()
+
+
+def test_readiness_retains_historical_graph_for_disabled_run_kind_version() -> None:
+    registry = build_builtin_registry()
+    definitions, graphs = _with_historical_generation_graph(registry)
+    historical_registry = _registry_with_run_kinds_and_graphs(
+        registry,
+        definitions=definitions,
+        graphs=graphs,
+    )
+
+    report = PlatformReadinessValidator(
+        registry=historical_registry,
+        components=_components(registry),
+    ).validate()
+
+    assert report.ready is True
+    historical = graphs[-1]
+    assert historical.status == "replay_only"
+    assert historical_registry.get_run_kind(historical.run_kind) == definitions[-1]
+    assert (
+        historical_registry.get_agent_execution_graph(
+            historical.run_kind,
+            historical.agent_graph_version,
+        )
+        == historical
+    )
+
+
+def test_readiness_retains_historical_selector_graph_without_active_profile_metadata() -> None:
+    registry = build_builtin_registry()
+    definitions = tuple(registry.list_run_kinds())
+    playtest_definition = next(
+        definition for definition in definitions if definition.kind == "playtest.run"
+    )
+    historical_definition = playtest_definition.model_copy(
+        update={"version": 2, "status": "disabled"}
+    )
+    graphs = tuple(registry.list_agent_execution_graphs())
+    memory_graph = next(
+        graph for graph in graphs if graph.agent_graph_version == "playtest-memory-graph@1"
+    )
+    historical_graph = _replace_graph(
+        memory_graph,
+        agent_graph_version="playtest-memory-graph@historical-2",
+        run_kind=RunKindRef(kind="playtest.run", version=2),
+        status="replay_only",
+    )
+    historical_registry = _registry_with_run_kinds_and_graphs(
+        registry,
+        definitions=(*definitions, historical_definition),
+        graphs=(*graphs, historical_graph),
+    )
+
+    assert historical_registry.get_profile_requirements(historical_graph.run_kind) is None
+    assert (
+        PlatformReadinessValidator(
+            registry=historical_registry,
+            components=_components(registry),
+        )
+        .validate()
+        .ready
+        is True
+    )
+
+
+def test_readiness_rejects_historical_graph_without_exact_run_kind_definition() -> None:
+    registry = build_builtin_registry()
+    _, graphs = _with_historical_generation_graph(registry)
+
+    with pytest.raises(IntegrityViolation, match="exact retained Run kind definition"):
+        PlatformReadinessValidator(
+            registry=_GraphsOverrideRegistry(registry, graphs),
+            components=_components(registry),
+        ).validate()
+
+
+def test_readiness_rejects_active_graph_for_disabled_run_kind_version() -> None:
+    registry = build_builtin_registry()
+    definitions, graphs = _with_historical_generation_graph(registry)
+    active_historical = _replace_graph(graphs[-1], status="active")
+    historical_registry = _RunKindsOverrideRegistry(
+        _GraphsOverrideRegistry(registry, (*graphs[:-1], active_historical)),
+        definitions,
+    )
+
+    with pytest.raises(IntegrityViolation, match="requires an active LLM-capable Run kind"):
+        PlatformReadinessValidator(
+            registry=historical_registry,
+            components=_components(registry),
+        ).validate()
+
+
+def test_readiness_rejects_replay_only_graph_for_non_replay_run_kind() -> None:
+    registry = build_builtin_registry()
+    definitions, graphs = _with_historical_generation_graph(registry)
+    historical_definition = definitions[-1].model_copy(
+        update={"allowed_llm_execution_modes": ("live",)}
+    )
+    historical_registry = _RunKindsOverrideRegistry(
+        _GraphsOverrideRegistry(registry, graphs),
+        (*definitions[:-1], historical_definition),
+    )
+
+    with pytest.raises(IntegrityViolation, match="requires a replay-capable Run kind"):
+        PlatformReadinessValidator(
+            registry=historical_registry,
+            components=_components(registry),
+        ).validate()
+
+
 def test_optional_parent_projection_is_single_valued_and_multi_value_requires_equality() -> None:
     registry = build_builtin_registry()
     definition = next(item for item in registry.list_run_kinds() if item.kind == "checker.run")
@@ -182,6 +379,57 @@ def test_optional_parent_projection_is_single_valued_and_multi_value_requires_eq
         PlatformReadinessValidator._validate_lineage_policy(
             artifact_rule=artifact_rule,
             lineage_policy=lineage.model_copy(update={"parent_rules": changed_parents}),
+            policy_rule_ids={item.rule_id for item in policy.artifact_rules},
+        )
+
+
+@pytest.mark.parametrize(
+    ("rule_id", "expected_equality_roles"),
+    [
+        ("primary", {"config", "scenarios"}),
+        ("scenario", {"config"}),
+    ],
+)
+def test_task_suite_lineage_closes_document_version_across_exact_content_parents(
+    rule_id: str,
+    expected_equality_roles: set[str],
+) -> None:
+    registry = build_builtin_registry()
+    definition = next(
+        item for item in registry.list_run_kinds() if item.kind == "task_suite.derive"
+    )
+    policy = next(
+        item for item in definition.outcome_policies if item.policy_id == "task-suite-derived"
+    )
+    artifact_rule = next(item for item in policy.artifact_rules if item.rule_id == rule_id)
+    lineage = registry.get_lineage_policy(artifact_rule.lineage_policy_ref)
+    assert lineage is not None
+    doc_projection = next(
+        item for item in lineage.version_projection if item.field == "doc_version"
+    )
+    assert doc_projection.source == "parent_role"
+    assert doc_projection.parent_role == "preview"
+    assert set(doc_projection.equality_parent_roles) == expected_equality_roles
+
+    with pytest.raises(IntegrityViolation, match="TaskSuite lineage doc version"):
+        PlatformReadinessValidator._validate_lineage_policy(
+            artifact_rule=artifact_rule,
+            lineage_policy=lineage.model_copy(
+                update={
+                    "version_projection": tuple(
+                        item.model_copy(
+                            update={
+                                "equality_parent_roles": tuple(
+                                    role for role in item.equality_parent_roles if role != "config"
+                                )
+                            }
+                        )
+                        if item.field == "doc_version"
+                        else item
+                        for item in lineage.version_projection
+                    )
+                }
+            ),
             policy_rule_ids={item.rule_id for item in policy.artifact_rules},
         )
 
@@ -325,6 +573,42 @@ class _RunKindsOverrideRegistry:
     def list_run_kinds(self) -> tuple[Any, ...]:
         return self._definitions
 
+    def get_run_kind(self, kind: RunKindRef) -> Any | None:
+        return next(
+            (
+                definition
+                for definition in self._definitions
+                if (definition.kind, definition.version) == (kind.kind, kind.version)
+            ),
+            None,
+        )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._delegate, name)
+
+
+class _GraphsOverrideRegistry:
+    def __init__(self, delegate: Any, graphs: tuple[AgentExecutionGraphV1, ...]) -> None:
+        self._delegate = delegate
+        self._graphs = graphs
+
+    def list_agent_execution_graphs(self) -> tuple[AgentExecutionGraphV1, ...]:
+        return self._graphs
+
+    def get_agent_execution_graph(
+        self,
+        run_kind: RunKindRef,
+        agent_graph_version: str,
+    ) -> AgentExecutionGraphV1 | None:
+        return next(
+            (
+                graph
+                for graph in self._graphs
+                if graph.run_kind == run_kind and graph.agent_graph_version == agent_graph_version
+            ),
+            None,
+        )
+
     def __getattr__(self, name: str) -> Any:
         return getattr(self._delegate, name)
 
@@ -351,6 +635,67 @@ class _CatalogOverrideRegistry:
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._delegate, name)
+
+
+def _replace_graph(
+    graph: AgentExecutionGraphV1,
+    **updates: Any,
+) -> AgentExecutionGraphV1:
+    body = graph.model_dump(mode="python", exclude={"graph_digest"})
+    body.update(updates)
+    return AgentExecutionGraphV1(
+        **body,
+        graph_digest=agent_execution_graph_digest(body),
+    )
+
+
+def _with_historical_generation_graph(
+    registry: Any,
+) -> tuple[tuple[Any, ...], tuple[AgentExecutionGraphV1, ...]]:
+    definitions = tuple(registry.list_run_kinds())
+    generation_definition = next(
+        definition for definition in definitions if definition.kind == "generation.propose"
+    )
+    historical_definition = generation_definition.model_copy(
+        update={"version": 2, "status": "disabled"}
+    )
+    graphs = tuple(registry.list_agent_execution_graphs())
+    generation_graph = next(
+        graph
+        for graph in graphs
+        if graph.run_kind == RunKindRef(kind="generation.propose", version=1)
+    )
+    historical_graph = _replace_graph(
+        generation_graph,
+        agent_graph_version="generation-graph@historical-2",
+        run_kind=RunKindRef(kind="generation.propose", version=2),
+        status="replay_only",
+    )
+    return (*definitions, historical_definition), (*graphs, historical_graph)
+
+
+def _registry_with_run_kinds_and_graphs(
+    source: ImmutablePlatformRegistry,
+    *,
+    definitions: tuple[Any, ...],
+    graphs: tuple[AgentExecutionGraphV1, ...],
+) -> ImmutablePlatformRegistry:
+    return ImmutablePlatformRegistry(
+        run_kinds=definitions,
+        retry_policies=source._retry_policies.values(),  # noqa: SLF001
+        failure_classifiers=source._failure_classifiers.values(),  # noqa: SLF001
+        lineage_policies=source._lineage_policies.values(),  # noqa: SLF001
+        version_transition_policies=source._version_transition_policies.values(),  # noqa: SLF001
+        runtime_parent_rule_sets=source._runtime_parent_rule_sets.values(),  # noqa: SLF001
+        finding_output_policies=source._finding_output_policies.values(),  # noqa: SLF001
+        run_event_registries=source._run_event_registries.values(),  # noqa: SLF001
+        completion_oracle_registries=source._completion_oracle_registries.values(),  # noqa: SLF001
+        agent_execution_graphs=graphs,
+        execution_profile_catalogs=source._execution_profile_catalogs.values(),  # noqa: SLF001
+        migration_capability_matrices=source._migration_capability_matrices.values(),  # noqa: SLF001
+        profile_requirements=source._profile_requirements,  # noqa: SLF001
+        permission_resolver_keys=source._permission_resolver_keys,  # noqa: SLF001
+    )
 
 
 def _replace_catalog_profile(
