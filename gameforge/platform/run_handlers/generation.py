@@ -40,6 +40,7 @@ from gameforge.contracts.jobs import (
     PreparedArtifact,
     PreparedRunFailure,
     PreparedRunOutcome,
+    ResolvedArtifactRequirementV1,
 )
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.spine.ir.snapshot import Snapshot
@@ -104,6 +105,7 @@ class GenerationRunRequest:
     constraints: tuple[Constraint, ...]
     goal: DesignGoalInput
     findings: tuple[Finding, ...]
+    gate_requirements: tuple[ResolvedArtifactRequirementV1, ...]
     router: BridgeModelRouter
 
 
@@ -217,6 +219,7 @@ class GenerationProposalHandler:
                 constraints=tuple(constraints),
                 goal=goal,
                 findings=findings,
+                gate_requirements=self._gate_requirements(context),
                 router=router,
             )
         )
@@ -261,6 +264,15 @@ class GenerationProposalHandler:
         if payload.constraint_snapshot_artifact_id is None:
             return []
         return self.constraint_loader(self.blobs, payload.constraint_snapshot_artifact_id)
+
+    @staticmethod
+    def _gate_requirements(
+        context: ExecutorContextLike,
+    ) -> tuple[ResolvedArtifactRequirementV1, ...]:
+        snapshots = context.payload.resolved_policy_snapshots
+        if len(snapshots) != 1:
+            raise ValueError("generation run requires exactly one frozen gate policy snapshot")
+        return snapshots[0].requirements
 
     # ----------------------------------------------------------------- sealing
     def _seal_patch(
@@ -343,6 +355,7 @@ class GenerationProposalHandler:
                     version_tuple=VersionTuple(
                         ir_snapshot_id=outcome.preview_snapshot_id,
                         constraint_snapshot_id=constraint_id,
+                        env_contract_version=package.env_contract_version,
                         tool_version="config-export@1",
                     ),
                     lineage=(constraint_id,),

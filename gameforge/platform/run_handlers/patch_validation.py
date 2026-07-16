@@ -34,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     PatchValidationPayloadV1,
@@ -86,11 +86,15 @@ from gameforge.platform.run_handlers.validation_common import (
     RegressionRunner,
     RegressionRunRequest,
     content_addressed_artifact_id,
+    derive_validation_subseed,
     digest_of,
     evidence_requirement,
     evidence_version_tuple,
     overall_status_of,
     require_exists,
+    validation_child_execution_seed,
+    validation_child_seed_evidence,
+    with_validation_child_seed_evidence,
 )
 
 VALIDATION_POLICY_FIELD = "/params/validation_policy"
@@ -173,16 +177,16 @@ class PatchValidationHandler:
 
         preview = self.snapshot_loader(self.blobs, payload.preview_snapshot_artifact_id)
         nav = self.nav_loader(self.blobs, payload.preview_snapshot_artifact_id)
-        seed = context.payload.seed
+        root_seed = context.payload.seed
         self._reverify_supporting(payload)
 
         lineage = self._artifact_lineage(payload)
         target_binding = self._target_binding(payload, preview)
 
         dimensions = (
-            *self._checker_dimensions(payload, preview, nav, lineage, seed),
-            *self._simulation_dimensions(payload, preview, lineage, seed),
-            *self._regression_dimensions(payload, preview, lineage, seed),
+            *self._checker_dimensions(payload, preview, nav, lineage, root_seed),
+            *self._simulation_dimensions(payload, preview, lineage, context.run.kind, root_seed),
+            *self._regression_dimensions(payload, preview, lineage, context.run.kind, root_seed),
         )
         overall = overall_status_of(tuple(dim.result.status for dim in dimensions))
 
@@ -202,7 +206,7 @@ class PatchValidationHandler:
             companion_ids,
             lineage,
             overall,
-            seed,
+            root_seed,
         )
 
         artifacts: list[PreparedArtifact] = [evidence_set, *(dim.artifact for dim in dimensions)]
@@ -230,7 +234,7 @@ class PatchValidationHandler:
                 requirements,
             )
             if proof is not None:
-                artifacts.append(self._seal_auto_proof(payload, preview, proof, lineage, seed))
+                artifacts.append(self._seal_auto_proof(payload, preview, proof, lineage, root_seed))
                 outcome_code = _AUTO_ELIGIBLE_CODE
 
         return build_success_result(
@@ -249,7 +253,7 @@ class PatchValidationHandler:
         preview: Snapshot,
         nav: NavProvider | None,
         lineage: tuple[str, ...],
-        seed: int | None,
+        root_seed: int | None,
     ) -> tuple[_DimensionArtifact, ...]:
         dims: list[_DimensionArtifact] = []
         for profile in payload.checker_profiles:
@@ -261,7 +265,7 @@ class PatchValidationHandler:
                     payload,
                     preview,
                     lineage,
-                    seed,
+                    root_seed,
                     kind="checker",
                     tool_version=CHECKER_TOOL_VERSION,
                     requirement_id=requirement_id,
@@ -275,29 +279,45 @@ class PatchValidationHandler:
         payload: PatchValidationPayloadV1,
         preview: Snapshot,
         lineage: tuple[str, ...],
-        seed: int | None,
+        run_kind: RunKindRef,
+        root_seed: int | None,
     ) -> tuple[_DimensionArtifact, ...]:
         if not payload.simulation_profiles:
             return ()
         model = EconomyModel.from_snapshot(preview)
         dims: list[_DimensionArtifact] = []
         for profile in payload.simulation_profiles:
+            if root_seed is None:
+                raise ValueError("patch validation simulation requires the frozen root seed")
             config: ReviewSimConfig = self.sim_config_resolver(profile)
+            requirement_id = f"simulation:{_profile_key(profile)}"
+            execution_seed = derive_validation_subseed(
+                root_seed=root_seed,
+                run_kind=run_kind,
+                profile=profile,
+                case_id=requirement_id,
+                replication_index=0,
+            )
             result = self.simulator.run(
-                model, seed=seed, n_agents=config.n_agents, n_ticks=config.n_ticks
+                model,
+                seed=execution_seed,
+                n_agents=config.n_agents,
+                n_ticks=config.n_ticks,
             )
             findings = tuple(to_findings(result, preview.snapshot_id, model))
-            requirement_id = f"simulation:{_profile_key(profile)}"
             dims.append(
                 self._reverification_dimension(
                     payload,
                     preview,
                     lineage,
-                    seed,
+                    root_seed,
                     kind="simulation",
                     tool_version=SIMULATION_TOOL_VERSION,
                     requirement_id=requirement_id,
                     findings=findings,
+                    execution_seed=execution_seed,
+                    seed_run_kind=run_kind,
+                    seed_profile=profile,
                 )
             )
         return tuple(dims)
@@ -307,16 +327,23 @@ class PatchValidationHandler:
         payload: PatchValidationPayloadV1,
         preview: Snapshot,
         lineage: tuple[str, ...],
-        seed: int | None,
+        run_kind: RunKindRef,
+        root_seed: int | None,
     ) -> tuple[_DimensionArtifact, ...]:
         dims: list[_DimensionArtifact] = []
         for suite_id in payload.regression_suite_artifact_ids:
             require_exists(self.blobs, suite_id)
+            execution_seed = validation_child_execution_seed(
+                root_seed=root_seed,
+                run_kind=run_kind,
+                profile=payload.validation_policy,
+                case_id=suite_id,
+            )
             outcome = self.regression_runner.run(
                 RegressionRunRequest(
                     suite_artifact_id=suite_id,
                     snapshot_id=preview.snapshot_id,
-                    seed=0 if seed is None else seed,
+                    seed=execution_seed,
                 )
             )
             status = "unproven" if outcome.status == "not_executed" else outcome.status
@@ -336,10 +363,20 @@ class PatchValidationHandler:
                     # re-projects via ``producer_value``. The dimension tool
                     # (regression@1) is recorded on the EvidenceRequirement, not here.
                     tool_version=EVIDENCE_TOOL_VERSION,
-                    seed=seed,
+                    seed=root_seed,
                 ),
                 lineage=lineage,
-                payload=outcome.payload,
+                payload=with_validation_child_seed_evidence(
+                    {
+                        **outcome.payload,
+                        "reason_code": reason_code if status == "unproven" else None,
+                    },
+                    root_seed=root_seed,
+                    execution_seed=execution_seed,
+                    run_kind=run_kind,
+                    profile=payload.validation_policy,
+                    case_id=suite_id,
+                ),
                 extra_meta={"requirement_id": f"regression:{suite_id}"},
             )
             dims.append(
@@ -364,12 +401,15 @@ class PatchValidationHandler:
         payload: PatchValidationPayloadV1,
         preview: Snapshot,
         lineage: tuple[str, ...],
-        seed: int | None,
+        root_seed: int | None,
         *,
         kind: str,
         tool_version: str,
         requirement_id: str,
         findings: tuple[Finding, ...],
+        execution_seed: int | None = None,
+        seed_run_kind: RunKindRef | None = None,
+        seed_profile: ProfileRefV1 | None = None,
     ) -> _DimensionArtifact:
         status = _dimension_status(findings)
         reason_code = "checker_budget_unproven" if status == "unproven" else None
@@ -382,7 +422,7 @@ class PatchValidationHandler:
                 constraint_snapshot_id=None,
                 # producer-local: the RUN's producer tool (see _regression_dimensions).
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=seed,
+                seed=root_seed,
             ),
             lineage=lineage,
             payload={
@@ -392,6 +432,13 @@ class PatchValidationHandler:
                 "snapshot_id": preview.snapshot_id,
                 "status": status,
                 "findings": [finding.model_dump(mode="json") for finding in findings],
+                **validation_child_seed_evidence(
+                    root_seed=root_seed,
+                    execution_seed=execution_seed,
+                    run_kind=seed_run_kind,
+                    profile=seed_profile,
+                    case_id=requirement_id,
+                ),
             },
             extra_meta={"requirement_id": requirement_id},
         )
@@ -420,7 +467,7 @@ class PatchValidationHandler:
         companion_ids: tuple[str, ...],
         lineage: tuple[str, ...],
         overall: str,
-        seed: int | None,
+        root_seed: int | None,
     ) -> PreparedArtifact:
         supporting = (
             *companion_ids,
@@ -451,7 +498,7 @@ class PatchValidationHandler:
                 ir_snapshot_id=preview.snapshot_id,
                 constraint_snapshot_id=None,
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=seed,
+                seed=root_seed,
             ),
             lineage=lineage,
             payload=evidence_set.model_dump(mode="json"),
@@ -486,7 +533,7 @@ class PatchValidationHandler:
         preview: Snapshot,
         proof: AutoApplyProofV1,
         lineage: tuple[str, ...],
-        seed: int | None,
+        root_seed: int | None,
     ) -> PreparedArtifact:
         return store_prepared_artifact(
             self.store,
@@ -496,7 +543,7 @@ class PatchValidationHandler:
                 ir_snapshot_id=preview.snapshot_id,
                 constraint_snapshot_id=None,
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=seed,
+                seed=root_seed,
             ),
             lineage=lineage,
             payload=proof.model_dump(mode="json"),

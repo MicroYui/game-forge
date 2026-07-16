@@ -12,6 +12,7 @@ ArtifactPort / ManifestLedger / AuditPort). The DB RunStore is the queue authori
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextlib import contextmanager
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -38,14 +39,17 @@ from gameforge.apps.worker.publication import (
     BlobLocationRegistry,
     WorkerArtifactPort,
     WorkerAuditPort,
+    WorkerBlobStager,
     WorkerBlobStore,
     WorkerCommandPublicationGateway,
+    WorkerCommandTerminalPublicationGateway,
     WorkerManifestLedger,
 )
 from gameforge.apps.worker.terminal import WorkerTerminalPublisher
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import RunAttempt, RunLease, RunRecord
 from gameforge.contracts.storage import UtcClock
+from gameforge.contracts.model_router import ModelSnapshot
 from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
 from gameforge.platform.publication import TerminalPublisher
@@ -90,6 +94,16 @@ class _DeferredModelBridge:
     """
 
     def call_model(self, request: object) -> object:
+        raise IntegrityViolation("worker model bridge is deferred to Task 18 (RECORD/REPLAY)")
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot:
+        del catalog_version, catalog_digest, model_snapshot_id
         raise IntegrityViolation("worker model bridge is deferred to Task 18 (RECORD/REPLAY)")
 
 
@@ -159,53 +173,86 @@ def build_worker_dispatch(
             clock=clock,
         )
 
+    def _terminal_publisher(transaction: object) -> TerminalPublisher:
+        audit_gate = AuditGate(sink=transaction.audit, clock=clock)  # type: ignore[attr-defined]
+        return TerminalPublisher(
+            registry=registry,
+            artifacts=WorkerArtifactPort(
+                artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+                object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+                object_store=object_store,
+            ),
+            blobs=WorkerBlobStore(object_store, blob_registry),
+            findings=transaction.findings,  # type: ignore[attr-defined]
+            ledger=WorkerManifestLedger(
+                transaction.runs,  # type: ignore[attr-defined]
+                transaction.cost,  # type: ignore[attr-defined]
+            ),
+            audit=WorkerAuditPort(audit_gate=audit_gate, chain_id=run_audit_chain_id),
+            approvals=transaction.approvals,  # type: ignore[attr-defined]
+            # Governance-aware ports are wired by their owning Task-10 audit.
+            # Required effects fail closed; they are never replaced by no-ops.
+            agent_drafts=None,
+            auto_apply=None,
+        )
+
+    @contextmanager
+    def planning_scope():
+        """Short read-only authority scope; never ``BEGIN IMMEDIATE``."""
+
+        with Session(engine) as session:
+            connection = session.connection()
+            connection.exec_driver_sql("PRAGMA query_only = ON")
+            try:
+                yield capability_factory(session)
+            finally:
+                try:
+                    connection.exec_driver_sql("PRAGMA query_only = OFF")
+                finally:
+                    session.rollback()
+
     def bind_commands(transaction: object) -> RunCommandCapabilities:
         accounting = _accounting(transaction)
+        command_audit = WorkerCommandPublicationGateway(
+            audit_gate=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
+            chain_id=run_audit_chain_id,
+        )
         return RunCommandCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]
             registry=registry,
             admission=accounting,
-            publication=WorkerCommandPublicationGateway(
-                audit_gate=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
-                chain_id=run_audit_chain_id,
+            publication=WorkerCommandTerminalPublicationGateway(
+                commands=command_audit,
+                terminal=_terminal_publisher(transaction),
             ),
             accounting=accounting,
         )
 
     def bind_lifecycle(transaction: object) -> RunLifecycleCapabilities:
-        audit_gate = AuditGate(sink=transaction.audit, clock=clock)  # type: ignore[attr-defined]
-        publication = TerminalPublisher(
-            registry=registry,
-            artifacts=WorkerArtifactPort(
-                artifacts=transaction.artifacts,  # type: ignore[attr-defined]
-                object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
-                registry=blob_registry,
-            ),
-            blobs=WorkerBlobStore(object_store, blob_registry),
-            findings=transaction.findings,  # type: ignore[attr-defined]
-            ledger=WorkerManifestLedger(transaction.runs),  # type: ignore[attr-defined]
-            audit=WorkerAuditPort(audit_gate=audit_gate, chain_id=run_audit_chain_id),
-            # The transaction-bound approvals capability the validation-completion
-            # workflow effects CAS the ApprovalItem through, inside this terminal UoW
-            # (Task 17b: EvidenceSet publish + ApprovalItem CAS in ONE UoW).
-            approvals=transaction.approvals,  # type: ignore[attr-defined]
-        )
         return RunLifecycleCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]
             registry=registry,
             accounting=_accounting(transaction),
-            publication=publication,
+            publication=_terminal_publisher(transaction),
         )
+
+    blob_stager = WorkerBlobStager(object_store)
 
     claim_service = RunCommandService(
         unit_of_work=unit_of_work,
         bind_capabilities=bind_commands,
         clock=clock,
+        planning_scope=planning_scope,
+        bind_planning_capabilities=bind_commands,
+        stage_publications=blob_stager,
     )
     lifecycle = RunLifecycleService(
         unit_of_work=unit_of_work,
         bind_capabilities=bind_lifecycle,
         clock=clock,
+        planning_scope=planning_scope,
+        bind_planning_capabilities=bind_lifecycle,
+        stage_publications=blob_stager,
     )
     terminal = WorkerTerminalPublisher(lifecycle, notify=notify)
 

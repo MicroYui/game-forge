@@ -48,11 +48,7 @@ _HUMAN = AuditActor(principal_id="human:a", principal_kind="human")
 
 def _run_harness(**kwargs):
     run_payload = kwargs.get("run_payload")
-    modes = (
-        (run_payload.llm_execution_mode,)
-        if run_payload is not None
-        else ("not_applicable",)
-    )
+    modes = (run_payload.llm_execution_mode,) if run_payload is not None else ("not_applicable",)
     definition = _definition(_retry_policy()).model_copy(
         update={
             "allowed_command_schema_ids": ("run-cancel@1",),
@@ -64,8 +60,7 @@ def _run_harness(**kwargs):
 
 def _event_types(harness) -> tuple[str, ...]:
     return tuple(
-        event.event_type
-        for event in harness.repo.list_events("run:1", after_seq=0, limit=100)
+        event.event_type for event in harness.repo.list_events("run:1", after_seq=0, limit=100)
     )
 
 
@@ -318,8 +313,108 @@ def test_subject_superseded_closes_the_attempt_and_run_as_cancelled() -> None:
     assert result.run.status == "cancelled"
     assert result.attempt is not None
     assert result.attempt.status == "cancelled"
+
+
+def test_outcome_preflight_can_discard_success_before_any_result_publication() -> None:
+    harness = _run_harness()
+    _start(harness)
+    harness.state.forced_preflight_outcome = _prepared_failure(
+        harness,
+        cause_code="subject_superseded",
+        failure_class="subject_superseded",
+        intrinsic_retry_eligible=False,
+    )
+
+    result = harness.service_at(NOW_DT + timedelta(seconds=1)).publish_attempt_outcome(
+        PublishAttemptOutcomeRequest(
+            fence=_fence(harness),
+            prepared_outcome=_prepared_success(harness),
+            actor=WORKER,
+        )
+    )
+
+    assert result.run.status == "cancelled"
+    assert result.run.result_artifact_id is None
+    assert result.result_artifact_id is None
+    assert result.attempt is not None and result.attempt.status == "cancelled"
+    assert result.attempt_failure_artifact_id is not None
+    assert result.run_failure_artifact_id is not None
+    assert not any(action.startswith("result:") for action in harness.state.publisher_actions)
+    assert any(
+        action.startswith("attempt-failure:artifact:attempt-failure:subject_superseded")
+        for action in harness.state.publisher_actions
+    )
+    assert any(
+        action.startswith("run-failure:artifact:run-failure:subject_superseded")
+        for action in harness.state.publisher_actions
+    )
     assert result.retry_decision is not None
     assert result.retry_decision.reason_code == "not_retry_eligible"
+
+
+@pytest.mark.parametrize("controller", ["lease_reaper", "timeout_sweeper"])
+def test_control_terminal_preflight_observes_subject_supersede(controller: str) -> None:
+    harness = _run_harness(
+        attempt_timeout_ns=5_000_000_000,
+        overall_deadline_utc="2026-07-14T12:01:00Z",
+        lease_expires_at="2026-07-14T12:00:05Z",
+    )
+    if controller == "timeout_sweeper":
+        _start(harness)
+    harness.state.forced_preflight_outcome = _prepared_failure(
+        harness,
+        cause_code="subject_superseded",
+        failure_class="subject_superseded",
+        intrinsic_retry_eligible=False,
+    )
+    service = harness.service_at(NOW_DT + timedelta(seconds=6))
+    actor = AuditActor(principal_id=f"system:{controller}", principal_kind="system")
+
+    if controller == "lease_reaper":
+        result = service.reap_expired_lease(
+            ReapExpiredLeaseRequest(
+                run_id="run:1",
+                expected_run_revision=harness.state.runs["run:1"].revision,
+                actor=actor,
+            )
+        )
+    else:
+        result = service.sweep_timeout(
+            SweepRunTimeoutRequest(
+                run_id="run:1",
+                expected_run_revision=harness.state.runs["run:1"].revision,
+                actor=actor,
+            )
+        )
+
+    assert result.run.status == "cancelled"
+    assert result.attempt is not None and result.attempt.status == "cancelled"
+    assert result.retry_decision is not None
+    assert result.retry_decision.cause_code == "subject_superseded"
+    assert result.retry_decision.reason_code == (
+        "attempt_deadline_exhausted" if controller == "timeout_sweeper" else "not_retry_eligible"
+    )
+
+
+def test_inactive_cancel_preflight_observes_subject_supersede() -> None:
+    harness = _run_harness()
+    _as_queued(harness)
+    harness.state.forced_preflight_outcome = _prepared_failure(
+        harness,
+        cause_code="subject_superseded",
+        failure_class="subject_superseded",
+        intrinsic_retry_eligible=False,
+    )
+
+    _submit_cancel(harness)
+
+    assert harness.state.runs["run:1"].status == "cancelled"
+    terminal = harness.state.events[("run:1", 3)]
+    assert terminal.data.cause_code == "subject_superseded"
+    assert any(
+        action.startswith("run-failure:artifact:run-failure:subject_superseded")
+        for action in harness.state.publisher_actions
+    )
 
 
 def test_retry_wait_claim_is_not_eligible_early_and_allocates_new_heads_only_when_due() -> None:
@@ -339,9 +434,12 @@ def test_retry_wait_claim_is_not_eligible_early_and_allocates_new_heads_only_whe
         lease_duration_ns=10_000_000_000,
         trace_id="trace:attempt:2",
     )
-    assert harness.command_service_at(
-        NOW_DT + timedelta(seconds=1, microseconds=50_000)
-    ).claim_next(request) is None
+    assert (
+        harness.command_service_at(NOW_DT + timedelta(seconds=1, microseconds=50_000)).claim_next(
+            request
+        )
+        is None
+    )
     assert harness.state.runs["run:1"] == retry_wait
 
     claim = harness.command_service_at(
@@ -682,14 +780,8 @@ def test_record_success_persists_distinct_attempt_and_run_cassette_bundles() -> 
 
     assert result.run.terminal_cassette_artifact_id == "artifact:run-cassette:run:1"
     assert result.attempt is not None
-    assert (
-        result.attempt.cassette_bundle_artifact_id
-        == "artifact:attempt-cassette:run:1:1"
-    )
-    assert (
-        result.attempt.cassette_bundle_artifact_id
-        != result.run.terminal_cassette_artifact_id
-    )
+    assert result.attempt.cassette_bundle_artifact_id == "artifact:attempt-cassette:run:1:1"
+    assert result.attempt.cassette_bundle_artifact_id != result.run.terminal_cassette_artifact_id
 
 
 def test_record_retry_persists_only_the_closed_attempt_cassette_bundle() -> None:
@@ -701,10 +793,7 @@ def test_record_retry_persists_only_the_closed_attempt_cassette_bundle() -> None
     assert result.run.status == "retry_wait"
     assert result.run.terminal_cassette_artifact_id is None
     assert result.attempt is not None
-    assert (
-        result.attempt.cassette_bundle_artifact_id
-        == "artifact:attempt-cassette:run:1:1"
-    )
+    assert result.attempt.cassette_bundle_artifact_id == "artifact:attempt-cassette:run:1:1"
 
 
 def test_record_terminal_failure_persists_both_cassette_scopes() -> None:
@@ -721,10 +810,7 @@ def test_record_terminal_failure_persists_both_cassette_scopes() -> None:
     assert result.run.status == "failed"
     assert result.run.terminal_cassette_artifact_id == "artifact:run-cassette:run:1"
     assert result.attempt is not None
-    assert (
-        result.attempt.cassette_bundle_artifact_id
-        == "artifact:attempt-cassette:run:1:1"
-    )
+    assert result.attempt.cassette_bundle_artifact_id == "artifact:attempt-cassette:run:1:1"
 
 
 def test_record_outcome_without_required_cassette_rolls_back() -> None:

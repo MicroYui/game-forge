@@ -10,12 +10,13 @@ its role; unmatched, ambiguous, duplicate or dangling parents are fail-closed.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import ArtifactLineagePolicyV1, ArtifactParentRuleV1
 from gameforge.contracts.lineage import VersionTuple
+from gameforge.platform.publication.validator import resolve_json_pointer
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,6 +44,94 @@ class TypedLineage:
     """The typed-role projection result for one child Artifact."""
 
     parents_by_role: Mapping[str, tuple[ParentInfo, ...]]
+
+
+def resolve_child_payload_references(
+    *,
+    policy: ArtifactLineagePolicyV1,
+    child_payload: Mapping[str, object],
+    available_parents: Mapping[str, ParentInfo],
+) -> tuple[Mapping[str, ParentInfo], tuple[str, ...]]:
+    """Resolve policy-declared child references through already-authorized parents.
+
+    A child payload reference is a selector, not a new source of authority.  Its
+    target must already be one of the Run inputs, committed intermediates, or
+    earlier same-publication siblings supplied by the caller.  Scalar IDs and
+    bounded arrays of IDs are supported; null is allowed only for an optional
+    role.  Missing pointers, duplicates, dangling IDs and wrong kind/schema fail
+    before Artifact publication.
+    """
+
+    resolved: dict[str, ParentInfo] = {}
+    referenced_ids: list[str] = []
+    for rule in policy.parent_rules:
+        if rule.source != "child_payload_reference":
+            continue
+        pointer = rule.child_payload_pointer
+        if pointer is None:  # pragma: no cover - contract validator guarantees it
+            raise IntegrityViolation("child payload reference lacks its pointer")
+        value = resolve_json_pointer(child_payload, pointer)
+        if value is None:
+            if rule.min_count != 0:
+                raise IntegrityViolation(
+                    "required child payload reference is null",
+                    parent_role=rule.parent_role,
+                )
+            ids: tuple[str, ...] = ()
+        elif isinstance(value, str):
+            ids = (value,)
+        elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+            if any(not isinstance(item, str) or not item for item in value):
+                raise IntegrityViolation(
+                    "child payload reference array contains a non-ID value",
+                    parent_role=rule.parent_role,
+                )
+            ids = tuple(value)
+        else:
+            raise IntegrityViolation(
+                "child payload reference must be an Artifact ID or ID array",
+                parent_role=rule.parent_role,
+            )
+        if len(ids) != len(set(ids)):
+            raise IntegrityViolation(
+                "child payload reference contains duplicate Artifact IDs",
+                parent_role=rule.parent_role,
+            )
+        if len(ids) < rule.min_count or (rule.max_count is not None and len(ids) > rule.max_count):
+            raise IntegrityViolation(
+                "child payload reference count is outside its role cardinality",
+                parent_role=rule.parent_role,
+                actual=len(ids),
+            )
+        for artifact_id in ids:
+            info = available_parents.get(artifact_id)
+            if info is None:
+                raise IntegrityViolation(
+                    "child payload reference is not an authorized Run parent",
+                    parent_role=rule.parent_role,
+                    artifact_id=artifact_id,
+                )
+            if info.kind not in rule.artifact_kinds or (
+                info.payload_schema_id not in rule.payload_schema_ids
+            ):
+                raise IntegrityViolation(
+                    "child payload reference kind/schema differs from its role policy",
+                    parent_role=rule.parent_role,
+                    artifact_id=artifact_id,
+                )
+            previous = resolved.get(artifact_id)
+            if previous is not None and previous != info:
+                raise IntegrityViolation(
+                    "child payload reference resolves inconsistently",
+                    artifact_id=artifact_id,
+                )
+            resolved[artifact_id] = info
+            referenced_ids.append(artifact_id)
+    if len(referenced_ids) != len(set(referenced_ids)):
+        raise IntegrityViolation(
+            "one child Artifact ID is claimed by multiple payload-reference roles"
+        )
+    return resolved, tuple(referenced_ids)
 
 
 def _candidate_for_rule(
@@ -147,4 +236,5 @@ __all__ = [
     "ParentInfo",
     "TypedLineage",
     "project_typed_lineage",
+    "resolve_child_payload_references",
 ]

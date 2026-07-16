@@ -51,6 +51,7 @@ from gameforge.contracts.jobs import (
     ArtifactIdentityBindingV1,
     ArtifactLineagePolicyV1,
     ArtifactParentRuleV1,
+    ExecutionIdentityCountBindingV1,
     ExecutionModeCountBindingV1,
     ExecutionModeCountsV1,
     FailureClassificationRuleV1,
@@ -368,8 +369,7 @@ def _runtime_parent_rules() -> RuntimeParentRuleSetV1:
             min_count=0,
             max_count=None,
             enabled_execution_modes=("record",),
-            count_binding=IntermediateCountBindingV1(
-                link_role="prompt_rendered",
+            count_binding=ExecutionIdentityCountBindingV1(
                 scope="current_attempt",
             ),
         ),
@@ -384,8 +384,7 @@ def _runtime_parent_rules() -> RuntimeParentRuleSetV1:
             min_count=0,
             max_count=None,
             enabled_execution_modes=("record",),
-            count_binding=IntermediateCountBindingV1(
-                link_role="prompt_rendered",
+            count_binding=ExecutionIdentityCountBindingV1(
                 scope="all_attempts",
             ),
         ),
@@ -1095,7 +1094,11 @@ def _lineage_spec(
             _parent(
                 "target",
                 source="child_payload_reference",
-                child_payload_pointer="/target_binding/target_artifact_id",
+                child_payload_pointer=(
+                    "/target_binding/target_artifact_id"
+                    if rule_id == "primary"
+                    else "/detail/target_artifact_id"
+                ),
                 kinds=_ALL_ARTIFACT_KINDS,
                 min_count=0,
             )
@@ -1486,6 +1489,13 @@ def _common_failure_policies(
             "subject-superseded",
             "subject_superseded",
             "cancelled",
+            "cancelled",
+            "subject_superseded",
+        ),
+        (
+            "control-subject-superseded",
+            "subject_superseded",
+            None,
             "cancelled",
             "subject_superseded",
         ),

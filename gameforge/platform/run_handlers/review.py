@@ -262,7 +262,9 @@ class ReviewRunHandler:
             deadline_utc=context.deadline_utc,
         )
         model_snapshot = plan_node_snapshot(
-            context.payload.execution_version_plan, TRIAGE_AGENT_NODE_ID
+            context.payload.execution_version_plan,
+            TRIAGE_AGENT_NODE_ID,
+            context.model_bridge,
         )
         prompt = _triage_prompt(snapshot.snapshot_id, deterministic_findings)
         result = adapter.call_model(

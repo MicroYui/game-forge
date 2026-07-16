@@ -511,6 +511,29 @@ class ApprovalCommandService:
                 operation="approval.publish_draft",
             )
 
+    def publish_draft_in_transaction(
+        self,
+        *,
+        prepared: PreparedDraft,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+    ) -> DraftPublicationResult:
+        """Run the canonical draft authority inside an already-owned write UoW.
+
+        Terminal publication owns the transaction that first publishes the final
+        Run Artifacts.  Its workflow-effect adapter must therefore reuse the same
+        draft validation/CAS/idempotency/audit core without opening a nested UoW.
+        The caller may only pass capabilities bound to that active transaction;
+        this entry point deliberately performs no alternate state transition.
+        """
+
+        return self._publish_draft_in_transaction(
+            prepared=prepared,
+            context=context,
+            capabilities=capabilities,
+            operation="approval.publish_draft",
+        )
+
     def publish_rebased_draft(
         self,
         *,

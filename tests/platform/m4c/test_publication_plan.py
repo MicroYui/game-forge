@@ -11,6 +11,7 @@ import pytest
 
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
+    ArtifactParentRuleV1,
     ArtifactIdentityBindingV1,
     ExecutionModeCountBindingV1,
     ExecutionModeCountsV1,
@@ -33,12 +34,16 @@ from gameforge.platform.publication.lineage import (
     LineageParentSources,
     ParentInfo,
     project_typed_lineage,
+    resolve_child_payload_references,
 )
 from gameforge.platform.publication.validator import (
     PlanRule,
     PreparedArtifactView,
     ProjectedRuntimeParent,
     allocate_artifacts,
+    validate_plan_dispositions,
+    validate_published_artifact_ids,
+    validate_requirement_profile_bindings,
     validate_rule_cardinality,
     validate_runtime_parents,
 )
@@ -58,6 +63,7 @@ from tests.platform.m4c.test_terminal_publisher import (
     _registry_and_definition,
     _run_record,
 )
+from tests.platform.m4c.handler_support import resolved_binding
 
 
 def _builder() -> _OutcomeBuilder:
@@ -147,6 +153,15 @@ def test_allocation_rejects_wildcard_schema():
     plan = [_plan_rule(_rule(schemas=("checker-*",)))]
     with pytest.raises(IntegrityViolation):
         allocate_artifacts(plan_rules=plan, artifacts=[_view(0)])
+
+
+def test_published_artifact_ids_cannot_collapse_duplicate_prepared_entries():
+    views = [_view(0), _view(1)]
+    with pytest.raises(IntegrityViolation):
+        validate_published_artifact_ids(
+            artifacts=views,
+            published_artifact_ids_by_index={0: "artifact:same", 1: "artifact:same"},
+        )
 
 
 def test_missing_required_artifact_fails_cardinality():
@@ -251,6 +266,34 @@ def test_resolved_policy_binding_maps_requirement_identity():
         )
 
 
+def test_resolved_requirement_profiles_must_exist_in_the_frozen_run():
+    snapshot = _snapshot()
+    binding = resolved_binding(
+        snapshot.source_profile_field_path,
+        profile_id="gen",
+        version=1,
+        kind="generation",
+    )
+    validate_requirement_profile_bindings(
+        snapshots=(snapshot,),
+        resolved_profiles=(binding,),
+    )
+    requirement = snapshot.requirements[0].model_copy(
+        update={"producer_profile_field_path": "/params/missing-profile"}
+    )
+    body = snapshot.model_dump(mode="json", exclude={"digest"})
+    body["requirements"] = [requirement.model_dump(mode="json")]
+    malformed = ResolvedPolicySnapshotV1(
+        **body,
+        digest=resolved_policy_snapshot_digest(body),
+    )
+    with pytest.raises(IntegrityViolation):
+        validate_requirement_profile_bindings(
+            snapshots=(malformed,),
+            resolved_profiles=(binding,),
+        )
+
+
 def test_subset_binding_requires_complete_dispositions():
     binding = ResolvedPolicySubsetCountBindingV1(
         resolved_policy_id="gen",
@@ -301,6 +344,118 @@ def test_subset_binding_requires_complete_dispositions():
         )
 
 
+def test_plan_dispositions_reject_rows_when_no_subset_rule_exists():
+    with pytest.raises(IntegrityViolation):
+        validate_plan_dispositions(
+            plan_rules=[_plan_rule(_rule())],
+            snapshots_by_id={"gen": _snapshot()},
+            dispositions=(
+                RequirementDispositionV1(
+                    resolved_policy_id="gen",
+                    outcome_rule_id="checker",
+                    requirement_id="r1",
+                    status="produced",
+                ),
+            ),
+        )
+
+
+def test_plan_dispositions_require_exact_subset_union_without_extra_rows():
+    binding = ResolvedPolicySubsetCountBindingV1(
+        resolved_policy_id="gen",
+        outcome_rule_id="checker",
+        allowed_not_executed_reason_codes=("search_exhausted",),
+        identity_binding=ArtifactIdentityBindingV1(
+            collection_item_pointer="/requirement_id",
+            artifact_value_source="payload",
+            artifact_payload_pointer="/requirement_id",
+        ),
+    )
+    plan = [
+        _plan_rule(
+            _rule(
+                rule_id="checker",
+                role="evidence",
+                min_count=0,
+                max_count=None,
+                binding=binding,
+            )
+        )
+    ]
+    exact = RequirementDispositionV1(
+        resolved_policy_id="gen",
+        outcome_rule_id="checker",
+        requirement_id="r1",
+        status="not_executed",
+        reason_code="search_exhausted",
+    )
+    validate_plan_dispositions(
+        plan_rules=plan,
+        snapshots_by_id={"gen": _snapshot()},
+        dispositions=(exact,),
+    )
+    with pytest.raises(IntegrityViolation):
+        validate_plan_dispositions(
+            plan_rules=plan,
+            snapshots_by_id={"gen": _snapshot()},
+            dispositions=(
+                exact,
+                RequirementDispositionV1(
+                    resolved_policy_id="fabricated",
+                    outcome_rule_id="checker",
+                    requirement_id="ghost",
+                    status="not_executed",
+                    reason_code="search_exhausted",
+                ),
+            ),
+        )
+
+
+def test_subset_binding_rejects_artifact_kind_schema_different_from_requirement():
+    binding = ResolvedPolicySubsetCountBindingV1(
+        resolved_policy_id="gen",
+        outcome_rule_id="checker",
+        allowed_not_executed_reason_codes=("search_exhausted",),
+        identity_binding=ArtifactIdentityBindingV1(
+            collection_item_pointer="/requirement_id",
+            artifact_value_source="payload",
+            artifact_payload_pointer="/requirement_id",
+        ),
+    )
+    rule = _rule(
+        rule_id="checker",
+        role="evidence",
+        kind="simulation_run",
+        schemas=("simulation-result@1",),
+        min_count=0,
+        max_count=None,
+        binding=binding,
+    )
+    view = _view(
+        0,
+        kind="simulation_run",
+        schema="simulation-result@1",
+        payload={"requirement_id": "r1"},
+    )
+    allocation = allocate_artifacts(plan_rules=[_plan_rule(rule)], artifacts=[view])[0]
+    with pytest.raises(IntegrityViolation):
+        validate_rule_cardinality(
+            allocation=allocation,
+            artifacts_by_index={0: view},
+            run_payload={},
+            primary_payload=None,
+            snapshots_by_id={"gen": _snapshot()},
+            dispositions=(
+                RequirementDispositionV1(
+                    resolved_policy_id="gen",
+                    outcome_rule_id="checker",
+                    requirement_id="r1",
+                    status="produced",
+                ),
+            ),
+        )
+
+
 # -------------------------------------------------------- typed lineage roles
 def _sources(*, include_input=True):
     inputs = {}
@@ -338,6 +493,45 @@ def test_typed_lineage_rejects_dangling_parent():
             child_payload_schema_id="checker-report@1",
             child_lineage=("artifact:input",),
             sources=_sources(include_input=False),
+        )
+
+
+def test_child_payload_reference_must_resolve_through_an_authorized_parent():
+    base = _checker_lineage(_builder())
+    policy = base.model_copy(
+        update={
+            "parent_rules": (
+                ArtifactParentRuleV1(
+                    parent_role="target",
+                    source="child_payload_reference",
+                    child_payload_pointer="/target_artifact_id",
+                    artifact_kinds=("ir_snapshot",),
+                    payload_schema_ids=("ir-core@1",),
+                    min_count=1,
+                    max_count=1,
+                ),
+            )
+        }
+    )
+    target = ParentInfo(
+        artifact_id="artifact:target",
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        version_tuple=VersionTuple(ir_snapshot_id="snapshot:target"),
+    )
+    resolved, ids = resolve_child_payload_references(
+        policy=policy,
+        child_payload={"target_artifact_id": target.artifact_id},
+        available_parents={target.artifact_id: target},
+    )
+    assert resolved == {target.artifact_id: target}
+    assert ids == (target.artifact_id,)
+
+    with pytest.raises(IntegrityViolation):
+        resolve_child_payload_references(
+            policy=policy,
+            child_payload={"target_artifact_id": "artifact:not-a-run-parent"},
+            available_parents={target.artifact_id: target},
         )
 
 
@@ -416,6 +610,8 @@ def test_build_publication_plan_resolves_exact_policies():
     assert plan.finding_policy is not None
     assert "primary" in plan.lineage_by_rule_id
     assert [pr.rule.rule_id for pr in plan.plan_rules] == ["primary"]
+    with pytest.raises(TypeError):
+        plan.lineage_by_rule_id["forged"] = plan.lineage_by_rule_id["primary"]  # type: ignore[index]
 
 
 def test_select_policy_gap_is_fail_closed():
@@ -455,6 +651,132 @@ def test_attempt_scope_plan_rejects_business_artifact_rules():
         )
 
 
+def test_plan_requires_one_primary_for_success_and_evidence_only_for_failure():
+    registry, definition = _registry_and_definition()
+    success = next(
+        policy for policy in definition.outcome_policies if policy.policy_id == "checker-completed"
+    )
+    primary = success.artifact_rules[0]
+
+    no_primary = success.model_copy(
+        update={"artifact_rules": (primary.model_copy(update={"role": "output"}),)}
+    )
+    malformed_definition = definition.model_copy(
+        update={
+            "outcome_policies": tuple(
+                no_primary if policy == success else policy
+                for policy in definition.outcome_policies
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        build_publication_plan(
+            registry=registry,
+            definition=malformed_definition,
+            policy=no_primary,
+            scope="run",
+        )
+
+    two_primaries = success.model_copy(
+        update={
+            "artifact_rules": (
+                primary,
+                primary.model_copy(update={"rule_id": "second-primary"}),
+            )
+        }
+    )
+    malformed_definition = definition.model_copy(
+        update={
+            "outcome_policies": tuple(
+                two_primaries if policy == success else policy
+                for policy in definition.outcome_policies
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        build_publication_plan(
+            registry=registry,
+            definition=malformed_definition,
+            policy=two_primaries,
+            scope="run",
+        )
+
+    failure = next(
+        policy
+        for policy in definition.outcome_policies
+        if policy.prepared_outcome == "failure" and policy.publication_scope == "run"
+    )
+    output_failure = failure.model_copy(
+        update={
+            "artifact_rules": (
+                primary.model_copy(update={"rule_id": "fabricated-output", "role": "output"}),
+            )
+        }
+    )
+    malformed_definition = definition.model_copy(
+        update={
+            "outcome_policies": tuple(
+                output_failure if policy == failure else policy
+                for policy in definition.outcome_policies
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        build_publication_plan(
+            registry=registry,
+            definition=malformed_definition,
+            policy=output_failure,
+            scope="run",
+        )
+
+
+def test_plan_rejects_retry_selector_and_run_state_mismatch():
+    registry, definition = _registry_and_definition()
+    attempt_retry = next(
+        policy
+        for policy in definition.outcome_policies
+        if policy.publication_scope == "attempt" and policy.retry_disposition == "retry"
+    )
+    wrong_attempt = attempt_retry.model_copy(update={"run_status_after_publication": "failed"})
+    malformed_definition = definition.model_copy(
+        update={
+            "outcome_policies": tuple(
+                wrong_attempt if policy == attempt_retry else policy
+                for policy in definition.outcome_policies
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        build_publication_plan(
+            registry=registry,
+            definition=malformed_definition,
+            policy=wrong_attempt,
+            scope="attempt",
+        )
+
+    run_failure = next(
+        policy
+        for policy in definition.outcome_policies
+        if policy.publication_scope == "run" and policy.prepared_outcome == "failure"
+    )
+    wrong_run = run_failure.model_copy(update={"retry_disposition": "retry"})
+    malformed_definition = definition.model_copy(
+        update={
+            "outcome_policies": tuple(
+                wrong_run if policy == run_failure else policy
+                for policy in definition.outcome_policies
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        build_publication_plan(
+            registry=registry,
+            definition=malformed_definition,
+            policy=wrong_run,
+            scope="run",
+        )
+
+
 def test_duplicate_selectors_fail_registry_load():
     from gameforge.contracts.jobs import RunKindDefinition
 
@@ -473,11 +795,14 @@ def test_duplicate_selectors_fail_registry_load():
 
 
 # -------------------------------------------------------- workflow effects (#1)
-def test_validation_completion_effects_are_registered():
-    # Task 17b registers the validation-completion + revert effects; a validation
-    # terminal now runs the ApprovalItem CAS inside the publisher's UoW instead of
-    # fail-closing on an unregistered key.
+def test_mutating_workflow_effects_are_registered():
+    # Task 9 closes every active workflow key with a callable; draft creation is
+    # delegated to the transaction-bound Task-7 authority and validation completion
+    # CASes through its dedicated authority ports.
     for key in (
+        "create_patch_subject_head_and_draft@1",
+        "supersede_patch_head_create_draft@1",
+        "create_constraint_subject_head_and_draft@1",
         "set_patch_validated@1",
         "set_patch_validated_with_auto_proof@1",
         "set_patch_validation_failed@1",
@@ -493,7 +818,7 @@ def test_validation_completion_effects_are_registered():
 
 def test_unregistered_workflow_effect_still_fails_closed():
     with pytest.raises(IntegrityViolation):
-        resolve_workflow_effect("create_patch_subject_head_and_draft@1")
+        resolve_workflow_effect("client_supplied_import_path")
 
 
 def test_no_op_effects_still_resolve():
@@ -509,7 +834,7 @@ def test_no_op_effects_still_resolve():
 
 
 # ----------------------------------------------- artifact_id identity guard (#5)
-def test_artifact_id_identity_binding_is_fail_closed():
+def test_artifact_id_identity_binding_requires_and_checks_post_mint_id():
     binding = JsonCollectionCountBindingV1(
         source="prepared_primary_payload",
         collection_pointer="/episodes",
@@ -537,6 +862,36 @@ def test_artifact_id_identity_binding_is_fail_closed():
             primary_payload={"episodes": [{"scenario_spec_artifact_id": "x"}]},
             snapshots_by_id={},
             dispositions=(),
+        )
+    # The publisher's pre-mint pass validates cardinality while explicitly
+    # deferring only this identity; the post-mint pass below is authoritative.
+    validate_rule_cardinality(
+        allocation=allocations[0],
+        artifacts_by_index={0: view},
+        run_payload={},
+        primary_payload={"episodes": [{"scenario_spec_artifact_id": "artifact:scenario"}]},
+        snapshots_by_id={},
+        dispositions=(),
+        defer_artifact_id_identity=True,
+    )
+    validate_rule_cardinality(
+        allocation=allocations[0],
+        artifacts_by_index={0: view},
+        run_payload={},
+        primary_payload={"episodes": [{"scenario_spec_artifact_id": "artifact:scenario"}]},
+        snapshots_by_id={},
+        dispositions=(),
+        published_artifact_ids_by_index={0: "artifact:scenario"},
+    )
+    with pytest.raises(IntegrityViolation):
+        validate_rule_cardinality(
+            allocation=allocations[0],
+            artifacts_by_index={0: view},
+            run_payload={},
+            primary_payload={"episodes": [{"scenario_spec_artifact_id": "artifact:forged"}]},
+            snapshots_by_id={},
+            dispositions=(),
+            published_artifact_ids_by_index={0: "artifact:scenario"},
         )
 
 
@@ -652,6 +1007,43 @@ def test_runtime_parent_in_disabled_mode_fails_closed():
             parents=[_prompt_parent()],
             committed_link_counts={"current_attempt": 0, "all_attempts": 0},
         )
+
+
+def test_runtime_parent_policy_overlap_fails_even_when_no_parent_is_observed():
+    first = _prompt_rule_set().rules[0]
+    overlapping = first.model_copy(update={"rule_id": "prompts-overlap"})
+    rule_set = RuntimeParentRuleSetV1(
+        rule_set_id="rp-overlap",
+        version=1,
+        rules=(first, overlapping),
+    )
+    with pytest.raises(IntegrityViolation):
+        validate_runtime_parents(
+            rule_set=rule_set,
+            manifest_scope="attempt",
+            llm_execution_mode="not_applicable",
+            parents=[],
+            committed_link_counts={"current_attempt": 0, "all_attempts": 0},
+        )
+
+
+def test_runtime_parent_source_role_and_selector_are_authoritative():
+    rule = _prompt_rule_set().rules[0]
+    wrong_role = rule.model_copy(update={"parent_role": "input"})
+    wrong_selector = rule.model_copy(update={"attempt_selector": "all_closed"})
+    for malformed in (wrong_role, wrong_selector):
+        with pytest.raises(IntegrityViolation):
+            validate_runtime_parents(
+                rule_set=RuntimeParentRuleSetV1(
+                    rule_set_id=f"rp-{malformed.parent_role}-{malformed.attempt_selector}",
+                    version=1,
+                    rules=(malformed,),
+                ),
+                manifest_scope="attempt",
+                llm_execution_mode="not_applicable",
+                parents=[],
+                committed_link_counts={"current_attempt": 0, "all_attempts": 0},
+            )
 
 
 def test_not_applicable_enforces_zero_runtime_parents():

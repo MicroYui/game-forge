@@ -42,7 +42,7 @@ from typing import Literal, Mapping, Protocol
 
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.jobs import (
     ConstraintValidationPayloadV1,
     PreparedArtifact,
@@ -91,6 +91,8 @@ from gameforge.platform.run_handlers.validation_common import (
     evidence_version_tuple,
     overall_status_of,
     require_exists,
+    validation_child_execution_seed,
+    with_validation_child_seed_evidence,
 )
 
 VALIDATION_POLICY_FIELD = "/params/validation_policy"
@@ -213,7 +215,7 @@ class ConstraintValidationHandler:
 
         proposal = load_proposal(self.blobs, payload.subject.subject_artifact_id)
         candidate = tuple(proposal.constraints)
-        seed = context.payload.seed
+        root_seed = context.payload.seed
         lineage = self._artifact_lineage(payload)
 
         pipeline = self._run_pipeline(payload, candidate)
@@ -227,7 +229,7 @@ class ConstraintValidationHandler:
             else None
         )
         compile_evidence = self._seal_compile_evidence(
-            payload, pipeline, candidate_id, lineage, seed
+            payload, pipeline, candidate_id, lineage, root_seed
         )
         compile_evidence_id = content_addressed_artifact_id(compile_evidence)
 
@@ -235,7 +237,7 @@ class ConstraintValidationHandler:
             regression_artifacts,
             regression_dimensions,
             dispositions,
-        ) = self._regression_phase(payload, pipeline, lineage, seed)
+        ) = self._regression_phase(payload, pipeline, lineage, context.run.kind, root_seed)
 
         compile_dimension = self._compile_dimension(payload, pipeline, compile_evidence_id)
         requirements = tuple(
@@ -271,7 +273,7 @@ class ConstraintValidationHandler:
             supporting,
             lineage,
             overall,
-            seed,
+            root_seed,
         )
 
         artifacts: tuple[PreparedArtifact, ...] = (
@@ -476,7 +478,8 @@ class ConstraintValidationHandler:
         payload: ConstraintValidationPayloadV1,
         pipeline: _CompilePipelineV1,
         lineage: tuple[str, ...],
-        seed: int | None,
+        run_kind: RunKindRef,
+        root_seed: int | None,
     ) -> tuple[
         tuple[PreparedArtifact, ...],
         tuple[DimensionResult, ...],
@@ -493,7 +496,7 @@ class ConstraintValidationHandler:
             and pipeline.differential_positively_covered
         )
         if run_regression:
-            return self._run_regression(payload, lineage, seed)
+            return self._run_regression(payload, lineage, run_kind, root_seed)
         reason = (
             "candidate_unavailable" if not pipeline.compile_passed else "prior_requirement_failed"
         )
@@ -513,7 +516,8 @@ class ConstraintValidationHandler:
         self,
         payload: ConstraintValidationPayloadV1,
         lineage: tuple[str, ...],
-        seed: int | None,
+        run_kind: RunKindRef,
+        root_seed: int | None,
     ) -> tuple[
         tuple[PreparedArtifact, ...],
         tuple[DimensionResult, ...],
@@ -524,11 +528,17 @@ class ConstraintValidationHandler:
         dispositions: list[RequirementDispositionV1] = []
         for suite_id in payload.regression_suite_artifact_ids:
             require_exists(self.blobs, suite_id)
+            execution_seed = validation_child_execution_seed(
+                root_seed=root_seed,
+                run_kind=run_kind,
+                profile=payload.validation_policy,
+                case_id=suite_id,
+            )
             outcome = self.regression_runner.run(
                 RegressionRunRequest(
                     suite_artifact_id=suite_id,
                     snapshot_id=None,
-                    seed=0 if seed is None else seed,
+                    seed=execution_seed,
                 )
             )
             status = "unproven" if outcome.status == "not_executed" else outcome.status
@@ -546,10 +556,20 @@ class ConstraintValidationHandler:
                     # publisher re-projects via ``producer_value``. The dimension
                     # tool is recorded on the EvidenceRequirement, not here.
                     tool_version=EVIDENCE_TOOL_VERSION,
-                    seed=seed,
+                    seed=root_seed,
                 ),
                 lineage=lineage,
-                payload=outcome.payload,
+                payload=with_validation_child_seed_evidence(
+                    {
+                        **outcome.payload,
+                        "reason_code": reason if status == "unproven" else None,
+                    },
+                    root_seed=root_seed,
+                    execution_seed=execution_seed,
+                    run_kind=run_kind,
+                    profile=payload.validation_policy,
+                    case_id=suite_id,
+                ),
                 extra_meta={"requirement_id": f"regression:{suite_id}"},
             )
             artifacts.append(artifact)
@@ -607,7 +627,7 @@ class ConstraintValidationHandler:
         pipeline: _CompilePipelineV1,
         candidate_id: str | None,
         lineage: tuple[str, ...],
-        seed: int | None,
+        root_seed: int | None,
     ) -> PreparedArtifact:
         evidence = ConstraintCompileEvidenceV1(
             proposal_artifact_id=payload.subject.subject_artifact_id,
@@ -632,7 +652,7 @@ class ConstraintValidationHandler:
                 ir_snapshot_id=None,
                 constraint_snapshot_id=candidate_id,
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=seed,
+                seed=root_seed,
             ),
             lineage=compile_lineage,
             payload=evidence.model_dump(mode="json"),
@@ -648,7 +668,7 @@ class ConstraintValidationHandler:
         supporting: tuple[str, ...],
         lineage: tuple[str, ...],
         overall: str,
-        seed: int | None,
+        root_seed: int | None,
     ) -> PreparedArtifact:
         evidence_set = EvidenceSet(
             subject_artifact_id=payload.subject.subject_artifact_id,
@@ -673,7 +693,7 @@ class ConstraintValidationHandler:
                     target_binding.target_snapshot_id if target_binding is not None else None
                 ),
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=seed,
+                seed=root_seed,
             ),
             lineage=lineage,
             payload=evidence_set.model_dump(mode="json"),

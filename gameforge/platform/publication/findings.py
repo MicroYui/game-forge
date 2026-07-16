@@ -22,6 +22,7 @@ from gameforge.contracts.jobs import (
     PreparedFindingV1,
     RunFindingLinkV1,
 )
+from gameforge.contracts.lineage import VersionTuple
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,6 +40,7 @@ def plan_finding_write(
     finding_policy: FindingOutputPolicyV1,
     evidence_rule_id: str,
     evidence_artifact_id: str,
+    evidence_version_tuple: VersionTuple,
     run_id: str,
     attempt_no: int,
     ordinal: int,
@@ -65,6 +67,20 @@ def plan_finding_write(
     if payload.producer_run_id != run_id:
         raise IntegrityViolation(
             "finding producer_run_id differs from the current Run", finding_id=prepared.finding_id
+        )
+    grounded_snapshots = {
+        value
+        for value in (
+            evidence_version_tuple.ir_snapshot_id,
+            evidence_version_tuple.constraint_snapshot_id,
+        )
+        if value is not None
+    }
+    if payload.snapshot_id not in grounded_snapshots:
+        raise IntegrityViolation(
+            "finding snapshot differs from its exact evidence Artifact",
+            finding_id=prepared.finding_id,
+            snapshot_id=payload.snapshot_id,
         )
 
     expected = prepared.expected_previous_revision

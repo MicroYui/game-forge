@@ -53,6 +53,7 @@ from gameforge.contracts.lineage import (
     ObjectRef,
     VersionTuple,
 )
+from gameforge.contracts.model_router import ModelSnapshot
 
 
 class ModelBridgePort(Protocol):
@@ -64,6 +65,14 @@ class ModelBridgePort(Protocol):
     """
 
     def call_model(self, request: object) -> object: ...
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot: ...
 
 
 @runtime_checkable

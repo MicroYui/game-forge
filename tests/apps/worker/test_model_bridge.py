@@ -92,8 +92,10 @@ class _RecordingDecider:
         self._order = order
         self._authority = authority
         self._decision = decision
+        self.model_requests: list[object] = []
 
     def decide_and_record(self, model_request, *, execution_source, decided_at):
+        self.model_requests.append(model_request)
         self._order.append("decide")
         self._authority.decisions[self._decision.decision_id] = self._decision
         return self._decision
@@ -114,6 +116,18 @@ class _RecordingCost:
         self.reconciled.append(result)
 
 
+class _SnapshotResolver:
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ):
+        del catalog_version, catalog_digest, model_snapshot_id
+        return _request().model_snapshot
+
+
 def _bridge(*, order, publisher, decider, cost, router, execution_source):
     return WorkerModelBridge(
         fence=_fence(),
@@ -122,6 +136,7 @@ def _bridge(*, order, publisher, decider, cost, router, execution_source):
         decider=decider,
         router=router,
         cost=cost,
+        model_snapshot_resolver=_SnapshotResolver(),
         tracer=Tracer(exporter=_ListExporter(), sampler=AlwaysOnSampler()),
         clock=_Clock(),
         worker_actor=WORKER,
@@ -168,6 +183,8 @@ def test_record_call_orders_render_decision_reserve_call_reconcile(tmp_path) -> 
     result = bridge.call_model(_call_request())
 
     assert order == ["publish_prompt", "decide", "reserve", "reconcile"]
+    assert decider.model_requests == [_call_request().model_request]
+    assert decider.model_requests[0].agent_node_id == "repair"
     # The prompt was published before the provider was ever called.
     assert publisher.requests[0].request_hash  # source_rendered published first
     assert transport.calls  # the provider ran exactly once

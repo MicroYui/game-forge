@@ -18,6 +18,7 @@ from gameforge.contracts.errors import (
 from gameforge.contracts.execution_profiles import (
     ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
+    RunKindRef,
 )
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import (
@@ -48,6 +49,11 @@ from gameforge.contracts.lineage import (
     object_key_for_sha256,
 )
 from gameforge.contracts.storage import RefValue
+from gameforge.contracts.jobs import (
+    GenerationProposePayloadV1,
+    PromptGoalBindingV1,
+    RefReadBindingV1,
+)
 from gameforge.contracts.workflow import (
     ApprovalDecision,
     ApprovalItem,
@@ -76,6 +82,16 @@ from gameforge.platform.approvals.commands import (
     PreparedObjectBinding,
     PreparedValidationStart,
     ValidationStartResult,
+)
+from gameforge.platform.publication.effects import (
+    AgentDraftWorkflowRequest,
+    ApprovalCommandAgentDraftWorkflowPort,
+)
+from gameforge.platform.registry.defaults import build_builtin_registry
+from tests.platform.m4c.handler_support import (
+    WORKER,
+    build_envelope,
+    build_run_record,
 )
 
 NOW_DT = datetime(2026, 7, 14, 12, 0, tzinfo=timezone.utc)
@@ -1299,6 +1315,165 @@ def test_agent_patch_publish_requires_exact_producer_membership(
 
     result = harness.service.publish_draft(prepared=prepared, context=context)
     assert result.subject_head.current_subject_artifact_id == subject_id
+
+
+def test_terminal_agent_draft_adapter_reuses_shared_core_in_callers_uow() -> None:
+    """Task 9's adapter delegates to the real Task-7 authority without nesting."""
+
+    harness = _harness()
+    prepared = _draft(harness)
+    subject_id = prepared.subject_artifact.artifact_id
+    preview = prepared.companion_artifacts[0]
+    harness.subjects.facts[subject_id] = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=1,
+        produced_by="agent",
+        producer_run_id="run:producer",
+        supersedes_artifact_id=None,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    params = GenerationProposePayloadV1(
+        base_snapshot_artifact_id="artifact:base",
+        findings=(),
+        objective_goal=PromptGoalBindingV1(
+            source_artifact_id="artifact:goal",
+            expected_payload_hash="a" * 64,
+        ),
+        domain_scope=DomainScope(domain_ids=("economy",)),
+        target=RefReadBindingV1(
+            ref_name="content/head",
+            expected_ref=RefValue(artifact_id="artifact:base", revision=1),
+        ),
+        generation_policy=ProfileRefV1(profile_id="generation.default", version=1),
+        candidate_export_profiles=(),
+    )
+    run = build_run_record(
+        build_envelope(params=params),
+        RunKindRef(kind="generation.propose", version=1),
+        run_id="run:producer",
+    ).model_copy(update={"initiated_by": prepared.approval_item.proposer})
+    harness.runs.produced.add(
+        ("run:producer", subject_id, prepared.approval_item.proposer.principal_id)
+    )
+    definition = build_builtin_registry().get_run_kind(run.kind)
+    assert definition is not None
+    policy = next(
+        item for item in definition.outcome_policies if item.policy_id == "generation-gate-pass"
+    )
+    empty_by_rule = {rule.rule_id: () for rule in policy.artifact_rules}
+    artifacts_by_rule = {
+        **empty_by_rule,
+        "primary": (prepared.subject_artifact,),
+        "preview": (preview,),
+    }
+    payloads_by_rule = {
+        **empty_by_rule,
+        "primary": (
+            harness.subjects.patches[subject_id]
+            .model_copy(update={"produced_by": "agent", "producer_run_id": run.run_id})
+            .model_dump(mode="json"),
+        ),
+        "preview": ({"snapshot_id": "snapshot:preview"},),
+    }
+    request = AgentDraftWorkflowRequest(
+        effect_key="create_patch_subject_head_and_draft@1",
+        run=run,
+        policy=policy,
+        initiated_by=run.initiated_by,
+        executed_by=WORKER,
+        subject_artifact_id=subject_id,
+        artifacts_by_rule=artifacts_by_rule,
+        artifact_ids_by_rule={
+            key: tuple(artifact.artifact_id for artifact in artifacts)
+            for key, artifacts in artifacts_by_rule.items()
+        },
+        payloads_by_rule=payloads_by_rule,
+        expected_subject_head_revision=None,
+        expected_workflow_revision=None,
+        expected_current_approval=None,
+        expected_current_subject_head=None,
+        occurred_at=NOW,
+    )
+
+    class _Assembler:
+        def prepare(self, actual: AgentDraftWorkflowRequest) -> PreparedDraft:
+            assert actual is request
+            return prepared
+
+    port = ApprovalCommandAgentDraftWorkflowPort(
+        commands=harness.service,
+        capabilities=harness.capabilities,
+        assembler=_Assembler(),
+    )
+    with harness.uow.begin():
+        result = port.publish_agent_draft(request)
+
+    assert result.approval_item == prepared.approval_item
+    assert harness.uow.begins == 1  # only the caller-owned terminal UoW
+    assert harness.state.heads[prepared.approval_item.subject_series_id] == result.subject_head
+    assert [action for action, _ in harness.state.audit] == ["approval.draft_published"]
+
+
+def test_terminal_agent_draft_adapter_failure_rolls_back_callers_uow() -> None:
+    harness = _harness()
+    prepared = _draft(harness)
+
+    class _Assembler:
+        def prepare(self, request: AgentDraftWorkflowRequest) -> PreparedDraft:
+            return prepared
+
+    # The malformed request is rejected before the shared core mutates anything;
+    # the outer terminal UoW remains the sole rollback owner.
+    params = GenerationProposePayloadV1(
+        base_snapshot_artifact_id="artifact:base",
+        findings=(),
+        objective_goal=PromptGoalBindingV1(
+            source_artifact_id="artifact:goal", expected_payload_hash="a" * 64
+        ),
+        domain_scope=DomainScope(domain_ids=("economy",)),
+        target=RefReadBindingV1(ref_name="content/head", expected_ref=None),
+        generation_policy=ProfileRefV1(profile_id="generation.default", version=1),
+        candidate_export_profiles=(),
+    )
+    run = build_run_record(
+        build_envelope(params=params),
+        RunKindRef(kind="generation.propose", version=1),
+        run_id="run:producer",
+    ).model_copy(update={"initiated_by": prepared.approval_item.proposer})
+    definition = build_builtin_registry().get_run_kind(run.kind)
+    assert definition is not None
+    policy = next(
+        item for item in definition.outcome_policies if item.policy_id == "generation-gate-pass"
+    )
+    request = AgentDraftWorkflowRequest(
+        effect_key="create_patch_subject_head_and_draft@1",
+        run=run,
+        policy=policy,
+        initiated_by=run.initiated_by,
+        executed_by=WORKER,
+        subject_artifact_id=prepared.subject_artifact.artifact_id,
+        artifacts_by_rule={"primary": (prepared.subject_artifact,)},
+        artifact_ids_by_rule={"primary": (prepared.subject_artifact.artifact_id,)},
+        payloads_by_rule={"primary": ({},)},
+        expected_subject_head_revision=None,
+        expected_workflow_revision=None,
+        expected_current_approval=None,
+        expected_current_subject_head=None,
+        occurred_at=NOW,
+    )
+    port = ApprovalCommandAgentDraftWorkflowPort(
+        commands=harness.service,
+        capabilities=harness.capabilities,
+        assembler=_Assembler(),
+    )
+    before = copy.deepcopy(harness.state)
+    with pytest.raises(IntegrityViolation, match="preview/config"):
+        with harness.uow.begin():
+            port.publish_agent_draft(request)
+    assert harness.state == before
+    assert harness.uow.begins == 1
+    assert harness.uow.rollbacks == 1
 
 
 def test_service_proposer_cannot_publish_a_human_authored_revision() -> None:

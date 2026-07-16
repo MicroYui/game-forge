@@ -265,7 +265,9 @@ class BenchRunHandler:
             deadline_utc=context.deadline_utc,
         )
         model_snapshot = plan_node_snapshot(
-            context.payload.execution_version_plan, self.agent_node_id
+            context.payload.execution_version_plan,
+            self.agent_node_id,
+            context.model_bridge,
         )
         return _BoundAgentInvoker(
             adapter=adapter,

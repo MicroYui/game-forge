@@ -24,7 +24,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Protocol
 
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import ExecutionVersionPlanV1
 from gameforge.contracts.model_router import (
     Message,
@@ -34,6 +36,10 @@ from gameforge.contracts.model_router import (
     ModelSnapshot,
     ToolSchemaRef,
     request_hash,
+)
+from gameforge.contracts.routing import (
+    ModelCatalogSnapshotV1,
+    canonical_model_snapshot_id,
 )
 
 from gameforge.platform.run_handlers.base import ExecutorContextLike, ModelBridgePort
@@ -68,6 +74,103 @@ class AdapterModelResult:
     route_ordinal: int
     replayed: bool
     execution_source: str
+
+
+class ExactModelCatalogAuthority(Protocol):
+    """Retained model-catalog history addressed by its exact version and digest."""
+
+    def get_model_catalog(
+        self,
+        catalog_version: int,
+        catalog_digest: str,
+    ) -> ModelCatalogSnapshotV1 | None: ...
+
+
+class StructuredModelSnapshotAuthority(Protocol):
+    """Trusted preimages for the opaque model snapshot IDs used by M4 plans."""
+
+    def get_model_snapshot(self, model_snapshot_id: str) -> ModelSnapshot | None: ...
+
+
+class PlannedModelSnapshotResolver(Protocol):
+    """Resolve one planned opaque ID without parsing meaning out of the ID string."""
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot: ...
+
+
+class ExactModelCatalogSnapshotResolver:
+    """Close an opaque plan model ID over retained catalog + structured preimage.
+
+    ``ExecutionVersionPlanV1`` intentionally carries only the canonical opaque
+    model identity.  A provider request still needs the legacy structured
+    :class:`ModelSnapshot`, so the worker composition supplies a trusted preimage
+    authority.  This resolver first loads the *exact* retained catalog descriptor,
+    then proves that the supplied structure hashes back to the descriptor's opaque
+    ID.  No component reverse-parses provider/model/tag from that opaque string.
+    """
+
+    def __init__(
+        self,
+        *,
+        catalogs: ExactModelCatalogAuthority,
+        snapshots: StructuredModelSnapshotAuthority,
+    ) -> None:
+        self._catalogs = catalogs
+        self._snapshots = snapshots
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot:
+        catalog = self._catalogs.get_model_catalog(catalog_version, catalog_digest)
+        if catalog is None:
+            raise IntegrityViolation("exact model catalog history is unavailable")
+        if catalog.catalog_version != catalog_version or catalog.catalog_digest != catalog_digest:
+            raise IntegrityViolation("model catalog authority returned a non-exact binding")
+
+        descriptor = next(
+            (item for item in catalog.models if item.model_snapshot == model_snapshot_id),
+            None,
+        )
+        if descriptor is None:
+            raise IntegrityViolation(
+                "planned model snapshot is absent from the exact catalog",
+                model_snapshot=model_snapshot_id,
+            )
+        if descriptor.status != "active":
+            raise IntegrityViolation(
+                "planned model snapshot is disabled in the exact catalog",
+                model_snapshot=model_snapshot_id,
+            )
+
+        retained = self._snapshots.get_model_snapshot(model_snapshot_id)
+        if retained is None:
+            raise IntegrityViolation(
+                "structured model snapshot binding is unavailable",
+                model_snapshot=model_snapshot_id,
+            )
+        if not isinstance(retained, ModelSnapshot):
+            raise IntegrityViolation("structured model snapshot authority returned an invalid type")
+        snapshot = ModelSnapshot.model_validate(retained.model_dump(mode="python"))
+        try:
+            canonical_id = canonical_model_snapshot_id(snapshot)
+        except ValueError as exc:
+            raise IntegrityViolation("structured model snapshot binding is invalid") from exc
+        if canonical_id != descriptor.model_snapshot or snapshot.provider != descriptor.provider:
+            raise IntegrityViolation(
+                "structured model snapshot binding differs from the exact catalog descriptor",
+                model_snapshot=model_snapshot_id,
+            )
+        return snapshot
 
 
 def _token_usage_dict(observation: object) -> dict[str, int]:
@@ -110,6 +213,7 @@ def router_result_to_model_response(result: object) -> ModelResponse:
 def plan_node_snapshot(
     plan: ExecutionVersionPlanV1 | None,
     agent_node_id: str,
+    resolver: PlannedModelSnapshotResolver,
 ) -> ModelSnapshot:
     """Resolve the frozen model snapshot for ``agent_node_id`` from the plan.
 
@@ -123,33 +227,12 @@ def plan_node_snapshot(
         raise ValueError("an LLM call requires a frozen execution version plan")
     for node in plan.nodes:
         if node.agent_node_id == agent_node_id:
-            return ModelSnapshot(
-                provider=_provider_of(node.allowed_model_snapshots[0]),
-                model=_model_of(node.allowed_model_snapshots[0]),
-                snapshot_tag=_tag_of(node.allowed_model_snapshots[0]),
+            return resolver.resolve_model_snapshot(
+                catalog_version=plan.model_catalog_version,
+                catalog_digest=plan.model_catalog_digest,
+                model_snapshot_id=node.allowed_model_snapshots[0],
             )
     raise ValueError(f"agent node {agent_node_id!r} is not part of the execution plan")
-
-
-def _split_snapshot(reference: str) -> tuple[str, str, str]:
-    parts = reference.split("/")
-    if len(parts) != 3 or not all(parts):
-        raise ValueError(
-            "planned model snapshot must be provider/model/snapshot_tag",
-        )
-    return parts[0], parts[1], parts[2]
-
-
-def _provider_of(reference: str) -> str:
-    return _split_snapshot(reference)[0]
-
-
-def _model_of(reference: str) -> str:
-    return _split_snapshot(reference)[1]
-
-
-def _tag_of(reference: str) -> str:
-    return _split_snapshot(reference)[2]
 
 
 class ModelBridgeAgentAdapter:
@@ -300,7 +383,11 @@ def build_bridge_router(
         idempotency_prefix=f"{context.run.run_id}:{context.attempt.attempt_no}",
         deadline_utc=context.deadline_utc,
     )
-    model_snapshot = plan_node_snapshot(context.payload.execution_version_plan, agent_node_id)
+    model_snapshot = plan_node_snapshot(
+        context.payload.execution_version_plan,
+        agent_node_id,
+        context.model_bridge,
+    )
     return BridgeModelRouter(
         adapter=adapter,
         default_model_snapshot=model_snapshot,
@@ -395,7 +482,11 @@ def build_multinode_bridge_router(
         deadline_utc=context.deadline_utc,
     )
     node_snapshots = {
-        node_id: plan_node_snapshot(context.payload.execution_version_plan, node_id)
+        node_id: plan_node_snapshot(
+            context.payload.execution_version_plan,
+            node_id,
+            context.model_bridge,
+        )
         for node_id in agent_node_ids
     }
     return MultiNodeBridgeRouter(
@@ -409,9 +500,13 @@ def build_multinode_bridge_router(
 __all__ = [
     "AdapterModelResult",
     "BridgeModelRouter",
+    "ExactModelCatalogAuthority",
+    "ExactModelCatalogSnapshotResolver",
     "ModelBridgeAgentAdapter",
     "ModelBridgeCallRequestV1",
     "MultiNodeBridgeRouter",
+    "PlannedModelSnapshotResolver",
+    "StructuredModelSnapshotAuthority",
     "build_bridge_router",
     "build_multinode_bridge_router",
     "plan_node_snapshot",

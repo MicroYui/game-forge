@@ -20,9 +20,9 @@ implementation). Only ``checker.run`` is exercised end-to-end in Task 17a.
 The other five maps (``terminal_hooks`` / ``workflow_effects`` / ``profile_handlers`` /
 ``permission_domain_resolvers`` / ``completion_oracles``) are readiness-closure
 allowlists derived from the exact registry; ``completion_oracles`` binds the real
-Task-12a oracle executors, and ``workflow_effects`` closure is deliberately SEPARATE
-from ``publication/effects.py``'s resolver (which still fail-closes the mutating keys
-until Task 17b).
+Task-12a oracle executors, and ``workflow_effects`` binds every active key to the
+exact callable in ``publication/effects.py``. Mutating handlers still require their
+transaction-bound authority ports at execution time and fail closed when absent.
 """
 
 from __future__ import annotations
@@ -320,12 +320,14 @@ class _SqlRollbackSchemaAnalyzer:
                     target_artifact_kind=kind,
                     target_digest=target.payload_hash,
                     target_snapshot_id=snapshot_id,
+                    target_version_tuple=target.version_tuple,
                 )
             return RollbackTargetInspectionV1(
                 status="unproven",
                 target_artifact_kind=kind,
                 target_digest=target.payload_hash,
                 target_snapshot_id=snapshot_id,
+                target_version_tuple=target.version_tuple,
                 reason_code="rollback_schema_compat_unproven",
             )
 
@@ -473,9 +475,8 @@ def build_trusted_components(
     :func:`gameforge.platform.registry.build_readiness_component_maps` (the single source
     of truth shared with the API's key-only readiness composition). The worker EXECUTES
     Runs, so it replaces the key-only sentinels with the REAL executor + completion-oracle
-    instances and binds each ``workflow_effect_key`` to its ``effects.py`` handler where
-    one is registered (a documented deferred marker otherwise — effects.py's resolver
-    stays the fail-closed authority for the mutating keys). When the composition supplies
+    instances and binds every ``workflow_effect_key`` to its callable ``effects.py``
+    handler. String/deferred sentinels are forbidden in an executing process. When the composition supplies
     the deterministic rollback history/schema ports they back ``rollback_validator@1``.
     """
 
@@ -487,7 +488,17 @@ def build_trusted_components(
         rollback_history_verifier=rollback_history_verifier,
         rollback_schema_analyzer=rollback_schema_analyzer,
     )
-    workflow_effects = {key: WORKFLOW_EFFECTS.get(key, key) for key in base.workflow_effects}
+    expected_workflow_effects = set(base.workflow_effects)
+    registered_workflow_effects = set(WORKFLOW_EFFECTS)
+    if registered_workflow_effects != expected_workflow_effects:
+        raise IntegrityViolation(
+            "worker workflow effects do not close the active registry exactly",
+            missing=tuple(sorted(expected_workflow_effects - registered_workflow_effects)),
+            extra=tuple(sorted(registered_workflow_effects - expected_workflow_effects)),
+        )
+    workflow_effects = {key: WORKFLOW_EFFECTS[key] for key in sorted(expected_workflow_effects)}
+    if any(not callable(effect) for effect in workflow_effects.values()):
+        raise IntegrityViolation("worker workflow effect registry contains a non-callable")
     return TrustedComponentMaps(
         executors=executors,
         terminal_hooks=dict(base.terminal_hooks),

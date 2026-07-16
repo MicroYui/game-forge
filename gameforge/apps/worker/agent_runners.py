@@ -35,6 +35,7 @@ from gameforge.agents.repair.verify import (
 from gameforge.contracts.agent_io import ConstraintProposal
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import Finding, Patch
+from gameforge.contracts.jobs import ResolvedArtifactRequirementV1
 from gameforge.spine.checkers.base import Checker
 from gameforge.spine.checkers.report import build_review_report
 from gameforge.spine.ir.snapshot import Snapshot
@@ -52,16 +53,9 @@ from gameforge.platform.run_handlers.generation import (
 from gameforge.platform.run_handlers.repair import (
     RepairRunRequest,
     RepairSearchOutcomeV1,
-    requirement_id_for_profile,
 )
 
 CheckerFactory = Callable[[Snapshot, tuple[Constraint, ...]], list[Checker]]
-
-# Fixed single requirement ids for the generation-gate policy (its checker/sim/
-# review requirements are policy-frozen, not resolved from client profiles).
-_GEN_CHECKER_REQUIREMENT = "generation-gate:checker"
-_GEN_SIMULATION_REQUIREMENT = "generation-gate:simulation"
-_GEN_REVIEW_REQUIREMENT = "generation-gate:review"
 
 
 def _findings_payload(schema: str, snapshot_id: str, findings: tuple[Finding, ...]) -> dict:
@@ -83,6 +77,24 @@ def _verifier_sim_payload(snapshot_id: str, findings: tuple[Finding, ...]) -> di
         "horizon_steps": _SIM_N_TICKS,
         "findings": [finding.model_dump(mode="json") for finding in findings],
     }
+
+
+def _requirements_for(
+    requirements: tuple[ResolvedArtifactRequirementV1, ...],
+    outcome_rule_id: str,
+    *,
+    expected_count: int,
+) -> tuple[ResolvedArtifactRequirementV1, ...]:
+    selected = tuple(
+        requirement
+        for requirement in requirements
+        if requirement.outcome_rule_id == outcome_rule_id
+    )
+    if len(selected) != expected_count:
+        raise ValueError(
+            f"frozen {outcome_rule_id} requirement count differs from handler dimensions"
+        )
+    return selected
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,6 +132,15 @@ class M2GenerationAgentRunner:
             checker_findings.extend(checker.check(patched))
         sim_findings = tuple(_economy_findings(patched))
         review = build_review_report(patched, checkers, sim_findings=sim_findings)
+        checker_requirement = _requirements_for(
+            request.gate_requirements, "checker", expected_count=1
+        )[0]
+        simulation_requirement = _requirements_for(
+            request.gate_requirements, "simulation", expected_count=1
+        )[0]
+        review_requirement = _requirements_for(
+            request.gate_requirements, "review", expected_count=1
+        )[0]
 
         preview_id = patched.snapshot_id
         return GenerationGateOutcomeV1(
@@ -130,7 +151,7 @@ class M2GenerationAgentRunner:
             checker_evidence=(
                 PreparedEvidenceV1(
                     outcome_rule_id="checker",
-                    requirement_id=_GEN_CHECKER_REQUIREMENT,
+                    requirement_id=checker_requirement.requirement_id,
                     payload=_findings_payload(
                         "checker-report@1", preview_id, tuple(checker_findings)
                     ),
@@ -140,7 +161,7 @@ class M2GenerationAgentRunner:
             simulation_evidence=(
                 PreparedEvidenceV1(
                     outcome_rule_id="simulation",
-                    requirement_id=_GEN_SIMULATION_REQUIREMENT,
+                    requirement_id=simulation_requirement.requirement_id,
                     payload=_findings_payload("simulation-result@1", preview_id, sim_findings),
                     findings=sim_findings,
                 ),
@@ -148,7 +169,7 @@ class M2GenerationAgentRunner:
             review_evidence=(
                 PreparedEvidenceV1(
                     outcome_rule_id="review",
-                    requirement_id=_GEN_REVIEW_REQUIREMENT,
+                    requirement_id=review_requirement.requirement_id,
                     payload=review.model_dump(mode="json"),
                 ),
             ),
@@ -178,14 +199,21 @@ class M2RepairAgentRunner:
         patched = apply_patch(request.base_snapshot, draft.patch)
         preview_id = patched.snapshot_id
 
+        checker_requirements = _requirements_for(
+            request.verifier_requirements,
+            "checker",
+            expected_count=len(request.checkers),
+        )
         checker_evidence = tuple(
             PreparedEvidenceV1(
                 outcome_rule_id="checker",
-                requirement_id=requirement_id_for_profile(profile),
+                requirement_id=requirement.requirement_id,
                 payload=_findings_payload("checker-report@1", preview_id, checker_findings),
                 findings=checker_findings,
             )
-            for profile, checker in request.checkers
+            for requirement, (_profile, checker) in zip(
+                checker_requirements, request.checkers, strict=True
+            )
             for checker_findings in (tuple(checker.check(patched)),)
         )
         # The published simulation_run evidence MUST represent the run that actually
@@ -196,27 +224,44 @@ class M2RepairAgentRunner:
         # per profile — the verifier runs a single economy gate, not one per profile).
         verifier_findings, _ = _verifier_economy_findings(patched)
         verifier_sim_findings = tuple(verifier_findings)
+        simulation_requirements = _requirements_for(
+            request.verifier_requirements,
+            "simulation",
+            expected_count=len(request.simulation_profiles),
+        )
+        regression_requirements = _requirements_for(
+            request.verifier_requirements,
+            "regression",
+            expected_count=len(request.regression_suite_artifact_ids),
+        )
         simulation_evidence = tuple(
             PreparedEvidenceV1(
                 outcome_rule_id="simulation",
-                requirement_id=requirement_id_for_profile(profile),
+                requirement_id=requirement.requirement_id,
                 payload=_verifier_sim_payload(preview_id, verifier_sim_findings),
                 findings=verifier_sim_findings,
             )
-            for profile, _config in request.simulation_profiles
+            for requirement, (_profile, _config) in zip(
+                simulation_requirements, request.simulation_profiles, strict=True
+            )
         )
         regression_evidence = tuple(
             PreparedEvidenceV1(
                 outcome_rule_id="regression",
-                requirement_id=suite_id,
+                requirement_id=requirement.requirement_id,
                 payload={
                     "payload_schema_version": "regression-evidence@1",
                     "suite_artifact_id": suite_id,
                     "snapshot_id": preview_id,
                     "status": "passed",
+                    "reason_code": None,
                 },
             )
-            for suite_id in request.regression_suite_artifact_ids
+            for requirement, suite_id in zip(
+                regression_requirements,
+                request.regression_suite_artifact_ids,
+                strict=True,
+            )
         )
         return RepairSearchOutcomeV1(
             passed_verification=True,

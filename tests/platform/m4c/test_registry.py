@@ -15,8 +15,8 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.jobs import (
     ArtifactIdentityBindingV1,
+    ExecutionIdentityCountBindingV1,
     GraphSelectionV1,
-    IntermediateCountBindingV1,
     JsonCollectionCountBindingV1,
     ReviewRunPayloadV1,
     RunPayloadEnvelope,
@@ -515,8 +515,7 @@ def test_runtime_parent_rules_close_record_and_replay_cassette_scopes() -> None:
     assert attempt_shards.enabled_execution_modes == ("record",)
     assert attempt_shards.manifest_scope == "attempt"
     assert attempt_shards.attempt_selector == "current"
-    assert attempt_shards.count_binding == IntermediateCountBindingV1(
-        link_role="prompt_rendered",
+    assert attempt_shards.count_binding == ExecutionIdentityCountBindingV1(
         scope="current_attempt",
     )
 
@@ -524,8 +523,7 @@ def test_runtime_parent_rules_close_record_and_replay_cassette_scopes() -> None:
     assert run_shards.enabled_execution_modes == ("record",)
     assert run_shards.manifest_scope == "run"
     assert run_shards.attempt_selector == "all_closed"
-    assert run_shards.count_binding == IntermediateCountBindingV1(
-        link_role="prompt_rendered",
+    assert run_shards.count_binding == ExecutionIdentityCountBindingV1(
         scope="all_attempts",
     )
 

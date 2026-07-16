@@ -392,35 +392,35 @@ FROZEN_PROFILE_REQUIREMENT_SHAPES: Mapping[RunKindIdentity, tuple[tuple[str, str
 FROZEN_ACTIVE_RUN_KIND_IDENTITIES: frozenset[RunKindIdentity] = frozenset(FROZEN_RUN_KIND_SHAPES)
 FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxyType(
     {
-        ("artifact.migrate", 1): "3334acbeabf862501c15d5d8075dc5071dbfe83277caeacd6b27b90560631a8c",
-        ("bench.run", 1): "6cb5a9d4e3f6c342ab2026da5a281327bef09232a58adc0e4665138634ec0703",
-        ("checker.run", 1): "8ff7af32dc28be33d749a16bfe891ed58add7dcf535caaef828c4ab4dbe35e88",
+        ("artifact.migrate", 1): "6a31f1cfd0d51848d9e7177de9bb4c0dc759be4db52504dfcb5cc9c568ac0378",
+        ("bench.run", 1): "0bbc561039a535bc6cc2a23478b76df5c1ee5dc18ffcb09bf3d25de23ad8a762",
+        ("checker.run", 1): "b5e73e19e62c3c9872642c9c9028f18d84915c42404d29ea16f3e33a59e24c97",
         (
             "constraint_proposal.propose",
             1,
-        ): "057de1a9295a10326082afa84916bb5281ba20c150723018438221dbe2777b54",
+        ): "bbb57637366e6d07c690c4dcd1214128cc4aeb2329b7f37683f98fd6c69c95f8",
         (
             "constraint_proposal.validate",
             1,
-        ): "7f075e8af79c6f658ffdbe1dd3789ab0190e3827e57f06ba9be253a9da096ca4",
-        ("dr.drill", 1): "1fb1692545a847a4e50359d52aa5e6dbf66de79a21b708ade38443fbeae409a4",
+        ): "b501011350f43c4eb5a976b8163b9f819aeccf91d7dce3d9a6b4c02a27aa8078",
+        ("dr.drill", 1): "5df0f659ff48ef5c065df4510c43c4054774ff3bc2b0af3dd8ca9f82481e46b6",
         (
             "generation.propose",
             1,
-        ): "40a53d73458e62c7f34ca5b34dc5127c8d6dc0f9390ff1f18705f56aa5faff06",
-        ("patch.repair", 1): "1696866833d2e4391286056b46d72862abbbd553165ee94004c18f2cc5013b23",
-        ("patch.validate", 1): "1d1d8e9b74fbda8cec13c8f04985d3cded6347b3b28e5d4b23d81e77d17fc130",
-        ("playtest.run", 1): "38db6dee893a82b4e0bab0e115b2889e156a949660302247741ef9a64da91428",
-        ("review.run", 1): "b073921ca5175d83f7975ce97fd1c7d2aaa68c5e26ff833b8bc6ee46709ca77a",
+        ): "82a4eddf14e44185c11aab82c5a0bb8bf4c88e020a7c5edc030fd0f37b6d2d2c",
+        ("patch.repair", 1): "9385f0d6c61deaf73f68b71571827c17e3c6a72ac40bd8eb04ea94ef1bd1966b",
+        ("patch.validate", 1): "b1ce2b894a812bd83fa6b8c2e63527cbb8cd9f468c5c9ba33dba1f0fd9351e90",
+        ("playtest.run", 1): "cfd93a982589bab661e51c981802e1002b8912f102e449673d88fb3fe33b63f9",
+        ("review.run", 1): "a16ff361c2bb0ab09befe3e9b2f7a126a1832920b1f4006e881829408871aaa6",
         (
             "rollback.validate",
             1,
-        ): "89975a23bc81ed236b3c48d24b9c5f9c6c6bcb8b31dd6457d6338beb1b46d7cd",
-        ("simulation.run", 1): "597da63b949d63e22a8d8838b836858885e7f8290072ff53e8006cf55f014374",
+        ): "ebc48068649a8f46aa19677dce559a075959dc056072503089433d7f03a84923",
+        ("simulation.run", 1): "d90bde6b162c65524e3ab3d53a4c54661d83ba9258b5cabe1fc669b8a07e0a84",
         (
             "task_suite.derive",
             1,
-        ): "e92ab82897e282c09f1e5fbe7b9b5881dcf34fda7ab176e8ee9d9d7470bb6058",
+        ): "7eebc7a7450a64fe4569d2ebbd0e639a264d735a627fd84ddbdcfbdbe2b5064c",
     }
 )
 if set(FROZEN_PROFILE_REQUIREMENT_SHAPES) != set(FROZEN_RUN_KIND_SHAPES):

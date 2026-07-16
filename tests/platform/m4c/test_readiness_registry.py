@@ -19,7 +19,7 @@ from gameforge.contracts.execution_profiles import (
     RunKindRef,
     execution_profile_catalog_digest,
 )
-from gameforge.contracts.jobs import PreparedRunFailure
+from gameforge.contracts.jobs import IntermediateCountBindingV1, PreparedRunFailure
 from gameforge.platform.registry import (
     ImmutablePlatformRegistry,
     PlatformReadinessValidator,
@@ -158,6 +158,36 @@ def test_builtin_registry_and_exact_trusted_maps_are_ready() -> None:
     assert report.checked_run_kind_count == 14
     assert report.reference_checks > 0
     assert report.deferred_executor_keys == _DEFERRED_EXECUTOR_KEYS
+
+
+def test_readiness_rejects_record_shards_counted_from_prompt_links() -> None:
+    registry = build_builtin_registry()
+    definition = registry.get_run_kind(RunKindRef(kind="review.run", version=1))
+    assert definition is not None
+    rule_set = registry.get_runtime_parent_rule_set(definition.runtime_parent_rule_set)
+    assert rule_set is not None
+    malformed_rules = tuple(
+        rule.model_copy(
+            update={
+                "count_binding": IntermediateCountBindingV1(
+                    link_role="prompt_rendered",
+                    scope=(
+                        "current_attempt" if rule.manifest_scope == "attempt" else "all_attempts"
+                    ),
+                )
+            }
+        )
+        if rule.source == "record_shard"
+        else rule
+        for rule in rule_set.rules
+    )
+    malformed = rule_set.model_copy(update={"rules": malformed_rules})
+
+    with pytest.raises(IntegrityViolation, match="consumed execution-identity calls"):
+        PlatformReadinessValidator(
+            registry=_RuntimeRulesOverrideRegistry(registry, malformed),
+            components=_components(registry),
+        ).validate()
 
 
 def test_builtin_playtest_graph_selectors_cover_exact_versioned_memory_config() -> None:
@@ -582,6 +612,19 @@ class _RunKindsOverrideRegistry:
             ),
             None,
         )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._delegate, name)
+
+
+class _RuntimeRulesOverrideRegistry:
+    def __init__(self, delegate: Any, rule_set: Any) -> None:
+        self._delegate = delegate
+        self._rule_set = rule_set
+
+    def get_runtime_parent_rule_set(self, ref: Any) -> Any:
+        del ref
+        return self._rule_set
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._delegate, name)

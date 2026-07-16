@@ -131,7 +131,7 @@ def content_addressed_artifact_id(prepared: PreparedArtifact) -> str:
         version_tuple=prepared.version_tuple,
         lineage=prepared.lineage,
         payload_hash=prepared.payload_hash,
-        meta=prepared.meta,
+        meta={**prepared.meta, "replayability": "deterministic_recompute"},
     )
 
 

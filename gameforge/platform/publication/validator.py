@@ -15,8 +15,10 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import ResolvedExecutionProfileBindingV1
 from gameforge.contracts.jobs import (
     ArtifactIdentityBindingV1,
+    ExecutionIdentityCountBindingV1,
     ExecutionModeCountBindingV1,
     IntermediateCountBindingV1,
     JsonCollectionCountBindingV1,
@@ -46,6 +48,7 @@ class PreparedArtifactView:
     location: ObjectLocation
     meta: Mapping[str, object]
     payload: Mapping[str, object]
+    blob: bytes = b""
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,6 +147,8 @@ def validate_rule_cardinality(
     primary_payload: Mapping[str, object] | None,
     snapshots_by_id: Mapping[str, ResolvedPolicySnapshotV1],
     dispositions: Sequence[RequirementDispositionV1],
+    published_artifact_ids_by_index: Mapping[int, str] | None = None,
+    defer_artifact_id_identity: bool = False,
 ) -> None:
     """Enforce the exact count/identity set for one allocated rule."""
 
@@ -171,6 +176,8 @@ def validate_rule_cardinality(
             views=views,
             run_payload=run_payload,
             primary_payload=primary_payload,
+            published_artifact_ids_by_index=published_artifact_ids_by_index,
+            defer_artifact_id_identity=defer_artifact_id_identity,
         )
     elif isinstance(binding, ResolvedPolicyCountBindingV1):
         requirements = _requirements_for(
@@ -183,7 +190,18 @@ def validate_rule_cardinality(
                 expected=len(requirements),
                 actual=count,
             )
-        _validate_requirement_identity(binding.identity_binding, requirements, views, rule)
+        if not (
+            defer_artifact_id_identity
+            and _requires_published_artifact_id(binding.identity_binding)
+            and published_artifact_ids_by_index is None
+        ):
+            _validate_requirement_identity(
+                binding.identity_binding,
+                requirements,
+                views,
+                rule,
+                published_artifact_ids_by_index=published_artifact_ids_by_index,
+            )
     elif isinstance(binding, ResolvedPolicySubsetCountBindingV1):
         _validate_subset_binding(
             binding=binding,
@@ -191,6 +209,8 @@ def validate_rule_cardinality(
             views=views,
             snapshots_by_id=snapshots_by_id,
             dispositions=dispositions,
+            published_artifact_ids_by_index=published_artifact_ids_by_index,
+            defer_artifact_id_identity=defer_artifact_id_identity,
         )
     else:
         raise IntegrityViolation(
@@ -207,6 +227,8 @@ def _validate_json_binding(
     views: Sequence[PreparedArtifactView],
     run_payload: Mapping[str, object],
     primary_payload: Mapping[str, object] | None,
+    published_artifact_ids_by_index: Mapping[int, str] | None,
+    defer_artifact_id_identity: bool,
 ) -> None:
     if binding.source == "run_payload":
         root: object = run_payload
@@ -229,7 +251,19 @@ def _validate_json_binding(
             actual=len(views),
         )
     if binding.identity_binding is not None:
-        _validate_collection_identity(binding.identity_binding, collection, views, rule)
+        if (
+            defer_artifact_id_identity
+            and _requires_published_artifact_id(binding.identity_binding)
+            and published_artifact_ids_by_index is None
+        ):
+            return
+        _validate_collection_identity(
+            binding.identity_binding,
+            collection,
+            views,
+            rule,
+            published_artifact_ids_by_index=published_artifact_ids_by_index,
+        )
 
 
 def _requirements_for(
@@ -255,12 +289,18 @@ def _validate_requirement_identity(
     requirements: Sequence[ResolvedArtifactRequirementV1],
     views: Sequence[PreparedArtifactView],
     rule: OutcomeArtifactRuleV1,
+    *,
+    published_artifact_ids_by_index: Mapping[int, str] | None,
 ) -> None:
     # ResolvedPolicy identity is fixed to requirement /requirement_id ↔ payload /requirement_id.
     by_requirement = {requirement.requirement_id: requirement for requirement in requirements}
     seen: set[str] = set()
     for view in views:
-        value = _artifact_identity_value(identity, view)
+        value = _artifact_identity_value(
+            identity,
+            view,
+            published_artifact_ids_by_index=published_artifact_ids_by_index,
+        )
         requirement = by_requirement.get(value)
         if requirement is None or value in seen:
             raise IntegrityViolation(
@@ -292,11 +332,19 @@ def _validate_subset_binding(
     views: Sequence[PreparedArtifactView],
     snapshots_by_id: Mapping[str, ResolvedPolicySnapshotV1],
     dispositions: Sequence[RequirementDispositionV1],
+    published_artifact_ids_by_index: Mapping[int, str] | None,
+    defer_artifact_id_identity: bool,
 ) -> None:
     requirements = _requirements_for(
         binding.resolved_policy_id, binding.outcome_rule_id, snapshots_by_id
     )
-    frozen_ids = {requirement.requirement_id for requirement in requirements}
+    by_requirement = {requirement.requirement_id: requirement for requirement in requirements}
+    if len(by_requirement) != len(requirements):
+        raise IntegrityViolation(
+            "subset requirements cannot reuse a requirement id",
+            rule_id=rule.rule_id,
+        )
+    frozen_ids = set(by_requirement)
     rows = [
         disposition
         for disposition in dispositions
@@ -309,7 +357,36 @@ def _validate_subset_binding(
             "subset dispositions do not cover every frozen requirement exactly once",
             rule_id=rule.rule_id,
         )
-    produced_values = {_artifact_identity_value(binding.identity_binding, view) for view in views}
+    deferred_identity = (
+        defer_artifact_id_identity
+        and _requires_published_artifact_id(binding.identity_binding)
+        and published_artifact_ids_by_index is None
+    )
+    produced_values: set[object] = set()
+    if not deferred_identity:
+        for view in views:
+            value = _artifact_identity_value(
+                binding.identity_binding,
+                view,
+                published_artifact_ids_by_index=published_artifact_ids_by_index,
+            )
+            requirement = by_requirement.get(value)
+            if requirement is None or value in produced_values:
+                raise IntegrityViolation(
+                    "subset artifact does not map one-to-one onto a frozen requirement",
+                    rule_id=rule.rule_id,
+                    artifact_index=view.index,
+                )
+            if (
+                requirement.artifact_kind != view.kind
+                or requirement.payload_schema_id != view.payload_schema_id
+            ):
+                raise IntegrityViolation(
+                    "subset artifact kind/schema differs from its frozen requirement",
+                    rule_id=rule.rule_id,
+                    requirement_id=requirement.requirement_id,
+                )
+            produced_values.add(value)
     produced_requirement_ids: set[str] = set()
     for row in rows:
         if row.status == "produced":
@@ -317,7 +394,7 @@ def _validate_subset_binding(
                 raise IntegrityViolation(
                     "produced disposition cannot carry a reason", requirement_id=row.requirement_id
                 )
-            if row.requirement_id not in produced_values:
+            if not deferred_identity and row.requirement_id not in produced_values:
                 raise IntegrityViolation(
                     "produced requirement has no matching artifact",
                     requirement_id=row.requirement_id,
@@ -330,16 +407,120 @@ def _validate_subset_binding(
                     requirement_id=row.requirement_id,
                     reason_code=row.reason_code,
                 )
-            if row.requirement_id in produced_values:
+            if not deferred_identity and row.requirement_id in produced_values:
                 raise IntegrityViolation(
                     "not-executed requirement unexpectedly produced an artifact",
                     requirement_id=row.requirement_id,
                 )
-    if produced_requirement_ids != produced_values or len(views) != len(produced_requirement_ids):
+    if deferred_identity:
+        if len(views) != len(produced_requirement_ids):
+            raise IntegrityViolation(
+                "produced artifact count differs from produced dispositions",
+                rule_id=rule.rule_id,
+            )
+    elif produced_requirement_ids != produced_values or len(views) != len(produced_requirement_ids):
         raise IntegrityViolation(
             "produced artifacts do not match the produced dispositions",
             rule_id=rule.rule_id,
         )
+
+
+def validate_plan_dispositions(
+    *,
+    plan_rules: Sequence[PlanRule],
+    snapshots_by_id: Mapping[str, ResolvedPolicySnapshotV1],
+    dispositions: Sequence[RequirementDispositionV1],
+) -> None:
+    """Require dispositions to be the exact union of all subset bindings.
+
+    A disposition is authoritative terminal metadata, not an optional worker note.
+    Therefore every row must be claimed by exactly one
+    ``ResolvedPolicySubsetCountBindingV1`` in the selected publication plan, and
+    every frozen requirement of every such binding must have exactly one row.  A
+    plan with no subset binding accepts no dispositions at all.
+    """
+
+    selectors: set[tuple[str, str]] = set()
+    expected: set[tuple[str, str, str]] = set()
+    for plan_rule in plan_rules:
+        binding = plan_rule.rule.count_binding
+        if not isinstance(binding, ResolvedPolicySubsetCountBindingV1):
+            continue
+        selector = (binding.resolved_policy_id, binding.outcome_rule_id)
+        if selector in selectors:
+            raise IntegrityViolation(
+                "publication plan repeats a subset-disposition selector",
+                resolved_policy_id=binding.resolved_policy_id,
+                outcome_rule_id=binding.outcome_rule_id,
+            )
+        selectors.add(selector)
+        requirements = _requirements_for(*selector, snapshots_by_id)
+        requirement_ids = [item.requirement_id for item in requirements]
+        if len(requirement_ids) != len(set(requirement_ids)):
+            raise IntegrityViolation(
+                "subset requirements cannot reuse a requirement id",
+                resolved_policy_id=binding.resolved_policy_id,
+                outcome_rule_id=binding.outcome_rule_id,
+            )
+        expected.update(
+            (binding.resolved_policy_id, binding.outcome_rule_id, requirement_id)
+            for requirement_id in requirement_ids
+        )
+
+    actual = [
+        (row.resolved_policy_id, row.outcome_rule_id, row.requirement_id) for row in dispositions
+    ]
+    if len(actual) != len(set(actual)) or set(actual) != expected:
+        raise IntegrityViolation(
+            "requirement dispositions do not exactly cover the publication plan subsets"
+        )
+
+
+def validate_requirement_profile_bindings(
+    *,
+    snapshots: Sequence[ResolvedPolicySnapshotV1],
+    resolved_profiles: Sequence[ResolvedExecutionProfileBindingV1],
+) -> None:
+    """Re-close every resolved requirement onto the Run's frozen profiles."""
+
+    profiles = {binding.field_path: binding for binding in resolved_profiles}
+    if len(profiles) != len(resolved_profiles):
+        raise IntegrityViolation("resolved profile field paths are not unique")
+    for snapshot in snapshots:
+        source = profiles.get(snapshot.source_profile_field_path)
+        if source is None or source.profile_payload_hash != snapshot.source_profile_payload_hash:
+            raise IntegrityViolation(
+                "resolved-policy snapshot source profile is not frozen in the Run",
+                resolved_policy_id=snapshot.resolved_policy_id,
+            )
+        for requirement in snapshot.requirements:
+            path = requirement.producer_profile_field_path
+            if path is not None and path not in profiles:
+                raise IntegrityViolation(
+                    "resolved requirement producer profile is not frozen in the Run",
+                    resolved_policy_id=snapshot.resolved_policy_id,
+                    requirement_id=requirement.requirement_id,
+                    field_path=path,
+                )
+
+
+def validate_published_artifact_ids(
+    *,
+    artifacts: Sequence[PreparedArtifactView],
+    published_artifact_ids_by_index: Mapping[int, str],
+) -> None:
+    """Prove every Prepared entry minted one distinct content-addressed Artifact."""
+
+    indexes = [view.index for view in artifacts]
+    if len(indexes) != len(set(indexes)):
+        raise IntegrityViolation("prepared artifact indexes are not unique")
+    if set(published_artifact_ids_by_index) != set(indexes):
+        raise IntegrityViolation(
+            "published artifact ids do not cover every prepared artifact exactly once"
+        )
+    published_ids = tuple(published_artifact_ids_by_index.values())
+    if len(published_ids) != len(set(published_ids)):
+        raise IntegrityViolation("multiple prepared artifacts collapsed to one published Artifact")
 
 
 def _validate_collection_identity(
@@ -347,12 +528,21 @@ def _validate_collection_identity(
     collection: Sequence[object],
     views: Sequence[PreparedArtifactView],
     rule: OutcomeArtifactRuleV1,
+    *,
+    published_artifact_ids_by_index: Mapping[int, str] | None,
 ) -> None:
     item_values: list[object] = []
     for item in collection:
         pointer = identity.collection_item_pointer
         item_values.append(resolve_json_pointer(item, pointer) if pointer is not None else item)
-    artifact_values = [_artifact_identity_value(identity, view) for view in views]
+    artifact_values = [
+        _artifact_identity_value(
+            identity,
+            view,
+            published_artifact_ids_by_index=published_artifact_ids_by_index,
+        )
+        for view in views
+    ]
     if len(set(map(_hashable, item_values))) != len(item_values):
         raise IntegrityViolation("collection identity values are not unique", rule_id=rule.rule_id)
     if sorted(map(_hashable, item_values)) != sorted(map(_hashable, artifact_values)):
@@ -363,21 +553,29 @@ def _validate_collection_identity(
 
 
 def _artifact_identity_value(
-    identity: ArtifactIdentityBindingV1, view: PreparedArtifactView
+    identity: ArtifactIdentityBindingV1,
+    view: PreparedArtifactView,
+    *,
+    published_artifact_ids_by_index: Mapping[int, str] | None,
 ) -> object:
     if identity.artifact_value_source == "artifact_id":
-        # The published (content-addressed) id is not known until after minting, so
-        # a full one-to-one artifact_id map needs a post-mint verification pass.
-        # Task 12 implements that; until then this binding is explicitly fail-closed
-        # rather than silently accepted.
-        raise IntegrityViolation(
-            "post-mint artifact_id identity binding not yet supported",
-            artifact_index=view.index,
-        )
+        if (
+            published_artifact_ids_by_index is None
+            or view.index not in published_artifact_ids_by_index
+        ):
+            raise IntegrityViolation(
+                "artifact-id identity binding requires the exact published artifact id",
+                artifact_index=view.index,
+            )
+        return published_artifact_ids_by_index[view.index]
     pointer = identity.artifact_payload_pointer
     if pointer is None:  # pragma: no cover - contract guarantees the pointer
         raise IntegrityViolation("payload identity binding lacks a pointer")
     return resolve_json_pointer(view.payload, pointer)
+
+
+def _requires_published_artifact_id(identity: ArtifactIdentityBindingV1) -> bool:
+    return identity.artifact_value_source == "artifact_id"
 
 
 def _hashable(value: object) -> object:
@@ -405,6 +603,7 @@ def validate_runtime_parents(
     llm_execution_mode: str,
     parents: Sequence[ProjectedRuntimeParent],
     committed_link_counts: Mapping[str, int],
+    execution_identity_counts: Mapping[str, int] | None = None,
 ) -> None:
     """Cross-check the projected runtime parents against ``runtime-parents@1``.
 
@@ -421,6 +620,7 @@ def validate_runtime_parents(
     scoped = tuple(
         rule for rule in rule_set.rules if rule.manifest_scope in (manifest_scope, "both")
     )
+    _validate_runtime_rule_shapes(scoped, manifest_scope=manifest_scope)
     counts: dict[str, int] = {rule.rule_id: 0 for rule in scoped}
     for parent in parents:
         matches = [
@@ -463,6 +663,7 @@ def validate_runtime_parents(
             rule=rule,
             llm_execution_mode=llm_execution_mode,
             committed_link_counts=committed_link_counts,
+            execution_identity_counts=execution_identity_counts or {},
         )
         if expected is not None and observed != expected:
             raise IntegrityViolation(
@@ -481,11 +682,136 @@ def validate_runtime_parents(
             )
 
 
+def _validate_runtime_rule_shapes(
+    rules: Sequence[RuntimeParentRuleV1],
+    *,
+    manifest_scope: str,
+) -> None:
+    """Reject ambiguous or internally contradictory runtime-parent policies."""
+
+    if manifest_scope not in {"attempt", "run"}:
+        raise IntegrityViolation("runtime-parent validation received an unknown manifest scope")
+
+    expected_role = {
+        "run_input": "input",
+        "published_intermediate": "intermediate",
+        "record_shard": "intermediate",
+        "attempt_bundle": "intermediate",
+        "run_bundle": "intermediate",
+        "closed_attempt_failure": "intermediate",
+    }
+    for rule in rules:
+        if not rule.payload_schema_ids or any("*" in item for item in rule.payload_schema_ids):
+            raise IntegrityViolation(
+                "runtime-parent payload schema allowlist must be exact and non-empty",
+                rule_id=rule.rule_id,
+            )
+        if rule.parent_role != expected_role[rule.source]:
+            raise IntegrityViolation(
+                "runtime-parent source uses an incompatible manifest role",
+                rule_id=rule.rule_id,
+            )
+
+        expected_selector = {
+            "run_input": "none",
+            "published_intermediate": ("current" if manifest_scope == "attempt" else "all_closed"),
+            "record_shard": "current" if manifest_scope == "attempt" else "all_closed",
+            "attempt_bundle": "current",
+            "run_bundle": "all_closed",
+            "closed_attempt_failure": "all_closed",
+        }[rule.source]
+        if rule.attempt_selector != expected_selector:
+            raise IntegrityViolation(
+                "runtime-parent attempt selector differs from its source/scope",
+                rule_id=rule.rule_id,
+            )
+        if rule.source == "attempt_bundle" and manifest_scope != "attempt":
+            raise IntegrityViolation(
+                "attempt cassette bundle cannot be projected into a run-scoped rule",
+                rule_id=rule.rule_id,
+            )
+        if rule.source in {"run_bundle", "closed_attempt_failure"} and manifest_scope != "run":
+            raise IntegrityViolation(
+                "run aggregate parent cannot be projected into an attempt-scoped rule",
+                rule_id=rule.rule_id,
+            )
+
+        binding = rule.count_binding
+        if binding is not None and not isinstance(
+            binding,
+            (
+                IntermediateCountBindingV1,
+                ExecutionIdentityCountBindingV1,
+                ExecutionModeCountBindingV1,
+            ),
+        ):
+            raise IntegrityViolation(
+                "runtime-parent rule uses a non-runtime count binding",
+                rule_id=rule.rule_id,
+                binding_source=binding.source,
+            )
+        if isinstance(binding, IntermediateCountBindingV1):
+            if rule.source != "published_intermediate":
+                raise IntegrityViolation(
+                    "intermediate-link count binding uses an incompatible parent source",
+                    rule_id=rule.rule_id,
+                )
+            expected_scope = "current_attempt" if manifest_scope == "attempt" else "all_attempts"
+            if binding.scope != expected_scope:
+                raise IntegrityViolation(
+                    "intermediate-link count scope differs from manifest scope",
+                    rule_id=rule.rule_id,
+                )
+        elif isinstance(binding, ExecutionIdentityCountBindingV1):
+            if rule.source != "record_shard":
+                raise IntegrityViolation(
+                    "execution-identity count binding uses an incompatible parent source",
+                    rule_id=rule.rule_id,
+                )
+            expected_scope = "current_attempt" if manifest_scope == "attempt" else "all_attempts"
+            if binding.scope != expected_scope:
+                raise IntegrityViolation(
+                    "execution-identity count scope differs from manifest scope",
+                    rule_id=rule.rule_id,
+                )
+        elif isinstance(binding, ExecutionModeCountBindingV1):
+            for mode in ("not_applicable", "live", "record", "replay"):
+                exact_count = getattr(binding.exact_count_by_mode, mode)
+                if mode not in rule.enabled_execution_modes and exact_count != 0:
+                    raise IntegrityViolation(
+                        "disabled execution mode has a non-zero runtime-parent count",
+                        rule_id=rule.rule_id,
+                        mode=mode,
+                    )
+                if mode in rule.enabled_execution_modes and (
+                    exact_count < rule.min_count
+                    or (rule.max_count is not None and exact_count > rule.max_count)
+                ):
+                    raise IntegrityViolation(
+                        "execution-mode count is outside the runtime-parent rule range",
+                        rule_id=rule.rule_id,
+                        mode=mode,
+                    )
+
+    for position, left in enumerate(rules):
+        for right in rules[position + 1 :]:
+            if (
+                left.source == right.source
+                and left.artifact_kind == right.artifact_kind
+                and set(left.payload_schema_ids).intersection(right.payload_schema_ids)
+            ):
+                raise IntegrityViolation(
+                    "runtime-parent rules have overlapping selectors",
+                    rules=sorted((left.rule_id, right.rule_id)),
+                )
+
+
 def _expected_runtime_count(
     *,
     rule: RuntimeParentRuleV1,
     llm_execution_mode: str,
     committed_link_counts: Mapping[str, int],
+    execution_identity_counts: Mapping[str, int],
 ) -> int | None:
     binding = rule.count_binding
     if binding is None:
@@ -498,6 +824,14 @@ def _expected_runtime_count(
                 scope=binding.scope,
             )
         return committed_link_counts[binding.scope]
+    if isinstance(binding, ExecutionIdentityCountBindingV1):
+        if binding.scope not in execution_identity_counts:
+            raise IntegrityViolation(
+                "execution identity count is unavailable for the binding scope",
+                rule_id=rule.rule_id,
+                scope=binding.scope,
+            )
+        return execution_identity_counts[binding.scope]
     if isinstance(binding, ExecutionModeCountBindingV1):
         return getattr(binding.exact_count_by_mode, llm_execution_mode)
     raise IntegrityViolation(
@@ -514,6 +848,9 @@ __all__ = [
     "RuleAllocation",
     "allocate_artifacts",
     "resolve_json_pointer",
+    "validate_plan_dispositions",
+    "validate_published_artifact_ids",
+    "validate_requirement_profile_bindings",
     "validate_rule_cardinality",
     "validate_runtime_parents",
 ]

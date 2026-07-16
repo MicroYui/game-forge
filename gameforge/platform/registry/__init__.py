@@ -1,4 +1,13 @@
-"""Exact, immutable platform registries and readiness validation."""
+"""Exact, immutable platform registries and readiness validation.
+
+The readiness validator imports terminal payload validators.  Keep that one
+export lazy so importing the leaf registry defaults from payload decoding does
+not recurse through readiness back into a partially initialized publisher.
+"""
+
+from __future__ import annotations
+
+from importlib import import_module
 
 from gameforge.contracts.execution_graphs import (
     AgentExecutionGraphV1,
@@ -20,7 +29,6 @@ from gameforge.platform.registry.model import (
     ProfileRequirement,
     TrustedComponentMaps,
 )
-from gameforge.platform.registry.readiness import PlatformReadinessValidator
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
 
 __all__ = [
@@ -41,3 +49,14 @@ __all__ = [
     "build_builtin_registry",
     "build_readiness_component_maps",
 ]
+
+
+def __getattr__(name: str) -> object:
+    if name != "PlatformReadinessValidator":
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(
+        import_module("gameforge.platform.registry.readiness"),
+        name,
+    )
+    globals()[name] = value
+    return value

@@ -26,7 +26,7 @@ from typing import Literal, Protocol
 
 from gameforge.contracts.jobs import RunIntermediateArtifactLinkV1
 from gameforge.contracts.lineage import AuditActor
-from gameforge.contracts.model_router import ModelRequestV2, request_hash
+from gameforge.contracts.model_router import ModelRequestV2, ModelSnapshot, request_hash
 from gameforge.contracts.routing import RoutingDecisionV1
 from gameforge.contracts.storage import UtcClock
 from gameforge.platform.runs.commands import (
@@ -51,7 +51,13 @@ class PromptRenderPublisher(Protocol):
 
 
 class RoutingDecider(Protocol):
-    """Select + persist exactly one native routing decision for a rendered call."""
+    """Select + persist exactly one native routing decision for a rendered call.
+
+    Implementations bind ``RouteRequest.task_kind`` to the exact
+    ``model_request.agent_node_id``.  The routing discriminator is an Agent node,
+    not the enclosing Run kind; this is the same identity closed by the admitted
+    ``ExecutionVersionPlanV1``.
+    """
 
     def decide_and_record(
         self,
@@ -68,6 +74,18 @@ class CallCostGateway(Protocol):
     def reserve_call(self, *, decision: RoutingDecisionV1) -> None: ...
 
     def reconcile_usage(self, *, decision: RoutingDecisionV1, result: M4RouterResultV1) -> None: ...
+
+
+class ModelSnapshotResolver(Protocol):
+    """Resolve a plan's opaque model ID through exact retained authorities."""
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,6 +118,7 @@ class WorkerModelBridge:
         decider: RoutingDecider,
         router: M4ModelRouter,
         cost: CallCostGateway,
+        model_snapshot_resolver: ModelSnapshotResolver,
         tracer: Tracer,
         clock: UtcClock,
         worker_actor: AuditActor,
@@ -110,9 +129,23 @@ class WorkerModelBridge:
         self._decider = decider
         self._router = router
         self._cost = cost
+        self._model_snapshot_resolver = model_snapshot_resolver
         self._tracer = tracer
         self._clock = clock
         self._worker_actor = worker_actor
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot:
+        return self._model_snapshot_resolver.resolve_model_snapshot(
+            catalog_version=catalog_version,
+            catalog_digest=catalog_digest,
+            model_snapshot_id=model_snapshot_id,
+        )
 
     def call_model(self, request: ModelCallRequest) -> ModelCallResult:
         with self._tracer.span(
@@ -184,6 +217,7 @@ __all__ = [
     "ExecutionSource",
     "ModelCallRequest",
     "ModelCallResult",
+    "ModelSnapshotResolver",
     "PromptRenderPublisher",
     "RoutingDecider",
     "WorkerModelBridge",

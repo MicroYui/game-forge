@@ -6,7 +6,7 @@ from collections.abc import Callable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -72,6 +72,13 @@ from gameforge.platform.runs.lifecycle import (
     validate_terminal_cassette_publication,
 )
 from gameforge.platform.registry.model import ProfileRequirement
+
+if TYPE_CHECKING:
+    from gameforge.platform.terminal_staging import (
+        StagedTerminalPublication,
+        TerminalPublicationDraft,
+        TerminalPublicationStager,
+    )
 
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
@@ -387,6 +394,14 @@ class RunPublicationGateway(Protocol):
         actor: AuditActor,
     ) -> None: ...
 
+    def preflight_outcome(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunFailure,
+    ) -> PreparedRunFailure: ...
+
     def get_prompt_replay(
         self,
         *,
@@ -423,6 +438,25 @@ class RunPublicationGateway(Protocol):
         occurred_at: str,
         actor: AuditActor,
     ) -> RunFailurePublication: ...
+
+    def plan_run_failure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        attempt_failure_artifact_id: str | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> TerminalPublicationDraft: ...
+
+    def commit(
+        self,
+        fresh_draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+    ) -> object: ...
 
     def record_command_submitted(
         self,
@@ -466,6 +500,7 @@ class RunUnitOfWork(Protocol):
 
 
 CapabilityBinder = Callable[[Any], RunCommandCapabilities]
+PlanningScope = Callable[[], AbstractContextManager[Any]]
 
 
 def _required[T](value: T | None, name: str) -> T:
@@ -532,10 +567,27 @@ class RunCommandService:
         unit_of_work: RunUnitOfWork,
         bind_capabilities: CapabilityBinder,
         clock: UtcClock,
+        planning_scope: PlanningScope | None = None,
+        bind_planning_capabilities: CapabilityBinder | None = None,
+        stage_publications: TerminalPublicationStager | None = None,
     ) -> None:
+        staging_parts = (
+            planning_scope,
+            bind_planning_capabilities,
+            stage_publications,
+        )
+        if any(part is not None for part in staging_parts) and not all(
+            part is not None for part in staging_parts
+        ):
+            raise ValueError(
+                "terminal staging requires planning scope, planning binder, and stager"
+            )
         self._unit_of_work = unit_of_work
         self._bind_capabilities = bind_capabilities
         self._clock = clock
+        self._planning_scope = planning_scope
+        self._bind_planning_capabilities = bind_planning_capabilities
+        self._stage_publications = stage_publications
 
     def create_run(
         self,
@@ -819,6 +871,180 @@ class RunCommandService:
         command: RunCommandV1,
         actor: AuditActor,
     ) -> RunCommandSubmissionResult:
+        if self._stage_publications is not None:
+            operation_now = _utc_now(self._clock)
+            draft = self._plan_inactive_cancel(
+                run_id=run_id,
+                command=command,
+                actor=actor,
+                now=operation_now,
+            )
+            staged: StagedTerminalPublication | None = None
+            if draft is not None:
+                staged_batch = self._stage_publications.stage((draft,))
+                if len(staged_batch) != 1:
+                    raise IntegrityViolation("terminal stager returned another publication count")
+                staged = staged_batch[0]
+            return self._submit_in_write_uow(
+                run_id=run_id,
+                command=command,
+                actor=actor,
+                operation_now=operation_now,
+                staged_publication=staged,
+            )
+        return self._submit_in_write_uow(
+            run_id=run_id,
+            command=command,
+            actor=actor,
+            operation_now=None,
+            staged_publication=None,
+        )
+
+    def _plan_inactive_cancel(
+        self,
+        *,
+        run_id: str,
+        command: RunCommandV1,
+        actor: AuditActor,
+        now: datetime,
+    ) -> TerminalPublicationDraft | None:
+        planning_scope = self._planning_scope
+        bind_planning = self._bind_planning_capabilities
+        if planning_scope is None or bind_planning is None:
+            raise IntegrityViolation("terminal planning authority is unavailable")
+        with planning_scope() as read_context:
+            capabilities = bind_planning(read_context)
+            runs = _required(capabilities.runs, "runs")
+            publication = _required(capabilities.publication, "publication")
+            request_hash = canonical_payload_hash(command)
+            retained = runs.get_command(run_id, command.command_id)
+            if retained is not None:
+                self._validate_command_replay(
+                    retained=retained,
+                    command=command,
+                    request_hash=request_hash,
+                    actor=actor,
+                )
+                return None
+            idempotent = runs.get_command_by_idempotency(
+                run_id=run_id,
+                idempotency_key=command.idempotency_key,
+            )
+            sequenced = runs.get_command_by_client_sequence(
+                run_id=run_id,
+                client_id=command.client_id,
+                client_seq=command.client_seq,
+            )
+            if idempotent is not None or sequenced is not None:
+                raise IdempotencyConflict(
+                    "Run command identity is already bound to another request"
+                )
+            run = runs.get(run_id)
+            if run is None:
+                raise IntegrityViolation("Run command target does not exist")
+            registry = _required(capabilities.registry, "registry")
+            definition, _ = _resolve_bindings(run=run, registry=registry)
+            if command.expected_run_revision != run.revision:
+                raise Conflict(
+                    "Run command expected revision differs",
+                    expected_revision=command.expected_run_revision,
+                    actual_revision=run.revision,
+                )
+            if command.payload_schema_id not in definition.allowed_command_schema_ids:
+                raise InvalidStateTransition("Run command is not allowed for this Run kind")
+            if now >= _parse_utc(
+                run.overall_deadline_utc,
+                field_name="run.overall_deadline_utc",
+            ):
+                raise InvalidStateTransition("Run command arrived after the overall deadline")
+            if command.type != "cancel" or run.status in {"leased", "running"}:
+                return None
+            if not isinstance(command.payload, CancelRunPayloadV1):
+                raise IntegrityViolation("cancel command has the wrong typed payload")
+            if run.status not in {"queued", "retry_wait"}:
+                raise InvalidStateTransition("Run is already terminal")
+            lifecycle_definition, retry_policy, classifier = resolve_lifecycle_bindings(
+                run=run,
+                registry=registry,
+            )
+            latest_attempt = None
+            if run.status == "retry_wait":
+                latest_attempt = runs.get_attempt(run.run_id, run.next_attempt_no - 1)
+                if latest_attempt is None or latest_attempt.status in {
+                    "leased",
+                    "running",
+                }:
+                    raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
+            if runs.get_current_lease(run.run_id) is not None:
+                raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
+            prepared = PreparedRunFailure(
+                run_id=run.run_id,
+                attempt_no=(latest_attempt.attempt_no if latest_attempt is not None else None),
+                run_kind=run.kind,
+                artifacts=(),
+                requirement_dispositions=(),
+                cause_code="cancelled",
+                failure_class="cancelled",
+                intrinsic_retry_eligible=False,
+                classifier=run.failure_classifier,
+                redacted_message="Run cancellation requested",
+            )
+            preflighted = publication.preflight_outcome(
+                run=run,
+                attempt=latest_attempt,
+                prepared=prepared,
+            )
+            if not isinstance(preflighted, PreparedRunFailure):
+                raise IntegrityViolation("cancel preflight returned a success outcome")
+            prepared = preflighted
+            validate_prepared_failure(
+                run=run,
+                attempt=latest_attempt,
+                prepared=prepared,
+                classifier=classifier,
+            )
+            decision = RetryDecisionV1(
+                cause_code=prepared.cause_code,
+                failure_class=prepared.failure_class,
+                intrinsic_retry_eligible=prepared.intrinsic_retry_eligible,
+                decision="terminal",
+                reason_code="not_retry_eligible",
+                classifier=run.failure_classifier,
+                retry_policy=run.retry_policy,
+                evaluated_at_utc=_utc_text(now),
+            )
+            if retry_policy.retry_policy_digest != run.retry_policy.retry_policy_digest:
+                raise IntegrityViolation("cancel retry policy differs from Run")
+            policy = select_outcome_policy(
+                definition=lifecycle_definition,
+                outcome_code=prepared.cause_code,
+                prepared_outcome="failure",
+                publication_scope="run",
+                run_status="cancelled",
+                attempt_status=None,
+                failure_class=prepared.failure_class,
+                retry_disposition="terminal",
+            )
+            return publication.plan_run_failure(
+                run=run,
+                attempt=latest_attempt,
+                prepared=prepared,
+                retry_decision=decision,
+                policy=policy,
+                attempt_failure_artifact_id=None,
+                occurred_at=_utc_text(now),
+                actor=actor,
+            )
+
+    def _submit_in_write_uow(
+        self,
+        *,
+        run_id: str,
+        command: RunCommandV1,
+        actor: AuditActor,
+        operation_now: datetime | None,
+        staged_publication: StagedTerminalPublication | None,
+    ) -> RunCommandSubmissionResult:
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
             runs = _required(capabilities.runs, "runs")
@@ -874,9 +1100,10 @@ class RunCommandService:
                 )
             if command.payload_schema_id not in definition.allowed_command_schema_ids:
                 raise InvalidStateTransition("Run command is not allowed for this Run kind")
-            now = _utc_now(self._clock)
+            guard_now = _utc_now(self._clock)
+            now = operation_now or guard_now
             now_text = _utc_text(now)
-            if now >= _parse_utc(
+            if guard_now >= _parse_utc(
                 run.overall_deadline_utc,
                 field_name="run.overall_deadline_utc",
             ):
@@ -952,6 +1179,8 @@ class RunCommandService:
                 result_event_seq=cancel_event.seq,
             )
             if run.status in {"leased", "running"}:
+                if staged_publication is not None:
+                    raise Conflict("inactive cancel projection changed before terminal commit")
                 persisted = runs.accept_command(
                     expected_run_revision=run.revision,
                     record=record,
@@ -995,6 +1224,14 @@ class RunCommandService:
                 classifier=run.failure_classifier,
                 redacted_message="Run cancellation requested",
             )
+            preflighted = publication.preflight_outcome(
+                run=run,
+                attempt=latest_attempt,
+                prepared=prepared,
+            )
+            if not isinstance(preflighted, PreparedRunFailure):
+                raise IntegrityViolation("cancel preflight returned a success outcome")
+            prepared = preflighted
             validate_prepared_failure(
                 run=run,
                 attempt=latest_attempt,
@@ -1002,9 +1239,9 @@ class RunCommandService:
                 classifier=classifier,
             )
             decision = RetryDecisionV1(
-                cause_code="cancelled",
-                failure_class="cancelled",
-                intrinsic_retry_eligible=False,
+                cause_code=prepared.cause_code,
+                failure_class=prepared.failure_class,
+                intrinsic_retry_eligible=prepared.intrinsic_retry_eligible,
                 decision="terminal",
                 reason_code="not_retry_eligible",
                 classifier=run.failure_classifier,
@@ -1015,24 +1252,35 @@ class RunCommandService:
                 raise IntegrityViolation("cancel retry policy differs from Run")
             policy = select_outcome_policy(
                 definition=lifecycle_definition,
-                outcome_code="cancelled",
+                outcome_code=prepared.cause_code,
                 prepared_outcome="failure",
                 publication_scope="run",
                 run_status="cancelled",
                 attempt_status=None,
-                failure_class="cancelled",
+                failure_class=prepared.failure_class,
                 retry_disposition="terminal",
             )
-            run_publication = publication.publish_run_failure(
-                run=run,
-                attempt=latest_attempt,
-                prepared=prepared,
-                retry_decision=decision,
-                policy=policy,
-                attempt_failure_artifact_id=None,
-                occurred_at=now_text,
-                actor=actor,
-            )
+            publication_kwargs = {
+                "run": run,
+                "attempt": latest_attempt,
+                "prepared": prepared,
+                "retry_decision": decision,
+                "policy": policy,
+                "attempt_failure_artifact_id": None,
+                "occurred_at": now_text,
+                "actor": actor,
+            }
+            if staged_publication is None:
+                run_publication = publication.publish_run_failure(**publication_kwargs)
+            else:
+                run_publication = publication.commit(
+                    publication.plan_run_failure(**publication_kwargs),
+                    staged_publication,
+                )
+                if not isinstance(run_publication, RunFailurePublication):
+                    raise IntegrityViolation(
+                        "inactive cancel commit returned another result projection"
+                    )
             validate_terminal_cassette_publication(
                 run=run,
                 cassette_artifact_id=run_publication.terminal_cassette_artifact_id,
@@ -1048,7 +1296,7 @@ class RunCommandService:
                 data=RunTerminatedDataV1(
                     attempt_no=(latest_attempt.attempt_no if latest_attempt is not None else None),
                     failure_artifact_id=failure_artifact_id,
-                    cause_code="cancelled",
+                    cause_code=prepared.cause_code,
                 ),
             )
             persisted = runs.accept_command(

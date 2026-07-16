@@ -13,21 +13,27 @@ from dataclasses import dataclass, field
 
 import pytest
 
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.execution_profiles import RunKindRef
 from gameforge.contracts.findings import FindingPayloadV1, FindingRevisionV1
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.jobs import (
+    DependencyFailureV1,
     FailureClassifierRefV1,
     PreparedArtifact,
     PreparedFindingV1,
     PreparedRunFailure,
     PreparedRunResult,
     PreparedRunResultSummaryV1,
+    RequirementDispositionV1,
     RetryDecisionV1,
     RetryPolicyRefV1,
     RunAttempt,
     RunKindDefinition,
+    RunFailureV1,
+    RunManifestParentBindingV1,
+    RunManifestVersionProjectionV1,
     RunRecord,
     TerminalPublisherHooks,
     canonical_payload_hash,
@@ -39,9 +45,14 @@ from gameforge.contracts.lineage import (
     AuditActor,
     ObjectLocation,
     VersionTuple,
+    build_artifact_v2,
     object_ref_for_bytes,
 )
 from gameforge.platform.publication import TerminalPublisher
+from gameforge.platform.terminal_staging import (
+    StagedReceipt,
+    StagedTerminalPublication,
+)
 from gameforge.platform.registry.defaults import (
     _common_failure_policies,
     _failure_classifier,
@@ -54,7 +65,11 @@ from gameforge.platform.registry.defaults import (
     _transition_policy,
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
-from gameforge.platform.runs.lifecycle import select_outcome_policy
+from gameforge.platform.runs.lifecycle import (
+    AttemptFailurePublication,
+    RunFailurePublication,
+    select_outcome_policy,
+)
 from tests.platform.m4.test_run_create_claim import _payload, _retry_policy
 
 
@@ -67,18 +82,27 @@ NOW = "2026-07-14T12:00:00Z"
 class _Blobs:
     def __init__(self) -> None:
         self._by_key: dict[str, bytes] = {}
+        self._locations: dict[str, ObjectLocation] = {}
 
     def register(self, blob: bytes):
         ref = object_ref_for_bytes(blob)
         self._by_key[ref.key] = blob
+        self._locations[ref.key] = ObjectLocation(
+            store_id="s3", key=ref.key, backend_generation="g1"
+        )
         return ref
 
-    def read(self, object_ref):
+    def read(self, object_ref, location=None):
+        if location is not None and self._locations.get(object_ref.key) != location:
+            raise IntegrityViolation("prepared blob location is not the registered location")
         return self._by_key[object_ref.key]
 
     def put(self, payload: bytes):
         ref = object_ref_for_bytes(payload)
         self._by_key[ref.key] = payload
+        self._locations[ref.key] = ObjectLocation(
+            store_id="s3", key=ref.key, backend_generation="g1"
+        )
         return ref
 
 
@@ -100,6 +124,30 @@ class _Artifacts:
         self.by_id[artifact.artifact_id] = artifact
         self.put_order.append(artifact.artifact_id)
         return artifact
+
+    def put_staged(self, artifact, receipt):
+        assert receipt.ref == artifact.object_ref
+        return self.put(artifact)
+
+    def read_bytes(self, artifact_id: str) -> bytes:
+        blobs = getattr(self, "_blobs", None)
+        if blobs is None:
+            raise KeyError(artifact_id)
+        return blobs.read(self.by_id[artifact_id].object_ref)
+
+
+class _ReplacingArtifacts(_Artifacts):
+    def put(self, artifact):
+        if artifact.kind == "checker_run":
+            return ArtifactV1(
+                artifact_id="artifact:replacement",
+                kind="checker_run",
+                version_tuple=artifact.version_tuple,
+                lineage=[],
+                payload_hash=None,
+                meta={"payload_schema_id": "checker-report@1"},
+            )
+        return super().put(artifact)
 
 
 class _Findings:
@@ -129,6 +177,7 @@ class _Ledger:
 
     def put_finding_link(self, link):
         self.links.append(link)
+        return link
 
 
 class _Audit:
@@ -266,8 +315,84 @@ def _input_snapshot(artifacts: _Artifacts) -> None:
     )
 
 
+def _closed_attempt_failure(
+    artifacts: _Artifacts,
+    blobs: _Blobs,
+    definition: RunKindDefinition,
+    *,
+    attempt_no: int,
+) -> str:
+    run = _run_record(definition)
+    policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    projection = RunManifestVersionProjectionV1(
+        manifest_scope="attempt",
+        attempt_no=attempt_no,
+        run_kind=run.kind,
+        run_payload_hash=run.payload_hash,
+        frozen_input_version_tuple=run.payload.version_tuple,
+        terminal_version_tuple=run.payload.version_tuple,
+        version_transition_policy_ref=policy.version_transition_policy_ref,
+        parents=(
+            RunManifestParentBindingV1(
+                artifact_id="artifact:input",
+                role="input",
+                publication="existing",
+            ),
+        ),
+    )
+    failure = RunFailureV1(
+        run_id=run.run_id,
+        attempt_no=attempt_no,
+        run_kind=run.kind,
+        cause_code="execution_failed",
+        failure_class="execution",
+        retryable=False,
+        retry_decision=_terminal_decision(definition),
+        redacted_message="prior attempt failed",
+        evidence_artifact_ids=(),
+        requirement_dispositions=(),
+        occurred_at=NOW,
+        version_projection=projection,
+    )
+    blob = canonical_json(failure.model_dump(mode="json")).encode()
+    object_ref = blobs.register(blob)
+    artifact = build_artifact_v2(
+        kind="run_failure",
+        version_tuple=projection.terminal_version_tuple,
+        lineage=("artifact:input",),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={
+            "manifest_scope": "attempt",
+            "attempt_no": attempt_no,
+            "payload_schema_id": "run-failure@1",
+            "replayability": "deterministic_recompute",
+        },
+        created_at=NOW,
+    )
+    artifacts.add(artifact)
+    return artifact.artifact_id
+
+
 def _checker_artifact(blobs: _Blobs) -> PreparedArtifact:
-    blob = json.dumps({"payload_schema_version": "checker-report@1", "findings": []}).encode()
+    blob = canonical_json(
+        {
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:input",
+            "checker_ids": ["graph"],
+            "defect_classes": ["dangling_ref"],
+            "findings": [],
+        }
+    ).encode()
     object_ref = blobs.register(blob)
     return PreparedArtifact(
         kind="checker_run",
@@ -318,18 +443,80 @@ def _prepared_success(*, artifacts, findings=()) -> PreparedRunResult:
     )
 
 
-def _publisher(registry, artifacts, blobs, findings, ledger, audit) -> TerminalPublisher:
-    return TerminalPublisher(
-        registry=registry,
-        artifacts=artifacts,
-        blobs=blobs,
-        findings=findings,
-        ledger=ledger,
-        audit=audit,
+class _DirectPublisherHarness:
+    """Unit-only explicit plan -> fake stage -> commit driver."""
+
+    def __init__(self, publisher: TerminalPublisher, blobs: _Blobs) -> None:
+        self._publisher = publisher
+        self._blobs = blobs
+
+    def __getattr__(self, name):
+        return getattr(self._publisher, name)
+
+    def _stage(self, draft):
+        receipts = []
+        for material in draft.materials:
+            ref = self._blobs.put(material.payload)
+            assert ref == material.expected_ref
+            receipts.append(
+                StagedReceipt(
+                    slot=material.slot,
+                    ref=ref,
+                    location=self._blobs._locations[ref.key],  # noqa: SLF001
+                )
+            )
+        return StagedTerminalPublication(
+            projection_digest=draft.projection_digest,
+            receipts=tuple(receipts),
+        )
+
+    def publish_run_result(self, **kwargs):
+        draft = self._publisher.plan_run_result(**kwargs)
+        return self._publisher.commit(draft, self._stage(draft))
+
+    def publish_attempt_failure(self, **kwargs):
+        draft = self._publisher.plan_attempt_failure(**kwargs)
+        return self._publisher.commit(draft, self._stage(draft))
+
+    def publish_run_failure(self, **kwargs):
+        draft = self._publisher.plan_run_failure(**kwargs)
+        return self._publisher.commit(draft, self._stage(draft))
+
+
+def _publisher(registry, artifacts, blobs, findings, ledger, audit) -> _DirectPublisherHarness:
+    artifacts._blobs = blobs
+    return _DirectPublisherHarness(
+        TerminalPublisher(
+            registry=registry,
+            artifacts=artifacts,
+            blobs=blobs,
+            findings=findings,
+            ledger=ledger,
+            audit=audit,
+        ),
+        blobs,
     )
 
 
 # ---------------------------------------------------------------------------- tests
+def test_non_validation_outcome_preflight_is_identity():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+
+    assert (
+        publisher.preflight_outcome(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+        )
+        is prepared
+    )
+
+
 def test_success_publishes_artifact_finding_link_and_manifest():
     registry, definition = _registry_and_definition()
     run = _run_record(definition)
@@ -383,6 +570,168 @@ def test_success_publishes_artifact_finding_link_and_manifest():
     assert any(record["action"] == "publish-checker@1" for record in audit.records)
 
 
+def test_workflow_effect_receives_the_final_resealed_primary_payload(monkeypatch):
+    from gameforge.platform.publication import publisher as publisher_module
+
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="checker_completed",
+        prepared_outcome="success",
+        publication_scope="run",
+        run_status="succeeded",
+        attempt_status=None,
+        failure_class=None,
+        retry_disposition=None,
+    )
+    real_bind = publisher_module.bind_final_payload_references
+
+    def reseal_with_schema_valid_content(**kwargs):
+        payload = real_bind(**kwargs)
+        payload["findings"] = [
+            {
+                "id": "finding:resealed",
+                "finding_schema_version": "finding@1",
+                "source": "checker",
+                "producer_id": "checker@1",
+                "producer_run_id": run.run_id,
+                "oracle_type": "deterministic",
+                "defect_class": "dangling_ref",
+                "severity": "major",
+                "snapshot_id": "snapshot:input",
+                "entities": [],
+                "relations": [],
+                "evidence": {},
+                "minimal_repro": {},
+                "status": "confirmed",
+                "message": "publisher reseal plumbing",
+            }
+        ]
+        return payload
+
+    effect_payloads: list[dict[str, object] | None] = []
+    monkeypatch.setattr(
+        publisher_module,
+        "bind_final_payload_references",
+        reseal_with_schema_valid_content,
+    )
+    monkeypatch.setattr(
+        publisher_module,
+        "apply_workflow_effect",
+        lambda _key, context: effect_payloads.append(context.published_primary_payload),
+    )
+
+    published = _publisher(
+        registry, artifacts, blobs, _Findings(), _Ledger(), _Audit()
+    ).publish_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    manifest = artifacts.by_id[published.result_artifact_id]
+    result = json.loads(blobs.read(manifest.object_ref))
+    primary = artifacts.by_id[result["primary_artifact_id"]]
+    final_blob_payload = json.loads(blobs.read(primary.object_ref))
+
+    assert effect_payloads == [final_blob_payload]
+    assert final_blob_payload != json.loads(blobs.read(prepared.artifacts[0].object_ref))
+
+
+def test_deterministic_republication_reuses_immutable_artifacts_across_timestamps():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+
+    first = publisher.publish_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=_success_policy(definition),
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    second = publisher.publish_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=_success_policy(definition),
+        occurred_at="2026-07-14T12:00:01Z",
+        actor=WORKER,
+    )
+
+    assert second == first
+    assert artifacts.by_id[first.result_artifact_id].created_at == NOW
+
+
+def test_finding_snapshot_must_match_its_exact_evidence_artifact():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    checker = _checker_artifact(blobs)
+    forged = _checker_finding().model_copy(
+        update={
+            "payload": _checker_finding().payload.model_copy(
+                update={"snapshot_id": "snapshot:forged"}
+            )
+        }
+    )
+    prepared = _prepared_success(artifacts=(checker,), findings=(forged,))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_retry_then_success_aggregates_every_prior_attempt_failure():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(
+        update={"current_attempt_no": 2, "next_attempt_no": 3, "next_fencing_token": 3}
+    )
+    attempt = _attempt().model_copy(update={"attempt_no": 2, "fencing_token": 2})
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    checker = _checker_artifact(blobs)
+    prepared = _prepared_success(artifacts=(checker,)).model_copy(update={"attempt_no": 2})
+    prior_failure_id = _closed_attempt_failure(artifacts, blobs, definition, attempt_no=1)
+    ledger = _Ledger(closed=((1, prior_failure_id),))
+
+    published = _publisher(
+        registry, artifacts, blobs, _Findings(), ledger, _Audit()
+    ).publish_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=_success_policy(definition),
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    manifest = artifacts.by_id[published.result_artifact_id]
+    payload = json.loads(blobs.read(manifest.object_ref).decode())
+    assert payload["produced_artifact_ids"].count(prior_failure_id) == 1
+    assert manifest.lineage.count(prior_failure_id) == 1
+
+
 def test_success_rejects_fabricated_prepared_count():
     registry, definition = _registry_and_definition()
     run = _run_record(definition)
@@ -408,6 +757,74 @@ def test_success_rejects_fabricated_prepared_count():
             attempt=attempt,
             prepared=prepared,
             policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+@pytest.mark.parametrize(
+    "prepared_update",
+    (
+        {"primary_index": 99},
+        {
+            "summary": PreparedRunResultSummaryV1(
+                outcome_code="checker_completed",
+                primary_artifact_kind="simulation_run",
+                prepared_domain_artifact_count=1,
+                prepared_finding_count=0,
+            )
+        },
+    ),
+)
+def test_success_rejects_fabricated_primary_projection(prepared_update):
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),)).model_copy(
+        update=prepared_update
+    )
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_success_rejects_fabricated_disposition_without_subset_policy():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    checker = _checker_artifact(blobs)
+    prepared = _prepared_success(artifacts=(checker,)).model_copy(
+        update={
+            "requirement_dispositions": (
+                RequirementDispositionV1(
+                    resolved_policy_id="fabricated",
+                    outcome_rule_id="checker",
+                    requirement_id="ghost",
+                    status="not_executed",
+                    reason_code="search_exhausted",
+                ),
+            )
+        }
+    )
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
             occurred_at=NOW,
             actor=WORKER,
         )
@@ -448,16 +865,67 @@ def test_success_rejects_tampered_blob_hash():
         )
 
 
-def test_two_scope_failure_aggregates_closed_attempts_without_business_evidence():
+def test_success_rejects_fabricated_prepared_location():
     registry, definition = _registry_and_definition()
     run = _run_record(definition)
     attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    original = _checker_artifact(blobs)
+    checker = original.model_copy(
+        update={
+            "location": ObjectLocation(
+                store_id="forged-store",
+                key=original.object_ref.key,
+                backend_generation="forged-generation",
+            )
+        }
+    )
+    prepared = _prepared_success(artifacts=(checker,))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_success_rejects_artifact_port_identity_substitution():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _ReplacingArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_two_scope_failure_aggregates_closed_attempts_without_business_evidence():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(
+        update={"current_attempt_no": 2, "next_attempt_no": 3, "next_fencing_token": 3}
+    )
+    attempt = _attempt().model_copy(update={"attempt_no": 2, "fencing_token": 2})
     artifacts, blobs, audit = _Artifacts(), _Blobs(), _Audit()
     # A prior attempt already published its own attempt-scope failure manifest.
-    ledger = _Ledger(closed=((1, "artifact:prior-attempt-failure"),))
+    prior_failure_id = _closed_attempt_failure(artifacts, blobs, definition, attempt_no=1)
+    ledger = _Ledger(closed=((1, prior_failure_id),))
     prepared = PreparedRunFailure(
         run_id="run:1",
-        attempt_no=1,
+        attempt_no=2,
         run_kind=RunKindRef(kind="checker.run", version=1),
         artifacts=(),
         requirement_dispositions=(),
@@ -529,10 +997,191 @@ def test_two_scope_failure_aggregates_closed_attempts_without_business_evidence(
     # The run aggregate references both the prior and the current attempt manifest
     # exactly once, and never itself.
     evidence = run_payload["evidence_artifact_ids"]
-    assert evidence.count("artifact:prior-attempt-failure") == 1
+    assert evidence.count(prior_failure_id) == 1
     assert evidence.count(attempt_pub.failure_artifact_id) == 1
     assert run_pub.failure_artifact_id not in run_manifest.lineage
     assert run_payload["version_projection"]["manifest_scope"] == "run"
+
+
+def test_two_scope_failure_is_planned_and_committed_as_one_blob_first_aggregate():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    ledger = _Ledger()
+    prepared = _execution_failure(definition)
+    decision = _terminal_decision(definition)
+    attempt_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    run_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="run",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    harness = _publisher(registry, artifacts, blobs, _Findings(), ledger, _Audit())
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+
+    drafts = publisher.plan_active_failure_aggregate(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        retry_decision=decision,
+        attempt_policy=attempt_policy,
+        run_policy=run_policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    assert len(drafts) == 2
+    attempt_result = drafts[0].result
+    run_result = drafts[1].result
+    assert isinstance(attempt_result, AttemptFailurePublication)
+    assert isinstance(run_result, RunFailurePublication)
+    assert attempt_result.failure_artifact_id not in artifacts.by_id
+    run_manifest_write = next(
+        operation
+        for operation in drafts[1].operations
+        if getattr(operation, "artifact", None) is not None
+        and operation.artifact.artifact_id == run_result.failure_artifact_id
+    )
+    assert attempt_result.failure_artifact_id in run_manifest_write.artifact.lineage
+
+    staged = tuple(harness._stage(draft) for draft in drafts)  # noqa: SLF001
+    committed = publisher.commit_many(tuple(zip(drafts, staged, strict=True)))
+
+    assert committed == (attempt_result, run_result)
+    assert attempt_result.failure_artifact_id in artifacts.by_id
+    assert run_result.failure_artifact_id in artifacts.by_id
+
+
+def test_commit_rejects_nested_operation_mutation_after_draft_digest():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    harness = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=_prepared_success(artifacts=(_checker_artifact(blobs),)),
+        policy=_success_policy(definition),
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    workflow = next(
+        operation
+        for operation in draft.operations
+        if getattr(operation, "context", None) is not None
+    )
+    assert isinstance(workflow.context.published_primary_payload, dict)
+    workflow.context.published_primary_payload["snapshot_id"] = "snapshot:mutated"
+
+    with pytest.raises(IntegrityViolation, match="mutated after projection"):
+        publisher.commit(draft, staged)
+
+    assert set(artifacts.by_id) == {"artifact:input"}
+
+
+def test_retry_wait_timeout_uses_closed_attempt_only_for_manifest_projection():
+    """A latest closed attempt is not an attempt-status transition authority."""
+
+    registry, definition = _registry_and_definition()
+    active = _run_record(definition)
+    run = RunRecord.model_validate(
+        {
+            **active.model_dump(mode="python"),
+            "status": "retry_wait",
+            "current_attempt_no": None,
+            "concurrency_permit_group_id": None,
+            "retry_not_before_utc": "2026-07-14T12:00:01Z",
+        }
+    )
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prior_failure_id = _closed_attempt_failure(artifacts, blobs, definition, attempt_no=1)
+    attempt = RunAttempt.model_validate(
+        {
+            **_attempt().model_dump(mode="python"),
+            "status": "failed",
+            "ended_at": NOW,
+            "failure_class": "transient_dependency",
+            "retryable": True,
+            "failure_artifact_id": prior_failure_id,
+        }
+    )
+    prepared = PreparedRunFailure(
+        run_id=run.run_id,
+        attempt_no=attempt.attempt_no,
+        run_kind=run.kind,
+        artifacts=(),
+        requirement_dispositions=(),
+        cause_code="timed_out",
+        failure_class="timeout",
+        intrinsic_retry_eligible=False,
+        classifier=definition.failure_classifier,
+        redacted_message="overall deadline exhausted",
+    )
+    decision = RetryDecisionV1(
+        cause_code=prepared.cause_code,
+        failure_class=prepared.failure_class,
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="overall_deadline_exhausted",
+        classifier=definition.failure_classifier,
+        retry_policy=definition.retry_policy,
+        evaluated_at_utc=NOW,
+    )
+    policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=prepared.cause_code,
+        prepared_outcome="failure",
+        publication_scope="run",
+        run_status="timed_out",
+        attempt_status=None,
+        failure_class=prepared.failure_class,
+        retry_disposition="terminal",
+    )
+
+    published = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _Ledger(closed=((1, prior_failure_id),)),
+        _Audit(),
+    ).publish_run_failure(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        retry_decision=decision,
+        policy=policy,
+        attempt_failure_artifact_id=None,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    manifest = artifacts.by_id[published.failure_artifact_id]
+    payload = json.loads(blobs.read(manifest.object_ref).decode())
+    assert payload["attempt_no"] == 1
+    assert payload["version_projection"]["attempt_no"] == 1
+    assert payload["evidence_artifact_ids"].count(prior_failure_id) == 1
 
 
 def test_run_failure_rejects_double_aggregating_current_attempt():
@@ -702,6 +1351,118 @@ def test_attempt_failure_rejects_fabricated_identity():
             prepared=_execution_failure(definition, run_id="run:OTHER"),
             retry_decision=_terminal_decision(definition),
             policy=attempt_policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_attempt_retry_rejects_business_artifacts_that_would_be_discarded():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    blobs = _Blobs()
+    prepared = PreparedRunFailure(
+        run_id=run.run_id,
+        attempt_no=attempt.attempt_no,
+        run_kind=run.kind,
+        artifacts=(_checker_artifact(blobs),),
+        requirement_dispositions=(),
+        cause_code="dependency_unavailable",
+        failure_class="transient_dependency",
+        intrinsic_retry_eligible=True,
+        classifier=definition.failure_classifier,
+        dependency=DependencyFailureV1(
+            dependency_kind="database",
+            dependency_id="db:primary",
+            operation_code="read",
+            classifier_code="dependency_unavailable",
+        ),
+        redacted_message="dependency unavailable",
+    )
+    decision = RetryDecisionV1(
+        cause_code=prepared.cause_code,
+        failure_class=prepared.failure_class,
+        intrinsic_retry_eligible=True,
+        decision="retry",
+        reason_code="transient_eligible",
+        retry_not_before_utc="2026-07-14T12:00:01Z",
+        classifier=definition.failure_classifier,
+        retry_policy=definition.retry_policy,
+        evaluated_at_utc=NOW,
+    )
+    policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=prepared.cause_code,
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="retry_wait",
+        attempt_status="failed",
+        failure_class=prepared.failure_class,
+        retry_disposition="retry",
+    )
+    publisher = _publisher(registry, _Artifacts(), blobs, _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_attempt_failure(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            retry_decision=decision,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_failure_rejects_wrong_policy_and_retry_decision_binding():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    prepared = _execution_failure(definition)
+    decision = _terminal_decision(definition)
+    wrong_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="cancelled",
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="cancelled",
+        attempt_status="cancelled",
+        failure_class="cancelled",
+        retry_disposition="terminal",
+    )
+    publisher = _publisher(registry, _Artifacts(), _Blobs(), _Findings(), _Ledger(), _Audit())
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_attempt_failure(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            retry_decision=decision,
+            policy=wrong_policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+    forged_decision = decision.model_copy(
+        update={
+            "classifier": decision.classifier.model_copy(update={"classifier_digest": "f" * 64})
+        }
+    )
+    correct_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=prepared.cause_code,
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class=prepared.failure_class,
+        retry_disposition="terminal",
+    )
+    with pytest.raises(IntegrityViolation):
+        publisher.publish_attempt_failure(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            retry_decision=forged_decision,
+            policy=correct_policy,
             occurred_at=NOW,
             actor=WORKER,
         )

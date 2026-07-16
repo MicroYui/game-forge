@@ -17,6 +17,7 @@ from gameforge.contracts.jobs import (
     RollbackValidationPayloadV1,
     ValidationSubjectBindingV1,
 )
+from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import EvidenceSet, RollbackRequestV1, RollbackTargetBindingV1
 from gameforge.platform.run_handlers.rollback_validation import (
@@ -99,6 +100,10 @@ class _FakeSchema:
             target_artifact_kind="ir_snapshot",
             target_digest=_HEX,
             target_snapshot_id="snap:target",
+            target_version_tuple=VersionTuple(
+                ir_snapshot_id="snap:target",
+                tool_version="fixture@1",
+            ),
             reason_code=self.reason,
         )
 
@@ -117,6 +122,23 @@ class _FailingRegressionRunner:
             suite_artifact_id=request.suite_artifact_id,
             status="failed",
             payload={"payload_schema_version": "regression-evidence@1", "status": "failed"},
+        )
+
+
+class _UnprovenRegressionRunner:
+    reason = "adapter_environment_unavailable"
+
+    def run(self, request) -> RegressionSuiteResultV1:
+        return RegressionSuiteResultV1(
+            suite_artifact_id=request.suite_artifact_id,
+            status="unproven",
+            reason_code=self.reason,
+            payload={
+                "payload_schema_version": "regression-evidence@1",
+                "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": request.snapshot_id,
+                "status": "unproven",
+            },
         )
 
 
@@ -154,7 +176,7 @@ def _context(store: FakeArtifactStore, payload: RollbackValidationPayloadV1):
         params=payload,
         kind=ROLLBACK_VALIDATE_KIND,
         resolved_profiles=(_ROLLBACK_BINDING,),
-        seed=9,
+        seed=None,
     )
 
 
@@ -169,6 +191,10 @@ def test_all_dimensions_pass_is_a_successful_business_result() -> None:
 
     assert isinstance(outcome, PreparedRunResult)  # NOT a RunFailure
     assert outcome.summary.outcome_code == "rollback_validation_passed"
+    assert all(artifact.version_tuple.seed is None for artifact in outcome.artifacts)
+    assert all(
+        artifact.version_tuple.ir_snapshot_id == "snap:target" for artifact in outcome.artifacts
+    )
     evidence = _evidence_set(store, outcome)
     assert evidence.overall_status == "passed"
     assert isinstance(evidence.target_binding, RollbackTargetBindingV1)
@@ -226,6 +252,32 @@ def test_failing_regression_fails_business_result() -> None:
         _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
     )
     assert outcome.summary.outcome_code == "rollback_validation_failed"
+
+
+def test_unproven_regression_seals_the_adapter_reason_on_both_wires() -> None:
+    store = _store()
+    runner = _UnprovenRegressionRunner()
+    outcome = _handler(store, regression_runner=runner)(
+        _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
+    )
+    evidence = _evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    artifact = next(
+        item
+        for item in outcome.artifacts
+        if item.payload_schema_id == "regression-evidence@1"
+        and json.loads(store.read_prepared(item.object_ref)).get("requirement_id")
+        == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    sealed = json.loads(store.read_prepared(artifact.object_ref))
+
+    assert requirement.reason_code == runner.reason
+    assert sealed["reason_code"] == runner.reason
+    assert sealed["detail"]["reason_code"] == runner.reason
 
 
 def test_rollback_validation_is_byte_deterministic() -> None:

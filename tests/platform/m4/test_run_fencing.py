@@ -21,6 +21,7 @@ from gameforge.contracts.jobs import (
     OutcomeArtifactPolicyV1,
     OutcomeArtifactRuleV1,
     PlannedAgentNodeVersionV1,
+    PreparedRunOutcome,
     RetryDecisionV1,
     RetryScheduledDataV1,
     RunAttempt,
@@ -398,6 +399,15 @@ def _outcome_policies() -> tuple[OutcomeArtifactPolicyV1, ...]:
             failure_class="subject_superseded",
             retry_disposition="terminal",
         ),
+        _failure_policy(
+            policy_id="control-subject-superseded@1",
+            outcome_code="subject_superseded",
+            publication_scope="run",
+            attempt_terminal_status=None,
+            run_status_after_publication="cancelled",
+            failure_class="subject_superseded",
+            retry_disposition="terminal",
+        ),
     )
     return (success, *failures)
 
@@ -425,6 +435,7 @@ class _State:
     fail_accounting: bool = False
     fail_audit: bool = False
     omit_cassette_publication: bool = False
+    forced_preflight_outcome: PreparedRunOutcome | None = None
 
 
 @dataclass(frozen=True)
@@ -1322,6 +1333,16 @@ class _Publication:
         self.prompt_idempotency: dict[
             tuple[str, str], tuple[str, RunIntermediateArtifactLinkV1]
         ] = {}
+
+    def preflight_outcome(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunOutcome,
+    ) -> PreparedRunOutcome:
+        assert attempt is None or run.run_id == attempt.run_id
+        return self.state.forced_preflight_outcome or prepared
 
     def record_attempt_started(
         self,

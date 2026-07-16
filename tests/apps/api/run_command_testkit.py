@@ -331,6 +331,10 @@ class _CommandPublicationGateway:
     def record_run_terminal(self, *, run, attempt, event, actor) -> None:  # type: ignore[no-untyped-def]
         self._record(action="run.terminal", run=run, actor=actor)
 
+    def preflight_outcome(self, *, run, attempt, prepared):  # type: ignore[no-untyped-def]
+        del run, attempt
+        return prepared
+
     def publish_run_failure(
         self,
         *,

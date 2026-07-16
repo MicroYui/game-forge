@@ -23,6 +23,7 @@ from gameforge.contracts.jobs import (
     PreparedRunFailure,
     PreparedRunResult,
     RefReadBindingV1,
+    ResolvedArtifactRequirementV1,
 )
 from gameforge.contracts.workflow import FindingEvidenceBindingV1
 from gameforge.spine.checkers.graph import GraphChecker
@@ -35,6 +36,7 @@ from tests.platform.m4c.handler_support import (
     build_context,
     execution_plan,
     resolved_binding,
+    resolved_policy_snapshot,
     snapshot_bytes,
 )
 
@@ -175,6 +177,31 @@ def _handler(store: FakeArtifactStore, *, max_steps: int = 4) -> RepairSearchHan
 
 
 def _context(bridge: FakeModelBridge):
+    requirements = (
+        ResolvedArtifactRequirementV1(
+            requirement_id="profile-verifier:checker",
+            outcome_rule_id="checker",
+            artifact_kind="checker_run",
+            payload_schema_id="checker-report@1",
+            producer_profile_field_path="/params/checker_profiles/0",
+            ordinal=1,
+        ),
+        ResolvedArtifactRequirementV1(
+            requirement_id="profile-verifier:simulation",
+            outcome_rule_id="simulation",
+            artifact_kind="simulation_run",
+            payload_schema_id="simulation-result@1",
+            producer_profile_field_path="/params/simulation_profiles/0",
+            ordinal=1,
+        ),
+        ResolvedArtifactRequirementV1(
+            requirement_id="profile-verifier:regression",
+            outcome_rule_id="regression",
+            artifact_kind="regression_evidence",
+            payload_schema_id="regression-evidence@1",
+            ordinal=1,
+        ),
+    )
     return build_context(
         params=_payload(),
         kind=REPAIR_KIND,
@@ -195,6 +222,9 @@ def _context(bridge: FakeModelBridge):
                 version=1,
                 kind="config_export",
             ),
+        ),
+        resolved_policy_snapshots=(
+            resolved_policy_snapshot("repair-verifier", "/params/repair_policy", requirements),
         ),
         llm_execution_mode="replay",
         plan=execution_plan({"repair": MODEL_REF}),
@@ -224,6 +254,15 @@ def test_repair_verified_emits_superseding_patch_from_exact_base() -> None:
     assert kinds.count("checker_run") == 1
     assert kinds.count("simulation_run") == 1
     assert kinds.count("regression_evidence") == 1
+    assert {
+        artifact.meta["requirement_id"]
+        for artifact in outcome.artifacts
+        if artifact.kind in {"checker_run", "simulation_run", "regression_evidence"}
+    } == {
+        "profile-verifier:checker",
+        "profile-verifier:simulation",
+        "profile-verifier:regression",
+    }
 
     patch = PatchV2.model_validate(json.loads(store.read_prepared(primary.object_ref)))
     assert patch.revision == 2  # ONE combined superseding revision
@@ -262,9 +301,9 @@ def test_repair_unverified_leaves_head_unchanged_with_full_dispositions() -> Non
         assert disposition.resolved_policy_id == "repair-verifier"
         by_rule.setdefault(disposition.outcome_rule_id, set()).add(disposition.requirement_id)
     assert by_rule == {
-        "checker": {"graph@1"},
-        "simulation": {"econ@1"},
-        "regression": {SUITE_ID},
+        "checker": {"profile-verifier:checker"},
+        "simulation": {"profile-verifier:simulation"},
+        "regression": {"profile-verifier:regression"},
     }
 
 

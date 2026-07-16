@@ -24,13 +24,16 @@ from gameforge.contracts.jobs import (
     FailureClassifierRefV1,
     PlannedAgentNodeVersionV1,
     RetryPolicyRefV1,
+    ResolvedArtifactRequirementV1,
     RunAttempt,
     RunKindPayload,
     RunPayloadEnvelope,
     RunRecord,
+    ResolvedPolicySnapshotV1,
     canonical_payload_hash,
     execution_version_plan_digest,
     referenced_input_artifact_ids,
+    resolved_policy_snapshot_digest,
 )
 from gameforge.contracts.lineage import (
     AuditActor,
@@ -38,6 +41,7 @@ from gameforge.contracts.lineage import (
     VersionTuple,
     object_ref_for_bytes,
 )
+from gameforge.contracts.model_router import ModelSnapshot
 from gameforge.spine.ir.snapshot import Snapshot
 
 HUMAN = AuditActor(principal_id="human:a", principal_kind="human")
@@ -114,9 +118,35 @@ class FakeModelBridge:
     test can assert the ordered, run-scoped call sequence (one ordered cassette).
     """
 
-    def __init__(self, responses: tuple[str, ...] = ()) -> None:
+    def __init__(
+        self,
+        responses: tuple[str, ...] = (),
+        *,
+        model_snapshots: dict[str, ModelSnapshot] | None = None,
+    ) -> None:
         self._responses = list(responses)
+        self._model_snapshots = dict(model_snapshots or {})
         self.requests: list[object] = []
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot:
+        del catalog_version, catalog_digest
+        retained = self._model_snapshots.get(model_snapshot_id)
+        if retained is not None:
+            return retained.model_copy(deep=True)
+        # Existing handler fixtures predate opaque catalog IDs. Keep their explicit
+        # test-only provider/model/tag binding here; production code never parses a
+        # planned opaque identity and the dedicated bridge test uses the exact
+        # catalog resolver.
+        parts = model_snapshot_id.split("/")
+        if len(parts) != 3 or not all(parts):
+            raise ValueError("fake model bridge has no structured snapshot binding")
+        return ModelSnapshot(provider=parts[0], model=parts[1], snapshot_tag=parts[2])
 
     def call_model(self, request: object) -> FakeBridgeResult:
         ordinal = len(self.requests) + 1
@@ -170,6 +200,23 @@ def resolved_binding(
     )
 
 
+def resolved_policy_snapshot(
+    resolved_policy_id: str,
+    source_profile_field_path: str,
+    requirements: tuple[ResolvedArtifactRequirementV1, ...],
+) -> ResolvedPolicySnapshotV1:
+    body = {
+        "resolved_policy_id": resolved_policy_id,
+        "source_profile_field_path": source_profile_field_path,
+        "source_profile_payload_hash": _HEX,
+        "requirements": [item.model_dump(mode="json") for item in requirements],
+    }
+    return ResolvedPolicySnapshotV1(
+        **body,
+        digest=resolved_policy_snapshot_digest(body),
+    )
+
+
 def execution_plan(nodes: dict[str, str]) -> ExecutionVersionPlanV1:
     """Build a valid execution plan mapping ``agent_node_id -> model reference``."""
 
@@ -207,6 +254,7 @@ def build_envelope(
     *,
     params: RunKindPayload,
     resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...] = (),
+    resolved_policy_snapshots: tuple[ResolvedPolicySnapshotV1, ...] = (),
     seed: int | None = None,
     llm_execution_mode: str = "not_applicable",
     plan: ExecutionVersionPlanV1 | None = None,
@@ -225,7 +273,7 @@ def build_envelope(
         execution_profile_catalog_version=1,
         execution_profile_catalog_digest=_HEX,
         resolved_profiles=resolved_profiles,
-        resolved_policy_snapshots=(),
+        resolved_policy_snapshots=resolved_policy_snapshots,
         budget_set_snapshot_id="budget-set:1",
         seed=seed,
         llm_execution_mode=llm_execution_mode,
@@ -290,6 +338,7 @@ def build_context(
     params: RunKindPayload,
     kind: RunKindRef,
     resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...] = (),
+    resolved_policy_snapshots: tuple[ResolvedPolicySnapshotV1, ...] = (),
     seed: int | None = None,
     llm_execution_mode: str = "not_applicable",
     plan: ExecutionVersionPlanV1 | None = None,
@@ -299,6 +348,7 @@ def build_context(
     envelope = build_envelope(
         params=params,
         resolved_profiles=resolved_profiles,
+        resolved_policy_snapshots=resolved_policy_snapshots,
         seed=seed,
         llm_execution_mode=llm_execution_mode,
         plan=plan,
@@ -328,5 +378,6 @@ __all__ = [
     "build_run_record",
     "execution_plan",
     "resolved_binding",
+    "resolved_policy_snapshot",
     "snapshot_bytes",
 ]

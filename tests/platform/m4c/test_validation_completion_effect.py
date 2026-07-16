@@ -4,7 +4,8 @@ Drives the registered ``publication/effects.py`` effects directly against a REAL
 ``SqlApprovalRepository`` over real SQLite (the same CAS the ``TerminalPublisher``
 runs inside its terminal UoW), covering branches the real-admission E2E does not
 reach directly: the ``validated`` / ``validation_failed`` CAS, the run-failure
-``restore_current_draft@1`` revert, and the superseded-subject NO-OP (never revive).
+``restore_current_draft@1`` revert, the pre-publication supersede guard, and the
+fail-closed invariant if a validation-success effect somehow observes supersede.
 """
 
 from __future__ import annotations
@@ -13,28 +14,48 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import DomainRegistryRefV1, DomainScope, Permission
 from gameforge.contracts.jobs import (
     OutcomeArtifactPolicyV1,
     PatchValidationPayloadV1,
+    PreparedArtifact,
+    PreparedRunFailure,
+    PreparedRunResult,
+    PreparedRunResultSummaryV1,
     RefReadBindingV1,
     ValidationSubjectBindingV1,
     VersionTransitionPolicyRefV1,
 )
-from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
+from gameforge.contracts.lineage import (
+    AuditActor,
+    ObjectLocation,
+    VersionTuple,
+    build_artifact_v2,
+)
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import (
     ApprovalItem,
     ApprovalPolicyRefV1,
     ApprovalRequirement,
+    AutoApplyPolicyRefV1,
+    AutoApplyPolicyRegistryRefV1,
+    AutoApplyProofV1,
+    AutoApplyValidationProfileBindingV1,
     DomainRoutePolicyRefV1,
     EvidenceSet,
     PatchTargetBindingV1,
     SubjectHead,
 )
-from gameforge.platform.publication.effects import WorkflowEffectContext, apply_workflow_effect
+from gameforge.platform.publication.effects import (
+    AutoApplyValidationRequest,
+    WorkflowEffectContext,
+    apply_workflow_effect,
+)
+from gameforge.platform.publication.publisher import TerminalPublisher
+from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.approvals import SqlApprovalRepository
@@ -230,6 +251,12 @@ def _run_record(fix: _Fixture):
     return build_run_record(envelope, RunKindRef(kind="patch.validate", version=1), run_id=RUN_ID)
 
 
+def _attempt():
+    from tests.platform.m4c.handler_support import build_attempt
+
+    return build_attempt(run_id=RUN_ID)
+
+
 def _policy(outcome_code: str, effect_key: str) -> OutcomeArtifactPolicyV1:
     return OutcomeArtifactPolicyV1(
         policy_schema_version="outcome-artifact-policy@1",
@@ -280,6 +307,79 @@ def _seed_validating(fix: _Fixture, repo: SqlApprovalRepository) -> None:
     repo.compare_and_set(APPROVAL_ID, 1, validating)
 
 
+def _supersede_validating(fix: _Fixture, repo: SqlApprovalRepository) -> None:
+    repo.compare_and_set(APPROVAL_ID, 2, _item(fix, status="superseded", revision=3, run_id=None))
+    successor = _item(
+        fix, approval_id="approval:2", status="draft", revision=1, run_id=None
+    ).model_copy(update={"subject_revision": 2, "supersedes_approval_id": APPROVAL_ID})
+    repo.insert_draft(successor)
+    repo.compare_and_set_subject_head(
+        SERIES_ID,
+        SubjectHead(
+            subject_series_id=SERIES_ID,
+            current_subject_artifact_id=fix.patch.artifact_id,
+            current_approval_id=APPROVAL_ID,
+            revision=1,
+        ),
+        SubjectHead(
+            subject_series_id=SERIES_ID,
+            current_subject_artifact_id=fix.patch.artifact_id,
+            current_approval_id="approval:2",
+            revision=2,
+        ),
+    )
+
+
+class _UnusedPublicationPort:
+    pass
+
+
+def _terminal_publisher(approvals: SqlApprovalRepository | None) -> TerminalPublisher:
+    unused = _UnusedPublicationPort()
+    return TerminalPublisher(
+        registry=build_builtin_registry(),
+        artifacts=unused,
+        blobs=unused,
+        findings=unused,
+        ledger=unused,
+        audit=unused,
+        approvals=approvals,
+    )
+
+
+def _prepared_validation_success(fix: _Fixture) -> PreparedRunResult:
+    evidence = fix.evidence_artifact
+    prepared = PreparedArtifact(
+        kind="validation_evidence",
+        payload_schema_id="evidence-set@1",
+        version_tuple=evidence.version_tuple,
+        lineage=tuple(evidence.lineage),
+        payload_hash=evidence.payload_hash,
+        meta={"payload_schema_id": "evidence-set@1"},
+        object_ref=evidence.object_ref,
+        location=ObjectLocation(
+            store_id="local:test",
+            key=evidence.object_ref.key,
+            backend_generation="generation:test",
+        ),
+    )
+    return PreparedRunResult(
+        run_id=RUN_ID,
+        attempt_no=1,
+        run_kind=RunKindRef(kind="patch.validate", version=1),
+        primary_index=0,
+        artifacts=(prepared,),
+        findings=(),
+        requirement_dispositions=(),
+        summary=PreparedRunResultSummaryV1(
+            outcome_code="patch_validation_passed",
+            primary_artifact_kind="validation_evidence",
+            prepared_domain_artifact_count=1,
+            prepared_finding_count=0,
+        ),
+    )
+
+
 def _run_effect(fix, *, effect_key, target_status, evidence_overall, primary_id):
     with fix.session() as session, session.begin():
         repo = SqlApprovalRepository(session)
@@ -315,6 +415,135 @@ def test_set_patch_validated_effect_cases_item_to_validated(tmp_path: Path) -> N
     assert item.workflow_revision == 3
     assert item.active_validation_run_id is None
     assert item.evidence_set_artifact_id == fix.evidence_artifact.artifact_id
+
+
+class _AutoApplyGuard:
+    def __init__(self, *, fail: bool = False) -> None:
+        self.fail = fail
+        self.calls: list[AutoApplyValidationRequest] = []
+
+    def validate_completion(self, request: AutoApplyValidationRequest) -> None:
+        self.calls.append(request)
+        assert request.projected_item.status == "validated"
+        assert request.projected_item.auto_apply_proof is not None
+        if self.fail:
+            raise IntegrityViolation("auto-apply authority rejected proof")
+
+
+def _auto_effect_fixture(fix: _Fixture):
+    evidence = _evidence(fix, overall="passed")
+    policy_ref = AutoApplyPolicyRefV1(
+        registry=AutoApplyPolicyRegistryRefV1(
+            registry_version="auto-policies@1", registry_digest="8" * 64
+        ),
+        policy_id="safe-structural",
+        policy_version="1",
+        policy_digest="9" * 64,
+    )
+    proof = AutoApplyProofV1(
+        subject_artifact_id=fix.patch.artifact_id,
+        subject_digest=fix.patch.payload_hash,
+        target_binding=_target_binding(fix),
+        affected_domain_scope=DomainScope(domain_ids=(_DOMAIN,)),
+        validation_evidence_artifact_id=fix.evidence_artifact.artifact_id,
+        regression_evidence_artifact_ids=(),
+        validation_profile_binding=AutoApplyValidationProfileBindingV1(
+            validation_profile=ProfileRefV1(profile_id="builtin.validation", version=1),
+            validation_profile_payload_hash=_HEX,
+            policy=policy_ref,
+        ),
+        deterministic_oracle_evidence=(),
+        required_outcome_evidence=(),
+        policy=policy_ref,
+    )
+    proof_artifact = fix._seed_artifact(
+        kind="validation_evidence",
+        schema="auto-apply-proof@1",
+        blob=canonical_json(proof.model_dump(mode="json")).encode("utf-8"),
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snap:preview", tool_version="patch-validation@1"
+        ),
+    )
+    registry = build_builtin_registry()
+    definition = registry.get_run_kind(RunKindRef(kind="patch.validate", version=1))
+    assert definition is not None
+    policy = next(
+        item
+        for item in definition.outcome_policies
+        if item.policy_id == "patch-validation-auto-eligible"
+    )
+    return evidence, proof, proof_artifact, policy
+
+
+@pytest.mark.parametrize("guard_mode", ["present", "missing", "reject"])
+def test_auto_apply_effect_attaches_exact_proof_or_fails_closed(
+    tmp_path: Path, guard_mode: str
+) -> None:
+    fix = _Fixture(tmp_path)
+    evidence, proof, proof_artifact, policy = _auto_effect_fixture(fix)
+    guard = None if guard_mode == "missing" else _AutoApplyGuard(fail=guard_mode == "reject")
+    with fix.session() as session, session.begin():
+        _seed_validating(fix, SqlApprovalRepository(session))
+    with fix.session() as session:
+        with pytest.raises(IntegrityViolation) if guard_mode != "present" else _does_not_raise():
+            with session.begin():
+                repo = SqlApprovalRepository(session)
+                apply_workflow_effect(
+                    "set_patch_validated_with_auto_proof@1",
+                    WorkflowEffectContext(
+                        run=_run_record(fix),
+                        policy=policy,
+                        scope="run",
+                        published_primary_artifact_id=fix.evidence_artifact.artifact_id,
+                        published_output_artifact_ids=(
+                            fix.evidence_artifact.artifact_id,
+                            proof_artifact.artifact_id,
+                        ),
+                        approvals=repo,
+                        actor=_WORKER,
+                        occurred_at=NOW,
+                        published_primary_payload=evidence.model_dump(mode="json"),
+                        published_artifact_ids_by_rule={
+                            "primary": (fix.evidence_artifact.artifact_id,),
+                            "regression": (),
+                            "auto-apply-proof": (proof_artifact.artifact_id,),
+                        },
+                        published_payloads_by_rule={
+                            "primary": (evidence.model_dump(mode="json"),),
+                            "regression": (),
+                            "auto-apply-proof": (proof.model_dump(mode="json"),),
+                        },
+                        published_artifacts_by_rule={
+                            "primary": (fix.evidence_artifact,),
+                            "regression": (),
+                            "auto-apply-proof": (proof_artifact,),
+                        },
+                        auto_apply=guard,
+                    ),
+                )
+        item = SqlApprovalRepository(session).get(APPROVAL_ID)
+
+    assert item is not None
+    if guard_mode == "present":
+        assert item.status == "validated"
+        assert item.auto_apply_proof is not None
+        assert item.auto_apply_proof.proof_artifact_id == proof_artifact.artifact_id
+        assert guard is not None and len(guard.calls) == 1
+        request = guard.calls[0]
+        assert request.evidence_artifact == fix.evidence_artifact
+        assert request.proof_artifact == proof_artifact
+        assert request.regression_artifacts == ()
+    else:
+        assert item.status == "validating"
+        assert item.auto_apply_proof is None
+
+
+class _does_not_raise:
+    def __enter__(self) -> None:
+        return None
+
+    def __exit__(self, *args: object) -> bool:
+        return False
 
 
 def test_restore_current_draft_effect_reverts_validating_to_draft(tmp_path: Path) -> None:
@@ -363,17 +592,51 @@ def test_missing_approvals_capability_fails_closed(tmp_path: Path) -> None:
         apply_workflow_effect("set_patch_validated@1", context)
 
 
-def test_set_patch_validated_never_revives_superseded_subject(tmp_path: Path) -> None:
+def test_validation_outcome_preflight_preserves_exact_current_binding(tmp_path: Path) -> None:
+    fix = _Fixture(tmp_path)
+    prepared = _prepared_validation_success(fix)
+    with fix.session() as session, session.begin():
+        repo = SqlApprovalRepository(session)
+        _seed_validating(fix, repo)
+
+        result = _terminal_publisher(repo).preflight_outcome(
+            run=_run_record(fix),
+            attempt=_attempt(),
+            prepared=prepared,
+        )
+
+    assert result is prepared
+
+
+def test_validation_outcome_preflight_discards_superseded_evidence(tmp_path: Path) -> None:
     fix = _Fixture(tmp_path)
     with fix.session() as session, session.begin():
         repo = SqlApprovalRepository(session)
         _seed_validating(fix, repo)
-        # Supersede the validating item: it goes validating→superseded and a new
-        # revision becomes the current SubjectHead. The effect must observe the
-        # non-current head and NOT mutate/revive the superseded item.
-        repo.compare_and_set(
-            APPROVAL_ID, 2, _item(fix, status="superseded", revision=3, run_id=None)
+        _supersede_validating(fix, repo)
+
+        result = _terminal_publisher(repo).preflight_outcome(
+            run=_run_record(fix),
+            attempt=_attempt(),
+            prepared=_prepared_validation_success(fix),
         )
+
+    assert isinstance(result, PreparedRunFailure)
+    assert result.cause_code == "subject_superseded"
+    assert result.failure_class == "subject_superseded"
+    assert result.intrinsic_retry_eligible is False
+    assert result.classifier == _run_record(fix).failure_classifier
+    assert result.artifacts == ()
+    assert result.requirement_dispositions == ()
+
+
+def test_validation_outcome_preflight_rejects_unproven_noncurrent_state(
+    tmp_path: Path,
+) -> None:
+    fix = _Fixture(tmp_path)
+    with fix.session() as session, session.begin():
+        repo = SqlApprovalRepository(session)
+        _seed_validating(fix, repo)
         successor = _item(
             fix, approval_id="approval:2", status="draft", revision=1, run_id=None
         ).model_copy(update={"subject_revision": 2, "supersedes_approval_id": APPROVAL_ID})
@@ -393,19 +656,47 @@ def test_set_patch_validated_never_revives_superseded_subject(tmp_path: Path) ->
                 revision=2,
             ),
         )
-        before = repo.get(APPROVAL_ID)
-        apply_workflow_effect(
-            "set_patch_validated@1",
-            _context(
-                fix,
-                approvals=repo,
-                evidence=_evidence(fix, overall="passed"),
-                primary_id=fix.evidence_artifact.artifact_id,
-                policy=_policy("patch_validation_passed", "set_patch_validated@1"),
-            ),
+
+        with pytest.raises(IntegrityViolation, match="strict superseded"):
+            _terminal_publisher(repo).preflight_outcome(
+                run=_run_record(fix),
+                attempt=_attempt(),
+                prepared=_prepared_validation_success(fix),
+            )
+
+
+def test_validation_outcome_preflight_requires_transaction_bound_approvals(
+    tmp_path: Path,
+) -> None:
+    fix = _Fixture(tmp_path)
+    with pytest.raises(IntegrityViolation, match="transaction-bound approvals"):
+        _terminal_publisher(None).preflight_outcome(
+            run=_run_record(fix),
+            attempt=_attempt(),
+            prepared=_prepared_validation_success(fix),
         )
+
+
+def test_set_patch_validated_fails_closed_if_supersede_reaches_late_effect(
+    tmp_path: Path,
+) -> None:
+    fix = _Fixture(tmp_path)
+    with fix.session() as session, session.begin():
+        repo = SqlApprovalRepository(session)
+        _seed_validating(fix, repo)
+        _supersede_validating(fix, repo)
+        before = repo.get(APPROVAL_ID)
+        with pytest.raises(IntegrityViolation, match="after subject supersede"):
+            apply_workflow_effect(
+                "set_patch_validated@1",
+                _context(
+                    fix,
+                    approvals=repo,
+                    evidence=_evidence(fix, overall="passed"),
+                    primary_id=fix.evidence_artifact.artifact_id,
+                    policy=_policy("patch_validation_passed", "set_patch_validated@1"),
+                ),
+            )
         after = repo.get(APPROVAL_ID)
     assert before is not None and after is not None
-    assert after.status == "superseded"
-    assert after.evidence_set_artifact_id is None
     assert after == before

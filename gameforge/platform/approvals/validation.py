@@ -420,6 +420,28 @@ def validate_current_subject_binding(
         )
 
 
+def validate_strict_superseded_subject_binding(
+    item: ApprovalItem,
+    head: SubjectHead,
+    subject: object,
+) -> None:
+    """Prove that a non-current validation item was superseded exactly once."""
+
+    if (
+        head.current_approval_id == item.approval_id
+        or item.status != "superseded"
+        or item.active_validation_run_id is not None
+        or head.subject_series_id != item.subject_series_id
+        or head.revision <= item.subject_revision
+        or subject.subject_head_revision != item.subject_revision
+        or item.workflow_revision != subject.expected_workflow_revision + 1
+    ):
+        raise IntegrityViolation(
+            "non-current validation item is not a superseded revision; strict superseded proof failed",
+            approval_id=item.approval_id,
+        )
+
+
 def validate_evidence_subject(evidence: EvidenceSet, item: ApprovalItem) -> None:
     """The EvidenceSet subject binding every completion re-verifies."""
 
@@ -499,6 +521,45 @@ def validate_constraint_evidence_candidate_binding(
         or target.expected_ref != payload.target.expected_ref
     ):
         raise IntegrityViolation("constraint candidate binding differs from frozen Run target")
+
+
+def build_auto_apply_proof_binding(
+    *,
+    proof: AutoApplyProofV1,
+    proof_artifact_id: str,
+    evidence_artifact_id: str,
+    regression_artifact_ids: tuple[str, ...],
+    item: ApprovalItem,
+) -> AutoApplyProofBindingV1:
+    """Project the one exact immutable proof binding used by both completion paths.
+
+    Task 9's generic terminal publisher and the standalone validation completion
+    service must not maintain subtly different proof projections.  Deep oracle /
+    policy eligibility remains the injected deterministic auto-apply guard; this
+    pure helper closes the subject/target/EvidenceSet/regression identities before
+    either path mutates ``ApprovalItem``.
+    """
+
+    target = item.target_binding
+    if target is None:
+        raise IntegrityViolation("auto-apply proof lacks the Approval target binding")
+    expected_regression_ids = tuple(sorted(regression_artifact_ids))
+    if (
+        proof.subject_artifact_id != item.subject_artifact_id
+        or proof.subject_digest != item.subject_digest
+        or proof.target_binding != target
+        or proof.validation_evidence_artifact_id != evidence_artifact_id
+        or proof.regression_evidence_artifact_ids != expected_regression_ids
+    ):
+        raise IntegrityViolation("auto-apply proof payload differs from completion binding")
+    return AutoApplyProofBindingV1(
+        proof_artifact_id=proof_artifact_id,
+        policy=proof.policy,
+        subject_digest=item.subject_digest,
+        target_digest=target.target_digest,
+        expected_ref=target.expected_ref,
+        validation_evidence_artifact_id=evidence_artifact_id,
+    )
 
 
 def build_validation_completion_replacement(
@@ -764,16 +825,11 @@ class ValidationCompletionService:
         runs: ValidationRunTerminalGateway,
         audit: ApprovalAuditWriter,
     ) -> ValidationCompletionResult:
-        if (
-            item.status != "superseded"
-            or item.active_validation_run_id is not None
-            or head.subject_series_id != item.subject_series_id
-            or head.revision <= item.subject_revision
-            or prepared.execution.payload.subject.subject_head_revision != item.subject_revision
-            or item.workflow_revision
-            != prepared.execution.payload.subject.expected_workflow_revision + 1
-        ):
-            raise IntegrityViolation("non-current validation item is not a superseded revision")
+        validate_strict_superseded_subject_binding(
+            item,
+            head,
+            prepared.execution.payload.subject,
+        )
         terminal = runs.publish_terminal(
             execution=prepared.execution,
             outcome_code="subject_superseded",
@@ -1198,24 +1254,16 @@ class ValidationCompletionService:
         if proof is None or proof_artifact is None:
             return None
         evidence_artifact = prepared.evidence_set_artifact
-        if evidence_artifact is None or item.target_binding is None:
-            raise IntegrityViolation("auto-apply proof lacks target or EvidenceSet")
-        if (
-            proof.subject_artifact_id != item.subject_artifact_id
-            or proof.subject_digest != item.subject_digest
-            or proof.target_binding != item.target_binding
-            or proof.validation_evidence_artifact_id != evidence_artifact.artifact_id
-            or proof.regression_evidence_artifact_ids
-            != tuple(sorted(artifact.artifact_id for artifact in prepared.regression_artifacts))
-        ):
-            raise IntegrityViolation("auto-apply proof payload differs from completion binding")
-        return AutoApplyProofBindingV1(
+        if evidence_artifact is None:
+            raise IntegrityViolation("auto-apply proof lacks its EvidenceSet")
+        return build_auto_apply_proof_binding(
+            proof=proof,
             proof_artifact_id=proof_artifact.artifact_id,
-            policy=proof.policy,
-            subject_digest=item.subject_digest,
-            target_digest=item.target_binding.target_digest,
-            expected_ref=item.target_binding.expected_ref,
-            validation_evidence_artifact_id=evidence_artifact.artifact_id,
+            evidence_artifact_id=evidence_artifact.artifact_id,
+            regression_artifact_ids=tuple(
+                artifact.artifact_id for artifact in prepared.regression_artifacts
+            ),
+            item=item,
         )
 
     @staticmethod
@@ -1325,6 +1373,7 @@ __all__ = [
     "ValidationRunBinding",
     "ValidationRunTerminalGateway",
     "ValidationRunTerminalResult",
+    "build_auto_apply_proof_binding",
     "build_validation_completion_replacement",
     "build_validation_revert_replacement",
     "payload_subject_kind",
@@ -1335,4 +1384,5 @@ __all__ = [
     "validate_immutable_subject_binding",
     "validate_patch_evidence_binding",
     "validate_rollback_evidence_binding",
+    "validate_strict_superseded_subject_binding",
 ]

@@ -12,6 +12,7 @@ from gameforge.contracts.errors import Conflict
 from gameforge.contracts.jobs import (
     OutcomeArtifactPolicyV1,
     PreparedRunFailure,
+    PreparedRunOutcome,
     RetryDecisionV1,
     RunAttempt,
     RunEvent,
@@ -92,6 +93,16 @@ class _SqlPublication:
         assert previous.run_id == run.run_id == attempt.run_id == lease.run_id
         assert event.event_type == "attempt.started"
         assert actor.principal_id == attempt.worker_principal_id
+
+    def preflight_outcome(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunOutcome,
+    ) -> PreparedRunOutcome:
+        assert attempt is None or run.run_id == attempt.run_id
+        return prepared
 
     def publish_attempt_failure(
         self,

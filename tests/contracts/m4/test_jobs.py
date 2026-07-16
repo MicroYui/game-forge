@@ -8,6 +8,7 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
+    ArtifactCountBindingV1,
     ArtifactMigrationPayloadV1,
     BenchRunPayloadV1,
     CancelRunPayloadV1,
@@ -16,6 +17,7 @@ from gameforge.contracts.jobs import (
     ConstraintProposalProposePayloadV1,
     ConstraintValidationPayloadV1,
     DrDrillPayloadV1,
+    ExecutionIdentityCountBindingV1,
     GraphSelectionV1,
     JsonCollectionCountBindingV1,
     GenerationProposePayloadV1,
@@ -830,6 +832,24 @@ def test_payload_collections_are_canonical_bounded_and_semantically_closed() -> 
             repetition_count=1,
             execution_scope="execute_cases",
             case_result_artifact_ids=("result:1",),
+        )
+
+
+def test_execution_identity_count_binding_is_discriminated_and_round_trips() -> None:
+    adapter = TypeAdapter(ArtifactCountBindingV1)
+    binding = ExecutionIdentityCountBindingV1(scope="current_attempt")
+
+    assert adapter.validate_json(adapter.dump_json(binding)) == binding
+    mapping = adapter.json_schema()["discriminator"]["mapping"]
+    assert "execution_identity" in mapping
+
+    with pytest.raises(ValidationError):
+        adapter.validate_python(
+            {
+                "source": "execution_identity",
+                "response_consumed": False,
+                "scope": "current_attempt",
+            }
         )
 
 

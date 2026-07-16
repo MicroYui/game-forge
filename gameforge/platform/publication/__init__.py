@@ -1,79 +1,64 @@
 """Generic terminal publication engine (M4c Task 9).
 
-Turns a worker-submitted, non-authoritative ``PreparedRunOutcome`` into
-authoritative Artifacts, Finding revisions/links, workflow effects,
-RunResult/RunFailure manifests and audit inside the one transaction the Run
-lifecycle service owns.  See :mod:`gameforge.platform.publication.publisher`.
+The package exports its public surface lazily.  ``runs.commands`` and
+``runs.lifecycle`` depend only on the leaf ``platform.terminal_staging`` contracts;
+eagerly importing the complete publisher here would pull the registry readiness
+validator back through payload binding and make otherwise-valid import order part
+of runtime correctness.
 """
 
 from __future__ import annotations
 
-from gameforge.platform.publication.effects import (
-    WORKFLOW_EFFECTS,
-    WorkflowEffectContext,
-    apply_workflow_effect,
-    resolve_workflow_effect,
-)
-from gameforge.platform.publication.findings import PlannedFindingWrite, plan_finding_write
-from gameforge.platform.publication.lineage import (
-    LineageParentSources,
-    ParentInfo,
-    TypedLineage,
-    project_typed_lineage,
-)
-from gameforge.platform.publication.planner import (
-    PublicationPlan,
-    PublicationRegistry,
-    build_publication_plan,
-    resolve_definition,
-)
-from gameforge.platform.publication.publisher import (
-    ArtifactPort,
-    AuditPort,
-    BlobStore,
-    FindingStore,
-    ManifestLedger,
-    TerminalPublisher,
-)
-from gameforge.platform.publication.validator import (
-    PlanRule,
-    PreparedArtifactView,
-    RuleAllocation,
-    allocate_artifacts,
-    validate_rule_cardinality,
-)
-from gameforge.platform.publication.version import (
-    project_domain_version_tuple,
-    project_manifest_version_tuple,
-)
+from importlib import import_module
 
 
-__all__ = [
-    "WORKFLOW_EFFECTS",
-    "ArtifactPort",
-    "AuditPort",
-    "BlobStore",
-    "FindingStore",
-    "LineageParentSources",
-    "ManifestLedger",
-    "ParentInfo",
-    "PlanRule",
-    "PlannedFindingWrite",
-    "PreparedArtifactView",
-    "PublicationPlan",
-    "PublicationRegistry",
-    "RuleAllocation",
-    "TerminalPublisher",
-    "TypedLineage",
-    "WorkflowEffectContext",
-    "allocate_artifacts",
-    "apply_workflow_effect",
-    "build_publication_plan",
-    "plan_finding_write",
-    "project_domain_version_tuple",
-    "project_manifest_version_tuple",
-    "project_typed_lineage",
-    "resolve_definition",
-    "resolve_workflow_effect",
-    "validate_rule_cardinality",
-]
+_EXPORT_MODULE = {
+    "AgentDraftPreparedAssembler": "effects",
+    "AgentDraftWorkflowPort": "effects",
+    "AgentDraftWorkflowRequest": "effects",
+    "ApprovalCommandAgentDraftWorkflowPort": "effects",
+    "AutoApplyValidationPort": "effects",
+    "AutoApplyValidationRequest": "effects",
+    "WORKFLOW_EFFECTS": "effects",
+    "WorkflowEffectContext": "effects",
+    "apply_workflow_effect": "effects",
+    "resolve_workflow_effect": "effects",
+    "PlannedFindingWrite": "findings",
+    "plan_finding_write": "findings",
+    "LineageParentSources": "lineage",
+    "ParentInfo": "lineage",
+    "TypedLineage": "lineage",
+    "project_typed_lineage": "lineage",
+    "PublicationPlan": "planner",
+    "PublicationRegistry": "planner",
+    "build_publication_plan": "planner",
+    "resolve_definition": "planner",
+    "ArtifactPort": "publisher",
+    "AuditPort": "publisher",
+    "BlobStore": "publisher",
+    "FindingStore": "publisher",
+    "ManifestLedger": "publisher",
+    "TerminalPublisher": "publisher",
+    "PlanRule": "validator",
+    "PreparedArtifactView": "validator",
+    "RuleAllocation": "validator",
+    "allocate_artifacts": "validator",
+    "validate_rule_cardinality": "validator",
+    "project_domain_version_tuple": "version",
+    "project_manifest_version_tuple": "version",
+}
+
+__all__ = sorted(_EXPORT_MODULE)
+
+
+def __getattr__(name: str) -> object:
+    module_name = _EXPORT_MODULE.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(f"{__name__}.{module_name}"), name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    return sorted((*globals(), *__all__))

@@ -31,6 +31,8 @@ from dataclasses import dataclass
 from hashlib import sha256
 from typing import Literal, Mapping, Protocol
 
+from gameforge.contracts.canonical import canonical_sha256
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.jobs import PreparedArtifact
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple, artifact_id_v2_for
 from gameforge.contracts.workflow import EvidenceRequirement
@@ -50,6 +52,9 @@ CONSTRAINT_SNAPSHOT_KIND: ArtifactKind = "constraint_snapshot"
 RESOLVED_PATCH = "patch-validation"
 RESOLVED_CONSTRAINT = "constraint-validation"
 RESOLVED_ROLLBACK = "rollback-validation"
+
+VALIDATION_SEED_DERIVATION_VERSION = "subseed@1"
+DETERMINISTIC_VALIDATION_EXECUTION_SEED = 0
 
 DimensionStatus = Literal["passed", "failed", "unproven", "not_applicable"]
 OverallStatus = Literal["passed", "failed", "unproven"]
@@ -71,7 +76,7 @@ def content_addressed_artifact_id(prepared: PreparedArtifact) -> str:
         version_tuple=prepared.version_tuple,
         lineage=prepared.lineage,
         payload_hash=prepared.payload_hash,
-        meta=prepared.meta,
+        meta={**prepared.meta, "replayability": "deterministic_recompute"},
     )
 
 
@@ -144,8 +149,9 @@ class RegressionSuiteResultV1:
     """One regression suite's deterministic re-run verdict.
 
     ``status`` is the deterministic headless-regression verdict; ``reason_code`` is
-    required for a ``unproven`` / ``not_executed`` suite (fail-closed) and forbidden
-    for ``passed``. ``payload`` is the ``regression-evidence@1`` wire body (a
+    required for a ``unproven`` / ``not_executed`` suite (fail-closed) and canonical
+    null/omitted for ``passed`` / ``failed``. ``payload`` is the
+    ``regression-evidence@1`` wire body (a
     hand-built dict — the schema has no strict pydantic class).
     """
 
@@ -170,6 +176,111 @@ class RegressionRunner(Protocol):
     def run(self, request: RegressionRunRequest) -> RegressionSuiteResultV1: ...
 
 
+def derive_validation_subseed(
+    *,
+    root_seed: int,
+    run_kind: RunKindRef,
+    profile: ProfileRefV1,
+    case_id: str,
+    replication_index: int,
+) -> int:
+    """Derive one validation-child seed using the frozen ``subseed@1`` formula.
+
+    The M4 design freezes this exact canonical input closure for every stochastic
+    validation child.  In particular, this is deliberately independent of process
+    hash randomisation and collection traversal order.
+    """
+
+    if not 0 <= root_seed <= (1 << 64) - 1:
+        raise ValueError("root seed must be an unsigned 64-bit integer")
+    if not case_id:
+        raise ValueError("validation child case_id must be non-empty")
+    if replication_index < 0:
+        raise ValueError("validation child replication_index must be non-negative")
+    digest = canonical_sha256(
+        {
+            "root_seed": root_seed,
+            "run_kind": run_kind.model_dump(mode="json"),
+            "profile_id": profile.profile_id,
+            "profile_version": profile.version,
+            "case_id": case_id,
+            "replication_index": replication_index,
+        }
+    )
+    return int(digest[:16], 16)
+
+
+def validation_child_execution_seed(
+    *,
+    root_seed: int | None,
+    run_kind: RunKindRef,
+    profile: ProfileRefV1,
+    case_id: str,
+    replication_index: int = 0,
+) -> int:
+    """Return a child subseed, keeping the deterministic no-root fallback internal."""
+
+    if root_seed is None:
+        return DETERMINISTIC_VALIDATION_EXECUTION_SEED
+    return derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=run_kind,
+        profile=profile,
+        case_id=case_id,
+        replication_index=replication_index,
+    )
+
+
+def validation_child_seed_evidence(
+    *,
+    root_seed: int | None,
+    execution_seed: int | None,
+    run_kind: RunKindRef | None,
+    profile: ProfileRefV1 | None,
+    case_id: str,
+    replication_index: int = 0,
+) -> dict[str, object]:
+    """Project a stochastic child's complete ``subseed@1`` binding into evidence."""
+
+    if root_seed is None or execution_seed is None or run_kind is None or profile is None:
+        return {}
+    return {
+        "root_seed": root_seed,
+        "run_kind": run_kind.model_dump(mode="json"),
+        "profile_id": profile.profile_id,
+        "profile_version": profile.version,
+        "case_id": case_id,
+        "replication_index": replication_index,
+        "seed": execution_seed,
+        "seed_derivation_version": VALIDATION_SEED_DERIVATION_VERSION,
+    }
+
+
+def with_validation_child_seed_evidence(
+    payload: Mapping[str, object],
+    *,
+    root_seed: int | None,
+    execution_seed: int,
+    run_kind: RunKindRef,
+    profile: ProfileRefV1,
+    case_id: str,
+    replication_index: int = 0,
+) -> dict[str, object]:
+    """Attach a stochastic child binding without inventing one for deterministic work."""
+
+    return {
+        **dict(payload),
+        **validation_child_seed_evidence(
+            root_seed=root_seed,
+            execution_seed=execution_seed,
+            run_kind=run_kind,
+            profile=profile,
+            case_id=case_id,
+            replication_index=replication_index,
+        ),
+    }
+
+
 class _DeterministicPassingRegressionRunner:
     """Default port: a clean, already-gated subject re-runs green deterministically.
 
@@ -189,6 +300,7 @@ class _DeterministicPassingRegressionRunner:
                 "snapshot_id": request.snapshot_id,
                 "seed": request.seed,
                 "status": "passed",
+                "reason_code": None,
             },
         )
 
@@ -198,18 +310,22 @@ def evidence_version_tuple(
     ir_snapshot_id: str | None,
     constraint_snapshot_id: str | None,
     tool_version: str,
-    seed: int,
+    seed: int | None,
     env_contract_version: str | None = None,
+    doc_version: str | None = None,
 ) -> VersionTuple:
     """The producer-matrix VersionTuple basis for a validation/regression artifact.
 
     Per the §3.3 producer matrix, ``validation_evidence`` / ``regression_evidence``
-    carry the exact target-binding snapshot/constraint fields + ``tool_version`` +
-    ``seed`` (seed is a producer-local field for both kinds); regression evidence
-    adds ``env_contract_version`` when it consumed an environment.
+    carry the exact target-binding snapshot/constraint fields + ``tool_version``.
+    ``seed`` is the Run's exact frozen root seed when stochastic profiles apply and
+    is ``None`` when seed is not applicable; an internal deterministic fallback or
+    a derived child subseed must never be substituted into this root lineage field.
+    Regression evidence adds ``env_contract_version`` when it consumed an environment.
     """
 
     return VersionTuple(
+        doc_version=doc_version,
         ir_snapshot_id=ir_snapshot_id,
         constraint_snapshot_id=constraint_snapshot_id,
         tool_version=tool_version,
@@ -227,12 +343,14 @@ __all__ = [
     "CONSTRAINT_SNAPSHOT_KIND",
     "CONSTRAINT_SNAPSHOT_SCHEMA_ID",
     "DEFAULT_REGRESSION_RUNNER",
+    "DETERMINISTIC_VALIDATION_EXECUTION_SEED",
     "EVIDENCE_SET_SCHEMA_ID",
     "REGRESSION_EVIDENCE_KIND",
     "REGRESSION_EVIDENCE_SCHEMA_ID",
     "RESOLVED_CONSTRAINT",
     "RESOLVED_PATCH",
     "RESOLVED_ROLLBACK",
+    "VALIDATION_SEED_DERIVATION_VERSION",
     "VALIDATION_EVIDENCE_KIND",
     "DimensionResult",
     "DimensionStatus",
@@ -241,9 +359,13 @@ __all__ = [
     "RegressionRunner",
     "RegressionSuiteResultV1",
     "content_addressed_artifact_id",
+    "derive_validation_subseed",
     "digest_of",
     "evidence_requirement",
     "evidence_version_tuple",
     "overall_status_of",
     "require_exists",
+    "validation_child_execution_seed",
+    "validation_child_seed_evidence",
+    "with_validation_child_seed_evidence",
 ]

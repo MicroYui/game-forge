@@ -14,6 +14,7 @@ from gameforge.contracts.jobs import (
     CheckerRunPayloadV1,
     FailureClassifierRefV1,
     GraphSelectionV1,
+    PreparedRunOutcome,
     RetryPolicyRefV1,
     RetryPolicySnapshot,
     RunAttempt,
@@ -499,6 +500,16 @@ class _Publication:
         self.prompt_idempotency: dict[
             tuple[str, str], tuple[str, RunIntermediateArtifactLinkV1]
         ] = {}
+
+    def preflight_outcome(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunOutcome,
+    ) -> PreparedRunOutcome:
+        assert attempt is None or run.run_id == attempt.run_id
+        return prepared
 
     def record_run_created(
         self,

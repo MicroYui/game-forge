@@ -11,8 +11,11 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from gameforge.apps.worker.validation import build_differential_engines
 from gameforge.contracts.dsl import Constraint
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
@@ -22,6 +25,7 @@ from gameforge.contracts.jobs import (
     SolverEngineRefV1,
     ValidationSubjectBindingV1,
 )
+from gameforge.contracts.lineage import artifact_id_v2_for
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import (
     ConstraintCompileEvidenceV1,
@@ -31,7 +35,16 @@ from gameforge.contracts.workflow import (
 )
 from gameforge.platform.run_handlers.constraint_validation import ConstraintValidationHandler
 from gameforge.platform.run_handlers.readers import load_constraints
-from gameforge.platform.run_handlers.validation_common import RegressionSuiteResultV1
+from gameforge.platform.run_handlers.validation_common import (
+    RegressionSuiteResultV1,
+    content_addressed_artifact_id,
+)
+from gameforge.platform.publication.payload_binding import (
+    FinalSiblingFact,
+    bind_final_payload_references,
+    final_sibling_fact_for,
+)
+from gameforge.platform.registry.defaults import build_builtin_registry
 from tests.platform.m4c.handler_support import (
     FakeArtifactStore,
     build_context,
@@ -128,6 +141,23 @@ class _FailingRegressionRunner:
         )
 
 
+class _UnprovenRegressionRunner:
+    reason = "adapter_environment_unavailable"
+
+    def run(self, request) -> RegressionSuiteResultV1:
+        return RegressionSuiteResultV1(
+            suite_artifact_id=request.suite_artifact_id,
+            status="unproven",
+            reason_code=self.reason,
+            payload={
+                "payload_schema_version": "regression-evidence@1",
+                "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": request.snapshot_id,
+                "status": "unproven",
+            },
+        )
+
+
 def _store(constraints: tuple[Constraint, ...]) -> FakeArtifactStore:
     store = FakeArtifactStore()
     store.register(SUBJECT_ID, _proposal(constraints).model_dump(mode="json"))
@@ -217,6 +247,125 @@ def test_mixed_candidate_validated_when_both_engines_positively_decide() -> None
     ev_set = _evidence_set(store, outcome)
     assert ev_set.overall_status == "passed"
     assert isinstance(ev_set.target_binding, ConstraintTargetBindingV1)
+
+
+def test_evidence_set_reseals_candidate_and_compile_sibling_references() -> None:
+    store = _store(_MIXED)
+    context = _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
+    outcome = _handler(store)(context)
+    primary = outcome.artifacts[outcome.primary_index]
+    candidate = next(
+        artifact for artifact in outcome.artifacts if artifact.kind == "constraint_snapshot"
+    )
+    compile_evidence = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.payload_schema_id == "constraint-compile-evidence@1"
+    )
+    regression_evidence = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.payload_schema_id == "regression-evidence@1"
+    )
+    candidate_id = content_addressed_artifact_id(candidate)
+    prepared_compile_id = content_addressed_artifact_id(compile_evidence)
+    final_compile_id = artifact_id_v2_for(
+        kind=compile_evidence.kind,
+        version_tuple=compile_evidence.version_tuple,
+        lineage=(*compile_evidence.lineage, candidate_id),
+        payload_hash=compile_evidence.payload_hash,
+        meta={**compile_evidence.meta, "replayability": "deterministic_recompute"},
+    )
+    assert final_compile_id != prepared_compile_id
+    regression_id = content_addressed_artifact_id(regression_evidence)
+
+    registry = build_builtin_registry()
+    definition = registry.get_run_kind(CONSTRAINT_VALIDATE_KIND)
+    assert definition is not None
+    policy = next(
+        item
+        for item in definition.outcome_policies
+        if item.policy_id == "constraint-validated-with-candidate"
+    )
+    rule = next(item for item in policy.artifact_rules if item.rule_id == "primary")
+    compile_rule = next(
+        item for item in policy.artifact_rules if item.rule_id == "compile-evidence"
+    )
+    regression_rule = next(item for item in policy.artifact_rules if item.rule_id == "regression")
+    payload = json.loads(store.read_prepared(primary.object_ref))
+    binding_kwargs = dict(
+        run=context.run,
+        outcome_policy=policy,
+        outcome_rule=rule,
+        payload_schema_id="evidence-set@1",
+        projected_tuple=primary.version_tuple,
+        final_artifact_ids_by_rule={
+            "candidate": (candidate_id,),
+            "compile-evidence": (final_compile_id,),
+            "regression": (regression_id,),
+        },
+        final_sibling_facts_by_id={
+            candidate_id: FinalSiblingFact(
+                artifact_id=candidate_id,
+                outcome_rule_id="candidate",
+                artifact_kind=candidate.kind,
+                payload_schema_id=candidate.payload_schema_id,
+                payload_hash=candidate.payload_hash,
+                requirement_id=None,
+                requirement_kind=None,
+            ),
+            final_compile_id: final_sibling_fact_for(
+                run=context.run,
+                artifact_id=final_compile_id,
+                outcome_rule=compile_rule,
+                payload_schema_id=compile_evidence.payload_schema_id,
+                canonical_payload=json.loads(store.read_prepared(compile_evidence.object_ref)),
+                payload_hash=compile_evidence.payload_hash,
+                authoritative_meta=compile_evidence.meta,
+            ),
+            regression_id: final_sibling_fact_for(
+                run=context.run,
+                artifact_id=regression_id,
+                outcome_rule=regression_rule,
+                payload_schema_id=regression_evidence.payload_schema_id,
+                canonical_payload=json.loads(store.read_prepared(regression_evidence.object_ref)),
+                payload_hash=regression_evidence.payload_hash,
+                authoritative_meta=regression_evidence.meta,
+            ),
+        },
+        prepared_to_final_artifact_ids_by_rule={
+            "candidate": {candidate_id: candidate_id},
+            "compile-evidence": {prepared_compile_id: final_compile_id},
+            "regression": {regression_id: regression_id},
+        },
+    )
+    bound = bind_final_payload_references(canonical_payload=payload, **binding_kwargs)
+    assert bound["target_binding"]["target_artifact_id"] == candidate_id
+    assert {
+        requirement["evidence_artifact_id"]
+        for requirement in bound["requirements"]
+        if requirement["evidence_artifact_id"] is not None
+    } == {final_compile_id, regression_id}
+    assert final_compile_id in bound["supporting_artifact_ids"]
+    assert prepared_compile_id not in bound["supporting_artifact_ids"]
+
+    forged = {**payload, "target_binding": {**payload["target_binding"], "target_digest": _HEX}}
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        bind_final_payload_references(canonical_payload=forged, **binding_kwargs)
+
+    swapped = [dict(requirement) for requirement in payload["requirements"]]
+    compile_row = next(item for item in swapped if item["requirement_id"] == "compile")
+    regression_row = next(
+        item for item in swapped if item["requirement_id"] == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    compile_row["evidence_artifact_id"], regression_row["evidence_artifact_id"] = (
+        regression_row["evidence_artifact_id"],
+        compile_row["evidence_artifact_id"],
+    )
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        bind_final_payload_references(
+            canonical_payload={**payload, "requirements": swapped}, **binding_kwargs
+        )
 
 
 def test_purely_numeric_candidate_validated_via_z3() -> None:
@@ -336,6 +485,27 @@ def test_failing_regression_fails_with_candidate() -> None:
     assert ev_set.overall_status == "failed"
     produced = [d for d in outcome.requirement_dispositions if d.status == "produced"]
     assert produced and all(d.outcome_rule_id == "regression" for d in produced)
+
+
+def test_unproven_regression_seals_the_adapter_reason_on_both_wires() -> None:
+    store = _store(_MIXED)
+    runner = _UnprovenRegressionRunner()
+    outcome = _handler(store, regression_runner=runner)(
+        _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
+    )
+    evidence = _evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    artifact = next(
+        item for item in outcome.artifacts if item.payload_schema_id == "regression-evidence@1"
+    )
+    sealed = json.loads(store.read_prepared(artifact.object_ref))
+
+    assert requirement.reason_code == runner.reason
+    assert sealed["reason_code"] == runner.reason
 
 
 def test_without_candidate_short_circuits_regression() -> None:

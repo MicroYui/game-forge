@@ -16,12 +16,19 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.jobs import (
     ArtifactLineagePolicyV1,
+    ExecutionIdentityCountBindingV1,
     OutcomeArtifactRuleV1,
     RunKindDefinition,
     run_kind_definition_digest,
 )
 from gameforge.contracts.playtest import CompletionOracleRegistryRefV1
 from gameforge.platform.lineage.validation import PRODUCER_RULES
+from gameforge.platform.publication.payload_binding import (
+    validate_domain_payload_binding_registry,
+)
+from gameforge.platform.publication.producer import (
+    BUILTIN_DOMAIN_PRODUCER_FACTS_RESOLVER,
+)
 from gameforge.platform.registry.model import (
     FROZEN_ACTIVE_RUN_KIND_IDENTITIES,
     FROZEN_PROFILE_REQUIREMENT_SHAPES,
@@ -410,6 +417,9 @@ class PlatformReadinessValidator:
             elif resolver_key is not None:
                 raise IntegrityViolation("fixed permission template cannot bind a domain resolver")
 
+        reference_checks += BUILTIN_DOMAIN_PRODUCER_FACTS_RESOLVER.validate_registry(self._registry)
+        reference_checks += validate_domain_payload_binding_registry(self._registry)
+
         for catalog in profile_catalogs:
             lifecycle = {
                 (item.profile.profile_id, item.profile.version): item.state
@@ -673,6 +683,25 @@ class PlatformReadinessValidator:
             for schema_id in rule.payload_schema_ids
         ):
             raise IntegrityViolation("runtime-parent schema allowlists forbid wildcards")
+        for rule in runtime_rules.rules:
+            if rule.source != "record_shard":
+                continue
+            binding = rule.count_binding
+            expected_scope = (
+                "current_attempt"
+                if rule.manifest_scope == "attempt"
+                else "all_attempts"
+                if rule.manifest_scope == "run"
+                else None
+            )
+            if (
+                not isinstance(binding, ExecutionIdentityCountBindingV1)
+                or expected_scope is None
+                or binding.scope != expected_scope
+            ):
+                raise IntegrityViolation(
+                    "record-shard runtime parent must count consumed execution-identity calls"
+                )
         return checks
 
     @staticmethod

@@ -14,14 +14,20 @@ naming).
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Protocol
 
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import ExecutionProfileCatalogSnapshotV1
 from gameforge.contracts.jobs import (
     ArtifactLineagePolicyV1,
+    FailureClassifierV1,
     FindingOutputPolicyV1,
+    JsonCollectionCountBindingV1,
     OutcomeArtifactPolicyV1,
+    RetryPolicySnapshot,
     RunKindDefinition,
     RunRecord,
     RuntimeParentRuleSetV1,
@@ -38,6 +44,10 @@ class PublicationRegistry(Protocol):
 
     def get_run_kind(self, kind: object) -> RunKindDefinition | None: ...
 
+    def get_retry_policy(self, ref: object) -> RetryPolicySnapshot | None: ...
+
+    def get_failure_classifier(self, ref: object) -> FailureClassifierV1 | None: ...
+
     def get_artifact_lineage_policy(self, ref: object) -> ArtifactLineagePolicyV1 | None: ...
 
     def get_version_transition_policy(self, ref: object) -> VersionTransitionPolicyV1 | None: ...
@@ -45,6 +55,10 @@ class PublicationRegistry(Protocol):
     def get_runtime_parent_rule_set(self, ref: object) -> RuntimeParentRuleSetV1 | None: ...
 
     def get_finding_output_policy(self, ref: object) -> FindingOutputPolicyV1 | None: ...
+
+    def get_execution_profile_catalog(
+        self, catalog_version: int, catalog_digest: str
+    ) -> ExecutionProfileCatalogSnapshotV1 | None: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,7 +71,7 @@ class PublicationPlan:
     transition_policy: VersionTransitionPolicyV1
     runtime_rule_set: RuntimeParentRuleSetV1
     finding_policy: FindingOutputPolicyV1 | None
-    lineage_by_rule_id: dict[str, ArtifactLineagePolicyV1]
+    lineage_by_rule_id: Mapping[str, ArtifactLineagePolicyV1]
     plan_rules: tuple[PlanRule, ...]
 
 
@@ -74,6 +88,21 @@ def resolve_definition(*, registry: PublicationRegistry, run: RunRecord) -> RunK
         != run.outcome_policy_set_digest
     ):
         raise IntegrityViolation("retained outcome-policy-set digest differs from the RunRecord")
+    retry_policy = registry.get_retry_policy(run.retry_policy)
+    classifier = registry.get_failure_classifier(run.failure_classifier)
+    if retry_policy is None or classifier is None:
+        raise IntegrityViolation("Run terminal classifier/retry binding is not retained exactly")
+    if (
+        definition.retry_policy != run.retry_policy
+        or definition.failure_classifier != run.failure_classifier
+        or retry_policy.max_attempts != run.max_attempts
+        or retry_policy.retry_policy_id != run.retry_policy.retry_policy_id
+        or retry_policy.retry_policy_version != run.retry_policy.retry_policy_version
+        or retry_policy.retry_policy_digest != run.retry_policy.retry_policy_digest
+        or classifier.classifier_version != run.failure_classifier.classifier_version
+        or classifier.classifier_digest != run.failure_classifier.classifier_digest
+    ):
+        raise IntegrityViolation("Run terminal classifier/retry projection differs from registry")
     return definition
 
 
@@ -125,6 +154,51 @@ def build_publication_plan(
             "attempt-scope close policy must not consume business artifacts",
             policy_id=policy.policy_id,
         )
+    if scope == "attempt":
+        retrying = policy.retry_disposition == "retry"
+        if retrying != (policy.run_status_after_publication == "retry_wait"):
+            raise IntegrityViolation(
+                "attempt policy retry selector differs from its Run state transition",
+                policy_id=policy.policy_id,
+            )
+        if policy.run_status_after_publication == "succeeded":
+            raise IntegrityViolation(
+                "attempt failure policy cannot publish a successful Run",
+                policy_id=policy.policy_id,
+            )
+    else:
+        if policy.run_status_after_publication == "retry_wait":
+            raise IntegrityViolation(
+                "run-scope publication cannot transition to retry_wait",
+                policy_id=policy.policy_id,
+            )
+        if policy.prepared_outcome == "failure" and policy.retry_disposition != "terminal":
+            raise IntegrityViolation(
+                "run-scope failure publication requires a terminal retry disposition",
+                policy_id=policy.policy_id,
+            )
+
+    primary_rules = tuple(rule for rule in policy.artifact_rules if rule.role == "primary")
+    if policy.prepared_outcome == "success":
+        if len(primary_rules) != 1:
+            raise IntegrityViolation(
+                "success publication policy requires exactly one primary rule",
+                policy_id=policy.policy_id,
+            )
+    elif any(rule.role != "evidence" for rule in policy.artifact_rules):
+        raise IntegrityViolation(
+            "failure publication policy may publish only evidence artifacts",
+            policy_id=policy.policy_id,
+        )
+    elif any(
+        isinstance(rule.count_binding, JsonCollectionCountBindingV1)
+        and rule.count_binding.source == "prepared_primary_payload"
+        for rule in policy.artifact_rules
+    ):
+        raise IntegrityViolation(
+            "failure publication policy cannot read a nonexistent prepared primary payload",
+            policy_id=policy.policy_id,
+        )
 
     lineage_by_rule_id: dict[str, ArtifactLineagePolicyV1] = {}
     plan_rules: list[PlanRule] = []
@@ -158,7 +232,7 @@ def build_publication_plan(
         transition_policy=transition_policy,
         runtime_rule_set=runtime_rule_set,
         finding_policy=finding_policy,
-        lineage_by_rule_id=lineage_by_rule_id,
+        lineage_by_rule_id=MappingProxyType(dict(lineage_by_rule_id)),
         plan_rules=tuple(plan_rules),
     )
 

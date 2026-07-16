@@ -38,6 +38,8 @@ from gameforge.contracts.jobs import (
     PreparedRunFailure,
     PreparedRunOutcome,
     RequirementDispositionV1,
+    ResolvedArtifactRequirementV1,
+    ResolvedPolicySnapshotV1,
 )
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.spine.checkers.base import Checker
@@ -76,7 +78,6 @@ CHECKER_REPORT_SCHEMA_ID = "checker-report@1"
 SIMULATION_RESULT_SCHEMA_ID = "simulation-result@1"
 REGRESSION_EVIDENCE_SCHEMA_ID = "regression-evidence@1"
 REPAIR_TOOL_VERSION = "repair@1"
-RESOLVED_POLICY_ID = "repair-verifier"
 _UNVERIFIED_REASON = "search_exhausted"
 
 _EVIDENCE_KIND: dict[str, tuple[ArtifactKind, str]] = {
@@ -90,12 +91,6 @@ SimConfigResolver = Callable[[ProfileRefV1], ReviewSimConfig]
 FindingLoader = Callable[[ArtifactBlobReader, PatchRepairPayloadV1], tuple[Finding, ...]]
 
 
-def requirement_id_for_profile(profile: ProfileRefV1) -> str:
-    """The frozen resolved-policy requirement id projected from a profile ref."""
-
-    return f"{profile.profile_id}@{profile.version}"
-
-
 @dataclass(frozen=True, slots=True)
 class RepairRunRequest:
     """Fully-resolved inputs for one verifier-guided repair search."""
@@ -106,6 +101,7 @@ class RepairRunRequest:
     checkers: tuple[tuple[ProfileRefV1, Checker], ...]
     simulation_profiles: tuple[tuple[ProfileRefV1, ReviewSimConfig], ...]
     regression_suite_artifact_ids: tuple[str, ...]
+    verifier_requirements: tuple[ResolvedArtifactRequirementV1, ...]
     router: BridgeModelRouter
     max_steps: int = 4
     run_regression: bool = True
@@ -178,6 +174,7 @@ class RepairSearchHandler:
             (profile, self.sim_config_resolver(profile)) for profile in payload.simulation_profiles
         )
         router = build_bridge_router(context=context, agent_node_id=REPAIR_AGENT_NODE_ID)
+        policy_snapshot = self._verifier_policy_snapshot(context)
 
         outcome = self.agent_runner.search(
             RepairRunRequest(
@@ -187,6 +184,7 @@ class RepairSearchHandler:
                 checkers=checkers,
                 simulation_profiles=sim_profiles,
                 regression_suite_artifact_ids=tuple(payload.regression_suite_artifact_ids),
+                verifier_requirements=policy_snapshot.requirements,
                 router=router,
                 max_steps=self.max_steps,
                 run_regression=bool(payload.regression_suite_artifact_ids),
@@ -197,7 +195,20 @@ class RepairSearchHandler:
             return self._verified(
                 context, payload, base_snapshot, current_patch, constraints, outcome
             )
-        return self._unverified(context, payload)
+        return self._unverified(
+            context,
+            policy_snapshot.resolved_policy_id,
+            policy_snapshot.requirements,
+        )
+
+    @staticmethod
+    def _verifier_policy_snapshot(
+        context: ExecutorContextLike,
+    ) -> ResolvedPolicySnapshotV1:
+        snapshots = context.payload.resolved_policy_snapshots
+        if len(snapshots) != 1:
+            raise ValueError("repair run requires exactly one frozen verifier policy snapshot")
+        return snapshots[0]
 
     # --------------------------------------------------------------- verified
     def _verified(
@@ -307,6 +318,7 @@ class RepairSearchHandler:
                     version_tuple=VersionTuple(
                         ir_snapshot_id=outcome.preview_snapshot_id,
                         constraint_snapshot_id=constraint_id,
+                        env_contract_version=package.env_contract_version,
                         tool_version="config-export@1",
                     ),
                     lineage=(constraint_id,),
@@ -357,12 +369,22 @@ class RepairSearchHandler:
 
     # ------------------------------------------------------------- unverified
     def _unverified(
-        self, context: ExecutorContextLike, payload: PatchRepairPayloadV1
+        self,
+        context: ExecutorContextLike,
+        resolved_policy_id: str,
+        requirements: tuple[ResolvedArtifactRequirementV1, ...],
     ) -> PreparedRunFailure:
         # Every frozen requirement gets a produced / not_executed disposition; a
         # fully-exhausted search produced no verified evidence, so all are
         # not_executed with the `search_exhausted` reason (no silent omission).
-        dispositions = self._unverified_dispositions(payload)
+        dispositions = tuple(
+            self._not_executed(
+                resolved_policy_id,
+                requirement.outcome_rule_id,
+                requirement.requirement_id,
+            )
+            for requirement in requirements
+        )
         return PreparedRunFailure(
             run_id=context.run.run_id,
             attempt_no=context.attempt.attempt_no,
@@ -376,23 +398,11 @@ class RepairSearchHandler:
             redacted_message="verifier-guided repair search exhausted without a verified patch",
         )
 
-    def _unverified_dispositions(
-        self, payload: PatchRepairPayloadV1
-    ) -> tuple[RequirementDispositionV1, ...]:
-        dispositions: list[RequirementDispositionV1] = []
-        for profile in payload.checker_profiles:
-            dispositions.append(self._not_executed("checker", requirement_id_for_profile(profile)))
-        for profile in payload.simulation_profiles:
-            dispositions.append(
-                self._not_executed("simulation", requirement_id_for_profile(profile))
-            )
-        for suite_id in payload.regression_suite_artifact_ids:
-            dispositions.append(self._not_executed("regression", suite_id))
-        return tuple(dispositions)
-
-    def _not_executed(self, outcome_rule_id: str, requirement_id: str) -> RequirementDispositionV1:
+    def _not_executed(
+        self, resolved_policy_id: str, outcome_rule_id: str, requirement_id: str
+    ) -> RequirementDispositionV1:
         return RequirementDispositionV1(
-            resolved_policy_id=RESOLVED_POLICY_ID,
+            resolved_policy_id=resolved_policy_id,
             outcome_rule_id=outcome_rule_id,
             requirement_id=requirement_id,
             status="not_executed",
@@ -427,12 +437,10 @@ class RepairSearchHandler:
 __all__ = [
     "REGRESSION_EVIDENCE_SCHEMA_ID",
     "REPAIR_AGENT_NODE_ID",
-    "RESOLVED_POLICY_ID",
     "CheckerResolver",
     "RepairAgentRunner",
     "RepairRunRequest",
     "RepairSearchHandler",
     "RepairSearchOutcomeV1",
     "SimConfigResolver",
-    "requirement_id_for_profile",
 ]

@@ -213,7 +213,7 @@ def test_derive_binds_episode_scenario_identity() -> None:
             version_tuple=a.version_tuple,
             lineage=a.lineage,
             payload_hash=a.payload_hash,
-            meta=a.meta,
+            meta={**a.meta, "replayability": "deterministic_recompute"},
         )
         for a in scenario_arts
     }
@@ -267,6 +267,146 @@ def test_derive_is_byte_deterministic() -> None:
     out_a = _run(_store())
     out_b = _run(_store())
     assert [a.payload_hash for a in out_a.artifacts] == [a.payload_hash for a in out_b.artifacts]
+
+
+def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
+    """Exercise handler → generic publisher, including final meta-derived IDs."""
+
+    from gameforge.contracts.jobs import (
+        outcome_policy_set_digest,
+        run_kind_definition_digest,
+    )
+    from gameforge.contracts.lineage import ArtifactV1, AuditActor, ObjectLocation, VersionTuple
+    from gameforge.platform.registry import build_builtin_registry
+    from gameforge.platform.runs.lifecycle import select_outcome_policy
+    from tests.platform.m4c.test_terminal_publisher import (
+        _Artifacts,
+        _Audit,
+        _Blobs,
+        _Findings,
+        _Ledger,
+        _publisher,
+    )
+
+    store = _store()
+    context = _context()
+    outcome = _handler(store)(context)
+    blobs = _Blobs()
+    prepared_artifacts = []
+    for prepared in outcome.artifacts:
+        blob = store.read_prepared(prepared.object_ref)
+        assert blobs.register(blob) == prepared.object_ref
+        prepared_artifacts.append(
+            prepared.model_copy(
+                update={
+                    "location": ObjectLocation(
+                        store_id="s3",
+                        key=prepared.object_ref.key,
+                        backend_generation="g1",
+                    )
+                }
+            )
+        )
+    outcome = outcome.model_copy(update={"artifacts": tuple(prepared_artifacts)})
+
+    registry = build_builtin_registry()
+    definition = registry.get_run_kind(TASK_SUITE_KIND)
+    assert definition is not None
+    retry = registry.get_retry_policy(definition.retry_policy)
+    assert retry is not None
+    run = context.run.model_copy(
+        update={
+            "run_kind_definition_digest": run_kind_definition_digest(definition),
+            "outcome_policy_set_digest": outcome_policy_set_digest(
+                TASK_SUITE_KIND, definition.outcome_policies
+            ),
+            "failure_classifier": definition.failure_classifier,
+            "retry_policy": definition.retry_policy,
+            "max_attempts": retry.max_attempts,
+        }
+    )
+    produced_tuple = outcome.artifacts[0].version_tuple
+    artifacts = _Artifacts()
+    artifacts.add(
+        ArtifactV1(
+            artifact_id=PREVIEW_ID,
+            kind="ir_snapshot",
+            version_tuple=VersionTuple(
+                doc_version=produced_tuple.doc_version,
+                ir_snapshot_id=produced_tuple.ir_snapshot_id,
+            ),
+            lineage=[],
+            payload_hash=None,
+            meta={"payload_schema_id": "ir-core@1"},
+        )
+    )
+    artifacts.add(
+        ArtifactV1(
+            artifact_id=CONFIG_ID,
+            kind="config_export",
+            version_tuple=VersionTuple(
+                doc_version=produced_tuple.doc_version,
+                ir_snapshot_id=produced_tuple.ir_snapshot_id,
+                constraint_snapshot_id=produced_tuple.constraint_snapshot_id,
+                env_contract_version=produced_tuple.env_contract_version,
+            ),
+            lineage=[],
+            payload_hash=None,
+            meta={"payload_schema_id": "config-export-package@1"},
+        )
+    )
+    artifacts.add(
+        ArtifactV1(
+            artifact_id=CONSTRAINT_ID,
+            kind="constraint_snapshot",
+            version_tuple=VersionTuple(
+                constraint_snapshot_id=produced_tuple.constraint_snapshot_id
+            ),
+            lineage=[],
+            payload_hash=None,
+            meta={"payload_schema_id": "constraint-snapshot@1"},
+        )
+    )
+    policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="task_suite_derived",
+        prepared_outcome="success",
+        publication_scope="run",
+        run_status="succeeded",
+        attempt_status=None,
+        failure_class=None,
+        retry_disposition=None,
+    )
+
+    published = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _Ledger(),
+        _Audit(),
+    ).publish_run_result(
+        run=run,
+        attempt=context.attempt,
+        prepared=outcome,
+        policy=policy,
+        occurred_at=context.run.updated_at,
+        actor=AuditActor(
+            principal_id=context.attempt.worker_principal_id,
+            principal_kind="service",
+        ),
+    )
+
+    manifest = artifacts.by_id[published.result_artifact_id]
+    result = json.loads(blobs.read(manifest.object_ref))
+    suite_artifact = artifacts.by_id[result["primary_artifact_id"]]
+    suite = TaskSuiteV1.model_validate(json.loads(blobs.read(suite_artifact.object_ref)))
+    scenario_ids = {episode.scenario_spec_artifact_id for episode in suite.episodes}
+    assert scenario_ids == {
+        artifact_id
+        for artifact_id in result["produced_artifact_ids"]
+        if artifacts.by_id[artifact_id].kind == "scenario_spec"
+    }
 
 
 def test_completion_oracle_executors_close_platform_readiness() -> None:

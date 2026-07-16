@@ -2110,6 +2110,21 @@ class IntermediateCountBindingV1(_FrozenModel):
     scope: Literal["current_attempt", "all_attempts"]
 
 
+class ExecutionIdentityCountBindingV1(_FrozenModel):
+    """Count only logical calls whose provider response entered Agent state.
+
+    Prompt-render links are intentionally a superset: the prompt is committed
+    before reserve/provider work, so a crash or exhausted provider call can leave
+    a durable ordinal without a response shard.  RECORD shard cardinality must
+    therefore close against the transaction-bound terminal ExecutionIdentity,
+    never against prompt-link count.
+    """
+
+    source: Literal["execution_identity"] = "execution_identity"
+    response_consumed: Literal[True] = True
+    scope: Literal["current_attempt", "all_attempts"]
+
+
 class ExecutionModeCountsV1(_FrozenModel):
     not_applicable: NonNegativeInt
     live: NonNegativeInt
@@ -2127,6 +2142,7 @@ ArtifactCountBindingV1 = Annotated[
     | ResolvedPolicyCountBindingV1
     | ResolvedPolicySubsetCountBindingV1
     | IntermediateCountBindingV1
+    | ExecutionIdentityCountBindingV1
     | ExecutionModeCountBindingV1,
     Field(discriminator="source"),
 ]

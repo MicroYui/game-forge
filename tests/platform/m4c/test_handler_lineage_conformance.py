@@ -218,7 +218,9 @@ def test_patch_validation_lineage_conforms_to_frozen_policy() -> None:
     store = patch_val_mod._store()
     outcome = patch_val_mod._handler(store)(
         patch_val_mod._context(
-            store, patch_val_mod._payload(simulation_profiles=(patch_val_mod._SIM,))
+            store,
+            patch_val_mod._payload(simulation_profiles=(patch_val_mod._SIM,)),
+            seed=7,
         )
     )
     _assert_artifact_lineage_conforms(

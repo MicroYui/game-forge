@@ -31,6 +31,7 @@ from gameforge.contracts.jobs import (
     RunPayloadEnvelope,
     RunRecord,
 )
+from gameforge.contracts.model_router import ModelSnapshot
 from gameforge.platform.run_handlers.deferred import (
     DeferredExecutionRequest,
     DeferredExecutor,
@@ -45,6 +46,14 @@ class WorkerModelBridgePort(Protocol):
     """
 
     def call_model(self, request: object) -> object: ...
+
+    def resolve_model_snapshot(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        model_snapshot_id: str,
+    ) -> ModelSnapshot: ...
 
 
 @dataclass(frozen=True, slots=True)

@@ -25,6 +25,7 @@ from gameforge.contracts.jobs import (
     PreparedRunResult,
     PromptGoalBindingV1,
     RefReadBindingV1,
+    ResolvedArtifactRequirementV1,
 )
 from gameforge.spine.checkers.graph import GraphChecker
 from gameforge.platform.run_handlers.generation import GenerationProposalHandler
@@ -34,6 +35,7 @@ from tests.platform.m4c.handler_support import (
     build_context,
     execution_plan,
     resolved_binding,
+    resolved_policy_snapshot,
     snapshot_bytes,
 )
 
@@ -135,6 +137,21 @@ def _handler(store: FakeArtifactStore) -> GenerationProposalHandler:
 
 
 def _context(bridge: FakeModelBridge):
+    requirements = tuple(
+        ResolvedArtifactRequirementV1(
+            requirement_id=f"profile-gate:{rule}",
+            outcome_rule_id=rule,
+            artifact_kind=kind,
+            payload_schema_id=schema,
+            producer_profile_field_path="/params/generation_policy",
+            ordinal=1,
+        )
+        for rule, kind, schema in (
+            ("checker", "checker_run", "checker-report@1"),
+            ("simulation", "simulation_run", "simulation-result@1"),
+            ("review", "review_report", "review@1"),
+        )
+    )
     return build_context(
         params=_payload(),
         kind=GENERATION_KIND,
@@ -148,6 +165,9 @@ def _context(bridge: FakeModelBridge):
                 version=1,
                 kind="config_export",
             ),
+        ),
+        resolved_policy_snapshots=(
+            resolved_policy_snapshot("generation-gate", "/params/generation_policy", requirements),
         ),
         llm_execution_mode="replay",
         plan=execution_plan({"generation": MODEL_REF}),
@@ -183,6 +203,15 @@ def test_generation_gate_pass_emits_patch_preview_config_and_gate_evidence() -> 
     assert kinds.count("checker_run") == 1
     assert kinds.count("simulation_run") == 1
     assert kinds.count("review_report") == 1
+    assert {
+        artifact.meta["requirement_id"]
+        for artifact in outcome.artifacts
+        if artifact.kind in {"checker_run", "simulation_run", "review_report"}
+    } == {
+        "profile-gate:checker",
+        "profile-gate:simulation",
+        "profile-gate:review",
+    }
 
     # the (agent) patch's producer_run_id binds to THIS run.
     patch = PatchV2.model_validate(json.loads(store.read_prepared(primary.object_ref)))
