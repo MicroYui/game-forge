@@ -330,7 +330,12 @@ class PatchValidationHandler:
                 version_tuple=evidence_version_tuple(
                     ir_snapshot_id=preview.snapshot_id,
                     constraint_snapshot_id=None,
-                    tool_version=REGRESSION_TOOL_VERSION,
+                    # regression_evidence tool_version is producer-local (§3.3): the
+                    # producing run is this patch.validate, so its version_tuple
+                    # carries the RUN's producer tool, which the terminal publisher
+                    # re-projects via ``producer_value``. The dimension tool
+                    # (regression@1) is recorded on the EvidenceRequirement, not here.
+                    tool_version=EVIDENCE_TOOL_VERSION,
                     seed=seed,
                 ),
                 lineage=lineage,
@@ -375,7 +380,8 @@ class PatchValidationHandler:
             version_tuple=evidence_version_tuple(
                 ir_snapshot_id=preview.snapshot_id,
                 constraint_snapshot_id=None,
-                tool_version=tool_version,
+                # producer-local: the RUN's producer tool (see _regression_dimensions).
+                tool_version=EVIDENCE_TOOL_VERSION,
                 seed=seed,
             ),
             lineage=lineage,

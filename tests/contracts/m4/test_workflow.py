@@ -232,11 +232,39 @@ def test_approval_target_binding_is_a_real_discriminated_union() -> None:
     assert "oneOf" in schema and schema["discriminator"]["propertyName"] == "subject_kind"
 
 
-def test_target_binding_requires_explicit_expected_ref_even_when_null() -> None:
+def test_new_ref_target_binding_defaults_expected_ref_to_null_and_round_trips() -> None:
+    # A first-write (new-ref) target binding leaves ``expected_ref`` unset; it now
+    # defaults to null and canonicalises identically to an explicit ``null`` (both
+    # drop the key under ``_canon``), so the binding round-trips without error.
     payload = _patch_binding().model_dump(mode="json")
     payload.pop("expected_ref")
-    with pytest.raises(ValidationError, match="expected_ref"):
-        TypeAdapter(ApprovalTargetBinding).validate_python(payload)
+    reparsed = TypeAdapter(ApprovalTargetBinding).validate_python(payload)
+    assert isinstance(reparsed, PatchTargetBindingV1)
+    assert reparsed.expected_ref is None
+
+    new_ref_binding = PatchTargetBindingV1(
+        target_artifact_id="artifact:new",
+        target_snapshot_id="sha256:new",
+        target_digest="9" * 64,
+        ref_name="content/head",
+    )
+    assert new_ref_binding.expected_ref is None
+    from gameforge.contracts.canonical import canonical_json
+
+    round_tripped = TypeAdapter(ApprovalTargetBinding).validate_json(
+        canonical_json(new_ref_binding.model_dump(mode="json"))
+    )
+    assert round_tripped == new_ref_binding
+    # Explicit-null and defaulted-null canonicalise to the same bytes.
+    assert canonical_json(new_ref_binding.model_dump(mode="json")) == canonical_json(
+        PatchTargetBindingV1(
+            target_artifact_id="artifact:new",
+            target_snapshot_id="sha256:new",
+            target_digest="9" * 64,
+            ref_name="content/head",
+            expected_ref=None,
+        ).model_dump(mode="json")
+    )
 
 
 def test_rollback_binding_requires_non_null_ref_and_exact_profile_slot() -> None:
@@ -644,9 +672,7 @@ def test_patch_auto_apply_proof_survives_its_frozen_workflow_history(status: str
         target_binding=target,
         auto_apply_proof=proof,
         created_at="2026-07-13T00:00:00Z",
-        applied_at=(
-            "2026-07-13T00:01:00Z" if status in {"applied", "rolled_back"} else None
-        ),
+        applied_at=("2026-07-13T00:01:00Z" if status in {"applied", "rolled_back"} else None),
     )
 
     assert item.auto_apply_proof == proof

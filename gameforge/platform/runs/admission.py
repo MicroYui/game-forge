@@ -81,6 +81,10 @@ from gameforge.contracts.jobs import (
     PlaytestRunPayloadV1,
     PromptGoalBindingV1,
     RefReadBindingV1,
+    ResolvedArtifactRequirementV1,
+    ResolvedPolicyCountBindingV1,
+    ResolvedPolicySnapshotV1,
+    ResolvedPolicySubsetCountBindingV1,
     ReviewRunPayloadV1,
     RollbackValidationPayloadV1,
     RunKindDefinition,
@@ -90,6 +94,7 @@ from gameforge.contracts.jobs import (
     TaskSuiteDerivePayloadV1,
     ValidationSubjectBindingV1,
     referenced_input_artifact_ids,
+    resolved_policy_snapshot_digest,
 )
 from gameforge.contracts.lineage import (
     ArtifactKind,
@@ -401,7 +406,75 @@ _PRODUCER_TOOL_VERSIONS: dict[str, str] = {
     "generation-propose@1": "generation@1",
     "constraint-proposal-propose@1": "extraction@1",
     "patch-repair@1": "repair@1",
+    "patch-validation@1": "patch-validation@1",
+    "constraint-validation@1": "constraint-validation@1",
+    "rollback-validation@1": "rollback-validation@1",
 }
+
+
+# The exact resolved profile field-path a validation kind's resolved-policy
+# snapshot is anchored to (the profile that determines its re-verification
+# dimensions). Patch/constraint validate under ``validation_policy``; rollback
+# under ``rollback_profile``.
+_VALIDATION_POLICY_FIELD: dict[type, str] = {
+    PatchValidationPayloadV1: "/params/validation_policy",
+    ConstraintValidationPayloadV1: "/params/validation_policy",
+    RollbackValidationPayloadV1: "/params/rollback_profile",
+}
+
+
+def _validation_regression_requirement_ids(params: RunKindPayload) -> tuple[str, ...]:
+    """The ordered ``requirement_id``s the deterministic validation handler seals as
+    ``regression_evidence`` for the given payload.
+
+    This MUST mirror each handler's dimension enumeration exactly (the frozen
+    resolved-policy snapshot is the publisher's cardinality oracle): patch seals one
+    per checker + simulation + regression suite; constraint one per regression
+    suite; rollback the fixed history/artifact/schema/profile dimensions + one per
+    impact profile + regression suite.
+    """
+
+    if isinstance(params, PatchValidationPayloadV1):
+        return (
+            *(f"checker:{p.profile_id}@{p.version}" for p in params.checker_profiles),
+            *(f"simulation:{p.profile_id}@{p.version}" for p in params.simulation_profiles),
+            *(f"regression:{suite_id}" for suite_id in params.regression_suite_artifact_ids),
+        )
+    if isinstance(params, ConstraintValidationPayloadV1):
+        return tuple(f"regression:{suite_id}" for suite_id in params.regression_suite_artifact_ids)
+    if isinstance(params, RollbackValidationPayloadV1):
+        return (
+            "history",
+            "artifact",
+            "schema",
+            "profile",
+            *(f"impact:{p.profile_id}@{p.version}" for p in params.impact_profiles),
+            *(f"regression:{suite_id}" for suite_id in params.regression_suite_artifact_ids),
+        )
+    return ()
+
+
+def _build_resolved_policy_snapshot(
+    *,
+    resolved_policy_id: str,
+    source_profile_field_path: str,
+    source_profile_payload_hash: str,
+    requirements: tuple[ResolvedArtifactRequirementV1, ...],
+) -> ResolvedPolicySnapshotV1:
+    body = {
+        "snapshot_schema_version": "resolved-policy@1",
+        "resolved_policy_id": resolved_policy_id,
+        "source_profile_field_path": source_profile_field_path,
+        "source_profile_payload_hash": source_profile_payload_hash,
+        "requirements": [requirement.model_dump(mode="json") for requirement in requirements],
+    }
+    return ResolvedPolicySnapshotV1(
+        resolved_policy_id=resolved_policy_id,
+        source_profile_field_path=source_profile_field_path,
+        source_profile_payload_hash=source_profile_payload_hash,
+        requirements=requirements,
+        digest=resolved_policy_snapshot_digest(body),
+    )
 
 
 # ── artifact-kind allowlist per §5.3 (exact-input-set kind check) ────────────
@@ -517,7 +590,7 @@ class RunAdmissionEngine:
                     playtest_trace_artifact_ids=request.playtest_trace_artifact_ids,
                     regression_suite_artifact_ids=request.regression_suite_artifact_ids,
                 )
-                version_tuple = self._subject_version_tuple(item)
+                version_tuple = self._subject_version_tuple(item, "patch-validation@1")
             elif operation == "constraint.validate":
                 kind = RunKindRef(kind="constraint_proposal.validate", version=1)
                 if not isinstance(request, ConstraintValidationAdmissionRequestV1):
@@ -537,7 +610,7 @@ class RunAdmissionEngine:
                     regression_suite_artifact_ids=request.regression_suite_artifact_ids,
                     validation_policy=request.validation_policy,
                 )
-                version_tuple = self._subject_version_tuple(item)
+                version_tuple = self._subject_version_tuple(item, "constraint-validation@1")
             elif operation == "rollback.validate":
                 kind = RunKindRef(kind="rollback.validate", version=1)
                 if not isinstance(request, RollbackValidationAdmissionRequestV1):
@@ -553,7 +626,7 @@ class RunAdmissionEngine:
                     impact_profiles=request.impact_profiles,
                     regression_suite_artifact_ids=request.regression_suite_artifact_ids,
                 )
-                version_tuple = VersionTuple(tool_version="rollback-validation@1")
+                version_tuple = self._subject_version_tuple(item, "rollback-validation@1")
             else:
                 raise IntegrityViolation("unknown validation admission operation")
 
@@ -868,6 +941,9 @@ class RunAdmissionEngine:
         self._verify_input_artifacts(params=params, read=read)
 
         resolved_profiles = self._resolve_profiles(params=params, kind=kind, read=read)
+        resolved_policy_snapshots = self._resolve_policy_snapshots(
+            params=params, definition=definition, resolved_profiles=resolved_profiles
+        )
         budget_set_snapshot_id = f"budget-set:{run_id}"
         payload = RunPayloadEnvelope(
             payload_schema_version=definition.payload_schema_id,
@@ -879,7 +955,7 @@ class RunAdmissionEngine:
             execution_profile_catalog_version=self._catalog.catalog_version,
             execution_profile_catalog_digest=self._catalog.catalog_digest,
             resolved_profiles=resolved_profiles,
-            resolved_policy_snapshots=(),
+            resolved_policy_snapshots=resolved_policy_snapshots,
             budget_set_snapshot_id=budget_set_snapshot_id,
             seed=seed,
             llm_execution_mode=llm_execution_mode,
@@ -950,10 +1026,106 @@ class RunAdmissionEngine:
         return item
 
     @staticmethod
-    def _subject_version_tuple(item: ApprovalItem) -> VersionTuple:
+    def _subject_version_tuple(item: ApprovalItem, schema_version: str) -> VersionTuple:
+        # Stamp the run's producer ``tool_version`` (the validation executor's tool,
+        # not the ``admission-<schema>`` placeholder) and ``seed=0`` so the terminal
+        # publisher's ``producer_value`` projection matches the executor's primary
+        # ``evidence-set@1`` VersionTuple (see ``_PRODUCER_TOOL_VERSIONS``). Task 17a
+        # added this alignment for the generic Run kinds; the validation resource
+        # admission was the remaining producer-tuple gap that blocked publishing a
+        # ``patch.validate`` EvidenceSet through ``TerminalPublisher``.
         binding = item.target_binding
         snapshot_id = getattr(binding, "target_snapshot_id", None)
-        return VersionTuple(ir_snapshot_id=snapshot_id, tool_version="admission-validation@1")
+        tool_version = _PRODUCER_TOOL_VERSIONS.get(schema_version, f"admission-{schema_version}")
+        return VersionTuple(ir_snapshot_id=snapshot_id, tool_version=tool_version, seed=0)
+
+    def _resolve_policy_snapshots(
+        self,
+        *,
+        params: RunKindPayload,
+        definition: RunKindDefinition,
+        resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
+    ) -> tuple[ResolvedPolicySnapshotV1, ...]:
+        """Freeze the resolved-policy snapshots the outcome-policy cardinality
+        bindings re-project at terminal publication.
+
+        A ``ResolvedPolicyCountBindingV1`` / ``ResolvedPolicySubsetCountBindingV1``
+        on an outcome rule asserts the published artifact count equals the frozen
+        requirement count for ``(resolved_policy_id, outcome_rule_id)``. Admission
+        resolves those requirements from the exact validation payload (one
+        regression requirement per re-verification dimension the deterministic
+        handler will seal) so the publisher's ``validate_rule_cardinality`` closes.
+        The snapshot is anchored to the resolved validation/rollback profile
+        (field-path + payload hash) and fails closed if that profile is absent.
+
+        Scope: 17b wires the validation family (patch/constraint/rollback), whose
+        dimensions are exactly payload-derivable. ``generation-gate`` /
+        ``repair-verifier`` also carry resolved-policy count bindings, but their
+        dimensions are not payload-derivable the same way (generation's are declared
+        by the resolved gate profile, not the payload); wiring those snapshots is a
+        separate follow-up, so their prior (unwired) admission behavior is preserved
+        here — they are not part of Journey B and do not publish end-to-end today.
+        """
+
+        field_path = _VALIDATION_POLICY_FIELD.get(type(params))
+        if field_path is None:
+            return ()
+
+        referenced: dict[str, set[str]] = {}
+        for policy in definition.outcome_policies:
+            for rule in policy.artifact_rules:
+                binding = rule.count_binding
+                if isinstance(
+                    binding,
+                    (ResolvedPolicyCountBindingV1, ResolvedPolicySubsetCountBindingV1),
+                ):
+                    referenced.setdefault(binding.resolved_policy_id, set()).add(
+                        binding.outcome_rule_id
+                    )
+        if not referenced:
+            return ()
+
+        source = next(
+            (binding for binding in resolved_profiles if binding.field_path == field_path),
+            None,
+        )
+        if source is None:
+            raise IntegrityViolation(
+                "resolved-policy snapshot requires the resolved validation profile",
+                field_path=field_path,
+            )
+        regression_ids = _validation_regression_requirement_ids(params)
+
+        snapshots: list[ResolvedPolicySnapshotV1] = []
+        for resolved_policy_id in sorted(referenced):
+            outcome_rule_ids = referenced[resolved_policy_id]
+            requirements: list[ResolvedArtifactRequirementV1] = []
+            for outcome_rule_id in sorted(outcome_rule_ids):
+                if outcome_rule_id != "regression":
+                    raise IntegrityViolation(
+                        "resolved-policy binding references an unsupported outcome rule",
+                        resolved_policy_id=resolved_policy_id,
+                        outcome_rule_id=outcome_rule_id,
+                    )
+                for ordinal, requirement_id in enumerate(regression_ids, start=1):
+                    requirements.append(
+                        ResolvedArtifactRequirementV1(
+                            requirement_id=requirement_id,
+                            outcome_rule_id="regression",
+                            artifact_kind="regression_evidence",
+                            payload_schema_id="regression-evidence@1",
+                            ordinal=ordinal,
+                        )
+                    )
+            snapshots.append(
+                _build_resolved_policy_snapshot(
+                    resolved_policy_id=resolved_policy_id,
+                    source_profile_field_path=field_path,
+                    source_profile_payload_hash=source.profile_payload_hash,
+                    requirements=tuple(requirements),
+                )
+            )
+        return tuple(snapshots)
 
     # ── profile resolution (reuses registry requirement metadata) ────────────
     def _resolve_profiles(

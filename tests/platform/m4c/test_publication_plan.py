@@ -473,9 +473,27 @@ def test_duplicate_selectors_fail_registry_load():
 
 
 # -------------------------------------------------------- workflow effects (#1)
-def test_restore_current_draft_effect_is_not_registered():
+def test_validation_completion_effects_are_registered():
+    # Task 17b registers the validation-completion + revert effects; a validation
+    # terminal now runs the ApprovalItem CAS inside the publisher's UoW instead of
+    # fail-closing on an unregistered key.
+    for key in (
+        "set_patch_validated@1",
+        "set_patch_validated_with_auto_proof@1",
+        "set_patch_validation_failed@1",
+        "set_rollback_validated@1",
+        "set_rollback_validation_failed@1",
+        "set_exact_binding_and_validated@1",
+        "set_exact_binding_and_validation_failed@1",
+        "leave_binding_null_and_validation_failed@1",
+        "restore_current_draft@1",
+    ):
+        assert resolve_workflow_effect(key) is not None
+
+
+def test_unregistered_workflow_effect_still_fails_closed():
     with pytest.raises(IntegrityViolation):
-        resolve_workflow_effect("restore_current_draft@1")
+        resolve_workflow_effect("create_patch_subject_head_and_draft@1")
 
 
 def test_no_op_effects_still_resolve():

@@ -358,7 +358,10 @@ class RollbackValidationHandler:
             version_tuple=evidence_version_tuple(
                 ir_snapshot_id=None,
                 constraint_snapshot_id=None,
-                tool_version=REGRESSION_TOOL_VERSION,
+                # producer-local (§3.3): the RUN's producer tool, which the publisher
+                # re-projects via ``producer_value``. The dimension tool is recorded
+                # on the EvidenceRequirement, not here.
+                tool_version=VALIDATION_TOOL_VERSION,
                 seed=seed,
             ),
             lineage=lineage,

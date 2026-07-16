@@ -64,6 +64,7 @@ from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
+from gameforge.runtime.persistence.approvals import SqlApprovalRepository
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
@@ -130,7 +131,7 @@ def build_worker_dispatch(
         return TransactionCapabilities(
             refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=clock),
             audit=SqlAuditSink(session),
-            approvals=None,
+            approvals=SqlApprovalRepository(session),
             lineage=None,
             object_bindings=object_bindings,
             runs=SqlRunRepository(session),
@@ -183,6 +184,10 @@ def build_worker_dispatch(
             findings=transaction.findings,  # type: ignore[attr-defined]
             ledger=WorkerManifestLedger(transaction.runs),  # type: ignore[attr-defined]
             audit=WorkerAuditPort(audit_gate=audit_gate, chain_id=run_audit_chain_id),
+            # The transaction-bound approvals capability the validation-completion
+            # workflow effects CAS the ApprovalItem through, inside this terminal UoW
+            # (Task 17b: EvidenceSet publish + ApprovalItem CAS in ONE UoW).
+            approvals=transaction.approvals,  # type: ignore[attr-defined]
         )
         return RunLifecycleCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]

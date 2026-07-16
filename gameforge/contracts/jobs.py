@@ -479,7 +479,7 @@ class RunDispatchTraceCarrierV1(_FrozenModel):
 
 class RefReadBindingV1(_FrozenModel):
     ref_name: BoundedId
-    expected_ref: RefValue | None
+    expected_ref: RefValue | None = None
 
 
 class GraphSelectionV1(_FrozenModel):

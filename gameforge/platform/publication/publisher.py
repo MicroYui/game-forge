@@ -53,6 +53,7 @@ from gameforge.contracts.lineage import (
     parse_artifact,
 )
 from gameforge.platform.publication.effects import WorkflowEffectContext, apply_workflow_effect
+from gameforge.platform.approvals.validation import ValidationCompletionApprovalRepository
 from gameforge.platform.publication.findings import plan_finding_write
 from gameforge.platform.publication.lineage import (
     LineageParentSources,
@@ -299,6 +300,7 @@ class TerminalPublisher:
         findings: FindingStore,
         ledger: ManifestLedger,
         audit: AuditPort,
+        approvals: ValidationCompletionApprovalRepository | None = None,
     ) -> None:
         self._registry = registry
         self._artifacts = artifacts
@@ -306,6 +308,12 @@ class TerminalPublisher:
         self._findings = findings
         self._ledger = ledger
         self._audit = audit
+        # The transaction-bound approvals capability the validation-completion
+        # workflow effects CAS the ApprovalItem through, inside this same terminal
+        # UoW (Task 17b). ``None`` for a composition that never runs a validation
+        # kind; a validation terminal then fails closed rather than silently
+        # skipping the required ApprovalItem transition.
+        self._approvals = approvals
 
     # ------------------------------------------------------------------ audit
     def record_attempt_started(self, **kwargs: object) -> None:
@@ -436,9 +444,10 @@ class TerminalPublisher:
                 scope="run",
                 published_primary_artifact_id=primary_artifact_id,
                 published_output_artifact_ids=produced_ids,
-                approvals=None,
+                approvals=self._approvals,
                 actor=run.initiated_by,
                 occurred_at=occurred_at,
+                published_primary_payload=primary_payload,
             ),
         )
         self._audit.record(
@@ -517,7 +526,7 @@ class TerminalPublisher:
                 scope="attempt",
                 published_primary_artifact_id=None,
                 published_output_artifact_ids=(),
-                approvals=None,
+                approvals=self._approvals,
                 actor=run.initiated_by,
                 occurred_at=occurred_at,
             ),
@@ -619,11 +628,16 @@ class TerminalPublisher:
                 run=run,
                 policy=policy,
                 scope="run",
-                published_primary_artifact_id=None,
+                # For a validation run-final failure the just-published run_failure
+                # manifest IS the ``last_validation_failure_artifact_id`` the
+                # ``restore_current_draft@1`` revert records (spec §"validation
+                # execution failure"). Non-validation failures ignore it (no-op).
+                published_primary_artifact_id=manifest_id,
                 published_output_artifact_ids=evidence_ids,
-                approvals=None,
+                approvals=self._approvals,
                 actor=run.initiated_by,
                 occurred_at=occurred_at,
+                published_primary_payload=primary_payload,
             ),
         )
         self._audit.record(
@@ -769,11 +783,23 @@ class TerminalPublisher:
                     run_intermediates=self._intermediate_parents(run.run_id),
                     prepared_siblings={key: dict(value) for key, value in siblings.items()},
                 )
+                # Inject the content-addressed sibling ids the handler could not
+                # compute (a ``prepared_rule`` parent is minted only here). The
+                # topological walk guarantees each parent rule is minted before this
+                # child, so ``siblings[source_rule_id]`` is already populated; the
+                # child's bare handler lineage is completed with those exact ids so
+                # e.g. an EvidenceSet links its ``regression`` siblings and a preview
+                # links its ``patch`` sibling.
+                child_lineage = _inject_prepared_siblings(
+                    child_lineage=view.lineage,
+                    lineage_policy=lineage_policy,
+                    siblings=siblings,
+                )
                 typed = project_typed_lineage(
                     policy=lineage_policy,
                     child_kind=view.kind,
                     child_payload_schema_id=view.payload_schema_id,
-                    child_lineage=view.lineage,
+                    child_lineage=child_lineage,
                     sources=sources,
                 )
                 expected_tuple = project_domain_version_tuple(
@@ -793,7 +819,7 @@ class TerminalPublisher:
                 artifact = build_artifact_v2(
                     kind=view.kind,
                     version_tuple=view.version_tuple,
-                    lineage=view.lineage,
+                    lineage=child_lineage,
                     payload_hash=view.payload_hash,
                     object_ref=view.object_ref,
                     meta=view.meta,
@@ -1110,6 +1136,41 @@ def _snapshots_by_id(
     snapshots: Sequence[ResolvedPolicySnapshotV1],
 ) -> Mapping[str, ResolvedPolicySnapshotV1]:
     return {snapshot.resolved_policy_id: snapshot for snapshot in snapshots}
+
+
+def _inject_prepared_siblings(
+    *,
+    child_lineage: tuple[str, ...],
+    lineage_policy: object,
+    siblings: Mapping[str, Mapping[str, ParentInfo]],
+) -> tuple[str, ...]:
+    """Complete a child's bare lineage with its minted ``prepared_rule`` siblings.
+
+    For each ``prepared_rule`` parent rule the child declares, inject every already
+    minted sibling id from ``siblings[source_rule_id]`` whose kind + payload schema
+    satisfy the rule. The handler cannot content-address these siblings (their ids
+    are re-derived here), so they are absent from ``child_lineage``; the topological
+    walk guarantees the parent rule is minted first, so the pool is populated. Order
+    is deterministic (existing ids first, then sorted injected ids); ``build_
+    artifact_v2`` canonicalises the final set.
+    """
+
+    existing = set(child_lineage)
+    injected: set[str] = set()
+    for rule in lineage_policy.parent_rules:  # type: ignore[attr-defined]
+        if rule.source != "prepared_rule" or rule.source_rule_id is None:
+            continue
+        for sibling_id, info in siblings.get(rule.source_rule_id, {}).items():
+            if sibling_id in existing:
+                continue
+            if info.kind not in rule.artifact_kinds:
+                continue
+            if info.payload_schema_id not in rule.payload_schema_ids:
+                continue
+            injected.add(sibling_id)
+    if not injected:
+        return child_lineage
+    return (*child_lineage, *sorted(injected))
 
 
 def _topological_rule_order(

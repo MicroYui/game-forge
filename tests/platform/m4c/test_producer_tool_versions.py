@@ -13,16 +13,27 @@ from __future__ import annotations
 from gameforge.platform.run_handlers.bench import BENCH_TOOL_VERSION
 from gameforge.platform.run_handlers.checker import CHECKER_TOOL_VERSION
 from gameforge.platform.run_handlers.constraint_proposal import EXTRACTION_TOOL_VERSION
+from gameforge.platform.run_handlers.constraint_validation import (
+    EVIDENCE_TOOL_VERSION as CONSTRAINT_VALIDATION_TOOL_VERSION,
+)
 from gameforge.platform.run_handlers.generation import GENERATION_TOOL_VERSION
+from gameforge.platform.run_handlers.patch_validation import (
+    EVIDENCE_TOOL_VERSION as PATCH_VALIDATION_TOOL_VERSION,
+)
 from gameforge.platform.run_handlers.playtest import PLAYTEST_TOOL_VERSION
 from gameforge.platform.run_handlers.repair import REPAIR_TOOL_VERSION
 from gameforge.platform.run_handlers.review import REVIEW_TOOL_VERSION
+from gameforge.platform.run_handlers.rollback_validation import (
+    VALIDATION_TOOL_VERSION as ROLLBACK_VALIDATION_TOOL_VERSION,
+)
 from gameforge.platform.run_handlers.simulation import SIMULATION_TOOL_VERSION
 from gameforge.platform.run_handlers.task_suite import TASK_SUITE_TOOL_VERSION
 from gameforge.platform.runs.admission import _PRODUCER_TOOL_VERSIONS
 
 
 # payload_schema_version -> the handler's PRIMARY-artifact tool_version constant.
+# The validation kinds' PRIMARY artifact is the ``evidence-set@1`` the handler seals;
+# admission stamps that producer tool so the terminal publisher can publish it (Task 17b).
 _EXPECTED_BY_SCHEMA: dict[str, str] = {
     "checker-run@1": CHECKER_TOOL_VERSION,
     "simulation-run@1": SIMULATION_TOOL_VERSION,
@@ -33,6 +44,9 @@ _EXPECTED_BY_SCHEMA: dict[str, str] = {
     "generation-propose@1": GENERATION_TOOL_VERSION,
     "constraint-proposal-propose@1": EXTRACTION_TOOL_VERSION,
     "patch-repair@1": REPAIR_TOOL_VERSION,
+    "patch-validation@1": PATCH_VALIDATION_TOOL_VERSION,
+    "constraint-validation@1": CONSTRAINT_VALIDATION_TOOL_VERSION,
+    "rollback-validation@1": ROLLBACK_VALIDATION_TOOL_VERSION,
 }
 
 

@@ -59,9 +59,7 @@ NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
 PositiveInt = Annotated[int, Field(gt=0)]
 
 ValidationPayload: TypeAlias = (
-    PatchValidationPayloadV1
-    | ConstraintValidationPayloadV1
-    | RollbackValidationPayloadV1
+    PatchValidationPayloadV1 | ConstraintValidationPayloadV1 | RollbackValidationPayloadV1
 )
 ValidationOutcome: TypeAlias = Literal[
     "passed",
@@ -165,12 +163,9 @@ class PreparedValidationCompletion(_FrozenModel):
             raise ValueError("validation outcome_code does not match payload/outcome shape")
         auto_eligible = self.outcome_code == "patch_validation_auto_eligible"
         if auto_eligible != (
-            self.auto_apply_proof is not None
-            and self.auto_apply_proof_artifact is not None
+            self.auto_apply_proof is not None and self.auto_apply_proof_artifact is not None
         ):
-            raise ValueError(
-                "only auto-eligible completion requires proof payload and Artifact"
-            )
+            raise ValueError("only auto-eligible completion requires proof payload and Artifact")
         if auto_eligible:
             if not isinstance(self.execution.payload, PatchValidationPayloadV1):
                 raise ValueError("auto-eligible completion is Patch-only")
@@ -204,8 +199,7 @@ class PreparedValidationCompletion(_FrozenModel):
             "regression_evidence",
         }
         if any(
-            artifact.kind not in allowed_companion_kinds
-            for artifact in self.companion_artifacts
+            artifact.kind not in allowed_companion_kinds for artifact in self.companion_artifacts
         ):
             raise ValueError("validation companion Artifact kind is not supporting evidence")
 
@@ -218,8 +212,7 @@ class PreparedValidationCompletion(_FrozenModel):
         if binding_refs != artifact_refs:
             raise ValueError("prepared bindings must cover exactly every validation Artifact")
         binding_identities = [
-            (binding.object_ref.key, binding.location.store_id)
-            for binding in self.object_bindings
+            (binding.object_ref.key, binding.location.store_id) for binding in self.object_bindings
         ]
         if len(binding_identities) != len(set(binding_identities)):
             raise ValueError("prepared validation ObjectBinding identities must be unique")
@@ -231,9 +224,7 @@ class PreparedValidationCompletion(_FrozenModel):
             return frozenset({self.outcome})
         if isinstance(payload, PatchValidationPayloadV1):
             if self.outcome == "passed":
-                return frozenset(
-                    {"patch_validation_passed", "patch_validation_auto_eligible"}
-                )
+                return frozenset({"patch_validation_passed", "patch_validation_auto_eligible"})
             return frozenset({f"patch_validation_{self.outcome}"})
         if isinstance(payload, RollbackValidationPayloadV1):
             return frozenset({f"rollback_validation_{self.outcome}"})
@@ -354,9 +345,7 @@ class ValidationCompletionUnitOfWork(Protocol):
     def begin(self) -> AbstractContextManager[Any]: ...
 
 
-ValidationCompletionCapabilityBinder = Callable[
-    [Any], ValidationCompletionCapabilities
-]
+ValidationCompletionCapabilityBinder = Callable[[Any], ValidationCompletionCapabilities]
 
 
 def _required[T](value: T | None, name: str) -> T:
@@ -369,6 +358,204 @@ def _replace_item(item: ApprovalItem, **updates: object) -> ApprovalItem:
     payload = item.model_dump(mode="python")
     payload.update(updates)
     return ApprovalItem.model_validate(payload)
+
+
+# ── shared validation-completion core (M4c Task 17b) ─────────────────────────
+# The single source of truth for the subject/current-binding/evidence checks and
+# the ApprovalItem replacement shape used by BOTH the standalone
+# ``ValidationCompletionService.complete()`` (its own-UoW synchronous path) AND the
+# ``publication/effects.py`` workflow effects that run inside ``TerminalPublisher``'s
+# terminal UoW (decision (a): the ApprovalItem CAS happens in the same UoW that
+# published the EvidenceSet, reusing these checks — never a duplicated copy).
+
+_PAYLOAD_SUBJECT_KIND: dict[type, str] = {
+    PatchValidationPayloadV1: "patch",
+    ConstraintValidationPayloadV1: "constraint_proposal",
+    RollbackValidationPayloadV1: "rollback_request",
+}
+
+
+def payload_subject_kind(payload: ValidationPayload) -> str:
+    """The ApprovalItem ``subject_kind`` a validation payload type binds."""
+
+    return _PAYLOAD_SUBJECT_KIND[type(payload)]
+
+
+def validate_immutable_subject_binding(
+    item: ApprovalItem,
+    subject: object,
+    subject_kind: str,
+) -> None:
+    """The immutable subject identity every validation completion re-verifies."""
+
+    if (
+        item.approval_id != subject.approval_id
+        or item.subject_kind != subject_kind
+        or item.subject_artifact_id != subject.subject_artifact_id
+        or item.subject_digest != subject.subject_digest
+    ):
+        raise IntegrityViolation("validation Run subject differs from ApprovalItem")
+
+
+def validate_current_subject_binding(
+    item: ApprovalItem,
+    head: SubjectHead,
+    subject: object,
+    run_id: str,
+) -> None:
+    """The current head / validating / active-run precondition for completion."""
+
+    if (
+        head.current_subject_artifact_id != item.subject_artifact_id
+        or head.revision != subject.subject_head_revision
+        or head.revision != item.subject_revision
+        or item.status != "validating"
+        or item.workflow_revision != subject.expected_workflow_revision
+        or item.active_validation_run_id != run_id
+        or subject.active_validation_run_id != item.active_validation_run_id
+    ):
+        raise Conflict(
+            "validation completion subject/workflow/head binding changed",
+            approval_id=item.approval_id,
+        )
+
+
+def validate_evidence_subject(evidence: EvidenceSet, item: ApprovalItem) -> None:
+    """The EvidenceSet subject binding every completion re-verifies."""
+
+    if (
+        evidence.subject_artifact_id != item.subject_artifact_id
+        or evidence.subject_digest != item.subject_digest
+    ):
+        raise IntegrityViolation("EvidenceSet subject binding differs")
+
+
+def validate_patch_evidence_binding(
+    evidence: EvidenceSet,
+    item: ApprovalItem,
+    payload: PatchValidationPayloadV1,
+) -> None:
+    """Patch EvidenceSet target/expected_ref/finding binding re-verification."""
+
+    if evidence.target_binding != item.target_binding:
+        raise IntegrityViolation("Patch EvidenceSet target differs from draft binding")
+    if item.target_binding is None:
+        raise IntegrityViolation("Patch validation target binding is missing")
+    if (
+        item.target_binding.target_artifact_id != payload.preview_snapshot_artifact_id
+        or item.target_binding.ref_name != payload.target.ref_name
+        or item.target_binding.expected_ref != payload.target.expected_ref
+        or evidence.finding_bindings != payload.findings
+    ):
+        raise IntegrityViolation("Patch validation payload differs from exact evidence")
+
+
+def validate_rollback_evidence_binding(
+    evidence: EvidenceSet,
+    item: ApprovalItem,
+    payload: RollbackValidationPayloadV1,
+    *,
+    profile_binding: ResolvedExecutionProfileBindingV1 | None,
+) -> None:
+    """Rollback EvidenceSet target binding re-verification.
+
+    ``profile_binding`` is the resolved rollback profile the synchronous service
+    cross-checks; the in-transaction effect (which does not resolve profiles)
+    passes ``None`` to skip that exact-profile check.
+    """
+
+    binding = item.target_binding
+    if not isinstance(binding, RollbackTargetBindingV1) or evidence.target_binding != binding:
+        raise IntegrityViolation("Rollback EvidenceSet target differs from draft binding")
+    if (
+        binding.ref_name != payload.ref_name
+        or binding.expected_ref != payload.expected_current_ref
+        or binding.target_artifact_id != payload.target_artifact_id
+        or (profile_binding is not None and binding.rollback_profile_binding != profile_binding)
+    ):
+        raise IntegrityViolation("Rollback validation payload differs from exact target")
+
+
+def validate_constraint_evidence_candidate_binding(
+    evidence: EvidenceSet,
+    payload: ConstraintValidationPayloadV1,
+) -> None:
+    """Constraint EvidenceSet candidate target binding re-verification.
+
+    The deep compile/candidate-lineage checks stay in
+    ``ValidationCompletionService`` (they need the prepared candidate/compile
+    Artifacts); the in-transaction effect re-verifies the published candidate
+    binding against the frozen Run target (ref_name/expected_ref) — the candidate
+    Artifact and its lineage were already published + re-derived by the publisher.
+    """
+
+    target = evidence.target_binding
+    if target is None:
+        return
+    if not isinstance(target, ConstraintTargetBindingV1):
+        raise IntegrityViolation("constraint candidate requires an exact target binding")
+    if (
+        target.ref_name != payload.target.ref_name
+        or target.expected_ref != payload.target.expected_ref
+    ):
+        raise IntegrityViolation("constraint candidate binding differs from frozen Run target")
+
+
+def build_validation_completion_replacement(
+    item: ApprovalItem,
+    *,
+    target_status: str,
+    evidence_set_artifact_id: str,
+    regression_evidence_artifact_ids: tuple[str, ...],
+    target_binding: object | None,
+    auto_apply_proof: AutoApplyProofBindingV1 | None,
+) -> ApprovalItem:
+    """Build the ``validated``/``validation_failed`` replacement ApprovalItem."""
+
+    return _replace_item(
+        item,
+        status=target_status,
+        workflow_revision=item.workflow_revision + 1,
+        active_validation_run_id=None,
+        last_validation_failure_artifact_id=None,
+        evidence_set_artifact_id=evidence_set_artifact_id,
+        regression_evidence_artifact_ids=regression_evidence_artifact_ids,
+        target_binding=target_binding,
+        auto_apply_proof=auto_apply_proof,
+    )
+
+
+def build_validation_revert_replacement(
+    item: ApprovalItem,
+    *,
+    failure_artifact_id: str | None,
+) -> ApprovalItem:
+    """Build the ``validating -> draft`` revert replacement ApprovalItem."""
+
+    return _replace_item(
+        item,
+        status="draft",
+        workflow_revision=item.workflow_revision + 1,
+        active_validation_run_id=None,
+        last_validation_failure_artifact_id=failure_artifact_id,
+    )
+
+
+def regression_evidence_ids_from_set(evidence: EvidenceSet) -> tuple[str, ...]:
+    """The published regression-evidence Artifact ids an EvidenceSet references.
+
+    Each ``regression`` dimension requirement binds its regression-evidence
+    Artifact id; regression evidence carries no ``prepared_rule`` parent, so its
+    published id equals the content-addressed id the requirement records.
+    """
+
+    return tuple(
+        sorted(
+            requirement.evidence_artifact_id
+            for requirement in evidence.requirements
+            if requirement.kind == "regression" and requirement.evidence_artifact_id is not None
+        )
+    )
 
 
 class ValidationCompletionService:
@@ -416,7 +603,9 @@ class ValidationCompletionService:
             subject = prepared.execution.payload.subject
             item = approvals.get(subject.approval_id)
             if item is None:
-                raise Conflict("validation ApprovalItem does not exist", approval_id=subject.approval_id)
+                raise Conflict(
+                    "validation ApprovalItem does not exist", approval_id=subject.approval_id
+                )
             self._validate_immutable_subject(item, prepared)
             head = approvals.get_subject_head(item.subject_series_id)
             if head is None:
@@ -474,12 +663,9 @@ class ValidationCompletionService:
             if item.subject_kind == "constraint_proposal":
                 target_binding = evidence.target_binding
             proof_binding = self._auto_apply_proof_binding(prepared, item)
-            replacement = _replace_item(
+            replacement = build_validation_completion_replacement(
                 item,
-                status=target_status,
-                workflow_revision=item.workflow_revision + 1,
-                active_validation_run_id=None,
-                last_validation_failure_artifact_id=None,
+                target_status=target_status,
                 evidence_set_artifact_id=evidence_artifact.artifact_id,
                 regression_evidence_artifact_ids=tuple(
                     sorted(artifact.artifact_id for artifact in prepared.regression_artifacts)
@@ -555,19 +741,8 @@ class ValidationCompletionService:
         item: ApprovalItem,
         prepared: PreparedValidationCompletion,
     ) -> None:
-        subject = prepared.execution.payload.subject
-        expected_kind = {
-            PatchValidationPayloadV1: "patch",
-            ConstraintValidationPayloadV1: "constraint_proposal",
-            RollbackValidationPayloadV1: "rollback_request",
-        }[type(prepared.execution.payload)]
-        if (
-            item.approval_id != subject.approval_id
-            or item.subject_kind != expected_kind
-            or item.subject_artifact_id != subject.subject_artifact_id
-            or item.subject_digest != subject.subject_digest
-        ):
-            raise IntegrityViolation("validation Run subject differs from ApprovalItem")
+        payload = prepared.execution.payload
+        validate_immutable_subject_binding(item, payload.subject, payload_subject_kind(payload))
 
     @staticmethod
     def _validate_current_binding(
@@ -575,20 +750,9 @@ class ValidationCompletionService:
         head: SubjectHead,
         prepared: PreparedValidationCompletion,
     ) -> None:
-        subject = prepared.execution.payload.subject
-        if (
-            head.current_subject_artifact_id != item.subject_artifact_id
-            or head.revision != subject.subject_head_revision
-            or head.revision != item.subject_revision
-            or item.status != "validating"
-            or item.workflow_revision != subject.expected_workflow_revision
-            or item.active_validation_run_id != prepared.execution.run_id
-            or subject.active_validation_run_id != item.active_validation_run_id
-        ):
-            raise Conflict(
-                "validation completion subject/workflow/head binding changed",
-                approval_id=item.approval_id,
-            )
+        validate_current_subject_binding(
+            item, head, prepared.execution.payload.subject, prepared.execution.run_id
+        )
 
     def _complete_superseded(
         self,
@@ -605,8 +769,7 @@ class ValidationCompletionService:
             or item.active_validation_run_id is not None
             or head.subject_series_id != item.subject_series_id
             or head.revision <= item.subject_revision
-            or prepared.execution.payload.subject.subject_head_revision
-            != item.subject_revision
+            or prepared.execution.payload.subject.subject_head_revision != item.subject_revision
             or item.workflow_revision
             != prepared.execution.payload.subject.expected_workflow_revision + 1
         ):
@@ -667,12 +830,8 @@ class ValidationCompletionService:
             subject_kind=item.subject_kind,
             validation_reset_reason=reset_reason,
         )
-        replacement = _replace_item(
-            item,
-            status="draft",
-            workflow_revision=item.workflow_revision + 1,
-            active_validation_run_id=None,
-            last_validation_failure_artifact_id=terminal.failure_artifact_id,
+        replacement = build_validation_revert_replacement(
+            item, failure_artifact_id=terminal.failure_artifact_id
         )
         approvals.compare_and_set(item.approval_id, item.workflow_revision, replacement)
         self._audit(
@@ -708,9 +867,7 @@ class ValidationCompletionService:
         cls._validate_immutable_subject(item, prepared)
         prepared_ids = tuple(artifact.artifact_id for artifact in prepared.artifacts)
         expected_codes = {prepared.outcome_code, "subject_superseded"}
-        expected_ids = (
-            () if result.outcome_code == "subject_superseded" else prepared_ids
-        )
+        expected_ids = () if result.outcome_code == "subject_superseded" else prepared_ids
         if (
             result.run_id != prepared.execution.run_id
             or result.outcome_code not in expected_codes
@@ -808,7 +965,11 @@ class ValidationCompletionService:
         payload = prepared.execution.payload
         expected_primary: tuple[str, str, ProfileRefV1]
         if isinstance(payload, (PatchValidationPayloadV1, ConstraintValidationPayloadV1)):
-            expected_primary = ("/params/validation_policy", "validation", payload.validation_policy)
+            expected_primary = (
+                "/params/validation_policy",
+                "validation",
+                payload.validation_policy,
+            )
         else:
             expected_primary = ("/params/rollback_profile", "rollback", payload.rollback_profile)
         path, kind, profile = expected_primary
@@ -843,11 +1004,8 @@ class ValidationCompletionService:
         evidence = prepared.evidence_set
         assert evidence is not None
         payload = prepared.execution.payload
-        if (
-            evidence.subject_artifact_id != item.subject_artifact_id
-            or evidence.subject_digest != item.subject_digest
-            or evidence.policy_version != resolution.evidence_policy_version
-        ):
+        validate_evidence_subject(evidence, item)
+        if evidence.policy_version != resolution.evidence_policy_version:
             raise IntegrityViolation("EvidenceSet subject or policy binding differs")
         regression_ids = {artifact.artifact_id for artifact in prepared.regression_artifacts}
         if not regression_ids.issubset(evidence.supporting_artifact_ids):
@@ -871,17 +1029,7 @@ class ValidationCompletionService:
             raise IntegrityViolation("EvidenceSet omits a published supporting Artifact")
 
         if isinstance(payload, PatchValidationPayloadV1):
-            if evidence.target_binding != item.target_binding:
-                raise IntegrityViolation("Patch EvidenceSet target differs from draft binding")
-            if item.target_binding is None:
-                raise IntegrityViolation("Patch validation target binding is missing")
-            if (
-                item.target_binding.target_artifact_id != payload.preview_snapshot_artifact_id
-                or item.target_binding.ref_name != payload.target.ref_name
-                or item.target_binding.expected_ref != payload.target.expected_ref
-                or evidence.finding_bindings != payload.findings
-            ):
-                raise IntegrityViolation("Patch validation payload differs from exact evidence")
+            validate_patch_evidence_binding(evidence, item, payload)
             required_support = set(payload.review_artifact_ids) | set(
                 payload.playtest_trace_artifact_ids
             )
@@ -890,16 +1038,9 @@ class ValidationCompletionService:
             return
 
         if isinstance(payload, RollbackValidationPayloadV1):
-            binding = item.target_binding
-            if not isinstance(binding, RollbackTargetBindingV1) or evidence.target_binding != binding:
-                raise IntegrityViolation("Rollback EvidenceSet target differs from draft binding")
-            if (
-                binding.ref_name != payload.ref_name
-                or binding.expected_ref != payload.expected_current_ref
-                or binding.target_artifact_id != payload.target_artifact_id
-                or binding.rollback_profile_binding != resolution.primary
-            ):
-                raise IntegrityViolation("Rollback validation payload differs from exact target")
+            validate_rollback_evidence_binding(
+                evidence, item, payload, profile_binding=resolution.primary
+            )
             return
 
         compile_evidence = prepared.constraint_compile_evidence
@@ -928,7 +1069,9 @@ class ValidationCompletionService:
             raise IntegrityViolation("constraint compile differential engines differ")
         golden = next(stage for stage in compile_evidence.stages if stage.stage == "golden")
         if (payload.golden_suite_artifact_id is None) != (golden.status == "not_applicable"):
-            raise IntegrityViolation("constraint compile golden disposition differs from Run payload")
+            raise IntegrityViolation(
+                "constraint compile golden disposition differs from Run payload"
+            )
         if compile_artifact.artifact_id not in evidence.supporting_artifact_ids:
             raise IntegrityViolation("EvidenceSet omits constraint compile evidence")
         target = evidence.target_binding
@@ -1038,9 +1181,7 @@ class ValidationCompletionService:
             raise IntegrityViolation("rollback request Artifact is unavailable")
         facts = gateway.inspect_draft_subject(subject)
         request = facts.rollback_request
-        if facts.subject_kind != "rollback_request" or not isinstance(
-            request, RollbackRequestV1
-        ):
+        if facts.subject_kind != "rollback_request" or not isinstance(request, RollbackRequestV1):
             raise IntegrityViolation("rollback subject parser omitted RollbackRequest")
         if request.target_history_revision != payload.target_history_revision:
             raise IntegrityViolation(
@@ -1118,7 +1259,9 @@ class ValidationCompletionService:
                 or published.location != binding.location
                 or published.status != "active"
             ):
-                raise IntegrityViolation("validation ObjectBinding publisher returned another binding")
+                raise IntegrityViolation(
+                    "validation ObjectBinding publisher returned another binding"
+                )
         for artifact in ValidationCompletionService._topological_artifacts(prepared.artifacts):
             if artifacts.put(artifact) != artifact:
                 raise IntegrityViolation("validation Artifact publisher returned another Artifact")
@@ -1182,4 +1325,14 @@ __all__ = [
     "ValidationRunBinding",
     "ValidationRunTerminalGateway",
     "ValidationRunTerminalResult",
+    "build_validation_completion_replacement",
+    "build_validation_revert_replacement",
+    "payload_subject_kind",
+    "regression_evidence_ids_from_set",
+    "validate_constraint_evidence_candidate_binding",
+    "validate_current_subject_binding",
+    "validate_evidence_subject",
+    "validate_immutable_subject_binding",
+    "validate_patch_evidence_binding",
+    "validate_rollback_evidence_binding",
 ]

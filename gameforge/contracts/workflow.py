@@ -218,7 +218,7 @@ class PatchTargetBindingV1(_FrozenModel):
     target_snapshot_id: NonEmptyStr
     target_digest: LowerHexSha256
     ref_name: NonEmptyStr
-    expected_ref: RefValue | None
+    expected_ref: RefValue | None = None
 
 
 class ConstraintTargetBindingV1(_FrozenModel):
@@ -229,7 +229,7 @@ class ConstraintTargetBindingV1(_FrozenModel):
     target_snapshot_id: NonEmptyStr
     target_digest: LowerHexSha256
     ref_name: NonEmptyStr
-    expected_ref: RefValue | None
+    expected_ref: RefValue | None = None
 
 
 class RollbackTargetBindingV1(_FrozenModel):
@@ -933,7 +933,7 @@ class AutoApplyProofBindingV1(_FrozenModel):
     policy: AutoApplyPolicyRefV1
     subject_digest: LowerHexSha256
     target_digest: LowerHexSha256
-    expected_ref: RefValue | None
+    expected_ref: RefValue | None = None
     validation_evidence_artifact_id: NonEmptyStr
 
 
