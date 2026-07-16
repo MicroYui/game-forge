@@ -495,6 +495,29 @@ class _SourceWrite:
     minted: MintedSource
 
 
+class ValidationStartWriter(Protocol):
+    """Atomically CAS the ApprovalItem ``draft->validating`` in the Run-create UoW.
+
+    Injected by the composition root; when present, the validation-admission path binds
+    the ``draft->validating`` workflow CAS (with its ``active_validation_run_id``) into
+    the SAME UnitOfWork that queues the validation Run (design §"validation start": one
+    all-or-nothing UoW). ``start`` receives the bound write transaction directly, so it
+    writes through the exact same authority. Absent (a generic ``POST /runs`` engine, or
+    a test that drives the CAS itself), admission never mutates the subject.
+    """
+
+    def start(
+        self,
+        transaction: Any,
+        *,
+        item: ApprovalItem,
+        run_id: str,
+        actor: ActorContext,
+        request_id: str | None,
+        trace_id: str | None,
+    ) -> None: ...
+
+
 class RunAdmissionEngine:
     """Compose resource/generic Run admission on top of ``RunCommandService``."""
 
@@ -513,6 +536,7 @@ class RunAdmissionEngine:
         role_policy_version: str,
         role_policy_digest: str,
         deadline_policy: AdmissionDeadlinePolicy | None = None,
+        validation_start_writer: ValidationStartWriter | None = None,
     ) -> None:
         self._run_commands = run_commands
         self._unit_of_work = unit_of_work
@@ -523,6 +547,7 @@ class RunAdmissionEngine:
         self._objects = object_store
         self._clock = clock
         self._source_capabilities = source_uow_capabilities
+        self._validation_start_writer = validation_start_writer
         if not isinstance(role_policy_version, str) or not role_policy_version:
             raise IntegrityViolation("run admission requires an exact role policy version")
         if (
@@ -646,7 +671,36 @@ class RunAdmissionEngine:
                 request_hash=server.request_hash,
                 trace_id=getattr(server, "trace_id", None),
                 validation_item=item,
+                companion_write=self._validation_companion(
+                    item=item, run_id=run_id, actor=actor, server=server
+                ),
             )
+
+    def _validation_companion(
+        self,
+        *,
+        item: ApprovalItem,
+        run_id: str,
+        actor: ActorContext,
+        server: Any,
+    ) -> Callable[[Any], None] | None:
+        """The ``draft->validating`` CAS to run in the Run-create UoW (or ``None``)."""
+
+        writer = self._validation_start_writer
+        if writer is None:
+            return None
+
+        def _companion(transaction: Any) -> None:
+            writer.start(
+                transaction,
+                item=item,
+                run_id=run_id,
+                actor=actor,
+                request_id=getattr(server, "request_id", None),
+                trace_id=getattr(server, "trace_id", None),
+            )
+
+        return _companion
 
     # ── generic POST /runs (generic_runs_endpoint kinds only) ────────────────
     def admit_generic_run(
@@ -923,6 +977,7 @@ class RunAdmissionEngine:
         execution_version_plan: Any = None,
         cassette_artifact_id: str | None = None,
         validation_item: ApprovalItem | None = None,
+        companion_write: Callable[[Any], None] | None = None,
     ) -> RunAcceptedV1:
         definition = self._resolve_definition(kind, creation_mode)
         # Authorize the actor against the RunKind's required permission with the
@@ -986,7 +1041,7 @@ class RunAdmissionEngine:
             ),
         )
         del trace_id
-        result = self._run_commands.create_run(request)
+        result = self._run_commands.create_run(request, companion_write=companion_write)
         run_id = result.run.run_id
         return RunAcceptedV1(
             run_id=run_id,

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any
+from typing import Any, Literal
 
 from gameforge.contracts.canonical import compute_snapshot_id
 from gameforge.contracts.errors import IntegrityViolation
@@ -194,8 +194,6 @@ class WorkflowTypedReaders:
         evidence_artifact: ArtifactV2,
         regression_artifacts: tuple[ArtifactV2, ...],
     ) -> EvidenceStateProjection:
-        if regression_artifacts:
-            raise IntegrityViolation("workflow submission did not freeze regression evidence")
         self.inspect_draft_subject(subject_artifact)
         self.read_verified(target_artifact)
         evidence = self.load_evidence_set(evidence_artifact)
@@ -205,10 +203,55 @@ class WorkflowTypedReaders:
             or evidence.target_binding != item.target_binding
         ):
             raise IntegrityViolation("typed EvidenceSet differs from ApprovalItem")
+        regression_status = self._verify_regression_evidence(evidence, regression_artifacts)
         return EvidenceStateProjection(
             validation_status=evidence.overall_status,
-            regression_status="not_applicable",
+            regression_status=regression_status,
         )
+
+    @staticmethod
+    def _verify_regression_evidence(
+        evidence: EvidenceSet,
+        regression_artifacts: tuple[ArtifactV2, ...],
+    ) -> Literal["passed", "failed", "unproven", "not_applicable"]:
+        """Cross-check the ApprovalItem's frozen regression evidence against the EvidenceSet.
+
+        A real invariant/economy validation seals one ``regression`` dimension per
+        checker/simulation; the validation-completion effect binds those published
+        ``regression-evidence@1`` Artifacts onto ``item.regression_evidence_artifact_ids``,
+        which apply / auto-apply re-verify. Submission must therefore ACCEPT them and
+        confirm they are EXACTLY the EvidenceSet's regression-requirement bindings (kind /
+        schema / content-addressed id), then derive the regression status from those
+        requirements — never reject them wholesale (that under-accepted every checker- or
+        economy-validated Patch).
+        """
+
+        requirements = {
+            requirement.evidence_artifact_id: requirement
+            for requirement in evidence.requirements
+            if requirement.kind == "regression" and requirement.evidence_artifact_id is not None
+        }
+        expected_ids = tuple(sorted(requirements))
+        presented_ids = tuple(sorted(artifact.artifact_id for artifact in regression_artifacts))
+        if presented_ids != expected_ids:
+            raise IntegrityViolation(
+                "frozen regression evidence differs from the EvidenceSet requirements"
+            )
+        statuses: list[str] = []
+        for artifact in regression_artifacts:
+            if artifact.kind != "regression_evidence":
+                raise IntegrityViolation("regression evidence has the wrong Artifact kind")
+            schema = (getattr(artifact, "meta", {}) or {}).get("payload_schema_id")
+            if schema != "regression-evidence@1":
+                raise IntegrityViolation("regression evidence declares the wrong payload schema")
+            statuses.append(requirements[artifact.artifact_id].status)
+        if not statuses:
+            return "not_applicable"
+        if all(status == "passed" for status in statuses):
+            return "passed"
+        if any(status == "failed" for status in statuses):
+            return "failed"
+        return "unproven"
 
     def project_state(self, *, item: Any) -> EvidenceStateProjection:
         if item.evidence_set_artifact_id is None:

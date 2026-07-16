@@ -272,14 +272,13 @@ def _run_validation(
             ),
         )
         run_id = accepted.run_id
-        validating = item.model_copy(
-            update={
-                "status": "validating",
-                "workflow_revision": 2,
-                "active_validation_run_id": run_id,
-            }
-        )
-        _persist(harness, lambda r: r.compare_and_set(approval_id, 1, validating))
+        # Task 17c: the composed ``patch.validate`` admission CASes the ApprovalItem
+        # ``draft→validating`` (bound to this Run) atomically in the same UoW, so the
+        # subject is already ``validating`` at revision 2 here — no out-of-band CAS.
+        started = _read_item(harness, approval_id)
+        assert started is not None and started.status == "validating"
+        assert started.workflow_revision == 2
+        assert started.active_validation_run_id == run_id
         terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
     finally:
         process.close()

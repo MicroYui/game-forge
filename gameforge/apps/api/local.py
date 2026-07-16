@@ -506,105 +506,88 @@ class _RoutePolicyDomainScopeResolver:
         return DomainScope(domain_ids=tuple(sorted(selected)))
 
 
-class _ValidationStartingAdmission:
-    """Complete the ``:validate`` composition: admit the Run AND start validation.
+class _ValidationStartWriter:
+    """Complete the ``:validate`` composition: CAS ``draft→validating`` IN the Run UoW.
 
     Design §"validation start" (m4 design L116/L315) makes ``POST /{subject}:validate``
     atomically (1) create the queued validation Run and (2) CAS the ApprovalItem
-    ``draft→validating`` bound to that Run, so the worker's terminal validation-effect
-    observes a ``validating`` item at ``expected_workflow_revision + 1`` bound to the
-    published run. The :class:`RunAdmissionEngine` owns the Run create; it deliberately
-    does NOT mutate the ApprovalItem. Task 17a/17b wired the Run create + terminal
-    effect but left the ``draft→validating`` workflow half unwired at the endpoint
-    (17b performed it out-of-band in its own harness). This composition adapter closes
-    that integration gap: after the engine admits the Run it performs the workflow CAS
-    in the write authority, in a fresh short transaction (the engine already committed
-    the queued Run), so the public ``:validate`` endpoint leaves exactly the state
-    Journey B requires. It is idempotent — a ``:validate`` replay (same run already
-    started on this item) is a no-op — and fails closed on a non-current/non-draft or
-    stale-revision subject rather than fabricating a transition.
+    ``draft→validating`` bound to that Run — ONE all-or-nothing UnitOfWork. The
+    :class:`RunAdmissionEngine` owns the Run create and invokes this writer as its
+    ``companion_write`` INSIDE the same transaction that queues the Run (via
+    ``RunCommandService.create_run``), so a crash between the two writes can never
+    orphan the Run (queued with the subject stranded in ``draft``). The writer receives
+    the bound transaction and CASes ``item.workflow_revision → +1``, binding
+    ``active_validation_run_id`` + an ``approval.validation_started`` audit. It is
+    idempotent (a ``:validate`` replay whose item is already ``validating`` on this Run
+    is a no-op) and fails closed on a non-current / non-draft / stale-revision subject.
     """
 
-    def __init__(
-        self,
-        *,
-        engine: RunAdmissionEngine,
-        unit_of_work: SqliteUnitOfWork,
-        clock: SystemUtcClock,
-        audit_chain_id: str,
-    ) -> None:
-        self._engine = engine
-        self._unit_of_work = unit_of_work
+    def __init__(self, *, clock: SystemUtcClock, audit_chain_id: str) -> None:
         self._clock = clock
         self._audit_chain_id = audit_chain_id
 
-    def admit(
-        self, *, operation: str, resource_id: str, request: object, actor: object, server: object
-    ):
-        accepted = self._engine.admit(
-            operation=operation,
-            resource_id=resource_id,
-            request=request,  # type: ignore[arg-type]
-            actor=actor,  # type: ignore[arg-type]
-            server=server,
-        )
-        self._start_validation(request=request, run_id=accepted.run_id, actor=actor, server=server)
-        return accepted
-
-    def _start_validation(
-        self, *, request: object, run_id: str, actor: object, server: object
+    def start(
+        self,
+        transaction: object,
+        *,
+        item: object,
+        run_id: str,
+        actor: object,
+        request_id: str | None,
+        trace_id: str | None,
     ) -> None:
-        approval_id = request.approval_id  # type: ignore[attr-defined]
-        expected = request.expected_workflow_revision  # type: ignore[attr-defined]
-        with self._unit_of_work.begin() as transaction:
-            approvals = transaction.approvals  # type: ignore[attr-defined]
-            item = approvals.get(approval_id)
-            if item is None:
-                raise Conflict("validation start subject is unavailable", approval_id=approval_id)
-            if item.status == "validating" and item.active_validation_run_id == run_id:
-                # Idempotent ``:validate`` replay: the Run was already started on this item.
-                return
-            head = approvals.get_subject_head(item.subject_series_id)
-            if head is None or head.current_approval_id != item.approval_id:
-                raise Conflict(
-                    "validation start subject is not the current head",
-                    approval_id=approval_id,
-                )
-            if item.status != "draft" or item.workflow_revision != expected:
-                raise Conflict(
-                    "validation start requires the exact current draft revision",
-                    approval_id=approval_id,
-                    expected_revision=expected,
-                    actual_revision=item.workflow_revision,
-                    status=item.status,
-                )
-            validate_status_transition(
-                current="draft", target="validating", subject_kind=item.subject_kind
+        approvals = transaction.approvals  # type: ignore[attr-defined]
+        current = approvals.get(item.approval_id)  # type: ignore[attr-defined]
+        if current is None:
+            raise Conflict(
+                "validation start subject is unavailable",
+                approval_id=item.approval_id,  # type: ignore[attr-defined]
             )
-            replacement = item.model_copy(
-                update={
-                    "status": "validating",
-                    "workflow_revision": expected + 1,
-                    "active_validation_run_id": run_id,
-                    "last_validation_failure_artifact_id": None,
-                }
+        if current.status == "validating" and current.active_validation_run_id == run_id:
+            # Idempotent ``:validate`` replay: the Run was already started on this item.
+            return
+        head = approvals.get_subject_head(current.subject_series_id)
+        if head is None or head.current_approval_id != current.approval_id:
+            raise Conflict(
+                "validation start subject is not the current head",
+                approval_id=current.approval_id,
             )
-            approvals.compare_and_set(item.approval_id, expected, replacement)
-            AuditGate(sink=transaction.audit, clock=self._clock).append(  # type: ignore[attr-defined]
-                chain_id=self._audit_chain_id,
-                actor=AuditActor(
-                    principal_id=actor.principal.id,  # type: ignore[attr-defined]
-                    principal_kind=actor.principal.kind,  # type: ignore[attr-defined]
-                ),
-                initiated_by=None,
-                action="approval.validation_started",
-                subject=AuditSubject(resource_kind="approval", resource_id=item.approval_id),
-                correlation=AuditCorrelation(
-                    request_id=getattr(server, "request_id", None),
-                    run_id=run_id,
-                    trace_id=getattr(server, "trace_id", None),
-                ),
+        expected = item.workflow_revision  # type: ignore[attr-defined]
+        if current.status != "draft" or current.workflow_revision != expected:
+            raise Conflict(
+                "validation start requires the exact current draft revision",
+                approval_id=current.approval_id,
+                expected_revision=expected,
+                actual_revision=current.workflow_revision,
+                status=current.status,
             )
+        validate_status_transition(
+            current="draft", target="validating", subject_kind=current.subject_kind
+        )
+        replacement = current.model_copy(
+            update={
+                "status": "validating",
+                "workflow_revision": expected + 1,
+                "active_validation_run_id": run_id,
+                "last_validation_failure_artifact_id": None,
+            }
+        )
+        approvals.compare_and_set(current.approval_id, expected, replacement)
+        AuditGate(sink=transaction.audit, clock=self._clock).append(  # type: ignore[attr-defined]
+            chain_id=self._audit_chain_id,
+            actor=AuditActor(
+                principal_id=actor.principal.id,  # type: ignore[attr-defined]
+                principal_kind=actor.principal.kind,  # type: ignore[attr-defined]
+            ),
+            initiated_by=None,
+            action="approval.validation_started",
+            subject=AuditSubject(resource_kind="approval", resource_id=current.approval_id),
+            correlation=AuditCorrelation(
+                request_id=request_id,
+                run_id=run_id,
+                trace_id=trace_id,
+            ),
+        )
 
 
 def _build_run_admission_engine(
@@ -674,6 +657,13 @@ def _build_run_admission_engine(
         ),
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
+        # The ``:validate`` admission CASes the ApprovalItem draft→validating in the SAME
+        # UoW that queues the Run (design §"validation start"). Generic ``POST /runs``
+        # kinds never carry a validation subject, so the writer only fires on the three
+        # ``*.validate`` operations.
+        validation_start_writer=_ValidationStartWriter(
+            clock=clock, audit_chain_id=config.audit_chain_id
+        ),
     )
 
 
@@ -1081,18 +1071,11 @@ def build_local_api_resources(
         registry=builtin_registry,
         execution_profile_catalog=execution_profile_catalogs[0],
     )
-    # The synchronous ``:validate`` endpoint must ALSO start validation (CAS the
-    # ApprovalItem ``draft→validating`` bound to the admitted Run) per design
-    # §"validation start". The generic ``POST /runs`` admission path
-    # (``dependencies.run_admission``) stays the raw engine — it never mutates an
-    # ApprovalItem — so only the workflow-command ``*.validate`` operations get the
-    # validation-starting wrapper.
-    validation_admission = _ValidationStartingAdmission(
-        engine=run_admission,
-        unit_of_work=unit_of_work,
-        clock=clock,
-        audit_chain_id=config.audit_chain_id,
-    )
+    # The synchronous ``:validate`` admission atomically starts validation: its injected
+    # ``_ValidationStartWriter`` CASes the ApprovalItem ``draft→validating`` INSIDE the
+    # same UoW that queues the Run (design §"validation start"). The same engine backs
+    # ``dependencies.run_admission`` (generic ``POST /runs``) — those kinds carry no
+    # validation subject, so the writer only fires on the ``*.validate`` operations.
     workflow_commands = _build_workflow_command_service(
         config=config,
         clock=clock,
@@ -1100,7 +1083,7 @@ def build_local_api_resources(
         object_store=object_store,
         unit_of_work=unit_of_work,
         execution_profile_catalog=execution_profile_catalogs[0],
-        admission=validation_admission,
+        admission=run_admission,
     )
 
     @contextmanager

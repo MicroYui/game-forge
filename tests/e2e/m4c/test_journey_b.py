@@ -18,9 +18,9 @@ LLM mode) — NO cassette, NO external network.
 Proven here:
 
 * Happy path: A drafts a Patch+preview → ``:validate`` (worker runs ``patch.validate``
-  → the 17c validation-start CAS + terminal effect move the ApprovalItem
-  ``draft→validating→validated``) → A ``:submit`` → B ``:approve`` → B ``:apply`` — the
-  ref/history MOVE, apply binds the exact preview Artifact.
+  against REAL graph-invariant evidence → the 17c single-UoW validation-start CAS +
+  terminal effect move the ApprovalItem ``draft→validating→validated``) → A ``:submit``
+  → B ``:approve`` → B ``:apply`` — the ref/history MOVE, apply binds the exact preview.
 * Repeat spanning an API+worker RESTART: a second cycle whose validation Run is queued
   before the stack is rebuilt over the SAME DB; state persists and the queued Run still
   completes on the rebuilt worker; the second apply moves the ref/history again.
@@ -30,9 +30,12 @@ Proven here:
 * Failure Patch: a dangling-preview Patch → confirmed Finding + FAILED EvidenceSet →
   ApprovalItem ``validation_failed`` → ``:submit`` and ``:apply`` BLOCKED (409) and the
   ref/history UNCHANGED.
-* Rollback surface: a ``rollback_request`` draft + ``:validate`` fails closed on the
-  deferred ``rollback_validator@1`` game ports (Task 11-13 follow-up) → ``restore_current
-  _draft`` reverts the item to ``draft`` → ``:submit``/``:apply`` BLOCKED, ref unchanged.
+* Rollback HAPPY path: a ``rollback_request`` repeats validate → submit → B approve →
+  apply against the REAL deterministic ``rollback_validator@1`` history + schema ports,
+  and the ref/history MOVE BACK to the prior revision (with a ref transition).
+* Rollback fail-closed: a rollback whose ref advances out from under it fails the
+  deterministic history dimension → ``validation_failed`` → ``:submit`` BLOCKED, ref
+  unmoved.
 """
 
 from __future__ import annotations
@@ -53,13 +56,19 @@ from gameforge.contracts.auth import (
 )
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.identity import (
+    DomainDefinitionV1,
     DomainRegistryRefV1,
+    DomainRegistryV1,
+    DomainRoutePolicy,
+    DomainRouteRule,
     DomainScope,
     Permission,
     RolePolicy,
+    compute_domain_registry_digest,
+    compute_domain_route_policy_digest,
     compute_role_policy_digest,
 )
-from gameforge.contracts.ir import Entity, NodeType
+from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.passwords import Argon2PasswordRuntime, normalize_login_name
@@ -88,11 +97,19 @@ from tests.e2e.m4c.test_composition import (
 )
 from tests.platform.m4 import apply_testkit
 
-DOMAIN = "economy"
+# Journey B runs in the "builtin" domain — the exact domain the composed admission's
+# built-in execution-profile catalog covers (every builtin profile is domain_scope
+# ("builtin",)). A content-domain rollback cannot apply against a builtin-scoped
+# rollback profile (apply.py's ExactRollbackExecutionVerifier requires the item domain
+# ⊆ the profile domain), so the whole maker-checker journey — patch AND rollback — is
+# routed here, keeping every profile binding domain-consistent end-to-end.
+DOMAIN = "builtin"
 REF_NAME = "content-head"
 NOW = "2026-07-16T12:00:00Z"
+REGISTRY_VERSION = "journey-b-domains@1"
+ROUTE_VERSION = "journey-b-routes@1"
 ROLE_POLICY_VERSION = "journey-b-roles@1"
-_ECONOMY = DomainScope(domain_ids=(DOMAIN,))
+_DOMAIN = DomainScope(domain_ids=(DOMAIN,))
 
 MAKER_LOGIN = "maker"
 MAKER_PASSWORD = "maker-password-1"
@@ -108,6 +125,41 @@ _READS = (
 )
 
 
+def _registry() -> DomainRegistryV1:
+    definitions = (DomainDefinitionV1(domain_id=DOMAIN, display_name="Built-in", status="active"),)
+    return DomainRegistryV1(
+        registry_version=REGISTRY_VERSION,
+        definitions=definitions,
+        registry_digest=compute_domain_registry_digest(REGISTRY_VERSION, definitions),
+    )
+
+
+def _route(registry: DomainRegistryV1) -> DomainRoutePolicy:
+    ref = DomainRegistryRefV1(
+        registry_version=registry.registry_version, registry_digest=registry.registry_digest
+    )
+    rules = (
+        DomainRouteRule(
+            rule_id="route:builtin",
+            domain_selector=_DOMAIN,
+            subject_kinds=("patch", "constraint_proposal", "rollback_request"),
+            route_role="numeric_designer",
+            required_action="approval.decide",
+            resource_kind="approval",
+            min_approvals=1,
+        ),
+    )
+    return DomainRoutePolicy(
+        route_version=ROUTE_VERSION,
+        domain_registry_ref=ref,
+        rules=rules,
+        effective_from="2026-07-14T00:00:00Z",
+        route_digest=compute_domain_route_policy_digest(
+            ROUTE_VERSION, ref, rules, "2026-07-14T00:00:00Z"
+        ),
+    )
+
+
 def _role_policy(registry) -> RolePolicy:
     registry_ref = DomainRegistryRefV1(
         registry_version=registry.registry_version,
@@ -117,18 +169,16 @@ def _role_policy(registry) -> RolePolicy:
         # Maker A: draft needs no grant; :validate needs validate/patch (+ rollback);
         # submit needs no grant.
         "content_designer": (
-            Permission(action="validate", resource_kind="patch", domain_scope=_ECONOMY),
-            Permission(action="validate", resource_kind="rollback_request", domain_scope=_ECONOMY),
+            Permission(action="validate", resource_kind="patch", domain_scope=_DOMAIN),
+            Permission(action="validate", resource_kind="rollback_request", domain_scope=_DOMAIN),
             *_READS,
         ),
         # Approver B == the route_role: approval.decide + apply/rollback (applies too).
         "numeric_designer": (
-            Permission(action="approval.decide", resource_kind="approval", domain_scope=_ECONOMY),
-            Permission(action="apply", resource_kind="patch", domain_scope=_ECONOMY),
-            Permission(action="rollback", resource_kind="ref", domain_scope=_ECONOMY),
-            Permission(
-                action="publish", resource_kind="constraint_proposal", domain_scope=_ECONOMY
-            ),
+            Permission(action="approval.decide", resource_kind="approval", domain_scope=_DOMAIN),
+            Permission(action="apply", resource_kind="patch", domain_scope=_DOMAIN),
+            Permission(action="rollback", resource_kind="ref", domain_scope=_DOMAIN),
+            Permission(action="publish", resource_kind="constraint_proposal", domain_scope=_DOMAIN),
             *_READS,
         ),
     }
@@ -159,8 +209,8 @@ class _Harness:
         self.clock = SystemUtcClock()
         migrations_api.upgrade(self.database_url)
 
-        self.registry = apply_testkit._registry()
-        self.route = apply_testkit._route(self.registry)
+        self.registry = _registry()
+        self.route = _route(self.registry)
         self.approval_policy = apply_testkit._approval_policy()
         self.role_policy = _role_policy(self.registry)
         # The composed admission resolves profiles against the BUILTIN catalog
@@ -245,7 +295,7 @@ class _Harness:
                 assignment_id=f"assignment:{principal_id}:{role}",
                 principal_id=principal_id,
                 role=role,
-                scope=_ECONOMY,
+                scope=_DOMAIN,
                 granted_by=AuditActor(principal_id="system:test", principal_kind="system"),
                 expected_principal_revision=bumped.revision,
             )
@@ -253,8 +303,19 @@ class _Harness:
 
     # ── base ref (a quest snapshot bound to content/head @ rev 1) ────────────
     def seed_base_snapshot(self) -> tuple[str, dict]:
+        # A referentially-complete quest graph that the production GraphChecker passes
+        # with ZERO findings (quest has a giver + a step; no isolated/dangling nodes), so
+        # a clean Patch's preview validates against real invariant evidence.
         snapshot = Snapshot.from_entities_relations(
-            [Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120})], []
+            [
+                Entity(id="npc:giver", type=NodeType.NPC, attrs={}),
+                Entity(id="qs:1", type=NodeType.QUEST_STEP, attrs={}),
+                Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120}),
+            ],
+            [
+                Relation(id="r:starts", type=EdgeType.STARTS_AT, src_id="q:1", dst_id="npc:giver"),
+                Relation(id="r:step", type=EdgeType.HAS_STEP, src_id="q:1", dst_id="qs:1"),
+            ],
         )
         blob = canonical_json(snapshot.content_payload).encode("utf-8")
         objects = self._object_store()
@@ -539,7 +600,7 @@ def _run_patch_cycle(
     validate = maker.client.post(
         f"/api/v1/patches/{patch_artifact_id}:validate",
         json=_validation_body(
-            item, base_artifact_id=base_artifact_id, expected_ref=expected_ref, checker_graph=False
+            item, base_artifact_id=base_artifact_id, expected_ref=expected_ref, checker_graph=True
         ),
         headers=_headers(maker, idempotency_key=f"{key}:validate"),
     )
@@ -712,7 +773,7 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
         validate = maker2.client.post(
             f"/api/v1/patches/{patch2}:validate",
             json=_validation_body(
-                item2, base_artifact_id=head_artifact_id, expected_ref=head_ref, checker_graph=False
+                item2, base_artifact_id=head_artifact_id, expected_ref=head_ref, checker_graph=True
             ),
             headers=_headers(maker2, idempotency_key="c2:validate"),
         )
@@ -973,23 +1034,64 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
         api.state.local_resources.close()
 
 
-def test_journey_b_rollback_surface_fails_closed_on_deferred_ports(tmp_path: Path) -> None:
-    # The rollback game ports (rollback_validator@1 history/schema/impact) are a
-    # deferred Task 11-13 follow-up (apps/worker/components.py _DeferredGamePort).
-    # Journey B's rollback surface therefore proves the SOUND fail-closed path: a
-    # rollback_request validates → the deferred port fails the attempt → the run's
-    # run-final failure reverts validating→draft (restore_current_draft@1) → submit
-    # and apply stay BLOCKED and the ref never moves. (The rollback HAPPY path is
-    # blocked on that deferral; see the task report.)
+def _rollback_validation_body(
+    item, *, head_ref: dict, target_artifact_id: str, target_revision: int
+):
+    return {
+        "request_schema_version": "rollback-validation-admission-request@1",
+        "approval_id": item.approval_id,
+        "expected_subject_head_revision": item.subject_revision,
+        "expected_workflow_revision": item.workflow_revision,
+        "subject_digest": item.subject_digest,
+        "ref_name": REF_NAME,
+        "expected_current_ref": head_ref,
+        "target_artifact_id": target_artifact_id,
+        "target_history_revision": target_revision,
+        "rollback_profile": {"profile_id": "builtin.rollback", "version": 1},
+        "schema_compatibility_policy": {
+            "profile_id": "builtin.schema_compatibility",
+            "version": 1,
+        },
+        "impact_profiles": [],
+        "regression_suite_artifact_ids": [],
+    }
+
+
+def _draft_rollback(
+    maker: _Session, *, head_ref: dict, target_artifact_id: str, target_revision: int, key: str
+):
+    draft = maker.client.post(
+        f"/api/v1/refs/{REF_NAME}/rollback-requests",
+        json={
+            "request_schema_version": "rollback-draft-request@1",
+            "expected_current_ref": head_ref,
+            "target_artifact_id": target_artifact_id,
+            "target_history_revision": target_revision,
+            "rollback_profile": {"profile_id": "builtin.rollback", "version": 1},
+            "reason": "Revert the reward change.",
+            "reverses_approval_id": None,
+        },
+        headers=_headers(maker, idempotency_key=f"{key}:draft"),
+    )
+    assert draft.status_code == 201, draft.text
+    rollback_artifact_id = draft.json()["artifact"]["artifact_id"]
+    return rollback_artifact_id, f"approval:rollback_request:{rollback_artifact_id}"
+
+
+def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
+    # Journey B line 5: the rollback request repeats validate → submit → B approve → apply,
+    # and the ref/history MOVE BACK. The rollback_validator@1 history + schema ports are
+    # real deterministic platform reads (apps/worker/components.py); the impact analyzer
+    # stays deferred and is never invoked (no impact profiles on the happy path).
     harness = _Harness(tmp_path)
     base_artifact_id, base_ref = harness.seed_base_snapshot()
 
-    # Move the ref to rev 2 with one full patch cycle so a rollback target exists.
     api = _start_api(harness.api_config())
     process = build_worker_process(harness.worker_config())
     try:
         maker = _login(api, MAKER_LOGIN, MAKER_PASSWORD)
         approver = _login(api, APPROVER_LOGIN, APPROVER_PASSWORD)
+        # Move the ref to rev 2 (reward 120 → 80) so a prior revision exists to restore.
         _run_patch_cycle(
             harness,
             process,
@@ -1001,78 +1103,174 @@ def test_journey_b_rollback_surface_fails_closed_on_deferred_ports(tmp_path: Pat
             key="rb-setup",
         )
         head_ref = harness.current_ref()
-        assert head_ref["revision"] == 2
+        assert head_ref["revision"] == 2 and head_ref["artifact_id"] != base_artifact_id
 
         # A drafts a rollback_request back to the base (history revision 1).
-        draft = maker.client.post(
-            f"/api/v1/refs/{REF_NAME}/rollback-requests",
-            json={
-                "request_schema_version": "rollback-draft-request@1",
-                "expected_current_ref": head_ref,
-                "target_artifact_id": base_artifact_id,
-                "target_history_revision": 1,
-                "rollback_profile": {"profile_id": "builtin.rollback", "version": 1},
-                "reason": "Revert the reward change.",
-                "reverses_approval_id": None,
-            },
-            headers=_headers(maker, idempotency_key="rb:draft"),
+        rollback_id, approval_id = _draft_rollback(
+            maker,
+            head_ref=head_ref,
+            target_artifact_id=base_artifact_id,
+            target_revision=1,
+            key="rb",
         )
-        assert draft.status_code == 201, draft.text
-        rollback_artifact_id = draft.json()["artifact"]["artifact_id"]
-        approval_id = f"approval:rollback_request:{rollback_artifact_id}"
         item = harness.load_item(approval_id)
         assert item is not None and item.status == "draft"
 
+        # :validate → the real rollback ports pass → passed EvidenceSet → validated.
         validate = maker.client.post(
-            f"/api/v1/rollback-requests/{rollback_artifact_id}:validate",
-            json={
-                "request_schema_version": "rollback-validation-admission-request@1",
-                "approval_id": approval_id,
-                "expected_subject_head_revision": item.subject_revision,
-                "expected_workflow_revision": item.workflow_revision,
-                "subject_digest": item.subject_digest,
-                "ref_name": REF_NAME,
-                "expected_current_ref": head_ref,
-                "target_artifact_id": base_artifact_id,
-                "target_history_revision": 1,
-                "rollback_profile": {"profile_id": "builtin.rollback", "version": 1},
-                "schema_compatibility_policy": {
-                    "profile_id": "builtin.schema_compatibility",
-                    "version": 1,
-                },
-                "impact_profiles": [],
-                "regression_suite_artifact_ids": [],
-            },
+            f"/api/v1/rollback-requests/{rollback_id}:validate",
+            json=_rollback_validation_body(
+                item, head_ref=head_ref, target_artifact_id=base_artifact_id, target_revision=1
+            ),
             headers=_headers(maker, idempotency_key="rb:validate"),
         )
         assert validate.status_code == 202, validate.text
         run_id = validate.json()["run_id"]
         assert harness.load_item(approval_id).status == "validating"
-
         terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
-        # The deferred rollback ports fail the attempt → the run reaches a run-final
-        # failure terminal (never a deterministic ``validation_failed`` business pass).
-        assert terminal is not None and terminal.status in {"failed", "timed_out", "cancelled"}, (
+        assert terminal is not None and terminal.status == "succeeded", (
             f"rollback validation terminated as {None if terminal is None else terminal.status!r}"
         )
-        # restore_current_draft@1 reverted the item to draft; validation never completed.
-        reverted = harness.load_item(approval_id)
-        assert reverted.status == "draft", reverted.status
-        assert reverted.active_validation_run_id is None
-        assert reverted.evidence_set_artifact_id is None
+        validated = harness.load_item(approval_id)
+        assert validated.status == "validated", validated.status
+        assert validated.evidence_set_artifact_id is not None
 
-        # With no validated evidence, submit and apply stay BLOCKED and the ref is unmoved.
+        # A submits; B approves; B applies — the ref MOVES BACK to the base at a new revision.
         submit = maker.client.post(
-            f"/api/v1/rollback-requests/{rollback_artifact_id}:submit-for-approval",
+            f"/api/v1/rollback-requests/{rollback_id}:submit-for-approval",
             json={
                 "request_schema_version": "submit-for-approval-request@1",
                 "approval_id": approval_id,
-                "expected_workflow_revision": reverted.workflow_revision,
+                "expected_workflow_revision": validated.workflow_revision,
             },
             headers=_headers(maker, idempotency_key="rb:submit"),
         )
+        assert submit.status_code == 200, submit.text
+        pending = harness.load_item(approval_id)
+        approve = approver.client.post(
+            f"/api/v1/approvals/{approval_id}:approve",
+            json={
+                "request_schema_version": "approval-decision-request@1",
+                "decision": "approve",
+                "requirement_ids": [r.requirement_id for r in pending.requirements],
+                "expected_workflow_revision": pending.workflow_revision,
+                "reason_code": "independent_review_passed",
+            },
+            headers=_headers(approver, idempotency_key="rb:approve"),
+        )
+        assert approve.status_code == 200, approve.text
+        approved = harness.load_item(approval_id)
+        binding = approved.target_binding
+        apply = approver.client.post(
+            f"/api/v1/rollback-requests/{approved.subject_artifact_id}:apply",
+            json={
+                "request_schema_version": "workflow-apply-request@1",
+                "approval_id": approval_id,
+                "expected_workflow_revision": approved.workflow_revision,
+                "subject_digest": approved.subject_digest,
+                "target_artifact_id": binding.target_artifact_id,
+                "target_digest": binding.target_digest,
+                "ref_name": REF_NAME,
+                "expected_ref": binding.expected_ref.model_dump(mode="json"),
+            },
+            headers=_headers(approver, idempotency_key="rb:apply"),
+        )
+        assert apply.status_code == 200, apply.text
+        result = apply.json()
+        # The rollback moved the ref BACK to the base Artifact, at a NEW revision, and
+        # recorded a ref transition (rollback apply, unlike a patch apply, is a transition).
+        assert result["ref_value"]["artifact_id"] == base_artifact_id
+        assert result["ref_value"]["revision"] == 3
+        assert result["ref_transition_id"] is not None
+        assert harness.current_ref() == {"artifact_id": base_artifact_id, "revision": 3}
+        assert harness.ref_history(3)["artifact_id"] == base_artifact_id
+    finally:
+        process.close()
+        api.state.local_resources.close()
+
+
+def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
+    # Fail-closed rollback surface: a rollback drafted against rev 2 whose ref then MOVES
+    # to rev 3 (out from under it) fails the deterministic history dimension at validation
+    # → failed EvidenceSet → validation_failed → submit BLOCKED (409); the ref never moves
+    # back. (Soundness: the real history port confirms the exact current-ref binding; it
+    # never passes a rollback whose base has advanced.)
+    harness = _Harness(tmp_path)
+    base_artifact_id, base_ref = harness.seed_base_snapshot()
+
+    api = _start_api(harness.api_config())
+    process = build_worker_process(harness.worker_config())
+    try:
+        maker = _login(api, MAKER_LOGIN, MAKER_PASSWORD)
+        approver = _login(api, APPROVER_LOGIN, APPROVER_PASSWORD)
+        cycle1 = _run_patch_cycle(
+            harness,
+            process,
+            maker,
+            approver,
+            base_artifact_id=base_artifact_id,
+            expected_ref=base_ref,
+            new_value=80,
+            key="rbf-1",
+        )
+        head_ref = harness.current_ref()
+        assert head_ref["revision"] == 2
+
+        # A drafts a valid rollback to the base (rev 1), binding the current head (rev 2).
+        rollback_id, approval_id = _draft_rollback(
+            maker,
+            head_ref=head_ref,
+            target_artifact_id=base_artifact_id,
+            target_revision=1,
+            key="rbf",
+        )
+        item = harness.load_item(approval_id)
+        assert item.status == "draft"
+
+        # The ref advances to rev 3 (a second, independent patch cycle) — the rollback's
+        # bound base is now stale.
+        _run_patch_cycle(
+            harness,
+            process,
+            maker,
+            approver,
+            base_artifact_id=cycle1.new_ref["artifact_id"],
+            expected_ref=head_ref,
+            new_value=60,
+            old_value=80,
+            key="rbf-2",
+        )
+        assert harness.current_ref()["revision"] == 3
+
+        # Validating the now-stale rollback fails the history dimension (current rev 3 ≠
+        # the bound expected rev 2) → validation_failed.
+        validate = maker.client.post(
+            f"/api/v1/rollback-requests/{rollback_id}:validate",
+            json=_rollback_validation_body(
+                item, head_ref=head_ref, target_artifact_id=base_artifact_id, target_revision=1
+            ),
+            headers=_headers(maker, idempotency_key="rbf:validate"),
+        )
+        assert validate.status_code == 202, validate.text
+        run_id = validate.json()["run_id"]
+        terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
+        assert terminal is not None and terminal.status == "succeeded", (
+            f"rollback validation terminated as {None if terminal is None else terminal.status!r}"
+        )
+        failed = harness.load_item(approval_id)
+        assert failed.status == "validation_failed", failed.status
+
+        submit = maker.client.post(
+            f"/api/v1/rollback-requests/{rollback_id}:submit-for-approval",
+            json={
+                "request_schema_version": "submit-for-approval-request@1",
+                "approval_id": approval_id,
+                "expected_workflow_revision": failed.workflow_revision,
+            },
+            headers=_headers(maker, idempotency_key="rbf:submit"),
+        )
         assert submit.status_code == 409, submit.text
-        assert harness.current_ref() == head_ref
+        assert harness.current_ref()["revision"] == 3
     finally:
         process.close()
         api.state.local_resources.close()

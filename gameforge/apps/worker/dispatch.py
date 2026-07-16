@@ -28,6 +28,7 @@ from gameforge.apps.worker.app import (
 from gameforge.apps.worker.components import (
     WorkerArtifactBlobReader,
     WorkerPreparedArtifactStore,
+    build_rollback_ports,
     build_trusted_components,
 )
 from gameforge.apps.worker.dispatcher import RunDispatcher
@@ -307,7 +308,20 @@ def build_worker_process(
         clock=clock,
     )
     store = WorkerPreparedArtifactStore(object_store, blob_registry)
-    components = build_trusted_components(registry=registry, blobs=blobs, store=store)
+    rollback_history_verifier, rollback_schema_analyzer = build_rollback_ports(
+        engine=engine,
+        object_store=object_store,
+        object_store_id=config.object_store_id,
+        cursor_signing_key=terminal_cursor_key,
+        clock=clock,
+    )
+    components = build_trusted_components(
+        registry=registry,
+        blobs=blobs,
+        store=store,
+        rollback_history_verifier=rollback_history_verifier,
+        rollback_schema_analyzer=rollback_schema_analyzer,
+    )
     runtime = build_worker_runtime(
         config,
         trusted_components=components,

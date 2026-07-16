@@ -489,7 +489,23 @@ class RunCommandService:
         self._bind_capabilities = bind_capabilities
         self._clock = clock
 
-    def create_run(self, request: RunCreateRequest) -> RunCreateResult:
+    def create_run(
+        self,
+        request: RunCreateRequest,
+        *,
+        companion_write: Callable[[Any], None] | None = None,
+    ) -> RunCreateResult:
+        """Create (or idempotently replay) a queued Run.
+
+        ``companion_write`` runs an ADDITIONAL authoritative write inside the SAME
+        UnitOfWork as the Run creation (it receives the bound transaction). The
+        validation-admission composition uses it to CAS the ApprovalItem
+        ``draft->validating`` atomically with the queued Run, so a crash between the
+        two can never leave the Run and the workflow subject inconsistent. It runs on
+        both the create and the idempotent-replay path (a ``:validate`` retry re-drives
+        the CAS, which must be idempotent).
+        """
+
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
             runs = _required(capabilities.runs, "runs")
@@ -505,6 +521,8 @@ class RunCommandService:
                     retained=retained,
                     definition=definition,
                 )
+                if companion_write is not None:
+                    companion_write(transaction)
                 return RunCreateResult(run=retained, replayed=True)
 
             registry = _required(capabilities.registry, "registry")
@@ -619,6 +637,8 @@ class RunCommandService:
                     "Run repository did not retain the exact queued publication"
                 )
             publication.record_run_created(run=run, event=initial_event)
+            if companion_write is not None:
+                companion_write(transaction)
             return RunCreateResult(run=run, replayed=False)
 
     def claim_next(self, request: RunClaimRequest) -> RunClaimResult | None:

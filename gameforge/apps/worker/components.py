@@ -35,6 +35,7 @@ from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.lineage import ObjectLocation, ObjectRef
+from gameforge.contracts.versions import IR_SCHEMA_VERSION
 from gameforge.platform.registry import (
     TrustedComponentMaps,
     build_readiness_component_maps,
@@ -55,7 +56,14 @@ from gameforge.platform.run_handlers.base import ArtifactBlobReader, PreparedArt
 from gameforge.platform.run_handlers.constraint_validation import ConstraintValidationHandler
 from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
 from gameforge.platform.run_handlers.review import ReviewSimConfig
-from gameforge.platform.run_handlers.rollback_validation import RollbackValidationHandler
+from gameforge.platform.run_handlers.rollback_validation import (
+    DimensionCheckV1,
+    RollbackHistoryRequest,
+    RollbackSchemaRequest,
+    RollbackTargetInspectionV1,
+    RollbackValidationHandler,
+)
+from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.contracts.storage import UtcClock
 from gameforge.platform.publication.effects import WORKFLOW_EFFECTS
 from gameforge.runtime.object_store import LocalObjectStore
@@ -206,11 +214,153 @@ class _DeferredGamePort:
         self._fail()
 
 
+# ── real deterministic rollback ports (platform-generic ref/artifact reads) ──────
+class _SqlRollbackHistoryVerifier:
+    """Deterministic ``RollbackHistoryVerifier`` over the authoritative ref store.
+
+    A rollback's history dimension is a platform-generic, deterministic ref lookup — no
+    game algorithm: the current ref must equal the exact expected head, and the target
+    Artifact must be the exact member at the claimed history revision. Implemented as a
+    real port (not a deferred stub) so a rollback to a valid prior revision genuinely
+    passes; a mismatch fails closed (never a spurious pass).
+    """
+
+    def __init__(self, *, engine: Engine, cursor_signing_key: bytes, clock: UtcClock) -> None:
+        self._engine = engine
+        self._cursor_signing_key = cursor_signing_key
+        self._clock = clock
+
+    def verify(self, request: RollbackHistoryRequest) -> DimensionCheckV1:
+        with Session(self._engine) as session:
+            refs = SqlRefStore(
+                session,
+                cursor_signer=CursorSigner(signing_key=self._cursor_signing_key, clock=self._clock),
+                clock=self._clock,
+            )
+            current = refs.get(request.ref_name)
+            if current is None:
+                return DimensionCheckV1(status="failed", reason_code="rollback_ref_absent")
+            if (
+                current.artifact_id != request.expected_current_ref_artifact_id
+                or current.revision != request.expected_current_ref_revision
+            ):
+                return DimensionCheckV1(
+                    status="failed", reason_code="rollback_current_ref_mismatch"
+                )
+            history = refs.get_history_entry(request.ref_name, request.target_history_revision)
+            if history is None or history.artifact_id != request.target_artifact_id:
+                return DimensionCheckV1(
+                    status="failed", reason_code="rollback_target_not_in_history"
+                )
+            return DimensionCheckV1(
+                status="passed",
+                detail={
+                    "ref_name": request.ref_name,
+                    "target_history_revision": request.target_history_revision,
+                    "target_artifact_id": request.target_artifact_id,
+                },
+            )
+
+
+class _SqlRollbackSchemaAnalyzer:
+    """Deterministic ``RollbackSchemaAnalyzer``: target inspection + same-schema compat.
+
+    Target inspection (kind / snapshot id / digest) is a plain committed-Artifact read.
+    The schema-compatibility verdict is deliberately conservative: restoring a
+    previously-published ``ir_snapshot`` whose declared payload schema is the CURRENT IR
+    schema is a compatible rollback (``passed``); anything whose forward-compatibility
+    cannot be proven here is ``unproven`` (never a fabricated pass). Cross-schema /
+    migration-shaped compatibility remains a deferred game-shaped follow-up.
+    """
+
+    def __init__(
+        self,
+        *,
+        engine: Engine,
+        object_store: LocalObjectStore,
+        object_store_id: str,
+        cursor_signing_key: bytes,
+        clock: UtcClock,
+    ) -> None:
+        self._engine = engine
+        self._object_store = object_store
+        self._object_store_id = object_store_id
+        self._cursor_signing_key = cursor_signing_key
+        self._clock = clock
+
+    def analyze(self, request: RollbackSchemaRequest) -> RollbackTargetInspectionV1:
+        with Session(self._engine) as session:
+            bindings = SqlObjectBindingRepository(
+                session, self._object_store, self._object_store_id
+            )
+            artifacts = SqlArtifactRepository(
+                session,
+                binding_repository=bindings,
+                cursor_signer=CursorSigner(signing_key=self._cursor_signing_key, clock=self._clock),
+                clock=self._clock,
+            )
+            target = artifacts.get(request.target_artifact_id)
+            if target is None:
+                return RollbackTargetInspectionV1(
+                    status="failed",
+                    target_artifact_kind="ir_snapshot",
+                    target_digest="0" * 64,
+                    reason_code="rollback_target_unreadable",
+                )
+            kind = target.kind
+            declared_schema = (getattr(target, "meta", {}) or {}).get("payload_schema_id")
+            snapshot_id = None
+            if kind == "ir_snapshot":
+                snapshot_id = target.version_tuple.ir_snapshot_id
+            elif kind == "constraint_snapshot":
+                snapshot_id = target.version_tuple.constraint_snapshot_id
+            if kind == "ir_snapshot" and declared_schema == IR_SCHEMA_VERSION:
+                return RollbackTargetInspectionV1(
+                    status="passed",
+                    target_artifact_kind=kind,
+                    target_digest=target.payload_hash,
+                    target_snapshot_id=snapshot_id,
+                )
+            return RollbackTargetInspectionV1(
+                status="unproven",
+                target_artifact_kind=kind,
+                target_digest=target.payload_hash,
+                target_snapshot_id=snapshot_id,
+                reason_code="rollback_schema_compat_unproven",
+            )
+
+
+def build_rollback_ports(
+    *,
+    engine: Engine,
+    object_store: LocalObjectStore,
+    object_store_id: str,
+    cursor_signing_key: bytes,
+    clock: UtcClock,
+) -> tuple[_SqlRollbackHistoryVerifier, _SqlRollbackSchemaAnalyzer]:
+    """The real deterministic rollback history + schema ports for the worker."""
+
+    return (
+        _SqlRollbackHistoryVerifier(
+            engine=engine, cursor_signing_key=cursor_signing_key, clock=clock
+        ),
+        _SqlRollbackSchemaAnalyzer(
+            engine=engine,
+            object_store=object_store,
+            object_store_id=object_store_id,
+            cursor_signing_key=cursor_signing_key,
+            clock=clock,
+        ),
+    )
+
+
 def _build_executor_handlers(
     *,
     registry: ImmutablePlatformRegistry,
     blobs: ArtifactBlobReader,
     store: PreparedArtifactStore,
+    rollback_history_verifier: object | None = None,
+    rollback_schema_analyzer: object | None = None,
 ) -> dict[str, object]:
     """Instantiate the 12 real handlers + the 2 Task-14 deferred executors."""
 
@@ -222,6 +372,11 @@ def _build_executor_handlers(
     supported_profiles = _playtest_supported_profiles(registry)
     bench_port = _DeferredGamePort("bench")
     rollback_port = _DeferredGamePort("rollback")
+    # The rollback history + schema ports are real deterministic platform reads when the
+    # composition supplies them; the impact analyzer stays deferred (the happy path never
+    # invokes it — it passes no impact profiles).
+    history_verifier = rollback_history_verifier or rollback_port
+    schema_analyzer = rollback_schema_analyzer or rollback_port
 
     handlers: dict[str, object] = {
         "checker_runner@1": CheckerRunHandler(
@@ -284,8 +439,8 @@ def _build_executor_handlers(
         "rollback_validator@1": RollbackValidationHandler(
             blobs=blobs,
             store=store,
-            history_verifier=rollback_port,
-            schema_analyzer=rollback_port,
+            history_verifier=history_verifier,
+            schema_analyzer=schema_analyzer,
             impact_analyzer=rollback_port,
         ),
     }
@@ -309,6 +464,8 @@ def build_trusted_components(
     registry: ImmutablePlatformRegistry,
     blobs: ArtifactBlobReader,
     store: PreparedArtifactStore,
+    rollback_history_verifier: object | None = None,
+    rollback_schema_analyzer: object | None = None,
 ) -> TrustedComponentMaps:
     """Build the single canonical ``TrustedComponentMaps`` closing all 6 maps exactly.
 
@@ -318,11 +475,18 @@ def build_trusted_components(
     Runs, so it replaces the key-only sentinels with the REAL executor + completion-oracle
     instances and binds each ``workflow_effect_key`` to its ``effects.py`` handler where
     one is registered (a documented deferred marker otherwise — effects.py's resolver
-    stays the fail-closed authority for the mutating keys).
+    stays the fail-closed authority for the mutating keys). When the composition supplies
+    the deterministic rollback history/schema ports they back ``rollback_validator@1``.
     """
 
     base = build_readiness_component_maps(registry)
-    executors = _build_executor_handlers(registry=registry, blobs=blobs, store=store)
+    executors = _build_executor_handlers(
+        registry=registry,
+        blobs=blobs,
+        store=store,
+        rollback_history_verifier=rollback_history_verifier,
+        rollback_schema_analyzer=rollback_schema_analyzer,
+    )
     workflow_effects = {key: WORKFLOW_EFFECTS.get(key, key) for key in base.workflow_effects}
     return TrustedComponentMaps(
         executors=executors,
@@ -337,5 +501,6 @@ def build_trusted_components(
 __all__ = [
     "WorkerArtifactBlobReader",
     "WorkerPreparedArtifactStore",
+    "build_rollback_ports",
     "build_trusted_components",
 ]
