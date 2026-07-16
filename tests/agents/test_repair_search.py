@@ -8,8 +8,10 @@ the loop actually re-drafts against verifier feedback. Aureus regression is off
 here to keep the unit hermetic (no world build); the checker oracle still fully
 decides pass/fail.
 """
+
 import json
 
+from gameforge.agents.repair.drafter import build_repair_user_prompt
 from gameforge.agents.repair.search import repair_search
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import Finding
@@ -48,18 +50,32 @@ class _SequenceTransport:
 
 
 def _ops(new_value: int) -> str:
-    return json.dumps([
-        {"op": "set_entity_attr", "op_id": "o1", "target": "quest:q1.reward_gold",
-         "old_value": 120, "new_value": new_value},
-    ])
+    return json.dumps(
+        [
+            {
+                "op": "set_entity_attr",
+                "op_id": "o1",
+                "target": "quest:q1.reward_gold",
+                "old_value": 120,
+                "new_value": new_value,
+            },
+        ]
+    )
 
 
 def _finding() -> Finding:
     return Finding(
-        id="F-reward", source="checker", producer_id="smt", producer_run_id="r1",
-        oracle_type="deterministic", defect_class="reward_out_of_range",
-        severity="major", snapshot_id="snap1", entities=["quest:q1"],
-        status="confirmed", message="quest:q1 reward_gold exceeds cap",
+        id="F-reward",
+        source="checker",
+        producer_id="smt",
+        producer_run_id="r1",
+        oracle_type="deterministic",
+        defect_class="reward_out_of_range",
+        severity="major",
+        snapshot_id="snap1",
+        entities=["quest:q1"],
+        status="confirmed",
+        message="quest:q1 reward_gold exceeds cap",
     )
 
 
@@ -68,14 +84,23 @@ def test_repair_search_converges_after_one_refine(tmp_path):
     snapshot = Snapshot.from_entities_relations([quest], [])
     checkers = compile_all(Constraint.from_yaml(_CONSTRAINTS_YAML))
 
-    transport = _SequenceTransport([
-        ModelResponse(response_normalized=_ops(200)),  # BAD: still > 80
-        ModelResponse(response_normalized=_ops(50)),   # GOOD: within the cap
-    ])
+    transport = _SequenceTransport(
+        [
+            ModelResponse(response_normalized=_ops(200)),  # BAD: still > 80
+            ModelResponse(response_normalized=_ops(50)),  # GOOD: within the cap
+        ]
+    )
     router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+    prompt_contexts = []
 
     draft = repair_search(
-        _finding(), snapshot, checkers, router, max_steps=4, run_regression=False
+        _finding(),
+        snapshot,
+        checkers,
+        router,
+        max_steps=4,
+        run_regression=False,
+        prompt_context_hook=prompt_contexts.append,
     )
 
     assert draft.passed_verification is True
@@ -83,6 +108,23 @@ def test_repair_search_converges_after_one_refine(tmp_path):
     assert len(transport.calls) == 2  # the refine round really re-called the model
     assert draft.patch.produced_by == "agent"
     assert draft.patch.expected_to_fix == ["F-reward"]
+    assert [context.phase for context in prompt_contexts] == ["initial", "refine"]
+    assert prompt_contexts[0].counterexample is None
+    assert prompt_contexts[0].previous_patch is None
+    assert prompt_contexts[1].previous_patch is not None
+    assert prompt_contexts[1].previous_verdict is not None
+    assert "not genuinely resolved" in prompt_contexts[1].counterexample
+    assert [call.messages[-1].content for call in transport.calls] == [
+        context.user_prompt for context in prompt_contexts
+    ]
+    assert [context.user_prompt for context in prompt_contexts] == [
+        build_repair_user_prompt(
+            context.finding,
+            context.snapshot,
+            counterexample=context.counterexample,
+        )
+        for context in prompt_contexts
+    ]
 
 
 def test_repair_search_exhausts_when_never_resolved(tmp_path):
@@ -94,9 +136,7 @@ def test_repair_search_exhausts_when_never_resolved(tmp_path):
     transport = _SequenceTransport([ModelResponse(response_normalized=_ops(300))])
     router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
 
-    draft = repair_search(
-        _finding(), snapshot, checkers, router, max_steps=3, run_regression=False
-    )
+    draft = repair_search(_finding(), snapshot, checkers, router, max_steps=3, run_regression=False)
 
     assert draft.passed_verification is False
     assert draft.search_steps == 3

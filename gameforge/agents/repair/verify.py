@@ -148,9 +148,7 @@ def _target_entities_in_base(report, target_defect_class: str) -> set[str]:
     return {
         e
         for f in (
-            report.deterministic_findings
-            + report.simulation_findings
-            + report.unproven_findings
+            report.deterministic_findings + report.simulation_findings + report.unproven_findings
         )
         if f.defect_class == target_defect_class
         for e in f.entities
@@ -164,11 +162,16 @@ def verify_patch(
     target_defect_class: str,
     *,
     run_regression: bool = True,
+    run_economy: bool = True,
 ) -> VerifyResult:
-    # Economy sim runs ONCE per snapshot; its findings feed BOTH target
-    # resolution (Hole A) and the new-collapse regression check.
-    base_sim_findings, _ = _economy_findings(base_snapshot)
-    patched_sim_findings, economy_ran = _economy_findings(patched_snapshot)
+    # M2 callers use the frozen local economy budget by default. M4 callers can
+    # disable it when simulation authority comes from exact admitted profiles;
+    # those profiles are executed and evidenced by the outer handler instead.
+    if run_economy:
+        base_sim_findings, _ = _economy_findings(base_snapshot)
+        patched_sim_findings, economy_ran = _economy_findings(patched_snapshot)
+    else:
+        base_sim_findings, patched_sim_findings, economy_ran = [], [], False
 
     base_report = build_review_report(
         base_snapshot, checkers, sim_findings=tuple(base_sim_findings)
@@ -201,8 +204,7 @@ def verify_patch(
 
     base_keys = {_det_key(f) for f in base_report.deterministic_findings}
     new_deterministic = [
-        f for f in patched_report.deterministic_findings
-        if _det_key(f) not in base_keys
+        f for f in patched_report.deterministic_findings if _det_key(f) not in base_keys
     ]
 
     regression_ok = True

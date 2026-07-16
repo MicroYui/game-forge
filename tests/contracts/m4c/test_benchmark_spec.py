@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from gameforge.contracts.benchmark import (
+    BenchmarkAggregateInputBindingV1,
     BenchmarkCaseExecutionV1,
     BenchmarkDatasetBindingV1,
     BenchmarkEvaluatorPolicyRefV1,
@@ -146,4 +147,29 @@ def test_benchmark_spec_rejects_sampling_beyond_any_partition() -> None:
     }
 
     with pytest.raises(ValidationError, match="sample size exceeds"):
+        BenchmarkSpecV1.model_validate(values)
+
+
+def test_aggregate_product_limit_is_checked_before_coverage_expansion() -> None:
+    values = _spec(
+        _partition(
+            "cases",
+            ("case:1", "deterministic"),
+            ("case:2", "deterministic"),
+        )
+    ).model_dump(mode="python")
+    values["aggregate_repetition_count"] = 100_000
+    values["aggregate_inputs"] = [
+        BenchmarkAggregateInputBindingV1(
+            case_id="case:1",
+            replication_index=0,
+            artifact_id="artifact:result",
+            payload_hash="c" * 64,
+            payload_size_bytes=1,
+            artifact_kind="checker_run",
+            payload_schema_id="checker-report@1",
+        ).model_dump(mode="python")
+    ]
+
+    with pytest.raises(ValidationError, match="cover every case replication"):
         BenchmarkSpecV1.model_validate(values)

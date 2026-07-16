@@ -7,16 +7,24 @@ from typing import cast
 
 import pytest
 
+import gameforge.platform.publication.payload_schema as payload_schema_mod
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import Finding, PatchV2
 from gameforge.contracts.ir import Entity, NodeType
+from gameforge.contracts.jobs import (
+    AgentPromptArtifactBindingV1,
+    AgentPromptContextV1,
+    AgentPromptSourceMessageV1,
+    MAX_AGENT_PROMPT_CONTEXT_BYTES,
+)
 from gameforge.contracts.versions import DSL_GRAMMAR_VERSION
 from gameforge.platform.publication.payload_schema import (
     ARTIFACT_PAYLOAD_VALIDATORS,
     UNAVAILABLE_ARTIFACT_PAYLOAD_SCHEMAS,
+    decode_and_validate_artifact_payload,
     validate_artifact_payload,
 )
 from gameforge.platform.registry.defaults import ARTIFACT_PAYLOAD_SCHEMAS
@@ -52,7 +60,6 @@ def test_registry_covers_every_declared_schema_without_wildcards() -> None:
     assert set(ARTIFACT_PAYLOAD_VALIDATORS) == declared
     assert set(UNAVAILABLE_ARTIFACT_PAYLOAD_SCHEMAS) == {
         "backup-object-manifest@1",
-        "bench-dataset@1",
         "bench-report@2",
         "cassette-bundle@1",
         "cassette-record-shard@1",
@@ -80,14 +87,95 @@ def test_every_available_schema_rejects_an_empty_worker_mapping(schema_id: str) 
         validate_artifact_payload(payload_schema_id=schema_id, payload={})
 
 
+def test_agent_prompt_context_has_its_exact_128_mib_schema_envelope() -> None:
+    context = AgentPromptContextV1(
+        context_kind="constraint_extraction",
+        run_id="run:1",
+        attempt_no=1,
+        target_call_ordinal=1,
+        agent_node_id="extraction",
+        prompt_version="extraction@1",
+        messages=(
+            AgentPromptSourceMessageV1(
+                role="user",
+                content="\x00" * (16 * 1024 * 1024),
+                purpose="context",
+            ),
+        ),
+        upstream_artifacts=(
+            AgentPromptArtifactBindingV1(
+                binding_key="source:0001",
+                artifact_id="artifact:source",
+                artifact_kind="source_raw",
+                payload_schema_id="source-raw@1",
+                payload_hash="a" * 64,
+            ),
+        ),
+    )
+    payload = json.loads(canonical_json(context.model_dump(mode="json")))
+    blob = canonical_json(payload).encode("utf-8")
+    assert len(blob) > payload_schema_mod.MAX_PAYLOAD_JSON_BYTES
+    assert len(blob) <= MAX_AGENT_PROMPT_CONTEXT_BYTES
+
+    assert (
+        validate_artifact_payload(
+            payload_schema_id="agent-prompt-context@1",
+            payload=payload,
+        )
+        == payload
+    )
+    assert (
+        decode_and_validate_artifact_payload(
+            payload_schema_id="agent-prompt-context@1",
+            blob=blob,
+        )
+        == payload
+    )
+    assert (
+        payload_schema_mod.encode_validated_artifact_payload(
+            payload_schema_id="agent-prompt-context@1",
+            payload=payload,
+        )
+        == blob
+    )
+    with pytest.raises(IntegrityViolation, match="publication byte bound"):
+        validate_artifact_payload(
+            payload_schema_id="checker-report@1",
+            payload={
+                "payload_schema_version": "checker-report@1",
+                "oversized": context.messages[0].content,
+            },
+        )
+
+
+def test_payload_depth_is_rejected_before_canonical_serialization(monkeypatch) -> None:
+    payload: dict[str, object] = {}
+    cursor = payload
+    for _ in range(payload_schema_mod.MAX_PAYLOAD_JSON_DEPTH + 1):
+        child: dict[str, object] = {}
+        cursor["child"] = child
+        cursor = child
+
+    monkeypatch.setattr(
+        payload_schema_mod,
+        "canonical_json",
+        lambda _value: (_ for _ in ()).throw(
+            AssertionError("deep payload must be rejected before canonicalization")
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="depth bound"):
+        validate_artifact_payload(payload_schema_id="checker-report@1", payload=payload)
+
+
 def test_unknown_and_non_terminal_schemas_fail_closed() -> None:
     with pytest.raises(IntegrityViolation, match="not registered"):
         validate_artifact_payload(payload_schema_id="checker-report@future", payload={})
 
     with pytest.raises(IntegrityViolation, match="not valid on the terminal domain"):
         validate_artifact_payload(
-            payload_schema_id="bench-dataset@1",
-            payload={"payload_schema_version": "bench-dataset@1", "cases": []},
+            payload_schema_id="bench-report@2",
+            payload={"payload_schema_version": "bench-report@2"},
         )
 
 
@@ -104,6 +192,41 @@ def test_checker_report_returns_a_canonical_typed_mapping() -> None:
         payload=payload,
     )
     assert parsed == payload
+
+
+def test_simulation_execution_binding_is_an_exact_closed_wire_shape() -> None:
+    payload = _wire(
+        {
+            "payload_schema_version": "simulation-result@1",
+            "snapshot_id": "snapshot:1",
+            "seed": 7,
+            "replication_count": 2,
+            "horizon_steps": 4,
+            "invariants": [],
+            "sensitivity": {
+                "execution_binding": {
+                    "simulation_profile": {"profile_id": "simulation", "version": 1},
+                    "workload_profile": {"profile_id": "workload", "version": 1},
+                    "constraint_ids": [],
+                    "constraint_application": {"status": "not_applicable"},
+                    "scenario_application": {"status": "not_applicable"},
+                }
+            },
+            "findings": [],
+        }
+    )
+    assert (
+        validate_artifact_payload(payload_schema_id="simulation-result@1", payload=payload)
+        == payload
+    )
+
+    sensitivity = payload["sensitivity"]
+    assert isinstance(sensitivity, dict)
+    execution = sensitivity["execution_binding"]
+    assert isinstance(execution, dict)
+    execution["worker_claim"] = "trusted"
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(payload_schema_id="simulation-result@1", payload=payload)
 
 
 @pytest.mark.parametrize(

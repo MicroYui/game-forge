@@ -131,6 +131,11 @@ def _model_request(snapshot: ModelSnapshot) -> ModelRequestV2:
     )
 
 
+def test_routing_rule_rejects_more_than_three_fallback_routes() -> None:
+    with pytest.raises(ValueError, match="at most 3"):
+        _rule(fallbacks=(MODEL_B, MODEL_C, "model:third", "model:fourth"))
+
+
 class _Decisions:
     def __init__(self) -> None:
         self.items = []

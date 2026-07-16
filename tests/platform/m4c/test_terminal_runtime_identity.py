@@ -17,6 +17,9 @@ from gameforge.contracts.cost import (
 )
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
+    AgentPromptArtifactBindingV1,
+    AgentPromptContextV1,
+    AgentPromptSourceMessageV1,
     ExecutionVersionPlanV1,
     PlannedAgentNodeVersionV1,
     RunAttempt,
@@ -24,6 +27,7 @@ from gameforge.contracts.jobs import (
     RunModelResponseConsumptionV1,
     RunModelRouteLinkV1,
     RunPayloadEnvelope,
+    RunToolIntermediateLinkV1,
     canonical_payload_hash,
     execution_version_plan_digest,
 )
@@ -34,6 +38,7 @@ from gameforge.contracts.lineage import (
     build_execution_identity,
 )
 from gameforge.contracts.model_router import Message, ModelRequestV2, ModelSnapshot, request_hash
+from gameforge.contracts.provenance import OriginRefV1, ProvenanceV1
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
 from gameforge.platform.publication import TerminalPublisher, build_publication_plan
 from gameforge.platform.runs.lifecycle import select_outcome_policy
@@ -101,6 +106,7 @@ class _RuntimeArtifacts(_Artifacts):
 @dataclass
 class _RuntimeLedger:
     prompts: tuple[RunIntermediateArtifactLinkV1, ...] = ()
+    tool_intermediates: tuple[object, ...] = ()
     attempt_identity: object | None = None
     run_identity: object | None = None
     shards: tuple[tuple[int, int, str], ...] = ()
@@ -122,6 +128,12 @@ class _RuntimeLedger:
         if attempt_no is None:
             return self.prompts
         return tuple(link for link in self.prompts if link.attempt_no == attempt_no)
+
+    def tool_intermediate_links(self, run_id: str, *, attempt_no: int | None):
+        assert run_id == "run:1"
+        if attempt_no is None:
+            return self.tool_intermediates
+        return tuple(link for link in self.tool_intermediates if link.attempt_no == attempt_no)
 
     def closed_attempt_failures(self, run_id: str):
         assert run_id == "run:1"
@@ -1277,6 +1289,160 @@ def test_four_modes_publish_exact_identity_transition_and_replayability(mode, re
     else:
         assert manifest.version_tuple.prompt_version is None
         assert manifest.version_tuple.agent_graph_version is None
+
+
+def _terminal_prompt_context_fixture(
+    *,
+    content: str,
+    context_kind: str = "generation",
+):
+    registry, definition = _registry_and_definition()
+    blobs = _Blobs()
+    artifacts = _RuntimeArtifacts(blobs)
+    upstream_payload = b"exact generation source"
+    upstream_ref = blobs.register(upstream_payload)
+    upstream = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(doc_version="doc@1"),
+        lineage=(),
+        payload_hash=upstream_ref.sha256,
+        object_ref=upstream_ref,
+        meta={"payload_schema_id": "ir-core@1"},
+        created_at=NOW,
+    )
+    artifacts.add(upstream)
+
+    node = PlannedAgentNodeVersionV1(
+        agent_node_id="generation",
+        prompt_version=PROMPT,
+        tool_version=TOOL,
+        allowed_model_snapshots=(MODEL,),
+    )
+    plan_body = {
+        "agent_graph_version": GRAPH,
+        "nodes": (node,),
+        "model_catalog_version": 1,
+        "model_catalog_digest": "a" * 64,
+        "routing_policy_version": 1,
+        "routing_policy_digest": "b" * 64,
+    }
+    plan = ExecutionVersionPlanV1(
+        **plan_body,
+        plan_digest=execution_version_plan_digest(plan_body),
+    )
+    run = _mode_run(definition, mode="live")
+    payload = run.payload.model_copy(
+        update={
+            "input_artifact_ids": (upstream.artifact_id,),
+            "execution_version_plan": plan,
+            "version_tuple": run.payload.version_tuple.model_copy(update={"doc_version": "doc@1"}),
+        }
+    )
+    run = run.model_copy(
+        update={"payload": payload, "payload_hash": canonical_payload_hash(payload)}
+    )
+    valid = AgentPromptContextV1(
+        context_kind="generation",
+        run_id=run.run_id,
+        attempt_no=1,
+        target_call_ordinal=1,
+        agent_node_id="generation",
+        prompt_version=PROMPT,
+        messages=(
+            AgentPromptSourceMessageV1(
+                role="user",
+                content=content,
+                purpose="context",
+            ),
+        ),
+        upstream_artifacts=(
+            AgentPromptArtifactBindingV1(
+                binding_key="source:0001",
+                artifact_id=upstream.artifact_id,
+                artifact_kind=upstream.kind,
+                payload_schema_id="ir-core@1",
+                payload_hash=upstream.payload_hash,
+            ),
+        ),
+    )
+    context_wire = valid.model_dump(mode="json")
+    context_wire["context_kind"] = context_kind
+    context_payload = canonical_json(context_wire).encode("utf-8")
+    context_ref = blobs.register(context_payload)
+    provenance = ProvenanceV1(
+        source_kind_registry_version=1,
+        source_kind_id="tool_output",
+        origin_ref=OriginRefV1(
+            opaque_source_id="agent-context:run:1:1",
+            source_revision=context_ref.sha256,
+        ),
+        parent_source_artifact_ids=(upstream.artifact_id,),
+        connector_id="agent-prompt-context@1",
+        connector_version="1",
+        trust="untrusted_external",
+        source_hash=context_ref.sha256,
+    )
+    context_artifact = build_artifact_v2(
+        kind="source_raw",
+        version_tuple=VersionTuple(
+            doc_version="doc@1",
+            tool_version="agent-prompt-context@1",
+        ),
+        lineage=(upstream.artifact_id,),
+        payload_hash=context_ref.sha256,
+        object_ref=context_ref,
+        meta={
+            "payload_schema_id": "agent-prompt-context@1",
+            "provenance": provenance.model_dump(mode="json"),
+            "producer_run_id": run.run_id,
+            "producer_attempt_no": 1,
+            "target_call_ordinal": 1,
+            "agent_node_id": "generation",
+            "prompt_version": PROMPT,
+            "replayability": "online_only",
+        },
+        created_at=NOW,
+    )
+    artifacts.add(context_artifact)
+    link = RunToolIntermediateLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        target_call_ordinal=1,
+        artifact_id=context_artifact.artifact_id,
+        agent_node_id="generation",
+        prompt_version=PROMPT,
+        payload_hash=context_ref.sha256,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    terminal = TerminalPublisher(
+        registry=registry,
+        artifacts=artifacts,
+        blobs=blobs,
+        findings=_Findings(),
+        ledger=_RuntimeLedger(attempts={1: _attempt()}),
+        audit=_Audit(),
+    )
+    return terminal, run, link, len(context_payload)
+
+
+def test_terminal_context_reread_rejects_context_kind_tamper() -> None:
+    terminal, run, link, _ = _terminal_prompt_context_fixture(
+        content="Generate from the exact source.",
+        context_kind="review_triage",
+    )
+
+    with pytest.raises(IntegrityViolation, match="prompt-context payload is invalid"):
+        terminal._validate_tool_context_parent(run=run, link=link)
+
+
+def test_terminal_context_reread_accepts_escape_heavy_context_above_96_mib() -> None:
+    terminal, run, link, payload_size = _terminal_prompt_context_fixture(
+        content="\x00" * (16 * 1024 * 1024),
+    )
+    assert payload_size > 96 * 1024 * 1024
+
+    terminal._validate_tool_context_parent(run=run, link=link)
 
 
 def test_first_actual_route_is_one_when_policy_selection_skips_candidates():

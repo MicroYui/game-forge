@@ -45,6 +45,7 @@ from gameforge.platform.lineage.validation import (
 SnapshotDerivation = Literal["none", "ir_content", "constraint_candidate"]
 IdentityPolicy = Literal["forbidden", "required_for_llm_mode"]
 ToolSource = Literal["fixed", "migration_profile"]
+SeedSource = Literal["run_root", "fixed"]
 
 
 @dataclass(frozen=True, order=True, slots=True)
@@ -67,6 +68,8 @@ class DomainProducerRuleFacts:
     key: DomainProducerRuleKey
     tool_source: ToolSource
     fixed_tool_version: str | None = None
+    seed_source: SeedSource = "run_root"
+    fixed_seed: int | None = None
     snapshot_derivation: SnapshotDerivation = "none"
     identity_policy: IdentityPolicy = "forbidden"
     operational_observation: bool = False
@@ -77,6 +80,11 @@ class DomainProducerRuleFacts:
                 raise ValueError("fixed producer tool source requires a version")
         elif self.fixed_tool_version is not None:
             raise ValueError("profile-derived producer tool forbids a fixed version")
+        if self.seed_source == "fixed":
+            if isinstance(self.fixed_seed, bool) or not isinstance(self.fixed_seed, int):
+                raise ValueError("fixed producer seed requires an integer value")
+        elif self.fixed_seed is not None:
+            raise ValueError("Run-root producer seed forbids a fixed value")
 
 
 @dataclass(frozen=True, slots=True)
@@ -149,6 +157,7 @@ def _fixed(
     schema: str,
     tool: str,
     *,
+    fixed_seed: int | None = None,
     snapshot: SnapshotDerivation = "none",
     identity: IdentityPolicy = "forbidden",
     operational: bool = False,
@@ -158,6 +167,8 @@ def _fixed(
             key=_key(run_kind, policy, rule_id, artifact_kind, schema),
             tool_source="fixed",
             fixed_tool_version=tool,
+            seed_source="fixed" if fixed_seed is not None else "run_root",
+            fixed_seed=fixed_seed,
             snapshot_derivation=snapshot,
             identity_policy=identity,
             operational_observation=operational,
@@ -222,21 +233,34 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "config-export-package@1",
         "config-export@1",
     ),
-    *(
-        facts
-        for rule_id, kind, schema in (
-            ("checker", "checker_run", "checker-report@1"),
-            ("simulation", "simulation_run", "simulation-result@1"),
-            ("review", "review_report", "review@1"),
-        )
-        for facts in _fixed(
-            "generation.propose",
-            _GENERATION_POLICIES,
-            rule_id,
-            kind,
-            schema,
-            "generation-gate@1",
-        )
+    *_fixed(
+        "generation.propose",
+        _GENERATION_POLICIES,
+        "checker",
+        "checker_run",
+        "checker-report@1",
+        "generation-gate@1",
+    ),
+    # generation.propose forbids a Run root seed, while its deterministic gate
+    # executes the economy simulator with the frozen tool-local seed 0.  Keep
+    # that seed as producer authority instead of trusting a worker payload or
+    # projecting the enclosing (necessarily null) Run seed.
+    *_fixed(
+        "generation.propose",
+        _GENERATION_POLICIES,
+        "simulation",
+        "simulation_run",
+        "simulation-result@1",
+        "generation-gate@1",
+        fixed_seed=0,
+    ),
+    *_fixed(
+        "generation.propose",
+        _GENERATION_POLICIES,
+        "review",
+        "review_report",
+        "review@1",
+        "generation-gate@1",
     ),
     # Repair proposal and deterministic verifier.
     *_fixed(
@@ -579,7 +603,9 @@ class DomainProducerFactsResolver:
             field: None for field in VersionTuple.model_fields
         }
         producer_values["tool_version"] = self._tool_version(facts, run)
-        producer_values["seed"] = run.payload.seed
+        producer_values["seed"] = (
+            facts.fixed_seed if facts.seed_source == "fixed" else run.payload.seed
+        )
         if producer_env_contract_version is not None and (
             rule.artifact_kind != "config_export" or payload_schema_id != "config-export-package@1"
         ):

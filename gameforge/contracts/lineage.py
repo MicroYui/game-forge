@@ -35,6 +35,7 @@ from gameforge.contracts.versions import (
 
 LowerHexSha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
+MAX_RUNTIME_AUTHORITY_BINDINGS = 32_768
 
 ArtifactKind = Literal[
     "source_raw",
@@ -261,7 +262,9 @@ class ExecutionIdentityV1(_StrictModel):
     identity_schema_version: Literal["execution-identity@1"] = EXECUTION_IDENTITY_SCHEMA_VERSION
     scope: Literal["record_shard", "attempt", "run", "artifact"]
     agent_graph_version: str | None = None
-    bindings: tuple[InvocationVersionBindingV1, ...]
+    bindings: tuple[InvocationVersionBindingV1, ...] = Field(
+        max_length=MAX_RUNTIME_AUTHORITY_BINDINGS
+    )
     prompt_projection: VersionSetProjectionV1
     model_projection: VersionSetProjectionV1
     digest: LowerHexSha256
@@ -388,7 +391,7 @@ class ArtifactV2(_StrictModel):
     lineage_schema_version: Literal["lineage@2"] = LINEAGE_SCHEMA_VERSION_V2
     kind: ArtifactKind
     version_tuple: VersionTuple
-    lineage: tuple[NonEmptyStr, ...]
+    lineage: tuple[NonEmptyStr, ...] = Field(max_length=MAX_RUNTIME_AUTHORITY_BINDINGS)
     payload_hash: LowerHexSha256
     object_ref: ObjectRef
     created_at: str | None = None

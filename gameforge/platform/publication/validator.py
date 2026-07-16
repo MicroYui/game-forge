@@ -602,7 +602,7 @@ def validate_runtime_parents(
     manifest_scope: str,
     llm_execution_mode: str,
     parents: Sequence[ProjectedRuntimeParent],
-    committed_link_counts: Mapping[str, int],
+    committed_link_counts: Mapping[object, int],
     execution_identity_counts: Mapping[str, int] | None = None,
 ) -> None:
     """Cross-check the projected runtime parents against ``runtime-parents@1``.
@@ -610,7 +610,7 @@ def validate_runtime_parents(
     Every projected parent must be claimed by exactly one in-scope rule; a parent
     whose rule is disabled in the current execution mode is fail-closed.  Each
     rule's observed count must equal the exact count its ``count_binding`` derives
-    (``IntermediateCountBinding`` from committed prompt-link counts;
+    (``IntermediateCountBinding`` from committed, role-scoped intermediate-link counts;
     ``ExecutionModeCountBinding`` from the four per-mode counts) and stay within
     ``[min_count, max_count]``.  For a ``not_applicable`` run every LLM/cassette rule
     is disabled, so this asserts zero such parents explicitly rather than by
@@ -756,6 +756,22 @@ def _validate_runtime_rule_shapes(
                     "intermediate-link count binding uses an incompatible parent source",
                     rule_id=rule.rule_id,
                 )
+            expected_selector = {
+                "prompt_rendered": ("source_rendered", frozenset({"source-rendered@1"})),
+                "agent_prompt_context": (
+                    "source_raw",
+                    frozenset({"agent-prompt-context@1"}),
+                ),
+            }.get(binding.link_role)
+            if expected_selector is None or (
+                rule.artifact_kind != expected_selector[0]
+                or frozenset(rule.payload_schema_ids) != expected_selector[1]
+            ):
+                raise IntegrityViolation(
+                    "intermediate-link role differs from its exact Artifact selector",
+                    rule_id=rule.rule_id,
+                    link_role=binding.link_role,
+                )
             expected_scope = "current_attempt" if manifest_scope == "attempt" else "all_attempts"
             if binding.scope != expected_scope:
                 raise IntegrityViolation(
@@ -810,20 +826,29 @@ def _expected_runtime_count(
     *,
     rule: RuntimeParentRuleV1,
     llm_execution_mode: str,
-    committed_link_counts: Mapping[str, int],
+    committed_link_counts: Mapping[object, int],
     execution_identity_counts: Mapping[str, int],
 ) -> int | None:
     binding = rule.count_binding
     if binding is None:
         return None
     if isinstance(binding, IntermediateCountBindingV1):
-        if binding.scope not in committed_link_counts:
+        key = (binding.link_role, binding.scope)
+        if key in committed_link_counts:
+            return committed_link_counts[key]
+        # Compatibility for retained prompt-only callers of this pure validator.
+        # Production terminal projection always supplies role-scoped keys; a
+        # second intermediate role must never share a scope-only count.
+        if binding.link_role == "prompt_rendered" and binding.scope in committed_link_counts:
+            return committed_link_counts[binding.scope]
+        if key not in committed_link_counts:
             raise IntegrityViolation(
                 "committed intermediate-link count is unavailable for the binding scope",
                 rule_id=rule.rule_id,
+                link_role=binding.link_role,
                 scope=binding.scope,
             )
-        return committed_link_counts[binding.scope]
+        raise AssertionError("unreachable intermediate count binding")
     if isinstance(binding, ExecutionIdentityCountBindingV1):
         if binding.scope not in execution_identity_counts:
             raise IntegrityViolation(

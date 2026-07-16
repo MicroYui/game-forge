@@ -17,6 +17,7 @@ from gameforge.contracts.lineage import (
     ArtifactV2,
     ExecutionIdentityV1,
     InvocationVersionBindingV1,
+    MAX_RUNTIME_AUTHORITY_BINDINGS,
     ObjectBinding,
     ObjectLocation,
     ObjectRef,
@@ -59,6 +60,16 @@ _ALL_ARTIFACT_KINDS = {
     "bench_report",
     "operational_evidence",
 }
+
+
+def test_m4_runtime_authority_collections_publish_the_shared_hard_cap() -> None:
+    assert MAX_RUNTIME_AUTHORITY_BINDINGS == 32_768
+    assert ExecutionIdentityV1.model_json_schema()["properties"]["bindings"]["maxItems"] == (
+        MAX_RUNTIME_AUTHORITY_BINDINGS
+    )
+    assert ArtifactV2.model_json_schema()["properties"]["lineage"]["maxItems"] == (
+        MAX_RUNTIME_AUTHORITY_BINDINGS
+    )
 
 
 def test_legacy_constants_constructor_and_snapshot_hash_are_unchanged() -> None:

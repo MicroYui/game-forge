@@ -11,6 +11,7 @@ from gameforge.contracts.jobs import (
     ArtifactCountBindingV1,
     ArtifactMigrationPayloadV1,
     BenchRunPayloadV1,
+    MAX_BENCHMARK_AGGREGATE_RESULT_ARTIFACTS,
     CancelRunPayloadV1,
     CheckerRunPayloadV1,
     CompletionOracleRegistryRefV1,
@@ -60,6 +61,7 @@ from gameforge.contracts.jobs import (
     RunModelResponseConsumptionV1,
     RunModelRouteLinkV1,
     RunPayloadEnvelope,
+    referenced_input_artifact_ids,
     RunRecord,
     RunQueuedDataV1,
     RunResultSummaryV1,
@@ -835,6 +837,34 @@ def test_payload_collections_are_canonical_bounded_and_semantically_closed() -> 
             repetition_count=1,
             execution_scope="execute_cases",
             case_result_artifact_ids=("result:1",),
+        )
+
+
+def test_bench_aggregate_result_limit_preserves_complete_run_input_closure() -> None:
+    boundary_ids = tuple(
+        f"artifact:result:{index}" for index in range(MAX_BENCHMARK_AGGREGATE_RESULT_ARTIFACTS)
+    )
+    payload = BenchRunPayloadV1(
+        dataset_artifact_id="artifact:dataset",
+        benchmark_spec_artifact_id="artifact:spec",
+        partition_ids=("p1",),
+        evaluator_profile=ProfileRefV1(profile_id="bench", version=1),
+        repetition_count=1,
+        execution_scope="aggregate_results",
+        case_result_artifact_ids=boundary_ids,
+    )
+    assert len(payload.case_result_artifact_ids) == 1021
+    assert len(referenced_input_artifact_ids(payload)) == 1023
+
+    with pytest.raises(ValidationError, match="at most 1021"):
+        BenchRunPayloadV1(
+            dataset_artifact_id="artifact:dataset",
+            benchmark_spec_artifact_id="artifact:spec",
+            partition_ids=("p1",),
+            evaluator_profile=ProfileRefV1(profile_id="bench", version=1),
+            repetition_count=1,
+            execution_scope="aggregate_results",
+            case_result_artifact_ids=boundary_ids + ("artifact:result:1021",),
         )
 
 

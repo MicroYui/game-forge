@@ -22,6 +22,7 @@ from pydantic import (
 )
 
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.jobs import AgentPromptContextDraftV1
 from gameforge.contracts.versions import MODEL_ROUTER_SCHEMA_VERSION
 
 
@@ -108,6 +109,7 @@ class ModelBridgeCallRequestV1:
 
     model_request: ModelRequestV2
     source_artifact_ids: tuple[str, ...]
+    prompt_context: AgentPromptContextDraftV1
     idempotency_scope: str
     idempotency_key: str
     route_ordinal: int = 1
@@ -118,6 +120,8 @@ class ModelBridgeCallRequestV1:
             self.source_artifact_ids
         ):
             raise ValueError("model-call source_artifact_ids must be stable-unique")
+        if self.prompt_context.source_artifact_ids != self.source_artifact_ids:
+            raise ValueError("model-call prompt context differs from exact source artifacts")
 
 
 class ModelResponse(BaseModel):

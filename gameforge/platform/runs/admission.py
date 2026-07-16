@@ -41,7 +41,20 @@ from gameforge.contracts.api import (
     RollbackValidationAdmissionRequestV1,
     RunAcceptedV1,
 )
-from gameforge.contracts.benchmark import BenchmarkSpecV1
+from gameforge.contracts.benchmark import (
+    MAX_BENCHMARK_AGENT_MODEL_CALLS_TOTAL,
+    MAX_BENCHMARK_AGGREGATE_INPUT_BYTES_PER_ARTIFACT,
+    MAX_BENCHMARK_AGGREGATE_INPUT_BYTES_TOTAL,
+    MAX_BENCHMARK_CASE_EXECUTIONS,
+    MAX_BENCHMARK_CHECKER_WORK_UNITS,
+    MAX_BENCHMARK_REPORT_BYTES,
+    MAX_BENCHMARK_RESULT_METRICS_BYTES_TOTAL,
+    MAX_BENCHMARK_SIMULATION_WORK_UNITS,
+    BenchmarkDatasetV1,
+    BenchmarkEvaluatorProfileConfigV1,
+    BenchmarkSpecV1,
+    sampled_partition_cases,
+)
 from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
 from gameforge.contracts.config_export import (
     MAX_CONFIG_EXPORT_MANIFEST_BYTES,
@@ -126,6 +139,7 @@ from gameforge.contracts.jobs import (
     SimulationRunPayloadV1,
     TaskSuiteDerivePayloadV1,
     ValidationSubjectBindingV1,
+    patch_repair_requires_root_seed,
     referenced_input_artifact_ids,
     resolved_policy_snapshot_digest,
 )
@@ -157,6 +171,7 @@ from gameforge.contracts.workflow import (
     RollbackTargetBindingV1,
 )
 from gameforge.platform.audit.gate import AuditGate
+from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
 from gameforge.platform.cost_policy.run_accounting import (
     AttemptConservativeUsageProvider,
     RunBudgetPlan,
@@ -168,6 +183,10 @@ from gameforge.platform.rbac import AuthorizationDecision, authorize
 from gameforge.platform.registry.defaults import (
     ARTIFACT_PAYLOAD_SCHEMAS,
     PROFILE_OUTPUT_SCHEMA_REQUIREMENTS,
+)
+from gameforge.platform.run_handlers.checker import validate_checker_work_budget
+from gameforge.platform.run_handlers.simulation import (
+    validate_economy_simulation_work_budget,
 )
 from gameforge.platform.runs.commands import (
     CapabilityBinder,
@@ -192,6 +211,7 @@ from gameforge.runtime.cassette.legacy_import import (
     LegacyImportDecisionRepository,
 )
 from gameforge.runtime.observability.context import TraceCarrier, current_trace_context
+from gameforge.spine.sim.economy import EconomyModel
 
 
 # ── UTC helpers ──────────────────────────────────────────────────────────────
@@ -1526,6 +1546,7 @@ class RunAdmissionEngine:
         )
         self._verify_seed_policy(
             definition=definition,
+            params=params,
             resolved_profiles=resolved_profiles,
             seed=seed,
             catalog=catalog,
@@ -2856,6 +2877,7 @@ class RunAdmissionEngine:
         self,
         *,
         definition: RunKindDefinition,
+        params: RunKindPayload,
         resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
         seed: int | None,
         catalog: ExecutionProfileCatalogSnapshotV1,
@@ -2886,7 +2908,9 @@ class RunAdmissionEngine:
                     field_path=binding.field_path,
                 )
             profile_definitions.append(profile)
-        stochastic = any(item.stochastic for item in profile_definitions)
+        stochastic = any(item.stochastic for item in profile_definitions) or (
+            patch_repair_requires_root_seed(params)
+        )
         if stochastic and seed is None:
             raise Conflict("profile-dependent seed is required by stochastic profiles")
         if not stochastic and seed is not None:
@@ -4356,13 +4380,14 @@ class RunAdmissionEngine:
 
         if not isinstance(params, BenchRunPayloadV1):
             return
-        dataset = artifacts[params.dataset_artifact_id]
+        dataset_artifact = artifacts[params.dataset_artifact_id]
         spec_artifact = artifacts[params.benchmark_spec_artifact_id]
-        # ``bench-dataset@1`` is intentionally an opaque cross-benchmark payload at
-        # this layer, but its immutable Artifact/ObjectBinding is still executable
-        # input authority.  Verify the exact bytes now rather than admitting a Run
-        # that can only discover a missing or corrupted dataset in the worker.
-        self._load_artifact_blob(dataset, read=read)
+        dataset = self._load_json_artifact(
+            dataset_artifact,
+            read=read,
+            payload_schema_id="bench-dataset@1",
+            model=BenchmarkDatasetV1,
+        )
         spec = self._load_json_artifact(
             spec_artifact,
             read=read,
@@ -4370,12 +4395,12 @@ class RunAdmissionEngine:
             model=BenchmarkSpecV1,
         )
         if (
-            spec.dataset.artifact_id != dataset.artifact_id
-            or not compare_digest(spec.dataset.payload_hash, dataset.payload_hash)
-            or spec.dataset.payload_schema_id != dataset.meta.get("payload_schema_id")
+            spec.dataset.artifact_id != dataset_artifact.artifact_id
+            or not compare_digest(spec.dataset.payload_hash, dataset_artifact.payload_hash)
+            or spec.dataset.payload_schema_id != dataset_artifact.meta.get("payload_schema_id")
         ):
             raise Conflict("benchmark spec does not bind the exact dataset Artifact")
-        if set(spec_artifact.lineage) != {dataset.artifact_id}:
+        if set(spec_artifact.lineage) != {dataset_artifact.artifact_id}:
             raise Conflict("benchmark spec lineage does not bind exactly one dataset")
         for field in (
             "doc_version",
@@ -4383,7 +4408,9 @@ class RunAdmissionEngine:
             "constraint_snapshot_id",
             "env_contract_version",
         ):
-            if getattr(spec_artifact.version_tuple, field) != getattr(dataset.version_tuple, field):
+            if getattr(spec_artifact.version_tuple, field) != getattr(
+                dataset_artifact.version_tuple, field
+            ):
                 raise Conflict(
                     "benchmark spec VersionTuple differs from its exact dataset",
                     field=field,
@@ -4397,6 +4424,68 @@ class RunAdmissionEngine:
         )
         if evaluator_definition is None or evaluator_definition.profile_kind != "bench_evaluator":
             raise Conflict("benchmark evaluator profile kind is incompatible")
+        try:
+            evaluator_config = BenchmarkEvaluatorProfileConfigV1.model_validate(
+                evaluator_definition.config
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("benchmark evaluator profile config is invalid") from exc
+        evaluator_policy = evaluator_config.policy
+        if spec.evaluator_policy != evaluator_policy.ref:
+            raise Conflict("benchmark evaluator policy differs from the typed spec")
+        if (
+            spec.resource_limits.max_case_executions > evaluator_policy.max_case_executions
+            or spec.resource_limits.max_case_executions > MAX_BENCHMARK_CASE_EXECUTIONS
+            or spec.resource_limits.max_prepared_report_bytes
+            > evaluator_policy.max_prepared_report_bytes
+            or spec.resource_limits.max_prepared_report_bytes > MAX_BENCHMARK_REPORT_BYTES
+            or spec.resource_limits.max_aggregate_input_bytes_per_artifact
+            > evaluator_policy.max_aggregate_input_bytes_per_artifact
+            or spec.resource_limits.max_aggregate_input_bytes_per_artifact
+            > MAX_BENCHMARK_AGGREGATE_INPUT_BYTES_PER_ARTIFACT
+            or spec.resource_limits.max_aggregate_input_bytes_total
+            > evaluator_policy.max_aggregate_input_bytes_total
+            or spec.resource_limits.max_aggregate_input_bytes_total
+            > MAX_BENCHMARK_AGGREGATE_INPUT_BYTES_TOTAL
+            or spec.resource_limits.max_checker_work_units_total
+            > evaluator_policy.max_checker_work_units_total
+            or spec.resource_limits.max_checker_work_units_total > MAX_BENCHMARK_CHECKER_WORK_UNITS
+            or spec.resource_limits.max_simulation_work_units_total
+            > evaluator_policy.max_simulation_work_units_total
+            or spec.resource_limits.max_simulation_work_units_total
+            > MAX_BENCHMARK_SIMULATION_WORK_UNITS
+            or spec.resource_limits.max_result_metrics_bytes_total
+            > evaluator_policy.max_result_metrics_bytes_total
+            or spec.resource_limits.max_result_metrics_bytes_total
+            > MAX_BENCHMARK_RESULT_METRICS_BYTES_TOTAL
+            or spec.resource_limits.max_agent_model_calls_total
+            > evaluator_policy.max_agent_model_calls_total
+            or spec.resource_limits.max_agent_model_calls_total
+            > MAX_BENCHMARK_AGENT_MODEL_CALLS_TOTAL
+        ):
+            raise Conflict("benchmark resource limits exceed the evaluator policy")
+        template_bytes = dataset.report_template_utf8.encode("utf-8")
+        if len(template_bytes) > spec.resource_limits.max_prepared_report_bytes:
+            raise Conflict("benchmark report template exceeds the spec byte limit")
+
+        dataset_shape = tuple(
+            (
+                partition.partition_id,
+                tuple((case.case_id, case.execution_mode) for case in partition.cases),
+            )
+            for partition in dataset.partitions
+        )
+        spec_shape = tuple(
+            (
+                partition.partition_id,
+                tuple((case.case_id, case.execution_mode) for case in partition.cases),
+            )
+            for partition in spec.partitions
+        )
+        if dataset_shape != spec_shape:
+            raise Conflict("benchmark dataset and spec case authority differ")
+        if tuple(item.metric for item in dataset.binary_metrics) != spec.metric_policy.metrics:
+            raise Conflict("benchmark dataset and spec metric authority differ")
         sampling = spec.sampling_policy
         if sampling.seed_derivation_version != run_definition.seed_derivation_version:
             raise Conflict(
@@ -4420,29 +4509,133 @@ class RunAdmissionEngine:
                 raise Conflict("stochastic benchmark evaluation requires a root seed")
             raise Conflict("deterministic benchmark evaluation forbids a root seed")
 
-        selected_ids = params.partition_ids or tuple(
-            partition.partition_id for partition in spec.partitions
-        )
-        by_id = {partition.partition_id: partition for partition in spec.partitions}
-        unknown = tuple(partition_id for partition_id in selected_ids if partition_id not in by_id)
-        if unknown:
+        try:
+            sampled = sampled_partition_cases(
+                spec,
+                params.partition_ids,
+                root_seed=seed,
+            )
+        except KeyError as exc:
             raise Conflict(
                 "benchmark partition selection is absent from the typed spec",
-                partition_ids=unknown,
+                partition_ids=tuple(exc.args[0]),
+            ) from exc
+        except ValueError as exc:
+            raise Conflict("benchmark sampling policy cannot resolve this Run") from exc
+        case_execution_count = len(sampled) * params.repetition_count
+        if (
+            case_execution_count > spec.resource_limits.max_case_executions
+            or case_execution_count > evaluator_policy.max_case_executions
+            or case_execution_count > MAX_BENCHMARK_CASE_EXECUTIONS
+        ):
+            raise Conflict("benchmark case replications exceed frozen resource limits")
+        has_agent_cases = any(case.execution_mode == "agent" for _, case in sampled)
+        dataset_cases = {
+            case.case_id: case for partition in dataset.partitions for case in partition.cases
+        }
+        if params.execution_scope == "execute_cases":
+            total_agent_model_calls = sum(
+                len(dataset_cases[sampled_case.case_id].executor.prompts) * params.repetition_count
+                for _, sampled_case in sampled
+                if dataset_cases[sampled_case.case_id].execution_mode == "agent"
             )
-        selected = tuple(by_id[partition_id] for partition_id in selected_ids)
-        has_agent_cases = any(
-            case.execution_mode == "agent" for partition in selected for case in partition.cases
-        )
+            if total_agent_model_calls > spec.resource_limits.max_agent_model_calls_total:
+                raise Conflict("benchmark Agent calls exceed the typed Run-total limit")
+        total_checker_work_units = 0
+        total_simulation_work_units = 0
+        for _, sampled_case in sampled:
+            dataset_case = dataset_cases[sampled_case.case_id]
+            executor = dataset_case.executor
+            snapshot = None
+            constraints = getattr(executor, "constraints", ())
+            if constraints:
+                if (
+                    executor.max_checker_work_units
+                    > spec.resource_limits.max_checker_work_units_total
+                ):
+                    raise Conflict("benchmark checker work limit exceeds the typed spec")
+                try:
+                    snapshot = snapshot_from_canonical_view(executor.snapshot_payload)
+                    per_replication_checker_work = validate_checker_work_budget(
+                        snapshot=snapshot,
+                        execution_count=len(constraints),
+                        max_work_units=executor.max_checker_work_units,
+                    )
+                except (IntegrityViolation, TypeError, ValueError, KeyError) as exc:
+                    raise Conflict(
+                        "benchmark checker workload exceeds its frozen work budget"
+                    ) from exc
+                total_checker_work_units += per_replication_checker_work * params.repetition_count
+                if total_checker_work_units > spec.resource_limits.max_checker_work_units_total:
+                    raise Conflict("benchmark checkers exceed the typed Run-total work budget")
+            simulation = getattr(executor, "simulation", None)
+            if simulation is None:
+                if dataset_case.execution_mode == "deterministic" and params.repetition_count != 1:
+                    raise Conflict("pure deterministic benchmark cases require one repetition")
+                continue
+            if simulation.max_work_units > spec.resource_limits.max_simulation_work_units_total:
+                raise Conflict("benchmark simulation work limit exceeds the typed spec")
+            try:
+                if snapshot is None:
+                    snapshot = snapshot_from_canonical_view(executor.snapshot_payload)
+                model = EconomyModel.from_snapshot(snapshot)
+                per_replication_work = validate_economy_simulation_work_budget(
+                    model,
+                    n_agents=simulation.agents,
+                    n_ticks=simulation.ticks,
+                    replication_count=1,
+                    max_work_units=simulation.max_work_units,
+                )
+            except (IntegrityViolation, TypeError, ValueError, KeyError) as exc:
+                raise Conflict(
+                    "benchmark simulation workload exceeds its frozen work budget"
+                ) from exc
+            total_simulation_work_units += per_replication_work * params.repetition_count
+            if total_simulation_work_units > spec.resource_limits.max_simulation_work_units_total:
+                raise Conflict("benchmark simulations exceed the typed Run-total work budget")
+            if simulation.seed_policy == "run_subseed":
+                if not evaluator_definition.stochastic or seed is None:
+                    raise Conflict("run-subseed benchmark simulation requires a stochastic profile")
+            elif (
+                evaluator_definition.stochastic or seed is not None or params.repetition_count != 1
+            ):
+                raise Conflict(
+                    "fixed-seed benchmark simulation requires a deterministic one-shot Run"
+                )
 
         if params.execution_scope == "aggregate_results":
-            # Case-result payload schemas vary by deterministic evaluator, so the
-            # frozen contract binds them by exact content-addressed Artifact id and
-            # the §5.3 kind allowlist instead of pretending they share one schema.
-            # Authenticate every blob here; the exact ids remain in both the Run
-            # envelope and the eventual bench-report lineage.
-            for artifact_id in params.case_result_artifact_ids:
-                self._load_artifact_blob(artifacts[artifact_id], read=read)
+            if spec.aggregate_repetition_count != params.repetition_count:
+                raise Conflict("benchmark aggregate repetition count differs from the typed spec")
+            selected_case_ids = {case.case_id for _, case in sampled}
+            expected_bindings = tuple(
+                item for item in spec.aggregate_inputs if item.case_id in selected_case_ids
+            )
+            expected_ids = {item.artifact_id for item in expected_bindings}
+            if len(expected_bindings) != case_execution_count or expected_ids != set(
+                params.case_result_artifact_ids
+            ):
+                raise Conflict("benchmark aggregate inputs differ from exact spec bindings")
+            if any(
+                item.payload_size_bytes
+                > spec.resource_limits.max_aggregate_input_bytes_per_artifact
+                for item in expected_bindings
+            ) or sum(item.payload_size_bytes for item in expected_bindings) > (
+                spec.resource_limits.max_aggregate_input_bytes_total
+            ):
+                raise Conflict("benchmark aggregate inputs exceed spec byte limits")
+            for binding in expected_bindings:
+                artifact = artifacts[binding.artifact_id]
+                if (
+                    artifact.kind != binding.artifact_kind
+                    or artifact.meta.get("payload_schema_id") != binding.payload_schema_id
+                    or not compare_digest(artifact.payload_hash, binding.payload_hash)
+                    or artifact.object_ref.size_bytes != binding.payload_size_bytes
+                ):
+                    raise Conflict(
+                        "benchmark aggregate Artifact differs from its exact binding",
+                        artifact_id=binding.artifact_id,
+                    )
+                self._load_artifact_blob(artifact, read=read)
             requires_model = False
         else:
             requires_model = has_agent_cases

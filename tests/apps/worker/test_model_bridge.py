@@ -27,9 +27,13 @@ from gameforge.contracts.errors import (
     QuotaExceeded,
 )
 from gameforge.contracts.jobs import (
+    AgentPromptContextDraftV1,
+    AgentPromptSourceMessageV1,
     ExecutionVersionPlanV1,
     PlannedAgentNodeVersionV1,
     RunAttempt,
+    RunModelResponseConsumptionV1,
+    RunToolIntermediateLinkV1,
     execution_version_plan_digest,
 )
 from gameforge.contracts.lineage import AuditActor
@@ -37,7 +41,10 @@ from gameforge.contracts.model_router import ModelSnapshot, request_hash
 from gameforge.contracts.observability import SpanDataV1
 from gameforge.contracts.reliability import FailureClassificationV1, RetryPolicyV1
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
-from gameforge.platform.runs.commands import PromptRenderPublicationResult
+from gameforge.platform.runs.commands import (
+    AgentPromptContextPublicationResult,
+    PromptRenderPublicationResult,
+)
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.contracts.jobs import RunIntermediateArtifactLinkV1
 from gameforge.runtime.cassette.store import CassetteRouteKey, CassetteStore
@@ -106,7 +113,7 @@ class _RecordingPromptPublisher:
         link = RunIntermediateArtifactLinkV1(
             run_id=request.fence.run_id,
             attempt_no=request.fence.attempt_no,
-            call_ordinal=request.call_ordinal or 1,
+            call_ordinal=request.call_ordinal or len(self.requests),
             route_ordinal=request.route_ordinal,
             artifact_id=request.artifact_id,
             role="prompt_rendered",
@@ -115,6 +122,30 @@ class _RecordingPromptPublisher:
             published_at="2026-07-14T12:00:00Z",
         )
         return PromptRenderPublicationResult(link=link, replayed=False)
+
+
+class _RecordingContextPublisher:
+    def __init__(self, order: list[str]) -> None:
+        self._order = order
+        self.requests: list[object] = []
+
+    def publish_agent_prompt_context(self, **values) -> AgentPromptContextPublicationResult:
+        self._order.append("publish_context")
+        self.requests.append(values)
+        return AgentPromptContextPublicationResult(
+            link=RunToolIntermediateLinkV1(
+                run_id="run-1",
+                attempt_no=1,
+                target_call_ordinal=values["target_call_ordinal"],
+                artifact_id="artifact:context:1",
+                agent_node_id=values["model_request"].agent_node_id,
+                prompt_version=values["model_request"].prompt_version,
+                payload_hash="d" * 64,
+                fencing_token=1,
+                published_at="2026-07-14T12:00:00Z",
+            ),
+            replayed=False,
+        )
 
 
 class _RecordingDecider:
@@ -235,12 +266,28 @@ class _RecordingResponsePublisher:
         self._order = order
         self.records: list[object] = []
 
-    def publish_response_consumption(self, **values) -> None:
+    def publish_response_consumption(self, **values) -> RunModelResponseConsumptionV1:
         self._order.append("publish_record")
         self.records.append(values)
         values["step_cost"].reconcile_step_in_transaction(
             transaction=self,
             reservation=values["step_reservation"],
+        )
+        return RunModelResponseConsumptionV1(
+            run_id=values["link"].run_id,
+            attempt_no=values["link"].attempt_no,
+            call_ordinal=values["link"].call_ordinal,
+            route_ordinal=values["link"].route_ordinal,
+            execution_source=values["result"].execution_source,
+            reservation_group_id="reservation:recording",
+            transport_attempt=(
+                values["result"].transport_attempt_count
+                if values["result"].execution_source == "online"
+                else None
+            ),
+            cassette_shard_artifact_id="artifact:record-shard:1",
+            response_digest="e" * 64,
+            consumed_at="2026-07-14T12:00:00Z",
         )
 
 
@@ -363,6 +410,7 @@ def _bridge(
     step_cost=None,
     router,
     execution_source,
+    context_publisher=None,
     response_publisher=_AUTO_RESPONSE_PUBLISHER,
     extra_model_snapshots=(),
     exporter=None,
@@ -423,6 +471,7 @@ def _bridge(
         fence=_fence(),
         execution_source=execution_source,
         prompt_publisher=publisher,
+        context_publisher=context_publisher or _RecordingContextPublisher(order),
         decider=decider,
         router=router,
         cost=cost,
@@ -445,9 +494,21 @@ def _bridge(
 
 
 def _call_request() -> ModelCallRequest:
+    source_artifact_ids = ("artifact:source-rendered:1",)
     return ModelCallRequest(
         model_request=_bridged_request(),
-        source_artifact_ids=("artifact:source-rendered:1",),
+        source_artifact_ids=source_artifact_ids,
+        prompt_context=AgentPromptContextDraftV1(
+            context_kind="repair_initial",
+            messages=(
+                AgentPromptSourceMessageV1(
+                    role="user",
+                    content=_bridged_request().messages[-1].content,
+                    purpose="context",
+                ),
+            ),
+            source_artifact_ids=source_artifact_ids,
+        ),
         idempotency_scope="run:run-1:attempt:1",
         idempotency_key="model:1",
         route_ordinal=1,
@@ -484,6 +545,7 @@ def test_record_call_orders_render_decision_reserve_call_reconcile(tmp_path) -> 
     result = bridge.call_model(_call_request())
 
     assert order == [
+        "publish_context",
         "prepare",
         "publish_prompt",
         "reserve_step",
@@ -563,6 +625,7 @@ def test_each_transport_retry_has_its_own_reserve_and_immediate_settlement(
     result = bridge.call_model(_call_request())
 
     assert order == [
+        "publish_context",
         "prepare",
         "publish_prompt",
         "reserve_step",
@@ -583,6 +646,53 @@ def test_each_transport_retry_has_its_own_reserve_and_immediate_settlement(
     assert [span.attributes["transport_attempt"] for span in transport_spans] == [1, 2]
     assert [span.attributes["succeeded"] for span in transport_spans] == [False, True]
     assert all("request" not in span.attributes for span in transport_spans)
+
+
+def test_record_refine_context_binds_committed_record_shard_as_cassette_source(
+    tmp_path,
+) -> None:
+    order: list[str] = []
+    decision = _decision(_bridged_request(), source="online")
+    authority = _DecisionAuthority()
+    context_publisher = _RecordingContextPublisher(order)
+    bridge = _bridge(
+        order=order,
+        publisher=_RecordingPromptPublisher(order),
+        context_publisher=context_publisher,
+        decider=_RecordingDecider(order, authority, decision),
+        cost=_RecordingCost(order),
+        router=M4ModelRouter(
+            transport=_TypedTransport(_response()),
+            store=CassetteStore(tmp_path),
+            cache=ExactResponseCache(),
+            mode=RouterMode.RECORD,
+            retry_executor=_retry(_Clock()),
+            decision_authority=authority,
+        ),
+        execution_source="online",
+    )
+    first = _call_request()
+    bridge.call_model(first)
+    bridge.call_model(
+        ModelCallRequest(
+            model_request=first.model_request,
+            source_artifact_ids=first.source_artifact_ids,
+            prompt_context=first.prompt_context.model_copy(
+                update={
+                    "context_kind": "repair_refine",
+                    "include_previous_consumption": True,
+                }
+            ),
+            idempotency_scope=first.idempotency_scope,
+            idempotency_key="model:2",
+            route_ordinal=1,
+            deadline_utc=first.deadline_utc,
+        )
+    )
+
+    prior = context_publisher.requests[1]["prior_consumption"]
+    assert prior.cassette_shard_artifact_id == "artifact:record-shard:1"
+    assert prior.cassette_source_artifact_id == "artifact:record-shard:1"
 
 
 def test_record_full_response_cache_preserves_origin_transport_evidence(
@@ -884,6 +994,7 @@ def test_replay_miss_fails_closed_without_reconciling(tmp_path) -> None:
 
     # Reserve happened before replay; a miss releases its zero-use admission.
     assert order == [
+        "publish_context",
         "prepare",
         "publish_prompt",
         "reserve_step",
@@ -924,7 +1035,7 @@ def test_stale_worker_never_reserves_or_calls_provider(tmp_path) -> None:
         bridge.call_model(_call_request())
 
     # A fenced-out worker publishes nothing downstream: no decision, reserve, or call.
-    assert order == ["prepare", "publish_prompt"]
+    assert order == ["publish_context", "prepare", "publish_prompt"]
     assert cost.reserved == []
     assert transport.calls == []
 
@@ -961,7 +1072,7 @@ def test_agent_step_rejection_after_prompt_prevents_route_reserve_and_provider(
     with pytest.raises(Conflict, match="agent-step fence"):
         bridge.call_model(_call_request())
 
-    assert order == ["prepare", "publish_prompt", "reserve_step"]
+    assert order == ["publish_context", "prepare", "publish_prompt", "reserve_step"]
     assert cost.reserved == []
     assert transport.calls == []
 
@@ -1110,6 +1221,7 @@ def test_model_deadline_defaults_to_and_is_capped_by_attempt_deadline(
     call = ModelCallRequest(
         model_request=call.model_request,
         source_artifact_ids=call.source_artifact_ids,
+        prompt_context=call.prompt_context,
         idempotency_scope=call.idempotency_scope,
         idempotency_key=call.idempotency_key,
         route_ordinal=call.route_ordinal,
@@ -1161,6 +1273,7 @@ def test_execution_plan_escape_fails_before_prompt_reserve_or_transport(
     escaped = ModelCallRequest(
         model_request=escaped.model_request.model_copy(update=request_update),
         source_artifact_ids=escaped.source_artifact_ids,
+        prompt_context=escaped.prompt_context,
         idempotency_scope=escaped.idempotency_scope,
         idempotency_key=escaped.idempotency_key,
         route_ordinal=escaped.route_ordinal,

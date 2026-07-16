@@ -42,9 +42,10 @@ from gameforge.contracts.provenance import (
 
 SourceMessageRole = Literal["user", "assistant", "tool"]
 MAX_PROMPT_SOURCE_COUNT = 256
-MAX_PROMPT_SOURCE_BYTES = 16 * 1024 * 1024
+MAX_PROMPT_SOURCE_BYTES = 128 * 1024 * 1024
 MAX_PROMPT_TOOL_SCHEMAS = 256
 MAX_PROMPT_REQUEST_PARAMS_BYTES = 64 * 1024
+MAX_PROMPT_TOOL_CALL_BYTES = 1024 * 1024
 
 
 def _stable_nonempty(values: tuple[str, ...], *, field: str) -> tuple[str, ...]:
@@ -65,6 +66,7 @@ class CanonicalPromptSourceShapeV1:
     payload_schema_id: str
     source_kind_registry_version: int
     source_kind_id: str
+    authority_derived_provenance: bool = False
 
     def __post_init__(self) -> None:
         for name in ("artifact_kind", "payload_schema_id", "source_kind_id"):
@@ -76,6 +78,8 @@ class CanonicalPromptSourceShapeV1:
             or self.source_kind_registry_version < 1
         ):
             raise ValueError("prompt source shape registry version must be positive")
+        if not isinstance(self.authority_derived_provenance, bool):
+            raise ValueError("prompt source shape provenance mode must be boolean")
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,6 +134,7 @@ class CanonicalSourceMessageV1:
     source_artifact_ids: tuple[str, ...]
     rendered_source_kind_registry_version: int
     rendered_source_kind_id: str
+    tool_calls: tuple[dict[str, object], ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.text, str) or not self.text:
@@ -147,6 +152,16 @@ class CanonicalSourceMessageV1:
             raise ValueError("rendered source-kind registry version must be positive")
         if not isinstance(self.rendered_source_kind_id, str) or not (self.rendered_source_kind_id):
             raise ValueError("rendered source-kind id must be non-empty")
+        if len(self.tool_calls) > MAX_PROMPT_SOURCE_COUNT or any(
+            not isinstance(item, dict) for item in self.tool_calls
+        ):
+            raise ValueError("canonical source message tool calls are outside bounds")
+        try:
+            encoded_tool_calls = canonical_json(list(self.tool_calls)).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            raise ValueError("canonical source message tool calls are not JSON") from exc
+        if len(encoded_tool_calls) > MAX_PROMPT_TOOL_CALL_BYTES:
+            raise ValueError("canonical source message tool calls exceed the byte bound")
 
 
 @dataclass(frozen=True, slots=True)
@@ -357,7 +372,7 @@ def _request_configuration_digest(binding: "CanonicalPromptBindingV1") -> str:
 
 @dataclass(frozen=True, slots=True, order=True)
 class CanonicalPolicyInjectedParamV1:
-    """One optional positive-integer field injected by exact routing policy."""
+    """One optional bounded-integer field injected by exact routing policy."""
 
     name: str
     minimum: int
@@ -372,7 +387,7 @@ class CanonicalPolicyInjectedParamV1:
             or not isinstance(self.minimum, int)
             or isinstance(self.maximum, bool)
             or not isinstance(self.maximum, int)
-            or self.minimum < 1
+            or self.minimum < 0
             or self.maximum < self.minimum
         ):
             raise ValueError("policy-injected parameter bound is invalid")
@@ -467,8 +482,6 @@ class CanonicalPromptBindingV1:
             or set(self.model_request_schema_versions) - {"model-router@1", "model-router@2"}
         ):
             raise ValueError("model request schema versions are not exact retained values")
-        if not self.template_messages:
-            raise ValueError("canonical prompt binding requires retained template authority")
         if not callable(self.source_renderer):
             raise ValueError("canonical prompt binding requires a source renderer")
 
@@ -604,6 +617,36 @@ class CanonicalPromptRendererAuthority:
         self._schema_sets = schema_sets
         self._prefix_policies = prefix_policies
         self._bindings = by_key
+
+    @property
+    def retained_source_kind_registries(self) -> tuple[SourceKindRegistryV1, ...]:
+        """Immutable registry history for trusted composition-time rebinding."""
+
+        return tuple(self._registries[key] for key in sorted(self._registries))
+
+    @property
+    def retained_tool_schema_sets(self) -> tuple[CanonicalToolSchemaSetV1, ...]:
+        """Reconstruct the exact public schema-set history without exposing maps."""
+
+        return tuple(
+            CanonicalToolSchemaSetV1(
+                tool_version=resolved.tool_version,
+                tool_schemas=tuple(
+                    ToolSchemaRef(name=name, version=version)
+                    for name, version in resolved.identities
+                ),
+                digest=digest,
+            )
+            for (_, digest), resolved in sorted(self._schema_sets.items())
+        )
+
+    @property
+    def retained_prefix_cache_policies(self) -> tuple[CanonicalPrefixCachePolicyV1, ...]:
+        return tuple(self._prefix_policies[key] for key in sorted(self._prefix_policies))
+
+    @property
+    def retained_bindings(self) -> tuple[CanonicalPromptBindingV1, ...]:
+        return tuple(self._bindings[key] for key in sorted(self._bindings))
 
     @property
     def binding_keys(self) -> tuple[tuple[str, str], ...]:
@@ -789,7 +832,13 @@ class CanonicalPromptRendererAuthority:
                 raise IntegrityViolation(
                     "canonical source renderer produced an invalid PromptPartV1"
                 ) from exc
-            messages.append(Message(role=rendered.role, content=rendered.text))
+            messages.append(
+                Message(
+                    role=rendered.role,
+                    content=rendered.text,
+                    tool_calls=list(rendered.tool_calls),
+                )
+            )
             parts.append(part)
         if contributed_source_ids != set(parent_ids):
             raise IntegrityViolation(
@@ -978,18 +1027,74 @@ class CanonicalPromptRendererAuthority:
                     source_artifact_id=source_artifact.artifact_id,
                 )
             raw_provenance = source_artifact.meta.get("provenance")
+            matching: tuple[CanonicalPromptSourceSlotV1, ...]
             if raw_provenance is None:
-                raise IntegrityViolation(
-                    "prompt source lacks retained ProvenanceV1",
-                    source_artifact_id=source_artifact.artifact_id,
+                candidates = tuple(
+                    (slot, shape)
+                    for slot in binding.source_slots
+                    for shape in slot.allowed_shapes
+                    if shape.authority_derived_provenance
+                    and shape.artifact_kind == source_artifact.kind
+                    and shape.payload_schema_id == payload_schema_id
                 )
-            try:
-                provenance = ProvenanceV1.model_validate(raw_provenance)
-            except (TypeError, ValueError) as exc:
-                raise IntegrityViolation(
-                    "prompt source provenance is invalid",
-                    source_artifact_id=source_artifact.artifact_id,
-                ) from exc
+                if len(candidates) != 1:
+                    raise IntegrityViolation(
+                        "prompt source lacks retained ProvenanceV1",
+                        source_artifact_id=source_artifact.artifact_id,
+                    )
+                slot, retained_shape = candidates[0]
+                registry = self._registries.get(retained_shape.source_kind_registry_version)
+                definition = (
+                    None if registry is None else registry.get(retained_shape.source_kind_id)
+                )
+                if (
+                    retained_shape.source_kind_id != "tool_output"
+                    or definition is None
+                    or "untrusted_external" not in definition.allowed_trust_levels
+                    or "context" not in slot.allowed_prompt_purposes
+                ):
+                    raise IntegrityViolation(
+                        "authority-derived prompt provenance is not a bounded tool context",
+                        source_artifact_id=source_artifact.artifact_id,
+                    )
+                provenance = ProvenanceV1(
+                    source_kind_registry_version=(retained_shape.source_kind_registry_version),
+                    source_kind_id=retained_shape.source_kind_id,
+                    origin_ref=OriginRefV1(
+                        opaque_source_id=f"artifact:{source_artifact.artifact_id}",
+                        source_revision=source_artifact.payload_hash,
+                    ),
+                    parent_source_artifact_ids=tuple(source_artifact.lineage),
+                    connector_id=binding.binding_id,
+                    connector_version=binding.renderer_version,
+                    trust="untrusted_external",
+                    source_hash=source_artifact.payload_hash,
+                )
+                matching = (slot,)
+            else:
+                try:
+                    provenance = ProvenanceV1.model_validate(raw_provenance)
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation(
+                        "prompt source provenance is invalid",
+                        source_artifact_id=source_artifact.artifact_id,
+                    ) from exc
+                registry = self._registries.get(provenance.source_kind_registry_version)
+                definition = None if registry is None else registry.get(provenance.source_kind_id)
+                if definition is None or provenance.trust not in definition.allowed_trust_levels:
+                    raise IntegrityViolation(
+                        "prompt source kind/trust is absent from exact registry",
+                        source_artifact_id=source_artifact.artifact_id,
+                    )
+                shape = CanonicalPromptSourceShapeV1(
+                    artifact_kind=source_artifact.kind,
+                    payload_schema_id=payload_schema_id,
+                    source_kind_registry_version=provenance.source_kind_registry_version,
+                    source_kind_id=provenance.source_kind_id,
+                )
+                matching = tuple(
+                    slot for slot in binding.source_slots if shape in slot.allowed_shapes
+                )
             if (
                 provenance.source_hash != source_artifact.payload_hash
                 or provenance.parent_source_artifact_ids != tuple(source_artifact.lineage)
@@ -998,25 +1103,11 @@ class CanonicalPromptRendererAuthority:
                     "prompt source provenance/hash/parent lineage differs",
                     source_artifact_id=source_artifact.artifact_id,
                 )
-            registry = self._registries.get(provenance.source_kind_registry_version)
-            definition = None if registry is None else registry.get(provenance.source_kind_id)
-            if definition is None or provenance.trust not in definition.allowed_trust_levels:
-                raise IntegrityViolation(
-                    "prompt source kind/trust is absent from exact registry",
-                    source_artifact_id=source_artifact.artifact_id,
-                )
             if not isinstance(payload_schema_id, str) or not payload_schema_id:
                 raise IntegrityViolation(
                     "prompt source lacks an exact payload schema identity",
                     source_artifact_id=source_artifact.artifact_id,
                 )
-            shape = CanonicalPromptSourceShapeV1(
-                artifact_kind=source_artifact.kind,
-                payload_schema_id=payload_schema_id,
-                source_kind_registry_version=provenance.source_kind_registry_version,
-                source_kind_id=provenance.source_kind_id,
-            )
-            matching = tuple(slot for slot in binding.source_slots if shape in slot.allowed_shapes)
             if len(matching) != 1:
                 raise IntegrityViolation(
                     "prompt source does not resolve one exact typed slot",

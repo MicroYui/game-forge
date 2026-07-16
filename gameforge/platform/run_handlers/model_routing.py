@@ -21,12 +21,20 @@ is consumed by attribute access.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
 
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.jobs import ExecutionVersionPlanV1
+from gameforge.contracts.jobs import (
+    MAX_AGENT_PROMPT_CONTEXT_MESSAGE_BYTES,
+    AgentPromptContextDraftV1,
+    AgentPromptContextKind,
+    AgentPromptSemanticBindingV1,
+    AgentPromptSourceMessageV1,
+    ExecutionVersionPlanV1,
+)
 from gameforge.contracts.model_router import (
     Message,
     ModelBridgeCallRequestV1,
@@ -42,6 +50,23 @@ from gameforge.contracts.routing import (
 )
 
 from gameforge.platform.run_handlers.base import ExecutorContextLike, ModelBridgePort
+
+
+def require_agent_prompt_message_bytes(
+    message: str,
+    *,
+    max_prompt_message_bytes: int,
+) -> None:
+    """Fail before publication/routing when an exact prompt message exceeds profile authority."""
+
+    if (
+        isinstance(max_prompt_message_bytes, bool)
+        or not isinstance(max_prompt_message_bytes, int)
+        or not 1 <= max_prompt_message_bytes <= MAX_AGENT_PROMPT_CONTEXT_MESSAGE_BYTES
+    ):
+        raise IntegrityViolation("Agent prompt message byte limit is outside platform bounds")
+    if len(message.encode("utf-8")) > max_prompt_message_bytes:
+        raise IntegrityViolation("Agent prompt message exceeds its execution profile byte limit")
 
 
 @dataclass(frozen=True, slots=True)
@@ -248,10 +273,14 @@ class ModelBridgeAgentAdapter:
         prompt_version: str,
         model_snapshot: ModelSnapshot,
         source_artifact_ids: tuple[str, ...],
+        context_kind: AgentPromptContextKind | None = None,
         system: str | None = None,
         params: dict[str, object] | None = None,
         tool_schemas: tuple[ToolSchemaRef, ...] = (),
         route_ordinal: int = 1,
+        semantic_bindings: tuple[AgentPromptSemanticBindingV1, ...] = (),
+        include_previous_consumption: bool = False,
+        prompt_context: AgentPromptContextDraftV1 | None = None,
     ) -> AdapterModelResult:
         """Issue one ordered model call and map the bridge result back to M2 shape."""
 
@@ -267,10 +296,39 @@ class ModelBridgeAgentAdapter:
             agent_node_id=agent_node_id,
             prompt_version=prompt_version,
         )
+        expected_context_messages = tuple(
+            AgentPromptSourceMessageV1(
+                role=message.role,
+                content=message.content,
+                tool_calls=tuple(message.tool_calls),
+                purpose="context" if message.role == "user" else "tool_output",
+            )
+            for message in model_request.messages
+            if message.role != "system"
+        )
+        if prompt_context is None:
+            if context_kind is None:
+                raise IntegrityViolation(
+                    "adapter call without an explicit prompt context requires context_kind"
+                )
+            prompt_context = AgentPromptContextDraftV1(
+                context_kind=context_kind,
+                messages=expected_context_messages,
+                source_artifact_ids=source_artifact_ids,
+                semantic_bindings=semantic_bindings,
+                include_previous_consumption=include_previous_consumption,
+            )
+        elif (
+            prompt_context.source_artifact_ids != source_artifact_ids
+            or prompt_context.include_previous_consumption != include_previous_consumption
+            or prompt_context.messages != expected_context_messages
+        ):
+            raise IntegrityViolation("explicit prompt context differs from adapter call authority")
         self._call_index += 1
         bridge_request = ModelBridgeCallRequestV1(
             model_request=model_request,
             source_artifact_ids=source_artifact_ids,
+            prompt_context=prompt_context,
             idempotency_scope=self._idempotency_scope,
             idempotency_key=f"model:{self._call_index}",
             route_ordinal=route_ordinal,
@@ -288,6 +346,29 @@ class ModelBridgeAgentAdapter:
             replayed=bool(getattr(result, "replayed")),
             execution_source=getattr(getattr(result, "response"), "execution_source", ""),
         )
+
+
+def _context_kind_for_node(
+    agent_node_id: str,
+    *,
+    call_index: int,
+) -> AgentPromptContextKind:
+    if agent_node_id == "generation":
+        return "generation"
+    if agent_node_id == "repair":
+        return "repair_initial" if call_index == 1 else "repair_refine"
+    if agent_node_id == "extraction":
+        return "constraint_extraction"
+    if agent_node_id == "review-triage":
+        return "review_triage"
+    if agent_node_id == "bench-agent-case":
+        return "bench_agent_case"
+    if agent_node_id.startswith("playtest."):
+        return "playtest"
+    raise IntegrityViolation(
+        "Agent node has no retained prompt-context kind",
+        agent_node_id=agent_node_id,
+    )
 
 
 class BridgeModelRouter:
@@ -313,10 +394,32 @@ class BridgeModelRouter:
         adapter: ModelBridgeAgentAdapter,
         default_model_snapshot: ModelSnapshot,
         source_artifact_ids: tuple[str, ...],
+        max_prompt_message_bytes: int,
+        prompt_context_builder: (
+            Callable[[ModelRequest, tuple[str, ...], int], AgentPromptContextDraftV1] | None
+        ) = None,
     ) -> None:
         self._adapter = adapter
         self.default_model_snapshot = default_model_snapshot
         self._source_artifact_ids = source_artifact_ids
+        self._max_prompt_message_bytes = max_prompt_message_bytes
+        self._prompt_context_builder = prompt_context_builder
+        self._pending_prompt_context: AgentPromptContextDraftV1 | None = None
+
+    def prepare_prompt_context(self, draft: AgentPromptContextDraftV1) -> None:
+        """Queue exactly one node-assembled draft for the immediately next call."""
+
+        if self._prompt_context_builder is not None:
+            raise IntegrityViolation(
+                "prompt-context builder and queued draft authority are mutually exclusive"
+            )
+        if self._pending_prompt_context is not None:
+            raise IntegrityViolation("next prompt context is already prepared")
+        if any(
+            source_id not in self._source_artifact_ids for source_id in draft.source_artifact_ids
+        ):
+            raise IntegrityViolation("prepared prompt context escapes its frozen source universe")
+        self._pending_prompt_context = draft
 
     def call(self, request: ModelRequest) -> ModelResponse:
         system: str | None = None
@@ -326,17 +429,44 @@ class BridgeModelRouter:
                 system = message.content
             elif message.role == "user":
                 user = message.content
+        require_agent_prompt_message_bytes(
+            user,
+            max_prompt_message_bytes=self._max_prompt_message_bytes,
+        )
+        call_index = self._adapter.call_count + 1
+        context_kind = _context_kind_for_node(
+            request.agent_node_id,
+            call_index=call_index,
+        )
+        prompt_context = self._pending_prompt_context
+        self._pending_prompt_context = None
+        if prompt_context is None and self._prompt_context_builder is not None:
+            prompt_context = self._prompt_context_builder(
+                request,
+                self._source_artifact_ids,
+                call_index,
+            )
+        call_source_ids = (
+            self._source_artifact_ids
+            if prompt_context is None
+            else prompt_context.source_artifact_ids
+        )
+        if any(source_id not in self._source_artifact_ids for source_id in call_source_ids):
+            raise IntegrityViolation("prompt-context builder escaped its frozen source universe")
         result = self._adapter.call_model(
             agent_node_id=request.agent_node_id,
             user_prompt=user,
             prompt_version=request.prompt_version,
             model_snapshot=request.model_snapshot,
-            source_artifact_ids=self._source_artifact_ids,
+            source_artifact_ids=call_source_ids,
+            context_kind=context_kind,
             system=system,
             params=dict(request.params),
             tool_schemas=tuple(
                 ToolSchemaRef(name=ref.name, version=ref.version) for ref in request.tool_schemas
             ),
+            include_previous_consumption=(request.agent_node_id == "repair" and call_index > 1),
+            prompt_context=prompt_context,
         )
         return result.response
 
@@ -349,6 +479,11 @@ def build_bridge_router(
     *,
     context: ExecutorContextLike,
     agent_node_id: str,
+    max_prompt_message_bytes: int,
+    source_artifact_ids: tuple[str, ...] | None = None,
+    prompt_context_builder: (
+        Callable[[ModelRequest, tuple[str, ...], int], AgentPromptContextDraftV1] | None
+    ) = None,
 ) -> BridgeModelRouter:
     """Build the per-node :class:`BridgeModelRouter` for one handler invocation.
 
@@ -369,7 +504,9 @@ def build_bridge_router(
     return BridgeModelRouter(
         adapter=adapter,
         default_model_snapshot=model_snapshot,
-        source_artifact_ids=_prompt_sources(context),
+        source_artifact_ids=prompt_source_artifact_ids(context, selected=source_artifact_ids),
+        max_prompt_message_bytes=max_prompt_message_bytes,
+        prompt_context_builder=prompt_context_builder,
     )
 
 
@@ -407,6 +544,18 @@ class MultiNodeBridgeRouter:
         self._node_snapshots = dict(node_snapshots)
         self.default_model_snapshot = node_snapshots[default_node_id]
         self._source_artifact_ids = source_artifact_ids
+        self._causal_scope_has_consumed_response = False
+
+    def begin_causal_scope(self) -> None:
+        """Start an independent prompt/response causal chain.
+
+        The adapter and its logical-call ordinals remain run-scoped so every
+        episode still lands on one ordered cassette.  Only the prior-response
+        edge resets: a newly reset environment and Agent state cannot claim the
+        preceding episode's final response as a direct prompt parent.
+        """
+
+        self._causal_scope_has_consumed_response = False
 
     def call(self, request: ModelRequest) -> ModelResponse:
         node_id = request.agent_node_id
@@ -426,12 +575,15 @@ class MultiNodeBridgeRouter:
             prompt_version=request.prompt_version,
             model_snapshot=snapshot,
             source_artifact_ids=self._source_artifact_ids,
+            context_kind="playtest",
             system=system,
             params=dict(request.params),
             tool_schemas=tuple(
                 ToolSchemaRef(name=ref.name, version=ref.version) for ref in request.tool_schemas
             ),
+            include_previous_consumption=self._causal_scope_has_consumed_response,
         )
+        self._causal_scope_has_consumed_response = True
         return result.response
 
     @property
@@ -470,11 +622,15 @@ def build_multinode_bridge_router(
         adapter=adapter,
         node_snapshots=node_snapshots,
         default_node_id=default_node_id,
-        source_artifact_ids=_prompt_sources(context),
+        source_artifact_ids=prompt_source_artifact_ids(context),
     )
 
 
-def _prompt_sources(context: ExecutorContextLike) -> tuple[str, ...]:
+def prompt_source_artifact_ids(
+    context: ExecutorContextLike,
+    *,
+    selected: tuple[str, ...] | None = None,
+) -> tuple[str, ...]:
     """Return real frozen handler inputs, never the REPLAY cassette container.
 
     Task-specific retained prompt bindings decide which complete source set is
@@ -484,15 +640,22 @@ def _prompt_sources(context: ExecutorContextLike) -> tuple[str, ...]:
     """
 
     payload = context.payload
-    source_ids = tuple(
+    frozen = tuple(
         artifact_id
         for artifact_id in payload.input_artifact_ids
         if artifact_id != payload.cassette_artifact_id
     )
+    source_ids = frozen if selected is None else tuple(selected)
     if not source_ids:
         raise IntegrityViolation("model Run has no exact non-cassette prompt source Artifact")
     if source_ids != tuple(sorted(set(source_ids))):
         raise IntegrityViolation("model Run prompt sources are not stable-unique")
+    unexpected = tuple(artifact_id for artifact_id in source_ids if artifact_id not in frozen)
+    if unexpected:
+        raise IntegrityViolation(
+            "model Run prompt source is not a frozen non-cassette input",
+            source_artifact_ids=unexpected,
+        )
     return source_ids
 
 
@@ -509,5 +672,6 @@ __all__ = [
     "build_bridge_router",
     "build_multinode_bridge_router",
     "plan_node_snapshot",
+    "prompt_source_artifact_ids",
     "router_result_to_model_response",
 ]

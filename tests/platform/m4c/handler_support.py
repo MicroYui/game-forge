@@ -264,6 +264,7 @@ def build_envelope(
     llm_execution_mode: str = "not_applicable",
     plan: ExecutionVersionPlanV1 | None = None,
     cassette_artifact_id: str | None = None,
+    version_tuple: VersionTuple | None = None,
 ) -> RunPayloadEnvelope:
     inputs = list(referenced_input_artifact_ids(params))
     if cassette_artifact_id is not None and cassette_artifact_id not in inputs:
@@ -271,7 +272,7 @@ def build_envelope(
     return RunPayloadEnvelope(
         payload_schema_version=params.schema_version,
         input_artifact_ids=tuple(inputs),
-        version_tuple=VersionTuple(tool_version="handler@1"),
+        version_tuple=version_tuple or VersionTuple(tool_version="handler@1", seed=seed),
         execution_version_plan=plan,
         policy_bindings=(),
         schema_bindings=(),
@@ -349,6 +350,7 @@ def build_context(
     plan: ExecutionVersionPlanV1 | None = None,
     cassette_artifact_id: str | None = None,
     model_bridge: object | None = None,
+    version_tuple: VersionTuple | None = None,
 ) -> ExecutorContext:
     envelope = build_envelope(
         params=params,
@@ -358,6 +360,7 @@ def build_context(
         llm_execution_mode=llm_execution_mode,
         plan=plan,
         cassette_artifact_id=cassette_artifact_id,
+        version_tuple=version_tuple,
     )
     run = build_run_record(envelope, kind)
     attempt = build_attempt()

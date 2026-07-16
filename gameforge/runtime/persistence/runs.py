@@ -17,6 +17,7 @@ from gameforge.contracts.findings import FindingRevisionV1, finding_revision_dig
 from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
     AttemptStartedDataV1,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     RetryDecisionV1,
     RunAttempt,
     RunCommandRecordV1,
@@ -28,6 +29,7 @@ from gameforge.contracts.jobs import (
     RunModelRouteLinkV1,
     RunQueuedDataV1,
     RunRecord,
+    RunToolIntermediateLinkV1,
 )
 from gameforge.runtime.persistence.models import (
     ArtifactRow,
@@ -41,6 +43,7 @@ from gameforge.runtime.persistence.models import (
     RunModelResponseConsumptionRow,
     RunModelRouteLinkRow,
     RunRow,
+    RunToolIntermediateLinkRow,
     ReservationGroupRow,
     UsageEntryRow,
 )
@@ -547,6 +550,51 @@ def _parse_intermediate_row(
     return parsed
 
 
+def _tool_intermediate_wire(row: RunToolIntermediateLinkRow) -> dict[str, Any]:
+    return {
+        "link_schema_version": row.link_schema_version,
+        "run_id": row.run_id,
+        "attempt_no": row.attempt_no,
+        "target_call_ordinal": row.target_call_ordinal,
+        "artifact_id": row.artifact_id,
+        "role": row.role,
+        "agent_node_id": row.agent_node_id,
+        "prompt_version": row.prompt_version,
+        "payload_hash": row.payload_hash,
+        "fencing_token": row.fencing_token,
+        "published_at": row.published_at,
+    }
+
+
+def _parse_tool_intermediate_row(
+    row: RunToolIntermediateLinkRow,
+    *,
+    expected_run_id: str,
+    expected_attempt_no: int,
+    expected_target_call_ordinal: int,
+) -> RunToolIntermediateLinkV1:
+    wire = _tool_intermediate_wire(row)
+    try:
+        if (
+            row.run_id != expected_run_id
+            or row.attempt_no != expected_attempt_no
+            or row.target_call_ordinal != expected_target_call_ordinal
+        ):
+            raise ValueError("tool-intermediate storage key differs from requested identity")
+        parsed = RunToolIntermediateLinkV1.model_validate(wire)
+        if _canonical_wire(parsed) != typed_canonical_json(wire):
+            raise ValueError("tool-intermediate row is not canonical")
+        _require_canonical_utc(parsed.published_at, field_name="published_at")
+    except (TypeError, ValueError, ValidationError, IntegrityViolation) as exc:
+        raise IntegrityViolation(
+            "stored RunToolIntermediateLink is invalid",
+            run_id=expected_run_id,
+            attempt_no=expected_attempt_no,
+            target_call_ordinal=expected_target_call_ordinal,
+        ) from exc
+    return parsed
+
+
 def _model_route_wire(row: RunModelRouteLinkRow) -> dict[str, Any]:
     return {
         "link_schema_version": row.link_schema_version,
@@ -602,6 +650,7 @@ def _model_consumption_wire(row: RunModelResponseConsumptionRow) -> dict[str, An
         "reservation_group_id": row.reservation_group_id,
         "transport_attempt": row.transport_attempt,
         "cassette_shard_artifact_id": row.cassette_shard_artifact_id,
+        "response_digest": row.response_digest,
         "consumed_at": row.consumed_at,
     }
 
@@ -2148,6 +2197,7 @@ class SqlRunRepository:
         run_id: str,
         *,
         attempt_no: int | None,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
     ) -> tuple[RunIntermediateArtifactLinkV1, ...]:
         """All committed ``prompt_rendered`` intermediate links for a Run.
 
@@ -2159,6 +2209,9 @@ class SqlRunRepository:
         """
 
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        selected_limit = _require_positive(limit, field_name="limit")
+        if selected_limit > MAX_RUN_MANIFEST_PARENT_BINDINGS:
+            raise IntegrityViolation("prompt-link limit exceeds the runtime authority hard cap")
         query = select(RunIntermediateArtifactLinkRow).where(
             RunIntermediateArtifactLinkRow.run_id == selected_run_id,
             RunIntermediateArtifactLinkRow.role == "prompt_rendered",
@@ -2171,7 +2224,9 @@ class SqlRunRepository:
             RunIntermediateArtifactLinkRow.call_ordinal,
             RunIntermediateArtifactLinkRow.route_ordinal,
         )
-        rows = self._session.scalars(query).all()
+        rows = self._session.scalars(query.limit(selected_limit + 1)).all()
+        if len(rows) > selected_limit:
+            raise IntegrityViolation("prompt-link listing exceeds its runtime authority bound")
         return tuple(
             _parse_intermediate_row(
                 row,
@@ -2220,6 +2275,169 @@ class SqlRunRepository:
                 expected_attempt_no=row.attempt_no,
                 expected_call_ordinal=row.call_ordinal,
                 expected_route_ordinal=row.route_ordinal,
+            )
+            for row in rows
+        )
+
+    def put_tool_intermediate_link(
+        self,
+        link: RunToolIntermediateLinkV1,
+    ) -> RunToolIntermediateLinkV1:
+        parsed = _revalidate(
+            link,
+            RunToolIntermediateLinkV1,
+            label="Run tool intermediate link put",
+        )
+        existing = self.get_tool_intermediate_link(
+            parsed.run_id,
+            parsed.attempt_no,
+            parsed.target_call_ordinal,
+        )
+        if existing is not None:
+            if _canonical_wire(existing) != _canonical_wire(parsed):
+                raise IntegrityViolation(
+                    "immutable Run tool intermediate differs from retained content",
+                    run_id=parsed.run_id,
+                    attempt_no=parsed.attempt_no,
+                    target_call_ordinal=parsed.target_call_ordinal,
+                )
+            return existing
+
+        run = self.get(parsed.run_id)
+        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
+        lease = self.get_current_lease(parsed.run_id)
+        if (
+            run is None
+            or run.current_attempt_no != parsed.attempt_no
+            or run.status not in _ACTIVE_RUN_STATUSES
+            or attempt is None
+            or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
+            or lease is None
+            or lease.attempt_no != parsed.attempt_no
+            or lease.fencing_token != parsed.fencing_token
+            or attempt.fencing_token != parsed.fencing_token
+        ):
+            raise InvalidStateTransition("tool intermediate requires the current fenced lease")
+        if attempt.next_call_ordinal != parsed.target_call_ordinal:
+            raise Conflict(
+                "tool intermediate target differs from the Attempt call head",
+                expected_call_ordinal=attempt.next_call_ordinal,
+                target_call_ordinal=parsed.target_call_ordinal,
+            )
+        if (
+            self.get_intermediate_link(
+                parsed.run_id,
+                parsed.attempt_no,
+                parsed.target_call_ordinal,
+                1,
+            )
+            is not None
+        ):
+            raise Conflict("tool intermediate must be published before its rendered prompt")
+        artifact = self._session.get(ArtifactRow, parsed.artifact_id)
+        if (
+            artifact is None
+            or artifact.kind != "source_raw"
+            or artifact.payload_hash != parsed.payload_hash
+            or not isinstance(artifact.meta, dict)
+            or artifact.meta.get("payload_schema_id") != "agent-prompt-context@1"
+            or artifact.meta.get("producer_run_id") != parsed.run_id
+            or artifact.meta.get("producer_attempt_no") != parsed.attempt_no
+            or artifact.meta.get("target_call_ordinal") != parsed.target_call_ordinal
+            or artifact.meta.get("agent_node_id") != parsed.agent_node_id
+            or artifact.meta.get("prompt_version") != parsed.prompt_version
+        ):
+            raise IntegrityViolation(
+                "tool intermediate requires its exact Agent prompt-context Artifact",
+                artifact_id=parsed.artifact_id,
+            )
+
+        self._session.add(RunToolIntermediateLinkRow(**parsed.model_dump(mode="json")))
+        self._session.flush()
+        return parsed
+
+    def get_tool_intermediate_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        target_call_ordinal: int,
+    ) -> RunToolIntermediateLinkV1 | None:
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        selected_attempt = _require_positive(attempt_no, field_name="attempt_no")
+        selected_call = _require_positive(
+            target_call_ordinal,
+            field_name="target_call_ordinal",
+        )
+        row = self._session.get(
+            RunToolIntermediateLinkRow,
+            (selected_run_id, selected_attempt, selected_call),
+        )
+        if row is None:
+            return None
+        parsed = _parse_tool_intermediate_row(
+            row,
+            expected_run_id=selected_run_id,
+            expected_attempt_no=selected_attempt,
+            expected_target_call_ordinal=selected_call,
+        )
+        attempt = self.get_attempt(selected_run_id, selected_attempt)
+        if (
+            attempt is None
+            or parsed.fencing_token != attempt.fencing_token
+            or parsed.target_call_ordinal > attempt.next_call_ordinal
+        ):
+            raise IntegrityViolation("stored tool intermediate disagrees with its RunAttempt")
+        return parsed
+
+    def get_tool_intermediate_for_call(
+        self,
+        run_id: str,
+        attempt_no: int,
+        target_call_ordinal: int,
+    ) -> RunToolIntermediateLinkV1 | None:
+        return self.get_tool_intermediate_link(
+            run_id,
+            attempt_no,
+            target_call_ordinal,
+        )
+
+    def list_tool_intermediate_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
+    ) -> tuple[RunToolIntermediateLinkV1, ...]:
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        selected_limit = _require_positive(limit, field_name="limit")
+        if selected_limit > MAX_RUN_MANIFEST_PARENT_BINDINGS:
+            raise IntegrityViolation(
+                "tool intermediate limit exceeds the runtime authority hard cap"
+            )
+        query = select(RunToolIntermediateLinkRow).where(
+            RunToolIntermediateLinkRow.run_id == selected_run_id
+        )
+        if attempt_no is not None:
+            selected_attempt = _require_positive(attempt_no, field_name="attempt_no")
+            query = query.where(RunToolIntermediateLinkRow.attempt_no == selected_attempt)
+        rows = self._session.scalars(
+            query.order_by(
+                RunToolIntermediateLinkRow.attempt_no,
+                RunToolIntermediateLinkRow.target_call_ordinal,
+            ).limit(selected_limit + 1)
+        ).all()
+        if len(rows) > selected_limit:
+            raise IntegrityViolation(
+                "tool intermediate lookup exceeds the admission bound",
+                run_id=selected_run_id,
+                limit=selected_limit,
+            )
+        return tuple(
+            _parse_tool_intermediate_row(
+                row,
+                expected_run_id=row.run_id,
+                expected_attempt_no=row.attempt_no,
+                expected_target_call_ordinal=row.target_call_ordinal,
             )
             for row in rows
         )
@@ -2458,11 +2676,15 @@ class SqlRunRepository:
         run_id: str,
         *,
         attempt_no: int | None,
-        limit: int = 8192,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
     ) -> tuple[RunModelRouteLinkV1, ...]:
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
-        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 8192:
-            raise IntegrityViolation("model-route limit must be between 1 and 8192")
+        if (
+            isinstance(limit, bool)
+            or not isinstance(limit, int)
+            or not 1 <= limit <= MAX_RUN_MANIFEST_PARENT_BINDINGS
+        ):
+            raise IntegrityViolation("model-route limit exceeds the runtime authority hard cap")
         query = select(RunModelRouteLinkRow).where(RunModelRouteLinkRow.run_id == selected_run_id)
         if attempt_no is not None:
             query = query.where(
@@ -2697,11 +2919,17 @@ class SqlRunRepository:
         run_id: str,
         *,
         attempt_no: int | None,
-        limit: int = 8192,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
     ) -> tuple[RunModelResponseConsumptionV1, ...]:
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
-        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 8192:
-            raise IntegrityViolation("model-consumption limit must be between 1 and 8192")
+        if (
+            isinstance(limit, bool)
+            or not isinstance(limit, int)
+            or not 1 <= limit <= MAX_RUN_MANIFEST_PARENT_BINDINGS
+        ):
+            raise IntegrityViolation(
+                "model-consumption limit exceeds the runtime authority hard cap"
+            )
         query = select(RunModelResponseConsumptionRow).where(
             RunModelResponseConsumptionRow.run_id == selected_run_id
         )

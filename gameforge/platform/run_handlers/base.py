@@ -30,14 +30,20 @@ This module holds the pieces every handler shares:
 from __future__ import annotations
 
 import json
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Mapping, Protocol, runtime_checkable
+from typing import Callable, Mapping, Protocol, runtime_checkable
 
-from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.canonical import canonical_json, canonical_sha256
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ResolvedExecutionProfileBindingV1
 from gameforge.contracts.findings import Finding, FindingPayloadV1
 from gameforge.contracts.jobs import (
+    MAX_COLLECTION_ITEMS,
+    MAX_PREPARED_ARTIFACT_BYTES,
+    MAX_PREPARED_FINDINGS,
+    MAX_PREPARED_OUTCOME_BYTES,
     PreparedArtifact,
     PreparedFindingV1,
     PreparedRunResult,
@@ -52,6 +58,7 @@ from gameforge.contracts.lineage import (
     ObjectLocation,
     ObjectRef,
     VersionTuple,
+    object_ref_for_bytes,
 )
 from gameforge.contracts.model_router import ModelSnapshot
 
@@ -102,6 +109,118 @@ class PreparedArtifactStore(Protocol):
     def put_prepared(self, payload: bytes) -> tuple[ObjectRef, ObjectLocation]: ...
 
 
+class PreparedArtifactBatchStore:
+    """Stage an entire handler outcome in memory, then commit after preflight."""
+
+    def __init__(
+        self,
+        *,
+        max_bytes: int = MAX_PREPARED_OUTCOME_BYTES,
+        max_artifacts: int = MAX_COLLECTION_ITEMS,
+    ) -> None:
+        if not 1 <= max_bytes <= MAX_PREPARED_OUTCOME_BYTES:
+            raise IntegrityViolation("prepared batch byte authority is outside the hard bound")
+        if not 1 <= max_artifacts <= MAX_COLLECTION_ITEMS:
+            raise IntegrityViolation("prepared batch artifact authority is outside the hard bound")
+        self._max_bytes = max_bytes
+        self._max_artifacts = max_artifacts
+        self._staged_bytes = 0
+        self._blobs: dict[str, bytes] = {}
+        self._staged_bindings: list[tuple[ObjectRef, ObjectLocation]] = []
+
+    @property
+    def staged_bytes(self) -> int:
+        return self._staged_bytes
+
+    @property
+    def staged_artifact_count(self) -> int:
+        return len(self._staged_bindings)
+
+    def put_prepared(self, payload: bytes) -> tuple[ObjectRef, ObjectLocation]:
+        if len(self._staged_bindings) >= self._max_artifacts:
+            raise IntegrityViolation("prepared outcome exceeds the aggregate artifact bound")
+        if len(payload) > self._max_bytes - self._staged_bytes:
+            raise IntegrityViolation("prepared outcome exceeds the aggregate byte bound")
+        object_ref = object_ref_for_bytes(payload)
+        location = ObjectLocation(
+            store_id="prepared-preflight",
+            key=object_ref.key,
+            backend_generation="preflight@1",
+        )
+        self._staged_bytes += len(payload)
+        self._blobs[object_ref.key] = bytes(payload)
+        self._staged_bindings.append((object_ref, location))
+        return object_ref, location
+
+    def commit(
+        self,
+        target: PreparedArtifactStore,
+        artifacts: tuple[PreparedArtifact, ...],
+        *,
+        max_bytes: int,
+    ) -> tuple[PreparedArtifact, ...]:
+        if max_bytes != self._max_bytes:
+            raise IntegrityViolation("prepared batch commit authority changed after staging")
+        if len(artifacts) != len(self._staged_bindings):
+            raise IntegrityViolation("prepared batch artifacts differ from the staged call count")
+        validate_prepared_artifact_total(artifacts, max_bytes=max_bytes)
+        staged_bindings = Counter(
+            _prepared_binding_identity(object_ref, location)
+            for object_ref, location in self._staged_bindings
+        )
+        artifact_bindings = Counter(
+            _prepared_binding_identity(artifact.object_ref, artifact.location)
+            for artifact in artifacts
+        )
+        if artifact_bindings != staged_bindings:
+            raise IntegrityViolation(
+                "prepared batch Artifact differs from its exact staged binding"
+            )
+        for artifact in artifacts:
+            if artifact.payload_hash != artifact.object_ref.sha256:
+                raise IntegrityViolation(
+                    "prepared batch Artifact differs from its exact staged binding"
+                )
+            blob = self._blobs.get(artifact.object_ref.key)
+            if blob is None or object_ref_for_bytes(blob) != artifact.object_ref:
+                raise IntegrityViolation("prepared batch staged bytes differ from ObjectRef")
+        committed: list[PreparedArtifact] = []
+        for artifact in artifacts:
+            blob = self._blobs[artifact.object_ref.key]
+            object_ref, location = target.put_prepared(blob)
+            if object_ref != artifact.object_ref or location.key != object_ref.key:
+                raise IntegrityViolation("prepared store changed a staged object binding")
+            committed.append(
+                PreparedArtifact.model_validate(
+                    {
+                        **artifact.model_dump(mode="python"),
+                        "payload_hash": object_ref.sha256,
+                        "object_ref": object_ref,
+                        "location": location,
+                    }
+                )
+            )
+        return tuple(committed)
+
+
+def _prepared_binding_identity(
+    object_ref: ObjectRef,
+    location: ObjectLocation,
+) -> tuple[object, ...]:
+    return (
+        object_ref.object_ref_schema_version,
+        object_ref.key,
+        object_ref.sha256,
+        object_ref.size_bytes,
+        location.location_schema_version,
+        location.store_id,
+        location.key,
+        location.backend_generation,
+        location.etag,
+        location.storage_class,
+    )
+
+
 def canonical_payload_bytes(payload: Mapping[str, object]) -> bytes:
     """Deterministic UTF-8 canonical JSON bytes for a domain-artifact payload."""
 
@@ -147,6 +266,12 @@ def store_prepared_blob(
 ) -> PreparedArtifact:
     """Seal already-serialized payload bytes into a :class:`PreparedArtifact`."""
 
+    if len(blob) > MAX_PREPARED_ARTIFACT_BYTES:
+        raise IntegrityViolation(
+            "prepared artifact exceeds the pre-write byte bound",
+            payload_schema_id=payload_schema_id,
+            max_bytes=MAX_PREPARED_ARTIFACT_BYTES,
+        )
     object_ref, location = store.put_prepared(blob)
     meta: dict[str, object] = {"payload_schema_id": payload_schema_id}
     if extra_meta:
@@ -164,6 +289,47 @@ def store_prepared_blob(
         object_ref=object_ref,
         location=location,
     )
+
+
+def validate_prepared_artifact_total(
+    artifacts: tuple[PreparedArtifact, ...],
+    *,
+    max_bytes: int = MAX_PREPARED_OUTCOME_BYTES,
+) -> int:
+    """Validate one handler outcome's aggregate object bytes."""
+
+    if not 1 <= max_bytes <= MAX_PREPARED_OUTCOME_BYTES:
+        raise IntegrityViolation("prepared outcome byte authority is outside the hard bound")
+    total = sum(artifact.object_ref.size_bytes for artifact in artifacts)
+    if total > max_bytes:
+        raise IntegrityViolation(
+            "prepared outcome exceeds the aggregate byte bound",
+            total_bytes=total,
+            max_bytes=max_bytes,
+        )
+    return total
+
+
+def scoped_finding_series_id(
+    *,
+    namespace: str,
+    scope_id: str,
+    finding_id: str,
+) -> str:
+    """Build a bounded readable series id with collision-resistant full binding."""
+
+    if not namespace or not scope_id or not finding_id:
+        raise ValueError("scoped finding identity inputs must be non-empty")
+    digest = canonical_sha256(
+        {
+            "namespace": namespace,
+            "scope_id": scope_id,
+            "finding_id": finding_id,
+        }
+    )
+    # Truncation affects readability only; the full values remain committed by
+    # the digest, so equal prefixes cannot collapse distinct series identities.
+    return f"{namespace[:64]}:{scope_id[:128]}:{finding_id[:128]}:sha256:{digest}"
 
 
 def finding_to_payload(finding: Finding, *, producer_run_id: str) -> FindingPayloadV1:
@@ -194,6 +360,49 @@ def finding_to_payload(finding: Finding, *, producer_run_id: str) -> FindingPayl
     )
 
 
+def rebind_finding_producers(
+    findings: list[Finding] | tuple[Finding, ...], *, run_id: str
+) -> list[Finding]:
+    """Make embedded report Findings agree with their authoritative revisions."""
+
+    return [
+        finding
+        if finding.producer_run_id == run_id
+        else finding.model_copy(update={"producer_run_id": run_id})
+        for finding in findings
+    ]
+
+
+_EMBEDDED_FINDING_FIELDS = (
+    "findings",
+    "deterministic_findings",
+    "llm_assisted_findings",
+    "simulation_findings",
+    "unproven_findings",
+)
+
+
+def rebind_embedded_finding_payload(
+    payload: Mapping[str, object], *, run_id: str
+) -> dict[str, object]:
+    """Rebind every registered report Finding to the authoritative producer Run."""
+
+    rebound = dict(payload)
+    for field_name in _EMBEDDED_FINDING_FIELDS:
+        raw = rebound.get(field_name)
+        if raw is None:
+            continue
+        if not isinstance(raw, (list, tuple)):
+            raise ValueError(f"embedded {field_name} must be a finding collection")
+        rebound[field_name] = [
+            finding.model_dump(mode="json")
+            for finding in rebind_finding_producers(
+                [Finding.model_validate(item) for item in raw], run_id=run_id
+            )
+        ]
+    return rebound
+
+
 @dataclass(frozen=True, slots=True)
 class FindingEvidence:
     """One spine finding paired with the prepared-artifact index that evidences it.
@@ -210,19 +419,28 @@ class FindingEvidence:
     finding_id: str | None = None
 
 
+FindingHeadRevisionResolver = Callable[[str], int | None]
+
+
 def build_prepared_findings(
     evidence: tuple[FindingEvidence, ...],
     *,
     run_id: str,
+    head_revision_resolver: FindingHeadRevisionResolver | None = None,
 ) -> tuple[PreparedFindingV1, ...]:
-    """Project spine findings onto ``PreparedFindingV1`` (fresh series heads)."""
+    """Project findings with the exact retained series-head CAS precondition."""
 
+    if len(evidence) > MAX_PREPARED_FINDINGS:
+        raise ValueError("prepared finding count exceeds the frozen output bound")
     prepared: list[PreparedFindingV1] = []
     for item in evidence:
+        finding_id = item.finding_id or item.finding.id
         prepared.append(
             PreparedFindingV1(
-                finding_id=item.finding_id or item.finding.id,
-                expected_previous_revision=None,
+                finding_id=finding_id,
+                expected_previous_revision=(
+                    None if head_revision_resolver is None else head_revision_resolver(finding_id)
+                ),
                 evidence_artifact_index=item.evidence_artifact_index,
                 payload=finding_to_payload(item.finding, producer_run_id=run_id),
             )
@@ -252,6 +470,7 @@ def build_success_result(
         raise ValueError("a success outcome requires at least one prepared artifact")
     if primary_index >= len(artifacts):
         raise ValueError("primary_index is outside the prepared artifacts")
+    validate_prepared_artifact_total(artifacts)
     summary = PreparedRunResultSummaryV1(
         outcome_code=outcome_code,
         primary_artifact_kind=artifacts[primary_index].kind,
@@ -286,6 +505,54 @@ def resolved_profile(
     return None
 
 
+_PREPARED_VERSION_FIELDS = frozenset(
+    {
+        "doc_version",
+        "ir_snapshot_id",
+        "constraint_snapshot_id",
+        "env_contract_version",
+        "seed",
+    }
+)
+
+
+def prepared_version_tuple(
+    context: ExecutorContextLike,
+    *,
+    tool_version: str,
+    projected_fields: tuple[str, ...] = (),
+    overrides: Mapping[str, object | None] | None = None,
+) -> VersionTuple:
+    """Build the worker-checkable tuple for one prepared domain Artifact.
+
+    Admission has already frozen the exact semantic input projection on the Run.
+    Handlers must copy semantic snapshot identities from that tuple, never from an
+    Artifact id that merely addresses the parent. Content-derived child identities
+    (for example a newly applied IR preview) are supplied as explicit overrides.
+
+    Current-run model/prompt/cassette identity is intentionally absent here. The
+    terminal publisher derives those fields from the committed call graph and only
+    then adds them to the authoritative Artifact.
+    """
+
+    if not tool_version:
+        raise ValueError("prepared Artifact tool_version must be non-empty")
+    selected = tuple(projected_fields)
+    if len(selected) != len(set(selected)) or set(selected) - _PREPARED_VERSION_FIELDS:
+        raise ValueError("prepared VersionTuple projection fields are invalid")
+    updates = dict(overrides or {})
+    if set(updates) - _PREPARED_VERSION_FIELDS:
+        raise ValueError("prepared VersionTuple overrides contain unsupported fields")
+    if set(selected) & set(updates):
+        raise ValueError("prepared VersionTuple field cannot be projected and overridden")
+
+    frozen = context.payload.version_tuple
+    values: dict[str, object | None] = {field: getattr(frozen, field) for field in selected}
+    values.update(updates)
+    values["tool_version"] = tool_version
+    return VersionTuple.model_validate(values)
+
+
 def load_json_blob(reader: ArtifactBlobReader, artifact_id: str) -> object:
     """Read + JSON-decode an input artifact blob (fail-closed on malformed bytes)."""
 
@@ -297,14 +564,21 @@ __all__ = [
     "ArtifactBlobReader",
     "ExecutorContextLike",
     "FindingEvidence",
+    "FindingHeadRevisionResolver",
     "ModelBridgePort",
     "PreparedArtifactStore",
+    "PreparedArtifactBatchStore",
     "build_prepared_findings",
     "build_success_result",
     "canonical_payload_bytes",
     "finding_to_payload",
     "load_json_blob",
+    "prepared_version_tuple",
+    "rebind_embedded_finding_payload",
+    "rebind_finding_producers",
+    "scoped_finding_series_id",
     "resolved_profile",
     "store_prepared_artifact",
     "store_prepared_blob",
+    "validate_prepared_artifact_total",
 ]

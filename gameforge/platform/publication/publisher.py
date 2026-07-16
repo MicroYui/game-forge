@@ -33,7 +33,10 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.findings import FindingRevisionV1
 from gameforge.contracts.jobs import (
+    AgentPromptContextV1,
+    CheckerRunPayloadV1,
     ConstraintValidationPayloadV1,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     OutcomeArtifactRuleV1,
     OutcomeArtifactPolicyV1,
     PreparedRunFailure,
@@ -54,7 +57,10 @@ from gameforge.contracts.jobs import (
     RunRecord,
     RunResultSummaryV1,
     RunResultV1,
+    RunToolIntermediateLinkV1,
+    validate_agent_prompt_context_kind,
     RollbackValidationPayloadV1,
+    SimulationRunPayloadV1,
 )
 from gameforge.contracts.lineage import (
     ArtifactV2,
@@ -71,6 +77,7 @@ from gameforge.contracts.lineage import (
 )
 from gameforge.contracts.model_router import ModelRequestV2, parse_model_request, request_hash
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
+from gameforge.contracts.provenance import ProvenanceV1, most_conservative_trust
 from gameforge.platform.publication.effects import (
     AgentDraftWorkflowPort,
     AutoApplyValidationPort,
@@ -91,6 +98,7 @@ from gameforge.platform.publication.lineage import (
     project_typed_lineage,
     resolve_child_payload_references,
 )
+from gameforge.platform.provenance.registry import build_source_kind_registry
 from gameforge.platform.publication.planner import (
     PublicationPlan,
     PublicationRegistry,
@@ -177,6 +185,10 @@ class ManifestLedger(Protocol):
         self, run_id: str, *, attempt_no: int | None
     ) -> tuple[RunIntermediateArtifactLinkV1, ...]: ...
 
+    def tool_intermediate_links(
+        self, run_id: str, *, attempt_no: int | None
+    ) -> tuple[RunToolIntermediateLinkV1, ...]: ...
+
     def closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]: ...
 
     def put_finding_link(self, link: RunFindingLinkV1) -> RunFindingLinkV1: ...
@@ -255,6 +267,26 @@ class AuditPort(Protocol):
     ) -> None: ...
 
 
+def _require_registered_source_provenance(
+    provenance: ProvenanceV1,
+    *,
+    required_prompt_purposes: frozenset[str] = frozenset(),
+    label: str,
+) -> None:
+    registry = build_source_kind_registry()
+    definition = (
+        registry.get(provenance.source_kind_id)
+        if provenance.source_kind_registry_version == registry.registry_version
+        else None
+    )
+    if (
+        definition is None
+        or provenance.trust not in definition.allowed_trust_levels
+        or not required_prompt_purposes.issubset(definition.allowed_prompt_purposes)
+    ):
+        raise IntegrityViolation(f"{label} escapes the source-kind registry")
+
+
 def _role_for_manifest(rule_role: str) -> str:
     return "evidence" if rule_role == "evidence" else "output"
 
@@ -294,12 +326,13 @@ def project_runtime_parents(
     current_attempt_no: int | None,
     llm_execution_mode: str,
     prompt_links: Sequence[RunIntermediateArtifactLinkV1],
+    tool_intermediate_links: Sequence[RunToolIntermediateLinkV1] = (),
     record_shards: Sequence[tuple[int, int, str]],
     closed: Mapping[str, int | None],
     attempt_bundle_id: str | None,
     run_bundle_id: str | None,
     replay_input_id: str | None,
-    committed_link_counts: Mapping[str, int],
+    committed_link_counts: Mapping[object, int],
     artifact_info_by_id: Mapping[str, ParentInfo],
     consumed_response_call_keys: frozenset[tuple[int, int]] = frozenset(),
 ) -> tuple[RunManifestParentBindingV1, ...]:
@@ -328,6 +361,8 @@ def project_runtime_parents(
         ordinal: int | None = None,
         cassette_scope: str | None = None,
     ) -> None:
+        if len(bindings) >= MAX_RUN_MANIFEST_PARENT_BINDINGS:
+            raise IntegrityViolation("runtime parent projection exceeds its hard cap")
         info = artifact_info_by_id.get(artifact_id)
         if info is None or info.artifact_id != artifact_id:
             raise IntegrityViolation(
@@ -381,6 +416,36 @@ def project_runtime_parents(
         )
     if len(prompt_keys) != len(set(prompt_keys)):
         raise IntegrityViolation("runtime prompt links contain a duplicate call route")
+
+    context_keys: list[tuple[int, int]] = []
+    for link in tool_intermediate_links:
+        if link.run_id != run_id:
+            raise IntegrityViolation("prompt-context link belongs to another Run")
+        if manifest_scope == "attempt" and link.attempt_no != current_attempt_no:
+            raise IntegrityViolation(
+                "attempt manifest contains another attempt's prompt-context link"
+            )
+        if manifest_scope == "run" and (
+            current_attempt_no is None or link.attempt_no > current_attempt_no
+        ):
+            raise IntegrityViolation("run manifest contains a future prompt-context link")
+        info = artifact_info_by_id.get(link.artifact_id)
+        if info is None or info.payload_hash != link.payload_hash:
+            raise IntegrityViolation(
+                "prompt-context link payload hash differs from its immutable Artifact",
+                artifact_id=link.artifact_id,
+            )
+        context_keys.append((link.attempt_no, link.target_call_ordinal))
+        append_parent(
+            artifact_id=link.artifact_id,
+            source="published_intermediate",
+            role="intermediate",
+            publication="run_published",
+            attempt_no=link.attempt_no,
+            ordinal=link.target_call_ordinal,
+        )
+    if len(context_keys) != len(set(context_keys)):
+        raise IntegrityViolation("runtime prompt-context links contain a duplicate target call")
 
     shard_keys: list[tuple[int, int]] = []
     for shard_attempt_no, call_ordinal, artifact_id in record_shards:
@@ -459,12 +524,16 @@ def project_runtime_parents(
     if len(parent_ids) != len(set(parent_ids)):
         raise IntegrityViolation("one Artifact occupies more than one runtime-parent binding")
 
+    scoped_count_name = "current_attempt" if manifest_scope == "attempt" else "all_attempts"
+    exact_link_counts = dict(committed_link_counts)
+    exact_link_counts[("prompt_rendered", scoped_count_name)] = len(prompt_links)
+    exact_link_counts[("agent_prompt_context", scoped_count_name)] = len(tool_intermediate_links)
     validate_runtime_parents(
         rule_set=rule_set,
         manifest_scope=manifest_scope,
         llm_execution_mode=llm_execution_mode,
         parents=projected,
-        committed_link_counts=committed_link_counts,
+        committed_link_counts=exact_link_counts,
         execution_identity_counts={
             "current_attempt": sum(
                 attempt_no == current_attempt_no for attempt_no, _ in consumed_response_call_keys
@@ -1823,6 +1892,7 @@ class TerminalPublisher:
             )
             for allocation in allocations
         }
+        authoritative_parent_payload_cache: dict[str, Mapping[str, object]] = {}
 
         for allocation in _topological_rule_order(allocations, plan):
             rule = allocation.plan_rule.rule
@@ -1868,6 +1938,11 @@ class TerminalPublisher:
                     child_lineage=view.lineage,
                     lineage_policy=lineage_policy,
                     siblings=siblings,
+                )
+                child_lineage = _inject_run_intermediates(
+                    child_lineage=child_lineage,
+                    lineage_policy=lineage_policy,
+                    run_intermediates=run_intermediates,
                 )
                 child_lineage = tuple(dict.fromkeys((*child_lineage, *referenced_ids)))
                 typed = project_typed_lineage(
@@ -1975,6 +2050,22 @@ class TerminalPublisher:
                         artifact_index=index,
                         rule_id=rule.rule_id,
                     )
+                authoritative_parent_payloads: dict[str, Mapping[str, object]] = {}
+                if isinstance(
+                    run.payload.params,
+                    (CheckerRunPayloadV1, SimulationRunPayloadV1),
+                ):
+                    for role in ("constraint", "scenario"):
+                        for parent in typed.parents_by_role.get(role, ()):
+                            parent_payload = authoritative_parent_payload_cache.get(
+                                parent.artifact_id
+                            )
+                            if parent_payload is None:
+                                parent_payload = self._read_authoritative_parent_payload(parent)
+                                authoritative_parent_payload_cache[parent.artifact_id] = (
+                                    parent_payload
+                                )
+                            authoritative_parent_payloads[parent.artifact_id] = parent_payload
                 checked_meta = validate_domain_payload_bindings(
                     run=run,
                     outcome_policy=plan.policy,
@@ -1985,6 +2076,7 @@ class TerminalPublisher:
                     projected_tuple=expected_tuple,
                     prepared_meta=view.meta,
                     related_payloads_by_rule=related_payloads_by_rule,
+                    authoritative_parent_payloads=authoritative_parent_payloads,
                 )
                 final_meta = producer_facts.authoritative_meta(checked_meta)
                 artifact = build_artifact_v2(
@@ -2045,6 +2137,7 @@ class TerminalPublisher:
                     kind=view.kind,
                     payload_schema_id=view.payload_schema_id,
                     version_tuple=expected_tuple,
+                    payload_hash=stored.payload_hash,
                 )
         return _PublishedArtifacts(
             ids_by_rule={key: tuple(value) for key, value in ids_by_rule.items()},
@@ -2288,6 +2381,8 @@ class TerminalPublisher:
                 "manifest parent Artifact is bound more than once",
                 artifact_id=parent.artifact_id,
             )
+        if len(parents_by_id) > MAX_RUN_MANIFEST_PARENT_BINDINGS:
+            raise IntegrityViolation("manifest parent projection exceeds its hard cap")
         terminal_tuple = project_manifest_version_tuple(
             policy=transition_policy,  # type: ignore[arg-type]
             manifest_scope=scope,
@@ -2397,8 +2492,25 @@ class TerminalPublisher:
             else ()
         )
         all_links = self._ledger.prompt_links(run.run_id, attempt_no=None)
-        committed = {"current_attempt": len(current_links), "all_attempts": len(all_links)}
+        current_tool_links = (
+            self._ledger.tool_intermediate_links(
+                run.run_id,
+                attempt_no=current_attempt_no,
+            )
+            if current_attempt_no is not None
+            else ()
+        )
+        all_tool_links = self._ledger.tool_intermediate_links(run.run_id, attempt_no=None)
+        committed = {
+            ("prompt_rendered", "current_attempt"): len(current_links),
+            ("prompt_rendered", "all_attempts"): len(all_links),
+            ("agent_prompt_context", "current_attempt"): len(current_tool_links),
+            ("agent_prompt_context", "all_attempts"): len(all_tool_links),
+        }
         prompt_links = current_links if manifest_scope == "attempt" else all_links
+        tool_links = current_tool_links if manifest_scope == "attempt" else all_tool_links
+        for link in tool_links:
+            self._validate_tool_context_parent(run=run, link=link)
 
         identity: ExecutionIdentityV1 | None = None
         route_links: tuple[RunModelRouteLinkV1, ...] = ()
@@ -2533,6 +2645,7 @@ class TerminalPublisher:
 
         runtime_ids = {
             *(link.artifact_id for link in prompt_links),
+            *(link.artifact_id for link in tool_links),
             *(artifact_id for _, _, artifact_id in record_shards),
             *closed,
         }
@@ -2573,6 +2686,7 @@ class TerminalPublisher:
             current_attempt_no=current_attempt_no,
             llm_execution_mode=mode,
             prompt_links=prompt_links,
+            tool_intermediate_links=tool_links,
             record_shards=record_shards,
             closed=closed,
             # The attempt bundle remains the authoritative pointer used to close
@@ -3861,7 +3975,227 @@ class TerminalPublisher:
             kind=artifact.kind,
             payload_schema_id=schema,
             version_tuple=artifact.version_tuple,
+            payload_hash=artifact.payload_hash,
         )
+
+    def _validate_tool_context_parent(
+        self,
+        *,
+        run: RunRecord,
+        link: RunToolIntermediateLinkV1,
+    ) -> None:
+        """Re-read the complete typed context closure before manifest projection."""
+
+        attempt = self._ledger.get_attempt(run.run_id, link.attempt_no)
+        plan = run.payload.execution_version_plan
+        node = (
+            None
+            if plan is None
+            else next(
+                (item for item in plan.nodes if item.agent_node_id == link.agent_node_id),
+                None,
+            )
+        )
+        if (
+            run.payload.llm_execution_mode == "not_applicable"
+            or attempt is None
+            or attempt.fencing_token != link.fencing_token
+            or node is None
+            or node.prompt_version != link.prompt_version
+        ):
+            raise IntegrityViolation("prompt-context link escapes retained Run/attempt authority")
+
+        artifact = self._artifact_v2(link.artifact_id)
+        blob = self._read_published_artifact_bytes(artifact)
+        try:
+            decoded = json.loads(blob)
+            context = AgentPromptContextV1.model_validate(decoded)
+            validate_agent_prompt_context_kind(
+                agent_node_id=link.agent_node_id,
+                context_kind=context.context_kind,
+                target_call_ordinal=link.target_call_ordinal,
+                prior_consumption=context.prior_consumption,
+            )
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise IntegrityViolation("prompt-context payload is invalid") from exc
+        canonical = canonical_json(context.model_dump(mode="json")).encode("utf-8")
+        digest = sha256_lowerhex(blob)
+        upstream_ids = tuple(sorted(item.artifact_id for item in context.upstream_artifacts))
+        if (
+            blob != canonical
+            or digest != link.payload_hash
+            or digest != artifact.payload_hash
+            or artifact.object_ref.sha256 != digest
+            or artifact.object_ref.size_bytes != len(blob)
+            or artifact.kind != "source_raw"
+            or artifact.version_tuple
+            != VersionTuple(
+                doc_version=run.payload.version_tuple.doc_version,
+                tool_version="agent-prompt-context@1",
+            )
+            or artifact.meta.get("payload_schema_id") != "agent-prompt-context@1"
+            or artifact.meta.get("producer_run_id") != run.run_id
+            or artifact.meta.get("producer_attempt_no") != link.attempt_no
+            or artifact.meta.get("target_call_ordinal") != link.target_call_ordinal
+            or artifact.meta.get("agent_node_id") != link.agent_node_id
+            or artifact.meta.get("prompt_version") != link.prompt_version
+            or context.run_id != run.run_id
+            or context.attempt_no != link.attempt_no
+            or context.target_call_ordinal != link.target_call_ordinal
+            or context.agent_node_id != link.agent_node_id
+            or context.prompt_version != link.prompt_version
+            or tuple(artifact.lineage) != upstream_ids
+        ):
+            raise IntegrityViolation("prompt-context Artifact/link/payload closure differs")
+        source_bindings = tuple(
+            item for item in context.upstream_artifacts if item.binding_key.startswith("source:")
+        )
+        prior_bindings = {
+            item.binding_key: item
+            for item in context.upstream_artifacts
+            if item.binding_key in {"prior.prompt", "prior.cassette_source"}
+        }
+        if len(source_bindings) + len(prior_bindings) != len(context.upstream_artifacts):
+            raise IntegrityViolation("prompt-context upstream binding key is not retained")
+        if any(item.artifact_id not in run.payload.input_artifact_ids for item in source_bindings):
+            raise IntegrityViolation("prompt-context source lineage escapes frozen Run inputs")
+
+        prior = context.prior_consumption
+        expected_prior_keys: set[str] = set()
+        if prior is not None:
+            if prior.call_ordinal != context.target_call_ordinal - 1:
+                raise IntegrityViolation("prompt-context prior call is not target-minus-one")
+            expected_prior_keys.add("prior.prompt")
+            mode = run.payload.llm_execution_mode
+            expected_cassette_source = (
+                prior.cassette_shard_artifact_id
+                if mode == "record"
+                else run.payload.cassette_artifact_id
+                if mode == "replay"
+                else None
+            )
+            if (
+                prior.cassette_source_artifact_id != expected_cassette_source
+                or (mode == "record" and expected_cassette_source is None)
+                or (
+                    mode == "replay"
+                    and expected_cassette_source not in run.payload.input_artifact_ids
+                )
+            ):
+                raise IntegrityViolation(
+                    "prompt-context prior cassette source differs from Run mode"
+                )
+            if expected_cassette_source is not None:
+                expected_prior_keys.add("prior.cassette_source")
+        if set(prior_bindings) != expected_prior_keys:
+            raise IntegrityViolation("prompt-context prior direct-parent set is not exact")
+        if prior is not None:
+            prompt_parent = prior_bindings["prior.prompt"]
+            if (
+                prompt_parent.artifact_id != prior.prompt_artifact_id
+                or prompt_parent.artifact_kind != "source_rendered"
+                or prompt_parent.payload_schema_id != "source-rendered@1"
+            ):
+                raise IntegrityViolation("prompt-context prior prompt parent is not exact")
+            cassette_parent = prior_bindings.get("prior.cassette_source")
+            if cassette_parent is not None and (
+                cassette_parent.artifact_id != prior.cassette_source_artifact_id
+                or cassette_parent.artifact_kind != "cassette_bundle"
+                or cassette_parent.payload_schema_id
+                != (
+                    "cassette-bundle@1"
+                    if run.payload.llm_execution_mode == "replay"
+                    else "cassette-record-shard@1"
+                )
+            ):
+                raise IntegrityViolation("prompt-context prior cassette source parent is not exact")
+
+        upstream_trust: list[str] = []
+        for binding in context.upstream_artifacts:
+            upstream = self._artifact_v2(binding.artifact_id)
+            schema = upstream.meta.get("payload_schema_id")
+            if (
+                upstream.kind != binding.artifact_kind
+                or schema != binding.payload_schema_id
+                or upstream.payload_hash != binding.payload_hash
+                or upstream.object_ref.sha256 != binding.payload_hash
+            ):
+                raise IntegrityViolation("prompt-context upstream binding is not exact")
+            raw_upstream_provenance = upstream.meta.get("provenance")
+            if raw_upstream_provenance is None:
+                upstream_trust.append("untrusted_external")
+                continue
+            try:
+                upstream_provenance = ProvenanceV1.model_validate(raw_upstream_provenance)
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation("prompt-context upstream provenance is invalid") from exc
+            if (
+                upstream_provenance.source_hash != upstream.payload_hash
+                or upstream_provenance.parent_source_artifact_ids != tuple(upstream.lineage)
+            ):
+                raise IntegrityViolation("prompt-context upstream provenance differs")
+            _require_registered_source_provenance(
+                upstream_provenance,
+                label="prompt-context upstream provenance",
+            )
+            upstream_trust.append(upstream_provenance.trust)
+
+        try:
+            provenance = ProvenanceV1.model_validate(artifact.meta.get("provenance"))
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("prompt-context provenance is invalid") from exc
+        _require_registered_source_provenance(
+            provenance,
+            required_prompt_purposes=frozenset({"context", "tool_output"}),
+            label="prompt-context provenance",
+        )
+        if (
+            provenance.source_kind_registry_version != 1
+            or provenance.source_kind_id != "tool_output"
+            or provenance.source_hash != artifact.payload_hash
+            or provenance.parent_source_artifact_ids != upstream_ids
+            or provenance.trust != most_conservative_trust(tuple(upstream_trust))
+        ):
+            raise IntegrityViolation("prompt-context provenance/hash/lineage/trust differs")
+
+        validate_artifact_producer(
+            artifact,
+            ProducerValidationContext(
+                expected_versions={
+                    "doc_version": run.payload.version_tuple.doc_version,
+                },
+                llm_execution_mode=run.payload.llm_execution_mode,
+                tool_output=True,
+            ),
+        )
+
+        if prior is not None:
+            route = self._ledger.get_model_route_link(
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            consumption = self._ledger.get_model_response_consumption(
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            if (
+                route is None
+                or consumption is None
+                or route.prompt_artifact_id != prior.prompt_artifact_id
+                or route.request_hash != prior.request_hash
+                or route.routing_decision_kind != prior.routing_decision_kind
+                or route.routing_decision_id != prior.routing_decision_id
+                or consumption.execution_source != prior.execution_source
+                or consumption.reservation_group_id != prior.reservation_group_id
+                or consumption.transport_attempt != prior.transport_attempt
+                or consumption.cassette_shard_artifact_id != prior.cassette_shard_artifact_id
+                or consumption.response_digest != prior.response_digest
+            ):
+                raise IntegrityViolation("prompt-context prior consumption is not authoritative")
 
     def _artifact_v2(self, artifact_id: str) -> ArtifactV2:
         planned = self._planned_artifact_overlay.get(artifact_id)
@@ -3913,6 +4247,30 @@ class TerminalPublisher:
                 artifact_id=artifact.artifact_id,
             )
         return blob
+
+    def _read_authoritative_parent_payload(
+        self,
+        parent: ParentInfo,
+    ) -> Mapping[str, object]:
+        """Schema-decode one exact committed semantic parent without side effects."""
+
+        artifact = self._artifact_v2(parent.artifact_id)
+        schema = artifact.meta.get("payload_schema_id")
+        if (
+            artifact.kind != parent.kind
+            or artifact.version_tuple != parent.version_tuple
+            or schema != parent.payload_schema_id
+        ):
+            raise IntegrityViolation(
+                "authoritative semantic parent differs from its typed lineage facts",
+                artifact_id=parent.artifact_id,
+            )
+        blob = self._read_published_artifact_bytes(artifact)
+        return decode_and_validate_artifact_payload(
+            payload_schema_id=parent.payload_schema_id,
+            blob=blob,
+            external_decoders=self._payload_decoders,
+        )
 
     @staticmethod
     def _replayability_for(run: RunRecord) -> str:
@@ -4000,6 +4358,7 @@ class TerminalPublisher:
             kind=parsed.kind,
             payload_schema_id=schema,
             version_tuple=parsed.version_tuple,
+            payload_hash=parsed.payload_hash,
         )
 
     @staticmethod
@@ -4062,6 +4421,40 @@ def _inject_prepared_siblings(
             if info.payload_schema_id not in rule.payload_schema_ids:
                 continue
             injected.add(sibling_id)
+    if not injected:
+        return child_lineage
+    return (*child_lineage, *sorted(injected))
+
+
+def _inject_run_intermediates(
+    *,
+    child_lineage: tuple[str, ...],
+    lineage_policy: object,
+    run_intermediates: Mapping[str, ParentInfo],
+) -> tuple[str, ...]:
+    """Inject every committed Run intermediate selected by the child's policy.
+
+    Rendered prompts are content-addressed and committed before the worker can
+    prepare its result, so a handler cannot safely predict their Artifact IDs.
+    The terminal transaction re-reads the Run's durable intermediate links and
+    completes only the direct-parent roles whose kind/schema allowlists match.
+    Injecting all matches also makes role cardinality fail closed if retained
+    authority exceeds a policy maximum.
+    """
+
+    existing = set(child_lineage)
+    injected: set[str] = set()
+    for rule in lineage_policy.parent_rules:  # type: ignore[attr-defined]
+        if rule.source != "run_intermediate":
+            continue
+        for artifact_id, info in run_intermediates.items():
+            if artifact_id in existing:
+                continue
+            if info.kind not in rule.artifact_kinds:
+                continue
+            if info.payload_schema_id not in rule.payload_schema_ids:
+                continue
+            injected.add(artifact_id)
     if not injected:
         return child_lineage
     return (*child_lineage, *sorted(injected))

@@ -35,7 +35,15 @@ from gameforge.contracts.errors import (
     PermanentDependencyFailure,
     QuotaExceeded,
 )
-from gameforge.contracts.jobs import RunAttempt, RunIntermediateArtifactLinkV1, RunRecord
+from gameforge.contracts.jobs import (
+    AgentPromptContextDraftV1,
+    AgentPromptPriorConsumptionV1,
+    RunAttempt,
+    RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunRecord,
+    RunToolIntermediateLinkV1,
+)
 from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.model_router import (
     ModelBridgeCallRequestV1,
@@ -46,6 +54,7 @@ from gameforge.contracts.model_router import (
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
 from gameforge.contracts.storage import UtcClock
 from gameforge.platform.runs.commands import (
+    AgentPromptContextPublicationResult,
     PromptRenderPublicationRequest,
     PromptRenderPublicationResult,
 )
@@ -73,6 +82,20 @@ class PromptRenderPublisher(Protocol):
         model_request: ModelRequestV2,
         source_artifact_ids: tuple[str, ...],
     ) -> PromptRenderPublicationResult: ...
+
+
+class AgentPromptContextPublisher(Protocol):
+    def publish_agent_prompt_context(
+        self,
+        *,
+        model_request: ModelRequestV2,
+        draft: AgentPromptContextDraftV1,
+        target_call_ordinal: int,
+        prior_consumption: AgentPromptPriorConsumptionV1 | None,
+        idempotency_scope: str,
+        idempotency_key: str,
+        actor: AuditActor,
+    ) -> AgentPromptContextPublicationResult: ...
 
 
 class PreparedRoute(Protocol):
@@ -180,7 +203,7 @@ class ResponseConsumptionPublisher(Protocol):
         step_reservation: object,
         wall_time_ns: int,
         actor: AuditActor,
-    ) -> None: ...
+    ) -> RunModelResponseConsumptionV1: ...
 
 
 class ModelSnapshotResolver(Protocol):
@@ -203,6 +226,7 @@ class ModelCallResult:
     response: M4RouterResultV1
     decision: RoutingDecisionV1 | LegacyImportRoutingDecisionV1
     link: RunIntermediateArtifactLinkV1
+    context_link: RunToolIntermediateLinkV1
     replayed: bool
 
 
@@ -215,6 +239,7 @@ class WorkerModelBridge:
         fence: AttemptWriteFence,
         execution_source: ExecutionSource,
         prompt_publisher: PromptRenderPublisher,
+        context_publisher: AgentPromptContextPublisher,
         decider: RoutingDecider,
         router: M4ModelRouter,
         cost: CallCostGateway,
@@ -241,6 +266,7 @@ class WorkerModelBridge:
         self._fence = fence
         self._execution_source = execution_source
         self._prompt_publisher = prompt_publisher
+        self._context_publisher = context_publisher
         self._decider = decider
         self._router = router
         self._cost = cost
@@ -253,6 +279,7 @@ class WorkerModelBridge:
         self._execution_source_selector = execution_source_selector
         self._call_lock = threading.Lock()
         self._next_call_ordinal = attempt.next_call_ordinal
+        self._last_consumption: AgentPromptPriorConsumptionV1 | None = None
 
     def resolve_model_snapshot(
         self,
@@ -287,10 +314,36 @@ class WorkerModelBridge:
             raise IntegrityViolation(
                 "model execution requires atomic response-consumption publication"
             )
-        prepared = self._decider.prepare(request.model_request)
         route_ordinal = 1
         call_ordinal: int | None = None
         logical_call_ordinal = self._next_call_ordinal
+        prior_consumption = (
+            self._last_consumption if request.prompt_context.include_previous_consumption else None
+        )
+        if request.prompt_context.include_previous_consumption and prior_consumption is None:
+            raise IntegrityViolation(
+                "Agent prompt context requires a prior consumed model response"
+            )
+        context_publication = self._context_publisher.publish_agent_prompt_context(
+            model_request=request.model_request,
+            draft=request.prompt_context,
+            target_call_ordinal=logical_call_ordinal,
+            prior_consumption=prior_consumption,
+            idempotency_scope=expected_scope,
+            idempotency_key=f"{expected_key}:context",
+            actor=self._worker_actor,
+        )
+        context_link = context_publication.link
+        if (
+            context_link.run_id != self._run.run_id
+            or context_link.attempt_no != self._attempt.attempt_no
+            or context_link.target_call_ordinal != logical_call_ordinal
+            or context_link.agent_node_id != request.model_request.agent_node_id
+            or context_link.prompt_version != request.model_request.prompt_version
+            or context_link.fencing_token != self._fence.fencing_token
+        ):
+            raise IntegrityViolation("Agent prompt context publisher returned another call")
+        prepared = self._decider.prepare(request.model_request)
         effective_deadline = self._effective_deadline(request.deadline_utc)
         step_reservation: object | None = None
         try:
@@ -331,7 +384,7 @@ class WorkerModelBridge:
                             actor=self._worker_actor,
                         ),
                         model_request=routed_request,
-                        source_artifact_ids=request.source_artifact_ids,
+                        source_artifact_ids=(context_link.artifact_id,),
                     )
                     link = publication.link
                     if link.route_ordinal != route_ordinal:
@@ -367,7 +420,7 @@ class WorkerModelBridge:
                         decided_at=self._now(),
                     )
                     try:
-                        result = self._execute_route(
+                        result, consumption = self._execute_route(
                             request=routed_request,
                             link=link,
                             decision=decision,
@@ -403,7 +456,31 @@ class WorkerModelBridge:
                         response=result,
                         decision=decision,
                         link=link,
+                        context_link=context_link,
                         replayed=publication.replayed,
+                    )
+                    if consumption.response_digest is None:
+                        raise IntegrityViolation(
+                            "new response consumption omitted its response digest"
+                        )
+                    self._last_consumption = AgentPromptPriorConsumptionV1(
+                        attempt_no=consumption.attempt_no,
+                        call_ordinal=consumption.call_ordinal,
+                        route_ordinal=consumption.route_ordinal,
+                        prompt_artifact_id=link.artifact_id,
+                        request_hash=link.request_hash,
+                        routing_decision_kind="native",
+                        routing_decision_id=decision.decision_id,
+                        execution_source=consumption.execution_source,
+                        reservation_group_id=consumption.reservation_group_id,
+                        transport_attempt=consumption.transport_attempt,
+                        cassette_shard_artifact_id=(consumption.cassette_shard_artifact_id),
+                        cassette_source_artifact_id=(
+                            consumption.cassette_shard_artifact_id
+                            if self._run.payload.llm_execution_mode == "record"
+                            else None
+                        ),
+                        response_digest=consumption.response_digest,
                     )
                     break
         except BaseException as error:
@@ -438,7 +515,7 @@ class WorkerModelBridge:
         decision: RoutingDecisionV1,
         effective_deadline: datetime,
         step_reservation: object,
-    ) -> M4RouterResultV1:
+    ) -> tuple[M4RouterResultV1, RunModelResponseConsumptionV1]:
         if self._response_publisher is None:  # closed by caller; keeps type narrow
             raise IntegrityViolation("response publisher disappeared")
         reservations: dict[int, object] = {}
@@ -630,7 +707,7 @@ class WorkerModelBridge:
             else None
         )
         try:
-            self._response_publisher.publish_response_consumption(
+            consumption = self._response_publisher.publish_response_consumption(
                 fence=self._fence,
                 link=link,
                 decision=decision,
@@ -669,7 +746,11 @@ class WorkerModelBridge:
                 # shard, usage and consumption are already atomically committed;
                 # cache capacity/provenance failure cannot reverse that outcome.
                 pass
-        return result
+        if not isinstance(consumption, RunModelResponseConsumptionV1):
+            raise IntegrityViolation(
+                "response publisher did not return exact consumption authority"
+            )
+        return result, consumption
 
     def _request_for_route(
         self,
@@ -857,6 +938,7 @@ def _record_from_result(
 
 
 __all__ = [
+    "AgentPromptContextPublisher",
     "AgentStepCostGateway",
     "CallCostGateway",
     "ExecutionSource",

@@ -48,6 +48,7 @@ from gameforge.contracts.jobs import (
     RunRecord,
     RunSucceededDataV1,
     RunTerminatedDataV1,
+    RunToolIntermediateLinkV1,
     canonical_payload_hash,
     execution_version_plan_digest,
 )
@@ -80,6 +81,7 @@ from gameforge.runtime.persistence.models import (
     RunModelResponseConsumptionRow,
     RunModelRouteLinkRow,
     RunRow,
+    RunToolIntermediateLinkRow,
     RoutingDecisionRow,
     UsageEntryRow,
 )
@@ -702,6 +704,103 @@ def test_prompt_link_allocates_call_ordinal_atomically_without_preallocating_ret
         assert attempt is not None and attempt.next_call_ordinal == 3
         assert run is not None and run.next_attempt_no == 2
         assert session.scalar(select(func.count()).select_from(RunAttemptRow)) == 1
+
+
+def test_tool_context_link_is_exact_idempotent_and_does_not_consume_call_head(
+    engine: Engine,
+) -> None:
+    queued = _run(payload=_record_payload())
+    _create(engine, queued)
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.claim(
+            run_id=queued.run_id,
+            expected_revision=1,
+            worker_principal_id="service:worker",
+            lease_id="lease:1",
+            acquired_at=NOW,
+            expires_at=LEASE_EXPIRES,
+            permit_group_id="permit:1",
+        )
+    artifact_id = "artifact:context:1"
+    artifact = _artifact(
+        artifact_id,
+        payload_hash=HASH_A,
+        kind="source_raw",
+    )
+    artifact.meta = {
+        "payload_schema_id": "agent-prompt-context@1",
+        "producer_run_id": queued.run_id,
+        "producer_attempt_no": 1,
+        "target_call_ordinal": 1,
+        "agent_node_id": "checker",
+        "prompt_version": "checker@1",
+    }
+    with Session(engine) as session:
+        session.add(artifact)
+        session.commit()
+    link = RunToolIntermediateLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        target_call_ordinal=1,
+        artifact_id=artifact_id,
+        agent_node_id="checker",
+        prompt_version="checker@1",
+        payload_hash=HASH_A,
+        fencing_token=1,
+        published_at=NOW,
+    )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        assert transaction.runs.put_tool_intermediate_link(link) == link
+        assert transaction.runs.put_tool_intermediate_link(link) == link
+        attempt = transaction.runs.get_attempt(queued.run_id, 1)
+        assert attempt is not None and attempt.next_call_ordinal == 1
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        with pytest.raises(IntegrityViolation, match="differs from retained"):
+            transaction.runs.put_tool_intermediate_link(
+                link.model_copy(update={"payload_hash": HASH_B})
+            )
+    with Session(engine) as session:
+        assert session.scalar(select(func.count()).select_from(RunToolIntermediateLinkRow)) == 1
+
+
+def test_tool_context_list_is_bounded_and_forged_artifact_has_no_side_effect(
+    engine: Engine,
+) -> None:
+    queued = _run(payload=_record_payload())
+    _create(engine, queued)
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.claim(
+            run_id=queued.run_id,
+            expected_revision=1,
+            worker_principal_id="service:worker",
+            lease_id="lease:1",
+            acquired_at=NOW,
+            expires_at=LEASE_EXPIRES,
+            permit_group_id="permit:1",
+        )
+    artifact_id = "artifact:forged-context"
+    forged = _artifact(artifact_id, payload_hash=HASH_A, kind="source_raw")
+    with Session(engine) as session:
+        session.add(forged)
+        session.commit()
+    forged_link = RunToolIntermediateLinkV1(
+        run_id=queued.run_id,
+        attempt_no=1,
+        target_call_ordinal=1,
+        artifact_id=artifact_id,
+        agent_node_id="checker",
+        prompt_version="checker@1",
+        payload_hash=HASH_A,
+        fencing_token=1,
+        published_at=NOW,
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        with pytest.raises(IntegrityViolation, match="exact Agent prompt-context"):
+            transaction.runs.put_tool_intermediate_link(forged_link)
+    with Session(engine) as session:
+        assert session.scalar(select(func.count()).select_from(RunToolIntermediateLinkRow)) == 0
 
 
 def test_prompt_link_and_attempt_head_roll_back_together(engine: Engine) -> None:

@@ -35,6 +35,7 @@ import hmac
 import math
 import os
 from pathlib import Path
+import re
 from urllib.parse import unquote
 
 from alembic.runtime.migration import MigrationContext
@@ -44,9 +45,17 @@ from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import Session
 from sqlalchemy.util import asbool
 
+from gameforge.apps.worker.agent_drafts import (
+    TransactionWorkflowGovernanceProvider,
+    WorkerAgentDraftGovernanceRefs,
+)
+from gameforge.apps.worker.agent_prompt_context import (
+    agent_prompt_context_binding_plan_keys,
+)
 from gameforge.apps.worker.executor import RunExecutor, deferred_executor_adapter
 from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.jobs import RunRecord
 from gameforge.contracts.lineage import AuditActor
 from gameforge.platform.registry import (
@@ -65,6 +74,7 @@ from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cost import SqlCostRepository
 from gameforge.runtime.persistence.models import ModelCatalogSnapshotRow
+from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.runs import SqlRunRepository
 
 
@@ -80,6 +90,12 @@ WORKER_MAX_WORKERS_ENV = "GAMEFORGE_WORKER_MAX_WORKERS"
 WORKER_MAX_CONCURRENCY_ENV = "GAMEFORGE_WORKER_MAX_CONCURRENCY"
 WORKER_REAPER_LIMIT_ENV = "GAMEFORGE_WORKER_REAPER_LIMIT"
 LOCAL_ROOT_SECRET_ENV = "GAMEFORGE_LOCAL_SECRET_BASE64"
+ROLE_POLICY_VERSION_ENV = "GAMEFORGE_IDENTITY_ROLE_POLICY_VERSION"
+ROLE_POLICY_DIGEST_ENV = "GAMEFORGE_IDENTITY_ROLE_POLICY_DIGEST"
+WORKFLOW_ROUTE_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_VERSION"
+WORKFLOW_ROUTE_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_DIGEST"
+WORKFLOW_APPROVAL_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_VERSION"
+WORKFLOW_APPROVAL_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_DIGEST"
 WORKER_RUN_AUDIT_CHAIN_ID = "runs"
 _MAX_WORKER_THREADS = 1024
 _MAX_LEASE_DURATION_NS = 86_400_000_000_000  # one day
@@ -114,6 +130,7 @@ _REQUIRED_WORKER_TABLES = frozenset(
         "model_catalog_snapshots",
         "reservation_groups",
         "permit_groups",
+        "policy_snapshots",
         "ref_history",
         "ref_transitions",
         "refs",
@@ -231,6 +248,12 @@ class LocalWorkerConfig:
     max_workers: int = 4
     max_concurrency: int | None = None
     root_secret: bytes = field(default=b"", repr=False)
+    role_policy_version: str | None = None
+    role_policy_digest: str | None = None
+    workflow_route_policy_version: str | None = None
+    workflow_route_policy_digest: str | None = None
+    workflow_approval_policy_version: str | None = None
+    workflow_approval_policy_digest: str | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -275,6 +298,36 @@ class LocalWorkerConfig:
             raise WorkerConfigurationError("max_concurrency must be at most 1024")
         if self.max_concurrency is not None and self.max_concurrency > self.max_workers:
             raise WorkerConfigurationError("max_concurrency cannot exceed max_workers")
+        governance = (
+            self.role_policy_version,
+            self.role_policy_digest,
+            self.workflow_route_policy_version,
+            self.workflow_route_policy_digest,
+            self.workflow_approval_policy_version,
+            self.workflow_approval_policy_digest,
+        )
+        present = tuple(value for value in governance if value is not None)
+        if present and len(present) != len(governance):
+            raise WorkerConfigurationError(
+                "worker workflow governance pointers must be provided together or not at all"
+            )
+        if present:
+            for name in (
+                "role_policy_version",
+                "workflow_route_policy_version",
+                "workflow_approval_policy_version",
+            ):
+                value = getattr(self, name)
+                if not isinstance(value, str) or not value or len(value) > 4096:
+                    raise WorkerConfigurationError(f"{name} must be a non-empty bounded string")
+            for name in (
+                "role_policy_digest",
+                "workflow_route_policy_digest",
+                "workflow_approval_policy_digest",
+            ):
+                value = getattr(self, name)
+                if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+                    raise WorkerConfigurationError(f"{name} must be a lowercase SHA-256 digest")
         # The heartbeat must renew comfortably before the lease expires; a renewal
         # interval at/above the lease duration self-expires the lease. Require the
         # interval to be at most half the lease so at least one beat lands in time.
@@ -329,6 +382,12 @@ class LocalWorkerConfig:
             max_workers=_positive_int(source, WORKER_MAX_WORKERS_ENV, 4),
             max_concurrency=max_concurrency,
             root_secret=_root_secret(source),
+            role_policy_version=source.get(ROLE_POLICY_VERSION_ENV),
+            role_policy_digest=source.get(ROLE_POLICY_DIGEST_ENV),
+            workflow_route_policy_version=source.get(WORKFLOW_ROUTE_POLICY_VERSION_ENV),
+            workflow_route_policy_digest=source.get(WORKFLOW_ROUTE_POLICY_DIGEST_ENV),
+            workflow_approval_policy_version=source.get(WORKFLOW_APPROVAL_POLICY_VERSION_ENV),
+            workflow_approval_policy_digest=source.get(WORKFLOW_APPROVAL_POLICY_DIGEST_ENV),
         )
 
 
@@ -572,6 +631,13 @@ def validate_worker_readiness(runtime: WorkerRuntime) -> None:
             "worker canonical prompt authority misses frozen Agent graph bindings: "
             + ", ".join("/".join(item) for item in missing_prompt_keys)
         )
+    context_prompt_keys = set(agent_prompt_context_binding_plan_keys(authorities.prompt_renderer))
+    missing_context_prompt_keys = tuple(sorted(required_prompt_keys - context_prompt_keys))
+    if missing_context_prompt_keys:
+        raise WorkerConfigurationError(
+            "worker canonical prompt authority has unfenced Agent context bindings: "
+            + ", ".join("/".join(item) for item in missing_context_prompt_keys)
+        )
     snapshot_ids = authorities.snapshots.model_snapshot_ids
     breaker_ids = authorities.circuit_breaker_resolver.model_snapshot_ids
     if snapshot_ids != breaker_ids:
@@ -603,6 +669,7 @@ def validate_worker_readiness(runtime: WorkerRuntime) -> None:
             "worker model authority misses retained catalog snapshots: "
             + ", ".join(missing_model_ids)
         )
+    _validate_worker_workflow_governance(runtime)
     blocked_components = tuple(
         sorted(
             (key, blocker)
@@ -619,6 +686,51 @@ def validate_worker_readiness(runtime: WorkerRuntime) -> None:
             "worker active executor closure is incomplete: "
             + "; ".join(f"{key}: {reason}" for key, reason in blocked_components)
         )
+
+
+def _validate_worker_workflow_governance(runtime: WorkerRuntime) -> None:
+    """Resolve the exact governance used by active terminal Agent workflows.
+
+    A missing pointer/table/document cannot be deferred until after an Agent has
+    consumed model/cost budget: generation, repair, and constraint-proposal success
+    all require this authority in their terminal UoW.
+    """
+
+    config = runtime.config
+    values = (
+        config.role_policy_version,
+        config.role_policy_digest,
+        config.workflow_route_policy_version,
+        config.workflow_route_policy_digest,
+        config.workflow_approval_policy_version,
+        config.workflow_approval_policy_digest,
+    )
+    if any(value is None for value in values):
+        raise WorkerConfigurationError(
+            "worker workflow governance pointers are required for active Agent workflows"
+        )
+    refs = WorkerAgentDraftGovernanceRefs(
+        role_policy_version=config.role_policy_version,  # type: ignore[arg-type]
+        role_policy_digest=config.role_policy_digest,  # type: ignore[arg-type]
+        route_policy_version=config.workflow_route_policy_version,  # type: ignore[arg-type]
+        route_policy_digest=config.workflow_route_policy_digest,  # type: ignore[arg-type]
+        approval_policy_version=config.workflow_approval_policy_version,  # type: ignore[arg-type]
+        approval_policy_digest=config.workflow_approval_policy_digest,  # type: ignore[arg-type]
+    )
+    with Session(runtime.engine) as session:
+        provider = TransactionWorkflowGovernanceProvider(
+            policies=SqlPolicySnapshotRepository(session, clock=SystemUtcClock()),
+            refs=refs,
+        )
+        try:
+            provider.current()
+        except (DependencyUnavailable, IntegrityViolation, ValueError) as exc:
+            # The provider raises only typed dependency/integrity/validation
+            # failures, but readiness must expose one stable configuration error
+            # and must not copy repository exception text into process output.
+            raise WorkerConfigurationError(
+                "worker workflow governance authority is unavailable or inconsistent"
+            ) from exc
 
 
 __all__ = [

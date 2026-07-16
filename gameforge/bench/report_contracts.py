@@ -171,10 +171,7 @@ class BinaryMetric(StrictModel):
             raise ValueError("binary metric rate does not equal k/evaluated_n")
         if self.ci_method == "wilson95":
             expected_low, expected_high = wilson_ci(self.k, self.evaluated_n)
-            if (
-                abs(self.ci_low - expected_low) > 1e-12
-                or abs(self.ci_high - expected_high) > 1e-12
-            ):
+            if abs(self.ci_low - expected_low) > 1e-12 or abs(self.ci_high - expected_high) > 1e-12:
                 raise ValueError("binary metric does not use the Wilson95 interval")
         return self
 
@@ -329,9 +326,7 @@ class PowerMetric(StrictModel):
     @model_validator(mode="after")
     def validate_status(self) -> PowerMetric:
         expected = (
-            "measured"
-            if self.achieved_half_width <= self.target_half_width
-            else "underpowered"
+            "measured" if self.achieved_half_width <= self.target_half_width else "underpowered"
         )
         if self.status != expected:
             raise ValueError("power status does not match achieved half-width")
@@ -362,7 +357,9 @@ class EvidenceArtifactRef(StrictModel):
     @model_validator(mode="after")
     def validate_availability(self) -> EvidenceArtifactRef:
         if self.available != (self.sha256 is not None):
-            raise ValueError("available evidence requires a hash and unavailable evidence forbids one")
+            raise ValueError(
+                "available evidence requires a hash and unavailable evidence forbids one"
+            )
         return self
 
 
@@ -508,7 +505,10 @@ class CostLatencySection(StrictModel):
 
 
 class BenchMeta(StrictModel):
-    seed: int
+    # ``canonical_json`` deliberately omits null optional fields.  A deterministic
+    # Bench Run therefore round-trips ``seed=None`` as an absent wire member, while
+    # the typed semantic view still exposes an explicit null for payload binding.
+    seed: int | None = None
     corpus_size: int = Field(ge=0)
     report_builder_version: StableId
     generated_at: str | None = None

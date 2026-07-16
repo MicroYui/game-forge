@@ -146,6 +146,10 @@ PRODUCER_RULES: Mapping[str, ProducerRule] = MappingProxyType(
             "doc_version",
             projected_fields=frozenset({"doc_version"}),
             conditional_fields=(("tool_output", ("tool_version",)),),
+            # Per-call governed prompt contexts are source_raw tool outputs
+            # published before the corresponding model invocation.
+            supports_llm_mode=True,
+            allow_zero_invocations=True,
         ),
         "source_rendered": _rule(
             "doc_version",

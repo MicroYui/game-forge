@@ -14,9 +14,19 @@ from gameforge.apps.worker.replay import (
     NativeArtifactReplaySource,
 )
 from gameforge.contracts.errors import Conflict, IntegrityViolation
-from gameforge.contracts.jobs import RunAttempt, RunIntermediateArtifactLinkV1
+from gameforge.contracts.jobs import (
+    AgentPromptContextDraftV1,
+    AgentPromptSourceMessageV1,
+    RunAttempt,
+    RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunToolIntermediateLinkV1,
+)
 from gameforge.contracts.lineage import AuditActor
-from gameforge.platform.runs.commands import PromptRenderPublicationResult
+from gameforge.platform.runs.commands import (
+    AgentPromptContextPublicationResult,
+    PromptRenderPublicationResult,
+)
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.runtime.model_router.cache import ExactResponseCache
 from gameforge.runtime.model_router.m4_router import M4ModelRouter
@@ -58,6 +68,34 @@ class _PromptPublisher:
                 role="prompt_rendered",
                 request_hash=request.request_hash,
                 fencing_token=request.fence.fencing_token,
+                published_at="2026-07-16T00:00:00Z",
+            ),
+            replayed=False,
+        )
+
+
+class _ContextPublisher:
+    def __init__(self, order: list[str]) -> None:
+        self._order = order
+        self.requests: list[dict[str, object]] = []
+
+    def publish_agent_prompt_context(self, **values):
+        self._order.append("publish_context")
+        self.requests.append(dict(values))
+        call_ordinal = values["target_call_ordinal"]
+        request = values["model_request"]
+        run_scope, attempt_text = values["idempotency_scope"].rsplit(":attempt:", 1)
+        attempt_no = int(attempt_text)
+        return AgentPromptContextPublicationResult(
+            link=RunToolIntermediateLinkV1(
+                run_id=run_scope.removeprefix("run:"),
+                attempt_no=attempt_no,
+                target_call_ordinal=call_ordinal,
+                artifact_id=f"artifact:context:{call_ordinal}",
+                agent_node_id=request.agent_node_id,
+                prompt_version=request.prompt_version,
+                payload_hash="d" * 64,
+                fencing_token=attempt_no,
                 published_at="2026-07-16T00:00:00Z",
             ),
             replayed=False,
@@ -143,13 +181,24 @@ class _ResponsePublisher:
         self._order = order
         self._error = error
 
-    def publish_response_consumption(self, **values) -> None:
+    def publish_response_consumption(self, **values) -> RunModelResponseConsumptionV1:
         self._order.append("publish_response")
         if self._error is not None:
             raise self._error
         values["step_cost"].reconcile_step_in_transaction(
             transaction=self,
             reservation=values["step_reservation"],
+        )
+        link = values["link"]
+        return RunModelResponseConsumptionV1(
+            run_id=link.run_id,
+            attempt_no=link.attempt_no,
+            call_ordinal=link.call_ordinal,
+            route_ordinal=link.route_ordinal,
+            execution_source="cassette_replay",
+            reservation_group_id="reservation:replay",
+            response_digest="e" * 64,
+            consumed_at="2026-07-16T00:00:00Z",
         )
 
 
@@ -210,9 +259,24 @@ def _attempt_and_fence(run, *, attempt_no: int = 1):
 
 
 def _request(run, model_request, *, attempt_no: int = 1) -> ModelCallRequest:
+    source_artifact_ids = (run.payload.input_artifact_ids[0],)
     return ModelCallRequest(
         model_request=model_request,
-        source_artifact_ids=(run.payload.input_artifact_ids[0],),
+        source_artifact_ids=source_artifact_ids,
+        prompt_context=AgentPromptContextDraftV1(
+            context_kind="repair_initial",
+            messages=tuple(
+                AgentPromptSourceMessageV1(
+                    role=message.role,
+                    content=message.content,
+                    tool_calls=tuple(message.tool_calls),
+                    purpose="context" if message.role == "user" else "tool_output",
+                )
+                for message in model_request.messages
+                if message.role != "system"
+            ),
+            source_artifact_ids=source_artifact_ids,
+        ),
         idempotency_scope=f"run:{run.run_id}:attempt:{attempt_no}",
         idempotency_key="model:1",
         deadline_utc=NOW + timedelta(minutes=1),
@@ -225,6 +289,7 @@ def _native_bridge(
     prompt=None,
     step=None,
     response=None,
+    context=None,
     attempt_no: int = 1,
     tracer: Tracer | None = None,
 ):
@@ -246,6 +311,7 @@ def _native_bridge(
         fence=fence,
         source=source,
         prompt_publisher=prompt or _PromptPublisher(order),
+        context_publisher=context or _ContextPublisher(order),
         route_publisher=_RoutePublisher(order, decisions),
         native_router=M4ModelRouter(
             transport=_BombTransport(),
@@ -274,6 +340,7 @@ def test_native_replay_charges_one_step_before_route_and_response() -> None:
 
     assert result.response.execution_source == "cassette_replay"
     assert order == [
+        "publish_context",
         "publish_prompt",
         "reserve_step",
         "publish_route",
@@ -298,6 +365,35 @@ def test_native_replay_attempt_two_restarts_selected_source_call_one() -> None:
     assert result.response.execution_source == "cassette_replay"
 
 
+def test_replay_refine_context_binds_exact_input_cassette_source() -> None:
+    order: list[str] = []
+    context = _ContextPublisher(order)
+    bridge, run, route, _, _ = _native_bridge(order, context=context)
+    first = _request(run, route.request)
+    bridge.call_model(first)
+    second = ModelCallRequest(
+        model_request=first.model_request,
+        source_artifact_ids=first.source_artifact_ids,
+        prompt_context=first.prompt_context.model_copy(
+            update={
+                "context_kind": "repair_refine",
+                "include_previous_consumption": True,
+            }
+        ),
+        idempotency_scope=first.idempotency_scope,
+        idempotency_key="model:2",
+        route_ordinal=1,
+        deadline_utc=first.deadline_utc,
+    )
+
+    with pytest.raises(IntegrityViolation, match="absent from source authority"):
+        bridge.call_model(second)
+
+    prior = context.requests[1]["prior_consumption"]
+    assert prior.cassette_shard_artifact_id is None
+    assert prior.cassette_source_artifact_id == run.payload.cassette_artifact_id
+
+
 def test_verified_legacy_replay_charges_one_step_without_native_route_selection() -> None:
     fixture, run, loader = _legacy_source()
     source = loader.load(run)
@@ -312,6 +408,7 @@ def test_verified_legacy_replay_charges_one_step_without_native_route_selection(
         fence=fence,
         source=source,
         prompt_publisher=_PromptPublisher(order),
+        context_publisher=_ContextPublisher(order),
         route_publisher=_RoutePublisher(order),
         native_router=None,
         cost=_CallCost(order),
@@ -328,6 +425,7 @@ def test_verified_legacy_replay_charges_one_step_without_native_route_selection(
     assert result.response.execution_source == "cassette_replay"
     assert result.decision == planned.routing_decision
     assert order == [
+        "publish_context",
         "publish_prompt",
         "reserve_step",
         "publish_route",
@@ -361,6 +459,7 @@ def test_verified_legacy_replay_attempt_two_restarts_imported_call_one() -> None
         fence=fence,
         source=source,
         prompt_publisher=_PromptPublisher(order),
+        context_publisher=_ContextPublisher(order),
         route_publisher=_RoutePublisher(order),
         native_router=None,
         cost=_CallCost(order),
@@ -398,6 +497,7 @@ def test_native_replay_rejects_call_when_terminal_source_attempt_has_no_calls() 
         fence=fence,
         source=source,
         prompt_publisher=_PromptPublisher(order),
+        context_publisher=_ContextPublisher(order),
         route_publisher=_RoutePublisher(order, decisions),
         native_router=M4ModelRouter(
             transport=_BombTransport(),
@@ -419,7 +519,7 @@ def test_native_replay_rejects_call_when_terminal_source_attempt_has_no_calls() 
     with pytest.raises(IntegrityViolation, match="absent from source authority"):
         bridge.call_model(_request(run, earlier_request.request))
 
-    assert order == []
+    assert order == ["publish_context"]
 
 
 def test_native_replay_emits_only_local_logical_call_span() -> None:
@@ -455,6 +555,7 @@ def test_legacy_replay_emits_only_local_logical_call_span() -> None:
         fence=fence,
         source=source,
         prompt_publisher=_PromptPublisher(order),
+        context_publisher=_ContextPublisher(order),
         route_publisher=_RoutePublisher(order),
         native_router=None,
         cost=_CallCost(order),
@@ -484,7 +585,7 @@ def test_replay_stale_prompt_never_reserves_step_or_call() -> None:
     with pytest.raises(Conflict, match="stale prompt fence"):
         bridge.call_model(_request(run, route.request))
 
-    assert order == ["publish_prompt"]
+    assert order == ["publish_context", "publish_prompt"]
     assert step_cost.reservations == []
     assert call_cost.reservations == []
 
@@ -497,7 +598,7 @@ def test_replay_step_rejection_prevents_route_and_call() -> None:
     with pytest.raises(Conflict, match="step fence lost"):
         bridge.call_model(_request(run, route.request))
 
-    assert order == ["publish_prompt", "reserve_step"]
+    assert order == ["publish_context", "publish_prompt", "reserve_step"]
     assert call_cost.reservations == []
 
 

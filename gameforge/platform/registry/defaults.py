@@ -8,6 +8,10 @@ from typing import Any, get_args
 
 from pydantic import BaseModel
 
+from gameforge.contracts.benchmark import (
+    BenchmarkEvaluatorProfileConfigV1,
+    build_builtin_benchmark_evaluator_policy,
+)
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.execution_graphs import (
     AgentExecutionGraphV1,
@@ -18,7 +22,9 @@ from gameforge.contracts.execution_graphs import (
 from gameforge.contracts.execution_profiles import (
     ArtifactCollectionResolvedPolicyRequirementConfigV1,
     ArtifactLineagePolicyRefV1,
+    CheckerProfileConfigV1,
     ConfigExportProfileDetailsV1,
+    ConstraintExtractionProfileConfigV1,
     EnvironmentContractDescriptorV1,
     EnvironmentProfileDetailsV1,
     ExecutionProfileCatalogSnapshotV1,
@@ -38,9 +44,12 @@ from gameforge.contracts.execution_profiles import (
     ProfileCollectionResolvedPolicyRequirementConfigV1,
     FixedResolvedPolicyRequirementConfigV1,
     ResolvedPolicyProfileConfigV1,
+    ReviewProfileConfigV1,
     RunKindRef,
+    SimulationProfileConfigV1,
     ValidationProfileDetailsV1,
     VersionTransitionPolicyRefV1,
+    WorkloadProfileConfigV1,
     canonical_config_hash,
     execution_profile_catalog_digest,
     migration_capability_matrix_digest,
@@ -105,7 +114,7 @@ _PROFILE_CHANGED_AT = "2026-07-14T00:00:00Z"
 _ALL_ARTIFACT_KINDS = tuple(get_args(ArtifactKind))
 _VERSION_FIELDS = tuple(VersionTuple.model_fields)
 _ARTIFACT_SCHEMAS: dict[ArtifactKind, tuple[str, ...]] = {
-    "source_raw": ("source-raw@1",),
+    "source_raw": ("source-raw@1", "agent-prompt-context@1"),
     "source_rendered": ("source-rendered@1",),
     "ir_snapshot": ("ir-core@1",),
     "constraint_snapshot": ("constraint-snapshot@1",),
@@ -355,6 +364,38 @@ def _runtime_parent_rules() -> RuntimeParentRuleSetV1:
             max_count=None,
             count_binding=IntermediateCountBindingV1(
                 link_role="prompt_rendered",
+                scope="all_attempts",
+            ),
+        ),
+        RuntimeParentRuleV1(
+            rule_id="attempt-agent-prompt-contexts",
+            manifest_scope="attempt",
+            source="published_intermediate",
+            parent_role="intermediate",
+            artifact_kind="source_raw",
+            payload_schema_ids=("agent-prompt-context@1",),
+            attempt_selector="current",
+            enabled_execution_modes=("live", "record", "replay"),
+            min_count=0,
+            max_count=None,
+            count_binding=IntermediateCountBindingV1(
+                link_role="agent_prompt_context",
+                scope="current_attempt",
+            ),
+        ),
+        RuntimeParentRuleV1(
+            rule_id="run-agent-prompt-contexts",
+            manifest_scope="run",
+            source="published_intermediate",
+            parent_role="intermediate",
+            artifact_kind="source_raw",
+            payload_schema_ids=("agent-prompt-context@1",),
+            attempt_selector="all_closed",
+            enabled_execution_modes=("live", "record", "replay"),
+            min_count=0,
+            max_count=None,
+            count_binding=IntermediateCountBindingV1(
+                link_role="agent_prompt_context",
                 scope="all_attempts",
             ),
         ),
@@ -813,7 +854,19 @@ def _lineage_spec(
                 }
             )
             if child_kind == "regression_evidence":
+                parents.append(
+                    _parent(
+                        "regression_suite",
+                        source="child_payload_reference",
+                        child_payload_pointer="/suite_artifact_id",
+                        kinds=("regression_suite",),
+                    )
+                )
                 projection["doc_version"] = ("preview", ())
+                # Each evidence Artifact inherits the exact environment contract
+                # from its referenced suite.  The repair Run-wide tuple cannot
+                # safely represent this fact when suites use distinct contracts.
+                projection["env_contract_version"] = ("regression_suite", ())
 
     elif policy_id == "constraint-proposal-drafted":
         parents.extend(
@@ -2337,8 +2390,70 @@ def _profile_compatibility() -> dict[ExecutionProfileKindV1, tuple[RunKindRef, .
 
 
 def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dict[str, Any]:
+    if profile_kind == "checker":
+        return CheckerProfileConfigV1(
+            allowed_checker_ids=("asp", "graph", "smt"),
+            allowed_defect_classes=(
+                "cyclic_dependency",
+                "dangling_reference",
+                "dead_quest",
+                "gacha_expectation_violation",
+                "interval_violation",
+                "isolated_node",
+                "missing_drop_source",
+                "non_monotonic_curve",
+                "prob_sum_ne_1",
+                "reward_out_of_range",
+                "unreachable_target",
+                "unsatisfiable_completion",
+            ),
+            max_direct_checker_count=3,
+            max_constraint_count=256,
+            max_work_units=2_000_000,
+        ).model_dump(mode="json")
+    if profile_kind == "simulation":
+        return SimulationProfileConfigV1(
+            default_population=16,
+            default_horizon_steps=64,
+            max_horizon_steps=100_000,
+            max_output_ticks=100_000,
+            max_work_units=2_000_000,
+        ).model_dump(mode="json")
+    if profile_kind == "workload":
+        return WorkloadProfileConfigV1(
+            max_replication_count=10_000,
+            max_total_replication_ticks=2_000_000,
+            max_total_work_units=10_000_000,
+        ).model_dump(mode="json")
+    if profile_kind == "review":
+        return ReviewProfileConfigV1(
+            max_prompt_message_bytes=16 * 1024 * 1024,
+            max_checker_profile_count=64,
+            max_simulation_profile_count=64,
+            max_total_checker_work_units=2_000_000,
+            max_total_simulation_work_units=2_000_000,
+            max_total_prepared_artifact_bytes=128 * 1024 * 1024,
+        ).model_dump(mode="json")
+    if profile_kind == "constraint_extraction":
+        return ConstraintExtractionProfileConfigV1(
+            max_prompt_message_bytes=17 * 1024 * 1024,
+            max_source_artifact_count=64,
+            max_source_artifact_bytes=4 * 1024 * 1024,
+            max_total_input_bytes=16 * 1024 * 1024,
+            max_proposal_count=256,
+            max_output_bytes=8 * 1024 * 1024,
+        ).model_dump(mode="json")
     if profile_kind == "generation":
         config = GenerationProfileConfigV1(
+            max_prompt_message_bytes=16 * 1024 * 1024,
+            max_checker_constraint_count=256,
+            max_checker_work_units=2_000_000,
+            gate_simulation_seed=0,
+            gate_simulation_population=30,
+            gate_simulation_horizon_steps=120,
+            max_simulation_work_units=2_000_000,
+            max_candidate_export_profiles=16,
+            max_total_prepared_artifact_bytes=128 * 1024 * 1024,
             resolved_policy=ResolvedPolicyProfileConfigV1(
                 resolved_policy_id="generation-gate",
                 requirement_sources=(
@@ -2367,11 +2482,23 @@ def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dic
                         ordinal=1,
                     ),
                 ),
-            )
+            ),
         )
         return config.model_dump(mode="json")
     if profile_kind == "patch_repair":
         config = PatchRepairProfileConfigV1(
+            max_prompt_message_bytes=16 * 1024 * 1024,
+            max_search_steps=4,
+            max_total_checker_work_units=2_000_000,
+            max_total_simulation_work_units=2_000_000,
+            max_checker_profile_count=64,
+            max_simulation_profile_count=64,
+            max_regression_suite_count=64,
+            max_total_regression_work_units=10_000_000,
+            max_regression_suite_bytes=17 * 1024 * 1024,
+            max_total_regression_suite_bytes=64 * 1024 * 1024,
+            max_candidate_export_profiles=16,
+            max_total_prepared_artifact_bytes=128 * 1024 * 1024,
             resolved_policy=ResolvedPolicyProfileConfigV1(
                 resolved_policy_id="repair-verifier",
                 requirement_sources=(
@@ -2394,11 +2521,15 @@ def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dic
                         collection_field_path="/params/regression_suite_artifact_ids",
                     ),
                 ),
-            )
+            ),
         )
         return config.model_dump(mode="json")
     if profile_kind == "playtest_planner":
         return PlaytestPlannerProfileConfigV1(memory_mode="off").model_dump(mode="json")
+    if profile_kind == "bench_evaluator":
+        return BenchmarkEvaluatorProfileConfigV1(
+            policy=build_builtin_benchmark_evaluator_policy()
+        ).model_dump(mode="json")
     return {}
 
 
@@ -2415,6 +2546,7 @@ def _execution_profile_catalog() -> ExecutionProfileCatalogSnapshotV1:
                     reset_schema_id="generic-env-reset@1",
                     action_schema_id="generic-env-action@1",
                     observation_schema_id="generic-env-observation@1",
+                    max_navigation_grid_cells=65_536,
                 )
             )
         elif profile_kind == "config_export":

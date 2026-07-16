@@ -9,6 +9,8 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
     ExecutionProfileDefinitionV1,
+    GenerationProfileConfigV1,
+    PatchRepairProfileConfigV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
     execution_profile_payload_hash,
@@ -294,6 +296,27 @@ def test_builtin_registry_materializes_exact_frozen_run_kind_projection() -> Non
         )
 
 
+def test_agent_execution_budgets_are_inside_hashed_profile_configs() -> None:
+    catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
+    generation_definition = next(
+        item for item in catalog.definitions if item.profile_kind == "generation"
+    )
+    generation = GenerationProfileConfigV1.model_validate(generation_definition.config)
+    assert (
+        generation.gate_simulation_seed,
+        generation.gate_simulation_population,
+        generation.gate_simulation_horizon_steps,
+    ) == (0, 30, 120)
+    assert generation.max_checker_constraint_count == 256
+    assert generation.max_checker_work_units == 2_000_000
+
+    repair_definition = next(
+        item for item in catalog.definitions if item.profile_kind == "patch_repair"
+    )
+    repair = PatchRepairProfileConfigV1.model_validate(repair_definition.config)
+    assert repair.max_search_steps == 4
+
+
 def test_permission_templates_are_closed_by_trusted_domain_resolvers() -> None:
     registry = build_builtin_registry()
 
@@ -501,6 +524,27 @@ def test_frozen_lineage_projects_existing_canonical_facts_from_typed_parents() -
                 for field, allowed_kinds in allowed_local_canonical_fields.items():
                     if projections[field].source == "producer_value":
                         assert lineage.child_kind in allowed_kinds
+
+
+def test_repair_regression_evidence_selects_one_exact_suite_from_payload() -> None:
+    registry = build_builtin_registry()
+    definition = registry.get_run_kind(_ref(("patch.repair", 1)))
+    assert definition is not None
+    policy = next(
+        item for item in definition.outcome_policies if item.policy_id == "repair-verified"
+    )
+    rule = next(item for item in policy.artifact_rules if item.rule_id == "regression")
+    lineage = registry.get_lineage_policy(rule.lineage_policy_ref)
+    assert lineage is not None
+
+    suite = next(item for item in lineage.parent_rules if item.parent_role == "regression_suite")
+    assert suite.source == "child_payload_reference"
+    assert suite.child_payload_pointer == "/suite_artifact_id"
+    assert suite.artifact_kinds == ("regression_suite",)
+    assert suite.payload_schema_ids == ("regression-suite@1",)
+    assert suite.min_count == 1
+    assert suite.max_count == 1
+    assert rule.lineage_policy_ref.digest == artifact_lineage_policy_digest(lineage)
 
 
 def test_runtime_parent_rules_close_record_and_replay_cassette_scopes() -> None:

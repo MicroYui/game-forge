@@ -821,7 +821,7 @@
               "minLength": 1,
               "type": "string"
             },
-            "maxItems": 1024,
+            "maxItems": 32768,
             "title": "Parent Artifact Ids",
             "type": "array"
           },
@@ -1025,12 +1025,18 @@
             "type": "string"
           },
           "seed": {
-            "title": "Seed",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
           }
         },
         "required": [
-          "seed",
           "corpus_size",
           "report_builder_version"
         ],
@@ -1139,7 +1145,7 @@
               "minLength": 1,
               "type": "string"
             },
-            "maxItems": 1024,
+            "maxItems": 1021,
             "title": "Case Result Artifact Ids",
             "type": "array"
           },

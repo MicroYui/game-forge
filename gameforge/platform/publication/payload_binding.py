@@ -178,6 +178,60 @@ def _expect_role_ids(typed: TypedLineage, role: str, expected: Sequence[str | No
         )
 
 
+def _authoritative_parent_payload(
+    payloads: Mapping[str, Mapping[str, object]] | None,
+    artifact_id: str,
+) -> Mapping[str, object]:
+    if payloads is None or artifact_id not in payloads:
+        raise IntegrityViolation(
+            "exact parent Artifact payload is unavailable for semantic binding",
+            artifact_id=artifact_id,
+        )
+    return payloads[artifact_id]
+
+
+def _constraint_ids_from_parent(
+    payloads: Mapping[str, Mapping[str, object]] | None,
+    artifact_id: str,
+) -> tuple[str, ...]:
+    payload = _authoritative_parent_payload(payloads, artifact_id)
+    constraints = payload.get("constraints")
+    if not isinstance(constraints, Sequence) or isinstance(constraints, (str, bytes, bytearray)):
+        raise IntegrityViolation(
+            "authoritative constraint parent has no exact constraint array",
+            artifact_id=artifact_id,
+        )
+    ids: list[str] = []
+    for constraint in constraints:
+        constraint_id = constraint.get("id") if isinstance(constraint, Mapping) else None
+        if not isinstance(constraint_id, str) or not constraint_id:
+            raise IntegrityViolation(
+                "authoritative constraint parent has an invalid constraint id",
+                artifact_id=artifact_id,
+            )
+        ids.append(constraint_id)
+    if len(ids) != len(set(ids)):
+        raise IntegrityViolation(
+            "authoritative constraint parent repeats a constraint id",
+            artifact_id=artifact_id,
+        )
+    return tuple(sorted(ids))
+
+
+def _scenario_id_from_parent(
+    payloads: Mapping[str, Mapping[str, object]] | None,
+    artifact_id: str,
+) -> str:
+    payload = _authoritative_parent_payload(payloads, artifact_id)
+    scenario_id = payload.get("scenario_id")
+    if not isinstance(scenario_id, str) or not scenario_id:
+        raise IntegrityViolation(
+            "authoritative scenario parent has no exact scenario id",
+            artifact_id=artifact_id,
+        )
+    return scenario_id
+
+
 def _one_role_id(typed: TypedLineage, role: str) -> str:
     values = _role_ids(typed, role)
     if len(values) != 1:
@@ -248,7 +302,15 @@ def _validate_typed_run_parents(
             _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
         return
     if isinstance(params, ConstraintProposalProposePayloadV1):
-        _expect_role_ids(typed, "source", params.source_artifact_ids)
+        # The authoring goal is authenticated source_raw authority and the
+        # handler includes it as a direct parent. ConstraintProposalV1's
+        # ``source_bindings`` intentionally covers only the design-document
+        # sources, but typed lineage must still account for the exact goal input.
+        _expect_role_ids(
+            typed,
+            "source",
+            (*params.source_artifact_ids, params.authoring_goal.source_artifact_id),
+        )
         _expect_role_ids(typed, "base_constraint", (params.base_constraint_snapshot_artifact_id,))
         return
     if isinstance(params, ReviewRunPayloadV1):
@@ -706,6 +768,7 @@ def _validate_payload_semantics(
     typed: TypedLineage,
     projected: VersionTuple,
     related_payloads_by_rule: Mapping[str, Sequence[Mapping[str, object]]],
+    authoritative_parent_payloads: Mapping[str, Mapping[str, object]] | None,
 ) -> None:
     params = run.payload.params
     if payload_schema_id == "patch@2":
@@ -728,6 +791,27 @@ def _validate_payload_semantics(
                 params.defect_classes,
                 field="defect_classes",
             )
+            applications = _required_field(payload, "constraint_application")
+            if not isinstance(applications, Sequence) or isinstance(
+                applications, (str, bytes, bytearray)
+            ):
+                _fail("checker constraint_application is not an array")
+            if params.constraint_snapshot_artifact_id is None:
+                _expect(applications, (), field="constraint_application")
+            else:
+                expected_constraint_ids = _constraint_ids_from_parent(
+                    authoritative_parent_payloads,
+                    params.constraint_snapshot_artifact_id,
+                )
+                actual_constraint_ids = tuple(
+                    item.get("constraint_id") if isinstance(item, Mapping) else None
+                    for item in applications
+                )
+                _expect(
+                    actual_constraint_ids,
+                    expected_constraint_ids,
+                    field="constraint_application.constraint_ids",
+                )
         elif isinstance(params, ReviewRunPayloadV1):
             _validate_profile_member(payload, "profile", params.checker_profiles)
     elif payload_schema_id == "simulation-result@1":
@@ -735,6 +819,7 @@ def _validate_payload_semantics(
         if "seed" in payload:
             _expect(payload["seed"], projected.seed, field="seed")
         if isinstance(params, SimulationRunPayloadV1):
+            _expect(_required_field(payload, "seed"), projected.seed, field="seed")
             _expect(
                 _required_field(payload, "replication_count"),
                 params.replication_count,
@@ -745,15 +830,154 @@ def _validate_payload_semantics(
                 params.horizon_steps,
                 field="horizon_steps",
             )
+            _required_field(payload, "invariants")
+            sensitivity = _required_field(payload, "sensitivity")
+            if not isinstance(sensitivity, Mapping):
+                _fail("simulation sensitivity is not an object")
+            execution = sensitivity.get("execution_binding")
+            if not isinstance(execution, Mapping):
+                _fail("simulation result lacks exact execution binding")
+            _expect(
+                execution.get("simulation_profile"),
+                params.simulation_profile,
+                field="execution_binding.simulation_profile",
+            )
+            _expect(
+                execution.get("workload_profile"),
+                params.workload_profile,
+                field="execution_binding.workload_profile",
+            )
+            _expect(
+                execution.get("constraint_snapshot_artifact_id"),
+                params.constraint_snapshot_artifact_id,
+                field="execution_binding.constraint_snapshot_artifact_id",
+            )
+            _expect(
+                execution.get("scenario_artifact_id"),
+                params.scenario_artifact_id,
+                field="execution_binding.scenario_artifact_id",
+            )
+            constraint_ids = execution.get("constraint_ids")
+            if params.constraint_snapshot_artifact_id is None:
+                _expect(constraint_ids, (), field="execution_binding.constraint_ids")
+                expected_constraint_application = {"status": "not_applicable"}
+            else:
+                if not isinstance(constraint_ids, Sequence) or isinstance(
+                    constraint_ids, (str, bytes, bytearray)
+                ):
+                    _fail("simulation constraint input has no exact application evidence")
+                expected_constraint_application = {
+                    "status": "unproven",
+                    "reason_code": "constraint_profile_not_executable",
+                }
+                _expect(
+                    tuple(constraint_ids),
+                    _constraint_ids_from_parent(
+                        authoritative_parent_payloads,
+                        params.constraint_snapshot_artifact_id,
+                    ),
+                    field="execution_binding.constraint_ids",
+                )
+            _expect(
+                execution.get("constraint_application"),
+                expected_constraint_application,
+                field="execution_binding.constraint_application",
+            )
+            if params.scenario_artifact_id is None:
+                _expect(execution.get("scenario_id"), None, field="execution_binding.scenario_id")
+                expected_scenario_application = {"status": "not_applicable"}
+            else:
+                scenario_id = execution.get("scenario_id")
+                if not isinstance(scenario_id, str) or not scenario_id:
+                    _fail("simulation scenario input has no exact application evidence")
+                scenario_payload = _authoritative_parent_payload(
+                    authoritative_parent_payloads,
+                    params.scenario_artifact_id,
+                )
+                _expect(
+                    scenario_id,
+                    _scenario_id_from_parent(
+                        authoritative_parent_payloads,
+                        params.scenario_artifact_id,
+                    ),
+                    field="execution_binding.scenario_id",
+                )
+                _expect(
+                    scenario_payload.get("source_preview_artifact_id"),
+                    params.snapshot_artifact_id,
+                    field="scenario.source_preview_artifact_id",
+                )
+                _expect(
+                    scenario_payload.get("constraint_snapshot_artifact_id"),
+                    params.constraint_snapshot_artifact_id,
+                    field="scenario.constraint_snapshot_artifact_id",
+                )
+                _expect(
+                    scenario_payload.get("env_contract_version"),
+                    projected.env_contract_version,
+                    field="scenario.env_contract_version",
+                )
+                expected_scenario_application = {
+                    "status": "unproven",
+                    "reason_code": "scenario_reset_not_executable",
+                }
+            _expect(
+                execution.get("scenario_application"),
+                expected_scenario_application,
+                field="execution_binding.scenario_application",
+            )
         elif isinstance(params, ReviewRunPayloadV1):
             _validate_profile_member(payload, "profile", params.simulation_profiles)
+            profile = _required_field(payload, "profile")
+            sensitivity = _required_field(payload, "sensitivity")
+            if not isinstance(sensitivity, Mapping):
+                _fail("review simulation sensitivity is not an object")
+            execution = sensitivity.get("execution_binding")
+            if not isinstance(execution, Mapping):
+                _fail("review simulation lacks exact constraint application evidence")
+            _expect(
+                execution.get("simulation_profile"),
+                profile,
+                field="execution_binding.simulation_profile",
+            )
+            _expect(
+                execution.get("constraint_snapshot_artifact_id"),
+                params.constraint_snapshot_artifact_id,
+                field="execution_binding.constraint_snapshot_artifact_id",
+            )
+            constraint_ids = execution.get("constraint_ids")
+            if params.constraint_snapshot_artifact_id is None:
+                _expect(constraint_ids, (), field="execution_binding.constraint_ids")
+                expected_constraint_application = {"status": "not_applicable"}
+            else:
+                if not isinstance(constraint_ids, Sequence) or isinstance(
+                    constraint_ids, (str, bytes, bytearray)
+                ):
+                    _fail("review simulation constraint input has no exact application evidence")
+                _expect(
+                    tuple(constraint_ids),
+                    _constraint_ids_from_parent(
+                        authoritative_parent_payloads,
+                        params.constraint_snapshot_artifact_id,
+                    ),
+                    field="execution_binding.constraint_ids",
+                )
+                expected_constraint_application = {
+                    "status": "unproven",
+                    "reason_code": "constraint_profile_not_executable",
+                }
+            _expect(
+                execution.get("constraint_application"),
+                expected_constraint_application,
+                field="execution_binding.constraint_application",
+            )
     elif payload_schema_id == "review@1":
         _expect_snapshot(payload, projected)
     elif payload_schema_id == "constraint-proposal@1":
         assert isinstance(params, ConstraintProposalProposePayloadV1)
         _expect(
             payload.get("base_constraint_snapshot_id"),
-            params.base_constraint_snapshot_artifact_id,
+            projected.constraint_snapshot_id,
             field="base_constraint_snapshot_id",
         )
         _expect(
@@ -770,6 +994,22 @@ def _validate_payload_semantics(
             for item in source_bindings
         )
         _expect(tuple(sorted(source_ids)), params.source_artifact_ids, field="source_bindings")
+        source_parents = {parent.artifact_id: parent for parent in _role_parents(typed, "source")}
+        for item in source_bindings:
+            if not isinstance(item, Mapping):
+                _fail("constraint proposal source binding is not an object")
+            source_id = item.get("source_artifact_id")
+            parent = source_parents.get(source_id) if isinstance(source_id, str) else None
+            if parent is None or parent.payload_hash is None:
+                _fail(
+                    "constraint proposal source parent has no payload-hash authority",
+                    field="source_bindings.provenance_hash",
+                )
+            _expect(
+                item.get("provenance_hash"),
+                parent.payload_hash,
+                field="source_bindings.provenance_hash",
+            )
         _expect(_required_field(payload, "produced_by"), "agent", field="produced_by")
         _expect(_required_field(payload, "producer_run_id"), run.run_id, field="producer_run_id")
     elif payload_schema_id == "scenario-spec@1":
@@ -1806,6 +2046,7 @@ def validate_domain_payload_bindings(
     projected_tuple: VersionTuple,
     prepared_meta: Mapping[str, object],
     related_payloads_by_rule: Mapping[str, Sequence[Mapping[str, object]]] | None = None,
+    authoritative_parent_payloads: Mapping[str, Mapping[str, object]] | None = None,
 ) -> dict[str, object]:
     """Validate all duplicated semantic authorities and return checked metadata.
 
@@ -1813,6 +2054,11 @@ def validate_domain_payload_bindings(
     set for this outcome.  It is mandatory in practice for Patch publication so
     ``target_snapshot_id`` is bound to the exact preview content even though the
     preview Artifact is minted later in the lineage topological order.
+
+    ``authoritative_parent_payloads`` contains schema-decoded bytes read from the
+    already-published Artifacts selected by typed lineage. Standalone checker and
+    simulation outputs use it to prove worker-reported constraint/scenario ids
+    against immutable parent content rather than trusting duplicated payload data.
     """
 
     selector = _selector(run, outcome_policy, outcome_rule, payload_schema_id)
@@ -1843,6 +2089,7 @@ def validate_domain_payload_bindings(
         typed=typed_lineage,
         projected=projected_tuple,
         related_payloads_by_rule=related_payloads_by_rule or {},
+        authoritative_parent_payloads=authoritative_parent_payloads,
     )
     return _validate_authoritative_meta(
         run=run,

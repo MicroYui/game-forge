@@ -31,6 +31,7 @@ from gameforge.contracts.jobs import (
     CommandAcceptedDataV1,
     CommandOutcomeDataV1,
     FailureClassifierV1,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     OutcomeArtifactPolicyV1,
     PreparedRunFailure,
     RetryDecisionV1,
@@ -52,6 +53,7 @@ from gameforge.contracts.jobs import (
     RunRecord,
     RunSchemaBindingV1,
     RunTerminatedDataV1,
+    RunToolIntermediateLinkV1,
     RunCommandV1,
     canonical_payload_hash,
     outcome_policy_set_digest,
@@ -175,6 +177,29 @@ class PromptRenderPublicationResult(_FrozenModel):
     replayed: bool
 
 
+class AgentPromptContextPublicationRequest(_FrozenModel):
+    fence: AttemptWriteFence
+    target_call_ordinal: PositiveInt
+    artifact_id: NonEmptyStr
+    payload_hash: Sha256Hex
+    agent_node_id: NonEmptyStr
+    prompt_version: NonEmptyStr
+    idempotency_scope: NonEmptyStr
+    idempotency_key: NonEmptyStr
+    actor: AuditActor
+
+    @model_validator(mode="after")
+    def _worker_actor(self) -> "AgentPromptContextPublicationRequest":
+        if self.actor.principal_kind not in {"service", "system"}:
+            raise ValueError("Agent prompt-context publication requires a worker actor")
+        return self
+
+
+class AgentPromptContextPublicationResult(_FrozenModel):
+    link: RunToolIntermediateLinkV1
+    replayed: bool
+
+
 class RunCommandSubmissionResult(_FrozenModel):
     status: Literal["accepted", "duplicate"]
     persisted_status: Literal["pending", "claimed", "applied", "rejected"]
@@ -270,10 +295,45 @@ class RunRepository(Protocol):
         limit: int,
     ) -> tuple[RunIntermediateArtifactLinkV1, ...]: ...
 
+    def list_prompt_render_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
+    ) -> tuple[RunIntermediateArtifactLinkV1, ...]: ...
+
     def put_intermediate_link(
         self,
         link: RunIntermediateArtifactLinkV1,
     ) -> RunIntermediateArtifactLinkV1: ...
+
+    def get_tool_intermediate_link(
+        self,
+        run_id: str,
+        attempt_no: int,
+        target_call_ordinal: int,
+    ) -> RunToolIntermediateLinkV1 | None: ...
+
+    def get_tool_intermediate_for_call(
+        self,
+        run_id: str,
+        attempt_no: int,
+        target_call_ordinal: int,
+    ) -> RunToolIntermediateLinkV1 | None: ...
+
+    def put_tool_intermediate_link(
+        self,
+        link: RunToolIntermediateLinkV1,
+    ) -> RunToolIntermediateLinkV1: ...
+
+    def list_tool_intermediate_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
+    ) -> tuple[RunToolIntermediateLinkV1, ...]: ...
 
     def get_model_route_link(
         self,
@@ -290,7 +350,7 @@ class RunRepository(Protocol):
         run_id: str,
         *,
         attempt_no: int | None,
-        limit: int = 8192,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
     ) -> tuple[RunModelRouteLinkV1, ...]: ...
 
     def get_model_response_consumption(
@@ -311,7 +371,7 @@ class RunRepository(Protocol):
         run_id: str,
         *,
         attempt_no: int | None,
-        limit: int = 8192,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
     ) -> tuple[RunModelResponseConsumptionV1, ...]: ...
 
     def get_finding_link(
@@ -492,6 +552,27 @@ class RunPublicationGateway(Protocol):
         The command service supplies the fenced deadline guard while this
         transaction-bound participant publishes Artifact/ObjectRef and audit state.
         """
+        ...
+
+    def get_agent_prompt_context_replay(
+        self,
+        *,
+        idempotency_scope: str,
+        idempotency_key: str,
+        payload_hash: str,
+    ) -> RunToolIntermediateLinkV1 | None: ...
+
+    def publish_agent_prompt_context(
+        self,
+        *,
+        link: RunToolIntermediateLinkV1,
+        idempotency_scope: str,
+        idempotency_key: str,
+        payload_hash: str,
+        actor: AuditActor,
+    ) -> RunToolIntermediateLinkV1:
+        """Publish one staged tool context without consuming the prompt call head."""
+
         ...
 
     def publish_run_failure(
@@ -1553,6 +1634,139 @@ class RunCommandService:
             )
             return completed
 
+    def publish_agent_prompt_context(
+        self,
+        request: AgentPromptContextPublicationRequest,
+    ) -> AgentPromptContextPublicationResult:
+        """Publish one exact tool context under the current lease without head CAS."""
+
+        with self._unit_of_work.begin() as transaction:
+            capabilities = self._bind_capabilities(transaction)
+            runs = _required(capabilities.runs, "runs")
+            publication = _required(capabilities.publication, "publication")
+            now = _utc_now(self._clock)
+            replay = publication.get_agent_prompt_context_replay(
+                idempotency_scope=request.idempotency_scope,
+                idempotency_key=request.idempotency_key,
+                payload_hash=request.payload_hash,
+            )
+            run = runs.get(request.fence.run_id)
+            if run is None:
+                raise IntegrityViolation("Agent prompt-context Run does not exist")
+            _resolve_bindings(
+                run=run,
+                registry=_required(capabilities.registry, "registry"),
+            )
+            attempt = runs.get_attempt(request.fence.run_id, request.fence.attempt_no)
+            lease = runs.get_current_lease(request.fence.run_id)
+            if attempt is None:
+                raise IntegrityViolation("Agent prompt-context attempt does not exist")
+            if lease is None:
+                raise Conflict("Agent prompt-context publication has no current lease")
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=request.fence,
+                actor=request.actor,
+                now=now,
+                allowed_statuses=frozenset({"running"}),
+            )
+            if attempt.status != "running":
+                raise InvalidStateTransition("Agent prompt-context attempt is not running")
+
+            if replay is not None:
+                expected = {
+                    "run_id": request.fence.run_id,
+                    "attempt_no": request.fence.attempt_no,
+                    "target_call_ordinal": request.target_call_ordinal,
+                    "artifact_id": request.artifact_id,
+                    "agent_node_id": request.agent_node_id,
+                    "prompt_version": request.prompt_version,
+                    "payload_hash": request.payload_hash,
+                    "fencing_token": request.fence.fencing_token,
+                    "role": "agent_prompt_context",
+                }
+                for field_name, expected_value in expected.items():
+                    if getattr(replay, field_name) != expected_value:
+                        raise Conflict(
+                            "Agent prompt-context replay differs from the request",
+                            field_name=field_name,
+                        )
+                if (
+                    runs.get_tool_intermediate_for_call(
+                        replay.run_id,
+                        replay.attempt_no,
+                        replay.target_call_ordinal,
+                    )
+                    != replay
+                ):
+                    raise IntegrityViolation(
+                        "Agent prompt-context replay is detached from its exact link"
+                    )
+                return AgentPromptContextPublicationResult(link=replay, replayed=True)
+
+            if attempt.next_call_ordinal != request.target_call_ordinal:
+                raise Conflict(
+                    "Agent prompt-context target differs from the Attempt call head",
+                    expected_call_ordinal=attempt.next_call_ordinal,
+                    target_call_ordinal=request.target_call_ordinal,
+                )
+            plan = run.payload.execution_version_plan
+            node = (
+                None
+                if plan is None
+                else next(
+                    (item for item in plan.nodes if item.agent_node_id == request.agent_node_id),
+                    None,
+                )
+            )
+            if (
+                run.payload.llm_execution_mode == "not_applicable"
+                or node is None
+                or node.prompt_version != request.prompt_version
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context node escapes the frozen execution plan"
+                )
+            link = RunToolIntermediateLinkV1(
+                run_id=request.fence.run_id,
+                attempt_no=request.fence.attempt_no,
+                target_call_ordinal=request.target_call_ordinal,
+                artifact_id=request.artifact_id,
+                agent_node_id=request.agent_node_id,
+                prompt_version=request.prompt_version,
+                payload_hash=request.payload_hash,
+                fencing_token=request.fence.fencing_token,
+                published_at=_utc_text(now),
+            )
+            stored = publication.publish_agent_prompt_context(
+                link=link,
+                idempotency_scope=request.idempotency_scope,
+                idempotency_key=request.idempotency_key,
+                payload_hash=request.payload_hash,
+                actor=request.actor,
+            )
+            if stored != link:
+                raise IntegrityViolation("Agent prompt-context gateway retained another link")
+            if (
+                runs.get_tool_intermediate_for_call(
+                    link.run_id,
+                    link.attempt_no,
+                    link.target_call_ordinal,
+                )
+                != link
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context publication did not retain its exact link"
+                )
+            unchanged_attempt = runs.get_attempt(link.run_id, link.attempt_no)
+            if unchanged_attempt != attempt:
+                raise IntegrityViolation(
+                    "Agent prompt-context publication changed the prompt call head"
+                )
+            return AgentPromptContextPublicationResult(link=link, replayed=False)
+
     def publish_prompt_rendered(
         self,
         request: PromptRenderPublicationRequest,
@@ -1803,6 +2017,8 @@ class RunCommandService:
 
 
 __all__ = [
+    "AgentPromptContextPublicationRequest",
+    "AgentPromptContextPublicationResult",
     "CapabilityBinder",
     "PersistedRunClaim",
     "PromptRenderPublicationRequest",

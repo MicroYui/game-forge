@@ -36,6 +36,7 @@ from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.jobs import PreparedArtifact
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple, artifact_id_v2_for
 from gameforge.contracts.workflow import EvidenceRequirement
+from gameforge.spine.ir.snapshot import Snapshot
 
 from gameforge.platform.run_handlers.base import ArtifactBlobReader
 
@@ -159,6 +160,13 @@ class RegressionSuiteResultV1:
     status: Literal["passed", "failed", "unproven", "not_executed"]
     payload: Mapping[str, object]
     reason_code: str | None = None
+    # Trusted out-of-band producer fact used to seal the per-suite evidence
+    # VersionTuple.  It is intentionally not copied from the Run-wide tuple:
+    # one repair can execute suites bound to distinct environment contracts.
+    env_contract_version: str | None = None
+    # Exact adapter-versioned action work measured from the committed suite before
+    # environment construction.  Repair uses this to debit its Run-wide ledger.
+    action_work_units: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -168,6 +176,18 @@ class RegressionRunRequest:
     suite_artifact_id: str
     snapshot_id: str | None
     seed: int
+    # Repair candidates are ephemeral until terminal publication.  Supplying only
+    # their content id would force a production runner either to guess bytes or to
+    # pretend it executed.  Validation handlers that operate on another target kind
+    # may leave this absent; a real environment adapter then returns unproven.
+    snapshot: Snapshot | None = None
+    root_seed: int | None = None
+    run_kind: RunKindRef | None = None
+    profile: ProfileRefV1 | None = None
+    # Remaining authority from the caller's Run-wide regression work ledger.  A
+    # production runner must refuse to create an environment when this is absent
+    # or smaller than the suite's exact static action work.
+    max_action_work_units: int | None = None
 
 
 class RegressionRunner(Protocol):

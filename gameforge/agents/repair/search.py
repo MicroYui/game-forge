@@ -18,7 +18,11 @@ fix found", never a silently-unverified patch dressed up as a pass.
 
 from __future__ import annotations
 
-from gameforge.agents.repair.drafter import RepairDrafter
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Literal
+
+from gameforge.agents.repair.drafter import RepairDrafter, build_repair_user_prompt
 from gameforge.agents.repair.verify import VerifyResult, verify_patch
 from gameforge.contracts.agent_io import PatchDraft
 from gameforge.contracts.findings import Finding, Patch
@@ -26,6 +30,27 @@ from gameforge.runtime.model_router.router import ModelRouter
 from gameforge.spine.checkers.base import Checker
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.patch import PatchRejected, apply_patch
+
+
+@dataclass(frozen=True, slots=True)
+class RepairPromptRoundContext:
+    """Exact semantic state used to assemble one initial/refine model request.
+
+    M4 supplies a callback that turns this deterministic state into an immutable
+    ``agent-prompt-context@1`` before the corresponding model call.  Legacy M2
+    harnesses omit the callback and preserve their historical request identity.
+    """
+
+    phase: Literal["initial", "refine"]
+    finding: Finding
+    snapshot: Snapshot
+    counterexample: str | None
+    previous_patch: Patch | None
+    previous_verdict: VerifyResult | None
+    user_prompt: str
+
+
+RepairPromptContextHook = Callable[[RepairPromptRoundContext], None]
 
 
 def _empty_patch(finding: Finding, snapshot: Snapshot) -> Patch:
@@ -51,8 +76,7 @@ def _summarize_failure(result: VerifyResult, target_defect_class: str) -> str:
         # so the drafter re-drafts against the precise reason (e.g. don't delete
         # the offending subject to make the defect vanish).
         parts.append(
-            f"the target defect {target_defect_class!r} is not genuinely resolved "
-            f"({result.detail})"
+            f"the target defect {target_defect_class!r} is not genuinely resolved ({result.detail})"
         )
     if result.new_deterministic:
         classes = sorted({f.defect_class for f in result.new_deterministic})
@@ -70,15 +94,39 @@ def repair_search(
     *,
     max_steps: int = 4,
     run_regression: bool = True,
+    run_economy: bool = True,
+    candidate_verifier: Callable[[Snapshot, Snapshot, list[Checker], str], VerifyResult]
+    | None = None,
+    prompt_context_hook: RepairPromptContextHook | None = None,
 ) -> PatchDraft:
     drafter = RepairDrafter()
     counterexample: str | None = None
     last_patch: Patch | None = None
+    previous_patch: Patch | None = None
+    previous_verdict: VerifyResult | None = None
 
     for i in range(max_steps):
+        if prompt_context_hook is not None:
+            prompt_context_hook(
+                RepairPromptRoundContext(
+                    phase="initial" if counterexample is None else "refine",
+                    finding=finding,
+                    snapshot=snapshot,
+                    counterexample=counterexample,
+                    previous_patch=previous_patch,
+                    previous_verdict=previous_verdict,
+                    user_prompt=build_repair_user_prompt(
+                        finding,
+                        snapshot,
+                        counterexample=counterexample,
+                    ),
+                )
+            )
         patch = drafter.draft(finding, snapshot, router, counterexample=counterexample)
         if patch is None:
             counterexample = "model produced no valid ops"
+            previous_patch = None
+            previous_verdict = None
             continue
         last_patch = patch
 
@@ -86,14 +134,27 @@ def repair_search(
             patched = apply_patch(snapshot, patch)
         except PatchRejected as exc:
             counterexample = f"the patch was rejected as inapplicable: {exc.reason}"
+            previous_patch = patch
+            previous_verdict = None
             continue
 
-        result = verify_patch(
-            snapshot, patched, checkers, finding.defect_class, run_regression=run_regression
+        result = (
+            candidate_verifier(snapshot, patched, checkers, finding.defect_class)
+            if candidate_verifier is not None
+            else verify_patch(
+                snapshot,
+                patched,
+                checkers,
+                finding.defect_class,
+                run_regression=run_regression,
+                run_economy=run_economy,
+            )
         )
         if result.ok:
             return PatchDraft(patch=patch, search_steps=i + 1, passed_verification=True)
         counterexample = _summarize_failure(result, finding.defect_class)
+        previous_patch = patch
+        previous_verdict = result
 
     return PatchDraft(
         patch=last_patch if last_patch is not None else _empty_patch(finding, snapshot),

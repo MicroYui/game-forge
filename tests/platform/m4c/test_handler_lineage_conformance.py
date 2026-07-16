@@ -29,6 +29,16 @@ from gameforge.platform.publication.lineage import (
     ParentInfo,
     _candidate_for_rule,
 )
+from gameforge.platform.publication.payload_schema import (
+    decode_and_validate_artifact_payload,
+)
+from gameforge.platform.publication.planner import build_publication_plan
+from gameforge.platform.publication.validator import (
+    PreparedArtifactView,
+    allocate_artifacts,
+    validate_plan_dispositions,
+    validate_rule_cardinality,
+)
 from gameforge.platform.registry.defaults import build_builtin_registry
 
 from tests.platform.m4c import (
@@ -56,7 +66,9 @@ _RUN_INPUTS: dict[str, tuple[str, str]] = {
     repair_mod.CONSTRAINT_ID: ("constraint_snapshot", "constraint-snapshot@1"),
     repair_mod.EVIDENCE_ID: ("validation_evidence", "evidence-set@1"),
     repair_mod.FINDING_EVIDENCE_ID: ("checker_run", "checker-report@1"),
+    repair_mod.SUITE_ID: ("regression_suite", "regression-suite@1"),
     constraint_mod.DOC_ID: ("source_raw", "source-raw@1"),
+    constraint_mod.GOAL_ID: ("source_raw", "source-raw@1"),
     task_suite_mod.PREVIEW_ID: ("ir_snapshot", "ir-core@1"),
     task_suite_mod.CONFIG_ID: ("config_export", "config-export-package@1"),
     task_suite_mod.CONSTRAINT_ID: ("constraint_snapshot", "constraint-snapshot@1"),
@@ -151,8 +163,22 @@ def _assert_artifact_lineage_conforms(kind: RunKindRef, outcome_code: str, outco
         # the publisher disambiguates by child-payload pointer at Task-18 (e.g. the
         # repair patch's `base` + `preview` are both run_input ir_snapshot); it does
         # NOT tolerate a parent that matches NO role, which is exactly the D1 bug.
+        child_references = {
+            parent_id: run_inputs[parent_id]
+            for parent_id in artifact.lineage
+            if parent_id in run_inputs
+            and any(
+                rule.source == "child_payload_reference"
+                and run_inputs[parent_id].kind in rule.artifact_kinds
+                and run_inputs[parent_id].payload_schema_id in rule.payload_schema_ids
+                for rule in lineage_policy.parent_rules
+            )
+        }
         sources = LineageParentSources(
-            run_inputs=run_inputs, run_intermediates={}, prepared_siblings=siblings
+            run_inputs=run_inputs,
+            run_intermediates={},
+            prepared_siblings=siblings,
+            child_payload_references=child_references,
         )
         for parent_id in artifact.lineage:
             matched_roles = [
@@ -198,6 +224,67 @@ def test_repair_verified_lineage_conforms_to_frozen_policy() -> None:
     _assert_artifact_lineage_conforms(repair_mod.REPAIR_KIND, "repair_verified", outcome)
 
 
+def test_repair_unverified_subset_passes_terminal_cardinality_and_lineage() -> None:
+    store = repair_mod._store()
+    context = repair_mod._context(FakeModelBridge(responses=("[]",)))
+    outcome = repair_mod._handler(store, max_steps=1)(context)
+    assert outcome.cause_code == "repair_unverified"
+    _assert_artifact_lineage_conforms(repair_mod.REPAIR_KIND, "repair_unverified", outcome)
+
+    definition = REGISTRY.get_run_kind(repair_mod.REPAIR_KIND)
+    assert definition is not None
+    policy = next(
+        item
+        for item in definition.outcome_policies
+        if item.outcome_code == "repair_unverified" and item.publication_scope == "run"
+    )
+    plan = build_publication_plan(
+        registry=REGISTRY,
+        definition=definition,
+        policy=policy,
+        scope="run",
+    )
+    views = tuple(
+        PreparedArtifactView(
+            index=index,
+            kind=artifact.kind,
+            payload_schema_id=artifact.payload_schema_id,
+            version_tuple=artifact.version_tuple,
+            lineage=artifact.lineage,
+            payload_hash=artifact.payload_hash,
+            object_ref=artifact.object_ref,
+            location=artifact.location,
+            meta=artifact.meta,
+            payload=decode_and_validate_artifact_payload(
+                payload_schema_id=artifact.payload_schema_id,
+                blob=store.read_prepared(artifact.object_ref),
+            ),
+            blob=store.read_prepared(artifact.object_ref),
+        )
+        for index, artifact in enumerate(outcome.artifacts)
+    )
+    allocations = allocate_artifacts(plan_rules=plan.plan_rules, artifacts=views)
+    snapshots = {
+        snapshot.resolved_policy_id: snapshot
+        for snapshot in context.run.payload.resolved_policy_snapshots
+    }
+    validate_plan_dispositions(
+        plan_rules=plan.plan_rules,
+        snapshots_by_id=snapshots,
+        dispositions=outcome.requirement_dispositions,
+    )
+    by_index = {view.index: view for view in views}
+    for allocation in allocations:
+        validate_rule_cardinality(
+            allocation=allocation,
+            artifacts_by_index=by_index,
+            run_payload=context.run.payload.model_dump(mode="python"),
+            primary_payload=None,
+            snapshots_by_id=snapshots,
+            dispositions=outcome.requirement_dispositions,
+        )
+
+
 def test_constraint_proposal_lineage_conforms_to_frozen_policy() -> None:
     store = constraint_mod._store()
     outcome = constraint_mod._handler(store)(
@@ -205,6 +292,9 @@ def test_constraint_proposal_lineage_conforms_to_frozen_policy() -> None:
     )
     _assert_artifact_lineage_conforms(
         constraint_mod.CONSTRAINT_KIND, "constraint_proposal_drafted", outcome
+    )
+    assert outcome.artifacts[outcome.primary_index].lineage == tuple(
+        sorted((constraint_mod.DOC_ID, constraint_mod.GOAL_ID))
     )
 
 

@@ -19,16 +19,27 @@ from gameforge.contracts.api import (
     RollbackValidationAdmissionRequestV1,
 )
 from gameforge.contracts.benchmark import (
+    BenchmarkAgentResponseExecutorV1,
+    BenchmarkAggregateInputBindingV1,
+    BenchmarkBinaryMetricDefinitionV1,
+    BenchmarkBinaryMetricTargetV1,
     BenchmarkCaseExecutionV1,
+    BenchmarkCleanOracleFpExecutorV1,
+    BenchmarkDatasetCaseV1,
     BenchmarkDatasetBindingV1,
-    BenchmarkEvaluatorPolicyRefV1,
+    BenchmarkDatasetPartitionV1,
+    BenchmarkDatasetV1,
+    BenchmarkEqualsPredicateV1,
     BenchmarkMetricPolicyV1,
     BenchmarkMetricRefV1,
     BenchmarkOrderKeyV1,
     BenchmarkOrderingPolicyV1,
     BenchmarkPartitionV1,
+    BenchmarkResourceLimitsV1,
     BenchmarkSamplingPolicyV1,
+    BenchmarkSimulationExecutionV1,
     BenchmarkSpecV1,
+    build_builtin_benchmark_evaluator_policy,
 )
 from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
 from gameforge.contracts.cassette_import import CassetteBundleV1
@@ -112,6 +123,8 @@ from gameforge.contracts.playtest import (
     TaskSuiteV1,
 )
 from gameforge.contracts.review import ReviewReport
+from gameforge.bench.metrics import default_constraints
+from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.contracts.routing import (
     ModelCatalogSnapshotV1,
     ModelDescriptorV1,
@@ -2579,8 +2592,150 @@ def _seed_benchmark_spec(
     seed_derivation_version: str = "subseed@1",
     minimum_repetitions: int = 1,
     maximum_repetitions: int = 3,
+    aggregate_artifacts: tuple[ArtifactV2, ...] = (),
+    simulation_execution: BenchmarkSimulationExecutionV1 | None = None,
+    max_result_metrics_bytes_total: int | None = None,
+    agent_prompt_count: int = 1,
+    checker_constraint_count: int = 1,
+    max_checker_work_units: int | None = None,
+    max_checker_work_units_total: int | None = None,
 ) -> ArtifactV2:
-    dataset = harness.load_artifact(dataset_artifact_id)
+    source_dataset = harness.load_artifact(dataset_artifact_id)
+    report_template = Path("scenarios/bench/bench-report.json").read_text(encoding="utf-8")
+    snapshot = Snapshot(entities={}, relations={})
+    constraints = tuple(default_constraints()[:checker_constraint_count])
+    constraints_payload = [item.model_dump(mode="json") for item in constraints]
+    evaluator_policy = build_builtin_benchmark_evaluator_policy()
+    deterministic_metric = BenchmarkMetricRefV1(metric_id="oracle-fp", metric_version=1)
+    agent_metric = BenchmarkMetricRefV1(metric_id="agent-fix", metric_version=1)
+    dataset_partitions: list[BenchmarkDatasetPartitionV1] = []
+    for partition in partitions:
+        dataset_cases: list[BenchmarkDatasetCaseV1] = []
+        for case in partition.cases:
+            if case.execution_mode == "agent":
+                executor = BenchmarkAgentResponseExecutorV1(
+                    prompts=("evaluate the frozen benchmark case",) * agent_prompt_count,
+                    response_format="text",
+                    oracle=BenchmarkEqualsPredicateV1(operator="equals", expected="pass"),
+                )
+                metric_refs = (agent_metric,)
+            else:
+                selected_constraints = constraints if simulation_execution is None else ()
+                selected_constraint_payload = (
+                    constraints_payload if simulation_execution is None else []
+                )
+                executor = BenchmarkCleanOracleFpExecutorV1(
+                    snapshot_payload=snapshot.content_payload,
+                    snapshot_id=snapshot.snapshot_id,
+                    snapshot_payload_hash=sha256_lowerhex(
+                        canonical_json(snapshot.content_payload).encode("utf-8")
+                    ),
+                    constraints=selected_constraints,
+                    constraints_digest=sha256_lowerhex(
+                        canonical_json(selected_constraint_payload).encode("utf-8")
+                    ),
+                    max_checker_work_units=(
+                        evaluator_policy.max_checker_work_units_total
+                        if max_checker_work_units is None
+                        else max_checker_work_units
+                    ),
+                    needs_navigation=False,
+                    simulation=simulation_execution,
+                    failure_buckets=(
+                        ("deterministic", "unproven")
+                        if simulation_execution is None
+                        else ("simulation",)
+                    ),
+                )
+                metric_refs = (deterministic_metric,)
+            dataset_cases.append(
+                BenchmarkDatasetCaseV1(
+                    case_id=case.case_id,
+                    execution_mode=case.execution_mode,
+                    executor=executor,
+                    aggregate_oracle=(
+                        BenchmarkEqualsPredicateV1(
+                            operator="equals",
+                            actual_pointer="/payload_schema_version",
+                            expected="review@1",
+                        )
+                        if aggregate_artifacts
+                        else None
+                    ),
+                    metric_refs=metric_refs,
+                )
+            )
+        dataset_partitions.append(
+            BenchmarkDatasetPartitionV1(
+                partition_id=partition.partition_id,
+                cases=tuple(dataset_cases),
+            )
+        )
+    metric_refs = {
+        (ref.metric_id, ref.metric_version)
+        for partition in dataset_partitions
+        for case in partition.cases
+        for ref in case.metric_refs
+    }
+    metric_definitions = []
+    if (deterministic_metric.metric_id, deterministic_metric.metric_version) in metric_refs:
+        metric_definitions.append(
+            BenchmarkBinaryMetricDefinitionV1(
+                metric=deterministic_metric,
+                target=BenchmarkBinaryMetricTargetV1(
+                    collection="false_positives",
+                    name="oracle_fp",
+                    bucket="deterministic_fp",
+                ),
+                result_pointer="/metrics/false_positive",
+                positive_value=True,
+            )
+        )
+    if (agent_metric.metric_id, agent_metric.metric_version) in metric_refs:
+        metric_definitions.append(
+            BenchmarkBinaryMetricDefinitionV1(
+                metric=agent_metric,
+                target=BenchmarkBinaryMetricTargetV1(
+                    collection="agent",
+                    name="fix_pass_rate",
+                    bucket="agent",
+                ),
+                result_pointer="/metrics/oracle_passed",
+                positive_value=True,
+            )
+        )
+    dataset_contract = BenchmarkDatasetV1(
+        partitions=tuple(dataset_partitions),
+        binary_metrics=tuple(metric_definitions),
+        report_template_utf8=report_template,
+        report_template_sha256=sha256_lowerhex(report_template.encode("utf-8")),
+    )
+    dataset = harness.seed_payload_artifact(
+        kind="bench_dataset",
+        payload=canonical_json(dataset_contract.model_dump(mode="json")).encode("utf-8"),
+        version_tuple=source_dataset.version_tuple,
+        payload_schema_id="bench-dataset@1",
+        domain_scope=domain_scope,
+    )
+    all_cases = tuple(case for partition in partitions for case in partition.cases)
+    if aggregate_artifacts and len(aggregate_artifacts) != len(all_cases):
+        raise AssertionError("aggregate fixture must bind every benchmark case")
+    aggregate_inputs = (
+        tuple(
+            BenchmarkAggregateInputBindingV1(
+                case_id=case.case_id,
+                replication_index=0,
+                artifact_id=artifact.artifact_id,
+                payload_hash=artifact.payload_hash,
+                payload_size_bytes=artifact.object_ref.size_bytes,
+                artifact_kind=artifact.kind,  # type: ignore[arg-type]
+                payload_schema_id=str(artifact.meta["payload_schema_id"]),
+            )
+            for case, artifact in zip(all_cases, aggregate_artifacts, strict=True)
+        )
+        if aggregate_artifacts
+        else ()
+    )
     spec = BenchmarkSpecV1(
         dataset=BenchmarkDatasetBindingV1(
             artifact_id=dataset.artifact_id,
@@ -2589,15 +2744,11 @@ def _seed_benchmark_spec(
             else dataset_payload_hash,
         ),
         evaluator_profile=evaluator_profile,
-        evaluator_policy=BenchmarkEvaluatorPolicyRefV1(
-            policy_id="bench-evaluator",
-            policy_version=1,
-            policy_digest="d" * 64,
-        ),
+        evaluator_policy=evaluator_policy.ref,
         metric_policy=BenchmarkMetricPolicyV1(
             policy_id="bench-metrics",
             policy_version=1,
-            metrics=(BenchmarkMetricRefV1(metric_id="bug-detection-rate", metric_version=1),),
+            metrics=tuple(item.metric for item in metric_definitions),
         ),
         sampling_policy=BenchmarkSamplingPolicyV1(
             policy_id="bench-sampling",
@@ -2619,6 +2770,28 @@ def _seed_benchmark_spec(
                 ),
             ),
         ),
+        resource_limits=BenchmarkResourceLimitsV1(
+            max_case_executions=evaluator_policy.max_case_executions,
+            max_prepared_report_bytes=evaluator_policy.max_prepared_report_bytes,
+            max_aggregate_input_bytes_per_artifact=(
+                evaluator_policy.max_aggregate_input_bytes_per_artifact
+            ),
+            max_aggregate_input_bytes_total=(evaluator_policy.max_aggregate_input_bytes_total),
+            max_checker_work_units_total=(
+                evaluator_policy.max_checker_work_units_total
+                if max_checker_work_units_total is None
+                else max_checker_work_units_total
+            ),
+            max_simulation_work_units_total=(evaluator_policy.max_simulation_work_units_total),
+            max_result_metrics_bytes_total=(
+                evaluator_policy.max_result_metrics_bytes_total
+                if max_result_metrics_bytes_total is None
+                else max_result_metrics_bytes_total
+            ),
+            max_agent_model_calls_total=evaluator_policy.max_agent_model_calls_total,
+        ),
+        aggregate_repetition_count=1 if aggregate_inputs else None,
+        aggregate_inputs=aggregate_inputs,
         partitions=partitions,
     )
     return harness.seed_payload_artifact(
@@ -2664,6 +2837,7 @@ def test_bench_domain_is_derived_from_typed_dataset_bound_spec(tmp_path: Path) -
         domain_scope=economy,
         partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2693,6 +2867,126 @@ def test_bench_domain_is_derived_from_typed_dataset_bound_spec(tmp_path: Path) -
     assert run.payload.version_tuple.agent_graph_version is None
 
 
+def test_bench_admission_accepts_a_stricter_result_metrics_total_limit(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    scope = DomainScope(domain_ids=("economy",))
+    dataset = harness.seed_artifact(
+        kind="bench_dataset", tool_version="dataset@1", domain_scope=scope
+    )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=scope,
+        partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
+        max_result_metrics_bytes_total=2,
+    )
+    params = BenchRunPayloadV1(
+        dataset_artifact_id=spec.lineage[0],
+        benchmark_spec_artifact_id=spec.artifact_id,
+        partition_ids=("det",),
+        evaluator_profile=BENCH_EVALUATOR_PROFILE,
+        repetition_count=1,
+        execution_scope="execute_cases",
+        case_result_artifact_ids=(),
+    )
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=params,
+        actor=_tooling_actor(),
+        server=_server("bench:strict-metrics-total"),
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+def test_bench_simulation_work_is_rejected_during_admission_before_run_creation(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    scope = DomainScope(domain_ids=("economy",))
+    dataset = harness.seed_artifact(
+        kind="bench_dataset", tool_version="dataset@1", domain_scope=scope
+    )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=scope,
+        partitions=(_benchmark_partition("sim", ("case:sim", "deterministic")),),
+        simulation_execution=BenchmarkSimulationExecutionV1(
+            seed_policy="fixed",
+            fixed_seed=1,
+            agents=100_000,
+            ticks=1_000_000,
+        ),
+    )
+    params = BenchRunPayloadV1(
+        dataset_artifact_id=spec.lineage[0],
+        benchmark_spec_artifact_id=spec.artifact_id,
+        partition_ids=("sim",),
+        evaluator_profile=BENCH_EVALUATOR_PROFILE,
+        repetition_count=1,
+        execution_scope="execute_cases",
+        case_result_artifact_ids=(),
+    )
+
+    with pytest.raises(Conflict, match="frozen work budget"):
+        harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server("bench:simulation-work-overflow"),
+        )
+
+    _assert_no_admission_side_effects(
+        harness,
+        key="bench:simulation-work-overflow",
+    )
+
+
+def test_bench_checker_work_total_is_rejected_during_admission_before_run_creation(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    scope = DomainScope(domain_ids=("economy",))
+    dataset = harness.seed_artifact(
+        kind="bench_dataset", tool_version="dataset@1", domain_scope=scope
+    )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=scope,
+        partitions=(
+            _benchmark_partition(
+                "det",
+                ("case:1", "deterministic"),
+                ("case:2", "deterministic"),
+            ),
+        ),
+        checker_constraint_count=2,
+        max_checker_work_units=2,
+        max_checker_work_units_total=3,
+    )
+    params = BenchRunPayloadV1(
+        dataset_artifact_id=spec.lineage[0],
+        benchmark_spec_artifact_id=spec.artifact_id,
+        partition_ids=("det",),
+        evaluator_profile=BENCH_EVALUATOR_PROFILE,
+        repetition_count=1,
+        execution_scope="execute_cases",
+        case_result_artifact_ids=(),
+    )
+
+    with pytest.raises(Conflict, match="Run-total work budget"):
+        harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server("bench:checker-work-total"),
+        )
+
+    _assert_no_admission_side_effects(harness, key="bench:checker-work-total")
+
+
 def test_bench_rejects_spec_bound_to_another_dataset_without_run_or_hold(
     tmp_path: Path,
 ) -> None:
@@ -2708,6 +3002,7 @@ def test_bench_rejects_spec_bound_to_another_dataset_without_run_or_hold(
         domain_scope=scope,
         partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2742,6 +3037,7 @@ def test_bench_rejects_evaluator_profile_different_from_spec_without_run_or_hold
         domain_scope=scope,
         partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2777,6 +3073,7 @@ def test_bench_rejects_sampling_seed_derivation_drift_without_run_or_hold(
         partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
         seed_derivation_version="unretained-subseed@9",
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2815,6 +3112,7 @@ def test_bench_rejects_repetition_outside_typed_sampling_policy_without_run_or_h
         minimum_repetitions=2,
         maximum_repetitions=3,
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2862,6 +3160,7 @@ def test_bench_deterministic_sampling_forbids_root_seed_without_run_or_hold(
         sampling_strategy=strategy,
         sample_size_per_partition=sample_size,
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2899,6 +3198,7 @@ def test_bench_seeded_sampling_rejects_deterministic_evaluator_without_run_or_ho
         sampling_strategy="seeded_without_replacement",
         sample_size_per_partition=1,
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -2953,6 +3253,7 @@ def test_bench_stochastic_evaluation_requires_and_freezes_root_seed(
         sampling_strategy=strategy,
         sample_size_per_partition=sample_size,
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3008,17 +3309,19 @@ def test_bench_aggregate_keeps_exact_profile_dependent_seed_policy(
     dataset = harness.seed_artifact(
         kind="bench_dataset", tool_version="dataset@1", domain_scope=scope
     )
-    spec = _seed_benchmark_spec(
-        harness,
-        dataset_artifact_id=dataset,
-        domain_scope=scope,
-        partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
-    )
     case_result = harness.seed_artifact(
         kind="review_report",
         tool_version="review@1",
         domain_scope=scope,
     )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=scope,
+        partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
+        aggregate_artifacts=(harness.load_artifact(case_result),),
+    )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3053,17 +3356,19 @@ def _bench_aggregate_inputs(
         tool_version="dataset@1",
         domain_scope=dataset_domain,
     )
-    spec = _seed_benchmark_spec(
-        harness,
-        dataset_artifact_id=dataset,
-        domain_scope=dataset_domain,
-        partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
-    )
     case_result = harness.seed_artifact(
         kind="review_report",
         tool_version="review@1",
         domain_scope=case_scope or dataset_domain,
     )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=dataset_domain,
+        partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
+        aggregate_artifacts=(harness.load_artifact(case_result),),
+    )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3229,6 +3534,7 @@ def test_bench_rejects_unknown_partition_without_run_or_hold(tmp_path: Path) -> 
         domain_scope=scope,
         partitions=(_benchmark_partition("known", ("case:1", "deterministic")),),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3291,6 +3597,7 @@ def test_bench_selected_case_modes_reject_wrong_llm_mode_without_run_or_hold(
             _benchmark_partition("det", ("case:det", "deterministic")),
         ),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3311,6 +3618,57 @@ def test_bench_selected_case_modes_reject_wrong_llm_mode_without_run_or_hold(
         )
 
     _assert_no_admission_side_effects(harness, key=key)
+
+
+@pytest.mark.parametrize(("repetitions", "accepted"), ((2, True), (3, False)))
+def test_bench_agent_call_product_honors_the_manifest_safe_boundary(
+    tmp_path: Path,
+    repetitions: int,
+    accepted: bool,
+) -> None:
+    harness = Harness(tmp_path)
+    scope = DomainScope(domain_ids=("economy",))
+    dataset = harness.seed_artifact(
+        kind="bench_dataset", tool_version="dataset@1", domain_scope=scope
+    )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=scope,
+        partitions=(_benchmark_partition("agent", ("case:agent", "agent")),),
+        maximum_repetitions=5,
+        agent_prompt_count=32,
+    )
+    params = BenchRunPayloadV1(
+        dataset_artifact_id=spec.lineage[0],
+        benchmark_spec_artifact_id=spec.artifact_id,
+        partition_ids=("agent",),
+        evaluator_profile=BENCH_EVALUATOR_PROFILE,
+        repetition_count=repetitions,
+        execution_scope="execute_cases",
+        case_result_artifact_ids=(),
+    )
+
+    key = f"bench:agent-call-product:{repetitions}"
+    if accepted:
+        result = harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server(key),
+            llm_execution_mode="live",
+            execution_version_plan=_plan("bench.run"),
+        )
+        assert harness.run_record(result.run_id) is not None
+    else:
+        with pytest.raises(Conflict, match="Agent calls exceed"):
+            harness.engine_admission.admit_generic_run(
+                params=params,
+                actor=_tooling_actor(),
+                server=_server(key),
+                llm_execution_mode="live",
+                execution_version_plan=_plan("bench.run"),
+            )
+        _assert_no_admission_side_effects(harness, key=key)
 
 
 @pytest.mark.parametrize(
@@ -3354,6 +3712,7 @@ def test_bench_agent_cases_require_exact_cassette_mode_shape_without_side_effect
         domain_scope=scope,
         partitions=(_benchmark_partition("agent", ("case:agent", "agent")),),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3403,6 +3762,7 @@ def test_bench_unselected_agent_partition_does_not_enable_model_execution(
             _benchmark_partition("det", ("case:det", "deterministic")),
         ),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3439,6 +3799,7 @@ def test_bench_agent_partition_rejects_plan_for_another_agent_graph(
         domain_scope=scope,
         partitions=(_benchmark_partition("agent", ("case:agent", "agent")),),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -3478,6 +3839,7 @@ def test_bench_agent_partition_requires_and_freezes_exact_execution_mode(
             _benchmark_partition("det", ("case:det", "deterministic")),
         ),
     )
+    dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
         dataset_artifact_id=dataset,
         benchmark_spec_artifact_id=spec.artifact_id,
@@ -4436,6 +4798,58 @@ def test_repair_freezes_exact_profile_verifier_requirements(tmp_path: Path) -> N
         ("simulation", "builtin.simulation@1", "/params/simulation_profiles/0"),
         ("regression", regression, None),
     }
+
+
+def test_regression_only_repair_requires_and_admits_exact_root_seed(tmp_path: Path) -> None:
+    harness = Harness(tmp_path)
+    subject, base, preview, evidence, base_ref, _item = _seed_failed_repair_case(harness)
+    regression = harness.seed_artifact(kind="regression_suite", tool_version="suite@1")
+    params = PatchRepairPayloadV1(
+        subject_patch_artifact_id=subject,
+        expected_subject_head_revision=1,
+        expected_workflow_revision=2,
+        base_snapshot_artifact_id=base,
+        preview_snapshot_artifact_id=preview,
+        validation_evidence_artifact_id=evidence,
+        findings=(),
+        target=RefReadBindingV1(ref_name="content/head", expected_ref=base_ref),
+        repair_policy=ProfileRefV1(profile_id="builtin.patch_repair", version=1),
+        checker_profiles=(CHECKER_PROFILE,),
+        simulation_profiles=(),
+        regression_suite_artifact_ids=(regression,),
+        candidate_export_profiles=(),
+    )
+    actor = _actor(
+        "human",
+        _assignment(
+            role="tooling",
+            scope=DomainScope(domain_ids=("economy",)),
+            assignment_id="assign:repair-regression-seed",
+        ),
+    )
+
+    with pytest.raises(Conflict, match="profile-dependent seed is required"):
+        harness.engine_admission.admit_resource_run(
+            params=params,
+            actor=actor,
+            server=_server("repair:regression-seed:missing"),
+            llm_execution_mode="record",
+            execution_version_plan=_plan("patch.repair"),
+        )
+    _assert_no_admission_side_effects(harness, key="repair:regression-seed:missing")
+
+    accepted = harness.engine_admission.admit_resource_run(
+        params=params,
+        actor=actor,
+        server=_server("repair:regression-seed:exact"),
+        llm_execution_mode="record",
+        seed=23,
+        execution_version_plan=_plan("patch.repair"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.seed == 23
 
 
 def test_repair_subject_drift_rolls_back_run_and_budget_hold(tmp_path: Path) -> None:

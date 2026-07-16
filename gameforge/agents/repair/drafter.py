@@ -32,8 +32,13 @@ from gameforge.spine.ir.snapshot import Snapshot
 register_all_prompts()
 
 _VALID_OP_KINDS = {
-    "add_entity", "delete_entity", "set_entity_attr",
-    "add_relation", "delete_relation", "set_relation_attr", "replace_subgraph",
+    "add_entity",
+    "delete_entity",
+    "set_entity_attr",
+    "add_relation",
+    "delete_relation",
+    "set_relation_attr",
+    "replace_subgraph",
 }
 
 # old_value optimistic concurrency is meaningful only for in-place updates
@@ -44,9 +49,7 @@ _DROP_OLD_VALUE_OPS = {"add_entity", "add_relation", "delete_entity", "delete_re
 _CATALOG_CAP = 50  # per-type cap on the available-entity catalog (bounds token size)
 
 
-def _patch_id(
-    request_hash: str, base_snapshot_id: str, ops: list[TypedOp]
-) -> str:
+def _patch_id(request_hash: str, base_snapshot_id: str, ops: list[TypedOp]) -> str:
     payload = {
         "request_hash": request_hash,
         "base_snapshot_id": base_snapshot_id,
@@ -54,6 +57,104 @@ def _patch_id(
     }
     digest = hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
     return f"sha256:{digest}"
+
+
+def build_repair_ir_context(finding: Finding, snapshot: Snapshot) -> str:
+    """Build the exact bounded IR-context JSON embedded in a repair prompt."""
+
+    graph = snapshot.to_graph()
+
+    focus_ids = [entity_id for entity_id in finding.entities if graph.get_node(entity_id)]
+    focus_set = set(focus_ids)
+    focus_nodes = []
+    for entity_id in focus_ids:
+        node = graph.get_node(entity_id)
+        if node is not None:
+            focus_nodes.append({"id": node.id, "type": node.type.value, "attrs": node.attrs})
+
+    incident_relations = []
+    neighbor_ids: set[str] = set()
+    for relation in graph.all_relations():
+        if relation.src_id in focus_set or relation.dst_id in focus_set:
+            incident_relations.append(
+                {
+                    "id": relation.id,
+                    "type": relation.type.value,
+                    "src_id": relation.src_id,
+                    "dst_id": relation.dst_id,
+                }
+            )
+            neighbor_ids.add(relation.src_id)
+            neighbor_ids.add(relation.dst_id)
+    neighbor_ids -= focus_set
+
+    neighbor_nodes = []
+    for neighbor_id in sorted(neighbor_ids):
+        node = graph.get_node(neighbor_id)
+        if node is not None:
+            neighbor_nodes.append(
+                {"id": node.id, "type": node.type.value, "name": node.attrs.get("name")}
+            )
+
+    entity_catalog: dict[str, list[str]] = {}
+    for entity in graph.all_entities():
+        bucket = entity_catalog.setdefault(entity.type.value, [])
+        if len(bucket) < _CATALOG_CAP:
+            bucket.append(entity.id)
+
+    return json.dumps(
+        {
+            "focus_nodes": focus_nodes,
+            "incident_relations": incident_relations,
+            "neighbor_nodes": neighbor_nodes,
+            "entity_catalog": entity_catalog,
+            "edge_types": [edge_type.value for edge_type in EdgeType],
+        },
+        sort_keys=True,
+        default=str,
+    )
+
+
+def build_repair_user_prompt(
+    finding: Finding,
+    snapshot: Snapshot,
+    *,
+    counterexample: str | None = None,
+) -> str:
+    """Build the exact user message consumed by a repair model call.
+
+    The M2 drafter and M4 canonical prompt renderer share this pure assembler so
+    immutable ``agent-prompt-context@1`` bytes can reconstruct both initial and
+    refine messages without hidden process state.
+    """
+
+    parts = [
+        "Defect finding to repair:",
+        f"- defect_class: {finding.defect_class}",
+        f"- message: {finding.message}",
+        f"- entities: {finding.entities}",
+    ]
+    if finding.relations:
+        parts.append(f"- relations: {finding.relations}")
+    if finding.evidence:
+        parts.append(f"- evidence: {json.dumps(finding.evidence, sort_keys=True, default=str)}")
+    parts.extend(
+        (
+            "",
+            "IR context (JSON): focus_nodes = the defect's own nodes with full attrs; "
+            "incident_relations = the real relations touching them (use these exact ids to "
+            "delete_relation / set_relation_attr, and their endpoints); neighbor_nodes = nodes "
+            "one edge away; entity_catalog = available entity ids grouped by node type (use "
+            "these as real src_id/dst_id when you add_relation); edge_types = the valid "
+            "relation types.",
+            build_repair_ir_context(finding, snapshot),
+        )
+    )
+    user = "\n".join(parts)
+    if counterexample is not None:
+        _, refine = render("repair.refine", counterexample=counterexample)
+        user = f"{user}\n\n{refine}"
+    return user
 
 
 class RepairDrafter:
@@ -68,10 +169,11 @@ class RepairDrafter:
         counterexample: str | None = None,
     ) -> Patch | None:
         version, system = get_prompt("repair.system")
-        user = self._build_user_prompt(finding, snapshot)
-        if counterexample is not None:
-            _, refine = render("repair.refine", counterexample=counterexample)
-            user = f"{user}\n\n{refine}"
+        user = build_repair_user_prompt(
+            finding,
+            snapshot,
+            counterexample=counterexample,
+        )
 
         try:
             resp, request_hash = call_model(router, self.node_id, user, version, system=system)
@@ -96,81 +198,14 @@ class RepairDrafter:
         )
 
     def _build_user_prompt(self, finding: Finding, snapshot: Snapshot) -> str:
-        parts = [
-            "Defect finding to repair:",
-            f"- defect_class: {finding.defect_class}",
-            f"- message: {finding.message}",
-            f"- entities: {finding.entities}",
-        ]
-        if finding.relations:
-            parts.append(f"- relations: {finding.relations}")
-        if finding.evidence:
-            parts.append(
-                f"- evidence: {json.dumps(finding.evidence, sort_keys=True, default=str)}"
-            )
-        parts.append("")
-        parts.append(
-            "IR context (JSON): focus_nodes = the defect's own nodes with full attrs; "
-            "incident_relations = the real relations touching them (use these exact ids to "
-            "delete_relation / set_relation_attr, and their endpoints); neighbor_nodes = nodes "
-            "one edge away; entity_catalog = available entity ids grouped by node type (use these "
-            "as real src_id/dst_id when you add_relation); edge_types = the valid relation types."
-        )
-        parts.append(self._ir_context(finding, snapshot))
-        return "\n".join(parts)
+        return build_repair_user_prompt(finding, snapshot)
 
     def _ir_context(self, finding: Finding, snapshot: Snapshot) -> str:
         """Structural context the model needs to target real ops: the defect's own
         nodes, the real relations incident to them (ids/types/endpoints), their
         neighbors, a per-type catalog of available entity ids, and the edge-type
         vocabulary. Bounded (catalog capped) — not a whole-snapshot dump."""
-        graph = snapshot.to_graph()
-
-        focus_ids = [e for e in finding.entities if graph.get_node(e) is not None]
-        focus_set = set(focus_ids)
-        focus_nodes = []
-        for eid in focus_ids:
-            node = graph.get_node(eid)
-            if node is not None:
-                focus_nodes.append({"id": node.id, "type": node.type.value, "attrs": node.attrs})
-
-        incident_relations = []
-        neighbor_ids: set[str] = set()
-        for rel in graph.all_relations():
-            if rel.src_id in focus_set or rel.dst_id in focus_set:
-                incident_relations.append({
-                    "id": rel.id, "type": rel.type.value,
-                    "src_id": rel.src_id, "dst_id": rel.dst_id,
-                })
-                neighbor_ids.add(rel.src_id)
-                neighbor_ids.add(rel.dst_id)
-        neighbor_ids -= focus_set
-
-        neighbor_nodes = []
-        for nid in sorted(neighbor_ids):
-            node = graph.get_node(nid)
-            if node is not None:
-                neighbor_nodes.append(
-                    {"id": node.id, "type": node.type.value, "name": node.attrs.get("name")}
-                )
-
-        entity_catalog: dict[str, list[str]] = {}
-        for entity in graph.all_entities():
-            bucket = entity_catalog.setdefault(entity.type.value, [])
-            if len(bucket) < _CATALOG_CAP:
-                bucket.append(entity.id)
-
-        return json.dumps(
-            {
-                "focus_nodes": focus_nodes,
-                "incident_relations": incident_relations,
-                "neighbor_nodes": neighbor_nodes,
-                "entity_catalog": entity_catalog,
-                "edge_types": [et.value for et in EdgeType],
-            },
-            sort_keys=True,
-            default=str,
-        )
+        return build_repair_ir_context(finding, snapshot)
 
     def _build_ops(self, raw: object) -> list[TypedOp]:
         ops: list[TypedOp] = []

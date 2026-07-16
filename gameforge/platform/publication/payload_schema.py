@@ -8,16 +8,16 @@ lineage pointer is evaluated.
 
 Some entries in :data:`ARTIFACT_PAYLOAD_SCHEMAS` deliberately are not ordinary
 terminal-domain JSON payloads.  Raw/rendered sources and cassette bundles have
-dedicated byte-level/runtime publication paths; regression/golden/bench datasets
-are input authorities whose payload contracts are owned by their adapters; the
-remaining deferred M4e/operations formats do not yet have an authoritative wire
-contract.  They are retained as explicit fail-closed registry entries rather than
-being accepted as arbitrary mappings.
+dedicated byte-level/runtime publication paths; regression/golden inputs remain
+adapter-owned; the remaining deferred M4e/operations formats do not yet have an
+authoritative wire contract.  They are retained as explicit fail-closed registry
+entries rather than being accepted as arbitrary mappings.
 """
 
 from __future__ import annotations
 
 import json
+import math
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -36,7 +36,7 @@ from pydantic import (
     model_validator,
 )
 
-from gameforge.contracts.benchmark import BenchmarkSpecV1
+from gameforge.contracts.benchmark import BenchmarkDatasetV1, BenchmarkSpecV1
 from gameforge.contracts.canonical import canonical_json, typed_canonical_json
 from gameforge.contracts.config_export import (
     ConfigExportPackageV1,
@@ -47,9 +47,17 @@ from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import Finding, PatchV2
-from gameforge.contracts.jobs import RunFailureV1, RunResultV1
+from gameforge.contracts.jobs import (
+    AgentPromptContextV1,
+    MAX_AGENT_PROMPT_CONTEXT_BYTES,
+    MAX_PREPARED_ARTIFACT_BYTES,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
+    RunFailureV1,
+    RunResultV1,
+)
 from gameforge.contracts.migration import MigrationReportV1
 from gameforge.contracts.playtest import PlaytestTraceV1, ScenarioSpecV1, TaskSuiteV1
+from gameforge.contracts.regression import RegressionCaseSeedManifestV1
 from gameforge.contracts.versions import DSL_GRAMMAR_VERSION, META_SCHEMA_VERSION
 from gameforge.contracts.workflow import (
     AutoApplyProofV1,
@@ -63,10 +71,22 @@ from gameforge.platform.registry.defaults import ARTIFACT_PAYLOAD_SCHEMAS
 
 
 MAX_PAYLOAD_JSON_BYTES = 96 * 1024 * 1024
-MAX_PREPARED_ARTIFACT_BYTES = 96 * 1024 * 1024
 MAX_PAYLOAD_JSON_DEPTH = 64
 MAX_PAYLOAD_COLLECTION_ITEMS = 16_384
 MAX_PAYLOAD_STRING_LENGTH = 24 * 1024 * 1024
+
+
+def _payload_json_byte_limit(payload_schema_id: str) -> int:
+    if payload_schema_id == "agent-prompt-context@1":
+        return MAX_AGENT_PROMPT_CONTEXT_BYTES
+    return MAX_PAYLOAD_JSON_BYTES
+
+
+def _prepared_blob_byte_limit(payload_schema_id: str) -> int:
+    if payload_schema_id == "agent-prompt-context@1":
+        return MAX_AGENT_PROMPT_CONTEXT_BYTES
+    return MAX_PREPARED_ARTIFACT_BYTES
+
 
 BoundedText = Annotated[str, StringConstraints(min_length=1, max_length=4096)]
 PayloadParser = Callable[[Mapping[str, object]], dict[str, object]]
@@ -117,11 +137,47 @@ class _CheckerStandalonePayload(_CheckerFindingsPayload):
         return value
 
 
+class _CheckerConstraintExecutedApplication(_StrictWireModel):
+    constraint_id: BoundedText
+    checker_id: Literal["graph", "asp", "smt"]
+    status: Literal["executed"]
+
+
+class _CheckerConstraintUnprovenApplication(_StrictWireModel):
+    constraint_id: BoundedText
+    checker_id: Literal["graph", "asp", "smt"]
+    status: Literal["unproven"]
+    reason_code: Literal["navigation_ground_truth_unavailable"]
+
+
+_CheckerConstraintApplication = Annotated[
+    _CheckerConstraintExecutedApplication | _CheckerConstraintUnprovenApplication,
+    Field(discriminator="status"),
+]
+
+
+class _CheckerStandaloneBoundPayload(_CheckerStandalonePayload):
+    constraint_application: tuple[_CheckerConstraintApplication, ...] = Field(
+        max_length=MAX_PAYLOAD_COLLECTION_ITEMS
+    )
+
+    @field_validator("constraint_application")
+    @classmethod
+    def _stable_unique_applications(
+        cls,
+        value: tuple[_CheckerConstraintApplication, ...],
+    ) -> tuple[_CheckerConstraintApplication, ...]:
+        keys = tuple((item.constraint_id, item.checker_id) for item in value)
+        if keys != tuple(sorted(set(keys))):
+            raise ValueError("checker constraint applications must be stable-unique")
+        return value
+
+
 class _SimulationInvariant(_StrictWireModel):
     name: BoundedText
     ok: bool
-    observed: float
-    threshold: float
+    observed: float = Field(allow_inf_nan=False)
+    threshold: float = Field(allow_inf_nan=False)
     evidence: dict[str, JsonValue]
 
     @field_validator("observed", "threshold", mode="before")
@@ -147,6 +203,84 @@ class _SimulationBudgetPayload(_SimulationFindingsPayload):
     horizon_steps: int = Field(ge=1)
 
 
+class _SimulationConstraintApplication(_StrictWireModel):
+    status: Literal["not_applicable", "unproven"]
+    reason_code: Literal["constraint_profile_not_executable"] | None = None
+
+    @model_validator(mode="after")
+    def _reason_shape(self) -> "_SimulationConstraintApplication":
+        if (self.status == "not_applicable") != (self.reason_code is None):
+            raise ValueError("simulation constraint application reason differs from status")
+        return self
+
+
+class _SimulationScenarioApplication(_StrictWireModel):
+    status: Literal["not_applicable", "unproven"]
+    reason_code: Literal["scenario_reset_not_executable"] | None = None
+
+    @model_validator(mode="after")
+    def _reason_shape(self) -> "_SimulationScenarioApplication":
+        if (self.status == "not_applicable") != (self.reason_code is None):
+            raise ValueError("simulation scenario application reason differs from status")
+        return self
+
+
+class _SimulationExecutionBinding(_StrictWireModel):
+    simulation_profile: ProfileRefV1
+    workload_profile: ProfileRefV1
+    constraint_snapshot_artifact_id: BoundedText | None = None
+    scenario_artifact_id: BoundedText | None = None
+    constraint_ids: tuple[BoundedText, ...] = Field(max_length=MAX_PAYLOAD_COLLECTION_ITEMS)
+    scenario_id: BoundedText | None = None
+    constraint_application: _SimulationConstraintApplication
+    scenario_application: _SimulationScenarioApplication
+
+    @field_validator("constraint_ids")
+    @classmethod
+    def _unique_constraint_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("simulation constraint ids must be unique")
+        return value
+
+    @model_validator(mode="after")
+    def _input_application_shape(self) -> "_SimulationExecutionBinding":
+        if self.constraint_snapshot_artifact_id is None:
+            if self.constraint_ids or self.constraint_application.status != "not_applicable":
+                raise ValueError("simulation constraint application has no bound Artifact")
+        elif self.constraint_application.status != "unproven":
+            raise ValueError("simulation constraint Artifact is not marked unproven")
+
+        if self.scenario_artifact_id is None:
+            if self.scenario_id is not None or self.scenario_application.status != "not_applicable":
+                raise ValueError("simulation scenario application has no bound Artifact")
+        elif self.scenario_id is None or self.scenario_application.status != "unproven":
+            raise ValueError("simulation scenario Artifact is not exactly represented")
+        return self
+
+
+class _ReviewSimulationExecutionBinding(_StrictWireModel):
+    simulation_profile: ProfileRefV1
+    constraint_snapshot_artifact_id: BoundedText | None = None
+    constraint_ids: tuple[BoundedText, ...] = Field(max_length=MAX_PAYLOAD_COLLECTION_ITEMS)
+    constraint_application: _SimulationConstraintApplication
+
+    @field_validator("constraint_ids")
+    @classmethod
+    def _unique_constraint_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("review simulation constraint ids must be unique")
+        return value
+
+    @model_validator(mode="after")
+    def _input_application_shape(self) -> "_ReviewSimulationExecutionBinding":
+        if self.constraint_snapshot_artifact_id is None:
+            if self.constraint_ids or self.constraint_application.status != "not_applicable":
+                raise ValueError("review simulation has no bound constraint Artifact")
+        elif self.constraint_application.status != "unproven":
+            raise ValueError("review simulation constraint Artifact is not marked unproven")
+        return self
+
+
 class _SimulationFullPayload(_SimulationBudgetPayload):
     invariants: tuple[_SimulationInvariant, ...] = Field(max_length=MAX_PAYLOAD_COLLECTION_ITEMS)
     sensitivity: dict[str, JsonValue]
@@ -159,6 +293,25 @@ class _SimulationFullPayload(_SimulationBudgetPayload):
         names = [item.name for item in value]
         if len(names) != len(set(names)):
             raise ValueError("simulation invariant names must be unique")
+        return value
+
+    @field_validator("sensitivity")
+    @classmethod
+    def _exact_execution_binding(cls, value: dict[str, JsonValue]) -> dict[str, JsonValue]:
+        execution = value.get("execution_binding")
+        if execution is None:
+            return value
+        if not isinstance(execution, Mapping):
+            raise ValueError("simulation execution binding must be an object")
+        binding_model = (
+            _SimulationExecutionBinding
+            if "workload_profile" in execution
+            else _ReviewSimulationExecutionBinding
+        )
+        parsed = binding_model.model_validate(execution)
+        canonical = _json_mapping(parsed.model_dump(mode="json", exclude_none=True))
+        if typed_canonical_json(canonical) != typed_canonical_json(dict(execution)):
+            raise ValueError("simulation execution binding is not its exact canonical wire shape")
         return value
 
 
@@ -183,6 +336,39 @@ class _RegressionSuiteEvidence(_StrictWireModel):
 
 class _RegressionSuiteSeedEvidence(_RegressionSuiteEvidence):
     seed: int
+
+
+class _RegressionSuiteCaseSeedEvidence(_RegressionSuiteSeedEvidence):
+    case_seed_manifest: RegressionCaseSeedManifestV1
+
+    @model_validator(mode="after")
+    def _suite_manifest(self) -> "_RegressionSuiteCaseSeedEvidence":
+        if self.case_seed_manifest.suite_artifact_id != self.suite_artifact_id:
+            raise ValueError("regression case seed manifest is bound to another suite")
+        return self
+
+
+class _RegressionSuiteFindingEvidence(_RegressionSuiteEvidence):
+    findings: tuple[Finding, ...] = Field(max_length=MAX_PAYLOAD_COLLECTION_ITEMS)
+
+    @model_validator(mode="after")
+    def _finding_verdict(self) -> "_RegressionSuiteFindingEvidence":
+        if self.status == "passed" and self.findings:
+            raise ValueError("passed regression suite cannot retain failing findings")
+        if self.status == "failed" and not self.findings:
+            raise ValueError("failed regression suite requires exact findings")
+        return self
+
+
+class _RegressionSuiteFindingCaseSeedEvidence(_RegressionSuiteFindingEvidence):
+    seed: int
+    case_seed_manifest: RegressionCaseSeedManifestV1
+
+    @model_validator(mode="after")
+    def _suite_manifest(self) -> "_RegressionSuiteFindingCaseSeedEvidence":
+        if self.case_seed_manifest.suite_artifact_id != self.suite_artifact_id:
+            raise ValueError("regression case seed manifest is bound to another suite")
+        return self
 
 
 class _ValidationSeedBinding(_StrictWireModel):
@@ -219,6 +405,42 @@ class _ValidationSeedBinding(_StrictWireModel):
 
 class _RegressionSuiteBoundEvidence(_RegressionSuiteEvidence, _ValidationSeedBinding):
     pass
+
+
+class _RegressionSuiteFindingBoundEvidence(_RegressionSuiteFindingEvidence, _ValidationSeedBinding):
+    pass
+
+
+class _RegressionSuiteCaseSeedBoundEvidence(
+    _RegressionSuiteCaseSeedEvidence,
+    _ValidationSeedBinding,
+):
+    @model_validator(mode="after")
+    def _outer_seed_binding(self) -> "_RegressionSuiteCaseSeedBoundEvidence":
+        _validate_case_seed_outer_binding(self)
+        return self
+
+
+class _RegressionSuiteFindingCaseSeedBoundEvidence(
+    _RegressionSuiteFindingCaseSeedEvidence,
+    _ValidationSeedBinding,
+):
+    @model_validator(mode="after")
+    def _outer_seed_binding(self) -> "_RegressionSuiteFindingCaseSeedBoundEvidence":
+        _validate_case_seed_outer_binding(self)
+        return self
+
+
+def _validate_case_seed_outer_binding(value: object) -> None:
+    manifest = value.case_seed_manifest
+    if (
+        manifest.root_seed != value.root_seed
+        or manifest.run_kind != value.run_kind
+        or manifest.profile.profile_id != value.profile_id
+        or manifest.profile.version != value.profile_version
+        or value.case_id != value.suite_artifact_id
+    ):
+        raise ValueError("regression case seed manifest differs from outer seed binding")
 
 
 class _RegressionFindingEvidence(_StrictWireModel):
@@ -305,6 +527,25 @@ def _decode_finding_confidences(value: object) -> object:
     return decoded
 
 
+def _reject_nonfinite_canonical_numbers(value: object) -> None:
+    """Reject tagged non-finite floats anywhere in simulation evidence."""
+
+    stack = [value]
+    while stack:
+        item = stack.pop()
+        if isinstance(item, str) and item.startswith("f:"):
+            try:
+                numeric = float(item[2:])
+            except ValueError:
+                continue
+            if not math.isfinite(numeric):
+                raise ValueError("simulation result contains a non-finite canonical number")
+        elif isinstance(item, Mapping):
+            stack.extend(item.values())
+        elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+            stack.extend(item)
+
+
 def _require_exact_model(
     model: type[BaseModel], payload: Mapping[str, object]
 ) -> dict[str, object]:
@@ -359,8 +600,27 @@ def _validate_findings_snapshot(
         raise ValueError(f"{label} finding snapshot differs from the report")
 
 
+def _split_requirement_id(
+    payload: Mapping[str, object],
+) -> tuple[dict[str, object], str | None]:
+    body = dict(payload)
+    requirement_id = body.pop("requirement_id", None)
+    if requirement_id is not None and (
+        not isinstance(requirement_id, str) or not requirement_id or len(requirement_id) > 4096
+    ):
+        raise ValueError("requirement_id is not a bounded non-empty string")
+    return body, requirement_id
+
+
+def _restore_requirement_id(
+    canonical: dict[str, object], requirement_id: str | None
+) -> dict[str, object]:
+    return canonical if requirement_id is None else {**canonical, "requirement_id": requirement_id}
+
+
 def _validate_checker_report(payload: Mapping[str, object]) -> dict[str, object]:
-    fields = set(payload)
+    body, requirement_id = _split_requirement_id(payload)
+    fields = set(body)
     if fields == {"payload_schema_version", "snapshot_id", "findings"}:
         model: type[BaseModel] = _CheckerFindingsPayload
     elif fields == {"payload_schema_version", "profile", "snapshot_id", "findings"}:
@@ -373,19 +633,30 @@ def _validate_checker_report(payload: Mapping[str, object]) -> dict[str, object]
         "findings",
     }:
         model = _CheckerStandalonePayload
+    elif fields == {
+        "payload_schema_version",
+        "snapshot_id",
+        "checker_ids",
+        "defect_classes",
+        "constraint_application",
+        "findings",
+    }:
+        model = _CheckerStandaloneBoundPayload
     else:
         raise ValueError("checker report does not match a registered exact variant")
-    parsed = model.model_validate(payload)
+    parsed = model.model_validate(body)
     _validate_findings_snapshot(
         snapshot_id=parsed.snapshot_id,
         findings=parsed.findings,
         label="checker report",
     )
-    return _require_exact_model(model, payload)
+    return _restore_requirement_id(_require_exact_model(model, body), requirement_id)
 
 
 def _validate_simulation_result(payload: Mapping[str, object]) -> dict[str, object]:
-    fields = set(payload)
+    _reject_nonfinite_canonical_numbers(payload)
+    body, requirement_id = _split_requirement_id(payload)
+    fields = set(body)
     base = {"payload_schema_version", "snapshot_id", "findings"}
     budget = base | {"seed", "replication_count", "horizon_steps"}
     full = budget | {"invariants", "sensitivity"}
@@ -399,20 +670,26 @@ def _validate_simulation_result(payload: Mapping[str, object]) -> dict[str, obje
         model = _SimulationProfilePayload
     else:
         raise ValueError("simulation result does not match a registered exact variant")
-    parsed = model.model_validate(payload)
+    parsed = model.model_validate(body)
     _validate_findings_snapshot(
         snapshot_id=parsed.snapshot_id,
         findings=parsed.findings,
         label="simulation result",
     )
-    return _require_exact_model(model, payload)
+    return _restore_requirement_id(_require_exact_model(model, body), requirement_id)
 
 
 def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, object]:
-    fields = set(payload)
+    body = dict(payload)
+    suite_requirement_id: str | None = None
+    if "suite_artifact_id" in body:
+        body, suite_requirement_id = _split_requirement_id(body)
+    fields = set(body)
     frozen_fields = frozenset(fields)
     suite = {"payload_schema_version", "suite_artifact_id", "snapshot_id", "status"}
     suite_with_reason = suite | {"reason_code"}
+    suite_findings = suite | {"findings"}
+    suite_findings_with_reason = suite_findings | {"reason_code"}
     finding = {
         "payload_schema_version",
         "requirement_id",
@@ -430,6 +707,7 @@ def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, ob
         "detail",
     }
     seed_binding = set(_ValidationSeedBinding.model_fields)
+    case_seed_manifest = {"case_seed_manifest"}
     if frozen_fields in {frozenset(suite), frozenset(suite_with_reason)}:
         model: type[BaseModel] = _RegressionSuiteEvidence
     elif frozen_fields in {
@@ -438,10 +716,40 @@ def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, ob
     }:
         model = _RegressionSuiteSeedEvidence
     elif frozen_fields in {
+        frozenset(suite | {"seed"} | case_seed_manifest),
+        frozenset(suite_with_reason | {"seed"} | case_seed_manifest),
+    }:
+        model = _RegressionSuiteCaseSeedEvidence
+    elif frozen_fields in {
         frozenset(suite | seed_binding),
         frozenset(suite_with_reason | seed_binding),
     }:
         model = _RegressionSuiteBoundEvidence
+    elif frozen_fields in {
+        frozenset(suite | seed_binding | case_seed_manifest),
+        frozenset(suite_with_reason | seed_binding | case_seed_manifest),
+    }:
+        model = _RegressionSuiteCaseSeedBoundEvidence
+    elif frozen_fields in {
+        frozenset(suite_findings),
+        frozenset(suite_findings_with_reason),
+    }:
+        model = _RegressionSuiteFindingEvidence
+    elif frozen_fields in {
+        frozenset(suite_findings | {"seed"} | case_seed_manifest),
+        frozenset(suite_findings_with_reason | {"seed"} | case_seed_manifest),
+    }:
+        model = _RegressionSuiteFindingCaseSeedEvidence
+    elif frozen_fields in {
+        frozenset(suite_findings | seed_binding),
+        frozenset(suite_findings_with_reason | seed_binding),
+    }:
+        model = _RegressionSuiteFindingBoundEvidence
+    elif frozen_fields in {
+        frozenset(suite_findings | seed_binding | case_seed_manifest),
+        frozenset(suite_findings_with_reason | seed_binding | case_seed_manifest),
+    }:
+        model = _RegressionSuiteFindingCaseSeedBoundEvidence
     elif fields == finding:
         model = _RegressionFindingEvidence
     elif fields == finding | seed_binding:
@@ -453,14 +761,24 @@ def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, ob
         model = _RegressionDimensionEvidence
     else:
         raise ValueError("regression evidence does not match a registered exact variant")
-    parsed = model.model_validate(payload)
-    if isinstance(parsed, (_RegressionFindingEvidence, _RegressionFindingBoundEvidence)):
+    parsed = model.model_validate(body)
+    if isinstance(
+        parsed,
+        (
+            _RegressionFindingEvidence,
+            _RegressionFindingBoundEvidence,
+            _RegressionSuiteFindingEvidence,
+            _RegressionSuiteFindingBoundEvidence,
+            _RegressionSuiteFindingCaseSeedEvidence,
+            _RegressionSuiteFindingCaseSeedBoundEvidence,
+        ),
+    ):
         _validate_findings_snapshot(
             snapshot_id=parsed.snapshot_id,
             findings=parsed.findings,
             label="regression evidence",
         )
-    return _require_exact_model(model, payload)
+    return _restore_requirement_id(_require_exact_model(model, body), suite_requirement_id)
 
 
 def _validate_review_report(payload: Mapping[str, object]) -> dict[str, object]:
@@ -469,7 +787,7 @@ def _validate_review_report(payload: Mapping[str, object]) -> dict[str, object]:
     # duplicating that public contract here.
     from gameforge.contracts.review import ReviewReport
 
-    validation_payload = dict(payload)
+    validation_payload, requirement_id = _split_requirement_id(payload)
     for field_name in (
         "deterministic_findings",
         "llm_assisted_findings",
@@ -482,6 +800,7 @@ def _validate_review_report(payload: Mapping[str, object]) -> dict[str, object]:
             )
     parsed = ReviewReport.model_validate(validation_payload)
     canonical = _json_mapping(parsed.model_dump(mode="json"))
+    canonical = _restore_requirement_id(canonical, requirement_id)
     if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
         raise ValueError("review report is not the exact canonical wire shape")
     buckets = {
@@ -543,6 +862,12 @@ _SCHEMA_VALIDATORS = {
     "source-raw@1": _unavailable(
         "source-raw@1", "source_raw is a dedicated raw UTF-8 byte payload"
     ),
+    "agent-prompt-context@1": _available(
+        "agent-prompt-context@1",
+        "context_schema_version",
+        "agent-prompt-context@1",
+        _model_parser(AgentPromptContextV1),
+    ),
     "source-rendered@1": _unavailable(
         "source-rendered@1",
         "source_rendered is validated as an exact model-router request by its runtime publisher",
@@ -586,8 +911,11 @@ _SCHEMA_VALIDATORS = {
     "golden-suite@1": _unavailable(
         "golden-suite@1", "golden suite payload is owned by the migration fixture adapter"
     ),
-    "bench-dataset@1": _unavailable(
-        "bench-dataset@1", "benchmark dataset is an intentionally opaque input authority"
+    "bench-dataset@1": _available(
+        "bench-dataset@1",
+        "benchmark_dataset_schema_version",
+        "bench-dataset@1",
+        _model_parser(BenchmarkDatasetV1),
     ),
     "benchmark-spec@1": _available(
         "benchmark-spec@1",
@@ -675,7 +1003,7 @@ _SCHEMA_VALIDATORS = {
     ),
     "bench-report@2": _unavailable(
         "bench-report@2",
-        "the strict BenchReport parser is owned by gameforge.bench and its production port is deferred",
+        "the strict BenchReport parser is app-owned and must be supplied as an external decoder",
     ),
     "backup-object-manifest@1": _unavailable(
         "backup-object-manifest@1", "backup object manifest has no retained payload contract"
@@ -708,20 +1036,24 @@ UNAVAILABLE_ARTIFACT_PAYLOAD_SCHEMAS: Mapping[str, str] = MappingProxyType(
 )
 
 
-def _validate_json_bounds(payload: Mapping[str, object]) -> None:
-    try:
-        encoded_size = len(canonical_json(dict(payload)).encode("utf-8"))
-    except (TypeError, ValueError, UnicodeError) as exc:
-        raise IntegrityViolation("artifact payload is not canonical JSON data") from exc
-    if encoded_size > MAX_PAYLOAD_JSON_BYTES:
-        raise IntegrityViolation(
-            "artifact payload exceeds the publication byte bound",
-            max_bytes=MAX_PAYLOAD_JSON_BYTES,
-        )
+_RUN_MANIFEST_LARGE_ARRAY_PATHS = frozenset(
+    {
+        ("run-result@1", ("produced_artifact_ids",)),
+        ("run-result@1", ("version_projection", "parents")),
+        ("run-failure@1", ("evidence_artifact_ids",)),
+        ("run-failure@1", ("version_projection", "parents")),
+    }
+)
 
-    stack: list[tuple[object, int]] = [(payload, 1)]
+
+def _validate_json_bounds(
+    payload: Mapping[str, object],
+    *,
+    payload_schema_id: str,
+) -> None:
+    stack: list[tuple[object, int, tuple[str, ...]]] = [(payload, 1, ())]
     while stack:
-        item, depth = stack.pop()
+        item, depth, path = stack.pop()
         if depth > MAX_PAYLOAD_JSON_DEPTH:
             raise IntegrityViolation("artifact payload exceeds the publication depth bound")
         if isinstance(item, str):
@@ -735,11 +1067,27 @@ def _validate_json_bounds(payload: Mapping[str, object]) -> None:
                     raise IntegrityViolation("artifact payload object key is not a string")
                 if len(key) > 4096:
                     raise IntegrityViolation("artifact payload contains an oversized object key")
-                stack.append((child, depth + 1))
+                stack.append((child, depth + 1, (*path, key)))
         elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
-            if len(item) > MAX_PAYLOAD_COLLECTION_ITEMS:
+            collection_limit = (
+                MAX_RUN_MANIFEST_PARENT_BINDINGS
+                if (payload_schema_id, path) in _RUN_MANIFEST_LARGE_ARRAY_PATHS
+                else MAX_PAYLOAD_COLLECTION_ITEMS
+            )
+            if len(item) > collection_limit:
                 raise IntegrityViolation("artifact payload contains an oversized array")
-            stack.extend((child, depth + 1) for child in item)
+            stack.extend((child, depth + 1, (*path, "[]")) for child in item)
+
+    try:
+        encoded_size = len(canonical_json(dict(payload)).encode("utf-8"))
+    except (RecursionError, TypeError, ValueError, UnicodeError) as exc:
+        raise IntegrityViolation("artifact payload is not canonical JSON data") from exc
+    byte_limit = _payload_json_byte_limit(payload_schema_id)
+    if encoded_size > byte_limit:
+        raise IntegrityViolation(
+            "artifact payload exceeds the publication byte bound",
+            max_bytes=byte_limit,
+        )
 
 
 def validate_artifact_payload(
@@ -760,7 +1108,7 @@ def validate_artifact_payload(
         )
     if not isinstance(payload, Mapping):
         raise IntegrityViolation("artifact payload must be a JSON object")
-    _validate_json_bounds(payload)
+    _validate_json_bounds(payload, payload_schema_id=payload_schema_id)
     if validator.parser is None:
         raise IntegrityViolation(
             "artifact payload schema is not valid on the terminal domain publication path",
@@ -810,11 +1158,12 @@ def decode_and_validate_artifact_payload(
 
     if not isinstance(blob, bytes):
         raise IntegrityViolation("prepared artifact blob must be bytes")
-    if len(blob) > MAX_PREPARED_ARTIFACT_BYTES:
+    blob_byte_limit = _prepared_blob_byte_limit(payload_schema_id)
+    if len(blob) > blob_byte_limit:
         raise IntegrityViolation(
             "prepared artifact blob exceeds the publication byte bound",
             payload_schema_id=payload_schema_id,
-            max_bytes=MAX_PREPARED_ARTIFACT_BYTES,
+            max_bytes=blob_byte_limit,
         )
 
     validator = ARTIFACT_PAYLOAD_VALIDATORS.get(payload_schema_id)
@@ -840,7 +1189,7 @@ def decode_and_validate_artifact_payload(
                 payload_schema_id=payload_schema_id,
             )
         payload = dict(decoded_external)
-        _validate_json_bounds(payload)
+        _validate_json_bounds(payload, payload_schema_id=payload_schema_id)
         return payload
     if validator is not None and not validator.is_available:
         raise IntegrityViolation(
@@ -929,11 +1278,12 @@ def encode_validated_artifact_payload(
                 "validated Artifact mapping cannot be canonically encoded",
                 payload_schema_id=payload_schema_id,
             ) from exc
-    if len(blob) > MAX_PREPARED_ARTIFACT_BYTES:
+    blob_byte_limit = _prepared_blob_byte_limit(payload_schema_id)
+    if len(blob) > blob_byte_limit:
         raise IntegrityViolation(
             "encoded artifact blob exceeds the publication byte bound",
             payload_schema_id=payload_schema_id,
-            max_bytes=MAX_PREPARED_ARTIFACT_BYTES,
+            max_bytes=blob_byte_limit,
         )
     return blob
 

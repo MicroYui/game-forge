@@ -21,6 +21,37 @@ from gameforge.contracts.lineage import ArtifactKind
 MAX_IDENTIFIER_LENGTH = 512
 MAX_JSON_POINTER_LENGTH = 4096
 
+# ``@1`` profile documents are retained authority, not trusted process-local
+# configuration.  Keep an immutable platform envelope here so a corrupt or
+# malicious catalog row cannot turn a self-declared profile maximum into an
+# unbounded checker/simulator allocation.  A future, intentionally larger
+# envelope requires a new config-schema version.
+MAX_PROFILE_ALLOWLIST_ITEMS_V1 = 256
+MAX_CHECKER_DIRECT_COUNT_V1 = 3
+MAX_CHECKER_CONSTRAINT_COUNT_V1 = 256
+MAX_CHECKER_WORK_UNITS_V1 = 2_000_000
+MAX_SIMULATION_POPULATION_V1 = 10_000
+MAX_SIMULATION_HORIZON_STEPS_V1 = 100_000
+MAX_SIMULATION_OUTPUT_TICKS_V1 = 100_000
+MAX_SIMULATION_WORK_UNITS_V1 = 20_000_000
+MAX_WORKLOAD_REPLICATION_COUNT_V1 = 10_000
+MAX_WORKLOAD_REPLICATION_TICKS_V1 = 2_000_000
+MAX_WORKLOAD_WORK_UNITS_V1 = 20_000_000
+MAX_EXECUTION_PROFILE_COLLECTION_V1 = 64
+MAX_CANDIDATE_EXPORT_PROFILES_V1 = 16
+MAX_REPAIR_REGRESSION_SUITES_V1 = 64
+MAX_REPAIR_REGRESSION_WORK_UNITS_V1 = 20_000_000
+MAX_REPAIR_REGRESSION_SUITE_BYTES_V1 = 17 * 1024 * 1024
+MAX_REPAIR_TOTAL_REGRESSION_SUITE_BYTES_V1 = 64 * 1024 * 1024
+MAX_PREPARED_OUTCOME_BYTES_V1 = 256 * 1024 * 1024
+MAX_EXTRACTION_SOURCE_ARTIFACTS_V1 = 64
+MAX_EXTRACTION_SOURCE_BYTES_V1 = 4 * 1024 * 1024
+MAX_EXTRACTION_TOTAL_INPUT_BYTES_V1 = 16 * 1024 * 1024
+MAX_EXTRACTION_PROPOSALS_V1 = 256
+MAX_EXTRACTION_OUTPUT_BYTES_V1 = 8 * 1024 * 1024
+MAX_AGENT_PROMPT_MESSAGE_BYTES_V1 = 17 * 1024 * 1024
+MAX_ENVIRONMENT_NAVIGATION_GRID_CELLS_V1 = 1_000_000
+
 NonEmptyStr = Annotated[
     str,
     StringConstraints(min_length=1, max_length=MAX_IDENTIFIER_LENGTH),
@@ -138,6 +169,14 @@ class EnvironmentContractDescriptorV1(_FrozenModel):
     reset_schema_id: NonEmptyStr
     action_schema_id: NonEmptyStr
     observation_schema_id: NonEmptyStr
+    # A navigation-capable environment must freeze the largest search space one
+    # atomic action may traverse.  Profile-selected adapters use this authority
+    # both to reject an oversized candidate before constructing the environment
+    # and to debit their exact static traversal work from the Run-wide ledger.
+    max_navigation_grid_cells: int = Field(
+        ge=1,
+        le=MAX_ENVIRONMENT_NAVIGATION_GRID_CELLS_V1,
+    )
 
 
 class GenericProfileDetailsV1(_FrozenModel):
@@ -209,6 +248,24 @@ class ResolvedPolicyProfileConfigV1(_FrozenModel):
 class GenerationProfileConfigV1(_FrozenModel):
     config_schema_version: Literal["generation-profile-config@1"] = "generation-profile-config@1"
     resolved_policy: ResolvedPolicyProfileConfigV1
+    max_prompt_message_bytes: int = Field(ge=1, le=MAX_AGENT_PROMPT_MESSAGE_BYTES_V1)
+    max_checker_constraint_count: int = Field(ge=1, le=MAX_CHECKER_CONSTRAINT_COUNT_V1)
+    max_checker_work_units: int = Field(ge=1, le=MAX_CHECKER_WORK_UNITS_V1)
+    gate_simulation_seed: int = Field(ge=0, le=(1 << 64) - 1)
+    gate_simulation_population: int = Field(ge=1, le=MAX_SIMULATION_POPULATION_V1)
+    gate_simulation_horizon_steps: int = Field(ge=1, le=MAX_SIMULATION_HORIZON_STEPS_V1)
+    max_simulation_work_units: int = Field(ge=1, le=MAX_SIMULATION_WORK_UNITS_V1)
+    max_candidate_export_profiles: int = Field(ge=0, le=MAX_CANDIDATE_EXPORT_PROFILES_V1)
+    max_total_prepared_artifact_bytes: int = Field(ge=1, le=MAX_PREPARED_OUTCOME_BYTES_V1)
+
+    @model_validator(mode="after")
+    def _simulation_defaults_within_work_envelope(self) -> "GenerationProfileConfigV1":
+        if (
+            self.gate_simulation_population * self.gate_simulation_horizon_steps
+            > self.max_simulation_work_units
+        ):
+            raise ValueError("generation simulation defaults exceed the v1 work envelope")
+        return self
 
 
 class PatchRepairProfileConfigV1(_FrozenModel):
@@ -216,6 +273,109 @@ class PatchRepairProfileConfigV1(_FrozenModel):
         "patch_repair-profile-config@1"
     )
     resolved_policy: ResolvedPolicyProfileConfigV1
+    max_prompt_message_bytes: int = Field(ge=1, le=MAX_AGENT_PROMPT_MESSAGE_BYTES_V1)
+    max_search_steps: int = Field(ge=1, le=1_000)
+    max_total_checker_work_units: int = Field(ge=1, le=MAX_CHECKER_WORK_UNITS_V1)
+    max_total_simulation_work_units: int = Field(ge=1, le=MAX_SIMULATION_WORK_UNITS_V1)
+    max_checker_profile_count: int = Field(ge=1, le=MAX_EXECUTION_PROFILE_COLLECTION_V1)
+    max_simulation_profile_count: int = Field(ge=0, le=MAX_EXECUTION_PROFILE_COLLECTION_V1)
+    max_regression_suite_count: int = Field(ge=0, le=MAX_REPAIR_REGRESSION_SUITES_V1)
+    max_total_regression_work_units: int = Field(ge=1, le=MAX_REPAIR_REGRESSION_WORK_UNITS_V1)
+    max_regression_suite_bytes: int = Field(ge=1, le=MAX_REPAIR_REGRESSION_SUITE_BYTES_V1)
+    max_total_regression_suite_bytes: int = Field(
+        ge=1, le=MAX_REPAIR_TOTAL_REGRESSION_SUITE_BYTES_V1
+    )
+    max_candidate_export_profiles: int = Field(ge=0, le=MAX_CANDIDATE_EXPORT_PROFILES_V1)
+    max_total_prepared_artifact_bytes: int = Field(ge=1, le=MAX_PREPARED_OUTCOME_BYTES_V1)
+
+    @model_validator(mode="after")
+    def _regression_suite_envelope(self) -> "PatchRepairProfileConfigV1":
+        if self.max_regression_suite_bytes > self.max_total_regression_suite_bytes:
+            raise ValueError("repair per-suite bytes exceed total suite bytes")
+        return self
+
+
+class ReviewProfileConfigV1(_FrozenModel):
+    """Run-wide profile-count and deterministic-work authority for review."""
+
+    config_schema_version: Literal["review-profile-config@1"] = "review-profile-config@1"
+    max_prompt_message_bytes: int = Field(ge=1, le=MAX_AGENT_PROMPT_MESSAGE_BYTES_V1)
+    max_checker_profile_count: int = Field(ge=0, le=MAX_EXECUTION_PROFILE_COLLECTION_V1)
+    max_simulation_profile_count: int = Field(ge=0, le=MAX_EXECUTION_PROFILE_COLLECTION_V1)
+    max_total_checker_work_units: int = Field(ge=1, le=MAX_CHECKER_WORK_UNITS_V1)
+    max_total_simulation_work_units: int = Field(ge=1, le=MAX_SIMULATION_WORK_UNITS_V1)
+    max_total_prepared_artifact_bytes: int = Field(ge=1, le=MAX_PREPARED_OUTCOME_BYTES_V1)
+
+
+class ConstraintExtractionProfileConfigV1(_FrozenModel):
+    """Bounded authenticated inputs and deterministic draft output."""
+
+    config_schema_version: Literal["constraint_extraction-profile-config@1"] = (
+        "constraint_extraction-profile-config@1"
+    )
+    max_prompt_message_bytes: int = Field(ge=1, le=MAX_AGENT_PROMPT_MESSAGE_BYTES_V1)
+    max_source_artifact_count: int = Field(ge=1, le=MAX_EXTRACTION_SOURCE_ARTIFACTS_V1)
+    max_source_artifact_bytes: int = Field(ge=1, le=MAX_EXTRACTION_SOURCE_BYTES_V1)
+    max_total_input_bytes: int = Field(ge=1, le=MAX_EXTRACTION_TOTAL_INPUT_BYTES_V1)
+    max_proposal_count: int = Field(ge=1, le=MAX_EXTRACTION_PROPOSALS_V1)
+    max_output_bytes: int = Field(ge=1, le=MAX_EXTRACTION_OUTPUT_BYTES_V1)
+
+    @model_validator(mode="after")
+    def _source_envelope(self) -> "ConstraintExtractionProfileConfigV1":
+        if self.max_source_artifact_bytes > self.max_total_input_bytes:
+            raise ValueError("extraction per-source bytes exceed total input bytes")
+        return self
+
+
+class CheckerProfileConfigV1(_FrozenModel):
+    """Frozen checker taxonomy and executable work envelope."""
+
+    config_schema_version: Literal["checker-profile-config@1"] = "checker-profile-config@1"
+    allowed_checker_ids: tuple[NonEmptyStr, ...] = Field(
+        min_length=1, max_length=MAX_PROFILE_ALLOWLIST_ITEMS_V1
+    )
+    allowed_defect_classes: tuple[NonEmptyStr, ...] = Field(
+        min_length=1, max_length=MAX_PROFILE_ALLOWLIST_ITEMS_V1
+    )
+    max_direct_checker_count: int = Field(ge=1, le=MAX_CHECKER_DIRECT_COUNT_V1)
+    max_constraint_count: int = Field(ge=1, le=MAX_CHECKER_CONSTRAINT_COUNT_V1)
+    max_work_units: int = Field(ge=1, le=MAX_CHECKER_WORK_UNITS_V1)
+
+    @field_validator("allowed_checker_ids", "allowed_defect_classes")
+    @classmethod
+    def _stable_allowlists(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return _stable_strings(value, allow_empty=False)
+
+
+class SimulationProfileConfigV1(_FrozenModel):
+    """Frozen horizon/output bounds for one simulator implementation."""
+
+    config_schema_version: Literal["simulation-profile-config@1"] = "simulation-profile-config@1"
+    default_population: int = Field(ge=1, le=MAX_SIMULATION_POPULATION_V1)
+    default_horizon_steps: int = Field(ge=1, le=MAX_SIMULATION_HORIZON_STEPS_V1)
+    max_horizon_steps: int = Field(ge=1, le=MAX_SIMULATION_HORIZON_STEPS_V1)
+    max_output_ticks: int = Field(ge=1, le=MAX_SIMULATION_OUTPUT_TICKS_V1)
+    max_work_units: int = Field(ge=1, le=MAX_SIMULATION_WORK_UNITS_V1)
+
+    @model_validator(mode="after")
+    def _defaults_within_bounds(self) -> "SimulationProfileConfigV1":
+        if (
+            self.default_horizon_steps > self.max_horizon_steps
+            or self.default_horizon_steps > self.max_output_ticks
+        ):
+            raise ValueError("simulation profile defaults exceed its execution bounds")
+        if self.default_population * self.default_horizon_steps > self.max_work_units:
+            raise ValueError("simulation profile defaults exceed its work envelope")
+        return self
+
+
+class WorkloadProfileConfigV1(_FrozenModel):
+    """Frozen replication and aggregate-work bounds for simulation workloads."""
+
+    config_schema_version: Literal["workload-profile-config@1"] = "workload-profile-config@1"
+    max_replication_count: int = Field(ge=1, le=MAX_WORKLOAD_REPLICATION_COUNT_V1)
+    max_total_replication_ticks: int = Field(ge=1, le=MAX_WORKLOAD_REPLICATION_TICKS_V1)
+    max_total_work_units: int = Field(ge=1, le=MAX_WORKLOAD_WORK_UNITS_V1)
 
 
 class PlaytestPlannerProfileConfigV1(_FrozenModel):
@@ -369,11 +529,28 @@ class ExecutionProfileDefinitionV1(_FrozenModel):
         config_models = {
             "generation": ("generation-profile-config@1", GenerationProfileConfigV1),
             "patch_repair": ("patch_repair-profile-config@1", PatchRepairProfileConfigV1),
+            "review": ("review-profile-config@1", ReviewProfileConfigV1),
+            "constraint_extraction": (
+                "constraint_extraction-profile-config@1",
+                ConstraintExtractionProfileConfigV1,
+            ),
+            "checker": ("checker-profile-config@1", CheckerProfileConfigV1),
+            "simulation": ("simulation-profile-config@1", SimulationProfileConfigV1),
+            "workload": ("workload-profile-config@1", WorkloadProfileConfigV1),
             "playtest_planner": (
                 "playtest_planner-profile-config@1",
                 PlaytestPlannerProfileConfigV1,
             ),
         }
+        if self.profile_kind == "bench_evaluator":
+            # Local import avoids the contract-level ProfileRef/benchmark cycle while
+            # still making the retained evaluator profile config fully typed.
+            from gameforge.contracts.benchmark import BenchmarkEvaluatorProfileConfigV1
+
+            config_models["bench_evaluator"] = (
+                "bench_evaluator-profile-config@1",
+                BenchmarkEvaluatorProfileConfigV1,
+            )
         config_contract = config_models.get(self.profile_kind)
         if config_contract is not None:
             expected_schema_id, model = config_contract

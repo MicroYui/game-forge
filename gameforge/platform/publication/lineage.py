@@ -27,6 +27,7 @@ class ParentInfo:
     kind: str
     payload_schema_id: str
     version_tuple: VersionTuple
+    payload_hash: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -15,6 +15,7 @@ from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
     CheckerRunPayloadV1,
+    ConstraintProposalProposePayloadV1,
     ConstraintValidationPayloadV1,
     GenerationProposePayloadV1,
     GraphSelectionV1,
@@ -25,7 +26,9 @@ from gameforge.contracts.jobs import (
     RefValue,
     RequirementDispositionV1,
     ResolvedArtifactRequirementV1,
+    ReviewRunPayloadV1,
     RollbackValidationPayloadV1,
+    SimulationRunPayloadV1,
     ValidationSubjectBindingV1,
 )
 from gameforge.contracts.lineage import (
@@ -35,7 +38,11 @@ from gameforge.contracts.lineage import (
     object_key_for_sha256,
 )
 from gameforge.contracts.findings import PatchV2
-from gameforge.contracts.workflow import FindingEvidenceBindingV1
+from gameforge.contracts.workflow import (
+    ConstraintProposalV1,
+    ConstraintSourceBinding,
+    FindingEvidenceBindingV1,
+)
 from gameforge.platform.publication.lineage import ParentInfo, TypedLineage
 from gameforge.platform.publication.payload_binding import (
     FinalSiblingFact,
@@ -74,13 +81,85 @@ def _parent(
     kind: str,
     schema: str,
     version_tuple: VersionTuple | None = None,
+    payload_hash: str | None = None,
 ) -> ParentInfo:
     return ParentInfo(
         artifact_id=artifact_id,
         kind=kind,
         payload_schema_id=schema,
         version_tuple=version_tuple or VersionTuple(),
+        payload_hash=payload_hash,
     )
+
+
+def test_constraint_proposal_source_hash_must_match_exact_typed_parent() -> None:
+    source_id = "artifact:design-source"
+    params = ConstraintProposalProposePayloadV1(
+        source_artifact_ids=(source_id,),
+        domain_scope=DomainScope(domain_ids=("content",)),
+        authoring_goal=PromptGoalBindingV1(
+            source_artifact_id="artifact:goal",
+            expected_payload_hash=_HEX,
+        ),
+        dsl_grammar_version="dsl@1",
+        extraction_policy=ProfileRefV1(profile_id="extract", version=1),
+    )
+    run = build_run_record(
+        build_envelope(params=params),
+        RunKindRef(kind="constraint_proposal.propose", version=1),
+    )
+    policy, rule = _outcome_binding(
+        "constraint_proposal.propose",
+        "constraint-proposal-drafted",
+        "primary",
+    )
+    proposal = ConstraintProposalV1(
+        revision=1,
+        base_constraint_snapshot_id=None,
+        dsl_grammar_version="dsl@1",
+        domain_scope=params.domain_scope,
+        constraints=(),
+        source_bindings=(
+            ConstraintSourceBinding(
+                source_artifact_id=source_id,
+                provenance_hash="b" * 64,
+            ),
+        ),
+        produced_by="agent",
+        producer_run_id=run.run_id,
+        rationale="fixture",
+    )
+    typed = TypedLineage(
+        parents_by_role={
+            "source": (
+                _parent(
+                    source_id,
+                    "design_source",
+                    "design-source@1",
+                    payload_hash="c" * 64,
+                ),
+                _parent(
+                    params.authoring_goal.source_artifact_id,
+                    "source_raw",
+                    "source-raw@1",
+                    payload_hash=params.authoring_goal.expected_payload_hash,
+                ),
+            ),
+            "base_constraint": (),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="constraint-proposal@1",
+            canonical_payload=proposal.model_dump(mode="json"),
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(),
+            prepared_meta={"payload_schema_id": "constraint-proposal@1"},
+        )
 
 
 def _generation_run(*, with_export: bool = False):
@@ -256,6 +335,7 @@ def test_checker_report_cannot_claim_a_different_snapshot_than_typed_lineage() -
                 "snapshot_id": "sha256:forged",
                 "checker_ids": ["graph"],
                 "defect_classes": [],
+                "constraint_application": [],
                 "findings": [],
             },
             typed_lineage=typed,
@@ -300,6 +380,7 @@ def test_unknown_prepared_metadata_is_rejected_even_without_authority_named_toke
                 "snapshot_id": "sha256:real",
                 "checker_ids": ["graph"],
                 "defect_classes": [],
+                "constraint_application": [],
                 "findings": [],
             },
             typed_lineage=typed,
@@ -309,6 +390,439 @@ def test_unknown_prepared_metadata_is_rejected_even_without_authority_named_toke
                 "certified": True,
             },
         )
+
+
+def test_checker_run_requires_constraint_application_even_without_constraints() -> None:
+    params = CheckerRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        checker_profile=ProfileRefV1(profile_id="checker", version=1),
+        checker_ids=("graph",),
+        defect_classes=(),
+    )
+    run = build_run_record(build_envelope(params=params), RunKindRef(kind="checker.run", version=1))
+    policy, rule = _outcome_binding("checker.run", "checker-completed", "primary")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="authoritative semantic field"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="checker-report@1",
+            canonical_payload={
+                "payload_schema_version": "checker-report@1",
+                "snapshot_id": "sha256:real",
+                "checker_ids": ["graph"],
+                "defect_classes": [],
+                "findings": [],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(ir_snapshot_id="sha256:real", tool_version="checker@1"),
+            prepared_meta={"payload_schema_id": "checker-report@1"},
+        )
+
+
+def test_checker_constraint_application_ids_are_derived_from_exact_parent_payload() -> None:
+    params = CheckerRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        checker_profile=ProfileRefV1(profile_id="checker", version=1),
+        checker_ids=(),
+        defect_classes=(),
+    )
+    run = build_run_record(build_envelope(params=params), RunKindRef(kind="checker.run", version=1))
+    policy, rule = _outcome_binding("checker.run", "checker-completed", "primary")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (
+                _parent("artifact:constraint", "constraint_snapshot", "constraint-snapshot@1"),
+            ),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="checker-report@1",
+            canonical_payload={
+                "payload_schema_version": "checker-report@1",
+                "snapshot_id": "sha256:real",
+                "checker_ids": [],
+                "defect_classes": [],
+                "constraint_application": [
+                    {
+                        "constraint_id": "constraint:forged",
+                        "checker_id": "graph",
+                        "status": "executed",
+                    }
+                ],
+                "findings": [],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(ir_snapshot_id="sha256:real", tool_version="checker@1"),
+            prepared_meta={"payload_schema_id": "checker-report@1"},
+            authoritative_parent_payloads={
+                "artifact:constraint": {
+                    "dsl_grammar_version": "dsl@1",
+                    "constraints": [
+                        {
+                            "id": "constraint:real",
+                            "dsl_grammar_version": "dsl@1",
+                            "kind": "structural",
+                            "oracle": "deterministic",
+                            "predicates": [],
+                            "assert": "true",
+                            "severity": "major",
+                        }
+                    ],
+                }
+            },
+        )
+
+
+def test_standalone_simulation_rejects_budget_only_payload_without_execution_binding() -> None:
+    params = SimulationRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        simulation_profile=ProfileRefV1(profile_id="simulation", version=1),
+        workload_profile=ProfileRefV1(profile_id="workload", version=1),
+        replication_count=2,
+        horizon_steps=4,
+    )
+    run = build_run_record(
+        build_envelope(params=params, seed=7),
+        RunKindRef(kind="simulation.run", version=1),
+    )
+    policy, rule = _outcome_binding("simulation.run", "simulation-completed", "primary")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (),
+            "scenario": (),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="authoritative semantic field"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="simulation-result@1",
+            canonical_payload={
+                "payload_schema_version": "simulation-result@1",
+                "snapshot_id": "sha256:real",
+                "seed": 7,
+                "replication_count": 2,
+                "horizon_steps": 4,
+                "findings": [],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(
+                ir_snapshot_id="sha256:real",
+                seed=7,
+                tool_version="economy-sim@1",
+            ),
+            prepared_meta={"payload_schema_id": "simulation-result@1"},
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "forged_value"),
+    (
+        ("constraint_snapshot_artifact_id", "artifact:foreign-constraint"),
+        ("scenario_artifact_id", "artifact:foreign-scenario"),
+    ),
+)
+def test_standalone_simulation_binds_exact_semantic_input_artifact_ids(
+    field: str,
+    forged_value: str,
+) -> None:
+    params = SimulationRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        scenario_artifact_id="artifact:scenario",
+        simulation_profile=ProfileRefV1(profile_id="simulation", version=1),
+        workload_profile=ProfileRefV1(profile_id="workload", version=1),
+        replication_count=2,
+        horizon_steps=4,
+    )
+    run = build_run_record(
+        build_envelope(params=params, seed=7),
+        RunKindRef(kind="simulation.run", version=1),
+    )
+    policy, rule = _outcome_binding("simulation.run", "simulation-completed", "primary")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (
+                _parent("artifact:constraint", "constraint_snapshot", "constraint-snapshot@1"),
+            ),
+            "scenario": (_parent("artifact:scenario", "scenario_spec", "scenario-spec@1"),),
+        }
+    )
+    execution_binding = {
+        "simulation_profile": {"profile_id": "simulation", "version": 1},
+        "workload_profile": {"profile_id": "workload", "version": 1},
+        "constraint_snapshot_artifact_id": "artifact:constraint",
+        "scenario_artifact_id": "artifact:scenario",
+        "constraint_ids": ["constraint:real"],
+        "scenario_id": "scenario:real",
+        "constraint_application": {
+            "status": "unproven",
+            "reason_code": "constraint_profile_not_executable",
+        },
+        "scenario_application": {
+            "status": "unproven",
+            "reason_code": "scenario_reset_not_executable",
+        },
+    }
+    execution_binding[field] = forged_value
+
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="simulation-result@1",
+            canonical_payload={
+                "payload_schema_version": "simulation-result@1",
+                "snapshot_id": "sha256:real",
+                "seed": 7,
+                "replication_count": 2,
+                "horizon_steps": 4,
+                "invariants": [],
+                "sensitivity": {"execution_binding": execution_binding},
+                "findings": [],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(
+                ir_snapshot_id="sha256:real",
+                seed=7,
+                tool_version="economy-sim@1",
+            ),
+            prepared_meta={"payload_schema_id": "simulation-result@1"},
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "forged_value"),
+    (
+        ("constraint_ids", ["constraint:forged"]),
+        ("scenario_id", "scenario:forged"),
+    ),
+)
+def test_standalone_simulation_semantic_ids_are_derived_from_exact_parent_payloads(
+    field: str,
+    forged_value: object,
+) -> None:
+    params = SimulationRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        scenario_artifact_id="artifact:scenario",
+        simulation_profile=ProfileRefV1(profile_id="simulation", version=1),
+        workload_profile=ProfileRefV1(profile_id="workload", version=1),
+        replication_count=2,
+        horizon_steps=4,
+    )
+    run = build_run_record(
+        build_envelope(params=params, seed=7),
+        RunKindRef(kind="simulation.run", version=1),
+    )
+    policy, rule = _outcome_binding("simulation.run", "simulation-completed", "primary")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (
+                _parent("artifact:constraint", "constraint_snapshot", "constraint-snapshot@1"),
+            ),
+            "scenario": (_parent("artifact:scenario", "scenario_spec", "scenario-spec@1"),),
+        }
+    )
+    execution_binding = {
+        "simulation_profile": {"profile_id": "simulation", "version": 1},
+        "workload_profile": {"profile_id": "workload", "version": 1},
+        "constraint_snapshot_artifact_id": "artifact:constraint",
+        "scenario_artifact_id": "artifact:scenario",
+        "constraint_ids": ["constraint:real"],
+        "scenario_id": "scenario:real",
+        "constraint_application": {
+            "status": "unproven",
+            "reason_code": "constraint_profile_not_executable",
+        },
+        "scenario_application": {
+            "status": "unproven",
+            "reason_code": "scenario_reset_not_executable",
+        },
+    }
+    execution_binding[field] = forged_value
+
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="simulation-result@1",
+            canonical_payload={
+                "payload_schema_version": "simulation-result@1",
+                "snapshot_id": "sha256:real",
+                "seed": 7,
+                "replication_count": 2,
+                "horizon_steps": 4,
+                "invariants": [],
+                "sensitivity": {"execution_binding": execution_binding},
+                "findings": [],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(
+                ir_snapshot_id="sha256:real",
+                env_contract_version="env@1",
+                seed=7,
+                tool_version="economy-sim@1",
+            ),
+            prepared_meta={"payload_schema_id": "simulation-result@1"},
+            authoritative_parent_payloads={
+                "artifact:constraint": {
+                    "dsl_grammar_version": "dsl@1",
+                    "constraints": [{"id": "constraint:real"}],
+                },
+                "artifact:scenario": {
+                    "scenario_id": "scenario:real",
+                    "source_preview_artifact_id": "artifact:snapshot",
+                    "constraint_snapshot_artifact_id": "artifact:constraint",
+                    "env_contract_version": "env@1",
+                },
+            },
+        )
+
+
+def test_review_simulation_constraint_application_is_bound_to_exact_parent_payload() -> None:
+    params = ReviewRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        review_profile=ProfileRefV1(profile_id="review", version=1),
+        checker_profiles=(ProfileRefV1(profile_id="checker", version=1),),
+        simulation_profiles=(ProfileRefV1(profile_id="simulation", version=1),),
+    )
+    run = build_run_record(
+        build_envelope(params=params, seed=7),
+        RunKindRef(kind="review.run", version=1),
+    )
+    policy, rule = _outcome_binding("review.run", "review-completed", "simulation")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (
+                _parent("artifact:constraint", "constraint_snapshot", "constraint-snapshot@1"),
+            ),
+        }
+    )
+    canonical_payload = {
+        "payload_schema_version": "simulation-result@1",
+        "profile": {"profile_id": "simulation", "version": 1},
+        "snapshot_id": "sha256:real",
+        "seed": 7,
+        "replication_count": 2,
+        "horizon_steps": 4,
+        "invariants": [],
+        "sensitivity": {
+            "execution_binding": {
+                "simulation_profile": {"profile_id": "simulation", "version": 1},
+                "constraint_snapshot_artifact_id": "artifact:constraint",
+                "constraint_ids": ["constraint:real"],
+                "constraint_application": {
+                    "status": "unproven",
+                    "reason_code": "constraint_profile_not_executable",
+                },
+            }
+        },
+        "findings": [],
+    }
+    kwargs = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "simulation-result@1",
+        "typed_lineage": typed,
+        "projected_tuple": VersionTuple(
+            ir_snapshot_id="sha256:real",
+            constraint_snapshot_id="constraint:semantic:1",
+            seed=7,
+            tool_version="economy-sim@1",
+        ),
+        "prepared_meta": {"payload_schema_id": "simulation-result@1"},
+        "authoritative_parent_payloads": {
+            "artifact:constraint": {
+                "dsl_grammar_version": "dsl@1",
+                "constraints": [{"id": "constraint:real"}],
+            },
+        },
+    }
+
+    validate_domain_payload_bindings(canonical_payload=canonical_payload, **kwargs)
+
+    forged = {
+        **canonical_payload,
+        "sensitivity": {
+            "execution_binding": {
+                **canonical_payload["sensitivity"]["execution_binding"],
+                "constraint_ids": ["constraint:forged"],
+            }
+        },
+    }
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        validate_domain_payload_bindings(canonical_payload=forged, **kwargs)
 
 
 def test_patch_base_is_bound_to_projected_parent_and_target_to_preview_content() -> None:

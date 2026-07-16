@@ -26,6 +26,7 @@ from gameforge.contracts.jobs import (
     CheckerRunPayloadV1,
     MAX_COLLECTION_ITEMS,
     MAX_JSON_BYTES,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     CancelRunPayloadV1,
     ExecutionVersionPlanV1,
     FindingEvidenceBindingV1,
@@ -102,7 +103,7 @@ class ArtifactSummaryV1(_FrozenModel):
     lineage_schema_version: Literal["lineage@1", "lineage@2"]
     kind: ArtifactKind
     version_tuple: VersionTuple
-    parent_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    parent_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_RUN_MANIFEST_PARENT_BINDINGS)
     payload_hash: Annotated[str, StringConstraints(min_length=1, max_length=512)] | None = None
     payload_schema_id: BoundedId | None = None
     domain_scope: DomainScopeValue

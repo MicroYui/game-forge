@@ -27,6 +27,7 @@ Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 RequestHash = Annotated[str, StringConstraints(pattern=r"^sha256:[0-9a-f]{64}$")]
 PositiveInt = Annotated[int, Field(gt=0)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
+MAX_ROUTING_FALLBACKS = 3
 
 
 class _FrozenModel(BaseModel):
@@ -153,7 +154,7 @@ class RoutingRuleV1(_FrozenModel):
     domain_scope: tuple[NonEmptyStr, ...] | None = None
     required_capabilities: tuple[NonEmptyStr, ...]
     primary_model_snapshot: NonEmptyStr
-    allowed_fallback_chain: tuple[NonEmptyStr, ...]
+    allowed_fallback_chain: tuple[NonEmptyStr, ...] = Field(max_length=MAX_ROUTING_FALLBACKS)
     budget_predicates: tuple[RoutingBudgetPredicateV1, ...]
 
     @field_validator("domain_scope")
@@ -305,6 +306,7 @@ def validate_policy_catalog_closure(
 
 
 __all__ = [
+    "MAX_ROUTING_FALLBACKS",
     "ModelCatalogSnapshotV1",
     "ModelDescriptorV1",
     "RoutingBudgetPredicateV1",

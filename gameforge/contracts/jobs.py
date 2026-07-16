@@ -29,6 +29,7 @@ from gameforge.contracts.identity import DomainScope, Permission
 from gameforge.contracts.lineage import (
     ArtifactKind,
     AuditActor,
+    MAX_RUNTIME_AUTHORITY_BINDINGS,
     ObjectLocation,
     ObjectRef,
     VersionTuple,
@@ -68,8 +69,21 @@ NonNegativeInt = Annotated[int, Field(ge=0)]
 Uint64 = Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
 
 MAX_COLLECTION_ITEMS = 1024
+# A terminal manifest must represent the full frozen Task 11 execution envelope:
+# up to three attempts, 1,000 repair calls per attempt, four routed prompts per
+# call, one governed prompt context, one RECORD shard, plus bounded inputs and
+# domain outputs.  Keep this authority-specific ceiling separate from ordinary
+# request/result collection bounds.
+MAX_RUN_MANIFEST_PARENT_BINDINGS = MAX_RUNTIME_AUTHORITY_BINDINGS
+MAX_BENCHMARK_AGGREGATE_RESULT_ARTIFACTS = MAX_COLLECTION_ITEMS - 3
+MAX_PREPARED_FINDINGS = 10_000
+MAX_PREPARED_ARTIFACT_BYTES = 96 * 1024 * 1024
+MAX_PREPARED_OUTCOME_BYTES = 256 * 1024 * 1024
 MAX_JSON_BYTES = 64 * 1024
 MAX_JSON_DEPTH = 32
+MAX_AGENT_PROMPT_CONTEXT_BYTES = 128 * 1024 * 1024
+MAX_AGENT_PROMPT_CONTEXT_MESSAGES = 64
+MAX_AGENT_PROMPT_CONTEXT_MESSAGE_BYTES = 17 * 1024 * 1024
 
 
 class _FrozenModel(BaseModel):
@@ -792,7 +806,12 @@ class BenchRunPayloadV1(_FrozenModel):
     evaluator_profile: ProfileRefV1
     repetition_count: int = Field(ge=1, le=100_000)
     execution_scope: Literal["execute_cases", "aggregate_results"]
-    case_result_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    # RunPayloadEnvelope and RunManifest both cap their complete input/parent
+    # closure at MAX_COLLECTION_ITEMS. Dataset + spec occupy two mandatory input
+    # slots and the final BenchReport occupies one terminal-manifest parent slot.
+    case_result_artifact_ids: tuple[BoundedId, ...] = Field(
+        max_length=MAX_BENCHMARK_AGGREGATE_RESULT_ARTIFACTS
+    )
 
     @field_validator("partition_ids", "case_result_artifact_ids")
     @classmethod
@@ -845,6 +864,18 @@ RunKindPayload: TypeAlias = Annotated[
     | DrDrillPayloadV1,
     Field(discriminator="schema_version"),
 ]
+
+
+def patch_repair_requires_root_seed(params: RunKindPayload) -> bool:
+    """Whether exact repair regression replay adds seeded execution authority.
+
+    Regression suites seed every case through ``subseed@1`` even when the direct
+    checker/repair profiles are deterministic.  Admission and retained-payload
+    validation share this predicate so a regression-only repair cannot be admitted
+    without a root seed, nor have that required seed rejected as profile drift.
+    """
+
+    return isinstance(params, PatchRepairPayloadV1) and bool(params.regression_suite_artifact_ids)
 
 
 def _target_artifact_id(target: RefReadBindingV1) -> str | None:
@@ -1723,6 +1754,281 @@ class RunIntermediateArtifactLinkV1(_FrozenModel):
     published_at: NonEmptyStr
 
 
+AgentPromptContextKind = Literal[
+    "generation",
+    "repair_initial",
+    "repair_refine",
+    "review_triage",
+    "bench_agent_case",
+    "constraint_extraction",
+    "playtest",
+]
+
+
+class AgentPromptSourceMessageV1(_FrozenModel):
+    """One exact non-system message carried by a governed prompt context."""
+
+    message_schema_version: Literal["agent-prompt-source-message@1"] = (
+        "agent-prompt-source-message@1"
+    )
+    role: Literal["user", "assistant", "tool"]
+    content: Annotated[
+        str,
+        StringConstraints(min_length=1, max_length=MAX_AGENT_PROMPT_CONTEXT_MESSAGE_BYTES),
+    ]
+    tool_calls: tuple[dict[BoundedJsonKey, JsonValue], ...] = Field(
+        default=(), max_length=MAX_COLLECTION_ITEMS
+    )
+    purpose: Literal["context", "tool_output"]
+
+    @field_validator("tool_calls")
+    @classmethod
+    def _bounded_tool_calls(
+        cls,
+        value: tuple[dict[str, JsonValue], ...],
+    ) -> tuple[dict[str, JsonValue], ...]:
+        _validate_bounded_json(list(value), field_name="agent prompt message tool_calls")
+        return value
+
+    @model_validator(mode="after")
+    def _purpose_matches_role(self) -> "AgentPromptSourceMessageV1":
+        expected = "context" if self.role == "user" else "tool_output"
+        if self.purpose != expected:
+            raise ValueError("agent prompt message purpose does not match its role")
+        if self.role == "user" and self.tool_calls:
+            raise ValueError("user agent prompt messages cannot carry tool calls")
+        if len(self.content.encode("utf-8")) > MAX_AGENT_PROMPT_CONTEXT_MESSAGE_BYTES:
+            raise ValueError("agent prompt message exceeds its UTF-8 byte limit")
+        return self
+
+
+class AgentPromptSemanticBindingV1(_FrozenModel):
+    """Opaque-but-typed exact identity used by a node-specific context assembler."""
+
+    binding_key: BoundedId
+    subject_id: BoundedId
+    subject_digest: Sha256Hex
+    subject_revision: PositiveInt | None = None
+
+
+class AgentPromptArtifactBindingV1(_FrozenModel):
+    binding_key: BoundedId
+    artifact_id: BoundedId
+    artifact_kind: ArtifactKind
+    payload_schema_id: BoundedId
+    payload_hash: Sha256Hex
+
+
+class AgentPromptPriorConsumptionV1(_FrozenModel):
+    """Exact prior prompt/route/response-consumption identity for a refine call."""
+
+    attempt_no: PositiveInt
+    call_ordinal: PositiveInt
+    route_ordinal: PositiveInt
+    prompt_artifact_id: BoundedId
+    request_hash: Sha256Hex
+    routing_decision_kind: Literal["native", "legacy_import"]
+    routing_decision_id: BoundedId
+    execution_source: Literal["online", "full_response_cache", "cassette_replay"]
+    reservation_group_id: BoundedId
+    transport_attempt: PositiveInt | None = None
+    cassette_shard_artifact_id: BoundedId | None = None
+    cassette_source_artifact_id: BoundedId | None = None
+    response_digest: Sha256Hex
+
+    @model_validator(mode="after")
+    def _execution_shape(self) -> "AgentPromptPriorConsumptionV1":
+        if self.execution_source == "online" and self.transport_attempt is None:
+            raise ValueError("online prior consumption requires transport_attempt")
+        if self.execution_source != "online" and self.transport_attempt is not None:
+            raise ValueError("cache/replay prior consumption has no transport_attempt")
+        if self.execution_source == "cassette_replay" and self.cassette_source_artifact_id is None:
+            raise ValueError("replay prior consumption requires its cassette source")
+        return self
+
+
+def validate_agent_prompt_context_kind(
+    *,
+    agent_node_id: str,
+    context_kind: AgentPromptContextKind,
+    target_call_ordinal: int,
+    prior_consumption: AgentPromptPriorConsumptionV1 | None,
+) -> None:
+    """Validate the immutable node/kind/causal mapping for a prompt context."""
+
+    if target_call_ordinal < 1:
+        raise ValueError("Agent prompt context target call ordinal must be positive")
+    fixed_kinds: dict[str, AgentPromptContextKind] = {
+        "generation": "generation",
+        "review-triage": "review_triage",
+        "bench-agent-case": "bench_agent_case",
+        "extraction": "constraint_extraction",
+    }
+    if agent_node_id == "repair":
+        if context_kind not in {"repair_initial", "repair_refine"}:
+            raise ValueError("repair Agent prompt context has another context kind")
+        if context_kind == "repair_refine" and target_call_ordinal == 1:
+            raise ValueError("repair refine context cannot be the first logical call")
+        if target_call_ordinal > 1 and prior_consumption is None:
+            raise ValueError("later repair context requires prior response consumption")
+        if prior_consumption is not None and (
+            prior_consumption.call_ordinal != target_call_ordinal - 1
+        ):
+            raise ValueError("repair context prior consumption is not immediate")
+        return
+    expected = (
+        "playtest" if agent_node_id.startswith("playtest.") else fixed_kinds.get(agent_node_id)
+    )
+    if expected is None or context_kind != expected:
+        raise ValueError("Agent node and prompt context kind do not match")
+    if agent_node_id in {"generation", "review-triage", "extraction"} and (
+        target_call_ordinal != 1 or prior_consumption is not None
+    ):
+        raise ValueError("single-call Agent prompt context must be the first call without prior")
+
+
+class AgentPromptContextDraftV1(_FrozenModel):
+    """Non-authoritative per-call draft supplied by a node-specific assembler."""
+
+    draft_schema_version: Literal["agent-prompt-context-draft@1"] = "agent-prompt-context-draft@1"
+    context_kind: AgentPromptContextKind
+    messages: tuple[AgentPromptSourceMessageV1, ...] = Field(
+        min_length=1, max_length=MAX_AGENT_PROMPT_CONTEXT_MESSAGES
+    )
+    source_artifact_ids: tuple[BoundedId, ...] = Field(
+        min_length=1, max_length=MAX_COLLECTION_ITEMS
+    )
+    semantic_bindings: tuple[AgentPromptSemanticBindingV1, ...] = Field(
+        default=(), max_length=MAX_COLLECTION_ITEMS
+    )
+    include_previous_consumption: bool = False
+
+    @field_validator("source_artifact_ids")
+    @classmethod
+    def _canonical_sources(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return _canonical_unique_strings(value, allow_empty=False)
+
+    @field_validator("semantic_bindings")
+    @classmethod
+    def _canonical_semantics(
+        cls,
+        value: tuple[AgentPromptSemanticBindingV1, ...],
+    ) -> tuple[AgentPromptSemanticBindingV1, ...]:
+        keys = [item.binding_key for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("agent prompt semantic binding keys must be unique")
+        return tuple(sorted(value, key=lambda item: item.binding_key))
+
+    @model_validator(mode="after")
+    def _refine_shape(self) -> "AgentPromptContextDraftV1":
+        if self.context_kind == "repair_refine" and not self.include_previous_consumption:
+            raise ValueError("repair refine context requires prior response consumption")
+        return self
+
+
+class AgentPromptContextV1(_FrozenModel):
+    """Canonical bounded tool-output source for one exact logical model call."""
+
+    context_schema_version: Literal["agent-prompt-context@1"] = "agent-prompt-context@1"
+    context_kind: AgentPromptContextKind
+    run_id: BoundedId
+    attempt_no: PositiveInt
+    target_call_ordinal: PositiveInt
+    agent_node_id: BoundedId
+    prompt_version: BoundedId
+    messages: tuple[AgentPromptSourceMessageV1, ...] = Field(
+        min_length=1, max_length=MAX_AGENT_PROMPT_CONTEXT_MESSAGES
+    )
+    upstream_artifacts: tuple[AgentPromptArtifactBindingV1, ...] = Field(
+        min_length=1, max_length=MAX_COLLECTION_ITEMS
+    )
+    semantic_bindings: tuple[AgentPromptSemanticBindingV1, ...] = Field(
+        default=(), max_length=MAX_COLLECTION_ITEMS
+    )
+    prior_consumption: AgentPromptPriorConsumptionV1 | None = None
+
+    @field_validator("upstream_artifacts")
+    @classmethod
+    def _canonical_upstream(
+        cls,
+        value: tuple[AgentPromptArtifactBindingV1, ...],
+    ) -> tuple[AgentPromptArtifactBindingV1, ...]:
+        keys = [item.binding_key for item in value]
+        ids = [item.artifact_id for item in value]
+        if len(keys) != len(set(keys)) or len(ids) != len(set(ids)):
+            raise ValueError("agent prompt upstream bindings must have unique keys and artifacts")
+        return tuple(sorted(value, key=lambda item: item.binding_key))
+
+    @field_validator("semantic_bindings")
+    @classmethod
+    def _canonical_context_semantics(
+        cls,
+        value: tuple[AgentPromptSemanticBindingV1, ...],
+    ) -> tuple[AgentPromptSemanticBindingV1, ...]:
+        keys = [item.binding_key for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("agent prompt semantic binding keys must be unique")
+        return tuple(sorted(value, key=lambda item: item.binding_key))
+
+    @model_validator(mode="after")
+    def _closed_shape(self) -> "AgentPromptContextV1":
+        has_prior = self.prior_consumption is not None
+        validate_agent_prompt_context_kind(
+            agent_node_id=self.agent_node_id,
+            context_kind=self.context_kind,
+            target_call_ordinal=self.target_call_ordinal,
+            prior_consumption=self.prior_consumption,
+        )
+        if self.context_kind == "repair_refine" and not has_prior:
+            raise ValueError("repair refine context requires prior response consumption")
+        if self.prior_consumption is not None:
+            prior = self.prior_consumption
+            if (
+                prior.attempt_no != self.attempt_no
+                or prior.call_ordinal != self.target_call_ordinal - 1
+            ):
+                raise ValueError("prior consumption is not the immediately previous call")
+            by_key = {item.binding_key: item for item in self.upstream_artifacts}
+            expected_prior_keys = {"prior.prompt"}
+            if prior.cassette_source_artifact_id is not None:
+                expected_prior_keys.add("prior.cassette_source")
+            actual_prior_keys = {key for key in by_key if not key.startswith("source:")}
+            if (
+                actual_prior_keys != expected_prior_keys
+                or by_key["prior.prompt"].artifact_id != prior.prompt_artifact_id
+                or (
+                    prior.cassette_source_artifact_id is not None
+                    and by_key["prior.cassette_source"].artifact_id
+                    != prior.cassette_source_artifact_id
+                )
+            ):
+                raise ValueError("prior consumption direct Artifact parents are not exact")
+        elif any(not item.binding_key.startswith("source:") for item in self.upstream_artifacts):
+            raise ValueError("context without prior consumption has prior Artifact parents")
+        if (
+            len(canonical_json(self.model_dump(mode="json")).encode("utf-8"))
+            > MAX_AGENT_PROMPT_CONTEXT_BYTES
+        ):
+            raise ValueError("agent prompt context exceeds its canonical byte limit")
+        return self
+
+
+class RunToolIntermediateLinkV1(_FrozenModel):
+    """Independent fenced link for one exact Agent prompt-context source."""
+
+    link_schema_version: Literal["run-tool-intermediate-link@1"] = "run-tool-intermediate-link@1"
+    run_id: NonEmptyStr
+    attempt_no: PositiveInt
+    target_call_ordinal: PositiveInt
+    artifact_id: NonEmptyStr
+    role: Literal["agent_prompt_context"] = "agent_prompt_context"
+    agent_node_id: BoundedId
+    prompt_version: BoundedId
+    payload_hash: Sha256Hex
+    fencing_token: PositiveInt
+    published_at: NonEmptyStr
+
+
 class RunModelRouteLinkV1(_FrozenModel):
     """Immutable authority for one attempted route of one logical model call."""
 
@@ -1753,6 +2059,8 @@ class RunModelResponseConsumptionV1(_FrozenModel):
     reservation_group_id: NonEmptyStr
     transport_attempt: PositiveInt | None = None
     cassette_shard_artifact_id: NonEmptyStr | None = None
+    # Additive @1 compatibility: pre-0010 rows cannot prove response bytes.
+    response_digest: Sha256Hex | None = None
     consumed_at: NonEmptyStr
 
     @model_validator(mode="after")
@@ -1821,7 +2129,9 @@ class RunManifestVersionProjectionV1(_FrozenModel):
     frozen_input_version_tuple: VersionTuple
     terminal_version_tuple: VersionTuple
     version_transition_policy_ref: VersionTransitionPolicyRefV1
-    parents: tuple[RunManifestParentBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    parents: tuple[RunManifestParentBindingV1, ...] = Field(
+        max_length=MAX_RUN_MANIFEST_PARENT_BINDINGS
+    )
 
     @field_validator("parents")
     @classmethod
@@ -1932,7 +2242,7 @@ class PreparedRunResult(_FrozenModel):
     run_kind: RunKindRef
     primary_index: NonNegativeInt
     artifacts: tuple[PreparedArtifact, ...] = Field(min_length=1, max_length=MAX_COLLECTION_ITEMS)
-    findings: tuple[PreparedFindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    findings: tuple[PreparedFindingV1, ...] = Field(max_length=MAX_PREPARED_FINDINGS)
     requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
         max_length=MAX_COLLECTION_ITEMS
     )
@@ -1955,6 +2265,10 @@ class PreparedRunResult(_FrozenModel):
             raise ValueError("prepared finding count does not match")
         if self.summary.primary_artifact_kind != self.artifacts[self.primary_index].kind:
             raise ValueError("prepared primary kind does not match primary artifact")
+        if sum(artifact.object_ref.size_bytes for artifact in self.artifacts) > (
+            MAX_PREPARED_OUTCOME_BYTES
+        ):
+            raise ValueError("prepared outcome exceeds the frozen aggregate byte bound")
         for finding in self.findings:
             if finding.evidence_artifact_index >= len(self.artifacts):
                 raise ValueError("finding evidence index is outside prepared artifacts")
@@ -1994,6 +2308,10 @@ class PreparedRunFailure(_FrozenModel):
         }
         if requires_dependency != (self.dependency is not None):
             raise ValueError("dependency failure projection does not match failure class")
+        if sum(artifact.object_ref.size_bytes for artifact in self.artifacts) > (
+            MAX_PREPARED_OUTCOME_BYTES
+        ):
+            raise ValueError("prepared failure exceeds the frozen aggregate byte bound")
         return self
 
 
@@ -2010,7 +2328,7 @@ class RunResultV1(_FrozenModel):
     run_kind: RunKindRef
     primary_artifact_id: BoundedNonEmptyStr
     produced_artifact_ids: tuple[BoundedNonEmptyStr, ...] = Field(
-        min_length=1, max_length=MAX_COLLECTION_ITEMS
+        min_length=1, max_length=MAX_RUN_MANIFEST_PARENT_BINDINGS
     )
     finding_count: NonNegativeInt
     outcome_code: BoundedNonEmptyStr
@@ -2062,7 +2380,9 @@ class RunFailureV1(_FrozenModel):
     retry_decision: RetryDecisionV1
     dependency: DependencyFailureV1 | None = None
     redacted_message: BoundedNonEmptyStr
-    evidence_artifact_ids: tuple[BoundedNonEmptyStr, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    evidence_artifact_ids: tuple[BoundedNonEmptyStr, ...] = Field(
+        max_length=MAX_RUN_MANIFEST_PARENT_BINDINGS
+    )
     requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
         max_length=MAX_COLLECTION_ITEMS
     )
@@ -2153,7 +2473,7 @@ class ResolvedPolicySubsetCountBindingV1(_FrozenModel):
 
 class IntermediateCountBindingV1(_FrozenModel):
     source: Literal["published_intermediate_links"] = "published_intermediate_links"
-    link_role: Literal["prompt_rendered"]
+    link_role: Literal["prompt_rendered", "agent_prompt_context"]
     scope: Literal["current_attempt", "all_attempts"]
 
 

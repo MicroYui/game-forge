@@ -20,6 +20,8 @@ from gameforge.contracts.jobs import (
     FailureClassifierRefV1,
     GenerationProposePayloadV1,
     GraphSelectionV1,
+    MAX_PREPARED_FINDINGS,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     PatchRepairPayloadV1,
     PlannedAgentNodeVersionV1,
     PreparedArtifact,
@@ -51,6 +53,8 @@ _HASH_A = "a" * 64
 _HASH_B = "b" * 64
 _OBJECT_KEY = f"objects/v1/sha256/{_HASH_A[:2]}/{_HASH_A}"
 _MAX_ITEMS = 1024
+_MAX_FINDINGS = MAX_PREPARED_FINDINGS
+_MAX_MANIFEST_ITEMS = MAX_RUN_MANIFEST_PARENT_BINDINGS
 _MAX_STRING_LENGTH = 4096
 _MAX_ID_LENGTH = 512
 _MAX_SEED = (1 << 64) - 1
@@ -435,14 +439,10 @@ def _run_failure(**changes: Any) -> RunFailureV1:
         (ExecutionVersionPlanV1, "nodes"),
         (ResolvedPolicySnapshotV1, "requirements"),
         (PreparedRunResult, "artifacts"),
-        (PreparedRunResult, "findings"),
         (PreparedRunResult, "requirement_dispositions"),
         (PreparedRunFailure, "artifacts"),
         (PreparedRunFailure, "requirement_dispositions"),
-        (RunManifestVersionProjectionV1, "parents"),
-        (RunResultV1, "produced_artifact_ids"),
         (RunResultV1, "requirement_dispositions"),
-        (RunFailureV1, "evidence_artifact_ids"),
         (RunFailureV1, "requirement_dispositions"),
     ],
 )
@@ -452,6 +452,29 @@ def test_run_result_collections_publish_frozen_max_items(
     property_schema = model.model_json_schema()["properties"][field]
 
     assert property_schema["maxItems"] == _MAX_ITEMS
+
+
+def test_prepared_findings_publish_the_dedicated_finding_capacity() -> None:
+    assert PreparedRunResult.model_json_schema()["properties"]["findings"]["maxItems"] == (
+        _MAX_FINDINGS
+    )
+
+
+@pytest.mark.parametrize(
+    ("model", "field"),
+    [
+        (RunManifestVersionProjectionV1, "parents"),
+        (RunResultV1, "produced_artifact_ids"),
+        (RunFailureV1, "evidence_artifact_ids"),
+    ],
+)
+def test_run_manifest_collections_publish_dedicated_capacity(
+    model: type[BaseModel], field: str
+) -> None:
+    property_schema = model.model_json_schema()["properties"][field]
+
+    assert _MAX_MANIFEST_ITEMS == 32_768
+    assert property_schema["maxItems"] == _MAX_MANIFEST_ITEMS
 
 
 @pytest.mark.parametrize(
@@ -502,12 +525,12 @@ def test_prepared_result_rejects_oversized_finding_collection() -> None:
     finding = _prepared_finding()
     with pytest.raises(ValidationError):
         _prepared_result(
-            findings=(finding,) * (_MAX_ITEMS + 1),
+            findings=(finding,) * (_MAX_FINDINGS + 1),
             summary=PreparedRunResultSummaryV1(
                 outcome_code="passed",
                 primary_artifact_kind="checker_run",
                 prepared_domain_artifact_count=1,
-                prepared_finding_count=_MAX_ITEMS + 1,
+                prepared_finding_count=_MAX_FINDINGS + 1,
             ),
         )
 
@@ -520,7 +543,7 @@ def test_prepared_result_rejects_oversized_disposition_collection() -> None:
 
 
 def test_run_result_rejects_oversized_produced_artifact_collection() -> None:
-    artifact_ids = tuple(f"artifact:{index}" for index in range(_MAX_ITEMS + 1))
+    artifact_ids = tuple(f"artifact:{index}" for index in range(_MAX_MANIFEST_ITEMS + 1))
     with pytest.raises(ValidationError):
         _run_result(
             primary_artifact_id=artifact_ids[0],
@@ -566,7 +589,7 @@ def test_manifest_projection_rejects_oversized_parent_collection() -> None:
                         role="evidence",
                         publication="existing",
                     )
-                    for index in range(_MAX_ITEMS + 1)
+                    for index in range(_MAX_MANIFEST_ITEMS + 1)
                 ),
             }
         )
@@ -575,8 +598,32 @@ def test_manifest_projection_rejects_oversized_parent_collection() -> None:
 def test_run_failure_rejects_oversized_evidence_collection() -> None:
     with pytest.raises(ValidationError):
         _run_failure(
-            evidence_artifact_ids=tuple(f"artifact:{index}" for index in range(_MAX_ITEMS + 1))
+            evidence_artifact_ids=tuple(
+                f"artifact:{index}" for index in range(_MAX_MANIFEST_ITEMS + 1)
+            )
         )
+
+
+def test_run_manifest_projection_accepts_more_than_legacy_collection_bound() -> None:
+    projection = _run_result().version_projection
+    parent_count = _MAX_ITEMS + 1
+    parents = tuple(
+        RunManifestParentBindingV1(
+            artifact_id=f"artifact:{index}",
+            role="intermediate",
+            publication="run_published",
+        )
+        for index in range(parent_count)
+    )
+
+    retained = RunManifestVersionProjectionV1.model_validate(
+        {
+            **projection.model_dump(mode="python"),
+            "parents": parents,
+        }
+    )
+
+    assert len(retained.parents) == parent_count
 
 
 def test_run_failure_rejects_oversized_disposition_collection() -> None:

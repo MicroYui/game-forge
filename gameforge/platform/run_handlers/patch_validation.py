@@ -34,7 +34,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import (
+    MAX_CHECKER_WORK_UNITS_V1,
+    ProfileRefV1,
+    RunKindRef,
+)
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     PatchValidationPayloadV1,
@@ -73,7 +78,10 @@ from gameforge.platform.run_handlers.review import (
     ReviewSimConfig,
     SimConfigResolver,
 )
-from gameforge.platform.run_handlers.simulation import EconomySimulatorPort
+from gameforge.platform.run_handlers.simulation import (
+    EconomySimulatorPort,
+    validate_economy_simulation_work_budget,
+)
 from gameforge.platform.run_handlers.validation_common import (
     AUTO_APPLY_PROOF_SCHEMA_ID,
     DEFAULT_REGRESSION_RUNNER,
@@ -179,6 +187,16 @@ class PatchValidationHandler:
         nav = self.nav_loader(self.blobs, payload.preview_snapshot_artifact_id)
         root_seed = context.payload.seed
         self._reverify_supporting(payload)
+        checker_work_units = max(
+            1,
+            len(preview.entities) * len(preview.entities)
+            + len(preview.entities)
+            + len(preview.relations),
+        ) * len(payload.checker_profiles)
+        if checker_work_units > MAX_CHECKER_WORK_UNITS_V1:
+            raise IntegrityViolation(
+                "patch validation checker profiles exceed the aggregate work budget"
+            )
 
         lineage = self._artifact_lineage(payload)
         target_binding = self._target_binding(payload, preview)
@@ -286,10 +304,31 @@ class PatchValidationHandler:
             return ()
         model = EconomyModel.from_snapshot(preview)
         dims: list[_DimensionArtifact] = []
+        resolved_configs: list[tuple[ProfileRefV1, ReviewSimConfig]] = []
+        total_work_units = 0
+        aggregate_limit: int | None = None
         for profile in payload.simulation_profiles:
+            config = self.sim_config_resolver(profile)
+            total_work_units += validate_economy_simulation_work_budget(
+                model,
+                n_agents=config.n_agents,
+                n_ticks=config.n_ticks,
+                replication_count=1,
+                max_work_units=config.max_work_units,
+            )
+            aggregate_limit = (
+                config.max_work_units
+                if aggregate_limit is None
+                else min(aggregate_limit, config.max_work_units)
+            )
+            if total_work_units > aggregate_limit:
+                raise IntegrityViolation(
+                    "patch validation simulations exceed the aggregate work budget"
+                )
+            resolved_configs.append((profile, config))
+        for profile, config in resolved_configs:
             if root_seed is None:
                 raise ValueError("patch validation simulation requires the frozen root seed")
-            config: ReviewSimConfig = self.sim_config_resolver(profile)
             requirement_id = f"simulation:{_profile_key(profile)}"
             execution_seed = derive_validation_subseed(
                 root_seed=root_seed,

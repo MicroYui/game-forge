@@ -76,6 +76,7 @@ _MODEL_CALL_TABLES = {
     "run_model_route_links",
     "run_model_response_consumptions",
 }
+_TOOL_CONTEXT_TABLES = {"run_tool_intermediate_links"}
 _M4_TABLES = (
     _STORAGE_TABLES
     | _IDENTITY_WORKFLOW_TABLES
@@ -84,6 +85,7 @@ _M4_TABLES = (
     | _SLO_ALERT_TABLES
     | _AUTH_TABLES
     | _MODEL_CALL_TABLES
+    | _TOOL_CONTEXT_TABLES
 )
 
 
@@ -984,6 +986,19 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
     assert "route_ordinal >= 1" in _sqlite_schema_sql(
         url, "table", "run_intermediate_artifact_links"
     )
+    m.upgrade(url, "0010")
+    assert _current_revision(url) == "0010"
+    assert _TOOL_CONTEXT_TABLES <= _table_names(url)
+    assert _primary_key(url, "run_tool_intermediate_links") == (
+        "run_id",
+        "attempt_no",
+        "target_call_ordinal",
+    )
+    assert ("run_id", "attempt_no", "artifact_id") in _unique_keys(
+        url, "run_tool_intermediate_links"
+    )
+    m.downgrade(url, "0009")
+    assert not (_TOOL_CONTEXT_TABLES & _table_names(url))
     m.downgrade(url, "0008")
     assert not (_MODEL_CALL_TABLES & _table_names(url))
     assert "resource_domain_scope" not in _column_names(url, "runs")
@@ -1019,7 +1034,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0009"
+    assert _current_revision(url) == "0010"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -1039,7 +1054,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0009"
+    assert _current_revision(url) == "0010"
     assert _legacy_projection(url) == expected
 
 
@@ -1220,7 +1235,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0009"
+    assert _current_revision(url) == "0010"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")

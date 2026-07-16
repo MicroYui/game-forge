@@ -24,7 +24,7 @@ gate evidence — NO ``config_export``, NO workflow subject. The rejected Patch 
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable, Mapping, Protocol
 
 from gameforge.contracts.agent_io import DesignGoalInput
@@ -42,15 +42,20 @@ from gameforge.contracts.jobs import (
     PreparedRunOutcome,
     ResolvedArtifactRequirementV1,
 )
-from gameforge.contracts.lineage import ArtifactKind, VersionTuple
+from gameforge.contracts.lineage import ArtifactKind
 from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.patch import PatchRejected, apply_patch
+from gameforge.spine.sim.economy import EconomyModel
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
+    PreparedArtifactBatchStore,
     PreparedArtifactStore,
     build_success_result,
-    load_json_blob,
+    canonical_payload_bytes,
+    prepared_version_tuple,
+    rebind_embedded_finding_payload,
     store_prepared_artifact,
     store_prepared_blob,
 )
@@ -64,6 +69,9 @@ from gameforge.platform.run_handlers.readers import (
     load_constraints,
     load_snapshot,
 )
+from gameforge.platform.run_handlers.simulation import (
+    validate_economy_simulation_work_budget,
+)
 
 GENERATION_AGENT_NODE_ID = "generation"
 PATCH_SCHEMA_ID = "patch@2"
@@ -73,6 +81,10 @@ CONFIG_EXPORT_SCHEMA_ID = "config-export-package@1"
 CHECKER_REPORT_SCHEMA_ID = "checker-report@1"
 SIMULATION_RESULT_SCHEMA_ID = "simulation-result@1"
 REVIEW_SCHEMA_ID = "review@1"
+# ``generation.propose`` forbids a Run root seed.  Its deterministic economy
+# gate nevertheless uses this frozen producer-local seed, which is mirrored by
+# the exact generation/simulation producer-fact selector at publication.
+GENERATION_GATE_SIMULATION_SEED = 0
 
 # Evidence rule -> ArtifactKind + payload schema for gate evidence artifacts.
 _EVIDENCE_KIND: dict[str, tuple[ArtifactKind, str]] = {
@@ -95,6 +107,10 @@ class PreparedEvidenceV1:
     requirement_id: str
     payload: Mapping[str, object]
     findings: tuple[Finding, ...] = ()
+    # Conditional producer fact for evidence that actually consumed an Env.
+    # Regression suites may each bind a different contract, so this cannot be
+    # projected safely from the Run-wide VersionTuple.
+    env_contract_version: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,6 +122,11 @@ class GenerationRunRequest:
     goal: DesignGoalInput
     findings: tuple[Finding, ...]
     gate_requirements: tuple[ResolvedArtifactRequirementV1, ...]
+    gate_simulation_seed: int
+    gate_simulation_population: int
+    gate_simulation_horizon_steps: int
+    max_checker_work_units: int
+    max_simulation_work_units: int
     router: BridgeModelRouter
 
 
@@ -136,6 +157,23 @@ class GenerationAgentRunner(Protocol):
     def run(self, request: GenerationRunRequest) -> GenerationGateOutcomeV1: ...
 
 
+@dataclass(frozen=True, slots=True)
+class GenerationExecutionConfig:
+    max_constraint_count: int
+    max_work_units: int
+    gate_simulation_seed: int
+    gate_simulation_population: int
+    gate_simulation_horizon_steps: int
+    max_simulation_work_units: int
+    max_prompt_message_bytes: int = 16 * 1024 * 1024
+    max_candidate_export_profiles: int = 16
+    max_total_prepared_artifact_bytes: int = 128 * 1024 * 1024
+
+
+class GenerationExecutionConfigResolver(Protocol):
+    def __call__(self, profile: ProfileRefV1) -> GenerationExecutionConfig: ...
+
+
 class ConfigExporter(Protocol):
     """Export one preview+constraint pair into a versioned config package.
 
@@ -162,18 +200,18 @@ FindingLoader = Callable[[ArtifactBlobReader, GenerationProposePayloadV1], tuple
 def load_goal(blobs: ArtifactBlobReader, artifact_id: str) -> DesignGoalInput:
     """Read the ``objective_goal`` source artifact into a ``DesignGoalInput``.
 
-    The bound source artifact is canonical JSON ``{"goal": <text>,
-    "grounding_snapshot_id": <id>}``; ``grounding_snapshot_id`` is advisory (the
-    handler re-binds the goal to the exact loaded base snapshot).
+    Authenticated goal sources are stored as exact UTF-8 text bytes. The snapshot
+    identity is producer authority, not user content, and is rebound after the
+    exact base snapshot is loaded.
     """
 
-    payload = load_json_blob(blobs, artifact_id)
-    if not isinstance(payload, dict) or not isinstance(payload.get("goal"), str):
-        raise ValueError("objective_goal source artifact must carry a goal string")
-    return DesignGoalInput(
-        goal=payload["goal"],
-        grounding_snapshot_id=str(payload.get("grounding_snapshot_id", "")),
-    )
+    try:
+        goal = blobs.read_bytes(artifact_id).decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("objective_goal source artifact must be UTF-8 text") from exc
+    if not goal:
+        raise ValueError("objective_goal source artifact must be non-empty")
+    return DesignGoalInput(goal=goal, grounding_snapshot_id="pending-exact-base")
 
 
 def _no_findings(
@@ -197,6 +235,7 @@ class GenerationProposalHandler:
     store: PreparedArtifactStore
     agent_runner: GenerationAgentRunner
     config_exporter: ConfigExporter
+    execution_config_resolver: GenerationExecutionConfigResolver
     snapshot_loader: SnapshotLoader = load_snapshot
     constraint_loader: ConstraintLoader = load_constraints
     goal_loader: GoalLoader = load_goal
@@ -207,11 +246,31 @@ class GenerationProposalHandler:
         if not isinstance(payload, GenerationProposePayloadV1):
             raise TypeError("generation_proposer@1 requires a generation-propose@1 payload")
 
+        execution_config = self.execution_config_resolver(payload.generation_policy)
+        if len(payload.candidate_export_profiles) > execution_config.max_candidate_export_profiles:
+            raise ValueError("generation candidate export profiles exceed the profile count budget")
+
         snapshot = self.snapshot_loader(self.blobs, payload.base_snapshot_artifact_id)
         constraints = self._constraints(payload)
-        goal = self.goal_loader(self.blobs, payload.objective_goal.source_artifact_id)
+        self._validate_execution_config(execution_config, snapshot, constraints)
+        goal = self.goal_loader(self.blobs, payload.objective_goal.source_artifact_id).model_copy(
+            update={"grounding_snapshot_id": snapshot.snapshot_id}
+        )
         findings = self.finding_loader(self.blobs, payload)
-        router = build_bridge_router(context=context, agent_node_id=GENERATION_AGENT_NODE_ID)
+        router = build_bridge_router(
+            context=context,
+            agent_node_id=GENERATION_AGENT_NODE_ID,
+            max_prompt_message_bytes=execution_config.max_prompt_message_bytes,
+            source_artifact_ids=tuple(
+                sorted(
+                    (
+                        payload.base_snapshot_artifact_id,
+                        payload.objective_goal.source_artifact_id,
+                        *(binding.evidence_artifact_id for binding in payload.findings),
+                    )
+                )
+            ),
+        )
 
         outcome = self.agent_runner.run(
             GenerationRunRequest(
@@ -220,18 +279,35 @@ class GenerationProposalHandler:
                 goal=goal,
                 findings=findings,
                 gate_requirements=self._gate_requirements(context),
+                gate_simulation_seed=execution_config.gate_simulation_seed,
+                gate_simulation_population=(execution_config.gate_simulation_population),
+                gate_simulation_horizon_steps=(execution_config.gate_simulation_horizon_steps),
+                max_checker_work_units=execution_config.max_work_units,
+                max_simulation_work_units=execution_config.max_simulation_work_units,
                 router=router,
             )
         )
+        self._validate_preview_replay(snapshot, outcome)
 
         run_id = context.run.run_id
-        patch = self._seal_patch(payload, snapshot, outcome, run_id, terminal=not outcome.passed)
-        preview = self._seal_preview(payload, outcome)
-        evidence = self._seal_gate_evidence(payload, snapshot, outcome)
+        batch = PreparedArtifactBatchStore(
+            max_bytes=execution_config.max_total_prepared_artifact_bytes
+        )
+        staged_handler = replace(self, store=batch)
+        patch = staged_handler._seal_patch(
+            context, payload, snapshot, outcome, run_id, terminal=not outcome.passed
+        )
+        preview = staged_handler._seal_preview(context, payload, outcome)
+        evidence = staged_handler._seal_gate_evidence(context, payload, snapshot, outcome)
 
         if outcome.passed:
-            configs = self._seal_configs(payload, outcome, constraints)
-            artifacts = (patch, preview, *configs, *evidence)
+            configs = staged_handler._seal_configs(context, payload, outcome, constraints)
+            staged_artifacts = (patch, preview, *configs, *evidence)
+            artifacts = batch.commit(
+                self.store,
+                staged_artifacts,
+                max_bytes=execution_config.max_total_prepared_artifact_bytes,
+            )
             # generation-gate-pass@1 has no finding-output policy: the gate findings
             # live inside the checker/sim/review evidence payloads, not as a
             # PreparedFinding series.
@@ -246,11 +322,16 @@ class GenerationProposalHandler:
 
         # Gate REJECT: evidence-only patch + preview + gate evidence, NO config_export,
         # NO workflow subject; terminal business-rule failure.
+        artifacts = batch.commit(
+            self.store,
+            (patch, preview, *evidence),
+            max_bytes=execution_config.max_total_prepared_artifact_bytes,
+        )
         return PreparedRunFailure(
             run_id=run_id,
             attempt_no=context.attempt.attempt_no,
             run_kind=context.run.kind,
-            artifacts=(patch, preview, *evidence),
+            artifacts=artifacts,
             requirement_dispositions=(),
             cause_code="generation_gate_rejected",
             failure_class="business_rule",
@@ -266,6 +347,32 @@ class GenerationProposalHandler:
         return self.constraint_loader(self.blobs, payload.constraint_snapshot_artifact_id)
 
     @staticmethod
+    def _validate_execution_config(
+        config: GenerationExecutionConfig,
+        snapshot: Snapshot,
+        constraints: list[Constraint],
+    ) -> None:
+        work_units = max(
+            1,
+            len(snapshot.entities) * len(snapshot.entities)
+            + len(snapshot.entities)
+            + len(snapshot.relations),
+        ) * (1 + len(constraints))
+        if len(constraints) > config.max_constraint_count or work_units > config.max_work_units:
+            raise ValueError("generation checker gate exceeds the exact profile work budget")
+        if config.gate_simulation_seed != GENERATION_GATE_SIMULATION_SEED:
+            raise ValueError("generation gate seed differs from frozen producer facts")
+        if config.gate_simulation_population < 1 or config.gate_simulation_horizon_steps < 1:
+            raise ValueError("generation simulation budget is outside exact profile bounds")
+        validate_economy_simulation_work_budget(
+            EconomyModel.from_snapshot(snapshot),
+            n_agents=config.gate_simulation_population,
+            n_ticks=config.gate_simulation_horizon_steps,
+            replication_count=1,
+            max_work_units=config.max_simulation_work_units,
+        )
+
+    @staticmethod
     def _gate_requirements(
         context: ExecutorContextLike,
     ) -> tuple[ResolvedArtifactRequirementV1, ...]:
@@ -274,9 +381,46 @@ class GenerationProposalHandler:
             raise ValueError("generation run requires exactly one frozen gate policy snapshot")
         return snapshots[0].requirements
 
+    @staticmethod
+    def _validate_preview_replay(
+        snapshot: Snapshot,
+        outcome: GenerationGateOutcomeV1,
+    ) -> None:
+        """Bind a claimed gate preview to the exact proposed ops at the handler seam."""
+
+        if outcome.passed and not outcome.ops:
+            raise ValueError("generation gate pass contains no proposed operations")
+        candidate = PatchV2(
+            revision=1,
+            base_snapshot_id=snapshot.snapshot_id,
+            target_snapshot_id=outcome.preview_snapshot_id,
+            expected_to_fix=list(outcome.expected_to_fix),
+            side_effect_risk=outcome.side_effect_risk,
+            ops=list(outcome.ops),
+            produced_by="agent",
+            producer_run_id="validation:generation-runner",
+            rationale="validate generation runner preview",
+        )
+        try:
+            replayed = apply_patch(snapshot, candidate)
+        except PatchRejected as exc:
+            if outcome.passed:
+                raise ValueError("generation gate pass cannot replay on the exact base") from exc
+            replayed = snapshot
+        try:
+            exact_payload = canonical_payload_bytes(outcome.preview_payload)
+        except (TypeError, ValueError, UnicodeError) as exc:
+            raise ValueError("generation gate preview is not canonical JSON") from exc
+        if (
+            replayed.snapshot_id != outcome.preview_snapshot_id
+            or canonical_payload_bytes(replayed.content_payload) != exact_payload
+        ):
+            raise ValueError("generation gate preview differs from exact-base replay")
+
     # ----------------------------------------------------------------- sealing
     def _seal_patch(
         self,
+        context: ExecutorContextLike,
         payload: GenerationProposePayloadV1,
         snapshot: Snapshot,
         outcome: GenerationGateOutcomeV1,
@@ -303,26 +447,31 @@ class GenerationProposalHandler:
             self.store,
             kind="patch",
             payload_schema_id=PATCH_SCHEMA_ID,
-            version_tuple=VersionTuple(
-                ir_snapshot_id=snapshot.snapshot_id,
-                constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
+            version_tuple=prepared_version_tuple(
+                context,
                 tool_version=GENERATION_TOOL_VERSION,
+                projected_fields=("doc_version", "constraint_snapshot_id"),
+                overrides={"ir_snapshot_id": snapshot.snapshot_id},
             ),
             lineage=self._patch_lineage(payload),
             payload=patch.model_dump(mode="json"),
         )
 
     def _seal_preview(
-        self, payload: GenerationProposePayloadV1, outcome: GenerationGateOutcomeV1
+        self,
+        context: ExecutorContextLike,
+        payload: GenerationProposePayloadV1,
+        outcome: GenerationGateOutcomeV1,
     ) -> PreparedArtifact:
         return store_prepared_artifact(
             self.store,
             kind="ir_snapshot",
             payload_schema_id=IR_SNAPSHOT_SCHEMA_ID,
-            version_tuple=VersionTuple(
-                ir_snapshot_id=outcome.preview_snapshot_id,
-                constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
+            version_tuple=prepared_version_tuple(
+                context,
                 tool_version=GENERATION_TOOL_VERSION,
+                projected_fields=("doc_version",),
+                overrides={"ir_snapshot_id": outcome.preview_snapshot_id},
             ),
             lineage=self._preview_lineage(payload),
             payload=outcome.preview_payload,
@@ -330,6 +479,7 @@ class GenerationProposalHandler:
 
     def _seal_configs(
         self,
+        context: ExecutorContextLike,
         payload: GenerationProposePayloadV1,
         outcome: GenerationGateOutcomeV1,
         constraints: list[Constraint],
@@ -352,11 +502,14 @@ class GenerationProposalHandler:
                     self.store,
                     kind="config_export",
                     payload_schema_id=CONFIG_EXPORT_SCHEMA_ID,
-                    version_tuple=VersionTuple(
-                        ir_snapshot_id=outcome.preview_snapshot_id,
-                        constraint_snapshot_id=constraint_id,
-                        env_contract_version=package.env_contract_version,
+                    version_tuple=prepared_version_tuple(
+                        context,
                         tool_version="config-export@1",
+                        projected_fields=("constraint_snapshot_id",),
+                        overrides={
+                            "ir_snapshot_id": outcome.preview_snapshot_id,
+                            "env_contract_version": package.env_contract_version,
+                        },
                     ),
                     lineage=(constraint_id,),
                     blob=canonical_config_export_bytes(package),
@@ -369,6 +522,7 @@ class GenerationProposalHandler:
 
     def _seal_gate_evidence(
         self,
+        context: ExecutorContextLike,
         payload: GenerationProposePayloadV1,
         snapshot: Snapshot,
         outcome: GenerationGateOutcomeV1,
@@ -385,18 +539,26 @@ class GenerationProposalHandler:
         ):
             for item in group:
                 kind, schema = _EVIDENCE_KIND[item.outcome_rule_id]
+                producer_overrides: dict[str, object] = {
+                    "ir_snapshot_id": outcome.preview_snapshot_id
+                }
+                if kind == "simulation_run":
+                    producer_overrides["seed"] = GENERATION_GATE_SIMULATION_SEED
                 artifacts.append(
                     store_prepared_artifact(
                         self.store,
                         kind=kind,
                         payload_schema_id=schema,
-                        version_tuple=VersionTuple(
-                            ir_snapshot_id=outcome.preview_snapshot_id,
-                            constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
+                        version_tuple=prepared_version_tuple(
+                            context,
                             tool_version="generation-gate@1",
+                            projected_fields=("constraint_snapshot_id",),
+                            overrides=producer_overrides,
                         ),
                         lineage=lineage,
-                        payload=item.payload,
+                        payload=rebind_embedded_finding_payload(
+                            item.payload, run_id=context.run.run_id
+                        ),
                         extra_meta={"requirement_id": item.requirement_id},
                     )
                 )
@@ -427,10 +589,13 @@ class GenerationProposalHandler:
 __all__ = [
     "CONFIG_EXPORT_SCHEMA_ID",
     "GENERATION_AGENT_NODE_ID",
+    "GENERATION_GATE_SIMULATION_SEED",
     "IR_SNAPSHOT_SCHEMA_ID",
     "PATCH_SCHEMA_ID",
     "ConfigExporter",
     "GenerationAgentRunner",
+    "GenerationExecutionConfig",
+    "GenerationExecutionConfigResolver",
     "GenerationGateOutcomeV1",
     "GenerationProposalHandler",
     "GenerationRunRequest",

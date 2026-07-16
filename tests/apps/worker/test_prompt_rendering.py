@@ -4,14 +4,20 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from io import BytesIO
+import json
 from types import SimpleNamespace
 
 import pytest
 
+import gameforge.apps.worker.publication as publication_mod
+
 from gameforge.apps.worker.publication import (
+    AgentPromptContextMaterialRegistry,
+    FencedToolPromptSourceAuthority,
     FrozenRunInputPromptSourceAuthority,
     PromptRenderMaterialRegistry,
     WorkerBlobStore,
+    WorkerAgentPromptContextPublisher,
     WorkerCommandPublicationGateway,
     WorkerPromptRenderPublisher,
 )
@@ -32,9 +38,14 @@ from gameforge.apps.worker.prompt_rendering import (
 from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
+    AgentPromptArtifactBindingV1,
+    AgentPromptContextDraftV1,
+    AgentPromptContextV1,
+    AgentPromptSourceMessageV1,
     ExecutionVersionPlanV1,
     PlannedAgentNodeVersionV1,
     RunIntermediateArtifactLinkV1,
+    RunToolIntermediateLinkV1,
     execution_version_plan_digest,
 )
 from gameforge.contracts.lineage import (
@@ -58,6 +69,8 @@ from gameforge.contracts.provenance import OriginRefV1, PromptPartV1, Provenance
 from gameforge.contracts.routing import canonical_model_snapshot_id
 from gameforge.platform.provenance import build_source_kind_registry
 from gameforge.platform.runs.commands import (
+    AgentPromptContextPublicationRequest,
+    AgentPromptContextPublicationResult,
     PromptRenderPublicationRequest,
     PromptRenderPublicationResult,
 )
@@ -101,6 +114,7 @@ def _source_artifact(
     doc_version: str | None = None,
     source_kind_id: str = "authenticated_human_goal",
     trust: str = "trusted_internal",
+    kind: str = "source_raw",
 ) -> ArtifactV2:
     digest = sha256_lowerhex(payload)
     meta: dict[str, object] = {"payload_schema_id": schema}
@@ -118,7 +132,7 @@ def _source_artifact(
             source_hash=digest,
         ).model_dump(mode="json")
     return build_artifact_v2(
-        kind="source_raw",
+        kind=kind,  # type: ignore[arg-type]
         version_tuple=VersionTuple(doc_version=doc_version or digest),
         lineage=(),
         payload_hash=digest,
@@ -136,6 +150,8 @@ def _authority(
     prefix_message_count: int | None = None,
     request_params: dict[str, object] | None = None,
     max_source_bytes: int = 1024 * 1024,
+    authority_derived_context: bool = False,
+    retained_system_template: bool = True,
 ) -> CanonicalPromptRendererAuthority:
     def render_source(
         sources: tuple[CanonicalPromptSourceV1, ...],
@@ -215,10 +231,19 @@ def _authority(
                             max_bytes=1024 * 1024,
                             allowed_shapes=(
                                 CanonicalPromptSourceShapeV1(
-                                    artifact_kind="source_raw",
-                                    payload_schema_id="source-raw@1",
+                                    artifact_kind=(
+                                        "ir_snapshot" if authority_derived_context else "source_raw"
+                                    ),
+                                    payload_schema_id=(
+                                        "ir-core@1" if authority_derived_context else "source-raw@1"
+                                    ),
                                     source_kind_registry_version=1,
-                                    source_kind_id="open_source_content",
+                                    source_kind_id=(
+                                        "tool_output"
+                                        if authority_derived_context
+                                        else "open_source_content"
+                                    ),
+                                    authority_derived_provenance=authority_derived_context,
                                 ),
                             ),
                             allowed_prompt_purposes=("context",),
@@ -287,7 +312,9 @@ def _authority(
                     )
                 ),
                 template_messages=(
-                    RetainedTemplateMessageV1(role="system", part=_template_part()),
+                    (RetainedTemplateMessageV1(role="system", part=_template_part()),)
+                    if retained_system_template
+                    else ()
                 ),
                 source_renderer=render_source,
             ),
@@ -336,6 +363,22 @@ def test_exact_request_is_derived_from_source_bytes_and_retained_template() -> N
     assert source_part.provenance.transformations[-1].output_hash == sha256_lowerhex(
         source_part.text.encode("utf-8")
     )
+
+
+def test_exact_binding_may_explicitly_have_no_system_template() -> None:
+    source = _source_artifact()
+    request = _request().model_copy(
+        update={"messages": (Message(role="user", content=f"Design goal: {_SOURCE.decode()}"),)}
+    )
+
+    rendered = _authority(retained_system_template=False).require_model_request(
+        model_request=request,
+        sources=((source, _SOURCE),),
+    )
+
+    assert rendered.messages == tuple(request.messages)
+    assert len(rendered.prompt_parts) == 1
+    assert rendered.prompt_parts[0].purpose == "user_goal"
 
 
 def test_complete_dual_source_set_is_rendered_twice_with_exact_conservative_provenance() -> None:
@@ -526,6 +569,44 @@ def test_provenance_less_source_is_rejected_instead_of_defaulting_to_trusted() -
         )
 
 
+def test_exact_binding_can_conservatively_derive_domain_artifact_context_provenance() -> None:
+    goal_payload = b"Reduce the boss gold reward."
+    snapshot_payload = b'{"entities":[],"meta_schema_version":"ir-core@1","relations":[]}'
+    goal = _source_artifact(goal_payload, doc_version="goal@1")
+    snapshot = _source_artifact(
+        snapshot_payload,
+        provenance=False,
+        schema="ir-core@1",
+        doc_version="snapshot-doc@1",
+        kind="ir_snapshot",
+    )
+    sources = _ordered((goal, goal_payload), (snapshot, snapshot_payload))
+    expected = [Message(role="system", content=_SYSTEM)]
+    expected.extend(
+        Message(
+            role="user",
+            content=("Design goal: " if source.artifact_id == goal.artifact_id else "Context: ")
+            + payload.decode("utf-8"),
+        )
+        for source, payload in sources
+    )
+    rendered = _authority(
+        multi_source=True,
+        authority_derived_context=True,
+    ).require_model_request(
+        model_request=_request().model_copy(update={"messages": expected}),
+        sources=sources,
+    )
+    context_part = next(
+        part
+        for part in rendered.prompt_parts
+        if part.provenance.parent_source_artifact_ids == (snapshot.artifact_id,)
+        and part.text.startswith("Context:")
+    )
+    assert context_part.provenance.source_kind_id == "tool_output"
+    assert context_part.provenance.trust == "untrusted_external"
+
+
 def test_unregistered_source_schema_is_rejected() -> None:
     with pytest.raises(IntegrityViolation, match="typed slot"):
         _authority().require_model_request(
@@ -577,6 +658,7 @@ class _Clock:
 class _StageStore:
     def __init__(self) -> None:
         self._stored: dict[ObjectLocation, object] = {}
+        self._payloads: dict[ObjectLocation, bytes] = {}
 
     def put_verified(self, payload: bytes):
         ref = object_ref_for_bytes(payload)
@@ -587,10 +669,14 @@ class _StageStore:
         )
         stored = SimpleNamespace(ref=ref, location=location)
         self._stored[location] = stored
+        self._payloads[location] = payload
         return stored
 
     def stat(self, location: ObjectLocation):
         return self._stored[location]
+
+    def open(self, location: ObjectLocation):
+        return BytesIO(self._payloads[location])
 
 
 class _Commands:
@@ -614,6 +700,29 @@ class _Commands:
         if self._before_publish is not None:
             self._before_publish(request, link)
         return PromptRenderPublicationResult(link=link, replayed=False)
+
+
+class _ContextCommands:
+    def __init__(self, before_publish) -> None:
+        self._before_publish = before_publish
+
+    def publish_agent_prompt_context(
+        self,
+        request: AgentPromptContextPublicationRequest,
+    ) -> AgentPromptContextPublicationResult:
+        link = RunToolIntermediateLinkV1(
+            run_id=request.fence.run_id,
+            attempt_no=request.fence.attempt_no,
+            target_call_ordinal=request.target_call_ordinal,
+            artifact_id=request.artifact_id,
+            agent_node_id=request.agent_node_id,
+            prompt_version=request.prompt_version,
+            payload_hash=request.payload_hash,
+            fencing_token=request.fence.fencing_token,
+            published_at="2026-07-16T00:00:00Z",
+        )
+        self._before_publish(request, link)
+        return AgentPromptContextPublicationResult(link=link, replayed=False)
 
 
 def _run_and_fence(*, source_ids: tuple[str, ...], model_request: ModelRequestV2):
@@ -820,6 +929,250 @@ def test_untyped_same_attempt_intermediate_source_fails_closed() -> None:
             run=run,
             fence=fence,
             source_artifact_ids=("artifact:untyped-tool-output",),
+            agent_node_id="generation",
+            prompt_version="generation@1",
+            target_call_ordinal=1,
+        )
+
+
+def _fenced_context_authority_fixture():
+    source = _source_artifact()
+    run, fence = _run_and_fence(source_ids=(source.artifact_id,), model_request=_request())
+    context = AgentPromptContextV1(
+        context_kind="generation",
+        run_id=run.run_id,
+        attempt_no=1,
+        target_call_ordinal=1,
+        agent_node_id="generation",
+        prompt_version="generation@1",
+        messages=(
+            AgentPromptSourceMessageV1(
+                role="user",
+                content=f"Design goal: {_SOURCE.decode()}",
+                purpose="context",
+            ),
+        ),
+        upstream_artifacts=(
+            AgentPromptArtifactBindingV1(
+                binding_key="source:0001",
+                artifact_id=source.artifact_id,
+                artifact_kind=source.kind,
+                payload_schema_id="source-raw@1",
+                payload_hash=source.payload_hash,
+            ),
+        ),
+    )
+    payload = canonical_json(context.model_dump(mode="json")).encode("utf-8")
+    digest = sha256_lowerhex(payload)
+    provenance = ProvenanceV1(
+        source_kind_registry_version=1,
+        source_kind_id="tool_output",
+        origin_ref=OriginRefV1(
+            opaque_source_id="agent-context:run:1:1",
+            source_revision=digest,
+        ),
+        parent_source_artifact_ids=(source.artifact_id,),
+        connector_id="agent-prompt-context@1",
+        connector_version="1",
+        trust="trusted_internal",
+        source_hash=digest,
+    )
+    artifact = build_artifact_v2(
+        kind="source_raw",
+        version_tuple=VersionTuple(
+            doc_version=run.payload.version_tuple.doc_version,
+            tool_version="agent-prompt-context@1",
+        ),
+        lineage=(source.artifact_id,),
+        payload_hash=digest,
+        object_ref=object_ref_for_bytes(payload),
+        meta={
+            "payload_schema_id": "agent-prompt-context@1",
+            "provenance": provenance.model_dump(mode="json"),
+            "producer_run_id": run.run_id,
+            "producer_attempt_no": 1,
+            "target_call_ordinal": 1,
+            "agent_node_id": "generation",
+            "prompt_version": "generation@1",
+            "replayability": "online_only",
+        },
+        created_at="2026-07-17T00:00:00Z",
+    )
+    link = RunToolIntermediateLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        target_call_ordinal=1,
+        artifact_id=artifact.artifact_id,
+        agent_node_id="generation",
+        prompt_version="generation@1",
+        payload_hash=digest,
+        fencing_token=1,
+        published_at="2026-07-17T00:00:00Z",
+    )
+    artifacts = {source.artifact_id: source, artifact.artifact_id: artifact}
+    payloads = {artifact.artifact_id: payload}
+    retained_link = [link]
+    authority = FencedToolPromptSourceAuthority(
+        tool_link_loader=lambda *_: retained_link[0],
+        artifact_loader=artifacts.get,
+        payload_loader=lambda item: payloads[item.artifact_id],
+    )
+    return authority, retained_link, run, fence, source, artifact, artifacts, payloads
+
+
+def test_fenced_prompt_source_authority_accepts_only_exact_current_call_context() -> None:
+    authority, _, run, fence, source, context, _, _ = _fenced_context_authority_fixture()
+
+    authority.require_authorized(
+        run=run,
+        fence=fence,
+        source_artifact_ids=(context.artifact_id,),
+        agent_node_id="generation",
+        prompt_version="generation@1",
+        target_call_ordinal=1,
+    )
+
+
+def test_context_publisher_rejects_node_kind_substitution_before_staging() -> None:
+    source = _source_artifact()
+    model_request = _request()
+    run, fence = _run_and_fence(
+        source_ids=(source.artifact_id,),
+        model_request=model_request,
+    )
+    store = _StageStore()
+    publisher = WorkerAgentPromptContextPublisher(
+        run=run,
+        fence=fence,
+        commands=_ContextCommands(lambda *_: None),  # type: ignore[arg-type]
+        object_store=store,
+        registry=AgentPromptContextMaterialRegistry(),
+        clock=_Clock(),
+        source_artifact_loader=lambda _: source,
+    )
+    draft = AgentPromptContextDraftV1(
+        context_kind="review_triage",
+        messages=(
+            AgentPromptSourceMessageV1(
+                role="user",
+                content=model_request.messages[-1].content,
+                purpose="context",
+            ),
+        ),
+        source_artifact_ids=(source.artifact_id,),
+    )
+
+    with pytest.raises(IntegrityViolation, match="kind is not authoritative"):
+        publisher.publish_agent_prompt_context(
+            model_request=model_request,
+            draft=draft,
+            target_call_ordinal=1,
+            prior_consumption=None,
+            idempotency_scope=f"run:{run.run_id}:attempt:1",
+            idempotency_key="model:1:context",
+            actor=AuditActor(principal_id="service:worker", principal_kind="service"),
+        )
+
+    assert store._stored == {}
+
+
+def test_fenced_context_reread_rejects_context_kind_tamper() -> None:
+    authority, _, run, fence, _, context, _, payloads = _fenced_context_authority_fixture()
+    decoded = json.loads(payloads[context.artifact_id])
+    decoded["context_kind"] = "review_triage"
+    payloads[context.artifact_id] = canonical_json(decoded).encode("utf-8")
+
+    with pytest.raises(IntegrityViolation, match="payload is invalid"):
+        authority.require_authorized(
+            run=run,
+            fence=fence,
+            source_artifact_ids=(context.artifact_id,),
+            agent_node_id="generation",
+            prompt_version="generation@1",
+            target_call_ordinal=1,
+        )
+
+
+@pytest.mark.parametrize(
+    "updates",
+    (
+        {"run_id": "run:forged"},
+        {"attempt_no": 2},
+        {"target_call_ordinal": 2},
+        {"agent_node_id": "repair"},
+        {"prompt_version": "generation@forged"},
+        {"fencing_token": 2},
+    ),
+)
+def test_fenced_prompt_source_authority_rejects_forged_stale_or_cross_attempt_link(
+    updates,
+) -> None:
+    authority, retained, run, fence, source, context, _, _ = _fenced_context_authority_fixture()
+    retained[0] = retained[0].model_copy(update=updates)
+
+    with pytest.raises(IntegrityViolation, match="current call fence"):
+        authority.require_authorized(
+            run=run,
+            fence=fence,
+            source_artifact_ids=(context.artifact_id,),
+            agent_node_id="generation",
+            prompt_version="generation@1",
+            target_call_ordinal=1,
+        )
+
+
+def test_fenced_prompt_source_authority_rejects_missing_or_unlinked_context_source() -> None:
+    authority, retained, run, fence, source, context, _, _ = _fenced_context_authority_fixture()
+    with pytest.raises(IntegrityViolation, match="exactly its per-call context"):
+        authority.require_authorized(
+            run=run,
+            fence=fence,
+            source_artifact_ids=(source.artifact_id,),
+            agent_node_id="generation",
+            prompt_version="generation@1",
+            target_call_ordinal=1,
+        )
+
+    retained[0] = None  # type: ignore[assignment]
+    with pytest.raises(IntegrityViolation, match="neither a frozen Run input"):
+        authority.require_authorized(
+            run=run,
+            fence=fence,
+            source_artifact_ids=(context.artifact_id,),
+            agent_node_id="generation",
+            prompt_version="generation@1",
+            target_call_ordinal=1,
+        )
+
+
+@pytest.mark.parametrize(
+    ("target", "provenance_updates"),
+    (
+        ("upstream", {"source_kind_registry_version": 99}),
+        ("upstream", {"source_kind_id": "planning_document"}),
+        ("context", {"source_kind_registry_version": 99}),
+    ),
+)
+def test_fenced_context_reread_rejects_unregistered_or_forbidden_provenance(
+    target,
+    provenance_updates,
+) -> None:
+    authority, _, run, fence, source, context, artifacts, _ = _fenced_context_authority_fixture()
+    selected = source if target == "upstream" else context
+    raw = dict(selected.meta["provenance"])
+    raw.update(provenance_updates)
+    artifacts[selected.artifact_id] = selected.model_copy(
+        update={"meta": {**selected.meta, "provenance": raw}}
+    )
+
+    with pytest.raises(IntegrityViolation, match="source-kind registry"):
+        authority.require_authorized(
+            run=run,
+            fence=fence,
+            source_artifact_ids=(context.artifact_id,),
+            agent_node_id="generation",
+            prompt_version="generation@1",
+            target_call_ordinal=1,
         )
 
 
@@ -882,6 +1235,7 @@ def test_prompt_write_uow_rereads_sources_instead_of_trusting_staged_objects() -
         object_store=store,
         idempotency=object(),
         prompt_materials=registry,
+        context_materials=AgentPromptContextMaterialRegistry(),
         prompt_renderer=_authority(),
     )
 
@@ -919,3 +1273,111 @@ def test_prompt_write_uow_rereads_sources_instead_of_trusting_staged_objects() -
             idempotency_key=request.idempotency_key,
             request_hash=request.request_hash,
         )
+
+
+def test_context_write_uow_repeats_producer_validation_after_authoritative_reread(
+    monkeypatch,
+) -> None:
+    source = _source_artifact()
+    model_request = _request()
+    run, fence = _run_and_fence(
+        source_ids=(source.artifact_id,),
+        model_request=model_request,
+    )
+    run = run.model_copy(
+        update={
+            "payload": run.payload.model_copy(
+                update={
+                    "version_tuple": VersionTuple(
+                        doc_version=source.version_tuple.doc_version,
+                    )
+                }
+            )
+        }
+    )
+    context_materials = AgentPromptContextMaterialRegistry()
+    store = _StageStore()
+
+    class _Runs:
+        def get(self, run_id: str):
+            return run if run_id == run.run_id else None
+
+        def get_attempt(self, run_id: str, attempt_no: int):
+            return _running_attempt() if (run_id, attempt_no) == (run.run_id, 1) else None
+
+    class _Artifacts:
+        def get(self, artifact_id: str):
+            return source if artifact_id == source.artifact_id else None
+
+    gateway = WorkerCommandPublicationGateway(
+        audit_gate=object(),  # type: ignore[arg-type]
+        chain_id="audit:run",
+        runs=_Runs(),
+        artifacts=_Artifacts(),
+        object_bindings=object(),
+        object_store=store,
+        idempotency=object(),
+        prompt_materials=PromptRenderMaterialRegistry(),
+        context_materials=context_materials,
+        prompt_renderer=_authority(),
+    )
+
+    validation_calls = []
+
+    def track_producer_validation(artifact, context):
+        validation_calls.append((artifact, context))
+        if len(validation_calls) == 2:
+            raise IntegrityViolation("fresh producer validation rejected context")
+        return SimpleNamespace(status="valid")
+
+    monkeypatch.setattr(
+        publication_mod,
+        "validate_artifact_producer",
+        track_producer_validation,
+    )
+
+    def publish_in_fresh_uow(command_request, link) -> None:
+        gateway.publish_agent_prompt_context(
+            link=link,
+            idempotency_scope=command_request.idempotency_scope,
+            idempotency_key=command_request.idempotency_key,
+            payload_hash=command_request.payload_hash,
+            actor=command_request.actor,
+        )
+
+    publisher = WorkerAgentPromptContextPublisher(
+        run=run,
+        fence=fence,
+        commands=_ContextCommands(publish_in_fresh_uow),  # type: ignore[arg-type]
+        object_store=store,
+        registry=context_materials,
+        clock=_Clock(),
+        source_artifact_loader=lambda _: source,
+    )
+    user_message = model_request.messages[-1]
+    draft = AgentPromptContextDraftV1(
+        context_kind="generation",
+        messages=(
+            AgentPromptSourceMessageV1(
+                role="user",
+                content=user_message.content,
+                purpose="context",
+            ),
+        ),
+        source_artifact_ids=(source.artifact_id,),
+    )
+
+    with pytest.raises(IntegrityViolation, match="fresh producer validation"):
+        publisher.publish_agent_prompt_context(
+            model_request=model_request,
+            draft=draft,
+            target_call_ordinal=1,
+            prior_consumption=None,
+            idempotency_scope=f"run:{run.run_id}:attempt:1",
+            idempotency_key="model:1:context",
+            actor=AuditActor(
+                principal_id="service:worker",
+                principal_kind="service",
+            ),
+        )
+    assert len(validation_calls) == 2

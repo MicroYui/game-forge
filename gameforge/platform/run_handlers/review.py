@@ -20,14 +20,19 @@ triage policy is bound, otherwise the Run's exact ``llm_execution_mode``.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable, Protocol
 
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import Finding
-from gameforge.contracts.jobs import PreparedArtifact, PreparedRunOutcome, ReviewRunPayloadV1
-from gameforge.contracts.lineage import VersionTuple
+from gameforge.contracts.jobs import (
+    MAX_PREPARED_FINDINGS,
+    PreparedArtifact,
+    PreparedRunOutcome,
+    ReviewRunPayloadV1,
+)
 from gameforge.contracts.review import ReviewReport
 from gameforge.spine.checkers.base import Checker
 from gameforge.spine.checkers.report import build_review_report
@@ -39,14 +44,28 @@ from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
     FindingEvidence,
+    FindingHeadRevisionResolver,
+    PreparedArtifactBatchStore,
     PreparedArtifactStore,
     build_prepared_findings,
     build_success_result,
+    prepared_version_tuple,
+    rebind_finding_producers,
+    scoped_finding_series_id,
     store_prepared_artifact,
+)
+from gameforge.platform.run_handlers.checker import (
+    CheckerExecutionPolicyResolver,
+    default_checker_execution_policy,
+    filter_findings_by_selection,
+    navigation_unproven_findings,
+    validate_checker_execution_policy,
 )
 from gameforge.platform.run_handlers.model_routing import (
     ModelBridgeAgentAdapter,
     plan_node_snapshot,
+    prompt_source_artifact_ids,
+    require_agent_prompt_message_bytes,
 )
 from gameforge.platform.run_handlers.readers import (
     ConstraintLoader,
@@ -56,7 +75,12 @@ from gameforge.platform.run_handlers.readers import (
     load_nav,
     load_snapshot,
 )
+from gameforge.platform.run_handlers.validation_common import derive_validation_subseed
 from gameforge.platform.run_handlers.simulation import EconomySimulatorPort
+from gameforge.platform.run_handlers.simulation import (
+    unproven_input_application_findings,
+    validate_economy_simulation_work_budget,
+)
 
 REVIEW_SCHEMA_ID = "review@1"
 REVIEW_TOOL_VERSION = "review@1"
@@ -64,6 +88,16 @@ CHECKER_REPORT_SCHEMA_ID = "checker-report@1"
 SIMULATION_RESULT_SCHEMA_ID = "simulation-result@1"
 TRIAGE_AGENT_NODE_ID = "review-triage"
 TRIAGE_PROMPT_VERSION = "review-triage@1"
+TRIAGE_MAX_INPUT_FINDINGS = 256
+TRIAGE_MAX_PROMPT_BYTES = 64 * 1024
+TRIAGE_MAX_FINDING_ID_BYTES = 512
+TRIAGE_MAX_DEFECT_CLASS_BYTES = 256
+TRIAGE_MAX_INPUT_MESSAGE_BYTES = 1_024
+TRIAGE_MAX_RESPONSE_BYTES = 1 * 1024 * 1024
+TRIAGE_MAX_SUGGESTIONS = 256
+TRIAGE_MAX_SUGGESTION_MESSAGE_BYTES = 2_048
+TRIAGE_MAX_SUGGESTION_ENTITIES = 64
+TRIAGE_MAX_ENTITY_ID_BYTES = 512
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,10 +106,26 @@ class ReviewSimConfig:
 
     n_agents: int
     n_ticks: int
+    max_work_units: int
+
+
+@dataclass(frozen=True, slots=True)
+class ReviewExecutionConfig:
+    max_prompt_message_bytes: int = 16 * 1024 * 1024
+    max_checker_profile_count: int = 64
+    max_simulation_profile_count: int = 64
+    max_total_checker_work_units: int = 2_000_000
+    max_total_simulation_work_units: int = 2_000_000
+    max_total_prepared_artifact_bytes: int = 128 * 1024 * 1024
 
 
 CheckerResolver = Callable[[ProfileRefV1, list[Constraint]], Checker]
 SimConfigResolver = Callable[[ProfileRefV1], ReviewSimConfig]
+ReviewExecutionConfigResolver = Callable[[ProfileRefV1], ReviewExecutionConfig]
+
+
+def default_review_execution_config(_profile: ProfileRefV1) -> ReviewExecutionConfig:
+    return ReviewExecutionConfig()
 
 
 class _CheckerResolverProto(Protocol):
@@ -90,38 +140,101 @@ class ReviewRunHandler:
     store: PreparedArtifactStore
     checker_resolver: CheckerResolver
     sim_config_resolver: SimConfigResolver
+    checker_execution_policy_resolver: CheckerExecutionPolicyResolver = (
+        default_checker_execution_policy
+    )
+    execution_config_resolver: ReviewExecutionConfigResolver = default_review_execution_config
     snapshot_loader: SnapshotLoader = load_snapshot
     constraint_loader: ConstraintLoader = load_constraints
     nav_loader: NavLoader = load_nav
     simulator: EconomySimulatorPort = field(default_factory=EconomySimulator)
+    finding_head_revision: FindingHeadRevisionResolver | None = None
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, ReviewRunPayloadV1):
             raise TypeError("review_runner@1 requires a review-run@1 payload")
+        if not payload.checker_profiles and not payload.simulation_profiles:
+            raise IntegrityViolation(
+                "review.run requires at least one deterministic checker or simulation profile"
+            )
+        if payload.constraint_snapshot_artifact_id is not None and not payload.checker_profiles:
+            raise IntegrityViolation(
+                "review constraints require a checker profile that executes canonical DSL routing"
+            )
+        if payload.simulation_profiles and payload.selection.mode != "full":
+            raise IntegrityViolation("review simulation profiles require full graph selection")
+        execution_config = self.execution_config_resolver(payload.review_profile)
+        if (
+            len(payload.checker_profiles) > execution_config.max_checker_profile_count
+            or len(payload.simulation_profiles) > execution_config.max_simulation_profile_count
+        ):
+            raise IntegrityViolation("review profile collections exceed the exact count budget")
+        if not isinstance(self.store, PreparedArtifactBatchStore):
+            batch = PreparedArtifactBatchStore(
+                max_bytes=execution_config.max_total_prepared_artifact_bytes
+            )
+            staged = replace(self, store=batch)(context)
+            committed = batch.commit(
+                self.store,
+                staged.artifacts,
+                max_bytes=execution_config.max_total_prepared_artifact_bytes,
+            )
+            return staged.model_copy(update={"artifacts": committed})
 
         snapshot = self.snapshot_loader(self.blobs, payload.snapshot_artifact_id)
         constraints = self._constraints(payload)
+        self._validate_checker_budgets(payload, snapshot, constraints, execution_config)
         nav = self.nav_loader(self.blobs, payload.snapshot_artifact_id)
         lineage = _snapshot_lineage(payload)
 
-        checker_findings, checker_artifacts, checkers, checker_evidence = self._run_checkers(
-            payload, snapshot, constraints, nav, lineage
+        checker_findings, checker_artifacts, _checkers, checker_evidence = self._run_checkers(
+            context, payload, snapshot, constraints, nav, lineage
         )
-        sim_findings, sim_artifacts = self._run_simulations(payload, snapshot, context, lineage)
+        sim_findings, sim_artifacts, sim_evidence = self._run_simulations(
+            payload,
+            snapshot,
+            constraints,
+            context,
+            lineage,
+            execution_config,
+            existing_finding_count=len(checker_findings),
+            evidence_artifact_index_offset=1 + len(checker_artifacts),
+        )
 
         # LLM triage is a suggestion-only annotation over the deterministic verdict.
         triage_applied = payload.llm_triage_policy is not None
+        triage_input_findings = [
+            finding
+            for finding in (*checker_findings, *sim_findings)
+            if finding.oracle_type != "llm-assisted"
+        ]
         triage_findings = (
-            self._run_triage(context, snapshot, checker_findings + sim_findings)
+            self._run_triage(
+                context,
+                snapshot,
+                triage_input_findings,
+                execution_config,
+            )
             if triage_applied
             else []
         )
+        triage_findings = rebind_finding_producers(triage_findings, run_id=context.run.run_id)
         recorded_llm_mode = (
             context.payload.llm_execution_mode if triage_applied else "not_applicable"
         )
 
         all_findings = checker_findings + sim_findings + triage_findings
+        if len(all_findings) > MAX_PREPARED_FINDINGS:
+            raise IntegrityViolation("review findings exceed the frozen output bound")
+        _require_finding_authority(
+            triage_findings,
+            snapshot_id=snapshot.snapshot_id,
+            source="llm",
+            oracle_type="llm-assisted",
+            statuses=frozenset(("unproven",)),
+            label="review triage",
+        )
         # Wrap the spine partition (build_review_report runs any supplied checkers
         # then appends + partitions); the checkers already ran per profile, so the
         # authoritative report is the same partition applied to the collected set.
@@ -132,6 +245,7 @@ class ReviewRunHandler:
             snapshot=snapshot,
             report=report,
             lineage=lineage,
+            context=context,
             recorded_llm_mode=recorded_llm_mode,
             triage_applied=triage_applied,
         )
@@ -143,16 +257,17 @@ class ReviewRunHandler:
         # findings keep their own ids (each already unique by profile/order).
         evidence = (
             *checker_evidence,
-            *(
-                FindingEvidence(finding=finding, evidence_artifact_index=0)
-                for finding in sim_findings
-            ),
+            *sim_evidence,
             *(
                 FindingEvidence(finding=finding, evidence_artifact_index=0)
                 for finding in triage_findings
             ),
         )
-        prepared_findings = build_prepared_findings(evidence, run_id=context.run.run_id)
+        prepared_findings = build_prepared_findings(
+            evidence,
+            run_id=context.run.run_id,
+            head_revision_resolver=self.finding_head_revision,
+        )
         return build_success_result(
             run=context.run,
             attempt=context.attempt,
@@ -167,8 +282,33 @@ class ReviewRunHandler:
             return []
         return self.constraint_loader(self.blobs, payload.constraint_snapshot_artifact_id)
 
+    def _validate_checker_budgets(
+        self,
+        payload: ReviewRunPayloadV1,
+        snapshot: Snapshot,
+        constraints: list[Constraint],
+        execution_config: ReviewExecutionConfig,
+    ) -> None:
+        total_work = 0
+        aggregate_limit = execution_config.max_total_checker_work_units
+        for profile in payload.checker_profiles:
+            policy = self.checker_execution_policy_resolver(profile)
+            total_work += validate_checker_execution_policy(
+                checker_ids=("graph",),
+                defect_classes=(),
+                constraint_count=len(constraints),
+                snapshot=snapshot,
+                policy=policy,
+            )
+            aggregate_limit = min(aggregate_limit, policy.max_work_units)
+        if total_work > aggregate_limit:
+            raise IntegrityViolation(
+                "review checker profiles exceed the aggregate exact work budget"
+            )
+
     def _run_checkers(
         self,
+        context: ExecutorContextLike,
         payload: ReviewRunPayloadV1,
         snapshot: Snapshot,
         constraints: list[Constraint],
@@ -185,13 +325,28 @@ class ReviewRunHandler:
             checker = self.checker_resolver(profile, constraints)
             checkers.append(checker)
             profile_findings = checker.check(snapshot, nav=nav)
+            profile_findings.extend(navigation_unproven_findings(snapshot, nav))
+            _require_checker_finding_authority(
+                profile_findings,
+                snapshot_id=snapshot.snapshot_id,
+                constraints=constraints,
+            )
+            profile_findings = filter_findings_by_selection(
+                profile_findings, payload.selection, snapshot
+            )
+            profile_findings = [
+                _scope_profile_finding(profile, finding) for finding in profile_findings
+            ]
+            profile_findings = rebind_finding_producers(profile_findings, run_id=context.run.run_id)
+            if len(findings) + len(profile_findings) > MAX_PREPARED_FINDINGS:
+                raise IntegrityViolation("review findings exceed the frozen output bound")
             findings.extend(profile_findings)
+            evidence_artifact_index = 1 + len(artifacts)
             for finding in profile_findings:
                 evidence.append(
                     FindingEvidence(
                         finding=finding,
-                        evidence_artifact_index=0,
-                        finding_id=f"{profile.profile_id}@{profile.version}:{finding.id}",
+                        evidence_artifact_index=evidence_artifact_index,
                     )
                 )
             artifacts.append(
@@ -199,10 +354,11 @@ class ReviewRunHandler:
                     self.store,
                     kind="checker_run",
                     payload_schema_id=CHECKER_REPORT_SCHEMA_ID,
-                    version_tuple=VersionTuple(
-                        ir_snapshot_id=snapshot.snapshot_id,
-                        constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
+                    version_tuple=prepared_version_tuple(
+                        context,
                         tool_version="checker@1",
+                        projected_fields=("constraint_snapshot_id",),
+                        overrides={"ir_snapshot_id": snapshot.snapshot_id},
                     ),
                     lineage=lineage,
                     payload=_profile_checker_payload(
@@ -216,45 +372,136 @@ class ReviewRunHandler:
         self,
         payload: ReviewRunPayloadV1,
         snapshot: Snapshot,
+        constraints: list[Constraint],
         context: ExecutorContextLike,
         lineage: tuple[str, ...],
-    ) -> tuple[list[Finding], tuple[PreparedArtifact, ...]]:
-        seed = int(context.payload.seed) if context.payload.seed is not None else 0
+        execution_config: ReviewExecutionConfig,
+        *,
+        existing_finding_count: int,
+        evidence_artifact_index_offset: int,
+    ) -> tuple[
+        list[Finding],
+        tuple[PreparedArtifact, ...],
+        tuple[FindingEvidence, ...],
+    ]:
+        root_seed = context.payload.seed
+        if payload.simulation_profiles and root_seed is None:
+            raise ValueError("stochastic review simulations require a frozen root seed")
         model = EconomyModel.from_snapshot(snapshot)
         findings: list[Finding] = []
         artifacts: list[PreparedArtifact] = []
+        evidence: list[FindingEvidence] = []
+        resolved_configs: list[tuple[ProfileRefV1, ReviewSimConfig]] = []
+        total_work_units = 0
+        aggregate_limit = execution_config.max_total_simulation_work_units
         for profile in payload.simulation_profiles:
             config = self.sim_config_resolver(profile)
+            total_work_units += validate_economy_simulation_work_budget(
+                model,
+                n_agents=config.n_agents,
+                n_ticks=config.n_ticks,
+                replication_count=1,
+                max_work_units=config.max_work_units,
+            )
+            aggregate_limit = min(aggregate_limit, config.max_work_units)
+            if total_work_units > aggregate_limit:
+                raise IntegrityViolation(
+                    "review simulation profiles exceed the aggregate exact work budget"
+                )
+            resolved_configs.append((profile, config))
+        for profile, config in resolved_configs:
+            assert root_seed is not None
+            case_id = f"review:{snapshot.snapshot_id}"
+            seed = derive_validation_subseed(
+                root_seed=root_seed,
+                run_kind=context.run.kind,
+                profile=profile,
+                case_id=case_id,
+                replication_index=0,
+            )
             result = self.simulator.run(
                 model, seed=seed, n_agents=config.n_agents, n_ticks=config.n_ticks
             )
             profile_findings = to_findings(result, snapshot.snapshot_id, model)
+            profile_findings.extend(
+                unproven_input_application_findings(
+                    snapshot_id=snapshot.snapshot_id,
+                    constraints=tuple(constraints),
+                    scenario=None,
+                )
+            )
+            _require_finding_authority(
+                profile_findings,
+                snapshot_id=snapshot.snapshot_id,
+                source="sim",
+                oracle_type="simulation",
+                statuses=frozenset(("confirmed", "unproven")),
+                label="review simulation",
+            )
+            profile_findings = filter_findings_by_selection(
+                profile_findings, payload.selection, snapshot
+            )
+            profile_findings = [
+                _scope_profile_finding(profile, finding) for finding in profile_findings
+            ]
+            profile_findings = rebind_finding_producers(profile_findings, run_id=context.run.run_id)
+            if (
+                existing_finding_count + len(findings) + len(profile_findings)
+                > MAX_PREPARED_FINDINGS
+            ):
+                raise IntegrityViolation("review findings exceed the frozen output bound")
             findings.extend(profile_findings)
+            evidence_artifact_index = evidence_artifact_index_offset + len(artifacts)
+            evidence.extend(
+                FindingEvidence(
+                    finding=finding,
+                    evidence_artifact_index=evidence_artifact_index,
+                )
+                for finding in profile_findings
+            )
             artifacts.append(
                 store_prepared_artifact(
                     self.store,
                     kind="simulation_run",
                     payload_schema_id=SIMULATION_RESULT_SCHEMA_ID,
-                    version_tuple=VersionTuple(
-                        ir_snapshot_id=snapshot.snapshot_id,
-                        constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
+                    version_tuple=prepared_version_tuple(
+                        context,
                         tool_version="economy-sim@1",
-                        seed=seed,
+                        projected_fields=(
+                            "constraint_snapshot_id",
+                            "env_contract_version",
+                            "seed",
+                        ),
+                        overrides={"ir_snapshot_id": snapshot.snapshot_id},
                     ),
                     lineage=lineage,
                     payload=_profile_sim_payload(
-                        profile, snapshot.snapshot_id, seed, config, result, profile_findings
+                        profile,
+                        snapshot.snapshot_id,
+                        seed,
+                        config,
+                        result,
+                        profile_findings,
+                        constraints=constraints,
+                        constraint_snapshot_artifact_id=(payload.constraint_snapshot_artifact_id),
+                        root_seed=root_seed,
+                        run_kind=context.run.kind,
+                        case_id=case_id,
                     ),
                 )
             )
-        return findings, tuple(artifacts)
+        return findings, tuple(artifacts), tuple(evidence)
 
     def _run_triage(
         self,
         context: ExecutorContextLike,
         snapshot: Snapshot,
         deterministic_findings: list[Finding],
+        execution_config: ReviewExecutionConfig,
     ) -> list[Finding]:
+        payload = context.payload.params
+        if not isinstance(payload, ReviewRunPayloadV1):
+            raise TypeError("review triage requires a review-run@1 payload")
         adapter = ModelBridgeAgentAdapter(
             model_bridge=context.model_bridge,
             idempotency_scope=(f"run:{context.run.run_id}:attempt:{context.attempt.attempt_no}"),
@@ -266,12 +513,31 @@ class ReviewRunHandler:
             context.model_bridge,
         )
         prompt = _triage_prompt(snapshot.snapshot_id, deterministic_findings)
+        require_agent_prompt_message_bytes(
+            prompt,
+            max_prompt_message_bytes=execution_config.max_prompt_message_bytes,
+        )
         result = adapter.call_model(
             agent_node_id=TRIAGE_AGENT_NODE_ID,
             user_prompt=prompt,
             prompt_version=TRIAGE_PROMPT_VERSION,
             model_snapshot=model_snapshot,
-            source_artifact_ids=(context.payload.params.snapshot_artifact_id,),
+            source_artifact_ids=prompt_source_artifact_ids(
+                context,
+                selected=tuple(
+                    sorted(
+                        (
+                            payload.snapshot_artifact_id,
+                            *(
+                                (payload.constraint_snapshot_artifact_id,)
+                                if payload.constraint_snapshot_artifact_id is not None
+                                else ()
+                            ),
+                        )
+                    )
+                ),
+            ),
+            context_kind="review_triage",
         )
         return _parse_triage_suggestions(result.response.response_normalized, snapshot.snapshot_id)
 
@@ -281,6 +547,101 @@ def _snapshot_lineage(payload: ReviewRunPayloadV1) -> tuple[str, ...]:
     if payload.constraint_snapshot_artifact_id is not None:
         lineage.append(payload.constraint_snapshot_artifact_id)
     return tuple(lineage)
+
+
+def _scope_profile_finding(profile: ProfileRefV1, finding: Finding) -> Finding:
+    """Give each profile execution its own stable Finding series identity."""
+
+    finding_id = finding.id
+    if finding.constraint_id is not None:
+        finding_id = scoped_finding_series_id(
+            namespace="constraint",
+            scope_id=finding.constraint_id,
+            finding_id=finding_id,
+        )
+    return finding.model_copy(
+        update={
+            "id": scoped_finding_series_id(
+                namespace="profile",
+                scope_id=f"{profile.profile_id}@{profile.version}",
+                finding_id=finding_id,
+            )
+        }
+    )
+
+
+def _require_checker_finding_authority(
+    findings: list[Finding],
+    *,
+    snapshot_id: str,
+    constraints: list[Constraint],
+) -> None:
+    """Accept only deterministic checker verdicts or exact LLM-route placeholders.
+
+    A checker profile owns both the deterministic backends and the DSL compiler.
+    The latter deliberately emits :class:`LlmRoutedChecker` placeholders for
+    mixed/LLM predicates.  Those placeholders are evidence that the predicate
+    was *not* decided by a deterministic oracle; rejecting or relabelling them
+    would erase that boundary.  Conversely, a custom checker port may not use
+    this allowance to substitute an arbitrary LLM/simulation/human verdict.
+    """
+
+    llm_constraint_ids = {
+        constraint.id for constraint in constraints if constraint.has_llm_predicate()
+    }
+    for finding in findings:
+        if not isinstance(finding, Finding):
+            raise IntegrityViolation("review checker returned a non-Finding value")
+        if finding.snapshot_id != snapshot_id:
+            raise IntegrityViolation(
+                "review checker Finding differs from its exact oracle authority",
+                finding_id=finding.id,
+            )
+        if (
+            finding.source == "checker"
+            and finding.oracle_type == "deterministic"
+            and finding.status in {"confirmed", "unproven"}
+        ):
+            continue
+        if (
+            finding.source == "llm"
+            and finding.oracle_type == "llm-assisted"
+            and finding.status == "unproven"
+            and finding.producer_id == "llm-routed"
+            and finding.defect_class == "llm_assisted_predicate"
+            and finding.constraint_id in llm_constraint_ids
+        ):
+            continue
+        raise IntegrityViolation(
+            "review checker Finding differs from its exact oracle authority",
+            finding_id=finding.id,
+        )
+
+
+def _require_finding_authority(
+    findings: list[Finding],
+    *,
+    snapshot_id: str,
+    source: str,
+    oracle_type: str,
+    statuses: frozenset[str],
+    label: str,
+) -> None:
+    """Reject a port that tries to relabel another oracle as this review stage."""
+
+    for finding in findings:
+        if not isinstance(finding, Finding):
+            raise IntegrityViolation(f"{label} returned a non-Finding value")
+        if (
+            finding.snapshot_id != snapshot_id
+            or finding.source != source
+            or finding.oracle_type != oracle_type
+            or finding.status not in statuses
+        ):
+            raise IntegrityViolation(
+                f"{label} Finding differs from its exact oracle authority",
+                finding_id=finding.id,
+            )
 
 
 def _profile_checker_payload(
@@ -301,12 +662,26 @@ def _profile_sim_payload(
     config: ReviewSimConfig,
     result,
     findings: list[Finding],
+    *,
+    constraints: list[Constraint],
+    constraint_snapshot_artifact_id: str | None,
+    root_seed: int,
+    run_kind: RunKindRef,
+    case_id: str,
 ) -> dict[str, object]:
+    constraint_ids = sorted(constraint.id for constraint in constraints)
+    if len(constraint_ids) != len(set(constraint_ids)):
+        raise IntegrityViolation("review constraint snapshot repeats a constraint id")
     return {
         "payload_schema_version": SIMULATION_RESULT_SCHEMA_ID,
         "profile": profile.model_dump(mode="json"),
         "snapshot_id": snapshot_id,
-        "seed": seed,
+        # ``simulation_run.version_tuple.seed`` is the Run's frozen root seed.
+        # The per-profile child seed is a deterministic execution detail and is
+        # retained below with its complete ``subseed@1`` derivation binding.  A
+        # top-level child seed would disagree with the terminal publisher's
+        # producer projection (and make the Artifact impossible to publish).
+        "seed": root_seed,
         "replication_count": config.n_agents,
         "horizon_steps": config.n_ticks,
         "invariants": [
@@ -319,7 +694,34 @@ def _profile_sim_payload(
             }
             for check in result.invariants
         ],
-        "sensitivity": result.sensitivity,
+        "sensitivity": {
+            **result.sensitivity,
+            "execution_binding": {
+                "simulation_profile": profile.model_dump(mode="json"),
+                "constraint_snapshot_artifact_id": constraint_snapshot_artifact_id,
+                "constraint_ids": constraint_ids,
+                "constraint_application": {
+                    "status": (
+                        "not_applicable" if constraint_snapshot_artifact_id is None else "unproven"
+                    ),
+                    **(
+                        {}
+                        if constraint_snapshot_artifact_id is None
+                        else {"reason_code": "constraint_profile_not_executable"}
+                    ),
+                },
+            },
+            "seed_binding": {
+                "root_seed": root_seed,
+                "run_kind": run_kind.model_dump(mode="json"),
+                "profile_id": profile.profile_id,
+                "profile_version": profile.version,
+                "case_id": case_id,
+                "replication_index": 0,
+                "seed": seed,
+                "seed_derivation_version": "subseed@1",
+            },
+        },
         "findings": [finding.model_dump(mode="json") for finding in findings],
     }
 
@@ -330,6 +732,7 @@ def _store_review_report(
     snapshot: Snapshot,
     report: ReviewReport,
     lineage: tuple[str, ...],
+    context: ExecutorContextLike,
     recorded_llm_mode: str,
     triage_applied: bool,
 ) -> PreparedArtifact:
@@ -337,9 +740,11 @@ def _store_review_report(
         store,
         kind="review_report",
         payload_schema_id=REVIEW_SCHEMA_ID,
-        version_tuple=VersionTuple(
-            ir_snapshot_id=snapshot.snapshot_id,
+        version_tuple=prepared_version_tuple(
+            context,
             tool_version=REVIEW_TOOL_VERSION,
+            projected_fields=("constraint_snapshot_id",),
+            overrides={"ir_snapshot_id": snapshot.snapshot_id},
         ),
         lineage=lineage,
         payload=report.model_dump(mode="json"),
@@ -351,19 +756,55 @@ def _store_review_report(
 
 
 def _triage_prompt(snapshot_id: str, findings: list[Finding]) -> str:
-    body = {
+    ordered = sorted(
+        findings,
+        key=lambda finding: (
+            finding.id,
+            finding.defect_class,
+            finding.severity,
+        ),
+    )[:TRIAGE_MAX_INPUT_FINDINGS]
+    body: dict[str, object] = {
         "snapshot_id": snapshot_id,
-        "deterministic_findings": [
-            {
-                "finding_id": finding.id,
-                "defect_class": finding.defect_class,
-                "severity": finding.severity,
-                "message": finding.message,
-            }
-            for finding in findings
-        ],
+        "deterministic_findings": [],
+        "projection": {
+            "total_count": len(findings),
+            "included_count": 0,
+            "truncated": bool(findings),
+        },
     }
-    return json.dumps(body, sort_keys=True, separators=(",", ":"))
+    projected = body["deterministic_findings"]
+    assert isinstance(projected, list)
+    for finding in ordered:
+        projected.append(
+            {
+                "finding_id": _truncate_utf8(finding.id, TRIAGE_MAX_FINDING_ID_BYTES),
+                "defect_class": _truncate_utf8(finding.defect_class, TRIAGE_MAX_DEFECT_CLASS_BYTES),
+                "severity": finding.severity,
+                "message": _truncate_utf8(finding.message, TRIAGE_MAX_INPUT_MESSAGE_BYTES),
+            }
+        )
+        projection = body["projection"]
+        assert isinstance(projection, dict)
+        projection["included_count"] = len(projected)
+        projection["truncated"] = len(projected) < len(findings)
+        candidate = json.dumps(body, sort_keys=True, separators=(",", ":"))
+        if len(candidate.encode("utf-8")) > TRIAGE_MAX_PROMPT_BYTES:
+            projected.pop()
+            projection["included_count"] = len(projected)
+            projection["truncated"] = True
+            break
+    prompt = json.dumps(body, sort_keys=True, separators=(",", ":"))
+    if len(prompt.encode("utf-8")) > TRIAGE_MAX_PROMPT_BYTES:
+        raise IntegrityViolation("bounded review triage prompt exceeds its byte envelope")
+    return prompt
+
+
+def _truncate_utf8(value: str, max_bytes: int) -> str:
+    encoded = value.encode("utf-8")
+    if len(encoded) <= max_bytes:
+        return value
+    return encoded[:max_bytes].decode("utf-8", errors="ignore")
 
 
 _VALID_SEVERITIES = {"critical", "major", "minor"}
@@ -377,6 +818,8 @@ def _parse_triage_suggestions(text: str, snapshot_id: str) -> list[Finding]:
     never be mistaken for a proven deterministic verdict.
     """
 
+    if not isinstance(text, str) or len(text.encode("utf-8")) > TRIAGE_MAX_RESPONSE_BYTES:
+        return []
     try:
         parsed = json.loads(text)
     except (json.JSONDecodeError, TypeError):
@@ -385,7 +828,7 @@ def _parse_triage_suggestions(text: str, snapshot_id: str) -> list[Finding]:
     if not isinstance(suggestions, list):
         return []
     findings: list[Finding] = []
-    for index, item in enumerate(suggestions):
+    for index, item in enumerate(suggestions[:TRIAGE_MAX_SUGGESTIONS]):
         if not isinstance(item, dict):
             continue
         severity = item.get("severity")
@@ -394,7 +837,20 @@ def _parse_triage_suggestions(text: str, snapshot_id: str) -> list[Finding]:
         message = item.get("message")
         if not isinstance(message, str) or not message:
             message = "LLM triage suggestion (advisory only, not a proven verdict)"
+        message = _truncate_utf8(message, TRIAGE_MAX_SUGGESTION_MESSAGE_BYTES)
+        defect_class = item.get("defect_class")
+        if not isinstance(defect_class, str) or not defect_class:
+            defect_class = "llm_triage_suggestion"
+        defect_class = _truncate_utf8(defect_class, TRIAGE_MAX_DEFECT_CLASS_BYTES)
         entities = item.get("entities")
+        bounded_entities: list[str] = []
+        if isinstance(entities, list):
+            for entity in entities[:TRIAGE_MAX_SUGGESTION_ENTITIES]:
+                if not isinstance(entity, str) or not entity:
+                    continue
+                bounded = _truncate_utf8(entity, TRIAGE_MAX_ENTITY_ID_BYTES)
+                if bounded and bounded not in bounded_entities:
+                    bounded_entities.append(bounded)
         findings.append(
             Finding(
                 id=f"review-triage@{snapshot_id[:23]}#{index}",
@@ -402,10 +858,10 @@ def _parse_triage_suggestions(text: str, snapshot_id: str) -> list[Finding]:
                 producer_id="review_triage",
                 producer_run_id=f"review-triage@{snapshot_id[:23]}",
                 oracle_type="llm-assisted",
-                defect_class=str(item.get("defect_class") or "llm_triage_suggestion"),
+                defect_class=defect_class,
                 severity=severity,
                 snapshot_id=snapshot_id,
-                entities=[str(entity) for entity in entities] if isinstance(entities, list) else [],
+                entities=bounded_entities,
                 status="unproven",
                 message=message,
             )
@@ -417,6 +873,9 @@ __all__ = [
     "CheckerResolver",
     "REVIEW_SCHEMA_ID",
     "ReviewRunHandler",
+    "ReviewExecutionConfig",
+    "ReviewExecutionConfigResolver",
     "ReviewSimConfig",
     "SimConfigResolver",
+    "default_review_execution_config",
 ]

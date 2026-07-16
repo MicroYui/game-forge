@@ -41,6 +41,7 @@ from gameforge.contracts.jobs import (
     RuntimeParentRuleSetV1,
     VersionTransitionPolicyV1,
     artifact_lineage_policy_digest,
+    patch_repair_requires_root_seed,
 )
 from gameforge.contracts.playtest import (
     CompletionOracleRegistryRefV1,
@@ -543,7 +544,7 @@ class ImmutablePlatformRegistry:
             stochastic = any(
                 definitions_by_ref[(binding.profile.profile_id, binding.profile.version)].stochastic
                 for binding in actual.values()
-            )
+            ) or patch_repair_requires_root_seed(payload.params)
             if stochastic != (payload.seed is not None):
                 raise IntegrityViolation(
                     "profile-dependent seed must match the resolved stochastic profiles"

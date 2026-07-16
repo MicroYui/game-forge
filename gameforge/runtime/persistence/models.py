@@ -763,6 +763,42 @@ class RunIntermediateArtifactLinkRow(Base):
     published_at: Mapped[str] = mapped_column(String, nullable=False)
 
 
+class RunToolIntermediateLinkRow(Base):
+    __tablename__ = "run_tool_intermediate_links"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["run_id", "attempt_no"],
+            ["run_attempts.run_id", "run_attempts.attempt_no"],
+            ondelete="CASCADE",
+        ),
+        CheckConstraint(
+            "target_call_ordinal >= 1",
+            name="ck_run_tool_intermediate_target_call_positive",
+        ),
+        UniqueConstraint(
+            "run_id",
+            "attempt_no",
+            "artifact_id",
+            name="uq_run_tool_intermediate_artifact",
+        ),
+    )
+
+    run_id: Mapped[str] = mapped_column(String, primary_key=True)
+    attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
+    target_call_ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    link_schema_version: Mapped[str] = mapped_column(String, nullable=False)
+    artifact_id: Mapped[str] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    role: Mapped[str] = mapped_column(String, nullable=False)
+    agent_node_id: Mapped[str] = mapped_column(String, nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String, nullable=False)
+    payload_hash: Mapped[str] = mapped_column(String, nullable=False)
+    fencing_token: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    published_at: Mapped[str] = mapped_column(String, nullable=False)
+
+
 class RunModelRouteLinkRow(Base):
     __tablename__ = "run_model_route_links"
     __table_args__ = (
@@ -901,6 +937,7 @@ class RunModelResponseConsumptionRow(Base):
         ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
         nullable=True,
     )
+    response_digest: Mapped[str | None] = mapped_column(String, nullable=True)
     consumed_at: Mapped[str] = mapped_column(String, nullable=False)
 
 

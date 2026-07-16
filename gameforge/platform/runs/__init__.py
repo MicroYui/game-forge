@@ -1,6 +1,8 @@
 """Persistent Run state guards and transaction-bound command services."""
 
 from gameforge.platform.runs.commands import (
+    AgentPromptContextPublicationRequest,
+    AgentPromptContextPublicationResult,
     PromptRenderPublicationRequest,
     PromptRenderPublicationResult,
     RunAdmissionGateway,
@@ -54,6 +56,8 @@ from gameforge.platform.runs.state import (
 )
 
 __all__ = [
+    "AgentPromptContextPublicationRequest",
+    "AgentPromptContextPublicationResult",
     "AttemptFailurePublication",
     "AttemptOutcomePublicationResult",
     "AttemptWriteFence",

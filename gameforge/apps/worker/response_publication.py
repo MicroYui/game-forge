@@ -15,7 +15,7 @@ from gameforge.apps.worker.execution_identity import (
     build_authoritative_execution_identity,
 )
 from gameforge.apps.worker.publication import WorkerArtifactPort
-from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.cassette import CassetteRecordV2
 from gameforge.contracts.cassette_import import (
     CassetteBundleV1,
@@ -95,7 +95,7 @@ class WorkerResponseConsumptionPublisher:
         step_reservation: object,
         wall_time_ns: int,
         actor: AuditActor,
-    ) -> None:
+    ) -> RunModelResponseConsumptionV1:
         token, step_token = self._validate_inputs(
             fence=fence,
             link=link,
@@ -273,6 +273,7 @@ class WorkerResponseConsumptionPublisher:
                     result.transport_attempt_count if result.execution_source == "online" else None
                 ),
                 cassette_shard_artifact_id=shard_id,
+                response_digest=sha256_lowerhex(result.response_normalized.encode("utf-8")),
                 consumed_at=_utc_text(now),
             )
             retained_consumption = runs.put_model_response_consumption(consumption)
@@ -294,6 +295,7 @@ class WorkerResponseConsumptionPublisher:
                     trace_id=attempt.trace_id,
                 ),
             )
+            return retained_consumption
 
     def _stage_record_shard(
         self,

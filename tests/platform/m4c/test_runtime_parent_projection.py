@@ -14,10 +14,17 @@ from __future__ import annotations
 import pytest
 
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.jobs import RunIntermediateArtifactLinkV1
+from gameforge.contracts.jobs import (
+    RunIntermediateArtifactLinkV1,
+    RunToolIntermediateLinkV1,
+)
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.platform.publication.lineage import ParentInfo
 from gameforge.platform.publication.publisher import project_runtime_parents
+from gameforge.platform.publication.validator import (
+    ProjectedRuntimeParent,
+    validate_runtime_parents,
+)
 from gameforge.platform.registry.defaults import _runtime_parent_rules
 
 
@@ -26,6 +33,7 @@ RULES = _runtime_parent_rules()
 
 def _project(**kwargs):
     prompt_links = kwargs.get("prompt_links", ())
+    tool_links = kwargs.get("tool_intermediate_links", ())
     record_shards = kwargs.get("record_shards", ())
     closed = kwargs.get("closed", {})
     infos = {
@@ -37,6 +45,18 @@ def _project(**kwargs):
         )
         for link in prompt_links
     }
+    infos.update(
+        {
+            link.artifact_id: ParentInfo(
+                artifact_id=link.artifact_id,
+                kind="source_raw",
+                payload_schema_id="agent-prompt-context@1",
+                version_tuple=VersionTuple(),
+                payload_hash=link.payload_hash,
+            )
+            for link in tool_links
+        }
+    )
     infos.update(
         {
             artifact_id: ParentInfo(
@@ -91,6 +111,125 @@ def _prompt(attempt_no: int, call_ordinal: int, artifact_id: str) -> RunIntermed
         fencing_token=1,
         published_at="2026-07-14T12:00:00Z",
     )
+
+
+def _context(
+    attempt_no: int,
+    target_call_ordinal: int,
+    artifact_id: str,
+    *,
+    payload_hash: str = "b" * 64,
+) -> RunToolIntermediateLinkV1:
+    return RunToolIntermediateLinkV1(
+        run_id="run:1",
+        attempt_no=attempt_no,
+        target_call_ordinal=target_call_ordinal,
+        artifact_id=artifact_id,
+        agent_node_id="repair",
+        prompt_version="repair@1",
+        payload_hash=payload_hash,
+        fencing_token=1,
+        published_at="2026-07-17T00:00:00Z",
+    )
+
+
+def test_live_attempt_projects_exact_agent_prompt_context_parent() -> None:
+    context = _context(1, 1, "art:context:1")
+    bindings = _project(
+        rule_set=RULES,
+        manifest_scope="attempt",
+        llm_execution_mode="live",
+        prompt_links=(),
+        tool_intermediate_links=(context,),
+        record_shards=(),
+        closed={},
+        attempt_bundle_id=None,
+        run_bundle_id=None,
+        replay_input_id=None,
+        committed_link_counts={},
+    )
+
+    assert [binding.artifact_id for binding in bindings] == [context.artifact_id]
+    assert bindings[0].role == "intermediate"
+    assert bindings[0].attempt_no == 1
+    assert bindings[0].ordinal == 1
+
+
+def test_prompt_context_cross_attempt_and_forged_hash_fail_closed() -> None:
+    with pytest.raises(IntegrityViolation, match="another attempt"):
+        _project(
+            rule_set=RULES,
+            manifest_scope="attempt",
+            llm_execution_mode="live",
+            prompt_links=(),
+            tool_intermediate_links=(_context(2, 1, "art:context:2"),),
+            record_shards=(),
+            closed={},
+            attempt_bundle_id=None,
+            run_bundle_id=None,
+            replay_input_id=None,
+            committed_link_counts={},
+        )
+
+    context = _context(1, 1, "art:context:forged", payload_hash="c" * 64)
+    with pytest.raises(IntegrityViolation, match="payload hash"):
+        project_runtime_parents(
+            rule_set=RULES,
+            run_id="run:1",
+            manifest_scope="attempt",
+            current_attempt_no=1,
+            llm_execution_mode="live",
+            prompt_links=(),
+            tool_intermediate_links=(context,),
+            record_shards=(),
+            closed={},
+            attempt_bundle_id=None,
+            run_bundle_id=None,
+            replay_input_id=None,
+            committed_link_counts={},
+            artifact_info_by_id={
+                context.artifact_id: ParentInfo(
+                    artifact_id=context.artifact_id,
+                    kind="source_raw",
+                    payload_schema_id="agent-prompt-context@1",
+                    version_tuple=VersionTuple(),
+                    payload_hash="d" * 64,
+                )
+            },
+        )
+
+
+def test_agent_prompt_context_manifest_missing_or_extra_fails_exact_count() -> None:
+    counts = {
+        ("prompt_rendered", "current_attempt"): 0,
+        ("agent_prompt_context", "current_attempt"): 1,
+    }
+    with pytest.raises(IntegrityViolation, match="count differs"):
+        validate_runtime_parents(
+            rule_set=RULES,
+            manifest_scope="attempt",
+            llm_execution_mode="live",
+            parents=(),
+            committed_link_counts=counts,
+        )
+
+    parent = ProjectedRuntimeParent(
+        artifact_id="art:context:extra",
+        source="published_intermediate",
+        kind="source_raw",
+        payload_schema_id="agent-prompt-context@1",
+    )
+    with pytest.raises(IntegrityViolation, match="count differs"):
+        validate_runtime_parents(
+            rule_set=RULES,
+            manifest_scope="attempt",
+            llm_execution_mode="live",
+            parents=(parent,),
+            committed_link_counts={
+                ("prompt_rendered", "current_attempt"): 0,
+                ("agent_prompt_context", "current_attempt"): 0,
+            },
+        )
 
 
 def test_record_attempt_scope_projects_shards_and_attempt_bundle() -> None:

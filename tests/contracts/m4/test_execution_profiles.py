@@ -8,19 +8,41 @@ from pydantic import ValidationError
 from gameforge.contracts.execution_profiles import (
     AutoApplyPolicyRefV1,
     AutoApplyPolicyRegistryRefV1,
+    CheckerProfileConfigV1,
+    ConstraintExtractionProfileConfigV1,
+    EnvironmentContractDescriptorV1,
     ExecutionProfileCatalogSnapshotV1,
     ExecutionProfileDefinitionV1,
     ExecutionProfileLifecycleV1,
+    FixedResolvedPolicyRequirementConfigV1,
     GenericProfileDetailsV1,
+    GenerationProfileConfigV1,
+    MAX_AGENT_PROMPT_MESSAGE_BYTES_V1,
+    MAX_CHECKER_CONSTRAINT_COUNT_V1,
+    MAX_CHECKER_DIRECT_COUNT_V1,
+    MAX_CHECKER_WORK_UNITS_V1,
+    MAX_ENVIRONMENT_NAVIGATION_GRID_CELLS_V1,
+    MAX_PROFILE_ALLOWLIST_ITEMS_V1,
+    MAX_SIMULATION_HORIZON_STEPS_V1,
+    MAX_SIMULATION_POPULATION_V1,
+    MAX_SIMULATION_WORK_UNITS_V1,
+    MAX_WORKLOAD_REPLICATION_COUNT_V1,
+    MAX_WORKLOAD_REPLICATION_TICKS_V1,
+    MAX_WORKLOAD_WORK_UNITS_V1,
     MigrationCapabilityMatrixV1,
     MigrationEdgeV1,
     MigrationEdgeCapabilityV1,
     MigrationKindDefaultV1,
+    PatchRepairProfileConfigV1,
     MigrationProfileDetailsV1,
     ProfileRefV1,
+    ResolvedPolicyProfileConfigV1,
+    ReviewProfileConfigV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
+    SimulationProfileConfigV1,
     ValidationProfileDetailsV1,
+    WorkloadProfileConfigV1,
     canonical_config_hash,
     execution_profile_catalog_digest,
     migration_capability_matrix_digest,
@@ -32,8 +54,27 @@ from gameforge.contracts.lineage import ArtifactKind
 _HASH_A = "a" * 64
 
 
+@pytest.mark.parametrize(
+    "config_model",
+    (
+        GenerationProfileConfigV1,
+        PatchRepairProfileConfigV1,
+        ReviewProfileConfigV1,
+        ConstraintExtractionProfileConfigV1,
+    ),
+)
+def test_agent_profile_prompt_message_cap_is_required(config_model) -> None:
+    assert config_model.model_fields["max_prompt_message_bytes"].is_required()
+
+
 def _definition() -> ExecutionProfileDefinitionV1:
-    config = {"timeout_ms": 5000}
+    config = CheckerProfileConfigV1(
+        allowed_checker_ids=("graph",),
+        allowed_defect_classes=("dangling_reference",),
+        max_direct_checker_count=1,
+        max_constraint_count=1,
+        max_work_units=1_000,
+    ).model_dump(mode="json")
     return ExecutionProfileDefinitionV1(
         definition_schema_version="execution-profile@1",
         profile=ProfileRefV1(profile_id="checker.default", version=1),
@@ -46,7 +87,7 @@ def _definition() -> ExecutionProfileDefinitionV1:
         required_capabilities=(),
         display_name="Default checker",
         handler_key="checker.default",
-        config_schema_id="checker-profile@1",
+        config_schema_id="checker-profile-config@1",
         config=config,
         config_hash=canonical_config_hash(config),
         details=GenericProfileDetailsV1(details_kind="generic"),
@@ -68,6 +109,25 @@ def test_profile_refs_and_resolved_binding_are_exact_and_frozen() -> None:
         ProfileRefV1(profile_id="rollback.default", version=0)
     with pytest.raises(ValidationError):
         binding.catalog_version = 4
+
+
+def test_environment_contract_requires_a_bounded_navigation_search_space() -> None:
+    base = {
+        "env_contract_version": "generic-agent-env@1",
+        "reset_schema_id": "generic-env-reset@1",
+        "action_schema_id": "generic-env-action@1",
+        "observation_schema_id": "generic-env-observation@1",
+    }
+
+    with pytest.raises(ValidationError):
+        EnvironmentContractDescriptorV1.model_validate(base)
+    with pytest.raises(ValidationError):
+        EnvironmentContractDescriptorV1.model_validate(
+            {
+                **base,
+                "max_navigation_grid_cells": (MAX_ENVIRONMENT_NAVIGATION_GRID_CELLS_V1 + 1),
+            }
+        )
 
 
 def test_profile_ref_and_direct_profile_identifiers_are_bounded() -> None:
@@ -103,6 +163,134 @@ def test_definition_rejects_bad_config_hash_or_wrong_detail_variant() -> None:
                 "details": {"details_kind": "generic"},
             }
         )
+
+
+@pytest.mark.parametrize(
+    ("profile_kind", "config_schema_id", "config"),
+    (
+        ("checker", "checker-profile-config@1", {"garbage": "accepted"}),
+        ("simulation", "simulation-profile-config@1", {"garbage": "accepted"}),
+        ("workload", "workload-profile-config@1", {"garbage": "accepted"}),
+    ),
+)
+def test_authoritative_runtime_profile_configs_are_closed(
+    profile_kind: str,
+    config_schema_id: str,
+    config: dict[str, object],
+) -> None:
+    definition = _definition().model_dump(mode="json")
+    config_hash = canonical_config_hash(config)
+    with pytest.raises(ValidationError):
+        ExecutionProfileDefinitionV1.model_validate(
+            {
+                **definition,
+                "profile_kind": profile_kind,
+                "config_schema_id": config_schema_id,
+                "config": config,
+                "config_hash": config_hash,
+            }
+        )
+
+
+def test_v1_runtime_profile_absolute_caps_fail_closed() -> None:
+    checker = {
+        "allowed_checker_ids": ("graph",),
+        "allowed_defect_classes": ("dangling_reference",),
+        "max_direct_checker_count": 1,
+        "max_constraint_count": 1,
+        "max_work_units": 1,
+    }
+    for field, value in (
+        ("max_direct_checker_count", MAX_CHECKER_DIRECT_COUNT_V1 + 1),
+        ("max_constraint_count", MAX_CHECKER_CONSTRAINT_COUNT_V1 + 1),
+        ("max_work_units", MAX_CHECKER_WORK_UNITS_V1 + 1),
+    ):
+        with pytest.raises(ValidationError):
+            CheckerProfileConfigV1.model_validate({**checker, field: value})
+    with pytest.raises(ValidationError):
+        CheckerProfileConfigV1.model_validate(
+            {
+                **checker,
+                "allowed_checker_ids": tuple(
+                    f"checker:{index}" for index in range(MAX_PROFILE_ALLOWLIST_ITEMS_V1 + 1)
+                ),
+            }
+        )
+
+    generation_policy = ResolvedPolicyProfileConfigV1(
+        resolved_policy_id="generation-gate",
+        requirement_sources=(
+            FixedResolvedPolicyRequirementConfigV1(
+                outcome_rule_id="checker",
+                requirement_id="checker",
+                artifact_kind="checker_run",
+                payload_schema_id="checker-report@1",
+                producer_profile_field_path="/params/generation_policy",
+                ordinal=1,
+            ),
+        ),
+    )
+    generation = {
+        "resolved_policy": generation_policy.model_dump(mode="json"),
+        "max_prompt_message_bytes": 16 * 1024 * 1024,
+        "max_checker_constraint_count": 1,
+        "max_checker_work_units": 1,
+        "gate_simulation_seed": 0,
+        "gate_simulation_population": 1,
+        "gate_simulation_horizon_steps": 1,
+        "max_simulation_work_units": 1,
+    }
+    with pytest.raises(ValidationError):
+        GenerationProfileConfigV1.model_validate(
+            {
+                **generation,
+                "gate_simulation_population": MAX_SIMULATION_POPULATION_V1 + 1,
+            }
+        )
+    with pytest.raises(ValidationError):
+        GenerationProfileConfigV1.model_validate(
+            {
+                **generation,
+                "max_prompt_message_bytes": MAX_AGENT_PROMPT_MESSAGE_BYTES_V1 + 1,
+            }
+        )
+    with pytest.raises(ValidationError):
+        GenerationProfileConfigV1.model_validate(
+            {
+                **generation,
+                "gate_simulation_population": 1_001,
+                "gate_simulation_horizon_steps": 2_000,
+                "max_simulation_work_units": 2_000_000,
+            }
+        )
+
+    simulation = {
+        "default_population": 1,
+        "default_horizon_steps": 1,
+        "max_horizon_steps": 1,
+        "max_output_ticks": 1,
+        "max_work_units": 1,
+    }
+    for field, value in (
+        ("default_population", MAX_SIMULATION_POPULATION_V1 + 1),
+        ("max_horizon_steps", MAX_SIMULATION_HORIZON_STEPS_V1 + 1),
+        ("max_work_units", MAX_SIMULATION_WORK_UNITS_V1 + 1),
+    ):
+        with pytest.raises(ValidationError):
+            SimulationProfileConfigV1.model_validate({**simulation, field: value})
+
+    workload = {
+        "max_replication_count": 1,
+        "max_total_replication_ticks": 1,
+        "max_total_work_units": 1,
+    }
+    for field, value in (
+        ("max_replication_count", MAX_WORKLOAD_REPLICATION_COUNT_V1 + 1),
+        ("max_total_replication_ticks", MAX_WORKLOAD_REPLICATION_TICKS_V1 + 1),
+        ("max_total_work_units", MAX_WORKLOAD_WORK_UNITS_V1 + 1),
+    ):
+        with pytest.raises(ValidationError):
+            WorkloadProfileConfigV1.model_validate({**workload, field: value})
 
 
 def test_catalog_requires_exact_definition_lifecycle_set_and_digest() -> None:

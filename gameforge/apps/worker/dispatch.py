@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC
 from email.utils import parsedate_to_datetime
 from hashlib import sha256
@@ -36,12 +36,21 @@ from gameforge.apps.worker.app import (
     build_timeout_scan,
     build_worker_runtime,
 )
+from gameforge.apps.worker.agent_drafts import (
+    WorkerAgentDraftGovernanceRefs,
+    build_agent_draft_capabilities,
+    build_agent_draft_workflow_port,
+)
+from gameforge.apps.worker.agent_prompt_context import (
+    bind_production_agent_prompt_context_authority,
+)
 from gameforge.apps.worker.components import (
     WorkerArtifactBlobReader,
     WorkerPreparedArtifactStore,
     build_rollback_ports,
     build_trusted_components,
 )
+from gameforge.apps.worker.bench_codec import BENCH_PAYLOAD_DECODERS
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import WorkerModelBridgePort
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
@@ -61,8 +70,11 @@ from gameforge.apps.worker.model_authority import (
 from gameforge.apps.worker.model_bridge import WorkerModelBridge
 from gameforge.apps.worker.prompt_rendering import CanonicalPromptRendererAuthority
 from gameforge.apps.worker.publication import (
+    AgentPromptContextMaterialRegistry,
+    FencedToolPromptSourceAuthority,
     PromptRenderMaterialRegistry,
     WorkerArtifactPort,
+    WorkerAgentPromptContextPublisher,
     WorkerAuditPort,
     WorkerBlobStager,
     WorkerBlobStore,
@@ -94,6 +106,7 @@ from gameforge.contracts.storage import UtcClock
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.platform.runs.replay import MAX_REPLAY_ARTIFACT_BYTES
 from gameforge.platform.audit.gate import AuditGate
+from gameforge.platform.approvals.commands import ApprovalCommandService
 from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
 from gameforge.platform.publication import TerminalPublisher
 from gameforge.platform.registry import TrustedComponentMaps, build_builtin_registry
@@ -126,6 +139,7 @@ from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
+from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
@@ -521,9 +535,43 @@ def build_worker_dispatch(
             ),
             findings=SqlFindingRepository(session, cursor_signer=cursor_signer, clock=clock),
             idempotency=SqlIdempotencyRepository(session, clock=clock),
+            policies=SqlPolicySnapshotRepository(session, clock=clock),
         )
 
     unit_of_work = SqliteUnitOfWork(engine, capability_factory)
+
+    governance_values = (
+        config.role_policy_version,
+        config.role_policy_digest,
+        config.workflow_route_policy_version,
+        config.workflow_route_policy_digest,
+        config.workflow_approval_policy_version,
+        config.workflow_approval_policy_digest,
+    )
+    if all(value is None for value in governance_values):
+        agent_draft_governance = None
+    else:
+        # LocalWorkerConfig enforces all-or-none and validates the exact digests.
+        assert all(isinstance(value, str) for value in governance_values)
+        agent_draft_governance = WorkerAgentDraftGovernanceRefs(
+            role_policy_version=config.role_policy_version,  # type: ignore[arg-type]
+            role_policy_digest=config.role_policy_digest,  # type: ignore[arg-type]
+            route_policy_version=config.workflow_route_policy_version,  # type: ignore[arg-type]
+            route_policy_digest=config.workflow_route_policy_digest,  # type: ignore[arg-type]
+            approval_policy_version=config.workflow_approval_policy_version,  # type: ignore[arg-type]
+            approval_policy_digest=config.workflow_approval_policy_digest,  # type: ignore[arg-type]
+        )
+
+    agent_draft_commands = ApprovalCommandService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=lambda transaction: build_agent_draft_capabilities(
+            transaction=transaction,
+            object_store=object_store,
+            clock=clock,
+        ),
+        clock=clock,
+        audit_chain_id=run_audit_chain_id,
+    )
 
     def _accounting(transaction: object) -> SqlRunCostAccounting:
         return SqlRunCostAccounting(
@@ -559,9 +607,14 @@ def build_worker_dispatch(
             ),
             audit=WorkerAuditPort(audit_gate=audit_gate, chain_id=run_audit_chain_id),
             approvals=transaction.approvals,  # type: ignore[attr-defined]
-            # Governance-aware ports are wired by their owning Task-10 audit.
-            # Required effects fail closed; they are never replaced by no-ops.
-            agent_drafts=None,
+            payload_decoders=BENCH_PAYLOAD_DECODERS,
+            agent_drafts=build_agent_draft_workflow_port(
+                transaction=transaction,
+                object_store=object_store,
+                clock=clock,
+                commands=agent_draft_commands,
+                governance_refs=agent_draft_governance,
+            ),
             auto_apply=None,
         )
 
@@ -583,15 +636,37 @@ def build_worker_dispatch(
     prompt_materials = PromptRenderMaterialRegistry(
         max_entries=config.max_concurrency or config.max_workers
     )
+    context_materials = AgentPromptContextMaterialRegistry(
+        max_entries=config.max_concurrency or config.max_workers
+    )
     # Prompt bindings are explicit retained production authority.  Task-specific
     # handler composition registers them; an absent binding must fail closed and
     # may never fall back to trusting handler-supplied messages.
     prompt_renderer = prompt_renderer_authority or CanonicalPromptRendererAuthority(
         source_kind_registries=(build_source_kind_registry(),), bindings=()
     )
+    required_prompt_plan_keys = tuple(
+        sorted(
+            {
+                (node.agent_node_id, node.prompt_version, node.tool_version)
+                for graph in registry.list_agent_execution_graphs()
+                if graph.status in {"active", "replay_only"}
+                for node in graph.nodes
+            }
+        )
+    )
+    prompt_renderer = bind_production_agent_prompt_context_authority(
+        prompt_renderer,
+        required_plan_keys=required_prompt_plan_keys,
+    )
 
     def bind_commands(transaction: object) -> RunCommandCapabilities:
         accounting = _accounting(transaction)
+        prompt_source_artifact_port = WorkerArtifactPort(
+            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+            object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+            object_store=object_store,
+        )
         command_audit = WorkerCommandPublicationGateway(
             audit_gate=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
             chain_id=run_audit_chain_id,
@@ -601,7 +676,39 @@ def build_worker_dispatch(
             object_store=object_store,
             idempotency=transaction.idempotency,  # type: ignore[attr-defined]
             prompt_materials=prompt_materials,
+            context_materials=context_materials,
             prompt_renderer=prompt_renderer,
+            prompt_source_authority=FencedToolPromptSourceAuthority(
+                tool_link_loader=lambda run_id, attempt_no, target_call_ordinal: (
+                    transaction.runs.get_tool_intermediate_for_call(  # type: ignore[attr-defined]
+                        run_id,
+                        attempt_no,
+                        target_call_ordinal,
+                    )
+                ),
+                artifact_loader=lambda artifact_id: transaction.artifacts.get(  # type: ignore[attr-defined]
+                    artifact_id
+                ),
+                payload_loader=lambda artifact: prompt_source_artifact_port.read_bytes(
+                    artifact.artifact_id
+                ),
+                route_link_loader=lambda run_id, attempt_no, call_ordinal, route_ordinal: (
+                    transaction.runs.get_model_route_link(  # type: ignore[attr-defined]
+                        run_id,
+                        attempt_no,
+                        call_ordinal,
+                        route_ordinal,
+                    )
+                ),
+                response_consumption_loader=lambda run_id, attempt_no, call_ordinal, route_ordinal: (
+                    transaction.runs.get_model_response_consumption(  # type: ignore[attr-defined]
+                        run_id,
+                        attempt_no,
+                        call_ordinal,
+                        route_ordinal,
+                    )
+                ),
+            ),
         )
         return RunCommandCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]
@@ -670,6 +777,54 @@ def build_worker_dispatch(
 
     def _source_payload_loader(artifact: ArtifactV2) -> bytes:
         return replay_reader.read_prompt_source_bytes(artifact)
+
+    def _tool_intermediate_for_call(
+        run_id: str,
+        attempt_no: int,
+        target_call_ordinal: int,
+    ):
+        with Session(engine) as session:
+            return SqlRunRepository(session).get_tool_intermediate_for_call(
+                run_id,
+                attempt_no,
+                target_call_ordinal,
+            )
+
+    def _model_route_link(
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ):
+        with Session(engine) as session:
+            return SqlRunRepository(session).get_model_route_link(
+                run_id,
+                attempt_no,
+                call_ordinal,
+                route_ordinal,
+            )
+
+    def _model_response_consumption(
+        run_id: str,
+        attempt_no: int,
+        call_ordinal: int,
+        route_ordinal: int,
+    ):
+        with Session(engine) as session:
+            return SqlRunRepository(session).get_model_response_consumption(
+                run_id,
+                attempt_no,
+                call_ordinal,
+                route_ordinal,
+            )
+
+    prompt_source_authority = FencedToolPromptSourceAuthority(
+        tool_link_loader=_tool_intermediate_for_call,
+        artifact_loader=_source_artifact_loader,
+        payload_loader=_source_payload_loader,
+        route_link_loader=_model_route_link,
+        response_consumption_loader=_model_response_consumption,
+    )
 
     def _retry_executor(run: RunRecord) -> RetryExecutor:
         plan = run.payload.execution_version_plan
@@ -761,6 +916,16 @@ def build_worker_dispatch(
             source_artifact_loader=_source_artifact_loader,
             source_payload_loader=_source_payload_loader,
             prompt_renderer=prompt_renderer,
+            source_authority=prompt_source_authority,
+        )
+        context_publisher = WorkerAgentPromptContextPublisher(
+            run=run,
+            fence=fence,
+            commands=claim_service,
+            object_store=object_store,
+            registry=context_materials,
+            clock=clock,
+            source_artifact_loader=_source_artifact_loader,
         )
         cost = WorkerCallCostGateway(
             unit_of_work=unit_of_work,
@@ -843,6 +1008,7 @@ def build_worker_dispatch(
                 execution_source="online",
                 execution_source_selector=select_execution_source,  # type: ignore[arg-type]
                 prompt_publisher=prompt_publisher,
+                context_publisher=context_publisher,
                 decider=decider,
                 router=router,
                 cost=cost,
@@ -877,6 +1043,7 @@ def build_worker_dispatch(
             fence=fence,
             source=source,
             prompt_publisher=prompt_publisher,
+            context_publisher=context_publisher,
             route_publisher=WorkerReplayRoutePublisher(
                 unit_of_work=unit_of_work,
                 fence=fence,
@@ -1030,6 +1197,26 @@ def build_worker_process(
         )
         terminal_cursor_key = _derive_key(config.root_secret, "worker-terminal-cursor")
         registry = build_builtin_registry()
+        required_prompt_plan_keys = tuple(
+            sorted(
+                {
+                    (node.agent_node_id, node.prompt_version, node.tool_version)
+                    for graph in registry.list_agent_execution_graphs()
+                    if graph.status in {"active", "replay_only"}
+                    for node in graph.nodes
+                }
+            )
+        )
+        if prompt_renderer_authority is not None:
+            prompt_renderer_authority = bind_production_agent_prompt_context_authority(
+                prompt_renderer_authority,
+                required_plan_keys=required_prompt_plan_keys,
+            )
+            if model_execution_authorities is not None:
+                model_execution_authorities = replace(
+                    model_execution_authorities,
+                    prompt_renderer=prompt_renderer_authority,
+                )
         blobs = WorkerArtifactBlobReader(
             engine=engine,
             object_store=object_store,

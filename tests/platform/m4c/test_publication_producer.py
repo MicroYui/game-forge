@@ -18,6 +18,7 @@ from gameforge.contracts.jobs import (
     ArtifactMigrationPayloadV1,
     ConstraintValidationPayloadV1,
     GenerationProposePayloadV1,
+    PatchRepairPayloadV1,
     PromptGoalBindingV1,
     RefReadBindingV1,
     RunPayloadEnvelope,
@@ -39,6 +40,7 @@ from gameforge.platform.publication.producer import (
     validate_domain_artifact_producer,
 )
 from gameforge.platform.publication.publisher import TerminalPublisher
+from gameforge.platform.publication.version import project_domain_version_tuple
 from gameforge.platform.registry.defaults import build_builtin_registry
 from tests.platform.m4c.handler_support import (
     build_envelope,
@@ -356,6 +358,144 @@ def test_root_seed_and_environment_are_the_only_local_simulation_sources() -> No
     assert facts.producer_tuple.tool_version == "economy-sim@1"
     assert facts.producer_tuple.seed == 7
     assert facts.producer_tuple.env_contract_version == "agent-env@3"
+
+
+def test_generation_gate_simulation_uses_its_frozen_producer_seed() -> None:
+    """The unseeded generation Run still closes its seeded simulation Artifact."""
+
+    run = _generation_run()
+    assert run.payload.seed is None
+    policy, rule, lineage = _binding("generation.propose", "generation-gate-pass", "simulation")
+    payload = {
+        "payload_schema_version": "simulation-result@1",
+        "snapshot_id": "preview@1",
+        "seed": 0,
+        "replication_count": 30,
+        "horizon_steps": 120,
+        "findings": [],
+    }
+    facts = BUILTIN_DOMAIN_PRODUCER_FACTS_RESOLVER.resolve(
+        run=run,
+        policy=policy,
+        rule=rule,
+        lineage_policy=lineage,
+        payload_schema_id="simulation-result@1",
+        canonical_payload=payload,
+    )
+    projected = project_domain_version_tuple(
+        policy=lineage,
+        parent_tuples={
+            "preview": (VersionTuple(ir_snapshot_id="preview@1"),),
+        },
+        producer_tuple=facts.producer_tuple,
+    )
+    assert facts.producer_tuple.seed == 0
+    assert projected.seed == 0
+
+    blob = canonical_json(payload).encode("utf-8")
+    artifact = build_artifact_v2(
+        kind="simulation_run",
+        version_tuple=projected,
+        lineage=("artifact:preview",),
+        payload_hash=object_ref_for_bytes(blob).sha256,
+        object_ref=object_ref_for_bytes(blob),
+        meta=facts.authoritative_meta({"payload_schema_id": "simulation-result@1"}),
+    )
+    assert (
+        validate_domain_artifact_producer(
+            artifact,
+            facts=facts,
+            lineage_policy=lineage,
+            projected_tuple=projected,
+        ).status
+        == "valid"
+    )
+
+
+def test_repair_artifact_seed_projection_matches_each_kind_producer_matrix() -> None:
+    """A stochastic repair Run must not smear its root seed onto every output."""
+
+    params = PatchRepairPayloadV1(
+        subject_patch_artifact_id="artifact:subject",
+        expected_subject_head_revision=1,
+        expected_workflow_revision=1,
+        base_snapshot_artifact_id="artifact:base",
+        preview_snapshot_artifact_id="artifact:old-preview",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        validation_evidence_artifact_id="artifact:validation",
+        findings=(),
+        target=RefReadBindingV1(ref_name="ref:content"),
+        repair_policy=ProfileRefV1(profile_id="repair", version=1),
+        checker_profiles=(ProfileRefV1(profile_id="checker", version=1),),
+        simulation_profiles=(ProfileRefV1(profile_id="simulation", version=1),),
+        regression_suite_artifact_ids=("artifact:suite",),
+        candidate_export_profiles=(ProfileRefV1(profile_id="export", version=1),),
+    )
+    run = build_run_record(
+        build_envelope(params=params, seed=7),
+        RunKindRef(kind="patch.repair", version=1),
+    )
+    parent_tuples = {
+        "base": (VersionTuple(doc_version="doc@1", ir_snapshot_id="base@1"),),
+        "preview": (VersionTuple(doc_version="doc@1", ir_snapshot_id="preview@2"),),
+        "constraint": (VersionTuple(constraint_snapshot_id="constraint@1"),),
+    }
+    expected_seed = {
+        "primary": None,
+        "preview": None,
+        "config-export": None,
+        "checker": None,
+        "simulation": 7,
+        "regression": 7,
+    }
+    schemas = {
+        "primary": "patch@2",
+        "preview": "ir-core@1",
+        "config-export": "config-export-package@1",
+        "checker": "checker-report@1",
+        "simulation": "simulation-result@1",
+        "regression": "regression-evidence@1",
+    }
+
+    for rule_id, seed in expected_seed.items():
+        policy, rule, lineage = _binding("patch.repair", "repair-verified", rule_id)
+        payload = {"payload_schema_version": schemas[rule_id]}
+        if rule_id == "preview":
+            payload = {"entities": {}, "relations": {}}
+        facts = BUILTIN_DOMAIN_PRODUCER_FACTS_RESOLVER.resolve(
+            run=run,
+            policy=policy,
+            rule=rule,
+            lineage_policy=lineage,
+            payload_schema_id=schemas[rule_id],
+            canonical_payload=payload,
+            producer_env_contract_version=("env@1" if rule_id == "config-export" else None),
+        )
+        projected = project_domain_version_tuple(
+            policy=lineage,
+            parent_tuples=parent_tuples,
+            producer_tuple=facts.producer_tuple,
+        )
+        assert projected.seed == seed, rule_id
+
+        blob = canonical_json(payload).encode("utf-8")
+        artifact = build_artifact_v2(
+            kind=rule.artifact_kind,
+            version_tuple=projected,
+            lineage=("artifact:parent",),
+            payload_hash=object_ref_for_bytes(blob).sha256,
+            object_ref=object_ref_for_bytes(blob),
+            meta=facts.authoritative_meta({"payload_schema_id": schemas[rule_id]}),
+        )
+        assert (
+            validate_domain_artifact_producer(
+                artifact,
+                facts=facts,
+                lineage_policy=lineage,
+                projected_tuple=projected,
+            ).status
+            == "valid"
+        )
 
 
 def test_migration_tool_is_resolved_from_the_frozen_payload_profile() -> None:

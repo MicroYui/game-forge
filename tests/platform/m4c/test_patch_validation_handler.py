@@ -268,7 +268,9 @@ def _handler(
         blobs=store,
         store=store,
         checker_resolver=checker_resolver,
-        sim_config_resolver=lambda profile: ReviewSimConfig(n_agents=6, n_ticks=12),
+        sim_config_resolver=lambda profile: ReviewSimConfig(
+            n_agents=6, n_ticks=12, max_work_units=2_000_000
+        ),
         simulator=simulator if simulator is not None else _CleanSimulator(),
         **kwargs,
     )

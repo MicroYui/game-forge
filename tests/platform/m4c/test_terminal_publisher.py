@@ -172,6 +172,9 @@ class _Ledger:
     def prompt_links(self, run_id, *, attempt_no):
         return ()
 
+    def tool_intermediate_links(self, run_id, *, attempt_no):
+        return ()
+
     def closed_attempt_failures(self, run_id):
         return self.closed
 
@@ -390,6 +393,7 @@ def _checker_artifact(blobs: _Blobs) -> PreparedArtifact:
             "snapshot_id": "snapshot:input",
             "checker_ids": ["graph"],
             "defect_classes": ["dangling_ref"],
+            "constraint_application": [],
             "findings": [],
         }
     ).encode()
@@ -568,6 +572,102 @@ def test_success_publishes_artifact_finding_link_and_manifest():
     assert published.terminal_cassette_artifact_id is None
     # Audit recorded the on_success terminal hook.
     assert any(record["action"] == "publish-checker@1" for record in audit.records)
+
+
+def test_checker_publication_rejects_forged_constraint_id_against_exact_parent_blob():
+    registry, definition = _registry_and_definition()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+
+    constraint_payload = {
+        "dsl_grammar_version": "dsl@1",
+        "constraints": [
+            {
+                "id": "constraint:real",
+                "dsl_grammar_version": "dsl@1",
+                "kind": "structural",
+                "oracle": "deterministic",
+                "predicates": [],
+                "assert_": "true",
+                "severity": "major",
+            }
+        ],
+    }
+    constraint_ref = blobs.register(canonical_json(constraint_payload).encode())
+    constraint_snapshot_id = "constraint:snapshot:1"
+    constraint_artifact = build_artifact_v2(
+        kind="constraint_snapshot",
+        version_tuple=VersionTuple(constraint_snapshot_id=constraint_snapshot_id),
+        lineage=(),
+        payload_hash=constraint_ref.sha256,
+        object_ref=constraint_ref,
+        meta={"payload_schema_id": "constraint-snapshot@1"},
+        created_at=NOW,
+    )
+    artifacts.add(constraint_artifact)
+
+    base_run = _run_record(definition)
+    params = base_run.payload.params.model_copy(
+        update={"constraint_snapshot_artifact_id": constraint_artifact.artifact_id}
+    )
+    envelope = base_run.payload.model_copy(
+        update={
+            "input_artifact_ids": ("artifact:input", constraint_artifact.artifact_id),
+            "version_tuple": base_run.payload.version_tuple.model_copy(
+                update={"constraint_snapshot_id": constraint_snapshot_id}
+            ),
+            "params": params,
+        }
+    )
+    run = base_run.model_copy(
+        update={"payload": envelope, "payload_hash": canonical_payload_hash(envelope)}
+    )
+
+    checker_blob = canonical_json(
+        {
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:input",
+            "checker_ids": ["graph"],
+            "defect_classes": ["dangling_ref"],
+            "constraint_application": [
+                {
+                    "constraint_id": "constraint:forged",
+                    "checker_id": "graph",
+                    "status": "executed",
+                }
+            ],
+            "findings": [],
+        }
+    ).encode()
+    checker_ref = blobs.register(checker_blob)
+    checker = PreparedArtifact(
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:input",
+            constraint_snapshot_id=constraint_snapshot_id,
+            tool_version="checker@1",
+        ),
+        lineage=("artifact:input", constraint_artifact.artifact_id),
+        payload_hash=checker_ref.sha256,
+        meta={"payload_schema_id": "checker-report@1"},
+        object_ref=checker_ref,
+        location=ObjectLocation(store_id="s3", key=checker_ref.key, backend_generation="g1"),
+    )
+    prepared = _prepared_success(artifacts=(checker,))
+    policy = _success_policy(definition)
+    publisher = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        publisher.publish_run_result(
+            run=run,
+            attempt=_attempt(),
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+    assert artifacts.put_order == []
 
 
 def test_workflow_effect_receives_the_final_resealed_primary_payload(monkeypatch):

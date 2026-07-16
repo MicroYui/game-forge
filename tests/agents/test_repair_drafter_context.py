@@ -2,12 +2,13 @@
 need: real relation ids/types/endpoints (to delete/modify), an available-entity
 catalog (to reference as add_relation src/dst), and the edge-type vocabulary.
 Without these the model invents relation ids that apply_patch rejects."""
+
 import hashlib
 import json
 
 import pytest
 
-from gameforge.agents.repair.drafter import RepairDrafter
+from gameforge.agents.repair.drafter import RepairDrafter, build_repair_user_prompt
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
@@ -20,9 +21,17 @@ from gameforge.spine.patch import PatchRejected, apply_patch
 
 def _finding(snap, entities):
     return Finding(
-        id="f1", source="checker", producer_id="p", producer_run_id="r",
-        oracle_type="deterministic", defect_class="cyclic_dependency", severity="major",
-        snapshot_id=snap.snapshot_id, status="confirmed", message="cycle", entities=entities,
+        id="f1",
+        source="checker",
+        producer_id="p",
+        producer_run_id="r",
+        oracle_type="deterministic",
+        defect_class="cyclic_dependency",
+        severity="major",
+        snapshot_id=snap.snapshot_id,
+        status="confirmed",
+        message="cycle",
+        entities=entities,
     )
 
 
@@ -40,8 +49,10 @@ def test_ir_context_exposes_relations_catalog_and_edge_types():
     # incident relations expose the REAL relation id + endpoints (so delete_relation
     # targets an id that actually exists, instead of an invented "s1->s2")
     assert any(
-        r["id"] == "r_pre" and r["type"] == EdgeType.PRECEDES.value
-        and r["src_id"] == "s1" and r["dst_id"] == "s2"
+        r["id"] == "r_pre"
+        and r["type"] == EdgeType.PRECEDES.value
+        and r["src_id"] == "s1"
+        and r["dst_id"] == "s2"
         for r in ctx["incident_relations"]
     )
     # entity catalog lists available ids by type (so add_relation can pick a valid src/dst)
@@ -58,13 +69,24 @@ def test_build_ops_drops_old_value_on_add_and_delete_ops():
     # (set_*/replace_subgraph); add_* have no prior value and delete_* are
     # identified by id alone, so the drafter drops old_value there.
     raw = [
-        {"op": "delete_relation", "target": "r_pre",
-         "old_value": {"type": "PRECEDES", "src_id": "s1", "dst_id": "s2"}},
+        {
+            "op": "delete_relation",
+            "target": "r_pre",
+            "old_value": {"type": "PRECEDES", "src_id": "s1", "dst_id": "s2"},
+        },
         {"op": "delete_entity", "target": "e1", "old_value": {"type": "QUEST"}},
-        {"op": "add_relation", "target": "rel_fix_1", "old_value": {"stale": True},
-         "new_value": {"type": "PRECEDES", "src_id": "s3", "dst_id": "s4"}},
-        {"op": "add_entity", "target": "e_new", "old_value": {"stale": True},
-         "new_value": {"type": "NPC", "attrs": {}}},
+        {
+            "op": "add_relation",
+            "target": "rel_fix_1",
+            "old_value": {"stale": True},
+            "new_value": {"type": "PRECEDES", "src_id": "s3", "dst_id": "s4"},
+        },
+        {
+            "op": "add_entity",
+            "target": "e_new",
+            "old_value": {"stale": True},
+            "new_value": {"type": "NPC", "attrs": {}},
+        },
         {"op": "set_relation_attr", "target": "r_x.price", "old_value": 50, "new_value": 60},
         {"op": "set_entity_attr", "target": "e2.gold", "old_value": 5, "new_value": 3},
         {"op": "replace_subgraph", "target": "sg", "old_value": {"v": 1}, "new_value": {"v": 2}},
@@ -166,3 +188,19 @@ def test_user_prompt_omits_base_snapshot_identity():
 
     assert snap.snapshot_id not in prompt
     assert "base_snapshot_id" not in prompt
+
+
+def test_canonical_prompt_assembler_covers_initial_and_refine_bytes():
+    snap = _stable_context_snapshot("irrelevant")
+    finding = _finding(snap, ["q"])
+
+    initial = build_repair_user_prompt(finding, snap)
+    refined = build_repair_user_prompt(
+        finding,
+        snap,
+        counterexample="exact regression suite did not pass",
+    )
+
+    assert initial == RepairDrafter()._build_user_prompt(finding, snap)
+    assert refined.startswith(initial + "\n\n")
+    assert "exact regression suite did not pass" in refined

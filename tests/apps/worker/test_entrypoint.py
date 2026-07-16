@@ -11,6 +11,7 @@ from sqlalchemy import text
 
 import gameforge.apps.worker.__main__ as worker_main
 import gameforge.apps.worker.app as worker_app
+import gameforge.apps.worker.components as worker_components
 from gameforge.apps.worker.__main__ import main
 from gameforge.apps.worker.app import (
     LocalWorkerConfig,
@@ -28,6 +29,8 @@ from gameforge.apps.worker.replay import LegacyArtifactReplaySource
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import ExecutorContext
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.dsl import Constraint
+from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.jobs import (
     PreparedRunFailure,
     RunAttempt,
@@ -38,6 +41,7 @@ from gameforge.contracts.jobs import (
     run_kind_definition_digest,
 )
 from gameforge.platform.registry import TrustedComponentMaps
+from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 from gameforge.runtime.persistence import migrations_api
 from tests.platform.m4c.test_replay_admission import _legacy_verified_fixture
@@ -54,6 +58,29 @@ def _config(tmp_path: Path) -> LocalWorkerConfig:
         reaper_principal_id="system:lease-reaper",
         root_secret=b"0" * 32,
     )
+
+
+def test_production_checker_resolver_rejects_constraint_cap_before_compilation(
+    monkeypatch,
+) -> None:
+    def forbidden_compile(_constraints):
+        raise AssertionError("oversized exact constraints must not construct solvers")
+
+    monkeypatch.setattr(worker_components, "compile_all", forbidden_compile)
+    resolver = worker_components._build_checker_resolver(build_builtin_registry())
+    constraints = [
+        Constraint(
+            id=f"C_{index}",
+            kind="numeric",
+            oracle="deterministic",
+            **{"assert": "reward_gold <= 80"},
+            severity="major",
+        )
+        for index in range(257)
+    ]
+
+    with pytest.raises(IntegrityViolation, match="constraint set exceeds"):
+        resolver(ProfileRefV1(profile_id="builtin.checker", version=1), constraints)
 
 
 def test_entrypoint_requires_real_configuration_not_a_placeholder(monkeypatch) -> None:
@@ -232,6 +259,11 @@ def test_partial_model_authority_closure_keeps_worker_not_ready(
             "binding_plan_keys",
             property(lambda _: required_prompt_keys),
         )
+        monkeypatch.setattr(
+            worker_app,
+            "agent_prompt_context_binding_plan_keys",
+            lambda _: required_prompt_keys,
+        )
         unrelated_catalog, _ = _catalog_policy(_request())
         with Session(process.runtime.engine) as session, session.begin():
             SqlCostRepository(session).put_model_catalog(unrelated_catalog)
@@ -397,6 +429,21 @@ def test_worker_readiness_rejects_missing_model_route_authority_table(tmp_path: 
         with runtime.engine.begin() as connection:
             connection.exec_driver_sql("DROP TABLE run_model_response_consumptions")
         with pytest.raises(WorkerConfigurationError, match="run_model_response_consumptions"):
+            validate_worker_readiness(runtime)
+    finally:
+        runtime.close()
+
+
+def test_worker_readiness_rejects_missing_workflow_policy_authority_table(
+    tmp_path: Path,
+) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    runtime = build_worker_runtime(config)
+    try:
+        with runtime.engine.begin() as connection:
+            connection.exec_driver_sql("DROP TABLE policy_snapshots")
+        with pytest.raises(WorkerConfigurationError, match="policy_snapshots"):
             validate_worker_readiness(runtime)
     finally:
         runtime.close()

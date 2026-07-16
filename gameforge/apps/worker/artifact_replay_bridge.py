@@ -8,6 +8,7 @@ import time
 from typing import Protocol
 
 from gameforge.apps.worker.model_bridge import (
+    AgentPromptContextPublisher,
     AgentStepCostGateway,
     CallCostGateway,
     ModelCallRequest,
@@ -24,10 +25,13 @@ from gameforge.apps.worker.replay import (
 from gameforge.contracts.cassette_import import LegacyImportRoutingDecisionV1
 from gameforge.contracts.errors import AttemptFenceStateRejected, IntegrityViolation
 from gameforge.contracts.jobs import (
+    AgentPromptPriorConsumptionV1,
     RunAttempt,
     RunIntermediateArtifactLinkV1,
     RunModelRouteLinkV1,
     RunRecord,
+    RunModelResponseConsumptionV1,
+    RunToolIntermediateLinkV1,
 )
 from gameforge.contracts.lineage import AuditActor, AuditCorrelation, AuditSubject
 from gameforge.contracts.model_router import ModelRequestV1, ModelRequestV2, request_hash
@@ -167,6 +171,7 @@ class ArtifactReplayModelBridge:
         fence: AttemptWriteFence,
         source: ArtifactReplaySource,
         prompt_publisher: PromptRenderPublisher,
+        context_publisher: AgentPromptContextPublisher,
         route_publisher: ReplayRoutePublisher,
         native_router: M4ModelRouter | None,
         cost: CallCostGateway,
@@ -193,6 +198,7 @@ class ArtifactReplayModelBridge:
         self._fence = fence
         self._source = source
         self._prompt_publisher = prompt_publisher
+        self._context_publisher = context_publisher
         self._route_publisher = route_publisher
         self._native_router = native_router
         self._cost = cost
@@ -203,6 +209,7 @@ class ArtifactReplayModelBridge:
         self._clock = clock
         self._actor = worker_actor
         self._next_call_ordinal = attempt.next_call_ordinal
+        self._last_consumption: AgentPromptPriorConsumptionV1 | None = None
         self._lock = threading.Lock()
 
     def resolve_model_snapshot(self, **values):
@@ -221,6 +228,21 @@ class ArtifactReplayModelBridge:
             or request.route_ordinal != 1
         ):
             raise IntegrityViolation("replay handler call identity differs from Attempt head")
+        prior = (
+            self._last_consumption if request.prompt_context.include_previous_consumption else None
+        )
+        if request.prompt_context.include_previous_consumption and prior is None:
+            raise IntegrityViolation("replay prompt context requires a prior consumed response")
+        context_publication = self._context_publisher.publish_agent_prompt_context(
+            model_request=request.model_request,
+            draft=request.prompt_context,
+            target_call_ordinal=call_ordinal,
+            prior_consumption=prior,
+            idempotency_scope=expected_scope,
+            idempotency_key=f"model:{call_ordinal}:context",
+            actor=self._actor,
+        )
+        context_link = context_publication.link
         with self._tracer.span(
             "worker.model.call",
             attributes={
@@ -231,9 +253,17 @@ class ArtifactReplayModelBridge:
             },
         ) as span:
             if isinstance(self._source, LegacyArtifactReplaySource):
-                result = self._legacy_call(request, call_ordinal=call_ordinal)
+                result = self._legacy_call(
+                    request,
+                    call_ordinal=call_ordinal,
+                    context_link=context_link,
+                )
             else:
-                result = self._native_call(request, call_ordinal=call_ordinal)
+                result = self._native_call(
+                    request,
+                    call_ordinal=call_ordinal,
+                    context_link=context_link,
+                )
             latency = result.response.latency
             if latency.status == "reported":
                 span.set_attribute(
@@ -243,7 +273,13 @@ class ArtifactReplayModelBridge:
         self._next_call_ordinal += 1
         return result
 
-    def _native_call(self, request: ModelCallRequest, *, call_ordinal: int) -> ModelCallResult:
+    def _native_call(
+        self,
+        request: ModelCallRequest,
+        *,
+        call_ordinal: int,
+        context_link: RunToolIntermediateLinkV1,
+    ) -> ModelCallResult:
         source = self._source
         assert isinstance(source, NativeArtifactReplaySource)
         plan = source.call_plan(
@@ -264,7 +300,7 @@ class ArtifactReplayModelBridge:
                 )
                 link = self._publish_prompt(
                     source_route.request,
-                    source_artifact_ids=request.source_artifact_ids,
+                    source_artifact_ids=(context_link.artifact_id,),
                     logical_call_ordinal=current_call,
                     route_ordinal=route_ordinal,
                 )
@@ -305,7 +341,7 @@ class ArtifactReplayModelBridge:
                 except BaseException:
                     self._cost.cancel_reservation(reservation=reservation)
                     raise
-                self._consume(
+                consumption = self._consume(
                     link=link,
                     decision=current,
                     result=response,
@@ -320,7 +356,13 @@ class ArtifactReplayModelBridge:
                     response=response,
                     decision=current,
                     link=link,
+                    context_link=context_link,
                     replayed=False,
+                )
+                self._retain_prior(
+                    link=link,
+                    decision=current,
+                    consumption=consumption,
                 )
                 break
             else:
@@ -331,14 +373,20 @@ class ArtifactReplayModelBridge:
         self._reconcile_incurred_step(step_reservation, primary_error=None)
         return outcome
 
-    def _legacy_call(self, request: ModelCallRequest, *, call_ordinal: int) -> ModelCallResult:
+    def _legacy_call(
+        self,
+        request: ModelCallRequest,
+        *,
+        call_ordinal: int,
+        context_link: RunToolIntermediateLinkV1,
+    ) -> ModelCallResult:
         source = self._source
         assert isinstance(source, LegacyArtifactReplaySource)
         planned = source.expected_call(call_ordinal=call_ordinal)
         self._require_same_semantics(request.model_request, planned.request)
         link = self._publish_prompt(
             planned.request,
-            source_artifact_ids=request.source_artifact_ids,
+            source_artifact_ids=(context_link.artifact_id,),
             logical_call_ordinal=None,
             route_ordinal=1,
         )
@@ -361,7 +409,7 @@ class ArtifactReplayModelBridge:
             except BaseException:
                 self._cost.cancel_reservation(reservation=reservation)
                 raise
-            self._consume(
+            consumption = self._consume(
                 link=link,
                 decision=planned.routing_decision,
                 result=response,
@@ -374,7 +422,13 @@ class ArtifactReplayModelBridge:
                 response=response,
                 decision=planned.routing_decision,  # type: ignore[arg-type]
                 link=link,
+                context_link=context_link,
                 replayed=False,
+            )
+            self._retain_prior(
+                link=link,
+                decision=planned.routing_decision,
+                consumption=consumption,
             )
         except BaseException as error:
             self._reconcile_incurred_step(step_reservation, primary_error=error)
@@ -468,9 +522,9 @@ class ArtifactReplayModelBridge:
         reservation: object,
         step_reservation: object,
         wall_time_ns: int,
-    ) -> None:
+    ) -> RunModelResponseConsumptionV1:
         try:
-            self._response_publisher.publish_response_consumption(
+            consumption = self._response_publisher.publish_response_consumption(
                 fence=self._fence,
                 link=link,
                 decision=decision,  # type: ignore[arg-type]
@@ -496,6 +550,36 @@ class ArtifactReplayModelBridge:
                     f"{type(settlement_error).__name__}"
                 )
             raise
+        if not isinstance(consumption, RunModelResponseConsumptionV1):
+            raise IntegrityViolation("replay response publication omitted consumption authority")
+        return consumption
+
+    def _retain_prior(
+        self,
+        *,
+        link: RunIntermediateArtifactLinkV1,
+        decision: ReplayDecision,
+        consumption: RunModelResponseConsumptionV1,
+    ) -> None:
+        if consumption.response_digest is None:
+            raise IntegrityViolation("new replay consumption omitted response_digest")
+        self._last_consumption = AgentPromptPriorConsumptionV1(
+            attempt_no=consumption.attempt_no,
+            call_ordinal=consumption.call_ordinal,
+            route_ordinal=consumption.route_ordinal,
+            prompt_artifact_id=link.artifact_id,
+            request_hash=link.request_hash,
+            routing_decision_kind=(
+                "legacy_import" if isinstance(decision, LegacyImportRoutingDecisionV1) else "native"
+            ),
+            routing_decision_id=decision.decision_id,
+            execution_source=consumption.execution_source,
+            reservation_group_id=consumption.reservation_group_id,
+            transport_attempt=consumption.transport_attempt,
+            cassette_shard_artifact_id=consumption.cassette_shard_artifact_id,
+            cassette_source_artifact_id=self._run.payload.cassette_artifact_id,
+            response_digest=consumption.response_digest,
+        )
 
     def _deadline(self, requested: datetime | None) -> datetime:
         authoritative = datetime.fromisoformat(

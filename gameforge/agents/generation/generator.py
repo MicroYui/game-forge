@@ -34,7 +34,13 @@ class ContentGenerator:
         self._snapshot = snapshot
         self._checkers = checkers
 
-    def run(self, input: object, router: ModelRouter) -> AgentNodeResult:
+    def run(
+        self,
+        input: object,
+        router: ModelRouter,
+        *,
+        execute_local_gate: bool = True,
+    ) -> AgentNodeResult:
         goal = input if isinstance(input, DesignGoalInput) else DesignGoalInput(**input)  # type: ignore[arg-type]
         version, system = get_prompt("generation.system")
         user = self._build_user_prompt(goal)
@@ -55,7 +61,14 @@ class ContentGenerator:
             )
 
         ops = [item for item in raw if isinstance(item, dict)] if isinstance(raw, list) else []
-        passed, blocking = gate_proposal(self._snapshot, ops, self._checkers)
+        # M2 callers retain the historical local fixed-budget gate. M4 supplies
+        # an exact profile-hashed gate outside this class and disables the local
+        # one so hidden process constants cannot execute or influence authority.
+        passed, blocking = (
+            gate_proposal(self._snapshot, ops, self._checkers)
+            if execute_local_gate
+            else (False, [])
+        )
         proposal = ContentProposal(proposed_ops=ops, passed_gate=passed)
 
         return AgentNodeResult(

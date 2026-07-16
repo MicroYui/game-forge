@@ -51,6 +51,7 @@ _ENV_CONTRACT = EnvironmentContractDescriptorV1(
     reset_schema_id="generic-env-reset@1",
     action_schema_id="generic-env-action@1",
     observation_schema_id="generic-env-observation@1",
+    max_navigation_grid_cells=65_536,
 )
 
 

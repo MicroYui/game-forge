@@ -148,7 +148,11 @@ def test_plan_to_handler_resolves_opaque_id_through_exact_catalog_authority() ->
         model_bridge=bridge,
     )
 
-    router = build_bridge_router(context=context, agent_node_id="generation")
+    router = build_bridge_router(
+        context=context,
+        agent_node_id="generation",
+        max_prompt_message_bytes=16 * 1024 * 1024,
+    )
 
     assert "/" not in model_snapshot_id
     assert ":sha256:" in model_snapshot_id

@@ -42,6 +42,12 @@ from gameforge.contracts.errors import (
     IntegrityViolation,
 )
 from gameforge.contracts.jobs import (
+    AgentPromptArtifactBindingV1,
+    AgentPromptContextDraftV1,
+    AgentPromptContextV1,
+    AgentPromptPriorConsumptionV1,
+    AgentPromptSourceMessageV1,
+    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     RunAttempt,
     RunEvent,
     RunFindingLinkV1,
@@ -50,6 +56,8 @@ from gameforge.contracts.jobs import (
     RunModelResponseConsumptionV1,
     RunModelRouteLinkV1,
     RunRecord,
+    RunToolIntermediateLinkV1,
+    validate_agent_prompt_context_kind,
 )
 from gameforge.contracts.lineage import (
     ArtifactV2,
@@ -71,17 +79,27 @@ from gameforge.contracts.model_router import (
 from gameforge.contracts.routing import canonical_model_snapshot_id
 from gameforge.contracts.storage import UtcClock
 from gameforge.contracts.routing import RoutingDecisionV1
+from gameforge.contracts.provenance import (
+    OriginRefV1,
+    ProvenanceTransformationV1,
+    ProvenanceV1,
+    TrustLevel,
+    most_conservative_trust,
+)
 from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.lineage.validation import (
     ProducerValidationContext,
     validate_artifact_producer,
 )
 from gameforge.platform.runs.commands import (
+    AgentPromptContextPublicationRequest,
+    AgentPromptContextPublicationResult,
     PromptRenderPublicationRequest,
     PromptRenderPublicationResult,
     RunCommandService,
 )
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
+from gameforge.platform.provenance.registry import build_source_kind_registry
 from gameforge.platform.terminal_staging import (
     StagedReceipt,
     StagedTerminalPublication,
@@ -90,6 +108,28 @@ from gameforge.platform.terminal_staging import (
 
 
 _PROMPT_RENDER_OPERATION = "worker.prompt-rendered@1"
+_AGENT_PROMPT_CONTEXT_OPERATION = "worker.agent-prompt-context@1"
+_AGENT_PROMPT_CONTEXT_TOOL_VERSION = "agent-prompt-context@1"
+
+
+def _require_registered_source_provenance(
+    provenance: ProvenanceV1,
+    *,
+    required_prompt_purposes: frozenset[str] = frozenset(),
+    label: str,
+) -> None:
+    registry = build_source_kind_registry()
+    definition = (
+        registry.get(provenance.source_kind_id)
+        if provenance.source_kind_registry_version == registry.registry_version
+        else None
+    )
+    if (
+        definition is None
+        or provenance.trust not in definition.allowed_trust_levels
+        or not required_prompt_purposes.issubset(definition.allowed_prompt_purposes)
+    ):
+        raise IntegrityViolation(f"{label} escapes the source-kind registry")
 
 
 def _utc_text(clock: UtcClock) -> str:
@@ -133,6 +173,9 @@ class PromptSourceAuthorizationPort(Protocol):
         run: RunRecord,
         fence: AttemptWriteFence,
         source_artifact_ids: tuple[str, ...],
+        agent_node_id: str,
+        prompt_version: str,
+        target_call_ordinal: int,
     ) -> None: ...
 
 
@@ -145,7 +188,11 @@ class FrozenRunInputPromptSourceAuthority:
         run: RunRecord,
         fence: AttemptWriteFence,
         source_artifact_ids: tuple[str, ...],
+        agent_node_id: str,
+        prompt_version: str,
+        target_call_ordinal: int,
     ) -> None:
+        del agent_node_id, prompt_version, target_call_ordinal
         selected = _stable_source_ids(source_artifact_ids)
         if fence.run_id != run.run_id:
             raise IntegrityViolation("prompt source authority received another Run fence")
@@ -156,6 +203,295 @@ class FrozenRunInputPromptSourceAuthority:
                 "prompt source is neither a frozen Run input nor a typed fenced intermediate",
                 source_artifact_ids=unexpected,
             )
+
+
+class FencedToolPromptSourceAuthority:
+    """Authorize one exact per-call context link plus frozen Run inputs.
+
+    The link is only a fenced locator.  All semantic facts are re-read from the
+    immutable ``source_raw[agent-prompt-context@1]`` Artifact and its canonical
+    payload.  This keeps trust/provenance/source bindings out of a second mutable
+    authority while preventing a same-Run tool output from being reused by a
+    different attempt, node, prompt version, or logical call.
+    """
+
+    def __init__(
+        self,
+        *,
+        tool_link_loader: Callable[[str, int, int], RunToolIntermediateLinkV1 | None],
+        artifact_loader: Callable[[str], ArtifactV2 | None],
+        payload_loader: Callable[[ArtifactV2], bytes],
+        route_link_loader: Callable[[str, int, int, int], RunModelRouteLinkV1 | None] | None = None,
+        response_consumption_loader: Callable[
+            [str, int, int, int], RunModelResponseConsumptionV1 | None
+        ]
+        | None = None,
+    ) -> None:
+        self._tool_link_loader = tool_link_loader
+        self._artifact_loader = artifact_loader
+        self._payload_loader = payload_loader
+        self._route_link_loader = route_link_loader
+        self._response_consumption_loader = response_consumption_loader
+
+    def require_authorized(
+        self,
+        *,
+        run: RunRecord,
+        fence: AttemptWriteFence,
+        source_artifact_ids: tuple[str, ...],
+        agent_node_id: str,
+        prompt_version: str,
+        target_call_ordinal: int,
+    ) -> None:
+        selected = _stable_source_ids(source_artifact_ids)
+        if fence.run_id != run.run_id:
+            raise IntegrityViolation("prompt source authority received another Run fence")
+        if (
+            isinstance(target_call_ordinal, bool)
+            or not isinstance(target_call_ordinal, int)
+            or target_call_ordinal < 1
+        ):
+            raise IntegrityViolation("prompt source target call ordinal must be positive")
+        frozen = frozenset(run.payload.input_artifact_ids)
+        dynamic = tuple(value for value in selected if value not in frozen)
+        raw_link = self._tool_link_loader(
+            run.run_id,
+            fence.attempt_no,
+            target_call_ordinal,
+        )
+        if raw_link is None:
+            if dynamic:
+                raise IntegrityViolation(
+                    "prompt source is neither a frozen Run input nor a typed fenced intermediate",
+                    source_artifact_ids=dynamic,
+                )
+            return
+        try:
+            link = (
+                raw_link
+                if isinstance(raw_link, RunToolIntermediateLinkV1)
+                else RunToolIntermediateLinkV1.model_validate(raw_link)
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("prompt context link is not canonical") from exc
+        if selected != (link.artifact_id,):
+            raise IntegrityViolation(
+                "prompt source set must be exactly its per-call context Artifact",
+                expected_context_artifact_id=link.artifact_id,
+                supplied_source_artifact_ids=selected,
+            )
+        if (
+            link.run_id != run.run_id
+            or link.attempt_no != fence.attempt_no
+            or link.target_call_ordinal != target_call_ordinal
+            or link.agent_node_id != agent_node_id
+            or link.prompt_version != prompt_version
+            or link.fencing_token != fence.fencing_token
+        ):
+            raise IntegrityViolation("prompt context link differs from the current call fence")
+        artifact = self._artifact_loader(link.artifact_id)
+        if not isinstance(artifact, ArtifactV2) or artifact.artifact_id != link.artifact_id:
+            raise IntegrityViolation("prompt context link does not resolve its exact Artifact")
+        payload = self._payload_loader(artifact)
+        self._validate_context(
+            run=run,
+            fence=fence,
+            link=link,
+            artifact=artifact,
+            payload=payload,
+            agent_node_id=agent_node_id,
+            prompt_version=prompt_version,
+            target_call_ordinal=target_call_ordinal,
+        )
+
+    def _validate_context(
+        self,
+        *,
+        run: RunRecord,
+        fence: AttemptWriteFence,
+        link: RunToolIntermediateLinkV1,
+        artifact: ArtifactV2,
+        payload: bytes,
+        agent_node_id: str,
+        prompt_version: str,
+        target_call_ordinal: int,
+    ) -> None:
+        try:
+            decoded = json.loads(payload)
+            context = AgentPromptContextV1.model_validate(decoded)
+            validate_agent_prompt_context_kind(
+                agent_node_id=agent_node_id,
+                context_kind=context.context_kind,
+                target_call_ordinal=target_call_ordinal,
+                prior_consumption=context.prior_consumption,
+            )
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise IntegrityViolation("prompt context payload is invalid") from exc
+        canonical = canonical_json(context.model_dump(mode="json")).encode("utf-8")
+        digest = sha256_lowerhex(payload)
+        upstream_ids = tuple(sorted(item.artifact_id for item in context.upstream_artifacts))
+        if (
+            payload != canonical
+            or digest != link.payload_hash
+            or digest != artifact.payload_hash
+            or artifact.object_ref.sha256 != digest
+            or artifact.object_ref.size_bytes != len(payload)
+            or artifact.kind != "source_raw"
+            or artifact.version_tuple
+            != VersionTuple(
+                doc_version=run.payload.version_tuple.doc_version,
+                tool_version=_AGENT_PROMPT_CONTEXT_TOOL_VERSION,
+            )
+            or artifact.meta.get("payload_schema_id") != "agent-prompt-context@1"
+            or artifact.meta.get("producer_run_id") != run.run_id
+            or artifact.meta.get("producer_attempt_no") != fence.attempt_no
+            or artifact.meta.get("target_call_ordinal") != target_call_ordinal
+            or artifact.meta.get("agent_node_id") != agent_node_id
+            or artifact.meta.get("prompt_version") != prompt_version
+            or context.run_id != run.run_id
+            or context.attempt_no != fence.attempt_no
+            or context.target_call_ordinal != target_call_ordinal
+            or context.agent_node_id != agent_node_id
+            or context.prompt_version != prompt_version
+            or tuple(artifact.lineage) != upstream_ids
+        ):
+            raise IntegrityViolation("prompt context Artifact/link/payload closure differs")
+        frozen = frozenset(run.payload.input_artifact_ids)
+        source_bindings = tuple(
+            item for item in context.upstream_artifacts if item.binding_key.startswith("source:")
+        )
+        prior_bindings = {
+            item.binding_key: item
+            for item in context.upstream_artifacts
+            if item.binding_key in {"prior.prompt", "prior.cassette_source"}
+        }
+        if len(source_bindings) + len(prior_bindings) != len(context.upstream_artifacts):
+            raise IntegrityViolation("prompt context upstream binding key is not retained")
+        if any(item.artifact_id not in frozen for item in source_bindings):
+            raise IntegrityViolation("prompt context source lineage escapes frozen Run inputs")
+        prior = context.prior_consumption
+        expected_prior_keys: set[str] = set()
+        if prior is not None:
+            if prior.call_ordinal != context.target_call_ordinal - 1:
+                raise IntegrityViolation("prompt context prior call is not target-minus-one")
+            expected_prior_keys.add("prior.prompt")
+            mode = run.payload.llm_execution_mode
+            expected_cassette_source = (
+                prior.cassette_shard_artifact_id
+                if mode == "record"
+                else run.payload.cassette_artifact_id
+                if mode == "replay"
+                else None
+            )
+            if (
+                prior.cassette_source_artifact_id != expected_cassette_source
+                or (mode == "record" and expected_cassette_source is None)
+                or (mode == "replay" and expected_cassette_source not in frozen)
+            ):
+                raise IntegrityViolation(
+                    "prompt context prior cassette source differs from Run mode"
+                )
+            if expected_cassette_source is not None:
+                expected_prior_keys.add("prior.cassette_source")
+        if set(prior_bindings) != expected_prior_keys:
+            raise IntegrityViolation("prompt context prior direct-parent set is not exact")
+        if prior is not None:
+            prompt_parent = prior_bindings["prior.prompt"]
+            if (
+                prompt_parent.artifact_id != prior.prompt_artifact_id
+                or prompt_parent.artifact_kind != "source_rendered"
+                or prompt_parent.payload_schema_id != "source-rendered@1"
+            ):
+                raise IntegrityViolation("prompt context prior prompt parent is not exact")
+            cassette_parent = prior_bindings.get("prior.cassette_source")
+            if cassette_parent is not None and (
+                cassette_parent.artifact_id != prior.cassette_source_artifact_id
+                or cassette_parent.artifact_kind != "cassette_bundle"
+                or cassette_parent.payload_schema_id
+                != (
+                    "cassette-bundle@1"
+                    if run.payload.llm_execution_mode == "replay"
+                    else "cassette-record-shard@1"
+                )
+            ):
+                raise IntegrityViolation("prompt context prior cassette source parent is not exact")
+
+        upstream_trust: list[str] = []
+        for binding in context.upstream_artifacts:
+            upstream = self._artifact_loader(binding.artifact_id)
+            if not isinstance(upstream, ArtifactV2) or (
+                upstream.artifact_id != binding.artifact_id
+                or upstream.kind != binding.artifact_kind
+                or upstream.meta.get("payload_schema_id") != binding.payload_schema_id
+                or upstream.payload_hash != binding.payload_hash
+                or upstream.object_ref.sha256 != binding.payload_hash
+            ):
+                raise IntegrityViolation("prompt context upstream binding is not exact")
+            raw_upstream_provenance = upstream.meta.get("provenance")
+            if raw_upstream_provenance is None:
+                upstream_trust.append("untrusted_external")
+                continue
+            try:
+                upstream_provenance = ProvenanceV1.model_validate(raw_upstream_provenance)
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation("prompt context upstream provenance is invalid") from exc
+            if (
+                upstream_provenance.source_hash != upstream.payload_hash
+                or upstream_provenance.parent_source_artifact_ids != tuple(upstream.lineage)
+            ):
+                raise IntegrityViolation("prompt context upstream provenance differs")
+            _require_registered_source_provenance(
+                upstream_provenance,
+                label="prompt context upstream provenance",
+            )
+            upstream_trust.append(upstream_provenance.trust)
+
+        try:
+            provenance = ProvenanceV1.model_validate(artifact.meta.get("provenance"))
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("prompt context provenance is invalid") from exc
+        _require_registered_source_provenance(
+            provenance,
+            required_prompt_purposes=frozenset({"context", "tool_output"}),
+            label="prompt context provenance",
+        )
+        if (
+            provenance.source_kind_registry_version != 1
+            or provenance.source_kind_id != "tool_output"
+            or provenance.source_hash != artifact.payload_hash
+            or provenance.parent_source_artifact_ids != upstream_ids
+            or provenance.trust != most_conservative_trust(tuple(upstream_trust))
+        ):
+            raise IntegrityViolation("prompt context provenance/hash/lineage/trust differs")
+        if prior is not None:
+            if self._route_link_loader is None or self._response_consumption_loader is None:
+                raise IntegrityViolation("prompt context prior authority is unavailable")
+            route = self._route_link_loader(
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            consumption = self._response_consumption_loader(
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            if (
+                route is None
+                or consumption is None
+                or route.prompt_artifact_id != prior.prompt_artifact_id
+                or route.request_hash != prior.request_hash
+                or route.routing_decision_kind != prior.routing_decision_kind
+                or route.routing_decision_id != prior.routing_decision_id
+                or consumption.execution_source != prior.execution_source
+                or consumption.reservation_group_id != prior.reservation_group_id
+                or consumption.transport_attempt != prior.transport_attempt
+                or consumption.cassette_shard_artifact_id != prior.cassette_shard_artifact_id
+                or consumption.response_digest != prior.response_digest
+            ):
+                raise IntegrityViolation("prompt context prior consumption is not authoritative")
 
 
 @dataclass(frozen=True, slots=True)
@@ -257,6 +593,386 @@ class PromptRenderMaterialRegistry:
         return material
 
 
+@dataclass(frozen=True, slots=True)
+class AgentPromptContextMaterial:
+    run_id: str
+    attempt_no: int
+    target_call_ordinal: int
+    fence: AttemptWriteFence
+    idempotency_scope: str
+    idempotency_key: str
+    context: AgentPromptContextV1
+    source_artifact_ids: tuple[str, ...]
+    artifact: ArtifactV2
+    receipt: StagedReceipt
+
+
+class AgentPromptContextMaterialRegistry:
+    """Bounded process handoff; committed idempotency/link rows remain authority."""
+
+    def __init__(self, *, max_entries: int = 4096) -> None:
+        if isinstance(max_entries, bool) or not isinstance(max_entries, int) or max_entries < 1:
+            raise ValueError("Agent prompt-context material capacity must be positive")
+        self._lock = threading.Lock()
+        self._max_entries = max_entries
+        self._materials: dict[tuple[str, str], AgentPromptContextMaterial] = {}
+
+    def record(self, material: AgentPromptContextMaterial) -> None:
+        identity = (material.idempotency_scope, material.idempotency_key)
+        with self._lock:
+            retained = self._materials.get(identity)
+            if retained is not None and (
+                retained.run_id != material.run_id
+                or retained.attempt_no != material.attempt_no
+                or retained.target_call_ordinal != material.target_call_ordinal
+                or retained.fence != material.fence
+                or retained.context != material.context
+                or retained.source_artifact_ids != material.source_artifact_ids
+                or _immutable_artifact_wire(retained.artifact)
+                != _immutable_artifact_wire(material.artifact)
+            ):
+                raise Conflict(
+                    "Agent prompt-context idempotency key has different staged material",
+                    idempotency_scope=identity[0],
+                    idempotency_key=identity[1],
+                )
+            if retained is None and len(self._materials) >= self._max_entries:
+                raise IntegrityViolation(
+                    "Agent prompt-context material registry capacity is exhausted"
+                )
+            self._materials[identity] = material
+
+    def discard(self, material: AgentPromptContextMaterial) -> None:
+        identity = (material.idempotency_scope, material.idempotency_key)
+        with self._lock:
+            if self._materials.get(identity) is material:
+                del self._materials[identity]
+
+    def resolve(
+        self,
+        *,
+        idempotency_scope: str,
+        idempotency_key: str,
+        payload_hash: str,
+    ) -> AgentPromptContextMaterial:
+        with self._lock:
+            material = self._materials.get((idempotency_scope, idempotency_key))
+        if material is None:
+            raise IntegrityViolation("Agent prompt-context material was not staged")
+        if material.artifact.payload_hash != payload_hash:
+            raise Conflict("Agent prompt-context idempotency key has another payload hash")
+        return material
+
+
+class WorkerAgentPromptContextPublisher:
+    """Build and stage one governed tool-output context before model routing."""
+
+    def __init__(
+        self,
+        *,
+        run: RunRecord,
+        fence: AttemptWriteFence,
+        commands: RunCommandService,
+        object_store: object,
+        registry: AgentPromptContextMaterialRegistry,
+        clock: UtcClock,
+        source_artifact_loader: Callable[[str], ArtifactV2],
+    ) -> None:
+        self._run = run
+        self._fence = fence
+        self._commands = commands
+        self._object_store = object_store
+        self._registry = registry
+        self._clock = clock
+        self._source_artifact_loader = source_artifact_loader
+
+    def publish_agent_prompt_context(
+        self,
+        *,
+        model_request: ModelRequestV2,
+        draft: AgentPromptContextDraftV1,
+        target_call_ordinal: int,
+        prior_consumption: AgentPromptPriorConsumptionV1 | None,
+        idempotency_scope: str,
+        idempotency_key: str,
+        actor: AuditActor,
+    ) -> AgentPromptContextPublicationResult:
+        if self._fence.run_id != self._run.run_id:
+            raise IntegrityViolation("Agent prompt-context publisher has another Run fence")
+        plan = self._run.payload.execution_version_plan
+        node = (
+            None
+            if plan is None
+            else next(
+                (item for item in plan.nodes if item.agent_node_id == model_request.agent_node_id),
+                None,
+            )
+        )
+        if (
+            self._run.payload.llm_execution_mode == "not_applicable"
+            or node is None
+            or node.prompt_version != model_request.prompt_version
+        ):
+            raise IntegrityViolation("Agent prompt-context escapes the execution plan")
+        messages = tuple(
+            AgentPromptSourceMessageV1(
+                role=message.role,
+                content=message.content,
+                tool_calls=tuple(message.tool_calls),
+                purpose="context" if message.role == "user" else "tool_output",
+            )
+            for message in model_request.messages
+            if message.role != "system"
+        )
+        if not messages or messages != draft.messages:
+            raise IntegrityViolation(
+                "Agent prompt-context draft differs from exact non-system messages"
+            )
+        selected_source_ids = _stable_source_ids(draft.source_artifact_ids)
+        frozen_inputs = frozenset(self._run.payload.input_artifact_ids)
+        if any(source_id not in frozen_inputs for source_id in selected_source_ids):
+            raise IntegrityViolation("Agent prompt-context draft sources escape frozen Run inputs")
+        if draft.include_previous_consumption != (prior_consumption is not None):
+            raise IntegrityViolation(
+                "Agent prompt-context prior-consumption request is not satisfied"
+            )
+        try:
+            validate_agent_prompt_context_kind(
+                agent_node_id=model_request.agent_node_id,
+                context_kind=draft.context_kind,
+                target_call_ordinal=target_call_ordinal,
+                prior_consumption=prior_consumption,
+            )
+        except ValueError as exc:
+            raise IntegrityViolation("Agent prompt-context kind is not authoritative") from exc
+        binding_keys: dict[str, str] = {
+            source_id: f"source:{ordinal:04d}"
+            for ordinal, source_id in enumerate(selected_source_ids, start=1)
+        }
+        if prior_consumption is not None:
+            mode = self._run.payload.llm_execution_mode
+            expected_cassette_source = (
+                prior_consumption.cassette_shard_artifact_id
+                if mode == "record"
+                else self._run.payload.cassette_artifact_id
+                if mode == "replay"
+                else None
+            )
+            if (
+                prior_consumption.cassette_source_artifact_id != expected_cassette_source
+                or (mode == "record" and expected_cassette_source is None)
+                or (mode == "replay" and expected_cassette_source not in frozen_inputs)
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context prior cassette source differs from Run mode"
+                )
+            binding_keys[prior_consumption.prompt_artifact_id] = "prior.prompt"
+            if prior_consumption.cassette_source_artifact_id is not None:
+                binding_keys[prior_consumption.cassette_source_artifact_id] = (
+                    "prior.cassette_source"
+                )
+        direct_parent_ids = tuple(sorted(binding_keys))
+        bindings: list[AgentPromptArtifactBindingV1] = []
+        trusts: list[TrustLevel] = []
+        for source_id in direct_parent_ids:
+            source = self._source_artifact_loader(source_id)
+            if not isinstance(source, ArtifactV2) or source.artifact_id != source_id:
+                raise IntegrityViolation("Agent prompt-context source loader returned another id")
+            payload_schema_id = source.meta.get("payload_schema_id")
+            if (
+                not isinstance(payload_schema_id, str)
+                or not payload_schema_id
+                or source.object_ref.sha256 != source.payload_hash
+            ):
+                raise IntegrityViolation("Agent prompt-context source metadata is incomplete")
+            raw_provenance = source.meta.get("provenance")
+            if raw_provenance is None:
+                trusts.append("untrusted_external")
+            else:
+                try:
+                    provenance = ProvenanceV1.model_validate(raw_provenance)
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation(
+                        "Agent prompt-context source provenance is invalid"
+                    ) from exc
+                if (
+                    provenance.source_hash != source.payload_hash
+                    or provenance.parent_source_artifact_ids != tuple(source.lineage)
+                ):
+                    raise IntegrityViolation(
+                        "Agent prompt-context source provenance differs from its Artifact"
+                    )
+                source_registry = build_source_kind_registry()
+                source_definition = (
+                    source_registry.get(provenance.source_kind_id)
+                    if provenance.source_kind_registry_version == source_registry.registry_version
+                    else None
+                )
+                if (
+                    source_definition is None
+                    or provenance.trust not in source_definition.allowed_trust_levels
+                ):
+                    raise IntegrityViolation(
+                        "Agent prompt-context source trust escapes its registry"
+                    )
+                trusts.append(provenance.trust)
+            bindings.append(
+                AgentPromptArtifactBindingV1(
+                    binding_key=binding_keys[source_id],
+                    artifact_id=source.artifact_id,
+                    artifact_kind=source.kind,
+                    payload_schema_id=payload_schema_id,
+                    payload_hash=source.payload_hash,
+                )
+            )
+        context = AgentPromptContextV1(
+            context_kind=draft.context_kind,
+            run_id=self._run.run_id,
+            attempt_no=self._fence.attempt_no,
+            target_call_ordinal=target_call_ordinal,
+            agent_node_id=model_request.agent_node_id,
+            prompt_version=model_request.prompt_version,
+            messages=messages,
+            upstream_artifacts=tuple(bindings),
+            semantic_bindings=draft.semantic_bindings,
+            prior_consumption=prior_consumption,
+        )
+        payload = canonical_json(context.model_dump(mode="json")).encode("utf-8")
+        stored = self._object_store.put_verified(payload)  # type: ignore[attr-defined]
+        stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
+        if stat.ref != stored.ref or stat.location != stored.location:
+            raise IntegrityViolation("staged Agent prompt-context failed exact stat")
+        input_hash = sha256_lowerhex(
+            canonical_json(
+                {
+                    "messages": [item.model_dump(mode="json") for item in context.messages],
+                    "upstream_artifacts": [
+                        binding.model_dump(mode="json") for binding in context.upstream_artifacts
+                    ],
+                    "semantic_bindings": [
+                        binding.model_dump(mode="json") for binding in context.semantic_bindings
+                    ],
+                    "prior_consumption": (
+                        None
+                        if context.prior_consumption is None
+                        else context.prior_consumption.model_dump(mode="json")
+                    ),
+                }
+            ).encode("utf-8")
+        )
+        doc_version = self._run.payload.version_tuple.doc_version
+        if not isinstance(doc_version, str) or not doc_version:
+            raise IntegrityViolation(
+                "Agent prompt-context Run has no frozen doc_version to inherit"
+            )
+        context_registry = build_source_kind_registry()
+        context_definition = context_registry.get("tool_output")
+        context_trust = most_conservative_trust(tuple(trusts))
+        if (
+            context_definition is None
+            or context_trust not in context_definition.allowed_trust_levels
+            or "tool_output" not in context_definition.allowed_prompt_purposes
+        ):
+            raise IntegrityViolation("Agent prompt-context tool-output provenance is forbidden")
+        provenance = ProvenanceV1(
+            source_kind_registry_version=context_registry.registry_version,
+            source_kind_id="tool_output",
+            origin_ref=OriginRefV1(
+                opaque_source_id=(
+                    f"agent-prompt-context:{self._run.run_id}:"
+                    f"{self._fence.attempt_no}:{target_call_ordinal}"
+                ),
+                source_revision=stored.ref.sha256,
+            ),
+            parent_source_artifact_ids=direct_parent_ids,
+            connector_id=_AGENT_PROMPT_CONTEXT_TOOL_VERSION,
+            connector_version="1",
+            trust=context_trust,
+            source_hash=stored.ref.sha256,
+            transformations=(
+                ProvenanceTransformationV1(
+                    tool_version=_AGENT_PROMPT_CONTEXT_TOOL_VERSION,
+                    input_hash=input_hash,
+                    output_hash=stored.ref.sha256,
+                ),
+            ),
+        )
+        artifact = build_artifact_v2(
+            kind="source_raw",
+            version_tuple=VersionTuple(
+                doc_version=doc_version,
+                tool_version=_AGENT_PROMPT_CONTEXT_TOOL_VERSION,
+            ),
+            lineage=direct_parent_ids,
+            payload_hash=stored.ref.sha256,
+            object_ref=stored.ref,
+            meta={
+                "payload_schema_id": "agent-prompt-context@1",
+                "provenance": provenance.model_dump(mode="json"),
+                "producer_run_id": self._run.run_id,
+                "producer_attempt_no": self._fence.attempt_no,
+                "target_call_ordinal": target_call_ordinal,
+                "agent_node_id": model_request.agent_node_id,
+                "prompt_version": model_request.prompt_version,
+                "replayability": (
+                    "online_only"
+                    if self._run.payload.llm_execution_mode == "live"
+                    else "cassette_replay"
+                ),
+            },
+            created_at=_utc_text(self._clock),
+        )
+        validate_artifact_producer(
+            artifact,
+            ProducerValidationContext(
+                expected_versions={"doc_version": doc_version},
+                llm_execution_mode=self._run.payload.llm_execution_mode,
+                tool_output=True,
+            ),
+        )
+        material = AgentPromptContextMaterial(
+            run_id=self._run.run_id,
+            attempt_no=self._fence.attempt_no,
+            target_call_ordinal=target_call_ordinal,
+            fence=self._fence,
+            idempotency_scope=idempotency_scope,
+            idempotency_key=idempotency_key,
+            context=context,
+            source_artifact_ids=direct_parent_ids,
+            artifact=artifact,
+            receipt=StagedReceipt(
+                slot=f"agent-prompt-context:{self._fence.attempt_no}:{target_call_ordinal}",
+                ref=stored.ref,
+                location=stored.location,
+            ),
+        )
+        self._registry.record(material)
+        try:
+            result = self._commands.publish_agent_prompt_context(
+                AgentPromptContextPublicationRequest(
+                    fence=self._fence,
+                    target_call_ordinal=target_call_ordinal,
+                    artifact_id=artifact.artifact_id,
+                    payload_hash=artifact.payload_hash,
+                    agent_node_id=model_request.agent_node_id,
+                    prompt_version=model_request.prompt_version,
+                    idempotency_scope=idempotency_scope,
+                    idempotency_key=idempotency_key,
+                    actor=actor,
+                )
+            )
+            if (
+                result.link.artifact_id != artifact.artifact_id
+                or result.link.payload_hash != artifact.payload_hash
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context command returned another Artifact link"
+                )
+            return result
+        finally:
+            self._registry.discard(material)
+
+
 class WorkerPromptRenderPublisher:
     """Stage a canonical ``ModelRequestV2`` then invoke the fenced command path."""
 
@@ -314,6 +1030,9 @@ class WorkerPromptRenderPublisher:
             run=self._run,
             fence=self._fence,
             source_artifact_ids=selected_source_ids,
+            agent_node_id=model_request.agent_node_id,
+            prompt_version=model_request.prompt_version,
+            target_call_ordinal=request.logical_call_ordinal,
         )
         source_artifacts: list[ArtifactV2] = []
         for source_artifact_id in selected_source_ids:
@@ -706,7 +1425,20 @@ class WorkerManifestLedger:
     def prompt_links(
         self, run_id: str, *, attempt_no: int | None
     ) -> tuple[RunIntermediateArtifactLinkV1, ...]:
-        return self._runs.list_prompt_render_links(run_id, attempt_no=attempt_no)  # type: ignore[attr-defined]
+        return self._runs.list_prompt_render_links(  # type: ignore[attr-defined,no-any-return]
+            run_id,
+            attempt_no=attempt_no,
+            limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
+        )
+
+    def tool_intermediate_links(
+        self, run_id: str, *, attempt_no: int | None
+    ) -> tuple[RunToolIntermediateLinkV1, ...]:
+        return self._runs.list_tool_intermediate_links(  # type: ignore[attr-defined,no-any-return]
+            run_id,
+            attempt_no=attempt_no,
+            limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
+        )
 
     def closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]:
         return self._runs.list_closed_attempt_failures(run_id)  # type: ignore[attr-defined]
@@ -777,6 +1509,7 @@ class WorkerManifestLedger:
         return self._runs.list_model_route_links(  # type: ignore[attr-defined,no-any-return]
             run_id,
             attempt_no=attempt_no,
+            limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
         )
 
     def model_response_consumptions(
@@ -788,6 +1521,7 @@ class WorkerManifestLedger:
         return self._runs.list_model_response_consumptions(  # type: ignore[attr-defined,no-any-return]
             run_id,
             attempt_no=attempt_no,
+            limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
         )
 
     def record_shard_links(
@@ -876,6 +1610,7 @@ class WorkerCommandPublicationGateway:
         object_store: object,
         idempotency: object,
         prompt_materials: PromptRenderMaterialRegistry,
+        context_materials: AgentPromptContextMaterialRegistry,
         prompt_renderer: CanonicalPromptRendererAuthority,
         prompt_source_authority: PromptSourceAuthorizationPort | None = None,
     ) -> None:
@@ -891,6 +1626,7 @@ class WorkerCommandPublicationGateway:
         self._object_store = object_store
         self._idempotency = idempotency
         self._prompt_materials = prompt_materials
+        self._context_materials = context_materials
         self._prompt_renderer = prompt_renderer
         self._prompt_source_authority = (
             prompt_source_authority or FrozenRunInputPromptSourceAuthority()
@@ -956,6 +1692,313 @@ class WorkerCommandPublicationGateway:
     ) -> None:
         del record
         self._append(action="run.command_completed", run=run, event=event, actor=actor)
+
+    def get_agent_prompt_context_replay(
+        self,
+        *,
+        idempotency_scope: str,
+        idempotency_key: str,
+        payload_hash: str,
+    ) -> RunToolIntermediateLinkV1 | None:
+        material = self._context_materials.resolve(
+            idempotency_scope=idempotency_scope,
+            idempotency_key=idempotency_key,
+            payload_hash=payload_hash,
+        )
+        replay = self._idempotency.get_result(  # type: ignore[attr-defined]
+            scope=idempotency_scope,
+            operation=_AGENT_PROMPT_CONTEXT_OPERATION,
+            key=idempotency_key,
+            request_hash=payload_hash,
+        )
+        if replay is None:
+            return None
+        if set(replay) != {"artifact_id", "link"}:
+            raise IntegrityViolation("stored Agent prompt-context replay has invalid shape")
+        try:
+            link = RunToolIntermediateLinkV1.model_validate(replay["link"])
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("stored Agent prompt-context link is invalid") from exc
+        if (
+            replay["artifact_id"] != material.artifact.artifact_id
+            or link.run_id != material.run_id
+            or link.attempt_no != material.attempt_no
+            or link.target_call_ordinal != material.target_call_ordinal
+            or link.artifact_id != material.artifact.artifact_id
+            or link.payload_hash != payload_hash
+            or link.agent_node_id != material.context.agent_node_id
+            or link.prompt_version != material.context.prompt_version
+            or link.fencing_token != material.fence.fencing_token
+        ):
+            raise IntegrityViolation(
+                "stored Agent prompt-context replay differs from staged material"
+            )
+        retained = self._artifacts.get(link.artifact_id)  # type: ignore[attr-defined]
+        if not isinstance(retained, ArtifactV2) or (
+            _immutable_artifact_wire(retained) != _immutable_artifact_wire(material.artifact)
+        ):
+            raise IntegrityViolation(
+                "Agent prompt-context replay does not resolve its immutable Artifact"
+            )
+        return link
+
+    def publish_agent_prompt_context(
+        self,
+        *,
+        link: RunToolIntermediateLinkV1,
+        idempotency_scope: str,
+        idempotency_key: str,
+        payload_hash: str,
+        actor: AuditActor,
+    ) -> RunToolIntermediateLinkV1:
+        material = self._context_materials.resolve(
+            idempotency_scope=idempotency_scope,
+            idempotency_key=idempotency_key,
+            payload_hash=payload_hash,
+        )
+        run = self._runs.get(link.run_id)  # type: ignore[attr-defined]
+        attempt = self._runs.get_attempt(link.run_id, link.attempt_no)  # type: ignore[attr-defined]
+        if not isinstance(run, RunRecord) or not isinstance(attempt, RunAttempt):
+            raise IntegrityViolation("Agent prompt-context Run or attempt disappeared")
+        if run.cancel_requested_at is not None:
+            raise AttemptFenceStateRejected(
+                "cancel-requested Run cannot publish Agent prompt context"
+            )
+        context = material.context
+        try:
+            validate_agent_prompt_context_kind(
+                agent_node_id=context.agent_node_id,
+                context_kind=context.context_kind,
+                target_call_ordinal=context.target_call_ordinal,
+                prior_consumption=context.prior_consumption,
+            )
+        except ValueError as exc:
+            raise IntegrityViolation("Agent prompt-context kind is not authoritative") from exc
+        upstream_ids = tuple(sorted(item.artifact_id for item in context.upstream_artifacts))
+        if (
+            link.run_id != material.run_id
+            or link.attempt_no != material.attempt_no
+            or link.target_call_ordinal != material.target_call_ordinal
+            or link.artifact_id != material.artifact.artifact_id
+            or link.payload_hash != payload_hash
+            or link.agent_node_id != context.agent_node_id
+            or link.prompt_version != context.prompt_version
+            or link.fencing_token != material.fence.fencing_token
+            or material.source_artifact_ids != upstream_ids
+            or tuple(material.artifact.lineage) != upstream_ids
+            or material.artifact.version_tuple
+            != VersionTuple(
+                doc_version=run.payload.version_tuple.doc_version,
+                tool_version=_AGENT_PROMPT_CONTEXT_TOOL_VERSION,
+            )
+        ):
+            raise IntegrityViolation("Agent prompt-context link differs from staged material")
+        frozen = frozenset(run.payload.input_artifact_ids)
+        source_binding_ids = tuple(
+            item.artifact_id
+            for item in context.upstream_artifacts
+            if item.binding_key.startswith("source:")
+        )
+        if any(source_id not in frozen for source_id in source_binding_ids):
+            raise IntegrityViolation("Agent prompt-context draft lineage escapes frozen Run inputs")
+        trusts: list[TrustLevel] = []
+        for binding in context.upstream_artifacts:
+            source = self._artifacts.get(binding.artifact_id)  # type: ignore[attr-defined]
+            if not isinstance(source, ArtifactV2) or (
+                source.artifact_id != binding.artifact_id
+                or source.kind != binding.artifact_kind
+                or source.meta.get("payload_schema_id") != binding.payload_schema_id
+                or source.payload_hash != binding.payload_hash
+                or source.object_ref.sha256 != binding.payload_hash
+            ):
+                raise IntegrityViolation("Agent prompt-context upstream binding changed")
+            raw_provenance = source.meta.get("provenance")
+            if raw_provenance is None:
+                trusts.append("untrusted_external")
+            else:
+                try:
+                    source_provenance = ProvenanceV1.model_validate(raw_provenance)
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation(
+                        "Agent prompt-context upstream provenance is invalid"
+                    ) from exc
+                if (
+                    source_provenance.source_hash != source.payload_hash
+                    or source_provenance.parent_source_artifact_ids != tuple(source.lineage)
+                ):
+                    raise IntegrityViolation("Agent prompt-context upstream provenance changed")
+                _require_registered_source_provenance(
+                    source_provenance,
+                    label="Agent prompt-context upstream provenance",
+                )
+                trusts.append(source_provenance.trust)
+        try:
+            provenance = ProvenanceV1.model_validate(material.artifact.meta.get("provenance"))
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("Agent prompt-context provenance is invalid") from exc
+        _require_registered_source_provenance(
+            provenance,
+            required_prompt_purposes=frozenset({"context", "tool_output"}),
+            label="Agent prompt-context provenance",
+        )
+        if (
+            provenance.source_kind_registry_version != 1
+            or provenance.source_kind_id != "tool_output"
+            or provenance.parent_source_artifact_ids != upstream_ids
+            or provenance.source_hash != payload_hash
+            or provenance.trust != most_conservative_trust(tuple(trusts))
+        ):
+            raise IntegrityViolation("Agent prompt-context provenance closure differs")
+        prior = context.prior_consumption
+        if prior is not None:
+            prompt = self._runs.get_intermediate_link(  # type: ignore[attr-defined]
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            route = self._runs.get_model_route_link(  # type: ignore[attr-defined]
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            consumption = self._runs.get_model_response_consumption(  # type: ignore[attr-defined]
+                run.run_id,
+                prior.attempt_no,
+                prior.call_ordinal,
+                prior.route_ordinal,
+            )
+            if (
+                prompt is None
+                or route is None
+                or consumption is None
+                or prompt.artifact_id != prior.prompt_artifact_id
+                or prompt.request_hash != prior.request_hash
+                or route.prompt_artifact_id != prior.prompt_artifact_id
+                or route.request_hash != prior.request_hash
+                or route.routing_decision_kind != prior.routing_decision_kind
+                or route.routing_decision_id != prior.routing_decision_id
+                or consumption.execution_source != prior.execution_source
+                or consumption.reservation_group_id != prior.reservation_group_id
+                or consumption.transport_attempt != prior.transport_attempt
+                or consumption.cassette_shard_artifact_id != prior.cassette_shard_artifact_id
+                or consumption.response_digest != prior.response_digest
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context prior response consumption is not authoritative"
+                )
+            by_key = {item.binding_key: item for item in context.upstream_artifacts}
+            expected_prior_keys = {"prior.prompt"}
+            mode = run.payload.llm_execution_mode
+            expected_cassette_source = (
+                prior.cassette_shard_artifact_id
+                if mode == "record"
+                else run.payload.cassette_artifact_id
+                if mode == "replay"
+                else None
+            )
+            if (
+                prior.cassette_source_artifact_id != expected_cassette_source
+                or (mode == "record" and expected_cassette_source is None)
+                or (mode == "replay" and expected_cassette_source not in frozen)
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context prior cassette source differs from Run mode"
+                )
+            if expected_cassette_source is not None:
+                expected_prior_keys.add("prior.cassette_source")
+            actual_prior_keys = {key for key in by_key if not key.startswith("source:")}
+            if (
+                actual_prior_keys != expected_prior_keys
+                or by_key["prior.prompt"].artifact_id != prior.prompt_artifact_id
+                or (
+                    expected_cassette_source is not None
+                    and (
+                        by_key["prior.cassette_source"].artifact_id != expected_cassette_source
+                        or by_key["prior.cassette_source"].artifact_kind != "cassette_bundle"
+                        or by_key["prior.cassette_source"].payload_schema_id
+                        != ("cassette-bundle@1" if mode == "replay" else "cassette-record-shard@1")
+                    )
+                )
+            ):
+                raise IntegrityViolation(
+                    "Agent prompt-context prior Artifact lineage is incomplete"
+                )
+        elif any(not item.binding_key.startswith("source:") for item in context.upstream_artifacts):
+            raise IntegrityViolation(
+                "Agent prompt-context without prior consumption has prior parents"
+            )
+        try:
+            with self._object_store.open(material.receipt.location) as stream:  # type: ignore[attr-defined]
+                staged_payload = stream.read(material.artifact.object_ref.size_bytes + 1)
+            parsed = AgentPromptContextV1.model_validate(json.loads(staged_payload))
+            validate_agent_prompt_context_kind(
+                agent_node_id=parsed.agent_node_id,
+                context_kind=parsed.context_kind,
+                target_call_ordinal=parsed.target_call_ordinal,
+                prior_consumption=parsed.prior_consumption,
+            )
+        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise IntegrityViolation("staged Agent prompt-context payload is invalid") from exc
+        canonical = canonical_json(parsed.model_dump(mode="json")).encode("utf-8")
+        if (
+            parsed != context
+            or staged_payload != canonical
+            or len(staged_payload) != material.artifact.object_ref.size_bytes
+            or sha256_lowerhex(staged_payload) != payload_hash
+        ):
+            raise IntegrityViolation("staged Agent prompt-context bytes differ")
+        validate_artifact_producer(
+            material.artifact,
+            ProducerValidationContext(
+                expected_versions={
+                    "doc_version": run.payload.version_tuple.doc_version,
+                },
+                llm_execution_mode=run.payload.llm_execution_mode,
+                tool_output=True,
+            ),
+        )
+        retained_artifact = self._artifact_port.put_staged(
+            material.artifact,
+            material.receipt,
+        )
+        if retained_artifact.artifact_id != link.artifact_id:
+            raise IntegrityViolation("Agent prompt-context publisher returned another Artifact")
+        retained_link = self._runs.put_tool_intermediate_link(link)  # type: ignore[attr-defined]
+        if retained_link != link:
+            raise IntegrityViolation("RunStore retained another tool intermediate link")
+        response = {"artifact_id": link.artifact_id, "link": link.model_dump(mode="json")}
+        retained_response = self._idempotency.put_result(  # type: ignore[attr-defined]
+            scope=idempotency_scope,
+            operation=_AGENT_PROMPT_CONTEXT_OPERATION,
+            key=idempotency_key,
+            request_hash=payload_hash,
+            resource_kind="source_raw",
+            resource_id=link.artifact_id,
+            response=response,
+        )
+        if retained_response != response:
+            raise IntegrityViolation(
+                "Agent prompt-context idempotency authority retained another response"
+            )
+        self._audit_gate.append(
+            chain_id=self._chain_id,
+            actor=actor,
+            initiated_by=run.initiated_by,
+            action="run.agent_prompt_context_published",
+            subject=AuditSubject(
+                resource_kind="run",
+                resource_id=run.run_id,
+                artifact_id=link.artifact_id,
+            ),
+            correlation=AuditCorrelation(
+                request_id=None,
+                run_id=run.run_id,
+                trace_id=attempt.trace_id,
+            ),
+        )
+        return retained_link
 
     def get_prompt_replay(
         self,
@@ -1031,6 +2074,9 @@ class WorkerCommandPublicationGateway:
             run=run,
             fence=material.fence,
             source_artifact_ids=material.source_artifact_ids,
+            agent_node_id=material.model_request.agent_node_id,
+            prompt_version=material.model_request.prompt_version,
+            target_call_ordinal=material.logical_call_ordinal,
         )
         if (
             link.run_id != material.run_id
@@ -1272,6 +2318,12 @@ class WorkerCommandTerminalPublicationGateway:
     def get_prompt_replay(self, **kwargs: object) -> object:
         return self._commands.get_prompt_replay(**kwargs)
 
+    def get_agent_prompt_context_replay(self, **kwargs: object) -> object:
+        return self._commands.get_agent_prompt_context_replay(**kwargs)
+
+    def publish_agent_prompt_context(self, **kwargs: object) -> object:
+        return self._commands.publish_agent_prompt_context(**kwargs)
+
     def publish_prompt_rendered(self, **kwargs: object) -> object:
         return self._commands.publish_prompt_rendered(**kwargs)
 
@@ -1294,6 +2346,9 @@ class WorkerCommandTerminalPublicationGateway:
 
 
 __all__ = [
+    "AgentPromptContextMaterial",
+    "AgentPromptContextMaterialRegistry",
+    "FencedToolPromptSourceAuthority",
     "FrozenRunInputPromptSourceAuthority",
     "PromptRenderMaterial",
     "PromptRenderMaterialRegistry",
@@ -1305,5 +2360,6 @@ __all__ = [
     "WorkerCommandPublicationGateway",
     "WorkerCommandTerminalPublicationGateway",
     "WorkerManifestLedger",
+    "WorkerAgentPromptContextPublisher",
     "WorkerPromptRenderPublisher",
 ]

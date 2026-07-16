@@ -19,6 +19,7 @@ n_agents, n_ticks)` always reproduces bit-identical `distributions`.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import math
 from typing import Any
 
 from gameforge.contracts.findings import Finding
@@ -38,13 +39,15 @@ _BASELINE_WINDOW = 5
 _SLOPE_WINDOW = 5
 _COLLAPSE_MULTIPLIER = 8.0
 _WARNING_FRACTION = 0.3
-_DROP_PRODUCER_TYPES = frozenset({
-    NodeType.MONSTER,
-    NodeType.DROP_TABLE,
-    NodeType.INTERACTABLE,
-    NodeType.EVENT,
-    NodeType.BATTLE_ENCOUNTER,
-})
+_DROP_PRODUCER_TYPES = frozenset(
+    {
+        NodeType.MONSTER,
+        NodeType.DROP_TABLE,
+        NodeType.INTERACTABLE,
+        NodeType.EVENT,
+        NodeType.BATTLE_ENCOUNTER,
+    }
+)
 
 
 @dataclass
@@ -77,14 +80,16 @@ class EconomyModel:
                 continue
             gold_min = producer.attrs.get("gold_min", 0)
             gold_max = producer.attrs.get("gold_max", gold_min)
-            sources.append({
-                "relation_id": r.id,
-                "producer": r.src_id,
-                "currency": r.dst_id,
-                "gold_min": gold_min,
-                "gold_max": gold_max,
-                "kills_per_tick": producer.attrs.get("kills_per_tick", 1),
-            })
+            sources.append(
+                {
+                    "relation_id": r.id,
+                    "producer": r.src_id,
+                    "currency": r.dst_id,
+                    "gold_min": gold_min,
+                    "gold_max": gold_max,
+                    "kills_per_tick": producer.attrs.get("kills_per_tick", 1),
+                }
+            )
 
         # --- sinks: SHOP --SELLS--> ITEM/EQUIPMENT (relation carries price) ---
         sinks: list[dict[str, Any]] = []
@@ -98,14 +103,16 @@ class EconomyModel:
             price = attrs.get("price")
             if price is None:
                 continue
-            sinks.append({
-                "relation_id": r.id,
-                "shop": r.src_id,
-                "target": r.dst_id,
-                "price": price,
-                "currency": attrs.get("currency", default_currency),
-                "buy_prob": attrs.get("buy_prob", 0.5),
-            })
+            sinks.append(
+                {
+                    "relation_id": r.id,
+                    "shop": r.src_id,
+                    "target": r.dst_id,
+                    "price": price,
+                    "currency": attrs.get("currency", default_currency),
+                    "buy_prob": attrs.get("buy_prob", 0.5),
+                }
+            )
 
         # --- gacha: pity/expectation (closed-form geometric-with-pity, same
         # formula as SMTChecker's gacha_expectation call) ---
@@ -119,17 +126,24 @@ class EconomyModel:
             draw_prob = pool.attrs.get("draw_prob", 0.0)
             expected = (1 - (1 - p) ** n) / p if p and n else None
             gacha = {
-                "pool_id": pool.id, "base_rate": p, "pity_threshold": n,
-                "cost_per_draw": cost, "draw_prob": draw_prob,
+                "pool_id": pool.id,
+                "base_rate": p,
+                "pity_threshold": n,
+                "cost_per_draw": cost,
+                "draw_prob": draw_prob,
                 "expected_draws": expected,
             }
             if draw_prob > 0 and cost:
-                sinks.append({
-                    "relation_id": f"gacha::{pool.id}",
-                    "shop": pool.id, "target": pool.id, "price": cost,
-                    "currency": pool.attrs.get("currency", default_currency),
-                    "buy_prob": draw_prob,
-                })
+                sinks.append(
+                    {
+                        "relation_id": f"gacha::{pool.id}",
+                        "shop": pool.id,
+                        "target": pool.id,
+                        "price": cost,
+                        "currency": pool.attrs.get("currency", default_currency),
+                        "buy_prob": draw_prob,
+                    }
+                )
 
         # --- equipment strength curve: EQUIPMENT entities sorted by tier ---
         equipment = sorted(
@@ -138,8 +152,11 @@ class EconomyModel:
         equipment_curve = [float(e.attrs.get("power", 0.0)) for e in equipment]
 
         return cls(
-            currencies=currencies, sources=sources, sinks=sinks,
-            gacha=gacha, equipment_curve=equipment_curve,
+            currencies=currencies,
+            sources=sources,
+            sinks=sinks,
+            gacha=gacha,
+            equipment_curve=equipment_curve,
         )
 
 
@@ -175,7 +192,9 @@ def _baseline(balances: list[float], window: int = _BASELINE_WINDOW) -> float:
 
 
 def _steady_state_phase_means(
-    balances: list[float], warmup_frac: float = 0.1, window_frac: float = 0.2,
+    balances: list[float],
+    warmup_frac: float = 0.1,
+    window_frac: float = 0.2,
 ) -> tuple[float, float]:
     """Mean of an early vs. a late window, after discarding the initial
     `warmup_frac` of ticks (agents ramp up from balance 0 toward whatever
@@ -185,7 +204,7 @@ def _steady_state_phase_means(
     n = len(balances)
     if n == 0:
         return 0.0, 0.0
-    body = balances[int(n * warmup_frac):]
+    body = balances[int(n * warmup_frac) :]
     if len(body) < 4:
         return body[0], body[-1]
     w = max(1, int(len(body) * window_frac))
@@ -244,95 +263,177 @@ class EconomySimulator:
         }
         invariants = _compute_invariants(model, distributions, n_agents, n_ticks)
         sensitivity = _compute_sensitivity(distributions)
-        return SimResult(distributions=distributions, invariants=invariants, sensitivity=sensitivity)
+        return SimResult(
+            distributions=distributions, invariants=invariants, sensitivity=sensitivity
+        )
 
 
 def _compute_invariants(
-    model: EconomyModel, distributions: dict[str, Any], n_agents: int, n_ticks: int,
+    model: EconomyModel,
+    distributions: dict[str, Any],
+    n_agents: int,
+    n_ticks: int,
 ) -> list[InvariantCheck]:
     checks: list[InvariantCheck] = []
     total_source_per_tick = distributions["total_source_per_tick"]
     total_sink_per_tick = distributions["total_sink_per_tick"]
     source_total = sum(total_source_per_tick)
     sink_total = sum(total_sink_per_tick)
+    if not math.isfinite(source_total) or not math.isfinite(sink_total):
+        raise ValueError("economy simulation totals must remain finite")
 
     # 1. currency sink/source balance
+    lo_band, hi_band = _DEFAULT_SINK_SOURCE_BAND
+    ratio_evidence: dict[str, Any] = {
+        "source_total": source_total,
+        "sink_total": sink_total,
+        "band": [lo_band, hi_band],
+    }
     if source_total > 0:
         ratio = sink_total / source_total
+        ratio_ok = lo_band <= ratio <= hi_band
+    elif sink_total == 0:
+        ratio = 1.0
+        ratio_ok = True
+        ratio_evidence["ratio_status"] = "no_observed_flow"
     else:
-        ratio = 1.0 if sink_total == 0 else float("inf")
-    lo_band, hi_band = _DEFAULT_SINK_SOURCE_BAND
-    checks.append(InvariantCheck(
-        name="currency_sink_source_balance",
-        ok=lo_band <= ratio <= hi_band,
-        observed=ratio, threshold=hi_band,
-        evidence={"source_total": source_total, "sink_total": sink_total,
-                  "band": [lo_band, hi_band]},
-    ))
+        # The mathematical ratio is +infinity, which is not a JSON number and
+        # cannot enter canonical Artifact evidence. Preserve the exact numerator /
+        # denominator and encode the branch as an explicit finite violation marker.
+        ratio = hi_band + 1.0
+        ratio_ok = False
+        ratio_evidence["ratio_status"] = "positive_sink_without_source"
+    checks.append(
+        InvariantCheck(
+            name="currency_sink_source_balance",
+            ok=ratio_ok,
+            observed=ratio,
+            threshold=hi_band,
+            evidence=ratio_evidence,
+        )
+    )
 
     # 2. inflation rate: late-phase vs. early-phase steady-state average,
     # skipping the initial ramp-up window (agents start at balance 0, so the
     # first ticks rising toward equilibrium is not "inflation").
     balances = distributions["avg_balance_per_tick"]
     early_ref, late_ref = _steady_state_phase_means(balances)
+    inflation_evidence: dict[str, Any] = {
+        "early_phase_avg": early_ref,
+        "late_phase_avg": late_ref,
+    }
     if early_ref > 1e-9:
         inflation_ratio = late_ref / early_ref
+        inflation_ok = inflation_ratio <= _DEFAULT_INFLATION_THRESHOLD
+    elif late_ref <= 1e-9:
+        inflation_ratio = 1.0
+        inflation_ok = True
+        inflation_evidence["ratio_status"] = "no_observed_balance"
     else:
-        inflation_ratio = 1.0 if late_ref <= 1e-9 else float("inf")
-    checks.append(InvariantCheck(
-        name="inflation_rate",
-        ok=inflation_ratio <= _DEFAULT_INFLATION_THRESHOLD,
-        observed=inflation_ratio, threshold=_DEFAULT_INFLATION_THRESHOLD,
-        evidence={"early_phase_avg": early_ref, "late_phase_avg": late_ref},
-    ))
+        # Same finite-wire rule as sink/source: retain exact phase means and an
+        # explicit unbounded branch instead of serialising Infinity.
+        inflation_ratio = _DEFAULT_INFLATION_THRESHOLD + 1.0
+        inflation_ok = False
+        inflation_evidence["ratio_status"] = "positive_late_with_zero_early"
+    checks.append(
+        InvariantCheck(
+            name="inflation_rate",
+            ok=inflation_ok,
+            observed=inflation_ratio,
+            threshold=_DEFAULT_INFLATION_THRESHOLD,
+            evidence=inflation_evidence,
+        )
+    )
 
     # 3. drop-source existence & yield rate
     currency_ids = set(model.currencies.keys())
     covered = {s["currency"] for s in model.sources}
     missing = sorted(currency_ids - covered)
     yield_rate = source_total / (n_agents * n_ticks) if n_agents and n_ticks else 0.0
-    checks.append(InvariantCheck(
-        name="drop_source_existence_and_yield_rate",
-        ok=(not missing) and yield_rate >= _DEFAULT_MIN_YIELD_RATE,
-        observed=yield_rate, threshold=_DEFAULT_MIN_YIELD_RATE,
-        evidence={"currencies_without_source": missing,
-                  "yield_rate_per_agent_tick": yield_rate},
-    ))
+    checks.append(
+        InvariantCheck(
+            name="drop_source_existence_and_yield_rate",
+            ok=(not missing) and yield_rate >= _DEFAULT_MIN_YIELD_RATE,
+            observed=yield_rate,
+            threshold=_DEFAULT_MIN_YIELD_RATE,
+            evidence={
+                "currencies_without_source": missing,
+                "yield_rate_per_agent_tick": yield_rate,
+            },
+        )
+    )
 
     # 4. equipment strength curve monotonic (non-decreasing by tier)
     curve = model.equipment_curve
     violations = [i for i in range(len(curve) - 1) if curve[i] > curve[i + 1]]
-    checks.append(InvariantCheck(
-        name="equipment_strength_curve_monotonic",
-        ok=not violations, observed=float(len(violations)), threshold=0.0,
-        evidence={"curve": curve, "violation_indices": violations},
-    ))
+    checks.append(
+        InvariantCheck(
+            name="equipment_strength_curve_monotonic",
+            ok=not violations,
+            observed=float(len(violations)),
+            threshold=0.0,
+            evidence={"curve": curve, "violation_indices": violations},
+        )
+    )
 
     # 5. gacha expectation vs. pity
     if model.gacha and model.gacha.get("expected_draws") is not None:
         expected = model.gacha["expected_draws"]
         pity = model.gacha["pity_threshold"]
-        checks.append(InvariantCheck(
-            name="gacha_expectation_vs_pity",
-            ok=expected <= pity, observed=expected, threshold=float(pity),
-            evidence={"base_rate": model.gacha["base_rate"], "pity_threshold": pity},
-        ))
+        checks.append(
+            InvariantCheck(
+                name="gacha_expectation_vs_pity",
+                ok=expected <= pity,
+                observed=expected,
+                threshold=float(pity),
+                evidence={"base_rate": model.gacha["base_rate"], "pity_threshold": pity},
+            )
+        )
     else:
-        checks.append(InvariantCheck(
-            name="gacha_expectation_vs_pity", ok=True, observed=0.0, threshold=0.0,
-            evidence={"reason": "no gacha pool in model"},
-        ))
+        checks.append(
+            InvariantCheck(
+                name="gacha_expectation_vs_pity",
+                ok=True,
+                observed=0.0,
+                threshold=0.0,
+                evidence={"reason": "no gacha pool in model"},
+            )
+        )
 
     # 6. resource output-rate cap (peak observed per-agent per-tick income)
-    caps = [c["output_rate_cap"] for c in model.currencies.values()
-            if c.get("output_rate_cap") is not None]
-    cap = min(caps) if caps else float("inf")
+    caps = [
+        c["output_rate_cap"]
+        for c in model.currencies.values()
+        if c.get("output_rate_cap") is not None
+    ]
     peak = max((t / n_agents for t in total_source_per_tick), default=0.0) if n_agents else 0.0
-    checks.append(InvariantCheck(
-        name="resource_output_rate_cap",
-        ok=peak <= cap, observed=peak, threshold=cap,
-        evidence={"caps": caps},
-    ))
+    if caps:
+        cap = min(caps)
+        cap_observed = peak
+        cap_ok = peak <= cap
+        cap_evidence: dict[str, Any] = {"caps": caps}
+    else:
+        # No configured cap is explicitly not applicable. Do not manufacture an
+        # infinite threshold: keep the measured peak in evidence and use a finite
+        # neutral verdict projection.
+        cap = 0.0
+        cap_observed = 0.0
+        cap_ok = True
+        cap_evidence = {
+            "caps": [],
+            "applicability": "not_applicable",
+            "reason": "no_output_rate_cap",
+            "observed_peak": peak,
+        }
+    checks.append(
+        InvariantCheck(
+            name="resource_output_rate_cap",
+            ok=cap_ok,
+            observed=cap_observed,
+            threshold=cap,
+            evidence=cap_evidence,
+        )
+    )
 
     return checks
 
@@ -340,10 +441,15 @@ def _compute_invariants(
 def _compute_sensitivity(distributions: dict[str, Any]) -> dict[str, Any]:
     source_total = sum(distributions["total_source_per_tick"])
     sink_total = sum(distributions["total_sink_per_tick"])
+    if not math.isfinite(source_total) or not math.isfinite(sink_total):
+        raise ValueError("economy simulation sensitivity totals must remain finite")
+    sink_source_ratio = (sink_total / source_total) if source_total else None
+    if sink_source_ratio is not None and not math.isfinite(sink_source_ratio):
+        raise ValueError("economy simulation sensitivity ratio must remain finite")
     return {
         "source_total": source_total,
         "sink_total": sink_total,
-        "sink_source_ratio": (sink_total / source_total) if source_total else None,
+        "sink_source_ratio": sink_source_ratio,
     }
 
 
@@ -370,7 +476,9 @@ def detect_collapse(result: SimResult) -> CollapseReport | None:
     if collapse_tick is None:
         return None
 
-    warning_slope = ((collapse_threshold - threshold_baseline) / max(collapse_tick, 1)) * _WARNING_FRACTION
+    warning_slope = (
+        (collapse_threshold - threshold_baseline) / max(collapse_tick, 1)
+    ) * _WARNING_FRACTION
     early_warning_tick = None
     for t in range(_SLOPE_WINDOW, collapse_tick):
         slope = (balances[t] - balances[t - _SLOPE_WINDOW]) / _SLOPE_WINDOW
@@ -417,18 +525,25 @@ def to_findings(
     for inv in result.invariants:
         if inv.ok:
             continue
-        findings.append(Finding(
-            id=f"{run_id}#{counter}", source="sim", producer_id="economy_sim",
-            producer_run_id=run_id, oracle_type="simulation",
-            defect_class=inv.name, severity="major", snapshot_id=snapshot_id,
-            evidence={"observed": inv.observed, "threshold": inv.threshold, **inv.evidence},
-            status="confirmed",
-            message=(
-                f"Economy invariant {inv.name!r} observed={inv.observed:.4g} "
-                f"vs. threshold={inv.threshold:.4g} over the simulated horizon "
-                f"(descriptive what-if only, no prescriptive fix)"
-            ),
-        ))
+        findings.append(
+            Finding(
+                id=f"{run_id}#{counter}",
+                source="sim",
+                producer_id="economy_sim",
+                producer_run_id=run_id,
+                oracle_type="simulation",
+                defect_class=inv.name,
+                severity="major",
+                snapshot_id=snapshot_id,
+                evidence={"observed": inv.observed, "threshold": inv.threshold, **inv.evidence},
+                status="confirmed",
+                message=(
+                    f"Economy invariant {inv.name!r} observed={inv.observed:.4g} "
+                    f"vs. threshold={inv.threshold:.4g} over the simulated horizon "
+                    f"(descriptive what-if only, no prescriptive fix)"
+                ),
+            )
+        )
         counter += 1
 
     collapse = detect_collapse(result)
@@ -453,20 +568,28 @@ def to_findings(
             collapse_evidence["sinks"] = [
                 {"shop": s["shop"], "price": s["price"]} for s in model.sinks
             ]
-        findings.append(Finding(
-            id=f"{run_id}#{counter}", source="sim", producer_id="economy_sim",
-            producer_run_id=run_id, oracle_type="simulation",
-            defect_class="economy_collapse", severity="critical", snapshot_id=snapshot_id,
-            entities=faucet_entities, relations=source_relations,
-            evidence=collapse_evidence,
-            status="confirmed",
-            message=(
-                f"Simulated economy trajectory shows a collapse at tick "
-                f"{collapse.collapse_tick} (early warning at tick "
-                f"{collapse.early_warning_tick}): {collapse.reason}. "
-                f"Descriptive what-if only — no prescriptive fix given."
-            ),
-        ))
+        findings.append(
+            Finding(
+                id=f"{run_id}#{counter}",
+                source="sim",
+                producer_id="economy_sim",
+                producer_run_id=run_id,
+                oracle_type="simulation",
+                defect_class="economy_collapse",
+                severity="critical",
+                snapshot_id=snapshot_id,
+                entities=faucet_entities,
+                relations=source_relations,
+                evidence=collapse_evidence,
+                status="confirmed",
+                message=(
+                    f"Simulated economy trajectory shows a collapse at tick "
+                    f"{collapse.collapse_tick} (early warning at tick "
+                    f"{collapse.early_warning_tick}): {collapse.reason}. "
+                    f"Descriptive what-if only — no prescriptive fix given."
+                ),
+            )
+        )
         counter += 1
 
     return findings

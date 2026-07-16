@@ -27,15 +27,17 @@ from gameforge.contracts.jobs import (
     ConstraintProposalProposePayloadV1,
     PreparedRunOutcome,
 )
-from gameforge.contracts.lineage import VersionTuple
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.workflow import ConstraintProposalV1, ConstraintSourceBinding
+from gameforge.spine.dsl.ast import parse_assert
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
     PreparedArtifactStore,
     build_success_result,
-    load_json_blob,
+    canonical_payload_bytes,
+    prepared_version_tuple,
     store_prepared_artifact,
 )
 from gameforge.platform.run_handlers.model_routing import (
@@ -59,6 +61,32 @@ class ConstraintProposalRunRequest:
 
 
 @dataclass(frozen=True, slots=True)
+class ConstraintExtractionExecutionConfig:
+    max_prompt_message_bytes: int = 17 * 1024 * 1024
+    max_source_artifact_count: int = 64
+    max_source_artifact_bytes: int = 4 * 1024 * 1024
+    max_total_input_bytes: int = 16 * 1024 * 1024
+    max_proposal_count: int = 256
+    max_output_bytes: int = 8 * 1024 * 1024
+
+
+class ConstraintExtractionExecutionConfigResolver(Protocol):
+    def __call__(self, profile: object) -> ConstraintExtractionExecutionConfig: ...
+
+
+def default_constraint_extraction_execution_config(
+    _profile: object,
+) -> ConstraintExtractionExecutionConfig:
+    return ConstraintExtractionExecutionConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class LoadedDesignDocV1:
+    doc: DesignDocInput
+    source_hashes: tuple[tuple[str, str], ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ConstraintProposalOutcomeV1:
     """The deterministic result of one extraction run.
 
@@ -77,29 +105,87 @@ class ConstraintProposalAgentRunner(Protocol):
     def run(self, request: ConstraintProposalRunRequest) -> ConstraintProposalOutcomeV1: ...
 
 
-DocLoader = Callable[[ArtifactBlobReader, ConstraintProposalProposePayloadV1], DesignDocInput]
+DocLoader = Callable[
+    [
+        ArtifactBlobReader,
+        ConstraintProposalProposePayloadV1,
+        ConstraintExtractionExecutionConfig,
+    ],
+    LoadedDesignDocV1,
+]
+
+
+def _read_bounded(
+    blobs: ArtifactBlobReader,
+    artifact_id: str,
+    *,
+    max_bytes: int,
+) -> bytes:
+    bounded = getattr(blobs, "read_bytes_bounded", None)
+    raw = (
+        bounded(artifact_id, max_bytes=max_bytes)
+        if callable(bounded)
+        else blobs.read_bytes(artifact_id)
+    )
+    if not isinstance(raw, bytes) or len(raw) > max_bytes:
+        raise IntegrityViolation(
+            "constraint extraction input exceeds its per-source byte budget",
+            artifact_id=artifact_id,
+        )
+    return raw
 
 
 def load_design_doc(
-    blobs: ArtifactBlobReader, payload: ConstraintProposalProposePayloadV1
-) -> DesignDocInput:
-    """Concatenate the bound source design docs into one ``DesignDocInput``.
+    blobs: ArtifactBlobReader,
+    payload: ConstraintProposalProposePayloadV1,
+    config: ConstraintExtractionExecutionConfig,
+) -> LoadedDesignDocV1:
+    """Decode exact authenticated source/goal bytes into one bounded agent input."""
 
-    Each source artifact is canonical JSON ``{"doc_text": <text>, "doc_version":
-    <ver>?}``; ``doc_version`` defaults to the frozen ``dsl_grammar_version``.
-    """
-
+    if len(payload.source_artifact_ids) > config.max_source_artifact_count:
+        raise IntegrityViolation("constraint extraction source count exceeds its profile budget")
     parts: list[str] = []
-    doc_version = payload.dsl_grammar_version
+    source_hashes: list[tuple[str, str]] = []
+    total_input_bytes = 0
     for source_id in payload.source_artifact_ids:
-        blob = load_json_blob(blobs, source_id)
-        if not isinstance(blob, dict) or not isinstance(blob.get("doc_text"), str):
-            raise ValueError("constraint source artifact must carry a doc_text string")
-        parts.append(blob["doc_text"])
-        version = blob.get("doc_version")
-        if isinstance(version, str) and version:
-            doc_version = version
-    return DesignDocInput(doc_text="\n\n".join(parts), doc_version=doc_version)
+        raw = _read_bounded(
+            blobs,
+            source_id,
+            max_bytes=config.max_source_artifact_bytes,
+        )
+        total_input_bytes += len(raw)
+        if total_input_bytes > config.max_total_input_bytes:
+            raise IntegrityViolation("constraint extraction input exceeds its total byte budget")
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ValueError("constraint source artifact must be UTF-8 text") from exc
+        if not text:
+            raise ValueError("constraint source artifact must be non-empty")
+        parts.append(text)
+        source_hashes.append((source_id, hashlib.sha256(raw).hexdigest()))
+    goal_raw = _read_bounded(
+        blobs,
+        payload.authoring_goal.source_artifact_id,
+        max_bytes=config.max_source_artifact_bytes,
+    )
+    total_input_bytes += len(goal_raw)
+    if total_input_bytes > config.max_total_input_bytes:
+        raise IntegrityViolation("constraint extraction input exceeds its total byte budget")
+    try:
+        authoring_goal = goal_raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("constraint authoring goal must be UTF-8 text") from exc
+    if not authoring_goal:
+        raise ValueError("constraint authoring goal must be non-empty")
+    parts.append(f"Authoring goal:\n{authoring_goal}")
+    joined = "\n\n".join(parts)
+    if len(joined.encode("utf-8")) > config.max_total_input_bytes:
+        raise IntegrityViolation("constraint extraction joined input exceeds its byte budget")
+    return LoadedDesignDocV1(
+        doc=DesignDocInput(doc_text=joined, doc_version="pending-frozen-source"),
+        source_hashes=tuple(source_hashes),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,6 +196,9 @@ class ConstraintProposalHandler:
     store: PreparedArtifactStore
     agent_runner: ConstraintProposalAgentRunner
     doc_loader: DocLoader = load_design_doc
+    execution_config_resolver: ConstraintExtractionExecutionConfigResolver = (
+        default_constraint_extraction_execution_config
+    )
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
@@ -118,21 +207,65 @@ class ConstraintProposalHandler:
                 "constraint_proposer@1 requires a constraint-proposal-propose@1 payload"
             )
 
-        doc = self.doc_loader(self.blobs, payload)
-        router = build_bridge_router(context=context, agent_node_id=EXTRACTION_AGENT_NODE_ID)
+        config = self.execution_config_resolver(payload.extraction_policy)
+        frozen_doc_version = context.payload.version_tuple.doc_version
+        if frozen_doc_version is None:
+            raise IntegrityViolation("constraint proposal Run lacks frozen source doc_version")
+        loaded = self.doc_loader(self.blobs, payload, config)
+        doc = loaded.doc.model_copy(update={"doc_version": frozen_doc_version})
+        router = build_bridge_router(
+            context=context,
+            agent_node_id=EXTRACTION_AGENT_NODE_ID,
+            max_prompt_message_bytes=config.max_prompt_message_bytes,
+            source_artifact_ids=tuple(
+                sorted(
+                    (
+                        *payload.source_artifact_ids,
+                        payload.authoring_goal.source_artifact_id,
+                    )
+                )
+            ),
+        )
         outcome = self.agent_runner.run(ConstraintProposalRunRequest(doc=doc, router=router))
+        if (
+            isinstance(outcome.dropped, bool)
+            or not isinstance(outcome.dropped, int)
+            or not 0 <= outcome.dropped <= config.max_proposal_count
+        ):
+            raise ValueError("constraint proposal dropped count is outside the profile budget")
+        if len(outcome.proposals) + outcome.dropped > config.max_proposal_count:
+            raise ValueError("constraint proposal count exceeds the profile budget")
+        if not outcome.proposals:
+            # A fallback/fully-rejected model response is not a draft.  In
+            # particular, publishing an empty proposal would create workflow
+            # authority with no deterministically accepted content.
+            raise ValueError("constraint proposal contains no compile-valid constraints")
 
-        proposal = self._build_proposal(payload, outcome, run_id=context.run.run_id)
+        proposal = self._build_proposal(
+            payload,
+            outcome,
+            run_id=context.run.run_id,
+            base_constraint_snapshot_id=(context.payload.version_tuple.constraint_snapshot_id),
+            source_hashes=dict(loaded.source_hashes),
+        )
+        proposal_payload = proposal.model_dump(mode="json")
+        if len(canonical_payload_bytes(proposal_payload)) > config.max_output_bytes:
+            raise IntegrityViolation("constraint proposal output exceeds its profile byte budget")
         primary = store_prepared_artifact(
             self.store,
             kind="constraint_proposal",
             payload_schema_id=CONSTRAINT_PROPOSAL_SCHEMA_ID,
-            version_tuple=VersionTuple(
-                constraint_snapshot_id=payload.base_constraint_snapshot_artifact_id,
+            version_tuple=prepared_version_tuple(
+                context,
                 tool_version=EXTRACTION_TOOL_VERSION,
+                projected_fields=(
+                    "doc_version",
+                    "ir_snapshot_id",
+                    "constraint_snapshot_id",
+                ),
             ),
             lineage=self._lineage(payload),
-            payload=proposal.model_dump(mode="json"),
+            payload=proposal_payload,
             extra_meta={"dropped_proposal_count": outcome.dropped},
         )
         return build_success_result(
@@ -150,6 +283,8 @@ class ConstraintProposalHandler:
         outcome: ConstraintProposalOutcomeV1,
         *,
         run_id: str,
+        base_constraint_snapshot_id: str | None,
+        source_hashes: dict[str, str],
     ) -> ConstraintProposalV1:
         constraints = tuple(
             self._to_constraint(proposal, index, payload.dsl_grammar_version)
@@ -157,11 +292,11 @@ class ConstraintProposalHandler:
         )
         return ConstraintProposalV1(
             revision=1,
-            base_constraint_snapshot_id=payload.base_constraint_snapshot_artifact_id,
+            base_constraint_snapshot_id=base_constraint_snapshot_id,
             dsl_grammar_version=payload.dsl_grammar_version,
             domain_scope=payload.domain_scope,
             constraints=constraints,
-            source_bindings=self._source_bindings(payload),
+            source_bindings=self._source_bindings(payload, source_hashes),
             produced_by="agent",
             producer_run_id=run_id,
             rationale="extracted constraint proposal draft (LLM proposed; human authors authoritative)",
@@ -170,9 +305,15 @@ class ConstraintProposalHandler:
     def _to_constraint(
         self, proposal: ConstraintProposal, index: int, dsl_grammar_version: str
     ) -> Constraint:
-        kind: ConstraintKind = (
-            proposal.kind if proposal.kind in _VALID_KINDS else "structural"  # type: ignore[assignment]
-        )
+        if not isinstance(proposal, ConstraintProposal):
+            raise ValueError("constraint proposal runner returned an invalid proposal type")
+        if proposal.kind not in _VALID_KINDS:
+            raise ValueError("constraint proposal kind is outside the frozen DSL")
+        try:
+            parse_assert(proposal.assert_expr)
+        except Exception as exc:  # noqa: BLE001 — runner claims are not authority
+            raise ValueError("constraint proposal assert does not compile") from exc
+        kind: ConstraintKind = proposal.kind  # type: ignore[assignment]
         constraint_id = proposal.proposed_id or f"proposed-constraint-{index}"
         return Constraint(
             id=constraint_id,
@@ -185,18 +326,24 @@ class ConstraintProposalHandler:
         )
 
     def _source_bindings(
-        self, payload: ConstraintProposalProposePayloadV1
+        self,
+        payload: ConstraintProposalProposePayloadV1,
+        source_hashes: dict[str, str],
     ) -> tuple[ConstraintSourceBinding, ...]:
         return tuple(
             ConstraintSourceBinding(
                 source_artifact_id=source_id,
-                provenance_hash=hashlib.sha256(self.blobs.read_bytes(source_id)).hexdigest(),
+                provenance_hash=source_hashes[source_id],
             )
             for source_id in payload.source_artifact_ids
         )
 
     def _lineage(self, payload: ConstraintProposalProposePayloadV1) -> tuple[str, ...]:
-        lineage = list(payload.source_artifact_ids)
+        # The authoring goal is authenticated source_raw authority and is part of
+        # the rendered prompt just like the design documents. It therefore must
+        # remain a direct source parent even though ConstraintProposalV1's frozen
+        # source_bindings field intentionally enumerates design-document sources.
+        lineage = [*payload.source_artifact_ids, payload.authoring_goal.source_artifact_id]
         if payload.base_constraint_snapshot_artifact_id is not None:
             lineage.append(payload.base_constraint_snapshot_artifact_id)
         return tuple(lineage)
@@ -206,8 +353,12 @@ __all__ = [
     "CONSTRAINT_PROPOSAL_SCHEMA_ID",
     "EXTRACTION_AGENT_NODE_ID",
     "ConstraintProposalAgentRunner",
+    "ConstraintExtractionExecutionConfig",
+    "ConstraintExtractionExecutionConfigResolver",
     "ConstraintProposalHandler",
     "ConstraintProposalOutcomeV1",
     "ConstraintProposalRunRequest",
+    "LoadedDesignDocV1",
+    "default_constraint_extraction_execution_config",
     "load_design_doc",
 ]
