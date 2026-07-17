@@ -536,6 +536,7 @@ def _parse_last_event_id(request: Request) -> int | None:
         not text
         or text != text.strip()
         or len(text) > 32
+        or (len(text) > 1 and text.startswith("0"))
         or any(character < "0" or character > "9" for character in text)
     ):
         raise CursorInvalid("Last-Event-ID is not a canonical decimal cursor")

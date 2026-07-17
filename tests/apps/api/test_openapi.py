@@ -14,7 +14,10 @@ from __future__ import annotations
 
 import copy
 import json
+from pathlib import Path
 from typing import Any
+
+import pytest
 
 from gameforge.apps.api import schema as api_schema
 
@@ -134,6 +137,15 @@ def test_every_5_3_operation_is_present() -> None:
         responses = paths[path][method]["responses"]
         assert success in responses, f"{method.upper()} {path} missing success status {success}"
 
+    expected = {(method, path) for method, path, _success in _EXPECTED_OPERATIONS}
+    actual = {
+        (method, path)
+        for path, path_item in paths.items()
+        for method in path_item
+        if method in api_schema._HTTP_METHODS
+    }
+    assert actual == expected
+
 
 def test_proposal_endpoints_do_not_retain_drifted_aliases() -> None:
     paths = _openapi()["paths"]
@@ -158,13 +170,16 @@ def test_security_schemes_and_per_operation_security() -> None:
     paths = document["paths"]
     # Login is public.
     assert paths["/api/v1/auth/login"]["post"]["security"] == []
-    # Every other operation requires session-or-apikey (or session for logout).
-    me_security = paths["/api/v1/auth/me"]["get"]["security"]
-    assert {"SessionCookie": []} in me_security and {"ApiKeyAuth": []} in me_security
+    session_or_api_key = [{"SessionCookie": []}, {"ApiKeyAuth": []}]
     for method, path, _success in _EXPECTED_OPERATIONS:
         if path == "/api/v1/auth/login":
             continue
-        assert paths[path][method].get("security"), f"{method.upper()} {path} missing security"
+        expected_security = (
+            [{"SessionCookie": []}] if path == "/api/v1/auth/logout" else session_or_api_key
+        )
+        assert paths[path][method].get("security") == expected_security, (
+            f"{method.upper()} {path} has a drifted security contract"
+        )
 
 
 def test_problem_responses_present_on_error_statuses() -> None:
@@ -205,7 +220,14 @@ def test_write_ops_document_idempotency_etag_and_if_match() -> None:
     cancel_params = {(p["name"], p["in"]): p for p in cancel["parameters"]}
     assert ("Idempotency-Key", "header") not in cancel_params
     request_schema = cancel["requestBody"]["content"]["application/json"]["schema"]
-    assert request_schema == {"$ref": "#/components/schemas/RunCommandV1"}
+    assert request_schema["allOf"][0] == {"$ref": "#/components/schemas/RunCommandV1"}
+    cancel_constraint = request_schema["allOf"][1]
+    assert set(cancel_constraint["required"]) == {"type", "payload_schema_id", "payload"}
+    assert cancel_constraint["properties"] == {
+        "type": {"const": "cancel"},
+        "payload_schema_id": {"const": "run-cancel@1"},
+        "payload": {"$ref": "#/components/schemas/CancelRunPayloadV1"},
+    }
     for status in ("409", "422"):
         problem_schema = cancel["responses"][status]["content"][_PROBLEM_MEDIA]["schema"]
         assert problem_schema == {"$ref": "#/components/schemas/Problem"}
@@ -219,6 +241,63 @@ def test_login_documents_session_cookie_contract() -> None:
     assert "X-CSRF-Token" in headers
     cookie_scheme = document["components"]["securitySchemes"]["SessionCookie"]
     assert cookie_scheme["name"] == "gameforge_session"
+
+
+def test_logout_and_sse_document_runtime_required_headers_and_errors() -> None:
+    paths = _openapi()["paths"]
+    logout = paths["/api/v1/auth/logout"]["post"]
+    logout_parameters = {(item["name"], item["in"]): item for item in logout["parameters"]}
+    assert logout_parameters[("X-CSRF-Token", "header")]["required"] is True
+    assert logout_parameters[("Idempotency-Key", "header")]["required"] is True
+    assert logout_parameters[("Idempotency-Key", "header")]["schema"]["maxLength"] == 512
+
+    events = paths["/api/v1/runs/{run_id}/events"]["get"]
+    event_parameters = {(item["name"], item["in"]): item for item in events["parameters"]}
+    cursor = event_parameters[("Last-Event-ID", "header")]
+    assert cursor["required"] is False
+    assert cursor["schema"] == {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": (1 << 63) - 1,
+    }
+    assert "400" in events["responses"]
+
+
+def test_parent_bound_pages_document_not_found() -> None:
+    paths = _openapi()["paths"]
+    parent_pages = (
+        "/api/v1/specs/{artifact_id}/graph",
+        "/api/v1/diff",
+        "/api/v1/artifacts/{artifact_id}/lineage",
+        "/api/v1/refs/{ref_name}/history",
+        "/api/v1/runs/{run_id}/findings",
+        "/api/v1/runs/{run_id}/commands",
+        "/api/v1/conflict-sets/{conflict_set_id}/conflicts",
+    )
+    for path in parent_pages:
+        assert "404" in paths[path]["get"]["responses"], path
+
+
+def test_large_integer_bounds_remain_exact_in_openapi() -> None:
+    schemas = _openapi()["components"]["schemas"]
+    expected_client_seq = (1 << 63) - 1
+    for name in ("RunCommandV1", "RunCommandAckV1", "RunCommandViewV1"):
+        maximum = schemas[name]["properties"]["client_seq"]["maximum"]
+        assert type(maximum) is int and maximum == expected_client_seq
+
+    expected_seed = (1 << 64) - 1
+    for name in (
+        "ConstraintValidationAdmissionRequestV1",
+        "PatchRepairRequestV1",
+        "PatchValidationAdmissionRequestV1",
+        "PlaytestRunRequestV1",
+        "RollbackValidationAdmissionRequestV1",
+        "RunSubmissionRequestV1",
+    ):
+        seed_schema = schemas[name]["properties"]["seed"]
+        variants = seed_schema.get("anyOf", [seed_schema])
+        integer = next(item for item in variants if item.get("type") == "integer")
+        assert type(integer["maximum"]) is int and integer["maximum"] == expected_seed
 
 
 def test_no_internal_secret_or_fencing_fields_anywhere() -> None:
@@ -241,6 +320,26 @@ def test_bounded_strings_and_arrays_stay_bounded() -> None:
     assert run_accepted["properties"]["run_id"]["maxLength"] == 512
 
 
+def test_check_rejects_unexpected_frozen_json_artifacts(tmp_path: Path) -> None:
+    api_schema.write(tmp_path)
+    stale = tmp_path / "schemas" / "stale-v0.json"
+    stale.write_text("{}\n", encoding="utf-8")
+    assert f"UNEXPECTED {stale.relative_to(tmp_path).as_posix()}" in api_schema.check(tmp_path)
+
+
+def test_write_refuses_a_breaking_frozen_contract_overwrite(tmp_path: Path) -> None:
+    api_schema.write(tmp_path)
+    target = tmp_path / api_schema.OPENAPI_KEY
+    previous = json.loads(target.read_text(encoding="utf-8"))
+    previous["paths"]["/api/v1/legacy-contract"] = {
+        "get": {"responses": {"200": {"description": "legacy"}}}
+    }
+    target.write_text(api_schema.serialize(previous), encoding="utf-8")
+
+    with pytest.raises(api_schema.CompatibilityError, match="path_removed"):
+        api_schema.write(tmp_path)
+
+
 # ── compatibility checker ────────────────────────────────────────────────────
 def test_compatibility_identical_is_compatible() -> None:
     document = _openapi()
@@ -252,6 +351,26 @@ def test_compatibility_additive_new_optional_field_is_allowed() -> None:
     new = copy.deepcopy(old)
     new["components"]["schemas"]["RunAcceptedV1"]["properties"]["new_optional"] = {"type": "string"}
     assert api_schema.check_compatibility(old, new) == []
+
+
+def test_compatibility_respects_request_and_response_required_direction() -> None:
+    old = _openapi()
+
+    relaxed_request = copy.deepcopy(old)
+    request = relaxed_request["components"]["schemas"]["RunSubmissionRequestV1"]
+    request["required"].remove("params")
+    assert api_schema.check_compatibility(old, relaxed_request) == []
+
+    additive_response = copy.deepcopy(old)
+    response = additive_response["components"]["schemas"]["RunViewV1"]
+    response["properties"]["new_guaranteed_field"] = {"type": "string"}
+    response["required"].append("new_guaranteed_field")
+    assert api_schema.check_compatibility(old, additive_response) == []
+
+    weakened_response = copy.deepcopy(old)
+    weakened_response["components"]["schemas"]["RunViewV1"]["required"].remove("run_id")
+    breaks = api_schema.check_compatibility(old, weakened_response)
+    assert any(change.kind == "response_required_removed" for change in breaks)
 
 
 def test_compatibility_rejects_removed_path() -> None:
@@ -316,6 +435,149 @@ def test_compatibility_rejects_changed_discriminator() -> None:
     assert any(
         b.kind in ("discriminator_variant_removed", "discriminator_changed") for b in breaks
     ), breaks
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "required_parameter_removed",
+        "required_parameter_added",
+        "request_body_removed",
+        "request_schema_changed",
+        "request_allof_branch_removed",
+        "response_media_removed",
+        "response_schema_changed",
+        "response_header_removed",
+        "security_alternative_removed",
+        "public_security_required",
+        "parameter_serialization_changed",
+    ),
+)
+def test_compatibility_rejects_breaking_operation_contract_changes(case: str) -> None:
+    old = _openapi()
+    new = copy.deepcopy(old)
+
+    if case in {"required_parameter_removed", "required_parameter_added"}:
+        operation = new["paths"]["/api/v1/patches/{artifact_id}:validate"]["post"]
+        if case == "required_parameter_removed":
+            operation["parameters"] = [
+                parameter
+                for parameter in operation["parameters"]
+                if (parameter.get("name"), parameter.get("in")) != ("Idempotency-Key", "header")
+            ]
+        else:
+            operation["parameters"].append(
+                {
+                    "name": "X-New-Required",
+                    "in": "header",
+                    "required": True,
+                    "schema": {"type": "string"},
+                }
+            )
+    elif case in {"request_body_removed", "request_schema_changed"}:
+        operation = new["paths"]["/api/v1/runs"]["post"]
+        if case == "request_body_removed":
+            del operation["requestBody"]
+        else:
+            operation["requestBody"]["content"]["application/json"]["schema"] = {
+                "$ref": "#/components/schemas/Problem"
+            }
+    elif case == "request_allof_branch_removed":
+        operation = new["paths"]["/api/v1/runs/{run_id}:cancel"]["post"]
+        operation["requestBody"]["content"]["application/json"]["schema"]["allOf"].pop()
+    elif case in {
+        "response_media_removed",
+        "response_schema_changed",
+        "response_header_removed",
+    }:
+        if case == "response_header_removed":
+            response = new["paths"]["/api/v1/patches/{artifact_id}:validate"]["post"]["responses"][
+                "202"
+            ]
+            del response["headers"]["ETag"]
+        else:
+            response = new["paths"]["/api/v1/runs/{run_id}"]["get"]["responses"]["200"]
+            if case == "response_media_removed":
+                del response["content"]["application/json"]
+            else:
+                response["content"]["application/json"]["schema"] = {
+                    "$ref": "#/components/schemas/Problem"
+                }
+    elif case == "security_alternative_removed":
+        operation = new["paths"]["/api/v1/runs/{run_id}"]["get"]
+        operation["security"] = [
+            requirement for requirement in operation["security"] if "ApiKeyAuth" not in requirement
+        ]
+    elif case == "public_security_required":
+        new["paths"]["/api/v1/auth/login"]["post"]["security"] = [{"SessionCookie": []}]
+    else:
+        operation = new["paths"]["/api/v1/runs"]["get"]
+        cursor = next(
+            parameter for parameter in operation["parameters"] if parameter["name"] == "cursor"
+        )
+        cursor["style"] = "spaceDelimited"
+
+    breaks = api_schema.check_compatibility(old, new)
+    assert breaks, f"{case} must be rejected as an operation-level breaking change"
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "union_removed",
+        "inline_union_variant_removed",
+        "discriminator_mapping_target_changed",
+        "max_length_tightened",
+        "referenced_component_removed",
+        "enum_introduced",
+        "additional_properties_schema_narrowed",
+    ),
+)
+def test_compatibility_rejects_breaking_schema_contract_changes(case: str) -> None:
+    old = _openapi()
+    new = copy.deepcopy(old)
+    schemas = new["components"]["schemas"]
+
+    if case == "union_removed":
+        del schemas["RunSubmissionRequestV1"]["properties"]["params"]["oneOf"]
+    elif case == "inline_union_variant_removed":
+        nullable_run_id = schemas["Problem"]["properties"]["run_id"]
+        nullable_run_id["anyOf"] = nullable_run_id["anyOf"][:1]
+    elif case == "discriminator_mapping_target_changed":
+        mapping = schemas["RunSubmissionRequestV1"]["properties"]["params"]["discriminator"][
+            "mapping"
+        ]
+        variant = next(iter(mapping))
+        mapping[variant] = "#/components/schemas/Problem"
+    elif case == "max_length_tightened":
+        schemas["RunAcceptedV1"]["properties"]["run_id"]["maxLength"] = 10
+    elif case == "referenced_component_removed":
+        del schemas["Problem"]
+    elif case == "enum_introduced":
+        schemas["RunAcceptedV1"]["properties"]["run_id"]["enum"] = ["run:only"]
+    else:
+        content = schemas["HumanSpecUploadRequestV1"]["properties"]["content_payload"]
+        content["additionalProperties"] = {"type": "string"}
+
+    breaks = api_schema.check_compatibility(old, new)
+    assert breaks, f"{case} must be rejected as a schema-level breaking change"
+
+
+def test_compatibility_checks_ref_siblings_inside_recursive_schemas() -> None:
+    old = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://gameforge.dev/api/schemas/ws-client-command-v1.json",
+        "$ref": "#/$defs/Node",
+        "$defs": {
+            "Node": {
+                "type": "object",
+                "properties": {"child": {"$ref": "#/$defs/Node"}},
+            }
+        },
+    }
+    new = copy.deepcopy(old)
+    new["$defs"]["Node"]["properties"]["child"]["maxProperties"] = 1
+    assert api_schema.check_compatibility(old, new)
 
 
 def _narrow_first_enum(node: Any) -> bool:

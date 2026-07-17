@@ -23,7 +23,8 @@
       },
       "required": [
         "attempt_no",
-        "lease_expires_at"
+        "lease_expires_at",
+        "data_schema_version"
       ],
       "title": "AttemptLeasedDataV1",
       "type": "object"
@@ -84,7 +85,8 @@
       "required": [
         "attempt_no",
         "phase_code",
-        "completed_units"
+        "completed_units",
+        "data_schema_version"
       ],
       "title": "AttemptProgressDataV1",
       "type": "object"
@@ -119,7 +121,8 @@
       "required": [
         "attempt_no",
         "started_at",
-        "attempt_deadline_utc"
+        "attempt_deadline_utc",
+        "data_schema_version"
       ],
       "title": "AttemptStartedDataV1",
       "type": "object"
@@ -148,7 +151,8 @@
       },
       "required": [
         "command_id",
-        "reason_code"
+        "reason_code",
+        "data_schema_version"
       ],
       "title": "CancelRequestedDataV1",
       "type": "object"
@@ -185,7 +189,8 @@
       "required": [
         "command_id",
         "command_type",
-        "command_revision"
+        "command_revision",
+        "data_schema_version"
       ],
       "title": "CommandAcceptedDataV1",
       "type": "object"
@@ -229,7 +234,8 @@
         "command_id",
         "command_type",
         "command_revision",
-        "outcome_code"
+        "outcome_code",
+        "data_schema_version"
       ],
       "title": "CommandOutcomeDataV1",
       "type": "object"
@@ -283,7 +289,8 @@
       "required": [
         "attempt_no",
         "failure_artifact_id",
-        "will_retry"
+        "will_retry",
+        "data_schema_version"
       ],
       "title": "LeaseExpiredDataV1",
       "type": "object"
@@ -474,7 +481,8 @@
         "cause_code",
         "failure_class",
         "retry_decision",
-        "retry_not_before_utc"
+        "retry_not_before_utc",
+        "data_schema_version"
       ],
       "title": "RetryScheduledDataV1",
       "type": "object"
@@ -529,7 +537,8 @@
       "required": [
         "run_kind",
         "queue_deadline_utc",
-        "overall_deadline_utc"
+        "overall_deadline_utc",
+        "data_schema_version"
       ],
       "title": "RunQueuedDataV1",
       "type": "object"
@@ -557,7 +566,8 @@
       },
       "required": [
         "attempt_no",
-        "result_artifact_id"
+        "result_artifact_id",
+        "data_schema_version"
       ],
       "title": "RunSucceededDataV1",
       "type": "object"
@@ -599,7 +609,8 @@
       },
       "required": [
         "failure_artifact_id",
-        "cause_code"
+        "cause_code",
+        "data_schema_version"
       ],
       "title": "RunTerminatedDataV1",
       "type": "object"
@@ -609,6 +620,313 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "The `data:` payload object of one Server-Sent Event on GET /runs/{id}/events. The `data` field is a discriminated (`data_schema_version`) RunEventData union; `event_type` is the 14-value RunEventType. The SSE framing itself is `id:{seq}\\nevent:{type}\\ndata:{canonical_json}\\n\\n`.",
+  "oneOf": [
+    {
+      "properties": {
+        "attempt_no": {
+          "type": "null"
+        },
+        "data": {
+          "$ref": "#/$defs/RunQueuedDataV1"
+        },
+        "data_schema_version": {
+          "const": "run-queued@1"
+        },
+        "event_type": {
+          "const": "run.queued"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "type": "null"
+        },
+        "data": {
+          "$ref": "#/$defs/CancelRequestedDataV1"
+        },
+        "data_schema_version": {
+          "const": "cancel-requested@1"
+        },
+        "event_type": {
+          "const": "run.cancel_requested"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "type": "null"
+        },
+        "data": {
+          "$ref": "#/$defs/CommandAcceptedDataV1"
+        },
+        "data_schema_version": {
+          "const": "command-accepted@1"
+        },
+        "event_type": {
+          "const": "run.command_accepted"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/AttemptLeasedDataV1"
+        },
+        "data_schema_version": {
+          "const": "attempt-leased@1"
+        },
+        "event_type": {
+          "const": "attempt.leased"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data",
+        "attempt_no"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/AttemptStartedDataV1"
+        },
+        "data_schema_version": {
+          "const": "attempt-started@1"
+        },
+        "event_type": {
+          "const": "attempt.started"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data",
+        "attempt_no"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/AttemptProgressDataV1"
+        },
+        "data_schema_version": {
+          "const": "attempt-progress@1"
+        },
+        "event_type": {
+          "const": "attempt.progress"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data",
+        "attempt_no"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/LeaseExpiredDataV1"
+        },
+        "data_schema_version": {
+          "const": "lease-expired@1"
+        },
+        "event_type": {
+          "const": "attempt.lease_expired"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data",
+        "attempt_no"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/RetryScheduledDataV1"
+        },
+        "data_schema_version": {
+          "const": "retry-scheduled@1"
+        },
+        "event_type": {
+          "const": "attempt.retry_scheduled"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data",
+        "attempt_no"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/CommandOutcomeDataV1"
+        },
+        "data_schema_version": {
+          "const": "command-outcome@1"
+        },
+        "event_type": {
+          "const": "run.command_applied"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/CommandOutcomeDataV1"
+        },
+        "data_schema_version": {
+          "const": "command-outcome@1"
+        },
+        "event_type": {
+          "const": "run.command_rejected"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "attempt_no": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/RunSucceededDataV1"
+        },
+        "data_schema_version": {
+          "const": "run-succeeded@1"
+        },
+        "event_type": {
+          "const": "run.succeeded"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data",
+        "attempt_no"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/RunTerminatedDataV1"
+        },
+        "data_schema_version": {
+          "const": "run-terminated@1"
+        },
+        "event_type": {
+          "const": "run.failed"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/RunTerminatedDataV1"
+        },
+        "data_schema_version": {
+          "const": "run-terminated@1"
+        },
+        "event_type": {
+          "const": "run.cancelled"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/RunTerminatedDataV1"
+        },
+        "data_schema_version": {
+          "const": "run-terminated@1"
+        },
+        "event_type": {
+          "const": "run.timed_out"
+        }
+      },
+      "required": [
+        "event_type",
+        "data_schema_version",
+        "data"
+      ],
+      "type": "object"
+    }
+  ],
   "properties": {
     "attempt_no": {
       "anyOf": [

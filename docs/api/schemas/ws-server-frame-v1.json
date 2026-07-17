@@ -268,7 +268,7 @@
   },
   "$id": "https://gameforge.dev/api/schemas/ws-server-frame-v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "One WebSocket server frame for POST /runs/{id}:cancel and WS /runs/{id}/commands: exactly one of a RunCommandAckV1 (accepted/duplicate) or a RunCommandProblemV1 (RFC 9457 problem). Lease/fencing worker columns are structurally absent.",
+  "description": "One server frame on WS /runs/{id}/commands: exactly one of a RunCommandAckV1 (accepted/duplicate) or a RunCommandProblemV1 (RFC 9457 problem). REST cancel returns the ack as JSON and errors as HTTP Problem responses. Lease/fencing worker columns are structurally absent.",
   "oneOf": [
     {
       "$ref": "#/$defs/RunCommandAckV1"

@@ -12,8 +12,11 @@ and a real DTO instance must validate against its own exported schema.
 
 from __future__ import annotations
 
+import copy
 import json
 from typing import Any
+
+import pytest
 
 from gameforge.apps.api import schema as api_schema
 from gameforge.contracts.jobs import (
@@ -41,6 +44,28 @@ _FORBIDDEN_FIELD_SUBSTRINGS = (
 _SSE = "schemas/sse-run-event-v1.json"
 _WS_SERVER = "schemas/ws-server-frame-v1.json"
 _WS_CLIENT = "schemas/ws-client-command-v1.json"
+
+_COMMAND_PAYLOAD_BY_TYPE = {
+    "cancel": ("run-cancel@1", "CancelRunPayloadV1"),
+    "provide_input": ("playtest-provide-input@1", "PlaytestProvideInputPayloadV1"),
+}
+
+_EVENT_SCHEMA_BY_TYPE = {
+    "run.queued": ("run-queued@1", "RunQueuedDataV1", "run"),
+    "run.cancel_requested": ("cancel-requested@1", "CancelRequestedDataV1", "run"),
+    "run.command_accepted": ("command-accepted@1", "CommandAcceptedDataV1", "run"),
+    "attempt.leased": ("attempt-leased@1", "AttemptLeasedDataV1", "attempt"),
+    "attempt.started": ("attempt-started@1", "AttemptStartedDataV1", "attempt"),
+    "attempt.progress": ("attempt-progress@1", "AttemptProgressDataV1", "attempt"),
+    "attempt.lease_expired": ("lease-expired@1", "LeaseExpiredDataV1", "attempt"),
+    "attempt.retry_scheduled": ("retry-scheduled@1", "RetryScheduledDataV1", "attempt"),
+    "run.command_applied": ("command-outcome@1", "CommandOutcomeDataV1", "either"),
+    "run.command_rejected": ("command-outcome@1", "CommandOutcomeDataV1", "either"),
+    "run.succeeded": ("run-succeeded@1", "RunSucceededDataV1", "attempt"),
+    "run.failed": ("run-terminated@1", "RunTerminatedDataV1", "either"),
+    "run.cancelled": ("run-terminated@1", "RunTerminatedDataV1", "either"),
+    "run.timed_out": ("run-terminated@1", "RunTerminatedDataV1", "either"),
+}
 
 
 # ── a tiny draft-2020-12 subset validator (jsonschema is not a dependency) ──────
@@ -202,6 +227,76 @@ def test_full_command_schema_also_validates_the_rest_cancel_body() -> None:
     _validate(json.loads(_real_command().model_dump_json()), document, document)
 
 
+def test_discriminator_tags_are_required_in_every_streaming_union_variant() -> None:
+    generated = api_schema.generate()
+    for key, property_name, tag_name in (
+        (_SSE, "data", "data_schema_version"),
+        (_WS_CLIENT, "payload", "schema_version"),
+    ):
+        document = generated[key]
+        union = document["properties"][property_name]
+        mapping = union["discriminator"]["mapping"]
+        assert mapping, f"{key}: discriminator mapping must not be empty"
+        for tag_value, ref in mapping.items():
+            variant = _resolve(ref, document)
+            assert tag_name in variant.get("required", []), (
+                f"{key}: {tag_value!r} maps to a variant whose discriminator "
+                f"{tag_name!r} is optional"
+            )
+            assert variant["properties"][tag_name]["const"] == tag_value
+
+
+def test_ws_client_command_schema_closes_type_payload_schema_triples() -> None:
+    document = api_schema.generate()[_WS_CLIENT]
+    branches = document.get("oneOf")
+    assert isinstance(branches, list) and len(branches) == len(_COMMAND_PAYLOAD_BY_TYPE), (
+        "RunCommandV1 needs one closed top-level branch per command type; independent "
+        "type/payload_schema_id/payload unions accept combinations Pydantic rejects"
+    )
+
+    actual: dict[str, tuple[str, str]] = {}
+    for branch in branches:
+        required = set(branch.get("required", []))
+        assert {"type", "payload_schema_id", "payload"} <= required
+        properties = branch["properties"]
+        command_type = properties["type"]["const"]
+        payload_schema_id = properties["payload_schema_id"]["const"]
+        payload_ref = properties["payload"]["$ref"]
+        actual[command_type] = (payload_schema_id, payload_ref.rsplit("/", 1)[-1])
+
+    assert actual == _COMMAND_PAYLOAD_BY_TYPE
+
+
+def test_sse_schema_closes_event_type_data_schema_and_attempt_scope() -> None:
+    document = api_schema.generate()[_SSE]
+    branches = document.get("oneOf")
+    assert isinstance(branches, list) and len(branches) == len(_EVENT_SCHEMA_BY_TYPE), (
+        "RunEvent needs one closed top-level branch per event type; the independent "
+        "event/data schemas do not encode the Pydantic event registry"
+    )
+
+    actual: dict[str, tuple[str, str, str]] = {}
+    for branch in branches:
+        required = set(branch.get("required", []))
+        assert {"event_type", "data_schema_version", "data"} <= required
+        properties = branch["properties"]
+        event_type = properties["event_type"]["const"]
+        data_schema_id = properties["data_schema_version"]["const"]
+        data_ref = properties["data"]["$ref"]
+        expected_scope = _EVENT_SCHEMA_BY_TYPE[event_type][2]
+        if expected_scope == "attempt":
+            assert "attempt_no" in required, f"{event_type}: attempt number must be required"
+        elif expected_scope == "run":
+            attempt_schema = properties.get("attempt_no")
+            assert isinstance(attempt_schema, dict) and (
+                attempt_schema.get("type") == "null"
+                or ("const" in attempt_schema and attempt_schema["const"] is None)
+            ), f"{event_type}: run-scoped envelope must forbid a positive attempt number"
+        actual[event_type] = (data_schema_id, data_ref.rsplit("/", 1)[-1], expected_scope)
+
+    assert actual == _EVENT_SCHEMA_BY_TYPE
+
+
 def test_no_fencing_or_secret_fields_in_streaming_schemas() -> None:
     generated = api_schema.generate()
     for key in (_SSE, _WS_SERVER, _WS_CLIENT):
@@ -234,3 +329,69 @@ def test_compatibility_rejects_run_command_payload_variant_removed() -> None:
     payload["discriminator"]["mapping"].pop(next(iter(payload["discriminator"]["mapping"])))
     breaks = api_schema.check_compatibility(old, new)
     assert breaks, "removing a RunCommandPayload variant must be breaking"
+
+
+def test_compatibility_rejects_sse_data_union_variant_removed() -> None:
+    old = api_schema.generate()[_SSE]
+    new = copy.deepcopy(old)
+    new["properties"]["data"]["oneOf"].pop(0)
+    assert api_schema.check_compatibility(old, new), (
+        "removing a RunEventData oneOf branch must be breaking"
+    )
+
+
+def test_compatibility_rejects_sse_discriminator_mapping_target_change() -> None:
+    old = api_schema.generate()[_SSE]
+    new = copy.deepcopy(old)
+    mapping = new["properties"]["data"]["discriminator"]["mapping"]
+    mapping["run-queued@1"] = "#/$defs/CancelRequestedDataV1"
+    assert api_schema.check_compatibility(old, new), (
+        "retargeting a stable discriminator value to another payload must be breaking"
+    )
+
+
+def test_compatibility_rejects_ws_server_union_variant_removed() -> None:
+    old = api_schema.generate()[_WS_SERVER]
+    new = copy.deepcopy(old)
+    new["oneOf"].pop()
+    assert api_schema.check_compatibility(old, new), (
+        "removing a WebSocket server-frame variant must be breaking"
+    )
+
+
+def test_compatibility_rejects_ws_client_numeric_bound_narrowing() -> None:
+    old = api_schema.generate()[_WS_CLIENT]
+    new = copy.deepcopy(old)
+    new["properties"]["client_seq"]["maximum"] = 1
+    assert api_schema.check_compatibility(old, new), (
+        "narrowing a previously accepted RunCommand bound must be breaking"
+    )
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "type_widened",
+        "enum_widened",
+        "bound_widened",
+        "const_removed",
+        "additional_properties_opened",
+    ),
+)
+def test_compatibility_rejects_weakened_ws_server_response_guarantees(case: str) -> None:
+    old = api_schema.generate()[_WS_SERVER]
+    new = copy.deepcopy(old)
+    ack = new["$defs"]["RunCommandAckV1"]
+    if case == "type_widened":
+        ack["properties"]["client_seq"]["type"] = ["integer", "string"]
+    elif case == "enum_widened":
+        ack["properties"]["status"]["enum"].append("future")
+    elif case == "bound_widened":
+        ack["properties"]["client_seq"]["maximum"] = (1 << 64) - 1
+    elif case == "const_removed":
+        del ack["properties"]["ack_schema_version"]["const"]
+    else:
+        ack["additionalProperties"] = True
+    assert api_schema.check_compatibility(old, new), (
+        f"{case} must not weaken a server-frame response guarantee"
+    )

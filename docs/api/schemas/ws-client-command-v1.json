@@ -31,7 +31,8 @@
         }
       },
       "required": [
-        "reason_code"
+        "reason_code",
+        "schema_version"
       ],
       "title": "CancelRunPayloadV1",
       "type": "object"
@@ -66,7 +67,8 @@
       "required": [
         "interaction_id",
         "expected_state_hash",
-        "choice_id"
+        "choice_id",
+        "schema_version"
       ],
       "title": "PlaytestProvideInputPayloadV1",
       "type": "object"
@@ -76,6 +78,46 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "The full command envelope shared by WS /runs/{id}/commands and POST /runs/{id}:cancel (where type must be cancel). `payload` is a discriminated (`schema_version`) RunCommandPayload union.",
+  "oneOf": [
+    {
+      "properties": {
+        "payload": {
+          "$ref": "#/$defs/CancelRunPayloadV1"
+        },
+        "payload_schema_id": {
+          "const": "run-cancel@1"
+        },
+        "type": {
+          "const": "cancel"
+        }
+      },
+      "required": [
+        "type",
+        "payload_schema_id",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "payload": {
+          "$ref": "#/$defs/PlaytestProvideInputPayloadV1"
+        },
+        "payload_schema_id": {
+          "const": "playtest-provide-input@1"
+        },
+        "type": {
+          "const": "provide_input"
+        }
+      },
+      "required": [
+        "type",
+        "payload_schema_id",
+        "payload"
+      ],
+      "type": "object"
+    }
+  ],
   "properties": {
     "client_id": {
       "maxLength": 512,

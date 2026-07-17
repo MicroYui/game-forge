@@ -79,7 +79,6 @@ from gameforge.contracts.jobs import (
     ResolvedPolicySubsetCountBindingV1,
     RetryPolicyRefV1,
     RetryPolicySnapshot,
-    RunEventDefinitionV1,
     RunEventRegistryV1,
     RunKindDefinition,
     RuntimeParentRuleSetRef,
@@ -92,6 +91,7 @@ from gameforge.contracts.jobs import (
     VersionTransitionPolicyV1,
     artifact_lineage_policy_digest,
     failure_classifier_digest,
+    frozen_run_event_definitions_v1,
     retry_policy_digest,
     run_event_registry_digest,
 )
@@ -2331,92 +2331,7 @@ def _outcome_policies(
 
 
 def _run_event_registry() -> RunEventRegistryV1:
-    rows = (
-        ("run.queued", "run-queued@1", "run", False, ("create",)),
-        (
-            "run.cancel_requested",
-            "cancel-requested@1",
-            "run",
-            False,
-            ("queued", "leased", "running", "retry_wait"),
-        ),
-        (
-            "run.command_accepted",
-            "command-accepted@1",
-            "run",
-            False,
-            ("leased", "running"),
-        ),
-        (
-            "attempt.leased",
-            "attempt-leased@1",
-            "attempt",
-            False,
-            ("queued", "retry_wait"),
-        ),
-        ("attempt.started", "attempt-started@1", "attempt", False, ("leased",)),
-        ("attempt.progress", "attempt-progress@1", "attempt", False, ("running",)),
-        (
-            "attempt.lease_expired",
-            "lease-expired@1",
-            "attempt",
-            False,
-            ("leased", "running"),
-        ),
-        (
-            "attempt.retry_scheduled",
-            "retry-scheduled@1",
-            "attempt",
-            False,
-            ("leased", "running"),
-        ),
-        (
-            "run.command_applied",
-            "command-outcome@1",
-            "either",
-            False,
-            ("queued", "leased", "running", "retry_wait"),
-        ),
-        (
-            "run.command_rejected",
-            "command-outcome@1",
-            "either",
-            False,
-            ("queued", "leased", "running", "retry_wait"),
-        ),
-        ("run.succeeded", "run-succeeded@1", "attempt", True, ("running",)),
-        (
-            "run.failed",
-            "run-terminated@1",
-            "either",
-            True,
-            ("queued", "leased", "running", "retry_wait"),
-        ),
-        (
-            "run.cancelled",
-            "run-terminated@1",
-            "either",
-            True,
-            ("queued", "leased", "running", "retry_wait"),
-        ),
-        (
-            "run.timed_out",
-            "run-terminated@1",
-            "either",
-            True,
-            ("queued", "leased", "running", "retry_wait"),
-        ),
-    )
-    definitions = tuple(
-        RunEventDefinitionV1(
-            event_type=event_type,
-            data_schema_id=schema_id,
-            attempt_scope=scope,
-            terminal=terminal,
-            allowed_from_statuses=statuses,
-        )
-        for event_type, schema_id, scope, terminal, statuses in rows
-    )
+    definitions = frozen_run_event_definitions_v1()
     payload = {"registry_version": 1, "definitions": definitions}
     return RunEventRegistryV1(
         **payload,

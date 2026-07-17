@@ -1543,6 +1543,21 @@ class RunEventDefinitionV1(_FrozenModel):
         return self
 
 
+def frozen_run_event_definitions_v1() -> tuple[RunEventDefinitionV1, ...]:
+    """Return the complete frozen event table without exposing its mutable backing map."""
+
+    return tuple(
+        RunEventDefinitionV1(
+            event_type=event_type,
+            data_schema_id=schema_id,
+            attempt_scope=scope,
+            terminal=terminal,
+            allowed_from_statuses=statuses,
+        )
+        for event_type, (schema_id, scope, terminal, statuses) in _RUN_EVENT_DEFINITIONS.items()
+    )
+
+
 def run_event_registry_digest(payload: Mapping[str, Any] | BaseModel) -> str:
     raw = _json_data(payload)
     if isinstance(raw, dict):
@@ -1637,6 +1652,12 @@ _COMMAND_PAYLOAD_SCHEMAS = {
     "cancel": "run-cancel@1",
     "provide_input": "playtest-provide-input@1",
 }
+
+
+def frozen_run_command_payload_schemas_v1() -> tuple[tuple[str, str], ...]:
+    """Return the command-type to payload-schema closure in stable wire order."""
+
+    return tuple(_COMMAND_PAYLOAD_SCHEMAS.items())
 
 
 class RunCommandV1(_FrozenModel):

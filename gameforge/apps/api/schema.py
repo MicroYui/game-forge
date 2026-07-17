@@ -41,13 +41,20 @@ import json
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, TypeAdapter
 
 from gameforge.apps.api.app import create_app
 from gameforge.contracts.api import RunCommandServerFrame
-from gameforge.contracts.jobs import Problem, RunCommandV1, RunEvent
+from gameforge.contracts.jobs import (
+    MAX_RUN_COMMAND_CLIENT_SEQ,
+    Problem,
+    RunCommandV1,
+    RunEvent,
+    frozen_run_command_payload_schemas_v1,
+    frozen_run_event_definitions_v1,
+)
 
 
 OPENAPI_KEY = "openapi-v1.json"
@@ -60,6 +67,8 @@ _SCHEMA_ID_BASE = "https://gameforge.dev/api/schemas/"
 _PROBLEM_MEDIA_TYPE = "application/problem+json"
 _PROBLEM_REF = "#/components/schemas/Problem"
 _JSON_MEDIA_TYPE = "application/json"
+_UINT64_MAX = (1 << 64) - 1
+_MAX_SSE_CURSOR = (1 << 63) - 1
 
 _HTTP_METHODS = frozenset({"get", "put", "post", "delete", "patch", "head", "options", "trace"})
 _SUCCESS_CODES = ("200", "201", "202", "203", "204", "205", "206")
@@ -74,7 +83,7 @@ _SECURITY_SCHEMES: dict[str, dict[str, Any]] = {
         "description": (
             "Browser session cookie issued by POST /auth/login. Attributes: "
             "HttpOnly, Secure, SameSite=Strict, Path=/. Mutating requests must also "
-            "present the X-CSRF-Token header returned by login (double-submit CSRF); "
+            "present the session-bound X-CSRF-Token header returned by login; "
             "the Origin/Referer is validated by the authentication middleware."
         ),
     },
@@ -101,11 +110,12 @@ _ERROR_STATUSES: dict[str, tuple[str, ...]] = {
     "auth_me": ("401", "403", "429", "500", "503"),
     "read_item": _BASE_ERROR_STATUSES + ("404",),
     "read_page": _BASE_ERROR_STATUSES + ("400", "410"),
+    "read_parent_page": _BASE_ERROR_STATUSES + ("400", "404", "410"),
     "observability": _BASE_ERROR_STATUSES + ("400", "404", "410"),
     "write_command": _BASE_ERROR_STATUSES + ("400", "404", "409", "410", "413"),
     "run_admission": _BASE_ERROR_STATUSES + ("404", "409", "413"),
     "cancel": _BASE_ERROR_STATUSES + ("404", "409", "413"),
-    "sse": ("401", "403", "404", "410", "422", "500", "503"),
+    "sse": ("400", "401", "403", "404", "410", "422", "500", "503"),
 }
 _STATUS_DESCRIPTIONS: dict[str, str] = {
     "400": "Invalid cursor or malformed request (problem+json).",
@@ -145,7 +155,7 @@ _LOGIN_HEADERS = {
         f"Sets the `{_SESSION_COOKIE_NAME}` session cookie "
         "(HttpOnly, Secure, SameSite=Strict, Path=/)."
     ),
-    "X-CSRF-Token": _header("Double-submit CSRF token to echo on mutating requests."),
+    "X-CSRF-Token": _header("Session-bound CSRF token to echo on mutating requests."),
     "Cache-Control": _header("Always `no-store` for the authentication response."),
 }
 _LOGOUT_HEADERS = {
@@ -170,11 +180,51 @@ _CSRF_REQUEST_HEADER = {
     "in": "header",
     "required": False,
     "description": (
-        "Double-submit CSRF token from login. Required when authenticating with the "
+        "Session-bound CSRF token from login. Required when authenticating with the "
         "session cookie on a mutating operation; ignored for ApiKey service clients."
     ),
     "schema": {"type": "string", "maxLength": 4096},
 }
+_LOGOUT_CSRF_REQUEST_HEADER = {
+    **_CSRF_REQUEST_HEADER,
+    "required": True,
+    "description": "Session-bound CSRF token returned by login; required for logout.",
+}
+
+_IDEMPOTENCY_REQUEST_HEADER = {
+    "name": "Idempotency-Key",
+    "in": "header",
+    "required": True,
+    "description": "Bounded idempotency key for exact command replay.",
+    "schema": {"type": "string", "minLength": 1, "maxLength": 512},
+}
+
+_LAST_EVENT_ID_REQUEST_HEADER = {
+    "name": "Last-Event-ID",
+    "in": "header",
+    "required": False,
+    "description": (
+        "Last committed SSE event sequence received; omit only for a fresh stream. "
+        "The raw header is canonical base-10 with no sign or leading zeroes, except `0`."
+    ),
+    "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": _MAX_SSE_CURSOR,
+    },
+}
+
+_PARENT_BOUND_PAGE_PATHS = frozenset(
+    {
+        "/api/v1/specs/{artifact_id}/graph",
+        "/api/v1/diff",
+        "/api/v1/artifacts/{artifact_id}/lineage",
+        "/api/v1/refs/{ref_name}/history",
+        "/api/v1/runs/{run_id}/findings",
+        "/api/v1/runs/{run_id}/commands",
+        "/api/v1/conflict-sets/{conflict_set_id}/conflicts",
+    }
+)
 
 _SSE_DESCRIPTION = (
     "A stream of Server-Sent Events (`text/event-stream`). Each event's `data:` line is a "
@@ -205,7 +255,9 @@ def _operation_class(method: str, path: str, operation: Mapping[str, Any]) -> st
         if method == "post":
             return "run_admission"
     # content-reads / workflow-reads
-    return "read_page" if _is_page_operation(operation) else "read_item"
+    if _is_page_operation(operation):
+        return "read_parent_page" if path in _PARENT_BOUND_PAGE_PATHS else "read_page"
+    return "read_item"
 
 
 def _success_code(operation: Mapping[str, Any]) -> str | None:
@@ -284,7 +336,7 @@ def _inject_success_headers(operation: dict[str, Any], operation_class: str) -> 
         _set_headers(operation, "200", _NO_STORE_HEADERS)
     elif operation_class == "read_item":
         _set_headers(operation, "200", _ETAG_HEADERS)
-    elif operation_class == "read_page":
+    elif operation_class in ("read_page", "read_parent_page"):
         _set_headers(operation, "200", _PAGE_HEADERS)
     elif operation_class == "write_command":
         code = _success_code(operation)
@@ -312,14 +364,25 @@ def _rewrite_sse_success(operation: dict[str, Any]) -> None:
     }
 
 
-def _inject_csrf_request_header(operation: dict[str, Any], operation_class: str) -> None:
-    if operation_class not in ("auth_logout", "write_command", "run_admission", "cancel"):
-        return
+def _append_parameter(operation: dict[str, Any], parameter: Mapping[str, Any]) -> None:
     parameters = operation.setdefault("parameters", [])
     for existing in parameters:
-        if existing.get("name") == "X-CSRF-Token" and existing.get("in") == "header":
+        if existing.get("name") == parameter.get("name") and existing.get("in") == parameter.get(
+            "in"
+        ):
             return
-    parameters.append(copy.deepcopy(_CSRF_REQUEST_HEADER))
+    parameters.append(copy.deepcopy(dict(parameter)))
+
+
+def _inject_request_headers(operation: dict[str, Any], operation_class: str) -> None:
+    if operation_class == "auth_logout":
+        _append_parameter(operation, _LOGOUT_CSRF_REQUEST_HEADER)
+    elif operation_class in ("write_command", "run_admission", "cancel"):
+        _append_parameter(operation, _CSRF_REQUEST_HEADER)
+    if operation_class == "auth_logout":
+        _append_parameter(operation, _IDEMPOTENCY_REQUEST_HEADER)
+    if operation_class == "sse":
+        _append_parameter(operation, _LAST_EVENT_ID_REQUEST_HEADER)
 
 
 def _inject_problem_schema(document: dict[str, Any]) -> None:
@@ -335,6 +398,140 @@ def _inject_problem_schema(document: dict[str, Any]) -> None:
     schemas.pop("ValidationError", None)
 
 
+def _pointer_part(value: str) -> str:
+    return value.replace("~1", "/").replace("~0", "~")
+
+
+def _resolve_document_ref(document: Mapping[str, Any], ref: str) -> dict[str, Any]:
+    if not ref.startswith("#/"):
+        raise RuntimeError(f"only local schema refs are supported: {ref}")
+    node: Any = document
+    for raw_part in ref[2:].split("/"):
+        part = _pointer_part(raw_part)
+        if not isinstance(node, Mapping) or part not in node:
+            raise RuntimeError(f"schema ref does not resolve: {ref}")
+        node = node[part]
+    if not isinstance(node, dict):
+        raise RuntimeError(f"schema ref does not resolve to an object: {ref}")
+    return node
+
+
+def _require_discriminator_tags(
+    document: dict[str, Any], union: Mapping[str, Any], *, tag_name: str
+) -> None:
+    discriminator = union.get("discriminator")
+    mapping = discriminator.get("mapping") if isinstance(discriminator, Mapping) else None
+    if not isinstance(mapping, Mapping) or not mapping:
+        raise RuntimeError(f"{tag_name} discriminator mapping is unavailable")
+    for tag_value, ref in mapping.items():
+        if not isinstance(tag_value, str) or not isinstance(ref, str):
+            raise RuntimeError(f"{tag_name} discriminator mapping is malformed")
+        variant = _resolve_document_ref(document, ref)
+        properties = variant.get("properties")
+        tag = properties.get(tag_name) if isinstance(properties, Mapping) else None
+        if not isinstance(tag, Mapping) or tag.get("const") != tag_value:
+            raise RuntimeError(f"{tag_name} discriminator variant differs from its mapping")
+        required = variant.setdefault("required", [])
+        if tag_name not in required:
+            required.append(tag_name)
+
+
+def _close_run_command_schema(document: dict[str, Any], command_schema: dict[str, Any]) -> None:
+    properties = command_schema.get("properties")
+    payload = properties.get("payload") if isinstance(properties, Mapping) else None
+    if not isinstance(payload, Mapping):
+        raise RuntimeError("RunCommandV1 payload schema is unavailable")
+    _require_discriminator_tags(document, payload, tag_name="schema_version")
+    discriminator = payload["discriminator"]
+    mapping = discriminator["mapping"]
+    branches: list[dict[str, Any]] = []
+    for command_type, payload_schema_id in frozen_run_command_payload_schemas_v1():
+        payload_ref = mapping.get(payload_schema_id)
+        if not isinstance(payload_ref, str):
+            raise RuntimeError("RunCommandV1 payload mapping is incomplete")
+        branches.append(
+            {
+                "type": "object",
+                "required": ["type", "payload_schema_id", "payload"],
+                "properties": {
+                    "type": {"const": command_type},
+                    "payload_schema_id": {"const": payload_schema_id},
+                    "payload": {"$ref": payload_ref},
+                },
+            }
+        )
+    command_schema["oneOf"] = branches
+
+
+def _close_run_event_schema(document: dict[str, Any]) -> None:
+    properties = document.get("properties")
+    data = properties.get("data") if isinstance(properties, Mapping) else None
+    if not isinstance(data, Mapping):
+        raise RuntimeError("RunEvent data schema is unavailable")
+    _require_discriminator_tags(document, data, tag_name="data_schema_version")
+    mapping = data["discriminator"]["mapping"]
+    branches: list[dict[str, Any]] = []
+    for definition in frozen_run_event_definitions_v1():
+        data_ref = mapping.get(definition.data_schema_id)
+        if not isinstance(data_ref, str):
+            raise RuntimeError("RunEvent data mapping is incomplete")
+        branch_properties: dict[str, Any] = {
+            "event_type": {"const": definition.event_type},
+            "data_schema_version": {"const": definition.data_schema_id},
+            "data": {"$ref": data_ref},
+        }
+        required = ["event_type", "data_schema_version", "data"]
+        if definition.attempt_scope == "attempt":
+            branch_properties["attempt_no"] = {"type": "integer", "minimum": 1}
+            required.append("attempt_no")
+        elif definition.attempt_scope == "run":
+            branch_properties["attempt_no"] = {"type": "null"}
+        branches.append(
+            {
+                "type": "object",
+                "required": required,
+                "properties": branch_properties,
+            }
+        )
+    document["oneOf"] = branches
+
+
+def _restrict_rest_cancel(operation: dict[str, Any]) -> None:
+    content = operation.get("requestBody", {}).get("content", {})
+    media = content.get(_JSON_MEDIA_TYPE)
+    schema = media.get("schema") if isinstance(media, Mapping) else None
+    if schema != {"$ref": "#/components/schemas/RunCommandV1"}:
+        raise RuntimeError("REST cancel no longer uses the full RunCommandV1 envelope")
+    media["schema"] = {
+        "allOf": [
+            {"$ref": "#/components/schemas/RunCommandV1"},
+            {
+                "type": "object",
+                "required": ["type", "payload_schema_id", "payload"],
+                "properties": {
+                    "type": {"const": "cancel"},
+                    "payload_schema_id": {"const": "run-cancel@1"},
+                    "payload": {"$ref": "#/components/schemas/CancelRunPayloadV1"},
+                },
+            },
+        ]
+    }
+
+
+def _restore_exact_large_integer_bounds(value: Any) -> None:
+    if isinstance(value, dict):
+        maximum = value.get("maximum")
+        if maximum == float(MAX_RUN_COMMAND_CLIENT_SEQ):
+            value["maximum"] = MAX_RUN_COMMAND_CLIENT_SEQ
+        elif maximum == float(_UINT64_MAX):
+            value["maximum"] = _UINT64_MAX
+        for child in value.values():
+            _restore_exact_large_integer_bounds(child)
+    elif isinstance(value, list):
+        for child in value:
+            _restore_exact_large_integer_bounds(child)
+
+
 def build_openapi() -> dict[str, Any]:
     """Build the frozen, injected OpenAPI document from the real route table."""
 
@@ -343,6 +540,12 @@ def build_openapi() -> dict[str, Any]:
     components = document.setdefault("components", {})
     components["securitySchemes"] = copy.deepcopy(_SECURITY_SCHEMES)
     document["security"] = copy.deepcopy(_SESSION_OR_API_KEY)
+    schemas = components.setdefault("schemas", {})
+    command_schema = schemas.get("RunCommandV1")
+    if not isinstance(command_schema, dict):
+        raise RuntimeError("OpenAPI is missing RunCommandV1")
+    _close_run_command_schema(document, command_schema)
+    _restore_exact_large_integer_bounds(document)
 
     for path, path_item in document.get("paths", {}).items():
         for method, operation in path_item.items():
@@ -352,7 +555,9 @@ def build_openapi() -> dict[str, Any]:
             operation["security"] = _security_for(operation_class)
             _inject_error_responses(operation, operation_class)
             _inject_success_headers(operation, operation_class)
-            _inject_csrf_request_header(operation, operation_class)
+            _inject_request_headers(operation, operation_class)
+            if operation_class == "cancel":
+                _restrict_rest_cancel(operation)
     return document
 
 
@@ -388,10 +593,10 @@ def _server_frame_document() -> dict[str, Any]:
         "$id": _schema_id("ws-server-frame-v1.json"),
         "title": "RunCommandServerFrame",
         "description": (
-            "One WebSocket server frame for POST /runs/{id}:cancel and WS "
-            "/runs/{id}/commands: exactly one of a RunCommandAckV1 (accepted/duplicate) "
-            "or a RunCommandProblemV1 (RFC 9457 problem). Lease/fencing worker columns "
-            "are structurally absent."
+            "One server frame on WS /runs/{id}/commands: exactly one of a "
+            "RunCommandAckV1 (accepted/duplicate) or a RunCommandProblemV1 (RFC 9457 "
+            "problem). REST cancel returns the ack as JSON and errors as HTTP Problem "
+            "responses. Lease/fencing worker columns are structurally absent."
         ),
         "oneOf": copy.deepcopy(variants),
         "$defs": raw.get("$defs", {}),
@@ -399,30 +604,34 @@ def _server_frame_document() -> dict[str, Any]:
 
 
 def build_streaming_schemas() -> dict[str, dict[str, Any]]:
+    event = _model_schema_document(
+        RunEvent,
+        "sse-run-event-v1.json",
+        title="RunEvent",
+        description=(
+            "The `data:` payload object of one Server-Sent Event on "
+            "GET /runs/{id}/events. The `data` field is a discriminated "
+            "(`data_schema_version`) RunEventData union; `event_type` is the "
+            "14-value RunEventType. The SSE framing itself is `id:{seq}\\n"
+            "event:{type}\\ndata:{canonical_json}\\n\\n`."
+        ),
+    )
+    _close_run_event_schema(event)
+    command = _model_schema_document(
+        RunCommandV1,
+        "ws-client-command-v1.json",
+        title="RunCommandV1",
+        description=(
+            "The full command envelope shared by WS /runs/{id}/commands and "
+            "POST /runs/{id}:cancel (where type must be cancel). `payload` is a "
+            "discriminated (`schema_version`) RunCommandPayload union."
+        ),
+    )
+    _close_run_command_schema(command, command)
     return {
-        SSE_EVENT_KEY: _model_schema_document(
-            RunEvent,
-            "sse-run-event-v1.json",
-            title="RunEvent",
-            description=(
-                "The `data:` payload object of one Server-Sent Event on "
-                "GET /runs/{id}/events. The `data` field is a discriminated "
-                "(`data_schema_version`) RunEventData union; `event_type` is the "
-                "14-value RunEventType. The SSE framing itself is `id:{seq}\\n"
-                "event:{type}\\ndata:{canonical_json}\\n\\n`."
-            ),
-        ),
+        SSE_EVENT_KEY: event,
         WS_SERVER_FRAME_KEY: _server_frame_document(),
-        WS_CLIENT_COMMAND_KEY: _model_schema_document(
-            RunCommandV1,
-            "ws-client-command-v1.json",
-            title="RunCommandV1",
-            description=(
-                "The full command envelope shared by WS /runs/{id}/commands and "
-                "POST /runs/{id}:cancel (where type must be cancel). `payload` is a "
-                "discriminated (`schema_version`) RunCommandPayload union."
-            ),
-        ),
+        WS_CLIENT_COMMAND_KEY: command,
     }
 
 
@@ -447,8 +656,23 @@ def docs_api_dir() -> Path:
 
 def write(base_dir: Path | None = None) -> list[str]:
     base = base_dir if base_dir is not None else docs_api_dir()
+    generated = generate()
+    for key, document in generated.items():
+        target = base / key
+        if not target.is_file():
+            continue
+        try:
+            previous = json.loads(target.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise CompatibilityError(f"cannot read existing frozen artifact {key}") from exc
+        breaks = check_compatibility(previous, document)
+        if breaks:
+            summary = "; ".join(f"{change.kind} at {change.location}" for change in breaks[:10])
+            raise CompatibilityError(
+                f"refusing backward-incompatible overwrite of {key}: {summary}"
+            )
     written: list[str] = []
-    for key, document in generate().items():
+    for key, document in generated.items():
         target = base / key
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(serialize(document), encoding="utf-8")
@@ -461,7 +685,15 @@ def check(base_dir: Path | None = None) -> list[str]:
 
     base = base_dir if base_dir is not None else docs_api_dir()
     problems: list[str] = []
-    for key, document in generate().items():
+    generated = generate()
+    expected_keys = set(generated)
+    if base.is_dir():
+        actual_keys = {
+            path.relative_to(base).as_posix() for path in base.rglob("*.json") if path.is_file()
+        }
+        for key in sorted(actual_keys - expected_keys):
+            problems.append(f"UNEXPECTED {key}")
+    for key, document in generated.items():
         expected = serialize(document)
         target = base / key
         if not target.is_file():
@@ -492,6 +724,10 @@ class BreakingChange:
     detail: str = ""
 
 
+class CompatibilityError(RuntimeError):
+    """Raised when ``--write`` would overwrite a frozen v1 contract incompatibly."""
+
+
 def _is_openapi(document: Any) -> bool:
     return isinstance(document, Mapping) and "openapi" in document and "paths" in document
 
@@ -501,15 +737,28 @@ def check_compatibility(old: Mapping[str, Any], new: Mapping[str, Any]) -> list[
 
     PERMITS additive changes (new path/method/operation, new optional field, new enum
     value, new union variant). REJECTS removed paths/methods/response-statuses, narrowed
-    enums/literals, newly-required request fields, changed discriminators, and
-    incompatible response/schema changes (type change, removed field, required-added).
+    enums/literals/bounds, newly-required request fields, weakened response guarantees,
+    changed discriminators, and incompatible request/response transport schemas.
     """
 
     changes: list[BreakingChange] = []
     if _is_openapi(old) and _is_openapi(new):
         _diff_openapi(old, new, changes)
     else:
-        _diff_schema(old, new, old, new, "$", changes, set())
+        for key in ("$schema", "$id"):
+            if key in old and old.get(key) != new.get(key):
+                changes.append(
+                    BreakingChange(
+                        "schema_identity_changed",
+                        f"$.{key}",
+                        f"{old.get(key)!r}->{new.get(key)!r}",
+                    )
+                )
+        artifact_id = str(old.get("$id", ""))
+        mode: SchemaMode = (
+            "request" if artifact_id.endswith("ws-client-command-v1.json") else "response"
+        )
+        _diff_schema(old, new, old, new, "$", changes, set(), mode)
     # De-duplicate while preserving order.
     seen: set[tuple[str, str, str]] = set()
     unique: list[BreakingChange] = []
@@ -524,6 +773,14 @@ def check_compatibility(old: Mapping[str, Any], new: Mapping[str, Any]) -> list[
 def _diff_openapi(
     old: Mapping[str, Any], new: Mapping[str, Any], changes: list[BreakingChange]
 ) -> None:
+    if old.get("openapi") != new.get("openapi"):
+        changes.append(
+            BreakingChange(
+                "openapi_version_changed",
+                "openapi",
+                f"{old.get('openapi')!r}->{new.get('openapi')!r}",
+            )
+        )
     old_paths = old.get("paths", {})
     new_paths = new.get("paths", {})
     for path, old_item in old_paths.items():
@@ -538,48 +795,355 @@ def _diff_openapi(
             if not isinstance(new_op, Mapping):
                 changes.append(BreakingChange("method_removed", f"paths[{path}].{method}"))
                 continue
-            _diff_operation(old_op, new_op, f"paths[{path}].{method}", changes)
+            _diff_operation(
+                old_op,
+                new_op,
+                old_item,
+                new_item,
+                old,
+                new,
+                f"paths[{path}].{method}",
+                changes,
+            )
 
-    old_schemas = old.get("components", {}).get("schemas", {})
-    new_schemas = new.get("components", {}).get("schemas", {})
-    for name, old_schema in old_schemas.items():
-        new_schema = new_schemas.get(name)
-        if new_schema is None:
-            # A component may be legitimately inlined/renamed; the breaking surface is
-            # caught where a surviving operation references it, so a bare removal is not
-            # flagged. Its shared shape is diffed below only when it survives.
+    old_schemes = old.get("components", {}).get("securitySchemes", {})
+    new_schemes = new.get("components", {}).get("securitySchemes", {})
+    for name, old_scheme in old_schemes.items():
+        new_scheme = new_schemes.get(name)
+        if not isinstance(new_scheme, Mapping):
+            changes.append(BreakingChange("security_scheme_removed", f"securitySchemes.{name}"))
             continue
-        _diff_schema(old_schema, new_schema, old, new, f"components.schemas.{name}", changes, set())
+        structural_keys = ("type", "in", "name", "scheme", "bearerFormat", "openIdConnectUrl")
+        for key in structural_keys:
+            if old_scheme.get(key) != new_scheme.get(key):
+                changes.append(
+                    BreakingChange(
+                        "security_scheme_changed",
+                        f"securitySchemes.{name}.{key}",
+                        f"{old_scheme.get(key)!r}->{new_scheme.get(key)!r}",
+                    )
+                )
 
 
 def _diff_operation(
     old_op: Mapping[str, Any],
     new_op: Mapping[str, Any],
+    old_path_item: Mapping[str, Any],
+    new_path_item: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
 ) -> None:
+    _diff_security(old_op, new_op, old_root, new_root, location, changes)
+    _diff_parameters(
+        old_path_item,
+        new_path_item,
+        old_op,
+        new_op,
+        old_root,
+        new_root,
+        location,
+        changes,
+    )
+    _diff_request_body(old_op, new_op, old_root, new_root, location, changes)
+
     old_responses = old_op.get("responses", {})
     new_responses = new_op.get("responses", {})
-    for status in old_responses:
-        if status not in new_responses:
+    for status, old_response in old_responses.items():
+        new_response = new_responses.get(status)
+        response_location = f"{location}.responses[{status}]"
+        if not isinstance(new_response, Mapping):
+            changes.append(BreakingChange("response_status_removed", response_location))
+            continue
+        if not isinstance(old_response, Mapping):
+            continue
+        _diff_content(
+            old_response.get("content"),
+            new_response.get("content"),
+            old_root,
+            new_root,
+            f"{response_location}.content",
+            changes,
+            mode="response",
+        )
+        _diff_response_headers(
+            old_response,
+            new_response,
+            old_root,
+            new_root,
+            response_location,
+            changes,
+        )
+
+
+def _canonical_security(value: Any) -> set[str]:
+    if not isinstance(value, list):
+        return set()
+    normalized: set[str] = set()
+    for requirement in value:
+        if not isinstance(requirement, Mapping):
+            continue
+        normalized.add(
+            json.dumps(
+                {key: sorted(scopes) for key, scopes in requirement.items()},
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        )
+    return normalized
+
+
+def _allows_anonymous(value: Any) -> bool:
+    return (
+        value is None
+        or value == []
+        or (
+            isinstance(value, list)
+            and any(isinstance(requirement, Mapping) and not requirement for requirement in value)
+        )
+    )
+
+
+def _diff_security(
+    old_op: Mapping[str, Any],
+    new_op: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+) -> None:
+    old_security = old_op.get("security", old_root.get("security"))
+    new_security = new_op.get("security", new_root.get("security"))
+    if _allows_anonymous(old_security) and not _allows_anonymous(new_security):
+        changes.append(BreakingChange("security_required_added", f"{location}.security"))
+    removed = sorted(_canonical_security(old_security) - _canonical_security(new_security))
+    if removed:
+        changes.append(
+            BreakingChange("security_alternative_removed", f"{location}.security", repr(removed))
+        )
+
+
+def _resolved_object(value: Any, root: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    if not isinstance(value, Mapping):
+        return None
+    ref = value.get("$ref")
+    if isinstance(ref, str):
+        return _resolve_ref(ref, root)
+    return value
+
+
+def _parameter_map(
+    path_item: Mapping[str, Any], operation: Mapping[str, Any], root: Mapping[str, Any]
+) -> dict[tuple[str, str], Mapping[str, Any]]:
+    result: dict[tuple[str, str], Mapping[str, Any]] = {}
+    raw_parameters = [
+        *(path_item.get("parameters", []) or []),
+        *(operation.get("parameters", []) or []),
+    ]
+    for raw in raw_parameters:
+        parameter = _resolved_object(raw, root)
+        if parameter is None:
+            continue
+        name = parameter.get("name")
+        location = parameter.get("in")
+        if not isinstance(name, str) or not isinstance(location, str):
+            continue
+        normalized_name = name.casefold() if location == "header" else name
+        result[(location, normalized_name)] = parameter
+    return result
+
+
+def _parameter_serialization(parameter: Mapping[str, Any]) -> tuple[Any, ...]:
+    location = parameter.get("in")
+    default_style = "form" if location in ("query", "cookie") else "simple"
+    style = parameter.get("style", default_style)
+    return (
+        style,
+        parameter.get("explode", style == "form"),
+        parameter.get("allowReserved", False),
+        parameter.get("allowEmptyValue", False),
+    )
+
+
+def _diff_parameters(
+    old_path_item: Mapping[str, Any],
+    new_path_item: Mapping[str, Any],
+    old_op: Mapping[str, Any],
+    new_op: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+) -> None:
+    old_parameters = _parameter_map(old_path_item, old_op, old_root)
+    new_parameters = _parameter_map(new_path_item, new_op, new_root)
+    for key, old_parameter in old_parameters.items():
+        parameter_location = f"{location}.parameters[{key[0]}:{key[1]}]"
+        new_parameter = new_parameters.get(key)
+        if new_parameter is None:
+            changes.append(BreakingChange("parameter_removed", parameter_location))
+            continue
+        if not old_parameter.get("required", False) and new_parameter.get("required", False):
+            changes.append(BreakingChange("parameter_became_required", parameter_location))
+        old_serialization = _parameter_serialization(old_parameter)
+        new_serialization = _parameter_serialization(new_parameter)
+        if old_serialization != new_serialization:
             changes.append(
-                BreakingChange("response_status_removed", f"{location}.responses[{status}]")
+                BreakingChange(
+                    "parameter_serialization_changed",
+                    parameter_location,
+                    f"{old_serialization!r}->{new_serialization!r}",
+                )
+            )
+        _diff_schema(
+            old_parameter.get("schema"),
+            new_parameter.get("schema"),
+            old_root,
+            new_root,
+            f"{parameter_location}.schema",
+            changes,
+            set(),
+            "request",
+        )
+        _diff_content(
+            old_parameter.get("content"),
+            new_parameter.get("content"),
+            old_root,
+            new_root,
+            f"{parameter_location}.content",
+            changes,
+            mode="request",
+        )
+    for key, new_parameter in new_parameters.items():
+        if key not in old_parameters and new_parameter.get("required", False):
+            changes.append(
+                BreakingChange(
+                    "required_parameter_added",
+                    f"{location}.parameters[{key[0]}:{key[1]}]",
+                )
             )
 
 
-def _resolve_ref(ref: str, root: Mapping[str, Any]) -> Mapping[str, Any]:
+def _diff_request_body(
+    old_op: Mapping[str, Any],
+    new_op: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+) -> None:
+    old_body = _resolved_object(old_op.get("requestBody"), old_root)
+    new_body = _resolved_object(new_op.get("requestBody"), new_root)
+    body_location = f"{location}.requestBody"
+    if old_body is not None and new_body is None:
+        changes.append(BreakingChange("request_body_removed", body_location))
+        return
+    if old_body is None:
+        if new_body is not None and new_body.get("required", False):
+            changes.append(BreakingChange("required_request_body_added", body_location))
+        return
+    if new_body is None:
+        return
+    if not old_body.get("required", False) and new_body.get("required", False):
+        changes.append(BreakingChange("request_body_became_required", body_location))
+    _diff_content(
+        old_body.get("content"),
+        new_body.get("content"),
+        old_root,
+        new_root,
+        f"{body_location}.content",
+        changes,
+        mode="request",
+    )
+
+
+def _diff_content(
+    old_content: Any,
+    new_content: Any,
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+    *,
+    mode: SchemaMode,
+) -> None:
+    if not isinstance(old_content, Mapping):
+        return
+    if not isinstance(new_content, Mapping):
+        if old_content:
+            changes.append(BreakingChange("content_removed", location))
+        return
+    for media_type, old_media in old_content.items():
+        new_media = new_content.get(media_type)
+        media_location = f"{location}[{media_type}]"
+        if not isinstance(new_media, Mapping):
+            changes.append(BreakingChange("media_type_removed", media_location))
+            continue
+        if not isinstance(old_media, Mapping):
+            continue
+        _diff_schema(
+            old_media.get("schema"),
+            new_media.get("schema"),
+            old_root,
+            new_root,
+            f"{media_location}.schema",
+            changes,
+            set(),
+            mode,
+        )
+
+
+def _diff_response_headers(
+    old_response: Mapping[str, Any],
+    new_response: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+) -> None:
+    old_headers = {
+        name.casefold(): value for name, value in (old_response.get("headers", {}) or {}).items()
+    }
+    new_headers = {
+        name.casefold(): value for name, value in (new_response.get("headers", {}) or {}).items()
+    }
+    for name, old_header_raw in old_headers.items():
+        header_location = f"{location}.headers[{name}]"
+        new_header_raw = new_headers.get(name)
+        if new_header_raw is None:
+            changes.append(BreakingChange("response_header_removed", header_location))
+            continue
+        old_header = _resolved_object(old_header_raw, old_root)
+        new_header = _resolved_object(new_header_raw, new_root)
+        if old_header is None or new_header is None:
+            changes.append(BreakingChange("response_header_changed", header_location))
+            continue
+        _diff_schema(
+            old_header.get("schema"),
+            new_header.get("schema"),
+            old_root,
+            new_root,
+            f"{header_location}.schema",
+            changes,
+            set(),
+            "response",
+        )
+
+
+def _resolve_ref(ref: str, root: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    if not ref.startswith("#/"):
+        return None
     node: Any = root
-    for part in ref.lstrip("#/").split("/"):
+    for raw_part in ref[2:].split("/"):
+        part = _pointer_part(raw_part)
         if not isinstance(node, Mapping) or part not in node:
-            return {}
+            return None
         node = node[part]
-    return node if isinstance(node, Mapping) else {}
+    return node if isinstance(node, Mapping) else None
 
 
-def _ref_name(entry: Any) -> str:
-    if isinstance(entry, Mapping) and isinstance(entry.get("$ref"), str):
-        return entry["$ref"].rsplit("/", 1)[-1]
-    return ""
+SchemaMode = Literal["request", "response", "neutral"]
 
 
 def _diff_schema(
@@ -589,43 +1153,93 @@ def _diff_schema(
     new_root: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
-    seen: set[tuple[str, str]],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
 ) -> None:
+    if old_schema is None:
+        return
+    if new_schema is None:
+        changes.append(BreakingChange("schema_removed", location))
+        return
+    if isinstance(old_schema, bool) or isinstance(new_schema, bool):
+        if old_schema != new_schema:
+            changes.append(BreakingChange("schema_changed", location))
+        return
     if not isinstance(old_schema, Mapping) or not isinstance(new_schema, Mapping):
+        changes.append(BreakingChange("schema_changed", location))
         return
 
     old_ref = old_schema.get("$ref")
     new_ref = new_schema.get("$ref")
     if isinstance(old_ref, str) and isinstance(new_ref, str):
-        key = (old_ref, new_ref)
+        if old_ref != new_ref:
+            changes.append(BreakingChange("schema_ref_changed", location, f"{old_ref}->{new_ref}"))
+        key = (old_ref, new_ref, mode)
+        old_siblings = {name: value for name, value in old_schema.items() if name != "$ref"}
+        new_siblings = {name: value for name, value in new_schema.items() if name != "$ref"}
+        _diff_schema(
+            old_siblings,
+            new_siblings,
+            old_root,
+            new_root,
+            f"{location}.$ref-siblings",
+            changes,
+            seen | {key},
+            mode,
+        )
         if key in seen:
             return
+        old_target = _resolve_ref(old_ref, old_root)
+        new_target = _resolve_ref(new_ref, new_root)
+        if old_target is None or new_target is None:
+            changes.append(
+                BreakingChange(
+                    "schema_ref_target_removed",
+                    location,
+                    new_ref if new_target is None else old_ref,
+                )
+            )
+            return
         _diff_schema(
-            _resolve_ref(old_ref, old_root),
-            _resolve_ref(new_ref, new_root),
+            old_target,
+            new_target,
             old_root,
             new_root,
             location,
             changes,
             seen | {key},
+            mode,
         )
         return
     if isinstance(old_ref, str):
-        old_schema = _resolve_ref(old_ref, old_root)
+        old_target = _resolve_ref(old_ref, old_root)
+        if old_target is None:
+            changes.append(BreakingChange("schema_ref_target_removed", location, old_ref))
+            return
+        old_schema = old_target
     if isinstance(new_ref, str):
-        new_schema = _resolve_ref(new_ref, new_root)
+        new_target = _resolve_ref(new_ref, new_root)
+        if new_target is None:
+            changes.append(BreakingChange("schema_ref_target_removed", location, new_ref))
+            return
+        new_schema = new_target
     if not isinstance(old_schema, Mapping) or not isinstance(new_schema, Mapping):
         return
 
-    _diff_enum(old_schema, new_schema, location, changes)
-    _diff_const(old_schema, new_schema, location, changes)
+    _diff_enum(old_schema, new_schema, location, changes, mode)
+    _diff_const(old_schema, new_schema, location, changes, mode)
     _diff_discriminator(old_schema, new_schema, location, changes)
-    _diff_type(old_schema, new_schema, location, changes)
+    _diff_type(old_schema, new_schema, location, changes, mode)
+    _diff_constraints(old_schema, new_schema, location, changes, mode)
     _diff_required_and_properties(
-        old_schema, new_schema, old_root, new_root, location, changes, seen
+        old_schema, new_schema, old_root, new_root, location, changes, seen, mode
     )
-    _diff_items(old_schema, new_schema, old_root, new_root, location, changes, seen)
-    _diff_unions(old_schema, new_schema, old_root, new_root, location, changes, seen)
+    _diff_additional_properties(
+        old_schema, new_schema, old_root, new_root, location, changes, seen, mode
+    )
+    _diff_items(old_schema, new_schema, old_root, new_root, location, changes, seen, mode)
+    _diff_unions(old_schema, new_schema, old_root, new_root, location, changes, seen, mode)
+    _diff_all_of(old_schema, new_schema, old_root, new_root, location, changes, seen, mode)
 
 
 def _diff_enum(
@@ -633,10 +1247,29 @@ def _diff_enum(
     new_schema: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
+    mode: SchemaMode,
 ) -> None:
     old_enum = old_schema.get("enum")
     new_enum = new_schema.get("enum")
-    if isinstance(old_enum, list) and isinstance(new_enum, list):
+    if mode == "response":
+        removed = (
+            [value for value in old_enum if value not in new_enum]
+            if isinstance(old_enum, list) and isinstance(new_enum, list)
+            else []
+        )
+        if removed:
+            changes.append(BreakingChange("enum_narrowed", f"{location}.enum", repr(removed)))
+        elif old_enum != new_enum and (isinstance(old_enum, list) or isinstance(new_enum, list)):
+            changes.append(
+                BreakingChange(
+                    "response_enum_widened",
+                    f"{location}.enum",
+                    f"{old_enum!r}->{new_enum!r}",
+                )
+            )
+    elif not isinstance(old_enum, list) and isinstance(new_enum, list):
+        changes.append(BreakingChange("enum_narrowed", f"{location}.enum", repr(new_enum)))
+    elif isinstance(old_enum, list) and isinstance(new_enum, list):
         removed = [value for value in old_enum if value not in new_enum]
         if removed:
             changes.append(BreakingChange("enum_narrowed", f"{location}.enum", repr(removed)))
@@ -647,16 +1280,36 @@ def _diff_const(
     new_schema: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
+    mode: SchemaMode,
 ) -> None:
-    if "const" in old_schema and "const" in new_schema:
-        if old_schema["const"] != new_schema["const"]:
-            changes.append(
-                BreakingChange(
-                    "const_changed",
-                    f"{location}.const",
-                    f"{old_schema['const']!r}->{new_schema['const']!r}",
-                )
+    if (
+        mode == "response"
+        and "const" in old_schema
+        and old_schema.get("const") != new_schema.get("const")
+    ):
+        changes.append(
+            BreakingChange(
+                "response_const_weakened",
+                f"{location}.const",
+                f"{old_schema.get('const')!r}->{new_schema.get('const')!r}",
             )
+        )
+    elif "const" not in old_schema and "const" in new_schema:
+        changes.append(
+            BreakingChange("const_added", f"{location}.const", repr(new_schema["const"]))
+        )
+    elif (
+        "const" in old_schema
+        and "const" in new_schema
+        and old_schema["const"] != new_schema["const"]
+    ):
+        changes.append(
+            BreakingChange(
+                "const_changed",
+                f"{location}.const",
+                f"{old_schema['const']!r}->{new_schema['const']!r}",
+            )
+        )
 
 
 def _diff_discriminator(
@@ -685,6 +1338,9 @@ def _diff_discriminator(
     removed = sorted(key for key in old_map if key not in new_map)
     if removed:
         changes.append(BreakingChange("discriminator_variant_removed", location, repr(removed)))
+    changed = sorted(key for key in old_map.keys() & new_map.keys() if old_map[key] != new_map[key])
+    if changed:
+        changes.append(BreakingChange("discriminator_mapping_changed", location, repr(changed)))
 
 
 def _diff_type(
@@ -692,11 +1348,100 @@ def _diff_type(
     new_schema: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
+    mode: SchemaMode,
 ) -> None:
-    old_type = old_schema.get("type")
-    new_type = new_schema.get("type")
-    if isinstance(old_type, str) and isinstance(new_type, str) and old_type != new_type:
-        changes.append(BreakingChange("type_changed", location, f"{old_type}->{new_type}"))
+    def types(value: Any) -> set[str]:
+        if isinstance(value, str):
+            return {value}
+        if isinstance(value, list):
+            return {item for item in value if isinstance(item, str)}
+        return set()
+
+    old_types = types(old_schema.get("type"))
+    new_types = types(new_schema.get("type"))
+    if mode == "response":
+        incompatible = bool(old_types) and (not new_types or not new_types <= old_types)
+        kind = "response_type_widened"
+    else:
+        incompatible = bool(new_types) and (not old_types or not old_types <= new_types)
+        kind = "type_narrowed"
+    if incompatible:
+        changes.append(BreakingChange(kind, location, f"{sorted(old_types)}->{sorted(new_types)}"))
+
+
+def _diff_constraints(
+    old_schema: Mapping[str, Any],
+    new_schema: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+    mode: SchemaMode,
+) -> None:
+    upper_bounds = ("maximum", "exclusiveMaximum", "maxLength", "maxItems", "maxProperties")
+    lower_bounds = ("minimum", "exclusiveMinimum", "minLength", "minItems", "minProperties")
+    for key in upper_bounds:
+        old_value = old_schema.get(key)
+        new_value = new_schema.get(key)
+        if mode == "response":
+            incompatible = old_value != new_value and (
+                isinstance(old_value, (int, float)) or isinstance(new_value, (int, float))
+            )
+        else:
+            incompatible = isinstance(new_value, (int, float)) and (
+                not isinstance(old_value, (int, float)) or new_value < old_value
+            )
+        if incompatible:
+            changes.append(
+                BreakingChange("bound_changed", f"{location}.{key}", f"{old_value}->{new_value}")
+            )
+    for key in lower_bounds:
+        old_value = old_schema.get(key)
+        new_value = new_schema.get(key)
+        if mode == "response":
+            incompatible = old_value != new_value and (
+                isinstance(old_value, (int, float)) or isinstance(new_value, (int, float))
+            )
+        else:
+            incompatible = isinstance(new_value, (int, float)) and (
+                not isinstance(old_value, (int, float)) or new_value > old_value
+            )
+        if incompatible:
+            changes.append(
+                BreakingChange("bound_changed", f"{location}.{key}", f"{old_value}->{new_value}")
+            )
+    for key in ("pattern", "format", "multipleOf"):
+        if mode == "response":
+            incompatible = old_schema.get(key) != new_schema.get(key) and (
+                key in old_schema or key in new_schema
+            )
+        else:
+            incompatible = key in new_schema and old_schema.get(key) != new_schema.get(key)
+        if incompatible:
+            changes.append(
+                BreakingChange(
+                    "constraint_changed",
+                    f"{location}.{key}",
+                    f"{old_schema.get(key)!r}->{new_schema.get(key)!r}",
+                )
+            )
+    old_unique = old_schema.get("uniqueItems", False)
+    new_unique = new_schema.get("uniqueItems", False)
+    if (mode == "response" and old_unique != new_unique) or (
+        mode != "response" and not old_unique and new_unique
+    ):
+        changes.append(
+            BreakingChange(
+                "unique_items_changed",
+                f"{location}.uniqueItems",
+                f"{old_unique!r}->{new_unique!r}",
+            )
+        )
+    old_additional = old_schema.get("additionalProperties", True)
+    new_additional = new_schema.get("additionalProperties", True)
+    if mode == "response":
+        if old_additional is False and new_additional is not False:
+            changes.append(BreakingChange("response_additional_properties_opened", location))
+    elif old_additional is not False and new_additional is False:
+        changes.append(BreakingChange("additional_properties_closed", location))
 
 
 def _diff_required_and_properties(
@@ -706,12 +1451,19 @@ def _diff_required_and_properties(
     new_root: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
-    seen: set[tuple[str, str]],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
 ) -> None:
     old_required = set(old_schema.get("required", []) or [])
     new_required = set(new_schema.get("required", []) or [])
-    for name in sorted(new_required - old_required):
-        changes.append(BreakingChange("required_added", f"{location}.required", name))
+    if mode in ("request", "neutral"):
+        for name in sorted(new_required - old_required):
+            changes.append(BreakingChange("required_added", f"{location}.required", name))
+    if mode in ("response", "neutral"):
+        for name in sorted(old_required - new_required):
+            changes.append(
+                BreakingChange("response_required_removed", f"{location}.required", name)
+            )
 
     old_props = old_schema.get("properties", {}) or {}
     new_props = new_schema.get("properties", {}) or {}
@@ -726,7 +1478,50 @@ def _diff_required_and_properties(
             f"{location}.properties.{name}",
             changes,
             seen,
+            mode,
         )
+
+
+def _diff_additional_properties(
+    old_schema: Mapping[str, Any],
+    new_schema: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
+) -> None:
+    old_additional = old_schema.get("additionalProperties", True)
+    new_additional = new_schema.get("additionalProperties", True)
+    if isinstance(old_additional, Mapping) and isinstance(new_additional, Mapping):
+        _diff_schema(
+            old_additional,
+            new_additional,
+            old_root,
+            new_root,
+            f"{location}.additionalProperties",
+            changes,
+            seen,
+            mode,
+        )
+        return
+    if isinstance(old_additional, Mapping):
+        incompatible = (
+            mode == "neutral"
+            or (mode == "request" and new_additional is False)
+            or (mode == "response" and new_additional is not False)
+        )
+    elif isinstance(new_additional, Mapping):
+        incompatible = (
+            mode == "neutral"
+            or (mode == "request" and old_additional is not False)
+            or (mode == "response" and old_additional is False)
+        )
+    else:
+        return
+    if incompatible:
+        changes.append(BreakingChange("additional_properties_schema_changed", location))
 
 
 def _diff_items(
@@ -736,12 +1531,45 @@ def _diff_items(
     new_root: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
-    seen: set[tuple[str, str]],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
 ) -> None:
     old_items = old_schema.get("items")
     new_items = new_schema.get("items")
-    if isinstance(old_items, Mapping) and isinstance(new_items, Mapping):
-        _diff_schema(old_items, new_items, old_root, new_root, f"{location}.items", changes, seen)
+    if old_items is not None:
+        _diff_schema(
+            old_items,
+            new_items,
+            old_root,
+            new_root,
+            f"{location}.items",
+            changes,
+            seen,
+            mode,
+        )
+
+
+def _branch_key(entry: Any) -> str:
+    if not isinstance(entry, Mapping):
+        return "raw:" + repr(entry)
+    ref = entry.get("$ref")
+    if isinstance(ref, str):
+        return "ref:" + ref
+    if "const" in entry:
+        return "const:" + json.dumps(entry["const"], sort_keys=True)
+    properties = entry.get("properties")
+    if isinstance(properties, Mapping):
+        constants = {
+            name: schema["const"]
+            for name, schema in properties.items()
+            if isinstance(schema, Mapping) and "const" in schema
+        }
+        if constants:
+            return "properties:" + json.dumps(constants, sort_keys=True, separators=(",", ":"))
+    schema_type = entry.get("type")
+    if isinstance(schema_type, (str, list)):
+        return "type:" + json.dumps(schema_type, sort_keys=True)
+    return "schema:" + json.dumps(entry, sort_keys=True, separators=(",", ":"))
 
 
 def _diff_unions(
@@ -751,27 +1579,72 @@ def _diff_unions(
     new_root: Mapping[str, Any],
     location: str,
     changes: list[BreakingChange],
-    seen: set[tuple[str, str]],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
 ) -> None:
     for keyword in ("oneOf", "anyOf"):
         old_list = old_schema.get(keyword)
         new_list = new_schema.get(keyword)
-        if not isinstance(old_list, list) or not isinstance(new_list, list):
+        if not isinstance(old_list, list):
+            if isinstance(new_list, list):
+                changes.append(BreakingChange("union_introduced", f"{location}.{keyword}"))
             continue
-        old_by_name = {_ref_name(entry): entry for entry in old_list if _ref_name(entry)}
-        new_by_name = {_ref_name(entry): entry for entry in new_list if _ref_name(entry)}
-        for name in sorted(set(old_by_name) - set(new_by_name)):
-            changes.append(BreakingChange("variant_removed", f"{location}.{keyword}.{name}"))
-        for name in sorted(set(old_by_name) & set(new_by_name)):
+        if not isinstance(new_list, list):
+            changes.append(BreakingChange("union_removed", f"{location}.{keyword}"))
+            continue
+        old_by_key = {_branch_key(entry): entry for entry in old_list}
+        new_by_key = {_branch_key(entry): entry for entry in new_list}
+        for key in sorted(set(old_by_key) - set(new_by_key)):
+            changes.append(BreakingChange("variant_removed", f"{location}.{keyword}.{key}"))
+        for key in sorted(set(old_by_key) & set(new_by_key)):
             _diff_schema(
-                old_by_name[name],
-                new_by_name[name],
+                old_by_key[key],
+                new_by_key[key],
                 old_root,
                 new_root,
-                f"{location}.{keyword}.{name}",
+                f"{location}.{keyword}.{key}",
                 changes,
                 seen,
+                mode,
             )
+
+
+def _diff_all_of(
+    old_schema: Mapping[str, Any],
+    new_schema: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
+) -> None:
+    old_list = old_schema.get("allOf")
+    new_list = new_schema.get("allOf")
+    if not isinstance(old_list, list):
+        if isinstance(new_list, list):
+            changes.append(BreakingChange("all_of_introduced", f"{location}.allOf"))
+        return
+    if not isinstance(new_list, list):
+        changes.append(BreakingChange("all_of_removed", f"{location}.allOf"))
+        return
+    old_by_key = {_branch_key(entry): entry for entry in old_list}
+    new_by_key = {_branch_key(entry): entry for entry in new_list}
+    for key in sorted(set(old_by_key) - set(new_by_key)):
+        changes.append(BreakingChange("all_of_branch_removed", f"{location}.allOf.{key}"))
+    for key in sorted(set(new_by_key) - set(old_by_key)):
+        changes.append(BreakingChange("all_of_branch_added", f"{location}.allOf.{key}"))
+    for key in sorted(set(old_by_key) & set(new_by_key)):
+        _diff_schema(
+            old_by_key[key],
+            new_by_key[key],
+            old_root,
+            new_root,
+            f"{location}.allOf.{key}",
+            changes,
+            seen,
+            mode,
+        )
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────────
@@ -813,6 +1686,7 @@ def main(argv: Iterable[str] | None = None) -> int:
 
 __all__ = [
     "BreakingChange",
+    "CompatibilityError",
     "OPENAPI_KEY",
     "SSE_EVENT_KEY",
     "WS_CLIENT_COMMAND_KEY",

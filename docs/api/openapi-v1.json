@@ -1538,7 +1538,8 @@
           }
         },
         "required": [
-          "reason_code"
+          "reason_code",
+          "schema_version"
         ],
         "title": "CancelRunPayloadV1",
         "type": "object"
@@ -2215,7 +2216,7 @@
           "seed": {
             "anyOf": [
               {
-                "maximum": 1.8446744073709552e+19,
+                "maximum": 18446744073709551615,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -6207,7 +6208,7 @@
           "seed": {
             "anyOf": [
               {
-                "maximum": 1.8446744073709552e+19,
+                "maximum": 18446744073709551615,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -6501,7 +6502,7 @@
           "seed": {
             "anyOf": [
               {
-                "maximum": 1.8446744073709552e+19,
+                "maximum": 18446744073709551615,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -6685,7 +6686,8 @@
         "required": [
           "interaction_id",
           "expected_state_hash",
-          "choice_id"
+          "choice_id",
+          "schema_version"
         ],
         "title": "PlaytestProvideInputPayloadV1",
         "type": "object"
@@ -6807,7 +6809,7 @@
             "type": "string"
           },
           "seed": {
-            "maximum": 1.8446744073709552e+19,
+            "maximum": 18446744073709551615,
             "minimum": 0.0,
             "title": "Seed",
             "type": "integer"
@@ -8099,7 +8101,7 @@
           "seed": {
             "anyOf": [
               {
-                "maximum": 1.8446744073709552e+19,
+                "maximum": 18446744073709551615,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -8195,7 +8197,7 @@
             "type": "string"
           },
           "client_seq": {
-            "maximum": 9.223372036854776e+18,
+            "maximum": 9223372036854775807,
             "minimum": 1.0,
             "title": "Client Seq",
             "type": "integer"
@@ -8249,6 +8251,46 @@
       },
       "RunCommandV1": {
         "additionalProperties": false,
+        "oneOf": [
+          {
+            "properties": {
+              "payload": {
+                "$ref": "#/components/schemas/CancelRunPayloadV1"
+              },
+              "payload_schema_id": {
+                "const": "run-cancel@1"
+              },
+              "type": {
+                "const": "cancel"
+              }
+            },
+            "required": [
+              "type",
+              "payload_schema_id",
+              "payload"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "payload": {
+                "$ref": "#/components/schemas/PlaytestProvideInputPayloadV1"
+              },
+              "payload_schema_id": {
+                "const": "playtest-provide-input@1"
+              },
+              "type": {
+                "const": "provide_input"
+              }
+            },
+            "required": [
+              "type",
+              "payload_schema_id",
+              "payload"
+            ],
+            "type": "object"
+          }
+        ],
         "properties": {
           "client_id": {
             "maxLength": 512,
@@ -8257,7 +8299,7 @@
             "type": "string"
           },
           "client_seq": {
-            "maximum": 9.223372036854776e+18,
+            "maximum": 9223372036854775807,
             "minimum": 1.0,
             "title": "Client Seq",
             "type": "integer"
@@ -8356,7 +8398,7 @@
             "type": "string"
           },
           "client_seq": {
-            "maximum": 9.223372036854776e+18,
+            "maximum": 9223372036854775807,
             "minimum": 1.0,
             "title": "Client Seq",
             "type": "integer"
@@ -8594,7 +8636,7 @@
           "seed": {
             "anyOf": [
               {
-                "maximum": 1.8446744073709552e+19,
+                "maximum": 18446744073709551615,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -10390,7 +10432,7 @@
         "type": "apiKey"
       },
       "SessionCookie": {
-        "description": "Browser session cookie issued by POST /auth/login. Attributes: HttpOnly, Secure, SameSite=Strict, Path=/. Mutating requests must also present the X-CSRF-Token header returned by login (double-submit CSRF); the Origin/Referer is validated by the authentication middleware.",
+        "description": "Browser session cookie issued by POST /auth/login. Attributes: HttpOnly, Secure, SameSite=Strict, Path=/. Mutating requests must also present the session-bound X-CSRF-Token header returned by login; the Origin/Referer is validated by the authentication middleware.",
         "in": "cookie",
         "name": "gameforge_session",
         "type": "apiKey"
@@ -10757,7 +10799,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -10979,7 +11021,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -11201,7 +11243,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -11622,6 +11664,16 @@
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
           },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
           "410": {
             "content": {
               "application/problem+json": {
@@ -11727,7 +11779,7 @@
                 }
               },
               "X-CSRF-Token": {
-                "description": "Double-submit CSRF token to echo on mutating requests.",
+                "description": "Session-bound CSRF token to echo on mutating requests.",
                 "schema": {
                   "type": "string"
                 }
@@ -11827,12 +11879,23 @@
         "operationId": "logout_api_v1_auth_logout_post",
         "parameters": [
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token returned by login; required for logout.",
             "in": "header",
             "name": "X-CSRF-Token",
-            "required": false,
+            "required": true,
             "schema": {
               "maxLength": 4096,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bounded idempotency key for exact command replay.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "type": "string"
             }
           }
@@ -12258,6 +12321,16 @@
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
           },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
           "410": {
             "content": {
               "application/problem+json": {
@@ -12519,7 +12592,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -12881,7 +12954,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13103,7 +13176,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13325,7 +13398,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13547,7 +13620,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13749,7 +13822,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -14479,6 +14552,16 @@
               }
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
           },
           "410": {
             "content": {
@@ -15440,7 +15523,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -16426,7 +16509,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -16788,7 +16871,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17010,7 +17093,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17221,7 +17304,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17417,7 +17500,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17639,7 +17722,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17861,7 +17944,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -18203,7 +18286,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -18458,6 +18541,16 @@
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
           },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
           "410": {
             "content": {
               "application/problem+json": {
@@ -18569,7 +18662,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -19393,7 +19486,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -19615,7 +19708,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -19837,7 +19930,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -20224,7 +20317,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -20619,6 +20712,16 @@
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
           },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
           "410": {
             "content": {
               "application/problem+json": {
@@ -20706,6 +20809,17 @@
               "title": "Run Id",
               "type": "string"
             }
+          },
+          {
+            "description": "Last committed SSE event sequence received; omit only for a fresh stream. The raw header is canonical base-10 with no sign or leading zeroes, except `0`.",
+            "in": "header",
+            "name": "Last-Event-ID",
+            "required": false,
+            "schema": {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -20738,6 +20852,16 @@
                 }
               }
             }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
           },
           "401": {
             "content": {
@@ -20928,6 +21052,16 @@
               }
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
           },
           "410": {
             "content": {
@@ -21184,7 +21318,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -21198,7 +21332,30 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RunCommandV1"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RunCommandV1"
+                  },
+                  {
+                    "properties": {
+                      "payload": {
+                        "$ref": "#/components/schemas/CancelRunPayloadV1"
+                      },
+                      "payload_schema_id": {
+                        "const": "run-cancel@1"
+                      },
+                      "type": {
+                        "const": "cancel"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "payload_schema_id",
+                      "payload"
+                    ],
+                    "type": "object"
+                  }
+                ]
               }
             }
           },
@@ -21664,7 +21821,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -22084,6 +22241,16 @@
               }
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
           },
           "410": {
             "content": {
@@ -22541,7 +22708,7 @@
             }
           },
           {
-            "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,

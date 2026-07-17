@@ -844,7 +844,7 @@ def _cursor_request(value: str | None) -> Request:
 
 @pytest.mark.parametrize(
     "value",
-    ("", " ", "not-a-sequence", "-1", "+1", "1.0", "１２", str(1 << 63)),
+    ("", " ", "00", "01", "not-a-sequence", "-1", "+1", "1.0", "１２", str(1 << 63)),
 )
 def test_malformed_or_overflow_last_event_id_is_rejected(value: str) -> None:
     with pytest.raises(CursorInvalid):
