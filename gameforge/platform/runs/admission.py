@@ -191,6 +191,7 @@ from gameforge.platform.registry.defaults import (
     ARTIFACT_PAYLOAD_SCHEMAS,
     PROFILE_OUTPUT_SCHEMA_REQUIREMENTS,
 )
+from gameforge.platform.registry.model import FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA
 from gameforge.platform.run_handlers.checker import validate_checker_work_budget
 from gameforge.platform.run_handlers.constraint_validation import (
     BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
@@ -696,24 +697,6 @@ class _AuthorizationBinding:
     permissions: tuple[Permission, ...]
 
 
-# Reverse of the frozen Run-kind payload schema map: a params schema selects its
-# exact RunKind. Admission never trusts a client-supplied kind — the payload type
-# (and the endpoint) fixes it.
-_KIND_BY_SCHEMA: dict[str, RunKindRef] = {
-    "generation-propose@1": RunKindRef(kind="generation.propose", version=1),
-    "patch-repair@1": RunKindRef(kind="patch.repair", version=1),
-    "constraint-proposal-propose@1": RunKindRef(kind="constraint_proposal.propose", version=1),
-    "review-run@1": RunKindRef(kind="review.run", version=1),
-    "checker-run@1": RunKindRef(kind="checker.run", version=1),
-    "simulation-run@1": RunKindRef(kind="simulation.run", version=1),
-    "task-suite-derive@1": RunKindRef(kind="task_suite.derive", version=1),
-    "playtest-run@1": RunKindRef(kind="playtest.run", version=1),
-    "bench-run@1": RunKindRef(kind="bench.run", version=1),
-    "artifact-migration@1": RunKindRef(kind="artifact.migrate", version=1),
-    "dr-drill@1": RunKindRef(kind="dr.drill", version=1),
-}
-
-
 # The producer ``tool_version`` the run's PRIMARY output Artifact carries. The terminal
 # publisher re-derives the primary Artifact's VersionTuple with a ``producer_value``
 # projection off the frozen run payload's ``version_tuple.tool_version`` and fails closed
@@ -881,6 +864,23 @@ class ValidationStartWriter(Protocol):
     ) -> None: ...
 
 
+class DrRecoveryManifestAuthority(Protocol):
+    """Resolve one recovery-catalog manifest already verified and imported.
+
+    M4c owns only this narrow trusted seam. Signature/catalog receipt verification
+    and importing the manifest are M4e responsibilities; admission still proves the
+    returned immutable Artifact and active ObjectBinding against its own retained
+    authorities before it can become a Run input.
+    """
+
+    def resolve_verified_manifest(
+        self,
+        *,
+        recovery_catalog_entry_id: str,
+        expected_checkpoint_id: str,
+    ) -> ArtifactV2: ...
+
+
 class RunAdmissionEngine:
     """Compose resource/generic Run admission on top of ``RunCommandService``."""
 
@@ -904,6 +904,7 @@ class RunAdmissionEngine:
         legacy_import_decisions: LegacyImportDecisionRepository | None = None,
         deadline_policy: AdmissionDeadlinePolicy | None = None,
         validation_start_writer: ValidationStartWriter | None = None,
+        dr_recovery_manifest_authority: DrRecoveryManifestAuthority | None = None,
     ) -> None:
         self._run_commands = run_commands
         self._unit_of_work = unit_of_work
@@ -918,6 +919,7 @@ class RunAdmissionEngine:
         self._legacy_import_authority = legacy_import_authority
         self._legacy_import_decisions = legacy_import_decisions
         self._validation_start_writer = validation_start_writer
+        self._dr_recovery_manifest_authority = dr_recovery_manifest_authority
         self._playtest_payload_validator = playtest_payload_validator
         if not isinstance(role_policy_version, str) or not role_policy_version:
             raise IntegrityViolation("run admission requires an exact role policy version")
@@ -1321,10 +1323,13 @@ class RunAdmissionEngine:
         )
 
     def _kind_for_params(self, params: RunKindPayload) -> RunKindRef:
-        kind = _KIND_BY_SCHEMA.get(params.schema_version)
-        if kind is None:
+        identities = FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA.get(params.schema_version)
+        if identities is None:
             raise IntegrityViolation("Run params schema is not a retained Run kind")
-        return kind
+        if len(identities) != 1:
+            raise IntegrityViolation("Run params schema does not select one exact Run kind")
+        kind, version = identities[0]
+        return RunKindRef(kind=kind, version=version)
 
     def _admit_public(
         self,
@@ -1655,10 +1660,15 @@ class RunAdmissionEngine:
             verified_suite_scope=verified_suite_scope,
             catalog=catalog,
         )
-        # Internal-only deferred kinds still cross the same exact RBAC boundary as
-        # executable Runs.  Only after the trusted system principal has been
-        # authorized may admission expose migration-edge diagnostics or the M4e DR
-        # dependency state.  Neither branch reaches budget/Run/queue writes.
+        additional_input_artifact_ids: tuple[str, ...] = ()
+        if isinstance(params, DrDrillPayloadV1):
+            manifest = self._resolve_dr_recovery_manifest(params=params, read=read)
+            artifacts[manifest.artifact_id] = manifest
+            additional_input_artifact_ids = (manifest.artifact_id,)
+        # Internal-only deferred kinds cross the same exact RBAC and typed request
+        # boundary as every executable Run. Artifact migration additionally closes
+        # its retained edge here; the M4c deferred executor owns the honest
+        # asynchronous unavailable outcome for both internal kinds.
         self._verify_migration_admission(
             definition=definition,
             params=params,
@@ -1666,15 +1676,6 @@ class RunAdmissionEngine:
             resolved_profiles=resolved_profiles,
             catalog=catalog,
         )
-        if isinstance(params, DrDrillPayloadV1):
-            self._verify_current_authorization_without_run(
-                actor=actor,
-                authorization=authorization,
-            )
-            raise DependencyUnavailable(
-                "DR drill admission requires the signed recovery catalog authority",
-                component="recovery_catalog_admission",
-            )
         resolved_policy_snapshots = self._resolve_policy_snapshots(
             params=params,
             definition=definition,
@@ -1696,7 +1697,11 @@ class RunAdmissionEngine:
         budget_set_snapshot_id = f"budget-set:{run_id}"
         payload = RunPayloadEnvelope(
             payload_schema_version=definition.payload_schema_id,
-            input_artifact_ids=self._input_artifact_ids(params, cassette_artifact_id),
+            input_artifact_ids=self._input_artifact_ids(
+                params,
+                cassette_artifact_id,
+                additional_input_artifact_ids=additional_input_artifact_ids,
+            ),
             version_tuple=version_tuple,
             execution_version_plan=execution_version_plan,
             policy_bindings=policy_bindings,
@@ -3123,6 +3128,40 @@ class RunAdmissionEngine:
                 capability=capability,
             )
 
+    def _resolve_dr_recovery_manifest(
+        self,
+        *,
+        params: DrDrillPayloadV1,
+        read: AdmissionReadPort,
+    ) -> ArtifactV2:
+        authority = self._dr_recovery_manifest_authority
+        if authority is None:
+            raise DependencyUnavailable(
+                "DR drill admission requires a verified recovery catalog authority",
+                component="recovery_catalog_admission",
+            )
+        manifest = authority.resolve_verified_manifest(
+            recovery_catalog_entry_id=params.recovery_catalog_entry_id,
+            expected_checkpoint_id=params.expected_checkpoint_id,
+        )
+        if not isinstance(manifest, ArtifactV2):
+            raise IntegrityViolation("recovery catalog returned an invalid manifest Artifact")
+        if (
+            manifest.kind != "operational_evidence"
+            or manifest.meta.get("payload_schema_id") != "backup-object-manifest@1"
+        ):
+            raise IntegrityViolation(
+                "recovery catalog manifest does not bind backup-object-manifest@1"
+            )
+        retained = read.artifacts.get(manifest.artifact_id)
+        if retained != manifest:
+            raise Conflict(
+                "verified recovery manifest is not retained exactly",
+                artifact_id=manifest.artifact_id,
+            )
+        self._load_artifact_blob(manifest, read=read)
+        return manifest
+
     def _resolve_one(
         self,
         *,
@@ -3337,52 +3376,6 @@ class RunAdmissionEngine:
             resource_domain=resource_domain,
             permissions=permissions,
         )
-
-    def _verify_current_authorization_without_run(
-        self,
-        *,
-        actor: ActorContext,
-        authorization: _AuthorizationBinding,
-    ) -> None:
-        """Recheck a deferred internal request against transactional authority.
-
-        DR admission intentionally stops before constructing or queuing a Run in
-        M4c.  It must nevertheless reject a stale/disabled system projection exactly
-        like executable admission, so this read-only UoW performs the principal and
-        immutable policy checks that the ordinary Run command's fresh guard owns.
-        """
-
-        with self._unit_of_work.begin() as transaction:
-            current_principal = self._current_principal(transaction, actor)
-            if current_principal is None or current_principal != actor.principal:
-                raise Forbidden("authenticated principal changed before internal admission")
-            policies = getattr(transaction, "policies", None)
-            if policies is None:
-                raise IntegrityViolation("internal admission UoW has no policy authority")
-            role_policy = policies.get_role_policy(
-                authorization.role_policy.policy_version,
-                authorization.role_policy.policy_digest,
-            )
-            if role_policy != authorization.role_policy:
-                raise Conflict("internal admission role policy changed before authorization")
-            registry = policies.get_domain_registry(role_policy.domain_registry_ref)
-            if registry != authorization.domain_registry:
-                raise Conflict("internal admission domain registry changed before authorization")
-            for permission in authorization.permissions:
-                if (
-                    authorize(
-                        principal=current_principal,
-                        role_policy=role_policy,
-                        requested_permission=permission,
-                        domain_registry=registry,
-                    )
-                    is not AuthorizationDecision.ALLOW
-                ):
-                    raise Forbidden(
-                        "principal authorization changed before internal admission",
-                        action=permission.action,
-                        resource_kind=permission.resource_kind,
-                    )
 
     def _validate_replay_authority(
         self,
@@ -3644,104 +3637,138 @@ class RunAdmissionEngine:
         memo: dict[str, DomainScope],
         visiting: set[str],
     ) -> DomainScope:
-        retained = memo.get(artifact.artifact_id)
+        root_id = artifact.artifact_id
+        retained = memo.get(root_id)
         if retained is not None:
             return retained
-        if artifact.artifact_id in visiting:
+        if root_id in visiting:
             raise IntegrityViolation("Artifact domain lineage contains a cycle")
-        visiting.add(artifact.artifact_id)
+
+        initial_visiting = set(visiting)
+        declared_scopes: dict[str, DomainScope | None] = {}
+        parents_by_artifact: dict[str, tuple[ArtifactV2, ...]] = {}
+        stack: list[tuple[ArtifactV2, bool]] = [(artifact, False)]
         try:
-            raw_scope = artifact.meta.get("domain_scope")
-            explicit: DomainScope | None = None
-            if raw_scope is not None:
-                try:
-                    explicit = DomainScope.model_validate(raw_scope)
-                except (TypeError, ValueError) as exc:
-                    raise IntegrityViolation("Artifact domain_scope metadata is invalid") from exc
-                if raw_scope != explicit.model_dump(mode="json"):
-                    raise IntegrityViolation("Artifact domain_scope metadata is not canonical")
-                explicit = self._validate_domain_scope(explicit, registry)
-
-            typed: DomainScope | None = None
-            schema = artifact.meta.get("payload_schema_id")
-            if artifact.kind == "constraint_proposal" and schema == "constraint-proposal@1":
-                from gameforge.contracts.workflow import ConstraintProposalV1
-
-                payload = self._load_json_artifact(
-                    artifact,
-                    read=read,
-                    payload_schema_id="constraint-proposal@1",
-                    model=ConstraintProposalV1,
-                )
-                typed = self._validate_domain_scope(payload.domain_scope, registry)
-            elif artifact.kind == "scenario_spec" and schema == "scenario-spec@1":
-                payload = self._load_json_artifact(
-                    artifact,
-                    read=read,
-                    payload_schema_id="scenario-spec@1",
-                    model=ScenarioSpecV1,
-                )
-                typed = self._validate_domain_scope(payload.domain_scope, registry)
-            elif artifact.kind == "task_suite" and schema == "task-suite@1":
-                payload = self._load_json_artifact(
-                    artifact,
-                    read=read,
-                    payload_schema_id="task-suite@1",
-                    model=TaskSuiteV1,
-                )
-                typed = self._validate_domain_scope(
-                    self._union_domain_scopes(
-                        tuple(episode.domain_scope for episode in payload.episodes)
-                    ),
-                    registry,
-                )
-            if explicit is not None and typed is not None and explicit != typed:
-                raise IntegrityViolation("Artifact metadata and typed payload domains disagree")
-            resolved = explicit or typed
-            parents: list[DomainScope] = []
-            for parent_id in artifact.lineage:
-                parent = read.artifacts.get(parent_id)
-                if not isinstance(parent, ArtifactV2):
-                    raise IntegrityViolation(
-                        "Artifact domain lineage parent is unavailable",
-                        artifact_id=artifact.artifact_id,
-                        parent_artifact_id=parent_id,
-                    )
-                # Authenticated/rendered prompt sources are intentionally domain-neutral;
-                # they may support a domain Artifact only alongside a content parent.
-                if (
-                    parent.kind in {"source_raw", "source_rendered"}
-                    and parent.meta.get("domain_scope") is None
-                    and not parent.lineage
-                ):
+            while stack:
+                current, expanded = stack.pop()
+                current_id = current.artifact_id
+                if current_id in memo:
                     continue
-                parents.append(
-                    self._artifact_domain_scope(
-                        parent,
+                if not expanded:
+                    if current_id in visiting:
+                        raise IntegrityViolation("Artifact domain lineage contains a cycle")
+                    visiting.add(current_id)
+                    declared_scopes[current_id] = self._declared_artifact_domain_scope(
+                        current,
                         read=read,
                         registry=registry,
-                        memo=memo,
-                        visiting=visiting,
                     )
-                )
-            lineage_scope = self._union_domain_scopes(tuple(parents)) if parents else None
-            if resolved is None:
-                if lineage_scope is None:
-                    raise IntegrityViolation(
-                        "Artifact has no authoritative resource-domain binding",
-                        artifact_id=artifact.artifact_id,
+                    parents: list[ArtifactV2] = []
+                    for parent_id in current.lineage:
+                        parent = read.artifacts.get(parent_id)
+                        if not isinstance(parent, ArtifactV2):
+                            raise IntegrityViolation(
+                                "Artifact domain lineage parent is unavailable",
+                                artifact_id=current_id,
+                                parent_artifact_id=parent_id,
+                            )
+                        # Authenticated/rendered prompt sources are intentionally
+                        # domain-neutral; they may support a domain Artifact only
+                        # alongside a content parent.
+                        if (
+                            parent.kind in {"source_raw", "source_rendered"}
+                            and parent.meta.get("domain_scope") is None
+                            and not parent.lineage
+                        ):
+                            continue
+                        parents.append(parent)
+                    parents_by_artifact[current_id] = tuple(parents)
+                    stack.append((current, True))
+                    for parent in reversed(parents):
+                        if parent.artifact_id in memo:
+                            continue
+                        if parent.artifact_id in visiting:
+                            raise IntegrityViolation("Artifact domain lineage contains a cycle")
+                        stack.append((parent, False))
+                    continue
+
+                parents = parents_by_artifact[current_id]
+                parent_scopes = tuple(memo[parent.artifact_id] for parent in parents)
+                lineage_scope = self._union_domain_scopes(parent_scopes) if parent_scopes else None
+                resolved = declared_scopes[current_id]
+                if resolved is None:
+                    if lineage_scope is None:
+                        raise IntegrityViolation(
+                            "Artifact has no authoritative resource-domain binding",
+                            artifact_id=current_id,
+                        )
+                    resolved = lineage_scope
+                elif lineage_scope is not None:
+                    self._require_scope_subset(
+                        resolved,
+                        lineage_scope,
+                        label="Artifact lineage authority",
                     )
-                resolved = lineage_scope
-            elif lineage_scope is not None:
-                self._require_scope_subset(
-                    resolved,
-                    lineage_scope,
-                    label="Artifact lineage authority",
-                )
-            memo[artifact.artifact_id] = resolved
-            return resolved
+                memo[current_id] = resolved
+                visiting.remove(current_id)
         finally:
-            visiting.remove(artifact.artifact_id)
+            visiting.intersection_update(initial_visiting)
+        return memo[root_id]
+
+    def _declared_artifact_domain_scope(
+        self,
+        artifact: ArtifactV2,
+        *,
+        read: AdmissionReadPort,
+        registry: DomainRegistryV1,
+    ) -> DomainScope | None:
+        raw_scope = artifact.meta.get("domain_scope")
+        explicit: DomainScope | None = None
+        if raw_scope is not None:
+            try:
+                explicit = DomainScope.model_validate(raw_scope)
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation("Artifact domain_scope metadata is invalid") from exc
+            if raw_scope != explicit.model_dump(mode="json"):
+                raise IntegrityViolation("Artifact domain_scope metadata is not canonical")
+            explicit = self._validate_domain_scope(explicit, registry)
+
+        typed: DomainScope | None = None
+        schema = artifact.meta.get("payload_schema_id")
+        if artifact.kind == "constraint_proposal" and schema == "constraint-proposal@1":
+            from gameforge.contracts.workflow import ConstraintProposalV1
+
+            payload = self._load_json_artifact(
+                artifact,
+                read=read,
+                payload_schema_id="constraint-proposal@1",
+                model=ConstraintProposalV1,
+            )
+            typed = self._validate_domain_scope(payload.domain_scope, registry)
+        elif artifact.kind == "scenario_spec" and schema == "scenario-spec@1":
+            payload = self._load_json_artifact(
+                artifact,
+                read=read,
+                payload_schema_id="scenario-spec@1",
+                model=ScenarioSpecV1,
+            )
+            typed = self._validate_domain_scope(payload.domain_scope, registry)
+        elif artifact.kind == "task_suite" and schema == "task-suite@1":
+            payload = self._load_json_artifact(
+                artifact,
+                read=read,
+                payload_schema_id="task-suite@1",
+                model=TaskSuiteV1,
+            )
+            typed = self._validate_domain_scope(
+                self._union_domain_scopes(
+                    tuple(episode.domain_scope for episode in payload.episodes)
+                ),
+                registry,
+            )
+        if explicit is not None and typed is not None and explicit != typed:
+            raise IntegrityViolation("Artifact metadata and typed payload domains disagree")
+        return explicit or typed
 
     @staticmethod
     def _union_domain_scopes(scopes: tuple[DomainScope, ...]) -> DomainScope:
@@ -5613,11 +5640,15 @@ class RunAdmissionEngine:
     # ── envelope helpers ─────────────────────────────────────────────────────
     @staticmethod
     def _input_artifact_ids(
-        params: RunKindPayload, cassette_artifact_id: str | None
+        params: RunKindPayload,
+        cassette_artifact_id: str | None,
+        *,
+        additional_input_artifact_ids: tuple[str, ...] = (),
     ) -> tuple[str, ...]:
         referenced = list(referenced_input_artifact_ids(params))
         if cassette_artifact_id is not None:
             referenced.append(cassette_artifact_id)
+        referenced.extend(additional_input_artifact_ids)
         return tuple(sorted(set(referenced)))
 
     def _resolve_definition(

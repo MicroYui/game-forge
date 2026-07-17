@@ -58,6 +58,7 @@ from gameforge.contracts.model_router import (
     request_hash,
 )
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
+from gameforge.platform.registry.model import FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA
 from gameforge.runtime.cassette.legacy_import import (
     LegacyCassetteRuntimeImporter,
     LegacyImportAuthority,
@@ -74,22 +75,6 @@ _TERMINAL_RUN_STATUSES = frozenset({"succeeded", "failed", "cancelled", "timed_o
 _CLOSED_ATTEMPT_STATUSES = frozenset(
     {"succeeded", "failed", "cancelled", "timed_out", "lease_expired"}
 )
-_RUN_KINDS_BY_PAYLOAD_SCHEMA: dict[str, frozenset[tuple[str, int]]] = {
-    "generation-propose@1": frozenset({("generation.propose", 1)}),
-    "patch-repair@1": frozenset({("patch.repair", 1)}),
-    "constraint-proposal-propose@1": frozenset({("constraint_proposal.propose", 1)}),
-    "review-run@1": frozenset({("review.run", 1)}),
-    "checker-run@1": frozenset({("checker.run", 1)}),
-    "simulation-run@1": frozenset({("simulation.run", 1)}),
-    "task-suite-derive@1": frozenset({("task_suite.derive", 1)}),
-    "playtest-run@1": frozenset({("playtest.run", 1)}),
-    "patch-validation@1": frozenset({("patch.validate", 1)}),
-    "constraint-validation@1": frozenset({("constraint_proposal.validate", 1)}),
-    "rollback-validation@1": frozenset({("rollback.validate", 1)}),
-    "bench-run@1": frozenset({("bench.run", 1)}),
-    "artifact-migration@1": frozenset({("artifact.migrate", 1)}),
-    "dr-drill@1": frozenset({("dr.drill", 1)}),
-}
 
 
 class ReplayAdmissionReader(Protocol):
@@ -214,7 +199,9 @@ class ReplayAdmissionValidator:
         kind: RunKindRef,
         payload: RunPayloadEnvelope,
     ) -> ReplayAdmissionProof:
-        expected_kinds = _RUN_KINDS_BY_PAYLOAD_SCHEMA.get(payload.payload_schema_version)
+        expected_kinds = FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA.get(
+            payload.payload_schema_version
+        )
         if expected_kinds is None or (kind.kind, kind.version) not in expected_kinds:
             raise IntegrityViolation("replay Run kind differs from its typed payload schema")
         cassette_artifact_id = self._require_replay_payload(payload)

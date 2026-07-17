@@ -10,6 +10,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Iterator
 
 import pytest
@@ -148,6 +149,7 @@ from gameforge.contracts.lineage import (
     VersionTuple,
     build_artifact_v2,
     build_execution_identity,
+    object_ref_for_bytes,
 )
 from gameforge.contracts.observability import TraceContextV1
 from gameforge.contracts.storage import RefValue
@@ -170,6 +172,7 @@ from gameforge.platform.provenance import (
 )
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 from gameforge.platform.playtest_payload_schemas import (
     PlaytestPayloadValidationService,
     build_builtin_playtest_payload_validators,
@@ -186,6 +189,7 @@ from gameforge.platform.runs.admission import (
     build_admission_capability_binder,
 )
 from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
+from gameforge.platform.runs.lifecycle import validate_prepared_failure
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.object_store import LocalObjectStore
@@ -194,7 +198,7 @@ from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
-from gameforge.runtime.persistence.models import Base, RunAttemptRow, RunRow
+from gameforge.runtime.persistence.models import Base, ObjectBindingRow, RunAttemptRow, RunRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
@@ -203,6 +207,7 @@ from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
 from gameforge.runtime.observability.context import TraceCarrier, use_trace_context
 from tests.platform.m4 import validation_testkit
+from tests.platform.m4c.handler_support import build_attempt
 
 NOW_DT = datetime(2026, 7, 15, 12, 0, tzinfo=timezone.utc)
 NOW = "2026-07-15T12:00:00Z"
@@ -857,6 +862,7 @@ class Harness:
         profile_updates: dict[str, dict[str, Any]] | None = None,
         profile_lifecycle_states: dict[str, str] | None = None,
         provision_shared_budgets: bool = True,
+        dr_recovery_manifest_authority: Any | None = None,
     ):
         self.clock = FrozenUtcClock(NOW_DT)
         self.engine = get_engine(f"sqlite:///{tmp_path / 'admission.db'}")
@@ -881,6 +887,7 @@ class Harness:
         self.approvals: _NullApprovals | _FixedApprovals = _NullApprovals()
         self.findings: _FixedFindings | None = _FixedFindings(())
         self.finding_links: _FixedFindingLinks | None = _FixedFindingLinks(None)
+        self.dr_recovery_manifest_authority = dr_recovery_manifest_authority
         self.synthetic_runs: dict[str, Any] = {}
         self.synthetic_prompt_links: dict[
             tuple[str, int, int, int], RunIntermediateArtifactLinkV1
@@ -902,6 +909,13 @@ class Harness:
                         budget_id="budget:principal:human:actor",
                         scope_kind="principal",
                         scope_id="human:actor",
+                    )
+                )
+                costs.put_budget(
+                    _shared_budget(
+                        budget_id="budget:principal:system:actor",
+                        scope_kind="principal",
+                        scope_id="system:actor",
                     )
                 )
                 costs.put_budget(
@@ -944,6 +958,7 @@ class Harness:
                 validators=build_builtin_playtest_payload_validators(),
             ),
             validation_start_writer=_TestValidationStartWriter(),
+            dr_recovery_manifest_authority=self.dr_recovery_manifest_authority,
         )
 
     def _capability_factory(self, session: Any) -> TransactionCapabilities:
@@ -1015,6 +1030,7 @@ class Harness:
                 validators=build_builtin_playtest_payload_validators(),
             ),
             validation_start_writer=_TestValidationStartWriter(),
+            dr_recovery_manifest_authority=self.dr_recovery_manifest_authority,
         )
 
     def _failing_binder(self, limits: tuple[CostAmountV1, ...]):
@@ -4682,12 +4698,8 @@ def test_internal_migration_rejects_unknown_profile_edge_before_run_or_hold(
     )
 
 
-def test_internal_dr_drill_fails_typed_until_recovery_catalog_is_composed(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    harness = Harness(tmp_path)
-    params = DrDrillPayloadV1(
+def _dr_drill_params() -> DrDrillPayloadV1:
+    return DrDrillPayloadV1(
         dr_plan=ProfileRefV1(profile_id="builtin.dr_plan", version=1),
         recovery_catalog_entry_id="recovery-entry:1",
         expected_checkpoint_id="checkpoint:1",
@@ -4698,7 +4710,128 @@ def test_internal_dr_drill_fails_typed_until_recovery_catalog_is_composed(
         verification_profile=ProfileRefV1(profile_id="builtin.dr_verifier", version=1),
         destroy_restored_target_after_verification=True,
     )
+
+
+class _RecoveryManifestAuthority:
+    def __init__(self) -> None:
+        self.manifest: ArtifactV2 | None = None
+        self.calls = 0
+
+    def resolve_verified_manifest(
+        self,
+        *,
+        recovery_catalog_entry_id: str,
+        expected_checkpoint_id: str,
+    ) -> ArtifactV2:
+        self.calls += 1
+        assert recovery_catalog_entry_id == "recovery-entry:1"
+        assert expected_checkpoint_id == "checkpoint:1"
+        assert self.manifest is not None
+        return self.manifest
+
+
+def test_internal_dr_drill_requires_verified_manifest_authority_before_run_or_hold(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    params = _dr_drill_params()
     key = "dr:recovery-catalog-unavailable"
+
+    with pytest.raises(DependencyUnavailable, match="recovery catalog authority"):
+        harness.engine_admission.admit_internal_run(
+            params=params,
+            actor=_system_operator_actor(domainless=True),
+            server=_server(key),
+        )
+
+    _assert_no_admission_side_effects(
+        harness,
+        key=key,
+        scope="internal:system:actor",
+    )
+
+
+@pytest.mark.parametrize(
+    ("case", "error", "message"),
+    (
+        ("wrong_kind", IntegrityViolation, "does not bind backup-object-manifest"),
+        ("wrong_schema", IntegrityViolation, "does not bind backup-object-manifest"),
+        ("unretained", Conflict, "not retained exactly"),
+        ("missing_binding", IntegrityViolation, "object binding is unavailable"),
+    ),
+)
+def test_internal_dr_drill_rejects_an_untrusted_manifest_without_side_effects(
+    tmp_path: Path,
+    case: str,
+    error: type[Exception],
+    message: str,
+) -> None:
+    authority = _RecoveryManifestAuthority()
+    harness = Harness(tmp_path, dr_recovery_manifest_authority=authority)
+    if case == "unretained":
+        object_ref = object_ref_for_bytes(b"unretained-recovery-manifest")
+        manifest = build_artifact_v2(
+            kind="operational_evidence",
+            version_tuple=VersionTuple(tool_version="backup-manifest@1"),
+            lineage=(),
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta={"payload_schema_id": "backup-object-manifest@1"},
+            created_at=NOW,
+        )
+    else:
+        kind = "ir_snapshot" if case == "wrong_kind" else "operational_evidence"
+        schema = "dr-drill-evidence@1" if case == "wrong_schema" else "ir-core@1"
+        if case == "missing_binding":
+            schema = "backup-object-manifest@1"
+        manifest = harness.seed_payload_artifact(
+            kind=kind,
+            payload={"manifest_schema_version": schema},
+            version_tuple=VersionTuple(tool_version="backup-manifest@1"),
+            payload_schema_id=schema,
+        )
+        if case == "missing_binding":
+            from sqlalchemy.orm import Session
+
+            with Session(harness.engine) as session, session.begin():
+                row = session.get(ObjectBindingRow, (manifest.object_ref.key, "local"))
+                assert row is not None
+                session.delete(row)
+    authority.manifest = manifest
+    key = f"dr:untrusted-manifest:{case}"
+
+    with pytest.raises(error, match=message):
+        harness.engine_admission.admit_internal_run(
+            params=_dr_drill_params(),
+            actor=_system_operator_actor(domainless=True),
+            server=_server(key),
+        )
+
+    assert authority.calls == 1
+    _assert_no_admission_side_effects(
+        harness,
+        key=key,
+        scope="internal:system:actor",
+    )
+
+
+def test_internal_dr_drill_admits_typed_run_for_the_deferred_executor(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recovery_authority = _RecoveryManifestAuthority()
+    harness = Harness(
+        tmp_path,
+        dr_recovery_manifest_authority=recovery_authority,
+    )
+    recovery_authority.manifest = harness.seed_payload_artifact(
+        kind="operational_evidence",
+        payload={"manifest_schema_version": "backup-object-manifest@1"},
+        version_tuple=VersionTuple(tool_version="backup-manifest@1"),
+        payload_schema_id="backup-object-manifest@1",
+    )
+    params = _dr_drill_params()
+    key = "dr:verified-recovery-manifest"
 
     with pytest.raises(Forbidden):
         harness.engine_admission.admit_internal_run(
@@ -4720,21 +4853,50 @@ def test_internal_dr_drill_fails_typed_until_recovery_catalog_is_composed(
                 server=_server(f"{key}:stale-principal"),
             )
 
-    with pytest.raises(
-        DependencyUnavailable,
-        match="signed recovery catalog authority",
-    ):
-        harness.engine_admission.admit_internal_run(
-            params=params,
-            actor=_system_operator_actor(domainless=True),
-            server=_server(key),
-        )
-
-    _assert_no_admission_side_effects(
-        harness,
-        key=key,
-        scope="internal:system:actor",
+    accepted = harness.engine_admission.admit_internal_run(
+        params=params,
+        actor=_system_operator_actor(domainless=True),
+        server=_server(key),
     )
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.status == "queued"
+    assert run.kind == RunKindRef(kind="dr.drill", version=1)
+    assert run.payload.params == params
+    assert run.payload.input_artifact_ids == (recovery_authority.manifest.artifact_id,)
+    assert harness.reservation_group(accepted.run_id) is not None
+
+    authority_calls = recovery_authority.calls
+    replayed = harness.engine_admission.admit_internal_run(
+        params=params,
+        actor=_system_operator_actor(domainless=True),
+        server=_server(key),
+    )
+    assert replayed == accepted
+    assert recovery_authority.calls == authority_calls
+
+    definition = harness.registry.get_run_kind(run.kind)
+    assert definition is not None
+    classifier = harness.registry.get_failure_classifier(run.failure_classifier)
+    assert classifier is not None
+    running = run.model_copy(update={"status": "running", "current_attempt_no": 1})
+    attempt = build_attempt(run_id=run.run_id)
+    prepared = DEFERRED_EXECUTORS[definition.executor_key](
+        SimpleNamespace(
+            run=running,
+            attempt=attempt,
+            payload=running.payload,
+            deadline_utc=None,
+            model_bridge=None,
+        )
+    )
+    validate_prepared_failure(
+        run=running,
+        attempt=attempt,
+        prepared=prepared,
+        classifier=classifier,
+    )
+
     _assert_no_admission_side_effects(
         harness,
         key=f"{key}:unauthorized",
@@ -4745,6 +4907,46 @@ def test_internal_dr_drill_fails_typed_until_recovery_catalog_is_composed(
         key=f"{key}:stale-principal",
         scope="internal:system:actor",
     )
+
+
+def test_artifact_domain_scope_handles_a_deep_valid_lineage_iteratively() -> None:
+    object_ref = object_ref_for_bytes(b"deep-domain-lineage")
+    artifacts: dict[str, ArtifactV2] = {}
+    lineage: tuple[str, ...] = ()
+    for index in range(1_100):
+        artifact = build_artifact_v2(
+            kind="ir_snapshot",
+            version_tuple=VersionTuple(
+                ir_snapshot_id=f"snapshot:deep:{index}",
+                tool_version="test@1",
+            ),
+            lineage=lineage,
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta={
+                "payload_schema_id": "ir-core@1",
+                "domain_scope": {"domain_ids": ["builtin"]},
+            },
+            created_at=NOW,
+        )
+        artifacts[artifact.artifact_id] = artifact
+        lineage = (artifact.artifact_id,)
+
+    engine = object.__new__(RunAdmissionEngine)
+    read = AdmissionReadPort(
+        policies=None,
+        approvals=None,
+        artifacts=artifacts,
+        refs=None,
+    )
+
+    assert engine._artifact_domain_scope(  # noqa: SLF001
+        artifact,
+        read=read,
+        registry=_domain_registry(),
+        memo={},
+        visiting=set(),
+    ) == DomainScope(domain_ids=("builtin",))
 
 
 def test_generic_endpoint_rejects_resource_only_kind(tmp_path: Path) -> None:

@@ -32,6 +32,10 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.playtest import CompletionOracleRegistryRefV1
 from gameforge.platform.registry import build_builtin_registry
+from gameforge.platform.registry.model import (
+    FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA,
+    FROZEN_RUN_KIND_SHAPES,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -295,6 +299,17 @@ def test_builtin_registry_materializes_exact_frozen_run_kind_projection() -> Non
         assert (definition.migration_capability_matrix is not None) is (
             expected.has_migration_matrix
         )
+
+
+def test_payload_schema_reverse_index_is_derived_from_the_frozen_run_kinds() -> None:
+    expected: dict[str, list[tuple[str, int]]] = {}
+    for identity, shape in FROZEN_RUN_KIND_SHAPES.items():
+        expected.setdefault(shape.payload_schema_id, []).append(identity)
+
+    assert FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA == {
+        schema: tuple(sorted(identities)) for schema, identities in expected.items()
+    }
+    assert all(len(identities) == 1 for identities in expected.values())
 
 
 def test_agent_execution_budgets_are_inside_hashed_profile_configs() -> None:

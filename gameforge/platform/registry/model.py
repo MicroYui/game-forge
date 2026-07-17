@@ -331,6 +331,20 @@ FROZEN_RUN_KIND_SHAPES: Mapping[RunKindIdentity, FrozenRunKindShape] = MappingPr
 )
 
 
+def _reverse_payload_schema_index() -> Mapping[str, tuple[RunKindIdentity, ...]]:
+    identities_by_schema: dict[str, list[RunKindIdentity]] = {}
+    for identity, shape in FROZEN_RUN_KIND_SHAPES.items():
+        identities_by_schema.setdefault(shape.payload_schema_id, []).append(identity)
+    return MappingProxyType(
+        {schema: tuple(sorted(identities)) for schema, identities in identities_by_schema.items()}
+    )
+
+
+FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA: Mapping[str, tuple[RunKindIdentity, ...]] = (
+    _reverse_payload_schema_index()
+)
+
+
 FROZEN_PROFILE_REQUIREMENT_SHAPES: Mapping[RunKindIdentity, tuple[tuple[str, str, str], ...]] = (
     MappingProxyType(
         {
@@ -435,6 +449,7 @@ __all__ = [
     "FROZEN_ACTIVE_RUN_KIND_IDENTITIES",
     "FROZEN_PROFILE_REQUIREMENT_SHAPES",
     "FROZEN_RUN_KIND_DEFINITION_DIGESTS",
+    "FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA",
     "FROZEN_RUN_KIND_SHAPES",
     "FrozenRunKindShape",
     "PlatformReadinessReport",
