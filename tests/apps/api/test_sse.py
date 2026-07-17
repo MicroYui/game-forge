@@ -17,18 +17,20 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
-import threading
 from typing import Any, Iterator
 
+from fastapi import Request
 from fastapi.testclient import TestClient
-from sqlalchemy import delete, func, select
+import pytest
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.app import create_app
 from gameforge.apps.api.dependencies import (
     ApiDependencies,
+    RunEventPage,
     RunEventStreamConfig,
     require_actor,
 )
@@ -37,13 +39,14 @@ from gameforge.apps.api.streaming import (
     RunEventNotifier,
     RunEventReadScope,
     RunEventStreamService,
+    _parse_last_event_id,
     render_run_event_stream,
 )
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
 from gameforge.contracts.api import compute_resource_etag, encode_sse_event
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.cost import BudgetV1, CostAmountV1
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import CursorInvalid, Forbidden, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import (
@@ -63,6 +66,7 @@ from gameforge.contracts.identity import (
 from gameforge.contracts.jobs import (
     CommandAcceptedDataV1,
     Problem,
+    RetryDecisionV1,
     RunEvent,
     RunTerminatedDataV1,
 )
@@ -81,7 +85,8 @@ from gameforge.platform.runs.admission import (
     _SourceWriteCapabilities,
     build_admission_capability_binder,
 )
-from gameforge.platform.runs.commands import RunCommandService
+from gameforge.platform.runs.commands import RunClaimRequest, RunCommandService
+from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.platform.workflow.service import WorkflowCommandService
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
@@ -89,15 +94,22 @@ from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
-from gameforge.runtime.persistence.engine import get_engine
+from gameforge.runtime.persistence.engine import get_engine, sqlite_read_snapshot_session
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
-from gameforge.runtime.persistence.models import Base, RunEventRow
+from gameforge.runtime.persistence.models import Base
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
+from tests.apps.api.run_command_testkit import (
+    ORIGIN,
+    SESSION_COOKIE,
+    SESSION_TOKEN,
+    CommandAppHarness,
+    human_actor,
+)
 from tests.platform.m4 import validation_testkit
 
 NOW_DT = datetime(2026, 7, 15, 12, 0, tzinfo=timezone.utc)
@@ -438,7 +450,7 @@ class AppHarness:
 
     @contextmanager
     def _event_read_scope(self) -> Iterator[RunEventReadScope]:
-        with Session(self.engine) as session:
+        with sqlite_read_snapshot_session(self.engine) as session:
             yield RunEventReadScope(
                 runs=SqlRunRepository(session),
                 policies=SqlPolicySnapshotRepository(session, clock=self.clock),
@@ -667,67 +679,6 @@ class AppHarness:
         assert response.status_code == 202, response.text
         return response.json()["run_id"]
 
-    def _next_seq(self, run_id: str) -> int:
-        with Session(self.engine) as session:
-            highest = session.execute(
-                select(func.max(RunEventRow.seq)).where(RunEventRow.run_id == run_id)
-            ).scalar_one_or_none()
-        return (int(highest) + 1) if highest is not None else 1
-
-    def seed_event(self, run_id: str, *, terminal: bool = False, seq: int | None = None) -> int:
-        selected_seq = seq if seq is not None else self._next_seq(run_id)
-        if terminal:
-            event = RunEvent(
-                run_id=run_id,
-                seq=selected_seq,
-                event_type="run.cancelled",
-                occurred_at=NOW,
-                data_schema_version="run-terminated@1",
-                data=RunTerminatedDataV1(
-                    attempt_no=None,
-                    failure_artifact_id="artifact:terminal",
-                    cause_code="operator_cancel",
-                ),
-            )
-        else:
-            event = RunEvent(
-                run_id=run_id,
-                seq=selected_seq,
-                event_type="run.command_accepted",
-                occurred_at=NOW,
-                data_schema_version="command-accepted@1",
-                data=CommandAcceptedDataV1(
-                    command_id=f"cmd:{selected_seq}",
-                    command_type="cancel",
-                    command_revision=1,
-                ),
-            )
-        with Session(self.engine) as session, session.begin():
-            session.add(RunEventRow(**event.model_dump(mode="json")))
-        return selected_seq
-
-    def seed_events(self, run_id: str, count: int, *, terminal_last: bool = False) -> list[int]:
-        seqs: list[int] = []
-        for index in range(count):
-            is_terminal = terminal_last and index == count - 1
-            seqs.append(self.seed_event(run_id, terminal=is_terminal))
-        return seqs
-
-    def prune_events_through(self, run_id: str, seq: int) -> None:
-        with Session(self.engine) as session, session.begin():
-            session.execute(
-                delete(RunEventRow).where(
-                    RunEventRow.run_id == run_id,
-                    RunEventRow.seq <= seq,
-                )
-            )
-
-    def persisted_event(self, run_id: str, seq: int) -> RunEvent:
-        with Session(self.engine) as session:
-            event = SqlRunRepository(session).get_event(run_id, seq)
-        assert event is not None
-        return event
-
 
 # ── SSE frame parsing ────────────────────────────────────────────────────
 def _parse_frames(text: str) -> list[dict[str, Any]]:
@@ -754,176 +705,224 @@ def _event_ids(frames: list[dict[str, Any]]) -> list[int]:
     return [int(frame["id"]) for frame in frames if frame["id"] is not None]
 
 
-# ═══════════════════════ HTTP integration tests ═══════════════════════════
-def test_stream_delivers_backlog_and_closes_on_terminal(tmp_path: Path) -> None:
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()  # seq 1 = run.queued
-    harness.seed_events(run_id, 3)  # seq 2,3,4
-    harness.seed_event(run_id, terminal=True)  # seq 5 = run.cancelled (terminal)
-    with TestClient(harness.app) as client:
-        response = client.get(f"/api/v1/runs/{run_id}/events")
+# ── real Run aggregate helpers ────────────────────────────────────────────
+def _session_client(harness: CommandAppHarness, *, app: Any | None = None) -> TestClient:
+    client = TestClient(harness.app if app is None else app, base_url=ORIGIN)
+    client.cookies.set(SESSION_COOKIE, SESSION_TOKEN)
+    return client
+
+
+def _cancel_existing_run(harness: CommandAppHarness, run_id: str, *, tag: str) -> None:
+    body = harness.cancel_body(
+        command_id=f"cmd:{tag}",
+        idempotency_key=f"cancel:{tag}",
+        expected_run_revision=1,
+    )
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.post(f"/api/v1/runs/{run_id}:cancel", json=body)
     assert response.status_code == 200, response.text
-    assert response.headers["content-type"].startswith("text/event-stream")
-    assert response.headers["Cache-Control"] == "no-store"
-    frames = _parse_frames(response.text)
-    assert _event_ids(frames) == [1, 2, 3, 4, 5]  # gapless, persisted seqs as ids
-    assert frames[-1]["event"] == "run.cancelled"  # closes on terminal
-    # Exact FROZEN framing: the queued event is byte-identical to encode_sse_event.
-    queued = harness.persisted_event(run_id, 1)
-    assert encode_sse_event(queued) in response.text
+    run = harness.run_record(run_id)
+    assert run.status == "cancelled"
+    assert run.next_event_seq == 4
 
 
-def test_last_event_id_resumes_after_seq(tmp_path: Path) -> None:
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
-    harness.seed_events(run_id, 4)  # seq 2..5
-    harness.seed_event(run_id, terminal=True)  # seq 6
-    with TestClient(harness.app) as client:
+def _cancel_queued_run(harness: CommandAppHarness, *, tag: str) -> str:
+    """Create and cancel through the real command UoW; no synthetic event rows."""
+
+    run_id = harness.admit_checker_run(tag)
+    _cancel_existing_run(harness, run_id, tag=tag)
+    return run_id
+
+
+def _terminal_attempt_run_without_command(harness: CommandAppHarness, *, tag: str) -> str:
+    """Build a three-event terminal aggregate without a command/event FK."""
+
+    run_id = harness.admit_checker_run(tag)
+    worker = AuditActor(
+        principal_id=f"service:sse-retention:{tag}",
+        principal_kind="service",
+    )
+    claim = harness.command_service.claim_next(
+        RunClaimRequest(
+            worker=worker,
+            lease_id=f"lease:sse-retention:{tag}",
+            lease_duration_ns=30_000_000_000,
+        )
+    )
+    assert claim is not None and claim.run.run_id == run_id
+    decision = RetryDecisionV1(
+        cause_code="cancelled",
+        failure_class="cancelled",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=claim.run.failure_classifier,
+        retry_policy=claim.run.retry_policy,
+        evaluated_at_utc=NOW,
+    )
+    terminal_event = RunEvent(
+        run_id=run_id,
+        seq=claim.run.next_event_seq,
+        event_type="run.cancelled",
+        attempt_no=claim.attempt.attempt_no,
+        occurred_at=NOW,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            attempt_no=claim.attempt.attempt_no,
+            failure_artifact_id=harness._failure_artifact_id,
+            cause_code="cancelled",
+        ),
+    )
+    with harness.uow.begin() as transaction:
+        terminal = transaction.runs.close_attempt_terminal(
+            fence=AttemptWriteFence(
+                run_id=run_id,
+                attempt_no=claim.attempt.attempt_no,
+                expected_run_revision=claim.run.revision,
+                lease_id=claim.lease.lease_id,
+                fencing_token=claim.attempt.fencing_token,
+            ),
+            ended_at=NOW,
+            attempt_status="cancelled",
+            lease_status="closed",
+            run_status="cancelled",
+            failure_class="cancelled",
+            attempt_failure_artifact_id=harness._failure_artifact_id,
+            run_failure_artifact_id=harness._failure_artifact_id,
+            attempt_cassette_artifact_id=None,
+            terminal_cassette_artifact_id=None,
+            retry_decision=decision,
+            leading_events=(),
+            terminal_event=terminal_event,
+        )
+    assert terminal.run.next_event_seq == 4
+    return run_id
+
+
+def _persisted_event(harness: CommandAppHarness, run_id: str, seq: int) -> RunEvent:
+    with Session(harness.engine) as session:
+        event = SqlRunRepository(session).get_event(run_id, seq)
+    assert event is not None
+    return event
+
+
+def _prune_events_through(harness: CommandAppHarness, run_id: str, seq: int) -> None:
+    with Session(harness.engine) as session, session.begin():
+        removed = SqlRunRepository(session).prune_terminal_event_prefix(
+            run_id,
+            before_seq=seq + 1,
+        )
+    assert removed == seq
+
+
+def _restarted_stream_app(harness: CommandAppHarness) -> Any:
+    restarted_stream = RunEventStreamService(
+        read_scope=harness._event_read_scope,
+        role_policy_version=harness.role_policy.policy_version,
+        role_policy_digest=harness.role_policy.policy_digest,
+    )
+    dependencies = replace(
+        harness.app.state.dependencies,
+        run_event_stream=restarted_stream,
+        run_event_notifier=RunEventNotifier(),
+    )
+    return create_app(dependencies)
+
+
+# ── cursor + frozen-authorization regressions ─────────────────────────────
+def _cursor_request(value: str | None) -> Request:
+    headers = [] if value is None else [(b"last-event-id", value.encode("utf-8"))]
+    return Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/api/v1/runs/run:x/events",
+            "headers": headers,
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    "value",
+    ("", " ", "not-a-sequence", "-1", "+1", "1.0", "１２", str(1 << 63)),
+)
+def test_malformed_or_overflow_last_event_id_is_rejected(value: str) -> None:
+    with pytest.raises(CursorInvalid):
+        _parse_last_event_id(_cursor_request(value))
+
+
+def test_absent_last_event_id_is_the_only_fresh_cursor() -> None:
+    assert _parse_last_event_id(_cursor_request(None)) is None
+    assert _parse_last_event_id(_cursor_request("0")) == 0
+
+
+def test_future_last_event_id_returns_invalid_cursor_problem(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="future-cursor")
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
         response = client.get(
             f"/api/v1/runs/{run_id}/events",
-            headers={"Last-Event-ID": "3"},
+            headers={"Last-Event-ID": "4"},
         )
-    assert response.status_code == 200, response.text
-    frames = _parse_frames(response.text)
-    assert _event_ids(frames) == [4, 5, 6]  # resumes strictly after seq 3
+
+    assert response.status_code == 400, response.text
+    assert Problem.model_validate(response.json()).code == "invalid_cursor"
 
 
-def test_paged_delivery_is_gapless_across_pages(tmp_path: Path) -> None:
-    # A tiny page limit forces multiple bounded DB rereads (backpressure): the
-    # stream must never buffer unbounded and must deliver every seq in order.
-    harness = AppHarness(tmp_path, page_limit=2)
-    run_id = harness.admit_checker_run()
-    harness.seed_events(run_id, 5)  # seq 2..6
-    harness.seed_event(run_id, terminal=True)  # seq 7
-    with TestClient(harness.app) as client:
-        response = client.get(f"/api/v1/runs/{run_id}/events")
-    assert response.status_code == 200, response.text
-    assert _event_ids(_parse_frames(response.text)) == [1, 2, 3, 4, 5, 6, 7]
-
-
-def test_missing_run_returns_404(tmp_path: Path) -> None:
+def test_stream_authorization_uses_frozen_admission_domain_scope(tmp_path: Path) -> None:
     harness = AppHarness(tmp_path)
-    with TestClient(harness.app) as client:
-        response = client.get("/api/v1/runs/run:does-not-exist/events")
-    assert response.status_code == 404, response.text
+    builtin_scope = DomainScope(domain_ids=("builtin",))
+    harness.set_actor(_actor(scope=builtin_scope))
+    run_id = harness.admit_checker_run("frozen-domain")
+    with Session(harness.engine) as session:
+        run = SqlRunRepository(session).get(run_id)
+    assert run is not None and run.resource_domain_scope == builtin_scope
+
+    grant = harness.stream.authorize_stream(
+        run_id=run_id,
+        actor=_actor(scope=builtin_scope),
+        after_seq=0,
+    )
+    assert grant.earliest_retained_seq == grant.latest_event_seq == 1
+    assert grant.terminal is False
 
 
-def test_unauthorized_actor_is_forbidden(tmp_path: Path) -> None:
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
-    harness.seed_event(run_id, terminal=True)
-    harness.set_actor(_actor(authorized=False))
-    with TestClient(harness.app) as client:
-        response = client.get(f"/api/v1/runs/{run_id}/events")
-    assert response.status_code == 403, response.text
-
-
-def test_revoked_permission_cannot_reconnect(tmp_path: Path) -> None:
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
-    harness.seed_event(run_id, terminal=True)
-    with TestClient(harness.app) as client:
-        first = client.get(f"/api/v1/runs/{run_id}/events")
-        assert first.status_code == 200, first.text
-        # Permission revoked between connections; the reconnect must reauthorize.
-        harness.set_actor(_actor(authorized=False))
-        reconnect = client.get(
-            f"/api/v1/runs/{run_id}/events",
-            headers={"Last-Event-ID": "1"},
-        )
-    assert reconnect.status_code == 403, reconnect.text
-
-
-def test_retention_expiry_returns_410_with_earliest_cursor(tmp_path: Path) -> None:
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
-    harness.seed_events(run_id, 5)  # seq 2..6
-    # Simulate retention pruning of the earliest events; MIN(seq) becomes 4.
-    harness.prune_events_through(run_id, 3)
-    with TestClient(harness.app) as client:
-        response = client.get(
-            f"/api/v1/runs/{run_id}/events",
-            headers={"Last-Event-ID": "2"},  # next expected 3 < earliest retained 4
-        )
-    assert response.status_code == 410, response.text
-    problem = Problem.model_validate(response.json())
-    assert problem.code == "cursor_expired"
-    assert problem.earliest_cursor == "4"
-
-
-def test_fresh_connect_after_pruning_streams_from_earliest(tmp_path: Path) -> None:
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
-    harness.seed_events(run_id, 4)  # seq 2..5
-    harness.seed_event(run_id, terminal=True)  # seq 6
-    harness.prune_events_through(run_id, 3)  # MIN(seq) becomes 4
-    with TestClient(harness.app) as client:
-        response = client.get(f"/api/v1/runs/{run_id}/events")  # no Last-Event-ID
-    assert response.status_code == 200, response.text
-    assert _event_ids(_parse_frames(response.text)) == [4, 5, 6]
-
-
-def test_boundary_race_reread_delivers_late_events_without_gap(tmp_path: Path) -> None:
-    # Read backlog -> wait -> a concurrent writer commits later events + notify ->
-    # the DB reread (authority) catches them with no gap. A blocking client.get
-    # only returns once the terminal event is streamed, so completion is
-    # deterministic; the heartbeat timeout guarantees a reread even if notify is
-    # lost.
-    harness = AppHarness(tmp_path, heartbeat_seconds=0.1)
-    run_id = harness.admit_checker_run()
-    harness.seed_events(run_id, 2)  # backlog seq 2,3
-
-    def _late_writer() -> None:
-        harness.seed_event(run_id)  # seq 4
-        harness.seed_event(run_id)  # seq 5
-        harness.seed_event(run_id, terminal=True)  # seq 6
-        harness.notifier.notify(run_id)
-
-    writer = threading.Thread(target=_late_writer)
-    writer.start()
-    try:
-        with TestClient(harness.app) as client:
-            response = client.get(f"/api/v1/runs/{run_id}/events")
-    finally:
-        writer.join(timeout=10)
-    assert response.status_code == 200, response.text
-    assert _event_ids(_parse_frames(response.text)) == [1, 2, 3, 4, 5, 6]
-
-
-# ── Fix wave 1: SSE read-domain gate must mirror admission's domain derivation ──
-def test_validation_run_events_readable_by_subject_domain_scoped_principal(
+def test_validation_stream_uses_frozen_scope_after_approval_reader_disappears(
     tmp_path: Path,
 ) -> None:
-    # A patch.validate run's read domain is its loaded subject's ApprovalItem domain
-    # (here "builtin"), NOT all-active. A principal scoped only to "builtin" must
-    # be able to read its OWN validation run's events (200, not a wrong 403).
     harness = AppHarness(tmp_path)
-    run_id = harness.admit_patch_validate_run()
-    harness.seed_event(run_id, terminal=True)
-    harness.set_actor(_actor(scope=DomainScope(domain_ids=("builtin",))))
-    with TestClient(harness.app) as client:
-        response = client.get(f"/api/v1/runs/{run_id}/events")
-    assert response.status_code == 200, response.text
-    assert _event_ids(_parse_frames(response.text))[0] == 1
+    run_id = harness.admit_patch_validate_run("frozen-validation")
+    harness.approvals = None
+
+    grant = harness.stream.authorize_stream(
+        run_id=run_id,
+        actor=_actor(scope=DomainScope(domain_ids=("builtin",))),
+        after_seq=0,
+    )
+
+    assert grant.latest_event_seq == 1
 
 
-def test_all_active_run_forbidden_for_subject_domain_scoped_principal(tmp_path: Path) -> None:
-    # Contrast: a checker run resolves fail-closed to authority over ALL active
-    # domains, so a "builtin"-only principal is correctly forbidden — proving the
-    # validation 200 above comes from the narrower, admission-aligned domain.
+def test_legacy_resource_run_without_frozen_scope_falls_back_conservatively(
+    tmp_path: Path,
+) -> None:
+    from gameforge.apps.api.streaming import _resolve_run_read_domain
+
     harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
-    harness.seed_event(run_id, terminal=True)
-    harness.set_actor(_actor(scope=DomainScope(domain_ids=("builtin",))))
-    with TestClient(harness.app) as client:
-        response = client.get(f"/api/v1/runs/{run_id}/events")
-    assert response.status_code == 403, response.text
+    run_id = harness.admit_checker_run("legacy-domain")
+    with Session(harness.engine) as session:
+        run = SqlRunRepository(session).get_run_projection(run_id)
+    assert run is not None
+    legacy = run.model_copy(update={"resource_domain_scope": None})
+
+    resolved = _resolve_run_read_domain(legacy, harness.domain_registry, None)
+
+    assert isinstance(resolved, DomainScope)
+    assert set(resolved.domain_ids) == set(DOMAIN_IDS)
 
 
 def test_resolve_run_read_domain_dr_drill_is_domainless(tmp_path: Path) -> None:
-    # dr.drill is the sole domainless kind (admission: base.domain_scope is None);
-    # its read must be non-domain (None), not all-active. dr.drill is internal-only
-    # (not HTTP-admittable), so this is asserted directly against the resolver.
     from types import SimpleNamespace
 
     from gameforge.apps.api.streaming import _resolve_run_read_domain
@@ -939,24 +938,362 @@ def test_resolve_run_read_domain_dr_drill_is_domainless(tmp_path: Path) -> None:
         destroy_restored_target_after_verification=True,
     )
     fake_run = SimpleNamespace(payload=SimpleNamespace(params=params))
-    resolved = _resolve_run_read_domain(fake_run, harness.domain_registry, None)
-    assert resolved is None
+    assert _resolve_run_read_domain(fake_run, harness.domain_registry, None) is None
 
 
-def test_resolve_run_read_domain_falls_back_to_all_active_for_resource_kinds(
+# ═══════════════════════ real HTTP/SQLite integration ═════════════════════
+def test_stream_delivers_real_cancel_events_and_closes_on_terminal(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="terminal-backlog")
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(f"/api/v1/runs/{run_id}/events")
+
+    assert response.status_code == 200, response.text
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.headers["Cache-Control"] == "no-store"
+    frames = _parse_frames(response.text)
+    assert _event_ids(frames) == [1, 2, 3]
+    assert [frame["event"] for frame in frames] == [
+        "run.queued",
+        "run.cancel_requested",
+        "run.cancelled",
+    ]
+    assert encode_sse_event(_persisted_event(harness, run_id, 1)) in response.text
+
+
+def test_last_event_id_replays_only_real_committed_suffix(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="resume")
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert response.status_code == 200, response.text
+    assert _event_ids(_parse_frames(response.text)) == [2, 3]
+
+
+def test_cross_connection_redelivery_is_deduplicable_by_run_and_seq(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="cross-connection-dedup")
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        first = client.get(f"/api/v1/runs/{run_id}/events")
+        # Simulate a client that processed seq 2 but only durably stored cursor 1.
+        replay = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    first_ids = _event_ids(_parse_frames(first.text))
+    replay_ids = _event_ids(_parse_frames(replay.text))
+    assert first_ids == [1, 2, 3]
+    assert replay_ids == [2, 3]
+    combined = [(run_id, seq) for seq in (*first_ids, *replay_ids)]
+    assert len(combined) == 5
+    assert sorted(set(combined)) == [(run_id, 1), (run_id, 2), (run_id, 3)]
+
+
+def test_terminal_exact_head_reconnect_closes_without_heartbeat(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="exact-terminal-head")
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "3"},
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.text == ""
+    assert HEARTBEAT_COMMENT not in response.text
+
+
+def test_missing_run_returns_404(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get("/api/v1/runs/run:does-not-exist/events")
+    assert response.status_code == 404, response.text
+
+
+def test_unauthorized_actor_is_forbidden(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run("forbidden")
+    harness.set_http_actor(human_actor(authorized=False))
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(f"/api/v1/runs/{run_id}/events")
+    assert response.status_code == 403, response.text
+
+
+def test_revoked_permission_cannot_reconnect(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="reconnect-revoked")
+    harness.set_http_actor(human_actor(authorized=False))
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        reconnect = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert reconnect.status_code == 403, reconnect.text
+
+
+def test_retention_expiry_returns_410_with_actual_earliest_cursor(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _terminal_attempt_run_without_command(harness, tag="retention-expired")
+    _prune_events_through(harness, run_id, 2)
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert response.status_code == 410, response.text
+    problem = Problem.model_validate(response.json())
+    assert problem.code == "cursor_expired"
+    assert problem.earliest_cursor == "3"
+
+
+def test_explicit_zero_resume_after_retention_returns_410(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _terminal_attempt_run_without_command(harness, tag="retention-explicit-zero")
+    _prune_events_through(harness, run_id, 2)
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "0"},
+        )
+
+    assert response.status_code == 410, response.text
+    problem = Problem.model_validate(response.json())
+    assert problem.code == "cursor_expired"
+    assert problem.earliest_cursor == "3"
+
+
+def test_fresh_connect_after_pruning_streams_from_actual_minimum(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="retention-fresh")
+    _prune_events_through(harness, run_id, 1)
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(f"/api/v1/runs/{run_id}/events")
+
+    assert response.status_code == 200, response.text
+    assert response.headers["X-Earliest-Event-Cursor"] == "2"
+    assert _event_ids(_parse_frames(response.text)) == [2, 3]
+
+
+def test_event_read_scope_holds_one_physical_snapshot_across_retention(
     tmp_path: Path,
 ) -> None:
-    # The 7 resource kinds carry no per-run domain binding yet -> fail-closed to
-    # every active registry domain, exactly as admission does.
-    from gameforge.apps.api.streaming import _resolve_run_read_domain
+    harness = CommandAppHarness(tmp_path)
+    run_id = _terminal_attempt_run_without_command(harness, tag="retention-read-snapshot")
 
-    harness = AppHarness(tmp_path)
-    run_id = harness.admit_checker_run()
+    with harness._event_read_scope() as scope:
+        raw_connection = scope.runs._session.connection().connection.driver_connection
+        assert raw_connection.in_transaction is True
+        run = scope.runs.get_run_projection(run_id)
+        assert run is not None
+        assert scope.runs.earliest_event_seq(run_id) == 1
+
+        # A WAL writer may prune concurrently, but the page read remains on the
+        # snapshot established above instead of mixing the old MIN with a new suffix.
+        _prune_events_through(harness, run_id, 2)
+        page = scope.runs.stream_events(run_id, after_seq=0, limit=16)
+
+    assert tuple(event.seq for event in page) == (1, 2, 3)
     with Session(harness.engine) as session:
-        run = SqlRunRepository(session).get_run_projection(run_id)
-    resolved = _resolve_run_read_domain(run, harness.domain_registry, None)
-    assert isinstance(resolved, DomainScope)
-    assert set(resolved.domain_ids) == set(DOMAIN_IDS)
+        assert SqlRunRepository(session).earliest_event_seq(run_id) == 3
+
+
+def test_restart_replays_persisted_suffix_with_new_stream_and_notifier(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="restart")
+    restarted_app = _restarted_stream_app(harness)
+
+    with TestClient(restarted_app, base_url=ORIGIN) as client:
+        client.cookies.set(SESSION_COOKIE, SESSION_TOKEN)
+        response = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert response.status_code == 200, response.text
+    assert _event_ids(_parse_frames(response.text)) == [2, 3]
+
+
+class _PruneAfterFirstPage:
+    def __init__(self, harness: CommandAppHarness) -> None:
+        self._harness = harness
+        self._delegate = harness.stream
+        self._pruned = False
+
+    def authorize_stream(self, **kwargs: Any) -> Any:
+        return self._delegate.authorize_stream(**kwargs)
+
+    def read_authorized_page(self, **kwargs: Any) -> RunEventPage:
+        page = self._delegate.read_authorized_page(**kwargs)
+        if not self._pruned:
+            self._pruned = True
+            _prune_events_through(self._harness, kwargs["run_id"], 2)
+        return page
+
+
+def test_midstream_retention_gap_closes_then_reconnect_returns_410(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _terminal_attempt_run_without_command(harness, tag="midstream-prune")
+    pruning_port = _PruneAfterFirstPage(harness)
+    app = create_app(
+        replace(
+            harness.app.state.dependencies,
+            run_event_stream=pruning_port,
+            run_event_stream_config=RunEventStreamConfig(
+                page_limit=1,
+                heartbeat_seconds=0.01,
+            ),
+        )
+    )
+
+    with TestClient(app, base_url=ORIGIN) as client:
+        client.cookies.set(SESSION_COOKIE, SESSION_TOKEN)
+        first = client.get(f"/api/v1/runs/{run_id}/events")
+        reconnect = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert first.status_code == 200, first.text
+    assert _event_ids(_parse_frames(first.text)) == [1]
+    assert reconnect.status_code == 410, reconnect.text
+    problem = Problem.model_validate(reconnect.json())
+    assert problem.code == "cursor_expired"
+    assert problem.earliest_cursor == "3"
+
+
+class _RevokeSessionOnWaitSubscription:
+    def __init__(self, harness: CommandAppHarness) -> None:
+        self._harness = harness
+        self.wait_calls = 0
+        self.closed = False
+
+    async def wait(self, timeout: float) -> bool:
+        del timeout
+        self.wait_calls += 1
+        self._harness.revoke_session()
+        return False
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class _RevokeSessionOnWaitNotifier:
+    def __init__(self, harness: CommandAppHarness, run_id: str) -> None:
+        self._run_id = run_id
+        self.subscription = _RevokeSessionOnWaitSubscription(harness)
+
+    def subscribe(self, run_id: str) -> _RevokeSessionOnWaitSubscription:
+        assert run_id == self._run_id
+        return self.subscription
+
+    def notify(self, run_id: str) -> None:
+        assert run_id == self._run_id
+
+
+class _RevokeRoleOnWaitSubscription:
+    def __init__(self, harness: CommandAppHarness) -> None:
+        self._harness = harness
+        self.wait_calls = 0
+        self.closed = False
+
+    async def wait(self, timeout: float) -> bool:
+        del timeout
+        self.wait_calls += 1
+        self._harness.set_session_actor(human_actor(authorized=False))
+        return False
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class _RevokeRoleOnWaitNotifier:
+    def __init__(self, harness: CommandAppHarness, run_id: str) -> None:
+        self._run_id = run_id
+        self.subscription = _RevokeRoleOnWaitSubscription(harness)
+
+    def subscribe(self, run_id: str) -> _RevokeRoleOnWaitSubscription:
+        assert run_id == self._run_id
+        return self.subscription
+
+    def notify(self, run_id: str) -> None:
+        assert run_id == self._run_id
+
+
+def test_real_session_revoke_while_waiting_closes_before_heartbeat(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run("open-session-revoke")
+    notifier = _RevokeSessionOnWaitNotifier(harness, run_id)
+    app = create_app(
+        replace(
+            harness.app.state.dependencies,
+            run_event_notifier=notifier,
+            run_event_stream_config=RunEventStreamConfig(
+                page_limit=256,
+                heartbeat_seconds=0.01,
+            ),
+        )
+    )
+
+    with _session_client(harness, app=app) as client:
+        response = client.get(f"/api/v1/runs/{run_id}/events")
+        reconnect = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert response.status_code == 200, response.text
+    assert _event_ids(_parse_frames(response.text)) == [1]
+    assert HEARTBEAT_COMMENT not in response.text
+    assert notifier.subscription.wait_calls == 1
+    assert notifier.subscription.closed is True
+    assert reconnect.status_code == 401, reconnect.text
+    assert Problem.model_validate(reconnect.json()).code == "auth_failed"
+
+
+def test_current_role_revoke_while_waiting_stops_before_next_page(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run("open-role-revoke")
+    notifier = _RevokeRoleOnWaitNotifier(harness, run_id)
+    app = create_app(
+        replace(
+            harness.app.state.dependencies,
+            run_event_notifier=notifier,
+            run_event_stream_config=RunEventStreamConfig(
+                page_limit=256,
+                heartbeat_seconds=0.01,
+            ),
+        )
+    )
+
+    with _session_client(harness, app=app) as client:
+        response = client.get(f"/api/v1/runs/{run_id}/events")
+        reconnect = client.get(
+            f"/api/v1/runs/{run_id}/events",
+            headers={"Last-Event-ID": "1"},
+        )
+
+    assert response.status_code == 200, response.text
+    assert _event_ids(_parse_frames(response.text)) == [1]
+    assert HEARTBEAT_COMMENT not in response.text
+    assert notifier.subscription.wait_calls == 1
+    assert notifier.subscription.closed is True
+    assert reconnect.status_code == 403, reconnect.text
+    assert Problem.model_validate(reconnect.json()).code == "forbidden"
 
 
 # ═══════════════════════ deterministic core-generator tests ═══════════════
@@ -969,7 +1306,9 @@ def _core_event(seq: int, *, terminal: bool = False) -> RunEvent:
             occurred_at=NOW,
             data_schema_version="run-terminated@1",
             data=RunTerminatedDataV1(
-                attempt_no=None, failure_artifact_id="artifact:x", cause_code="boom"
+                attempt_no=None,
+                failure_artifact_id="artifact:x",
+                cause_code="boom",
             ),
         )
     return RunEvent(
@@ -979,31 +1318,64 @@ def _core_event(seq: int, *, terminal: bool = False) -> RunEvent:
         occurred_at=NOW,
         data_schema_version="command-accepted@1",
         data=CommandAcceptedDataV1(
-            command_id=f"cmd:{seq}", command_type="cancel", command_revision=1
+            command_id=f"cmd:{seq}",
+            command_type="cancel",
+            command_revision=1,
         ),
     )
 
 
+def _page(
+    events: tuple[RunEvent, ...],
+    *,
+    latest: int,
+    terminal: bool = False,
+    earliest: int = 1,
+) -> RunEventPage:
+    return RunEventPage(
+        events=events,
+        earliest_retained_seq=earliest,
+        latest_event_seq=latest,
+        terminal=terminal,
+    )
+
+
 class _ScriptedReader:
-    def __init__(self, pages: list[tuple[RunEvent, ...]]) -> None:
+    def __init__(self, pages: list[RunEventPage]) -> None:
         self._pages = list(pages)
         self.after_seqs: list[int] = []
 
-    def __call__(self, run_id: str, after_seq: int, limit: int) -> tuple[RunEvent, ...]:
+    async def __call__(
+        self,
+        run_id: str,
+        actor: ActorContext,
+        after_seq: int,
+        limit: int,
+    ) -> RunEventPage:
+        del run_id, actor, limit
         self.after_seqs.append(after_seq)
-        if self._pages:
-            return self._pages.pop(0)
-        return ()
+        if not self._pages:
+            raise AssertionError("scripted reader exhausted")
+        return self._pages.pop(0)
 
 
 class _ScriptedSubscription:
     def __init__(self, results: list[bool]) -> None:
         self._results = list(results)
+        self.calls = 0
 
     async def wait(self, timeout: float) -> bool:
+        del timeout
+        self.calls += 1
         if self._results:
             return self._results.pop(0)
-        return False
+        raise AssertionError("scripted subscription exhausted")
+
+
+class _NeverWait:
+    async def wait(self, timeout: float) -> bool:
+        del timeout
+        raise AssertionError("full persisted pages must apply backpressure without waiting")
 
 
 class _DisconnectAfter:
@@ -1016,6 +1388,10 @@ class _DisconnectAfter:
         return self.calls > self._calls_allowed
 
 
+async def _refresh_core_actor() -> ActorContext:
+    return _actor()
+
+
 def _drain(agen: Any) -> list[str]:
     async def _run() -> list[str]:
         chunks: list[str] = []
@@ -1026,83 +1402,206 @@ def _drain(agen: Any) -> list[str]:
     return asyncio.run(_run())
 
 
+def test_real_db_notifier_boundary_race_rereads_committed_terminal_suffix(
+    tmp_path: Path,
+) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run("boundary-race")
+    read_after: list[int] = []
+
+    async def scenario() -> list[str]:
+        wait_started = asyncio.Event()
+        delegate = harness.notifier.subscribe(run_id)
+
+        class BarrierSubscription:
+            async def wait(self, timeout: float) -> bool:
+                wait_started.set()
+                return await delegate.wait(timeout)
+
+        async def read_page(
+            selected_run_id: str,
+            actor: ActorContext,
+            after_seq: int,
+            limit: int,
+        ) -> RunEventPage:
+            read_after.append(after_seq)
+            return await asyncio.to_thread(
+                harness.stream.read_authorized_page,
+                run_id=selected_run_id,
+                actor=actor,
+                after_seq=after_seq,
+                limit=limit,
+            )
+
+        async def writer() -> None:
+            await wait_started.wait()
+            await asyncio.to_thread(
+                _cancel_existing_run,
+                harness,
+                run_id,
+                tag="boundary-race",
+            )
+            harness.notifier.notify(run_id)
+
+        async def consume() -> list[str]:
+            chunks: list[str] = []
+            async for chunk in render_run_event_stream(
+                run_id=run_id,
+                after_seq=0,
+                read_page=read_page,
+                refresh_actor=_refresh_core_actor,
+                subscription=BarrierSubscription(),
+                config=RunEventStreamConfig(page_limit=256, heartbeat_seconds=2.0),
+            ):
+                chunks.append(chunk)
+            return chunks
+
+        try:
+            chunks, _ = await asyncio.gather(consume(), writer())
+            return chunks
+        finally:
+            delegate.close()
+
+    chunks = asyncio.run(scenario())
+    assert _event_ids(_parse_frames("".join(chunks))) == [1, 2, 3]
+    assert read_after == [0, 1]
+
+
 def test_core_boundary_race_reread_has_no_gap() -> None:
-    # backlog [1,2,3] -> wait(notified) -> empty reread (lost/early notify) ->
-    # wait(notified) -> [4,5(terminal)]: no committed-event gap, terminal closes.
     reader = _ScriptedReader(
         [
-            (_core_event(1), _core_event(2), _core_event(3)),
-            (),
-            (_core_event(4), _core_event(5, terminal=True)),
+            _page((_core_event(1), _core_event(2), _core_event(3)), latest=3),
+            _page((), latest=3),
+            _page(
+                (_core_event(4), _core_event(5, terminal=True)),
+                latest=5,
+                terminal=True,
+            ),
         ]
     )
     subscription = _ScriptedSubscription([True, True])
-    config = RunEventStreamConfig(page_limit=256, heartbeat_seconds=1.0)
     chunks = _drain(
         render_run_event_stream(
             run_id="run:core",
             after_seq=0,
-            read_events=reader,
+            read_page=reader,
+            refresh_actor=_refresh_core_actor,
             subscription=subscription,
-            config=config,
+            config=RunEventStreamConfig(page_limit=256, heartbeat_seconds=1.0),
         )
     )
+
     frames = _parse_frames("".join(chunks))
-    assert _event_ids(frames) == [1, 2, 3, 4, 5]  # gapless
-    assert all(frame["comment"] is False for frame in frames)  # no heartbeat
-    # The reread always uses the last delivered seq as the cursor (never invents).
+    assert _event_ids(frames) == [1, 2, 3, 4, 5]
+    assert all(frame["comment"] is False for frame in frames)
     assert reader.after_seqs == [0, 3, 3]
 
 
-def test_core_duplicate_transport_delivery_is_client_deduplicable() -> None:
-    # A reconnect-style replay can redeliver an already-seen seq; every id is the
-    # persisted seq so the client dedupes by (run_id, seq).
+def test_core_heartbeat_is_comment_and_does_not_advance_cursor() -> None:
     reader = _ScriptedReader(
         [
-            (_core_event(1), _core_event(2), _core_event(3)),
-            (_core_event(3), _core_event(4), _core_event(5, terminal=True)),
+            _page((_core_event(1), _core_event(2), _core_event(3)), latest=3),
+            _page((), latest=3),
         ]
     )
-    subscription = _ScriptedSubscription([True])
-    config = RunEventStreamConfig(page_limit=256, heartbeat_seconds=1.0)
-    chunks = _drain(
-        render_run_event_stream(
-            run_id="run:core",
-            after_seq=0,
-            read_events=reader,
-            subscription=subscription,
-            config=config,
-        )
-    )
-    frames = _parse_frames("".join(chunks))
-    ids = _event_ids(frames)
-    assert ids == [1, 2, 3, 3, 4, 5]  # duplicate seq 3 present
-    # The duplicated frames carry the identical persisted (run_id, seq) id.
-    duplicated = [frame for frame in frames if frame["id"] == "3"]
-    assert len(duplicated) == 2
-    assert all(frame["event"] == "run.command_accepted" for frame in duplicated)
-
-
-def test_core_heartbeat_is_comment_and_does_not_advance_cursor() -> None:
-    reader = _ScriptedReader([(_core_event(1), _core_event(2), _core_event(3))])
-    subscription = _ScriptedSubscription([False])  # timeout -> heartbeat
+    subscription = _ScriptedSubscription([False])
     disconnect = _DisconnectAfter(calls_allowed=1)
-    config = RunEventStreamConfig(page_limit=256, heartbeat_seconds=0.01)
     chunks = _drain(
         render_run_event_stream(
             run_id="run:core",
             after_seq=0,
-            read_events=reader,
+            read_page=reader,
+            refresh_actor=_refresh_core_actor,
             subscription=subscription,
-            config=config,
+            config=RunEventStreamConfig(page_limit=256, heartbeat_seconds=0.01),
             is_disconnected=disconnect,
         )
     )
+
     joined = "".join(chunks)
     frames = _parse_frames(joined)
     assert _event_ids(frames) == [1, 2, 3]
     heartbeats = [frame for frame in frames if frame["comment"]]
     assert len(heartbeats) == 1
-    assert heartbeats[0]["id"] is None  # comment carries no id -> cursor unchanged
+    assert heartbeats[0]["id"] is None
     assert HEARTBEAT_COMMENT in joined
-    assert HEARTBEAT_COMMENT.startswith(":")  # SSE comment framing
+
+
+def test_wait_revocation_stops_before_heartbeat_or_later_event() -> None:
+    reader = _ScriptedReader([_page((_core_event(1),), latest=1)])
+    subscription = _ScriptedSubscription([False])
+    refresh_calls = 0
+
+    async def refresh_actor() -> ActorContext:
+        nonlocal refresh_calls
+        refresh_calls += 1
+        if refresh_calls > 1:
+            raise Forbidden("permission revoked while stream was waiting")
+        return _actor()
+
+    async def scenario() -> str:
+        stream = render_run_event_stream(
+            run_id="run:core",
+            after_seq=0,
+            read_page=reader,
+            refresh_actor=refresh_actor,
+            subscription=subscription,
+            config=RunEventStreamConfig(page_limit=256, heartbeat_seconds=0.01),
+        )
+        first = await anext(stream)
+        with pytest.raises(Forbidden):
+            await anext(stream)
+        return first
+
+    first = asyncio.run(scenario())
+    assert _event_ids(_parse_frames(first)) == [1]
+    assert HEARTBEAT_COMMENT not in first
+    assert subscription.calls == 1
+
+
+def test_real_db_pages_are_pull_backpressured_by_slow_consumer(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = _cancel_queued_run(harness, tag="slow-consumer")
+    read_after: list[int] = []
+
+    async def read_page(
+        selected_run_id: str,
+        actor: ActorContext,
+        after_seq: int,
+        limit: int,
+    ) -> RunEventPage:
+        read_after.append(after_seq)
+        return await asyncio.to_thread(
+            harness.stream.read_authorized_page,
+            run_id=selected_run_id,
+            actor=actor,
+            after_seq=after_seq,
+            limit=limit,
+        )
+
+    async def refresh_actor() -> ActorContext:
+        return human_actor()
+
+    async def scenario() -> tuple[str, str, str]:
+        stream = render_run_event_stream(
+            run_id=run_id,
+            after_seq=0,
+            read_page=read_page,
+            refresh_actor=refresh_actor,
+            subscription=_NeverWait(),
+            config=RunEventStreamConfig(page_limit=1, heartbeat_seconds=1.0),
+        )
+        first = await anext(stream)
+        assert read_after == [0]
+        await asyncio.sleep(0)
+        assert read_after == [0]
+        second = await anext(stream)
+        assert read_after == [0, 1]
+        third = await anext(stream)
+        assert read_after == [0, 1, 2]
+        with pytest.raises(StopAsyncIteration):
+            await anext(stream)
+        return first, second, third
+
+    chunks = asyncio.run(scenario())
+    assert _event_ids(_parse_frames("".join(chunks))) == [1, 2, 3]

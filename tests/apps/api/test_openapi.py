@@ -199,6 +199,17 @@ def test_write_ops_document_idempotency_etag_and_if_match() -> None:
     assert ("If-Match", "header") not in submit_params
     assert "Location" in submit["responses"]["202"]["headers"]
 
+    # REST cancel carries the complete RunCommandV1, including its idempotency key.
+    # It must not document the obsolete synthesized-command header contract.
+    cancel = paths["/api/v1/runs/{run_id}:cancel"]["post"]
+    cancel_params = {(p["name"], p["in"]): p for p in cancel["parameters"]}
+    assert ("Idempotency-Key", "header") not in cancel_params
+    request_schema = cancel["requestBody"]["content"]["application/json"]["schema"]
+    assert request_schema == {"$ref": "#/components/schemas/RunCommandV1"}
+    for status in ("409", "422"):
+        problem_schema = cancel["responses"][status]["content"][_PROBLEM_MEDIA]["schema"]
+        assert problem_schema == {"$ref": "#/components/schemas/Problem"}
+
 
 def test_login_documents_session_cookie_contract() -> None:
     document = _openapi()

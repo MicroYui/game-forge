@@ -6655,6 +6655,41 @@
         "title": "PlaytestEpisodeBindingV1",
         "type": "object"
       },
+      "PlaytestProvideInputPayloadV1": {
+        "additionalProperties": false,
+        "properties": {
+          "choice_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Choice Id",
+            "type": "string"
+          },
+          "expected_state_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Expected State Hash",
+            "type": "string"
+          },
+          "interaction_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Interaction Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "playtest-provide-input@1",
+            "default": "playtest-provide-input@1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "interaction_id",
+          "expected_state_hash",
+          "choice_id"
+        ],
+        "title": "PlaytestProvideInputPayloadV1",
+        "type": "object"
+      },
       "PlaytestRunPayloadV1": {
         "additionalProperties": false,
         "properties": {
@@ -8144,52 +8179,6 @@
         "title": "RunAcceptedV1",
         "type": "object"
       },
-      "RunCancelRequestV1": {
-        "additionalProperties": false,
-        "description": "``POST /runs/{id}:cancel`` — the browser-facing cancel command envelope.\n\nThe server builds the authoritative :class:`RunCommandV1` (``type=\"cancel\"``)\nfrom these client-supplied identity/OCC fields plus the ``Idempotency-Key``\nheader; the browser never mints the server-scoped command hash directly. The\nsame durable ``RunCommandV1`` flows over the WebSocket command channel, so both\nsurfaces share one ``RunCommandService.submit`` path.",
-        "properties": {
-          "client_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Client Id",
-            "type": "string"
-          },
-          "client_seq": {
-            "minimum": 1.0,
-            "title": "Client Seq",
-            "type": "integer"
-          },
-          "command_id": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Command Id",
-            "type": "string"
-          },
-          "expected_run_revision": {
-            "minimum": 1.0,
-            "title": "Expected Run Revision",
-            "type": "integer"
-          },
-          "payload": {
-            "$ref": "#/components/schemas/CancelRunPayloadV1"
-          },
-          "request_schema_version": {
-            "const": "run-cancel-request@1",
-            "default": "run-cancel-request@1",
-            "title": "Request Schema Version",
-            "type": "string"
-          }
-        },
-        "required": [
-          "command_id",
-          "client_id",
-          "client_seq",
-          "expected_run_revision",
-          "payload"
-        ],
-        "title": "RunCancelRequestV1",
-        "type": "object"
-      },
       "RunCommandAckV1": {
         "additionalProperties": false,
         "properties": {
@@ -8206,6 +8195,7 @@
             "type": "string"
           },
           "client_seq": {
+            "maximum": 9.223372036854776e+18,
             "minimum": 1.0,
             "title": "Client Seq",
             "type": "integer"
@@ -8257,6 +8247,92 @@
         "title": "RunCommandAckV1",
         "type": "object"
       },
+      "RunCommandV1": {
+        "additionalProperties": false,
+        "properties": {
+          "client_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Client Id",
+            "type": "string"
+          },
+          "client_seq": {
+            "maximum": 9.223372036854776e+18,
+            "minimum": 1.0,
+            "title": "Client Seq",
+            "type": "integer"
+          },
+          "command_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          },
+          "command_schema_version": {
+            "const": "run-command@1",
+            "default": "run-command@1",
+            "title": "Command Schema Version",
+            "type": "string"
+          },
+          "expected_run_revision": {
+            "minimum": 1.0,
+            "title": "Expected Run Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "payload": {
+            "discriminator": {
+              "mapping": {
+                "playtest-provide-input@1": "#/components/schemas/PlaytestProvideInputPayloadV1",
+                "run-cancel@1": "#/components/schemas/CancelRunPayloadV1"
+              },
+              "propertyName": "schema_version"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CancelRunPayloadV1"
+              },
+              {
+                "$ref": "#/components/schemas/PlaytestProvideInputPayloadV1"
+              }
+            ],
+            "title": "Payload"
+          },
+          "payload_schema_id": {
+            "enum": [
+              "run-cancel@1",
+              "playtest-provide-input@1"
+            ],
+            "title": "Payload Schema Id",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "cancel",
+              "provide_input"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "client_id",
+          "client_seq",
+          "idempotency_key",
+          "expected_run_revision",
+          "type",
+          "payload_schema_id",
+          "payload"
+        ],
+        "title": "RunCommandV1",
+        "type": "object"
+      },
       "RunCommandViewV1": {
         "additionalProperties": false,
         "properties": {
@@ -8280,6 +8356,7 @@
             "type": "string"
           },
           "client_seq": {
+            "maximum": 9.223372036854776e+18,
             "minimum": 1.0,
             "title": "Client Seq",
             "type": "integer"
@@ -21107,17 +21184,6 @@
             }
           },
           {
-            "in": "header",
-            "name": "Idempotency-Key",
-            "required": true,
-            "schema": {
-              "maxLength": 512,
-              "minLength": 1,
-              "title": "Idempotency-Key",
-              "type": "string"
-            }
-          },
-          {
             "description": "Double-submit CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
@@ -21132,7 +21198,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RunCancelRequestV1"
+                "$ref": "#/components/schemas/RunCommandV1"
               }
             }
           },

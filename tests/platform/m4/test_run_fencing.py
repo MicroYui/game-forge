@@ -985,6 +985,16 @@ class _Repo:
     def get_command(self, run_id: str, command_id: str) -> RunCommandRecordV1 | None:
         return self.state.commands.get((run_id, command_id))
 
+    def get_command_by_id(self, command_id: str) -> RunCommandRecordV1 | None:
+        return next(
+            (
+                record
+                for record in self.state.commands.values()
+                if record.command.command_id == command_id
+            ),
+            None,
+        )
+
     def get_command_by_idempotency(
         self,
         *,
@@ -1020,7 +1030,7 @@ class _Repo:
 
     def put_command(self, record: RunCommandRecordV1) -> RunCommandRecordV1:
         identity = (record.run_id, record.command.command_id)
-        retained = self.state.commands.get(identity)
+        retained = self.get_command_by_id(record.command.command_id)
         if retained is not None and retained != record:
             raise IntegrityViolation("command collision")
         self.state.commands[identity] = record
@@ -1563,7 +1573,9 @@ class _Publication:
         attempt: RunAttempt | None,
         event: RunEvent,
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None:
+        del request_id
         self.state.audit_actions.append(event.event_type)
         if self.state.fail_audit:
             raise IntegrityViolation("injected audit failure")
@@ -1575,7 +1587,9 @@ class _Publication:
         record: RunCommandRecordV1,
         events: tuple[RunEvent, ...],
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None:
+        del request_id
         self.state.audit_actions.append("run.command_submitted")
         if self.state.fail_audit:
             raise IntegrityViolation("injected audit failure")
@@ -1606,6 +1620,11 @@ class _Uow:
             self.state.__dict__.clear()
             self.state.__dict__.update(deepcopy(snapshot).__dict__)
             raise
+
+
+class _AllowSubmissionAuthorization:
+    def authorize_submission(self, *, run: RunRecord, actor: AuditActor) -> None:
+        del run, actor
 
 
 @dataclass
@@ -1639,6 +1658,7 @@ class _Harness:
             admission=self.accounting,
             publication=self.publication,
             accounting=self.accounting,
+            submission_authorization=_AllowSubmissionAuthorization(),
         )
         return RunCommandService(
             unit_of_work=self.unit_of_work,
@@ -1763,6 +1783,7 @@ def _harness(
         admission=accounting,
         publication=publication,
         accounting=accounting,
+        submission_authorization=_AllowSubmissionAuthorization(),
     )
     return _Harness(
         state=state,

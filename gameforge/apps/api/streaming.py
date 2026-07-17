@@ -7,14 +7,14 @@ The SQLite event store is the sole authority for both delivery and resumability:
   the persisted ``seq`` — never invented — so a client dedupes by ``(run_id, seq)``
   and resumes by echoing the last ``seq`` via ``Last-Event-ID``;
 * the in-process :class:`RunEventNotifier` is a latency hint ONLY. After any wait
-  the loop REREADS the DB (``list_events(after_seq=last)``), so a missed/lost
+  the loop REREADS the DB (``read_authorized_page(after_seq=last)``), so a missed/lost
   notification never loses an event and an API/worker restart never loses backlog;
 * heartbeats are SSE comments that do NOT advance the resume cursor;
 * the earliest retained cursor is derived from the retained events (MIN seq), never
   a speculative authority column; a resume below it fails ``410`` with
   ``Problem.earliest_cursor``;
-* authorization reloads the current Principal/roles and RBAC-authorizes a read of
-  the loaded Run on EVERY connection/reconnect.
+* authorization uses the admission-frozen Run domain and reauthenticates/re-authorizes
+  at connection time and each bounded page boundary; revocation stops later pages.
 
 Backpressure is pull-based: the async body only pages the next bounded window when
 the transport is ready to send, and the notifier never buffers events, so a slow
@@ -40,21 +40,27 @@ from typing import Protocol
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
+from starlette.concurrency import run_in_threadpool
 
 from gameforge.apps.api.dependencies import (
     ApiDependencies,
     RunEventNotifierPort,
+    RunEventPage,
     RunEventStreamConfig,
     RunEventStreamPort,
     RunStreamGrant,
     api_dependencies,
     require_actor,
 )
+from gameforge.contracts.auth import ApiKeyAuthRequestV1, ApiKeySecret, SessionToken
 from gameforge.contracts.api import encode_sse_event
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import (
+    AuthError,
     CursorExpired,
+    CursorInvalid,
     DependencyUnavailable,
+    GameForgeError,
     IntegrityViolation,
     NotFound,
 )
@@ -86,6 +92,7 @@ from gameforge.platform.read_models.authorization import (
 # (contracts/jobs.py ``_RUN_EVENT_DEFINITIONS``): once one is emitted the stream
 # closes because no further events can be committed for the Run.
 _TERMINAL_EVENT_TYPES = frozenset({"run.succeeded", "run.failed", "run.cancelled", "run.timed_out"})
+_TERMINAL_RUN_STATUSES = frozenset({"succeeded", "failed", "cancelled", "timed_out"})
 
 # A comment line (leading colon) is an SSE keep-alive that carries no ``id`` and
 # therefore never advances the client's resume cursor.
@@ -147,11 +154,13 @@ def _resolve_run_read_domain(
     registry: DomainRegistryV1,
     approvals: ApprovalItemReader | None,
 ) -> DomainScopeValue:
-    """Derive the Run's read domain SERVER-SIDE, mirroring admission's derivation.
+    """Return the admission-frozen Run domain, with a legacy-only fallback.
 
-    (See ``RunAdmissionEngine._resolve_permission_domain``.) The four cases align
-    exactly with admission, so a principal legitimately scoped to a Run's real domain
-    can always read its OWN run's events (no over-restrictive false 403):
+    Current Runs persist the exact domain scope admission authorized in
+    ``RunRecord.resource_domain_scope``. Recomputing it from mutable ApprovalItems,
+    payloads, or a later domain registry makes authority drift and can deny the actor
+    that legitimately admitted the Run. The payload derivation below exists only for
+    historical records whose optional v0.3 compatibility field is absent:
 
     * ``dr.drill`` is the sole domainless kind (admission marker ``None``) -> non-domain;
     * validation kinds bind the loaded subject's ``ApprovalItem.domain_scope`` (the same
@@ -160,11 +169,13 @@ def _resolve_run_read_domain(
     * every other kind exposes no per-Run domain binding yet -> fail-closed to authority
       over every active registry domain (admission's identical posture).
 
-    Fail-closed nuance: if a validation subject's ApprovalItem is unavailable (pruned, or
-    no approvals reader wired) the read falls back to the all-active scope rather than a
-    500 — conservative (no escalation), never a narrower claim.
+    Missing legacy validation subjects fall back to all active domains. New records never
+    enter that branch because admission freezes their resolved scope.
     """
 
+    frozen_scope = getattr(run, "resource_domain_scope", None)
+    if frozen_scope is not None:
+        return frozen_scope
     params = run.payload.params
     if isinstance(params, DrDrillPayloadV1):
         return None
@@ -206,56 +217,162 @@ class RunEventStreamService:
         *,
         run_id: str,
         actor: ActorContext,
-        after_seq: int,
+        after_seq: int | None,
     ) -> RunStreamGrant:
         with self._read_scope() as scope:
-            run = scope.runs.get_run_projection(run_id)
-            if run is None:
-                raise NotFound("run is unavailable", run_id=run_id)
-            _role_policy, registry = self._load_authority(scope.policies)
-            permission = Permission(
-                action="read",
-                resource_kind="run",
-                domain_scope=_resolve_run_read_domain(run, registry, scope.approvals),
+            run, earliest, latest, terminal = self._authorize_state(
+                scope=scope,
+                run_id=run_id,
+                actor=actor,
+                after_seq=after_seq,
             )
-            query_hash = canonical_sha256(
-                {
-                    "query_schema_version": "run-events-stream-query@1",
-                    "run_id": run.run_id,
-                    "run_revision": run.revision,
-                }
+            del run
+            return RunStreamGrant(
+                earliest_retained_seq=earliest,
+                latest_event_seq=latest,
+                terminal=terminal,
             )
-            authorization = ReadAuthorizationService(
-                policy_repository=scope.policies,
-                role_policy_version=self._role_policy_version,
-                role_policy_digest=self._role_policy_digest,
-            )
-            # Reauthorizes the current Principal/roles against the loaded Run on
-            # every connection/reconnect; raises Forbidden on a revoked read.
-            authorization.require_singular(
-                principal=actor.principal,
-                permission=permission,
-                query_hash=query_hash,
-            )
-            earliest = self._earliest_retained_seq(scope.runs, run_id)
-            if earliest is not None and after_seq >= 1 and after_seq + 1 < earliest:
-                # The client's contiguous prefix continuation is impossible: events
-                # between ``after_seq+1`` and ``earliest-1`` were pruned.
-                raise CursorExpired(
-                    "run events before the resume cursor are no longer retained",
-                    run_id=run_id,
-                    earliest_cursor=str(earliest),
-                )
-            return RunStreamGrant(earliest_retained_seq=earliest)
 
-    def read_events(
+    def read_authorized_page(
         self,
+        *,
         run_id: str,
-        after_seq: int,
+        actor: ActorContext,
+        after_seq: int | None,
         limit: int,
-    ) -> tuple[RunEvent, ...]:
+    ) -> RunEventPage:
+        """Reauthorize and read one page + cursor bounds in one short transaction."""
+
         with self._read_scope() as scope:
-            return scope.runs.stream_events(run_id, after_seq=after_seq, limit=limit)
+            _run, earliest, latest, terminal = self._authorize_state(
+                scope=scope,
+                run_id=run_id,
+                actor=actor,
+                after_seq=after_seq,
+            )
+            events = scope.runs.stream_events(
+                run_id,
+                after_seq=0 if after_seq is None else after_seq,
+                limit=limit,
+            )
+            self._validate_page(
+                run_id=run_id,
+                after_seq=after_seq,
+                earliest=earliest,
+                latest=latest,
+                events=events,
+            )
+            return RunEventPage(
+                events=events,
+                earliest_retained_seq=earliest,
+                latest_event_seq=latest,
+                terminal=terminal,
+            )
+
+    def _authorize_state(
+        self,
+        *,
+        scope: RunEventReadScope,
+        run_id: str,
+        actor: ActorContext,
+        after_seq: int | None,
+    ) -> tuple[RunRecord, int | None, int, bool]:
+        run = scope.runs.get_run_projection(run_id)
+        if run is None:
+            raise NotFound("run is unavailable", run_id=run_id)
+        _role_policy, registry = self._load_authority(scope.policies)
+        permission = Permission(
+            action="read",
+            resource_kind="run",
+            domain_scope=_resolve_run_read_domain(run, registry, scope.approvals),
+        )
+        query_hash = canonical_sha256(
+            {
+                "query_schema_version": "run-events-stream-query@1",
+                "run_id": run.run_id,
+                "run_revision": run.revision,
+            }
+        )
+        authorization = ReadAuthorizationService(
+            policy_repository=scope.policies,
+            role_policy_version=self._role_policy_version,
+            role_policy_digest=self._role_policy_digest,
+        )
+        authorization.require_singular(
+            principal=actor.principal,
+            permission=permission,
+            query_hash=query_hash,
+        )
+        earliest = self._earliest_retained_seq(scope.runs, run_id)
+        latest = run.next_event_seq - 1
+        if latest >= 1 and earliest is None:
+            raise IntegrityViolation("Run event head has no retained event", run_id=run_id)
+        self._validate_cursor(
+            run_id=run_id,
+            after_seq=after_seq,
+            earliest=earliest,
+            latest=latest,
+        )
+        return run, earliest, latest, run.status in _TERMINAL_RUN_STATUSES
+
+    @staticmethod
+    def _validate_cursor(
+        *,
+        run_id: str,
+        after_seq: int | None,
+        earliest: int | None,
+        latest: int,
+    ) -> None:
+        if after_seq is None:
+            return
+        if isinstance(after_seq, bool) or not isinstance(after_seq, int) or after_seq < 0:
+            raise CursorInvalid("Run event cursor must be a nonnegative integer")
+        if after_seq > latest:
+            raise CursorInvalid(
+                "Run event cursor is beyond the persisted event head",
+                run_id=run_id,
+            )
+        if earliest is not None and after_seq + 1 < earliest:
+            raise CursorExpired(
+                "run events before the resume cursor are no longer retained",
+                run_id=run_id,
+                earliest_cursor=str(earliest),
+            )
+
+    @staticmethod
+    def _validate_page(
+        *,
+        run_id: str,
+        after_seq: int | None,
+        earliest: int | None,
+        latest: int,
+        events: tuple[RunEvent, ...],
+    ) -> None:
+        if not events:
+            if after_seq is not None and after_seq < latest:
+                raise IntegrityViolation(
+                    "Run event page is empty before the persisted event head",
+                    run_id=run_id,
+                )
+            return
+        expected_first = earliest if after_seq is None else after_seq + 1
+        if expected_first is None:
+            raise IntegrityViolation(
+                "Run event page exists without a retention head", run_id=run_id
+            )
+        if events[0].seq > expected_first:
+            raise CursorExpired(
+                "Run events were pruned before the requested page could be delivered",
+                run_id=run_id,
+                earliest_cursor=str(events[0].seq),
+            )
+        if events[0].seq != expected_first:
+            raise IntegrityViolation("Run event page did not start at its expected cursor")
+        expected = expected_first
+        for event in events:
+            if event.run_id != run_id or event.seq != expected or event.seq > latest:
+                raise IntegrityViolation("Run event page is not a contiguous persisted sequence")
+            expected += 1
 
     def _load_authority(
         self,
@@ -359,8 +476,9 @@ class RunEventNotifier:
 async def render_run_event_stream(
     *,
     run_id: str,
-    after_seq: int,
-    read_events: Callable[[str, int, int], tuple[RunEvent, ...]],
+    after_seq: int | None,
+    read_page: Callable[[str, ActorContext, int | None, int], Awaitable[RunEventPage]],
+    refresh_actor: Callable[[], Awaitable[ActorContext]],
     subscription: "RunEventSubscriptionLike",
     config: RunEventStreamConfig,
     is_disconnected: Callable[[], Awaitable[bool]] | None = None,
@@ -374,42 +492,109 @@ async def render_run_event_stream(
     """
 
     last = after_seq
+    heartbeat_due = False
     while True:
-        page = read_events(run_id, last, config.page_limit)
-        for event in page:
+        actor = await refresh_actor()
+        page = await read_page(run_id, actor, last, config.page_limit)
+        for event in page.events:
             yield encode_sse_event(event)
             last = event.seq
             if event.event_type in _TERMINAL_EVENT_TYPES:
                 return
-        if len(page) >= config.page_limit:
+        if page.terminal and last is not None and last >= page.latest_event_seq:
+            return
+        if len(page.events) >= config.page_limit:
             # A full page implies more backlog: reread immediately, no wait.
+            heartbeat_due = False
             continue
+        if page.events:
+            heartbeat_due = False
+        elif heartbeat_due:
+            # A timeout is only rendered after a fresh authorized DB reread. This
+            # prevents a post-revocation heartbeat and catches commits made during wait.
+            yield HEARTBEAT_COMMENT
+            heartbeat_due = False
         if is_disconnected is not None and await is_disconnected():
             return
         notified = await subscription.wait(config.heartbeat_seconds)
         if not notified:
-            # Idle keep-alive; a comment does not advance the resume cursor. The
-            # loop then rereads the DB regardless (authority), catching any commit.
-            yield HEARTBEAT_COMMENT
+            heartbeat_due = True
 
 
 class RunEventSubscriptionLike(Protocol):
     async def wait(self, timeout: float) -> bool: ...
 
 
-def _parse_last_event_id(request: Request) -> int:
-    """Parse ``Last-Event-ID`` -> resume cursor; malformed ids restart from 0."""
+def _parse_last_event_id(request: Request) -> int | None:
+    """Parse ``Last-Event-ID``; only an absent header denotes a fresh cursor."""
 
     raw = request.headers.get("last-event-id")
     if raw is None:
-        return 0
-    text = raw.strip()
-    if not text or len(text) > 32 or not text.isdigit():
-        return 0
+        return None
+    text = raw
+    if (
+        not text
+        or text != text.strip()
+        or len(text) > 32
+        or any(character < "0" or character > "9" for character in text)
+    ):
+        raise CursorInvalid("Last-Event-ID is not a canonical decimal cursor")
     value = int(text)
     if value < 0 or value > _MAX_LAST_EVENT_ID:
-        return 0
+        raise CursorInvalid("Last-Event-ID is outside the supported cursor range")
     return value
+
+
+def _refresh_http_actor(
+    *,
+    request: Request,
+    dependencies: ApiDependencies,
+    initial_actor: ActorContext,
+) -> ActorContext:
+    """Reauthenticate the original HTTP credential at a bounded-page boundary."""
+
+    request_id = getattr(request.state, "request_id", initial_actor.request_id)
+    token = getattr(request.state, "session_token", None)
+    if isinstance(token, SessionToken):
+        service = dependencies.session_authentication
+        if service is None:
+            raise DependencyUnavailable(
+                "session authentication is unavailable during Run event streaming",
+                component="session_authentication",
+            )
+        refreshed = service.resolve(
+            token,
+            csrf_token=None,
+            request_method="GET",
+            request_id=request_id,
+        )
+    else:
+        authorization = request.headers.get("authorization")
+        if authorization is None:
+            # Side-effect-free app tests may override ``require_actor`` without wiring
+            # a credential service. Production middleware never reaches this branch.
+            refreshed = initial_actor
+        else:
+            scheme, separator, secret = authorization.partition(" ")
+            if scheme != "ApiKey" or not separator or not secret or " " in secret:
+                raise AuthError("API-key authorization header is invalid")
+            service = dependencies.api_key_authentication
+            if service is None:
+                raise DependencyUnavailable(
+                    "API-key authentication is unavailable during Run event streaming",
+                    component="api_key_authentication",
+                )
+            refreshed = service.authenticate(
+                ApiKeyAuthRequestV1(api_key=ApiKeySecret(secret)),
+                request_id=request_id,
+            )
+    if (
+        not isinstance(refreshed, ActorContext)
+        or refreshed.principal.id != initial_actor.principal.id
+        or refreshed.principal.kind != initial_actor.principal.kind
+    ):
+        raise IntegrityViolation("stream credential resolved to a different principal")
+    return refreshed
 
 
 def _stream_body(
@@ -417,9 +602,11 @@ def _stream_body(
     port: RunEventStreamPort,
     notifier: RunEventNotifierPort,
     run_id: str,
-    after_seq: int,
+    after_seq: int | None,
     config: RunEventStreamConfig,
     request: Request,
+    dependencies: ApiDependencies,
+    initial_actor: ActorContext,
 ) -> AsyncIterator[str]:
     async def _generator() -> AsyncIterator[str]:
         subscription = notifier.subscribe(run_id)
@@ -427,16 +614,44 @@ def _stream_body(
         async def _disconnected() -> bool:
             return await request.is_disconnected()
 
+        async def _refresh_actor() -> ActorContext:
+            return await run_in_threadpool(
+                _refresh_http_actor,
+                request=request,
+                dependencies=dependencies,
+                initial_actor=initial_actor,
+            )
+
+        async def _read_page(
+            selected_run_id: str,
+            actor: ActorContext,
+            selected_after_seq: int | None,
+            limit: int,
+        ) -> RunEventPage:
+            return await run_in_threadpool(
+                port.read_authorized_page,
+                run_id=selected_run_id,
+                actor=actor,
+                after_seq=selected_after_seq,
+                limit=limit,
+            )
+
         try:
-            async for chunk in render_run_event_stream(
-                run_id=run_id,
-                after_seq=after_seq,
-                read_events=port.read_events,
-                subscription=subscription,
-                config=config,
-                is_disconnected=_disconnected,
-            ):
-                yield chunk
+            try:
+                async for chunk in render_run_event_stream(
+                    run_id=run_id,
+                    after_seq=after_seq,
+                    read_page=_read_page,
+                    refresh_actor=_refresh_actor,
+                    subscription=subscription,
+                    config=config,
+                    is_disconnected=_disconnected,
+                ):
+                    yield chunk
+            except GameForgeError:
+                # Response headers are already committed. Close without inventing an
+                # unpersisted SSE error event; reconnect returns the typed HTTP Problem.
+                return
         finally:
             subscription.close()
 
@@ -483,6 +698,8 @@ def run_events_router() -> APIRouter:
                 after_seq=after_seq,
                 config=config,
                 request=request,
+                dependencies=dependencies,
+                initial_actor=actor,
             ),
             media_type="text/event-stream",
             headers=headers,

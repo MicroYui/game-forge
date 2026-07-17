@@ -4,8 +4,7 @@ These schemas are the versioned transport contract for the streaming surfaces:
 
 * ``schemas/sse-run-event-v1.json``      — the ``data:`` payload object of an SSE ``RunEvent``
 * ``schemas/ws-server-frame-v1.json``    — ``RunCommandServerFrame`` (ack | problem) ``oneOf``
-* ``schemas/ws-client-command-v1.json``  — the ``RunCommandV1`` client command frame
-* ``schemas/run-cancel-request-v1.json`` — the ``RunCancelRequestV1`` REST cancel body
+* ``schemas/ws-client-command-v1.json``  — the full ``RunCommandV1`` shared by WS and REST
 
 They must never leak a lease/fencing/secret worker field, must regenerate byte-for-byte,
 and a real DTO instance must validate against its own exported schema.
@@ -26,7 +25,6 @@ from gameforge.contracts.jobs import (
     RunCommandV1,
     RunEvent,
 )
-from gameforge.contracts.api import RunCancelRequestV1
 
 
 _FORBIDDEN_FIELD_SUBSTRINGS = (
@@ -43,7 +41,6 @@ _FORBIDDEN_FIELD_SUBSTRINGS = (
 _SSE = "schemas/sse-run-event-v1.json"
 _WS_SERVER = "schemas/ws-server-frame-v1.json"
 _WS_CLIENT = "schemas/ws-client-command-v1.json"
-_REST_CANCEL = "schemas/run-cancel-request-v1.json"
 
 
 # ── a tiny draft-2020-12 subset validator (jsonschema is not a dependency) ──────
@@ -153,20 +150,10 @@ def _real_command() -> RunCommandV1:
     )
 
 
-def _real_cancel_request() -> RunCancelRequestV1:
-    return RunCancelRequestV1(
-        command_id="cmd:1",
-        client_id="browser:a",
-        client_seq=1,
-        expected_run_revision=1,
-        payload=CancelRunPayloadV1(reason_code="user_requested"),
-    )
-
-
 # ── tests ──────────────────────────────────────────────────────────────────────
 def test_all_streaming_schema_files_are_committed_and_byte_stable() -> None:
     generated = api_schema.generate()
-    for key in (_SSE, _WS_SERVER, _WS_CLIENT, _REST_CANCEL):
+    for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         assert key in generated, f"missing generated artifact {key}"
         frozen_path = api_schema.docs_api_dir() / key
         assert frozen_path.is_file(), f"frozen artifact not committed: {frozen_path}"
@@ -176,13 +163,13 @@ def test_all_streaming_schema_files_are_committed_and_byte_stable() -> None:
 def test_streaming_schemas_regenerate_byte_stable() -> None:
     first = api_schema.generate()
     second = api_schema.generate()
-    for key in (_SSE, _WS_SERVER, _WS_CLIENT, _REST_CANCEL):
+    for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         assert api_schema.serialize(first[key]) == api_schema.serialize(second[key])
 
 
 def test_streaming_schemas_are_versioned() -> None:
     generated = api_schema.generate()
-    for key in (_SSE, _WS_SERVER, _WS_CLIENT, _REST_CANCEL):
+    for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         document = generated[key]
         assert document.get("$schema"), f"{key}: missing $schema"
         assert document.get("$id", "").endswith(key.split("/")[-1]), f"{key}: $id not versioned"
@@ -210,14 +197,14 @@ def test_ws_client_command_schema_validates_a_real_command() -> None:
     _validate(json.loads(_real_command().model_dump_json()), document, document)
 
 
-def test_rest_cancel_request_schema_validates_a_real_body() -> None:
-    document = api_schema.generate()[_REST_CANCEL]
-    _validate(json.loads(_real_cancel_request().model_dump_json()), document, document)
+def test_full_command_schema_also_validates_the_rest_cancel_body() -> None:
+    document = api_schema.generate()[_WS_CLIENT]
+    _validate(json.loads(_real_command().model_dump_json()), document, document)
 
 
 def test_no_fencing_or_secret_fields_in_streaming_schemas() -> None:
     generated = api_schema.generate()
-    for key in (_SSE, _WS_SERVER, _WS_CLIENT, _REST_CANCEL):
+    for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         blob = _blob(generated[key])
         for needle in _FORBIDDEN_FIELD_SUBSTRINGS:
             assert needle not in blob, f"{key} leaks forbidden field {needle!r}"

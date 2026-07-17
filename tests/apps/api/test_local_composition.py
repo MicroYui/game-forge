@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import base64
+from dataclasses import replace
 import json
 
 from fastapi.testclient import TestClient
 import pytest
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import (
@@ -34,6 +35,7 @@ from gameforge.contracts.auth import (
 )
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.cassette_import import LegacyImportVerificationPolicyRegistryV1
+from gameforge.contracts.cost import BudgetV1, CostAmountV1
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
     ProfileRefV1,
@@ -51,7 +53,12 @@ from gameforge.contracts.identity import (
     compute_domain_registry_digest,
     compute_role_policy_digest,
 )
-from gameforge.contracts.jobs import Problem
+from gameforge.contracts.jobs import (
+    CancelRunPayloadV1,
+    Problem,
+    RunCommandAckV1,
+    RunCommandV1,
+)
 from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import (
@@ -66,14 +73,18 @@ from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
 from gameforge.runtime.cassette.legacy_import import InMemoryLegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.approvals import SqlApprovalRepository
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, get_engine
+from gameforge.runtime.persistence.identity import SqlIdentityRepository
+from gameforge.runtime.persistence.models import AuditRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.secrets.session_keys import (
     SESSION_SIGNING_KEY_SETS_ENV,
     SessionSigningKeyProvider,
@@ -161,6 +172,7 @@ def _domain_and_role_policy() -> tuple[DomainRegistryV1, RolePolicy]:
                 resource_kind="tooling",
                 domain_scope="all",
             ),
+            Permission(action="run", resource_kind="checker", domain_scope="all"),
             Permission(action="read", resource_kind="spec", domain_scope="all"),
             Permission(action="read", resource_kind="artifact", domain_scope="all"),
             Permission(action="read", resource_kind="run", domain_scope="all"),
@@ -223,7 +235,7 @@ def _config(tmp_path, database_url: str) -> LocalApiConfig:
     )
 
 
-def _seed_and_bootstrap(database_url: str) -> None:
+def _seed_and_bootstrap(database_url: str) -> str:
     migrations_api.upgrade(database_url)
     engine = get_engine(database_url)
     normalization = _normalization_policy()
@@ -250,13 +262,85 @@ def _seed_and_bootstrap(database_url: str) -> None:
             audit_chain_id="identity",
         )
     )
-    service.bootstrap(
+    result = service.bootstrap(
         BootstrapAdminRequest(
             display_name="Local Admin",
             login_name="admin",
             password=SecretText("correct-password"),
         )
     )
+    return result.principal_id
+
+
+def _seed_local_command_inputs(app, *, principal_id: str) -> str:
+    resources = app.state.local_resources
+    clock = SystemUtcClock()
+    snapshot_id = "snapshot:local-command-composition"
+    payload = canonical_json({"snapshot_id": snapshot_id, "entities": [], "relations": []}).encode(
+        "utf-8"
+    )
+    stored = resources.object_store.put_verified(payload)
+    artifact = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id=snapshot_id,
+            tool_version="local-command-composition@1",
+        ),
+        lineage=(),
+        payload_hash=stored.ref.sha256,
+        object_ref=stored.ref,
+        meta={
+            "payload_schema_id": "ir-core@1",
+            "domain_scope": {"domain_ids": ["builtin"]},
+        },
+    )
+    with Session(resources.engine) as session, session.begin():
+        bindings = SqlObjectBindingRepository(
+            session,
+            resources.object_store,
+            "local:test",
+        )
+        bindings.bind_verified(stored.ref, stored.location, None)
+        SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=CursorSigner(
+                signing_key=b"local-command-composition-cursor",
+                clock=clock,
+            ),
+            clock=clock,
+        ).put(artifact)
+        costs = SqlCostLedger(session, clock=clock)
+        for budget_id, scope_kind, scope_id in (
+            (f"budget:principal:{principal_id}", "principal", principal_id),
+            ("budget:system:global", "system", "global"),
+        ):
+            costs.put_budget(
+                BudgetV1(
+                    budget_id=budget_id,
+                    scope_kind=scope_kind,
+                    scope_id=scope_id,
+                    policy_version="local-command-composition-budget@1",
+                    limits=(
+                        CostAmountV1(
+                            dimension="request",
+                            value=10_000_000,
+                            unit="request",
+                        ),
+                        CostAmountV1(
+                            dimension="concurrent_run",
+                            value=16,
+                            unit="count",
+                        ),
+                    ),
+                    reserved=(),
+                    consumed=(),
+                    status="active",
+                    revision=1,
+                    created_at=clock.now_utc(),
+                )
+            )
+    return artifact.artifact_id
 
 
 def _seed_validation_evidence(app) -> tuple[str, EvidenceSet]:
@@ -472,6 +556,238 @@ def test_real_local_composition_runs_login_me_logout_and_honest_readiness(tmp_pa
     engine = get_engine(database_url)
     with Session(engine) as session:
         assert SqlAuditSink(session).verify_chain("identity") is True
+    engine.dispose()
+
+
+def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'local-run-command.db'}"
+    principal_id = _seed_and_bootstrap(database_url)
+    config = _config(tmp_path, database_url)
+    app = create_local_app(config=config)
+    snapshot_artifact_id = _seed_local_command_inputs(app, principal_id=principal_id)
+
+    dependencies = app.state.local_resources.dependencies
+    assert dependencies.run_command_service is not None
+    assert dependencies.run_command_authorizer is not None
+
+    run_body = {
+        "request_schema_version": "run-submission-request@1",
+        "params": {
+            "schema_version": "checker-run@1",
+            "snapshot_artifact_id": snapshot_artifact_id,
+            "constraint_snapshot_artifact_id": None,
+            "selection": {
+                "mode": "full",
+                "entity_ids": [],
+                "relation_ids": [],
+            },
+            "checker_profile": ProfileRefV1(
+                profile_id="builtin.checker",
+                version=1,
+            ).model_dump(mode="json"),
+            "checker_ids": [],
+            "defect_classes": [],
+        },
+        "llm_execution_mode": "not_applicable",
+        "seed": None,
+        "execution_version_plan": None,
+        "cassette_artifact_id": None,
+    }
+    command = RunCommandV1(
+        command_id="command:local-cancel",
+        client_id="browser:local",
+        client_seq=1,
+        idempotency_key="local-cancel:1",
+        expected_run_revision=1,
+        type="cancel",
+        payload_schema_id="run-cancel@1",
+        payload=CancelRunPayloadV1(reason_code="user_requested"),
+    )
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        login = client.post(
+            "/api/v1/auth/login",
+            json={"login_name": "admin", "password": "correct-password"},
+        )
+        csrf = login.headers["X-CSRF-Token"]
+        admitted = client.post(
+            "/api/v1/runs",
+            json=run_body,
+            headers={"Idempotency-Key": "local-checker:1", "X-CSRF-Token": csrf},
+        )
+        assert admitted.status_code == 202, admitted.text
+        run_id = admitted.json()["run_id"]
+        cancelled = client.post(
+            f"/api/v1/runs/{run_id}:cancel",
+            json=command.model_dump(mode="json"),
+            headers={"X-CSRF-Token": csrf},
+        )
+
+    assert cancelled.status_code == 200, cancelled.text
+    request_id = cancelled.headers["X-Request-ID"]
+    first_ack = RunCommandAckV1.model_validate(cancelled.json())
+    assert first_ack.status == "accepted"
+    assert first_ack.persisted_status == "applied"
+
+    restarted = create_local_app(config=config)
+    restarted_dependencies = restarted.state.local_resources.dependencies
+    assert restarted_dependencies.run_command_service is not None
+    assert restarted_dependencies.run_command_authorizer is not None
+    with TestClient(restarted, base_url="https://gameforge.test") as client:
+        login = client.post(
+            "/api/v1/auth/login",
+            json={"login_name": "admin", "password": "correct-password"},
+        )
+        duplicate = client.post(
+            f"/api/v1/runs/{run_id}:cancel",
+            json=command.model_dump(mode="json"),
+            headers={"X-CSRF-Token": login.headers["X-CSRF-Token"]},
+        )
+
+    assert duplicate.status_code == 200, duplicate.text
+    duplicate_ack = RunCommandAckV1.model_validate(duplicate.json())
+    assert duplicate_ack.status == "duplicate"
+    assert duplicate_ack.persisted_status == first_ack.persisted_status
+    assert duplicate_ack.command_revision == first_ack.command_revision
+    assert duplicate_ack.run_revision == first_ack.run_revision
+
+    engine = get_engine(database_url)
+    with Session(engine) as session:
+        runs = SqlRunRepository(session)
+        run = runs.get(run_id)
+        record = runs.get_command(run_id, command.command_id)
+        events = runs.list_events(run_id, after_seq=0, limit=16)
+        assert run is not None and run.status == "cancelled"
+        assert record is not None and record.status == "applied"
+        assert tuple(event.event_type for event in events) == (
+            "run.queued",
+            "run.cancel_requested",
+            "run.cancelled",
+        )
+        command_audits = session.scalars(
+            select(AuditRow)
+            .where(
+                AuditRow.action.in_(("run.command_submitted", "run.terminal")),
+                AuditRow.chain_id == "identity",
+            )
+            .order_by(AuditRow.seq)
+        ).all()
+        assert len(command_audits) == 2
+        assert {
+            row.correlation.get("request_id")
+            for row in command_audits
+            if isinstance(row.correlation, dict)
+        } == {request_id}
+        assert SqlAuditSink(session).verify_chain("identity") is True
+    engine.dispose()
+
+
+def test_real_local_command_reauthorizes_inside_write_uow_after_outer_grant_revoked(
+    tmp_path,
+) -> None:
+    database_url = f"sqlite:///{tmp_path / 'local-command-auth-race.db'}"
+    principal_id = _seed_and_bootstrap(database_url)
+    config = _config(tmp_path, database_url)
+    app = create_local_app(config=config)
+    snapshot_artifact_id = _seed_local_command_inputs(app, principal_id=principal_id)
+    dependencies = app.state.local_resources.dependencies
+    outer = dependencies.run_command_authorizer
+    assert outer is not None
+
+    class _RevokeAfterOuterAuthorization:
+        def authorize(self, *, run_id: str, actor) -> None:  # type: ignore[no-untyped-def]
+            outer.authorize(run_id=run_id, actor=actor)
+            with Session(app.state.local_resources.engine) as session, session.begin():
+                identities = SqlIdentityRepository(session, clock=SystemUtcClock())
+                principal = identities.get(principal_id)
+                projected = identities.project(principal_id)
+                assert principal is not None and projected is not None
+                assert projected.roles
+                for assignment in projected.roles:
+                    current = identities.get(principal_id)
+                    assert current is not None
+                    identities.revoke(
+                        assignment_id=assignment.assignment_id,
+                        revoked_by=AuditActor(
+                            principal_id=principal_id,
+                            principal_kind="human",
+                        ),
+                        revoke_reason="task15_authority_race",
+                        expected_principal_revision=current.revision,
+                        expected_assignment_revision=assignment.revision,
+                    )
+
+    app.state.dependencies = replace(
+        dependencies,
+        run_command_authorizer=_RevokeAfterOuterAuthorization(),
+    )
+    run_body = {
+        "request_schema_version": "run-submission-request@1",
+        "params": {
+            "schema_version": "checker-run@1",
+            "snapshot_artifact_id": snapshot_artifact_id,
+            "constraint_snapshot_artifact_id": None,
+            "selection": {"mode": "full", "entity_ids": [], "relation_ids": []},
+            "checker_profile": {"profile_id": "builtin.checker", "version": 1},
+            "checker_ids": [],
+            "defect_classes": [],
+        },
+        "llm_execution_mode": "not_applicable",
+        "seed": None,
+        "execution_version_plan": None,
+        "cassette_artifact_id": None,
+    }
+    command = RunCommandV1(
+        command_id="command:revoked-between-guards",
+        client_id="browser:local",
+        client_seq=1,
+        idempotency_key="command:revoked-between-guards",
+        expected_run_revision=1,
+        type="cancel",
+        payload_schema_id="run-cancel@1",
+        payload=CancelRunPayloadV1(reason_code="user_requested"),
+    )
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        login = client.post(
+            "/api/v1/auth/login",
+            json={"login_name": "admin", "password": "correct-password"},
+        )
+        csrf = login.headers["X-CSRF-Token"]
+        admitted = client.post(
+            "/api/v1/runs",
+            json=run_body,
+            headers={"Idempotency-Key": "local-auth-race:1", "X-CSRF-Token": csrf},
+        )
+        assert admitted.status_code == 202, admitted.text
+        run_id = admitted.json()["run_id"]
+        with Session(app.state.local_resources.engine) as session:
+            before_events = SqlRunRepository(session).list_events(
+                run_id,
+                after_seq=0,
+                limit=16,
+            )
+        response = client.post(
+            f"/api/v1/runs/{run_id}:cancel",
+            json=command.model_dump(mode="json"),
+            headers={"X-CSRF-Token": csrf},
+        )
+
+    assert response.status_code == 403, response.text
+    engine = get_engine(database_url)
+    with Session(engine) as session:
+        runs = SqlRunRepository(session)
+        run = runs.get(run_id)
+        assert run is not None and run.status == "queued" and run.revision == 1
+        assert runs.get_command(run_id, command.command_id) is None
+        assert runs.list_events(run_id, after_seq=0, limit=16) == before_events
+        actions = session.scalars(
+            select(AuditRow.action).where(
+                AuditRow.chain_id == "identity",
+                AuditRow.action.in_(("run.command_submitted", "run.terminal")),
+            )
+        ).all()
+        assert actions == []
     engine.dispose()
 
 

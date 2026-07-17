@@ -1662,9 +1662,16 @@ class WorkerCommandPublicationGateway:
         attempt: RunAttempt | None,
         event: RunEvent,
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None:
         del attempt
-        self._append(action="run.terminal", run=run, event=event, actor=actor)
+        self._append(
+            action="run.terminal",
+            run=run,
+            event=event,
+            actor=actor,
+            request_id=request_id,
+        )
 
     def record_command_submitted(
         self,
@@ -1673,6 +1680,7 @@ class WorkerCommandPublicationGateway:
         record: object,
         events: tuple[RunEvent, ...],
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None:
         del record
         self._append(
@@ -1680,6 +1688,7 @@ class WorkerCommandPublicationGateway:
             run=run,
             event=events[-1] if events else None,
             actor=actor,
+            request_id=request_id,
         )
 
     def record_command_completed(
@@ -2273,6 +2282,7 @@ class WorkerCommandPublicationGateway:
         run: RunRecord,
         event: RunEvent | None,
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None:
         self._audit_gate.append(
             chain_id=self._chain_id,
@@ -2281,7 +2291,7 @@ class WorkerCommandPublicationGateway:
             action=action,
             subject=AuditSubject(resource_kind="run", resource_id=run.run_id),
             correlation=AuditCorrelation(
-                request_id=None,
+                request_id=request_id,
                 run_id=run.run_id,
                 trace_id=event.trace_id if event is not None else None,
             ),

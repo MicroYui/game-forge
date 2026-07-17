@@ -17,6 +17,8 @@ its exact value never affects test determinism.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 import os
 from typing import Any
 
@@ -81,6 +83,39 @@ def get_engine(url: str | None = None) -> Engine:
 def get_sessionmaker(engine: Engine | None = None) -> sessionmaker[Session]:
     """`sessionmaker` bound to `engine` (or a fresh default-url engine)."""
     return sessionmaker(bind=engine or get_engine())
+
+
+@contextmanager
+def sqlite_read_snapshot_session(engine: Engine) -> Iterator[Session]:
+    """Open one physical, query-only SQLite snapshot for a bounded read operation."""
+
+    if engine.dialect.name != "sqlite":
+        raise ValueError("sqlite_read_snapshot_session requires a SQLite engine")
+    connection = engine.connect()
+    session: Session | None = None
+    try:
+        connection.exec_driver_sql("PRAGMA query_only = ON")
+        # Python's SQLite legacy transaction mode does not BEGIN for SELECT.  Issue
+        # it explicitly so multiple repository reads observe one WAL snapshot.
+        connection.exec_driver_sql("BEGIN")
+        session = Session(
+            bind=connection,
+            autoflush=False,
+            expire_on_commit=False,
+            join_transaction_mode="rollback_only",
+        )
+        yield session
+    finally:
+        if session is not None:
+            session.close()
+        if connection.in_transaction():
+            connection.rollback()
+        try:
+            connection.exec_driver_sql("PRAGMA query_only = OFF")
+        finally:
+            if connection.in_transaction():
+                connection.rollback()
+            connection.close()
 
 
 def run_migrations(url: str | None = None) -> None:

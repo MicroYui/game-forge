@@ -12,11 +12,14 @@ and REAUTHORIZES the real Run on every message. All offline (no network, no LLM)
 from __future__ import annotations
 
 from pathlib import Path
+import threading
 
 from fastapi.testclient import TestClient
 import pytest
+from starlette.concurrency import run_in_threadpool as actual_run_in_threadpool
 from starlette.websockets import WebSocketDisconnect
 
+import gameforge.apps.api.commands as command_transport
 from gameforge.contracts.api import RunCommandServerFrame
 from gameforge.contracts.jobs import RunCommandAckV1, RunCommandProblemV1
 from pydantic import TypeAdapter
@@ -78,6 +81,50 @@ def test_session_handshake_cancel_returns_ack_frame(tmp_path: Path) -> None:
     assert ack.command_id == "cmd:1"
     # Durable: the Run reached terminal before the ACK was framed.
     assert harness.run_record(run_id).status == "cancelled"
+
+
+def test_ws_authentication_and_submit_leave_the_event_loop_thread(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run()
+    observed: list[tuple[str, int, int]] = []
+
+    async def observing_threadpool(function, *args, **kwargs):  # type: ignore[no-untyped-def]
+        event_loop_thread = threading.get_ident()
+
+        def invoke():  # type: ignore[no-untyped-def]
+            worker_thread = threading.get_ident()
+            observed.append((function.__name__, event_loop_thread, worker_thread))
+            return function(*args, **kwargs)
+
+        return await actual_run_in_threadpool(invoke)
+
+    monkeypatch.setattr(
+        command_transport,
+        "run_in_threadpool",
+        observing_threadpool,
+        raising=False,
+    )
+
+    with _session_client(harness) as client:
+        with client.websocket_connect(
+            _WS_PATH.format(run_id=run_id), headers=_ORIGIN_HEADERS
+        ) as ws:
+            ws.send_text(
+                _command_frame(
+                    command_id="cmd:threadpool",
+                    idempotency_key="k:threadpool",
+                    expected_run_revision=1,
+                )
+            )
+            assert RunCommandAckV1.model_validate(ws.receive_json()).status == "accepted"
+
+    calls = [name for name, _loop, _worker in observed]
+    assert calls.count("_resolve_websocket_actor") >= 2  # handshake + current message
+    assert calls.count("_submit_command") == 1
+    assert all(event_loop != worker for _name, event_loop, worker in observed)
 
 
 def test_api_key_handshake_cancel_returns_ack_frame(tmp_path: Path) -> None:
@@ -271,6 +318,19 @@ def test_oversized_frame_is_rejected_and_closes(tmp_path: Path) -> None:
                 ws.receive_json()
 
 
+def test_binary_frame_is_closed_with_unsupported_data(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run()
+    with _session_client(harness) as client:
+        with client.websocket_connect(
+            _WS_PATH.format(run_id=run_id), headers=_ORIGIN_HEADERS
+        ) as ws:
+            ws.send_bytes(b"{}")
+            with pytest.raises(WebSocketDisconnect) as closed:
+                ws.receive_json()
+    assert closed.value.code == 1003
+
+
 def test_command_budget_bound_closes_after_limit(tmp_path: Path) -> None:
     from gameforge.apps.api.dependencies import RunCommandWebSocketConfig
 
@@ -334,8 +394,11 @@ def test_ws_cancel_and_rest_cancel_share_one_durable_submit_path(tmp_path: Path)
     with TestClient(harness.app, base_url=ORIGIN) as client:
         response = client.post(
             f"/api/v1/runs/{run_id}:cancel",
-            json=harness.cancel_body(command_id="cmd:shared", expected_run_revision=1),
-            headers={"Idempotency-Key": "shared"},
+            json=harness.cancel_body(
+                command_id="cmd:shared",
+                idempotency_key="shared",
+                expected_run_revision=1,
+            ),
         )
     assert response.status_code == 200, response.text
     assert RunCommandAckV1.model_validate(response.json()).status == "duplicate"

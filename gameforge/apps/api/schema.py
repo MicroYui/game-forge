@@ -19,9 +19,9 @@ This module freezes three kinds of artifact under ``docs/api/`` (committed to gi
     4. the session-cookie contract documented on ``POST /auth/login``.
 
 * ``schemas/*.json`` — versioned JSON Schemas for the streaming surfaces (the SSE
-  ``RunEvent`` payload, the WS server frame ``oneOf``, the WS client command frame, and
-  the REST cancel body). These never serialize a worker-only record, so no lease/fencing
-  field can appear.
+  ``RunEvent`` payload, the WS server frame ``oneOf``, and the full ``RunCommandV1``
+  client command shared by WS and REST cancel). These never serialize a worker-only
+  record, so no lease/fencing field can appear.
 
 The module is import-safe for the deterministic trunk gate: it depends only on
 ``gameforge.apps.*`` and ``gameforge.contracts.*`` and imports no LLM SDK.
@@ -46,7 +46,7 @@ from typing import Any
 from pydantic import BaseModel, TypeAdapter
 
 from gameforge.apps.api.app import create_app
-from gameforge.contracts.api import RunCancelRequestV1, RunCommandServerFrame
+from gameforge.contracts.api import RunCommandServerFrame
 from gameforge.contracts.jobs import Problem, RunCommandV1, RunEvent
 
 
@@ -54,7 +54,6 @@ OPENAPI_KEY = "openapi-v1.json"
 SSE_EVENT_KEY = "schemas/sse-run-event-v1.json"
 WS_SERVER_FRAME_KEY = "schemas/ws-server-frame-v1.json"
 WS_CLIENT_COMMAND_KEY = "schemas/ws-client-command-v1.json"
-REST_CANCEL_REQUEST_KEY = "schemas/run-cancel-request-v1.json"
 
 _JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
 _SCHEMA_ID_BASE = "https://gameforge.dev/api/schemas/"
@@ -419,19 +418,9 @@ def build_streaming_schemas() -> dict[str, dict[str, Any]]:
             "ws-client-command-v1.json",
             title="RunCommandV1",
             description=(
-                "A WebSocket client command frame on WS /runs/{id}/commands "
-                "(cancel or provide_input). `payload` is a discriminated "
-                "(`schema_version`) RunCommandPayload union."
-            ),
-        ),
-        REST_CANCEL_REQUEST_KEY: _model_schema_document(
-            RunCancelRequestV1,
-            "run-cancel-request-v1.json",
-            title="RunCancelRequestV1",
-            description=(
-                "The POST /runs/{id}:cancel request body. The server builds the "
-                "authoritative RunCommandV1 (type=cancel) from these identity/OCC "
-                "fields plus the Idempotency-Key header."
+                "The full command envelope shared by WS /runs/{id}/commands and "
+                "POST /runs/{id}:cancel (where type must be cancel). `payload` is a "
+                "discriminated (`schema_version`) RunCommandPayload union."
             ),
         ),
     }
@@ -825,7 +814,6 @@ def main(argv: Iterable[str] | None = None) -> int:
 __all__ = [
     "BreakingChange",
     "OPENAPI_KEY",
-    "REST_CANCEL_REQUEST_KEY",
     "SSE_EVENT_KEY",
     "WS_CLIENT_COMMAND_KEY",
     "WS_SERVER_FRAME_KEY",

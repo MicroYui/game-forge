@@ -5,7 +5,7 @@ from datetime import timedelta
 
 import pytest
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import Conflict, IdempotencyConflict, IntegrityViolation
 from gameforge.contracts.jobs import (
     CancelRequestedDataV1,
     CancelRunPayloadV1,
@@ -186,6 +186,58 @@ def test_command_identity_and_idempotency_are_exact(collision: str) -> None:
 
     with pytest.raises(Conflict):
         _submit(harness, conflicting)
+
+    assert harness.state == before_conflict
+
+
+def test_exact_command_replay_is_not_redefined_by_current_authorized_actor() -> None:
+    harness = _command_harness()
+    _start(harness)
+    command = _input_command(expected_run_revision=3)
+    first = _submit(harness, command)
+    other = AuditActor(principal_id="human:b", principal_kind="human")
+
+    replay = harness.commands.submit(run_id=_RUN_ID, command=command, actor=other)
+
+    assert replay.status == "duplicate"
+    assert replay.command_revision == first.command_revision
+    assert harness.state.commands[(_RUN_ID, command.command_id)].actor == HUMAN
+
+
+def test_command_submission_rejects_an_unbounded_request_id_before_writes() -> None:
+    harness = _command_harness()
+    _start(harness)
+    command = _input_command(expected_run_revision=3)
+    before = deepcopy(harness.state)
+
+    with pytest.raises(ValueError, match="request_id"):
+        harness.commands.submit(
+            run_id=_RUN_ID,
+            command=command,
+            actor=HUMAN,
+            request_id="r" * 513,
+        )
+
+    assert harness.state == before
+
+
+def test_command_id_cannot_be_reused_for_another_run() -> None:
+    harness = _command_harness()
+    _start(harness)
+    first_run = harness.state.runs[_RUN_ID]
+    second_run_id = "run:2"
+    harness.state.runs[second_run_id] = first_run.model_copy(
+        update={
+            "run_id": second_run_id,
+            "idempotency_key": "request:2",
+        }
+    )
+    command = _input_command(expected_run_revision=first_run.revision)
+    _submit(harness, command)
+    before_conflict = deepcopy(harness.state)
+
+    with pytest.raises(IdempotencyConflict):
+        harness.commands.submit(run_id=second_run_id, command=command, actor=HUMAN)
 
     assert harness.state == before_conflict
 

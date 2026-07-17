@@ -25,6 +25,7 @@ from gameforge.contracts.jobs import (
     FailureClassifierRefV1,
     GenerationProposePayloadV1,
     GraphSelectionV1,
+    MAX_RUN_COMMAND_CLIENT_SEQ,
     MAX_PREPARED_FINDINGS,
     MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS,
     MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS,
@@ -51,6 +52,8 @@ from gameforge.contracts.jobs import (
     RequirementDispositionV1,
     RetryDecisionV1,
     RetryPolicyRefV1,
+    RunCommandV1,
+    CancelRunPayloadV1,
     RunPayloadEnvelope,
     RunManifestParentBindingV1,
     RunManifestVersionProjectionV1,
@@ -80,6 +83,23 @@ _MAX_SEED = (1 << 64) - 1
 
 def _profile(profile_id: str = "profile") -> ProfileRefV1:
     return ProfileRefV1(profile_id=profile_id, version=1)
+
+
+def test_run_command_client_sequence_is_signed_sql_integer_safe() -> None:
+    values = {
+        "command_id": "command:bounded-sequence",
+        "client_id": "browser:bounded-sequence",
+        "client_seq": MAX_RUN_COMMAND_CLIENT_SEQ,
+        "idempotency_key": "command:bounded-sequence",
+        "expected_run_revision": 1,
+        "type": "cancel",
+        "payload_schema_id": "run-cancel@1",
+        "payload": CancelRunPayloadV1(reason_code="test"),
+    }
+
+    assert RunCommandV1.model_validate(values).client_seq == MAX_RUN_COMMAND_CLIENT_SEQ
+    with pytest.raises(ValidationError, match="client_seq"):
+        RunCommandV1.model_validate({**values, "client_seq": MAX_RUN_COMMAND_CLIENT_SEQ + 1})
 
 
 def _target() -> RefReadBindingV1:

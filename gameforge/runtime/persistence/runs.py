@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Literal, Protocol, TypeVar
 
 from pydantic import BaseModel, ValidationError
-from sqlalchemy import and_, case, func, or_, select, update
+from sqlalchemy import and_, case, delete, func, or_, select, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,7 @@ from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
     AttemptStartedDataV1,
     MAX_COLLECTION_ITEMS,
+    MAX_RUN_COMMAND_CLIENT_SEQ,
     MAX_RUN_MANIFEST_PARENT_BINDINGS,
     RetryDecisionV1,
     RunAttempt,
@@ -140,6 +141,13 @@ def _require_positive(value: object, *, field_name: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < 1:
         raise IntegrityViolation(f"{field_name} must be a positive integer")
     return value
+
+
+def _require_command_client_sequence(value: object) -> int:
+    selected = _require_positive(value, field_name="client_seq")
+    if selected > MAX_RUN_COMMAND_CLIENT_SEQ:
+        raise IntegrityViolation("client_seq exceeds the durable integer range")
+    return selected
 
 
 def _parse_utc(value: object, *, field_name: str) -> datetime:
@@ -2058,6 +2066,51 @@ class SqlRunRepository:
             for row in rows
         )
 
+    def prune_terminal_event_prefix(self, run_id: str, *, before_seq: int) -> int:
+        """Delete a terminal Run's retained prefix while preserving its terminal event.
+
+        This is the persistence primitive used by retention policy code. Active Runs
+        remain fully contiguous because they can still append events. A terminal Run is
+        immutable, so a contiguous suffix ending at ``next_event_seq - 1`` remains a
+        complete resumable-read authority. The final event and any event still referenced
+        by a durable RunCommand are never pruned here; command retention is a separate
+        authority and may not be weakened implicitly.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        selected_before_seq = _require_positive(before_seq, field_name="before_seq")
+        run = self.get(selected_run_id)
+        if run is None:
+            raise IntegrityViolation("Run event retention target does not exist")
+        if run.status not in {"succeeded", "failed", "cancelled", "timed_out"}:
+            raise InvalidStateTransition("Run event retention requires a terminal Run")
+        terminal_seq = run.next_event_seq - 1
+        terminal_event = self.get_event(selected_run_id, terminal_seq)
+        if terminal_event is None or terminal_event.event_type != f"run.{run.status}":
+            raise IntegrityViolation("terminal Run does not retain its terminal event")
+        command_event_seq = self._session.execute(
+            select(func.min(RunCommandRow.result_event_seq)).where(
+                RunCommandRow.run_id == selected_run_id,
+                RunCommandRow.result_event_seq.is_not(None),
+            )
+        ).scalar_one_or_none()
+        protected_seq = min(
+            terminal_seq,
+            int(command_event_seq) if command_event_seq is not None else terminal_seq,
+        )
+        result = self._session.execute(
+            delete(RunEventRow).where(
+                RunEventRow.run_id == selected_run_id,
+                RunEventRow.seq < selected_before_seq,
+                RunEventRow.seq < protected_seq,
+            )
+        )
+        self._session.flush()
+        retained = self.get(selected_run_id)
+        if retained != run:
+            raise IntegrityViolation("Run event retention changed the Run projection")
+        return int(result.rowcount or 0)
+
     def put_intermediate_link(
         self,
         link: RunIntermediateArtifactLinkV1,
@@ -3211,8 +3264,10 @@ class SqlRunRepository:
 
     def put_command(self, record: RunCommandRecordV1) -> RunCommandRecordV1:
         parsed = _revalidate(record, RunCommandRecordV1, label="Run command put")
-        existing = self.get_command(parsed.run_id, parsed.command.command_id)
+        existing = self.get_command_by_id(parsed.command.command_id)
         if existing is not None:
+            if existing.run_id != parsed.run_id:
+                raise Conflict("Run command identity is already retained by another Run")
             if _canonical_wire(existing) != _canonical_wire(parsed):
                 raise IntegrityViolation(
                     "immutable Run command differs from retained content",
@@ -3281,7 +3336,7 @@ class SqlRunRepository:
             raise Conflict("Run command acceptance revision did not match")
         if parsed_record.command.expected_run_revision != expected_revision:
             raise IntegrityViolation("Run command embeds a different expected Run revision")
-        if self.get_command(parsed_record.run_id, parsed_record.command.command_id) is not None:
+        if self.get_command_by_id(parsed_record.command.command_id) is not None:
             raise Conflict("Run command identity is already retained")
         if (
             self.get_command_by_idempotency(
@@ -3573,6 +3628,19 @@ class SqlRunRepository:
             expected_command_id=selected_command_id,
         )
 
+    def get_command_by_id(self, command_id: str) -> RunCommandRecordV1 | None:
+        selected_command_id = _require_nonempty(command_id, field_name="command_id")
+        row = self._session.execute(
+            select(RunCommandRow).where(RunCommandRow.command_id == selected_command_id)
+        ).scalar_one_or_none()
+        if row is None:
+            return None
+        return _parse_command_row(
+            row,
+            expected_run_id=row.run_id,
+            expected_command_id=selected_command_id,
+        )
+
     def get_command_by_idempotency(
         self,
         *,
@@ -3604,7 +3672,7 @@ class SqlRunRepository:
     ) -> RunCommandRecordV1 | None:
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
         selected_client_id = _require_nonempty(client_id, field_name="client_id")
-        selected_client_seq = _require_positive(client_seq, field_name="client_seq")
+        selected_client_seq = _require_command_client_sequence(client_seq)
         row = self._session.execute(
             select(RunCommandRow).where(
                 RunCommandRow.run_id == selected_run_id,
@@ -3924,11 +3992,22 @@ class SqlRunRepository:
             ).where(RunEventRow.run_id == run.run_id)
         ).one()
         expected_event_count = run.next_event_seq - 1
-        if (
-            event_count != expected_event_count
-            or first_event != 1
-            or last_event != expected_event_count
-        ):
+        terminal = run.status in {"succeeded", "failed", "cancelled", "timed_out"}
+        if terminal:
+            event_head_invalid = (
+                event_count < 1
+                or not isinstance(first_event, int)
+                or first_event < 1
+                or last_event != expected_event_count
+                or event_count != expected_event_count - first_event + 1
+            )
+        else:
+            event_head_invalid = (
+                event_count != expected_event_count
+                or first_event != 1
+                or last_event != expected_event_count
+            )
+        if event_head_invalid:
             raise IntegrityViolation(
                 "Run event head is not the next free sequence", run_id=run.run_id
             )

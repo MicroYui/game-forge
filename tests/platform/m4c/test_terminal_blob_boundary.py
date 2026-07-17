@@ -53,6 +53,7 @@ from gameforge.runtime.clock import FrozenUtcClock
 from tests.platform.m4.test_run_fencing import (
     NOW_DT,
     WORKER,
+    _AllowSubmissionAuthorization,
     _Publication,
     _fence,
     _start,
@@ -418,6 +419,7 @@ def _command_service(
         admission=harness.accounting,
         publication=publication,
         accounting=harness.accounting,
+        submission_authorization=_AllowSubmissionAuthorization(),
     )
     return RunCommandService(
         unit_of_work=uow,

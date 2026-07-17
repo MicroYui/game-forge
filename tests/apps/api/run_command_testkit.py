@@ -80,7 +80,7 @@ from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
-from gameforge.runtime.persistence.engine import get_engine
+from gameforge.runtime.persistence.engine import get_engine, sqlite_read_snapshot_session
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.models import Base
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
@@ -299,14 +299,25 @@ class _CommandPublicationGateway:
         self._chain_id = chain_id
         self._failure_artifact_id = failure_artifact_id
 
-    def _record(self, *, action: str, run: Any, actor: AuditActor) -> None:
+    def _record(
+        self,
+        *,
+        action: str,
+        run: Any,
+        actor: AuditActor,
+        request_id: str | None = None,
+    ) -> None:
         self._audit.append(
             chain_id=self._chain_id,
             actor=actor,
             initiated_by=None,
             action=action,
             subject=AuditSubject(resource_kind="run", resource_id=run.run_id),
-            correlation=AuditCorrelation(request_id=None, run_id=run.run_id, trace_id=None),
+            correlation=AuditCorrelation(
+                request_id=request_id,
+                run_id=run.run_id,
+                trace_id=None,
+            ),
         )
 
     def record_run_created(
@@ -322,14 +333,23 @@ class _CommandPublicationGateway:
     def record_run_claimed(self, *, previous, run, attempt, lease, event, actor) -> None:  # type: ignore[no-untyped-def]
         self._record(action="run.claimed", run=run, actor=actor)
 
-    def record_command_submitted(self, *, run, record, events, actor) -> None:  # type: ignore[no-untyped-def]
-        self._record(action="run.command_submitted", run=run, actor=actor)
+    def record_command_submitted(  # type: ignore[no-untyped-def]
+        self, *, run, record, events, actor, request_id=None
+    ) -> None:
+        self._record(
+            action="run.command_submitted",
+            run=run,
+            actor=actor,
+            request_id=request_id,
+        )
 
     def record_command_completed(self, *, run, record, event, actor) -> None:  # type: ignore[no-untyped-def]
         self._record(action="run.command_completed", run=run, actor=actor)
 
-    def record_run_terminal(self, *, run, attempt, event, actor) -> None:  # type: ignore[no-untyped-def]
-        self._record(action="run.terminal", run=run, actor=actor)
+    def record_run_terminal(  # type: ignore[no-untyped-def]
+        self, *, run, attempt, event, actor, request_id=None
+    ) -> None:
+        self._record(action="run.terminal", run=run, actor=actor, request_id=request_id)
 
     def preflight_outcome(self, *, run, attempt, prepared):  # type: ignore[no-untyped-def]
         del run, attempt
@@ -361,6 +381,11 @@ class _CommandPublicationGateway:
 
 class _Stub:
     """Placeholder for the non-validate workflow collaborators (never invoked)."""
+
+
+class _AllowSubmissionAuthorization:
+    def authorize_submission(self, *, run: Any, actor: AuditActor) -> None:
+        del run, actor
 
 
 class CommandAppHarness:
@@ -531,6 +556,7 @@ class CommandAppHarness:
             admission=accounting,
             publication=publication,
             accounting=accounting,
+            submission_authorization=_AllowSubmissionAuthorization(),
         )
 
     @contextmanager
@@ -564,7 +590,7 @@ class CommandAppHarness:
 
     @contextmanager
     def _event_read_scope(self) -> Iterator[RunEventReadScope]:
-        with Session(self.engine) as session:
+        with sqlite_read_snapshot_session(self.engine) as session:
             yield RunEventReadScope(
                 runs=SqlRunRepository(session),
                 policies=SqlPolicySnapshotRepository(session, clock=self.clock),
@@ -688,17 +714,18 @@ class CommandAppHarness:
         command_id: str,
         client_id: str = "browser:a",
         client_seq: int = 1,
+        idempotency_key: str = "cancel:test",
         expected_run_revision: int,
         reason_code: str = "user_requested",
     ) -> dict[str, Any]:
-        return {
-            "request_schema_version": "run-cancel-request@1",
-            "command_id": command_id,
-            "client_id": client_id,
-            "client_seq": client_seq,
-            "expected_run_revision": expected_run_revision,
-            "payload": {"schema_version": "run-cancel@1", "reason_code": reason_code},
-        }
+        return build_cancel_command(
+            command_id=command_id,
+            client_id=client_id,
+            client_seq=client_seq,
+            idempotency_key=idempotency_key,
+            expected_run_revision=expected_run_revision,
+            reason_code=reason_code,
+        ).model_dump(mode="json")
 
     def cancel_command(
         self,

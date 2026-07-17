@@ -75,7 +75,7 @@
   "$id": "https://gameforge.dev/api/schemas/ws-client-command-v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A WebSocket client command frame on WS /runs/{id}/commands (cancel or provide_input). `payload` is a discriminated (`schema_version`) RunCommandPayload union.",
+  "description": "The full command envelope shared by WS /runs/{id}/commands and POST /runs/{id}:cancel (where type must be cancel). `payload` is a discriminated (`schema_version`) RunCommandPayload union.",
   "properties": {
     "client_id": {
       "maxLength": 512,
@@ -84,6 +84,7 @@
       "type": "string"
     },
     "client_seq": {
+      "maximum": 9223372036854775807,
       "minimum": 1,
       "title": "Client Seq",
       "type": "integer"

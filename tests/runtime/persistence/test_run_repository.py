@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy import Engine, delete, event, func, select, update
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
 from gameforge.contracts.cassette_import import (
     LegacyImportRoutingDecisionV1,
     LegacyImportVerificationPolicyRefV1,
@@ -2415,6 +2415,50 @@ def test_command_accept_claim_complete_and_acceptance_rollback_are_atomic(
         assert repository.get_event(started.run.run_id, outcome_event.seq) == outcome_event
 
 
+def test_command_id_is_globally_unique_across_runs(engine: Engine) -> None:
+    first_run = _run("run:command-id:first", idempotency_key="request:command-id:first")
+    second_run = _run("run:command-id:second", idempotency_key="request:command-id:second")
+    _create(engine, first_run)
+    _create(engine, second_run)
+
+    def record(run: RunRecord, suffix: str) -> RunCommandRecordV1:
+        command = RunCommandV1(
+            command_id="command:globally-unique",
+            client_id=f"browser:{suffix}",
+            client_seq=1,
+            idempotency_key=f"input:{suffix}",
+            expected_run_revision=run.revision,
+            type="provide_input",
+            payload_schema_id="playtest-provide-input@1",
+            payload=PlaytestProvideInputPayloadV1(
+                interaction_id=f"interaction:{suffix}",
+                expected_state_hash=HASH_A,
+                choice_id="choice:a",
+            ),
+        )
+        return RunCommandRecordV1(
+            run_id=run.run_id,
+            command=command,
+            request_hash=canonical_payload_hash(command),
+            actor=AuditActor(principal_id="human:a", principal_kind="human"),
+            status="pending",
+            revision=1,
+            created_at=PROGRESSED,
+        )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.put_command(record(first_run, "first"))
+
+    with pytest.raises(Conflict, match="identity"):
+        with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+            transaction.runs.put_command(record(second_run, "second"))
+
+    with Session(engine) as session:
+        retained = SqlRunRepository(session).get_command_by_id("command:globally-unique")
+    assert retained is not None
+    assert retained.run_id == first_run.run_id
+
+
 def test_inactive_cancel_command_persists_terminal_cassette_atomically(
     engine: Engine,
 ) -> None:
@@ -2571,6 +2615,15 @@ def test_inactive_cancel_command_persists_terminal_cassette_atomically(
             cancel_event,
             terminal_event,
         )
+    with Session(engine) as session, session.begin():
+        repository = SqlRunRepository(session)
+        # Requesting full prefix pruning preserves the command's referenced seq=2.
+        assert repository.prune_terminal_event_prefix(queued.run_id, before_seq=4) == 1
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == accepted.run
+        assert repository.get_command(queued.run_id, command.command_id) == record
+        assert repository.list_events(queued.run_id) == (cancel_event, terminal_event)
 
 
 def test_retry_close_releases_fence_without_preallocating_and_is_rollback_safe(
@@ -2741,6 +2794,85 @@ def test_inactive_terminal_close_publishes_one_terminal_head_and_rejects_stale_c
         repository = SqlRunRepository(session)
         assert repository.get(queued.run_id) == terminal.run
         assert repository.list_events(queued.run_id) == (_queued_event(queued), event)
+
+
+def test_terminal_event_prefix_retention_preserves_run_head_and_terminal_event(
+    engine: Engine,
+) -> None:
+    queued = _run(
+        "run:retained-terminal",
+        idempotency_key="request:retained-terminal",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            (
+                _artifact("artifact:retained-terminal-failure", payload_hash=HASH_B),
+                _artifact(
+                    "artifact:retained-terminal-cassette",
+                    payload_hash=HASH_C,
+                    kind="cassette_bundle",
+                ),
+            )
+        )
+        session.commit()
+    decision = RetryDecisionV1(
+        cause_code="cancelled",
+        failure_class="cancelled",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=queued.failure_classifier,
+        retry_policy=queued.retry_policy,
+        evaluated_at_utc=STARTED,
+    )
+    terminal_event = RunEvent(
+        run_id=queued.run_id,
+        seq=queued.next_event_seq,
+        event_type="run.cancelled",
+        occurred_at=STARTED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            failure_artifact_id="artifact:retained-terminal-failure",
+            cause_code="cancelled",
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        terminal = transaction.runs.terminate_inactive_run(
+            run_id=queued.run_id,
+            expected_run_revision=queued.revision,
+            run_status="cancelled",
+            failure_artifact_id="artifact:retained-terminal-failure",
+            terminal_cassette_artifact_id="artifact:retained-terminal-cassette",
+            retry_decision=decision,
+            event=terminal_event,
+        )
+
+    with Session(engine) as session, session.begin():
+        repository = SqlRunRepository(session)
+        assert repository.prune_terminal_event_prefix(queued.run_id, before_seq=2) == 1
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == terminal.run
+        assert repository.earliest_event_seq(queued.run_id) == 2
+        assert repository.list_events(queued.run_id, after_seq=0, limit=16) == (terminal_event,)
+
+
+def test_event_retention_rejects_nonterminal_run(engine: Engine) -> None:
+    queued = _run(
+        "run:retention-active",
+        idempotency_key="request:retention-active",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+
+    with Session(engine) as session, session.begin():
+        with pytest.raises(InvalidStateTransition, match="terminal"):
+            SqlRunRepository(session).prune_terminal_event_prefix(
+                queued.run_id,
+                before_seq=2,
+            )
 
 
 def test_active_success_and_failure_terminal_paths_close_attempt_and_lease(

@@ -23,6 +23,11 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from gameforge.apps.api.app import create_app
+from gameforge.apps.api.commands import (
+    RunCommandAuthorizationScope,
+    RunCommandAuthorizationService,
+    TransactionBoundRunCommandAuthorizationService,
+)
 from gameforge.apps.api.dependencies import ApiDependencies
 from gameforge.apps.api.health import (
     AuditVerificationCache,
@@ -42,12 +47,21 @@ from gameforge.apps.api.streaming import (
     RunEventStreamService,
 )
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
-from gameforge.apps.worker.config_export import build_aureus_config_exporter
 from gameforge.apps.worker.auto_apply import (
     SqlAutoApplyPolicyRegistryResolver,
     SqlDeterministicOracleRegistryResolver,
     SqlDomainRegistryResolver,
     ensure_worker_auto_apply_catalog_supported,
+)
+from gameforge.apps.worker.config_export import build_aureus_config_exporter
+from gameforge.apps.worker.cost_bridge import WorkerConservativeAttemptUsageProvider
+from gameforge.apps.worker.publication import (
+    WorkerArtifactPort,
+    WorkerAuditPort,
+    WorkerBlobStager,
+    WorkerBlobStore,
+    WorkerCommandTerminalPublicationGateway,
+    WorkerManifestLedger,
 )
 from gameforge.apps.cli.identity import (
     AUDIT_CHAIN_ID_ENV,
@@ -64,6 +78,7 @@ from gameforge.contracts.identity import (
     DomainScope,
     RolePolicy,
 )
+from gameforge.contracts.jobs import RunAttempt, RunEvent, RunRecord
 from gameforge.contracts.lineage import ArtifactV2, AuditActor, AuditCorrelation, AuditSubject
 from gameforge.contracts.observability import SpanDataV1
 from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1, RollbackRequestV1
@@ -87,6 +102,8 @@ from gameforge.platform.diff.rebase import (
     RebaseWorkflowCapabilities,
     RebaseWorkflowService,
 )
+from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
+from gameforge.platform.publication import TerminalPublisher
 from gameforge.platform.read_models.workflows import CurrentApprovalProgressProjector
 from gameforge.platform.identity.authentication import (
     ApiKeyAuthenticationCapabilities,
@@ -115,11 +132,12 @@ from gameforge.platform.provenance import (
 )
 from gameforge.platform.runs.admission import (
     AdmissionReadPort,
+    DefaultRunBudgetPlanProvider,
     RunAdmissionEngine,
     _SourceWriteCapabilities,
     build_admission_capability_binder,
 )
-from gameforge.platform.runs.commands import RunCommandService
+from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
 from gameforge.platform.slo.service import (
     SLODefinitionCapabilities,
     SLODefinitionService,
@@ -148,6 +166,7 @@ from gameforge.runtime.auth.tokens import ApiKeyRuntime, SessionTokenRuntime
 from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
+from gameforge.runtime.cost.price_book import UnavailablePriceBook
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
 from gameforge.runtime.observability.local_store import LocalTelemetryStore
@@ -158,7 +177,12 @@ from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.auth import SqlAuthRepository
 from gameforge.runtime.persistence.conflicts import SqlConflictSetRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
-from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, DEFAULT_URL, get_engine
+from gameforge.runtime.persistence.engine import (
+    DATABASE_URL_ENV,
+    DEFAULT_URL,
+    get_engine,
+    sqlite_read_snapshot_session,
+)
 from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
@@ -678,6 +702,99 @@ class _ValidationStartWriter:
         )
 
 
+class _RunCommandAuditGateway:
+    """Narrow API command audit surface; execution/prompt authority stays in worker."""
+
+    def __init__(self, *, audit: AuditGate, chain_id: str) -> None:
+        self._audit = audit
+        self._chain_id = chain_id
+
+    def record_command_submitted(
+        self,
+        *,
+        run: RunRecord,
+        record: object,
+        events: tuple[RunEvent, ...],
+        actor: AuditActor,
+        request_id: str | None = None,
+    ) -> None:
+        del record
+        self._append(
+            action="run.command_submitted",
+            run=run,
+            event=events[-1] if events else None,
+            actor=actor,
+            request_id=request_id,
+        )
+
+    def record_command_completed(
+        self,
+        *,
+        run: RunRecord,
+        record: object,
+        event: RunEvent,
+        actor: AuditActor,
+    ) -> None:
+        del record
+        self._append(
+            action="run.command_completed",
+            run=run,
+            event=event,
+            actor=actor,
+        )
+
+    def record_run_terminal(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        event: RunEvent,
+        actor: AuditActor,
+        request_id: str | None = None,
+    ) -> None:
+        del attempt
+        self._append(
+            action="run.terminal",
+            run=run,
+            event=event,
+            actor=actor,
+            request_id=request_id,
+        )
+
+    @staticmethod
+    def _unsupported(*_: object, **__: object) -> object:
+        raise IntegrityViolation("API command service cannot publish worker execution data")
+
+    record_run_created = _unsupported
+    record_run_claimed = _unsupported
+    get_prompt_replay = _unsupported
+    get_agent_prompt_context_replay = _unsupported
+    publish_agent_prompt_context = _unsupported
+    publish_prompt_rendered = _unsupported
+
+    def _append(
+        self,
+        *,
+        action: str,
+        run: RunRecord,
+        event: RunEvent | None,
+        actor: AuditActor,
+        request_id: str | None = None,
+    ) -> None:
+        self._audit.append(
+            chain_id=self._chain_id,
+            actor=actor,
+            initiated_by=run.initiated_by,
+            action=action,
+            subject=AuditSubject(resource_kind="run", resource_id=run.run_id),
+            correlation=AuditCorrelation(
+                request_id=request_id,
+                run_id=run.run_id,
+                trace_id=event.trace_id if event is not None else None,
+            ),
+        )
+
+
 def _build_run_admission_engine(
     *,
     config: LocalApiConfig,
@@ -1075,6 +1192,11 @@ def build_local_api_resources(
             object_bindings=object_bindings,
             runs=SqlRunRepository(session),
             cost=SqlCostLedger(session, clock=clock),
+            findings=SqlFindingRepository(
+                session,
+                cursor_signer=cursor_signer,
+                clock=clock,
+            ),
             slo=SqlSloRepository(session),
             identity=SqlIdentityRepository(session, clock=clock),
             auth=SqlAuthRepository(session, clock=clock),
@@ -1242,6 +1364,11 @@ def build_local_api_resources(
         cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
         clock=clock,
     )
+    playtest_payload_validator = PlaytestPayloadValidationService(
+        registry=builtin_registry,
+        validators=_typed_playtest_payload_validators(components.playtest_payload_validators),
+    )
+    config_exporter = build_aureus_config_exporter(builtin_registry)
     run_admission = _build_run_admission_engine(
         config=config,
         clock=clock,
@@ -1250,10 +1377,7 @@ def build_local_api_resources(
         unit_of_work=unit_of_work,
         registry=builtin_registry,
         execution_profile_catalog=current_execution_profile_catalog,
-        playtest_payload_validator=PlaytestPayloadValidationService(
-            registry=builtin_registry,
-            validators=_typed_playtest_payload_validators(components.playtest_payload_validators),
-        ),
+        playtest_payload_validator=playtest_payload_validator,
         legacy_import_authority=legacy_import_authority,
     )
     # The synchronous ``:validate`` admission atomically starts validation: its injected
@@ -1270,13 +1394,112 @@ def build_local_api_resources(
         registry=builtin_registry,
         execution_profile_catalog=current_execution_profile_catalog,
         admission=run_admission,
-        config_exporter=build_aureus_config_exporter(builtin_registry),
+        config_exporter=config_exporter,
+    )
+
+    command_price_book = UnavailablePriceBook()
+
+    def bind_run_commands(transaction: object) -> RunCommandCapabilities:
+        accounting = SqlRunCostAccounting(
+            ledger=transaction.cost,  # type: ignore[attr-defined]
+            plan_provider=DefaultRunBudgetPlanProvider(
+                ledger=transaction.cost,  # type: ignore[attr-defined]
+                clock=clock,
+            ),
+            settlement_provider=WorkerConservativeAttemptUsageProvider(
+                ledger=transaction.cost,  # type: ignore[attr-defined]
+                price_book=command_price_book,
+            ),
+            clock=clock,
+        )
+        command_audit = _RunCommandAuditGateway(
+            audit=AuditGate(
+                sink=transaction.audit,  # type: ignore[attr-defined]
+                clock=clock,
+            ),
+            chain_id=config.audit_chain_id,
+        )
+        terminal = TerminalPublisher(
+            registry=builtin_registry,
+            artifacts=WorkerArtifactPort(
+                artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+                object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+                object_store=object_store,
+            ),
+            blobs=WorkerBlobStore(object_store),
+            findings=transaction.findings,  # type: ignore[attr-defined]
+            ledger=WorkerManifestLedger(
+                transaction.runs,  # type: ignore[attr-defined]
+                transaction.cost,  # type: ignore[attr-defined]
+                artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+                object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
+                object_store=object_store,
+            ),
+            audit=WorkerAuditPort(
+                audit_gate=AuditGate(
+                    sink=transaction.audit,  # type: ignore[attr-defined]
+                    clock=clock,
+                ),
+                chain_id=config.audit_chain_id,
+            ),
+            approvals=transaction.approvals,  # type: ignore[attr-defined]
+            playtest_payload_validator=playtest_payload_validator,
+            config_exporter=config_exporter,
+        )
+        return RunCommandCapabilities(
+            runs=transaction.runs,  # type: ignore[attr-defined]
+            registry=builtin_registry,
+            admission=accounting,
+            publication=WorkerCommandTerminalPublicationGateway(
+                commands=command_audit,  # type: ignore[arg-type]
+                terminal=terminal,
+            ),
+            accounting=accounting,
+            submission_authorization=TransactionBoundRunCommandAuthorizationService(
+                principals=transaction.identity,  # type: ignore[attr-defined]
+                policies=transaction.policies,  # type: ignore[attr-defined]
+                approvals=transaction.approvals,  # type: ignore[attr-defined]
+                registry=builtin_registry,
+                role_policy_version=config.role_policy_version,
+                role_policy_digest=config.role_policy_digest,
+            ),
+        )
+
+    @contextmanager
+    def run_command_planning_scope() -> Iterator[TransactionCapabilities]:
+        with Session(engine) as session:
+            connection = session.connection()
+            connection.exec_driver_sql("PRAGMA query_only = ON")
+            try:
+                yield capability_factory(session)
+            finally:
+                try:
+                    connection.exec_driver_sql("PRAGMA query_only = OFF")
+                finally:
+                    session.rollback()
+
+    run_command_service = RunCommandService(
+        unit_of_work=unit_of_work,
+        bind_capabilities=bind_run_commands,
+        clock=clock,
+        planning_scope=run_command_planning_scope,
+        bind_planning_capabilities=bind_run_commands,
+        stage_publications=WorkerBlobStager(object_store),
     )
 
     @contextmanager
     def run_event_read_scope() -> Iterator[RunEventReadScope]:
-        with Session(engine) as session:
+        with sqlite_read_snapshot_session(engine) as session:
             yield RunEventReadScope(
+                runs=SqlRunRepository(session),
+                policies=SqlPolicySnapshotRepository(session, clock=clock),
+                approvals=SqlApprovalRepository(session),
+            )
+
+    @contextmanager
+    def run_command_authorization_scope() -> Iterator[RunCommandAuthorizationScope]:
+        with Session(engine) as session:
+            yield RunCommandAuthorizationScope(
                 runs=SqlRunRepository(session),
                 policies=SqlPolicySnapshotRepository(session, clock=clock),
                 approvals=SqlApprovalRepository(session),
@@ -1288,6 +1511,12 @@ def build_local_api_resources(
         role_policy_digest=config.role_policy_digest,
     )
     run_event_notifier = RunEventNotifier()
+    run_command_authorizer = RunCommandAuthorizationService(
+        read_scope=run_command_authorization_scope,
+        registry=builtin_registry,
+        role_policy_version=config.role_policy_version,
+        role_policy_digest=config.role_policy_digest,
+    )
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
         api_key_authentication=api_key_authentication,
@@ -1300,6 +1529,8 @@ def build_local_api_resources(
         run_admission=run_admission,
         run_event_stream=run_event_stream,
         run_event_notifier=run_event_notifier,
+        run_command_service=run_command_service,
+        run_command_authorizer=run_command_authorizer,
         tracer=Tracer(
             exporter=_LocalSpanExporter(telemetry_store),
             sampler=AlwaysOnSampler(),

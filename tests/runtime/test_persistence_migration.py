@@ -8,7 +8,7 @@ import sqlite3
 import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
-from sqlalchemy import Inspector, inspect, text
+from sqlalchemy import Inspector, MetaData, Table, inspect, text
 
 from gameforge.contracts.canonical import compute_snapshot_id
 from gameforge.runtime.persistence import migrations_api as m
@@ -217,6 +217,75 @@ def _fetch_one(url: str, statement: str) -> tuple[object, ...]:
     try:
         with engine.connect() as connection:
             return tuple(connection.execute(text(statement)).one())
+    finally:
+        engine.dispose()
+
+
+def _insert_duplicate_run_command_ids(url: str) -> None:
+    engine = get_engine(url)
+    try:
+        metadata = MetaData()
+        runs = Table("runs", metadata, autoload_with=engine)
+        commands = Table("run_commands", metadata, autoload_with=engine)
+        with engine.begin() as connection:
+            for ordinal in (1, 2):
+                run_id = f"run:duplicate-command:{ordinal}"
+                connection.execute(
+                    runs.insert().values(
+                        run_id=run_id,
+                        run_schema_version="run@1",
+                        kind="checker.run",
+                        kind_version=1,
+                        status="queued",
+                        revision=1,
+                        idempotency_scope="migration:test",
+                        idempotency_key=f"run:{ordinal}",
+                        request_hash=f"{ordinal}" * 64,
+                        payload={},
+                        payload_hash="a" * 64,
+                        run_kind_definition_digest="b" * 64,
+                        outcome_policy_set_digest="c" * 64,
+                        failure_classifier={},
+                        initiated_by={},
+                        queue_deadline_utc="2026-07-17T01:00:00Z",
+                        attempt_timeout_ns=1_000_000_000,
+                        overall_deadline_utc="2026-07-17T02:00:00Z",
+                        next_attempt_no=1,
+                        next_fencing_token=1,
+                        next_event_seq=1,
+                        budget_set_snapshot_id="budget-set:migration",
+                        run_budget_hold_group_id=f"hold:{ordinal}",
+                        retry_policy={},
+                        max_attempts=1,
+                        created_at="2026-07-17T00:00:00Z",
+                        updated_at="2026-07-17T00:00:00Z",
+                    )
+                )
+                connection.execute(
+                    commands.insert().values(
+                        run_id=run_id,
+                        command_id="command:duplicate",
+                        record_schema_version="run-command-record@1",
+                        command_schema_version="run-command@1",
+                        client_id=f"browser:{ordinal}",
+                        client_seq=1,
+                        idempotency_key=f"command:{ordinal}",
+                        expected_run_revision=1,
+                        type="provide_input",
+                        payload_schema_id="playtest-provide-input@1",
+                        payload={
+                            "schema_version": "playtest-provide-input@1",
+                            "interaction_id": f"interaction:{ordinal}",
+                            "expected_state_hash": "a" * 64,
+                            "choice_id": "choice:a",
+                        },
+                        request_hash=f"{ordinal + 2}" * 64,
+                        actor={"principal_id": "human:a", "principal_kind": "human"},
+                        status="pending",
+                        revision=1,
+                        created_at="2026-07-17T00:00:00Z",
+                    )
+                )
     finally:
         engine.dispose()
 
@@ -997,6 +1066,11 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
     assert ("run_id", "attempt_no", "artifact_id") in _unique_keys(
         url, "run_tool_intermediate_links"
     )
+    m.upgrade(url, "0011")
+    assert _current_revision(url) == "0011"
+    assert ("command_id",) in _unique_keys(url, "run_commands")
+    m.downgrade(url, "0010")
+    assert ("command_id",) not in _unique_keys(url, "run_commands")
     m.downgrade(url, "0009")
     assert not (_TOOL_CONTEXT_TABLES & _table_names(url))
     m.downgrade(url, "0008")
@@ -1034,7 +1108,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0010"
+    assert _current_revision(url) == "0011"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -1054,7 +1128,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0010"
+    assert _current_revision(url) == "0011"
     assert _legacy_projection(url) == expected
 
 
@@ -1227,6 +1301,45 @@ def test_0009_downgrade_refuses_to_drop_resolved_run_domain_authority(tmp_path) 
     assert _current_revision(url) == "0009"
 
 
+def test_0011_rejects_ambiguous_retained_command_ids_before_schema_change(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'command-id-preflight.db'}"
+    m.upgrade(url, "0010")
+    _insert_duplicate_run_command_ids(url)
+
+    with pytest.raises(RuntimeError, match="duplicate Run command ids"):
+        m.upgrade(url, "0011")
+
+    assert _current_revision(url) == "0010"
+    assert ("command_id",) not in _unique_keys(url, "run_commands")
+
+
+def test_0011_preserves_retained_command_through_upgrade_and_downgrade(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'command-id-round-trip.db'}"
+    m.upgrade(url, "0010")
+    _insert_duplicate_run_command_ids(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text("DELETE FROM run_commands WHERE run_id = 'run:duplicate-command:2'")
+            )
+    finally:
+        engine.dispose()
+    statement = (
+        "SELECT run_id, command_id, client_id, client_seq, idempotency_key, "
+        "request_hash, status, revision FROM run_commands"
+    )
+    expected = _fetch_one(url, statement)
+
+    m.upgrade(url, "0011")
+    assert _fetch_one(url, statement) == expected
+    assert ("command_id",) in _unique_keys(url, "run_commands")
+
+    m.downgrade(url, "0010")
+    assert _fetch_one(url, statement) == expected
+    assert ("command_id",) not in _unique_keys(url, "run_commands")
+
+
 def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     tmp_path,
 ) -> None:
@@ -1235,7 +1348,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0010"
+    assert _current_revision(url) == "0011"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")

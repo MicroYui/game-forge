@@ -689,6 +689,7 @@ class RunEventRow(Base):
 class RunCommandRow(Base):
     __tablename__ = "run_commands"
     __table_args__ = (
+        UniqueConstraint("command_id", name="uq_run_command_id"),
         UniqueConstraint("run_id", "client_id", "client_seq", name="uq_run_command_client"),
         UniqueConstraint("run_id", "idempotency_key", name="uq_run_command_idempotency"),
         ForeignKeyConstraint(

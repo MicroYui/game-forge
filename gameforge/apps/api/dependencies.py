@@ -187,11 +187,15 @@ class RunAdmissionPort(Protocol):
 class RunStreamGrant:
     """Result of authorizing one SSE connection/reconnect.
 
-    ``earliest_retained_seq`` is derived from the actual retained event store
-    (MIN seq), never a speculative authority column.
+    Cursor bounds are derived from the same retained Run/event read transaction.
+    ``latest_event_seq`` is the Run's persisted next-free event head minus one;
+    ``terminal`` lets the body close immediately when the client already acknowledged
+    the terminal event.
     """
 
     earliest_retained_seq: int | None
+    latest_event_seq: int
+    terminal: bool
 
     def __post_init__(self) -> None:
         if self.earliest_retained_seq is not None and (
@@ -200,6 +204,43 @@ class RunStreamGrant:
             or self.earliest_retained_seq < 1
         ):
             raise ValueError("earliest_retained_seq must be a positive integer or None")
+        if (
+            isinstance(self.latest_event_seq, bool)
+            or not isinstance(self.latest_event_seq, int)
+            or self.latest_event_seq < 0
+        ):
+            raise ValueError("latest_event_seq must be a nonnegative integer")
+        if not isinstance(self.terminal, bool):
+            raise TypeError("terminal must be a boolean")
+        if (
+            self.earliest_retained_seq is not None
+            and self.earliest_retained_seq > self.latest_event_seq
+        ):
+            raise ValueError("earliest_retained_seq cannot exceed latest_event_seq")
+
+
+@dataclass(frozen=True, slots=True)
+class RunEventPage:
+    """One bounded, authorized snapshot of retained events and its Run head."""
+
+    events: tuple["RunEvent", ...]
+    earliest_retained_seq: int | None
+    latest_event_seq: int
+    terminal: bool
+
+    def __post_init__(self) -> None:
+        RunStreamGrant(
+            earliest_retained_seq=self.earliest_retained_seq,
+            latest_event_seq=self.latest_event_seq,
+            terminal=self.terminal,
+        )
+        previous = 0
+        for event in self.events:
+            if event.seq <= previous:
+                raise ValueError("RunEvent page sequences must be strictly increasing")
+            if event.seq > self.latest_event_seq:
+                raise ValueError("RunEvent page sequence exceeds the persisted Run head")
+            previous = event.seq
 
 
 @dataclass(frozen=True, slots=True)
@@ -230,10 +271,10 @@ class RunEventStreamConfig:
 class RunEventStreamPort(Protocol):
     """Bounded, reauthorizing read authority for the resumable SSE endpoint.
 
-    ``authorize_stream`` loads the real Run, derives its domain server-side, and
-    RBAC-authorizes a read on EVERY connection/reconnect (raising NotFound /
-    Forbidden / CursorExpired). ``read_events`` pages persisted RunEvents in
-    bounded pages; the SQLite event store is the sole authority.
+    ``authorize_stream`` validates the connection before response headers are sent.
+    ``read_authorized_page`` repeats authorization and reads cursor bounds + events in
+    one short transaction for each bounded page, preventing retention gaps and stale
+    authority from silently disclosing later pages.
     """
 
     def authorize_stream(
@@ -241,15 +282,17 @@ class RunEventStreamPort(Protocol):
         *,
         run_id: str,
         actor: ActorContext,
-        after_seq: int,
+        after_seq: int | None,
     ) -> RunStreamGrant: ...
 
-    def read_events(
+    def read_authorized_page(
         self,
+        *,
         run_id: str,
-        after_seq: int,
+        actor: ActorContext,
+        after_seq: int | None,
         limit: int,
-    ) -> tuple["RunEvent", ...]: ...
+    ) -> RunEventPage: ...
 
 
 class RunEventSubscription(Protocol):
@@ -277,9 +320,9 @@ class RunCommandSubmitPort(Protocol):
     the transport derives is durable. A duplicate exact command replays its committed
     result (``status="duplicate"``); the same idempotency key/sequence bound to a
     different request raises ``IdempotencyConflict``; a stale ``expected_run_revision``
-    raises ``Conflict``. ``actor`` is the server-derived :class:`AuditActor`; the
-    transport reauthorizes the real Run (RBAC) via :class:`RunCommandAuthorizerPort`
-    BEFORE calling this — this deterministic-trunk method performs no RBAC itself.
+    raises ``Conflict``. The transport authorizer provides an early request/message
+    rejection, while the platform service reloads and reauthorizes the real Run through
+    its transaction-bound submission capability before any replay ACK or mutation.
     """
 
     def submit(
@@ -288,18 +331,19 @@ class RunCommandSubmitPort(Protocol):
         run_id: str,
         command: "RunCommandV1",
         actor: "AuditActor",
+        request_id: str | None = None,
     ) -> "RunCommandSubmissionResult": ...
 
 
 class RunCommandAuthorizerPort(Protocol):
     """Reauthorize a Run command against the loaded Run on EVERY request/message.
 
-    ``authorize`` reloads the current Principal/roles + exact role policy, loads the
-    real Run, derives its domain SERVER-SIDE (mirroring admission), and RBAC-authorizes
-    the RunKind's write permission for that domain — raising ``NotFound`` when the Run
-    is unavailable or ``Forbidden`` when the current principal lacks the permission. The
-    WebSocket handler calls it before every command frame so a revoked grant cannot keep
-    submitting; the REST cancel route calls it once per request.
+    ``authorize`` receives the freshly authenticated current Principal/roles, loads the
+    exact role policy and real Run, derives its domain SERVER-SIDE (mirroring admission),
+    and RBAC-authorizes the RunKind's write permission — raising ``NotFound`` when the
+    Run is unavailable or ``Forbidden`` when the principal lacks permission. The
+    WebSocket handler calls it before every command frame; the write UoW repeats the
+    authoritative current-principal check through its transaction-bound capability.
     """
 
     def authorize(self, *, run_id: str, actor: ActorContext) -> None: ...
@@ -439,6 +483,7 @@ __all__ = [
     "RunCommandAuthorizerPort",
     "RunCommandSubmitPort",
     "RunCommandWebSocketConfig",
+    "RunEventPage",
     "RunEventNotifierPort",
     "RunEventStreamConfig",
     "RunEventStreamPort",

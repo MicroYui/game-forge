@@ -1,10 +1,10 @@
 """Durable Run-command transport: ``POST /runs/{id}:cancel`` + ``WS /runs/{id}/commands``.
 
-Both surfaces submit through the SAME M4a :class:`RunCommandService.submit` path
+Both surfaces submit the SAME full ``RunCommandV1`` through the M4a
+:class:`RunCommandService.submit` path
 (:class:`~gameforge.apps.api.dependencies.RunCommandSubmitPort`) — there is NO direct
-cancel-flag shortcut. The REST route builds a ``RunCommandV1(type="cancel", …)`` from a
-:class:`RunCancelRequestV1` body plus the ``Idempotency-Key`` header; the WebSocket
-channel accepts full ``RunCommandV1`` client frames (cancel or provide_input). Each
+cancel-flag shortcut. The REST route accepts only ``type="cancel"`` while the WebSocket
+channel accepts cancel or provide_input. Each
 command carries the server-scoped idempotency key + canonical request hash + OCC
 ``expected_run_revision`` that ``submit`` enforces, so a duplicate exact command replays
 its committed result (a stable ``status="duplicate"`` ACK) while the same key/sequence
@@ -12,11 +12,11 @@ bound to a different request is an ``idempotency_conflict``. ``submit`` persists
 command, its Run mutation, RunEvent(s), and audit inside one UoW BEFORE returning, so the
 ACK is durable.
 
-Authorization is deliberately OUTSIDE the deterministic-trunk ``submit`` (which takes an
-:class:`AuditActor` and does no RBAC): the transport reauthorizes the REAL Run against the
-current Principal/roles — once per REST request and, for the WebSocket, on EVERY message
-(reload Principal/roles + re-derive the Run's domain via the 15a ``_resolve_run_read_domain``
-helper) — so a revoked grant cannot keep submitting mid-connection.
+The transport reauthorizes the REAL Run once per REST request and on EVERY WebSocket
+message for early rejection. ``submit`` then reloads the current Principal/roles and
+reauthorizes the admission-frozen Run domain through a transaction-bound capability
+before any replay ACK or mutation, closing the revocation race without moving RBAC into
+the deterministic repository.
 
 The browser NEVER receives lease/fencing tokens: the only server frames are
 ``RunCommandAckV1``/``RunCommandProblemV1`` (``RunCommandServerFrame``), which structurally
@@ -30,12 +30,13 @@ from __future__ import annotations
 from collections.abc import Callable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
-from typing import Annotated, Protocol
+from typing import Protocol
 
-from fastapi import APIRouter, Depends, Header, Request, Response, WebSocket, status
+from fastapi import APIRouter, Depends, Request, Response, WebSocket, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from starlette.websockets import WebSocketDisconnect, WebSocketState
+from starlette.concurrency import run_in_threadpool
 
 from gameforge.apps.api.dependencies import (
     ApiDependencies,
@@ -50,7 +51,6 @@ from gameforge.apps.api.dependencies import (
 )
 from gameforge.apps.api.errors import _mapping, _problem
 from gameforge.apps.api.streaming import ApprovalItemReader, _resolve_run_read_domain
-from gameforge.contracts.api import RunCancelRequestV1
 from gameforge.contracts.auth import (
     ApiKeyAuthRequestV1,
     ApiKeySecret,
@@ -75,9 +75,11 @@ from gameforge.contracts.identity import (
     ActorContext,
     DomainRegistryV1,
     Permission,
+    Principal,
     RolePolicy,
 )
 from gameforge.contracts.jobs import (
+    Problem,
     RunCommandAckV1,
     RunCommandProblemV1,
     RunCommandV1,
@@ -90,7 +92,6 @@ from gameforge.platform.read_models.authorization import (
     ReadPolicyRepository,
 )
 
-_IDEMPOTENCY_HEADER = "Idempotency-Key"
 _AUTHORIZATION_HEADER = "authorization"
 
 
@@ -106,6 +107,12 @@ class RunKindResolver(Protocol):
     def get_run_kind(self, kind: object) -> RunKindDefinition | None: ...
 
 
+class CurrentPrincipalReader(Protocol):
+    """Project one Principal and its current active roles in the caller's UoW."""
+
+    def project(self, principal_id: str) -> Principal | None: ...
+
+
 @dataclass(frozen=True, slots=True)
 class RunCommandAuthorizationScope:
     """One short read transaction's authorities for reauthorizing a Run command."""
@@ -116,6 +123,94 @@ class RunCommandAuthorizationScope:
 
 
 ReadScopeFactory = Callable[[], AbstractContextManager[RunCommandAuthorizationScope]]
+
+
+def _authorize_loaded_run_command(
+    *,
+    run: RunRecord,
+    principal: Principal,
+    policies: ReadPolicyRepository,
+    approvals: ApprovalItemReader | None,
+    registry: RunKindResolver,
+    role_policy_version: str,
+    role_policy_digest: str,
+) -> None:
+    definition = registry.get_run_kind(run.kind)
+    if not isinstance(definition, RunKindDefinition):
+        raise DependencyUnavailable(
+            "run kind definition is unavailable for command authorization",
+            component="run_command_authorization",
+        )
+    role_policy = policies.get_role_policy(role_policy_version, role_policy_digest)
+    if not isinstance(role_policy, RolePolicy):
+        raise DependencyUnavailable(
+            "run command role policy is unavailable",
+            component="run_command_authorization",
+        )
+    domain_registry = policies.get_domain_registry(role_policy.domain_registry_ref)
+    if not isinstance(domain_registry, DomainRegistryV1):
+        raise DependencyUnavailable(
+            "run command domain registry is unavailable",
+            component="run_command_authorization",
+        )
+    base = definition.required_permission
+    permission = Permission(
+        action=base.action,
+        resource_kind=base.resource_kind,
+        domain_scope=_resolve_run_read_domain(run, domain_registry, approvals),
+    )
+    ReadAuthorizationService(
+        policy_repository=policies,
+        role_policy_version=role_policy_version,
+        role_policy_digest=role_policy_digest,
+    ).require_singular(
+        principal=principal,
+        permission=permission,
+        query_hash=canonical_sha256(
+            {
+                "query_schema_version": "run-command-authorization-query@1",
+                "run_id": run.run_id,
+                "run_revision": run.revision,
+                "action": base.action,
+                "resource_kind": base.resource_kind,
+            }
+        ),
+    )
+
+
+class TransactionBoundRunCommandAuthorizationService:
+    """Reload and authorize the command actor inside the command write transaction."""
+
+    def __init__(
+        self,
+        *,
+        principals: CurrentPrincipalReader,
+        policies: ReadPolicyRepository,
+        approvals: ApprovalItemReader | None,
+        registry: RunKindResolver,
+        role_policy_version: str,
+        role_policy_digest: str,
+    ) -> None:
+        self._principals = principals
+        self._policies = policies
+        self._approvals = approvals
+        self._registry = registry
+        self._role_policy_version = role_policy_version
+        self._role_policy_digest = role_policy_digest
+
+    def authorize_submission(self, *, run: RunRecord, actor: AuditActor) -> None:
+        principal = self._principals.project(actor.principal_id)
+        if not isinstance(principal, Principal) or principal.kind != actor.principal_kind:
+            raise Forbidden("current command principal is unavailable")
+        _authorize_loaded_run_command(
+            run=run,
+            principal=principal,
+            policies=self._policies,
+            approvals=self._approvals,
+            registry=self._registry,
+            role_policy_version=self._role_policy_version,
+            role_policy_digest=self._role_policy_digest,
+        )
 
 
 class RunCommandAuthorizationService:
@@ -154,61 +249,15 @@ class RunCommandAuthorizationService:
             run = scope.runs.get_run_projection(run_id)
             if run is None:
                 raise NotFound("run is unavailable", run_id=run_id)
-            definition = self._registry.get_run_kind(run.kind)
-            if not isinstance(definition, RunKindDefinition):
-                raise DependencyUnavailable(
-                    "run kind definition is unavailable for command authorization",
-                    component="run_command_authorization",
-                )
-            _role_policy, registry = self._load_authority(scope.policies)
-            base = definition.required_permission
-            permission = Permission(
-                action=base.action,
-                resource_kind=base.resource_kind,
-                domain_scope=_resolve_run_read_domain(run, registry, scope.approvals),
-            )
-            query_hash = canonical_sha256(
-                {
-                    "query_schema_version": "run-command-authorization-query@1",
-                    "run_id": run.run_id,
-                    "run_revision": run.revision,
-                    "action": base.action,
-                    "resource_kind": base.resource_kind,
-                }
-            )
-            authorization = ReadAuthorizationService(
-                policy_repository=scope.policies,
+            _authorize_loaded_run_command(
+                run=run,
+                principal=actor.principal,
+                policies=scope.policies,
+                approvals=scope.approvals,
+                registry=self._registry,
                 role_policy_version=self._role_policy_version,
                 role_policy_digest=self._role_policy_digest,
             )
-            # Reloads the current Principal/roles and RBAC-authorizes the loaded Run's
-            # write permission; raises Forbidden on a revoked grant (every request/message).
-            authorization.require_singular(
-                principal=actor.principal,
-                permission=permission,
-                query_hash=query_hash,
-            )
-
-    def _load_authority(
-        self,
-        policies: ReadPolicyRepository,
-    ) -> tuple[RolePolicy, DomainRegistryV1]:
-        role_policy = policies.get_role_policy(
-            self._role_policy_version,
-            self._role_policy_digest,
-        )
-        if not isinstance(role_policy, RolePolicy):
-            raise DependencyUnavailable(
-                "run command role policy is unavailable",
-                component="run_command_authorization",
-            )
-        registry = policies.get_domain_registry(role_policy.domain_registry_ref)
-        if not isinstance(registry, DomainRegistryV1):
-            raise DependencyUnavailable(
-                "run command domain registry is unavailable",
-                component="run_command_authorization",
-            )
-        return role_policy, registry
 
 
 # ── shared REST/WS submit path ───────────────────────────────────────────────
@@ -231,6 +280,7 @@ def _submit_command(
     run_id: str,
     command: RunCommandV1,
     actor: ActorContext,
+    request_id: str | None,
 ) -> RunCommandAckV1:
     """Reauthorize the real Run, then submit via the ONE durable ``submit`` path.
 
@@ -245,7 +295,12 @@ def _submit_command(
         principal_id=actor.principal.id,
         principal_kind=actor.principal.kind,
     )
-    result = service.submit(run_id=run_id, command=command, actor=audit_actor)
+    result = service.submit(
+        run_id=run_id,
+        command=command,
+        actor=audit_actor,
+        request_id=request_id,
+    )
     return RunCommandAckV1(
         command_id=command.command_id,
         client_id=command.client_id,
@@ -283,6 +338,18 @@ def _command_problem_frame(
     command_id: str | None,
     client_seq: int | None,
 ) -> tuple[int, RunCommandProblemV1]:
+    status_code, problem = _command_problem(scope, error)
+    return status_code, RunCommandProblemV1(
+        command_id=command_id,
+        client_seq=client_seq,
+        problem=problem,
+    )
+
+
+def _command_problem(
+    scope: object,
+    error: BaseException,
+) -> tuple[int, Problem]:
     status_code, code, title, detail = _command_error_status(error)
     problem = _problem(
         scope,  # type: ignore[arg-type]
@@ -291,11 +358,7 @@ def _command_problem_frame(
         title=title,
         detail=detail,
     )
-    return status_code, RunCommandProblemV1(
-        command_id=command_id,
-        client_seq=client_seq,
-        problem=problem,
-    )
+    return status_code, problem
 
 
 _MAPPED_COMMAND_ERRORS = (
@@ -417,28 +480,6 @@ def _is_auth_failure(error: BaseException) -> bool:
 
 
 # ── routers ──────────────────────────────────────────────────────────────────
-def _require_cancel_headers(
-    request: Request,
-    idempotency_key: Annotated[
-        str,
-        Header(alias=_IDEMPOTENCY_HEADER, min_length=1, max_length=512),
-    ],
-) -> None:
-    del idempotency_key
-    values = request.headers.getlist(_IDEMPOTENCY_HEADER)
-    if len(values) != 1:
-        raise RequestSchemaInvalid(f"{_IDEMPOTENCY_HEADER} must be supplied exactly once")
-    value = values[0]
-    if (
-        not value
-        or value != value.strip()
-        or len(value) > 512
-        or any(ord(character) < 0x21 or ord(character) == 0x7F for character in value)
-    ):
-        raise RequestSchemaInvalid(f"{_IDEMPOTENCY_HEADER} is invalid")
-    request.state.run_command_idempotency_key = value
-
-
 def run_commands_router() -> APIRouter:
     router = APIRouter(prefix="/api/v1", tags=["runs"])
 
@@ -446,46 +487,30 @@ def run_commands_router() -> APIRouter:
         "/runs/{run_id}:cancel",
         response_model=RunCommandAckV1,
         status_code=status.HTTP_200_OK,
-        dependencies=[Depends(_require_cancel_headers)],
     )
     def cancel_run(
         run_id: str,
-        payload: RunCancelRequestV1,
+        command: RunCommandV1,
         request: Request,
         response: Response,
         actor: ActorContext = Depends(require_actor),
         dependencies: ApiDependencies = Depends(api_dependencies),
     ) -> RunCommandAckV1 | JSONResponse:
-        idempotency_key = getattr(request.state, "run_command_idempotency_key", None)
-        if not isinstance(idempotency_key, str):
-            raise RequestSchemaInvalid("run command idempotency key is unavailable")
-        command = RunCommandV1(
-            command_id=payload.command_id,
-            client_id=payload.client_id,
-            client_seq=payload.client_seq,
-            idempotency_key=idempotency_key,
-            expected_run_revision=payload.expected_run_revision,
-            type="cancel",
-            payload_schema_id="run-cancel@1",
-            payload=payload.payload,
-        )
         try:
+            if command.type != "cancel":
+                raise RequestSchemaInvalid("REST cancel accepts only cancel commands")
             ack = _submit_command(
                 dependencies=dependencies,
                 run_id=run_id,
                 command=command,
                 actor=actor,
+                request_id=getattr(request.state, "request_id", None),
             )
         except _MAPPED_COMMAND_ERRORS as error:
-            status_code, frame = _command_problem_frame(
-                request.scope,
-                error,
-                command_id=command.command_id,
-                client_seq=command.client_seq,
-            )
+            status_code, problem = _command_problem(request.scope, error)
             return JSONResponse(
                 status_code=status_code,
-                content=frame.model_dump(mode="json", exclude_none=True),
+                content=problem.model_dump(mode="json", exclude_none=True),
                 media_type="application/problem+json",
             )
         response.headers["Cache-Control"] = "no-store"
@@ -506,7 +531,8 @@ def run_commands_router() -> APIRouter:
                 ws_config=ws_config,
             )
             # Authenticate the handshake before accept so bad credentials never open.
-            _resolve_websocket_actor(
+            await run_in_threadpool(
+                _resolve_websocket_actor,
                 credentials,
                 session_auth=dependencies.session_authentication,
                 api_key_auth=dependencies.api_key_authentication,
@@ -561,11 +587,16 @@ async def _run_command_ws_loop(
     processed = 0
     while True:
         try:
-            text = await websocket.receive_text()
+            message = await websocket.receive()
         except WebSocketDisconnect:
             return
         except RuntimeError:
-            # A non-text frame (binary/close) — the client channel is text-only.
+            return
+        if message.get("type") == "websocket.disconnect":
+            return
+        text = message.get("text")
+        if not isinstance(text, str):
+            # Binary and structurally invalid client messages are unsupported data.
             await _ws_close(websocket, code=1003)
             return
         if len(text.encode("utf-8")) > ws_config.max_frame_bytes:
@@ -590,18 +621,21 @@ async def _run_command_ws_loop(
 
         command: RunCommandV1 | None = None
         try:
-            actor = _resolve_websocket_actor(
+            actor = await run_in_threadpool(
+                _resolve_websocket_actor,
                 credentials,
                 session_auth=dependencies.session_authentication,
                 api_key_auth=dependencies.api_key_authentication,
                 request_id=request_id,
             )
             command = RunCommandV1.model_validate_json(text)
-            ack = _submit_command(
+            ack = await run_in_threadpool(
+                _submit_command,
                 dependencies=dependencies,
                 run_id=run_id,
                 command=command,
                 actor=actor,
+                request_id=request_id,
             )
         except ValidationError:
             await _ws_send_problem(
@@ -655,5 +689,6 @@ async def _ws_close(websocket: WebSocket, *, code: int) -> None:
 __all__ = [
     "RunCommandAuthorizationScope",
     "RunCommandAuthorizationService",
+    "TransactionBoundRunCommandAuthorizationService",
     "run_commands_router",
 ]

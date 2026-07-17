@@ -69,6 +69,14 @@ NonNegativeInt = Annotated[int, Field(ge=0)]
 Uint64 = Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
 
 MAX_COLLECTION_ITEMS = 1024
+# The authoritative M4c SQLite store persists command sequences as signed 64-bit
+# integers. Keep the public envelope inside that durable range so validated input
+# can never overflow a repository bind parameter.
+MAX_RUN_COMMAND_CLIENT_SEQ = (1 << 63) - 1
+RunCommandClientSequence = Annotated[
+    int,
+    Field(ge=1, le=MAX_RUN_COMMAND_CLIENT_SEQ),
+]
 # TaskSuite derives one primary suite plus up to 1,024 ScenarioSpec siblings.
 MAX_PREPARED_DOMAIN_ARTIFACTS = MAX_COLLECTION_ITEMS + 1
 # A maximum-size Playtest binds one ConfigExport, one ConstraintSnapshot, one
@@ -1635,7 +1643,7 @@ class RunCommandV1(_FrozenModel):
     command_schema_version: Literal["run-command@1"] = "run-command@1"
     command_id: BoundedId
     client_id: BoundedId
-    client_seq: PositiveInt
+    client_seq: RunCommandClientSequence
     idempotency_key: BoundedId
     expected_run_revision: PositiveInt
     type: Literal["cancel", "provide_input"]
@@ -1710,7 +1718,7 @@ class RunCommandViewV1(_FrozenModel):
     run_id: BoundedId
     command_id: BoundedId
     client_id: BoundedId
-    client_seq: PositiveInt
+    client_seq: RunCommandClientSequence
     type: Literal["cancel", "provide_input"]
     payload_schema_id: Literal["run-cancel@1", "playtest-provide-input@1"]
     status: RunCommandStatus
@@ -1738,7 +1746,7 @@ class RunCommandAckV1(_FrozenModel):
     ack_schema_version: Literal["run-command-ack@1"] = "run-command-ack@1"
     command_id: BoundedId
     client_id: BoundedId
-    client_seq: PositiveInt
+    client_seq: RunCommandClientSequence
     status: Literal["accepted", "duplicate"]
     persisted_status: RunCommandStatus
     command_revision: PositiveInt
@@ -1776,7 +1784,7 @@ class Problem(_FrozenModel):
 class RunCommandProblemV1(_FrozenModel):
     problem_schema_version: Literal["run-command-problem@1"] = "run-command-problem@1"
     command_id: BoundedId | None = None
-    client_seq: PositiveInt | None = None
+    client_seq: RunCommandClientSequence | None = None
     problem: Problem
 
 

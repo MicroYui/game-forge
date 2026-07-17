@@ -385,6 +385,8 @@ class RunRepository(Protocol):
 
     def get_command(self, run_id: str, command_id: str) -> RunCommandRecordV1 | None: ...
 
+    def get_command_by_id(self, command_id: str) -> RunCommandRecordV1 | None: ...
+
     def get_command_by_idempotency(
         self,
         *,
@@ -498,6 +500,12 @@ class RunAdmissionGateway(Protocol):
         lease_id: str,
         expires_at: str,
     ) -> str: ...
+
+
+class RunCommandSubmissionAuthorizationGateway(Protocol):
+    """Authorize one loaded Run inside the authoritative command write UoW."""
+
+    def authorize_submission(self, *, run: RunRecord, actor: AuditActor) -> None: ...
 
 
 class RunPublicationGateway(Protocol):
@@ -614,6 +622,7 @@ class RunPublicationGateway(Protocol):
         record: RunCommandRecordV1,
         events: tuple[RunEvent, ...],
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None: ...
 
     def record_command_completed(
@@ -632,6 +641,7 @@ class RunPublicationGateway(Protocol):
         attempt: RunAttempt | None,
         event: RunEvent,
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> None: ...
 
 
@@ -642,6 +652,7 @@ class RunCommandCapabilities:
     admission: RunAdmissionGateway | None
     publication: RunPublicationGateway | None
     accounting: RunLifecycleAccountingGateway | None = None
+    submission_authorization: RunCommandSubmissionAuthorizationGateway | None = None
 
 
 class RunUnitOfWork(Protocol):
@@ -671,6 +682,14 @@ def _utc_now(clock: UtcClock) -> datetime:
     ):
         raise IntegrityViolation("Run command clock must return UTC")
     return now.astimezone(timezone.utc)
+
+
+def _bounded_request_id(value: str | None) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value or len(value) > 512:
+        raise ValueError("request_id must be a non-empty bounded string or None")
+    return value
 
 
 def _utc_text(value: datetime) -> str:
@@ -1070,7 +1089,9 @@ class RunCommandService:
         run_id: str,
         command: RunCommandV1,
         actor: AuditActor,
+        request_id: str | None = None,
     ) -> RunCommandSubmissionResult:
+        selected_request_id = _bounded_request_id(request_id)
         if self._stage_publications is not None:
             operation_now = _utc_now(self._clock)
             draft = self._plan_inactive_cancel(
@@ -1091,6 +1112,7 @@ class RunCommandService:
                 actor=actor,
                 operation_now=operation_now,
                 staged_publication=staged,
+                request_id=selected_request_id,
             )
         return self._submit_in_write_uow(
             run_id=run_id,
@@ -1098,6 +1120,7 @@ class RunCommandService:
             actor=actor,
             operation_now=None,
             staged_publication=None,
+            request_id=selected_request_id,
         )
 
     def _plan_inactive_cancel(
@@ -1117,13 +1140,16 @@ class RunCommandService:
             runs = _required(capabilities.runs, "runs")
             publication = _required(capabilities.publication, "publication")
             request_hash = canonical_payload_hash(command)
-            retained = runs.get_command(run_id, command.command_id)
+            retained = runs.get_command_by_id(command.command_id)
             if retained is not None:
+                if retained.run_id != run_id:
+                    raise IdempotencyConflict(
+                        "Run command identity is already bound to another Run"
+                    )
                 self._validate_command_replay(
                     retained=retained,
                     command=command,
                     request_hash=request_hash,
-                    actor=actor,
                 )
                 return None
             idempotent = runs.get_command_by_idempotency(
@@ -1244,28 +1270,37 @@ class RunCommandService:
         actor: AuditActor,
         operation_now: datetime | None,
         staged_publication: StagedTerminalPublication | None,
+        request_id: str | None,
     ) -> RunCommandSubmissionResult:
         with self._unit_of_work.begin() as transaction:
             capabilities = self._bind_capabilities(transaction)
             runs = _required(capabilities.runs, "runs")
             publication = _required(capabilities.publication, "publication")
+            authorization = _required(
+                capabilities.submission_authorization,
+                "submission authorization",
+            )
             request_hash = canonical_payload_hash(command)
-            retained = runs.get_command(run_id, command.command_id)
+            run = runs.get(run_id)
+            if run is None:
+                raise IntegrityViolation("Run command target does not exist")
+            authorization.authorize_submission(run=run, actor=actor)
+            retained = runs.get_command_by_id(command.command_id)
             if retained is not None:
+                if retained.run_id != run_id:
+                    raise IdempotencyConflict(
+                        "Run command identity is already bound to another Run"
+                    )
                 self._validate_command_replay(
                     retained=retained,
                     command=command,
                     request_hash=request_hash,
-                    actor=actor,
                 )
                 event = (
                     runs.get_event(run_id, retained.result_event_seq)
                     if retained.result_event_seq is not None
                     else None
                 )
-                run = runs.get(run_id)
-                if run is None:
-                    raise IntegrityViolation("retained Run command is detached from its Run")
                 return RunCommandSubmissionResult(
                     status="duplicate",
                     persisted_status=retained.status,
@@ -1287,9 +1322,6 @@ class RunCommandService:
                     "Run command identity is already bound to another request"
                 )
 
-            run = runs.get(run_id)
-            if run is None:
-                raise IntegrityViolation("Run command target does not exist")
             registry = _required(capabilities.registry, "registry")
             definition, _ = _resolve_bindings(run=run, registry=registry)
             if command.expected_run_revision != run.revision:
@@ -1343,6 +1375,7 @@ class RunCommandService:
                     record=persisted.record,
                     events=persisted.events,
                     actor=actor,
+                    request_id=request_id,
                 )
                 return RunCommandSubmissionResult(
                     status="accepted",
@@ -1391,6 +1424,7 @@ class RunCommandService:
                     record=persisted.record,
                     events=persisted.events,
                     actor=actor,
+                    request_id=request_id,
                 )
                 return RunCommandSubmissionResult(
                     status="accepted",
@@ -1512,12 +1546,14 @@ class RunCommandService:
                 record=persisted.record,
                 events=persisted.events,
                 actor=actor,
+                request_id=request_id,
             )
             publication.record_run_terminal(
                 run=persisted.run,
                 attempt=latest_attempt,
                 event=persisted.events[-1],
                 actor=actor,
+                request_id=request_id,
             )
             return RunCommandSubmissionResult(
                 status="accepted",
@@ -1933,13 +1969,8 @@ class RunCommandService:
         retained: RunCommandRecordV1,
         command: RunCommandV1,
         request_hash: str,
-        actor: AuditActor,
     ) -> None:
-        if (
-            retained.command != command
-            or retained.request_hash != request_hash
-            or retained.actor != actor
-        ):
+        if retained.command != command or retained.request_hash != request_hash:
             raise IdempotencyConflict("Run command identity is bound to a different request")
 
     @staticmethod
@@ -2027,6 +2058,7 @@ __all__ = [
     "RunClaimRequest",
     "RunClaimResult",
     "RunCommandCapabilities",
+    "RunCommandSubmissionAuthorizationGateway",
     "RunCommandSubmissionResult",
     "RunCommandService",
     "RunCreateRequest",
