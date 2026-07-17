@@ -20,17 +20,14 @@ from gameforge.contracts.execution_profiles import (
     RunKindRef,
     execution_profile_catalog_digest,
 )
-from gameforge.contracts.jobs import IntermediateCountBindingV1, PreparedRunFailure
+from gameforge.contracts.jobs import IntermediateCountBindingV1
 from gameforge.platform.registry import (
     ImmutablePlatformRegistry,
     PlatformReadinessValidator,
     TrustedComponentMaps,
     build_builtin_registry,
 )
-from gameforge.platform.run_handlers.deferred import (
-    DEFERRED_EXECUTORS,
-    DeferredExecutionRequest,
-)
+from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 
 
 _NON_DEFERRED_EXECUTOR_KEYS = {
@@ -860,23 +857,6 @@ def test_m4e_deferred_kinds_are_explicit_internal_seams_not_missing_handlers() -
         # M4c keeps the complete M4e success contract while the explicit executor
         # seam remains replaceable by the real Task 14/M4e implementation.
         assert any(policy.prepared_outcome == "success" for policy in definition.outcome_policies)
-
-        prepared = DEFERRED_EXECUTORS[executor_key](
-            DeferredExecutionRequest(
-                run_id=f"run:{kind}",
-                attempt_no=1,
-                run_kind=RunKindRef(kind=kind, version=1),
-                classifier=definition.failure_classifier,
-            )
-        )
-        assert isinstance(prepared, PreparedRunFailure)
-        assert prepared.prepared_schema_version == "prepared-run-failure@1"
-        assert prepared.run_kind == RunKindRef(kind=kind, version=1)
-        assert prepared.artifacts == ()
-        assert prepared.requirement_dispositions == ()
-        assert prepared.cause_code == "execution_failed"
-        assert prepared.failure_class == "execution"
-        assert prepared.intrinsic_retry_eligible is False
 
     assert report.ready is True
     assert report.deferred_executor_keys == _DEFERRED_EXECUTOR_KEYS

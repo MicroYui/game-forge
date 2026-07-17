@@ -9,8 +9,8 @@ genuinely-closed authority.
 The ``executors`` values are the REAL Task-11/12/13 platform handlers (never fakes):
 the deterministic ``checker``/``simulation`` handlers, the ``task_suite``/``playtest``
 game-composed handlers, the agent-backed generation/repair/constraint handlers, and
-the validation handlers — plus the two Task-14 ``DEFERRED_EXECUTORS`` (auto-wrapped by
-``build_executor_resolver``). Rollback validation binds real SQL history, exact
+the validation handlers — plus the two Task-14 ``DEFERRED_EXECUTORS`` on the same
+full context signature used by implemented handlers. Rollback validation binds real SQL history, exact
 catalog-backed schema, bounded current→target impact, and headless regression ports.
 Bench case loading, real oracle evaluation, exact aggregate reads, and strict
 BenchReport composition are production-bound here.

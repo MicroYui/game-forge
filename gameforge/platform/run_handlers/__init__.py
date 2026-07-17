@@ -5,7 +5,6 @@ from gameforge.platform.run_handlers.checker import CheckerRunHandler, DefaultCh
 from gameforge.platform.run_handlers.constraint_proposal import ConstraintProposalHandler
 from gameforge.platform.run_handlers.deferred import (
     DEFERRED_EXECUTORS,
-    DeferredExecutionRequest,
     artifact_migration_deferred,
     dr_drill_deferred,
 )
@@ -31,7 +30,6 @@ __all__ = [
     "CheckerRunHandler",
     "ConstraintProposalHandler",
     "DefaultCheckerFactory",
-    "DeferredExecutionRequest",
     "GenerationProposalHandler",
     "ModelBridgeAgentAdapter",
     "RepairSearchHandler",

@@ -41,10 +41,6 @@ from gameforge.contracts.errors import (
 )
 from gameforge.runtime.model_router.router import CassetteReplayMiss
 from gameforge.contracts.model_router import ModelSnapshot
-from gameforge.platform.run_handlers.deferred import (
-    DeferredExecutionRequest,
-    DeferredExecutor,
-)
 
 
 class WorkerModelBridgePort(Protocol):
@@ -188,31 +184,9 @@ def _typed_dependency(
         return None
 
 
-def deferred_executor_adapter(deferred: DeferredExecutor) -> RunExecutor:
-    """Adapt an M4e-deferred executor to the generic :class:`RunExecutor` shape.
-
-    The composition root wraps each still-deferred executor so the runner can
-    dispatch it by key exactly like a real one; it constructs the narrow
-    ``DeferredExecutionRequest`` from the fenced context and returns the typed
-    ``PreparedRunFailure`` the deferred executor produces.
-    """
-
-    def _run(context: ExecutorContext) -> PreparedRunOutcome:
-        request = DeferredExecutionRequest(
-            run_id=context.run.run_id,
-            attempt_no=context.attempt.attempt_no,
-            run_kind=context.run.kind,
-            classifier=context.run.failure_classifier,
-        )
-        return deferred(request)
-
-    return _run
-
-
 __all__ = [
     "ExecutorContext",
     "RunExecutor",
     "WorkerModelBridgePort",
-    "deferred_executor_adapter",
     "redacted_execution_failure",
 ]

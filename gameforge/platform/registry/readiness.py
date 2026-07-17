@@ -562,7 +562,13 @@ class PlatformReadinessValidator:
             ready=True,
             active_run_kinds=ordered_refs,
             checked_run_kind_count=len(ordered_refs),
-            deferred_executor_keys=("artifact_migrator@1", "dr_drill_runner@1"),
+            deferred_executor_keys=tuple(
+                sorted(
+                    key
+                    for key, executor in self._components.executors.items()
+                    if getattr(executor, "__gameforge_m4e_deferred__", False) is True
+                )
+            ),
             reference_checks=reference_checks,
             component_key_counts=component_counts,
         )

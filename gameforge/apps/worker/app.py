@@ -13,9 +13,8 @@ What is composed here today:
   * the bounded expired-lease reaper scan over ``SqlRunRepository`` (Task 10
     seam #1), and
   * the GENERIC ``executor_key -> RunExecutor`` resolver over
-    ``TrustedComponentMaps.executors`` (Task 10 seam #3), which adapts the two
-    still-deferred executors and, once Tasks 11-13 register the eleven real
-    executors, resolves them without any per-kind branching.
+    ``TrustedComponentMaps.executors`` (Task 10 seam #3), where deferred and
+    implemented executors share one signature and resolve without per-kind branching.
 
 The fully-wired dispatch loop additionally needs the platform Run command /
 lifecycle services with their cost-accounting plan+settlement providers and the
@@ -52,7 +51,7 @@ from gameforge.apps.worker.agent_drafts import (
 from gameforge.apps.worker.agent_prompt_context import (
     agent_prompt_context_binding_plan_keys,
 )
-from gameforge.apps.worker.executor import RunExecutor, deferred_executor_adapter
+from gameforge.apps.worker.executor import RunExecutor
 from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
 from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
@@ -64,7 +63,6 @@ from gameforge.platform.registry import (
     build_builtin_registry,
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
-from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
@@ -604,13 +602,11 @@ def build_executor_resolver(
     """Generic ``run -> executor_key -> RunExecutor`` resolution.
 
     Never branches on Run kind: the kind's frozen ``executor_key`` indexes the
-    trusted executor allowlist. The two still-deferred executors expose the narrow
-    ``Callable[[DeferredExecutionRequest], PreparedRunFailure]`` signature, so they
-    are wrapped by :func:`deferred_executor_adapter` into the generic
-    :class:`RunExecutor` shape; once Tasks 11-13 register the eleven real executors
-    (already ``RunExecutor``-shaped) they resolve unwrapped. A missing executor
-    raises ``KeyError``, which the runner converts into a redacted, fenced failure
-    through the terminal policy.
+    trusted executor allowlist. Deferred and implemented handlers share the exact
+    same :class:`RunExecutor` signature, so M4e can replace either deferred callable
+    under its retained key without changing dispatch. A missing executor raises
+    ``KeyError``, which the runner converts into a redacted, fenced failure through
+    the terminal policy.
     """
 
     executors: Mapping[str, object] = components.executors
@@ -619,10 +615,7 @@ def build_executor_resolver(
         definition = registry.get_run_kind(run.kind)
         if definition is None:
             raise KeyError(f"unknown run kind {run.kind.kind}@{run.kind.version}")
-        executor = executors[definition.executor_key]
-        if definition.executor_key in DEFERRED_EXECUTORS:
-            return deferred_executor_adapter(executor)  # type: ignore[arg-type]
-        return executor  # type: ignore[return-value]
+        return executors[definition.executor_key]  # type: ignore[return-value]
 
     return resolve
 

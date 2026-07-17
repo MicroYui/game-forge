@@ -35,7 +35,6 @@ from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.apps.worker.replay import LegacyArtifactReplaySource
 from gameforge.apps.worker.regression import WorkerRegressionRunner
 from gameforge.apps.worker.dispatcher import RunDispatcher
-from gameforge.apps.worker.executor import ExecutorContext
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.dsl import Constraint, Predicate
 from gameforge.contracts.execution_profiles import (
@@ -49,7 +48,6 @@ from gameforge.contracts.execution_profiles import (
 from gameforge.contracts.jobs import (
     CheckerRunPayloadV1,
     GraphSelectionV1,
-    PreparedRunFailure,
     RunAttempt,
     RunKindRef,
     RunLease,
@@ -1170,14 +1168,29 @@ def test_deferred_executor_is_dispatchable_through_the_generic_resolver(tmp_path
                 classifier_version=1, classifier_digest="a" * 64
             ),
         )
-        attempt = SimpleNamespace(attempt_no=1)
-        executor = resolver(run)  # deferred executor, adapted to the generic shape
-        context = ExecutorContext(
-            run=run, attempt=attempt, payload=None, deadline_utc=None, model_bridge=None
-        )
-        outcome = executor(context)
-        assert isinstance(outcome, PreparedRunFailure)
-        assert outcome.run_id == "run:1"
-        assert outcome.run_kind == RunKindRef(kind="artifact.migrate", version=1)
+        executor = resolver(run)
+        assert executor is DEFERRED_EXECUTORS["artifact_migrator@1"]
     finally:
         runtime.close()
+
+
+def test_real_m4e_executor_can_replace_deferred_callable_under_retained_key() -> None:
+    registry = build_builtin_registry()
+    received: list[object] = []
+
+    def real_executor(context: object) -> object:
+        received.append(context)
+        return context
+
+    resolver = build_executor_resolver(
+        registry,
+        TrustedComponentMaps(executors={"artifact_migrator@1": real_executor}),
+    )
+    run = SimpleNamespace(kind=RunKindRef(kind="artifact.migrate", version=1))
+    context = object()
+
+    resolved = resolver(run)
+
+    assert resolved is real_executor
+    assert resolved(context) is context  # type: ignore[arg-type]
+    assert received == [context]
