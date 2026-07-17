@@ -11,6 +11,7 @@ import pytest
 
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
+    ArtifactLineagePolicyV1,
     ArtifactParentRuleV1,
     ArtifactIdentityBindingV1,
     ExecutionModeCountBindingV1,
@@ -25,6 +26,7 @@ from gameforge.contracts.jobs import (
     ResolvedPolicySubsetCountBindingV1,
     RuntimeParentRuleSetV1,
     RuntimeParentRuleV1,
+    VersionFieldProjectionRuleV1,
     resolved_policy_snapshot_digest,
 )
 from gameforge.contracts.execution_profiles import ArtifactLineagePolicyRefV1
@@ -496,6 +498,76 @@ def test_typed_lineage_rejects_dangling_parent():
         )
 
 
+def test_typed_lineage_uses_authoritative_role_ids_to_disambiguate_same_kind_inputs():
+    base = _checker_lineage(_builder())
+    policy = base.model_copy(
+        update={
+            "child_kind": "patch",
+            "child_payload_schema_ids": ("patch@2",),
+            "parent_rules": (
+                ArtifactParentRuleV1(
+                    parent_role="base",
+                    source="run_input",
+                    artifact_kinds=("ir_snapshot",),
+                    payload_schema_ids=("ir-core@1",),
+                    min_count=1,
+                    max_count=1,
+                ),
+                ArtifactParentRuleV1(
+                    parent_role="preview",
+                    source="run_input",
+                    artifact_kinds=("ir_snapshot",),
+                    payload_schema_ids=("ir-core@1",),
+                    min_count=1,
+                    max_count=1,
+                ),
+                ArtifactParentRuleV1(
+                    parent_role="supporting",
+                    source="run_input",
+                    artifact_kinds=("ir_snapshot",),
+                    payload_schema_ids=("ir-core@1",),
+                    min_count=0,
+                    max_count=None,
+                ),
+            ),
+        }
+    )
+    parents = {
+        artifact_id: ParentInfo(
+            artifact_id=artifact_id,
+            kind="ir_snapshot",
+            payload_schema_id="ir-core@1",
+            version_tuple=VersionTuple(ir_snapshot_id=snapshot_id),
+        )
+        for artifact_id, snapshot_id in (
+            ("artifact:base", "snapshot:base"),
+            ("artifact:preview", "snapshot:preview"),
+        )
+    }
+
+    typed = project_typed_lineage(
+        policy=policy,
+        child_kind="patch",
+        child_payload_schema_id="patch@2",
+        child_lineage=("artifact:base", "artifact:preview"),
+        sources=LineageParentSources(
+            run_inputs=parents,
+            run_intermediates={},
+            prepared_siblings={},
+        ),
+        expected_parent_ids_by_role={
+            "base": ("artifact:base",),
+            "preview": ("artifact:preview",),
+        },
+    )
+
+    assert tuple(item.artifact_id for item in typed.parents_by_role["base"]) == ("artifact:base",)
+    assert tuple(item.artifact_id for item in typed.parents_by_role["preview"]) == (
+        "artifact:preview",
+    )
+    assert typed.parents_by_role["supporting"] == ()
+
+
 def test_child_payload_reference_must_resolve_through_an_authorized_parent():
     base = _checker_lineage(_builder())
     policy = base.model_copy(
@@ -549,6 +621,66 @@ def test_domain_version_tuple_inherits_and_uses_producer_value():
     assert tuple_out.tool_version == "checker@1"
     assert tuple_out.constraint_snapshot_id is None
     assert tuple_out.prompt_version is None
+
+
+def test_domain_version_tuple_allows_only_equal_multi_parent_self_projection():
+    projection = tuple(
+        VersionFieldProjectionRuleV1(
+            field=field,
+            source=(
+                "parent_role"
+                if field == "doc_version"
+                else "producer_value"
+                if field == "tool_version"
+                else "constant_null"
+            ),
+            parent_role="source" if field == "doc_version" else None,
+            equality_parent_roles=("source",) if field == "doc_version" else (),
+        )
+        for field in VersionTuple.model_fields
+    )
+    policy = ArtifactLineagePolicyV1(
+        policy_schema_version="artifact-lineage-policy@1",
+        policy_id="multi-source-lineage",
+        policy_version=1,
+        child_kind="constraint_proposal",
+        child_payload_schema_ids=("constraint-proposal@1",),
+        parent_rules=(
+            ArtifactParentRuleV1(
+                parent_role="source",
+                source="run_input",
+                artifact_kinds=("source_raw",),
+                payload_schema_ids=("source-raw@1",),
+                min_count=1,
+                max_count=None,
+            ),
+        ),
+        version_projection=projection,
+    )
+
+    projected = project_domain_version_tuple(
+        policy=policy,
+        parent_tuples={
+            "source": (
+                VersionTuple(doc_version="sha256:doc"),
+                VersionTuple(doc_version="sha256:doc"),
+            )
+        },
+        producer_tuple=VersionTuple(tool_version="extraction@1"),
+    )
+    assert projected.doc_version == "sha256:doc"
+
+    with pytest.raises(IntegrityViolation, match="equality parent role disagrees"):
+        project_domain_version_tuple(
+            policy=policy,
+            parent_tuples={
+                "source": (
+                    VersionTuple(doc_version="sha256:doc-a"),
+                    VersionTuple(doc_version="sha256:doc-b"),
+                )
+            },
+            producer_tuple=VersionTuple(tool_version="extraction@1"),
+        )
 
 
 # --------------------------------------------------------- manifest transition

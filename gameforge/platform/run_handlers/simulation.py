@@ -23,7 +23,11 @@ from typing import Protocol
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.execution_profiles import (
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     PreparedRunOutcome,
@@ -42,6 +46,7 @@ from gameforge.spine.sim.economy import (
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     FindingEvidence,
     FindingHeadRevisionResolver,
@@ -50,8 +55,10 @@ from gameforge.platform.run_handlers.base import (
     build_success_result,
     load_json_blob,
     prepared_version_tuple,
+    require_exact_profile_bindings,
     rebind_finding_producers,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.readers import (
     ConstraintLoader,
@@ -88,14 +95,14 @@ class SimulationExecutionBudget:
 class SimulationExecutionBudgetResolver(Protocol):
     def __call__(
         self,
-        simulation_profile: ProfileRefV1,
-        workload_profile: ProfileRefV1,
+        simulation_profile: ResolvedExecutionProfileBindingV1,
+        workload_profile: ResolvedExecutionProfileBindingV1,
     ) -> SimulationExecutionBudget: ...
 
 
 def default_simulation_execution_budget(
-    _simulation_profile: ProfileRefV1,
-    _workload_profile: ProfileRefV1,
+    _simulation_profile: ResolvedExecutionProfileBindingV1,
+    _workload_profile: ResolvedExecutionProfileBindingV1,
 ) -> SimulationExecutionBudget:
     """Unit/default wiring matching the frozen built-in profile pair."""
 
@@ -335,6 +342,7 @@ def run_simulation_replications(
                 first_collapsed_child_seed = child_seed
             if earliest_collapse_tick is None or collapse.collapse_tick < earliest_collapse_tick:
                 earliest_collapse_tick = collapse.collapse_tick
+            if earliest_warning_tick is None or collapse.early_warning_tick < earliest_warning_tick:
                 earliest_warning_tick = collapse.early_warning_tick
 
     seed_digest.update(b'],"seed_derivation_version":"subseed@1"}')
@@ -408,18 +416,28 @@ class SimulationRunHandler:
         default_simulation_execution_budget
     )
     finding_head_revision: FindingHeadRevisionResolver | None = None
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, SimulationRunPayloadV1):
             raise TypeError("simulation_runner@1 requires a simulation-run@1 payload")
 
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected={
+                "/params/simulation_profile": (payload.simulation_profile, "simulation"),
+                "/params/workload_profile": (payload.workload_profile, "workload"),
+            },
+            validator=self.profile_binding_validator,
+        )
+
         kwargs = derive_simulation_kwargs(context.payload, payload)
         snapshot = self.snapshot_loader(self.blobs, payload.snapshot_artifact_id)
         constraints = self._constraints(payload)
         scenario = self._scenario(context, payload)
         model = EconomyModel.from_snapshot(snapshot)
-        self._validate_execution_budget(payload, kwargs, model)
+        self._validate_execution_budget(profile_bindings, kwargs, model)
         replication = run_simulation_replications(
             simulator=self.simulator,
             model=model,
@@ -496,13 +514,13 @@ class SimulationRunHandler:
 
     def _validate_execution_budget(
         self,
-        payload: SimulationRunPayloadV1,
+        profile_bindings: dict[str, ResolvedExecutionProfileBindingV1],
         kwargs: SimulationKwargs,
         model: EconomyModel,
     ) -> None:
         budget = self.execution_budget_resolver(
-            payload.simulation_profile,
-            payload.workload_profile,
+            profile_bindings["/params/simulation_profile"],
+            profile_bindings["/params/workload_profile"],
         )
         if (
             kwargs.replication_count > budget.max_replication_count

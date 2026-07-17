@@ -185,8 +185,16 @@ def project_typed_lineage(
     child_payload_schema_id: str,
     child_lineage: tuple[str, ...],
     sources: LineageParentSources,
+    expected_parent_ids_by_role: Mapping[str, tuple[str, ...]] | None = None,
 ) -> TypedLineage:
-    """Reverse-match a child's bare lineage into typed parent roles."""
+    """Reverse-match a child's bare lineage into typed parent roles.
+
+    Some Run payloads bind two roles to parents with the same source/kind/schema
+    (for example repair's original base and failed preview).  The terminal caller
+    may supply those immutable Run-derived role identities to disambiguate the
+    otherwise identical policy candidates.  They are an additional exact filter,
+    never worker-provided role claims, and are rechecked against the final match.
+    """
 
     if policy.child_kind != child_kind:
         raise IntegrityViolation(
@@ -200,10 +208,34 @@ def project_typed_lineage(
             schema=child_payload_schema_id,
         )
 
+    expected = dict(expected_parent_ids_by_role or {})
+    policy_roles = {rule.parent_role for rule in policy.parent_rules}
+    if set(expected) - policy_roles:
+        raise IntegrityViolation("typed lineage role identity is absent from its policy")
+    expected_claims: dict[str, str] = {}
+    for role, artifact_ids in expected.items():
+        if any(not isinstance(artifact_id, str) or not artifact_id for artifact_id in artifact_ids):
+            raise IntegrityViolation("typed lineage role identity contains an invalid Artifact ID")
+        if len(artifact_ids) != len(set(artifact_ids)):
+            raise IntegrityViolation("typed lineage role identity repeats an Artifact ID")
+        for artifact_id in artifact_ids:
+            previous_role = expected_claims.setdefault(artifact_id, role)
+            if previous_role != role:
+                raise IntegrityViolation(
+                    "one authoritative parent identity is claimed by multiple typed roles",
+                    artifact_id=artifact_id,
+                )
+
     matched: dict[str, list[ParentInfo]] = {rule.parent_role: [] for rule in policy.parent_rules}
     for parent_id in child_lineage:
         hits: list[tuple[ArtifactParentRuleV1, ParentInfo]] = []
         for rule in policy.parent_rules:
+            claimed_role = expected_claims.get(parent_id)
+            if claimed_role is not None and claimed_role != rule.parent_role:
+                continue
+            expected_ids = expected.get(rule.parent_role)
+            if expected_ids is not None and parent_id not in expected_ids:
+                continue
             info = _candidate_for_rule(parent_id, rule=rule, sources=sources)
             if info is not None:
                 hits.append((rule, info))
@@ -244,6 +276,14 @@ def project_typed_lineage(
                 parent_role=rule.parent_role,
                 max_count=rule.max_count,
                 actual=len(found),
+            )
+        expected_ids = expected.get(rule.parent_role)
+        if expected_ids is not None and sorted(ids) != sorted(expected_ids):
+            raise IntegrityViolation(
+                "typed lineage role differs from its authoritative parent identities",
+                parent_role=rule.parent_role,
+                expected=tuple(sorted(expected_ids)),
+                actual=tuple(sorted(ids)),
             )
 
     return TypedLineage(parents_by_role={role: tuple(items) for role, items in matched.items()})

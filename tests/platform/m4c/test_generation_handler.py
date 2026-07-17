@@ -284,6 +284,7 @@ def _context(
     *,
     payload: GenerationProposePayloadV1 | None = None,
 ):
+    actual_payload = payload or _payload()
     requirements = tuple(
         ResolvedArtifactRequirementV1(
             requirement_id=f"profile-gate:{rule}",
@@ -300,17 +301,20 @@ def _context(
         )
     )
     return build_context(
-        params=payload or _payload(),
+        params=actual_payload,
         kind=GENERATION_KIND,
         resolved_profiles=(
             resolved_binding(
                 "/params/generation_policy", profile_id="gen", version=1, kind="generation"
             ),
-            resolved_binding(
-                "/params/candidate_export_profiles/0",
-                profile_id="csv",
-                version=1,
-                kind="config_export",
+            *(
+                resolved_binding(
+                    f"/params/candidate_export_profiles/{index}",
+                    profile_id=profile.profile_id,
+                    version=profile.version,
+                    kind="config_export",
+                )
+                for index, profile in enumerate(actual_payload.candidate_export_profiles)
             ),
         ),
         resolved_policy_snapshots=(
@@ -347,10 +351,43 @@ def test_config_export_preflight_rejects_a_missing_exact_collection_binding() ->
         ),
     )
 
-    with pytest.raises(IntegrityViolation, match="frozen Run binding"):
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
         config_export_profile_binding(
             context, index=0, profile=_payload().candidate_export_profiles[0]
         )
+
+
+@pytest.mark.parametrize(
+    "field_path",
+    ("/params/generation_policy", "/params/candidate_export_profiles/0"),
+)
+def test_generation_rejects_mismatched_profile_binding_before_model_call(
+    field_path: str,
+) -> None:
+    store = _store()
+    bridge = FakeModelBridge(responses=(_BENIGN_OPS,))
+    context = _context(bridge)
+    bindings = tuple(
+        resolved_binding(
+            binding.field_path,
+            profile_id=(
+                "other" if binding.field_path == field_path else binding.profile.profile_id
+            ),
+            version=(9 if binding.field_path == field_path else binding.profile.version),
+            kind=binding.expected_profile_kind,
+        )
+        for binding in context.payload.resolved_profiles
+    )
+    context = replace(
+        context,
+        payload=context.payload.model_copy(update={"resolved_profiles": bindings}),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _handler(store)(context)
+
+    assert bridge.requests == []
+    assert store.put_count == 0
 
 
 def test_generation_gate_pass_emits_patch_preview_config_and_gate_evidence() -> None:

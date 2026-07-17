@@ -34,6 +34,7 @@ from gameforge.contracts.benchmark import (
     MAX_BENCHMARK_RESULT_METRICS_BYTES_TOTAL,
     MAX_BENCHMARK_SIMULATION_WORK_UNITS,
     BenchmarkAgentResponseExecutorV1,
+    BenchmarkAggregateInputBindingV1,
     BenchmarkCleanOracleFpExecutorV1,
     BenchmarkDatasetCaseV1,
     BenchmarkDatasetV1,
@@ -43,10 +44,12 @@ from gameforge.contracts.benchmark import (
     BenchmarkSeededDetectionExecutorV1,
     BenchmarkSpecV1,
     sampled_partition_cases,
+    validate_benchmark_aggregate_producer_seed_authority,
 )
-from gameforge.contracts.canonical import typed_canonical_json
+from gameforge.contracts.canonical import sha256_lowerhex, typed_canonical_json
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.jobs import RunRecord, RunResultV1, run_kind_definition_digest
 from gameforge.contracts.lineage import ArtifactV2
 from gameforge.game.aureus.kernel import AureusEnv
 from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
@@ -83,6 +86,8 @@ class BenchArtifactReader(Protocol):
     def load_artifact(self, artifact_id: str) -> ArtifactV2: ...
 
     def read_bytes_bounded(self, artifact_id: str, *, max_bytes: int) -> bytes: ...
+
+    def load_run(self, run_id: str) -> RunRecord: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -315,14 +320,8 @@ class WorkerBenchPorts:
                     raise IntegrityViolation(
                         "run-subseed benchmark simulation requires a stochastic profile"
                     )
-            elif (
-                authority.evaluator_profile_stochastic
-                or root_seed is not None
-                or repetition_count != 1
-            ):
-                raise IntegrityViolation(
-                    "fixed-seed benchmark simulation requires a deterministic one-shot Run"
-                )
+            elif repetition_count != 1:
+                raise IntegrityViolation("fixed-seed benchmark simulation requires a one-shot Run")
 
         aggregate_by_case: dict[str, tuple[BenchAggregateInputExpectationV1, ...]] = {}
         if execution_scope == "aggregate_results":
@@ -346,11 +345,9 @@ class WorkerBenchPorts:
                     )
                 aggregate_by_case[case_id] = tuple(
                     BenchAggregateInputExpectationV1(
-                        artifact_id=item.artifact_id,
-                        payload_hash=item.payload_hash,
-                        payload_size_bytes=item.payload_size_bytes,
-                        artifact_kind=item.artifact_kind,
-                        payload_schema_id=item.payload_schema_id,
+                        binding=item,
+                        benchmark_spec_artifact_id=benchmark_spec_artifact_id,
+                        dataset_case=dataset_case,
                     )
                     for item in bindings
                 )
@@ -758,8 +755,6 @@ class WorkerBenchPorts:
                 simulation_seed = execution_seed
             else:
                 assert simulation_config.fixed_seed is not None
-                if execution_seed is not None:
-                    raise IntegrityViolation("fixed benchmark simulation received a Run child seed")
                 simulation_seed = simulation_config.fixed_seed
             model = EconomyModel.from_snapshot(snapshot)
             validate_economy_simulation_work_budget(
@@ -791,8 +786,17 @@ class WorkerBenchPorts:
         self,
         *,
         expectation: BenchAggregateInputExpectationV1,
-        request: BenchCaseEvaluationRequestV1,
     ) -> BenchVerifiedAggregateInputV1:
+        binding = expectation.binding
+        try:
+            validate_benchmark_aggregate_producer_seed_authority(
+                binding,
+                expectation.dataset_case,
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "aggregate benchmark producer seed differs from dataset authority"
+            ) from exc
         artifact = self._artifacts.load_artifact(expectation.artifact_id)
         from hashlib import sha256
 
@@ -804,6 +808,7 @@ class WorkerBenchPorts:
             or artifact.object_ref.size_bytes != expectation.payload_size_bytes
         ):
             raise IntegrityViolation("aggregate benchmark Artifact differs from its binding")
+        self._verify_aggregate_producer(binding=binding, artifact=artifact)
         blob = self._artifacts.read_bytes_bounded(
             expectation.artifact_id,
             max_bytes=expectation.payload_size_bytes,
@@ -819,20 +824,118 @@ class WorkerBenchPorts:
         return BenchVerifiedAggregateInputV1(
             identity=BenchAggregateInputIdentityV1(
                 artifact_id=artifact.artifact_id,
-                case_id=request.case.case_id,
-                partition_id=request.case.partition_id,
-                mode=request.case.mode,
-                dataset_artifact_id=request.dataset_artifact_id,
-                benchmark_spec_artifact_id=request.benchmark_spec_artifact_id,
-                evaluator_profile=request.evaluator_profile,
-                run_kind=request.run_kind,
-                root_seed=request.root_seed,
-                replication_index=request.replication_index,
-                execution_seed=request.execution_seed,
-                seed_derivation_version=request.seed_derivation_version,
+                case_id=binding.case_id,
+                partition_id=binding.partition_id,
+                mode=binding.execution_mode,
+                dataset_artifact_id=binding.dataset_artifact_id,
+                benchmark_spec_artifact_id=expectation.benchmark_spec_artifact_id,
+                evaluator_profile=binding.evaluator_profile,
+                run_kind=binding.run_kind,
+                root_seed=binding.root_seed,
+                replication_index=binding.replication_index,
+                execution_seed=binding.execution_seed,
+                seed_derivation_version=binding.seed_derivation_version,
+                producer_run_id=binding.producer_run_id,
+                producer_run_kind=binding.producer_run_kind,
+                producer_run_payload_hash=binding.producer_run_payload_hash,
+                producer_attempt_no=binding.producer_attempt_no,
+                producer_result_artifact_id=binding.producer_result_artifact_id,
+                producer_result_payload_hash=binding.producer_result_payload_hash,
+                producer_seed_binding=binding.producer_seed_binding,
+                producer_root_seed=binding.producer_root_seed,
+                producer_seed_derivation_version=binding.producer_seed_derivation_version,
+                producer_resolved_profiles=binding.producer_resolved_profiles,
             ),
             blob=blob,
         )
+
+    def _verify_aggregate_producer(
+        self,
+        *,
+        binding: BenchmarkAggregateInputBindingV1,
+        artifact: ArtifactV2,
+    ) -> None:
+        """Close the bound case Artifact against its immutable producer authority."""
+
+        run = self._artifacts.load_run(binding.producer_run_id)
+        definition = self._registry.get_run_kind(binding.producer_run_kind)
+        if (
+            not isinstance(run, RunRecord)
+            or run.run_id != binding.producer_run_id
+            or run.status != "succeeded"
+            or run.kind != binding.producer_run_kind
+            or run.payload_hash != binding.producer_run_payload_hash
+            or run.current_attempt_no != binding.producer_attempt_no
+            or run.result_artifact_id != binding.producer_result_artifact_id
+            or run.payload.seed != binding.producer_root_seed
+            or run.payload.resolved_profiles != binding.producer_resolved_profiles
+            or definition is None
+            or definition.seed_derivation_version != binding.producer_seed_derivation_version
+            or (
+                binding.producer_seed_binding.relation == "bench_child"
+                and run.payload.seed != binding.execution_seed
+            )
+        ):
+            raise IntegrityViolation(
+                "aggregate benchmark producer Run differs from its immutable binding"
+            )
+        assert definition is not None
+        if run.run_kind_definition_digest != run_kind_definition_digest(definition):
+            raise IntegrityViolation(
+                "aggregate benchmark producer Run kind authority differs from its binding"
+            )
+        self._registry.validate_payload_bindings(
+            payload=run.payload,
+            definition=definition,
+        )
+
+        result_artifact = self._artifacts.load_artifact(binding.producer_result_artifact_id)
+        if (
+            result_artifact.kind != "run_result"
+            or result_artifact.meta.get("payload_schema_id") != "run-result@1"
+            or not hmac.compare_digest(
+                result_artifact.payload_hash,
+                binding.producer_result_payload_hash,
+            )
+        ):
+            raise IntegrityViolation(
+                "aggregate benchmark producer RunResult differs from its immutable binding"
+            )
+        result_blob = self._artifacts.read_bytes_bounded(
+            result_artifact.artifact_id,
+            max_bytes=MAX_PREPARED_ARTIFACT_BYTES,
+        )
+        if not hmac.compare_digest(
+            sha256_lowerhex(result_blob),
+            binding.producer_result_payload_hash,
+        ):
+            raise IntegrityViolation("aggregate benchmark producer RunResult bytes differ")
+        result_payload = decode_and_validate_artifact_payload(
+            payload_schema_id="run-result@1",
+            blob=result_blob,
+        )
+        try:
+            result = RunResultV1.model_validate(result_payload)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("aggregate benchmark producer RunResult is invalid") from exc
+        artifact_is_manifest = artifact.artifact_id == result_artifact.artifact_id
+        if (
+            result.run_id != run.run_id
+            or result.run_kind != run.kind
+            or result.attempt_no != binding.producer_attempt_no
+            or result.version_projection.run_payload_hash != run.payload_hash
+            or result_artifact.version_tuple != result.version_projection.terminal_version_tuple
+            or (
+                not artifact_is_manifest
+                and (
+                    artifact.artifact_id not in result.produced_artifact_ids
+                    or artifact.artifact_id not in result_artifact.lineage
+                )
+            )
+        ):
+            raise IntegrityViolation(
+                "aggregate benchmark producer RunResult does not authorize the bound Artifact"
+            )
 
     # --------------------------------------------------------------- compose
     def compose_execute(

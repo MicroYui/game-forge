@@ -23,7 +23,13 @@ from pydantic import (
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import MAX_CHECKER_WORK_UNITS_V1, ProfileRefV1
+from gameforge.contracts.execution_profiles import (
+    MAX_CHECKER_WORK_UNITS_V1,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
+from gameforge.contracts.seeds import SUBSEED_DERIVATION_VERSION_V1, derive_subseed_v1
 
 
 MAX_BENCHMARK_PARTITIONS = 1_024
@@ -76,6 +82,7 @@ Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 SnapshotId = Annotated[str, StringConstraints(pattern=r"^sha256:[0-9a-f]{64}$")]
 PositiveInt = Annotated[int, Field(ge=1, le=MAX_BENCHMARK_POLICY_VERSION)]
 RepetitionCount = Annotated[int, Field(ge=1, le=MAX_BENCHMARK_REPETITIONS)]
+Uint64 = Annotated[int, Field(strict=True, ge=0, le=(1 << 64) - 1)]
 
 
 class _FrozenModel(BaseModel):
@@ -742,10 +749,24 @@ class BenchmarkResourceLimitsV1(_FrozenModel):
     )
 
 
+class BenchmarkAggregateProducerSeedBindingV1(_FrozenModel):
+    """Versioned meaning of the producer Run seed for one aggregate input."""
+
+    producer_seed_binding_schema_version: Literal["benchmark-aggregate-producer-seed-binding@1"] = (
+        "benchmark-aggregate-producer-seed-binding@1"
+    )
+    relation: Literal["seed_independent", "bench_child", "fixed_case_seed"]
+
+
 class BenchmarkAggregateInputBindingV1(_FrozenModel):
     """Exact pre-existing result Artifact bound to one case replication."""
 
+    binding_schema_version: Literal["benchmark-aggregate-input-binding@1"] = (
+        "benchmark-aggregate-input-binding@1"
+    )
     case_id: BoundedId
+    partition_id: BoundedId
+    execution_mode: Literal["deterministic", "agent"]
     replication_index: int = Field(ge=0, le=MAX_BENCHMARK_REPETITIONS - 1)
     artifact_id: BoundedId
     payload_hash: Sha256Hex
@@ -760,12 +781,94 @@ class BenchmarkAggregateInputBindingV1(_FrozenModel):
         "regression_evidence",
     ]
     payload_schema_id: BoundedId
+    producer_run_id: BoundedId
+    producer_run_kind: RunKindRef
+    producer_run_payload_hash: Sha256Hex
+    producer_attempt_no: int = Field(strict=True, ge=1)
+    producer_result_artifact_id: BoundedId
+    producer_result_payload_hash: Sha256Hex
+    producer_seed_binding: BenchmarkAggregateProducerSeedBindingV1
+    producer_root_seed: Uint64 | None = None
+    producer_seed_derivation_version: BoundedId | None = None
+    producer_resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...] = Field(
+        max_length=1_024
+    )
+    dataset_artifact_id: BoundedId
+    evaluator_profile: ProfileRefV1
+    run_kind: RunKindRef
+    root_seed: Uint64 | None = None
+    execution_seed: Uint64 | None = None
+    seed_derivation_version: Literal["subseed@1"] = SUBSEED_DERIVATION_VERSION_V1
+
+    @field_validator("producer_resolved_profiles")
+    @classmethod
+    def _canonical_producer_profiles(
+        cls, value: tuple[ResolvedExecutionProfileBindingV1, ...]
+    ) -> tuple[ResolvedExecutionProfileBindingV1, ...]:
+        field_paths = [item.field_path for item in value]
+        if len(field_paths) != len(set(field_paths)):
+            raise ValueError("benchmark aggregate producer profile field paths must be unique")
+        return tuple(sorted(value, key=lambda item: item.field_path))
 
     @model_validator(mode="after")
     def _kind_schema_pair(self) -> "BenchmarkAggregateInputBindingV1":
         if self.payload_schema_id not in BENCHMARK_AGGREGATE_RESULT_SCHEMAS[self.artifact_kind]:
             raise ValueError("benchmark aggregate input kind/schema pair is unsupported")
+        if self.run_kind != RunKindRef(kind="bench.run", version=1):
+            raise ValueError("benchmark aggregate execution Run kind must be bench.run@1")
+        if (self.root_seed is None) != (self.execution_seed is None):
+            raise ValueError("benchmark aggregate root and execution seed must be present together")
+        if self.root_seed is not None:
+            expected_seed = derive_subseed_v1(
+                root_seed=self.root_seed,
+                run_kind=self.run_kind,
+                profile=self.evaluator_profile,
+                case_id=self.case_id,
+                replication_index=self.replication_index,
+            )
+            if self.execution_seed != expected_seed:
+                raise ValueError("benchmark aggregate execution seed differs from subseed@1")
+        relation = self.producer_seed_binding.relation
+        if relation == "seed_independent" and self.producer_root_seed is not None:
+            raise ValueError("seed-independent benchmark aggregate producer must not carry a seed")
+        if relation == "bench_child" and (
+            self.producer_root_seed is None
+            or self.producer_root_seed != self.execution_seed
+            or self.producer_seed_derivation_version is None
+        ):
+            raise ValueError("benchmark-child producer seed must equal the child execution seed")
+        if relation == "fixed_case_seed" and (
+            self.producer_root_seed is None or self.producer_seed_derivation_version is None
+        ):
+            raise ValueError("fixed-case producer seed requires an exact seeded producer")
         return self
+
+
+def validate_benchmark_aggregate_producer_seed_authority(
+    binding: BenchmarkAggregateInputBindingV1,
+    dataset_case: BenchmarkDatasetCaseV1,
+) -> None:
+    """Cross-check one producer seed relation against the exact dataset case."""
+
+    if (
+        binding.case_id != dataset_case.case_id
+        or binding.execution_mode != dataset_case.execution_mode
+    ):
+        raise ValueError("benchmark aggregate producer seed authority has the wrong case")
+    simulation = getattr(dataset_case.executor, "simulation", None)
+    relation = binding.producer_seed_binding.relation
+    if simulation is None:
+        if relation == "fixed_case_seed":
+            raise ValueError("fixed-case producer seed requires an exact fixed simulation case")
+        return
+    expected_relation = "fixed_case_seed" if simulation.seed_policy == "fixed" else "bench_child"
+    if relation != expected_relation:
+        raise ValueError("benchmark aggregate producer seed relation differs from its exact case")
+    if (
+        expected_relation == "fixed_case_seed"
+        and binding.producer_root_seed != simulation.fixed_seed
+    ):
+        raise ValueError("fixed-case producer seed differs from the exact dataset seed")
 
 
 class BenchmarkSpecV1(_FrozenModel):
@@ -858,6 +961,39 @@ class BenchmarkSpecV1(_FrozenModel):
                 raise ValueError(
                     "benchmark aggregate inputs must cover every case replication exactly"
                 )
+            case_authority = {
+                case.case_id: (partition.partition_id, case.execution_mode)
+                for partition in self.partitions
+                for case in partition.cases
+            }
+            if any(
+                (item.partition_id, item.execution_mode) != case_authority[item.case_id]
+                for item in self.aggregate_inputs
+            ):
+                raise ValueError(
+                    "benchmark aggregate input partition or execution mode differs from its case"
+                )
+            if any(
+                item.dataset_artifact_id != self.dataset.artifact_id
+                for item in self.aggregate_inputs
+            ):
+                raise ValueError("benchmark aggregate input dataset differs from the typed spec")
+            if any(
+                item.evaluator_profile != self.evaluator_profile for item in self.aggregate_inputs
+            ):
+                raise ValueError(
+                    "benchmark aggregate input evaluator profile differs from the typed spec"
+                )
+            if any(
+                item.seed_derivation_version != self.sampling_policy.seed_derivation_version
+                for item in self.aggregate_inputs
+            ):
+                raise ValueError(
+                    "benchmark aggregate input seed derivation differs from the sampling policy"
+                )
+            root_seeds = {item.root_seed for item in self.aggregate_inputs}
+            if len(root_seeds) != 1:
+                raise ValueError("benchmark aggregate inputs must share one exact root seed")
             if any(
                 item.payload_size_bytes
                 > self.resource_limits.max_aggregate_input_bytes_per_artifact
@@ -911,18 +1047,13 @@ def sampled_partition_cases(
             ranked = sorted(
                 cases,
                 key=lambda case: (
-                    sha256(
-                        canonical_json(
-                            {
-                                "root_seed": root_seed,
-                                "sampling_policy_id": spec.sampling_policy.policy_id,
-                                "sampling_policy_version": spec.sampling_policy.policy_version,
-                                "seed_derivation_version": spec.sampling_policy.seed_derivation_version,
-                                "partition_id": partition.partition_id,
-                                "case_id": case.case_id,
-                            }
-                        ).encode("utf-8")
-                    ).hexdigest(),
+                    derive_subseed_v1(
+                        root_seed=root_seed,
+                        run_kind=RunKindRef(kind="bench.run", version=1),
+                        profile=spec.evaluator_profile,
+                        case_id=case.case_id,
+                        replication_index=0,
+                    ),
                     case.case_id,
                 ),
             )
@@ -944,6 +1075,7 @@ __all__ = [
     "MAX_BENCHMARK_RESULT_METRICS_BYTES_TOTAL",
     "MAX_BENCHMARK_SIMULATION_WORK_UNITS",
     "BenchmarkAggregateInputBindingV1",
+    "BenchmarkAggregateProducerSeedBindingV1",
     "BenchmarkBinaryMetricDefinitionV1",
     "BenchmarkBinaryMetricTargetV1",
     "BenchmarkCaseExecutionV1",
@@ -969,4 +1101,5 @@ __all__ = [
     "BenchmarkSpecV1",
     "build_builtin_benchmark_evaluator_policy",
     "sampled_partition_cases",
+    "validate_benchmark_aggregate_producer_seed_authority",
 ]

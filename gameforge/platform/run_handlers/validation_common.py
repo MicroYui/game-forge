@@ -38,6 +38,7 @@ from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import PreparedArtifact
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple, artifact_id_v2_for
+from gameforge.contracts.seeds import SUBSEED_DERIVATION_VERSION_V1, derive_subseed_v1
 from gameforge.contracts.workflow import EvidenceRequirement
 from gameforge.spine.ir.snapshot import Snapshot
 
@@ -57,7 +58,7 @@ RESOLVED_PATCH = "patch-validation"
 RESOLVED_CONSTRAINT = "constraint-validation"
 RESOLVED_ROLLBACK = "rollback-validation"
 
-VALIDATION_SEED_DERIVATION_VERSION = "subseed@1"
+VALIDATION_SEED_DERIVATION_VERSION = SUBSEED_DERIVATION_VERSION_V1
 DETERMINISTIC_VALIDATION_EXECUTION_SEED = 0
 PATCH_SIMULATION_EXECUTION_MODE_V1 = "single_population@1"
 
@@ -358,23 +359,13 @@ def derive_validation_subseed(
     hash randomisation and collection traversal order.
     """
 
-    if not 0 <= root_seed <= (1 << 64) - 1:
-        raise ValueError("root seed must be an unsigned 64-bit integer")
-    if not case_id:
-        raise ValueError("validation child case_id must be non-empty")
-    if replication_index < 0:
-        raise ValueError("validation child replication_index must be non-negative")
-    digest = canonical_sha256(
-        {
-            "root_seed": root_seed,
-            "run_kind": run_kind.model_dump(mode="json"),
-            "profile_id": profile.profile_id,
-            "profile_version": profile.version,
-            "case_id": case_id,
-            "replication_index": replication_index,
-        }
+    return derive_subseed_v1(
+        root_seed=root_seed,
+        run_kind=run_kind,
+        profile=profile,
+        case_id=case_id,
+        replication_index=replication_index,
     )
-    return int(digest[:16], 16)
 
 
 def validation_child_execution_seed(

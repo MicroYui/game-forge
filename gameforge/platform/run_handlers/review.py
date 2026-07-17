@@ -46,6 +46,7 @@ from gameforge.spine.sim.economy import EconomyModel, EconomySimulator, to_findi
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     FindingEvidence,
     FindingHeadRevisionResolver,
@@ -58,6 +59,8 @@ from gameforge.platform.run_handlers.base import (
     resolved_profile,
     scoped_finding_series_id,
     store_prepared_artifact,
+    trust_typed_profile_binding,
+    require_exact_profile_bindings,
 )
 from gameforge.platform.run_handlers.checker import (
     CheckerExecutionPolicyResolver,
@@ -128,12 +131,17 @@ class ReviewExecutionConfig:
 CheckerResolver = Callable[[ResolvedExecutionProfileBindingV1, list[Constraint]], Checker]
 SimConfigResolver = Callable[[ResolvedExecutionProfileBindingV1], ReviewSimConfig]
 ReviewExecutionConfigResolver = Callable[[ResolvedExecutionProfileBindingV1], ReviewExecutionConfig]
+TriageProfileAuthorizer = Callable[[ResolvedExecutionProfileBindingV1], None]
 
 
 def default_review_execution_config(
     _binding: ResolvedExecutionProfileBindingV1,
 ) -> ReviewExecutionConfig:
     return ReviewExecutionConfig()
+
+
+def trust_typed_triage_profile(_binding: ResolvedExecutionProfileBindingV1) -> None:
+    """Unit/default seam; production validates the built-in triage adapter contract."""
 
 
 class _CheckerResolverProto(Protocol):
@@ -161,11 +169,36 @@ class ReviewRunHandler:
     nav_loader: NavLoader = load_nav
     simulator: EconomySimulatorPort = field(default_factory=EconomySimulator)
     finding_head_revision: FindingHeadRevisionResolver | None = None
+    triage_profile_authorizer: TriageProfileAuthorizer = trust_typed_triage_profile
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, ReviewRunPayloadV1):
             raise TypeError("review_runner@1 requires a review-run@1 payload")
+        expected_profiles = {
+            "/params/review_profile": (payload.review_profile, "review"),
+            **{
+                f"/params/checker_profiles/{index}": (profile, "checker")
+                for index, profile in enumerate(payload.checker_profiles)
+            },
+            **{
+                f"/params/simulation_profiles/{index}": (profile, "simulation")
+                for index, profile in enumerate(payload.simulation_profiles)
+            },
+        }
+        if payload.llm_triage_policy is not None:
+            expected_profiles["/params/llm_triage_policy"] = (
+                payload.llm_triage_policy,
+                "llm_triage",
+            )
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected=expected_profiles,
+            validator=self.profile_binding_validator,
+        )
+        if payload.llm_triage_policy is not None:
+            self.triage_profile_authorizer(profile_bindings["/params/llm_triage_policy"])
         if not payload.checker_profiles and not payload.simulation_profiles:
             raise IntegrityViolation(
                 "review.run requires at least one deterministic checker or simulation profile"
@@ -176,12 +209,7 @@ class ReviewRunHandler:
             )
         if payload.simulation_profiles and payload.selection.mode != "full":
             raise IntegrityViolation("review simulation profiles require full graph selection")
-        review_binding = _require_exact_profile_binding(
-            context,
-            field_path="/params/review_profile",
-            profile=payload.review_profile,
-            profile_kind="review",
-        )
+        review_binding = profile_bindings["/params/review_profile"]
         execution_config = self.execution_config_resolver(review_binding)
         if (
             len(payload.checker_profiles) > execution_config.max_checker_profile_count

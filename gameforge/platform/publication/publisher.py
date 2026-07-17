@@ -142,6 +142,7 @@ from gameforge.platform.publication.planner import (
 from gameforge.platform.publication.payload_binding import (
     FinalSiblingFact,
     bind_final_payload_references,
+    expected_typed_run_parent_ids,
     final_sibling_fact_for,
     validate_domain_payload_bindings,
 )
@@ -1996,6 +1997,14 @@ class TerminalPublisher:
                     child_payload_schema_id=view.payload_schema_id,
                     child_lineage=child_lineage,
                     sources=sources,
+                    expected_parent_ids_by_role=expected_typed_run_parent_ids(
+                        run=run,
+                        policy=plan.policy,
+                        rule=rule,
+                        policy_parent_roles=frozenset(
+                            parent.parent_role for parent in lineage_policy.parent_rules
+                        ),
+                    ),
                 )
                 requires_identity = self._producer_facts.requires_identity(
                     run_kind=run.kind,

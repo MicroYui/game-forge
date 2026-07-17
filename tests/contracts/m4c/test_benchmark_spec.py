@@ -15,8 +15,9 @@ from gameforge.contracts.benchmark import (
     BenchmarkPartitionV1,
     BenchmarkSamplingPolicyV1,
     BenchmarkSpecV1,
+    sampled_partition_cases,
 )
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 
 
 def _spec(*partitions: BenchmarkPartitionV1) -> BenchmarkSpecV1:
@@ -162,14 +163,181 @@ def test_aggregate_product_limit_is_checked_before_coverage_expansion() -> None:
     values["aggregate_inputs"] = [
         BenchmarkAggregateInputBindingV1(
             case_id="case:1",
+            partition_id="cases",
+            execution_mode="deterministic",
             replication_index=0,
             artifact_id="artifact:result",
             payload_hash="c" * 64,
             payload_size_bytes=1,
             artifact_kind="checker_run",
             payload_schema_id="checker-report@1",
+            producer_run_id="run:checker:1",
+            producer_run_kind=RunKindRef(kind="checker.run", version=1),
+            producer_run_payload_hash="d" * 64,
+            producer_attempt_no=1,
+            producer_result_artifact_id="artifact:producer-result",
+            producer_result_payload_hash="e" * 64,
+            producer_seed_binding={"relation": "seed_independent"},
+            producer_root_seed=None,
+            producer_seed_derivation_version=None,
+            producer_resolved_profiles=(),
+            dataset_artifact_id="artifact:dataset",
+            evaluator_profile=ProfileRefV1(
+                profile_id="builtin.bench_evaluator",
+                version=1,
+            ),
+            run_kind=RunKindRef(kind="bench.run", version=1),
+            root_seed=None,
+            execution_seed=None,
+            seed_derivation_version="subseed@1",
         ).model_dump(mode="python")
     ]
 
     with pytest.raises(ValidationError, match="cover every case replication"):
         BenchmarkSpecV1.model_validate(values)
+
+
+def test_seeded_sampling_ranks_by_the_frozen_subseed_v1_vector() -> None:
+    values = _spec(
+        _partition(
+            "seeded",
+            *((f"case:{index}", "deterministic") for index in range(8)),
+        )
+    ).model_dump(mode="python")
+    values["sampling_policy"] = {
+        **values["sampling_policy"],
+        "strategy": "seeded_without_replacement",
+        "sample_size_per_partition": 3,
+    }
+    spec = BenchmarkSpecV1.model_validate(values)
+
+    sampled = sampled_partition_cases(spec, ("seeded",), root_seed=0)
+
+    assert tuple(case.case_id for _, case in sampled) == ("case:7", "case:5", "case:6")
+
+
+def test_aggregate_binding_freezes_complete_producer_and_benchmark_seed_provenance() -> None:
+    binding = BenchmarkAggregateInputBindingV1(
+        case_id="case:1",
+        partition_id="cases",
+        execution_mode="deterministic",
+        replication_index=0,
+        artifact_id="artifact:result",
+        payload_hash="c" * 64,
+        payload_size_bytes=1,
+        artifact_kind="checker_run",
+        payload_schema_id="checker-report@1",
+        producer_run_id="run:checker:1",
+        producer_run_kind=RunKindRef(kind="checker.run", version=1),
+        producer_run_payload_hash="d" * 64,
+        producer_attempt_no=1,
+        producer_result_artifact_id="artifact:producer-result",
+        producer_result_payload_hash="e" * 64,
+        producer_seed_binding={"relation": "seed_independent"},
+        producer_root_seed=None,
+        producer_seed_derivation_version=None,
+        producer_resolved_profiles=(),
+        dataset_artifact_id="artifact:dataset",
+        evaluator_profile=ProfileRefV1(
+            profile_id="builtin.bench_evaluator",
+            version=1,
+        ),
+        run_kind=RunKindRef(kind="bench.run", version=1),
+        root_seed=7,
+        execution_seed=6360663870362977205,
+        seed_derivation_version="subseed@1",
+    )
+    values = _spec(_partition("cases", ("case:1", "deterministic"))).model_dump(mode="python")
+    values["aggregate_repetition_count"] = 1
+    values["aggregate_inputs"] = [binding.model_dump(mode="python")]
+    spec = BenchmarkSpecV1.model_validate(values)
+
+    assert spec.aggregate_inputs == (binding,)
+
+    forged = binding.model_copy(update={"execution_seed": binding.execution_seed + 1})
+    values["aggregate_inputs"] = [forged.model_dump(mode="python")]
+    with pytest.raises(ValidationError, match="execution seed"):
+        BenchmarkSpecV1.model_validate(values)
+
+
+def test_seeded_aggregate_binding_cannot_relabel_one_producer_under_another_child_seed() -> None:
+    execution_seed = 6360663870362977205
+    common = {
+        "case_id": "case:1",
+        "partition_id": "cases",
+        "execution_mode": "deterministic",
+        "replication_index": 0,
+        "artifact_id": "artifact:result",
+        "payload_hash": "c" * 64,
+        "payload_size_bytes": 1,
+        "artifact_kind": "simulation_run",
+        "payload_schema_id": "simulation-result@1",
+        "producer_run_id": "run:simulation:1",
+        "producer_run_kind": RunKindRef(kind="simulation.run", version=1),
+        "producer_run_payload_hash": "d" * 64,
+        "producer_attempt_no": 1,
+        "producer_result_artifact_id": "artifact:producer-result",
+        "producer_result_payload_hash": "e" * 64,
+        "producer_seed_binding": {"relation": "bench_child"},
+        "producer_seed_derivation_version": "subseed@1",
+        "producer_resolved_profiles": (),
+        "dataset_artifact_id": "artifact:dataset",
+        "evaluator_profile": ProfileRefV1(
+            profile_id="builtin.bench_evaluator",
+            version=1,
+        ),
+        "run_kind": RunKindRef(kind="bench.run", version=1),
+        "root_seed": 7,
+        "execution_seed": execution_seed,
+        "seed_derivation_version": "subseed@1",
+    }
+
+    exact = BenchmarkAggregateInputBindingV1(
+        **common,
+        producer_root_seed=execution_seed,
+    )
+    assert exact.producer_root_seed == exact.execution_seed
+
+    with pytest.raises(ValidationError, match="producer seed"):
+        BenchmarkAggregateInputBindingV1(
+            **common,
+            producer_root_seed=execution_seed + 1,
+        )
+
+
+def test_fixed_case_producer_seed_coexists_with_benchmark_child_seed() -> None:
+    execution_seed = 6360663870362977205
+
+    binding = BenchmarkAggregateInputBindingV1(
+        case_id="case:1",
+        partition_id="cases",
+        execution_mode="deterministic",
+        replication_index=0,
+        artifact_id="artifact:result",
+        payload_hash="c" * 64,
+        payload_size_bytes=1,
+        artifact_kind="simulation_run",
+        payload_schema_id="simulation-result@1",
+        producer_run_id="run:simulation:1",
+        producer_run_kind=RunKindRef(kind="simulation.run", version=1),
+        producer_run_payload_hash="d" * 64,
+        producer_attempt_no=1,
+        producer_result_artifact_id="artifact:producer-result",
+        producer_result_payload_hash="e" * 64,
+        producer_seed_binding={"relation": "fixed_case_seed"},
+        producer_root_seed=23,
+        producer_seed_derivation_version="subseed@1",
+        producer_resolved_profiles=(),
+        dataset_artifact_id="artifact:dataset",
+        evaluator_profile=ProfileRefV1(
+            profile_id="builtin.bench_evaluator",
+            version=1,
+        ),
+        run_kind=RunKindRef(kind="bench.run", version=1),
+        root_seed=7,
+        execution_seed=execution_seed,
+        seed_derivation_version="subseed@1",
+    )
+
+    assert binding.producer_root_seed == 23
+    assert binding.execution_seed == execution_seed

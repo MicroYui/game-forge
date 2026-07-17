@@ -38,7 +38,6 @@ from gameforge.contracts.execution_profiles import (
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
 )
-from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.findings import Finding, PatchV2, TypedOp
 from gameforge.contracts.jobs import (
     GenerationProposePayloadV1,
@@ -54,6 +53,7 @@ from gameforge.spine.sim.economy import EconomyModel
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     PreparedArtifactBatchStore,
     PreparedArtifactStore,
@@ -61,9 +61,11 @@ from gameforge.platform.run_handlers.base import (
     canonical_payload_bytes,
     prepared_version_tuple,
     rebind_embedded_finding_payload,
-    resolved_profile,
+    require_exact_profile_binding,
+    require_exact_profile_bindings,
     store_prepared_artifact,
     store_prepared_blob,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.model_routing import (
     BridgeModelRouter,
@@ -177,7 +179,7 @@ class GenerationExecutionConfig:
 
 
 class GenerationExecutionConfigResolver(Protocol):
-    def __call__(self, profile: ProfileRefV1) -> GenerationExecutionConfig: ...
+    def __call__(self, binding: ResolvedExecutionProfileBindingV1) -> GenerationExecutionConfig: ...
 
 
 class ConfigExporter(Protocol):
@@ -211,16 +213,12 @@ def config_export_profile_binding(
     """Rebind one collection member to its exact catalog/profile authority."""
 
     field_path = f"/params/candidate_export_profiles/{index}"
-    binding = resolved_profile(context.payload, field_path, required=False)
-    if (
-        binding is None
-        or binding.profile != profile
-        or binding.expected_profile_kind != "config_export"
-        or binding.catalog_version != context.payload.execution_profile_catalog_version
-        or binding.catalog_digest != context.payload.execution_profile_catalog_digest
-    ):
-        raise IntegrityViolation("config export profile differs from its frozen Run binding")
-    return binding
+    return require_exact_profile_binding(
+        context,
+        field_path=field_path,
+        profile=profile,
+        profile_kind="config_export",
+    )
 
 
 GoalLoader = Callable[[ArtifactBlobReader, str], DesignGoalInput]
@@ -270,13 +268,31 @@ class GenerationProposalHandler:
     constraint_loader: ConstraintLoader = load_constraints
     goal_loader: GoalLoader = load_goal
     finding_loader: FindingLoader = field(default=_no_findings)
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, GenerationProposePayloadV1):
             raise TypeError("generation_proposer@1 requires a generation-propose@1 payload")
 
-        execution_config = self.execution_config_resolver(payload.generation_policy)
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected={
+                "/params/generation_policy": (payload.generation_policy, "generation"),
+                **{
+                    f"/params/candidate_export_profiles/{index}": (
+                        profile,
+                        "config_export",
+                    )
+                    for index, profile in enumerate(payload.candidate_export_profiles)
+                },
+            },
+            validator=self.profile_binding_validator,
+        )
+
+        execution_config = self.execution_config_resolver(
+            profile_bindings["/params/generation_policy"]
+        )
         if len(payload.candidate_export_profiles) > execution_config.max_candidate_export_profiles:
             raise ValueError("generation candidate export profiles exceed the profile count budget")
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 
 import pytest
@@ -39,6 +40,57 @@ from tests.platform.m4c.handler_support import (
 
 CHECKER_KIND = RunKindRef(kind="checker.run", version=1)
 SNAPSHOT_ID = "artifact:snapshot"
+
+
+def test_checker_rejects_mismatched_exact_profile_binding_before_execution() -> None:
+    store = FakeArtifactStore()
+    context = _context(store, _checker_payload(checker_ids=("graph",)))
+    context = replace(
+        context,
+        payload=context.payload.model_copy(
+            update={
+                "resolved_profiles": (
+                    resolved_binding(
+                        "/params/checker_profile",
+                        profile_id="other",
+                        version=9,
+                        kind="simulation",
+                    ),
+                )
+            }
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _handler(store)(context)
+
+    assert store.put_count == 0
+
+
+def test_checker_rejects_an_extra_profile_binding_before_execution() -> None:
+    store = FakeArtifactStore()
+    context = _context(store, _checker_payload(checker_ids=("graph",)))
+    context = replace(
+        context,
+        payload=context.payload.model_copy(
+            update={
+                "resolved_profiles": (
+                    *context.payload.resolved_profiles,
+                    resolved_binding(
+                        "/params/unconsumed_profile",
+                        profile_id="injected",
+                        version=1,
+                        kind="workload",
+                    ),
+                )
+            }
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _handler(store)(context)
+
+    assert store.put_count == 0
 
 
 def test_prepared_blob_bound_rejects_before_object_store_write(monkeypatch) -> None:

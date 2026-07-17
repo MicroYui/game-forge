@@ -887,6 +887,11 @@ def _lineage_spec(
                     max_count=None,
                 ),
                 _parent(
+                    "goal",
+                    source="run_input",
+                    kinds=("source_raw",),
+                ),
+                _parent(
                     "base_constraint",
                     source="run_input",
                     kinds=("constraint_snapshot",),

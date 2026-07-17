@@ -26,10 +26,13 @@ from gameforge.contracts.routing import (
     compute_model_catalog_digest,
 )
 from gameforge.platform.run_handlers.model_routing import (
+    BridgeModelRouter,
     ExactModelCatalogSnapshotResolver,
+    ModelBridgeAgentAdapter,
     MultiNodeBridgeRouter,
     build_bridge_router,
 )
+from tests.platform.m4c.handler_support import FakeModelBridge
 
 
 NOW = datetime(2026, 7, 16, tzinfo=UTC)
@@ -273,3 +276,119 @@ def test_multinode_router_selects_snapshot_before_params_and_request_hash() -> N
     ]
     assert planner_hash == request_hash(planner_request)
     assert executor_hash == request_hash(executor_request)
+
+
+def test_bridge_router_preserves_complete_ordered_message_history_and_tool_calls() -> None:
+    snapshot = ModelSnapshot(provider="openai", model="gpt-5.6-sol", snapshot_tag="exact@1")
+    bridge = FakeModelBridge(responses=("{}",))
+    adapter = ModelBridgeAgentAdapter(
+        model_bridge=bridge,
+        idempotency_scope="run:1:attempt:1",
+    )
+    router = BridgeModelRouter(
+        adapter=adapter,
+        default_model_snapshot=snapshot,
+        source_artifact_ids=("artifact:source",),
+        max_prompt_message_bytes=16 * 1024 * 1024,
+    )
+    messages = [
+        Message(role="system", content="system one"),
+        Message(role="user", content="user one"),
+        Message(
+            role="assistant",
+            content="assistant tool request",
+            tool_calls=[{"id": "call:1", "name": "inspect"}],
+        ),
+        Message(role="tool", content="tool result"),
+        Message(role="system", content="system two"),
+        Message(role="user", content="user two"),
+    ]
+    request = ModelRequest(
+        model_snapshot=snapshot,
+        messages=messages,
+        params={"max_tokens": 64},
+        agent_node_id="generation",
+        prompt_version="generation-prompt@1",
+    )
+
+    router.call(request)
+
+    forwarded = bridge.requests[0]
+    assert forwarded.model_request.messages == messages
+    assert request_hash(forwarded.model_request) == request_hash(request)
+    assert [message.role for message in forwarded.prompt_context.messages] == [
+        "user",
+        "assistant",
+        "tool",
+        "user",
+    ]
+    assert forwarded.prompt_context.messages[1].tool_calls == ({"id": "call:1", "name": "inspect"},)
+
+
+def test_bridge_router_rejects_an_early_oversized_message_before_bridge_call() -> None:
+    snapshot = ModelSnapshot(provider="openai", model="gpt-5.6-sol", snapshot_tag="exact@1")
+    bridge = FakeModelBridge(responses=("{}",))
+    router = BridgeModelRouter(
+        adapter=ModelBridgeAgentAdapter(
+            model_bridge=bridge,
+            idempotency_scope="run:1:attempt:1",
+        ),
+        default_model_snapshot=snapshot,
+        source_artifact_ids=("artifact:source",),
+        max_prompt_message_bytes=4,
+    )
+
+    with pytest.raises(IntegrityViolation, match="prompt message exceeds"):
+        router.call(
+            ModelRequest(
+                model_snapshot=snapshot,
+                messages=[
+                    Message(role="user", content="too long"),
+                    Message(role="user", content="ok"),
+                ],
+                agent_node_id="generation",
+                prompt_version="generation-prompt@1",
+            )
+        )
+
+    assert bridge.requests == []
+
+
+def test_multinode_router_preserves_complete_ordered_message_history() -> None:
+    snapshot = ModelSnapshot(provider="openai", model="gpt-5.6-sol", snapshot_tag="exact@1")
+
+    class _Adapter:
+        call_count = 0
+
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def call_model(self, **kwargs):
+            self.call_count += 1
+            self.calls.append(kwargs)
+            return SimpleNamespace(response=ModelResponse(response_normalized="{}"))
+
+    adapter = _Adapter()
+    router = MultiNodeBridgeRouter(
+        adapter=adapter,  # type: ignore[arg-type]
+        node_snapshots={"playtest.planner": snapshot},
+        default_node_id="playtest.planner",
+        source_artifact_ids=("artifact:source",),
+    )
+    messages = [
+        Message(role="system", content="system"),
+        Message(role="user", content="first"),
+        Message(role="assistant", content="prior answer"),
+        Message(role="user", content="second"),
+    ]
+
+    router.call(
+        ModelRequest(
+            model_snapshot=snapshot,
+            messages=messages,
+            agent_node_id="playtest.planner",
+            prompt_version="playtest@1",
+        )
+    )
+
+    assert adapter.calls[0]["messages"] == tuple(messages)

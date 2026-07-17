@@ -15,6 +15,7 @@ from gameforge.bench.report_contracts import BenchReport, canonical_report_bytes
 from gameforge.bench.taxonomy import DefectClass
 from gameforge.contracts.benchmark import (
     BenchmarkAgentResponseExecutorV1,
+    BenchmarkAggregateInputBindingV1,
     BenchmarkBinaryMetricDefinitionV1,
     BenchmarkBinaryMetricTargetV1,
     BenchmarkCaseExecutionV1,
@@ -38,6 +39,17 @@ from gameforge.contracts.benchmark import (
 from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.jobs import (
+    CheckerRunPayloadV1,
+    GraphSelectionV1,
+    RunManifestVersionProjectionV1,
+    RunResultSummaryV1,
+    RunResultV1,
+    SimulationRunPayloadV1,
+    VersionTransitionPolicyRefV1,
+    canonical_payload_hash,
+    run_kind_definition_digest,
+)
 from gameforge.contracts.lineage import (
     ArtifactV2,
     ObjectRef,
@@ -45,6 +57,7 @@ from gameforge.contracts.lineage import (
     build_artifact_v2,
     object_key_for_sha256,
 )
+from gameforge.contracts.seeds import derive_subseed_v1
 from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.run_handlers.bench import (
     BENCH_SEED_DERIVATION_VERSION,
@@ -54,12 +67,14 @@ from gameforge.platform.run_handlers.bench import (
     BenchCaseSpecV1,
 )
 from gameforge.spine.ir.snapshot import Snapshot
+from tests.platform.m4c.handler_support import build_envelope, build_run_record
 
 
 class _Artifacts:
     def __init__(self) -> None:
         self.artifacts: dict[str, ArtifactV2] = {}
         self.blobs: dict[str, bytes] = {}
+        self.runs = {}
         self.read_calls: list[str] = []
 
     def put(
@@ -94,6 +109,199 @@ class _Artifacts:
         if len(blob) > max_bytes:
             raise AssertionError("oversized fixture must never be read")
         return blob
+
+    def load_run(self, run_id: str):
+        return self.runs[run_id]
+
+
+def _aggregate_expectation(
+    *,
+    registry,
+    artifacts: _Artifacts,
+    artifact: ArtifactV2,
+    dataset_artifact_id: str,
+    benchmark_spec_artifact_id: str,
+    evaluator_profile: ProfileRefV1,
+    payload_size_bytes: int | None = None,
+    root_seed: int | None = None,
+    producer_seed: int | None = None,
+    dataset_case: BenchmarkDatasetCaseV1 | None = None,
+) -> BenchAggregateInputExpectationV1:
+    if dataset_case is None:
+        dataset = BenchmarkDatasetV1.model_validate_json(artifacts.blobs[dataset_artifact_id])
+        dataset_case = next(
+            case
+            for partition in dataset.partitions
+            for case in partition.cases
+            if case.case_id == "case:seeded"
+        )
+    if producer_seed is None:
+        producer_kind = RunKindRef(kind="checker.run", version=1)
+        producer_params = CheckerRunPayloadV1(
+            snapshot_artifact_id="artifact:snapshot",
+            selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+            checker_profile=ProfileRefV1(profile_id="builtin.checker", version=1),
+            checker_ids=(),
+            defect_classes=(),
+        )
+        profile_requirements = (
+            (
+                "/params/checker_profile",
+                producer_params.checker_profile,
+                "checker",
+            ),
+        )
+        outcome_code = "checker_completed"
+    else:
+        producer_kind = RunKindRef(kind="simulation.run", version=1)
+        producer_params = SimulationRunPayloadV1(
+            snapshot_artifact_id="artifact:snapshot",
+            constraint_snapshot_artifact_id=None,
+            scenario_artifact_id=None,
+            simulation_profile=ProfileRefV1(profile_id="builtin.simulation", version=1),
+            workload_profile=ProfileRefV1(profile_id="builtin.workload", version=1),
+            replication_count=1,
+            horizon_steps=1,
+        )
+        profile_requirements = (
+            (
+                "/params/simulation_profile",
+                producer_params.simulation_profile,
+                "simulation",
+            ),
+            (
+                "/params/workload_profile",
+                producer_params.workload_profile,
+                "workload",
+            ),
+        )
+        outcome_code = "simulation_completed"
+    definition = registry.get_run_kind(producer_kind)
+    assert definition is not None
+    catalog = max(
+        registry.list_execution_profile_catalogs(),
+        key=lambda item: item.catalog_version,
+    )
+    resolved_profiles = tuple(
+        registry.resolve_execution_profile(
+            catalog_version=catalog.catalog_version,
+            catalog_digest=catalog.catalog_digest,
+            field_path=field_path,
+            profile=profile,
+            expected_profile_kind=profile_kind,
+        )
+        for field_path, profile, profile_kind in profile_requirements
+    )
+    policy_bindings, schema_bindings = registry.resolve_required_run_bindings(
+        definition=definition,
+        resolved_profiles=resolved_profiles,
+    )
+    envelope = build_envelope(
+        params=producer_params,
+        resolved_profiles=resolved_profiles,
+        seed=producer_seed,
+    ).model_copy(
+        update={
+            "execution_profile_catalog_version": catalog.catalog_version,
+            "execution_profile_catalog_digest": catalog.catalog_digest,
+            "policy_bindings": policy_bindings,
+            "schema_bindings": schema_bindings,
+        }
+    )
+    producer_run_id = f"run:producer:{len(artifacts.runs) + 1}"
+    run = build_run_record(envelope, producer_kind, run_id=producer_run_id).model_copy(
+        update={"run_kind_definition_digest": run_kind_definition_digest(definition)}
+    )
+    projection = RunManifestVersionProjectionV1(
+        manifest_scope="run",
+        attempt_no=1,
+        run_kind=producer_kind,
+        run_payload_hash=run.payload_hash,
+        frozen_input_version_tuple=envelope.version_tuple,
+        terminal_version_tuple=artifact.version_tuple,
+        version_transition_policy_ref=VersionTransitionPolicyRefV1(
+            policy_id="test-transition",
+            policy_version=1,
+            digest="a" * 64,
+        ),
+        parents=(),
+    )
+    result = RunResultV1(
+        run_id=producer_run_id,
+        attempt_no=1,
+        run_kind=producer_kind,
+        primary_artifact_id=artifact.artifact_id,
+        produced_artifact_ids=(artifact.artifact_id,),
+        finding_count=0,
+        outcome_code=outcome_code,
+        summary=RunResultSummaryV1(
+            outcome_code=outcome_code,
+            primary_artifact_kind=artifact.kind,
+            produced_artifact_count=1,
+            finding_count=0,
+        ),
+        requirement_dispositions=(),
+        version_projection=projection,
+    )
+    result_artifact = artifacts.put(
+        kind="run_result",
+        schema="run-result@1",
+        payload=result.model_dump(mode="json"),
+        lineage=(artifact.artifact_id,),
+    )
+    artifacts.runs[producer_run_id] = run.model_copy(
+        update={
+            "status": "succeeded",
+            "result_artifact_id": result_artifact.artifact_id,
+            "concurrency_permit_group_id": None,
+        }
+    )
+    binding = BenchmarkAggregateInputBindingV1(
+        case_id="case:seeded",
+        partition_id="seeded",
+        execution_mode="deterministic",
+        replication_index=0,
+        artifact_id=artifact.artifact_id,
+        payload_hash=artifact.payload_hash,
+        payload_size_bytes=(
+            artifact.object_ref.size_bytes if payload_size_bytes is None else payload_size_bytes
+        ),
+        artifact_kind=artifact.kind,
+        payload_schema_id=str(artifact.meta["payload_schema_id"]),
+        producer_run_id=producer_run_id,
+        producer_run_kind=producer_kind,
+        producer_run_payload_hash=run.payload_hash,
+        producer_attempt_no=1,
+        producer_result_artifact_id=result_artifact.artifact_id,
+        producer_result_payload_hash=result_artifact.payload_hash,
+        producer_seed_binding={
+            "relation": "seed_independent" if producer_seed is None else "bench_child"
+        },
+        producer_root_seed=envelope.seed,
+        producer_seed_derivation_version=definition.seed_derivation_version,
+        producer_resolved_profiles=envelope.resolved_profiles,
+        dataset_artifact_id=dataset_artifact_id,
+        evaluator_profile=evaluator_profile,
+        run_kind=RunKindRef(kind="bench.run", version=1),
+        root_seed=root_seed,
+        execution_seed=(
+            None
+            if root_seed is None
+            else derive_subseed_v1(
+                root_seed=root_seed,
+                run_kind=RunKindRef(kind="bench.run", version=1),
+                profile=evaluator_profile,
+                case_id="case:seeded",
+                replication_index=0,
+            )
+        ),
+        seed_derivation_version="subseed@1",
+    )
+    return BenchAggregateInputExpectationV1(
+        binding=binding,
+        benchmark_spec_artifact_id=benchmark_spec_artifact_id,
+        dataset_case=dataset_case,
+    )
 
 
 def _digest_constraints(constraints) -> str:
@@ -444,6 +652,40 @@ def test_benchmark_simulation_rejects_valid_but_unbounded_work_before_execution(
         WorkerBenchPorts._run_oracle_pipeline(executor, execution_seed=None)
 
 
+def test_fixed_benchmark_simulation_keeps_its_seed_with_a_bench_child_seed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import gameforge.apps.worker.bench as bench_module
+
+    snapshot = Snapshot(entities={}, relations={})
+    executor = BenchmarkCleanOracleFpExecutorV1(
+        snapshot_payload=snapshot.content_payload,
+        snapshot_id=snapshot.snapshot_id,
+        snapshot_payload_hash=sha256_lowerhex(canonical_json(snapshot.content_payload).encode()),
+        constraints=(),
+        constraints_digest=_digest_constraints(()),
+        simulation=BenchmarkSimulationExecutionV1(
+            seed_policy="fixed",
+            fixed_seed=23,
+            agents=1,
+            ticks=1,
+        ),
+        failure_buckets=("simulation",),
+    )
+    seen_seeds: list[int] = []
+    real_run = bench_module.EconomySimulator.run
+
+    def capture_seed(self, *args, seed: int, **kwargs):
+        seen_seeds.append(seed)
+        return real_run(self, *args, seed=seed, **kwargs)
+
+    monkeypatch.setattr(bench_module.EconomySimulator, "run", capture_seed)
+
+    WorkerBenchPorts._run_oracle_pipeline(executor, execution_seed=999)
+
+    assert seen_seeds == [23]
+
+
 def test_agent_json_oracle_is_strictly_typed() -> None:
     executor = BenchmarkAgentResponseExecutorV1(
         prompts=("judge",),
@@ -634,37 +876,211 @@ def test_aggregate_size_mismatch_is_rejected_before_any_blob_read() -> None:
         repetition_count=1,
         execution_scope="execute_cases",
     )
-    request = BenchCaseEvaluationRequestV1(
-        case=cases[0],
-        dataset_artifact_id=dataset_artifact.artifact_id,
-        benchmark_spec_artifact_id=spec_artifact.artifact_id,
-        evaluator_profile=profile,
-        run_kind=RunKindRef(kind="bench.run", version=1),
-        root_seed=None,
-        replication_index=0,
-        execution_seed=None,
-        seed_derivation_version="subseed@1",
-        case_ordinal=0,
-        result_ordinal=0,
-        agent_source_suffix=None,
-    )
+    assert cases[0].case_id == "case:seeded"
     result_artifact = artifacts.put(
         kind="checker_run",
         schema="checker-report@1",
-        payload={"payload_schema_version": "checker-report@1"},
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:test",
+            "findings": [],
+        },
+    )
+    expectation = _aggregate_expectation(
+        registry=registry,
+        artifacts=artifacts,
+        artifact=result_artifact,
+        dataset_artifact_id=dataset_artifact.artifact_id,
+        benchmark_spec_artifact_id=spec_artifact.artifact_id,
+        evaluator_profile=profile,
+        payload_size_bytes=result_artifact.object_ref.size_bytes - 1,
     )
     reads_before = tuple(artifacts.read_calls)
-    expectation = BenchAggregateInputExpectationV1(
-        artifact_id=result_artifact.artifact_id,
-        payload_hash=result_artifact.payload_hash,
-        payload_size_bytes=result_artifact.object_ref.size_bytes - 1,
-        artifact_kind="checker_run",
-        payload_schema_id="checker-report@1",
-    )
 
     with pytest.raises(IntegrityViolation, match="differs from its binding"):
-        ports.load_verified(expectation=expectation, request=request)
+        ports.load_verified(expectation=expectation)
     assert tuple(artifacts.read_calls) == reads_before
+
+
+def test_aggregate_reader_authenticates_complete_producer_run_result_authority() -> None:
+    registry, _, profile, artifacts, dataset_artifact, spec_artifact = _authority()
+    result_artifact = artifacts.put(
+        kind="checker_run",
+        schema="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:test",
+            "findings": [],
+        },
+    )
+    expectation = _aggregate_expectation(
+        registry=registry,
+        artifacts=artifacts,
+        artifact=result_artifact,
+        dataset_artifact_id=dataset_artifact.artifact_id,
+        benchmark_spec_artifact_id=spec_artifact.artifact_id,
+        evaluator_profile=profile,
+    )
+
+    verified = WorkerBenchPorts(registry=registry, artifacts=artifacts).load_verified(
+        expectation=expectation
+    )
+
+    assert verified.identity.producer_run_id == expectation.binding.producer_run_id
+    assert (
+        verified.identity.producer_result_payload_hash
+        == expectation.binding.producer_result_payload_hash
+    )
+    assert verified.blob == artifacts.blobs[result_artifact.artifact_id]
+
+
+def test_aggregate_reader_rejects_forged_producer_run_payload_hash() -> None:
+    registry, _, profile, artifacts, dataset_artifact, spec_artifact = _authority()
+    result_artifact = artifacts.put(
+        kind="checker_run",
+        schema="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:test",
+            "findings": [],
+        },
+    )
+    expectation = _aggregate_expectation(
+        registry=registry,
+        artifacts=artifacts,
+        artifact=result_artifact,
+        dataset_artifact_id=dataset_artifact.artifact_id,
+        benchmark_spec_artifact_id=spec_artifact.artifact_id,
+        evaluator_profile=profile,
+    )
+    forged = BenchAggregateInputExpectationV1(
+        binding=expectation.binding.model_copy(update={"producer_run_payload_hash": "f" * 64}),
+        benchmark_spec_artifact_id=expectation.benchmark_spec_artifact_id,
+        dataset_case=expectation.dataset_case,
+    )
+
+    with pytest.raises(IntegrityViolation, match="producer Run differs"):
+        WorkerBenchPorts(registry=registry, artifacts=artifacts).load_verified(expectation=forged)
+
+
+def test_seedless_aggregate_producer_requires_exact_deterministic_profile_authority() -> None:
+    registry, _, profile, artifacts, dataset_artifact, spec_artifact = _authority()
+    result_artifact = artifacts.put(
+        kind="checker_run",
+        schema="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:test",
+            "findings": [],
+        },
+    )
+    expectation = _aggregate_expectation(
+        registry=registry,
+        artifacts=artifacts,
+        artifact=result_artifact,
+        dataset_artifact_id=dataset_artifact.artifact_id,
+        benchmark_spec_artifact_id=spec_artifact.artifact_id,
+        evaluator_profile=profile,
+    )
+    producer_run_id = expectation.binding.producer_run_id
+    run = artifacts.runs[producer_run_id]
+    unbound_payload = run.payload.model_copy(update={"resolved_profiles": ()})
+    unbound_payload_hash = canonical_payload_hash(unbound_payload)
+    artifacts.runs[producer_run_id] = run.model_copy(
+        update={
+            "payload": unbound_payload,
+            "payload_hash": unbound_payload_hash,
+        }
+    )
+    forged = BenchAggregateInputExpectationV1(
+        binding=expectation.binding.model_copy(
+            update={
+                "producer_run_payload_hash": unbound_payload_hash,
+                "producer_resolved_profiles": (),
+            }
+        ),
+        benchmark_spec_artifact_id=expectation.benchmark_spec_artifact_id,
+        dataset_case=expectation.dataset_case,
+    )
+
+    with pytest.raises(IntegrityViolation, match="required profile binding"):
+        WorkerBenchPorts(registry=registry, artifacts=artifacts).load_verified(expectation=forged)
+
+
+def test_seeded_aggregate_reader_rejects_relabeling_one_producer_under_another_seed() -> None:
+    registry, _, profile, artifacts, dataset_artifact, spec_artifact = _authority()
+    original_execution_seed = derive_subseed_v1(
+        root_seed=7,
+        run_kind=RunKindRef(kind="bench.run", version=1),
+        profile=profile,
+        case_id="case:seeded",
+        replication_index=0,
+    )
+    result_artifact = artifacts.put(
+        kind="simulation_run",
+        schema="simulation-result@1",
+        payload={"payload_schema_version": "simulation-result@1"},
+    )
+    expectation = _aggregate_expectation(
+        registry=registry,
+        artifacts=artifacts,
+        artifact=result_artifact,
+        dataset_artifact_id=dataset_artifact.artifact_id,
+        benchmark_spec_artifact_id=spec_artifact.artifact_id,
+        evaluator_profile=profile,
+        root_seed=7,
+        producer_seed=original_execution_seed,
+    )
+    forged_execution_seed = derive_subseed_v1(
+        root_seed=8,
+        run_kind=RunKindRef(kind="bench.run", version=1),
+        profile=profile,
+        case_id="case:seeded",
+        replication_index=0,
+    )
+    forged = BenchAggregateInputExpectationV1(
+        binding=expectation.binding.model_copy(
+            update={
+                "root_seed": 8,
+                "execution_seed": forged_execution_seed,
+            }
+        ),
+        benchmark_spec_artifact_id=expectation.benchmark_spec_artifact_id,
+        dataset_case=expectation.dataset_case,
+    )
+
+    with pytest.raises(IntegrityViolation, match="producer Run differs"):
+        WorkerBenchPorts(registry=registry, artifacts=artifacts).load_verified(expectation=forged)
+
+
+def test_aggregate_reader_rejects_result_manifest_without_bound_artifact_lineage() -> None:
+    registry, _, profile, artifacts, dataset_artifact, spec_artifact = _authority()
+    result_artifact = artifacts.put(
+        kind="checker_run",
+        schema="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": "snapshot:test",
+            "findings": [],
+        },
+    )
+    expectation = _aggregate_expectation(
+        registry=registry,
+        artifacts=artifacts,
+        artifact=result_artifact,
+        dataset_artifact_id=dataset_artifact.artifact_id,
+        benchmark_spec_artifact_id=spec_artifact.artifact_id,
+        evaluator_profile=profile,
+    )
+    manifest_id = expectation.binding.producer_result_artifact_id
+    artifacts.artifacts[manifest_id] = artifacts.artifacts[manifest_id].model_copy(
+        update={"lineage": ()}
+    )
+
+    with pytest.raises(IntegrityViolation, match="does not authorize"):
+        WorkerBenchPorts(registry=registry, artifacts=artifacts).load_verified(
+            expectation=expectation
+        )
 
 
 def test_ordering_policy_uses_non_case_id_field() -> None:

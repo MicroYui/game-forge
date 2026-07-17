@@ -269,11 +269,12 @@ class ModelBridgeAgentAdapter:
         self,
         *,
         agent_node_id: str,
-        user_prompt: str,
         prompt_version: str,
         model_snapshot: ModelSnapshot,
         source_artifact_ids: tuple[str, ...],
         context_kind: AgentPromptContextKind | None = None,
+        user_prompt: str | None = None,
+        messages: tuple[Message, ...] | None = None,
         system: str | None = None,
         params: dict[str, object] | None = None,
         tool_schemas: tuple[ToolSchemaRef, ...] = (),
@@ -284,13 +285,29 @@ class ModelBridgeAgentAdapter:
     ) -> AdapterModelResult:
         """Issue one ordered model call and map the bridge result back to M2 shape."""
 
-        messages: list[Message] = []
-        if system is not None:
-            messages.append(Message(role="system", content=system))
-        messages.append(Message(role="user", content=user_prompt))
+        if messages is None:
+            if not isinstance(user_prompt, str):
+                raise IntegrityViolation("adapter call requires a rendered user prompt")
+            message_list: list[Message] = []
+            if system is not None:
+                message_list.append(Message(role="system", content=system))
+            message_list.append(Message(role="user", content=user_prompt))
+        else:
+            if user_prompt is not None or system is not None:
+                raise IntegrityViolation(
+                    "adapter ordered messages and flattened prompt authority are exclusive"
+                )
+            message_list = [
+                Message.model_validate(message.model_dump(mode="python")) for message in messages
+            ]
+        for message in message_list:
+            require_agent_prompt_message_bytes(
+                message.content,
+                max_prompt_message_bytes=MAX_AGENT_PROMPT_CONTEXT_MESSAGE_BYTES,
+            )
         model_request = ModelRequestV2(
             model_snapshot=model_snapshot,
-            messages=messages,
+            messages=message_list,
             params=dict(params or {}),
             tool_schemas=list(tool_schemas),
             agent_node_id=agent_node_id,
@@ -422,17 +439,11 @@ class BridgeModelRouter:
         self._pending_prompt_context = draft
 
     def call(self, request: ModelRequest) -> ModelResponse:
-        system: str | None = None
-        user = ""
         for message in request.messages:
-            if message.role == "system":
-                system = message.content
-            elif message.role == "user":
-                user = message.content
-        require_agent_prompt_message_bytes(
-            user,
-            max_prompt_message_bytes=self._max_prompt_message_bytes,
-        )
+            require_agent_prompt_message_bytes(
+                message.content,
+                max_prompt_message_bytes=self._max_prompt_message_bytes,
+            )
         call_index = self._adapter.call_count + 1
         context_kind = _context_kind_for_node(
             request.agent_node_id,
@@ -455,12 +466,11 @@ class BridgeModelRouter:
             raise IntegrityViolation("prompt-context builder escaped its frozen source universe")
         result = self._adapter.call_model(
             agent_node_id=request.agent_node_id,
-            user_prompt=user,
             prompt_version=request.prompt_version,
             model_snapshot=request.model_snapshot,
             source_artifact_ids=call_source_ids,
             context_kind=context_kind,
-            system=system,
+            messages=tuple(request.messages),
             params=dict(request.params),
             tool_schemas=tuple(
                 ToolSchemaRef(name=ref.name, version=ref.version) for ref in request.tool_schemas
@@ -576,21 +586,13 @@ class MultiNodeBridgeRouter:
             raise IntegrityViolation("playtest model-call authority is exhausted")
         node_id = request.agent_node_id
         snapshot = self.model_snapshot_for_node(node_id)
-        system: str | None = None
-        user = ""
-        for message in request.messages:
-            if message.role == "system":
-                system = message.content
-            elif message.role == "user":
-                user = message.content
         result = self._adapter.call_model(
             agent_node_id=node_id,
-            user_prompt=user,
             prompt_version=request.prompt_version,
             model_snapshot=snapshot,
             source_artifact_ids=self._source_artifact_ids,
             context_kind="playtest",
-            system=system,
+            messages=tuple(request.messages),
             params=dict(request.params),
             tool_schemas=tuple(
                 ToolSchemaRef(name=ref.name, version=ref.version) for ref in request.tool_schemas

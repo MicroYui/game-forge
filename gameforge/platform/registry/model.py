@@ -414,7 +414,7 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
         (
             "constraint_proposal.propose",
             1,
-        ): "ee9e63341b7869fedb02b360eba30b2f72638c4fe474660309d56af85dcf46e6",
+        ): "f95a551e8bc6713c29ca67139c0baa67136641f87b390e4896e63b604d954196",
         (
             "constraint_proposal.validate",
             1,

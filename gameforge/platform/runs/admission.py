@@ -51,10 +51,12 @@ from gameforge.contracts.benchmark import (
     MAX_BENCHMARK_REPORT_BYTES,
     MAX_BENCHMARK_RESULT_METRICS_BYTES_TOTAL,
     MAX_BENCHMARK_SIMULATION_WORK_UNITS,
+    BenchmarkAggregateInputBindingV1,
     BenchmarkDatasetV1,
     BenchmarkEvaluatorProfileConfigV1,
     BenchmarkSpecV1,
     sampled_partition_cases,
+    validate_benchmark_aggregate_producer_seed_authority,
 )
 from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
 from gameforge.contracts.config_export import (
@@ -146,6 +148,7 @@ from gameforge.contracts.jobs import (
     patch_repair_requires_root_seed,
     referenced_input_artifact_ids,
     resolved_policy_snapshot_digest,
+    run_kind_definition_digest,
     validation_regression_requires_root_seed,
 )
 from gameforge.contracts.lineage import (
@@ -4985,12 +4988,8 @@ class RunAdmissionEngine:
             if simulation.seed_policy == "run_subseed":
                 if not evaluator_definition.stochastic or seed is None:
                     raise Conflict("run-subseed benchmark simulation requires a stochastic profile")
-            elif (
-                evaluator_definition.stochastic or seed is not None or params.repetition_count != 1
-            ):
-                raise Conflict(
-                    "fixed-seed benchmark simulation requires a deterministic one-shot Run"
-                )
+            elif params.repetition_count != 1:
+                raise Conflict("fixed-seed benchmark simulation requires a one-shot Run")
 
         if params.execution_scope == "aggregate_results":
             if spec.aggregate_repetition_count != params.repetition_count:
@@ -5004,6 +5003,10 @@ class RunAdmissionEngine:
                 params.case_result_artifact_ids
             ):
                 raise Conflict("benchmark aggregate inputs differ from exact spec bindings")
+            if any(binding.root_seed != seed for binding in expected_bindings):
+                raise Conflict(
+                    "benchmark aggregate root seed differs from immutable input provenance"
+                )
             if any(
                 item.payload_size_bytes
                 > spec.resource_limits.max_aggregate_input_bytes_per_artifact
@@ -5024,6 +5027,21 @@ class RunAdmissionEngine:
                         "benchmark aggregate Artifact differs from its exact binding",
                         artifact_id=binding.artifact_id,
                     )
+                try:
+                    validate_benchmark_aggregate_producer_seed_authority(
+                        binding,
+                        dataset_cases[binding.case_id],
+                    )
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise Conflict(
+                        "benchmark aggregate producer seed differs from dataset authority",
+                        artifact_id=binding.artifact_id,
+                    ) from exc
+                self._verify_benchmark_aggregate_producer(
+                    binding=binding,
+                    artifact=artifact,
+                    read=read,
+                )
                 self._load_artifact_blob(artifact, read=read)
             requires_model = False
         else:
@@ -5041,6 +5059,104 @@ class RunAdmissionEngine:
             or cassette_artifact_id is not None
         ):
             raise Conflict("selected benchmark operation is deterministic-only")
+
+    def _verify_benchmark_aggregate_producer(
+        self,
+        *,
+        binding: BenchmarkAggregateInputBindingV1,
+        artifact: ArtifactV2,
+        read: AdmissionReadPort,
+    ) -> None:
+        """Authenticate one aggregate input through its source Run and RunResult."""
+
+        if read.runs is None:
+            raise DependencyUnavailable(
+                "benchmark producer Run authority is unavailable",
+                component="benchmark_producer_run",
+            )
+        run = read.runs.get(binding.producer_run_id)
+        definition = self._registry.get_run_kind(binding.producer_run_kind)
+        if (
+            not isinstance(run, RunRecord)
+            or run.run_id != binding.producer_run_id
+            or run.status != "succeeded"
+            or run.kind != binding.producer_run_kind
+            or not compare_digest(run.payload_hash, binding.producer_run_payload_hash)
+            or run.current_attempt_no != binding.producer_attempt_no
+            or run.result_artifact_id != binding.producer_result_artifact_id
+            or run.payload.seed != binding.producer_root_seed
+            or run.payload.resolved_profiles != binding.producer_resolved_profiles
+            or definition is None
+            or definition.seed_derivation_version != binding.producer_seed_derivation_version
+            or (
+                binding.producer_seed_binding.relation == "bench_child"
+                and run.payload.seed != binding.execution_seed
+            )
+        ):
+            raise Conflict(
+                "benchmark aggregate producer Run differs from its immutable binding",
+                producer_run_id=binding.producer_run_id,
+            )
+        assert definition is not None
+        if run.run_kind_definition_digest != run_kind_definition_digest(definition):
+            raise Conflict(
+                "benchmark aggregate producer Run kind authority differs from its binding",
+                producer_run_id=binding.producer_run_id,
+            )
+        try:
+            self._registry.validate_payload_bindings(
+                payload=run.payload,
+                definition=definition,
+            )
+        except IntegrityViolation as exc:
+            raise Conflict(
+                "benchmark aggregate producer Run execution authority is invalid",
+                producer_run_id=binding.producer_run_id,
+            ) from exc
+
+        result_artifact = read.artifacts.get(binding.producer_result_artifact_id)
+        if (
+            not isinstance(result_artifact, ArtifactV2)
+            or result_artifact.kind != "run_result"
+            or result_artifact.meta.get("payload_schema_id") != "run-result@1"
+            or not compare_digest(
+                result_artifact.payload_hash,
+                binding.producer_result_payload_hash,
+            )
+        ):
+            raise Conflict(
+                "benchmark aggregate producer RunResult differs from its immutable binding",
+                producer_run_id=binding.producer_run_id,
+            )
+        result = self._load_json_artifact(
+            result_artifact,
+            read=read,
+            payload_schema_id="run-result@1",
+            model=RunResultV1,
+        )
+        artifact_is_manifest = artifact.artifact_id == result_artifact.artifact_id
+        if (
+            result.run_id != run.run_id
+            or result.run_kind != run.kind
+            or result.attempt_no != binding.producer_attempt_no
+            or not compare_digest(
+                result.version_projection.run_payload_hash,
+                run.payload_hash,
+            )
+            or result_artifact.version_tuple != result.version_projection.terminal_version_tuple
+            or (
+                not artifact_is_manifest
+                and (
+                    artifact.artifact_id not in result.produced_artifact_ids
+                    or artifact.artifact_id not in result_artifact.lineage
+                )
+            )
+        ):
+            raise Conflict(
+                "benchmark aggregate producer RunResult does not authorize the bound Artifact",
+                producer_run_id=binding.producer_run_id,
+                artifact_id=artifact.artifact_id,
+            )
 
     def _verify_task_suite_derivation(
         self,

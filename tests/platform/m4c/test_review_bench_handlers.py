@@ -8,6 +8,15 @@ import pytest
 from pydantic import ValidationError
 
 import gameforge.platform.run_handlers.review as review_mod
+from gameforge.contracts.benchmark import (
+    BenchmarkAgentResponseExecutorV1,
+    BenchmarkAggregateInputBindingV1,
+    BenchmarkCleanOracleFpExecutorV1,
+    BenchmarkDatasetCaseV1,
+    BenchmarkEqualsPredicateV1,
+    BenchmarkMetricRefV1,
+)
+from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.dsl import Constraint, Predicate
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
@@ -25,6 +34,7 @@ from gameforge.contracts.lineage import VersionTuple
 from gameforge.spine.checkers.graph import GraphChecker
 from gameforge.spine.checkers.base import CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
+from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.platform.run_handlers.bench import (
     BENCH_REPORT_SCHEMA_ID,
     BENCH_SEED_DERIVATION_VERSION,
@@ -150,6 +160,15 @@ def _review_profiles():
         resolved_binding(
             "/params/simulation_profiles/0", profile_id="econ", version=1, kind="simulation"
         ),
+    )
+
+
+def _triage_profile_binding():
+    return resolved_binding(
+        "/params/llm_triage_policy",
+        profile_id="triage",
+        version=1,
+        kind="llm_triage",
     )
 
 
@@ -378,7 +397,7 @@ def test_review_triage_excludes_mixed_predicate_placeholder_from_authoritative_i
         build_context(
             params=payload,
             kind=REVIEW_KIND,
-            resolved_profiles=_review_profiles()[:2],
+            resolved_profiles=(*_review_profiles()[:2], _triage_profile_binding()),
             llm_execution_mode="replay",
             plan=execution_plan({"review-triage": MODEL_REF}),
             cassette_artifact_id="artifact:cassette",
@@ -595,7 +614,7 @@ def test_review_triage_adds_llm_suggestions_without_changing_verdict() -> None:
         params=_review_payload(triage=True),
         kind=REVIEW_KIND,
         seed=5,
-        resolved_profiles=_review_profiles(),
+        resolved_profiles=(*_review_profiles(), _triage_profile_binding()),
         llm_execution_mode="replay",
         plan=execution_plan({"review-triage": MODEL_REF}),
         cassette_artifact_id="artifact:cassette",
@@ -623,6 +642,36 @@ def test_review_triage_adds_llm_suggestions_without_changing_verdict() -> None:
     assert all(f.payload.status == "confirmed" for f in by_oracle["deterministic"])
 
 
+def test_review_rejects_mismatched_triage_profile_binding_before_model_call() -> None:
+    store = FakeArtifactStore()
+    store.register(SNAPSHOT_ID, _combined_snapshot())
+    bridge = FakeModelBridge(responses=(json.dumps({"suggestions": []}),))
+    context = build_context(
+        params=_review_payload(triage=True),
+        kind=REVIEW_KIND,
+        seed=5,
+        resolved_profiles=(
+            *_review_profiles(),
+            resolved_binding(
+                "/params/llm_triage_policy",
+                profile_id="other-triage",
+                version=9,
+                kind="llm_triage",
+            ),
+        ),
+        llm_execution_mode="replay",
+        plan=execution_plan({"review-triage": MODEL_REF}),
+        cassette_artifact_id="artifact:cassette",
+        model_bridge=bridge,
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _review_handler(store)(context)
+
+    assert bridge.requests == []
+    assert store.put_count == 0
+
+
 def test_review_prompt_profile_cap_rejects_before_bridge_or_object_write() -> None:
     store = FakeArtifactStore()
     store.register(SNAPSHOT_ID, _combined_snapshot())
@@ -631,7 +680,7 @@ def test_review_prompt_profile_cap_rejects_before_bridge_or_object_write() -> No
         params=_review_payload(triage=True),
         kind=REVIEW_KIND,
         seed=5,
-        resolved_profiles=_review_profiles(),
+        resolved_profiles=(*_review_profiles(), _triage_profile_binding()),
         llm_execution_mode="replay",
         plan=execution_plan({"review-triage": MODEL_REF}),
         cassette_artifact_id="artifact:cassette",
@@ -725,7 +774,7 @@ def test_oversized_triage_response_adds_no_advisory_and_preserves_oracles() -> N
             params=_review_payload(triage=True),
             kind=REVIEW_KIND,
             seed=5,
-            resolved_profiles=_review_profiles(),
+            resolved_profiles=(*_review_profiles(), _triage_profile_binding()),
             llm_execution_mode="replay",
             plan=execution_plan({"review-triage": MODEL_REF}),
             cassette_artifact_id="artifact:cassette",
@@ -1031,9 +1080,9 @@ class _FakeAggregateVerifier:
         self._identities = identities
         self.seen = []
 
-    def load_verified(self, *, expectation, request):
+    def load_verified(self, *, expectation):
         blob = b"x"
-        self.seen.append((expectation, request, blob))
+        self.seen.append((expectation, blob))
         return BenchVerifiedAggregateInputV1(
             identity=self._identities[expectation.artifact_id],
             blob=blob,
@@ -1100,6 +1149,11 @@ def _bench_aggregate_payload() -> BenchRunPayloadV1:
 def _aggregate_identity(
     *, artifact_id: str, case: BenchCaseSpecV1, replication_index: int = 0
 ) -> BenchAggregateInputIdentityV1:
+    binding = (
+        case.aggregate_inputs[0].binding
+        if case.aggregate_inputs
+        else _aggregate_binding(case_id=case.case_id, artifact_id=artifact_id, mode=case.mode)
+    )
     return BenchAggregateInputIdentityV1(
         artifact_id=artifact_id,
         case_id=case.case_id,
@@ -1113,27 +1167,152 @@ def _aggregate_identity(
         replication_index=replication_index,
         execution_seed=None,
         seed_derivation_version=BENCH_SEED_DERIVATION_VERSION,
+        producer_run_id=binding.producer_run_id,
+        producer_run_kind=binding.producer_run_kind,
+        producer_run_payload_hash=binding.producer_run_payload_hash,
+        producer_attempt_no=binding.producer_attempt_no,
+        producer_result_artifact_id=binding.producer_result_artifact_id,
+        producer_result_payload_hash=binding.producer_result_payload_hash,
+        producer_seed_binding=binding.producer_seed_binding,
+        producer_root_seed=binding.producer_root_seed,
+        producer_seed_derivation_version=binding.producer_seed_derivation_version,
+        producer_resolved_profiles=binding.producer_resolved_profiles,
+    )
+
+
+def _aggregate_binding(
+    *, case_id: str, artifact_id: str, mode: str = "deterministic"
+) -> BenchmarkAggregateInputBindingV1:
+    return BenchmarkAggregateInputBindingV1(
+        case_id=case_id,
+        partition_id="p1",
+        execution_mode=mode,
+        replication_index=0,
+        artifact_id=artifact_id,
+        payload_hash="0" * 64,
+        payload_size_bytes=1,
+        artifact_kind="checker_run",
+        payload_schema_id="checker-report@1",
+        producer_run_id=f"run:{artifact_id}",
+        producer_run_kind=RunKindRef(kind="checker.run", version=1),
+        producer_run_payload_hash="1" * 64,
+        producer_attempt_no=1,
+        producer_result_artifact_id=f"result:{artifact_id}",
+        producer_result_payload_hash="2" * 64,
+        producer_seed_binding={"relation": "seed_independent"},
+        producer_root_seed=None,
+        producer_seed_derivation_version=None,
+        producer_resolved_profiles=(),
+        dataset_artifact_id="artifact:dataset",
+        evaluator_profile=ProfileRefV1(profile_id="eval", version=1),
+        run_kind=BENCH_KIND,
+        root_seed=None,
+        execution_seed=None,
+        seed_derivation_version=BENCH_SEED_DERIVATION_VERSION,
     )
 
 
 def _aggregate_case(
     *, case_id: str, artifact_id: str, mode: str = "deterministic", prompt: str = ""
 ) -> BenchCaseSpecV1:
+    dataset_case = _aggregate_dataset_case(case_id=case_id, mode=mode, prompt=prompt)
     return BenchCaseSpecV1(
         case_id=case_id,
         partition_id="p1",
         mode=mode,
         prompt=prompt,
+        payload=dataset_case.model_dump(mode="json"),
         aggregate_inputs=(
             BenchAggregateInputExpectationV1(
-                artifact_id=artifact_id,
-                payload_hash="0" * 64,
-                payload_size_bytes=1,
-                artifact_kind="checker_run",
-                payload_schema_id="checker-report@1",
+                binding=_aggregate_binding(
+                    case_id=case_id,
+                    artifact_id=artifact_id,
+                    mode=mode,
+                ),
+                benchmark_spec_artifact_id="artifact:spec",
+                dataset_case=dataset_case,
             ),
         ),
     )
+
+
+def _aggregate_dataset_case(*, case_id: str, mode: str, prompt: str) -> BenchmarkDatasetCaseV1:
+    metric = BenchmarkMetricRefV1(metric_id="aggregate-metric", metric_version=1)
+    if mode == "agent":
+        executor = BenchmarkAgentResponseExecutorV1(
+            prompts=(prompt or "score aggregate case",),
+            response_format="text",
+            oracle=BenchmarkEqualsPredicateV1(operator="equals", expected="pass"),
+        )
+    else:
+        snapshot = Snapshot(entities={}, relations={})
+        constraint = Constraint(
+            id="C_aggregate_fixture",
+            kind="numeric",
+            oracle="deterministic",
+            predicates=(),
+            **{"assert": "1 <= 1"},
+            severity="minor",
+        )
+        constraints = (constraint,)
+        executor = BenchmarkCleanOracleFpExecutorV1(
+            snapshot_payload=snapshot.content_payload,
+            snapshot_id=snapshot.snapshot_id,
+            snapshot_payload_hash=sha256_lowerhex(
+                canonical_json(snapshot.content_payload).encode("utf-8")
+            ),
+            constraints=constraints,
+            constraints_digest=sha256_lowerhex(
+                canonical_json([item.model_dump(mode="json") for item in constraints]).encode(
+                    "utf-8"
+                )
+            ),
+            simulation=None,
+            failure_buckets=("deterministic", "unproven"),
+        )
+    return BenchmarkDatasetCaseV1(
+        case_id=case_id,
+        execution_mode=mode,
+        executor=executor,
+        aggregate_oracle=BenchmarkEqualsPredicateV1(
+            operator="equals",
+            actual_pointer="/payload_schema_version",
+            expected="checker-report@1",
+        ),
+        metric_refs=(metric,),
+    )
+
+
+def test_bench_rejects_mismatched_evaluator_profile_binding_before_case_loading() -> None:
+    store = FakeArtifactStore()
+    loader = _FakeCaseLoader(
+        (BenchCaseSpecV1(case_id="c0", partition_id="p1", mode="deterministic"),)
+    )
+    handler = BenchRunHandler(
+        blobs=store,
+        store=store,
+        case_loader=loader,
+        evaluator=_FakeEvaluator(),
+        composer=_FakeComposer(),
+    )
+    context = build_context(
+        params=_bench_execute_payload(),
+        kind=BENCH_KIND,
+        resolved_profiles=(
+            resolved_binding(
+                "/params/evaluator_profile",
+                profile_id="other-evaluator",
+                version=9,
+                kind="bench_evaluator",
+            ),
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        handler(context)
+
+    assert loader.seen is None
+    assert store.put_count == 0
 
 
 def test_bench_execute_cases_runs_ordered_agent_cassette_and_seals_report() -> None:
@@ -1754,6 +1933,49 @@ def test_bench_aggregate_rejects_result_identity_outside_exact_case_replication_
 
     with pytest.raises(ValueError, match="exact spec binding"):
         handler(context)
+
+
+def test_bench_aggregate_cannot_relabel_a_spec_binding_from_the_current_run_seed() -> None:
+    store = FakeArtifactStore()
+    store.register("case:1", {"case": 1})
+    case = _aggregate_case(case_id="c1", artifact_id="case:1")
+    verifier = _FakeAggregateVerifier(
+        {"case:1": _aggregate_identity(artifact_id="case:1", case=case)}
+    )
+    handler = BenchRunHandler(
+        blobs=store,
+        store=store,
+        case_loader=_FakeCaseLoader((case,)),
+        evaluator=_FakeEvaluator(),
+        composer=_FakeComposer(),
+        aggregate_input_verifier=verifier,
+    )
+    context = build_context(
+        params=BenchRunPayloadV1(
+            dataset_artifact_id="artifact:dataset",
+            benchmark_spec_artifact_id="artifact:spec",
+            partition_ids=("p1",),
+            evaluator_profile=ProfileRefV1(profile_id="eval", version=1),
+            repetition_count=1,
+            execution_scope="aggregate_results",
+            case_result_artifact_ids=("case:1",),
+        ),
+        kind=BENCH_KIND,
+        seed=7,
+        resolved_profiles=(
+            resolved_binding(
+                "/params/evaluator_profile",
+                profile_id="eval",
+                version=1,
+                kind="bench_evaluator",
+            ),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="provenance differs"):
+        handler(context)
+
+    assert verifier.seen == []
 
 
 def test_bench_aggregate_rejects_boolean_replication_identity() -> None:

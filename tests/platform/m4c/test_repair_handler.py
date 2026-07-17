@@ -10,6 +10,7 @@ evidence; a failed search yields ``repair_unverified`` with a produced /
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 
 import pytest
@@ -567,6 +568,42 @@ def test_repair_prompt_profile_cap_rejects_before_bridge_or_object_write() -> No
     assert store.put_count == 0
 
 
+@pytest.mark.parametrize(
+    "field_path",
+    (
+        "/params/repair_policy",
+        "/params/checker_profiles/0",
+        "/params/simulation_profiles/0",
+        "/params/candidate_export_profiles/0",
+    ),
+)
+def test_repair_rejects_mismatched_profile_binding_before_model_call(field_path: str) -> None:
+    store = _store()
+    bridge = FakeModelBridge(responses=(_FIX_OPS,))
+    context = _context(bridge)
+    bindings = tuple(
+        resolved_binding(
+            binding.field_path,
+            profile_id=(
+                "other" if binding.field_path == field_path else binding.profile.profile_id
+            ),
+            version=(9 if binding.field_path == field_path else binding.profile.version),
+            kind=binding.expected_profile_kind,
+        )
+        for binding in context.payload.resolved_profiles
+    )
+    context = replace(
+        context,
+        payload=context.payload.model_copy(update={"resolved_profiles": bindings}),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _handler(store)(context)
+
+    assert bridge.requests == []
+    assert store.put_count == 0
+
+
 def _context(
     bridge: FakeModelBridge,
     *,
@@ -645,11 +682,14 @@ def _context(
                 )
                 for index, profile in enumerate(actual_payload.simulation_profiles)
             ),
-            resolved_binding(
-                "/params/candidate_export_profiles/0",
-                profile_id="csv",
-                version=1,
-                kind="config_export",
+            *(
+                resolved_binding(
+                    f"/params/candidate_export_profiles/{index}",
+                    profile_id=profile.profile_id,
+                    version=profile.version,
+                    kind="config_export",
+                )
+                for index, profile in enumerate(actual_payload.candidate_export_profiles)
             ),
         ),
         resolved_policy_snapshots=(

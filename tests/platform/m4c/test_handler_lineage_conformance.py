@@ -28,7 +28,9 @@ from gameforge.platform.publication.lineage import (
     LineageParentSources,
     ParentInfo,
     _candidate_for_rule,
+    project_typed_lineage,
 )
+from gameforge.platform.publication.payload_binding import expected_typed_run_parent_ids
 from gameforge.platform.publication.payload_schema import (
     decode_and_validate_artifact_payload,
 )
@@ -149,7 +151,9 @@ def _injected_siblings(lineage_policy) -> tuple[dict[str, dict[str, ParentInfo]]
     return siblings, injected_ids
 
 
-def _assert_artifact_lineage_conforms(kind: RunKindRef, outcome_code: str, outcome) -> None:
+def _assert_artifact_lineage_conforms(
+    kind: RunKindRef, outcome_code: str, outcome, context
+) -> None:
     policy = _success_policy(kind, outcome_code)
     run_inputs = _run_inputs()
     for artifact in outcome.artifacts:
@@ -164,12 +168,9 @@ def _assert_artifact_lineage_conforms(kind: RunKindRef, outcome_code: str, outco
             f"{artifact.kind} lineage should not pre-declare publisher-injected siblings"
         )
 
-        # The core conformance assertion: EVERY id the handler declares matches at
-        # least one valid typed parent role (no dangling / wrong run_input parent).
-        # ``>=1`` (not exactly-one) tolerates legitimate same-kind role ambiguity
-        # the publisher disambiguates by child-payload pointer at Task-18 (e.g. the
-        # repair patch's `base` + `preview` are both run_input ir_snapshot); it does
-        # NOT tolerate a parent that matches NO role, which is exactly the D1 bug.
+        # Every handler-owned parent and publisher-injected sibling must pass the
+        # exact same projector as TerminalPublisher, including immutable Run-derived
+        # role identities for same-shaped parents such as repair base/preview.
         child_references = {
             parent_id: run_inputs[parent_id]
             for parent_id in artifact.lineage
@@ -197,6 +198,21 @@ def _assert_artifact_lineage_conforms(kind: RunKindRef, outcome_code: str, outco
                 f"{artifact.kind} lineage parent {parent_id!r} matches no typed role "
                 f"in {lineage_policy.policy_id}"
             )
+        project_typed_lineage(
+            policy=lineage_policy,
+            child_kind=artifact.kind,
+            child_payload_schema_id=artifact.payload_schema_id,
+            child_lineage=tuple((*artifact.lineage, *injected_ids)),
+            sources=sources,
+            expected_parent_ids_by_role=expected_typed_run_parent_ids(
+                run=context.run,
+                policy=policy,
+                rule=rule,
+                policy_parent_roles=frozenset(
+                    parent.parent_role for parent in lineage_policy.parent_rules
+                ),
+            ),
+        )
 
         # Document the Task-18 dependency: every prepared_rule role is genuinely
         # publisher-supplied (no handler-declared parent could ever satisfy it).
@@ -217,18 +233,18 @@ def _assert_artifact_lineage_conforms(kind: RunKindRef, outcome_code: str, outco
 
 def test_generation_gate_pass_lineage_conforms_to_frozen_policy() -> None:
     store = gen_mod._store()
-    outcome = gen_mod._handler(store)(
-        gen_mod._context(FakeModelBridge(responses=(gen_mod._BENIGN_OPS,)))
+    context = gen_mod._context(FakeModelBridge(responses=(gen_mod._BENIGN_OPS,)))
+    outcome = gen_mod._handler(store)(context)
+    _assert_artifact_lineage_conforms(
+        gen_mod.GENERATION_KIND, "generation_gate_passed", outcome, context
     )
-    _assert_artifact_lineage_conforms(gen_mod.GENERATION_KIND, "generation_gate_passed", outcome)
 
 
 def test_repair_verified_lineage_conforms_to_frozen_policy() -> None:
     store = repair_mod._store()
-    outcome = repair_mod._handler(store)(
-        repair_mod._context(FakeModelBridge(responses=(repair_mod._FIX_OPS,)))
-    )
-    _assert_artifact_lineage_conforms(repair_mod.REPAIR_KIND, "repair_verified", outcome)
+    context = repair_mod._context(FakeModelBridge(responses=(repair_mod._FIX_OPS,)))
+    outcome = repair_mod._handler(store)(context)
+    _assert_artifact_lineage_conforms(repair_mod.REPAIR_KIND, "repair_verified", outcome, context)
 
 
 def test_repair_unverified_subset_passes_terminal_cardinality_and_lineage() -> None:
@@ -236,7 +252,7 @@ def test_repair_unverified_subset_passes_terminal_cardinality_and_lineage() -> N
     context = repair_mod._context(FakeModelBridge(responses=("[]",)))
     outcome = repair_mod._handler(store, max_steps=1)(context)
     assert outcome.cause_code == "repair_unverified"
-    _assert_artifact_lineage_conforms(repair_mod.REPAIR_KIND, "repair_unverified", outcome)
+    _assert_artifact_lineage_conforms(repair_mod.REPAIR_KIND, "repair_unverified", outcome, context)
 
     definition = REGISTRY.get_run_kind(repair_mod.REPAIR_KIND)
     assert definition is not None
@@ -294,11 +310,10 @@ def test_repair_unverified_subset_passes_terminal_cardinality_and_lineage() -> N
 
 def test_constraint_proposal_lineage_conforms_to_frozen_policy() -> None:
     store = constraint_mod._store()
-    outcome = constraint_mod._handler(store)(
-        constraint_mod._context(FakeModelBridge(responses=(constraint_mod._PROPOSALS,)))
-    )
+    context = constraint_mod._context(FakeModelBridge(responses=(constraint_mod._PROPOSALS,)))
+    outcome = constraint_mod._handler(store)(context)
     _assert_artifact_lineage_conforms(
-        constraint_mod.CONSTRAINT_KIND, "constraint_proposal_drafted", outcome
+        constraint_mod.CONSTRAINT_KIND, "constraint_proposal_drafted", outcome, context
     )
     assert outcome.artifacts[outcome.primary_index].lineage == tuple(
         sorted((constraint_mod.DOC_ID, constraint_mod.GOAL_ID))
@@ -307,43 +322,46 @@ def test_constraint_proposal_lineage_conforms_to_frozen_policy() -> None:
 
 def test_task_suite_lineage_conforms_to_frozen_policy() -> None:
     store = task_suite_mod._store()
-    outcome = task_suite_mod._run(store)
-    _assert_artifact_lineage_conforms(task_suite_mod.TASK_SUITE_KIND, "task_suite_derived", outcome)
+    context = task_suite_mod._context()
+    outcome = task_suite_mod._handler(store)(context)
+    _assert_artifact_lineage_conforms(
+        task_suite_mod.TASK_SUITE_KIND, "task_suite_derived", outcome, context
+    )
 
 
 def test_patch_validation_lineage_conforms_to_frozen_policy() -> None:
     store = patch_val_mod._store()
-    outcome = patch_val_mod._handler(store)(
-        patch_val_mod._context(
-            store,
-            patch_val_mod._payload(simulation_profiles=(patch_val_mod._SIM,)),
-            seed=7,
-        )
+    context = patch_val_mod._context(
+        store,
+        patch_val_mod._payload(simulation_profiles=(patch_val_mod._SIM,)),
+        seed=7,
     )
+    outcome = patch_val_mod._handler(store)(context)
     _assert_artifact_lineage_conforms(
-        patch_val_mod.PATCH_VALIDATE_KIND, "patch_validation_passed", outcome
+        patch_val_mod.PATCH_VALIDATE_KIND, "patch_validation_passed", outcome, context
     )
 
 
 def test_constraint_validation_lineage_conforms_to_frozen_policy() -> None:
     store = constraint_val_mod._store(constraint_val_mod._MIXED)
-    outcome = constraint_val_mod._handler(store)(
-        constraint_val_mod._context(
-            store, constraint_val_mod._payload(regression=(constraint_val_mod.REGRESSION_SUITE_ID,))
-        )
+    context = constraint_val_mod._context(
+        store, constraint_val_mod._payload(regression=(constraint_val_mod.REGRESSION_SUITE_ID,))
     )
+    outcome = constraint_val_mod._handler(store)(context)
     _assert_artifact_lineage_conforms(
-        constraint_val_mod.CONSTRAINT_VALIDATE_KIND, "constraint_validated", outcome
+        constraint_val_mod.CONSTRAINT_VALIDATE_KIND, "constraint_validated", outcome, context
     )
 
 
 def test_rollback_validation_lineage_conforms_to_frozen_policy() -> None:
     store = rollback_val_mod._store()
-    outcome = rollback_val_mod._handler(store)(
-        rollback_val_mod._context(
-            store, rollback_val_mod._payload(regression=(rollback_val_mod.REGRESSION_SUITE_ID,))
-        )
+    context = rollback_val_mod._context(
+        store, rollback_val_mod._payload(regression=(rollback_val_mod.REGRESSION_SUITE_ID,))
     )
+    outcome = rollback_val_mod._handler(store)(context)
     _assert_artifact_lineage_conforms(
-        rollback_val_mod.ROLLBACK_VALIDATE_KIND, "rollback_validation_passed", outcome
+        rollback_val_mod.ROLLBACK_VALIDATE_KIND,
+        "rollback_validation_passed",
+        outcome,
+        context,
     )

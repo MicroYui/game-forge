@@ -41,10 +41,10 @@ def project_domain_version_tuple(
     """Re-derive a child Artifact's VersionTuple from typed parents + producer.
 
     ``parent_tuples`` maps each ``parent_role`` to the ordered tuple of parent
-    VersionTuples matched for that role.  The ``parent_role`` projection follows
-    the fixed optional-single rule (``min_count=0, max_count=1``): zero parents
-    means the field is null, one parent inherits its same-named field, and any
-    ``equality_parent_roles`` must agree on that value.
+    VersionTuples matched for that role.  A normal ``parent_role`` projection is
+    optional-single: zero parents means null and one inherits its same-named
+    field.  A multi-parent role is allowed only when it lists itself in
+    ``equality_parent_roles``; every value must then equal the inherited value.
     """
 
     values: dict[str, object | None] = {}
@@ -57,12 +57,13 @@ def project_domain_version_tuple(
             values[field] = getattr(producer_tuple, field)
             continue
 
-        # source == "parent_role": optional single-value inheritance.
+        # source == "parent_role": optional-single inheritance, or an explicitly
+        # equality-closed multi-parent role.
         parent_role = rule.parent_role
         if parent_role is None:  # pragma: no cover - contract guarantees non-null
             raise IntegrityViolation("parent_role projection is missing its parent role")
         matched = parent_tuples.get(parent_role, ())
-        if len(matched) > 1:
+        if len(matched) > 1 and parent_role not in rule.equality_parent_roles:
             raise IntegrityViolation(
                 "single-value parent_role projection matched multiple parents",
                 field=field,

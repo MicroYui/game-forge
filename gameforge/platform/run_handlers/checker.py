@@ -19,7 +19,7 @@ from typing import Protocol
 
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.execution_profiles import ResolvedExecutionProfileBindingV1
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     CheckerRunPayloadV1,
@@ -37,13 +37,16 @@ from gameforge.platform.run_handlers.base import (
     ExecutorContextLike,
     FindingEvidence,
     FindingHeadRevisionResolver,
+    ExactProfileBindingValidator,
     PreparedArtifactStore,
     build_prepared_findings,
     build_success_result,
     prepared_version_tuple,
+    require_exact_profile_bindings,
     rebind_finding_producers,
     scoped_finding_series_id,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.readers import (
     ConstraintLoader,
@@ -86,10 +89,12 @@ class CheckerExecutionPolicy:
 
 
 class CheckerExecutionPolicyResolver(Protocol):
-    def __call__(self, profile: ProfileRefV1) -> CheckerExecutionPolicy: ...
+    def __call__(self, binding: ResolvedExecutionProfileBindingV1) -> CheckerExecutionPolicy: ...
 
 
-def default_checker_execution_policy(_profile: ProfileRefV1) -> CheckerExecutionPolicy:
+def default_checker_execution_policy(
+    _binding: ResolvedExecutionProfileBindingV1,
+) -> CheckerExecutionPolicy:
     """Unit/default wiring matching the frozen built-in checker profile."""
 
     return CheckerExecutionPolicy(
@@ -227,11 +232,21 @@ class CheckerRunHandler:
     snapshot_loader: SnapshotLoader = load_snapshot
     constraint_loader: ConstraintLoader = load_constraints
     nav_loader: NavLoader = load_nav
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, CheckerRunPayloadV1):
             raise TypeError("checker_runner@1 requires a checker-run@1 payload")
+
+        profile_binding = require_exact_profile_bindings(
+            context,
+            expected={
+                "/params/checker_profile": (payload.checker_profile, "checker"),
+            },
+            validator=self.profile_binding_validator,
+        )["/params/checker_profile"]
+        execution_policy = self.execution_policy_resolver(profile_binding)
 
         snapshot = self.snapshot_loader(self.blobs, payload.snapshot_artifact_id)
         constraints = self._constraints(payload)
@@ -239,7 +254,7 @@ class CheckerRunHandler:
             raise IntegrityViolation(
                 "checker.run has no direct backend or compiled constraint work"
             )
-        execution_policy = self._validate_execution_policy(payload, snapshot, constraints)
+        self._validate_execution_policy(payload, snapshot, constraints, execution_policy)
         self._validate_smt_selection(payload, constraints)
         nav = self.nav_loader(self.blobs, payload.snapshot_artifact_id)
 
@@ -344,8 +359,8 @@ class CheckerRunHandler:
         payload: CheckerRunPayloadV1,
         snapshot: Snapshot,
         constraints: list[Constraint],
-    ) -> CheckerExecutionPolicy:
-        policy = self.execution_policy_resolver(payload.checker_profile)
+        policy: CheckerExecutionPolicy,
+    ) -> None:
         validate_checker_execution_policy(
             checker_ids=payload.checker_ids,
             defect_classes=payload.defect_classes,
@@ -353,7 +368,6 @@ class CheckerRunHandler:
             snapshot=snapshot,
             policy=policy,
         )
-        return policy
 
     @staticmethod
     def _run_compiled_constraints(

@@ -8,6 +8,7 @@ a REPLAY cassette (``FakeModelBridge``); the deterministic compile oracle
 
 from __future__ import annotations
 
+from dataclasses import replace
 import hashlib
 import json
 
@@ -139,6 +140,33 @@ def test_constraint_proposal_drafted_is_agent_produced_draft() -> None:
     assert [c.id for c in proposal.constraints] == ["C_cap"]
     assert proposal.constraints[0].assert_ == "reward_gold <= 80"
     assert primary.meta["dropped_proposal_count"] == 1
+
+
+def test_constraint_proposal_rejects_mismatched_profile_binding_before_model_call() -> None:
+    store = _store()
+    bridge = FakeModelBridge(responses=(_PROPOSALS,))
+    context = _context(bridge)
+    context = replace(
+        context,
+        payload=context.payload.model_copy(
+            update={
+                "resolved_profiles": (
+                    resolved_binding(
+                        "/params/extraction_policy",
+                        profile_id="other-extraction",
+                        version=9,
+                        kind="constraint_extraction",
+                    ),
+                )
+            }
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _handler(store)(context)
+
+    assert bridge.requests == []
+    assert store.put_count == 0
 
 
 def test_extraction_accepts_a_valid_source_larger_than_one_mib() -> None:

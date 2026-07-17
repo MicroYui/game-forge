@@ -33,11 +33,16 @@ import json
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable, Mapping, Protocol, runtime_checkable
+from typing import Callable, Literal, Mapping, Protocol, runtime_checkable
 
 from gameforge.contracts.canonical import canonical_json, canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import ResolvedExecutionProfileBindingV1
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileKindV1,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.findings import Finding, FindingPayloadV1
 from gameforge.contracts.jobs import (
     MAX_PREPARED_DOMAIN_ARTIFACTS,
@@ -80,6 +85,32 @@ class ModelBridgePort(Protocol):
         catalog_digest: str,
         model_snapshot_id: str,
     ) -> ModelSnapshot: ...
+
+
+LlmExecutionMode = Literal["not_applicable", "live", "record", "replay"]
+
+
+class ExactProfileBindingValidator(Protocol):
+    """Production seam that re-resolves one frozen binding and its lifecycle."""
+
+    def __call__(
+        self,
+        binding: ResolvedExecutionProfileBindingV1,
+        *,
+        llm_execution_mode: LlmExecutionMode,
+        run_kind: RunKindRef,
+    ) -> None: ...
+
+
+def trust_typed_profile_binding(
+    _binding: ResolvedExecutionProfileBindingV1,
+    *,
+    llm_execution_mode: LlmExecutionMode,
+    run_kind: RunKindRef,
+) -> None:
+    """Test/default validator; production composition injects retained authority."""
+
+    del llm_execution_mode, run_kind
 
 
 @runtime_checkable
@@ -505,6 +536,76 @@ def resolved_profile(
     return None
 
 
+def require_exact_profile_binding(
+    context: ExecutorContextLike,
+    *,
+    field_path: str,
+    profile: ProfileRefV1,
+    profile_kind: ExecutionProfileKindV1,
+    validator: ExactProfileBindingValidator = trust_typed_profile_binding,
+) -> ResolvedExecutionProfileBindingV1:
+    """Close one params ProfileRef over the exact binding frozen on this Run.
+
+    The structural comparison belongs in ``platform`` so every handler fails before
+    domain or model work. Production additionally injects ``validator`` to resolve
+    the binding's payload hash and lifecycle against retained catalog history.
+    """
+
+    binding = resolved_profile(context.payload, field_path, required=False)
+    if (
+        binding is None
+        or binding.profile != profile
+        or binding.expected_profile_kind != profile_kind
+        or binding.catalog_version != context.payload.execution_profile_catalog_version
+        or binding.catalog_digest != context.payload.execution_profile_catalog_digest
+    ):
+        raise IntegrityViolation(
+            "execution profile differs from its exact Run binding",
+            field_path=field_path,
+        )
+    validator(
+        binding,
+        llm_execution_mode=context.payload.llm_execution_mode,
+        run_kind=context.run.kind,
+    )
+    return binding
+
+
+def require_exact_profile_bindings(
+    context: ExecutorContextLike,
+    *,
+    expected: Mapping[str, tuple[ProfileRefV1, ExecutionProfileKindV1]],
+    validator: ExactProfileBindingValidator = trust_typed_profile_binding,
+) -> dict[str, ResolvedExecutionProfileBindingV1]:
+    """Close the complete ordered-agnostic profile set frozen on this Run.
+
+    A per-field lookup alone accepts stale or injected bindings that no handler
+    consumes.  Task-11 handlers instead declare their complete expected path set
+    and fail before any domain/model work when a binding is missing, duplicated,
+    or extra.  Each surviving binding is then checked structurally and, in
+    production, re-resolved through the retained catalog authority by ``validator``.
+    """
+
+    actual_paths = tuple(binding.field_path for binding in context.payload.resolved_profiles)
+    expected_paths = tuple(expected)
+    if len(actual_paths) != len(expected_paths) or set(actual_paths) != set(expected_paths):
+        raise IntegrityViolation(
+            "execution profile set differs from its exact Run bindings",
+            expected_field_paths=tuple(sorted(expected_paths)),
+            actual_field_paths=tuple(sorted(actual_paths)),
+        )
+    return {
+        field_path: require_exact_profile_binding(
+            context,
+            field_path=field_path,
+            profile=profile,
+            profile_kind=profile_kind,
+            validator=validator,
+        )
+        for field_path, (profile, profile_kind) in expected.items()
+    }
+
+
 _PREPARED_VERSION_FIELDS = frozenset(
     {
         "doc_version",
@@ -562,9 +663,11 @@ def load_json_blob(reader: ArtifactBlobReader, artifact_id: str) -> object:
 
 __all__ = [
     "ArtifactBlobReader",
+    "ExactProfileBindingValidator",
     "ExecutorContextLike",
     "FindingEvidence",
     "FindingHeadRevisionResolver",
+    "LlmExecutionMode",
     "ModelBridgePort",
     "PreparedArtifactStore",
     "PreparedArtifactBatchStore",
@@ -576,9 +679,12 @@ __all__ = [
     "prepared_version_tuple",
     "rebind_embedded_finding_payload",
     "rebind_finding_producers",
+    "require_exact_profile_binding",
+    "require_exact_profile_bindings",
     "scoped_finding_series_id",
     "resolved_profile",
     "store_prepared_artifact",
     "store_prepared_blob",
+    "trust_typed_profile_binding",
     "validate_prepared_artifact_total",
 ]

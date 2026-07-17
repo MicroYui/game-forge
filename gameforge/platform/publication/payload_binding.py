@@ -367,105 +367,98 @@ def _profile_key(profile: object) -> str:
     return f"{profile_id}@{version}"
 
 
-def _validate_typed_run_parents(
+def expected_typed_run_parent_ids(
     *,
     run: RunRecord,
     policy: OutcomeArtifactPolicyV1,
     rule: OutcomeArtifactRuleV1,
-    typed: TypedLineage,
-) -> None:
+    policy_parent_roles: frozenset[str] | None = None,
+) -> dict[str, tuple[str, ...]]:
+    """Return immutable Run-derived identities for typed lineage roles.
+
+    The lineage policy still owns source/kind/schema/cardinality.  This mapping
+    supplies the stable identity part for roles that the frozen Run payload binds
+    exactly, allowing terminal projection to distinguish same-shaped parents.
+    Roles backed by prepared siblings, intermediates, or child payload references
+    remain absent and are resolved by their policy source.
+    """
+
     params = run.payload.params
     rule_id = rule.rule_id
+    expected: dict[str, tuple[str, ...]] = {}
+
+    def bind(role: str, values: Sequence[str | None]) -> None:
+        expected[role] = tuple(value for value in values if value is not None)
+
     if isinstance(params, GenerationProposePayloadV1):
         if rule_id == "primary":
-            _expect_role_ids(typed, "snapshot", (params.base_snapshot_artifact_id,))
-            _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-            _expect_role_ids(typed, "goal", (params.objective_goal.source_artifact_id,))
-            _expect_role_ids(
-                typed,
+            bind("snapshot", (params.base_snapshot_artifact_id,))
+            bind("constraint", (params.constraint_snapshot_artifact_id,))
+            bind("goal", (params.objective_goal.source_artifact_id,))
+            bind(
                 "supporting_evidence",
                 tuple(item.evidence_artifact_id for item in params.findings),
             )
         elif rule_id == "preview":
-            _expect_role_ids(typed, "base", (params.base_snapshot_artifact_id,))
+            bind("base", (params.base_snapshot_artifact_id,))
         else:
-            _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, PatchRepairPayloadV1):
+            bind("constraint", (params.constraint_snapshot_artifact_id,))
+    elif isinstance(params, PatchRepairPayloadV1):
         if rule_id == "primary":
-            _expect_role_ids(typed, "base", (params.base_snapshot_artifact_id,))
-            _expect_role_ids(typed, "preview", (params.preview_snapshot_artifact_id,))
-            _expect_role_ids(typed, "subject", (params.subject_patch_artifact_id,))
-            _expect_role_ids(typed, "validation", (params.validation_evidence_artifact_id,))
-            _expect_role_ids(
-                typed,
+            bind("base", (params.base_snapshot_artifact_id,))
+            bind("preview", (params.preview_snapshot_artifact_id,))
+            bind("subject", (params.subject_patch_artifact_id,))
+            bind("validation", (params.validation_evidence_artifact_id,))
+            bind(
                 "supporting_evidence",
                 tuple(item.evidence_artifact_id for item in params.findings),
             )
-            _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
+            bind("constraint", (params.constraint_snapshot_artifact_id,))
         elif rule_id == "preview":
-            _expect_role_ids(typed, "base", (params.base_snapshot_artifact_id,))
+            bind("base", (params.base_snapshot_artifact_id,))
         elif rule_id in {"checker", "simulation", "regression"}:
             if policy.policy_id == "repair-unverified":
-                _expect_role_ids(typed, "preview", (params.preview_snapshot_artifact_id,))
-            elif policy.policy_id == "repair-verified":
-                _one_role_id(typed, "preview")
-            else:
+                bind("preview", (params.preview_snapshot_artifact_id,))
+            elif policy.policy_id != "repair-verified":
                 raise IntegrityViolation(
                     "repair evidence policy has no registered preview authority",
                     policy_id=policy.policy_id,
                 )
-            _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
+            bind("constraint", (params.constraint_snapshot_artifact_id,))
         else:
-            _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, ConstraintProposalProposePayloadV1):
-        # The authoring goal is authenticated source_raw authority and the
-        # handler includes it as a direct parent. ConstraintProposalV1's
-        # ``source_bindings`` intentionally covers only the design-document
-        # sources, but typed lineage must still account for the exact goal input.
-        _expect_role_ids(
-            typed,
-            "source",
-            (*params.source_artifact_ids, params.authoring_goal.source_artifact_id),
-        )
-        _expect_role_ids(typed, "base_constraint", (params.base_constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, ReviewRunPayloadV1):
-        _expect_role_ids(typed, "snapshot", (params.snapshot_artifact_id,))
-        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, CheckerRunPayloadV1):
-        _expect_role_ids(typed, "snapshot", (params.snapshot_artifact_id,))
-        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, SimulationRunPayloadV1):
-        _expect_role_ids(typed, "snapshot", (params.snapshot_artifact_id,))
-        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        _expect_role_ids(typed, "scenario", (params.scenario_artifact_id,))
-        return
-    if isinstance(params, TaskSuiteDerivePayloadV1):
-        _expect_role_ids(typed, "preview", (params.source_preview_artifact_id,))
-        _expect_role_ids(typed, "config", (params.config_artifact_id,))
-        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, PlaytestRunPayloadV1):
-        _expect_role_ids(typed, "config", (params.config_artifact_id,))
-        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        _expect_role_ids(typed, "task_suite", (params.task_suite_artifact_id,))
-        _expect_role_ids(
-            typed,
+            bind("constraint", (params.constraint_snapshot_artifact_id,))
+    elif isinstance(params, ConstraintProposalProposePayloadV1):
+        bind("source", params.source_artifact_ids)
+        bind("goal", (params.authoring_goal.source_artifact_id,))
+        bind("base_constraint", (params.base_constraint_snapshot_artifact_id,))
+    elif isinstance(params, ReviewRunPayloadV1):
+        bind("snapshot", (params.snapshot_artifact_id,))
+        bind("constraint", (params.constraint_snapshot_artifact_id,))
+    elif isinstance(params, CheckerRunPayloadV1):
+        bind("snapshot", (params.snapshot_artifact_id,))
+        bind("constraint", (params.constraint_snapshot_artifact_id,))
+    elif isinstance(params, SimulationRunPayloadV1):
+        bind("snapshot", (params.snapshot_artifact_id,))
+        bind("constraint", (params.constraint_snapshot_artifact_id,))
+        bind("scenario", (params.scenario_artifact_id,))
+    elif isinstance(params, TaskSuiteDerivePayloadV1):
+        bind("preview", (params.source_preview_artifact_id,))
+        bind("config", (params.config_artifact_id,))
+        bind("constraint", (params.constraint_snapshot_artifact_id,))
+    elif isinstance(params, PlaytestRunPayloadV1):
+        bind("config", (params.config_artifact_id,))
+        bind("constraint", (params.constraint_snapshot_artifact_id,))
+        bind("task_suite", (params.task_suite_artifact_id,))
+        bind(
             "selected_scenarios",
             tuple(item.scenario_spec_artifact_id for item in params.episodes),
         )
-        return
-    if isinstance(params, PatchValidationPayloadV1):
-        _expect_role_ids(typed, "subject", (params.subject.subject_artifact_id,))
-        _expect_role_ids(typed, "target", (params.preview_snapshot_artifact_id,))
-        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
-        _expect_role_ids(typed, "candidate_config", params.candidate_config_export_artifact_ids)
-        _expect_role_ids(
-            typed,
+    elif isinstance(params, PatchValidationPayloadV1):
+        bind("subject", (params.subject.subject_artifact_id,))
+        bind("target", (params.preview_snapshot_artifact_id,))
+        bind("constraint", (params.constraint_snapshot_artifact_id,))
+        bind("candidate_config", params.candidate_config_export_artifact_ids)
+        bind(
             "supporting_evidence",
             tuple(
                 sorted(
@@ -478,23 +471,46 @@ def _validate_typed_run_parents(
                 )
             ),
         )
-        return
-    if isinstance(params, ConstraintValidationPayloadV1):
-        _expect_role_ids(typed, "proposal", (params.subject.subject_artifact_id,))
-        _expect_role_ids(typed, "base_constraint", (params.base_constraint_snapshot_artifact_id,))
-        return
-    if isinstance(params, RollbackValidationPayloadV1):
-        _expect_role_ids(typed, "subject", (params.subject.subject_artifact_id,))
-        _expect_role_ids(typed, "target", (params.target_artifact_id,))
-        _expect_role_ids(typed, "current", (params.expected_current_ref.artifact_id,))
-        return
-    if isinstance(params, BenchRunPayloadV1):
-        _expect_role_ids(typed, "dataset", (params.dataset_artifact_id,))
-        _expect_role_ids(typed, "benchmark_spec", (params.benchmark_spec_artifact_id,))
-        _expect_role_ids(typed, "case_results", params.case_result_artifact_ids)
-        return
-    if isinstance(params, ArtifactMigrationPayloadV1):
-        _expect_role_ids(typed, "source", (params.source_artifact_id,))
+    elif isinstance(params, ConstraintValidationPayloadV1):
+        bind("proposal", (params.subject.subject_artifact_id,))
+        bind("base_constraint", (params.base_constraint_snapshot_artifact_id,))
+    elif isinstance(params, RollbackValidationPayloadV1):
+        bind("subject", (params.subject.subject_artifact_id,))
+        bind("target", (params.target_artifact_id,))
+        bind("current", (params.expected_current_ref.artifact_id,))
+    elif isinstance(params, BenchRunPayloadV1):
+        bind("dataset", (params.dataset_artifact_id,))
+        bind("benchmark_spec", (params.benchmark_spec_artifact_id,))
+        bind("case_results", params.case_result_artifact_ids)
+    elif isinstance(params, ArtifactMigrationPayloadV1):
+        bind("source", (params.source_artifact_id,))
+
+    if policy_parent_roles is not None:
+        expected = {role: ids for role, ids in expected.items() if role in policy_parent_roles}
+    return expected
+
+
+def _validate_typed_run_parents(
+    *,
+    run: RunRecord,
+    policy: OutcomeArtifactPolicyV1,
+    rule: OutcomeArtifactRuleV1,
+    typed: TypedLineage,
+) -> None:
+    expected = expected_typed_run_parent_ids(
+        run=run,
+        policy=policy,
+        rule=rule,
+        policy_parent_roles=frozenset(typed.parents_by_role),
+    )
+    for role, artifact_ids in expected.items():
+        _expect_role_ids(typed, role, artifact_ids)
+    if (
+        isinstance(run.payload.params, PatchRepairPayloadV1)
+        and policy.policy_id == "repair-verified"
+        and rule.rule_id in {"checker", "simulation", "regression"}
+    ):
+        _one_role_id(typed, "preview")
 
 
 def _expect_snapshot(payload: Mapping[str, object], projected: VersionTuple) -> None:
@@ -3325,6 +3341,7 @@ def validate_domain_payload_binding_registry(registry: DomainPayloadBindingRegis
 __all__ = [
     "FinalSiblingFact",
     "bind_final_payload_references",
+    "expected_typed_run_parent_ids",
     "final_sibling_fact_for",
     "validate_domain_payload_binding_registry",
     "validate_domain_payload_bindings",

@@ -54,6 +54,7 @@ from gameforge.contracts.jobs import (
     MAX_PREPARED_ARTIFACT_BYTES,
     GenerationProposePayloadV1,
     PatchRepairPayloadV1,
+    RunRecord,
 )
 from gameforge.contracts.lineage import ArtifactV2, ObjectLocation, ObjectRef
 from gameforge.platform.registry import (
@@ -76,7 +77,12 @@ from gameforge.platform.run_handlers import (
     ReviewRunHandler,
     SimulationRunHandler,
 )
-from gameforge.platform.run_handlers.base import ArtifactBlobReader, PreparedArtifactStore
+from gameforge.platform.run_handlers.base import (
+    ArtifactBlobReader,
+    ExactProfileBindingValidator,
+    LlmExecutionMode,
+    PreparedArtifactStore,
+)
 from gameforge.platform.run_handlers.checker import (
     CheckerExecutionPolicy,
     validate_checker_execution_policy,
@@ -372,6 +378,15 @@ class WorkerArtifactBlobReader:
             raise IntegrityViolation("run input Artifact is unavailable", artifact_id=artifact_id)
         return artifact
 
+    def load_run(self, run_id: str) -> RunRecord:
+        """Return the exact retained producer Run for aggregate provenance checks."""
+
+        with Session(self._engine) as session:
+            run = SqlRunRepository(session).get(run_id)
+        if not isinstance(run, RunRecord):
+            raise IntegrityViolation("producer Run is unavailable", run_id=run_id)
+        return run
+
     def get_ref(self, ref_name: str):
         """Read the current exact CAS value used by auto-apply prequalification."""
 
@@ -545,39 +560,201 @@ class _CheckerGroup:
         return findings
 
 
-def _profile_definition(
+_TASK11_PROFILE_ADAPTER_CONTRACTS: dict[
+    str,
+    tuple[str, str, frozenset[str], frozenset[str], frozenset[bool]],
+] = {
+    "bench_evaluator": (
+        "builtin_bench_evaluator_profile@1",
+        "bench_evaluator-profile-config@1",
+        frozenset(("bench-run@1",)),
+        frozenset(("bench-report@2",)),
+        frozenset((False, True)),
+    ),
+    "checker": (
+        "builtin_checker_profile@1",
+        "checker-profile-config@1",
+        frozenset(("checker-run@1", "patch-repair@1", "patch-validation@1", "review-run@1")),
+        frozenset(("checker-report@1", "regression-evidence@1")),
+        frozenset((False,)),
+    ),
+    "config_export": (
+        "builtin_config_export_profile@1",
+        "config_export-profile-config@1",
+        frozenset(("generation-propose@1", "patch-repair@1")),
+        frozenset(("config-export-package@1",)),
+        frozenset((False,)),
+    ),
+    "constraint_extraction": (
+        "builtin_constraint_extraction_profile@1",
+        "constraint_extraction-profile-config@1",
+        frozenset(("constraint-proposal-propose@1",)),
+        frozenset(("constraint-proposal@1",)),
+        frozenset((False,)),
+    ),
+    "generation": (
+        "builtin_generation_profile@1",
+        "generation-profile-config@1",
+        frozenset(("generation-propose@1",)),
+        frozenset(
+            (
+                "checker-report@1",
+                "config-export-package@1",
+                "ir-core@1",
+                "patch@2",
+                "review@1",
+                "simulation-result@1",
+            )
+        ),
+        frozenset((False,)),
+    ),
+    "llm_triage": (
+        "builtin_llm_triage_profile@1",
+        "llm_triage-profile-config@1",
+        frozenset(("review-run@1",)),
+        frozenset(("review@1",)),
+        frozenset((False,)),
+    ),
+    "patch_repair": (
+        "builtin_patch_repair_profile@1",
+        "patch_repair-profile-config@1",
+        frozenset(("patch-repair@1",)),
+        frozenset(
+            (
+                "checker-report@1",
+                "config-export-package@1",
+                "ir-core@1",
+                "patch@2",
+                "regression-evidence@1",
+                "simulation-result@1",
+            )
+        ),
+        frozenset((False,)),
+    ),
+    "review": (
+        "builtin_review_profile@1",
+        "review-profile-config@1",
+        frozenset(("review-run@1",)),
+        frozenset(("review@1",)),
+        frozenset((False,)),
+    ),
+    "simulation": (
+        "builtin_simulation_profile@1",
+        "simulation-profile-config@1",
+        frozenset(("patch-repair@1", "patch-validation@1", "review-run@1", "simulation-run@1")),
+        frozenset(("regression-evidence@1", "simulation-result@1")),
+        frozenset((True,)),
+    ),
+    "workload": (
+        "builtin_workload_profile@1",
+        "workload-profile-config@1",
+        frozenset(("simulation-run@1",)),
+        frozenset(("simulation-result@1",)),
+        frozenset((False,)),
+    ),
+}
+
+
+def _build_exact_profile_binding_validator(
     registry: ImmutablePlatformRegistry,
-    profile: ProfileRefV1,
+) -> ExactProfileBindingValidator:
+    """Re-resolve frozen Task-11 bindings against retained catalog authority."""
+
+    def validate(
+        binding: ResolvedExecutionProfileBindingV1,
+        *,
+        llm_execution_mode: LlmExecutionMode,
+        run_kind: RunKindRef,
+    ) -> None:
+        definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+        contract = _TASK11_PROFILE_ADAPTER_CONTRACTS.get(binding.expected_profile_kind)
+        if contract is None:
+            raise IntegrityViolation(
+                "execution profile kind has no Task-11 adapter contract",
+                field_path=binding.field_path,
+            )
+        handler_key, config_schema_id, inputs, outputs, stochastic_values = contract
+        if (
+            definition.profile != binding.profile
+            or definition.profile_kind != binding.expected_profile_kind
+            or run_kind not in definition.compatible_run_kinds
+            or definition.handler_key != handler_key
+            or definition.config_schema_id != config_schema_id
+            or frozenset(definition.input_schema_ids) != inputs
+            or frozenset(definition.output_schema_ids) != outputs
+            or definition.stochastic not in stochastic_values
+            or definition.required_capabilities
+        ):
+            raise IntegrityViolation(
+                "execution profile definition is incompatible with the exact Run binding",
+                field_path=binding.field_path,
+            )
+        if lifecycle.state == "disabled" or (
+            lifecycle.state == "replay_only" and llm_execution_mode != "replay"
+        ):
+            raise IntegrityViolation(
+                "execution profile lifecycle forbids this Run mode",
+                field_path=binding.field_path,
+            )
+
+    return validate
+
+
+def _resolve_task11_executor_definition(
+    registry: ImmutablePlatformRegistry,
+    binding: ResolvedExecutionProfileBindingV1,
     *,
     expected_kind: str,
+    handler_key: str,
+    config_schema_id: str,
 ) -> ExecutionProfileDefinitionV1:
-    candidates = [
-        definition
-        for catalog in registry.list_execution_profile_catalogs()
-        for definition in catalog.definitions
-        if definition.profile == profile and definition.profile_kind == expected_kind
-    ]
-    definitions: list[ExecutionProfileDefinitionV1] = []
-    for definition in candidates:
-        if definition not in definitions:
-            definitions.append(definition)
-    if len(definitions) != 1:
+    """Resolve one exact binding and close the built-in adapter/config contract."""
+
+    definition, _lifecycle = registry.resolve_execution_profile_binding(binding)
+    contract = _TASK11_PROFILE_ADAPTER_CONTRACTS.get(expected_kind)
+    if contract is None:
+        raise IntegrityViolation("execution profile kind has no Task-11 adapter contract")
+    (
+        expected_handler_key,
+        expected_config_schema_id,
+        inputs,
+        outputs,
+        stochastic_values,
+    ) = contract
+    if (
+        definition.profile != binding.profile
+        or definition.profile_kind != expected_kind
+        or definition.handler_key != handler_key
+        or definition.config_schema_id != config_schema_id
+        or handler_key != expected_handler_key
+        or config_schema_id != expected_config_schema_id
+        or frozenset(definition.input_schema_ids) != inputs
+        or frozenset(definition.output_schema_ids) != outputs
+        or definition.stochastic not in stochastic_values
+        or definition.required_capabilities
+    ):
         raise IntegrityViolation(
-            "execution profile does not resolve one immutable definition",
-            profile=profile.model_dump(mode="json"),
-            expected_kind=expected_kind,
+            "execution profile does not authorize the built-in Task-11 adapter",
+            field_path=binding.field_path,
         )
-    return definitions[0]
+    return definition
 
 
 def _build_checker_resolver(registry: ImmutablePlatformRegistry):
     policy_resolver = _build_checker_execution_policy_resolver(registry)
 
-    def resolve(profile: ProfileRefV1, constraints: list[Constraint]) -> Checker:
-        definition = _profile_definition(registry, profile, expected_kind="checker")
-        if getattr(definition, "handler_key", None) != "builtin_checker_profile@1":
-            raise IntegrityViolation("checker profile handler is unavailable")
-        policy = policy_resolver(profile)
+    def resolve(
+        binding: ResolvedExecutionProfileBindingV1,
+        constraints: list[Constraint],
+    ) -> Checker:
+        definition = _resolve_task11_executor_definition(
+            registry,
+            binding,
+            expected_kind="checker",
+            handler_key="builtin_checker_profile@1",
+            config_schema_id="checker-profile-config@1",
+        )
+        policy = policy_resolver(binding)
         # Compilation constructs solver-backed checker objects. Reject the exact
         # retained profile's constraint cap before ``compile_all`` so a repair
         # request cannot multiply an oversized set across many profiles before
@@ -587,7 +764,7 @@ def _build_checker_resolver(registry: ImmutablePlatformRegistry):
                 "checker constraint set exceeds the exact profile count budget"
             )
         return _CheckerGroup(
-            profile=profile,
+            profile=definition.profile,
             checkers=(GraphChecker(), *compile_all(constraints)),
             policy=policy,
             constraint_count=len(constraints),
@@ -597,10 +774,14 @@ def _build_checker_resolver(registry: ImmutablePlatformRegistry):
 
 
 def _build_checker_execution_policy_resolver(registry: ImmutablePlatformRegistry):
-    def resolve(profile: ProfileRefV1) -> CheckerExecutionPolicy:
-        definition = _profile_definition(registry, profile, expected_kind="checker")
-        if definition.handler_key != "builtin_checker_profile@1":
-            raise IntegrityViolation("checker profile handler is unavailable")
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> CheckerExecutionPolicy:
+        definition = _resolve_task11_executor_definition(
+            registry,
+            binding,
+            expected_kind="checker",
+            handler_key="builtin_checker_profile@1",
+            config_schema_id="checker-profile-config@1",
+        )
         config = CheckerProfileConfigV1.model_validate(definition.config)
         return CheckerExecutionPolicy(
             allowed_checker_ids=config.allowed_checker_ids,
@@ -615,20 +796,23 @@ def _build_checker_execution_policy_resolver(registry: ImmutablePlatformRegistry
 
 def _build_simulation_execution_budget_resolver(registry: ImmutablePlatformRegistry):
     def resolve(
-        simulation_profile: ProfileRefV1,
-        workload_profile: ProfileRefV1,
+        simulation_profile: ResolvedExecutionProfileBindingV1,
+        workload_profile: ResolvedExecutionProfileBindingV1,
     ) -> SimulationExecutionBudget:
-        simulation_definition = _profile_definition(
-            registry, simulation_profile, expected_kind="simulation"
+        simulation_definition = _resolve_task11_executor_definition(
+            registry,
+            simulation_profile,
+            expected_kind="simulation",
+            handler_key="builtin_simulation_profile@1",
+            config_schema_id="simulation-profile-config@1",
         )
-        workload_definition = _profile_definition(
-            registry, workload_profile, expected_kind="workload"
+        workload_definition = _resolve_task11_executor_definition(
+            registry,
+            workload_profile,
+            expected_kind="workload",
+            handler_key="builtin_workload_profile@1",
+            config_schema_id="workload-profile-config@1",
         )
-        if (
-            simulation_definition.handler_key != "builtin_simulation_profile@1"
-            or workload_definition.handler_key != "builtin_workload_profile@1"
-        ):
-            raise IntegrityViolation("simulation profile handler is unavailable")
         simulation = SimulationProfileConfigV1.model_validate(simulation_definition.config)
         workload = WorkloadProfileConfigV1.model_validate(workload_definition.config)
         return SimulationExecutionBudget(
@@ -643,10 +827,14 @@ def _build_simulation_execution_budget_resolver(registry: ImmutablePlatformRegis
 
 
 def _build_generation_execution_config_resolver(registry: ImmutablePlatformRegistry):
-    def resolve(profile: ProfileRefV1) -> GenerationExecutionConfig:
-        definition = _profile_definition(registry, profile, expected_kind="generation")
-        if definition.handler_key != "builtin_generation_profile@1":
-            raise IntegrityViolation("generation profile handler is unavailable")
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> GenerationExecutionConfig:
+        definition = _resolve_task11_executor_definition(
+            registry,
+            binding,
+            expected_kind="generation",
+            handler_key="builtin_generation_profile@1",
+            config_schema_id="generation-profile-config@1",
+        )
         config = GenerationProfileConfigV1.model_validate(definition.config)
         return GenerationExecutionConfig(
             max_prompt_message_bytes=config.max_prompt_message_bytes,
@@ -664,10 +852,14 @@ def _build_generation_execution_config_resolver(registry: ImmutablePlatformRegis
 
 
 def _build_repair_execution_config_resolver(registry: ImmutablePlatformRegistry):
-    def resolve(profile: ProfileRefV1) -> RepairExecutionConfig:
-        definition = _profile_definition(registry, profile, expected_kind="patch_repair")
-        if definition.handler_key != "builtin_patch_repair_profile@1":
-            raise IntegrityViolation("repair profile handler is unavailable")
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> RepairExecutionConfig:
+        definition = _resolve_task11_executor_definition(
+            registry,
+            binding,
+            expected_kind="patch_repair",
+            handler_key="builtin_patch_repair_profile@1",
+            config_schema_id="patch_repair-profile-config@1",
+        )
         config = PatchRepairProfileConfigV1.model_validate(definition.config)
         return RepairExecutionConfig(
             max_search_steps=config.max_search_steps,
@@ -729,10 +921,16 @@ def _build_review_checker_policy_resolver(registry: ImmutablePlatformRegistry):
 def _build_constraint_extraction_execution_config_resolver(
     registry: ImmutablePlatformRegistry,
 ):
-    def resolve(profile: ProfileRefV1) -> ConstraintExtractionExecutionConfig:
-        definition = _profile_definition(registry, profile, expected_kind="constraint_extraction")
-        if definition.handler_key != "builtin_constraint_extraction_profile@1":
-            raise IntegrityViolation("constraint extraction profile handler is unavailable")
+    def resolve(
+        binding: ResolvedExecutionProfileBindingV1,
+    ) -> ConstraintExtractionExecutionConfig:
+        definition = _resolve_task11_executor_definition(
+            registry,
+            binding,
+            expected_kind="constraint_extraction",
+            handler_key="builtin_constraint_extraction_profile@1",
+            config_schema_id="constraint_extraction-profile-config@1",
+        )
         config = ConstraintExtractionProfileConfigV1.model_validate(definition.config)
         return ConstraintExtractionExecutionConfig(
             max_prompt_message_bytes=config.max_prompt_message_bytes,
@@ -747,10 +945,14 @@ def _build_constraint_extraction_execution_config_resolver(
 
 
 def _build_sim_config_resolver(registry: ImmutablePlatformRegistry):
-    def resolve(profile: ProfileRefV1) -> ReviewSimConfig:
-        definition = _profile_definition(registry, profile, expected_kind="simulation")
-        if getattr(definition, "handler_key", None) != "builtin_simulation_profile@1":
-            raise IntegrityViolation("simulation profile handler is unavailable")
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> ReviewSimConfig:
+        definition = _resolve_task11_executor_definition(
+            registry,
+            binding,
+            expected_kind="simulation",
+            handler_key="builtin_simulation_profile@1",
+            config_schema_id="simulation-profile-config@1",
+        )
         config = SimulationProfileConfigV1.model_validate(definition.config)
         return ReviewSimConfig(
             n_agents=config.default_population,
@@ -767,7 +969,7 @@ def _resolve_review_executor_definition(
     *,
     expected_kind: str,
 ) -> ExecutionProfileDefinitionV1:
-    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+    definition, _lifecycle = registry.resolve_execution_profile_binding(binding)
     contracts = {
         "review": (
             "builtin_review_profile@1",
@@ -803,13 +1005,20 @@ def _resolve_review_executor_definition(
             },
             True,
         ),
+        "llm_triage": (
+            "builtin_llm_triage_profile@1",
+            "llm_triage-profile-config@1",
+            {"review-run@1"},
+            {"review@1"},
+            {RunKindRef(kind="review.run", version=1)},
+            False,
+        ),
     }
     handler_key, config_schema_id, inputs, outputs, compatible_kinds, stochastic = contracts[
         expected_kind
     ]
     if (
-        lifecycle.state != "active"
-        or definition.profile != binding.profile
+        definition.profile != binding.profile
         or definition.profile_kind != expected_kind
         or set(definition.compatible_run_kinds) != compatible_kinds
         or definition.handler_key != handler_key
@@ -824,6 +1033,17 @@ def _resolve_review_executor_definition(
             field_path=binding.field_path,
         )
     return definition
+
+
+def _build_review_triage_profile_authorizer(registry: ImmutablePlatformRegistry):
+    def authorize(binding: ResolvedExecutionProfileBindingV1) -> None:
+        _resolve_review_executor_definition(
+            registry,
+            binding,
+            expected_kind="llm_triage",
+        )
+
+    return authorize
 
 
 def _build_review_checker_resolver(registry: ImmutablePlatformRegistry):
@@ -1120,10 +1340,12 @@ def _build_executor_handlers(
         )
 
     checker_resolver = _build_checker_resolver(registry)
+    exact_profile_binding_validator = _build_exact_profile_binding_validator(registry)
     patch_checker_resolver = _build_patch_checker_resolver(registry)
     checker_execution_policy_resolver = _build_checker_execution_policy_resolver(registry)
     review_checker_resolver = _build_review_checker_resolver(registry)
     review_checker_policy_resolver = _build_review_checker_policy_resolver(registry)
+    review_triage_profile_authorizer = _build_review_triage_profile_authorizer(registry)
     simulation_execution_budget_resolver = _build_simulation_execution_budget_resolver(registry)
     generation_execution_config_resolver = _build_generation_execution_config_resolver(registry)
     repair_execution_config_resolver = _build_repair_execution_config_resolver(registry)
@@ -1177,12 +1399,14 @@ def _build_executor_handlers(
             checker_factory=DefaultCheckerFactory(),
             execution_policy_resolver=checker_execution_policy_resolver,
             finding_head_revision=finding_head_revision,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "simulation_runner@1": SimulationRunHandler(
             blobs=blobs,
             store=store,
             execution_budget_resolver=simulation_execution_budget_resolver,
             finding_head_revision=finding_head_revision,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "review_runner@1": ReviewRunHandler(
             blobs=blobs,
@@ -1192,6 +1416,8 @@ def _build_executor_handlers(
             checker_execution_policy_resolver=review_checker_policy_resolver,
             execution_config_resolver=review_execution_config_resolver,
             finding_head_revision=finding_head_revision,
+            triage_profile_authorizer=review_triage_profile_authorizer,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "bench_runner@1": BenchRunHandler(
             blobs=blobs,
@@ -1200,6 +1426,7 @@ def _build_executor_handlers(
             evaluator=bench_port,
             composer=bench_port,
             aggregate_input_verifier=bench_port,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "generation_proposer@1": GenerationProposalHandler(
             blobs=blobs,
@@ -1208,6 +1435,7 @@ def _build_executor_handlers(
             config_exporter=config_exporter,
             finding_loader=finding_revision_loader,
             execution_config_resolver=generation_execution_config_resolver,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "repair_search@1": RepairSearchHandler(
             blobs=blobs,
@@ -1218,12 +1446,14 @@ def _build_executor_handlers(
             sim_config_resolver=sim_config_resolver,
             execution_config_resolver=repair_execution_config_resolver,
             finding_loader=finding_revision_loader,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "constraint_proposer@1": ConstraintProposalHandler(
             blobs=blobs,
             store=store,
             agent_runner=M2ConstraintProposalAgentRunner(),
             execution_config_resolver=(constraint_extraction_execution_config_resolver),
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "task_suite_deriver@1": build_task_suite_handler(
             registry=registry,

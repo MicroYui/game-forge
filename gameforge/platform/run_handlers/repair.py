@@ -32,7 +32,11 @@ from gameforge.contracts.config_export import canonical_config_export_bytes
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.execution_profiles import (
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.findings import Finding, PatchV2, TypedOp, parse_patch
 from gameforge.contracts.jobs import (
     PatchRepairPayloadV1,
@@ -55,6 +59,7 @@ from gameforge.spine.patch import PatchRejected, apply_patch
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     PreparedArtifactBatchStore,
     PreparedArtifactStore,
@@ -62,8 +67,10 @@ from gameforge.platform.run_handlers.base import (
     load_json_blob,
     prepared_version_tuple,
     rebind_embedded_finding_payload,
+    require_exact_profile_bindings,
     store_prepared_artifact,
     store_prepared_blob,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.generation import (
     CONFIG_EXPORT_SCHEMA_ID,
@@ -101,8 +108,8 @@ _EVIDENCE_KIND: dict[str, tuple[ArtifactKind, str]] = {
     "regression": ("regression_evidence", REGRESSION_EVIDENCE_SCHEMA_ID),
 }
 
-CheckerResolver = Callable[[ProfileRefV1, list[Constraint]], Checker]
-SimConfigResolver = Callable[[ProfileRefV1], ReviewSimConfig]
+CheckerResolver = Callable[[ResolvedExecutionProfileBindingV1, list[Constraint]], Checker]
+SimConfigResolver = Callable[[ResolvedExecutionProfileBindingV1], ReviewSimConfig]
 FindingLoader = Callable[[ArtifactBlobReader, PatchRepairPayloadV1], tuple[Finding, ...]]
 
 
@@ -178,7 +185,7 @@ class RepairExecutionConfig:
 
 
 class RepairExecutionConfigResolver(Protocol):
-    def __call__(self, profile: ProfileRefV1) -> RepairExecutionConfig: ...
+    def __call__(self, binding: ResolvedExecutionProfileBindingV1) -> RepairExecutionConfig: ...
 
 
 def _no_finding_loader(
@@ -203,13 +210,37 @@ class RepairSearchHandler:
     finding_loader: FindingLoader = _no_finding_loader
     snapshot_loader: SnapshotLoader = load_snapshot
     constraint_loader: ConstraintLoader = load_constraints
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, PatchRepairPayloadV1):
             raise TypeError("repair_search@1 requires a patch-repair@1 payload")
 
-        execution_config = self.execution_config_resolver(payload.repair_policy)
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected={
+                "/params/repair_policy": (payload.repair_policy, "patch_repair"),
+                **{
+                    f"/params/checker_profiles/{index}": (profile, "checker")
+                    for index, profile in enumerate(payload.checker_profiles)
+                },
+                **{
+                    f"/params/simulation_profiles/{index}": (profile, "simulation")
+                    for index, profile in enumerate(payload.simulation_profiles)
+                },
+                **{
+                    f"/params/candidate_export_profiles/{index}": (
+                        profile,
+                        "config_export",
+                    )
+                    for index, profile in enumerate(payload.candidate_export_profiles)
+                },
+            },
+            validator=self.profile_binding_validator,
+        )
+
+        execution_config = self.execution_config_resolver(profile_bindings["/params/repair_policy"])
         if (
             len(payload.checker_profiles) > execution_config.max_checker_profile_count
             or len(payload.simulation_profiles) > execution_config.max_simulation_profile_count
@@ -233,11 +264,21 @@ class RepairSearchHandler:
             failed_preview,
         )
         checkers = tuple(
-            (profile, self.checker_resolver(profile, constraints))
-            for profile in payload.checker_profiles
+            (
+                profile,
+                self.checker_resolver(
+                    profile_bindings[f"/params/checker_profiles/{index}"],
+                    constraints,
+                ),
+            )
+            for index, profile in enumerate(payload.checker_profiles)
         )
         sim_profiles = tuple(
-            (profile, self.sim_config_resolver(profile)) for profile in payload.simulation_profiles
+            (
+                profile,
+                self.sim_config_resolver(profile_bindings[f"/params/simulation_profiles/{index}"]),
+            )
+            for index, profile in enumerate(payload.simulation_profiles)
         )
         if not 1 <= execution_config.max_search_steps <= 1_000:
             raise ValueError("repair search budget is outside the exact profile bounds")

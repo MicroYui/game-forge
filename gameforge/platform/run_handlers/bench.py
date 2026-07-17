@@ -45,9 +45,17 @@ from gameforge.contracts.benchmark import (
     MAX_BENCHMARK_RESULT_METRIC_FIELDS,
     MAX_BENCHMARK_RESULT_METRICS_BYTES,
     MAX_BENCHMARK_RESULT_METRICS_BYTES_TOTAL,
+    BenchmarkAggregateInputBindingV1,
+    BenchmarkAggregateProducerSeedBindingV1,
+    BenchmarkDatasetCaseV1,
+    validate_benchmark_aggregate_producer_seed_authority,
 )
 from gameforge.contracts.canonical import canonical_json
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.execution_profiles import (
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.jobs import (
     MAX_BENCHMARK_AGGREGATE_RESULT_ARTIFACTS,
     BenchRunPayloadV1,
@@ -56,11 +64,14 @@ from gameforge.contracts.jobs import (
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     PreparedArtifactStore,
     build_success_result,
     prepared_version_tuple,
+    require_exact_profile_bindings,
     store_prepared_blob,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.model_routing import (
     ModelBridgeAgentAdapter,
@@ -85,11 +96,57 @@ BenchCaseMode = Literal["deterministic", "agent"]
 class BenchAggregateInputExpectationV1:
     """Spec-authoritative Artifact identity for one case replication."""
 
+    binding: BenchmarkAggregateInputBindingV1
+    benchmark_spec_artifact_id: str
+    dataset_case: BenchmarkDatasetCaseV1
+
+    @property
+    def artifact_id(self) -> str:
+        return self.binding.artifact_id
+
+    @property
+    def payload_hash(self) -> str:
+        return self.binding.payload_hash
+
+    @property
+    def payload_size_bytes(self) -> int:
+        return self.binding.payload_size_bytes
+
+    @property
+    def artifact_kind(self) -> str:
+        return self.binding.artifact_kind
+
+    @property
+    def payload_schema_id(self) -> str:
+        return self.binding.payload_schema_id
+
+
+@dataclass(frozen=True, slots=True)
+class BenchAggregateInputIdentityV1:
+    """Identity recovered from immutable spec plus producer Run/RunResult authority."""
+
     artifact_id: str
-    payload_hash: str
-    payload_size_bytes: int
-    artifact_kind: str
-    payload_schema_id: str
+    case_id: str
+    partition_id: str
+    mode: BenchCaseMode
+    dataset_artifact_id: str
+    benchmark_spec_artifact_id: str
+    evaluator_profile: ProfileRefV1
+    run_kind: RunKindRef
+    root_seed: int | None
+    replication_index: int
+    execution_seed: int | None
+    seed_derivation_version: str
+    producer_run_id: str
+    producer_run_kind: RunKindRef
+    producer_run_payload_hash: str
+    producer_attempt_no: int
+    producer_result_artifact_id: str
+    producer_result_payload_hash: str
+    producer_seed_binding: BenchmarkAggregateProducerSeedBindingV1
+    producer_root_seed: int | None
+    producer_seed_derivation_version: str | None
+    producer_resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,30 +219,6 @@ class BenchCaseResultV1:
 
 
 @dataclass(frozen=True, slots=True)
-class BenchAggregateInputIdentityV1:
-    """Identity decoded from one heterogeneous aggregate input Artifact.
-
-    Aggregate inputs intentionally have no common payload schema.  A production
-    verifier must authenticate the exact Artifact id/blob through the retained
-    per-kind reader and return this common identity projection; the handler never
-    infers it from an id string or accepts an unverified naked blob.
-    """
-
-    artifact_id: str
-    case_id: str
-    partition_id: str
-    mode: BenchCaseMode
-    dataset_artifact_id: str
-    benchmark_spec_artifact_id: str
-    evaluator_profile: ProfileRefV1
-    run_kind: RunKindRef
-    root_seed: int | None
-    replication_index: int
-    execution_seed: int | None
-    seed_derivation_version: str
-
-
-@dataclass(frozen=True, slots=True)
 class BenchAggregateCaseResultV1:
     """One verified aggregate input placed in exact case/replication order."""
 
@@ -246,7 +279,6 @@ class BenchAggregateInputVerifier(Protocol):
         self,
         *,
         expectation: BenchAggregateInputExpectationV1,
-        request: BenchCaseEvaluationRequestV1,
     ) -> BenchVerifiedAggregateInputV1: ...
 
 
@@ -393,6 +425,7 @@ class BenchRunHandler:
     aggregate_input_verifier: BenchAggregateInputVerifier | None = None
     agent_node_id: str = BENCH_AGENT_NODE_ID
     agent_prompt_version: str = BENCH_AGENT_PROMPT_VERSION
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
@@ -400,6 +433,13 @@ class BenchRunHandler:
             raise TypeError("bench_runner@1 requires a bench-run@1 payload")
         if context.run.kind != RunKindRef(kind="bench.run", version=1):
             raise TypeError("bench_runner@1 requires Run kind bench.run@1")
+        require_exact_profile_bindings(
+            context,
+            expected={
+                "/params/evaluator_profile": (payload.evaluator_profile, "bench_evaluator"),
+            },
+            validator=self.profile_binding_validator,
+        )
 
         root_seed = context.payload.seed
         if payload.execution_scope == "execute_cases":
@@ -530,9 +570,24 @@ class BenchRunHandler:
 
         case_result_blobs: list[BenchAggregateCaseResultV1] = []
         for request, expectation in zip(requests, expectations, strict=True):
+            if self._expectation_request_identity_key(expectation) != self._request_identity_key(
+                request
+            ):
+                raise ValueError("aggregate input provenance differs from the exact Bench Run")
+            try:
+                dataset_case = BenchmarkDatasetCaseV1.model_validate(request.case.payload)
+                validate_benchmark_aggregate_producer_seed_authority(
+                    expectation.binding,
+                    dataset_case,
+                )
+            except (TypeError, ValueError, ValidationError) as exc:
+                raise ValueError(
+                    "aggregate producer seed relation differs from exact dataset authority"
+                ) from exc
+            if dataset_case != expectation.dataset_case:
+                raise ValueError("aggregate dataset case differs from exact loader authority")
             verified = self.aggregate_input_verifier.load_verified(
                 expectation=expectation,
-                request=request,
             )
             if not isinstance(verified, BenchVerifiedAggregateInputV1):
                 raise TypeError("bench aggregate verifier returned the wrong type")
@@ -545,7 +600,9 @@ class BenchRunHandler:
             if identity.artifact_id != expectation.artifact_id:
                 raise ValueError("bench aggregate verifier changed the exact Artifact identity")
             self._validate_aggregate_identity(identity)
-            if self._aggregate_identity_key(identity) != self._request_identity_key(request):
+            if self._aggregate_identity_key(identity) != self._expectation_identity_key(
+                expectation
+            ):
                 raise ValueError("aggregate input identity differs from its exact spec binding")
             case_result_blobs.append(
                 BenchAggregateCaseResultV1(
@@ -686,6 +743,10 @@ class BenchRunHandler:
             ("dataset_artifact_id", identity.dataset_artifact_id),
             ("benchmark_spec_artifact_id", identity.benchmark_spec_artifact_id),
             ("seed_derivation_version", identity.seed_derivation_version),
+            ("producer_run_id", identity.producer_run_id),
+            ("producer_run_payload_hash", identity.producer_run_payload_hash),
+            ("producer_result_artifact_id", identity.producer_result_artifact_id),
+            ("producer_result_payload_hash", identity.producer_result_payload_hash),
         ):
             if not isinstance(value, str) or not value:
                 raise ValueError(f"bench aggregate {name} must be a non-empty string")
@@ -695,18 +756,41 @@ class BenchRunHandler:
             raise TypeError("bench aggregate evaluator profile has the wrong type")
         if not isinstance(identity.run_kind, RunKindRef):
             raise TypeError("bench aggregate Run kind has the wrong type")
+        if not isinstance(identity.producer_run_kind, RunKindRef):
+            raise TypeError("bench aggregate producer Run kind has the wrong type")
+        if not isinstance(
+            identity.producer_seed_binding,
+            BenchmarkAggregateProducerSeedBindingV1,
+        ):
+            raise TypeError("bench aggregate producer seed binding has the wrong type")
         if (
             isinstance(identity.replication_index, bool)
             or not isinstance(identity.replication_index, int)
             or identity.replication_index < 0
         ):
             raise ValueError("bench aggregate replication index must be a non-negative integer")
+        if (
+            isinstance(identity.producer_attempt_no, bool)
+            or not isinstance(identity.producer_attempt_no, int)
+            or identity.producer_attempt_no < 1
+        ):
+            raise ValueError("bench aggregate producer attempt must be a positive integer")
         for name, value in (
             ("root_seed", identity.root_seed),
             ("execution_seed", identity.execution_seed),
+            ("producer_root_seed", identity.producer_root_seed),
         ):
             if value is not None and (isinstance(value, bool) or not isinstance(value, int)):
                 raise ValueError(f"bench aggregate {name} must be an exact integer or null")
+        if identity.producer_seed_derivation_version is not None and (
+            not isinstance(identity.producer_seed_derivation_version, str)
+            or not identity.producer_seed_derivation_version
+        ):
+            raise ValueError(
+                "bench aggregate producer seed derivation must be a non-empty string or null"
+            )
+        if not isinstance(identity.producer_resolved_profiles, tuple):
+            raise TypeError("bench aggregate producer profiles have the wrong type")
 
     @staticmethod
     def _agent_source_suffix(
@@ -891,6 +975,7 @@ class BenchRunHandler:
     @staticmethod
     def _aggregate_identity_key(identity: BenchAggregateInputIdentityV1) -> tuple[object, ...]:
         return (
+            identity.artifact_id,
             identity.case_id,
             identity.partition_id,
             identity.mode,
@@ -904,6 +989,59 @@ class BenchRunHandler:
             identity.replication_index,
             identity.execution_seed,
             identity.seed_derivation_version,
+            identity.producer_run_id,
+            identity.producer_run_kind.kind,
+            identity.producer_run_kind.version,
+            identity.producer_run_payload_hash,
+            identity.producer_attempt_no,
+            identity.producer_result_artifact_id,
+            identity.producer_result_payload_hash,
+            identity.producer_seed_binding,
+            identity.producer_root_seed,
+            identity.producer_seed_derivation_version,
+            identity.producer_resolved_profiles,
+        )
+
+    @staticmethod
+    def _expectation_request_identity_key(
+        expectation: BenchAggregateInputExpectationV1,
+    ) -> tuple[object, ...]:
+        binding = expectation.binding
+        return (
+            binding.case_id,
+            binding.partition_id,
+            binding.execution_mode,
+            binding.dataset_artifact_id,
+            expectation.benchmark_spec_artifact_id,
+            binding.evaluator_profile.profile_id,
+            binding.evaluator_profile.version,
+            binding.run_kind.kind,
+            binding.run_kind.version,
+            binding.root_seed,
+            binding.replication_index,
+            binding.execution_seed,
+            binding.seed_derivation_version,
+        )
+
+    @staticmethod
+    def _expectation_identity_key(
+        expectation: BenchAggregateInputExpectationV1,
+    ) -> tuple[object, ...]:
+        binding = expectation.binding
+        return (
+            binding.artifact_id,
+            *BenchRunHandler._expectation_request_identity_key(expectation),
+            binding.producer_run_id,
+            binding.producer_run_kind.kind,
+            binding.producer_run_kind.version,
+            binding.producer_run_payload_hash,
+            binding.producer_attempt_no,
+            binding.producer_result_artifact_id,
+            binding.producer_result_payload_hash,
+            binding.producer_seed_binding,
+            binding.producer_root_seed,
+            binding.producer_seed_derivation_version,
+            binding.producer_resolved_profiles,
         )
 
     def _agent_invoker(self, context: ExecutorContextLike) -> _BoundAgentInvoker | None:

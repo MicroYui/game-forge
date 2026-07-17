@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Iterator
+from typing import Any, Iterator, Mapping
 
 import pytest
 
@@ -113,6 +113,7 @@ from gameforge.contracts.jobs import (
     VersionTransitionPolicyRefV1,
     canonical_payload_hash,
     execution_version_plan_digest,
+    run_kind_definition_digest,
 )
 from gameforge.contracts.playtest import (
     MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES,
@@ -133,6 +134,7 @@ from gameforge.contracts.playtest import (
     bind_exact_playtest_trace_bytes,
 )
 from gameforge.contracts.review import ReviewReport
+from gameforge.contracts.seeds import derive_subseed_v1
 from gameforge.bench.metrics import default_constraints
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.contracts.routing import (
@@ -1992,7 +1994,7 @@ def test_review_without_llm_triage_admits_na_branch_without_agent_graph(
         snapshot_artifact_id=snapshot,
         selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
         review_profile=REVIEW_PROFILE,
-        checker_profiles=(),
+        checker_profiles=(CHECKER_PROFILE,),
         simulation_profiles=(),
         llm_triage_policy=None,
     )
@@ -2766,6 +2768,141 @@ def test_checker_missing_resource_domain_fails_without_run_or_hold(tmp_path: Pat
     _assert_no_admission_side_effects(harness, key="checker:missing-domain")
 
 
+def _seed_benchmark_aggregate_producer(
+    harness: Harness,
+    *,
+    artifact: ArtifactV2,
+    producer_seed: int | None,
+) -> dict[str, Any]:
+    """Retain the source Run and RunResult authority for one aggregate fixture."""
+
+    from tests.platform.m4c.handler_support import build_envelope, build_run_record
+
+    producer_kind = RunKindRef(kind="review.run", version=1)
+    producer_run_id = f"run:bench-source:{artifact.artifact_id}"
+    producer_params = ReviewRunPayloadV1(
+        snapshot_artifact_id="artifact:bench-source-snapshot",
+        constraint_snapshot_artifact_id=None,
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        review_profile=REVIEW_PROFILE,
+        checker_profiles=(CHECKER_PROFILE,),
+        simulation_profiles=(SIMULATION_PROFILE,) if producer_seed is not None else (),
+        llm_triage_policy=None,
+    )
+    definition = harness.registry.get_run_kind(producer_kind)
+    assert definition is not None
+    resolved_profiles = (
+        harness.registry.resolve_execution_profile(
+            catalog_version=harness.catalog.catalog_version,
+            catalog_digest=harness.catalog.catalog_digest,
+            field_path="/params/review_profile",
+            profile=producer_params.review_profile,
+            expected_profile_kind="review",
+        ),
+        harness.registry.resolve_execution_profile(
+            catalog_version=harness.catalog.catalog_version,
+            catalog_digest=harness.catalog.catalog_digest,
+            field_path="/params/checker_profiles/0",
+            profile=CHECKER_PROFILE,
+            expected_profile_kind="checker",
+        ),
+        *(
+            (
+                harness.registry.resolve_execution_profile(
+                    catalog_version=harness.catalog.catalog_version,
+                    catalog_digest=harness.catalog.catalog_digest,
+                    field_path="/params/simulation_profiles/0",
+                    profile=SIMULATION_PROFILE,
+                    expected_profile_kind="simulation",
+                ),
+            )
+            if producer_seed is not None
+            else ()
+        ),
+    )
+    policy_bindings, schema_bindings = harness.registry.resolve_required_run_bindings(
+        definition=definition,
+        resolved_profiles=resolved_profiles,
+    )
+    envelope = build_envelope(
+        params=producer_params,
+        resolved_profiles=resolved_profiles,
+        seed=producer_seed,
+    ).model_copy(
+        update={
+            "execution_profile_catalog_version": harness.catalog.catalog_version,
+            "execution_profile_catalog_digest": harness.catalog.catalog_digest,
+            "policy_bindings": policy_bindings,
+            "schema_bindings": schema_bindings,
+        }
+    )
+    run = build_run_record(envelope, producer_kind, run_id=producer_run_id).model_copy(
+        update={"run_kind_definition_digest": run_kind_definition_digest(definition)}
+    )
+    projection = RunManifestVersionProjectionV1(
+        manifest_scope="run",
+        attempt_no=1,
+        run_kind=producer_kind,
+        run_payload_hash=run.payload_hash,
+        frozen_input_version_tuple=envelope.version_tuple,
+        terminal_version_tuple=artifact.version_tuple,
+        version_transition_policy_ref=VersionTransitionPolicyRefV1(
+            policy_id="run-manifest-transition",
+            policy_version=1,
+            digest="a" * 64,
+        ),
+        parents=(
+            RunManifestParentBindingV1(
+                artifact_id=artifact.artifact_id,
+                role="output",
+                publication="run_published",
+            ),
+        ),
+    )
+    result = RunResultV1(
+        run_id=producer_run_id,
+        attempt_no=1,
+        run_kind=producer_kind,
+        primary_artifact_id=artifact.artifact_id,
+        produced_artifact_ids=(artifact.artifact_id,),
+        finding_count=0,
+        outcome_code="review_completed",
+        summary=RunResultSummaryV1(
+            outcome_code="review_completed",
+            primary_artifact_kind=artifact.kind,
+            produced_artifact_count=1,
+            finding_count=0,
+        ),
+        requirement_dispositions=(),
+        version_projection=projection,
+    )
+    result_artifact = harness.seed_payload_artifact(
+        kind="run_result",
+        payload=result.model_dump(mode="json"),
+        version_tuple=artifact.version_tuple,
+        lineage=(artifact.artifact_id,),
+        payload_schema_id="run-result@1",
+    )
+    harness.synthetic_runs[producer_run_id] = run.model_copy(
+        update={
+            "status": "succeeded",
+            "result_artifact_id": result_artifact.artifact_id,
+            "concurrency_permit_group_id": None,
+        }
+    )
+    return {
+        "producer_run_id": producer_run_id,
+        "producer_run_kind": producer_kind,
+        "producer_run_payload_hash": run.payload_hash,
+        "producer_attempt_no": 1,
+        "producer_result_artifact_id": result_artifact.artifact_id,
+        "producer_result_payload_hash": result_artifact.payload_hash,
+        "producer_root_seed": envelope.seed,
+        "producer_seed_derivation_version": definition.seed_derivation_version,
+        "producer_resolved_profiles": envelope.resolved_profiles,
+    }
+
+
 def _seed_benchmark_spec(
     harness: Harness,
     *,
@@ -2781,11 +2918,14 @@ def _seed_benchmark_spec(
     maximum_repetitions: int = 3,
     aggregate_artifacts: tuple[ArtifactV2, ...] = (),
     simulation_execution: BenchmarkSimulationExecutionV1 | None = None,
+    simulation_executions_by_case: Mapping[str, BenchmarkSimulationExecutionV1] | None = None,
     max_result_metrics_bytes_total: int | None = None,
     agent_prompt_count: int = 1,
     checker_constraint_count: int = 1,
     max_checker_work_units: int | None = None,
     max_checker_work_units_total: int | None = None,
+    aggregate_root_seed: int | None = None,
+    aggregate_producer_seed_override: int | None = None,
 ) -> ArtifactV2:
     source_dataset = harness.load_artifact(dataset_artifact_id)
     report_template = Path("scenarios/bench/bench-report.json").read_text(encoding="utf-8")
@@ -2799,6 +2939,11 @@ def _seed_benchmark_spec(
     for partition in partitions:
         dataset_cases: list[BenchmarkDatasetCaseV1] = []
         for case in partition.cases:
+            case_simulation = (
+                simulation_executions_by_case.get(case.case_id, simulation_execution)
+                if simulation_executions_by_case is not None
+                else simulation_execution
+            )
             if case.execution_mode == "agent":
                 executor = BenchmarkAgentResponseExecutorV1(
                     prompts=("evaluate the frozen benchmark case",) * agent_prompt_count,
@@ -2807,10 +2952,8 @@ def _seed_benchmark_spec(
                 )
                 metric_refs = (agent_metric,)
             else:
-                selected_constraints = constraints if simulation_execution is None else ()
-                selected_constraint_payload = (
-                    constraints_payload if simulation_execution is None else []
-                )
+                selected_constraints = constraints if case_simulation is None else ()
+                selected_constraint_payload = constraints_payload if case_simulation is None else []
                 executor = BenchmarkCleanOracleFpExecutorV1(
                     snapshot_payload=snapshot.content_payload,
                     snapshot_id=snapshot.snapshot_id,
@@ -2827,10 +2970,10 @@ def _seed_benchmark_spec(
                         else max_checker_work_units
                     ),
                     needs_navigation=False,
-                    simulation=simulation_execution,
+                    simulation=case_simulation,
                     failure_buckets=(
                         ("deterministic", "unproven")
-                        if simulation_execution is None
+                        if case_simulation is None
                         else ("simulation",)
                     ),
                 )
@@ -2904,25 +3047,70 @@ def _seed_benchmark_spec(
         payload_schema_id="bench-dataset@1",
         domain_scope=domain_scope,
     )
-    all_cases = tuple(case for partition in partitions for case in partition.cases)
+    all_case_bindings = tuple(
+        (partition.partition_id, case) for partition in partitions for case in partition.cases
+    )
+    all_cases = tuple(case for _, case in all_case_bindings)
     if aggregate_artifacts and len(aggregate_artifacts) != len(all_cases):
         raise AssertionError("aggregate fixture must bind every benchmark case")
-    aggregate_inputs = (
-        tuple(
+    dataset_cases_by_id = {
+        case.case_id: case for partition in dataset_contract.partitions for case in partition.cases
+    }
+    aggregate_input_items: list[BenchmarkAggregateInputBindingV1] = []
+    for (partition_id, case), artifact in zip(
+        all_case_bindings if aggregate_artifacts else (),
+        aggregate_artifacts,
+        strict=True,
+    ):
+        execution_seed = (
+            None
+            if aggregate_root_seed is None
+            else derive_subseed_v1(
+                root_seed=aggregate_root_seed,
+                run_kind=RunKindRef(kind="bench.run", version=1),
+                profile=evaluator_profile,
+                case_id=case.case_id,
+                replication_index=0,
+            )
+        )
+        simulation = getattr(dataset_cases_by_id[case.case_id].executor, "simulation", None)
+        if simulation is None:
+            producer_seed_relation = "seed_independent"
+            producer_seed = None
+        elif simulation.seed_policy == "fixed":
+            producer_seed_relation = "fixed_case_seed"
+            producer_seed = simulation.fixed_seed
+        else:
+            producer_seed_relation = "bench_child"
+            producer_seed = execution_seed
+        if aggregate_producer_seed_override is not None:
+            producer_seed = aggregate_producer_seed_override
+        aggregate_input_items.append(
             BenchmarkAggregateInputBindingV1(
                 case_id=case.case_id,
+                partition_id=partition_id,
+                execution_mode=case.execution_mode,
                 replication_index=0,
                 artifact_id=artifact.artifact_id,
                 payload_hash=artifact.payload_hash,
                 payload_size_bytes=artifact.object_ref.size_bytes,
                 artifact_kind=artifact.kind,  # type: ignore[arg-type]
                 payload_schema_id=str(artifact.meta["payload_schema_id"]),
+                **_seed_benchmark_aggregate_producer(
+                    harness,
+                    artifact=artifact,
+                    producer_seed=producer_seed,
+                ),
+                producer_seed_binding={"relation": producer_seed_relation},
+                dataset_artifact_id=dataset.artifact_id,
+                evaluator_profile=evaluator_profile,
+                run_kind=RunKindRef(kind="bench.run", version=1),
+                root_seed=aggregate_root_seed,
+                execution_seed=execution_seed,
+                seed_derivation_version=seed_derivation_version,
             )
-            for case, artifact in zip(all_cases, aggregate_artifacts, strict=True)
         )
-        if aggregate_artifacts
-        else ()
-    )
+    aggregate_inputs = tuple(aggregate_input_items)
     spec = BenchmarkSpecV1(
         dataset=BenchmarkDatasetBindingV1(
             artifact_id=dataset.artifact_id,
@@ -3536,6 +3724,9 @@ def _bench_aggregate_inputs(
     *,
     dataset_scope: DomainScope | None = None,
     case_scope: DomainScope | None = None,
+    aggregate_root_seed: int | None = None,
+    simulation_execution: BenchmarkSimulationExecutionV1 | None = None,
+    aggregate_producer_seed_override: int | None = None,
 ) -> tuple[BenchRunPayloadV1, str, ArtifactV2, str]:
     dataset_domain = dataset_scope or DomainScope(domain_ids=("economy",))
     dataset = harness.seed_artifact(
@@ -3554,6 +3745,9 @@ def _bench_aggregate_inputs(
         domain_scope=dataset_domain,
         partitions=(_benchmark_partition("det", ("case:1", "deterministic")),),
         aggregate_artifacts=(harness.load_artifact(case_result),),
+        aggregate_root_seed=aggregate_root_seed,
+        simulation_execution=simulation_execution,
+        aggregate_producer_seed_override=aggregate_producer_seed_override,
     )
     dataset = spec.lineage[0]
     params = BenchRunPayloadV1(
@@ -3585,6 +3779,244 @@ def test_bench_aggregate_freezes_exact_content_addressed_inputs(tmp_path: Path) 
     assert run.payload.cassette_artifact_id is None
     assert run.payload.input_artifact_ids == tuple(sorted((dataset, spec.artifact_id, case_result)))
     assert run.payload.params.case_result_artifact_ids == (case_result,)
+
+
+def test_bench_aggregate_rejects_run_seed_outside_frozen_spec_provenance(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(
+        tmp_path,
+        profile_updates={"builtin.bench_evaluator": {"stochastic": True}},
+    )
+    params, _, _, _ = _bench_aggregate_inputs(harness, aggregate_root_seed=7)
+
+    with pytest.raises(Conflict, match="immutable input provenance"):
+        harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server("bench:aggregate-seed-relabel"),
+            seed=8,
+        )
+
+    _assert_no_admission_side_effects(harness, key="bench:aggregate-seed-relabel")
+
+
+def test_bench_aggregate_accepts_exact_fixed_case_producer_seed(tmp_path: Path) -> None:
+    harness = Harness(tmp_path)
+    simulation = BenchmarkSimulationExecutionV1(
+        seed_policy="fixed",
+        fixed_seed=23,
+        agents=1,
+        ticks=1,
+    )
+    params, _, _, _ = _bench_aggregate_inputs(
+        harness,
+        simulation_execution=simulation,
+    )
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=params,
+        actor=_tooling_actor(),
+        server=_server("bench:aggregate-fixed-seed"),
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+def test_bench_aggregate_accepts_fixed_producer_with_stochastic_evaluator_seed(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(
+        tmp_path,
+        profile_updates={"builtin.bench_evaluator": {"stochastic": True}},
+    )
+    simulation = BenchmarkSimulationExecutionV1(
+        seed_policy="fixed",
+        fixed_seed=23,
+        agents=1,
+        ticks=1,
+    )
+    params, _, _, _ = _bench_aggregate_inputs(
+        harness,
+        aggregate_root_seed=7,
+        simulation_execution=simulation,
+    )
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=params,
+        actor=_tooling_actor(),
+        server=_server("bench:aggregate-fixed-producer-stochastic-evaluator"),
+        seed=7,
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.seed == 7
+
+
+def test_bench_aggregate_accepts_mixed_fixed_and_run_subseed_producers(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(
+        tmp_path,
+        profile_updates={"builtin.bench_evaluator": {"stochastic": True}},
+    )
+    scope = DomainScope(domain_ids=("economy",))
+    dataset = harness.seed_artifact(
+        kind="bench_dataset",
+        tool_version="dataset@1",
+        domain_scope=scope,
+    )
+    fixed_result = harness.seed_artifact(
+        kind="review_report",
+        tool_version="review@1",
+        extra="fixed",
+        domain_scope=scope,
+    )
+    run_subseed_result = harness.seed_artifact(
+        kind="review_report",
+        tool_version="review@1",
+        extra="run-subseed",
+        domain_scope=scope,
+    )
+    spec = _seed_benchmark_spec(
+        harness,
+        dataset_artifact_id=dataset,
+        domain_scope=scope,
+        partitions=(
+            _benchmark_partition(
+                "mixed",
+                ("case:fixed", "deterministic"),
+                ("case:run-subseed", "deterministic"),
+            ),
+        ),
+        aggregate_artifacts=(
+            harness.load_artifact(fixed_result),
+            harness.load_artifact(run_subseed_result),
+        ),
+        simulation_executions_by_case={
+            "case:fixed": BenchmarkSimulationExecutionV1(
+                seed_policy="fixed",
+                fixed_seed=23,
+                agents=1,
+                ticks=1,
+            ),
+            "case:run-subseed": BenchmarkSimulationExecutionV1(
+                seed_policy="run_subseed",
+                agents=1,
+                ticks=1,
+            ),
+        },
+        aggregate_root_seed=7,
+    )
+    params = BenchRunPayloadV1(
+        dataset_artifact_id=spec.lineage[0],
+        benchmark_spec_artifact_id=spec.artifact_id,
+        partition_ids=("mixed",),
+        evaluator_profile=BENCH_EVALUATOR_PROFILE,
+        repetition_count=1,
+        execution_scope="aggregate_results",
+        case_result_artifact_ids=(fixed_result, run_subseed_result),
+    )
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=params,
+        actor=_tooling_actor(),
+        server=_server("bench:aggregate-mixed-seed-authority"),
+        seed=7,
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    run_subseed = derive_subseed_v1(
+        root_seed=7,
+        run_kind=RunKindRef(kind="bench.run", version=1),
+        profile=BENCH_EVALUATOR_PROFILE,
+        case_id="case:run-subseed",
+        replication_index=0,
+    )
+    assert run.payload.seed == 7
+    assert sorted(producer.payload.seed for producer in harness.synthetic_runs.values()) == sorted(
+        (23, run_subseed)
+    )
+
+
+def test_bench_aggregate_rejects_fixed_producer_seed_outside_dataset_case(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    simulation = BenchmarkSimulationExecutionV1(
+        seed_policy="fixed",
+        fixed_seed=23,
+        agents=1,
+        ticks=1,
+    )
+    params, _, _, _ = _bench_aggregate_inputs(
+        harness,
+        simulation_execution=simulation,
+        aggregate_producer_seed_override=24,
+    )
+
+    with pytest.raises(Conflict, match="dataset authority"):
+        harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server("bench:aggregate-fixed-seed-drift"),
+        )
+
+    _assert_no_admission_side_effects(
+        harness,
+        key="bench:aggregate-fixed-seed-drift",
+    )
+
+
+def test_bench_aggregate_accepts_exact_run_subseed_producer(tmp_path: Path) -> None:
+    harness = Harness(
+        tmp_path,
+        profile_updates={
+            "builtin.bench_evaluator": {"stochastic": True},
+        },
+    )
+    simulation = BenchmarkSimulationExecutionV1(
+        seed_policy="run_subseed",
+        agents=1,
+        ticks=1,
+    )
+    params, _, _, _ = _bench_aggregate_inputs(
+        harness,
+        aggregate_root_seed=7,
+        simulation_execution=simulation,
+    )
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=params,
+        actor=_tooling_actor(),
+        server=_server("bench:aggregate-run-subseed"),
+        seed=7,
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+def test_bench_aggregate_rejects_nonterminal_producer_run_authority(tmp_path: Path) -> None:
+    harness = Harness(tmp_path)
+    params, _, _, _ = _bench_aggregate_inputs(harness)
+    producer_run_id = next(iter(harness.synthetic_runs))
+    harness.synthetic_runs[producer_run_id] = harness.synthetic_runs[producer_run_id].model_copy(
+        update={"status": "running", "result_artifact_id": None}
+    )
+
+    with pytest.raises(Conflict, match="producer Run differs"):
+        harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server("bench:aggregate-nonterminal-producer"),
+        )
+
+    _assert_no_admission_side_effects(
+        harness,
+        key="bench:aggregate-nonterminal-producer",
+    )
 
 
 @pytest.mark.parametrize(

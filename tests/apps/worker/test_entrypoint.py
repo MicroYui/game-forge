@@ -169,6 +169,173 @@ def _persist_catalogs(
         engine.dispose()
 
 
+def _builtin_profile_binding(
+    registry,
+    *,
+    profile_id: str,
+    profile_kind: str,
+    field_path: str,
+) -> ResolvedExecutionProfileBindingV1:
+    catalog = max(
+        registry.list_execution_profile_catalogs(),
+        key=lambda item: item.catalog_version,
+    )
+    return registry.resolve_execution_profile(
+        catalog_version=catalog.catalog_version,
+        catalog_digest=catalog.catalog_digest,
+        field_path=field_path,
+        profile=ProfileRefV1(profile_id=profile_id, version=1),
+        expected_profile_kind=profile_kind,
+    )
+
+
+@pytest.mark.parametrize("mode", ("live", "record", "not_applicable"))
+def test_exact_profile_validator_allows_replay_only_only_during_replay(mode: str) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.checker",
+        profile_kind="checker",
+        field_path="/params/checker_profile",
+    )
+    definition, _lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class ReplayOnlyRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition, SimpleNamespace(state="replay_only")
+
+    validator = worker_components._build_exact_profile_binding_validator(ReplayOnlyRegistry())
+    validator(binding, llm_execution_mode="replay", run_kind=definition.compatible_run_kinds[0])
+    with pytest.raises(IntegrityViolation, match="lifecycle"):
+        validator(
+            binding,
+            llm_execution_mode=mode,
+            run_kind=definition.compatible_run_kinds[0],
+        )
+
+
+def test_exact_profile_validator_rejects_disabled_even_during_replay() -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.checker",
+        profile_kind="checker",
+        field_path="/params/checker_profile",
+    )
+    definition, _lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class DisabledRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition, SimpleNamespace(state="disabled")
+
+    validator = worker_components._build_exact_profile_binding_validator(DisabledRegistry())
+    with pytest.raises(IntegrityViolation, match="lifecycle"):
+        validator(
+            binding,
+            llm_execution_mode="replay",
+            run_kind=definition.compatible_run_kinds[0],
+        )
+
+
+@pytest.mark.parametrize(
+    "definition_update",
+    (
+        {"output_schema_ids": ("substituted@1",)},
+        {"required_capabilities": ("unavailable-capability",)},
+    ),
+)
+def test_exact_profile_validator_rejects_definition_outside_adapter_contract(
+    definition_update: dict[str, object],
+) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.checker",
+        profile_kind="checker",
+        field_path="/params/checker_profile",
+    )
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class SubstitutedRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition.model_copy(update=definition_update), lifecycle
+
+    validator = worker_components._build_exact_profile_binding_validator(SubstitutedRegistry())
+    with pytest.raises(IntegrityViolation, match="incompatible"):
+        validator(
+            binding,
+            llm_execution_mode="not_applicable",
+            run_kind=definition.compatible_run_kinds[0],
+        )
+
+
+def test_exact_profile_validator_rejects_incompatible_run_kind() -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.checker",
+        profile_kind="checker",
+        field_path="/params/checker_profile",
+    )
+    validator = worker_components._build_exact_profile_binding_validator(registry)
+
+    with pytest.raises(IntegrityViolation, match="incompatible"):
+        validator(
+            binding,
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="constraint_proposal.propose", version=1),
+        )
+
+
+def test_exact_profile_validator_rejects_tampered_profile_payload_hash() -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.checker",
+        profile_kind="checker",
+        field_path="/params/checker_profile",
+    ).model_copy(update={"profile_payload_hash": "0" * 64})
+    validator = worker_components._build_exact_profile_binding_validator(registry)
+
+    with pytest.raises(IntegrityViolation, match="payload hash"):
+        validator(
+            binding,
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="checker.run", version=1),
+        )
+
+
+def test_exact_profile_validator_allows_bench_evaluator_seed_policy_variants() -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.bench_evaluator",
+        profile_kind="bench_evaluator",
+        field_path="/params/evaluator_profile",
+    )
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+    stochastic_definition = definition.model_copy(update={"stochastic": True})
+    stochastic_binding = binding.model_copy(
+        update={"profile_payload_hash": execution_profile_payload_hash(stochastic_definition)}
+    )
+
+    class StochasticBenchRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == stochastic_binding
+            return stochastic_definition, lifecycle
+
+    validator = worker_components._build_exact_profile_binding_validator(StochasticBenchRegistry())
+
+    validator(
+        stochastic_binding,
+        llm_execution_mode="not_applicable",
+        run_kind=RunKindRef(kind="bench.run", version=1),
+    )
+
+
 def test_production_checker_resolver_rejects_constraint_cap_before_compilation(
     monkeypatch,
 ) -> None:
@@ -176,7 +343,8 @@ def test_production_checker_resolver_rejects_constraint_cap_before_compilation(
         raise AssertionError("oversized exact constraints must not construct solvers")
 
     monkeypatch.setattr(worker_components, "compile_all", forbidden_compile)
-    resolver = worker_components._build_checker_resolver(build_builtin_registry())
+    registry = build_builtin_registry()
+    resolver = worker_components._build_checker_resolver(registry)
     constraints = [
         Constraint(
             id=f"C_{index}",
@@ -189,11 +357,20 @@ def test_production_checker_resolver_rejects_constraint_cap_before_compilation(
     ]
 
     with pytest.raises(IntegrityViolation, match="constraint set exceeds"):
-        resolver(ProfileRefV1(profile_id="builtin.checker", version=1), constraints)
+        resolver(
+            _builtin_profile_binding(
+                registry,
+                profile_id="builtin.checker",
+                profile_kind="checker",
+                field_path="/params/checker_profiles/0",
+            ),
+            constraints,
+        )
 
 
 def test_production_checker_resolver_exposes_only_deterministic_structured_bindings() -> None:
-    resolver = worker_components._build_checker_resolver(build_builtin_registry())
+    registry = build_builtin_registry()
+    resolver = worker_components._build_checker_resolver(registry)
     constraints = [
         Constraint(
             id="C_cap",
@@ -213,7 +390,12 @@ def test_production_checker_resolver_exposes_only_deterministic_structured_bindi
     ]
 
     group = resolver(
-        ProfileRefV1(profile_id="builtin.checker", version=1),
+        _builtin_profile_binding(
+            registry,
+            profile_id="builtin.checker",
+            profile_kind="checker",
+            field_path="/params/checker_profiles/0",
+        ),
         constraints,
     )
 

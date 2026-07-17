@@ -28,17 +28,21 @@ from gameforge.contracts.jobs import (
     PreparedRunOutcome,
 )
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import ResolvedExecutionProfileBindingV1
 from gameforge.contracts.workflow import ConstraintProposalV1, ConstraintSourceBinding
 from gameforge.spine.dsl.ast import parse_assert
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     PreparedArtifactStore,
     build_success_result,
     canonical_payload_bytes,
     prepared_version_tuple,
+    require_exact_profile_bindings,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.model_routing import (
     BridgeModelRouter,
@@ -71,11 +75,13 @@ class ConstraintExtractionExecutionConfig:
 
 
 class ConstraintExtractionExecutionConfigResolver(Protocol):
-    def __call__(self, profile: object) -> ConstraintExtractionExecutionConfig: ...
+    def __call__(
+        self, binding: ResolvedExecutionProfileBindingV1
+    ) -> ConstraintExtractionExecutionConfig: ...
 
 
 def default_constraint_extraction_execution_config(
-    _profile: object,
+    _binding: ResolvedExecutionProfileBindingV1,
 ) -> ConstraintExtractionExecutionConfig:
     return ConstraintExtractionExecutionConfig()
 
@@ -199,6 +205,7 @@ class ConstraintProposalHandler:
     execution_config_resolver: ConstraintExtractionExecutionConfigResolver = (
         default_constraint_extraction_execution_config
     )
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
@@ -207,7 +214,17 @@ class ConstraintProposalHandler:
                 "constraint_proposer@1 requires a constraint-proposal-propose@1 payload"
             )
 
-        config = self.execution_config_resolver(payload.extraction_policy)
+        profile_binding = require_exact_profile_bindings(
+            context,
+            expected={
+                "/params/extraction_policy": (
+                    payload.extraction_policy,
+                    "constraint_extraction",
+                ),
+            },
+            validator=self.profile_binding_validator,
+        )["/params/extraction_policy"]
+        config = self.execution_config_resolver(profile_binding)
         frozen_doc_version = context.payload.version_tuple.doc_version
         if frozen_doc_version is None:
             raise IntegrityViolation("constraint proposal Run lacks frozen source doc_version")

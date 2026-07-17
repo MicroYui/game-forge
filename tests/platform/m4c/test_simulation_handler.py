@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 
 import pytest
@@ -23,7 +24,13 @@ from gameforge.platform.run_handlers.simulation import (
 )
 from gameforge.platform.run_handlers.validation_common import derive_validation_subseed
 from gameforge.platform.publication.payload_schema import decode_and_validate_artifact_payload
-from gameforge.spine.sim.economy import EconomyModel, EconomySimulator, InvariantCheck, SimResult
+from gameforge.spine.sim.economy import (
+    CollapseReport,
+    EconomyModel,
+    EconomySimulator,
+    InvariantCheck,
+    SimResult,
+)
 from tests.platform.m4c.handler_support import (
     FakeArtifactStore,
     build_context,
@@ -34,6 +41,37 @@ from tests.platform.m4c.handler_support import (
 
 SIM_KIND = RunKindRef(kind="simulation.run", version=1)
 SNAPSHOT_ID = "artifact:snapshot"
+
+
+@pytest.mark.parametrize(
+    "field_path",
+    ("/params/simulation_profile", "/params/workload_profile"),
+)
+def test_simulation_rejects_mismatched_exact_profile_binding_before_execution(
+    field_path: str,
+) -> None:
+    store = FakeArtifactStore()
+    context = _context(store, _sim_payload(replication_count=1, horizon_steps=1))
+    bindings = tuple(
+        resolved_binding(
+            binding.field_path,
+            profile_id=(
+                "other" if binding.field_path == field_path else binding.profile.profile_id
+            ),
+            version=(9 if binding.field_path == field_path else binding.profile.version),
+            kind=("checker" if binding.field_path == field_path else binding.expected_profile_kind),
+        )
+        for binding in context.payload.resolved_profiles
+    )
+    context = replace(
+        context,
+        payload=context.payload.model_copy(update={"resolved_profiles": bindings}),
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
+        _handler(store)(context)
+
+    assert store.put_count == 0
 
 
 def _runaway_economy() -> bytes:
@@ -197,6 +235,66 @@ def test_one_collapsed_child_cannot_be_masked_by_a_clean_child_average() -> None
     assert report["sensitivity"]["child_collapse_binding"] == binding
 
 
+def test_child_collapse_binding_tracks_earliest_warning_independently(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class StableSimulator:
+        def run(self, model, seed, n_agents, n_ticks):
+            del model, seed, n_agents
+            return SimResult(
+                distributions={
+                    "avg_balance_per_tick": [1.0] * n_ticks,
+                    "total_source_per_tick": [0.0] * n_ticks,
+                    "total_sink_per_tick": [0.0] * n_ticks,
+                },
+                invariants=[
+                    InvariantCheck(
+                        name="stable_child_invariant",
+                        ok=True,
+                        observed=0.0,
+                        threshold=1.0,
+                    )
+                ],
+            )
+
+    collapse_reports = iter(
+        (
+            CollapseReport(
+                collapse_tick=4,
+                early_warning_tick=3,
+                reason="first collapse",
+            ),
+            CollapseReport(
+                collapse_tick=8,
+                early_warning_tick=1,
+                reason="earlier warning",
+            ),
+        )
+    )
+    monkeypatch.setattr(
+        "gameforge.platform.run_handlers.simulation.detect_collapse",
+        lambda _result: next(collapse_reports),
+    )
+
+    store = FakeArtifactStore()
+    outcome = SimulationRunHandler(
+        blobs=store,
+        store=store,
+        simulator=StableSimulator(),
+    )(
+        _context(
+            store,
+            _sim_payload(replication_count=2, horizon_steps=10),
+            seed=13,
+        )
+    )
+
+    report = json.loads(store.read_prepared(outcome.artifacts[0].object_ref))
+    binding = report["sensitivity"]["child_collapse_binding"]
+    assert binding["earliest_collapse_tick"] == 4
+    assert binding["earliest_warning_tick"] == 1
+
+
 def test_simulation_handler_seals_result_and_simulation_findings() -> None:
     store = FakeArtifactStore()
     outcome = _handler(store)(_context(store, _sim_payload()))
@@ -275,7 +373,19 @@ def test_same_seed_is_byte_identical_different_seed_diverges() -> None:
 def test_missing_seed_fails_closed() -> None:
     store = FakeArtifactStore()
     store.register(SNAPSHOT_ID, _runaway_economy())
-    context = build_context(params=_sim_payload(), kind=SIM_KIND, seed=None)
+    context = build_context(
+        params=_sim_payload(),
+        kind=SIM_KIND,
+        seed=None,
+        resolved_profiles=(
+            resolved_binding(
+                "/params/simulation_profile", profile_id="sim", version=1, kind="simulation"
+            ),
+            resolved_binding(
+                "/params/workload_profile", profile_id="wl", version=1, kind="workload"
+            ),
+        ),
+    )
     with pytest.raises(ValueError):
         _handler(store)(context)
 
