@@ -35,7 +35,9 @@ from gameforge.platform.playtest_payload_schemas import (
 )
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     PreparedArtifactStore,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.task_suite import (
     EnvironmentContractResolver,
@@ -240,6 +242,7 @@ def build_task_suite_handler(
     store: PreparedArtifactStore,
     playtest_payload_validators: Mapping[str, ExactModelPayloadValidator] | None = None,
     scenario_shaper_resolver: ScenarioShaperResolver | None = None,
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding,
 ) -> TaskSuiteDeriveHandler:
     """Compose the deterministic task-suite handler with the Aureus ports."""
 
@@ -264,6 +267,7 @@ def build_task_suite_handler(
             registry=registry,
             validators=validators,
         ),
+        profile_binding_validator=profile_binding_validator,
     )
 
 

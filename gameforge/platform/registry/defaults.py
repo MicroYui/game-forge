@@ -99,6 +99,8 @@ from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.contracts.playtest import (
     CompletionOracleDefinitionV1,
     CompletionOracleRegistryV1,
+    PlaytestPayloadContextBindingV1,
+    PlaytestPayloadContextPolicyV1,
     PlaytestPayloadSchemaDefinitionV1,
     PlaytestPayloadSchemaRegistryV1,
     compute_completion_oracle_registry_digest,
@@ -2368,7 +2370,9 @@ def _completion_oracle_registry() -> CompletionOracleRegistryV1:
     )
 
 
-def _playtest_payload_schema_registry() -> PlaytestPayloadSchemaRegistryV1:
+def _playtest_payload_schema_registry_v1() -> PlaytestPayloadSchemaRegistryV1:
+    """The byte-compatible historical payload-schema registry."""
+
     definitions = (
         PlaytestPayloadSchemaDefinitionV1(
             schema_id="generic-env-reset@1",
@@ -2387,6 +2391,43 @@ def _playtest_payload_schema_registry() -> PlaytestPayloadSchemaRegistryV1:
         ),
     )
     payload = {"registry_version": 1, "definitions": definitions}
+    return PlaytestPayloadSchemaRegistryV1(
+        **payload,
+        registry_digest=compute_playtest_payload_schema_registry_digest(payload),
+    )
+
+
+def _playtest_payload_schema_registry_v2() -> PlaytestPayloadSchemaRegistryV1:
+    """Add action validation and reset context policy without rewriting v1."""
+
+    definitions = (
+        *_playtest_payload_schema_registry_v1().definitions,
+        PlaytestPayloadSchemaDefinitionV1(
+            schema_id="generic-env-action@1",
+            purpose="environment_action",
+            validator_key="generic_env_action_payload@1",
+        ),
+    )
+    context_policies = (
+        PlaytestPayloadContextPolicyV1(
+            schema_id="generic-env-reset@1",
+            contextual_bindings=(
+                PlaytestPayloadContextBindingV1(
+                    context_key="expected_scenario_id",
+                    payload_pointer="/scenario_id",
+                ),
+                PlaytestPayloadContextBindingV1(
+                    context_key="expected_config_export_artifact_id",
+                    payload_pointer="/config_export_artifact_id",
+                ),
+            ),
+        ),
+    )
+    payload = {
+        "registry_version": 2,
+        "definitions": definitions,
+        "context_policies": context_policies,
+    }
     return PlaytestPayloadSchemaRegistryV1(
         **payload,
         registry_digest=compute_playtest_payload_schema_registry_digest(payload),
@@ -3018,7 +3059,10 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
         finding_output_policies=finding_policies,
         run_event_registries=(_run_event_registry(),),
         completion_oracle_registries=(_completion_oracle_registry(),),
-        playtest_payload_schema_registries=(_playtest_payload_schema_registry(),),
+        playtest_payload_schema_registries=(
+            _playtest_payload_schema_registry_v1(),
+            _playtest_payload_schema_registry_v2(),
+        ),
         agent_execution_graphs=_agent_execution_graphs(),
         execution_profile_catalogs=(
             _execution_profile_catalog_v1(),

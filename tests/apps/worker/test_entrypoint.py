@@ -173,6 +173,7 @@ def _builtin_profile_binding(
     registry,
     *,
     profile_id: str,
+    version: int = 1,
     profile_kind: str,
     field_path: str,
 ) -> ResolvedExecutionProfileBindingV1:
@@ -184,9 +185,211 @@ def _builtin_profile_binding(
         catalog_version=catalog.catalog_version,
         catalog_digest=catalog.catalog_digest,
         field_path=field_path,
-        profile=ProfileRefV1(profile_id=profile_id, version=1),
+        profile=ProfileRefV1(profile_id=profile_id, version=version),
         expected_profile_kind=profile_kind,
     )
+
+
+@pytest.mark.parametrize(
+    (
+        "profile_id",
+        "version",
+        "profile_kind",
+        "field_path",
+        "run_kind",
+        "mode",
+    ),
+    (
+        (
+            "builtin.environment",
+            1,
+            "environment",
+            "/params/environment_profile",
+            RunKindRef(kind="task_suite.derive", version=1),
+            "not_applicable",
+        ),
+        (
+            "builtin.task_suite_derivation",
+            2,
+            "task_suite_derivation",
+            "/params/derivation_profile",
+            RunKindRef(kind="task_suite.derive", version=1),
+            "not_applicable",
+        ),
+        (
+            "builtin.playtest_planner",
+            2,
+            "playtest_planner",
+            "/params/planner_policy",
+            RunKindRef(kind="playtest.run", version=1),
+            "replay",
+        ),
+    ),
+)
+def test_exact_profile_validator_closes_task12_adapter_contracts(
+    profile_id: str,
+    version: int,
+    profile_kind: str,
+    field_path: str,
+    run_kind: RunKindRef,
+    mode: str,
+) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id=profile_id,
+        version=version,
+        profile_kind=profile_kind,
+        field_path=field_path,
+    )
+
+    worker_components._build_exact_profile_binding_validator(registry)(
+        binding,
+        llm_execution_mode=mode,
+        run_kind=run_kind,
+    )
+
+
+@pytest.mark.parametrize(
+    ("profile_id", "version", "profile_kind", "field_path", "definition_update"),
+    (
+        (
+            "builtin.environment",
+            1,
+            "environment",
+            "/params/environment_profile",
+            {"output_schema_ids": ("substituted@1",)},
+        ),
+        (
+            "builtin.task_suite_derivation",
+            2,
+            "task_suite_derivation",
+            "/params/derivation_profile",
+            {"handler_key": "builtin_task_suite_derivation_profile@1"},
+        ),
+        (
+            "builtin.playtest_planner",
+            2,
+            "playtest_planner",
+            "/params/planner_policy",
+            {"config_schema_id": "playtest_planner-profile-config@1"},
+        ),
+    ),
+)
+def test_exact_profile_validator_rejects_task12_adapter_substitution(
+    profile_id: str,
+    version: int,
+    profile_kind: str,
+    field_path: str,
+    definition_update: dict[str, object],
+) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id=profile_id,
+        version=version,
+        profile_kind=profile_kind,
+        field_path=field_path,
+    )
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class SubstitutedRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition.model_copy(update=definition_update), lifecycle
+
+    validator = worker_components._build_exact_profile_binding_validator(SubstitutedRegistry())
+    with pytest.raises(IntegrityViolation, match="incompatible"):
+        validator(
+            binding,
+            llm_execution_mode=(
+                "replay" if profile_kind == "playtest_planner" else "not_applicable"
+            ),
+            run_kind=definition.compatible_run_kinds[0],
+        )
+
+
+def test_exact_profile_validator_rejects_task12_tampered_catalog() -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.task_suite_derivation",
+        version=2,
+        profile_kind="task_suite_derivation",
+        field_path="/params/derivation_profile",
+    ).model_copy(update={"catalog_digest": "0" * 64})
+
+    with pytest.raises(IntegrityViolation, match="catalog"):
+        worker_components._build_exact_profile_binding_validator(registry)(
+            binding,
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="task_suite.derive", version=1),
+        )
+
+
+@pytest.mark.parametrize(
+    ("profile_id", "version", "profile_kind", "field_path", "mode", "allowed"),
+    (
+        (
+            "builtin.task_suite_derivation",
+            2,
+            "task_suite_derivation",
+            "/params/derivation_profile",
+            "not_applicable",
+            False,
+        ),
+        (
+            "builtin.playtest_planner",
+            2,
+            "playtest_planner",
+            "/params/planner_policy",
+            "replay",
+            True,
+        ),
+        (
+            "builtin.playtest_planner",
+            2,
+            "playtest_planner",
+            "/params/planner_policy",
+            "live",
+            False,
+        ),
+    ),
+)
+def test_exact_profile_validator_applies_task12_lifecycle_modes(
+    profile_id: str,
+    version: int,
+    profile_kind: str,
+    field_path: str,
+    mode: str,
+    allowed: bool,
+) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id=profile_id,
+        version=version,
+        profile_kind=profile_kind,
+        field_path=field_path,
+    )
+    definition, _lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class ReplayOnlyRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition, SimpleNamespace(state="replay_only")
+
+    validator = worker_components._build_exact_profile_binding_validator(ReplayOnlyRegistry())
+    call = lambda: validator(  # noqa: E731 - concise assertion target
+        binding,
+        llm_execution_mode=mode,
+        run_kind=definition.compatible_run_kinds[0],
+    )
+    if allowed:
+        call()
+    else:
+        with pytest.raises(IntegrityViolation, match="lifecycle"):
+            call()
 
 
 @pytest.mark.parametrize("mode", ("live", "record", "not_applicable"))
@@ -734,6 +937,13 @@ def test_worker_composition_reuses_one_validator_exporter_and_shaper_authority(
         playtest = components.executors["playtest_runner@1"]
         generation = components.executors["generation_proposer@1"]
         repair = components.executors["repair_search@1"]
+        checker = components.executors["checker_runner@1"]
+
+        assert (
+            task_suite.profile_binding_validator
+            is playtest.profile_binding_validator
+            is checker.profile_binding_validator
+        )
 
         validator_maps = (
             task_suite.payload_validator.validators,

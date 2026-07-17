@@ -10,13 +10,14 @@ ports; the reset-schema is PROFILE-SELECTED from the environment contract.
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 
 import pytest
 
 from gameforge.apps.worker.completion_oracles import ALL_QUESTS_COMPLETED_ORACLE
 from gameforge.apps.worker.task_suite import AureusScenarioShaper
-from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.canonical import canonical_json, canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     EnvironmentContractDescriptorV1,
@@ -159,7 +160,18 @@ def _payload_validator() -> PlaytestPayloadValidationService:
     )
 
 
-def _handler(store: FakeArtifactStore, *, scenario_shaper=None) -> TaskSuiteDeriveHandler:
+def _handler(
+    store: FakeArtifactStore,
+    *,
+    scenario_shaper=None,
+    profile_binding_validator=None,
+    snapshot_loader=None,
+) -> TaskSuiteDeriveHandler:
+    kwargs = {}
+    if profile_binding_validator is not None:
+        kwargs["profile_binding_validator"] = profile_binding_validator
+    if snapshot_loader is not None:
+        kwargs["snapshot_loader"] = snapshot_loader
     return TaskSuiteDeriveHandler(
         blobs=store,
         store=store,
@@ -170,6 +182,7 @@ def _handler(store: FakeArtifactStore, *, scenario_shaper=None) -> TaskSuiteDeri
             _oracle_registry() if ref == _registry_ref() else None
         ),
         payload_validator=_payload_validator(),
+        **kwargs,
     )
 
 
@@ -205,6 +218,94 @@ def _context():
 
 def _run(store: FakeArtifactStore):
     return _handler(store)(_context())
+
+
+def _replace_profiles(context, bindings):
+    envelope = context.payload.model_copy(update={"resolved_profiles": tuple(bindings)})
+    return replace(
+        context,
+        payload=envelope,
+        run=context.run.model_copy(update={"payload": envelope}),
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "match"),
+    (
+        ("missing", "profile set"),
+        ("extra", "profile set"),
+        ("catalog", "exact Run binding"),
+    ),
+)
+def test_derive_closes_complete_profile_set_before_preview_work(
+    mutation: str,
+    match: str,
+) -> None:
+    store = _store()
+    context = _context()
+    bindings = list(context.payload.resolved_profiles)
+    if mutation == "missing":
+        bindings = bindings[:1]
+    elif mutation == "extra":
+        bindings.append(
+            resolved_binding(
+                "/params/unexpected_profile",
+                profile_id="builtin.environment",
+                version=1,
+                kind="environment",
+            )
+        )
+    else:
+        bindings[1] = bindings[1].model_copy(update={"catalog_digest": "b" * 64})
+
+    preview_reads: list[str] = []
+
+    def forbidden_preview_read(*_args):
+        preview_reads.append("read")
+        raise AssertionError("profile closure must precede preview reads")
+
+    with pytest.raises(IntegrityViolation, match=match):
+        _handler(store, snapshot_loader=forbidden_preview_read)(
+            _replace_profiles(context, bindings)
+        )
+
+    assert preview_reads == []
+    assert store.put_count == 0
+
+
+@pytest.mark.parametrize("reason", ("profile payload hash", "lifecycle"))
+def test_derive_revalidates_profile_authority_before_preview_work(reason: str) -> None:
+    store = _store()
+    context = _context()
+    bindings = list(context.payload.resolved_profiles)
+    if reason == "profile payload hash":
+        bindings[0] = bindings[0].model_copy(update={"profile_payload_hash": "0" * 64})
+    context = _replace_profiles(context, bindings)
+    validated: list[str] = []
+    preview_reads: list[str] = []
+
+    def validate(binding, *, llm_execution_mode, run_kind):
+        validated.append(binding.field_path)
+        assert llm_execution_mode == "not_applicable"
+        assert run_kind == TASK_SUITE_KIND
+        if reason == "profile payload hash" and binding.profile_payload_hash == "0" * 64:
+            raise IntegrityViolation("profile payload hash differs from retained authority")
+        raise IntegrityViolation("execution profile lifecycle forbids this Run mode")
+
+    def forbidden_preview_read(*_args):
+        preview_reads.append("read")
+        raise AssertionError("retained profile validation must precede preview reads")
+
+    with pytest.raises(IntegrityViolation, match=reason):
+        _handler(
+            store,
+            profile_binding_validator=validate,
+            snapshot_loader=forbidden_preview_read,
+        )(context)
+
+    assert validated == ["/params/derivation_profile"]
+    assert preview_reads == []
+    assert store.put_count == 0
 
 
 def _suite(store: FakeArtifactStore, outcome) -> TaskSuiteV1:
@@ -361,6 +462,35 @@ def test_derive_validates_reset_payload_and_oracle_params_before_any_blob_write(
     )
     with pytest.raises(IntegrityViolation, match="completion-oracle params"):
         _handler(store, scenario_shaper=_FixedShaper((bad_oracle,)))(_context())
+    assert store.put_count == 0
+
+
+@pytest.mark.parametrize(
+    "reset_payload",
+    (
+        {
+            "scenario_id": "scenario:wrong",
+            "config_export_artifact_id": CONFIG_ID,
+            "quest_ids": ["quest:0001"],
+            "start_seed": 0,
+        },
+        {
+            "scenario_id": "scenario:0001",
+            "config_export_artifact_id": "artifact:other-config",
+            "quest_ids": ["quest:0001"],
+            "start_seed": 0,
+        },
+    ),
+)
+def test_derive_binds_reset_identity_to_outer_scenario_before_blob_write(
+    reset_payload: dict[str, object],
+) -> None:
+    store = _store()
+    draft = _draft(1, reset_payload=reset_payload)
+
+    with pytest.raises(IntegrityViolation, match="reset payload"):
+        _handler(store, scenario_shaper=_FixedShaper((draft,)))(_context())
+
     assert store.put_count == 0
 
 
@@ -577,6 +707,23 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
             payload=forged_scenario,
             prepared_batch_total_bytes=prepared_batch_total_bytes,
         )
+
+    for field, value in (
+        ("scenario_id", "scenario:wrong"),
+        ("config_export_artifact_id", "artifact:other-config"),
+    ):
+        forged_scenario = json.loads(blobs.read(scenario_prepared.object_ref))
+        forged_scenario["reset_binding"]["payload"][field] = value
+        forged_scenario["reset_binding"]["payload_hash"] = canonical_sha256(
+            forged_scenario["reset_binding"]["payload"]
+        )
+        with pytest.raises(IntegrityViolation, match="contextual binding"):
+            publisher._validate_task_suite_payload_authority(  # noqa: SLF001
+                run=run,
+                payload_schema_id="scenario-spec@1",
+                payload=forged_scenario,
+                prepared_batch_total_bytes=prepared_batch_total_bytes,
+            )
 
     forged_scenario = json.loads(blobs.read(scenario_prepared.object_ref))
     forged_scenario["domain_scope"] = {"domain_ids": ["forged"]}

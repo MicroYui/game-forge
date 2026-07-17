@@ -27,6 +27,8 @@ from gameforge.apps.worker.completion_oracles import (
 )
 from gameforge.apps.worker.playtest import (
     AureusPlaytestRunner,
+    _StateHashRecordingEnv,
+    build_playtest_handler,
     build_playtest_planner_config_resolver,
 )
 from gameforge.apps.worker.components import _playtest_supported_profiles
@@ -37,6 +39,7 @@ from gameforge.contracts.config_export import (
     canonical_config_export_bytes,
 )
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.env_types import parse_action
 from gameforge.contracts.execution_profiles import (
     EnvironmentContractDescriptorV1,
     PlaytestPlannerProfileConfigV2,
@@ -59,6 +62,7 @@ from gameforge.contracts.playtest import (
     CompletionOracleDefinitionV1,
     CompletionOracleRegistryRefV1,
     CompletionOracleRegistryV1,
+    MAX_PLAYTEST_ID_LENGTH,
     PlaytestTraceV1,
     ScenarioResetBindingV1,
     ScenarioSpecV1,
@@ -80,6 +84,7 @@ from gameforge.platform.run_handlers.playtest import (
     PlaytestEpisodeOutcomeV1,
     PlaytestEpisodeRunRequest,
     PlaytestRunHandler,
+    allowed_action_kinds,
     derive_episode_seed,
 )
 from gameforge.platform.runs.lifecycle import validate_prepared_failure
@@ -239,12 +244,13 @@ def _registry_ref() -> CompletionOracleRegistryRefV1:
 def _reset(
     scenario_id: str,
     *,
+    config_export_artifact_id: str = CONFIG_ID,
     start_seed: int = 0,
     quest_ids: tuple[str, ...] = (),
 ) -> ScenarioResetBindingV1:
     value = {
         "scenario_id": scenario_id,
-        "config_export_artifact_id": CONFIG_ID,
+        "config_export_artifact_id": config_export_artifact_id,
         "quest_ids": list(quest_ids),
         "start_seed": start_seed,
     }
@@ -397,23 +403,59 @@ def _real_runner(*, supported: tuple[ProfileRefV1, ...] = (ENV_PROFILE,)) -> Aur
     )
 
 
+def _payload_validator() -> PlaytestPayloadValidationService:
+    return PlaytestPayloadValidationService(
+        registry=build_builtin_registry(),
+        validators=build_builtin_playtest_payload_validators(),
+    )
+
+
 def _real_handler(
-    store: FakeArtifactStore, runner: AureusPlaytestRunner | None = None
+    store: FakeArtifactStore,
+    runner: AureusPlaytestRunner | None = None,
+    *,
+    profile_binding_validator=None,
 ) -> PlaytestRunHandler:
+    kwargs = {}
+    if profile_binding_validator is not None:
+        kwargs["profile_binding_validator"] = profile_binding_validator
     return PlaytestRunHandler(
         blobs=store,
         store=store,
         env_runner=runner or _real_runner(),
         planner_config_resolver=_planner_config_resolver,
+        environment_contract_resolver=_test_environment_contract,
+        action_payload_validator=_payload_validator(),
+        **kwargs,
     )
 
 
-def _handler(store: FakeArtifactStore, runner) -> PlaytestRunHandler:
+def _handler(
+    store: FakeArtifactStore,
+    runner,
+    *,
+    profile_binding_validator=None,
+) -> PlaytestRunHandler:
+    kwargs = {}
+    if profile_binding_validator is not None:
+        kwargs["profile_binding_validator"] = profile_binding_validator
     return PlaytestRunHandler(
         blobs=store,
         store=store,
         env_runner=runner,
         planner_config_resolver=_planner_config_resolver,
+        environment_contract_resolver=_test_environment_contract,
+        action_payload_validator=_payload_validator(),
+        **kwargs,
+    )
+
+
+def _replace_profiles(context, bindings):
+    envelope = context.payload.model_copy(update={"resolved_profiles": tuple(bindings)})
+    return replace(
+        context,
+        payload=envelope,
+        run=context.run.model_copy(update={"payload": envelope}),
     )
 
 
@@ -430,6 +472,20 @@ class _FakeRunner:
     def run_episode(self, request: PlaytestEpisodeRunRequest) -> PlaytestEpisodeOutcomeV1:
         self.calls.append(request)
         return self.outcome
+
+
+@dataclass
+class _ProfileGateRunner:
+    supports_calls: list[ProfileRefV1] = field(default_factory=list)
+    episode_calls: list[PlaytestEpisodeRunRequest] = field(default_factory=list)
+
+    def supports(self, environment_profile: ProfileRefV1) -> bool:
+        self.supports_calls.append(environment_profile)
+        raise AssertionError("exact profile closure must precede environment resolution")
+
+    def run_episode(self, request: PlaytestEpisodeRunRequest) -> PlaytestEpisodeOutcomeV1:
+        self.episode_calls.append(request)
+        raise AssertionError("exact profile closure must precede environment execution")
 
 
 @dataclass
@@ -455,6 +511,58 @@ class _TwoCallPerEpisodeRunner:
                 )
             )
         return _observe_outcome()
+
+
+@dataclass
+class _MutationTrackingEnv:
+    step_calls: list[object] = field(default_factory=list)
+    mutation_count: int = 0
+
+    def step(self, action: object) -> object:
+        self.step_calls.append(action)
+        self.mutation_count += 1
+        return object()
+
+    def state_hash(self) -> str:
+        return _STATE_1
+
+
+_INVALID_ACTION_CASES = (
+    ({"kind": "wait", "ticks": -1}, "autonomous"),
+    ({"kind": "wait", "ticks": 1_000_001}, "autonomous"),
+    (
+        {"kind": "buy", "shop_id": "shop:1", "item_id": "item:1", "count": 0},
+        "autonomous",
+    ),
+    (
+        {
+            "kind": "buy",
+            "shop_id": "shop:1",
+            "item_id": "item:1",
+            "count": 1_000_001,
+        },
+        "autonomous",
+    ),
+    (
+        {"kind": "sell", "shop_id": "shop:1", "item_id": "item:1", "count": 0},
+        "autonomous",
+    ),
+    (
+        {
+            "kind": "sell",
+            "shop_id": "shop:1",
+            "item_id": "item:1",
+            "count": 1_000_001,
+        },
+        "autonomous",
+    ),
+    ({"kind": "navigate_to", "target": ""}, "autonomous"),
+    (
+        {"kind": "navigate_to", "target": "x" * (MAX_PLAYTEST_ID_LENGTH + 1)},
+        "autonomous",
+    ),
+    ({"kind": "attack", "target_id": "monster:1"}, "bounded_choice"),
+)
 
 
 def _observe_outcome(
@@ -661,6 +769,22 @@ def test_playtest_scopes_same_finding_series_per_episode() -> None:
     assert all(finding.evidence_artifact_index == 0 for finding in outcome.findings)
 
 
+def test_production_builder_shares_one_profile_selected_payload_validator() -> None:
+    registry = build_builtin_registry()
+    store = _store()
+
+    handler = build_playtest_handler(
+        registry=registry,
+        blobs=store,
+        store=store,
+        oracle_registry=_oracle_registry(),
+        supported_profiles=_playtest_supported_profiles(registry),
+    )
+
+    assert isinstance(handler.env_runner, AureusPlaytestRunner)
+    assert handler.action_payload_validator is handler.env_runner.payload_validator
+
+
 def test_playtest_merges_duplicate_finding_series_before_publication_cas() -> None:
     store = _store()
     first = _unreachable_finding()
@@ -697,6 +821,8 @@ def test_playtest_rejects_aggregate_request_above_exact_planner_profile() -> Non
         store=store,
         env_runner=runner,
         planner_config_resolver=lambda _binding: _planner_config(max_episode_count=1),
+        environment_contract_resolver=_test_environment_contract,
+        action_payload_validator=_payload_validator(),
     )
 
     with pytest.raises(IntegrityViolation, match="planner profile authority"):
@@ -739,6 +865,8 @@ def test_playtest_executes_exact_config_and_reset_without_hidden_preview_read() 
     assert request.config_export.constraint_snapshot_artifact_id == CONSTRAINT_ID
     assert request.config_export.target_environment_profile == ENV_PROFILE
     assert request.reset_binding == _scenario("caravan").reset_binding
+    assert request.action_schema_id == _ENV_CONTRACT.action_schema_id
+    assert request.allowed_action_kinds == allowed_action_kinds("autonomous")
 
 
 def test_aureus_runner_applies_reset_quest_subset_to_exported_world() -> None:
@@ -929,6 +1057,78 @@ def test_playtest_rejects_max_steps_above_selected_episode_budget() -> None:
         handler(_context(FakeModelBridge(responses=()), _payload(max_steps=251)))
 
 
+@pytest.mark.parametrize(
+    ("mutation", "match"),
+    (
+        ("missing", "profile set"),
+        ("extra", "profile set"),
+        ("catalog", "exact Run binding"),
+    ),
+)
+def test_playtest_closes_complete_profile_set_before_environment_or_model_work(
+    mutation: str,
+    match: str,
+) -> None:
+    store = _store()
+    runner = _ProfileGateRunner()
+    bridge = FakeModelBridge(responses=())
+    context = _context(bridge)
+    bindings = list(context.payload.resolved_profiles)
+    if mutation == "missing":
+        bindings = bindings[:1]
+    elif mutation == "extra":
+        bindings.append(
+            resolved_binding(
+                "/params/unexpected_profile",
+                profile_id="environment:aureus",
+                version=1,
+                kind="environment",
+            )
+        )
+    else:
+        bindings[0] = bindings[0].model_copy(update={"catalog_digest": "b" * 64})
+
+    with pytest.raises(IntegrityViolation, match=match):
+        _handler(store, runner)(_replace_profiles(context, bindings))
+
+    assert runner.supports_calls == []
+    assert runner.episode_calls == []
+    assert bridge.requests == []
+    assert store.put_count == 0
+
+
+@pytest.mark.parametrize("reason", ("profile payload hash", "lifecycle"))
+def test_playtest_revalidates_profile_authority_before_environment_or_model_work(
+    reason: str,
+) -> None:
+    store = _store()
+    runner = _ProfileGateRunner()
+    bridge = FakeModelBridge(responses=())
+    context = _context(bridge)
+    bindings = list(context.payload.resolved_profiles)
+    if reason == "profile payload hash":
+        bindings[0] = bindings[0].model_copy(update={"profile_payload_hash": "0" * 64})
+    context = _replace_profiles(context, bindings)
+    validated: list[str] = []
+
+    def validate(binding, *, llm_execution_mode, run_kind):
+        validated.append(binding.field_path)
+        assert llm_execution_mode == "replay"
+        assert run_kind == PLAYTEST_KIND
+        if reason == "profile payload hash" and binding.profile_payload_hash == "0" * 64:
+            raise IntegrityViolation("profile payload hash differs from retained authority")
+        raise IntegrityViolation("execution profile lifecycle forbids this Run mode")
+
+    with pytest.raises(IntegrityViolation, match=reason):
+        _handler(store, runner, profile_binding_validator=validate)(context)
+
+    assert validated == ["/params/environment_profile"]
+    assert runner.supports_calls == []
+    assert runner.episode_calls == []
+    assert bridge.requests == []
+    assert store.put_count == 0
+
+
 def test_playtest_rejects_stale_profile_binding() -> None:
     store = _store()
     runner = _FakeRunner(_observe_outcome())
@@ -954,7 +1154,7 @@ def test_playtest_rejects_stale_profile_binding() -> None:
         llm_execution_mode="not_applicable",
         model_bridge=FakeModelBridge(responses=()),
     )
-    with pytest.raises(ValueError, match="stale environment profile binding"):
+    with pytest.raises(IntegrityViolation, match="exact Run binding"):
         handler(context)
 
 
@@ -1029,6 +1229,95 @@ def test_playtest_rejects_reset_seed_outside_root_subseed_authority() -> None:
 
     with pytest.raises(IntegrityViolation, match="exact schema"):
         _real_handler(store)(_context(FakeModelBridge(responses=())))
+
+
+@pytest.mark.parametrize(
+    "reset",
+    (
+        _reset("scenario:other"),
+        _reset("caravan", config_export_artifact_id="artifact:other-config"),
+    ),
+)
+def test_aureus_runner_rejects_contextually_stale_reset_before_environment_execution(
+    reset: ScenarioResetBindingV1,
+) -> None:
+    episode = _episode("episode:01", SCENARIO_01, "caravan").model_copy(
+        update={"reset_binding": reset}
+    )
+    suite = _suite(episode)
+    scenario = _scenario("caravan").model_copy(update={"reset_binding": reset})
+    store = _store(suite)
+    store.register(SCENARIO_01, scenario.model_dump(mode="json"))
+
+    with pytest.raises(IntegrityViolation, match="contextual binding"):
+        _real_handler(store)(_context(FakeModelBridge(responses=())))
+
+
+@pytest.mark.parametrize(("action", "interaction_mode"), _INVALID_ACTION_CASES)
+def test_state_hash_env_rejects_invalid_action_before_any_environment_mutation(
+    action: dict[str, object],
+    interaction_mode: str,
+) -> None:
+    env = _MutationTrackingEnv()
+    recording = _StateHashRecordingEnv(
+        env,
+        action_schema_id=_ENV_CONTRACT.action_schema_id,
+        allowed_action_kinds=allowed_action_kinds(interaction_mode),
+        payload_validator=_payload_validator(),
+    )
+
+    with pytest.raises(IntegrityViolation, match="environment action"):
+        recording.step(parse_action(action))
+
+    assert env.step_calls == []
+    assert env.mutation_count == 0
+    assert recording.post_step_hashes == []
+
+
+def test_state_hash_env_accepts_canonical_use_with_omitted_optional_target() -> None:
+    env = _MutationTrackingEnv()
+    recording = _StateHashRecordingEnv(
+        env,
+        action_schema_id=_ENV_CONTRACT.action_schema_id,
+        allowed_action_kinds=allowed_action_kinds("autonomous"),
+        payload_validator=_payload_validator(),
+    )
+
+    result = recording.step(parse_action({"kind": "use", "item_id": "item:potion", "target": None}))
+
+    assert result is not None
+    assert env.mutation_count == 1
+    assert len(env.step_calls) == 1
+    assert env.step_calls[0].model_dump(mode="json", exclude_none=True) == {
+        "kind": "use",
+        "item_id": "item:potion",
+    }
+    assert recording.post_step_hashes == [_STATE_1]
+
+
+def test_playtest_trace_canonicalizes_agent_use_with_none_target() -> None:
+    store = _store()
+    outcome = PlaytestEpisodeOutcomeV1(
+        action_trace=(
+            {
+                "action": {"kind": "use", "item_id": "item:potion", "target": None},
+                "last_action_result": "used",
+                "tick": 1,
+                "state_hash": _STATE_1,
+            },
+        ),
+        defect_findings=(),
+        completed=False,
+        initial_state_hash=_STATE_0,
+        final_state_hash=_STATE_1,
+    )
+
+    prepared = _handler(store, _FakeRunner(outcome))(_context(FakeModelBridge(responses=())))
+
+    assert _trace_of(store, prepared).episodes[0].action_trace[0].action == {
+        "kind": "use",
+        "item_id": "item:potion",
+    }
 
 
 def test_playtest_rejects_env_trace_beyond_requested_step_limit() -> None:
@@ -1116,10 +1405,44 @@ def test_playtest_rejects_malformed_env_action_records(step: dict) -> None:
             )
         ),
         planner_config_resolver=_planner_config_resolver,
+        environment_contract_resolver=_test_environment_contract,
+        action_payload_validator=_payload_validator(),
     )
 
     with pytest.raises(ValueError, match="action record"):
         handler(_context(FakeModelBridge(responses=())))
+
+
+@pytest.mark.parametrize(("action", "interaction_mode"), _INVALID_ACTION_CASES)
+def test_playtest_revalidates_fake_runner_action_postconditions(
+    action: dict[str, object],
+    interaction_mode: str,
+) -> None:
+    store = _store()
+    outcome = PlaytestEpisodeOutcomeV1(
+        action_trace=(
+            {
+                "action": action,
+                "last_action_result": "forged",
+                "tick": 1,
+                "state_hash": _STATE_1,
+            },
+        ),
+        defect_findings=(),
+        completed=False,
+        initial_state_hash=_STATE_0,
+        final_state_hash=_STATE_1,
+    )
+
+    with pytest.raises(IntegrityViolation, match="environment action"):
+        _handler(store, _FakeRunner(outcome))(
+            _context(
+                FakeModelBridge(responses=()),
+                _payload(interaction_mode=interaction_mode),
+            )
+        )
+
+    assert store.put_count == 0
 
 
 def test_playtest_rejects_non_boolean_completion_verdict() -> None:
@@ -1137,6 +1460,8 @@ def test_playtest_rejects_non_boolean_completion_verdict() -> None:
             )
         ),
         planner_config_resolver=_planner_config_resolver,
+        environment_contract_resolver=_test_environment_contract,
+        action_payload_validator=_payload_validator(),
     )
 
     with pytest.raises(ValueError, match="boolean completion"):
@@ -1162,7 +1487,7 @@ def test_playtest_rejects_disallowed_bounded_interaction_command() -> None:
     )
     runner = _FakeRunner(attack_outcome)
     handler = _handler(store, runner)
-    with pytest.raises(ValueError, match="not an allowed bounded interaction command"):
+    with pytest.raises(IntegrityViolation, match="not allowed by the interaction mode"):
         handler(
             _context(FakeModelBridge(responses=()), _payload(interaction_mode="bounded_choice"))
         )

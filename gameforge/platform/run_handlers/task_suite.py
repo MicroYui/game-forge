@@ -27,7 +27,7 @@ Task-18 publisher enhancement — the handler never pre-declares them.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Protocol
+from typing import Callable, Mapping, Protocol
 
 from pydantic import JsonValue
 
@@ -61,12 +61,14 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     PreparedArtifactStore,
     PreparedArtifactBatchStore,
     build_success_result,
-    resolved_profile,
+    require_exact_profile_bindings,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.readers import SnapshotLoader, load_snapshot
 
@@ -140,6 +142,15 @@ class PlaytestPayloadValidator(Protocol):
         payload: JsonValue,
     ) -> JsonValue: ...
 
+    def validate_exact_contextual(
+        self,
+        *,
+        schema_id: str,
+        purpose: PlaytestPayloadSchemaPurposeV1,
+        payload: JsonValue,
+        context: Mapping[str, JsonValue],
+    ) -> JsonValue: ...
+
 
 def content_addressed_artifact_id(prepared: PreparedArtifact) -> str:
     """The content-addressed id a prepared artifact WITHOUT injected siblings mints.
@@ -171,6 +182,7 @@ class TaskSuiteDeriveHandler:
     derivation_config_resolver: DerivationConfigResolver
     completion_oracle_registry_resolver: CompletionOracleRegistryResolver
     payload_validator: PlaytestPayloadValidator
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
     snapshot_loader: SnapshotLoader = load_snapshot
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
@@ -178,13 +190,24 @@ class TaskSuiteDeriveHandler:
         if not isinstance(payload, TaskSuiteDerivePayloadV1):
             raise TypeError("task_suite_deriver@1 requires a task-suite-derive@1 payload")
 
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected={
+                DERIVATION_PROFILE_FIELD: (
+                    payload.derivation_profile,
+                    "task_suite_derivation",
+                ),
+                ENVIRONMENT_PROFILE_FIELD: (
+                    payload.environment_profile,
+                    "environment",
+                ),
+            },
+            validator=self.profile_binding_validator,
+        )
+        derivation_profile = profile_bindings[DERIVATION_PROFILE_FIELD].profile
+        environment_profile = profile_bindings[ENVIRONMENT_PROFILE_FIELD].profile
+
         preview = self.snapshot_loader(self.blobs, payload.source_preview_artifact_id)
-        environment_profile = resolved_profile(context.payload, ENVIRONMENT_PROFILE_FIELD).profile
-        derivation_profile = resolved_profile(context.payload, DERIVATION_PROFILE_FIELD).profile
-        if environment_profile != payload.environment_profile:
-            raise IntegrityViolation("resolved environment profile differs from the derive payload")
-        if derivation_profile != payload.derivation_profile:
-            raise IntegrityViolation("resolved derivation profile differs from the derive payload")
         contract = self.environment_contract_resolver(environment_profile)
         config = self.derivation_config_resolver(derivation_profile)
         if config.target_environment_profile != environment_profile:
@@ -260,10 +283,14 @@ class TaskSuiteDeriveHandler:
         episodes: list[TaskEpisodeV1] = []
         for draft in ordered_drafts:
             try:
-                reset_payload = self.payload_validator.validate(
+                reset_payload = self.payload_validator.validate_exact_contextual(
                     schema_id=contract.reset_schema_id,
                     purpose="scenario_reset",
                     payload=draft.reset_payload,
+                    context={
+                        "expected_scenario_id": draft.scenario_id,
+                        "expected_config_export_artifact_id": payload.config_artifact_id,
+                    },
                 )
             except IntegrityViolation as exc:
                 raise IntegrityViolation(

@@ -51,6 +51,7 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.playtest import (
     CompletionOracleRegistryRefV1,
     CompletionOracleRegistryV1,
+    PlaytestPayloadContextPolicyV1,
     PlaytestPayloadSchemaDefinitionV1,
     PlaytestPayloadSchemaRegistryV1,
 )
@@ -221,6 +222,7 @@ class ImmutablePlatformRegistry:
             label="playtest-payload-schema registry",
         )
         playtest_payload_schemas: dict[str, PlaytestPayloadSchemaDefinitionV1] = {}
+        playtest_payload_context_policies: dict[str, PlaytestPayloadContextPolicyV1] = {}
         for registry in self._playtest_payload_schema_registries.values():
             for definition in registry.definitions:
                 retained = playtest_payload_schemas.get(definition.schema_id)
@@ -230,7 +232,18 @@ class ImmutablePlatformRegistry:
                         schema_id=definition.schema_id,
                     )
                 playtest_payload_schemas[definition.schema_id] = definition
+            for policy in registry.context_policies:
+                retained_policy = playtest_payload_context_policies.get(policy.schema_id)
+                if retained_policy is not None and retained_policy != policy:
+                    raise IntegrityViolation(
+                        "playtest payload schema has conflicting retained context policies",
+                        schema_id=policy.schema_id,
+                    )
+                playtest_payload_context_policies[policy.schema_id] = policy
         self._playtest_payload_schemas = MappingProxyType(playtest_payload_schemas)
+        self._playtest_payload_context_policies = MappingProxyType(
+            playtest_payload_context_policies
+        )
         self._agent_execution_graphs = _index_exact(
             agent_execution_graphs,
             identity=lambda item: (
@@ -384,6 +397,12 @@ class ImmutablePlatformRegistry:
         schema_id: str,
     ) -> PlaytestPayloadSchemaDefinitionV1 | None:
         return self._playtest_payload_schemas.get(schema_id)
+
+    def get_playtest_payload_context_policy(
+        self,
+        schema_id: str,
+    ) -> PlaytestPayloadContextPolicyV1 | None:
+        return self._playtest_payload_context_policies.get(schema_id)
 
     def get_agent_execution_graph(
         self,

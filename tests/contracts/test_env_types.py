@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from gameforge.contracts.env_types import HIGH_LEVEL_MACROS, Observation, StepResult, parse_action
 
 
@@ -14,14 +17,64 @@ def test_combat_actions_defined_now():
     assert b.kind == "buy" and b.count == 2
 
 
+@pytest.mark.parametrize(
+    "payload",
+    (
+        {"kind": "observe", "forged": True},
+        {"kind": "wait", "ticks": True},
+        {"kind": "wait", "ticks": "1"},
+        {
+            "kind": "buy",
+            "shop_id": "shop:1",
+            "item_id": "item:x",
+            "count": False,
+        },
+        {
+            "kind": "buy",
+            "shop_id": "shop:1",
+            "item_id": "item:x",
+            "count": "1",
+        },
+        {
+            "kind": "sell",
+            "shop_id": "shop:1",
+            "item_id": "item:x",
+            "count": True,
+        },
+        {
+            "kind": "sell",
+            "shop_id": "shop:1",
+            "item_id": "item:x",
+            "count": "1",
+        },
+    ),
+)
+def test_parse_action_rejects_extra_and_non_strict_integer_inputs(payload):
+    with pytest.raises(ValidationError):
+        parse_action(payload)
+
+
 def test_observation_has_all_contract_fields():
     fields = set(Observation.model_fields.keys())
     for f in [
-        "tick", "player_pos", "player_stats", "equipped_items", "active_effects",
-        "active_quests", "completed_quests", "known_quests", "quest_state",
-        "inventory", "hp", "nearby_entities", "reachable_targets",
-        "available_interactions", "visible_map", "dialogue_options",
-        "last_action_result", "logs",
+        "tick",
+        "player_pos",
+        "player_stats",
+        "equipped_items",
+        "active_effects",
+        "active_quests",
+        "completed_quests",
+        "known_quests",
+        "quest_state",
+        "inventory",
+        "hp",
+        "nearby_entities",
+        "reachable_targets",
+        "available_interactions",
+        "visible_map",
+        "dialogue_options",
+        "last_action_result",
+        "logs",
     ]:
         assert f in fields, f
 

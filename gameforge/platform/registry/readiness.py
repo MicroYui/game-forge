@@ -287,6 +287,7 @@ class PlatformReadinessValidator:
         if not payload_schema_registries:
             raise IntegrityViolation("playtest-payload-schema registry is not retained")
         payload_schemas = {}
+        payload_context_policies = {}
         for payload_registry in payload_schema_registries:
             if (
                 self._registry.get_playtest_payload_schema_registry(
@@ -307,6 +308,15 @@ class PlatformReadinessValidator:
                 if retained != schema:
                     raise IntegrityViolation("playtest payload schema does not resolve exactly")
                 payload_schemas[schema.schema_id] = schema
+            for policy in payload_registry.context_policies:
+                retained_policy = self._registry.get_playtest_payload_context_policy(
+                    policy.schema_id
+                )
+                if retained_policy != policy:
+                    raise IntegrityViolation(
+                        "playtest payload context policy does not resolve exactly"
+                    )
+                payload_context_policies[policy.schema_id] = policy
         for oracle_registry in oracle_registries:
             for oracle in oracle_registry.definitions:
                 schema = payload_schemas.get(oracle.params_schema_id)
@@ -379,6 +389,29 @@ class PlatformReadinessValidator:
                     if reset_schema is None or reset_schema.purpose != "scenario_reset":
                         raise IntegrityViolation(
                             "environment profile reset schema lacks an exact validator"
+                        )
+                    action_schema = payload_schemas.get(profile.details.contract.action_schema_id)
+                    if action_schema is None or action_schema.purpose != "environment_action":
+                        raise IntegrityViolation(
+                            "environment profile action schema lacks an exact validator"
+                        )
+                    reset_context_policy = payload_context_policies.get(reset_schema.schema_id)
+                    if reset_schema.schema_id == "generic-env-reset@1" and (
+                        reset_context_policy is None
+                        or {
+                            (binding.context_key, binding.payload_pointer)
+                            for binding in reset_context_policy.contextual_bindings
+                        }
+                        != {
+                            ("expected_scenario_id", "/scenario_id"),
+                            (
+                                "expected_config_export_artifact_id",
+                                "/config_export_artifact_id",
+                            ),
+                        }
+                    ):
+                        raise IntegrityViolation(
+                            "generic environment reset schema lacks exact contextual bindings"
                         )
                 if (
                     profile.profile_kind == "task_suite_derivation"

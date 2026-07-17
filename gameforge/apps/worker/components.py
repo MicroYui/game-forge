@@ -560,7 +560,7 @@ class _CheckerGroup:
         return findings
 
 
-_TASK11_PROFILE_ADAPTER_CONTRACTS: dict[
+_RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
     str,
     tuple[str, str, frozenset[str], frozenset[str], frozenset[bool]],
 ] = {
@@ -590,6 +590,13 @@ _TASK11_PROFILE_ADAPTER_CONTRACTS: dict[
         "constraint_extraction-profile-config@1",
         frozenset(("constraint-proposal-propose@1",)),
         frozenset(("constraint-proposal@1",)),
+        frozenset((False,)),
+    ),
+    "environment": (
+        "builtin_environment_profile@1",
+        "environment-profile-config@1",
+        frozenset(("playtest-run@1", "task-suite-derive@1")),
+        frozenset(("playtest-trace@1", "scenario-spec@1")),
         frozenset((False,)),
     ),
     "generation": (
@@ -631,6 +638,13 @@ _TASK11_PROFILE_ADAPTER_CONTRACTS: dict[
         ),
         frozenset((False,)),
     ),
+    "playtest_planner": (
+        "builtin_playtest_planner_profile@2",
+        "playtest_planner-profile-config@2",
+        frozenset(("playtest-run@1",)),
+        frozenset(("playtest-trace@1",)),
+        frozenset((False,)),
+    ),
     "review": (
         "builtin_review_profile@1",
         "review-profile-config@1",
@@ -645,6 +659,13 @@ _TASK11_PROFILE_ADAPTER_CONTRACTS: dict[
         frozenset(("regression-evidence@1", "simulation-result@1")),
         frozenset((True,)),
     ),
+    "task_suite_derivation": (
+        "builtin_task_suite_derivation_profile@2",
+        "task_suite_derivation-profile-config@2",
+        frozenset(("task-suite-derive@1",)),
+        frozenset(("scenario-spec@1", "task-suite@1")),
+        frozenset((False,)),
+    ),
     "workload": (
         "builtin_workload_profile@1",
         "workload-profile-config@1",
@@ -658,7 +679,7 @@ _TASK11_PROFILE_ADAPTER_CONTRACTS: dict[
 def _build_exact_profile_binding_validator(
     registry: ImmutablePlatformRegistry,
 ) -> ExactProfileBindingValidator:
-    """Re-resolve frozen Task-11 bindings against retained catalog authority."""
+    """Re-resolve frozen handler bindings against retained catalog authority."""
 
     def validate(
         binding: ResolvedExecutionProfileBindingV1,
@@ -667,10 +688,10 @@ def _build_exact_profile_binding_validator(
         run_kind: RunKindRef,
     ) -> None:
         definition, lifecycle = registry.resolve_execution_profile_binding(binding)
-        contract = _TASK11_PROFILE_ADAPTER_CONTRACTS.get(binding.expected_profile_kind)
+        contract = _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS.get(binding.expected_profile_kind)
         if contract is None:
             raise IntegrityViolation(
-                "execution profile kind has no Task-11 adapter contract",
+                "execution profile kind has no registered handler adapter contract",
                 field_path=binding.field_path,
             )
         handler_key, config_schema_id, inputs, outputs, stochastic_values = contract
@@ -700,7 +721,7 @@ def _build_exact_profile_binding_validator(
     return validate
 
 
-def _resolve_task11_executor_definition(
+def _resolve_handler_executor_definition(
     registry: ImmutablePlatformRegistry,
     binding: ResolvedExecutionProfileBindingV1,
     *,
@@ -711,9 +732,11 @@ def _resolve_task11_executor_definition(
     """Resolve one exact binding and close the built-in adapter/config contract."""
 
     definition, _lifecycle = registry.resolve_execution_profile_binding(binding)
-    contract = _TASK11_PROFILE_ADAPTER_CONTRACTS.get(expected_kind)
+    contract = _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS.get(expected_kind)
     if contract is None:
-        raise IntegrityViolation("execution profile kind has no Task-11 adapter contract")
+        raise IntegrityViolation(
+            "execution profile kind has no registered handler adapter contract"
+        )
     (
         expected_handler_key,
         expected_config_schema_id,
@@ -734,7 +757,7 @@ def _resolve_task11_executor_definition(
         or definition.required_capabilities
     ):
         raise IntegrityViolation(
-            "execution profile does not authorize the built-in Task-11 adapter",
+            "execution profile does not authorize the built-in handler adapter",
             field_path=binding.field_path,
         )
     return definition
@@ -747,7 +770,7 @@ def _build_checker_resolver(registry: ImmutablePlatformRegistry):
         binding: ResolvedExecutionProfileBindingV1,
         constraints: list[Constraint],
     ) -> Checker:
-        definition = _resolve_task11_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="checker",
@@ -775,7 +798,7 @@ def _build_checker_resolver(registry: ImmutablePlatformRegistry):
 
 def _build_checker_execution_policy_resolver(registry: ImmutablePlatformRegistry):
     def resolve(binding: ResolvedExecutionProfileBindingV1) -> CheckerExecutionPolicy:
-        definition = _resolve_task11_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="checker",
@@ -799,14 +822,14 @@ def _build_simulation_execution_budget_resolver(registry: ImmutablePlatformRegis
         simulation_profile: ResolvedExecutionProfileBindingV1,
         workload_profile: ResolvedExecutionProfileBindingV1,
     ) -> SimulationExecutionBudget:
-        simulation_definition = _resolve_task11_executor_definition(
+        simulation_definition = _resolve_handler_executor_definition(
             registry,
             simulation_profile,
             expected_kind="simulation",
             handler_key="builtin_simulation_profile@1",
             config_schema_id="simulation-profile-config@1",
         )
-        workload_definition = _resolve_task11_executor_definition(
+        workload_definition = _resolve_handler_executor_definition(
             registry,
             workload_profile,
             expected_kind="workload",
@@ -828,7 +851,7 @@ def _build_simulation_execution_budget_resolver(registry: ImmutablePlatformRegis
 
 def _build_generation_execution_config_resolver(registry: ImmutablePlatformRegistry):
     def resolve(binding: ResolvedExecutionProfileBindingV1) -> GenerationExecutionConfig:
-        definition = _resolve_task11_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="generation",
@@ -853,7 +876,7 @@ def _build_generation_execution_config_resolver(registry: ImmutablePlatformRegis
 
 def _build_repair_execution_config_resolver(registry: ImmutablePlatformRegistry):
     def resolve(binding: ResolvedExecutionProfileBindingV1) -> RepairExecutionConfig:
-        definition = _resolve_task11_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="patch_repair",
@@ -924,7 +947,7 @@ def _build_constraint_extraction_execution_config_resolver(
     def resolve(
         binding: ResolvedExecutionProfileBindingV1,
     ) -> ConstraintExtractionExecutionConfig:
-        definition = _resolve_task11_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="constraint_extraction",
@@ -946,7 +969,7 @@ def _build_constraint_extraction_execution_config_resolver(
 
 def _build_sim_config_resolver(registry: ImmutablePlatformRegistry):
     def resolve(binding: ResolvedExecutionProfileBindingV1) -> ReviewSimConfig:
-        definition = _resolve_task11_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="simulation",
@@ -1461,6 +1484,7 @@ def _build_executor_handlers(
             store=store,
             playtest_payload_validators=playtest_payload_validators,
             scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "playtest_runner@1": build_playtest_handler(
             registry=registry,
@@ -1470,6 +1494,7 @@ def _build_executor_handlers(
             supported_profiles=supported_profiles,
             finding_head_revision=finding_head_revision,
             playtest_payload_validators=playtest_payload_validators,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "patch_validator@1": PatchValidationHandler(
             blobs=blobs,

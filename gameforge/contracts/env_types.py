@@ -14,81 +14,95 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Literal, Union
 
-from pydantic import BaseModel, Field, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from gameforge.contracts.versions import ENV_CONTRACT_VERSION
 
 
 # --- Low-level atomic actions (§4.1) ---
-class Observe(BaseModel):
+class _ActionModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class Observe(_ActionModel):
     kind: Literal["observe"] = "observe"
 
 
-class NavigateTo(BaseModel):
+class NavigateTo(_ActionModel):
     kind: Literal["navigate_to"] = "navigate_to"
     target: str
 
 
-class Interact(BaseModel):
+class Interact(_ActionModel):
     kind: Literal["interact"] = "interact"
     target: str
 
 
-class Choose(BaseModel):
+class Choose(_ActionModel):
     kind: Literal["choose"] = "choose"
     option_id: str
 
 
-class Attack(BaseModel):
+class Attack(_ActionModel):
     kind: Literal["attack"] = "attack"
     target_id: str
 
 
-class CastSkill(BaseModel):
+class CastSkill(_ActionModel):
     kind: Literal["cast_skill"] = "cast_skill"
     skill_id: str
     target_id: str
 
 
-class Use(BaseModel):
+class Use(_ActionModel):
     kind: Literal["use"] = "use"
     item_id: str
     target: str | None = None
 
 
-class Pickup(BaseModel):
+class Pickup(_ActionModel):
     kind: Literal["pickup"] = "pickup"
     item_id: str
 
 
-class Equip(BaseModel):
+class Equip(_ActionModel):
     kind: Literal["equip"] = "equip"
     item_id: str
 
 
-class Buy(BaseModel):
+class Buy(_ActionModel):
     kind: Literal["buy"] = "buy"
     shop_id: str
     item_id: str
-    count: int
+    count: int = Field(strict=True)
 
 
-class Sell(BaseModel):
+class Sell(_ActionModel):
     kind: Literal["sell"] = "sell"
     shop_id: str
     item_id: str
-    count: int
+    count: int = Field(strict=True)
 
 
-class Wait(BaseModel):
+class Wait(_ActionModel):
     kind: Literal["wait"] = "wait"
-    ticks: int
+    ticks: int = Field(strict=True)
 
 
 Action = Annotated[
     Union[
-        Observe, NavigateTo, Interact, Choose, Attack, CastSkill,
-        Use, Pickup, Equip, Buy, Sell, Wait,
+        Observe,
+        NavigateTo,
+        Interact,
+        Choose,
+        Attack,
+        CastSkill,
+        Use,
+        Pickup,
+        Equip,
+        Buy,
+        Sell,
+        Wait,
     ],
     Field(discriminator="kind"),
 ]
@@ -98,7 +112,7 @@ _ACTION_ADAPTER: TypeAdapter[Action] = TypeAdapter(Action)
 
 def parse_action(data: dict | BaseModel) -> Action:
     if isinstance(data, BaseModel):
-        return data  # already an Action instance
+        data = data.model_dump(mode="python")
     return _ACTION_ADAPTER.validate_python(data)
 
 

@@ -26,12 +26,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 
+from pydantic import BaseModel
+
 from gameforge.agents.playtest.agent import PlaytestAgent
 from gameforge.agents.playtest.memory import LLMCompactor, MemTrace
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.apps.worker.config_export import decode_aureus_config_workbook
 from gameforge.apps.worker.completion_oracles import build_completion_oracle_executors
 from gameforge.contracts.agent_io import PlaytestInput
+from gameforge.contracts.env_types import parse_action
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     EnvironmentContractDescriptorV1,
@@ -54,13 +57,16 @@ from gameforge.platform.playtest_payload_schemas import (
 )
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     FindingHeadRevisionResolver,
     PreparedArtifactStore,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.playtest import (
     PlaytestEpisodeOutcomeV1,
     PlaytestEpisodeRunRequest,
     PlaytestRunHandler,
+    validate_environment_action,
 )
 from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
 from gameforge.apps.worker.task_suite import (
@@ -82,15 +88,43 @@ PlaytestPlannerConfigResolver = Callable[
 class _StateHashRecordingEnv:
     """Observe post-step state hashes without changing the M2 Agent trace/prompts."""
 
-    def __init__(self, env: AureusEnv) -> None:
+    def __init__(
+        self,
+        env: AureusEnv,
+        *,
+        action_schema_id: str,
+        allowed_action_kinds: frozenset[str],
+        payload_validator: PlaytestPayloadValidationService,
+    ) -> None:
         self._env = env
+        self._action_schema_id = action_schema_id
+        self._allowed_action_kinds = allowed_action_kinds
+        self._payload_validator = payload_validator
         self.post_step_hashes: list[str] = []
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._env, name)
 
     def step(self, action: Any) -> Any:
-        result = self._env.step(action)
+        if isinstance(action, BaseModel):
+            action_payload = action.model_dump(mode="json")
+        elif isinstance(action, dict):
+            action_payload = dict(action)
+        else:
+            raise IntegrityViolation("playtest environment action is not an object")
+        canonical_action = validate_environment_action(
+            action_payload,
+            action_schema_id=self._action_schema_id,
+            allowed_kinds=self._allowed_action_kinds,
+            payload_validator=self._payload_validator,
+        )
+        try:
+            env_action = parse_action(canonical_action)
+        except (TypeError, ValueError) as exc:  # pragma: no cover - schema closes this
+            raise IntegrityViolation(
+                "playtest environment action is unsupported by the selected adapter"
+            ) from exc
+        result = self._env.step(env_action)
         self.post_step_hashes.append(self._env.state_hash())
         return result
 
@@ -116,11 +150,21 @@ class AureusPlaytestRunner:
             # Defense-in-depth: the platform already gated on ``supports``.
             raise ValueError(f"unsupported environment profile {request.environment_profile!r}")
 
-        world = self._world_from_request(request)
+        contract = self._resolve_environment_contract(request)
+        if contract is None or self.payload_validator is None:
+            raise IntegrityViolation(
+                "playtest environment action validation authority is unavailable"
+            )
+        world = self._world_from_request(request, contract=contract)
         env = AureusEnv(world)
         env.reset(request.scenario_id, request.seed)
         initial_state_hash = env.state_hash()
-        recording_env = _StateHashRecordingEnv(env)
+        recording_env = _StateHashRecordingEnv(
+            env,
+            action_schema_id=contract.action_schema_id,
+            allowed_action_kinds=request.allowed_action_kinds,
+            payload_validator=self.payload_validator,
+        )
 
         memory = MemTrace(compactor=LLMCompactor(strict=True)) if request.memory_enabled else None
         report = PlaytestAgent().run(
@@ -177,10 +221,16 @@ class AureusPlaytestRunner:
             final_state_hash=env.state_hash(),
         )
 
-    def _world_from_request(self, request: PlaytestEpisodeRunRequest):
+    def _world_from_request(
+        self,
+        request: PlaytestEpisodeRunRequest,
+        *,
+        contract: EnvironmentContractDescriptorV1 | None = None,
+    ):
         """Build the exact bounded world selected by config + reset authority."""
 
-        contract = self._resolve_environment_contract(request)
+        if contract is None:
+            contract = self._resolve_environment_contract(request)
         snapshot = self._snapshot_from_config_export(request)
         world = snapshot_to_world(snapshot)
         if contract is not None:
@@ -225,6 +275,7 @@ class AureusPlaytestRunner:
         package = request.config_export
         if (
             package.env_contract_version != contract.env_contract_version
+            or request.action_schema_id != contract.action_schema_id
             or contract.action_schema_id != _AUREUS_ACTION_SCHEMA_ID
             or contract.observation_schema_id != _AUREUS_OBSERVATION_SCHEMA_ID
         ):
@@ -243,10 +294,14 @@ class AureusPlaytestRunner:
         if contract is not None and binding.reset_schema_id != contract.reset_schema_id:
             raise IntegrityViolation("playtest reset schema differs from the environment contract")
         if self.payload_validator is not None:
-            payload = self.payload_validator.validate_exact(
+            payload = self.payload_validator.validate_exact_contextual(
                 schema_id=binding.reset_schema_id,
                 purpose="scenario_reset",
                 payload=binding.payload,
+                context={
+                    "expected_scenario_id": request.scenario_id,
+                    "expected_config_export_artifact_id": request.config_artifact_id,
+                },
             )
         else:
             payload = binding.payload
@@ -286,6 +341,8 @@ def build_aureus_playtest_runner(
     oracle_registry: CompletionOracleRegistryV1,
     supported_profiles: frozenset[ProfileRefV1],
     playtest_payload_validators: Mapping[str, ExactModelPayloadValidator] | None = None,
+    payload_validation_service: PlaytestPayloadValidationService | None = None,
+    environment_contract_resolver: EnvironmentContractResolver | None = None,
 ) -> AureusPlaytestRunner:
     """Compose the Aureus playtest runner over the frozen oracle registry + executors."""
 
@@ -295,16 +352,20 @@ def build_aureus_playtest_runner(
         else build_builtin_playtest_payload_validators()
     )
 
+    payload_validator = payload_validation_service or PlaytestPayloadValidationService(
+        registry=registry,
+        validators=validators,
+    )
+    contract_resolver = environment_contract_resolver or build_environment_contract_resolver(
+        registry
+    )
     return AureusPlaytestRunner(
         oracle_registry=oracle_registry,
         oracle_executors=build_completion_oracle_executors(),
         supported_profiles=supported_profiles,
         oracle_registry_resolver=registry.get_completion_oracle_registry,
-        environment_contract_resolver=build_environment_contract_resolver(registry),
-        payload_validator=PlaytestPayloadValidationService(
-            registry=registry,
-            validators=validators,
-        ),
+        environment_contract_resolver=contract_resolver,
+        payload_validator=payload_validator,
     )
 
 
@@ -358,9 +419,20 @@ def build_playtest_handler(
     supported_profiles: frozenset[ProfileRefV1],
     finding_head_revision: FindingHeadRevisionResolver | None = None,
     playtest_payload_validators: Mapping[str, ExactModelPayloadValidator] | None = None,
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding,
 ) -> PlaytestRunHandler:
     """Compose the playtest handler with the Aureus env-runner port."""
 
+    validators = (
+        playtest_payload_validators
+        if playtest_payload_validators is not None
+        else build_builtin_playtest_payload_validators()
+    )
+    payload_validator = PlaytestPayloadValidationService(
+        registry=registry,
+        validators=validators,
+    )
+    environment_contract_resolver = build_environment_contract_resolver(registry)
     return PlaytestRunHandler(
         blobs=blobs,
         store=store,
@@ -368,10 +440,15 @@ def build_playtest_handler(
             registry=registry,
             oracle_registry=oracle_registry,
             supported_profiles=supported_profiles,
-            playtest_payload_validators=playtest_payload_validators,
+            playtest_payload_validators=validators,
+            payload_validation_service=payload_validator,
+            environment_contract_resolver=environment_contract_resolver,
         ),
         planner_config_resolver=build_playtest_planner_config_resolver(registry),
+        environment_contract_resolver=environment_contract_resolver,
+        action_payload_validator=payload_validator,
         finding_head_revision=finding_head_revision,
+        profile_binding_validator=profile_binding_validator,
     )
 
 

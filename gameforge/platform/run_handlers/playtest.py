@@ -35,11 +35,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Protocol
 
+from pydantic import JsonValue
+
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.config_export import ConfigExportPackageV1, decode_config_export_bytes
-from gameforge.contracts.env_types import parse_action
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
+    EnvironmentContractDescriptorV1,
     PlaytestPlannerProfileConfigV2,
     ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
@@ -60,6 +62,7 @@ from gameforge.contracts.playtest import (
     PlaytestExecutionEnvelopeV1,
     PlaytestEpisodeSeedBindingV1,
     PlaytestEpisodeTraceV1,
+    PlaytestPayloadSchemaPurposeV1,
     PlaytestTerminalReasonV1,
     PlaytestTraceV1,
     ScenarioResetBindingV1,
@@ -72,6 +75,7 @@ from gameforge.contracts.playtest import (
 )
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     FindingEvidence,
     FindingHeadRevisionResolver,
@@ -80,9 +84,10 @@ from gameforge.platform.run_handlers.base import (
     build_success_result,
     load_json_blob,
     prepared_version_tuple,
-    resolved_profile,
+    require_exact_profile_bindings,
     scoped_finding_series_id,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.model_routing import (
     MultiNodeBridgeRouter,
@@ -169,6 +174,8 @@ class PlaytestEpisodeRunRequest:
     config_artifact_id: str
     config_export: ConfigExportPackageV1
     environment_profile: ProfileRefV1
+    action_schema_id: str
+    allowed_action_kinds: frozenset[str]
     scenario_id: str
     reset_binding: ScenarioResetBindingV1
     seed: int
@@ -211,6 +218,19 @@ class PlaytestEnvRunner(Protocol):
 PlannerConfigResolver = Callable[
     [ResolvedExecutionProfileBindingV1], PlaytestPlannerProfileConfigV2
 ]
+EnvironmentContractResolver = Callable[[ProfileRefV1], EnvironmentContractDescriptorV1]
+
+
+class PlaytestActionPayloadValidator(Protocol):
+    """Validate an action through the exact retained payload-schema authority."""
+
+    def validate_exact(
+        self,
+        *,
+        schema_id: str,
+        purpose: PlaytestPayloadSchemaPurposeV1,
+        payload: JsonValue,
+    ) -> JsonValue: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -221,7 +241,10 @@ class PlaytestRunHandler:
     store: PreparedArtifactStore
     env_runner: PlaytestEnvRunner
     planner_config_resolver: PlannerConfigResolver
+    environment_contract_resolver: EnvironmentContractResolver
+    action_payload_validator: PlaytestActionPayloadValidator
     finding_head_revision: FindingHeadRevisionResolver | None = None
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
     use_planner: bool = True
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
@@ -229,22 +252,40 @@ class PlaytestRunHandler:
         if not isinstance(payload, PlaytestRunPayloadV1):
             raise TypeError("playtest_runner@1 requires a playtest-run@1 payload")
         envelope = context.payload
+
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected={
+                ENVIRONMENT_PROFILE_FIELD: (
+                    payload.environment_profile,
+                    "environment",
+                ),
+                PLANNER_POLICY_FIELD: (
+                    payload.planner_policy,
+                    "playtest_planner",
+                ),
+            },
+            validator=self.profile_binding_validator,
+        )
+        environment_profile = profile_bindings[ENVIRONMENT_PROFILE_FIELD].profile
+        planner_binding = profile_bindings[PLANNER_POLICY_FIELD]
+
         if envelope.seed is None:
             raise ValueError("playtest_runner@1 requires a seeded Run payload (subseed@1)")
         base_seed = int(envelope.seed)
-
-        environment_profile = resolved_profile(envelope, ENVIRONMENT_PROFILE_FIELD).profile
-        planner_binding = resolved_profile(envelope, PLANNER_POLICY_FIELD)
-        planner_policy = planner_binding.profile
-        if environment_profile != payload.environment_profile:
-            raise ValueError("stale environment profile binding")
-        if planner_policy != payload.planner_policy:
-            raise ValueError("stale planner policy binding")
 
         # UNKNOWN environment → typed unavailable, BEFORE any suite load or LLM call.
         if not self.env_runner.supports(environment_profile):
             return self._unavailable_failure(context, environment_profile)
 
+        environment_contract = self.environment_contract_resolver(environment_profile)
+        if (
+            context.payload.version_tuple.env_contract_version
+            != environment_contract.env_contract_version
+        ):
+            raise IntegrityViolation(
+                "playtest environment contract differs from the frozen Run authority"
+            )
         suite = self._load_suite(payload)
         self._validate_suite_bindings(suite, payload)
         config_export = self._load_config_export(payload.config_artifact_id)
@@ -303,6 +344,8 @@ class PlaytestRunHandler:
                     config_artifact_id=payload.config_artifact_id,
                     config_export=config_export,
                     environment_profile=environment_profile,
+                    action_schema_id=environment_contract.action_schema_id,
+                    allowed_action_kinds=allowed_kinds,
                     scenario_id=scenario.scenario_id,
                     reset_binding=scenario.reset_binding,
                     seed=episode_seed,
@@ -320,6 +363,8 @@ class PlaytestRunHandler:
                 outcome.action_trace,
                 allowed_kinds,
                 max_steps=max_steps,
+                action_schema_id=environment_contract.action_schema_id,
+                payload_validator=self.action_payload_validator,
             )
             terminal_reason = _terminal_reason(
                 completed=outcome.completed,
@@ -741,11 +786,59 @@ def _incomplete_episode_finding(
     )
 
 
+def validate_environment_action(
+    action: dict[str, object],
+    *,
+    action_schema_id: str,
+    allowed_kinds: frozenset[str],
+    payload_validator: PlaytestActionPayloadValidator,
+) -> dict[str, object]:
+    """Return the exact profile-schema-selected canonical environment action.
+
+    The unchanged M2 agent serializes ``Use(target=None)`` with an explicit null in
+    its report even though the action wire's canonical representation omits that
+    optional field. Normalize only that known internal representation before exact
+    schema validation; every other extra, missing, coerced, or out-of-bound value is
+    rejected.
+    """
+
+    candidate = dict(action)
+    if candidate.get("kind") == "use" and candidate.get("target") is None:
+        candidate.pop("target", None)
+    try:
+        validated = payload_validator.validate_exact(
+            schema_id=action_schema_id,
+            purpose="environment_action",
+            payload=candidate,
+        )
+    except IntegrityViolation as exc:
+        raise IntegrityViolation(
+            "playtest environment action violates its exact profile-selected schema",
+            action_schema_id=action_schema_id,
+        ) from exc
+    if not isinstance(validated, dict):
+        raise IntegrityViolation(
+            "playtest environment action schema returned a non-object value",
+            action_schema_id=action_schema_id,
+        )
+    canonical_action = dict(validated)
+    kind = canonical_action.get("kind")
+    if kind not in allowed_kinds:
+        raise IntegrityViolation(
+            "playtest environment action kind is not allowed by the interaction mode",
+            action_schema_id=action_schema_id,
+            action_kind=kind,
+        )
+    return canonical_action
+
+
 def _records(
     action_trace: tuple[dict, ...],
     allowed_kinds: frozenset[str],
     *,
     max_steps: int,
+    action_schema_id: str,
+    payload_validator: PlaytestActionPayloadValidator,
 ) -> tuple[PlaytestActionRecordV1, ...]:
     """Project the raw agent action trace onto bounded records (fail-closed on kind)."""
 
@@ -776,18 +869,12 @@ def _records(
             or not state_hash
         ):
             raise ValueError("playtest action record has invalid field types")
-        try:
-            parsed_action = parse_action(action)
-            canonical_action = parsed_action.model_dump(mode="json", exclude_none=True)
-        except (TypeError, ValueError) as exc:
-            raise ValueError("playtest action record contains a malformed action") from exc
-        if canonical_action != action:
-            raise ValueError("playtest action record action is not exact canonical input")
-        kind = canonical_action.get("kind")
-        if kind not in allowed_kinds:
-            raise ValueError(
-                f"playtest action kind {kind!r} is not an allowed bounded interaction command"
-            )
+        canonical_action = validate_environment_action(
+            action,
+            action_schema_id=action_schema_id,
+            allowed_kinds=allowed_kinds,
+            payload_validator=payload_validator,
+        )
         try:
             records.append(
                 PlaytestActionRecordV1(
@@ -813,11 +900,14 @@ __all__ = [
     "PLAYTEST_REFLECT_NODE",
     "PLAYTEST_TOOL_VERSION",
     "PLAYTEST_TRACE_SCHEMA_ID",
+    "EnvironmentContractResolver",
     "PlannerConfigResolver",
+    "PlaytestActionPayloadValidator",
     "PlaytestEnvRunner",
     "PlaytestEpisodeOutcomeV1",
     "PlaytestEpisodeRunRequest",
     "PlaytestRunHandler",
     "allowed_action_kinds",
     "derive_episode_seed",
+    "validate_environment_action",
 ]

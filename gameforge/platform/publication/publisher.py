@@ -108,6 +108,7 @@ from gameforge.platform.run_handlers.task_suite import (
     ScenarioDerivationRequest,
     ScenarioShaperResolver,
 )
+from gameforge.platform.run_handlers.playtest import allowed_action_kinds
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
 from gameforge.contracts.provenance import ProvenanceV1, most_conservative_trust
 from gameforge.platform.publication.effects import (
@@ -2590,10 +2591,14 @@ class TerminalPublisher:
                 raise IntegrityViolation("ScenarioSpec reset schema differs from the environment")
             if scenario.domain_scope != run.resource_domain_scope:
                 raise IntegrityViolation("ScenarioSpec domain differs from the Run authority")
-            validator.validate_exact(
+            validator.validate_exact_contextual(
                 schema_id=reset_schema_id,
                 purpose="scenario_reset",
                 payload=scenario.reset_binding.payload,
+                context={
+                    "expected_scenario_id": scenario.scenario_id,
+                    "expected_config_export_artifact_id": scenario.config_export_artifact_id,
+                },
             )
             return
 
@@ -2721,10 +2726,14 @@ class TerminalPublisher:
             actual = actual_by_id.get(draft.scenario_id)
             if actual is None:
                 raise IntegrityViolation("TaskSuite scenario set differs from exact derivation")
-            reset_payload = validator.validate_exact(
+            reset_payload = validator.validate_exact_contextual(
                 schema_id=environment_details.contract.reset_schema_id,
                 purpose="scenario_reset",
                 payload=draft.reset_payload,
+                context={
+                    "expected_scenario_id": draft.scenario_id,
+                    "expected_config_export_artifact_id": params.config_artifact_id,
+                },
             )
             reset_binding = ScenarioResetBindingV1(
                 reset_schema_id=environment_details.contract.reset_schema_id,
@@ -2848,6 +2857,86 @@ class TerminalPublisher:
             or execution_profile_payload_hash(definition) != binding.profile_payload_hash
         ):
             raise IntegrityViolation("playtest planner differs from its frozen Run binding")
+        if (
+            trace.planner_policy != run.payload.params.planner_policy
+            or trace.environment_profile != run.payload.params.environment_profile
+            or trace.execution_envelope.planner_profile_payload_hash != binding.profile_payload_hash
+        ):
+            raise IntegrityViolation("playtest trace profile refs differ from the Run payload")
+        trace_episode_bindings = tuple(
+            (episode.episode_id, episode.scenario_spec_artifact_id) for episode in trace.episodes
+        )
+        run_episode_bindings = tuple(
+            (episode.episode_id, episode.scenario_spec_artifact_id)
+            for episode in run.payload.params.episodes
+        )
+        if (
+            trace.config_artifact_id != run.payload.params.config_artifact_id
+            or trace.constraint_snapshot_artifact_id
+            != run.payload.params.constraint_snapshot_artifact_id
+            or trace.task_suite_artifact_id != run.payload.params.task_suite_artifact_id
+            or trace.interaction_mode != run.payload.params.interaction_mode
+            or trace.requested_max_steps_per_episode != run.payload.params.max_steps_per_episode
+            or trace.seed != run.payload.seed
+            or trace.env_contract_version != run.payload.version_tuple.env_contract_version
+            or trace_episode_bindings != run_episode_bindings
+        ):
+            raise IntegrityViolation("playtest trace differs from its frozen Run inputs")
+        environment_bindings = tuple(
+            item
+            for item in run.payload.resolved_profiles
+            if item.field_path == "/params/environment_profile"
+            and item.profile == run.payload.params.environment_profile
+            and item.expected_profile_kind == "environment"
+        )
+        if len(run.payload.resolved_profiles) != 2 or len(environment_bindings) != 1:
+            raise IntegrityViolation("playtest trace lacks one exact environment profile binding")
+        environment_binding = environment_bindings[0]
+        if (
+            environment_binding.catalog_version != binding.catalog_version
+            or environment_binding.catalog_digest != binding.catalog_digest
+        ):
+            raise IntegrityViolation("playtest environment binding uses another catalog")
+        environment_definitions = tuple(
+            candidate
+            for candidate in catalog.definitions
+            if candidate.profile == environment_binding.profile
+        )
+        if len(environment_definitions) != 1:
+            raise IntegrityViolation("playtest environment profile is not unique in its catalog")
+        environment_definition = environment_definitions[0]
+        if (
+            environment_definition.profile_kind != "environment"
+            or environment_definition.handler_key != "builtin_environment_profile@1"
+            or environment_definition.config_schema_id != "environment-profile-config@1"
+            or run.kind not in environment_definition.compatible_run_kinds
+            or payload_schema_id not in environment_definition.output_schema_ids
+            or execution_profile_payload_hash(environment_definition)
+            != environment_binding.profile_payload_hash
+            or not isinstance(environment_definition.details, EnvironmentProfileDetailsV1)
+        ):
+            raise IntegrityViolation("playtest environment differs from its frozen Run binding")
+        environment_contract = environment_definition.details.contract
+        action_validator = self._playtest_payload_validator
+        if action_validator is None:
+            raise IntegrityViolation("playtest publication lacks action-schema authority")
+        if trace.env_contract_version != environment_contract.env_contract_version:
+            raise IntegrityViolation("playtest trace environment contract is stale")
+        allowed_kinds = allowed_action_kinds(trace.interaction_mode)
+        for episode in trace.episodes:
+            for record in episode.action_trace:
+                validated_action = action_validator.validate_exact(
+                    schema_id=environment_contract.action_schema_id,
+                    purpose="environment_action",
+                    payload=record.action,
+                )
+                if (
+                    not isinstance(validated_action, dict)
+                    or validated_action.get("kind") not in allowed_kinds
+                ):
+                    raise IntegrityViolation(
+                        "playtest trace action differs from its environment authority"
+                    )
         try:
             config = PlaytestPlannerProfileConfigV2.model_validate(definition.config)
             bounds = playtest_resource_upper_bounds(

@@ -11,6 +11,7 @@ from pydantic import (
     ConfigDict,
     Field,
     JsonValue,
+    RootModel,
     StringConstraints,
     field_validator,
     model_validator,
@@ -63,6 +64,7 @@ UInt64 = Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
 PlaytestPayloadSchemaPurposeV1 = Literal[
     "scenario_reset",
     "completion_oracle_params",
+    "environment_action",
 ]
 PlaytestTerminalReasonV1 = Literal[
     "completion_oracle_satisfied",
@@ -248,6 +250,33 @@ class CompletionOracleRegistryV1(_FrozenModel):
         return self
 
 
+SafePlaytestPayloadPointer = Annotated[
+    str,
+    StringConstraints(
+        strict=True,
+        min_length=2,
+        max_length=MAX_PLAYTEST_STRING_LENGTH,
+        # Non-empty RFC 6901 tokens only. Wildcards are rejected separately;
+        # ``~`` may appear only in the two RFC escape forms.
+        pattern=r"^/(?:[^~/]|~[01])+(?:/(?:[^~/]|~[01])+)*$",
+    ),
+]
+
+
+class PlaytestPayloadContextBindingV1(_FrozenModel):
+    """Digest-bound equality between trusted context and a payload location."""
+
+    context_key: BoundedId
+    payload_pointer: SafePlaytestPayloadPointer
+
+    @field_validator("payload_pointer")
+    @classmethod
+    def _no_wildcards(cls, value: str) -> str:
+        if "*" in value:
+            raise ValueError("playtest payload context pointers forbid wildcards")
+        return value
+
+
 class PlaytestPayloadSchemaDefinitionV1(_FrozenModel):
     """One immutable, trusted validator binding for a playtest JSON payload."""
 
@@ -256,18 +285,50 @@ class PlaytestPayloadSchemaDefinitionV1(_FrozenModel):
     validator_key: BoundedId
 
 
+class PlaytestPayloadContextPolicyV1(_FrozenModel):
+    """Versioned contextual equality policy for one immutable payload schema."""
+
+    schema_id: BoundedId
+    contextual_bindings: tuple[PlaytestPayloadContextBindingV1, ...] = Field(
+        min_length=1,
+        max_length=MAX_PLAYTEST_COLLECTION_ITEMS,
+    )
+
+    @field_validator("contextual_bindings")
+    @classmethod
+    def _contextual_bindings(
+        cls,
+        value: tuple[PlaytestPayloadContextBindingV1, ...],
+    ) -> tuple[PlaytestPayloadContextBindingV1, ...]:
+        context_keys = [item.context_key for item in value]
+        payload_pointers = [item.payload_pointer for item in value]
+        if len(context_keys) != len(set(context_keys)):
+            raise ValueError("playtest payload context keys must be unique")
+        if len(payload_pointers) != len(set(payload_pointers)):
+            raise ValueError("playtest payload context pointers must be unique")
+        return tuple(sorted(value, key=lambda item: item.context_key))
+
+
 def compute_playtest_payload_schema_registry_digest(payload: Mapping[str, Any]) -> str:
     raw = _json_data(payload)
     definitions = sorted(raw.get("definitions", []), key=lambda item: item["schema_id"])
-    return canonical_sha256(
-        {
-            "registry_schema_version": raw.get(
-                "registry_schema_version", "playtest-payload-schema-registry@1"
-            ),
-            "registry_version": raw["registry_version"],
-            "definitions": definitions,
-        }
+    digest_payload = {
+        "registry_schema_version": raw.get(
+            "registry_schema_version", "playtest-payload-schema-registry@1"
+        ),
+        "registry_version": raw["registry_version"],
+        "definitions": definitions,
+    }
+    context_policies = sorted(
+        raw.get("context_policies", []),
+        key=lambda item: item["schema_id"],
     )
+    # ``context_policies`` was added after registry v1 shipped. Omitting the
+    # empty additive field preserves the historical v1 wire digest exactly;
+    # every non-empty policy is still digest-bound in the version that adds it.
+    if context_policies:
+        digest_payload["context_policies"] = context_policies
+    return canonical_sha256(digest_payload)
 
 
 class PlaytestPayloadSchemaRegistryV1(_FrozenModel):
@@ -278,6 +339,11 @@ class PlaytestPayloadSchemaRegistryV1(_FrozenModel):
     definitions: tuple[PlaytestPayloadSchemaDefinitionV1, ...] = Field(
         min_length=1,
         max_length=MAX_PLAYTEST_COLLECTION_ITEMS,
+    )
+    context_policies: tuple[PlaytestPayloadContextPolicyV1, ...] = Field(
+        default=(),
+        max_length=MAX_PLAYTEST_COLLECTION_ITEMS,
+        exclude_if=lambda value: not value,
     )
     registry_digest: Sha256Hex
 
@@ -291,8 +357,22 @@ class PlaytestPayloadSchemaRegistryV1(_FrozenModel):
             raise ValueError("playtest payload schema ids must be unique")
         return tuple(sorted(value, key=lambda item: item.schema_id))
 
+    @field_validator("context_policies")
+    @classmethod
+    def _context_policies(
+        cls,
+        value: tuple[PlaytestPayloadContextPolicyV1, ...],
+    ) -> tuple[PlaytestPayloadContextPolicyV1, ...]:
+        schema_ids = [item.schema_id for item in value]
+        if len(schema_ids) != len(set(schema_ids)):
+            raise ValueError("playtest payload context-policy schema ids must be unique")
+        return tuple(sorted(value, key=lambda item: item.schema_id))
+
     @model_validator(mode="after")
     def _digest(self) -> PlaytestPayloadSchemaRegistryV1:
+        definition_ids = {item.schema_id for item in self.definitions}
+        if any(item.schema_id not in definition_ids for item in self.context_policies):
+            raise ValueError("playtest payload context policy lacks its schema definition")
         expected = compute_playtest_payload_schema_registry_digest(
             self.model_dump(mode="json", exclude={"registry_digest"})
         )
@@ -332,6 +412,112 @@ class GenericEnvironmentResetPayloadV1(_FrozenModel):
         if len(value) != len(set(value)):
             raise ValueError("quest_ids must be unique")
         return tuple(sorted(value))
+
+
+GenericEnvironmentActionResourceV1 = Annotated[
+    str,
+    StringConstraints(
+        strict=True,
+        min_length=1,
+        max_length=MAX_PLAYTEST_ID_LENGTH,
+    ),
+]
+GenericEnvironmentActionCountV1 = Annotated[
+    int,
+    Field(strict=True, ge=1, le=1_000_000),
+]
+GenericEnvironmentWaitTicksV1 = Annotated[
+    int,
+    Field(strict=True, ge=0, le=1_000_000),
+]
+
+
+class GenericObserveActionV1(_FrozenModel):
+    kind: Literal["observe"]
+
+
+class GenericNavigateToActionV1(_FrozenModel):
+    kind: Literal["navigate_to"]
+    target: GenericEnvironmentActionResourceV1
+
+
+class GenericInteractActionV1(_FrozenModel):
+    kind: Literal["interact"]
+    target: GenericEnvironmentActionResourceV1
+
+
+class GenericChooseActionV1(_FrozenModel):
+    kind: Literal["choose"]
+    option_id: GenericEnvironmentActionResourceV1
+
+
+class GenericAttackActionV1(_FrozenModel):
+    kind: Literal["attack"]
+    target_id: GenericEnvironmentActionResourceV1
+
+
+class GenericCastSkillActionV1(_FrozenModel):
+    kind: Literal["cast_skill"]
+    skill_id: GenericEnvironmentActionResourceV1
+    target_id: GenericEnvironmentActionResourceV1
+
+
+class GenericUseActionV1(_FrozenModel):
+    kind: Literal["use"]
+    item_id: GenericEnvironmentActionResourceV1
+    target: GenericEnvironmentActionResourceV1 | None = None
+
+
+class GenericPickupActionV1(_FrozenModel):
+    kind: Literal["pickup"]
+    item_id: GenericEnvironmentActionResourceV1
+
+
+class GenericEquipActionV1(_FrozenModel):
+    kind: Literal["equip"]
+    item_id: GenericEnvironmentActionResourceV1
+
+
+class GenericBuyActionV1(_FrozenModel):
+    kind: Literal["buy"]
+    shop_id: GenericEnvironmentActionResourceV1
+    item_id: GenericEnvironmentActionResourceV1
+    count: GenericEnvironmentActionCountV1
+
+
+class GenericSellActionV1(_FrozenModel):
+    kind: Literal["sell"]
+    shop_id: GenericEnvironmentActionResourceV1
+    item_id: GenericEnvironmentActionResourceV1
+    count: GenericEnvironmentActionCountV1
+
+
+class GenericWaitActionV1(_FrozenModel):
+    kind: Literal["wait"]
+    ticks: GenericEnvironmentWaitTicksV1
+
+
+GenericEnvironmentActionV1 = Annotated[
+    GenericObserveActionV1
+    | GenericNavigateToActionV1
+    | GenericInteractActionV1
+    | GenericChooseActionV1
+    | GenericAttackActionV1
+    | GenericCastSkillActionV1
+    | GenericUseActionV1
+    | GenericPickupActionV1
+    | GenericEquipActionV1
+    | GenericBuyActionV1
+    | GenericSellActionV1
+    | GenericWaitActionV1,
+    Field(discriminator="kind"),
+]
+
+
+class GenericEnvironmentActionPayloadV1(RootModel[GenericEnvironmentActionV1]):
+    """Exact ``generic-env-action@1`` low-level Agent-Env action union."""
+
+    model_config = ConfigDict(frozen=True, validate_default=True)
 
 
 class StatePredicateCompletionParamsV1(_FrozenModel):
