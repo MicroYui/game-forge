@@ -51,6 +51,16 @@ MAX_EXTRACTION_PROPOSALS_V1 = 256
 MAX_EXTRACTION_OUTPUT_BYTES_V1 = 8 * 1024 * 1024
 MAX_AGENT_PROMPT_MESSAGE_BYTES_V1 = 17 * 1024 * 1024
 MAX_ENVIRONMENT_NAVIGATION_GRID_CELLS_V1 = 1_000_000
+MAX_TASK_SUITE_SCENARIOS_V1 = 1024
+MAX_PLAYTEST_EPISODES_V1 = 1024
+MAX_PLAYTEST_STEPS_PER_EPISODE_V1 = 1_000_000
+MAX_PLAYTEST_TOTAL_STEPS_V1 = 1_000_000
+MAX_PLAYTEST_TOTAL_MODEL_CALLS_V1 = 6_000_000
+MAX_PLAYTEST_TOTAL_TRACE_BYTES_V1 = 256 * 1024 * 1024
+# One RECORD attempt stores one cassette shard child per consumed logical call.
+# ``CassetteBundleV1`` currently caps that exact child closure at 4096; a profile
+# cannot authorize more calls until a versioned multi-level bundle exists.
+MAX_PLAYTEST_TOTAL_MODEL_CALLS_V2 = 4096
 
 NonEmptyStr = Annotated[
     str,
@@ -392,6 +402,68 @@ class PlaytestPlannerProfileConfigV1(_FrozenModel):
     memory_mode: Literal["off", "llm_compaction"]
 
 
+class PlaytestPlannerProfileConfigV2(_FrozenModel):
+    """Planner behavior plus the complete aggregate resource authority.
+
+    Version 1 shipped before Task 12 and contains only ``memory_mode``.  Its
+    immutable shape remains readable for historical catalogs; resource-bounded
+    Task 12 Runs must bind this version-2 config instead of manufacturing limits
+    for an old ProfileRef.
+    """
+
+    config_schema_version: Literal["playtest_planner-profile-config@2"] = (
+        "playtest_planner-profile-config@2"
+    )
+    memory_mode: Literal["off", "llm_compaction"]
+    max_episode_count: int = Field(ge=1, le=MAX_PLAYTEST_EPISODES_V1)
+    max_steps_per_episode: int = Field(
+        ge=1,
+        le=MAX_PLAYTEST_STEPS_PER_EPISODE_V1,
+    )
+    max_total_steps: int = Field(ge=1, le=MAX_PLAYTEST_TOTAL_STEPS_V1)
+    max_total_model_calls: int = Field(
+        ge=1,
+        le=MAX_PLAYTEST_TOTAL_MODEL_CALLS_V2,
+    )
+    max_total_trace_bytes: int = Field(
+        ge=1,
+        le=MAX_PLAYTEST_TOTAL_TRACE_BYTES_V1,
+    )
+
+    @model_validator(mode="after")
+    def _resource_envelope(self) -> "PlaytestPlannerProfileConfigV2":
+        if self.max_steps_per_episode > self.max_total_steps:
+            raise ValueError("playtest per-episode steps exceed total-step authority")
+        if self.max_episode_count > self.max_total_steps:
+            raise ValueError("playtest episodes exceed the minimum total-step authority")
+        calls_per_step = 6 if self.memory_mode == "llm_compaction" else 3
+        if self.max_total_steps * calls_per_step > self.max_total_model_calls:
+            raise ValueError("playtest profile cannot close its model-call authority")
+        return self
+
+
+class TaskSuiteDerivationProfileConfigV1(_FrozenModel):
+    """Historical Task 11 config shape (the exact empty object)."""
+
+
+class TaskSuiteDerivationProfileConfigV2(_FrozenModel):
+    """Exact deterministic authority for one task-suite derivation profile.
+
+    The profile closes the environment and completion-oracle registry selected by
+    a derive Run and bounds the complete ``scenario_spec* + task_suite`` prepared
+    batch.  A process-local shaper cannot silently widen any of these authorities.
+    """
+
+    config_schema_version: Literal["task_suite_derivation-profile-config@2"] = (
+        "task_suite_derivation-profile-config@2"
+    )
+    target_environment_profile: ProfileRefV1
+    completion_oracle_registry_version: int = Field(ge=1)
+    completion_oracle_registry_digest: Sha256Hex
+    max_scenarios: int = Field(ge=1, le=MAX_TASK_SUITE_SCENARIOS_V1)
+    max_total_prepared_artifact_bytes: int = Field(ge=1, le=MAX_PREPARED_OUTCOME_BYTES_V1)
+
+
 class EnvironmentProfileDetailsV1(_FrozenModel):
     details_kind: Literal["environment"] = "environment"
     contract: EnvironmentContractDescriptorV1
@@ -537,10 +609,6 @@ class ExecutionProfileDefinitionV1(_FrozenModel):
             "checker": ("checker-profile-config@1", CheckerProfileConfigV1),
             "simulation": ("simulation-profile-config@1", SimulationProfileConfigV1),
             "workload": ("workload-profile-config@1", WorkloadProfileConfigV1),
-            "playtest_planner": (
-                "playtest_planner-profile-config@1",
-                PlaytestPlannerProfileConfigV1,
-            ),
         }
         if self.profile_kind == "bench_evaluator":
             # Local import avoids the contract-level ProfileRef/benchmark cycle while
@@ -551,6 +619,24 @@ class ExecutionProfileDefinitionV1(_FrozenModel):
                 "bench_evaluator-profile-config@1",
                 BenchmarkEvaluatorProfileConfigV1,
             )
+        versioned_config_models = {
+            "task_suite_derivation": {
+                "task_suite_derivation-profile-config@1": TaskSuiteDerivationProfileConfigV1,
+                "task_suite_derivation-profile-config@2": TaskSuiteDerivationProfileConfigV2,
+            },
+            "playtest_planner": {
+                "playtest_planner-profile-config@1": PlaytestPlannerProfileConfigV1,
+                "playtest_planner-profile-config@2": PlaytestPlannerProfileConfigV2,
+            },
+        }
+        versioned_contracts = versioned_config_models.get(self.profile_kind)
+        if versioned_contracts is not None:
+            model = versioned_contracts.get(self.config_schema_id)
+            if model is None:
+                raise ValueError("profile config schema does not match profile kind")
+            model.model_validate(self.config)
+            return self
+
         config_contract = config_models.get(self.profile_kind)
         if config_contract is not None:
             expected_schema_id, model = config_contract

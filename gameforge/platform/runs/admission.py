@@ -89,11 +89,12 @@ from gameforge.contracts.execution_profiles import (
     GenerationProfileConfigV1,
     MigrationProfileDetailsV1,
     PatchRepairProfileConfigV1,
-    PlaytestPlannerProfileConfigV1,
+    PlaytestPlannerProfileConfigV2,
     ProfileRefV1,
     ProfileCollectionResolvedPolicyRequirementConfigV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
+    TaskSuiteDerivationProfileConfigV2,
     execution_profile_payload_hash,
 )
 from gameforge.contracts.findings import (
@@ -158,6 +159,7 @@ from gameforge.contracts.playtest import (
     ScenarioSpecV1,
     TaskEpisodeV1,
     TaskSuiteV1,
+    playtest_resource_upper_bounds,
     resolve_completion_oracle,
 )
 from gameforge.contracts.provenance import ProvenanceV1
@@ -179,6 +181,7 @@ from gameforge.platform.cost_policy.run_accounting import (
     SqlRunCostAccounting,
 )
 from gameforge.platform.provenance.writer import AuthenticatedGoalSourceWriter, MintedSource
+from gameforge.platform.playtest_payload_schemas import PlaytestPayloadValidationService
 from gameforge.platform.rbac import AuthorizationDecision, authorize
 from gameforge.platform.registry.defaults import (
     ARTIFACT_PAYLOAD_SCHEMAS,
@@ -876,6 +879,7 @@ class RunAdmissionEngine:
         current_principal_resolver: CurrentPrincipalResolver,
         role_policy_version: str,
         role_policy_digest: str,
+        playtest_payload_validator: PlaytestPayloadValidationService | None = None,
         legacy_import_authority: LegacyImportAuthority | None = None,
         legacy_import_decisions: LegacyImportDecisionRepository | None = None,
         deadline_policy: AdmissionDeadlinePolicy | None = None,
@@ -894,6 +898,7 @@ class RunAdmissionEngine:
         self._legacy_import_authority = legacy_import_authority
         self._legacy_import_decisions = legacy_import_decisions
         self._validation_start_writer = validation_start_writer
+        self._playtest_payload_validator = playtest_payload_validator
         if not isinstance(role_policy_version, str) or not role_policy_version:
             raise IntegrityViolation("run admission requires an exact role policy version")
         if (
@@ -3135,7 +3140,7 @@ class RunAdmissionEngine:
             )
         if definition.profile_kind == "playtest_planner":
             try:
-                PlaytestPlannerProfileConfigV1.model_validate(definition.config)
+                PlaytestPlannerProfileConfigV2.model_validate(definition.config)
             except ValueError as exc:
                 raise IntegrityViolation(
                     "playtest planner profile has an invalid versioned config"
@@ -4673,11 +4678,23 @@ class RunAdmissionEngine:
             environment_profile=params.environment_profile,
             catalog=catalog,
         )
-        self._catalog_definition(
+        definition = self._catalog_definition(
             params.derivation_profile,
             "task_suite_derivation",
             catalog=catalog,
         )
+        profile_config = self._task_suite_derivation_config(definition)
+        if profile_config.target_environment_profile != params.environment_profile:
+            self._stale("task-suite derivation profile targets another environment")
+        if (
+            profile_config.completion_oracle_registry_version
+            != params.completion_oracle_registry_ref.registry_version
+            or not compare_digest(
+                profile_config.completion_oracle_registry_digest,
+                params.completion_oracle_registry_ref.digest,
+            )
+        ):
+            self._stale("task-suite derivation profile binds another oracle registry")
         self._completion_oracle_registry(params.completion_oracle_registry_ref)
 
     def _verify_playtest_admission(
@@ -4725,13 +4742,41 @@ class RunAdmissionEngine:
         )
         if suite.env_contract_version != contract.env_contract_version:
             self._stale("task suite env-contract version differs from the environment profile")
-        self._catalog_definition(
+        suite_profile_definition = self._catalog_definition(
             suite.suite_profile,
             "task_suite_derivation",
             allow_replay_only=llm_execution_mode == "replay",
             catalog=catalog,
         )
+        suite_profile_config = self._task_suite_derivation_config(suite_profile_definition)
+        if suite_profile_config.target_environment_profile != suite.environment_profile:
+            self._stale("task suite derivation profile targets another environment")
+        if (
+            suite_profile_config.completion_oracle_registry_version
+            != suite.completion_oracle_registry_ref.registry_version
+            or not compare_digest(
+                suite_profile_config.completion_oracle_registry_digest,
+                suite.completion_oracle_registry_ref.digest,
+            )
+        ):
+            self._stale("task suite derivation profile binds another oracle registry")
         oracle_registry = self._completion_oracle_registry(suite.completion_oracle_registry_ref)
+
+        planner_definition = self._catalog_definition(
+            params.planner_policy,
+            "playtest_planner",
+            allow_replay_only=llm_execution_mode == "replay",
+            catalog=catalog,
+        )
+        planner_config = self._playtest_planner_config(planner_definition)
+        try:
+            playtest_resource_upper_bounds(
+                planner_config,
+                episode_count=len(params.episodes),
+                max_steps_per_episode=params.max_steps_per_episode,
+            )
+        except ValueError as exc:
+            raise Conflict("Playtest request exceeds its exact planner resource envelope") from exc
 
         self._verify_derived_version_tuple(
             artifact=suite_artifact,
@@ -4751,8 +4796,10 @@ class RunAdmissionEngine:
 
         by_episode = {episode.episode_id: episode for episode in suite.episodes}
         for episode in suite.episodes:
+            if episode.reset_binding.reset_schema_id != contract.reset_schema_id:
+                self._stale("task suite episode binds another reset schema")
             try:
-                resolve_completion_oracle(
+                oracle_definition = resolve_completion_oracle(
                     oracle_registry,
                     suite.completion_oracle_registry_ref,
                     episode.completion_oracle,
@@ -4761,6 +4808,18 @@ class RunAdmissionEngine:
                 raise StaleTaskSuite(
                     "task suite completion oracle no longer resolves in its exact registry"
                 ) from exc
+            self._validate_playtest_payload_exact(
+                schema_id=contract.reset_schema_id,
+                purpose="scenario_reset",
+                payload=episode.reset_binding.payload,
+                stale_message="task suite episode reset payload violates its exact schema",
+            )
+            self._validate_playtest_payload_exact(
+                schema_id=oracle_definition.params_schema_id,
+                purpose="completion_oracle_params",
+                payload=episode.completion_oracle.params,
+                stale_message="task suite completion-oracle params violate their exact schema",
+            )
 
         for selected in params.episodes:
             episode = by_episode.get(selected.episode_id)
@@ -4782,6 +4841,12 @@ class RunAdmissionEngine:
             )
             if not isinstance(scenario, ScenarioSpecV1):
                 raise IntegrityViolation("scenario payload did not parse as ScenarioSpecV1")
+            self._validate_playtest_payload_exact(
+                schema_id=contract.reset_schema_id,
+                purpose="scenario_reset",
+                payload=scenario.reset_binding.payload,
+                stale_message="selected scenario reset payload violates its exact schema",
+            )
             self._verify_scenario_binding(
                 scenario=scenario,
                 scenario_artifact=scenario_artifact,
@@ -4794,6 +4859,40 @@ class RunAdmissionEngine:
                 reset_schema_id=contract.reset_schema_id,
             )
         return self._union_domain_scopes(tuple(episode.domain_scope for episode in suite.episodes))
+
+    @staticmethod
+    def _task_suite_derivation_config(definition: Any) -> TaskSuiteDerivationProfileConfigV2:
+        try:
+            return TaskSuiteDerivationProfileConfigV2.model_validate(definition.config)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("task-suite derivation profile config is invalid") from exc
+
+    @staticmethod
+    def _playtest_planner_config(definition: Any) -> PlaytestPlannerProfileConfigV2:
+        try:
+            return PlaytestPlannerProfileConfigV2.model_validate(definition.config)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("playtest planner profile config is invalid") from exc
+
+    def _validate_playtest_payload_exact(
+        self,
+        *,
+        schema_id: str,
+        purpose: Any,
+        payload: Any,
+        stale_message: str,
+    ) -> None:
+        validator = self._playtest_payload_validator
+        if validator is None:
+            raise IntegrityViolation("Run admission lacks the trusted playtest payload validator")
+        try:
+            validator.validate_exact(
+                schema_id=schema_id,
+                purpose=purpose,
+                payload=payload,
+            )
+        except IntegrityViolation as exc:
+            raise StaleTaskSuite(stale_message) from exc
 
     def _verify_scenario_binding(
         self,

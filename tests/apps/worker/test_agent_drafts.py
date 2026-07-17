@@ -349,6 +349,47 @@ def test_assembler_rejects_payload_or_run_domain_substitution() -> None:
         assembler.prepare(replace(request, run=mismatched_run))
 
 
+def test_assembler_rejects_document_version_drift_across_agent_patch_outputs() -> None:
+    request, artifacts, _ = _generation_material()
+    subject, preview = artifacts
+    patch = PatchV2.model_validate(request.payloads_by_rule["primary"][0])
+    drifted_preview = preview.model_copy(
+        update={
+            "version_tuple": preview.version_tuple.model_copy(
+                update={"doc_version": "another-doc@1"}
+            )
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact Run authority"):
+        WorkerAgentDraftPreparedAssembler._validate_patch(
+            request,
+            subject,
+            patch,
+            (drifted_preview,),
+        )
+
+    drifted_config, _ = _artifact(
+        kind="config_export",
+        payload={"package_schema_version": "config-export-package@1"},
+        version_tuple=VersionTuple(
+            doc_version="another-doc@1",
+            ir_snapshot_id=preview.version_tuple.ir_snapshot_id,
+            constraint_snapshot_id="constraint@1",
+            tool_version="config-export@1",
+        ),
+        lineage=(preview.artifact_id, "artifact:constraint"),
+        schema_id="config-export-package@1",
+    )
+    with pytest.raises(IntegrityViolation, match="exact Run authority"):
+        WorkerAgentDraftPreparedAssembler._validate_patch(
+            request,
+            subject,
+            patch,
+            (preview, drifted_config),
+        )
+
+
 def test_assembler_preserves_repair_series_and_both_cas_revisions() -> None:
     initial_request, initial_artifacts, initial_bindings = _generation_material()
     initial = WorkerAgentDraftPreparedAssembler(

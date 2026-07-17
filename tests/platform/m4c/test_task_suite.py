@@ -12,26 +12,38 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from gameforge.apps.worker.completion_oracles import ALL_QUESTS_COMPLETED_ORACLE
 from gameforge.apps.worker.task_suite import AureusScenarioShaper
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     EnvironmentContractDescriptorV1,
     ProfileRefV1,
     RunKindRef,
+    TaskSuiteDerivationProfileConfigV2,
 )
 from gameforge.contracts.jobs import PreparedRunResult, TaskSuiteDerivePayloadV1
-from gameforge.contracts.lineage import artifact_id_v2_for
+from gameforge.contracts.identity import DomainScope
+from gameforge.contracts.lineage import VersionTuple, artifact_id_v2_for
 from gameforge.contracts.playtest import (
-    CompletionOracleDefinitionV1,
+    MAX_PLAYTEST_COLLECTION_ITEMS,
+    CompletionOracleRefV1,
     CompletionOracleRegistryRefV1,
     CompletionOracleRegistryV1,
     ScenarioSpecV1,
     TaskSuiteV1,
-    compute_completion_oracle_registry_digest,
     resolve_completion_oracle,
 )
-from gameforge.platform.run_handlers.task_suite import TaskSuiteDeriveHandler
+from gameforge.platform.playtest_payload_schemas import (
+    PlaytestPayloadValidationService,
+    build_builtin_playtest_payload_validators,
+)
+from gameforge.platform.run_handlers.task_suite import (
+    ScenarioDraftV1,
+    TaskSuiteDeriveHandler,
+)
 from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
 from tests.platform.m4c.handler_support import (
     FakeArtifactStore,
@@ -43,9 +55,11 @@ TASK_SUITE_KIND = RunKindRef(kind="task_suite.derive", version=1)
 PREVIEW_ID = "artifact:preview"
 CONFIG_ID = "artifact:config"
 CONSTRAINT_ID = "artifact:constraint"
+DOC_VERSION = "design-doc@7"
+CONSTRAINT_SNAPSHOT_ID = "constraint-snapshot@9"
 
 _ENV_PROFILE = ProfileRefV1(profile_id="builtin.environment", version=1)
-_DERIVATION_PROFILE = ProfileRefV1(profile_id="builtin.task_suite_derivation", version=1)
+_DERIVATION_PROFILE = ProfileRefV1(profile_id="builtin.task_suite_derivation", version=2)
 _ENV_CONTRACT = EnvironmentContractDescriptorV1(
     env_contract_version="generic-agent-env@1",
     reset_schema_id="generic-env-reset@1",
@@ -94,20 +108,9 @@ def _preview_bytes() -> bytes:
 
 
 def _oracle_registry() -> CompletionOracleRegistryV1:
-    definitions = (
-        CompletionOracleDefinitionV1(
-            oracle_id="state-predicate",
-            version=1,
-            params_schema_id="state-predicate-params@1",
-            result_schema_id="completion-oracle-result@1",
-            executor_key="state_predicate_oracle@1",
-        ),
-    )
-    payload = {"registry_version": 1, "definitions": definitions}
-    return CompletionOracleRegistryV1(
-        **payload,
-        registry_digest=compute_completion_oracle_registry_digest(payload),
-    )
+    from gameforge.platform.registry import build_builtin_registry
+
+    return build_builtin_registry().completion_oracle_registries[0]
 
 
 def _registry_ref() -> CompletionOracleRegistryRefV1:
@@ -135,16 +138,43 @@ def _store() -> FakeArtifactStore:
     return store
 
 
-def _handler(store: FakeArtifactStore) -> TaskSuiteDeriveHandler:
+def _derivation_config() -> TaskSuiteDerivationProfileConfigV2:
+    registry = _oracle_registry()
+    return TaskSuiteDerivationProfileConfigV2(
+        target_environment_profile=_ENV_PROFILE,
+        completion_oracle_registry_version=registry.registry_version,
+        completion_oracle_registry_digest=registry.registry_digest,
+        max_scenarios=MAX_PLAYTEST_COLLECTION_ITEMS,
+        max_total_prepared_artifact_bytes=256 * 1024 * 1024,
+    )
+
+
+def _payload_validator() -> PlaytestPayloadValidationService:
+    from gameforge.platform.registry import build_builtin_registry
+
+    registry = build_builtin_registry()
+    return PlaytestPayloadValidationService(
+        registry=registry,
+        validators=build_builtin_playtest_payload_validators(),
+    )
+
+
+def _handler(store: FakeArtifactStore, *, scenario_shaper=None) -> TaskSuiteDeriveHandler:
     return TaskSuiteDeriveHandler(
         blobs=store,
         store=store,
-        scenario_shaper=AureusScenarioShaper(),
+        scenario_shaper_resolver=lambda ref: scenario_shaper or AureusScenarioShaper(),
         environment_contract_resolver=lambda ref: _ENV_CONTRACT,
+        derivation_config_resolver=lambda ref: _derivation_config(),
+        completion_oracle_registry_resolver=lambda ref: (
+            _oracle_registry() if ref == _registry_ref() else None
+        ),
+        payload_validator=_payload_validator(),
     )
 
 
 def _context():
+    preview = AureusCsvAdapter().to_ir(_workbook(), "preview.csv")
     return build_context(
         params=_payload(),
         kind=TASK_SUITE_KIND,
@@ -152,7 +182,7 @@ def _context():
             resolved_binding(
                 "/params/derivation_profile",
                 profile_id="builtin.task_suite_derivation",
-                version=1,
+                version=2,
                 kind="task_suite_derivation",
             ),
             resolved_binding(
@@ -162,6 +192,14 @@ def _context():
                 kind="environment",
             ),
         ),
+        version_tuple=VersionTuple(
+            doc_version=DOC_VERSION,
+            ir_snapshot_id=preview.snapshot_id,
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version=_ENV_CONTRACT.env_contract_version,
+            tool_version="task-suite-admission@1",
+        ),
+        resource_domain_scope=DomainScope(domain_ids=("builtin",)),
     )
 
 
@@ -200,6 +238,25 @@ def test_derive_publishes_one_suite_plus_n_scenarios() -> None:
     assert suite.environment_profile == _ENV_PROFILE
     assert suite.env_contract_version == _ENV_CONTRACT.env_contract_version
     assert suite.completion_oracle_registry_ref == _registry_ref()
+    assert all(
+        episode.domain_scope == DomainScope(domain_ids=("builtin",)) for episode in suite.episodes
+    )
+
+
+def test_derive_inherits_semantic_parent_versions_not_artifact_ids() -> None:
+    store = _store()
+    outcome = _run(store)
+    preview = AureusCsvAdapter().to_ir(_workbook(), "preview.csv")
+
+    expected = VersionTuple(
+        doc_version=DOC_VERSION,
+        ir_snapshot_id=preview.snapshot_id,
+        constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        env_contract_version=_ENV_CONTRACT.env_contract_version,
+        tool_version="task-suite@1",
+    )
+    assert all(artifact.version_tuple == expected for artifact in outcome.artifacts)
+    assert CONSTRAINT_ID != CONSTRAINT_SNAPSHOT_ID
 
 
 def test_derive_binds_episode_scenario_identity() -> None:
@@ -254,6 +311,84 @@ def test_derive_completion_oracle_resolves_in_registry() -> None:
         assert episode.step_budget >= 1
 
 
+class _FixedShaper:
+    def __init__(self, drafts: tuple[ScenarioDraftV1, ...]) -> None:
+        self._drafts = drafts
+
+    def shape(self, request):
+        del request
+        return self._drafts
+
+
+def _draft(
+    index: int,
+    *,
+    scenario_id: str | None = None,
+    completion_oracle: CompletionOracleRefV1 = ALL_QUESTS_COMPLETED_ORACLE,
+    reset_payload: object | None = None,
+) -> ScenarioDraftV1:
+    return ScenarioDraftV1(
+        scenario_id=scenario_id or f"scenario:{index:04d}",
+        episode_id=f"episode:{index:04d}",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+        reset_payload=(
+            {
+                "scenario_id": scenario_id or f"scenario:{index:04d}",
+                "config_export_artifact_id": CONFIG_ID,
+                "quest_ids": [f"quest:{index:04d}"],
+                "start_seed": 0,
+            }
+            if reset_payload is None
+            else reset_payload
+        ),
+        completion_oracle=completion_oracle,
+        step_budget=10,
+    )
+
+
+def test_derive_validates_reset_payload_and_oracle_params_before_any_blob_write() -> None:
+    store = _store()
+    bad_reset = _draft(1, reset_payload={"scenario_id": "scenario:0001"})
+    with pytest.raises(IntegrityViolation, match="reset payload"):
+        _handler(store, scenario_shaper=_FixedShaper((bad_reset,)))(_context())
+    assert store.put_count == 0
+
+    bad_oracle = _draft(
+        1,
+        completion_oracle=ALL_QUESTS_COMPLETED_ORACLE.model_copy(
+            update={"params": {"predicate": "model_says_complete"}}
+        ),
+    )
+    with pytest.raises(IntegrityViolation, match="completion-oracle params"):
+        _handler(store, scenario_shaper=_FixedShaper((bad_oracle,)))(_context())
+    assert store.put_count == 0
+
+
+def test_derive_rejects_duplicate_stable_scenario_identity_before_blob_write() -> None:
+    store = _store()
+    drafts = (
+        _draft(1, scenario_id="scenario:duplicate"),
+        _draft(2, scenario_id="scenario:duplicate"),
+    )
+    with pytest.raises(IntegrityViolation, match="scenario_id"):
+        _handler(store, scenario_shaper=_FixedShaper(drafts))(_context())
+    assert store.put_count == 0
+
+
+def test_derive_accepts_exact_maximum_episode_closure_and_rejects_cap_plus_one() -> None:
+    exact_store = _store()
+    exact = tuple(_draft(index) for index in range(MAX_PLAYTEST_COLLECTION_ITEMS))
+    outcome = _handler(exact_store, scenario_shaper=_FixedShaper(exact))(_context())
+    assert len(outcome.artifacts) == MAX_PLAYTEST_COLLECTION_ITEMS + 1
+    assert exact_store.put_count == MAX_PLAYTEST_COLLECTION_ITEMS + 1
+
+    over_store = _store()
+    over = tuple(_draft(index) for index in range(MAX_PLAYTEST_COLLECTION_ITEMS + 1))
+    with pytest.raises(IntegrityViolation, match="scenario count"):
+        _handler(over_store, scenario_shaper=_FixedShaper(over))(_context())
+    assert over_store.put_count == 0
+
+
 def test_derive_declares_run_input_lineage_roles() -> None:
     store = _store()
     outcome = _run(store)
@@ -274,8 +409,13 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
     """Exercise handler → generic publisher, including final meta-derived IDs."""
 
     from gameforge.contracts.jobs import (
+        canonical_payload_hash,
         outcome_policy_set_digest,
         run_kind_definition_digest,
+    )
+    from gameforge.contracts.execution_profiles import (
+        ResolvedExecutionProfileBindingV1,
+        execution_profile_payload_hash,
     )
     from gameforge.contracts.lineage import ArtifactV1, AuditActor, ObjectLocation, VersionTuple
     from gameforge.platform.registry import build_builtin_registry
@@ -315,8 +455,37 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
     assert definition is not None
     retry = registry.get_retry_policy(definition.retry_policy)
     assert retry is not None
+    catalog = max(
+        registry.list_execution_profile_catalogs(),
+        key=lambda item: item.catalog_version,
+    )
+    exact_bindings = []
+    for field_path, profile, expected_kind in (
+        ("/params/derivation_profile", _DERIVATION_PROFILE, "task_suite_derivation"),
+        ("/params/environment_profile", _ENV_PROFILE, "environment"),
+    ):
+        profile_definition = next(item for item in catalog.definitions if item.profile == profile)
+        exact_bindings.append(
+            ResolvedExecutionProfileBindingV1(
+                field_path=field_path,
+                profile=profile,
+                expected_profile_kind=expected_kind,
+                profile_payload_hash=execution_profile_payload_hash(profile_definition),
+                catalog_version=catalog.catalog_version,
+                catalog_digest=catalog.catalog_digest,
+            )
+        )
+    envelope = context.run.payload.model_copy(
+        update={
+            "execution_profile_catalog_version": catalog.catalog_version,
+            "execution_profile_catalog_digest": catalog.catalog_digest,
+            "resolved_profiles": tuple(exact_bindings),
+        }
+    )
     run = context.run.model_copy(
         update={
+            "payload": envelope,
+            "payload_hash": canonical_payload_hash(envelope),
             "run_kind_definition_digest": run_kind_definition_digest(definition),
             "outcome_policy_set_digest": outcome_policy_set_digest(
                 TASK_SUITE_KIND, definition.outcome_policies
@@ -341,6 +510,7 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
             meta={"payload_schema_id": "ir-core@1"},
         )
     )
+    artifacts.payloads_by_id[PREVIEW_ID] = _preview_bytes()
     artifacts.add(
         ArtifactV1(
             artifact_id=CONFIG_ID,
@@ -379,14 +549,62 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
         retry_disposition=None,
     )
 
-    published = _publisher(
+    publisher = _publisher(
         registry,
         artifacts,
         blobs,
         _Findings(),
         _Ledger(),
         _Audit(),
-    ).publish_run_result(
+        playtest_payload_validator=PlaytestPayloadValidationService(
+            registry=registry,
+            validators=build_builtin_playtest_payload_validators(),
+        ),
+        task_suite_scenario_shaper_resolver=lambda _profile: AureusScenarioShaper(),
+    )
+    scenario_prepared = next(
+        item for item in outcome.artifacts if item.payload_schema_id == "scenario-spec@1"
+    )
+    forged_scenario = json.loads(blobs.read(scenario_prepared.object_ref))
+    forged_scenario["reset_binding"]["reset_schema_id"] = "unknown-reset@1"
+    prepared_batch_total_bytes = sum(
+        artifact.object_ref.size_bytes for artifact in outcome.artifacts
+    )
+    with pytest.raises(IntegrityViolation, match="reset schema"):
+        publisher._validate_task_suite_payload_authority(  # noqa: SLF001
+            run=run,
+            payload_schema_id="scenario-spec@1",
+            payload=forged_scenario,
+            prepared_batch_total_bytes=prepared_batch_total_bytes,
+        )
+
+    forged_scenario = json.loads(blobs.read(scenario_prepared.object_ref))
+    forged_scenario["domain_scope"] = {"domain_ids": ["forged"]}
+    with pytest.raises(IntegrityViolation, match="domain"):
+        publisher._validate_task_suite_payload_authority(  # noqa: SLF001
+            run=run,
+            payload_schema_id="scenario-spec@1",
+            payload=forged_scenario,
+            prepared_batch_total_bytes=prepared_batch_total_bytes,
+        )
+
+    valid_scenario = json.loads(blobs.read(scenario_prepared.object_ref))
+    with pytest.raises(IntegrityViolation, match="profile closure"):
+        publisher._validate_task_suite_payload_authority(  # noqa: SLF001
+            run=run,
+            payload_schema_id="scenario-spec@1",
+            payload=valid_scenario,
+            prepared_batch_total_bytes=_derivation_config().max_total_prepared_artifact_bytes + 1,
+        )
+
+    with pytest.raises(IntegrityViolation, match="exact derivation"):
+        publisher._validate_task_suite_batch_authority(  # noqa: SLF001
+            run=run,
+            payloads_by_rule={"scenario": (), "primary": ()},
+            artifacts_by_rule={"scenario": (), "primary": ()},
+        )
+
+    published = publisher.publish_run_result(
         run=run,
         attempt=context.attempt,
         prepared=outcome,

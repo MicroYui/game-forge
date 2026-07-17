@@ -109,6 +109,7 @@ class _Blobs:
 class _Artifacts:
     def __init__(self) -> None:
         self.by_id: dict[str, object] = {}
+        self.payloads_by_id: dict[str, bytes] = {}
         self.put_order: list[str] = []
 
     def add(self, artifact) -> None:
@@ -133,7 +134,11 @@ class _Artifacts:
         blobs = getattr(self, "_blobs", None)
         if blobs is None:
             raise KeyError(artifact_id)
-        return blobs.read(self.by_id[artifact_id].object_ref)
+        artifact = self.by_id[artifact_id]
+        object_ref = getattr(artifact, "object_ref", None)
+        if object_ref is None:
+            return self.payloads_by_id[artifact_id]
+        return blobs.read(object_ref)
 
 
 class _ReplacingArtifacts(_Artifacts):
@@ -487,7 +492,15 @@ class _DirectPublisherHarness:
         return self._publisher.commit(draft, self._stage(draft))
 
 
-def _publisher(registry, artifacts, blobs, findings, ledger, audit) -> _DirectPublisherHarness:
+def _publisher(
+    registry,
+    artifacts,
+    blobs,
+    findings,
+    ledger,
+    audit,
+    **publisher_kwargs,
+) -> _DirectPublisherHarness:
     artifacts._blobs = blobs
     return _DirectPublisherHarness(
         TerminalPublisher(
@@ -497,6 +510,7 @@ def _publisher(registry, artifacts, blobs, findings, ledger, audit) -> _DirectPu
             findings=findings,
             ledger=ledger,
             audit=audit,
+            **publisher_kwargs,
         ),
         blobs,
     )

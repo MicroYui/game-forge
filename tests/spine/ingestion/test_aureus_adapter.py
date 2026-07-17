@@ -1,18 +1,56 @@
 from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
+from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.contracts.ir import NodeType, EdgeType
+from gameforge.spine.ir.loader import load_scenario
+from gameforge.spine.ir.snapshot import Snapshot
+
 
 def _wb():
     return {
-        "regions": [{"region_id": "region:r", "name": "R", "grid": {"width": 4, "height": 4, "blocked": []},
-                     "start_pos": [0, 0], "scenario_id": "sc"}],
+        "regions": [
+            {
+                "region_id": "region:r",
+                "name": "R",
+                "grid": {"width": 4, "height": 4, "blocked": []},
+                "start_pos": [0, 0],
+                "scenario_id": "sc",
+            }
+        ],
         "npcs": [{"npc_id": "npc:a", "name": "A", "region": "region:r", "pos": [1, 0]}],
         "items": [{"item_id": "item:x", "name": "X"}],
-        "quests": [{"quest_id": "q", "title": "Q", "region": "region:r", "giver": "npc:a", "reward": {"gold": 10}}],
+        "quests": [
+            {
+                "quest_id": "q",
+                "title": "Q",
+                "region": "region:r",
+                "giver": "npc:a",
+                "reward": {"gold": 10},
+            }
+        ],
         "quest_steps": [
-            {"step_id": "s1", "quest_id": "q", "order": 0, "kind": "talk", "target": "npc:a", "item": None, "count": 1, "encounter": None},
-            {"step_id": "s2", "quest_id": "q", "order": 1, "kind": "turn_in", "target": "npc:a", "item": None, "count": 1, "encounter": None},
+            {
+                "step_id": "s1",
+                "quest_id": "q",
+                "order": 0,
+                "kind": "talk",
+                "target": "npc:a",
+                "item": None,
+                "count": 1,
+                "encounter": None,
+            },
+            {
+                "step_id": "s2",
+                "quest_id": "q",
+                "order": 1,
+                "kind": "turn_in",
+                "target": "npc:a",
+                "item": None,
+                "count": 1,
+                "encounter": None,
+            },
         ],
     }
+
 
 def test_to_ir_builds_typed_entities_and_has_step_edges():
     snap = AureusCsvAdapter().to_ir(_wb(), file_ref="outpost")
@@ -24,11 +62,82 @@ def test_to_ir_builds_typed_entities_and_has_step_edges():
     assert prec and prec[0].dst_id == "s2"
     assert g.get_node("npc:a").source_ref.sheet == "npcs"
 
+
 def test_from_ir_reconstructs_workbook_field_level():
     adapter = AureusCsvAdapter()
     wb = _wb()
     back = adapter.from_ir(adapter.to_ir(wb, file_ref="outpost"))
     assert back == wb  # contract §2 anchor: from_ir(to_ir(x)) == x, field level
+
+
+def test_from_ir_projects_relation_owned_quest_membership_and_order() -> None:
+    # The ordinary YAML loader correctly stores quest membership/order in
+    # HAS_STEP/PRECEDES rather than duplicating them in QuestStep attrs. Config
+    # export must reify those workbook columns or the exported package cannot be
+    # parsed back into an executable Aureus snapshot.
+    source = load_scenario(
+        {
+            "scenario_id": "loader-preview",
+            "grid": {"width": 4, "height": 4, "blocked": []},
+            "start_pos": [0, 0],
+            "regions": [{"id": "region:r", "name": "R"}],
+            "npcs": [{"id": "npc:a", "name": "A", "region": "region:r", "pos": [1, 0]}],
+            "items": [{"id": "item:x", "name": "X"}],
+            "interactables": [
+                {
+                    "id": "gather:x",
+                    "kind": "gather",
+                    "pos": [2, 0],
+                    "yields_item": "item:x",
+                    "yields_count": 1,
+                }
+            ],
+            "quests": [
+                {
+                    "id": "quest:q",
+                    "title": "Q",
+                    "region": "region:r",
+                    "giver": "npc:a",
+                    "reward": {"gold": 10},
+                    "steps": [
+                        {"id": "step:talk", "kind": "talk", "target": "npc:a"},
+                        {"id": "step:collect", "kind": "collect", "item": "item:x"},
+                        {"id": "step:turn-in", "kind": "turn_in", "target": "npc:a"},
+                    ],
+                }
+            ],
+        }
+    )
+    adapter = AureusCsvAdapter()
+
+    workbook = adapter.from_ir(source)
+
+    assert [(row["quest_id"], row["order"]) for row in workbook["quest_steps"]] == [
+        ("quest:q", 0),
+        ("quest:q", 1),
+        ("quest:q", 2),
+    ]
+    rebuilt = adapter.to_ir(workbook, file_ref="config-export://loader-preview")
+    assert snapshot_to_world(rebuilt) == snapshot_to_world(source)
+
+
+def test_from_ir_canonicalizes_partial_redundant_step_order_from_relations() -> None:
+    adapter = AureusCsvAdapter()
+    source = adapter.to_ir(_wb(), file_ref="partial-order")
+    entities = dict(source.entities)
+    step = entities["s2"]
+    attrs = dict(step.attrs)
+    attrs.pop("order")
+    entities["s2"] = step.model_copy(update={"attrs": attrs})
+    partial = Snapshot(
+        entities=entities,
+        relations=dict(source.relations),
+        meta_schema_version=source.meta_schema_version,
+    )
+
+    workbook = adapter.from_ir(partial)
+
+    assert [row["order"] for row in workbook["quest_steps"]] == [0, 1]
 
 
 def test_to_ir_derives_starts_at_and_rewards_from_quest_row():
@@ -90,12 +199,19 @@ def test_to_ir_derives_monster_currency_drops_from_gold_attrs():
     # DROPS_FROM(monster -> currency) follows the same producer-to-product
     # direction as item drops and is what EconomyModel.from_snapshot consumes.
     wb = _wb()
-    wb["monsters"] = [{
-        "monster_id": "m:wolf", "name": "Wolf",
-        "stats": {"atk": 1, "def": 1, "hp": 1}, "skills": None,
-        "drop_table_id": None, "ai": "aggressive",
-        "gold_min": 5, "gold_max": 10, "currency": "gold",
-    }]
+    wb["monsters"] = [
+        {
+            "monster_id": "m:wolf",
+            "name": "Wolf",
+            "stats": {"atk": 1, "def": 1, "hp": 1},
+            "skills": None,
+            "drop_table_id": None,
+            "ai": "aggressive",
+            "gold_min": 5,
+            "gold_max": 10,
+            "currency": "gold",
+        }
+    ]
     snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
     g = snap.to_graph()
     drops = g.neighbors("m:wolf", EdgeType.DROPS_FROM, direction="out")
@@ -104,11 +220,16 @@ def test_to_ir_derives_monster_currency_drops_from_gold_attrs():
 
 def test_to_ir_skips_monster_currency_drops_from_without_gold_attrs():
     wb = _wb()
-    wb["monsters"] = [{
-        "monster_id": "m:wolf", "name": "Wolf",
-        "stats": {"atk": 1, "def": 1, "hp": 1}, "skills": None,
-        "drop_table_id": None, "ai": "aggressive",
-    }]
+    wb["monsters"] = [
+        {
+            "monster_id": "m:wolf",
+            "name": "Wolf",
+            "stats": {"atk": 1, "def": 1, "hp": 1},
+            "skills": None,
+            "drop_table_id": None,
+            "ai": "aggressive",
+        }
+    ]
     snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
     g = snap.to_graph()
     assert g.neighbors("m:wolf", EdgeType.DROPS_FROM, direction="out") == []
@@ -116,8 +237,12 @@ def test_to_ir_skips_monster_currency_drops_from_without_gold_attrs():
 
 def test_to_ir_plumbs_sells_relation_attrs():
     wb = _wb()
-    wb["shops"] = [{"shop_id": "shop:s", "entries": [
-        {"currency": "gold", "item": "item:x", "price": 50, "buy_prob": 0.5}]}]
+    wb["shops"] = [
+        {
+            "shop_id": "shop:s",
+            "entries": [{"currency": "gold", "item": "item:x", "price": 50, "buy_prob": 0.5}],
+        }
+    ]
     snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
     g = snap.to_graph()
     sells = g.neighbors("shop:s", EdgeType.SELLS, direction="out")
@@ -132,8 +257,9 @@ def test_to_ir_sells_omits_buy_prob_when_absent():
     # buy_prob absent from config -> key omitted so from_snapshot applies its
     # own default (0.5); price/currency still plumbed.
     wb = _wb()
-    wb["shops"] = [{"shop_id": "shop:s", "entries": [
-        {"currency": "gold", "item": "item:x", "price": 50}]}]
+    wb["shops"] = [
+        {"shop_id": "shop:s", "entries": [{"currency": "gold", "item": "item:x", "price": 50}]}
+    ]
     snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
     g = snap.to_graph()
     sells = g.neighbors("shop:s", EdgeType.SELLS, direction="out")
@@ -145,8 +271,12 @@ def test_from_ir_roundtrip_lossless_with_shop_buy_prob():
     # Relations are NOT read back by from_ir (rebuilt from entity attrs), so
     # adding relation attrs must not change from_ir(to_ir(x)) == x.
     wb = _wb()
-    wb["shops"] = [{"shop_id": "shop:s", "entries": [
-        {"currency": "gold", "item": "item:x", "price": 50, "buy_prob": 0.5}]}]
+    wb["shops"] = [
+        {
+            "shop_id": "shop:s",
+            "entries": [{"currency": "gold", "item": "item:x", "price": 50, "buy_prob": 0.5}],
+        }
+    ]
     adapter = AureusCsvAdapter()
     back = adapter.from_ir(adapter.to_ir(wb, file_ref="outpost"))
     assert back == wb

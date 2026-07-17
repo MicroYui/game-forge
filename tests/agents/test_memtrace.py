@@ -1,3 +1,5 @@
+import pytest
+
 from gameforge.agents.playtest.memory import Episode, MemTrace
 
 
@@ -53,7 +55,9 @@ def test_recall_ranks_structurally_similar_recent_first():
     m = MemTrace()
     m.record(_step(state="alpha beta", action_kind="a", result="ok", state_hash="h1", step_index=0))
     m.record(_step(state="zeta eta", action_kind="b", result="ok", state_hash="h2", step_index=1))
-    m.record(_step(state="alpha beta gamma", action_kind="c", result="ok", state_hash="h3", step_index=2))
+    m.record(
+        _step(state="alpha beta gamma", action_kind="c", result="ok", state_hash="h3", step_index=2)
+    )
     top = m.recall("alpha beta", task=None, k=1)
     assert len(top) == 1
     assert top[0].state_abstract == "alpha beta gamma"  # highest jaccard × recency
@@ -81,7 +85,7 @@ def test_recall_text_none_when_empty():
 def test_recall_is_deterministic():
     m = MemTrace()
     for i in range(6):
-        m.record(_step(state=f"s {i%2}", action_kind="a", result="ok", state_hash=f"h{i}"))
+        m.record(_step(state=f"s {i % 2}", action_kind="a", result="ok", state_hash=f"h{i}"))
     first = [e.step_index for e in m.recall("s 0", None, 3)]
     second = [e.step_index for e in m.recall("s 0", None, 3)]
     # Non-vacuous: guard against a broken recall that trivially returns `[]`
@@ -104,11 +108,14 @@ def test_recall_embedding_off_by_default_calls_no_embedder():
 
 class _CountingEmbedder:
     """Deterministic bag-of-chars embedder that counts calls (test-only)."""
+
     def __init__(self):
         self.calls = 0
+
     def embed(self, text):
         self.calls += 1
         import collections
+
         c = collections.Counter(text)
         return [float(c.get(ch, 0)) for ch in "abcdefghijklmnopqrstuvwxyz "]
 
@@ -164,12 +171,14 @@ class _RaisingRouter:
     name) so a raising router actually exercises LLMCompactor's call site.
     Counts invocations so tests can prove the router path was truly entered.
     """
-    def __init__(self):
+
+    def __init__(self, error: Exception | None = None):
         self.calls = 0
+        self.error = error or RuntimeError("no live call in test")
 
     def call(self, req):
         self.calls += 1
-        raise RuntimeError("no live call in test")
+        raise self.error
 
 
 def test_deterministic_compactor_never_touches_router():
@@ -186,6 +195,7 @@ def test_deterministic_compactor_never_touches_router():
 
 def test_llm_compactor_uses_router_and_fails_closed():
     from gameforge.agents.playtest.memory import LLMCompactor
+
     m = MemTrace(compactor=LLMCompactor())
     for i in range(5):
         m.record(_step(state=f"s{i}", result="ok", state_hash=f"h{i}"))
@@ -200,8 +210,23 @@ def test_llm_compactor_uses_router_and_fails_closed():
     assert router.calls == 1  # the LLM path was actually entered
 
 
+def test_strict_llm_compactor_propagates_exhausted_model_call_authority():
+    from gameforge.agents.playtest.memory import LLMCompactor
+    from gameforge.contracts.errors import IntegrityViolation
+
+    m = MemTrace(compactor=LLMCompactor(strict=True))
+    for i in range(5):
+        m.record(_step(state=f"s{i}", result="ok", state_hash=f"h{i}"))
+    router = _RaisingRouter(IntegrityViolation("playtest model-call authority is exhausted"))
+
+    with pytest.raises(IntegrityViolation, match="authority is exhausted"):
+        m.compact(m.trace[:], verdicts=[], router=router)
+    assert router.calls == 1
+
+
 def test_deterministic_compactor_digest_reflects_trace():
     from gameforge.agents.playtest.memory import DeterministicCompactor
+
     trace = [
         Episode(
             state_abstract="alpha room",
@@ -232,6 +257,7 @@ def test_deterministic_compactor_digest_reflects_trace():
 
 def test_deterministic_compactor_empty_trace_never_raises():
     from gameforge.agents.playtest.memory import DeterministicCompactor
+
     out = DeterministicCompactor().compact([], verdicts=[])
     assert isinstance(out, str) and out
 
@@ -243,6 +269,7 @@ def test_deterministic_compactor_empty_trace_never_raises():
 # never produce a different `recall_text`, making Task 8b's "compare the two
 # compactors' effect on completion rate" undiscriminating by construction.
 # ---------------------------------------------------------------------------
+
 
 class _ScriptedRouter:
     """Fake router (no transport, no live call): always answers a fixed,
@@ -259,6 +286,7 @@ class _ScriptedRouter:
         self.calls += 1
         self.requests.append(req)
         from gameforge.contracts.model_router import ModelResponse
+
         return ModelResponse(response_normalized=self._text)
 
 
@@ -313,6 +341,7 @@ def test_compactor_choice_changes_injected_recall_text():
     det_text = det.recall_text("a", task=None)
 
     from gameforge.agents.playtest.memory import LLMCompactor
+
     router = _ScriptedRouter("LLM DISTINCT SUMMARY: quest nearly complete")
     llm = MemTrace(compactor=LLMCompactor())
     llm.record(step)

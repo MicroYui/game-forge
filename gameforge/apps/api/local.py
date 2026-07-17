@@ -92,6 +92,11 @@ from gameforge.platform.registry import (
     build_builtin_registry,
     build_readiness_component_maps,
 )
+from gameforge.platform.playtest_payload_schemas import (
+    ExactModelPayloadValidator,
+    PlaytestPayloadValidationService,
+    build_builtin_playtest_payload_validators,
+)
 from gameforge.platform.provenance import (
     AuthenticatedGoalSourceWriter,
     GoalProvenancePolicy,
@@ -174,6 +179,54 @@ WORKFLOW_APPROVAL_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_DIGEST
 
 class LocalApiConfigurationError(ValueError):
     """The trusted local API composition is incomplete or unsafe."""
+
+
+class _AdmissionPolicyAuthority:
+    """Route profile reads to the merged immutable registry and governance to SQL."""
+
+    __slots__ = ("_persistent", "_registry")
+
+    def __init__(self, *, persistent: SqlPolicySnapshotRepository, registry: object) -> None:
+        self._persistent = persistent
+        self._registry = registry
+
+    def get_execution_profile_catalog(
+        self, *, catalog_version: int, catalog_digest: str
+    ) -> object | None:
+        return self._registry.get_execution_profile_catalog(  # type: ignore[attr-defined]
+            catalog_version,
+            catalog_digest,
+        )
+
+    def resolve_execution_profile(self, **kwargs: object) -> object:
+        return self._registry.resolve_execution_profile(**kwargs)  # type: ignore[attr-defined]
+
+    def resolve_execution_profile_binding(self, binding: object) -> object:
+        return self._registry.resolve_execution_profile_binding(binding)  # type: ignore[attr-defined]
+
+    def get_role_policy(self, *args: object, **kwargs: object) -> object | None:
+        return self._persistent.get_role_policy(*args, **kwargs)
+
+    def get_domain_registry(self, *args: object, **kwargs: object) -> object | None:
+        return self._persistent.get_domain_registry(*args, **kwargs)
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._persistent, name)
+
+
+def _typed_playtest_payload_validators(
+    values: Mapping[str, object],
+) -> dict[str, ExactModelPayloadValidator]:
+    """Reject readiness-only sentinels before executable admission can use them."""
+
+    validators: dict[str, ExactModelPayloadValidator] = {}
+    for key, value in values.items():
+        if not isinstance(value, ExactModelPayloadValidator):
+            raise LocalApiConfigurationError(
+                "local API playtest payload validators must be executable components"
+            )
+        validators[key] = value
+    return validators
 
 
 def _required(source: Mapping[str, str], name: str) -> str:
@@ -623,6 +676,7 @@ def _build_run_admission_engine(
     unit_of_work: SqliteUnitOfWork,
     registry: object,
     execution_profile_catalog: object,
+    playtest_payload_validator: PlaytestPayloadValidationService,
     legacy_import_authority: LegacyImportAuthority | None,
 ) -> RunAdmissionEngine:
     """Compose the real Run admission engine over the write UoW + object store.
@@ -656,7 +710,10 @@ def _build_run_admission_engine(
                 session, object_store, config.object_store_id
             )
             yield AdmissionReadPort(
-                policies=SqlPolicySnapshotRepository(session, clock=clock),
+                policies=_AdmissionPolicyAuthority(
+                    persistent=SqlPolicySnapshotRepository(session, clock=clock),
+                    registry=registry,
+                ),
                 approvals=SqlApprovalRepository(session),
                 artifacts=SqlArtifactRepository(
                     session,
@@ -694,6 +751,7 @@ def _build_run_admission_engine(
         ),
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
+        playtest_payload_validator=playtest_payload_validator,
         # The ``:validate`` admission CASes the ApprovalItem draft→validating in the SAME
         # UoW that queues the Run (design §"validation start"). Generic ``POST /runs``
         # kinds never carry a validation subject, so the writer only fires on the three
@@ -712,6 +770,7 @@ def _build_workflow_command_service(
     engine: Engine,
     object_store: LocalObjectStore,
     unit_of_work: SqliteUnitOfWork,
+    registry: object,
     execution_profile_catalog: object,
     admission: object,
     config_exporter: object,
@@ -738,9 +797,13 @@ def _build_workflow_command_service(
 
     def command_capabilities(transaction: object) -> ApprovalCommandCapabilities:
         bound = readers(transaction)
+        policies = _AdmissionPolicyAuthority(
+            persistent=transaction.policies,  # type: ignore[attr-defined]
+            registry=registry,
+        )
         return ApprovalCommandCapabilities(
             approvals=transaction.approvals,  # type: ignore[attr-defined]
-            policies=transaction.policies,  # type: ignore[attr-defined]
+            policies=policies,
             artifacts=transaction.artifacts,  # type: ignore[attr-defined]
             object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
             idempotency=transaction.idempotency,  # type: ignore[attr-defined]
@@ -755,9 +818,13 @@ def _build_workflow_command_service(
 
     def apply_capabilities(transaction: object) -> ApprovedApplyCapabilities:
         bound = readers(transaction)
+        policies = _AdmissionPolicyAuthority(
+            persistent=transaction.policies,  # type: ignore[attr-defined]
+            registry=registry,
+        )
         return ApprovedApplyCapabilities(
             approvals=transaction.approvals,  # type: ignore[attr-defined]
-            policies=transaction.policies,  # type: ignore[attr-defined]
+            policies=policies,
             principals=_PrincipalGet(transaction.identity),  # type: ignore[attr-defined]
             artifacts=transaction.artifacts,  # type: ignore[attr-defined]
             refs=transaction.refs,  # type: ignore[attr-defined]
@@ -769,7 +836,7 @@ def _build_workflow_command_service(
             targets=bound,
             rollback_execution=ExactRollbackExecutionVerifier(
                 runs=transaction.runs,  # type: ignore[attr-defined]
-                profiles=transaction.policies,  # type: ignore[attr-defined]
+                profiles=policies,
             ),
         )
 
@@ -844,7 +911,11 @@ def _build_workflow_command_service(
                 cursor_signer=cursor_signer,
                 clock=clock,
             )
-            policies = SqlPolicySnapshotRepository(session, clock=clock)
+            persistent_policies = SqlPolicySnapshotRepository(session, clock=clock)
+            policies = _AdmissionPolicyAuthority(
+                persistent=persistent_policies,
+                registry=registry,
+            )
             identities = SqlIdentityRepository(session, clock=clock)
             yield WorkflowReadPort(
                 artifacts=artifacts,
@@ -1083,7 +1154,7 @@ def build_local_api_resources(
     if persisted_catalogs:
         builtin_registry = builtin_registry.with_execution_profile_catalogs(
             persisted_catalogs,
-            replace=True,
+            replace=False,
         )
     execution_profile_catalogs = builtin_registry.list_execution_profile_catalogs()
     if not execution_profile_catalogs:
@@ -1130,6 +1201,10 @@ def build_local_api_resources(
         unit_of_work=unit_of_work,
         registry=builtin_registry,
         execution_profile_catalog=current_execution_profile_catalog,
+        playtest_payload_validator=PlaytestPayloadValidationService(
+            registry=builtin_registry,
+            validators=_typed_playtest_payload_validators(components.playtest_payload_validators),
+        ),
         legacy_import_authority=legacy_import_authority,
     )
     # The synchronous ``:validate`` admission atomically starts validation: its injected
@@ -1143,6 +1218,7 @@ def build_local_api_resources(
         engine=engine,
         object_store=object_store,
         unit_of_work=unit_of_work,
+        registry=builtin_registry,
         execution_profile_catalog=current_execution_profile_catalog,
         admission=run_admission,
         config_exporter=build_aureus_config_exporter(builtin_registry),
@@ -1236,9 +1312,19 @@ def create_readiness_closed_local_app(
     The worker (``apps/worker``) remains the sole process that supplies real executors.
     """
 
+    key_maps = build_readiness_component_maps(build_builtin_registry())
+    components = TrustedComponentMaps(
+        executors=key_maps.executors,
+        terminal_hooks=key_maps.terminal_hooks,
+        workflow_effects=key_maps.workflow_effects,
+        completion_oracles=key_maps.completion_oracles,
+        playtest_payload_validators=build_builtin_playtest_payload_validators(),
+        profile_handlers=key_maps.profile_handlers,
+        permission_domain_resolvers=key_maps.permission_domain_resolvers,
+    )
     return create_local_app(
         config,
-        trusted_components=build_readiness_component_maps(build_builtin_registry()),
+        trusted_components=components,
         legacy_import_authority=legacy_import_authority,
     )
 

@@ -5,6 +5,7 @@ import hashlib
 from pydantic import ValidationError
 import pytest
 
+import gameforge.contracts.config_export as config_export_contract
 from gameforge.contracts.config_export import (
     MAX_CONFIG_EXPORT_FILE_BYTES,
     ConfigExportFileV1,
@@ -67,6 +68,9 @@ def test_file_binds_normalized_relative_path_size_hash_and_arbitrary_bytes() -> 
         "tables/file.csv/",
         "tables\\file.csv",
         "tables/\x00file.csv",
+        "C:drive-relative.csv",
+        "tables/line\nbreak.csv",
+        "tables/\ud800surrogate.csv",
     ),
 )
 def test_file_rejects_unsafe_or_ambiguous_paths(path: str) -> None:
@@ -120,6 +124,34 @@ def test_package_requires_at_least_one_file() -> None:
         _package()
 
 
+def test_package_limit_applies_to_complete_framed_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The package authority covers the manifest, every length prefix, and the
+    # raw file bytes.  Counting only file bodies lets a nominally-at-limit
+    # package exceed the frozen object/budget boundary after framing.
+    file = _file("tables/economy.csv", b"x" * 32)
+    monkeypatch.setattr(config_export_contract, "MAX_CONFIG_EXPORT_PACKAGE_BYTES", 128)
+
+    with pytest.raises(ValidationError, match="framed byte limit"):
+        _package(file)
+
+
+def test_encoder_rechecks_complete_framed_byte_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    package = _package(_file("tables/economy.csv", b"economy"))
+    framed = canonical_config_export_bytes(package)
+    monkeypatch.setattr(
+        config_export_contract,
+        "MAX_CONFIG_EXPORT_PACKAGE_BYTES",
+        len(framed) - 1,
+    )
+
+    with pytest.raises(ValueError, match="framed byte limit"):
+        canonical_config_export_bytes(package)
+
+
 def test_package_decoder_round_trips_and_rejects_tampering_or_trailing_bytes() -> None:
     package = _package(_file("tables/economy.csv", b"economy"))
     framed = canonical_config_export_bytes(package)
@@ -130,3 +162,11 @@ def test_package_decoder_round_trips_and_rejects_tampering_or_trailing_bytes() -
     tampered = framed[:-1] + bytes([framed[-1] ^ 1])
     with pytest.raises((ValueError, ValidationError)):
         decode_config_export_bytes(tampered)
+
+
+def test_package_decoder_maps_pathological_manifest_nesting_to_codec_failure() -> None:
+    manifest = b"[" * 2_000 + b"0" + b"]" * 2_000
+    framed = config_export_contract._PACKAGE_MAGIC + len(manifest).to_bytes(8, "big") + manifest
+
+    with pytest.raises(ValueError, match="manifest"):
+        decode_config_export_bytes(framed)

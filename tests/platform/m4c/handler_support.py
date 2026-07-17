@@ -41,6 +41,7 @@ from gameforge.contracts.lineage import (
     VersionTuple,
     object_ref_for_bytes,
 )
+from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.model_router import ModelSnapshot, request_hash
 from gameforge.spine.ir.snapshot import Snapshot
 
@@ -289,7 +290,11 @@ def build_envelope(
 
 
 def build_run_record(
-    envelope: RunPayloadEnvelope, kind: RunKindRef, *, run_id: str = "run:1"
+    envelope: RunPayloadEnvelope,
+    kind: RunKindRef,
+    *,
+    run_id: str = "run:1",
+    resource_domain_scope: DomainScope | None = None,
 ) -> RunRecord:
     return RunRecord(
         run_id=run_id,
@@ -305,6 +310,7 @@ def build_run_record(
         outcome_policy_set_digest="c" * 64,
         failure_classifier=FailureClassifierRefV1(classifier_version=1, classifier_digest="d" * 64),
         initiated_by=HUMAN,
+        resource_domain_scope=resource_domain_scope,
         queue_deadline_utc="2026-07-15T12:10:00Z",
         attempt_timeout_ns=30_000_000_000,
         overall_deadline_utc="2026-07-15T13:00:00Z",
@@ -351,6 +357,7 @@ def build_context(
     cassette_artifact_id: str | None = None,
     model_bridge: object | None = None,
     version_tuple: VersionTuple | None = None,
+    resource_domain_scope: DomainScope | None = None,
 ) -> ExecutorContext:
     envelope = build_envelope(
         params=params,
@@ -362,7 +369,11 @@ def build_context(
         cassette_artifact_id=cassette_artifact_id,
         version_tuple=version_tuple,
     )
-    run = build_run_record(envelope, kind)
+    run = build_run_record(
+        envelope,
+        kind,
+        resource_domain_scope=resource_domain_scope,
+    )
     attempt = build_attempt()
     return ExecutorContext(
         run=run,

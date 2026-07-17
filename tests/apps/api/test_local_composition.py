@@ -13,6 +13,7 @@ from gameforge.apps.api.local import (
     SESSION_POLICY_VERSION_ENV,
     LocalApiConfig,
     LocalApiConfigurationError,
+    _typed_playtest_payload_validators,
     create_local_app,
 )
 from gameforge.apps.cli.identity import (
@@ -33,6 +34,7 @@ from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.cassette_import import LegacyImportVerificationPolicyRegistryV1
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
+    ProfileRefV1,
     execution_profile_catalog_digest,
 )
 from gameforge.contracts.identity import (
@@ -513,7 +515,9 @@ def test_real_local_composition_mounts_request_scoped_bounded_reads(tmp_path) ->
 def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_path) -> None:
     database_url = f"sqlite:///{tmp_path / 'profile-history.db'}"
     _seed_and_bootstrap(database_url)
-    base = build_builtin_registry().list_execution_profile_catalogs()[0]
+    builtin_catalogs = build_builtin_registry().list_execution_profile_catalogs()
+    base = builtin_catalogs[0]
+    current = builtin_catalogs[-1]
     lifecycle = tuple(
         item.model_copy(
             update={
@@ -525,12 +529,12 @@ def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_
         )
         if item.profile.profile_id == "builtin.validation"
         else item
-        for item in base.lifecycle
+        for item in current.lifecycle
     )
     payload = {
-        "catalog_schema_version": base.catalog_schema_version,
-        "catalog_version": base.catalog_version + 1,
-        "definitions": base.definitions,
+        "catalog_schema_version": current.catalog_schema_version,
+        "catalog_version": current.catalog_version + 1,
+        "definitions": current.definitions,
         "lifecycle": lifecycle,
     }
     latest = ExecutionProfileCatalogSnapshotV1(
@@ -558,7 +562,35 @@ def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_
     assert tuple(
         item.catalog_version
         for item in admission._registry.list_execution_profile_catalogs()  # noqa: SLF001
-    ) == (base.catalog_version, latest.catalog_version)
+    ) == tuple(
+        sorted(
+            {
+                *(item.catalog_version for item in builtin_catalogs),
+                latest.catalog_version,
+            }
+        )
+    )
+
+
+def test_fresh_local_composition_resolves_process_builtin_catalog_for_admission(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'builtin-profile-authority.db'}"
+    _seed_and_bootstrap(database_url)
+
+    app = create_local_app(config=_config(tmp_path, database_url))
+    admission = app.state.local_resources.dependencies.run_admission
+    catalog = admission._catalog  # noqa: SLF001
+    with admission._read_scope() as read:  # noqa: SLF001
+        binding = read.policies.resolve_execution_profile(
+            catalog_version=catalog.catalog_version,
+            catalog_digest=catalog.catalog_digest,
+            field_path="/params/validation_policy",
+            profile=ProfileRefV1(profile_id="builtin.validation", version=1),
+            expected_profile_kind="validation",
+        )
+
+    assert binding.catalog_version == catalog.catalog_version
+    assert binding.catalog_digest == catalog.catalog_digest
+    assert binding.profile == ProfileRefV1(profile_id="builtin.validation", version=1)
 
 
 def test_local_composition_wires_trusted_legacy_import_authority(tmp_path) -> None:
@@ -624,3 +656,8 @@ def test_local_composition_never_auto_migrates_authoritative_database(tmp_path) 
     engine = get_engine(database_url)
     assert "alembic_version" not in inspect(engine).get_table_names()
     engine.dispose()
+
+
+def test_local_api_rejects_readiness_only_playtest_validator_sentinels() -> None:
+    with pytest.raises(LocalApiConfigurationError, match="executable components"):
+        _typed_playtest_payload_validators({"generic_env_reset_payload@1": "sentinel"})

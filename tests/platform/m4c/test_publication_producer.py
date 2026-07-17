@@ -412,6 +412,34 @@ def test_generation_gate_simulation_uses_its_frozen_producer_seed() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("run_kind", "policy_id"),
+    (
+        ("generation.propose", "generation-gate-pass"),
+        ("patch.repair", "repair-verified"),
+    ),
+)
+def test_config_export_lineage_inherits_document_version_from_preview(
+    run_kind: str,
+    policy_id: str,
+) -> None:
+    _, _, lineage = _binding(run_kind, policy_id, "config-export")
+
+    projected = project_domain_version_tuple(
+        policy=lineage,
+        parent_tuples={
+            "preview": (VersionTuple(doc_version="design-doc@7", ir_snapshot_id="preview@2"),),
+            "constraint": (VersionTuple(constraint_snapshot_id="constraint@1"),),
+        },
+        producer_tuple=VersionTuple(
+            tool_version="config-export@1",
+            env_contract_version="env@1",
+        ),
+    )
+
+    assert projected.doc_version == "design-doc@7"
+
+
 def test_repair_artifact_seed_projection_matches_each_kind_producer_matrix() -> None:
     """A stochastic repair Run must not smear its root seed onto every output."""
 
@@ -477,6 +505,8 @@ def test_repair_artifact_seed_projection_matches_each_kind_producer_matrix() -> 
             producer_tuple=facts.producer_tuple,
         )
         assert projected.seed == seed, rule_id
+        if rule_id == "config-export":
+            assert projected.doc_version == "doc@1"
 
         blob = canonical_json(payload).encode("utf-8")
         artifact = build_artifact_v2(

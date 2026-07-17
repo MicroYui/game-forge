@@ -43,7 +43,7 @@ BoundedId = Annotated[
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 BoundedFileSize = Annotated[int, Field(ge=0, le=MAX_CONFIG_EXPORT_FILE_BYTES)]
 
-_WINDOWS_DRIVE_PREFIX = re.compile(r"^[A-Za-z]:/")
+_WINDOWS_DRIVE_PREFIX = re.compile(r"^[A-Za-z]:")
 _PACKAGE_MAGIC = b"GAMEFORGE-CONFIG-EXPORT\x00\x01"
 
 
@@ -61,8 +61,10 @@ def _canonical_relative_path(value: str) -> str:
     normalized = unicodedata.normalize("NFC", value)
     if not normalized or len(normalized) > MAX_CONFIG_EXPORT_PATH_LENGTH:
         raise ValueError("relative_path must be non-empty and bounded")
-    if "\x00" in normalized or "\\" in normalized:
+    if "\\" in normalized:
         raise ValueError("relative_path contains an ambiguous separator")
+    if any(unicodedata.category(character) in {"Cc", "Cs"} for character in normalized):
+        raise ValueError("relative_path contains a control or surrogate character")
     if normalized.startswith("/") or _WINDOWS_DRIVE_PREFIX.match(normalized):
         raise ValueError("relative_path must not be absolute")
     parts = normalized.split("/")
@@ -126,8 +128,13 @@ class ConfigExportPackageV1(_FrozenModel):
 
     @model_validator(mode="after")
     def _package_size(self) -> ConfigExportPackageV1:
-        if sum(item.size_bytes for item in self.files) > MAX_CONFIG_EXPORT_PACKAGE_BYTES:
-            raise ValueError("config export package content exceeds the hard byte limit")
+        manifest = canonical_json(_manifest(self)).encode("utf-8")
+        if len(manifest) > MAX_CONFIG_EXPORT_MANIFEST_BYTES:
+            raise ValueError("config export package exceeds the manifest byte limit")
+        if _framed_package_size(self, manifest_size=len(manifest)) > (
+            MAX_CONFIG_EXPORT_PACKAGE_BYTES
+        ):
+            raise ValueError("config export package exceeds the framed byte limit")
         return self
 
 
@@ -152,10 +159,30 @@ def _manifest(package: ConfigExportPackageV1) -> dict[str, object]:
     }
 
 
+def _framed_package_size(
+    package: ConfigExportPackageV1,
+    *,
+    manifest_size: int,
+) -> int:
+    return (
+        len(_PACKAGE_MAGIC)
+        + 8
+        + manifest_size
+        + 8 * len(package.files)
+        + sum(item.size_bytes for item in package.files)
+    )
+
+
 def canonical_config_export_bytes(package: ConfigExportPackageV1) -> bytes:
     """Frame a package manifest and its raw file bytes without encoding ambiguity."""
 
     manifest = canonical_json(_manifest(package)).encode("utf-8")
+    if len(manifest) > MAX_CONFIG_EXPORT_MANIFEST_BYTES:
+        raise ValueError("config export package exceeds the manifest byte limit")
+    if _framed_package_size(package, manifest_size=len(manifest)) > (
+        MAX_CONFIG_EXPORT_PACKAGE_BYTES
+    ):
+        raise ValueError("config export package exceeds the framed byte limit")
     chunks = [_PACKAGE_MAGIC, len(manifest).to_bytes(8, "big"), manifest]
     for item in package.files:
         chunks.extend((item.size_bytes.to_bytes(8, "big"), item.content_bytes))
@@ -173,6 +200,8 @@ def decode_config_export_bytes(blob: bytes) -> ConfigExportPackageV1:
 
     if not isinstance(blob, bytes):
         raise TypeError("config export package must be bytes")
+    if len(blob) > MAX_CONFIG_EXPORT_PACKAGE_BYTES:
+        raise ValueError("config export package exceeds the framed byte limit")
     header_size = len(_PACKAGE_MAGIC) + 8
     if len(blob) < header_size or not blob.startswith(_PACKAGE_MAGIC):
         raise ValueError("config export package magic is invalid")
@@ -185,13 +214,19 @@ def decode_config_export_bytes(blob: bytes) -> ConfigExportPackageV1:
     manifest_bytes = blob[header_size:manifest_end]
     try:
         manifest = json.loads(manifest_bytes.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
         raise ValueError("config export manifest is invalid JSON") from exc
-    if not isinstance(manifest, dict) or canonical_json(manifest).encode("utf-8") != manifest_bytes:
+    try:
+        canonical_manifest = canonical_json(manifest).encode("utf-8")
+    except (TypeError, ValueError, UnicodeError, RecursionError) as exc:
+        raise ValueError("config export manifest is not canonical") from exc
+    if not isinstance(manifest, dict) or canonical_manifest != manifest_bytes:
         raise ValueError("config export manifest is not canonical")
     file_manifests = manifest.get("files")
     if not isinstance(file_manifests, list):
         raise ValueError("config export manifest files must be an array")
+    if not 1 <= len(file_manifests) <= MAX_CONFIG_EXPORT_FILES:
+        raise ValueError("config export manifest file count is invalid")
 
     offset = manifest_end
     files: list[dict[str, object]] = []

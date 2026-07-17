@@ -69,6 +69,21 @@ NonNegativeInt = Annotated[int, Field(ge=0)]
 Uint64 = Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
 
 MAX_COLLECTION_ITEMS = 1024
+# TaskSuite derives one primary suite plus up to 1,024 ScenarioSpec siblings.
+MAX_PREPARED_DOMAIN_ARTIFACTS = MAX_COLLECTION_ITEMS + 1
+# A maximum-size Playtest binds one ConfigExport, one ConstraintSnapshot, one
+# TaskSuite, and every selected ScenarioSpec.  REPLAY adds exactly one cassette
+# root to the Run envelope; it is not prompt source content.
+MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS = MAX_COLLECTION_ITEMS + 3
+MAX_PLAYTEST_RUN_INPUT_ARTIFACTS = MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS + 1
+# A subsequent RECORD/REPLAY prompt context may additionally bind the immediately
+# preceding rendered prompt and its exact cassette shard/root.  Keep this separate
+# from the frozen Run-input and first-prompt source authorities.
+MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS = MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS
+MAX_PLAYTEST_PROMPT_UPSTREAM_ARTIFACTS = MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS + 2
+# Prepared domain lineage never includes the replay cassette root.  The largest
+# legal direct-parent set is therefore the Playtest trace's exact input closure.
+MAX_PLAYTEST_TRACE_LINEAGE_PARENTS = MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS
 # A terminal manifest must represent the full frozen Task 11 execution envelope:
 # up to three attempts, 1,000 repair calls per attempt, four routed prompts per
 # call, one governed prompt context, one RECORD shard, plus bounded inputs and
@@ -1003,7 +1018,7 @@ _RUN_KIND_PAYLOAD_SCHEMAS: dict[tuple[str, int], str] = {
 
 class RunPayloadEnvelope(_FrozenModel):
     payload_schema_version: BoundedNonEmptyStr
-    input_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    input_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_PLAYTEST_RUN_INPUT_ARTIFACTS)
     version_tuple: VersionTuple
     execution_version_plan: ExecutionVersionPlanV1 | None = None
     policy_bindings: tuple[RunPolicyBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
@@ -1896,7 +1911,7 @@ class AgentPromptContextDraftV1(_FrozenModel):
         min_length=1, max_length=MAX_AGENT_PROMPT_CONTEXT_MESSAGES
     )
     source_artifact_ids: tuple[BoundedId, ...] = Field(
-        min_length=1, max_length=MAX_COLLECTION_ITEMS
+        min_length=1, max_length=MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS
     )
     semantic_bindings: tuple[AgentPromptSemanticBindingV1, ...] = Field(
         default=(), max_length=MAX_COLLECTION_ITEMS
@@ -1940,7 +1955,7 @@ class AgentPromptContextV1(_FrozenModel):
         min_length=1, max_length=MAX_AGENT_PROMPT_CONTEXT_MESSAGES
     )
     upstream_artifacts: tuple[AgentPromptArtifactBindingV1, ...] = Field(
-        min_length=1, max_length=MAX_COLLECTION_ITEMS
+        min_length=1, max_length=MAX_PLAYTEST_PROMPT_UPSTREAM_ARTIFACTS
     )
     semantic_bindings: tuple[AgentPromptSemanticBindingV1, ...] = Field(
         default=(), max_length=MAX_COLLECTION_ITEMS
@@ -2170,7 +2185,7 @@ class PreparedArtifact(_FrozenModel):
     kind: ArtifactKind
     payload_schema_id: BoundedNonEmptyStr
     version_tuple: VersionTuple
-    lineage: tuple[BoundedNonEmptyStr, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    lineage: tuple[BoundedNonEmptyStr, ...] = Field(max_length=MAX_PLAYTEST_TRACE_LINEAGE_PARENTS)
     payload_hash: Sha256Hex
     meta: dict[BoundedJsonKey, JsonValue] = Field(max_length=MAX_COLLECTION_ITEMS)
     object_ref: ObjectRef
@@ -2241,7 +2256,9 @@ class PreparedRunResult(_FrozenModel):
     attempt_no: PositiveInt
     run_kind: RunKindRef
     primary_index: NonNegativeInt
-    artifacts: tuple[PreparedArtifact, ...] = Field(min_length=1, max_length=MAX_COLLECTION_ITEMS)
+    artifacts: tuple[PreparedArtifact, ...] = Field(
+        min_length=1, max_length=MAX_PREPARED_DOMAIN_ARTIFACTS
+    )
     findings: tuple[PreparedFindingV1, ...] = Field(max_length=MAX_PREPARED_FINDINGS)
     requirement_dispositions: tuple[RequirementDispositionV1, ...] = Field(
         max_length=MAX_COLLECTION_ITEMS

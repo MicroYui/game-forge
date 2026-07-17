@@ -523,11 +523,9 @@ class MultiNodeBridgeRouter:
     produces one ordered cassette with the correct snapshot per node, without
     ``platform`` importing ``gameforge.agents`` or any LLM SDK.
 
-    ``default_model_snapshot`` is the pre-call snapshot the agent's
-    ``resolve_model_snapshot`` reads (before the node id is known to that helper);
-    :meth:`call` then OVERRIDES it with the exact per-node plan-frozen snapshot, so
-    the routed model is always the node's own snapshot regardless of the pre-call
-    default.
+    ``model_snapshot_for_node`` exposes the exact snapshot before the agent builds
+    request parameters or computes its visible request hash. ``default_model_snapshot``
+    remains only for legacy callers that do not supply a node-aware router seam.
     """
 
     def __init__(
@@ -537,6 +535,7 @@ class MultiNodeBridgeRouter:
         node_snapshots: dict[str, ModelSnapshot],
         default_node_id: str,
         source_artifact_ids: tuple[str, ...],
+        max_calls: int | None = None,
     ) -> None:
         if default_node_id not in node_snapshots:
             raise ValueError(f"default node {default_node_id!r} is not routed by the plan")
@@ -545,6 +544,11 @@ class MultiNodeBridgeRouter:
         self.default_model_snapshot = node_snapshots[default_node_id]
         self._source_artifact_ids = source_artifact_ids
         self._causal_scope_has_consumed_response = False
+        if max_calls is not None and (
+            isinstance(max_calls, bool) or not isinstance(max_calls, int) or max_calls < 1
+        ):
+            raise ValueError("multi-node router max_calls must be a positive integer")
+        self._max_calls = max_calls
 
     def begin_causal_scope(self) -> None:
         """Start an independent prompt/response causal chain.
@@ -557,11 +561,21 @@ class MultiNodeBridgeRouter:
 
         self._causal_scope_has_consumed_response = False
 
+    def model_snapshot_for_node(self, agent_node_id: str) -> ModelSnapshot:
+        """Return the exact plan-frozen snapshot before request construction."""
+
+        try:
+            return self._node_snapshots[agent_node_id]
+        except KeyError:
+            raise ValueError(
+                f"agent node {agent_node_id!r} is not routed by the playtest execution plan"
+            ) from None
+
     def call(self, request: ModelRequest) -> ModelResponse:
+        if self._max_calls is not None and self._adapter.call_count >= self._max_calls:
+            raise IntegrityViolation("playtest model-call authority is exhausted")
         node_id = request.agent_node_id
-        snapshot = self._node_snapshots.get(node_id)
-        if snapshot is None:
-            raise ValueError(f"agent node {node_id!r} is not routed by the playtest execution plan")
+        snapshot = self.model_snapshot_for_node(node_id)
         system: str | None = None
         user = ""
         for message in request.messages:
@@ -596,6 +610,7 @@ def build_multinode_bridge_router(
     context: ExecutorContextLike,
     agent_node_ids: tuple[str, ...],
     default_node_id: str,
+    max_calls: int | None = None,
 ) -> MultiNodeBridgeRouter:
     """Build the ordered multi-node router for one multi-node agent invocation.
 
@@ -623,6 +638,7 @@ def build_multinode_bridge_router(
         node_snapshots=node_snapshots,
         default_node_id=default_node_id,
         source_artifact_ids=prompt_source_artifact_ids(context),
+        max_calls=max_calls,
     )
 
 

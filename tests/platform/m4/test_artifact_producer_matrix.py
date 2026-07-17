@@ -673,6 +673,36 @@ def test_projection_is_exact_and_never_mechanically_merges_unsupported_fields() 
     assert any("unsupported projection" in item for item in _violations(error))
 
 
+def test_config_export_accepts_and_checks_exact_preview_document_projection() -> None:
+    case = _MINIMAL_CASES["config_export"]
+    artifact = _artifact(
+        "config_export",
+        {**case.versions, "doc_version": "design-doc@7"},
+    )
+    expected = {
+        **(case.expected_versions or {}),
+        "doc_version": "design-doc@7",
+    }
+
+    assert (
+        validate_artifact_producer(
+            artifact,
+            _context(case, expected_versions=expected),
+        ).status
+        == "valid"
+    )
+
+    with pytest.raises(IntegrityViolation) as error:
+        validate_artifact_producer(
+            artifact,
+            _context(
+                case,
+                expected_versions={**expected, "doc_version": "another-doc@1"},
+            ),
+        )
+    assert any("expected_versions.doc_version" in item for item in _violations(error))
+
+
 def test_inherited_base_fields_cannot_be_bypassed_by_an_empty_projection() -> None:
     case = _MINIMAL_CASES["config_export"]
     artifact = _artifact("config_export", case.versions)

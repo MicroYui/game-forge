@@ -32,6 +32,7 @@ from gameforge.platform.run_handlers import (
     ReviewRunHandler,
     SimulationRunHandler,
 )
+from gameforge.platform.run_handlers.playtest import PlaytestRunHandler
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence.cursor import CursorSigner
@@ -190,16 +191,19 @@ def test_worker_composition_injects_one_sql_finding_authority_into_all_consumers
     checker = components.executors["checker_runner@1"]
     simulation = components.executors["simulation_runner@1"]
     review = components.executors["review_runner@1"]
+    playtest = components.executors["playtest_runner@1"]
     generation = components.executors["generation_proposer@1"]
     repair = components.executors["repair_search@1"]
     assert isinstance(checker, CheckerRunHandler)
     assert isinstance(simulation, SimulationRunHandler)
     assert isinstance(review, ReviewRunHandler)
+    assert isinstance(playtest, PlaytestRunHandler)
     assert isinstance(generation, GenerationProposalHandler)
     assert isinstance(repair, RepairSearchHandler)
     assert checker.finding_head_revision is blobs.finding_head_revision
     assert simulation.finding_head_revision is blobs.finding_head_revision
     assert review.finding_head_revision is blobs.finding_head_revision
+    assert playtest.finding_head_revision is blobs.finding_head_revision
     assert generation.finding_loader is blobs.finding_revision_loader
     assert repair.finding_loader is blobs.finding_revision_loader
 

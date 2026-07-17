@@ -16,7 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.app import create_app
@@ -25,32 +25,109 @@ from gameforge.apps.api.local import (
     LocalApiConfig,
     build_local_api_resources,
 )
+from gameforge.contracts.api import compute_resource_etag
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.cost import BudgetV1, CostAmountV1
 from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
+    DomainDefinitionV1,
+    DomainRegistryRefV1,
+    DomainRegistryV1,
+    DomainRoutePolicy,
+    DomainRouteRule,
+    DomainScope,
+    Permission,
+    RolePolicy,
+    compute_domain_registry_digest,
+    compute_domain_route_policy_digest,
+    compute_role_policy_digest,
 )
-from gameforge.contracts.ir import Entity, NodeType
-from gameforge.contracts.lineage import VersionTuple, build_artifact_v2
+from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
+from gameforge.contracts.workflow import (
+    ApprovalPolicyRegistryV1,
+    compute_approval_policy_registry_digest,
+)
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.models import ArtifactRow, Base
+from gameforge.runtime.persistence.approvals import SqlApprovalRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
+from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.secrets.session_keys import SessionSigningKeyProvider
-from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
 from tests.platform.m4 import apply_testkit
-from tests.platform.m4.test_local_service_flow_integration import (
-    _profile_catalog,
-    _seed_governance,
-)
 
 _SEED_CURSOR_KEY = b"anti-masking-seed-cursor-key-000"
+_DOMAIN = DomainScope(domain_ids=("builtin",))
+
+
+def _domain_registry() -> DomainRegistryV1:
+    definitions = (
+        DomainDefinitionV1(domain_id="builtin", display_name="Built-in", status="active"),
+    )
+    return DomainRegistryV1(
+        registry_version="anti-masking-domains@1",
+        definitions=definitions,
+        registry_digest=compute_domain_registry_digest("anti-masking-domains@1", definitions),
+    )
+
+
+def _route_policy(registry: DomainRegistryV1) -> DomainRoutePolicy:
+    ref = DomainRegistryRefV1(
+        registry_version=registry.registry_version,
+        registry_digest=registry.registry_digest,
+    )
+    rules = (
+        DomainRouteRule(
+            rule_id="route:builtin",
+            domain_selector=_DOMAIN,
+            subject_kinds=("patch", "constraint_proposal", "rollback_request"),
+            route_role="numeric_designer",
+            required_action="approval.decide",
+            resource_kind="approval",
+            min_approvals=1,
+        ),
+    )
+    effective_from = "2026-07-14T00:00:00Z"
+    return DomainRoutePolicy(
+        route_version="anti-masking-routes@1",
+        domain_registry_ref=ref,
+        rules=rules,
+        effective_from=effective_from,
+        route_digest=compute_domain_route_policy_digest(
+            "anti-masking-routes@1", ref, rules, effective_from
+        ),
+    )
+
+
+def _role_policy(registry: DomainRegistryV1) -> RolePolicy:
+    ref = DomainRegistryRefV1(
+        registry_version=registry.registry_version,
+        registry_digest=registry.registry_digest,
+    )
+    grants = {
+        "content_designer": (
+            Permission(action="validate", resource_kind="patch", domain_scope=_DOMAIN),
+        ),
+    }
+    effective_from = "2026-07-14T00:00:00Z"
+    return RolePolicy(
+        policy_version="anti-masking-roles@1",
+        domain_registry_ref=ref,
+        grants=grants,
+        effective_from=effective_from,
+        policy_digest=compute_role_policy_digest(
+            "anti-masking-roles@1", ref, grants, effective_from
+        ),
+    )
 
 
 def _signing_keys() -> SessionSigningKeyProvider:
@@ -65,9 +142,9 @@ def _signing_keys() -> SessionSigningKeyProvider:
 
 
 def _config(tmp_path: Path, database_url: str) -> LocalApiConfig:
-    registry = apply_testkit._registry()
-    route = apply_testkit._route(registry)
-    roles = apply_testkit._roles(registry)
+    registry = _domain_registry()
+    route = _route_policy(registry)
+    roles = _role_policy(registry)
     approval = apply_testkit._approval_policy()
     # The config declares the exact governance pointers; the real composition resolves
     # the registry/roles/route/approval snapshots from the policy repository at request
@@ -107,8 +184,49 @@ def _maker_actor(engine, clock) -> ActorContext:
 
 
 def _seed_base(resources, config, clock) -> tuple[str, dict]:
-    snapshot = Snapshot.from_entities_relations(
-        [Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120})], []
+    snapshot = AureusCsvAdapter().to_ir(
+        {
+            "regions": [
+                {
+                    "region_id": "region:start",
+                    "name": "Start",
+                    "grid": {"width": 4, "height": 4, "blocked": []},
+                    "start_pos": [0, 0],
+                    "scenario_id": "workflow-composition",
+                }
+            ],
+            "npcs": [
+                {
+                    "npc_id": "npc:guide",
+                    "name": "Guide",
+                    "region": "region:start",
+                    "pos": [1, 0],
+                }
+            ],
+            "quests": [
+                {
+                    "quest_id": "q:1",
+                    "title": "Reward review",
+                    "region": "region:start",
+                    "giver": "npc:guide",
+                    "reward": {"gold": 30},
+                    "reward_gold": 120,
+                }
+            ],
+            "quest_steps": [
+                {
+                    "step_id": "step:turn-in",
+                    "quest_id": "q:1",
+                    "order": 0,
+                    "kind": "turn_in",
+                    "target": "npc:guide",
+                    "item": None,
+                    "count": 1,
+                    "encounter": None,
+                }
+            ],
+        },
+        file_ref="workflow-composition",
     )
     payload = canonical_json(snapshot.content_payload).encode("utf-8")
     stored = resources.object_store.put_verified(payload)
@@ -121,7 +239,10 @@ def _seed_base(resources, config, clock) -> tuple[str, dict]:
         lineage=(),
         payload_hash=stored.ref.sha256,
         object_ref=stored.ref,
-        meta={"domain_scope": {"domain_ids": ["economy"]}},
+        meta={
+            "payload_schema_id": "ir-core@1",
+            "domain_scope": _DOMAIN.model_dump(mode="json"),
+        },
         created_at="2026-07-14T12:00:00Z",
     )
     signer = CursorSigner(signing_key=_SEED_CURSOR_KEY, clock=clock)
@@ -155,7 +276,10 @@ def _seed_constraint(resources, config, clock) -> str:
         lineage=(),
         payload_hash=stored.ref.sha256,
         object_ref=stored.ref,
-        meta={"domain_scope": {"domain_ids": ["economy"]}},
+        meta={
+            "payload_schema_id": "constraint-snapshot@1",
+            "domain_scope": _DOMAIN.model_dump(mode="json"),
+        },
         created_at="2026-07-14T12:00:00Z",
     )
     signer = CursorSigner(signing_key=_SEED_CURSOR_KEY, clock=clock)
@@ -177,14 +301,77 @@ def _headers(key: str) -> dict[str, str]:
     return {"Idempotency-Key": key, "If-Match": '"etag:1"'}
 
 
+def _seed_local_governance(engine, clock) -> None:
+    registry = _domain_registry()
+    route = _route_policy(registry)
+    roles = _role_policy(registry)
+    approval = apply_testkit._approval_policy()
+    approval_registry = ApprovalPolicyRegistryV1(
+        policies=(approval,),
+        registry_digest=compute_approval_policy_registry_digest((approval,)),
+    )
+    catalogs = tuple(
+        sorted(
+            build_builtin_registry().list_execution_profile_catalogs(),
+            key=lambda item: item.catalog_version,
+        )
+    )
+    with Session(engine) as session, session.begin():
+        policies = SqlPolicySnapshotRepository(session, clock=clock)
+        policies.put_domain_registry(registry)
+        policies.put_domain_route_policy(route)
+        policies.put_role_policy(roles)
+        policies.put_approval_policy_registry(approval_registry)
+        for catalog in catalogs:
+            policies.put_execution_profile_catalog(catalog)
+        identities = SqlIdentityRepository(session, clock=clock)
+        maker = identities.create(
+            principal_id="human:maker",
+            kind="human",
+            display_name="Maker",
+        )
+        identities.grant(
+            assignment_id="assignment:human:maker:content-designer",
+            principal_id=maker.principal_id,
+            role="content_designer",
+            scope=_DOMAIN,
+            granted_by=AuditActor(
+                principal_id="system:test-bootstrap",
+                principal_kind="system",
+            ),
+            expected_principal_revision=maker.revision,
+        )
+        costs = SqlCostLedger(session, clock=clock)
+        for budget_id, scope_kind, scope_id in (
+            ("budget:principal:human:maker", "principal", "human:maker"),
+            ("budget:system:global", "system", "global"),
+        ):
+            costs.put_budget(
+                BudgetV1(
+                    budget_id=budget_id,
+                    scope_kind=scope_kind,
+                    scope_id=scope_id,
+                    policy_version="anti-masking-budget@1",
+                    limits=(
+                        CostAmountV1(dimension="request", value=1_000_000, unit="request"),
+                        CostAmountV1(dimension="concurrent_run", value=8, unit="count"),
+                    ),
+                    reserved=(),
+                    consumed=(),
+                    status="active",
+                    revision=1,
+                    created_at=clock.now_utc(),
+                )
+            )
+
+
 def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Path) -> None:
     database_url = f"sqlite:///{tmp_path / 'workflow-composition.db'}"
     clock = SystemUtcClock()
     engine = get_engine(database_url)
     Base.metadata.create_all(engine)
     # Provision the exact governance + identities through the trusted policy repository.
-    catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
-    _seed_governance(engine, clock=clock, catalog=catalog)
+    _seed_local_governance(engine, clock)
     engine.dispose()
 
     config = _config(tmp_path, database_url)
@@ -232,7 +419,7 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
                 "ref_name": "constraints/head",
                 "expected_ref": None,
                 "dsl_grammar_version": "dsl@1",
-                "domain_scope": {"domain_ids": ["economy"]},
+                "domain_scope": _DOMAIN.model_dump(mode="json"),
                 "constraints": [
                     {
                         "id": "c:reward-cap",
@@ -256,13 +443,67 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
     patch_body = patch.json()
     assert patch_body["approval_status"] == "draft"
     assert patch_body["artifact"]["kind"] == "patch"
-    # the route-policy scope resolver derived the affected economy domain (not injected)
-    assert patch_body["artifact"]["domain_scope"] == {"domain_ids": ["economy"]}
+    # The route-policy scope resolver derived the actual candidate domain (not injected).
+    assert patch_body["artifact"]["domain_scope"] == _DOMAIN.model_dump(mode="json")
+    patch_artifact_id = patch_body["artifact"]["artifact_id"]
+    approval_id = f"approval:patch:{patch_artifact_id}"
     with Session(resources.engine) as session:
-        config_count = session.scalar(
-            select(func.count()).select_from(ArtifactRow).where(ArtifactRow.kind == "config_export")
+        config_ids = tuple(
+            session.scalars(
+                select(ArtifactRow.artifact_id).where(ArtifactRow.kind == "config_export")
+            ).all()
         )
-    assert config_count == 1
+        item = SqlApprovalRepository(session).get(approval_id)
+        bindings = SqlObjectBindingRepository(
+            session, resources.object_store, config.object_store_id
+        )
+        patch_artifact = SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=CursorSigner(signing_key=_SEED_CURSOR_KEY, clock=clock),
+            clock=clock,
+        ).get(patch_artifact_id)
+    assert len(config_ids) == 1
+    assert item is not None
+    assert patch_artifact is not None
+    assert set(patch_artifact.lineage) == {base_artifact_id, constraint_artifact_id}
+    assert patch_artifact.version_tuple.constraint_snapshot_id is not None
+
+    # The real synchronous human draft must be directly admissible by the real
+    # patch.validate service with its exact candidate config.  This is the closure
+    # that fails when the Patch forgets the authoritative constraint VersionTuple.
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        validate = client.post(
+            f"/api/v1/patches/{patch_artifact_id}:validate",
+            json={
+                "request_schema_version": "patch-validation-admission-request@1",
+                "approval_id": approval_id,
+                "expected_subject_head_revision": item.subject_revision,
+                "expected_workflow_revision": item.workflow_revision,
+                "subject_digest": item.subject_digest,
+                "base_snapshot_artifact_id": base_artifact_id,
+                "preview_snapshot_artifact_id": item.target_binding.target_artifact_id,
+                "candidate_config_export_artifact_ids": list(config_ids),
+                "target": {"ref_name": "content/head", "expected_ref": base_ref},
+                "validation_policy": {"profile_id": "builtin.validation", "version": 1},
+                "checker_profiles": [],
+                "simulation_profiles": [],
+                "findings": [],
+                "review_artifact_ids": [],
+                "playtest_trace_artifact_ids": [],
+                "regression_suite_artifact_ids": [],
+            },
+            headers={
+                "Idempotency-Key": "patch:validate:real",
+                "If-Match": compute_resource_etag(
+                    resource_kind="patch",
+                    resource_id=patch_artifact_id,
+                    revision=item.workflow_revision,
+                ),
+            },
+        )
+    assert validate.status_code == 202, validate.text
+    assert validate.json()["accepted_schema_version"] == "run-accepted@1"
 
     assert constraint.status_code == 201, constraint.text
     constraint_body = constraint.json()
@@ -278,7 +519,7 @@ def test_real_local_composition_without_governance_fails_closed(tmp_path: Path) 
     clock = SystemUtcClock()
     engine = get_engine(database_url)
     Base.metadata.create_all(engine)
-    _seed_governance(engine, clock=clock, catalog=_profile_catalog())
+    _seed_local_governance(engine, clock)
     engine.dispose()
 
     config = _config(tmp_path, database_url)

@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from gameforge.contracts.canonical import canonical_json, compute_snapshot_id, sha256_lowerhex
+from gameforge.contracts.canonical import (
+    canonical_json,
+    canonical_sha256,
+    compute_snapshot_id,
+    sha256_lowerhex,
+)
 from gameforge.contracts.config_export import (
     ConfigExportFileV1,
     ConfigExportPackageV1,
@@ -21,6 +26,8 @@ from gameforge.contracts.jobs import (
     GraphSelectionV1,
     PatchRepairPayloadV1,
     PatchValidationPayloadV1,
+    PlaytestEpisodeBindingV1,
+    PlaytestRunPayloadV1,
     PromptGoalBindingV1,
     RefReadBindingV1,
     RefValue,
@@ -29,7 +36,26 @@ from gameforge.contracts.jobs import (
     ReviewRunPayloadV1,
     RollbackValidationPayloadV1,
     SimulationRunPayloadV1,
+    TaskSuiteDerivePayloadV1,
     ValidationSubjectBindingV1,
+)
+from gameforge.contracts.playtest import (
+    MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES,
+    MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES,
+    MAX_PLAYTEST_TRACE_JSON_BYTES,
+    MAX_PLAYTEST_TRACE_ROOT_METADATA_CANONICAL_BYTES,
+    CompletionOracleRefV1,
+    CompletionOracleRegistryRefV1,
+    PlaytestExecutionEnvelopeV1,
+    PlaytestEpisodeSeedBindingV1,
+    PlaytestEpisodeTraceV1,
+    PlaytestTraceMarkerV1,
+    PlaytestTraceV1,
+    ScenarioResetBindingV1,
+    ScenarioSpecV1,
+    TaskEpisodeV1,
+    TaskSuiteV1,
+    bind_exact_playtest_trace_bytes,
 )
 from gameforge.contracts.lineage import (
     ObjectRef,
@@ -60,6 +86,7 @@ from gameforge.platform.registry.defaults import build_builtin_registry
 from tests.platform.m4c.handler_support import (
     build_envelope,
     build_run_record,
+    resolved_binding,
     resolved_policy_snapshot,
 )
 
@@ -90,6 +117,350 @@ def _parent(
         version_tuple=version_tuple or VersionTuple(),
         payload_hash=payload_hash,
     )
+
+
+@pytest.mark.parametrize("forged_field", ("domain_scope", "reset_binding"))
+def test_task_suite_episode_semantics_match_exact_scenario_payload(
+    forged_field: str,
+) -> None:
+    environment = ProfileRefV1(profile_id="environment", version=1)
+    derivation = ProfileRefV1(profile_id="task-suite", version=1)
+    oracle_registry = CompletionOracleRegistryRefV1(
+        registry_version=1,
+        digest="f" * 64,
+    )
+    params = TaskSuiteDerivePayloadV1(
+        source_preview_artifact_id="artifact:preview",
+        config_artifact_id="artifact:config",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        derivation_profile=derivation,
+        environment_profile=environment,
+        completion_oracle_registry_ref=oracle_registry,
+    )
+    projected = VersionTuple(
+        doc_version="doc@1",
+        ir_snapshot_id="snapshot@1",
+        constraint_snapshot_id="constraints@1",
+        env_contract_version="env@1",
+        tool_version="task-suite@1",
+    )
+    run = build_run_record(
+        build_envelope(params=params, version_tuple=projected),
+        RunKindRef(kind="task_suite.derive", version=1),
+        resource_domain_scope=DomainScope(domain_ids=("content",)),
+    )
+    reset = ScenarioResetBindingV1(
+        reset_schema_id="reset@1",
+        payload_hash=canonical_sha256({"scenario_id": "scenario:1"}),
+        payload={"scenario_id": "scenario:1"},
+    )
+    scenario = ScenarioSpecV1(
+        scenario_id="scenario:1",
+        source_preview_artifact_id=params.source_preview_artifact_id,
+        config_export_artifact_id=params.config_artifact_id,
+        constraint_snapshot_artifact_id=params.constraint_snapshot_artifact_id,
+        environment_profile=environment,
+        env_contract_version="env@1",
+        domain_scope=DomainScope(domain_ids=("content",)),
+        reset_binding=reset,
+    )
+    episode = TaskEpisodeV1(
+        episode_id="episode:1",
+        scenario_spec_artifact_id="artifact:scenario",
+        completion_oracle=CompletionOracleRefV1(
+            oracle_id="state-predicate",
+            version=1,
+            params_schema_id="state-predicate-params@1",
+            params={"predicate": "all_quests_completed"},
+        ),
+        domain_scope=scenario.domain_scope,
+        reset_binding=reset,
+        step_budget=10,
+    )
+    suite = TaskSuiteV1(
+        suite_profile=derivation,
+        source_preview_artifact_id=params.source_preview_artifact_id,
+        config_export_artifact_id=params.config_artifact_id,
+        constraint_snapshot_artifact_id=params.constraint_snapshot_artifact_id,
+        environment_profile=environment,
+        env_contract_version="env@1",
+        completion_oracle_registry_ref=oracle_registry,
+        episodes=(episode,),
+    ).model_dump(mode="json")
+    if forged_field == "domain_scope":
+        suite["episodes"][0][forged_field] = {"domain_ids": ["economy"]}
+    else:
+        forged_reset = ScenarioResetBindingV1(
+            reset_schema_id="reset@1",
+            payload_hash=canonical_sha256({"scenario_id": "scenario:forged"}),
+            payload={"scenario_id": "scenario:forged"},
+        )
+        suite["episodes"][0][forged_field] = forged_reset.model_dump(mode="json")
+    scenario_payload = scenario.model_dump(mode="json")
+    typed = TypedLineage(
+        parents_by_role={
+            "preview": (
+                _parent(
+                    params.source_preview_artifact_id,
+                    "ir_snapshot",
+                    "ir-core@1",
+                    projected,
+                ),
+            ),
+            "config": (
+                _parent(
+                    params.config_artifact_id,
+                    "config_export",
+                    "config-export-package@1",
+                    projected,
+                ),
+            ),
+            "constraint": (
+                _parent(
+                    params.constraint_snapshot_artifact_id,
+                    "constraint_snapshot",
+                    "constraint-snapshot@1",
+                    projected,
+                ),
+            ),
+            "scenarios": (
+                _parent(
+                    "artifact:scenario",
+                    "scenario_spec",
+                    "scenario-spec@1",
+                    projected,
+                    payload_hash=canonical_sha256(scenario_payload),
+                ),
+            ),
+        }
+    )
+    policy, rule = _outcome_binding(
+        "task_suite.derive",
+        "task-suite-derived",
+        "primary",
+    )
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="task-suite@1",
+            canonical_payload=suite,
+            typed_lineage=typed,
+            projected_tuple=projected,
+            prepared_meta={"payload_schema_id": "task-suite@1"},
+            related_payloads_by_rule={"scenario": (scenario_payload,)},
+        )
+
+
+@pytest.mark.parametrize("forged_field", ("completion_oracle", "planner_profile_hash"))
+def test_playtest_trace_semantics_match_exact_run_and_task_suite(
+    forged_field: str,
+) -> None:
+    environment = ProfileRefV1(profile_id="environment", version=1)
+    planner = ProfileRefV1(profile_id="planner", version=1)
+    config_id = "artifact:config"
+    constraint_id = "artifact:constraint"
+    suite_id = "artifact:suite"
+    scenario_id = "artifact:scenario"
+    reset = ScenarioResetBindingV1(
+        reset_schema_id="reset@1",
+        payload_hash=canonical_sha256({"scenario_id": "scenario:1"}),
+        payload={"scenario_id": "scenario:1"},
+    )
+    oracle = CompletionOracleRefV1(
+        oracle_id="state-predicate",
+        version=1,
+        params_schema_id="state-predicate-params@1",
+        params={"predicate": "all_quests_completed"},
+    )
+    scenario = ScenarioSpecV1(
+        scenario_id="scenario:1",
+        source_preview_artifact_id="artifact:preview",
+        config_export_artifact_id=config_id,
+        constraint_snapshot_artifact_id=constraint_id,
+        environment_profile=environment,
+        env_contract_version="env@1",
+        domain_scope=DomainScope(domain_ids=("content",)),
+        reset_binding=reset,
+    )
+    suite_episode = TaskEpisodeV1(
+        episode_id="episode:1",
+        scenario_spec_artifact_id=scenario_id,
+        completion_oracle=oracle,
+        domain_scope=scenario.domain_scope,
+        reset_binding=reset,
+        step_budget=10,
+    )
+    suite = TaskSuiteV1(
+        suite_profile=ProfileRefV1(profile_id="suite", version=1),
+        source_preview_artifact_id=scenario.source_preview_artifact_id,
+        config_export_artifact_id=config_id,
+        constraint_snapshot_artifact_id=constraint_id,
+        environment_profile=environment,
+        env_contract_version="env@1",
+        completion_oracle_registry_ref=CompletionOracleRegistryRefV1(
+            registry_version=1,
+            digest="f" * 64,
+        ),
+        episodes=(suite_episode,),
+    )
+    params = PlaytestRunPayloadV1(
+        config_artifact_id=config_id,
+        constraint_snapshot_artifact_id=constraint_id,
+        task_suite_artifact_id=suite_id,
+        episodes=(
+            PlaytestEpisodeBindingV1(
+                episode_id=suite_episode.episode_id,
+                scenario_spec_artifact_id=scenario_id,
+            ),
+        ),
+        environment_profile=environment,
+        planner_policy=planner,
+        max_steps_per_episode=5,
+        interaction_mode="autonomous",
+    )
+    projected = VersionTuple(
+        ir_snapshot_id="snapshot@1",
+        constraint_snapshot_id="constraints@1",
+        env_contract_version="env@1",
+        seed=7,
+    )
+    run = build_run_record(
+        build_envelope(
+            params=params,
+            seed=7,
+            version_tuple=projected,
+            resolved_profiles=(
+                resolved_binding(
+                    "/params/environment_profile",
+                    profile_id=environment.profile_id,
+                    version=environment.version,
+                    kind="environment",
+                ),
+                resolved_binding(
+                    "/params/planner_policy",
+                    profile_id=planner.profile_id,
+                    version=planner.version,
+                    kind="playtest_planner",
+                ),
+            ),
+        ),
+        RunKindRef(kind="playtest.run", version=1),
+    )
+    case_id = f"{suite_id}:{suite_episode.episode_id}"
+    seed_digest = canonical_sha256(
+        {
+            "root_seed": 7,
+            "run_kind": {"kind": "playtest.run", "version": 1},
+            "profile_id": environment.profile_id,
+            "profile_version": environment.version,
+            "case_id": case_id,
+            "replication_index": 0,
+        }
+    )
+    episode_seed = int(seed_digest[:16], 16)
+    state_hash = f"sha256:{'0' * 64}"
+    trace_oracle = (
+        CompletionOracleRefV1(
+            oracle_id="bounded-progress",
+            version=1,
+            params_schema_id="bounded-progress-params@1",
+            params={"min_completed_quest_fraction": 1},
+        )
+        if forged_field == "completion_oracle"
+        else oracle
+    )
+    trace_upper = min(
+        MAX_PLAYTEST_TRACE_JSON_BYTES,
+        2 + params.max_steps_per_episode * (MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES + 1),
+    )
+    episode_trace = PlaytestEpisodeTraceV1(
+        episode_id=suite_episode.episode_id,
+        scenario_spec_artifact_id=scenario_id,
+        seed=episode_seed,
+        seed_binding=PlaytestEpisodeSeedBindingV1(
+            root_seed=7,
+            run_kind=RunKindRef(kind="playtest.run", version=1),
+            profile=environment,
+            case_id=case_id,
+            replication_index=0,
+            seed=episode_seed,
+        ),
+        step_budget=suite_episode.step_budget,
+        execution_step_limit=params.max_steps_per_episode,
+        completion_oracle=trace_oracle,
+        completed=True,
+        terminal_reason="completion_oracle_satisfied",
+        initial_state_hash=state_hash,
+        final_state_hash=state_hash,
+        action_trace=(),
+        markers=(
+            PlaytestTraceMarkerV1(
+                kind="completion",
+                step_index=None,
+                state_hash=state_hash,
+                detail="completion_oracle_satisfied",
+            ),
+        ),
+    )
+    trace_payload = {
+        "config_artifact_id": config_id,
+        "constraint_snapshot_artifact_id": constraint_id,
+        "task_suite_artifact_id": suite_id,
+        "environment_profile": environment.model_dump(mode="json"),
+        "planner_policy": planner.model_dump(mode="json"),
+        "env_contract_version": "env@1",
+        "interaction_mode": "autonomous",
+        "seed": 7,
+        "requested_max_steps_per_episode": params.max_steps_per_episode,
+        "planner_memory_mode": "off",
+        "execution_envelope": PlaytestExecutionEnvelopeV1(
+            planner_profile_payload_hash=(
+                "b" * 64 if forged_field == "planner_profile_hash" else _HEX
+            ),
+            selected_episode_count=1,
+            total_step_limit=params.max_steps_per_episode,
+            model_call_upper_bound=params.max_steps_per_episode * 3,
+            total_trace_byte_upper_bound=(
+                MAX_PLAYTEST_TRACE_ROOT_METADATA_CANONICAL_BYTES
+                + trace_upper
+                + MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES
+            ),
+            actual_model_calls=0,
+            total_action_count=0,
+            total_action_trace_bytes=2,
+            actual_trace_bytes=1,
+        ).model_dump(mode="json"),
+        "episodes": [episode_trace.model_dump(mode="json")],
+    }
+    trace = PlaytestTraceV1.model_validate(bind_exact_playtest_trace_bytes(trace_payload))
+    typed = TypedLineage(
+        parents_by_role={
+            "config": (_parent(config_id, "config_export", "config-export-package@1"),),
+            "constraint": (_parent(constraint_id, "constraint_snapshot", "constraint-snapshot@1"),),
+            "task_suite": (_parent(suite_id, "task_suite", "task-suite@1"),),
+            "selected_scenarios": (_parent(scenario_id, "scenario_spec", "scenario-spec@1"),),
+        }
+    )
+    policy, rule = _outcome_binding("playtest.run", "playtest-completed", "primary")
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="playtest-trace@1",
+            canonical_payload=trace.model_dump(mode="json"),
+            typed_lineage=typed,
+            projected_tuple=projected,
+            prepared_meta={"payload_schema_id": "playtest-trace@1"},
+            authoritative_parent_payloads={
+                suite_id: suite.model_dump(mode="json"),
+                scenario_id: scenario.model_dump(mode="json"),
+            },
+        )
 
 
 def test_constraint_proposal_source_hash_must_match_exact_typed_parent() -> None:

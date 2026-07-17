@@ -59,7 +59,7 @@ from gameforge.contracts.errors import (
 )
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
-    PlaytestPlannerProfileConfigV1,
+    PlaytestPlannerProfileConfigV2,
     ProfileRefV1,
     canonical_config_hash,
     execution_profile_catalog_digest,
@@ -113,14 +113,22 @@ from gameforge.contracts.jobs import (
     execution_version_plan_digest,
 )
 from gameforge.contracts.playtest import (
+    MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES,
+    MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES,
+    MAX_PLAYTEST_TRACE_JSON_BYTES,
+    MAX_PLAYTEST_TRACE_ROOT_METADATA_CANONICAL_BYTES,
     CompletionOracleRefV1,
     CompletionOracleRegistryRefV1,
+    PlaytestExecutionEnvelopeV1,
+    PlaytestEpisodeSeedBindingV1,
     PlaytestEpisodeTraceV1,
+    PlaytestTraceMarkerV1,
     PlaytestTraceV1,
     ScenarioResetBindingV1,
     ScenarioSpecV1,
     TaskEpisodeV1,
     TaskSuiteV1,
+    bind_exact_playtest_trace_bytes,
 )
 from gameforge.contracts.review import ReviewReport
 from gameforge.bench.metrics import default_constraints
@@ -161,6 +169,10 @@ from gameforge.platform.provenance import (
 )
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.playtest_payload_schemas import (
+    PlaytestPayloadValidationService,
+    build_builtin_playtest_payload_validators,
+)
 from gameforge.platform.runs.admission import (
     AdmissionReadPort,
     AdmissionRequestContext,
@@ -205,8 +217,8 @@ REVIEW_PROFILE = ProfileRefV1(profile_id="builtin.review", version=1)
 LLM_TRIAGE_PROFILE = ProfileRefV1(profile_id="builtin.llm_triage", version=1)
 CONFIG_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=1)
 ENVIRONMENT_PROFILE = ProfileRefV1(profile_id="builtin.environment", version=1)
-TASK_SUITE_PROFILE = ProfileRefV1(profile_id="builtin.task_suite_derivation", version=1)
-PLAYTEST_PLANNER_PROFILE = ProfileRefV1(profile_id="builtin.playtest_planner", version=1)
+TASK_SUITE_PROFILE = ProfileRefV1(profile_id="builtin.task_suite_derivation", version=2)
+PLAYTEST_PLANNER_PROFILE = ProfileRefV1(profile_id="builtin.playtest_planner", version=2)
 VALIDATION_PROFILE = ProfileRefV1(profile_id="builtin.validation", version=1)
 ROLLBACK_PROFILE = ProfileRefV1(profile_id="builtin.rollback", version=1)
 SCHEMA_COMPATIBILITY_PROFILE = ProfileRefV1(profile_id="builtin.schema_compatibility", version=1)
@@ -416,11 +428,24 @@ def _catalog_for_domains(
 ) -> ExecutionProfileCatalogSnapshotV1:
     updates_by_id = profile_updates or {}
     lifecycle_states_by_id = profile_lifecycle_states or {}
+    current_version_by_id = {
+        profile_id: max(
+            item.profile.version
+            for item in catalog.definitions
+            if item.profile.profile_id == profile_id
+        )
+        for profile_id in {item.profile.profile_id for item in catalog.definitions}
+    }
     definitions = tuple(
         definition.model_copy(
             update={
                 "domain_scope": DomainScope(domain_ids=domain_ids),
-                **updates_by_id.get(definition.profile.profile_id, {}),
+                **(
+                    updates_by_id.get(definition.profile.profile_id, {})
+                    if definition.profile.version
+                    == current_version_by_id[definition.profile.profile_id]
+                    else {}
+                ),
             }
         )
         for definition in catalog.definitions
@@ -430,14 +455,19 @@ def _catalog_for_domains(
         "definitions": definitions,
         "lifecycle": tuple(
             item.model_copy(
-                update=(
-                    {
-                        "state": lifecycle_states_by_id[item.profile.profile_id],
-                        "reason_code": "historical_replay_only",
-                    }
-                    if item.profile.profile_id in lifecycle_states_by_id
-                    else {}
-                )
+                update={
+                    # This synthetic catalog is installed as the test database's
+                    # first retained snapshot, so its lifecycle histories start at 1.
+                    "revision": 1,
+                    **(
+                        {
+                            "state": lifecycle_states_by_id[item.profile.profile_id],
+                            "reason_code": "historical_replay_only",
+                        }
+                        if item.profile.profile_id in lifecycle_states_by_id
+                        else {}
+                    ),
+                }
             )
             for item in catalog.lifecycle
         ),
@@ -469,6 +499,9 @@ def _registry_with_catalogs(
         finding_output_policies=source._finding_output_policies.values(),  # noqa: SLF001
         run_event_registries=source._run_event_registries.values(),  # noqa: SLF001
         completion_oracle_registries=source._completion_oracle_registries.values(),  # noqa: SLF001
+        playtest_payload_schema_registries=(
+            source._playtest_payload_schema_registries.values()  # noqa: SLF001
+        ),
         agent_execution_graphs=source._agent_execution_graphs.values(),  # noqa: SLF001
         execution_profile_catalogs=catalogs,
         migration_capability_matrices=source._migration_capability_matrices.values(),  # noqa: SLF001
@@ -768,9 +801,8 @@ class Harness:
         )
         builtin_registry = build_builtin_registry()
         catalogs = builtin_registry.list_execution_profile_catalogs()
-        assert len(catalogs) == 1
         self.catalog = _catalog_for_domains(
-            catalogs[0],
+            max(catalogs, key=lambda item: item.catalog_version),
             profile_domain_ids,
             profile_updates,
             profile_lifecycle_states,
@@ -839,6 +871,10 @@ class Harness:
             current_principal_resolver=lambda _tx, actor: actor.principal,
             role_policy_version=ROLE_POLICY_VERSION,
             role_policy_digest=self.role_policy.policy_digest,
+            playtest_payload_validator=PlaytestPayloadValidationService(
+                registry=self.registry,
+                validators=build_builtin_playtest_payload_validators(),
+            ),
             validation_start_writer=_TestValidationStartWriter(),
         )
 
@@ -906,6 +942,10 @@ class Harness:
             current_principal_resolver=lambda _tx, actor: actor.principal,
             role_policy_version=ROLE_POLICY_VERSION,
             role_policy_digest=self.role_policy.policy_digest,
+            playtest_payload_validator=PlaytestPayloadValidationService(
+                registry=self.registry,
+                validators=build_builtin_playtest_payload_validators(),
+            ),
             validation_start_writer=_TestValidationStartWriter(),
         )
 
@@ -1314,11 +1354,23 @@ def _seed_task_suite(
     preview: ArtifactV2,
     config: ArtifactV2,
     constraint: ArtifactV2,
+    reset_payload: dict[str, Any] | None = None,
+    oracle_params: dict[str, Any] | None = None,
 ) -> tuple[ArtifactV2, ArtifactV2, TaskEpisodeV1]:
+    exact_reset_payload = (
+        {
+            "scenario_id": "scenario:old",
+            "config_export_artifact_id": config.artifact_id,
+            "quest_ids": ["quest:old"],
+            "start_seed": 0,
+        }
+        if reset_payload is None
+        else reset_payload
+    )
     reset = ScenarioResetBindingV1(
         reset_schema_id=RESET_SCHEMA_ID,
-        payload_hash=canonical_sha256({"scenario_id": "scenario:old"}),
-        payload={"scenario_id": "scenario:old"},
+        payload_hash=canonical_sha256(exact_reset_payload),
+        payload=exact_reset_payload,
     )
     tuple_basis = VersionTuple(
         doc_version=preview.version_tuple.doc_version,
@@ -1348,7 +1400,7 @@ def _seed_task_suite(
         oracle_id="bounded-progress",
         version=1,
         params_schema_id="bounded-progress-params@1",
-        params={"maximum_steps": 32},
+        params=({"min_completed_quest_fraction": 1.0} if oracle_params is None else oracle_params),
     )
     episode = TaskEpisodeV1(
         episode_id="episode:old",
@@ -4904,7 +4956,7 @@ def test_playtest_rejects_missing_config_input(tmp_path: Path) -> None:
             ),
         ),
         environment_profile=ProfileRefV1(profile_id="builtin.environment", version=1),
-        planner_policy=ProfileRefV1(profile_id="builtin.playtest_planner", version=1),
+        planner_policy=ProfileRefV1(profile_id="builtin.playtest_planner", version=2),
         max_steps_per_episode=16,
         interaction_mode="autonomous",
     )
@@ -4922,7 +4974,7 @@ def test_task_suite_rejects_wrong_kind_source_preview(tmp_path: Path) -> None:
         source_preview_artifact_id=wrong,
         config_artifact_id="artifact:config",
         constraint_snapshot_artifact_id="artifact:constraint",
-        derivation_profile=ProfileRefV1(profile_id="builtin.task_suite_derivation", version=1),
+        derivation_profile=ProfileRefV1(profile_id="builtin.task_suite_derivation", version=2),
         environment_profile=ProfileRefV1(profile_id="builtin.environment", version=1),
         completion_oracle_registry_ref=CompletionOracleRegistryRefV1(
             registry_version=1, digest="d" * 64
@@ -5005,6 +5057,62 @@ def test_task_suite_accepts_exact_preview_config_constraint_and_environment(
     assert run is not None and run.status == "queued"
     assert run.payload.version_tuple.doc_version == "design-doc@7"
     assert harness.reservation_group(accepted.run_id) is not None
+
+
+def test_task_suite_rejects_profile_bound_to_another_oracle_registry_before_hold(
+    tmp_path: Path,
+) -> None:
+    builtin_registry = build_builtin_registry()
+    catalog = max(
+        builtin_registry.list_execution_profile_catalogs(),
+        key=lambda item: item.catalog_version,
+    )
+    profile = next(
+        definition for definition in catalog.definitions if definition.profile == TASK_SUITE_PROFILE
+    )
+    mismatched_config = {
+        **profile.config,
+        "completion_oracle_registry_digest": "f" * 64,
+    }
+    harness = Harness(
+        tmp_path,
+        profile_updates={
+            TASK_SUITE_PROFILE.profile_id: {
+                "config": mismatched_config,
+                "config_hash": canonical_config_hash(mismatched_config),
+            }
+        },
+    )
+    preview = _seed_preview(harness, label="profile-oracle-mismatch")
+    constraint = _seed_constraint(harness)
+    config = _seed_config(
+        harness,
+        label="profile-oracle-mismatch",
+        preview=preview,
+        constraint=constraint,
+    )
+    oracle_registry = harness.registry.completion_oracle_registries[0]
+    params = TaskSuiteDerivePayloadV1(
+        source_preview_artifact_id=preview.artifact_id,
+        config_artifact_id=config.artifact_id,
+        constraint_snapshot_artifact_id=constraint.artifact_id,
+        derivation_profile=TASK_SUITE_PROFILE,
+        environment_profile=ENVIRONMENT_PROFILE,
+        completion_oracle_registry_ref=CompletionOracleRegistryRefV1(
+            registry_version=oracle_registry.registry_version,
+            digest=oracle_registry.registry_digest,
+        ),
+    )
+    key = "task-suite:profile-oracle-mismatch"
+
+    with pytest.raises(StaleTaskSuite, match="another oracle registry"):
+        harness.engine_admission.admit_resource_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server(key),
+        )
+
+    _assert_no_admission_side_effects(harness, key=key)
 
 
 def test_task_suite_rejects_config_with_different_document_version(
@@ -5227,6 +5335,92 @@ def _seed_review_with_runtime_prompt(
     return review
 
 
+def _playtest_trace_payload(
+    *,
+    config: ArtifactV2,
+    constraint: ArtifactV2,
+    suite: ArtifactV2,
+    scenario: ArtifactV2,
+    episode: TaskEpisodeV1,
+) -> PlaytestTraceV1:
+    case_id = f"{suite.artifact_id}:{episode.episode_id}"
+    digest = canonical_sha256(
+        {
+            "root_seed": 7,
+            "run_kind": {"kind": "playtest.run", "version": 1},
+            "profile_id": ENVIRONMENT_PROFILE.profile_id,
+            "profile_version": ENVIRONMENT_PROFILE.version,
+            "case_id": case_id,
+            "replication_index": 0,
+        }
+    )
+    episode_seed = int(digest[:16], 16)
+    state_hash = f"sha256:{'0' * 64}"
+    max_steps = episode.step_budget
+    trace_upper = min(
+        MAX_PLAYTEST_TRACE_JSON_BYTES,
+        2 + max_steps * (MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES + 1),
+    )
+    episode_trace = PlaytestEpisodeTraceV1(
+        episode_id=episode.episode_id,
+        scenario_spec_artifact_id=scenario.artifact_id,
+        seed=episode_seed,
+        seed_binding=PlaytestEpisodeSeedBindingV1(
+            root_seed=7,
+            run_kind=RunKindRef(kind="playtest.run", version=1),
+            profile=ENVIRONMENT_PROFILE,
+            case_id=case_id,
+            replication_index=0,
+            seed=episode_seed,
+        ),
+        step_budget=episode.step_budget,
+        execution_step_limit=max_steps,
+        completion_oracle=episode.completion_oracle,
+        completed=True,
+        terminal_reason="completion_oracle_satisfied",
+        initial_state_hash=state_hash,
+        final_state_hash=state_hash,
+        action_trace=(),
+        markers=(
+            PlaytestTraceMarkerV1(
+                kind="completion",
+                step_index=None,
+                state_hash=state_hash,
+                detail="completion_oracle_satisfied",
+            ),
+        ),
+    )
+    payload = {
+        "config_artifact_id": config.artifact_id,
+        "constraint_snapshot_artifact_id": constraint.artifact_id,
+        "task_suite_artifact_id": suite.artifact_id,
+        "environment_profile": ENVIRONMENT_PROFILE.model_dump(mode="json"),
+        "planner_policy": PLAYTEST_PLANNER_PROFILE.model_dump(mode="json"),
+        "env_contract_version": ENV_CONTRACT_VERSION,
+        "interaction_mode": "autonomous",
+        "seed": 7,
+        "requested_max_steps_per_episode": max_steps,
+        "planner_memory_mode": "off",
+        "execution_envelope": PlaytestExecutionEnvelopeV1(
+            planner_profile_payload_hash="a" * 64,
+            selected_episode_count=1,
+            total_step_limit=max_steps,
+            model_call_upper_bound=max_steps * 3,
+            total_trace_byte_upper_bound=(
+                MAX_PLAYTEST_TRACE_ROOT_METADATA_CANONICAL_BYTES
+                + trace_upper
+                + MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES
+            ),
+            actual_model_calls=0,
+            total_action_count=0,
+            total_action_trace_bytes=2,
+            actual_trace_bytes=1,
+        ).model_dump(mode="json"),
+        "episodes": [episode_trace.model_dump(mode="json")],
+    }
+    return PlaytestTraceV1.model_validate(bind_exact_playtest_trace_bytes(payload))
+
+
 def _seed_playtest_trace_with_runtime_prompt(
     harness: Harness,
     *,
@@ -5249,26 +5443,12 @@ def _seed_playtest_trace_with_runtime_prompt(
         ),
         payload_schema_id="source-rendered@1",
     )
-    trace_payload = PlaytestTraceV1(
-        config_artifact_id=config.artifact_id,
-        constraint_snapshot_artifact_id=constraint.artifact_id,
-        task_suite_artifact_id=suite.artifact_id,
-        environment_profile=ENVIRONMENT_PROFILE,
-        planner_policy=PLAYTEST_PLANNER_PROFILE,
-        env_contract_version=ENV_CONTRACT_VERSION,
-        interaction_mode="autonomous",
-        seed=7,
-        episodes=(
-            PlaytestEpisodeTraceV1(
-                episode_id=episode.episode_id,
-                scenario_spec_artifact_id=scenario.artifact_id,
-                seed=11,
-                step_budget=episode.step_budget,
-                completion_oracle=episode.completion_oracle,
-                completed=True,
-                action_trace=(),
-            ),
-        ),
+    trace_payload = _playtest_trace_payload(
+        config=config,
+        constraint=constraint,
+        suite=suite,
+        scenario=scenario,
+        episode=episode,
     )
     trace = harness.seed_payload_artifact(
         kind="playtest_trace",
@@ -5429,26 +5609,12 @@ def test_patch_validation_cross_binds_review_and_playtest_to_exact_candidate(
         lineage=(preview.artifact_id, constraint.artifact_id),
         payload_schema_id="review@1",
     )
-    trace_payload = PlaytestTraceV1(
-        config_artifact_id=config.artifact_id,
-        constraint_snapshot_artifact_id=constraint.artifact_id,
-        task_suite_artifact_id=suite.artifact_id,
-        environment_profile=ENVIRONMENT_PROFILE,
-        planner_policy=PLAYTEST_PLANNER_PROFILE,
-        env_contract_version=ENV_CONTRACT_VERSION,
-        interaction_mode="autonomous",
-        seed=7,
-        episodes=(
-            PlaytestEpisodeTraceV1(
-                episode_id=episode.episode_id,
-                scenario_spec_artifact_id=scenario.artifact_id,
-                seed=11,
-                step_budget=episode.step_budget,
-                completion_oracle=episode.completion_oracle,
-                completed=True,
-                action_trace=(),
-            ),
-        ),
+    trace_payload = _playtest_trace_payload(
+        config=config,
+        constraint=constraint,
+        suite=suite,
+        scenario=scenario,
+        episode=episode,
     )
     trace = harness.seed_payload_artifact(
         kind="playtest_trace",
@@ -5926,6 +6092,139 @@ def test_playtest_accepts_exact_nonempty_episode_subset(tmp_path: Path) -> None:
     assert run.payload.version_tuple.doc_version == "playtest-design@3"
 
 
+def test_playtest_rejects_planner_resource_envelope_before_run_or_hold(
+    tmp_path: Path,
+) -> None:
+    planner_config = PlaytestPlannerProfileConfigV2(
+        memory_mode="off",
+        max_episode_count=4,
+        max_steps_per_episode=8,
+        max_total_steps=32,
+        max_total_model_calls=96,
+        max_total_trace_bytes=8 * 1024 * 1024,
+    ).model_dump(mode="json")
+    harness = Harness(
+        tmp_path,
+        profile_updates={
+            PLAYTEST_PLANNER_PROFILE.profile_id: {
+                "config": planner_config,
+                "config_hash": canonical_config_hash(planner_config),
+            }
+        },
+    )
+    constraint = _seed_constraint(harness)
+    preview = _seed_preview(harness, label="playtest-resource-envelope")
+    config = _seed_config(
+        harness,
+        label="playtest-resource-envelope",
+        preview=preview,
+        constraint=constraint,
+    )
+    suite, scenario, episode = _seed_task_suite(
+        harness,
+        preview=preview,
+        config=config,
+        constraint=constraint,
+    )
+    params = PlaytestRunPayloadV1(
+        config_artifact_id=config.artifact_id,
+        constraint_snapshot_artifact_id=constraint.artifact_id,
+        task_suite_artifact_id=suite.artifact_id,
+        episodes=(
+            PlaytestEpisodeBindingV1(
+                episode_id=episode.episode_id,
+                scenario_spec_artifact_id=scenario.artifact_id,
+            ),
+        ),
+        environment_profile=ENVIRONMENT_PROFILE,
+        planner_policy=PLAYTEST_PLANNER_PROFILE,
+        max_steps_per_episode=16,
+        interaction_mode="autonomous",
+    )
+    key = "playtest:resource-envelope"
+
+    with pytest.raises(Conflict, match="planner resource envelope"):
+        harness.engine_admission.admit_resource_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server(key),
+            llm_execution_mode="live",
+            seed=7,
+            execution_version_plan=_plan("playtest.run"),
+        )
+    _assert_no_admission_side_effects(harness, key=key)
+
+
+@pytest.mark.parametrize(
+    ("reset_payload", "oracle_params", "message", "key"),
+    [
+        (
+            {"scenario_id": "scenario:old"},
+            None,
+            "reset payload violates",
+            "playtest:invalid-reset-schema",
+        ),
+        (
+            None,
+            {"maximum_steps": 32},
+            "completion-oracle params violate",
+            "playtest:invalid-oracle-schema",
+        ),
+    ],
+)
+def test_playtest_rejects_non_exact_reset_or_oracle_schema_before_hold(
+    tmp_path: Path,
+    reset_payload: dict[str, Any] | None,
+    oracle_params: dict[str, Any] | None,
+    message: str,
+    key: str,
+) -> None:
+    harness = Harness(tmp_path)
+    constraint = _seed_constraint(harness)
+    preview = _seed_preview(harness, label=key)
+    config = _seed_config(
+        harness,
+        label=key,
+        preview=preview,
+        constraint=constraint,
+    )
+    suite, scenario, episode = _seed_task_suite(
+        harness,
+        preview=preview,
+        config=config,
+        constraint=constraint,
+        reset_payload=reset_payload,
+        oracle_params=oracle_params,
+    )
+    params = PlaytestRunPayloadV1(
+        config_artifact_id=config.artifact_id,
+        constraint_snapshot_artifact_id=constraint.artifact_id,
+        task_suite_artifact_id=suite.artifact_id,
+        episodes=(
+            PlaytestEpisodeBindingV1(
+                episode_id=episode.episode_id,
+                scenario_spec_artifact_id=scenario.artifact_id,
+            ),
+        ),
+        environment_profile=ENVIRONMENT_PROFILE,
+        planner_policy=PLAYTEST_PLANNER_PROFILE,
+        max_steps_per_episode=16,
+        interaction_mode="autonomous",
+    )
+
+    with pytest.raises(StaleTaskSuite, match=message):
+        harness.engine_admission.admit_resource_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server(key),
+            llm_execution_mode="live",
+            seed=7,
+            execution_version_plan=_plan("playtest.run"),
+        )
+
+    _assert_no_admission_side_effects(harness, key=key)
+
+
 def test_playtest_rejects_graph_selected_for_another_exact_memory_mode(
     tmp_path: Path,
 ) -> None:
@@ -5980,9 +6279,14 @@ def test_playtest_rejects_graph_selected_for_another_exact_memory_mode(
 def test_playtest_memory_profile_selects_exact_core_plus_memory_graph(
     tmp_path: Path,
 ) -> None:
-    planner_config = PlaytestPlannerProfileConfigV1(memory_mode="llm_compaction").model_dump(
-        mode="json"
-    )
+    planner_config = PlaytestPlannerProfileConfigV2(
+        memory_mode="llm_compaction",
+        max_episode_count=512,
+        max_steps_per_episode=512,
+        max_total_steps=512,
+        max_total_model_calls=3_072,
+        max_total_trace_bytes=64 * 1024 * 1024,
+    ).model_dump(mode="json")
     harness = Harness(
         tmp_path,
         profile_updates={

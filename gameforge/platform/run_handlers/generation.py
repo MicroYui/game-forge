@@ -25,7 +25,7 @@ gate evidence — NO ``config_export``, NO workflow subject. The rejected Patch 
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
-from typing import Callable, Mapping, Protocol
+from typing import Callable, Literal, Mapping, Protocol
 
 from gameforge.contracts.agent_io import DesignGoalInput
 from gameforge.contracts.config_export import (
@@ -33,7 +33,12 @@ from gameforge.contracts.config_export import (
     canonical_config_export_bytes,
 )
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.execution_profiles import (
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.findings import Finding, PatchV2, TypedOp
 from gameforge.contracts.jobs import (
     GenerationProposePayloadV1,
@@ -56,6 +61,7 @@ from gameforge.platform.run_handlers.base import (
     canonical_payload_bytes,
     prepared_version_tuple,
     rebind_embedded_finding_payload,
+    resolved_profile,
     store_prepared_artifact,
     store_prepared_blob,
 )
@@ -186,11 +192,35 @@ class ConfigExporter(Protocol):
         self,
         *,
         export_profile: ProfileRefV1,
+        export_profile_binding: ResolvedExecutionProfileBindingV1,
+        run_kind: RunKindRef | None,
+        llm_execution_mode: Literal["not_applicable", "live", "record", "replay"],
         preview_snapshot_id: str,
         preview_payload: Mapping[str, object],
         constraint_snapshot_artifact_id: str,
         constraints: tuple[Constraint, ...],
     ) -> ConfigExportPackageV1: ...
+
+
+def config_export_profile_binding(
+    context: ExecutorContextLike,
+    *,
+    index: int,
+    profile: ProfileRefV1,
+) -> ResolvedExecutionProfileBindingV1:
+    """Rebind one collection member to its exact catalog/profile authority."""
+
+    field_path = f"/params/candidate_export_profiles/{index}"
+    binding = resolved_profile(context.payload, field_path, required=False)
+    if (
+        binding is None
+        or binding.profile != profile
+        or binding.expected_profile_kind != "config_export"
+        or binding.catalog_version != context.payload.execution_profile_catalog_version
+        or binding.catalog_digest != context.payload.execution_profile_catalog_digest
+    ):
+        raise IntegrityViolation("config export profile differs from its frozen Run binding")
+    return binding
 
 
 GoalLoader = Callable[[ArtifactBlobReader, str], DesignGoalInput]
@@ -489,9 +519,13 @@ class GenerationProposalHandler:
         constraint_id = payload.constraint_snapshot_artifact_id
         assert constraint_id is not None
         artifacts: list[PreparedArtifact] = []
-        for profile in payload.candidate_export_profiles:
+        for index, profile in enumerate(payload.candidate_export_profiles):
+            binding = config_export_profile_binding(context, index=index, profile=profile)
             package = self.config_exporter.export(
                 export_profile=profile,
+                export_profile_binding=binding,
+                run_kind=context.run.kind,
+                llm_execution_mode=context.payload.llm_execution_mode,
                 preview_snapshot_id=outcome.preview_snapshot_id,
                 preview_payload=outcome.preview_payload,
                 constraint_snapshot_artifact_id=constraint_id,
@@ -505,7 +539,7 @@ class GenerationProposalHandler:
                     version_tuple=prepared_version_tuple(
                         context,
                         tool_version="config-export@1",
-                        projected_fields=("constraint_snapshot_id",),
+                        projected_fields=("doc_version", "constraint_snapshot_id"),
                         overrides={
                             "ir_snapshot_id": outcome.preview_snapshot_id,
                             "env_contract_version": package.env_contract_version,
@@ -593,6 +627,7 @@ __all__ = [
     "IR_SNAPSHOT_SCHEMA_ID",
     "PATCH_SCHEMA_ID",
     "ConfigExporter",
+    "config_export_profile_binding",
     "GenerationAgentRunner",
     "GenerationExecutionConfig",
     "GenerationExecutionConfigResolver",

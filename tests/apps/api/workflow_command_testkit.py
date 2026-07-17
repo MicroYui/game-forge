@@ -513,7 +513,13 @@ def headers(*, key: str, if_match: str = '"etag:1"') -> dict[str, str]:
     return {"Idempotency-Key": key, "If-Match": if_match}
 
 
-def publish_base(harness: WorkflowHarness, *, entities: list[Any], ref_name: str = REF_NAME) -> Any:
+def publish_base(
+    harness: WorkflowHarness,
+    *,
+    entities: list[Any],
+    ref_name: str = REF_NAME,
+    doc_version: str | None = None,
+) -> Any:
     """Publish an ir_snapshot Artifact + set ``ref_name`` to it; return the Snapshot."""
 
     from gameforge.contracts.lineage import (
@@ -533,6 +539,7 @@ def publish_base(harness: WorkflowHarness, *, entities: list[Any], ref_name: str
         kind="ir_snapshot",
         payload=_payload_bytes(snapshot.content_payload),
         version_tuple=VersionTuple(
+            doc_version=doc_version,
             ir_snapshot_id=snapshot.snapshot_id,
             tool_version="local-flow@1",
         ),

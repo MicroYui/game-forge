@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_graphs import (
     AgentExecutionGraphV1,
@@ -117,6 +118,14 @@ def _completion_oracle_keys(registry: Any) -> set[str]:
     }
 
 
+def _playtest_payload_validator_keys(registry: Any) -> set[str]:
+    return {
+        definition.validator_key
+        for schema_registry in registry.playtest_payload_schema_registries
+        for definition in schema_registry.definitions
+    }
+
+
 def _permission_resolver_keys(registry: Any) -> set[str]:
     return {
         resolver_key
@@ -140,6 +149,9 @@ def _components(registry: Any) -> TrustedComponentMaps:
         terminal_hooks={key: _trusted_component for key in _TERMINAL_HOOK_KEYS},
         workflow_effects={key: _trusted_component for key in _WORKFLOW_EFFECT_KEYS},
         completion_oracles={key: _trusted_component for key in _completion_oracle_keys(registry)},
+        playtest_payload_validators={
+            key: _trusted_component for key in _playtest_payload_validator_keys(registry)
+        },
         profile_handlers={key: _trusted_component for key in _profile_handler_keys(registry)},
         permission_domain_resolvers={
             key: _trusted_component for key in _permission_resolver_keys(registry)
@@ -158,6 +170,16 @@ def test_builtin_registry_and_exact_trusted_maps_are_ready() -> None:
     assert report.checked_run_kind_count == 14
     assert report.reference_checks > 0
     assert report.deferred_executor_keys == _DEFERRED_EXECUTOR_KEYS
+
+
+def test_task11_execution_profile_catalog_remains_byte_identical() -> None:
+    catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
+
+    assert catalog.catalog_version == 1
+    assert catalog.catalog_digest == (
+        "6473a8a4fe0d92133c97f57005e668881743b69206481d7dedec854f248647e4"
+    )
+    assert len(canonical_json(catalog.model_dump(mode="json")).encode("utf-8")) == 23_745
 
 
 def test_readiness_rejects_record_shards_counted_from_prompt_links() -> None:
@@ -542,6 +564,7 @@ def test_readiness_rejects_migration_profile_edge_missing_from_matrix() -> None:
         "terminal_hooks",
         "workflow_effects",
         "completion_oracles",
+        "playtest_payload_validators",
         "profile_handlers",
         "permission_domain_resolvers",
     ],
@@ -567,6 +590,7 @@ def test_readiness_rejects_every_missing_trusted_mapping(field_name: str) -> Non
         "terminal_hooks",
         "workflow_effects",
         "completion_oracles",
+        "playtest_payload_validators",
         "profile_handlers",
         "permission_domain_resolvers",
     ],
@@ -733,6 +757,9 @@ def _registry_with_run_kinds_and_graphs(
         finding_output_policies=source._finding_output_policies.values(),  # noqa: SLF001
         run_event_registries=source._run_event_registries.values(),  # noqa: SLF001
         completion_oracle_registries=source._completion_oracle_registries.values(),  # noqa: SLF001
+        playtest_payload_schema_registries=(
+            source._playtest_payload_schema_registries.values()  # noqa: SLF001
+        ),
         agent_execution_graphs=graphs,
         execution_profile_catalogs=source._execution_profile_catalogs.values(),  # noqa: SLF001
         migration_capability_matrices=source._migration_capability_matrices.values(),  # noqa: SLF001

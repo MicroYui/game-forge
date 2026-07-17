@@ -75,6 +75,7 @@ class TrustedComponentMaps:
     terminal_hooks: Mapping[str, object] = field(default_factory=dict)
     workflow_effects: Mapping[str, object] = field(default_factory=dict)
     completion_oracles: Mapping[str, object] = field(default_factory=dict)
+    playtest_payload_validators: Mapping[str, object] = field(default_factory=dict)
     profile_handlers: Mapping[str, object] = field(default_factory=dict)
     permission_domain_resolvers: Mapping[str, object] = field(default_factory=dict)
 
@@ -84,6 +85,7 @@ class TrustedComponentMaps:
             "terminal_hooks",
             "workflow_effects",
             "completion_oracles",
+            "playtest_payload_validators",
             "profile_handlers",
             "permission_domain_resolvers",
         ):
@@ -407,8 +409,8 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
         (
             "generation.propose",
             1,
-        ): "e333500a632b87ad5e76b1586b377124bca8032c5ae2a36116be1d8704f0888c",
-        ("patch.repair", 1): "5ed7b7f052b6291d065c0753c5c45417dc2acc242ee1d7f3363ba9cdcebfc127",
+        ): "9253e59f78e693f84ca3817c87bc5d9e78dd57377260d50c77fa1c4784b19878",
+        ("patch.repair", 1): "7551bbf349d3e935c07e5cb51b50f8d3cd50aa60dc4394244bdd8aa2e4b35665",
         ("patch.validate", 1): "e546e00ea7762266acad63d55e263cbc95294b56cccf9c2d636dda23ede32e99",
         ("playtest.run", 1): "099288bd5fea318b35562251d647a9c9b8c9f8b9f6a10e72e8cf910b9e1e00d8",
         ("review.run", 1): "61cfe9782fe31ac183609808c817432e836ffb27e032340ede448c5030a2249b",

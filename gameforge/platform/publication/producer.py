@@ -137,12 +137,15 @@ def _key(
     rule_id: str,
     artifact_kind: str,
     payload_schema_id: str,
+    *,
+    run_kind_version: int = 1,
+    policy_version: int = 1,
 ) -> DomainProducerRuleKey:
     return DomainProducerRuleKey(
         run_kind=run_kind,
-        run_kind_version=1,
+        run_kind_version=run_kind_version,
         policy_id=policy_id,
-        policy_version=1,
+        policy_version=policy_version,
         outcome_rule_id=rule_id,
         artifact_kind=artifact_kind,
         payload_schema_id=payload_schema_id,
@@ -161,10 +164,20 @@ def _fixed(
     snapshot: SnapshotDerivation = "none",
     identity: IdentityPolicy = "forbidden",
     operational: bool = False,
+    run_kind_version: int = 1,
+    policy_version: int = 1,
 ) -> tuple[DomainProducerRuleFacts, ...]:
     return tuple(
         DomainProducerRuleFacts(
-            key=_key(run_kind, policy, rule_id, artifact_kind, schema),
+            key=_key(
+                run_kind,
+                policy,
+                rule_id,
+                artifact_kind,
+                schema,
+                run_kind_version=run_kind_version,
+                policy_version=policy_version,
+            ),
             tool_source="fixed",
             fixed_tool_version=tool,
             seed_source="fixed" if fixed_seed is not None else "run_root",

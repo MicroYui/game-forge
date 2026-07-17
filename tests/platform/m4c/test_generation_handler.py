@@ -11,6 +11,7 @@ and NO workflow subject.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -37,6 +38,7 @@ from gameforge.platform.run_handlers.generation import (
     GenerationGateOutcomeV1,
     GenerationExecutionConfig,
     GenerationProposalHandler,
+    config_export_profile_binding,
 )
 from gameforge.platform.run_handlers.readers import load_snapshot
 from gameforge.platform.publication.payload_schema import decode_and_validate_artifact_payload
@@ -163,11 +165,15 @@ class _FakeConfigExporter:
         self,
         *,
         export_profile,
+        export_profile_binding,
+        run_kind,
+        llm_execution_mode,
         preview_snapshot_id,
         preview_payload,
         constraint_snapshot_artifact_id,
         constraints,
     ) -> ConfigExportPackageV1:
+        del export_profile_binding, run_kind, llm_execution_mode, preview_payload, constraints
         content = json.dumps({"preview": preview_snapshot_id}, sort_keys=True).encode("utf-8")
         return ConfigExportPackageV1(
             export_profile=export_profile,
@@ -301,7 +307,7 @@ def _context(
                 "/params/generation_policy", profile_id="gen", version=1, kind="generation"
             ),
             resolved_binding(
-                "/params/candidate_export_profiles",
+                "/params/candidate_export_profiles/0",
                 profile_id="csv",
                 version=1,
                 kind="config_export",
@@ -324,6 +330,27 @@ def _context(
 
 def _kinds(outcome) -> list[str]:
     return [artifact.kind for artifact in outcome.artifacts]
+
+
+def test_config_export_preflight_rejects_a_missing_exact_collection_binding() -> None:
+    context = _context(FakeModelBridge(responses=(_BENIGN_OPS,)))
+    context = replace(
+        context,
+        payload=context.payload.model_copy(
+            update={
+                "resolved_profiles": tuple(
+                    binding
+                    for binding in context.payload.resolved_profiles
+                    if binding.expected_profile_kind != "config_export"
+                )
+            }
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="frozen Run binding"):
+        config_export_profile_binding(
+            context, index=0, profile=_payload().candidate_export_profiles[0]
+        )
 
 
 def test_generation_gate_pass_emits_patch_preview_config_and_gate_evidence() -> None:
@@ -349,6 +376,7 @@ def test_generation_gate_pass_emits_patch_preview_config_and_gate_evidence() -> 
     assert kinds.count("config_export") == 1
     config = next(a for a in outcome.artifacts if a.kind == "config_export")
     assert config.meta["export_profile"] == {"profile_id": "csv", "version": 1}
+    assert config.version_tuple.doc_version == "goal@1"
     # gate checker/sim/review evidence (one resolved requirement each).
     assert kinds.count("checker_run") == 1
     assert kinds.count("simulation_run") == 1

@@ -14,6 +14,11 @@ from gameforge.contracts.execution_profiles import (
 from gameforge.contracts.findings import FindingPayloadV1
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
+    AgentPromptArtifactBindingV1,
+    AgentPromptContextDraftV1,
+    AgentPromptContextV1,
+    AgentPromptPriorConsumptionV1,
+    AgentPromptSourceMessageV1,
     CheckerRunPayloadV1,
     DependencyFailureV1,
     ExecutionVersionPlanV1,
@@ -21,8 +26,16 @@ from gameforge.contracts.jobs import (
     GenerationProposePayloadV1,
     GraphSelectionV1,
     MAX_PREPARED_FINDINGS,
+    MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS,
+    MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS,
+    MAX_PLAYTEST_PROMPT_UPSTREAM_ARTIFACTS,
+    MAX_PLAYTEST_RUN_INPUT_ARTIFACTS,
+    MAX_PLAYTEST_TRACE_LINEAGE_PARENTS,
+    MAX_PREPARED_DOMAIN_ARTIFACTS,
     MAX_RUN_MANIFEST_PARENT_BINDINGS,
     PatchRepairPayloadV1,
+    PlaytestEpisodeBindingV1,
+    PlaytestRunPayloadV1,
     PlannedAgentNodeVersionV1,
     PreparedArtifact,
     PreparedFindingV1,
@@ -44,6 +57,8 @@ from gameforge.contracts.jobs import (
     RunFailureV1,
     RunResultSummaryV1,
     RunResultV1,
+    execution_version_plan_digest,
+    referenced_input_artifact_ids,
 )
 from gameforge.contracts.lineage import ObjectLocation, ObjectRef, VersionTuple
 from gameforge.contracts.storage import RefValue
@@ -144,6 +159,51 @@ def _run_payload(**changes: Any) -> RunPayloadEnvelope:
     return RunPayloadEnvelope.model_validate(values)
 
 
+def _playtest_episode_bindings(count: int) -> tuple[PlaytestEpisodeBindingV1, ...]:
+    return tuple(
+        PlaytestEpisodeBindingV1(
+            episode_id=f"episode:{index:04d}",
+            scenario_spec_artifact_id=f"artifact:scenario:{index:04d}",
+        )
+        for index in range(count)
+    )
+
+
+def _playtest_payload(*, episode_count: int) -> PlaytestRunPayloadV1:
+    return PlaytestRunPayloadV1(
+        config_artifact_id="artifact:config",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        task_suite_artifact_id="artifact:suite",
+        episodes=_playtest_episode_bindings(episode_count),
+        environment_profile=_profile("environment"),
+        planner_policy=_profile("planner"),
+        max_steps_per_episode=1,
+        interaction_mode="autonomous",
+    )
+
+
+def _playtest_execution_plan() -> ExecutionVersionPlanV1:
+    values = {
+        "agent_graph_version": "playtest-graph@1",
+        "nodes": (
+            PlannedAgentNodeVersionV1(
+                agent_node_id="playtest.planner",
+                prompt_version="playtest@1",
+                tool_version="playtest.planner@1",
+                allowed_model_snapshots=("provider/model@1",),
+            ),
+        ),
+        "model_catalog_version": 1,
+        "model_catalog_digest": _HASH_A,
+        "routing_policy_version": 1,
+        "routing_policy_digest": _HASH_B,
+    }
+    return ExecutionVersionPlanV1(
+        **values,
+        plan_digest=execution_version_plan_digest(values),
+    )
+
+
 @pytest.mark.parametrize(
     "factory",
     [_generation_payload, _patch_repair_payload],
@@ -180,7 +240,7 @@ def test_run_payload_envelope_publishes_direct_hard_bounds() -> None:
     properties = RunPayloadEnvelope.model_json_schema()["properties"]
 
     assert properties["payload_schema_version"]["maxLength"] == _MAX_STRING_LENGTH
-    assert properties["input_artifact_ids"]["maxItems"] == _MAX_ITEMS
+    assert properties["input_artifact_ids"]["maxItems"] == MAX_PLAYTEST_RUN_INPUT_ARTIFACTS
     assert properties["input_artifact_ids"]["items"]["maxLength"] == _MAX_ID_LENGTH
     assert properties["budget_set_snapshot_id"]["maxLength"] == _MAX_ID_LENGTH
     cassette_schema = next(
@@ -197,6 +257,51 @@ def test_run_payload_envelope_publishes_direct_hard_bounds() -> None:
         "minimum": 0,
         "type": "integer",
     }
+
+
+def test_playtest_accepts_exact_1024_episode_input_closure_and_rejects_cap_plus_one() -> None:
+    params = _playtest_payload(episode_count=_MAX_ITEMS)
+    direct_inputs = referenced_input_artifact_ids(params)
+
+    assert len(params.episodes) == _MAX_ITEMS
+    assert len(direct_inputs) == MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS == _MAX_ITEMS + 3
+    envelope = RunPayloadEnvelope(
+        payload_schema_version=params.schema_version,
+        input_artifact_ids=direct_inputs,
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:1",
+            constraint_snapshot_id="constraint:1",
+            env_contract_version="env@1",
+            seed=1,
+            tool_version="playtest@1",
+        ),
+        execution_version_plan=_playtest_execution_plan(),
+        policy_bindings=(),
+        schema_bindings=(),
+        execution_profile_catalog_version=1,
+        execution_profile_catalog_digest=_HASH_A,
+        resolved_profiles=(),
+        resolved_policy_snapshots=(),
+        budget_set_snapshot_id="budget:1",
+        seed=1,
+        llm_execution_mode="record",
+        params=params,
+    )
+    assert envelope.input_artifact_ids == direct_inputs
+
+    replay_inputs = tuple(sorted((*direct_inputs, "artifact:cassette")))
+    replay = envelope.model_copy(
+        update={
+            "input_artifact_ids": replay_inputs,
+            "llm_execution_mode": "replay",
+            "cassette_artifact_id": "artifact:cassette",
+        }
+    )
+    replay = RunPayloadEnvelope.model_validate(replay.model_dump(mode="python"))
+    assert len(replay.input_artifact_ids) == MAX_PLAYTEST_RUN_INPUT_ARTIFACTS
+
+    with pytest.raises(ValidationError, match="episodes"):
+        _playtest_payload(episode_count=_MAX_ITEMS + 1)
 
 
 @pytest.mark.parametrize(
@@ -249,6 +354,46 @@ def _prepared_artifact(**changes: Any) -> PreparedArtifact:
     }
     values.update(changes)
     return PreparedArtifact.model_validate(values)
+
+
+def _prompt_source_ids(count: int) -> tuple[str, ...]:
+    return tuple(f"artifact:prompt-source:{index:04d}" for index in range(count))
+
+
+def _prompt_message() -> AgentPromptSourceMessageV1:
+    return AgentPromptSourceMessageV1(
+        role="user",
+        content="exact playtest context",
+        purpose="context",
+    )
+
+
+def _prompt_binding(*, binding_key: str, artifact_id: str) -> AgentPromptArtifactBindingV1:
+    return AgentPromptArtifactBindingV1(
+        binding_key=binding_key,
+        artifact_id=artifact_id,
+        artifact_kind="scenario_spec",
+        payload_schema_id="scenario-spec@1",
+        payload_hash=_HASH_A,
+    )
+
+
+def _prior_consumption() -> AgentPromptPriorConsumptionV1:
+    return AgentPromptPriorConsumptionV1(
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id="artifact:prior-prompt",
+        request_hash=_HASH_A,
+        routing_decision_kind="native",
+        routing_decision_id="routing:1",
+        execution_source="online",
+        reservation_group_id="reservation:1",
+        transport_attempt=1,
+        cassette_shard_artifact_id="artifact:prior-shard",
+        cassette_source_artifact_id="artifact:prior-shard",
+        response_digest=_HASH_B,
+    )
 
 
 def _prepared_finding(index: int = 0) -> PreparedFindingV1:
@@ -434,11 +579,9 @@ def _run_failure(**changes: Any) -> RunFailureV1:
 @pytest.mark.parametrize(
     ("model", "field"),
     [
-        (PreparedArtifact, "lineage"),
         (PlannedAgentNodeVersionV1, "allowed_model_snapshots"),
         (ExecutionVersionPlanV1, "nodes"),
         (ResolvedPolicySnapshotV1, "requirements"),
-        (PreparedRunResult, "artifacts"),
         (PreparedRunResult, "requirement_dispositions"),
         (PreparedRunFailure, "artifacts"),
         (PreparedRunFailure, "requirement_dispositions"),
@@ -452,6 +595,31 @@ def test_run_result_collections_publish_frozen_max_items(
     property_schema = model.model_json_schema()["properties"][field]
 
     assert property_schema["maxItems"] == _MAX_ITEMS
+
+
+def test_playtest_closure_fields_publish_dedicated_capacities() -> None:
+    assert (
+        PreparedArtifact.model_json_schema()["properties"]["lineage"]["maxItems"]
+        == MAX_PLAYTEST_TRACE_LINEAGE_PARENTS
+        == MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS
+    )
+    assert (
+        PreparedRunResult.model_json_schema()["properties"]["artifacts"]["maxItems"]
+        == MAX_PREPARED_DOMAIN_ARTIFACTS
+        == _MAX_ITEMS + 1
+    )
+    assert (
+        AgentPromptContextDraftV1.model_json_schema()["properties"]["source_artifact_ids"][
+            "maxItems"
+        ]
+        == MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS
+        == MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS
+    )
+    assert (
+        AgentPromptContextV1.model_json_schema()["properties"]["upstream_artifacts"]["maxItems"]
+        == MAX_PLAYTEST_PROMPT_UPSTREAM_ARTIFACTS
+        == MAX_PLAYTEST_DIRECT_INPUT_ARTIFACTS + 2
+    )
 
 
 def test_prepared_findings_publish_the_dedicated_finding_capacity() -> None:
@@ -502,20 +670,86 @@ def test_nested_run_payload_and_failure_strings_publish_max_length(
     assert property_schema["maxLength"] == _MAX_STRING_LENGTH
 
 
-def test_prepared_artifact_rejects_oversized_lineage() -> None:
+def test_prepared_artifact_accepts_exact_playtest_lineage_and_rejects_cap_plus_one() -> None:
+    lineage = _prompt_source_ids(MAX_PLAYTEST_TRACE_LINEAGE_PARENTS)
+    assert _prepared_artifact(lineage=lineage).lineage == lineage
+
     with pytest.raises(ValidationError):
-        _prepared_artifact(lineage=tuple(f"artifact:{index}" for index in range(_MAX_ITEMS + 1)))
+        _prepared_artifact(lineage=_prompt_source_ids(MAX_PLAYTEST_TRACE_LINEAGE_PARENTS + 1))
+
+
+def test_playtest_prompt_sources_accept_exact_direct_input_closure_and_reject_extra() -> None:
+    source_ids = _prompt_source_ids(MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS)
+    draft = AgentPromptContextDraftV1(
+        context_kind="playtest",
+        messages=(_prompt_message(),),
+        source_artifact_ids=source_ids,
+    )
+    assert draft.source_artifact_ids == source_ids
+
+    with pytest.raises(ValidationError, match="source_artifact_ids"):
+        AgentPromptContextDraftV1(
+            context_kind="playtest",
+            messages=(_prompt_message(),),
+            source_artifact_ids=_prompt_source_ids(MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS + 1),
+        )
+
+
+def test_record_prompt_upstream_accepts_direct_inputs_plus_prior_prompt_and_shard() -> None:
+    source_ids = _prompt_source_ids(MAX_PLAYTEST_PROMPT_SOURCE_ARTIFACTS)
+    prior = _prior_consumption()
+    upstream = tuple(
+        _prompt_binding(binding_key=f"source:{index:04d}", artifact_id=artifact_id)
+        for index, artifact_id in enumerate(source_ids, start=1)
+    ) + (
+        _prompt_binding(binding_key="prior.prompt", artifact_id=prior.prompt_artifact_id),
+        _prompt_binding(
+            binding_key="prior.cassette_source",
+            artifact_id=prior.cassette_source_artifact_id or "",
+        ),
+    )
+    context = AgentPromptContextV1(
+        context_kind="playtest",
+        run_id="run:1",
+        attempt_no=1,
+        target_call_ordinal=2,
+        agent_node_id="playtest.executor",
+        prompt_version="playtest@2",
+        messages=(_prompt_message(),),
+        upstream_artifacts=upstream,
+        prior_consumption=prior,
+    )
+    assert len(context.upstream_artifacts) == MAX_PLAYTEST_PROMPT_UPSTREAM_ARTIFACTS
+
+    with pytest.raises(ValidationError, match="upstream_artifacts"):
+        AgentPromptContextV1(
+            context_kind="playtest",
+            run_id="run:1",
+            attempt_no=1,
+            target_call_ordinal=2,
+            agent_node_id="playtest.executor",
+            prompt_version="playtest@2",
+            messages=(_prompt_message(),),
+            upstream_artifacts=upstream
+            + (
+                _prompt_binding(
+                    binding_key="source:extra",
+                    artifact_id="artifact:prompt-source:extra",
+                ),
+            ),
+            prior_consumption=prior,
+        )
 
 
 def test_prepared_result_rejects_oversized_artifact_collection() -> None:
     artifact = _prepared_artifact()
     with pytest.raises(ValidationError):
         _prepared_result(
-            artifacts=(artifact,) * (_MAX_ITEMS + 1),
+            artifacts=(artifact,) * (MAX_PREPARED_DOMAIN_ARTIFACTS + 1),
             summary=PreparedRunResultSummaryV1(
                 outcome_code="passed",
                 primary_artifact_kind="checker_run",
-                prepared_domain_artifact_count=_MAX_ITEMS + 1,
+                prepared_domain_artifact_count=MAX_PREPARED_DOMAIN_ARTIFACTS + 1,
                 prepared_finding_count=0,
             ),
         )

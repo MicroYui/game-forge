@@ -6,7 +6,7 @@ from collections.abc import Iterable, Mapping
 from types import MappingProxyType
 from typing import TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
@@ -14,9 +14,13 @@ from gameforge.contracts.execution_graphs import AgentExecutionGraphV1
 from gameforge.contracts.execution_profiles import (
     ArtifactLineagePolicyRefV1,
     ExecutionProfileCatalogSnapshotV1,
+    ExecutionProfileDefinitionV1,
+    ExecutionProfileKindV1,
+    ExecutionProfileLifecycleV1,
     MigrationCapabilityMatrixRefV1,
     MigrationCapabilityMatrixRegistryV1,
     MigrationCapabilityMatrixV1,
+    ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
     VersionTransitionPolicyRefV1,
@@ -46,6 +50,8 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.playtest import (
     CompletionOracleRegistryRefV1,
     CompletionOracleRegistryV1,
+    PlaytestPayloadSchemaDefinitionV1,
+    PlaytestPayloadSchemaRegistryV1,
 )
 from gameforge.platform.registry.model import (
     ProfileRequirement,
@@ -153,6 +159,7 @@ class ImmutablePlatformRegistry:
         finding_output_policies: Iterable[FindingOutputPolicyV1],
         run_event_registries: Iterable[RunEventRegistryV1],
         completion_oracle_registries: Iterable[CompletionOracleRegistryV1],
+        playtest_payload_schema_registries: Iterable[PlaytestPayloadSchemaRegistryV1] = (),
         agent_execution_graphs: Iterable[AgentExecutionGraphV1] = (),
         execution_profile_catalogs: Iterable[ExecutionProfileCatalogSnapshotV1] = (),
         migration_capability_matrices: Iterable[MigrationCapabilityMatrixV1] = (),
@@ -207,6 +214,22 @@ class ImmutablePlatformRegistry:
             identity=lambda item: item.registry_version,
             label="completion-oracle registry",
         )
+        self._playtest_payload_schema_registries = _index_exact(
+            playtest_payload_schema_registries,
+            identity=lambda item: item.registry_version,
+            label="playtest-payload-schema registry",
+        )
+        playtest_payload_schemas: dict[str, PlaytestPayloadSchemaDefinitionV1] = {}
+        for registry in self._playtest_payload_schema_registries.values():
+            for definition in registry.definitions:
+                retained = playtest_payload_schemas.get(definition.schema_id)
+                if retained is not None and retained != definition:
+                    raise IntegrityViolation(
+                        "playtest payload schema id has conflicting retained definitions",
+                        schema_id=definition.schema_id,
+                    )
+                playtest_payload_schemas[definition.schema_id] = definition
+        self._playtest_payload_schemas = MappingProxyType(playtest_payload_schemas)
         self._agent_execution_graphs = _index_exact(
             agent_execution_graphs,
             identity=lambda item: (
@@ -329,6 +352,20 @@ class ImmutablePlatformRegistry:
         value = self._completion_oracle_registries.get(ref.registry_version)
         return value if value is not None and value.registry_digest == ref.digest else None
 
+    def get_playtest_payload_schema_registry(
+        self,
+        registry_version: int,
+        registry_digest: str,
+    ) -> PlaytestPayloadSchemaRegistryV1 | None:
+        value = self._playtest_payload_schema_registries.get(registry_version)
+        return value if value is not None and value.registry_digest == registry_digest else None
+
+    def get_playtest_payload_schema(
+        self,
+        schema_id: str,
+    ) -> PlaytestPayloadSchemaDefinitionV1 | None:
+        return self._playtest_payload_schemas.get(schema_id)
+
     def get_agent_execution_graph(
         self,
         run_kind: RunKindRef,
@@ -345,6 +382,122 @@ class ImmutablePlatformRegistry:
     ) -> ExecutionProfileCatalogSnapshotV1 | None:
         value = self._execution_profile_catalogs.get(catalog_version)
         return value if value is not None and value.catalog_digest == catalog_digest else None
+
+    def resolve_execution_profile(
+        self,
+        *,
+        catalog_version: int,
+        catalog_digest: str,
+        field_path: str,
+        profile: ProfileRefV1,
+        expected_profile_kind: ExecutionProfileKindV1,
+    ) -> ResolvedExecutionProfileBindingV1:
+        """Resolve a binding from the exact immutable process catalog history.
+
+        API admission composes built-in catalogs with persisted historical catalogs at
+        process startup.  Resolution must therefore use that merged authority rather
+        than assume every process-shipped catalog has also been copied into a fresh
+        deployment database.
+        """
+
+        if type(profile) is not ProfileRefV1:
+            raise IntegrityViolation("execution profile resolution requires an exact ProfileRef")
+        try:
+            canonical_profile = ProfileRefV1.model_validate(profile.model_dump(mode="json"))
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("execution profile ref is invalid") from exc
+        if canonical_profile != profile:
+            raise IntegrityViolation("execution profile ref is noncanonical")
+        catalog = self.get_execution_profile_catalog(catalog_version, catalog_digest)
+        if catalog is None:
+            raise IntegrityViolation(
+                "execution profile catalog history is unavailable",
+                catalog_version=catalog_version,
+            )
+        definitions = tuple(
+            item for item in catalog.definitions if item.profile == canonical_profile
+        )
+        lifecycle = tuple(item for item in catalog.lifecycle if item.profile == canonical_profile)
+        if len(definitions) != 1 or len(lifecycle) != 1:
+            raise IntegrityViolation(
+                "execution profile ref is not a member or is duplicated in the exact catalog",
+                catalog_version=catalog.catalog_version,
+                profile_id=canonical_profile.profile_id,
+                profile_version=canonical_profile.version,
+            )
+        definition = definitions[0]
+        if definition.profile_kind != expected_profile_kind:
+            raise IntegrityViolation(
+                "execution profile kind differs from the requested binding",
+                profile_id=canonical_profile.profile_id,
+                profile_version=canonical_profile.version,
+            )
+        try:
+            return ResolvedExecutionProfileBindingV1(
+                field_path=field_path,
+                profile=canonical_profile,
+                expected_profile_kind=expected_profile_kind,
+                profile_payload_hash=execution_profile_payload_hash(definition),
+                catalog_version=catalog.catalog_version,
+                catalog_digest=catalog.catalog_digest,
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("execution profile binding is invalid") from exc
+
+    def resolve_execution_profile_binding(
+        self,
+        binding: ResolvedExecutionProfileBindingV1,
+    ) -> tuple[ExecutionProfileDefinitionV1, ExecutionProfileLifecycleV1]:
+        """Resolve an already-frozen binding against the same merged history."""
+
+        if type(binding) is not ResolvedExecutionProfileBindingV1:
+            raise IntegrityViolation(
+                "execution profile resolution requires an exact resolved binding"
+            )
+        try:
+            canonical_binding = ResolvedExecutionProfileBindingV1.model_validate(
+                binding.model_dump(mode="json")
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("execution profile binding is invalid") from exc
+        if canonical_binding != binding:
+            raise IntegrityViolation("execution profile binding is noncanonical")
+        catalog = self.get_execution_profile_catalog(
+            canonical_binding.catalog_version,
+            canonical_binding.catalog_digest,
+        )
+        if catalog is None:
+            raise IntegrityViolation(
+                "execution profile catalog history is unavailable",
+                catalog_version=canonical_binding.catalog_version,
+            )
+        definitions = tuple(
+            item for item in catalog.definitions if item.profile == canonical_binding.profile
+        )
+        lifecycle = tuple(
+            item for item in catalog.lifecycle if item.profile == canonical_binding.profile
+        )
+        if len(definitions) != 1 or len(lifecycle) != 1:
+            raise IntegrityViolation(
+                "execution profile ref is not a member or is duplicated in the exact catalog",
+                catalog_version=catalog.catalog_version,
+                profile_id=canonical_binding.profile.profile_id,
+                profile_version=canonical_binding.profile.version,
+            )
+        definition = definitions[0]
+        if definition.profile_kind != canonical_binding.expected_profile_kind:
+            raise IntegrityViolation(
+                "execution profile kind differs from the resolved binding",
+                profile_id=canonical_binding.profile.profile_id,
+                profile_version=canonical_binding.profile.version,
+            )
+        if execution_profile_payload_hash(definition) != canonical_binding.profile_payload_hash:
+            raise IntegrityViolation(
+                "execution profile payload hash differs from the resolved binding",
+                profile_id=canonical_binding.profile.profile_id,
+                profile_version=canonical_binding.profile.version,
+            )
+        return definition, lifecycle[0]
 
     def get_migration_capability_matrix(
         self, ref: MigrationCapabilityMatrixRefV1
@@ -586,6 +739,15 @@ class ImmutablePlatformRegistry:
         )
 
     @property
+    def playtest_payload_schema_registries(
+        self,
+    ) -> tuple[PlaytestPayloadSchemaRegistryV1, ...]:
+        return tuple(
+            self._playtest_payload_schema_registries[key]
+            for key in sorted(self._playtest_payload_schema_registries)
+        )
+
+    @property
     def run_event_registries(self) -> tuple[RunEventRegistryV1, ...]:
         return tuple(self._run_event_registries[key] for key in sorted(self._run_event_registries))
 
@@ -625,6 +787,7 @@ class ImmutablePlatformRegistry:
             finding_output_policies=self._finding_output_policies.values(),
             run_event_registries=self._run_event_registries.values(),
             completion_oracle_registries=self._completion_oracle_registries.values(),
+            playtest_payload_schema_registries=(self._playtest_payload_schema_registries.values()),
             agent_execution_graphs=self._agent_execution_graphs.values(),
             execution_profile_catalogs=merged.values(),
             migration_capability_matrices=self._migration_capability_matrices.values(),
@@ -647,6 +810,11 @@ class ImmutablePlatformRegistry:
 
     def list_completion_oracle_registries(self) -> tuple[CompletionOracleRegistryV1, ...]:
         return self.completion_oracle_registries
+
+    def list_playtest_payload_schema_registries(
+        self,
+    ) -> tuple[PlaytestPayloadSchemaRegistryV1, ...]:
+        return self.playtest_payload_schema_registries
 
     def list_run_event_registries(self) -> tuple[RunEventRegistryV1, ...]:
         return self.run_event_registries

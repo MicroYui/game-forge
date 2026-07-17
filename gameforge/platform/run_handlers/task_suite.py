@@ -32,9 +32,11 @@ from typing import Callable, Protocol
 from pydantic import JsonValue
 
 from gameforge.contracts.canonical import canonical_sha256
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     EnvironmentContractDescriptorV1,
     ProfileRefV1,
+    TaskSuiteDerivationProfileConfigV2,
 )
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
@@ -45,11 +47,15 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.lineage import VersionTuple, artifact_id_v2_for
 from gameforge.contracts.playtest import (
     CompletionOracleRefV1,
+    CompletionOracleRegistryV1,
     CompletionOracleRegistryRefV1,
+    MAX_PLAYTEST_COLLECTION_ITEMS,
+    PlaytestPayloadSchemaPurposeV1,
     ScenarioResetBindingV1,
     ScenarioSpecV1,
     TaskEpisodeV1,
     TaskSuiteV1,
+    resolve_completion_oracle,
 )
 from gameforge.spine.ir.snapshot import Snapshot
 
@@ -57,6 +63,7 @@ from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
     PreparedArtifactStore,
+    PreparedArtifactBatchStore,
     build_success_result,
     resolved_profile,
     store_prepared_artifact,
@@ -85,6 +92,7 @@ class ScenarioDerivationRequest:
     reset_schema_id: str
     derivation_profile: ProfileRefV1
     completion_oracle_registry_ref: CompletionOracleRegistryRefV1
+    domain_scope: DomainScope
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,10 +118,27 @@ class ScenarioShaper(Protocol):
     def shape(self, request: ScenarioDerivationRequest) -> tuple[ScenarioDraftV1, ...]: ...
 
 
+ScenarioShaperResolver = Callable[[ProfileRefV1], ScenarioShaper]
+
+
 # Resolve an environment profile ref to its frozen contract descriptor (the
 # profile-selected reset_schema_id / env_contract_version). Game-agnostic — bound
 # by the composition root from the platform profile catalog.
 EnvironmentContractResolver = Callable[[ProfileRefV1], EnvironmentContractDescriptorV1]
+DerivationConfigResolver = Callable[[ProfileRefV1], TaskSuiteDerivationProfileConfigV2]
+CompletionOracleRegistryResolver = Callable[
+    [CompletionOracleRegistryRefV1], CompletionOracleRegistryV1 | None
+]
+
+
+class PlaytestPayloadValidator(Protocol):
+    def validate(
+        self,
+        *,
+        schema_id: str,
+        purpose: PlaytestPayloadSchemaPurposeV1,
+        payload: JsonValue,
+    ) -> JsonValue: ...
 
 
 def content_addressed_artifact_id(prepared: PreparedArtifact) -> str:
@@ -141,8 +166,11 @@ class TaskSuiteDeriveHandler:
 
     blobs: ArtifactBlobReader
     store: PreparedArtifactStore
-    scenario_shaper: ScenarioShaper
+    scenario_shaper_resolver: ScenarioShaperResolver
     environment_contract_resolver: EnvironmentContractResolver
+    derivation_config_resolver: DerivationConfigResolver
+    completion_oracle_registry_resolver: CompletionOracleRegistryResolver
+    payload_validator: PlaytestPayloadValidator
     snapshot_loader: SnapshotLoader = load_snapshot
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
@@ -153,9 +181,29 @@ class TaskSuiteDeriveHandler:
         preview = self.snapshot_loader(self.blobs, payload.source_preview_artifact_id)
         environment_profile = resolved_profile(context.payload, ENVIRONMENT_PROFILE_FIELD).profile
         derivation_profile = resolved_profile(context.payload, DERIVATION_PROFILE_FIELD).profile
+        if environment_profile != payload.environment_profile:
+            raise IntegrityViolation("resolved environment profile differs from the derive payload")
+        if derivation_profile != payload.derivation_profile:
+            raise IntegrityViolation("resolved derivation profile differs from the derive payload")
         contract = self.environment_contract_resolver(environment_profile)
+        config = self.derivation_config_resolver(derivation_profile)
+        if config.target_environment_profile != environment_profile:
+            raise IntegrityViolation("task-suite derivation profile targets another environment")
+        if (
+            config.completion_oracle_registry_version
+            != payload.completion_oracle_registry_ref.registry_version
+            or config.completion_oracle_registry_digest
+            != payload.completion_oracle_registry_ref.digest
+        ):
+            raise IntegrityViolation("task-suite derivation profile binds another oracle registry")
+        oracle_registry = self.completion_oracle_registry_resolver(
+            payload.completion_oracle_registry_ref
+        )
+        if oracle_registry is None:
+            raise IntegrityViolation("task-suite completion-oracle registry is unavailable")
 
-        drafts = self.scenario_shaper.shape(
+        shaper = self.scenario_shaper_resolver(derivation_profile)
+        drafts = shaper.shape(
             ScenarioDerivationRequest(
                 preview_snapshot=preview,
                 source_preview_artifact_id=payload.source_preview_artifact_id,
@@ -166,26 +214,84 @@ class TaskSuiteDeriveHandler:
                 reset_schema_id=contract.reset_schema_id,
                 derivation_profile=derivation_profile,
                 completion_oracle_registry_ref=payload.completion_oracle_registry_ref,
+                domain_scope=self._resource_domain_scope(context),
             )
         )
         if not drafts:
             raise ValueError("scenario shaper must derive at least one scenario")
+        if len(drafts) > config.max_scenarios or len(drafts) > MAX_PLAYTEST_COLLECTION_ITEMS:
+            raise IntegrityViolation(
+                "derived scenario count exceeds the frozen profile bound",
+                scenario_count=len(drafts),
+                max_scenarios=config.max_scenarios,
+            )
+
+        ordered_drafts = tuple(sorted(drafts, key=lambda item: (item.episode_id, item.scenario_id)))
+        episode_ids = tuple(item.episode_id for item in ordered_drafts)
+        scenario_ids = tuple(item.scenario_id for item in ordered_drafts)
+        if len(episode_ids) != len(set(episode_ids)):
+            raise IntegrityViolation("derived episode_id values must be unique")
+        if len(scenario_ids) != len(set(scenario_ids)):
+            raise IntegrityViolation("derived scenario_id values must be unique")
 
         lineage = self._run_input_lineage(payload)
+        frozen = context.payload.version_tuple
+        if (
+            frozen.ir_snapshot_id != preview.snapshot_id
+            or frozen.constraint_snapshot_id is None
+            or frozen.env_contract_version != contract.env_contract_version
+        ):
+            raise IntegrityViolation(
+                "task-suite frozen VersionTuple differs from preview/environment authority"
+            )
         version_tuple = VersionTuple(
-            ir_snapshot_id=preview.snapshot_id,
-            constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
+            doc_version=frozen.doc_version,
+            ir_snapshot_id=frozen.ir_snapshot_id,
+            constraint_snapshot_id=frozen.constraint_snapshot_id,
             env_contract_version=contract.env_contract_version,
             tool_version=TASK_SUITE_TOOL_VERSION,
         )
 
+        batch = PreparedArtifactBatchStore(
+            max_bytes=config.max_total_prepared_artifact_bytes,
+            max_artifacts=len(ordered_drafts) + 1,
+        )
         scenarios: list[PreparedArtifact] = []
         episodes: list[TaskEpisodeV1] = []
-        for draft in drafts:
+        for draft in ordered_drafts:
+            try:
+                reset_payload = self.payload_validator.validate(
+                    schema_id=contract.reset_schema_id,
+                    purpose="scenario_reset",
+                    payload=draft.reset_payload,
+                )
+            except IntegrityViolation as exc:
+                raise IntegrityViolation(
+                    "derived reset payload violates its exact schema",
+                    reset_schema_id=contract.reset_schema_id,
+                    scenario_id=draft.scenario_id,
+                ) from exc
+            try:
+                oracle_definition = resolve_completion_oracle(
+                    oracle_registry,
+                    payload.completion_oracle_registry_ref,
+                    draft.completion_oracle,
+                )
+                oracle_params = self.payload_validator.validate(
+                    schema_id=oracle_definition.params_schema_id,
+                    purpose="completion_oracle_params",
+                    payload=draft.completion_oracle.params,
+                )
+            except (IntegrityViolation, ValueError) as exc:
+                raise IntegrityViolation(
+                    "derived completion-oracle params violate their exact schema",
+                    scenario_id=draft.scenario_id,
+                ) from exc
+            completion_oracle = draft.completion_oracle.model_copy(update={"params": oracle_params})
             reset_binding = ScenarioResetBindingV1(
                 reset_schema_id=contract.reset_schema_id,
-                payload_hash=canonical_sha256(draft.reset_payload),
-                payload=draft.reset_payload,
+                payload_hash=canonical_sha256(reset_payload),
+                payload=reset_payload,
             )
             scenario = ScenarioSpecV1(
                 scenario_id=draft.scenario_id,
@@ -198,7 +304,7 @@ class TaskSuiteDeriveHandler:
                 reset_binding=reset_binding,
             )
             prepared = store_prepared_artifact(
-                self.store,
+                batch,
                 kind="scenario_spec",
                 payload_schema_id=SCENARIO_SPEC_SCHEMA_ID,
                 version_tuple=version_tuple,
@@ -210,7 +316,7 @@ class TaskSuiteDeriveHandler:
                 TaskEpisodeV1(
                     episode_id=draft.episode_id,
                     scenario_spec_artifact_id=content_addressed_artifact_id(prepared),
-                    completion_oracle=draft.completion_oracle,
+                    completion_oracle=completion_oracle,
                     domain_scope=draft.domain_scope,
                     reset_binding=reset_binding,
                     step_budget=draft.step_budget,
@@ -228,7 +334,7 @@ class TaskSuiteDeriveHandler:
             episodes=tuple(episodes),
         )
         suite_artifact = store_prepared_artifact(
-            self.store,
+            batch,
             kind="task_suite",
             payload_schema_id=TASK_SUITE_SCHEMA_ID,
             version_tuple=version_tuple,
@@ -236,12 +342,18 @@ class TaskSuiteDeriveHandler:
             payload=suite.model_dump(mode="json"),
         )
 
+        committed = batch.commit(
+            self.store,
+            (suite_artifact, *scenarios),
+            max_bytes=config.max_total_prepared_artifact_bytes,
+        )
+
         return build_success_result(
             run=context.run,
             attempt=context.attempt,
             outcome_code=TASK_SUITE_OUTCOME_CODE,
             primary_index=0,
-            artifacts=(suite_artifact, *scenarios),
+            artifacts=committed,
             findings=(),
         )
 
@@ -255,6 +367,13 @@ class TaskSuiteDeriveHandler:
             payload.constraint_snapshot_artifact_id,
         )
 
+    @staticmethod
+    def _resource_domain_scope(context: ExecutorContextLike) -> DomainScope:
+        scope = context.run.resource_domain_scope
+        if not isinstance(scope, DomainScope):
+            raise IntegrityViolation("task-suite Run lacks an admission-resolved resource domain")
+        return scope
+
 
 __all__ = [
     "DERIVATION_PROFILE_FIELD",
@@ -267,6 +386,7 @@ __all__ = [
     "ScenarioDerivationRequest",
     "ScenarioDraftV1",
     "ScenarioShaper",
+    "ScenarioShaperResolver",
     "TaskSuiteDeriveHandler",
     "content_addressed_artifact_id",
 ]

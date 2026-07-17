@@ -24,20 +24,27 @@ selected ``{episode_id, scenario_spec_artifact_id}`` binding must EXACTLY match 
 episode. Only the SELECTED non-empty episode subset is run, and only allowed bounded
 interaction commands are accepted.
 
-Lineage: the trace declares ONLY the run_input parents (``config`` + ``constraint`` +
-``task_suite``); the SELECTED-SCENARIO sibling parents are content-addressed and
-injected by the Task-18 publisher enhancement (the same ownership split as 11b/12a).
+Lineage: the trace declares the exact run_input parents (``config`` + ``constraint`` +
+``task_suite`` + every selected ScenarioSpec); all ids already exist at admission.
 The LLM ``source_rendered`` runtime parents are publisher-projected. ``seed`` is
 producer-local; ir/constraint/env are inherited from the run inputs.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable, Protocol
 
-from gameforge.contracts.canonical import canonical_sha256
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.config_export import ConfigExportPackageV1, decode_config_export_bytes
+from gameforge.contracts.env_types import parse_action
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import (
+    PlaytestPlannerProfileConfigV2,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     DependencyFailureV1,
@@ -46,35 +53,42 @@ from gameforge.contracts.jobs import (
     PreparedRunFailure,
     PreparedRunOutcome,
 )
-from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.playtest import (
     CompletionOracleRefV1,
     CompletionOracleRegistryRefV1,
     PlaytestActionRecordV1,
+    PlaytestExecutionEnvelopeV1,
+    PlaytestEpisodeSeedBindingV1,
     PlaytestEpisodeTraceV1,
+    PlaytestTerminalReasonV1,
     PlaytestTraceV1,
+    ScenarioResetBindingV1,
     ScenarioSpecV1,
     TaskEpisodeV1,
     TaskSuiteV1,
+    bind_exact_playtest_trace_bytes,
+    derive_playtest_trace_markers,
+    playtest_resource_upper_bounds,
 )
-from gameforge.spine.ir.snapshot import Snapshot
-
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
     FindingEvidence,
+    FindingHeadRevisionResolver,
     PreparedArtifactStore,
     build_prepared_findings,
     build_success_result,
     load_json_blob,
+    prepared_version_tuple,
     resolved_profile,
+    scoped_finding_series_id,
     store_prepared_artifact,
 )
 from gameforge.platform.run_handlers.model_routing import (
     MultiNodeBridgeRouter,
     build_multinode_bridge_router,
 )
-from gameforge.platform.run_handlers.readers import SnapshotLoader, load_snapshot
+from gameforge.platform.run_handlers.validation_common import derive_validation_subseed
 
 PLAYTEST_TOOL_VERSION = "playtest@1"
 PLAYTEST_TRACE_SCHEMA_ID = "playtest-trace@1"
@@ -129,25 +143,34 @@ def allowed_action_kinds(interaction_mode: str) -> frozenset[str]:
     return _ENV_ACTION_KINDS
 
 
-def derive_episode_seed(base_seed: int, episode_id: str) -> int:
-    """Deterministic per-episode subseed from the run seed + episode id (``subseed@1``).
+def derive_episode_seed(
+    *,
+    root_seed: int,
+    run_kind: RunKindRef,
+    environment_profile: ProfileRefV1,
+    task_suite_artifact_id: str,
+    episode_id: str,
+) -> int:
+    """Derive one episode through the frozen complete ``subseed@1`` tuple."""
 
-    ``AureusEnv.reset`` varies only by seed (the world is fixed by the preview at
-    construction), so a distinct per-episode subseed makes each selected episode a
-    distinct, deterministic seeded playthrough.
-    """
-
-    digest = canonical_sha256({"base_seed": int(base_seed), "episode_id": episode_id})
-    return int(digest[:16], 16)
+    return derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=run_kind,
+        profile=environment_profile,
+        case_id=f"{task_suite_artifact_id}:{episode_id}",
+        replication_index=0,
+    )
 
 
 @dataclass(frozen=True, slots=True)
 class PlaytestEpisodeRunRequest:
     """Fully-resolved deterministic inputs for ONE selected episode's agent-env drive."""
 
-    preview_snapshot: Snapshot
+    config_artifact_id: str
+    config_export: ConfigExportPackageV1
     environment_profile: ProfileRefV1
     scenario_id: str
+    reset_binding: ScenarioResetBindingV1
     seed: int
     router: MultiNodeBridgeRouter
     use_planner: bool
@@ -170,6 +193,8 @@ class PlaytestEpisodeOutcomeV1:
     action_trace: tuple[dict, ...]
     defect_findings: tuple[Finding, ...]
     completed: bool
+    initial_state_hash: str
+    final_state_hash: str
 
 
 class PlaytestEnvRunner(Protocol):
@@ -180,13 +205,12 @@ class PlaytestEnvRunner(Protocol):
     def run_episode(self, request: PlaytestEpisodeRunRequest) -> PlaytestEpisodeOutcomeV1: ...
 
 
-# Decide (deterministically) whether a planner_policy selects the M2b MemTrace memory
-# layer. Default OFF keeps the ``memory=None`` byte-identical regression lock.
-MemorySelector = Callable[[ProfileRefV1], bool]
-
-
-def _no_memory(_: ProfileRefV1) -> bool:
-    return False
+# Resolve the complete retained profile config through the Run-frozen catalog/hash
+# binding.  The worker composition owns this authority; the handler has no process
+# default and therefore cannot silently invent memory/resource behavior.
+PlannerConfigResolver = Callable[
+    [ResolvedExecutionProfileBindingV1], PlaytestPlannerProfileConfigV2
+]
 
 
 @dataclass(frozen=True, slots=True)
@@ -196,8 +220,8 @@ class PlaytestRunHandler:
     blobs: ArtifactBlobReader
     store: PreparedArtifactStore
     env_runner: PlaytestEnvRunner
-    snapshot_loader: SnapshotLoader = load_snapshot
-    memory_selector: MemorySelector = field(default=_no_memory)
+    planner_config_resolver: PlannerConfigResolver
+    finding_head_revision: FindingHeadRevisionResolver | None = None
     use_planner: bool = True
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
@@ -210,7 +234,8 @@ class PlaytestRunHandler:
         base_seed = int(envelope.seed)
 
         environment_profile = resolved_profile(envelope, ENVIRONMENT_PROFILE_FIELD).profile
-        planner_policy = resolved_profile(envelope, PLANNER_POLICY_FIELD).profile
+        planner_binding = resolved_profile(envelope, PLANNER_POLICY_FIELD)
+        planner_policy = planner_binding.profile
         if environment_profile != payload.environment_profile:
             raise ValueError("stale environment profile binding")
         if planner_policy != payload.planner_policy:
@@ -222,25 +247,64 @@ class PlaytestRunHandler:
 
         suite = self._load_suite(payload)
         self._validate_suite_bindings(suite, payload)
+        config_export = self._load_config_export(payload.config_artifact_id)
+        self._validate_config_bindings(config_export, suite, payload)
         selected = self._resolve_selected_episodes(suite, payload)
 
-        use_memory = bool(self.memory_selector(planner_policy))
-        router = self._build_router(context, use_memory)
-        preview = self.snapshot_loader(self.blobs, suite.source_preview_artifact_id)
+        try:
+            planner_config = PlaytestPlannerProfileConfigV2.model_validate(
+                self.planner_config_resolver(planner_binding)
+            )
+            (
+                total_step_limit,
+                model_call_upper_bound,
+                total_trace_byte_upper_bound,
+            ) = playtest_resource_upper_bounds(
+                planner_config,
+                episode_count=len(selected),
+                max_steps_per_episode=int(payload.max_steps_per_episode),
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "playtest request exceeds its exact planner profile authority"
+            ) from exc
+
+        use_memory = planner_config.memory_mode == "llm_compaction"
+        router = self._build_router(
+            context,
+            use_memory,
+            max_calls=model_call_upper_bound,
+        )
         allowed_kinds = allowed_action_kinds(payload.interaction_mode)
+        ir_snapshot_id = context.payload.version_tuple.ir_snapshot_id
+        if not isinstance(ir_snapshot_id, str) or not ir_snapshot_id:
+            raise IntegrityViolation("playtest Run lacks an exact IR snapshot authority")
 
         episode_traces: list[PlaytestEpisodeTraceV1] = []
-        findings_evidence: list[FindingEvidence] = []
+        findings_by_id: dict[str, FindingEvidence] = {}
         for binding, episode in selected:
+            # Each episode creates a fresh environment, Agent, and MemTrace. Keep
+            # one run-scoped adapter/cassette, but do not invent a direct causal
+            # edge from the preceding episode's final model response.
+            router.begin_causal_scope()
             scenario = self._load_scenario(binding.scenario_spec_artifact_id)
-            self._validate_scenario_bindings(scenario, suite, payload)
-            episode_seed = derive_episode_seed(base_seed, episode.episode_id)
-            max_steps = min(int(payload.max_steps_per_episode), int(episode.step_budget))
+            self._validate_scenario_bindings(scenario, suite, payload, episode)
+            seed_case_id = f"{payload.task_suite_artifact_id}:{episode.episode_id}"
+            episode_seed = derive_episode_seed(
+                root_seed=base_seed,
+                run_kind=context.run.kind,
+                environment_profile=environment_profile,
+                task_suite_artifact_id=payload.task_suite_artifact_id,
+                episode_id=episode.episode_id,
+            )
+            max_steps = int(payload.max_steps_per_episode)
             outcome = self.env_runner.run_episode(
                 PlaytestEpisodeRunRequest(
-                    preview_snapshot=preview,
+                    config_artifact_id=payload.config_artifact_id,
+                    config_export=config_export,
                     environment_profile=environment_profile,
                     scenario_id=scenario.scenario_id,
+                    reset_binding=scenario.reset_binding,
                     seed=episode_seed,
                     router=router,
                     use_planner=self.use_planner,
@@ -250,49 +314,137 @@ class PlaytestRunHandler:
                     completion_oracle_registry_ref=suite.completion_oracle_registry_ref,
                 )
             )
-            episode_traces.append(
-                PlaytestEpisodeTraceV1(
+            if type(outcome.completed) is not bool:
+                raise ValueError("playtest env runner must return a boolean completion verdict")
+            records = _records(
+                outcome.action_trace,
+                allowed_kinds,
+                max_steps=max_steps,
+            )
+            terminal_reason = _terminal_reason(
+                completed=outcome.completed,
+                action_count=len(records),
+                execution_step_limit=max_steps,
+                has_deterministic_findings=bool(outcome.defect_findings),
+            )
+            seed_binding = PlaytestEpisodeSeedBindingV1(
+                root_seed=base_seed,
+                run_kind=context.run.kind,
+                profile=environment_profile,
+                case_id=seed_case_id,
+                replication_index=0,
+                seed=episode_seed,
+            )
+            episode_trace = PlaytestEpisodeTraceV1(
+                episode_id=episode.episode_id,
+                scenario_spec_artifact_id=binding.scenario_spec_artifact_id,
+                seed=episode_seed,
+                seed_binding=seed_binding,
+                step_budget=int(episode.step_budget),
+                execution_step_limit=max_steps,
+                completion_oracle=episode.completion_oracle,
+                completed=outcome.completed,
+                terminal_reason=terminal_reason,
+                initial_state_hash=outcome.initial_state_hash,
+                final_state_hash=outcome.final_state_hash,
+                action_trace=records,
+                markers=derive_playtest_trace_markers(
+                    records,
+                    initial_state_hash=outcome.initial_state_hash,
+                    final_state_hash=outcome.final_state_hash,
+                    terminal_reason=terminal_reason,
+                ),
+            )
+            episode_traces.append(episode_trace)
+
+            for finding in outcome.defect_findings:
+                rebound = _rebind_runtime_finding(
+                    finding,
+                    ir_snapshot_id=ir_snapshot_id,
                     episode_id=episode.episode_id,
                     scenario_spec_artifact_id=binding.scenario_spec_artifact_id,
-                    seed=episode_seed,
-                    step_budget=int(episode.step_budget),
-                    completion_oracle=episode.completion_oracle,
-                    completed=bool(outcome.completed),
-                    action_trace=_records(outcome.action_trace, allowed_kinds),
                 )
-            )
-            findings_evidence.extend(
-                FindingEvidence(finding=finding, evidence_artifact_index=0)
-                for finding in outcome.defect_findings
-            )
+                _accumulate_finding(
+                    findings_by_id,
+                    finding=rebound,
+                    episode_id=episode.episode_id,
+                )
+            if not outcome.completed:
+                _accumulate_finding(
+                    findings_by_id,
+                    finding=_incomplete_episode_finding(
+                        run_id=context.run.run_id,
+                        ir_snapshot_id=ir_snapshot_id,
+                        episode=episode,
+                        scenario_spec_artifact_id=binding.scenario_spec_artifact_id,
+                        terminal_reason=terminal_reason,
+                        episode_trace=episode_trace,
+                    ),
+                    episode_id=episode.episode_id,
+                )
 
-        trace = PlaytestTraceV1(
-            config_artifact_id=payload.config_artifact_id,
-            constraint_snapshot_artifact_id=payload.constraint_snapshot_artifact_id,
-            task_suite_artifact_id=payload.task_suite_artifact_id,
-            environment_profile=payload.environment_profile,
-            planner_policy=payload.planner_policy,
-            env_contract_version=suite.env_contract_version,
-            interaction_mode=payload.interaction_mode,
-            seed=base_seed,
-            episodes=tuple(episode_traces),
+        total_action_count = sum(len(episode.action_trace) for episode in episode_traces)
+        total_action_trace_bytes = sum(
+            len(
+                canonical_json(
+                    [record.model_dump(mode="json") for record in episode.action_trace]
+                ).encode("utf-8")
+            )
+            for episode in episode_traces
         )
+        if router.call_count > planner_config.max_total_model_calls:
+            raise IntegrityViolation("playtest exceeded its exact model-call authority")
+        if total_action_trace_bytes > planner_config.max_total_trace_bytes:
+            raise IntegrityViolation("playtest exceeded its exact trace-byte authority")
+
+        trace_payload: dict[str, object] = {
+            "config_artifact_id": payload.config_artifact_id,
+            "constraint_snapshot_artifact_id": payload.constraint_snapshot_artifact_id,
+            "task_suite_artifact_id": payload.task_suite_artifact_id,
+            "environment_profile": payload.environment_profile.model_dump(mode="json"),
+            "planner_policy": payload.planner_policy.model_dump(mode="json"),
+            "env_contract_version": suite.env_contract_version,
+            "interaction_mode": payload.interaction_mode,
+            "seed": base_seed,
+            "requested_max_steps_per_episode": int(payload.max_steps_per_episode),
+            "planner_memory_mode": planner_config.memory_mode,
+            "execution_envelope": PlaytestExecutionEnvelopeV1(
+                planner_profile_payload_hash=planner_binding.profile_payload_hash,
+                selected_episode_count=len(episode_traces),
+                total_step_limit=total_step_limit,
+                model_call_upper_bound=model_call_upper_bound,
+                total_trace_byte_upper_bound=total_trace_byte_upper_bound,
+                actual_model_calls=router.call_count,
+                total_action_count=total_action_count,
+                total_action_trace_bytes=total_action_trace_bytes,
+                actual_trace_bytes=1,
+            ).model_dump(mode="json"),
+            "episodes": [episode.model_dump(mode="json") for episode in episode_traces],
+        }
+        trace = PlaytestTraceV1.model_validate(bind_exact_playtest_trace_bytes(trace_payload))
+        if trace.execution_envelope.actual_trace_bytes > planner_config.max_total_trace_bytes:
+            raise IntegrityViolation("playtest exceeded its exact complete trace authority")
         primary = store_prepared_artifact(
             self.store,
             kind="playtest_trace",
             payload_schema_id=PLAYTEST_TRACE_SCHEMA_ID,
-            version_tuple=VersionTuple(
-                ir_snapshot_id=preview.snapshot_id,
-                constraint_snapshot_id=payload.constraint_snapshot_artifact_id,
-                env_contract_version=suite.env_contract_version,
+            version_tuple=prepared_version_tuple(
+                context,
                 tool_version=PLAYTEST_TOOL_VERSION,
-                seed=base_seed,
+                projected_fields=(
+                    "ir_snapshot_id",
+                    "constraint_snapshot_id",
+                    "env_contract_version",
+                    "seed",
+                ),
             ),
             lineage=self._run_input_lineage(payload),
             payload=trace.model_dump(mode="json"),
         )
         prepared_findings = build_prepared_findings(
-            tuple(findings_evidence), run_id=context.run.run_id
+            tuple(findings_by_id[key] for key in sorted(findings_by_id)),
+            run_id=context.run.run_id,
+            head_revision_resolver=self.finding_head_revision,
         )
         return build_success_result(
             run=context.run,
@@ -305,7 +457,11 @@ class PlaytestRunHandler:
 
     # ------------------------------------------------------------------ router
     def _build_router(
-        self, context: ExecutorContextLike, use_memory: bool
+        self,
+        context: ExecutorContextLike,
+        use_memory: bool,
+        *,
+        max_calls: int,
     ) -> MultiNodeBridgeRouter:
         node_ids = list(PLAYTEST_CORE_NODE_IDS)
         if use_memory:
@@ -314,6 +470,7 @@ class PlaytestRunHandler:
             context=context,
             agent_node_ids=tuple(node_ids),
             default_node_id=PLAYTEST_PLANNER_NODE,
+            max_calls=max_calls,
         )
 
     # ------------------------------------------------------------------ inputs
@@ -329,6 +486,12 @@ class PlaytestRunHandler:
             raise ValueError("scenario_spec artifact payload must be a JSON object")
         return ScenarioSpecV1.model_validate(raw)
 
+    def _load_config_export(self, artifact_id: str) -> ConfigExportPackageV1:
+        try:
+            return decode_config_export_bytes(self.blobs.read_bytes(artifact_id))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("playtest config export is not a canonical package") from exc
+
     @staticmethod
     def _validate_suite_bindings(suite: TaskSuiteV1, payload: PlaytestRunPayloadV1) -> None:
         if suite.config_export_artifact_id != payload.config_artifact_id:
@@ -337,6 +500,21 @@ class PlaytestRunHandler:
             raise ValueError("stale task-suite constraint binding")
         if suite.environment_profile != payload.environment_profile:
             raise ValueError("stale task-suite environment binding")
+
+    @staticmethod
+    def _validate_config_bindings(
+        package: ConfigExportPackageV1,
+        suite: TaskSuiteV1,
+        payload: PlaytestRunPayloadV1,
+    ) -> None:
+        if package.source_preview_artifact_id != suite.source_preview_artifact_id:
+            raise ValueError("stale config preview binding")
+        if package.constraint_snapshot_artifact_id != payload.constraint_snapshot_artifact_id:
+            raise ValueError("stale config constraint binding")
+        if package.target_environment_profile != payload.environment_profile:
+            raise ValueError("stale config environment binding")
+        if package.env_contract_version != suite.env_contract_version:
+            raise ValueError("stale config env-contract binding")
 
     @staticmethod
     def _resolve_selected_episodes(
@@ -354,6 +532,8 @@ class PlaytestRunHandler:
                 raise ValueError(
                     f"selected episode {binding.episode_id!r} scenario binding is stale"
                 )
+            if payload.max_steps_per_episode > episode.step_budget:
+                raise ValueError(f"selected episode {binding.episode_id!r} step budget is stale")
             selected.append((binding, episode))
         if not selected:
             raise ValueError("playtest requires at least one selected episode")
@@ -361,7 +541,10 @@ class PlaytestRunHandler:
 
     @staticmethod
     def _validate_scenario_bindings(
-        scenario: ScenarioSpecV1, suite: TaskSuiteV1, payload: PlaytestRunPayloadV1
+        scenario: ScenarioSpecV1,
+        suite: TaskSuiteV1,
+        payload: PlaytestRunPayloadV1,
+        episode: TaskEpisodeV1,
     ) -> None:
         if scenario.config_export_artifact_id != payload.config_artifact_id:
             raise ValueError("stale scenario config binding")
@@ -373,15 +556,21 @@ class PlaytestRunHandler:
             raise ValueError("stale scenario env-contract binding")
         if scenario.source_preview_artifact_id != suite.source_preview_artifact_id:
             raise ValueError("stale scenario preview binding")
+        if scenario.reset_binding != episode.reset_binding:
+            raise ValueError("stale scenario reset binding")
+        if scenario.domain_scope != episode.domain_scope:
+            raise ValueError("stale scenario domain binding")
 
     @staticmethod
     def _run_input_lineage(payload: PlaytestRunPayloadV1) -> tuple[str, ...]:
-        # config + constraint + task_suite run_input roles; the selected_scenarios
-        # sibling parents on the trace are publisher-injected (Task-18 carry).
+        # Every direct role is an immutable Run input.  Unlike prepared siblings,
+        # selected ScenarioSpecs already have final Artifact ids at admission and
+        # therefore must be declared by the handler for typed-lineage projection.
         return (
             payload.config_artifact_id,
             payload.constraint_snapshot_artifact_id,
             payload.task_suite_artifact_id,
+            *(item.scenario_spec_artifact_id for item in payload.episodes),
         )
 
     def _unavailable_failure(
@@ -417,28 +606,199 @@ class PlaytestRunHandler:
         )
 
 
+def _terminal_reason(
+    *,
+    completed: bool,
+    action_count: int,
+    execution_step_limit: int,
+    has_deterministic_findings: bool,
+) -> PlaytestTerminalReasonV1:
+    if completed:
+        return "completion_oracle_satisfied"
+    if action_count == execution_step_limit:
+        return "step_limit_exhausted"
+    if has_deterministic_findings:
+        return "deterministic_abort"
+    return "agent_stopped"
+
+
+def _rebind_runtime_finding(
+    finding: Finding,
+    *,
+    ir_snapshot_id: str,
+    episode_id: str,
+    scenario_spec_artifact_id: str,
+) -> Finding:
+    """Bind a runtime Finding to publishable IR authority without losing state evidence."""
+
+    occurrence: dict[str, object] = {
+        "evidence": dict(finding.evidence),
+        "minimal_repro": dict(finding.minimal_repro),
+    }
+    if finding.snapshot_id != ir_snapshot_id:
+        occurrence["runtime_state_hash"] = finding.snapshot_id
+    return finding.model_copy(
+        update={
+            "snapshot_id": ir_snapshot_id,
+            "evidence": {
+                "episode_id": episode_id,
+                "scenario_spec_artifact_id": scenario_spec_artifact_id,
+                "occurrences": [occurrence],
+            },
+            "minimal_repro": {
+                "episode_id": episode_id,
+                "scenario_spec_artifact_id": scenario_spec_artifact_id,
+            },
+            "created_at": None,
+        }
+    )
+
+
+def _accumulate_finding(
+    findings_by_id: dict[str, FindingEvidence],
+    *,
+    finding: Finding,
+    episode_id: str,
+) -> None:
+    """Deduplicate one episode-scoped series before the publisher's head CAS."""
+
+    finding_id = scoped_finding_series_id(
+        namespace="playtest",
+        scope_id=episode_id,
+        finding_id=finding.id,
+    )
+    existing = findings_by_id.get(finding_id)
+    if existing is None:
+        findings_by_id[finding_id] = FindingEvidence(
+            finding=finding,
+            evidence_artifact_index=0,
+            finding_id=finding_id,
+        )
+        return
+
+    stable_excludes = {"evidence", "minimal_repro", "created_at"}
+    if canonical_json(
+        existing.finding.model_dump(mode="json", exclude=stable_excludes)
+    ) != canonical_json(finding.model_dump(mode="json", exclude=stable_excludes)):
+        raise IntegrityViolation("duplicate playtest Finding series has conflicting semantics")
+    previous_occurrences = existing.finding.evidence.get("occurrences")
+    new_occurrences = finding.evidence.get("occurrences")
+    if not isinstance(previous_occurrences, list) or not isinstance(new_occurrences, list):
+        if canonical_json(existing.finding.evidence) != canonical_json(finding.evidence):
+            raise IntegrityViolation("duplicate playtest Finding series has conflicting evidence")
+        return
+    by_payload = {
+        canonical_json(occurrence): occurrence
+        for occurrence in (*previous_occurrences, *new_occurrences)
+    }
+    merged_evidence = {
+        **existing.finding.evidence,
+        "occurrences": [by_payload[key] for key in sorted(by_payload)],
+    }
+    findings_by_id[finding_id] = FindingEvidence(
+        finding=existing.finding.model_copy(update={"evidence": merged_evidence}),
+        evidence_artifact_index=0,
+        finding_id=finding_id,
+    )
+
+
+def _incomplete_episode_finding(
+    *,
+    run_id: str,
+    ir_snapshot_id: str,
+    episode: TaskEpisodeV1,
+    scenario_spec_artifact_id: str,
+    terminal_reason: PlaytestTerminalReasonV1,
+    episode_trace: PlaytestEpisodeTraceV1,
+) -> Finding:
+    return Finding(
+        id=f"playtest-incomplete:{terminal_reason}",
+        source="playtest",
+        producer_id="playtest.completion_oracle",
+        producer_run_id=run_id,
+        oracle_type="deterministic",
+        defect_class="playtest_incomplete",
+        severity="major",
+        snapshot_id=ir_snapshot_id,
+        evidence={
+            "episode_id": episode.episode_id,
+            "scenario_spec_artifact_id": scenario_spec_artifact_id,
+            "terminal_reason": terminal_reason,
+            "completion_oracle": episode.completion_oracle.model_dump(mode="json"),
+            "execution_step_limit": episode_trace.execution_step_limit,
+            "executed_steps": len(episode_trace.action_trace),
+            "initial_state_hash": episode_trace.initial_state_hash,
+            "final_state_hash": episode_trace.final_state_hash,
+        },
+        minimal_repro={
+            "episode_id": episode.episode_id,
+            "scenario_spec_artifact_id": scenario_spec_artifact_id,
+            "seed_binding": episode_trace.seed_binding.model_dump(mode="json"),
+            "execution_step_limit": episode_trace.execution_step_limit,
+        },
+        status="confirmed",
+        message="The deterministic completion oracle was not satisfied in the bounded episode.",
+    )
+
+
 def _records(
-    action_trace: tuple[dict, ...], allowed_kinds: frozenset[str]
+    action_trace: tuple[dict, ...],
+    allowed_kinds: frozenset[str],
+    *,
+    max_steps: int,
 ) -> tuple[PlaytestActionRecordV1, ...]:
     """Project the raw agent action trace onto bounded records (fail-closed on kind)."""
 
+    if not isinstance(action_trace, tuple):
+        raise ValueError("playtest action record collection must be an exact tuple")
+    if len(action_trace) > max_steps:
+        raise ValueError("playtest action trace exceeds the requested step limit")
     records: list[PlaytestActionRecordV1] = []
     for step in action_trace:
-        action = step.get("action", {}) if isinstance(step, dict) else {}
-        kind = action.get("kind") if isinstance(action, dict) else None
+        if not isinstance(step, dict) or set(step) != {
+            "action",
+            "last_action_result",
+            "tick",
+            "state_hash",
+        }:
+            raise ValueError("playtest action record has an invalid shape")
+        action = step["action"]
+        result = step["last_action_result"]
+        tick = step["tick"]
+        state_hash = step["state_hash"]
+        if (
+            not isinstance(action, dict)
+            or not isinstance(result, str)
+            or not isinstance(tick, int)
+            or isinstance(tick, bool)
+            or tick < 0
+            or not isinstance(state_hash, str)
+            or not state_hash
+        ):
+            raise ValueError("playtest action record has invalid field types")
+        try:
+            parsed_action = parse_action(action)
+            canonical_action = parsed_action.model_dump(mode="json", exclude_none=True)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("playtest action record contains a malformed action") from exc
+        if canonical_action != action:
+            raise ValueError("playtest action record action is not exact canonical input")
+        kind = canonical_action.get("kind")
         if kind not in allowed_kinds:
             raise ValueError(
                 f"playtest action kind {kind!r} is not an allowed bounded interaction command"
             )
-        result = step.get("last_action_result") if isinstance(step, dict) else None
-        tick = step.get("tick", 0) if isinstance(step, dict) else 0
-        records.append(
-            PlaytestActionRecordV1(
-                action=action,
-                last_action_result=result if isinstance(result, str) else "",
-                tick=int(tick) if isinstance(tick, int) else 0,
+        try:
+            records.append(
+                PlaytestActionRecordV1(
+                    action=canonical_action,
+                    last_action_result=result,
+                    tick=tick,
+                    state_hash=state_hash,
+                )
             )
-        )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("playtest action record exceeds its bounded contract") from exc
     return tuple(records)
 
 
@@ -453,7 +813,7 @@ __all__ = [
     "PLAYTEST_REFLECT_NODE",
     "PLAYTEST_TOOL_VERSION",
     "PLAYTEST_TRACE_SCHEMA_ID",
-    "MemorySelector",
+    "PlannerConfigResolver",
     "PlaytestEnvRunner",
     "PlaytestEpisodeOutcomeV1",
     "PlaytestEpisodeRunRequest",

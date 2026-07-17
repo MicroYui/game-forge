@@ -241,16 +241,21 @@ def test_human_patch_draft_creates_draft_approval(tmp_path: Path) -> None:
 class _ConfigExporter:
     def __init__(self) -> None:
         self.packages: list[ConfigExportPackageV1] = []
+        self.bindings: list[tuple[object, object, object]] = []
 
     def export(
         self,
         *,
         export_profile,
+        export_profile_binding,
+        run_kind,
+        llm_execution_mode,
         preview_snapshot_id,
         preview_payload,
         constraint_snapshot_artifact_id,
         constraints,
     ) -> ConfigExportPackageV1:
+        self.bindings.append((export_profile_binding, run_kind, llm_execution_mode))
         del preview_payload, constraints
         content = b"[]"
         package = ConfigExportPackageV1(
@@ -284,7 +289,7 @@ def test_patch_draft_publishes_exact_requested_config_export_candidate(
         execution_profile_catalog=catalog,
         config_exporter=exporter,
     )
-    publish_base(harness, entities=_base_entities())
+    publish_base(harness, entities=_base_entities(), doc_version="design-doc@7")
     constraint = publish_constraint_snapshot(harness, constraints=[])
     profile = ProfileRefV1(profile_id="builtin.config_export", version=1)
     request = _patch_payload(harness)
@@ -322,21 +327,84 @@ def test_patch_draft_publishes_exact_requested_config_export_candidate(
             clock=harness.clock,
         )
         config = repository.get(config_id)
+        patch = repository.get(response.json()["artifact"]["artifact_id"])
+        preview = repository.get(preview_id)
         assert config is not None
+        assert patch is not None
+        assert preview is not None
         location = bindings.resolve(config.object_ref).location
     with harness.objects.open(location) as source:
         payload = source.read()
 
     package = exporter.packages[0]
     assert package.export_profile == profile
+    exact_binding, run_kind, execution_mode = exporter.bindings[0]
+    assert exact_binding.field_path == "/candidate_export_profiles/0"
+    assert exact_binding.profile == profile
+    assert exact_binding.catalog_version == catalog.catalog_version
+    assert exact_binding.catalog_digest == catalog.catalog_digest
+    assert run_kind is None
+    assert execution_mode == "not_applicable"
     assert package.source_preview_artifact_id == preview_id
     assert package.constraint_snapshot_artifact_id == constraint.artifact_id
     assert payload == canonical_config_export_bytes(package)
     assert set(config.lineage) == {preview_id, constraint.artifact_id}
+    assert set(patch.lineage) == {harness.base_artifact_id, constraint.artifact_id}
+    assert patch.version_tuple.doc_version == "design-doc@7"
+    assert (
+        patch.version_tuple.constraint_snapshot_id
+        == constraint.version_tuple.constraint_snapshot_id
+    )
+    assert preview.version_tuple.doc_version == "design-doc@7"
+    assert config.version_tuple.doc_version == "design-doc@7"
     assert (
         config.version_tuple.constraint_snapshot_id
         == constraint.version_tuple.constraint_snapshot_id
     )
+
+
+def test_patch_draft_binds_constraint_without_requesting_config_export(
+    tmp_path: Path,
+) -> None:
+    harness = build_harness(tmp_path)
+    publish_base(harness, entities=_base_entities())
+    constraint = publish_constraint_snapshot(harness, constraints=[])
+    request = _patch_payload(harness)
+    request["constraint_snapshot_artifact_id"] = constraint.artifact_id
+
+    harness.use_actor(maker_actor(harness))
+    with _client(harness) as client:
+        response = client.post(
+            "/api/v1/patches",
+            json=request,
+            headers=headers(key="patch:draft:constraint-without-export"),
+        )
+
+    assert response.status_code == 201, response.text
+    patch_id = response.json()["artifact"]["artifact_id"]
+    with Session(harness.engine) as session:
+        bindings = SqlObjectBindingRepository(
+            session,
+            object_store=harness.objects,
+            default_store_id="local",
+        )
+        patch = SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=CursorSigner(signing_key=CURSOR_KEY, clock=harness.clock),
+            clock=harness.clock,
+        ).get(patch_id)
+        config_count = session.scalars(
+            select(ArtifactRow.artifact_id).where(ArtifactRow.kind == "config_export")
+        ).all()
+
+    assert patch is not None
+    assert set(patch.lineage) == {harness.base_artifact_id, constraint.artifact_id}
+    assert (
+        patch.version_tuple.constraint_snapshot_id
+        == constraint.version_tuple.constraint_snapshot_id
+    )
+    assert config_count == []
 
 
 def test_patch_draft_rejects_unknown_export_profile_before_publication(
@@ -1145,11 +1213,15 @@ def test_patch_rebase_clean_compiles_and_publishes_rebased_draft(tmp_path: Path)
             )
         ],
     )
+    base_artifact_id = harness.base_artifact_id
+    constraint = publish_constraint_snapshot(harness, constraints=[])
     with _client(harness) as client:
         # Create the source draft while its exact base ref is current.
         harness.use_actor(maker_actor(harness))
+        source_request = _patch_payload(harness)
+        source_request["constraint_snapshot_artifact_id"] = constraint.artifact_id
         draft = client.post(
-            "/api/v1/patches", json=_patch_payload(harness), headers=headers(key="clean:draft")
+            "/api/v1/patches", json=source_request, headers=headers(key="clean:draft")
         )
         assert draft.status_code == 201, draft.text
         patch_artifact = draft.json()["artifact"]["artifact_id"]
@@ -1227,6 +1299,28 @@ def test_patch_rebase_clean_compiles_and_publishes_rebased_draft(tmp_path: Path)
     assert rebased.subject_revision == source.subject_revision + 1
     assert rebased.status == "draft"
     assert rebased.target_binding.expected_ref == RefValue.model_validate(live_ref)
+    with Session(harness.engine) as session:
+        bindings = SqlObjectBindingRepository(
+            session,
+            object_store=harness.objects,
+            default_store_id="local",
+        )
+        repository = SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=CursorSigner(signing_key=CURSOR_KEY, clock=harness.clock),
+            clock=harness.clock,
+        )
+        source_artifact = repository.get(patch_artifact)
+        rebased_artifact = repository.get(new_patch_artifact_id)
+    assert source_artifact is not None
+    assert rebased_artifact is not None
+    assert set(source_artifact.lineage) == {base_artifact_id, constraint.artifact_id}
+    assert set(rebased_artifact.lineage) == {patch_artifact, live_ref["artifact_id"]}
+    assert (
+        rebased_artifact.version_tuple.constraint_snapshot_id
+        == constraint.version_tuple.constraint_snapshot_id
+    )
 
 
 def test_patch_resolve_conflicts_publishes_resolved_draft(tmp_path: Path) -> None:

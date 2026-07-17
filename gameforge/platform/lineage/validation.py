@@ -201,7 +201,12 @@ PRODUCER_RULES: Mapping[str, ProducerRule] = MappingProxyType(
             "constraint_snapshot_id",
             "tool_version",
             projected_fields=frozenset(
-                {"ir_snapshot_id", "constraint_snapshot_id", "env_contract_version"}
+                {
+                    "doc_version",
+                    "ir_snapshot_id",
+                    "constraint_snapshot_id",
+                    "env_contract_version",
+                }
             ),
             projection_required=True,
             required_projected_fields=frozenset({"ir_snapshot_id", "constraint_snapshot_id"}),

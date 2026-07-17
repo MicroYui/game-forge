@@ -427,6 +427,38 @@ class WorkerRuntime:
             raise first_error
 
 
+def build_worker_registry(
+    engine: Engine,
+    *,
+    clock: SystemUtcClock | None = None,
+) -> ImmutablePlatformRegistry:
+    """Compose built-in platform authority with exact DB-retained profile history.
+
+    The API persists execution-profile catalogs in ``policy_snapshots`` before it
+    admits a Run.  A separately started worker must resolve that same immutable
+    ``{catalog_version,catalog_digest}`` from the shared database; falling back to
+    process built-ins would strand otherwise valid queued Runs.  Non-profile
+    registries remain the frozen built-in authority, while equal catalog versions
+    must be byte-for-byte identical through ``with_execution_profile_catalogs``.
+
+    An unmigrated local database remains constructible so the readiness check can
+    report its migration-head/table failure without this composition path creating
+    schema or inventing catalog state.
+    """
+
+    registry = build_builtin_registry()
+    if not inspect(engine).has_table("policy_snapshots"):
+        return registry
+    with Session(engine) as session:
+        persisted = SqlPolicySnapshotRepository(
+            session,
+            clock=clock or SystemUtcClock(),
+        ).list_execution_profile_catalogs()
+    if not persisted:
+        return registry
+    return registry.with_execution_profile_catalogs(persisted, replace=False)
+
+
 def build_worker_runtime(
     config: LocalWorkerConfig,
     *,
@@ -434,6 +466,7 @@ def build_worker_runtime(
     engine: Engine | None = None,
     object_store: LocalObjectStore | None = None,
     model_execution_authorities: WorkerModelExecutionAuthorities | None = None,
+    registry: ImmutablePlatformRegistry | None = None,
 ) -> WorkerRuntime:
     clock = SystemUtcClock()
     runtime_engine: Engine | None = engine
@@ -452,6 +485,13 @@ def build_worker_runtime(
         runtime_engine = runtime_engine or get_engine(config.database_url)
         if runtime_engine.dialect.name != "sqlite":
             raise WorkerConfigurationError("local worker composition requires SQLite")
+        runtime_registry = (
+            build_worker_registry(runtime_engine, clock=clock) if registry is None else registry
+        )
+        if not isinstance(runtime_registry, ImmutablePlatformRegistry):
+            raise WorkerConfigurationError(
+                "worker registry must be an exact ImmutablePlatformRegistry"
+            )
         if object_store is None:
             object_store = LocalObjectStore(
                 config.object_store_root,
@@ -488,7 +528,7 @@ def build_worker_runtime(
             executor_pool=executor_pool,
             control_pool=control_pool,
             heartbeat_pool=heartbeat_pool,
-            registry=build_builtin_registry(),
+            registry=runtime_registry,
             components=components,
             worker_actor=AuditActor(
                 principal_id=config.worker_principal_id,
@@ -741,6 +781,7 @@ __all__ = [
     "build_executor_resolver",
     "build_reaper_scan",
     "build_timeout_scan",
+    "build_worker_registry",
     "build_worker_runtime",
     "validate_worker_readiness",
 ]

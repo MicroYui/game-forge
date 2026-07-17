@@ -374,11 +374,15 @@ class _FakeConfigExporter:
         self,
         *,
         export_profile,
+        export_profile_binding,
+        run_kind,
+        llm_execution_mode,
         preview_snapshot_id,
         preview_payload,
         constraint_snapshot_artifact_id,
         constraints,
     ) -> ConfigExportPackageV1:
+        del export_profile_binding, run_kind, llm_execution_mode, preview_payload, constraints
         content = json.dumps({"preview": preview_snapshot_id}, sort_keys=True).encode("utf-8")
         return ConfigExportPackageV1(
             export_profile=export_profile,
@@ -625,7 +629,7 @@ def _context(
                 for index, profile in enumerate(actual_payload.simulation_profiles)
             ),
             resolved_binding(
-                "/params/candidate_export_profiles",
+                "/params/candidate_export_profiles/0",
                 profile_id="csv",
                 version=1,
                 kind="config_export",
@@ -733,6 +737,7 @@ def test_repair_verified_emits_superseding_patch_from_exact_base() -> None:
     assert preview.version_tuple.constraint_snapshot_id is None
     assert preview.version_tuple.seed is None
     config = next(a for a in outcome.artifacts if a.kind == "config_export")
+    assert config.version_tuple.doc_version == "base-doc@1"
     assert config.version_tuple.constraint_snapshot_id == "constraint:semantic:1"
     assert config.version_tuple.seed is None
 

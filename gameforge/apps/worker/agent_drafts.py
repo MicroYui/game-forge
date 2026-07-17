@@ -347,6 +347,11 @@ class WorkerAgentDraftPreparedAssembler:
             or patch.producer_run_id != request.run.run_id
             or subject.version_tuple.ir_snapshot_id != patch.base_snapshot_id
             or previews[0].version_tuple.ir_snapshot_id != patch.target_snapshot_id
+            or subject.version_tuple.doc_version != previews[0].version_tuple.doc_version
+            or any(
+                config.version_tuple.doc_version != previews[0].version_tuple.doc_version
+                for config in configs
+            )
         ):
             raise IntegrityViolation("Agent Patch draft differs from exact Run authority")
         params = request.run.payload.params
@@ -459,6 +464,7 @@ class WorkerAgentDraftLineageVerifier:
             subject.artifact_id not in preview_parents
             or len(base_parents) != 1
             or not base_parents <= set(subject.lineage)
+            or subject.version_tuple.doc_version != preview.version_tuple.doc_version
         ):
             raise IntegrityViolation(
                 "Agent Patch preview must descend from its Patch and exact base"
@@ -470,7 +476,8 @@ class WorkerAgentDraftLineageVerifier:
                     "config export must descend from the exact Agent Patch preview and constraint"
                 )
             if (
-                config.version_tuple.ir_snapshot_id != preview.version_tuple.ir_snapshot_id
+                config.version_tuple.doc_version != preview.version_tuple.doc_version
+                or config.version_tuple.ir_snapshot_id != preview.version_tuple.ir_snapshot_id
                 or config.version_tuple.constraint_snapshot_id is None
                 or config.meta.get("payload_schema_id") != "config-export-package@1"
             ):

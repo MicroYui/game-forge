@@ -11,8 +11,9 @@ from gameforge.contracts.execution_profiles import (
     EnvironmentProfileDetailsV1,
     ExecutionProfileCatalogSnapshotV1,
     MigrationProfileDetailsV1,
-    PlaytestPlannerProfileConfigV1,
+    PlaytestPlannerProfileConfigV2,
     RunKindRef,
+    TaskSuiteDerivationProfileConfigV2,
 )
 from gameforge.contracts.jobs import (
     ArtifactLineagePolicyV1,
@@ -57,7 +58,7 @@ def _require_exact_keys(*, label: str, actual: set[str], expected: set[str]) -> 
 _PROFILE_SELECTOR_ENUMS = {
     ("playtest_planner", "/memory_mode"): frozenset(
         value
-        for value in get_args(PlaytestPlannerProfileConfigV1.model_fields["memory_mode"].annotation)
+        for value in get_args(PlaytestPlannerProfileConfigV2.model_fields["memory_mode"].annotation)
         if isinstance(value, str)
     ),
 }
@@ -91,8 +92,10 @@ class PlatformReadinessValidator:
         definitions = self._registry.list_run_kinds()
         active = tuple(item for item in definitions if item.status == "active")
         active_ids = {(item.kind, item.version) for item in active}
-        if active_ids != FROZEN_ACTIVE_RUN_KIND_IDENTITIES or len(active) != 14:
-            raise IntegrityViolation("registry must contain exactly the 14 frozen active Run kinds")
+        if active_ids != FROZEN_ACTIVE_RUN_KIND_IDENTITIES or len(active) != len(
+            FROZEN_ACTIVE_RUN_KIND_IDENTITIES
+        ):
+            raise IntegrityViolation("registry must contain exactly the frozen active Run kinds")
         agent_graphs = self._registry.list_agent_execution_graphs()
         llm_kind_ids = {
             (item.kind, item.version)
@@ -280,6 +283,38 @@ class PlatformReadinessValidator:
             ):
                 raise IntegrityViolation("completion-oracle schemas forbid wildcards")
 
+        payload_schema_registries = self._registry.list_playtest_payload_schema_registries()
+        if not payload_schema_registries:
+            raise IntegrityViolation("playtest-payload-schema registry is not retained")
+        payload_schemas = {}
+        for payload_registry in payload_schema_registries:
+            if (
+                self._registry.get_playtest_payload_schema_registry(
+                    payload_registry.registry_version,
+                    payload_registry.registry_digest,
+                )
+                is None
+            ):
+                raise IntegrityViolation(
+                    "playtest-payload-schema registry does not resolve exactly"
+                )
+            for schema in payload_registry.definitions:
+                if _contains_wildcard(schema.schema_id) or _contains_wildcard(schema.validator_key):
+                    raise IntegrityViolation(
+                        "playtest payload schemas and validator keys forbid wildcards"
+                    )
+                retained = self._registry.get_playtest_payload_schema(schema.schema_id)
+                if retained != schema:
+                    raise IntegrityViolation("playtest payload schema does not resolve exactly")
+                payload_schemas[schema.schema_id] = schema
+        for oracle_registry in oracle_registries:
+            for oracle in oracle_registry.definitions:
+                schema = payload_schemas.get(oracle.params_schema_id)
+                if schema is None or schema.purpose != "completion_oracle_params":
+                    raise IntegrityViolation(
+                        "completion oracle params lack an exact payload-schema validator"
+                    )
+
         profile_catalogs = self._registry.list_execution_profile_catalogs()
         if not profile_catalogs:
             raise IntegrityViolation("execution-profile catalog is not retained")
@@ -338,6 +373,37 @@ class PlatformReadinessValidator:
                     ):
                         raise IntegrityViolation(
                             "config-export profile has an unclosed environment contract"
+                        )
+                if isinstance(profile.details, EnvironmentProfileDetailsV1):
+                    reset_schema = payload_schemas.get(profile.details.contract.reset_schema_id)
+                    if reset_schema is None or reset_schema.purpose != "scenario_reset":
+                        raise IntegrityViolation(
+                            "environment profile reset schema lacks an exact validator"
+                        )
+                if (
+                    profile.profile_kind == "task_suite_derivation"
+                    and profile.config_schema_id == "task_suite_derivation-profile-config@2"
+                ):
+                    try:
+                        suite_config = TaskSuiteDerivationProfileConfigV2.model_validate(
+                            profile.config
+                        )
+                    except ValueError as exc:  # pragma: no cover - profile contract closes first
+                        raise IntegrityViolation(
+                            "task-suite derivation profile config is invalid"
+                        ) from exc
+                    environment = profiles_by_ref.get(suite_config.target_environment_profile)
+                    if environment is None or environment.profile_kind != "environment":
+                        raise IntegrityViolation(
+                            "task-suite derivation profile has an unclosed environment"
+                        )
+                    oracle_ref = CompletionOracleRegistryRefV1(
+                        registry_version=(suite_config.completion_oracle_registry_version),
+                        digest=suite_config.completion_oracle_registry_digest,
+                    )
+                    if self._registry.get_completion_oracle_registry(oracle_ref) is None:
+                        raise IntegrityViolation(
+                            "task-suite derivation profile has an unclosed oracle registry"
                         )
                 if isinstance(profile.details, MigrationProfileDetailsV1):
                     for edge in profile.details.edges:
@@ -435,6 +501,11 @@ class PlatformReadinessValidator:
             for registry in oracle_registries
             for definition in registry.definitions
         }
+        expected_playtest_payload_validators = {
+            definition.validator_key
+            for registry in payload_schema_registries
+            for definition in registry.definitions
+        }
         _require_exact_keys(
             label="executor",
             actual=set(self._components.executors),
@@ -454,6 +525,11 @@ class PlatformReadinessValidator:
             label="completion oracle",
             actual=set(self._components.completion_oracles),
             expected=expected_completion_oracles,
+        )
+        _require_exact_keys(
+            label="playtest payload validator",
+            actual=set(self._components.playtest_payload_validators),
+            expected=expected_playtest_payload_validators,
         )
         _require_exact_keys(
             label="profile handler",
@@ -477,6 +553,7 @@ class PlatformReadinessValidator:
                 "terminal_hooks",
                 "workflow_effects",
                 "completion_oracles",
+                "playtest_payload_validators",
                 "profile_handlers",
                 "permission_domain_resolvers",
             )

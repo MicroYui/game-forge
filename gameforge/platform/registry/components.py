@@ -1,7 +1,7 @@
 """Key-only trusted-component maps for readiness closure of non-executing processes.
 
 ``PlatformReadinessValidator`` requires ``TrustedComponentMaps`` to close EXACTLY against
-the 14 active RunKind definitions across all six component maps — but it only inspects the
+the 14 active RunKind definitions and retained schema registries — but it only inspects the
 KEY SET (``_require_exact_keys``); it never invokes a component. A process that must pass
 the readiness probe yet never EXECUTES a Run (the API process only admits + reads; the
 worker is the sole executor) therefore needs only the exact keys, not executable authority.
@@ -50,6 +50,11 @@ def build_readiness_component_maps(
         for oracle in oracle_registry.definitions:
             completion_oracles[oracle.executor_key] = oracle.executor_key
 
+    playtest_payload_validators: dict[str, object] = {}
+    for schema_registry in registry.playtest_payload_schema_registries:
+        for definition in schema_registry.definitions:
+            playtest_payload_validators[definition.validator_key] = definition.validator_key
+
     profile_handlers: dict[str, object] = {}
     for catalog in registry.list_execution_profile_catalogs():
         states = {
@@ -66,6 +71,7 @@ def build_readiness_component_maps(
         terminal_hooks=terminal_hooks,
         workflow_effects=workflow_effects,
         completion_oracles=completion_oracles,
+        playtest_payload_validators=playtest_payload_validators,
         profile_handlers=profile_handlers,
         permission_domain_resolvers=permission_resolvers,
     )

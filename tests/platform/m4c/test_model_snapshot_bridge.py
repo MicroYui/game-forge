@@ -5,13 +5,20 @@ from types import SimpleNamespace
 
 import pytest
 
+from gameforge.agents.base import call_model
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
     ExecutionVersionPlanV1,
     PlannedAgentNodeVersionV1,
     execution_version_plan_digest,
 )
-from gameforge.contracts.model_router import ModelSnapshot
+from gameforge.contracts.model_router import (
+    Message,
+    ModelRequest,
+    ModelResponse,
+    ModelSnapshot,
+    request_hash,
+)
 from gameforge.contracts.routing import (
     ModelCatalogSnapshotV1,
     ModelDescriptorV1,
@@ -20,6 +27,7 @@ from gameforge.contracts.routing import (
 )
 from gameforge.platform.run_handlers.model_routing import (
     ExactModelCatalogSnapshotResolver,
+    MultiNodeBridgeRouter,
     build_bridge_router,
 )
 
@@ -199,3 +207,69 @@ def test_plan_to_handler_rejects_unretained_exact_catalog() -> None:
             catalog_digest=catalog.catalog_digest,
             model_snapshot_id=model_snapshot_id,
         )
+
+
+def test_multinode_router_selects_snapshot_before_params_and_request_hash() -> None:
+    planner = ModelSnapshot(
+        provider="anthropic",
+        model="claude-opus-4-8",
+        snapshot_tag="planner@1",
+    )
+    executor = ModelSnapshot(
+        provider="openai",
+        model="gpt-5.6-sol",
+        snapshot_tag="executor@1",
+    )
+
+    class _Adapter:
+        def __init__(self) -> None:
+            self.call_count = 0
+            self.calls: list[dict[str, object]] = []
+
+        def call_model(self, **kwargs):
+            self.call_count += 1
+            self.calls.append(kwargs)
+            return SimpleNamespace(response=ModelResponse(response_normalized="{}"))
+
+    adapter = _Adapter()
+    router = MultiNodeBridgeRouter(
+        adapter=adapter,  # type: ignore[arg-type]
+        node_snapshots={"playtest.planner": planner, "playtest.executor": executor},
+        default_node_id="playtest.planner",
+        source_artifact_ids=("artifact:source",),
+    )
+
+    _, planner_hash = call_model(
+        router,
+        "playtest.planner",
+        "plan",
+        "planner-prompt@1",
+    )
+    _, executor_hash = call_model(
+        router,
+        "playtest.executor",
+        "act",
+        "executor-prompt@1",
+    )
+
+    planner_request = ModelRequest(
+        model_snapshot=planner,
+        messages=[Message(role="user", content="plan")],
+        params={"max_tokens": 2048, "temperature": 0},
+        agent_node_id="playtest.planner",
+        prompt_version="planner-prompt@1",
+    )
+    executor_request = ModelRequest(
+        model_snapshot=executor,
+        messages=[Message(role="user", content="act")],
+        params={"max_tokens": 2048, "temperature": 0},
+        agent_node_id="playtest.executor",
+        prompt_version="executor-prompt@1",
+    )
+    assert [call["model_snapshot"] for call in adapter.calls] == [planner, executor]
+    assert [call["params"] for call in adapter.calls] == [
+        planner_request.params,
+        executor_request.params,
+    ]
+    assert planner_hash == request_hash(planner_request)
+    assert executor_hash == request_hash(executor_request)

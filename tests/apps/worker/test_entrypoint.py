@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 import gameforge.apps.worker.__main__ as worker_main
 import gameforge.apps.worker.app as worker_app
@@ -19,6 +20,7 @@ from gameforge.apps.worker.app import (
     WorkerRuntime,
     build_executor_resolver,
     build_reaper_scan,
+    build_worker_registry,
     build_worker_runtime,
     validate_worker_readiness,
 )
@@ -30,12 +32,22 @@ from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import ExecutorContext
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileCatalogSnapshotV1,
+    ExecutionProfileLifecycleV1,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    execution_profile_catalog_digest,
+    execution_profile_payload_hash,
+)
 from gameforge.contracts.jobs import (
+    CheckerRunPayloadV1,
+    GraphSelectionV1,
     PreparedRunFailure,
     RunAttempt,
     RunKindRef,
     RunLease,
+    RunSchemaBindingV1,
     canonical_payload_hash,
     outcome_policy_set_digest,
     run_kind_definition_digest,
@@ -44,6 +56,10 @@ from gameforge.platform.registry import TrustedComponentMaps
 from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 from gameforge.runtime.persistence import migrations_api
+from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.persistence.engine import get_engine
+from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from tests.platform.m4c.handler_support import build_envelope
 from tests.platform.m4c.test_replay_admission import _legacy_verified_fixture
 from tests.platform.m4c.test_terminal_publisher import _registry_and_definition, _run_record
 
@@ -58,6 +74,87 @@ def _config(tmp_path: Path) -> LocalWorkerConfig:
         reaper_principal_id="system:lease-reaper",
         root_secret=b"0" * 32,
     )
+
+
+def _catalog_v3() -> tuple[
+    tuple[ExecutionProfileCatalogSnapshotV1, ...],
+    ExecutionProfileCatalogSnapshotV1,
+]:
+    history = build_builtin_registry().list_execution_profile_catalogs()
+    latest = max(history, key=lambda item: item.catalog_version)
+    assert latest.catalog_version == 2
+    payload = {
+        "catalog_schema_version": latest.catalog_schema_version,
+        "catalog_version": 3,
+        "definitions": latest.definitions,
+        "lifecycle": latest.lifecycle,
+    }
+    return history, ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
+def _catalog_v3_with_unknown_handler() -> tuple[
+    tuple[ExecutionProfileCatalogSnapshotV1, ...],
+    ExecutionProfileCatalogSnapshotV1,
+]:
+    history = build_builtin_registry().list_execution_profile_catalogs()
+    latest = max(history, key=lambda item: item.catalog_version)
+    checker = next(
+        definition for definition in latest.definitions if definition.profile_kind == "checker"
+    )
+    unknown = checker.model_copy(
+        update={
+            "profile": ProfileRefV1(profile_id="persisted.unknown-checker", version=1),
+            "handler_key": "persisted_unknown_checker_profile@1",
+            "display_name": "Persisted unknown checker profile",
+        }
+    )
+    definitions = tuple(
+        sorted(
+            (*latest.definitions, unknown),
+            key=lambda item: (item.profile.profile_id, item.profile.version),
+        )
+    )
+    lifecycle = tuple(
+        sorted(
+            (
+                *latest.lifecycle,
+                ExecutionProfileLifecycleV1(
+                    profile=unknown.profile,
+                    state="active",
+                    revision=1,
+                    changed_at=latest.lifecycle[0].changed_at,
+                ),
+            ),
+            key=lambda item: (item.profile.profile_id, item.profile.version),
+        )
+    )
+    payload = {
+        "catalog_schema_version": latest.catalog_schema_version,
+        "catalog_version": 3,
+        "definitions": definitions,
+        "lifecycle": lifecycle,
+    }
+    return history, ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
+def _persist_catalogs(
+    database_url: str,
+    catalogs: tuple[ExecutionProfileCatalogSnapshotV1, ...],
+) -> None:
+    engine = get_engine(database_url)
+    try:
+        with Session(engine) as session, session.begin():
+            repository = SqlPolicySnapshotRepository(session, clock=SystemUtcClock())
+            for catalog in catalogs:
+                repository.put_execution_profile_catalog(catalog)
+    finally:
+        engine.dispose()
 
 
 def test_production_checker_resolver_rejects_constraint_cap_before_compilation(
@@ -186,6 +283,180 @@ def test_build_worker_process_requires_exact_model_authorities_for_readiness(
         assert "checker_runner@1" in process.components.executors
     finally:
         process.close()
+
+
+def test_worker_process_uses_persisted_v3_catalog_as_one_exact_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    builtin_history, catalog_v3 = _catalog_v3()
+    _persist_catalogs(config.database_url, (*builtin_history, catalog_v3))
+
+    seen: dict[str, object] = {}
+    real_components = worker_dispatch.build_trusted_components
+    real_runtime = worker_dispatch.build_worker_runtime
+    real_dispatch = worker_dispatch.build_worker_dispatch
+
+    def capture_components(**kwargs):
+        seen["components"] = kwargs["registry"]
+        return real_components(**kwargs)
+
+    def capture_runtime(*args, **kwargs):
+        seen["runtime"] = kwargs["registry"]
+        return real_runtime(*args, **kwargs)
+
+    def capture_dispatch(**kwargs):
+        seen["dispatch"] = kwargs["registry"]
+        return real_dispatch(**kwargs)
+
+    monkeypatch.setattr(worker_dispatch, "build_trusted_components", capture_components)
+    monkeypatch.setattr(worker_dispatch, "build_worker_runtime", capture_runtime)
+    monkeypatch.setattr(worker_dispatch, "build_worker_dispatch", capture_dispatch)
+
+    process = build_worker_process(config)
+    try:
+        registry = process.runtime.registry
+        assert seen == {
+            "components": registry,
+            "runtime": registry,
+            "dispatch": registry,
+        }
+        assert (
+            registry.get_execution_profile_catalog(
+                catalog_v3.catalog_version,
+                catalog_v3.catalog_digest,
+            )
+            == catalog_v3
+        )
+
+        checker = next(
+            definition
+            for definition in catalog_v3.definitions
+            if definition.profile_kind == "checker"
+        )
+        binding = ResolvedExecutionProfileBindingV1(
+            field_path="/params/checker_profile",
+            profile=checker.profile,
+            expected_profile_kind="checker",
+            profile_payload_hash=execution_profile_payload_hash(checker),
+            catalog_version=catalog_v3.catalog_version,
+            catalog_digest=catalog_v3.catalog_digest,
+        )
+        params = CheckerRunPayloadV1(
+            snapshot_artifact_id="artifact:snapshot",
+            selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+            checker_profile=checker.profile,
+            checker_ids=(),
+            defect_classes=(),
+        )
+        payload = build_envelope(
+            params=params,
+            resolved_profiles=(binding,),
+        ).model_copy(
+            update={
+                "execution_profile_catalog_version": catalog_v3.catalog_version,
+                "execution_profile_catalog_digest": catalog_v3.catalog_digest,
+                "schema_bindings": (
+                    RunSchemaBindingV1(
+                        binding_key="run_payload",
+                        schema_id=params.schema_version,
+                    ),
+                ),
+            }
+        )
+        definition = registry.get_run_kind(RunKindRef(kind="checker.run", version=1))
+        assert definition is not None
+        registry.validate_payload_bindings(payload=payload, definition=definition)
+        assert checker.handler_key in process.components.profile_handlers
+    finally:
+        process.close()
+
+
+def test_worker_composition_reuses_one_validator_exporter_and_shaper_authority(
+    tmp_path: Path,
+) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    process = build_worker_process(config)
+    try:
+        components = process.components
+        task_suite = components.executors["task_suite_deriver@1"]
+        playtest = components.executors["playtest_runner@1"]
+        generation = components.executors["generation_proposer@1"]
+        repair = components.executors["repair_search@1"]
+
+        validator_maps = (
+            task_suite.payload_validator.validators,
+            playtest.env_runner.payload_validator.validators,
+        )
+        for validators in validator_maps:
+            assert set(validators) == set(components.playtest_payload_validators)
+            assert all(
+                validators[key] is components.playtest_payload_validators[key] for key in validators
+            )
+
+        lifecycle = process.dispatcher._lifecycle
+        with lifecycle._unit_of_work.begin() as transaction:
+            publisher = lifecycle._bind_capabilities(transaction).publication
+            terminal_validators = publisher._playtest_payload_validator.validators
+            assert set(terminal_validators) == set(components.playtest_payload_validators)
+            assert all(
+                terminal_validators[key] is components.playtest_payload_validators[key]
+                for key in terminal_validators
+            )
+            assert publisher._config_exporter is generation.config_exporter
+            assert publisher._config_exporter is repair.config_exporter
+            assert (
+                publisher._task_suite_scenario_shaper_resolver
+                is task_suite.scenario_shaper_resolver
+            )
+    finally:
+        process.close()
+
+
+def test_worker_composition_rejects_persisted_unknown_profile_handler(
+    tmp_path: Path,
+) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    history, catalog_v3 = _catalog_v3_with_unknown_handler()
+    _persist_catalogs(config.database_url, (*history, catalog_v3))
+
+    with pytest.raises(IntegrityViolation, match="profile handlers do not close"):
+        build_worker_process(config)
+
+
+def test_worker_registry_rejects_persisted_same_version_catalog_conflict(
+    tmp_path: Path,
+) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    base = min(
+        build_builtin_registry().list_execution_profile_catalogs(),
+        key=lambda item: item.catalog_version,
+    )
+    changed = base.definitions[0].model_copy(
+        update={"display_name": f"{base.definitions[0].display_name} conflicting"}
+    )
+    payload = {
+        "catalog_schema_version": base.catalog_schema_version,
+        "catalog_version": base.catalog_version,
+        "definitions": (changed, *base.definitions[1:]),
+        "lifecycle": base.lifecycle,
+    }
+    conflicting = ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+    _persist_catalogs(config.database_url, (conflicting,))
+    engine = get_engine(config.database_url)
+    try:
+        with pytest.raises(IntegrityViolation, match="conflicting history"):
+            build_worker_registry(engine)
+    finally:
+        engine.dispose()
 
 
 def test_partial_model_authority_closure_keeps_worker_not_ready(
@@ -549,6 +820,7 @@ def test_worker_runtime_partial_build_closes_every_created_resource(
             _config(tmp_path),
             engine=Engine(),  # type: ignore[arg-type]
             object_store=object(),  # type: ignore[arg-type]
+            registry=build_builtin_registry(),
         )
 
     assert closed == ["executor", "telemetry", "engine"]
@@ -655,6 +927,11 @@ def test_worker_process_disposes_engine_when_runtime_preflight_rejects_component
 
     engine = Engine()
     monkeypatch.setattr(worker_dispatch, "get_engine", lambda url: engine)
+    monkeypatch.setattr(
+        worker_dispatch,
+        "build_worker_registry",
+        lambda *args, **kwargs: build_builtin_registry(),
+    )
     monkeypatch.setattr(worker_dispatch, "build_trusted_components", lambda **kwargs: object())
 
     with pytest.raises(WorkerConfigurationError, match="trusted_components"):

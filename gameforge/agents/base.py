@@ -3,13 +3,18 @@
 Agents reach the LLM ONLY through ModelRouter. Every model output is parsed
 deterministically; parse failure is a fallback signal, never a crash upstream.
 """
+
 from __future__ import annotations
 
 import json
 
 from gameforge.agents.prompts.registry import render  # noqa: F401  (re-exported for agents)
 from gameforge.contracts.model_router import (
-    Message, ModelRequest, ModelResponse, ModelSnapshot, request_hash,
+    Message,
+    ModelRequest,
+    ModelResponse,
+    ModelSnapshot,
+    request_hash,
 )
 from gameforge.runtime.model_router.router import ModelRouter
 
@@ -32,8 +37,17 @@ class AgentParseError(Exception):
 def resolve_model_snapshot(
     router: ModelRouter,
     snapshot: ModelSnapshot | None = None,
+    *,
+    agent_node_id: str | None = None,
 ) -> ModelSnapshot:
     """Resolve explicit node policy, then session policy, then product default."""
+    if snapshot is None and agent_node_id is not None:
+        node_resolver = getattr(router, "model_snapshot_for_node", None)
+        if callable(node_resolver):
+            resolved = node_resolver(agent_node_id)
+            if not isinstance(resolved, ModelSnapshot):
+                raise TypeError("router node snapshot resolver returned an invalid value")
+            return resolved
     return snapshot or getattr(router, "default_model_snapshot", None) or DEFAULT_SNAPSHOT
 
 
@@ -51,7 +65,7 @@ def parse_json_block(text: str):
     if not starts:
         raise AgentParseError(f"no JSON object/array in model output: {text[:120]!r}")
     try:
-        obj, _ = json.JSONDecoder().raw_decode(t[min(starts):])
+        obj, _ = json.JSONDecoder().raw_decode(t[min(starts) :])
     except json.JSONDecodeError as exc:
         raise AgentParseError(str(exc)) from exc
     return obj
@@ -67,7 +81,11 @@ def call_model(
     params: dict | None = None,
     snapshot: ModelSnapshot | None = None,
 ) -> tuple[ModelResponse, str]:
-    model_snapshot = resolve_model_snapshot(router, snapshot)
+    model_snapshot = resolve_model_snapshot(
+        router,
+        snapshot,
+        agent_node_id=agent_node_id,
+    )
     if params is None:
         params = {"max_tokens": 2048}
         if model_snapshot != DEFAULT_SNAPSHOT:

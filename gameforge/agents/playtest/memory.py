@@ -8,6 +8,7 @@ unit-testable. Only `compact` touches the Router (replayable), and only when a
 MemTrace instance is actually attached (`memory is not None`); with no memory
 the Playtest loop is byte-identical to M2b-1.
 """
+
 from __future__ import annotations
 
 import math
@@ -154,7 +155,8 @@ class DeterministicCompactor:
             )
         lines.append("Tail:")
         lines.extend(
-            f"  - {ep.state_abstract[:40]} :: {_action_key(ep.action)} -> {ep.result}" for ep in tail
+            f"  - {ep.state_abstract[:40]} :: {_action_key(ep.action)} -> {ep.result}"
+            for ep in tail
         )
         return "\n".join(lines)
 
@@ -172,7 +174,9 @@ class MemTrace:
         self.skills: dict[tuple[str, str], list[dict]] = {}
         self._embedder = embedder
         self._embed_cache: dict[str, list[float]] = {}
-        self._compactor: Compactor = compactor if compactor is not None else DeterministicCompactor()
+        self._compactor: Compactor = (
+            compactor if compactor is not None else DeterministicCompactor()
+        )
         # Set by `compact(...)`; once populated, `recall_text` prepends it to
         # every subsequent recall so the compactor CHOICE causally changes
         # what the planner/executor see (Task 8b needs Det vs LLM to diverge).
@@ -235,7 +239,9 @@ class MemTrace:
     def _embedding_similarity(self, query_text: str, other_text: str) -> float:
         if self._embedder is None:
             return 1.0  # neutral term: fully deterministic, zero-model default
-        return _remap_cosine(_cosine(self._embed_cached(query_text), self._embed_cached(other_text)))
+        return _remap_cosine(
+            _cosine(self._embed_cached(query_text), self._embed_cached(other_text))
+        )
 
     def recall(self, state: str, task: object, k: int = 3) -> list[Episode]:
         if not self.trace:
@@ -276,7 +282,9 @@ class MemTrace:
 
     def add_skill(self, name: str, start_sig: str, goal_sig: str, actions: list[dict]) -> None:
         key = (start_sig, goal_sig)
-        self.skills.setdefault(key, []).append({"name": name, "actions": [dict(a) for a in actions]})
+        self.skills.setdefault(key, []).append(
+            {"name": name, "actions": [dict(a) for a in actions]}
+        )
 
     def skills_for(self, start_sig: str, goal_sig: str) -> list[list[dict]]:
         return [list(rec["actions"]) for rec in self.skills.get((start_sig, goal_sig), [])]
@@ -325,14 +333,20 @@ class MemTrace:
 class LLMCompactor:
     """Router-backed tail summarizer (recorded/replayable through the Router).
 
-    Fails closed to `DeterministicCompactor`'s digest on ANY transport/parse
-    failure — construction, request-building, the call itself, or an empty
-    response all degrade to the deterministic digest rather than raise.
+    The legacy/default mode falls back to ``DeterministicCompactor`` on errors.
+    Production M4 execution selects ``strict=True`` so cassette misses, exhausted
+    call authority, and other routing failures remain terminal and auditable.
     """
 
-    def __init__(self, snapshot: ModelSnapshot | None = None) -> None:
+    def __init__(
+        self,
+        snapshot: ModelSnapshot | None = None,
+        *,
+        strict: bool = False,
+    ) -> None:
         self._fallback = DeterministicCompactor()
         self._snapshot = snapshot
+        self._strict = strict
 
     def compact(
         self,
@@ -346,7 +360,11 @@ class LLMCompactor:
         if router is None:
             return digest
         try:
-            model_snapshot = resolve_model_snapshot(router, self._snapshot)
+            model_snapshot = resolve_model_snapshot(
+                router,
+                self._snapshot,
+                agent_node_id=node_id,
+            )
             params = {"max_tokens": 512}
             if model_snapshot != DEFAULT_SNAPSHOT:
                 params["temperature"] = 0
@@ -363,4 +381,6 @@ class LLMCompactor:
                 raise ValueError("empty compaction response")
             return text
         except Exception:
+            if self._strict:
+                raise
             return digest

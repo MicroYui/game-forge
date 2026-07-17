@@ -29,7 +29,7 @@ transaction-bound authority ports at execution time and fail closed when absent.
 from __future__ import annotations
 
 import hmac
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
@@ -62,6 +62,10 @@ from gameforge.platform.registry import (
     build_readiness_component_maps,
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.playtest_payload_schemas import (
+    ExactModelPayloadValidator,
+    build_builtin_playtest_payload_validators,
+)
 from gameforge.platform.run_handlers import (
     BenchRunHandler,
     CheckerRunHandler,
@@ -82,7 +86,7 @@ from gameforge.platform.run_handlers.constraint_validation import ConstraintVali
 from gameforge.platform.run_handlers.constraint_proposal import (
     ConstraintExtractionExecutionConfig,
 )
-from gameforge.platform.run_handlers.generation import GenerationExecutionConfig
+from gameforge.platform.run_handlers.generation import ConfigExporter, GenerationExecutionConfig
 from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
 from gameforge.platform.run_handlers.repair import RepairExecutionConfig
 from gameforge.platform.run_handlers.review import ReviewExecutionConfig, ReviewSimConfig
@@ -116,7 +120,11 @@ from gameforge.apps.worker.regression import (
     RegressionEnvironmentPlanV1,
     build_worker_regression_runner,
 )
-from gameforge.apps.worker.task_suite import build_task_suite_handler
+from gameforge.apps.worker.task_suite import (
+    build_scenario_shaper_resolver,
+    build_task_suite_handler,
+)
+from gameforge.platform.run_handlers.task_suite import ScenarioShaperResolver
 from gameforge.apps.worker.validation import build_differential_engines
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.game.aureus.kernel import AureusEnv
@@ -125,6 +133,49 @@ from gameforge.spine.checkers.base import Checker
 from gameforge.spine.dsl.compile import compile_all
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import NavProvider
+
+
+class _WorkerProfileHandlerImplementation:
+    """Opaque capability proving a handler key is implemented by this worker build."""
+
+    __slots__ = ("handler_key",)
+
+    def __init__(self, handler_key: str) -> None:
+        self.handler_key = handler_key
+
+
+# This allowlist is intentionally independent from persisted catalog rows. A catalog
+# may select one of these process-shipped implementations, but cannot register a new
+# trusted implementation by merely naming its own handler key.
+_WORKER_PROFILE_HANDLER_KEYS = (
+    "builtin_artifact_migrator_profile@1",
+    "builtin_bench_evaluator_profile@1",
+    "builtin_checker_profile@1",
+    "builtin_config_export_profile@1",
+    "builtin_constraint_compiler_profile@1",
+    "builtin_constraint_extraction_profile@1",
+    "builtin_dr_plan_profile@1",
+    "builtin_dr_verifier_profile@1",
+    "builtin_environment_profile@1",
+    "builtin_generation_profile@1",
+    "builtin_impact_analysis_profile@1",
+    "builtin_llm_triage_profile@1",
+    "builtin_patch_repair_profile@1",
+    "builtin_playtest_planner_profile@1",
+    "builtin_playtest_planner_profile@2",
+    "builtin_restore_target_profile@1",
+    "builtin_review_profile@1",
+    "builtin_rollback_profile@1",
+    "builtin_schema_compatibility_profile@1",
+    "builtin_simulation_profile@1",
+    "builtin_task_suite_derivation_profile@1",
+    "builtin_task_suite_derivation_profile@2",
+    "builtin_validation_profile@1",
+    "builtin_workload_profile@1",
+)
+_WORKER_PROFILE_HANDLER_IMPLEMENTATIONS = {
+    key: _WorkerProfileHandlerImplementation(key) for key in _WORKER_PROFILE_HANDLER_KEYS
+}
 
 
 # ── executor Finding-authority ports ─────────────────────────────────────
@@ -814,6 +865,9 @@ def _build_executor_handlers(
     registry: ImmutablePlatformRegistry,
     blobs: ArtifactBlobReader,
     store: PreparedArtifactStore,
+    playtest_payload_validators: Mapping[str, ExactModelPayloadValidator],
+    config_exporter: ConfigExporter,
+    task_suite_scenario_shaper_resolver: ScenarioShaperResolver,
     finding_revision_loader: WorkerExactFindingRevisionLoader | None = None,
     finding_head_revision: WorkerFindingHeadRevisionResolver | None = None,
     rollback_history_verifier: object | None = None,
@@ -829,7 +883,6 @@ def _build_executor_handlers(
             "worker executor composition requires exact Finding read authority"
         )
 
-    config_exporter = build_aureus_config_exporter(registry)
     checker_resolver = _build_checker_resolver(registry)
     checker_execution_policy_resolver = _build_checker_execution_policy_resolver(registry)
     simulation_execution_budget_resolver = _build_simulation_execution_budget_resolver(registry)
@@ -919,7 +972,11 @@ def _build_executor_handlers(
             execution_config_resolver=(constraint_extraction_execution_config_resolver),
         ),
         "task_suite_deriver@1": build_task_suite_handler(
-            registry=registry, blobs=blobs, store=store
+            registry=registry,
+            blobs=blobs,
+            store=store,
+            playtest_payload_validators=playtest_payload_validators,
+            scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
         ),
         "playtest_runner@1": build_playtest_handler(
             registry=registry,
@@ -927,6 +984,8 @@ def _build_executor_handlers(
             store=store,
             oracle_registry=oracle_registry,
             supported_profiles=supported_profiles,
+            finding_head_revision=finding_head_revision,
+            playtest_payload_validators=playtest_payload_validators,
         ),
         "patch_validator@1": PatchValidationHandler(
             blobs=blobs,
@@ -960,7 +1019,14 @@ def _playtest_supported_profiles(
     profiles: set[ProfileRefV1] = set()
     for catalog in registry.list_execution_profile_catalogs():
         for definition in catalog.definitions:
-            if definition.profile_kind in {"environment", "playtest_planner"}:
+            if (
+                definition.profile_kind == "environment"
+                and definition.handler_key == "builtin_environment_profile@1"
+                and isinstance(definition.details, EnvironmentProfileDetailsV1)
+                and definition.details.contract.reset_schema_id == "generic-env-reset@1"
+                and definition.details.contract.action_schema_id == "generic-env-action@1"
+                and definition.details.contract.observation_schema_id == "generic-env-observation@1"
+            ):
                 profiles.add(definition.profile)
     return frozenset(profiles)
 
@@ -970,6 +1036,9 @@ def build_trusted_components(
     registry: ImmutablePlatformRegistry,
     blobs: ArtifactBlobReader,
     store: PreparedArtifactStore,
+    playtest_payload_validators: Mapping[str, ExactModelPayloadValidator] | None = None,
+    config_exporter: ConfigExporter | None = None,
+    task_suite_scenario_shaper_resolver: ScenarioShaperResolver | None = None,
     finding_revision_loader: WorkerExactFindingRevisionLoader | None = None,
     finding_head_revision: WorkerFindingHeadRevisionResolver | None = None,
     rollback_history_verifier: object | None = None,
@@ -987,10 +1056,24 @@ def build_trusted_components(
     """
 
     base = build_readiness_component_maps(registry)
+    validators = (
+        playtest_payload_validators
+        if playtest_payload_validators is not None
+        else build_builtin_playtest_payload_validators()
+    )
+    exporter = config_exporter or build_aureus_config_exporter(registry)
+    scenario_shaper_resolver = (
+        task_suite_scenario_shaper_resolver
+        if task_suite_scenario_shaper_resolver is not None
+        else build_scenario_shaper_resolver(registry)
+    )
     executors = _build_executor_handlers(
         registry=registry,
         blobs=blobs,
         store=store,
+        playtest_payload_validators=validators,
+        config_exporter=exporter,
+        task_suite_scenario_shaper_resolver=scenario_shaper_resolver,
         finding_revision_loader=finding_revision_loader,
         finding_head_revision=finding_head_revision,
         rollback_history_verifier=rollback_history_verifier,
@@ -1007,12 +1090,25 @@ def build_trusted_components(
     workflow_effects = {key: WORKFLOW_EFFECTS[key] for key in sorted(expected_workflow_effects)}
     if any(not callable(effect) for effect in workflow_effects.values()):
         raise IntegrityViolation("worker workflow effect registry contains a non-callable")
+    expected_profile_handlers = set(base.profile_handlers)
+    registered_profile_handlers = set(_WORKER_PROFILE_HANDLER_IMPLEMENTATIONS)
+    if registered_profile_handlers != expected_profile_handlers:
+        raise IntegrityViolation(
+            "worker profile handlers do not close the retained catalog exactly",
+            missing=tuple(sorted(expected_profile_handlers - registered_profile_handlers)),
+            extra=tuple(sorted(registered_profile_handlers - expected_profile_handlers)),
+        )
+    profile_handlers = {
+        key: _WORKER_PROFILE_HANDLER_IMPLEMENTATIONS[key]
+        for key in sorted(expected_profile_handlers)
+    }
     return TrustedComponentMaps(
         executors=executors,
         terminal_hooks=dict(base.terminal_hooks),
         workflow_effects=workflow_effects,
         completion_oracles=build_completion_oracle_executors(),
-        profile_handlers=dict(base.profile_handlers),
+        playtest_payload_validators=validators,
+        profile_handlers=profile_handlers,
         permission_domain_resolvers=dict(base.permission_domain_resolvers),
     )
 

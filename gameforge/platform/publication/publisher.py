@@ -25,10 +25,17 @@ from typing import Protocol
 from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
 from gameforge.contracts.cassette import CassetteRecordV1, CassetteRecordV2
 from gameforge.contracts.cassette_import import CassetteBundleV1
+from gameforge.contracts.config_export import (
+    ConfigExportPackageV1,
+    canonical_config_export_bytes,
+)
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     ConfigExportProfileDetailsV1,
+    EnvironmentProfileDetailsV1,
+    PlaytestPlannerProfileConfigV2,
     ProfileRefV1,
+    TaskSuiteDerivationProfileConfigV2,
     execution_profile_payload_hash,
 )
 from gameforge.contracts.findings import FindingRevisionV1
@@ -43,6 +50,7 @@ from gameforge.contracts.jobs import (
     PreparedRunOutcome,
     PreparedRunResult,
     PatchValidationPayloadV1,
+    PlaytestRunPayloadV1,
     RequirementDispositionV1,
     ResolvedPolicySnapshotV1,
     RetryDecisionV1,
@@ -61,6 +69,7 @@ from gameforge.contracts.jobs import (
     validate_agent_prompt_context_kind,
     RollbackValidationPayloadV1,
     SimulationRunPayloadV1,
+    TaskSuiteDerivePayloadV1,
 )
 from gameforge.contracts.lineage import (
     ArtifactV2,
@@ -76,6 +85,23 @@ from gameforge.contracts.lineage import (
     parse_artifact,
 )
 from gameforge.contracts.model_router import ModelRequestV2, parse_model_request, request_hash
+from gameforge.contracts.playtest import (
+    CompletionOracleRegistryV1,
+    PlaytestTraceV1,
+    ScenarioResetBindingV1,
+    ScenarioSpecV1,
+    TaskEpisodeV1,
+    TaskSuiteV1,
+    playtest_resource_upper_bounds,
+    resolve_completion_oracle,
+)
+from gameforge.platform.playtest_payload_schemas import PlaytestPayloadValidationService
+from gameforge.platform.run_handlers.generation import ConfigExporter
+from gameforge.platform.run_handlers.readers import load_constraints, load_snapshot
+from gameforge.platform.run_handlers.task_suite import (
+    ScenarioDerivationRequest,
+    ScenarioShaperResolver,
+)
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
 from gameforge.contracts.provenance import ProvenanceV1, most_conservative_trust
 from gameforge.platform.publication.effects import (
@@ -808,6 +834,9 @@ class TerminalPublisher:
         auto_apply: AutoApplyValidationPort | None = None,
         producer_facts: DomainProducerFactsResolver = BUILTIN_DOMAIN_PRODUCER_FACTS_RESOLVER,
         payload_decoders: Mapping[str, PayloadBlobDecoder] | None = None,
+        playtest_payload_validator: PlaytestPayloadValidationService | None = None,
+        config_exporter: ConfigExporter | None = None,
+        task_suite_scenario_shaper_resolver: ScenarioShaperResolver | None = None,
     ) -> None:
         self._registry = registry
         self._artifacts = artifacts
@@ -817,6 +846,9 @@ class TerminalPublisher:
         self._audit = audit
         self._producer_facts = producer_facts
         self._payload_decoders = dict(payload_decoders or {})
+        self._playtest_payload_validator = playtest_payload_validator
+        self._config_exporter = config_exporter
+        self._task_suite_scenario_shaper_resolver = task_suite_scenario_shaper_resolver
         # The transaction-bound approvals capability the validation-completion
         # workflow effects CAS the ApprovalItem through, inside this same terminal
         # UoW (Task 17b). ``None`` for a composition that never runs a validation
@@ -1892,6 +1924,11 @@ class TerminalPublisher:
             )
             for allocation in allocations
         }
+        task_suite_prepared_total_bytes = (
+            sum(view.object_ref.size_bytes for view in views)
+            if isinstance(run.payload.params, TaskSuiteDerivePayloadV1)
+            else None
+        )
         authoritative_parent_payload_cache: dict[str, Mapping[str, object]] = {}
 
         for allocation in _topological_rule_order(allocations, plan):
@@ -2006,6 +2043,24 @@ class TerminalPublisher:
                     prepared_to_final_artifact_ids_by_rule=(prepared_to_final_ids_by_rule),
                     requirement_dispositions=dispositions,
                 )
+                self._validate_config_export_content_authority(
+                    run=run,
+                    payload_schema_id=view.payload_schema_id,
+                    payload=payload,
+                    preview_payloads=tuple(payloads_by_rule.get("preview", ())),
+                )
+                self._validate_task_suite_payload_authority(
+                    run=run,
+                    payload_schema_id=view.payload_schema_id,
+                    payload=payload,
+                    prepared_batch_total_bytes=task_suite_prepared_total_bytes,
+                )
+                self._validate_playtest_profile_authority(
+                    run=run,
+                    payload_schema_id=view.payload_schema_id,
+                    payload=payload,
+                    producer_identity=producer_identity,
+                )
                 blob = (
                     encode_validated_artifact_payload(
                         payload_schema_id=view.payload_schema_id,
@@ -2053,9 +2108,14 @@ class TerminalPublisher:
                 authoritative_parent_payloads: dict[str, Mapping[str, object]] = {}
                 if isinstance(
                     run.payload.params,
-                    (CheckerRunPayloadV1, SimulationRunPayloadV1),
+                    (CheckerRunPayloadV1, SimulationRunPayloadV1, PlaytestRunPayloadV1),
                 ):
-                    for role in ("constraint", "scenario"):
+                    parent_roles = (
+                        ("task_suite", "selected_scenarios")
+                        if isinstance(run.payload.params, PlaytestRunPayloadV1)
+                        else ("constraint", "scenario")
+                    )
+                    for role in parent_roles:
                         for parent in typed.parents_by_role.get(role, ()):
                             parent_payload = authoritative_parent_payload_cache.get(
                                 parent.artifact_id
@@ -2139,6 +2199,11 @@ class TerminalPublisher:
                     version_tuple=expected_tuple,
                     payload_hash=stored.payload_hash,
                 )
+        self._validate_task_suite_batch_authority(
+            run=run,
+            payloads_by_rule=payloads_by_rule,
+            artifacts_by_rule=artifacts_by_rule,
+        )
         return _PublishedArtifacts(
             ids_by_rule={key: tuple(value) for key, value in ids_by_rule.items()},
             index_to_id=index_to_id,
@@ -2256,6 +2321,488 @@ class TerminalPublisher:
                     field=field,
                 )
         return details.env_contract_version
+
+    def _validate_config_export_content_authority(
+        self,
+        *,
+        run: RunRecord,
+        payload_schema_id: str,
+        payload: Mapping[str, object],
+        preview_payloads: tuple[Mapping[str, object], ...],
+    ) -> None:
+        """Re-run the profile-selected deterministic exporter at terminal."""
+
+        if payload_schema_id != "config-export-package@1":
+            return
+        if self._config_exporter is None:
+            raise IntegrityViolation("config export publication lacks exporter authority")
+        try:
+            package = ConfigExportPackageV1.model_validate(payload)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("config export package is invalid") from exc
+        if len(preview_payloads) != 1:
+            raise IntegrityViolation("config export publication lacks one exact preview payload")
+        candidate_profiles = getattr(run.payload.params, "candidate_export_profiles", ())
+        try:
+            profile_index = candidate_profiles.index(package.export_profile)
+        except ValueError as exc:
+            raise IntegrityViolation(
+                "config export profile is not frozen in the Run payload"
+            ) from exc
+        field_path = f"/params/candidate_export_profiles/{profile_index}"
+        bindings = tuple(
+            binding
+            for binding in run.payload.resolved_profiles
+            if binding.field_path == field_path
+            and binding.profile == package.export_profile
+            and binding.expected_profile_kind == "config_export"
+        )
+        if len(bindings) != 1:
+            raise IntegrityViolation("config export lacks one exact resolved profile binding")
+        try:
+            constraints = tuple(
+                load_constraints(
+                    self._artifacts,
+                    package.constraint_snapshot_artifact_id,
+                )
+            )
+            expected = self._config_exporter.export(
+                export_profile=package.export_profile,
+                export_profile_binding=bindings[0],
+                run_kind=run.kind,
+                llm_execution_mode=run.payload.llm_execution_mode,
+                preview_snapshot_id=package.source_preview_artifact_id,
+                preview_payload=preview_payloads[0],
+                constraint_snapshot_artifact_id=(package.constraint_snapshot_artifact_id),
+                constraints=constraints,
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "config export cannot be re-derived from authoritative inputs"
+            ) from exc
+        if canonical_config_export_bytes(expected) != canonical_config_export_bytes(package):
+            raise IntegrityViolation(
+                "config export package differs from deterministic terminal derivation"
+            )
+
+    def _task_suite_terminal_authority(
+        self,
+        run: RunRecord,
+    ) -> tuple[
+        EnvironmentProfileDetailsV1,
+        TaskSuiteDerivationProfileConfigV2,
+        CompletionOracleRegistryV1,
+        PlaytestPayloadValidationService,
+    ]:
+        params = run.payload.params
+        if not isinstance(params, TaskSuiteDerivePayloadV1):
+            raise IntegrityViolation("TaskSuite payload is bound to another Run kind")
+        if run.resource_domain_scope is None:
+            raise IntegrityViolation("TaskSuite Run lacks a resolved resource domain")
+        validator = self._playtest_payload_validator
+        if validator is None:
+            raise IntegrityViolation("TaskSuite publication lacks payload-schema authority")
+        catalog = self._registry.get_execution_profile_catalog(
+            run.payload.execution_profile_catalog_version,
+            run.payload.execution_profile_catalog_digest,
+        )
+        if catalog is None:
+            raise IntegrityViolation("TaskSuite execution-profile catalog is not retained")
+
+        def exact_definition(field_path: str, expected_kind: str):
+            bindings = tuple(
+                item
+                for item in run.payload.resolved_profiles
+                if item.field_path == field_path and item.expected_profile_kind == expected_kind
+            )
+            if len(bindings) != 1:
+                raise IntegrityViolation("TaskSuite payload lacks one exact profile binding")
+            binding = bindings[0]
+            definitions = tuple(
+                item for item in catalog.definitions if item.profile == binding.profile
+            )
+            if (
+                len(definitions) != 1
+                or binding.catalog_version != catalog.catalog_version
+                or binding.catalog_digest != catalog.catalog_digest
+                or definitions[0].profile_kind != expected_kind
+                or run.kind not in definitions[0].compatible_run_kinds
+                or execution_profile_payload_hash(definitions[0]) != binding.profile_payload_hash
+            ):
+                raise IntegrityViolation("TaskSuite exact profile binding is invalid")
+            return definitions[0]
+
+        environment_definition = exact_definition(
+            "/params/environment_profile",
+            "environment",
+        )
+        derivation_definition = exact_definition(
+            "/params/derivation_profile",
+            "task_suite_derivation",
+        )
+        if (
+            derivation_definition.config_schema_id != "task_suite_derivation-profile-config@2"
+            or not {"scenario-spec@1", "task-suite@1"}.issubset(
+                derivation_definition.output_schema_ids
+            )
+            or not isinstance(environment_definition.details, EnvironmentProfileDetailsV1)
+        ):
+            raise IntegrityViolation("TaskSuite derivation profile lacks Task 12 authority")
+        try:
+            derivation_config = TaskSuiteDerivationProfileConfigV2.model_validate(
+                derivation_definition.config
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("TaskSuite derivation profile config is invalid") from exc
+        if (
+            environment_definition.profile != params.environment_profile
+            or derivation_definition.profile != params.derivation_profile
+            or derivation_config.target_environment_profile != params.environment_profile
+            or derivation_config.completion_oracle_registry_version
+            != params.completion_oracle_registry_ref.registry_version
+            or derivation_config.completion_oracle_registry_digest
+            != params.completion_oracle_registry_ref.digest
+        ):
+            raise IntegrityViolation("TaskSuite payload differs from its exact profile closure")
+        oracle_registry = validator.registry.get_completion_oracle_registry(
+            params.completion_oracle_registry_ref
+        )
+        if oracle_registry is None:
+            raise IntegrityViolation("TaskSuite completion-oracle registry is unavailable")
+        return (
+            environment_definition.details,
+            derivation_config,
+            oracle_registry,
+            validator,
+        )
+
+    def _validate_task_suite_payload_authority(
+        self,
+        *,
+        run: RunRecord,
+        payload_schema_id: str,
+        payload: Mapping[str, object],
+        prepared_batch_total_bytes: int | None,
+    ) -> None:
+        """Re-run exact reset/oracle schemas at the Prepared→Artifact boundary."""
+
+        if payload_schema_id not in {"scenario-spec@1", "task-suite@1"}:
+            return
+        params = run.payload.params
+        assert isinstance(params, TaskSuiteDerivePayloadV1)
+        (
+            environment_details,
+            derivation_config,
+            oracle_registry,
+            validator,
+        ) = self._task_suite_terminal_authority(run)
+        if (
+            prepared_batch_total_bytes is None
+            or prepared_batch_total_bytes < 1
+            or prepared_batch_total_bytes > derivation_config.max_total_prepared_artifact_bytes
+        ):
+            raise IntegrityViolation("TaskSuite payload differs from its exact profile closure")
+        reset_schema_id = environment_details.contract.reset_schema_id
+
+        if payload_schema_id == "scenario-spec@1":
+            try:
+                scenario = ScenarioSpecV1.model_validate(payload)
+            except ValueError as exc:
+                raise IntegrityViolation("ScenarioSpec payload is invalid") from exc
+            if scenario.reset_binding.reset_schema_id != reset_schema_id:
+                raise IntegrityViolation("ScenarioSpec reset schema differs from the environment")
+            if scenario.domain_scope != run.resource_domain_scope:
+                raise IntegrityViolation("ScenarioSpec domain differs from the Run authority")
+            validator.validate_exact(
+                schema_id=reset_schema_id,
+                purpose="scenario_reset",
+                payload=scenario.reset_binding.payload,
+            )
+            return
+
+        try:
+            suite = TaskSuiteV1.model_validate(payload)
+        except ValueError as exc:
+            raise IntegrityViolation("TaskSuite payload is invalid") from exc
+        if (
+            suite.suite_profile != params.derivation_profile
+            or suite.environment_profile != params.environment_profile
+            or suite.completion_oracle_registry_ref != params.completion_oracle_registry_ref
+            or len(suite.episodes) > derivation_config.max_scenarios
+            or any(episode.domain_scope != run.resource_domain_scope for episode in suite.episodes)
+        ):
+            raise IntegrityViolation("TaskSuite payload differs from its exact Run closure")
+        for episode in suite.episodes:
+            if episode.reset_binding.reset_schema_id != reset_schema_id:
+                raise IntegrityViolation("TaskSuite reset schema differs from the environment")
+            validator.validate_exact(
+                schema_id=reset_schema_id,
+                purpose="scenario_reset",
+                payload=episode.reset_binding.payload,
+            )
+            try:
+                oracle_definition = resolve_completion_oracle(
+                    oracle_registry,
+                    params.completion_oracle_registry_ref,
+                    episode.completion_oracle,
+                )
+            except ValueError as exc:
+                raise IntegrityViolation("TaskSuite completion oracle is not exact") from exc
+            validator.validate_exact(
+                schema_id=oracle_definition.params_schema_id,
+                purpose="completion_oracle_params",
+                payload=episode.completion_oracle.params,
+            )
+
+    def _validate_task_suite_batch_authority(
+        self,
+        *,
+        run: RunRecord,
+        payloads_by_rule: Mapping[str, Sequence[Mapping[str, object]]],
+        artifacts_by_rule: Mapping[str, Sequence[ArtifactV2]],
+    ) -> None:
+        """Re-run the exact shaper and compare the complete terminal sibling batch."""
+
+        params = run.payload.params
+        if not isinstance(params, TaskSuiteDerivePayloadV1):
+            return
+        resolver = self._task_suite_scenario_shaper_resolver
+        if resolver is None:
+            raise IntegrityViolation("TaskSuite publication lacks scenario-shaper authority")
+        (
+            environment_details,
+            derivation_config,
+            oracle_registry,
+            validator,
+        ) = self._task_suite_terminal_authority(run)
+        preview_wire = self._artifacts.get(params.source_preview_artifact_id)
+        try:
+            preview_artifact = (
+                preview_wire
+                if isinstance(preview_wire, ArtifactV2)
+                else parse_artifact(preview_wire)
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("TaskSuite preview authority is invalid") from exc
+        if (
+            preview_artifact.kind != "ir_snapshot"
+            or preview_artifact.meta.get("payload_schema_id") != "ir-core@1"
+        ):
+            raise IntegrityViolation("TaskSuite preview authority is not an IR snapshot")
+        try:
+            preview = load_snapshot(self._artifacts, params.source_preview_artifact_id)
+            drafts = resolver(params.derivation_profile).shape(
+                ScenarioDerivationRequest(
+                    preview_snapshot=preview,
+                    source_preview_artifact_id=params.source_preview_artifact_id,
+                    config_export_artifact_id=params.config_artifact_id,
+                    constraint_snapshot_artifact_id=(params.constraint_snapshot_artifact_id),
+                    environment_profile=params.environment_profile,
+                    env_contract_version=(environment_details.contract.env_contract_version),
+                    reset_schema_id=environment_details.contract.reset_schema_id,
+                    derivation_profile=params.derivation_profile,
+                    completion_oracle_registry_ref=(params.completion_oracle_registry_ref),
+                    domain_scope=run.resource_domain_scope,
+                )
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "TaskSuite scenarios cannot be re-derived from authoritative inputs"
+            ) from exc
+        ordered = tuple(sorted(drafts, key=lambda item: (item.episode_id, item.scenario_id)))
+        if not ordered or len(ordered) > derivation_config.max_scenarios:
+            raise IntegrityViolation("TaskSuite scenario count differs from exact derivation")
+        episode_ids = tuple(item.episode_id for item in ordered)
+        scenario_ids = tuple(item.scenario_id for item in ordered)
+        if (
+            len(episode_ids) != len(set(episode_ids))
+            or len(scenario_ids) != len(set(scenario_ids))
+            or any(item.domain_scope != run.resource_domain_scope for item in ordered)
+        ):
+            raise IntegrityViolation("TaskSuite shaper returned invalid exact identities")
+
+        scenario_payloads = tuple(payloads_by_rule.get("scenario", ()))
+        scenario_artifacts = tuple(artifacts_by_rule.get("scenario", ()))
+        if len(scenario_payloads) != len(ordered) or len(scenario_artifacts) != len(ordered):
+            raise IntegrityViolation("TaskSuite scenario set differs from exact derivation")
+        actual_by_id: dict[str, tuple[ScenarioSpecV1, str]] = {}
+        for artifact, payload in zip(
+            scenario_artifacts,
+            scenario_payloads,
+            strict=True,
+        ):
+            try:
+                scenario = ScenarioSpecV1.model_validate(payload)
+            except ValueError as exc:
+                raise IntegrityViolation("TaskSuite ScenarioSpec payload is invalid") from exc
+            if scenario.scenario_id in actual_by_id:
+                raise IntegrityViolation("TaskSuite scenario ids are not unique")
+            actual_by_id[scenario.scenario_id] = (scenario, artifact.artifact_id)
+
+        expected_episodes: list[TaskEpisodeV1] = []
+        for draft in ordered:
+            actual = actual_by_id.get(draft.scenario_id)
+            if actual is None:
+                raise IntegrityViolation("TaskSuite scenario set differs from exact derivation")
+            reset_payload = validator.validate_exact(
+                schema_id=environment_details.contract.reset_schema_id,
+                purpose="scenario_reset",
+                payload=draft.reset_payload,
+            )
+            reset_binding = ScenarioResetBindingV1(
+                reset_schema_id=environment_details.contract.reset_schema_id,
+                payload_hash=canonical_sha256(reset_payload),
+                payload=reset_payload,
+            )
+            try:
+                oracle_definition = resolve_completion_oracle(
+                    oracle_registry,
+                    params.completion_oracle_registry_ref,
+                    draft.completion_oracle,
+                )
+            except ValueError as exc:
+                raise IntegrityViolation("TaskSuite shaper returned an unknown oracle") from exc
+            oracle_params = validator.validate_exact(
+                schema_id=oracle_definition.params_schema_id,
+                purpose="completion_oracle_params",
+                payload=draft.completion_oracle.params,
+            )
+            oracle = draft.completion_oracle.model_copy(update={"params": oracle_params})
+            expected_scenario = ScenarioSpecV1(
+                scenario_id=draft.scenario_id,
+                source_preview_artifact_id=params.source_preview_artifact_id,
+                config_export_artifact_id=params.config_artifact_id,
+                constraint_snapshot_artifact_id=(params.constraint_snapshot_artifact_id),
+                environment_profile=params.environment_profile,
+                env_contract_version=environment_details.contract.env_contract_version,
+                domain_scope=draft.domain_scope,
+                reset_binding=reset_binding,
+            )
+            scenario, artifact_id = actual
+            if scenario != expected_scenario:
+                raise IntegrityViolation(
+                    "TaskSuite ScenarioSpec differs from deterministic terminal derivation"
+                )
+            expected_episodes.append(
+                TaskEpisodeV1(
+                    episode_id=draft.episode_id,
+                    scenario_spec_artifact_id=artifact_id,
+                    completion_oracle=oracle,
+                    domain_scope=draft.domain_scope,
+                    reset_binding=reset_binding,
+                    step_budget=draft.step_budget,
+                )
+            )
+
+        suite_payloads = tuple(payloads_by_rule.get("primary", ()))
+        suite_artifacts = tuple(artifacts_by_rule.get("primary", ()))
+        if len(suite_payloads) != 1 or len(suite_artifacts) != 1:
+            raise IntegrityViolation("TaskSuite publication lacks one exact suite")
+        try:
+            actual_suite = TaskSuiteV1.model_validate(suite_payloads[0])
+            expected_suite = TaskSuiteV1(
+                suite_profile=params.derivation_profile,
+                source_preview_artifact_id=params.source_preview_artifact_id,
+                config_export_artifact_id=params.config_artifact_id,
+                constraint_snapshot_artifact_id=(params.constraint_snapshot_artifact_id),
+                environment_profile=params.environment_profile,
+                env_contract_version=environment_details.contract.env_contract_version,
+                completion_oracle_registry_ref=params.completion_oracle_registry_ref,
+                episodes=tuple(expected_episodes),
+            )
+        except ValueError as exc:
+            raise IntegrityViolation("TaskSuite payload is invalid") from exc
+        if actual_suite != expected_suite:
+            raise IntegrityViolation("TaskSuite differs from deterministic terminal derivation")
+
+    def _validate_playtest_profile_authority(
+        self,
+        *,
+        run: RunRecord,
+        payload_schema_id: str,
+        payload: Mapping[str, object],
+        producer_identity: ExecutionIdentityV1 | None,
+    ) -> None:
+        """Re-derive Playtest behavior/resources from the exact retained profile."""
+
+        if payload_schema_id != "playtest-trace@1":
+            return
+        if not isinstance(run.payload.params, PlaytestRunPayloadV1):
+            raise IntegrityViolation("playtest trace is bound to another Run payload")
+        try:
+            trace = PlaytestTraceV1.model_validate(payload)
+        except ValueError as exc:
+            raise IntegrityViolation("playtest trace payload is invalid") from exc
+        bindings = tuple(
+            binding
+            for binding in run.payload.resolved_profiles
+            if binding.field_path == "/params/planner_policy"
+            and binding.profile == run.payload.params.planner_policy
+            and binding.expected_profile_kind == "playtest_planner"
+        )
+        if len(bindings) != 1:
+            raise IntegrityViolation("playtest trace lacks one exact planner profile binding")
+        binding = bindings[0]
+        if (
+            binding.catalog_version != run.payload.execution_profile_catalog_version
+            or binding.catalog_digest != run.payload.execution_profile_catalog_digest
+        ):
+            raise IntegrityViolation("playtest planner binding uses another catalog")
+        catalog = self._registry.get_execution_profile_catalog(
+            binding.catalog_version,
+            binding.catalog_digest,
+        )
+        if catalog is None:
+            raise IntegrityViolation("playtest execution-profile catalog is not retained")
+        definitions = tuple(
+            definition
+            for definition in catalog.definitions
+            if definition.profile == binding.profile
+        )
+        if len(definitions) != 1:
+            raise IntegrityViolation("playtest planner profile is not unique in its catalog")
+        definition = definitions[0]
+        if (
+            definition.profile_kind != "playtest_planner"
+            or definition.handler_key != "builtin_playtest_planner_profile@2"
+            or definition.config_schema_id != "playtest_planner-profile-config@2"
+            or run.kind not in definition.compatible_run_kinds
+            or payload_schema_id not in definition.output_schema_ids
+            or execution_profile_payload_hash(definition) != binding.profile_payload_hash
+        ):
+            raise IntegrityViolation("playtest planner differs from its frozen Run binding")
+        try:
+            config = PlaytestPlannerProfileConfigV2.model_validate(definition.config)
+            bounds = playtest_resource_upper_bounds(
+                config,
+                episode_count=len(trace.episodes),
+                max_steps_per_episode=trace.requested_max_steps_per_episode,
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation("playtest trace exceeds its exact planner profile") from exc
+        envelope = trace.execution_envelope
+        if producer_identity is None or producer_identity.scope != "artifact":
+            raise IntegrityViolation("playtest trace lacks its exact execution identity")
+        consumed_call_count = len(
+            {
+                (binding.attempt_no, binding.call_ordinal)
+                for binding in producer_identity.bindings
+                if binding.response_consumed
+            }
+        )
+        if (
+            trace.planner_memory_mode != config.memory_mode
+            or bounds
+            != (
+                envelope.total_step_limit,
+                envelope.model_call_upper_bound,
+                envelope.total_trace_byte_upper_bound,
+            )
+            or envelope.actual_model_calls > config.max_total_model_calls
+            or envelope.total_action_trace_bytes > config.max_total_trace_bytes
+            or envelope.actual_model_calls != consumed_call_count
+        ):
+            raise IntegrityViolation("playtest trace differs from its exact planner profile")
 
     def _publish_findings(
         self,

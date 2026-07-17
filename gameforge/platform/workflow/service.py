@@ -21,7 +21,7 @@ from collections.abc import Callable, Mapping
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from gameforge.contracts.api import (
     ApprovalDecisionRequestV1,
@@ -67,6 +67,7 @@ from gameforge.contracts.execution_profiles import (
     ConfigExportProfileDetailsV1,
     ExecutionProfileCatalogSnapshotV1,
     ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
 )
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import PatchV2
@@ -193,6 +194,9 @@ class WorkflowConfigExporter(Protocol):
         self,
         *,
         export_profile: ProfileRefV1,
+        export_profile_binding: ResolvedExecutionProfileBindingV1,
+        run_kind: None,
+        llm_execution_mode: Literal["not_applicable"],
         preview_snapshot_id: str,
         preview_payload: Mapping[str, object],
         constraint_snapshot_artifact_id: str,
@@ -524,7 +528,7 @@ class WorkflowCommandService:
             patch = self._compile_patch(payload, base_snapshot)
             preview = apply_patch(base_snapshot, patch)
             scope = resolver.resolve_patch_scope(base_artifact=base_artifact, patch=patch)
-            constraint_artifact, constraints = self._resolve_patch_export_inputs(
+            constraint_artifact, constraints, export_bindings = self._resolve_patch_export_inputs(
                 payload=payload,
                 read=read,
             )
@@ -535,10 +539,19 @@ class WorkflowCommandService:
         patch_artifact = build_artifact_v2(
             kind="patch",
             version_tuple=VersionTuple(
+                doc_version=base_artifact.version_tuple.doc_version,
                 ir_snapshot_id=base_snapshot.snapshot_id,
+                constraint_snapshot_id=(
+                    None
+                    if constraint_artifact is None
+                    else constraint_artifact.version_tuple.constraint_snapshot_id
+                ),
                 tool_version=_PATCH_TOOL_VERSION,
             ),
-            lineage=(base_artifact.artifact_id,),
+            lineage=(
+                base_artifact.artifact_id,
+                *(() if constraint_artifact is None else (constraint_artifact.artifact_id,)),
+            ),
             payload_hash=patch_stored.ref.sha256,
             object_ref=patch_stored.ref,
             meta={
@@ -553,6 +566,7 @@ class WorkflowCommandService:
         preview_artifact = build_artifact_v2(
             kind="ir_snapshot",
             version_tuple=VersionTuple(
+                doc_version=base_artifact.version_tuple.doc_version,
                 ir_snapshot_id=preview.snapshot_id,
                 tool_version=_PATCH_TOOL_VERSION,
             ),
@@ -571,6 +585,7 @@ class WorkflowCommandService:
             preview_artifact=preview_artifact,
             constraint_artifact=constraint_artifact,
             constraints=constraints,
+            export_bindings=export_bindings,
             domain_scope=scope,
             created_at=created_at,
         )
@@ -633,9 +648,25 @@ class WorkflowCommandService:
         *,
         payload: HumanPatchDraftRequestV1,
         read: WorkflowReadPort,
-    ) -> tuple[ArtifactV2 | None, tuple[Constraint, ...]]:
+    ) -> tuple[
+        ArtifactV2 | None,
+        tuple[Constraint, ...],
+        tuple[ResolvedExecutionProfileBindingV1, ...],
+    ]:
+        constraint_id = payload.constraint_snapshot_artifact_id
+        if constraint_id is None:
+            if payload.candidate_export_profiles:  # guarded by the request contract
+                raise IntegrityViolation("Patch export profiles require a constraint snapshot")
+            return None, (), ()
+        constraint_artifact = _require_artifact(read, constraint_id)
+        if (
+            constraint_artifact.kind != "constraint_snapshot"
+            or constraint_artifact.version_tuple.constraint_snapshot_id is None
+        ):
+            raise Conflict("Patch constraint is not a constraint_snapshot Artifact")
+        constraints = tuple(read.readers.load_constraints(constraint_artifact))
         if not payload.candidate_export_profiles:
-            return None, ()
+            return constraint_artifact, constraints, ()
         if self._catalog is None:
             raise DependencyUnavailable(
                 "Patch config-export profile catalog is unavailable",
@@ -646,16 +677,7 @@ class WorkflowCommandService:
                 "Patch config exporter is unavailable",
                 component="workflow_config_exporter",
             )
-        constraint_id = payload.constraint_snapshot_artifact_id
-        if constraint_id is None:  # guarded by HumanPatchDraftRequestV1
-            raise IntegrityViolation("Patch export profiles require a constraint snapshot")
-        constraint_artifact = _require_artifact(read, constraint_id)
-        if (
-            constraint_artifact.kind != "constraint_snapshot"
-            or constraint_artifact.version_tuple.constraint_snapshot_id is None
-        ):
-            raise Conflict("Patch export constraint is not a constraint_snapshot Artifact")
-        constraints = tuple(read.readers.load_constraints(constraint_artifact))
+        bindings: list[ResolvedExecutionProfileBindingV1] = []
         for index, profile in enumerate(payload.candidate_export_profiles):
             definitions = tuple(
                 definition
@@ -674,14 +696,16 @@ class WorkflowCommandService:
                     profile_id=profile.profile_id,
                     profile_version=profile.version,
                 )
-            read.policies.resolve_execution_profile(
-                catalog_version=self._catalog.catalog_version,
-                catalog_digest=self._catalog.catalog_digest,
-                field_path=f"/candidate_export_profiles/{index}",
-                profile=profile,
-                expected_profile_kind="config_export",
+            bindings.append(
+                read.policies.resolve_execution_profile(
+                    catalog_version=self._catalog.catalog_version,
+                    catalog_digest=self._catalog.catalog_digest,
+                    field_path=f"/candidate_export_profiles/{index}",
+                    profile=profile,
+                    expected_profile_kind="config_export",
+                )
             )
-        return constraint_artifact, constraints
+        return constraint_artifact, constraints, tuple(bindings)
 
     def _assemble_patch_config_exports(
         self,
@@ -691,6 +715,7 @@ class WorkflowCommandService:
         preview_artifact: ArtifactV2,
         constraint_artifact: ArtifactV2 | None,
         constraints: tuple[Constraint, ...],
+        export_bindings: tuple[ResolvedExecutionProfileBindingV1, ...],
         domain_scope: DomainScope,
         created_at: str,
     ) -> tuple[tuple[ArtifactV2, ...], tuple[PreparedObjectBinding, ...]]:
@@ -700,7 +725,9 @@ class WorkflowCommandService:
             raise IntegrityViolation("resolved Patch export dependencies are unavailable")
         artifacts: list[ArtifactV2] = []
         bindings: list[PreparedObjectBinding] = []
-        for profile in payload.candidate_export_profiles:
+        if len(export_bindings) != len(payload.candidate_export_profiles):
+            raise IntegrityViolation("Patch config-export binding count changed after resolution")
+        for index, profile in enumerate(payload.candidate_export_profiles):
             if self._catalog is None:  # guarded during exact input resolution
                 raise IntegrityViolation("config-export profile catalog is unavailable")
             definitions = tuple(
@@ -715,6 +742,9 @@ class WorkflowCommandService:
             details = definitions[0].details
             package = self._config_exporter.export(
                 export_profile=profile,
+                export_profile_binding=export_bindings[index],
+                run_kind=None,
+                llm_execution_mode="not_applicable",
                 # The package field is an Artifact ID despite the historical port
                 # parameter name; bind it to the exact prepared preview candidate.
                 preview_snapshot_id=preview_artifact.artifact_id,
@@ -738,6 +768,7 @@ class WorkflowCommandService:
             artifact = build_artifact_v2(
                 kind="config_export",
                 version_tuple=VersionTuple(
+                    doc_version=preview_artifact.version_tuple.doc_version,
                     ir_snapshot_id=preview.snapshot_id,
                     constraint_snapshot_id=(
                         constraint_artifact.version_tuple.constraint_snapshot_id
@@ -1379,7 +1410,11 @@ class WorkflowCommandService:
         patch_artifact = build_artifact_v2(
             kind="patch",
             version_tuple=VersionTuple(
+                doc_version=material.current_artifact.version_tuple.doc_version,
                 ir_snapshot_id=material.current_snapshot.snapshot_id,
+                constraint_snapshot_id=(
+                    material.source_patch_artifact.version_tuple.constraint_snapshot_id
+                ),
                 tool_version=REBASE_TOOL_VERSION,
             ),
             lineage=(
@@ -1400,6 +1435,7 @@ class WorkflowCommandService:
         preview_artifact = build_artifact_v2(
             kind="ir_snapshot",
             version_tuple=VersionTuple(
+                doc_version=material.current_artifact.version_tuple.doc_version,
                 ir_snapshot_id=preview.snapshot_id,
                 tool_version=REBASE_TOOL_VERSION,
             ),

@@ -71,6 +71,7 @@ from gameforge.platform.run_handlers.generation import (
     PATCH_SCHEMA_ID,
     ConfigExporter,
     PreparedEvidenceV1,
+    config_export_profile_binding,
 )
 from gameforge.platform.run_handlers.model_routing import (
     BridgeModelRouter,
@@ -507,10 +508,14 @@ class RepairSearchHandler:
         constraint_id = payload.constraint_snapshot_artifact_id
         assert outcome.preview_snapshot_id is not None
         artifacts: list[PreparedArtifact] = []
-        for profile in payload.candidate_export_profiles:
+        for index, profile in enumerate(payload.candidate_export_profiles):
             assert constraint_id is not None  # payload validator guarantees this
+            binding = config_export_profile_binding(context, index=index, profile=profile)
             package = self.config_exporter.export(
                 export_profile=profile,
+                export_profile_binding=binding,
+                run_kind=context.run.kind,
+                llm_execution_mode=context.payload.llm_execution_mode,
                 preview_snapshot_id=outcome.preview_snapshot_id,
                 preview_payload=outcome.preview_payload,  # type: ignore[arg-type]
                 constraint_snapshot_artifact_id=constraint_id,
@@ -524,7 +529,7 @@ class RepairSearchHandler:
                     version_tuple=prepared_version_tuple(
                         context,
                         tool_version="config-export@1",
-                        projected_fields=("constraint_snapshot_id",),
+                        projected_fields=("doc_version", "constraint_snapshot_id"),
                         overrides={
                             "ir_snapshot_id": outcome.preview_snapshot_id,
                             "env_contract_version": package.env_contract_version,

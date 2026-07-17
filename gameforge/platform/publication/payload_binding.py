@@ -17,7 +17,11 @@ from typing import Protocol
 
 from pydantic import BaseModel
 
-from gameforge.contracts.canonical import compute_snapshot_id, typed_canonical_json
+from gameforge.contracts.canonical import (
+    canonical_sha256,
+    compute_snapshot_id,
+    typed_canonical_json,
+)
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
     ArtifactMigrationPayloadV1,
@@ -40,6 +44,7 @@ from gameforge.contracts.jobs import (
     TaskSuiteDerivePayloadV1,
 )
 from gameforge.contracts.lineage import VersionTuple
+from gameforge.contracts.playtest import PlaytestTraceV1, ScenarioSpecV1, TaskSuiteV1
 from gameforge.platform.publication.lineage import ParentInfo, TypedLineage
 from gameforge.platform.publication.payload_schema import ARTIFACT_PAYLOAD_VALIDATORS
 from gameforge.platform.publication.producer import BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES
@@ -1030,6 +1035,11 @@ def _validate_payload_semantics(
             projected.env_contract_version,
             field="env_contract_version",
         )
+        _expect(
+            _required_field(payload, "domain_scope"),
+            run.resource_domain_scope,
+            field="domain_scope",
+        )
     elif payload_schema_id == "task-suite@1":
         assert isinstance(params, TaskSuiteDerivePayloadV1)
         for field, role in (
@@ -1070,8 +1080,61 @@ def _validate_payload_semantics(
             tuple(sorted(_role_ids(typed, "scenarios"))),
             field="episodes.scenario_spec_artifact_id",
         )
+        scenario_payloads_by_hash: dict[str, Mapping[str, object]] = {}
+        scenario_ids: list[object] = []
+        for scenario_payload in related_payloads_by_rule.get("scenario", ()):
+            payload_hash = canonical_sha256(scenario_payload)
+            if payload_hash in scenario_payloads_by_hash:
+                _fail("TaskSuite outcome contains duplicate scenario payloads")
+            scenario_payloads_by_hash[payload_hash] = scenario_payload
+            scenario_ids.append(_required_field(scenario_payload, "scenario_id"))
+        if len(scenario_ids) != len(set(scenario_ids)):
+            _fail("TaskSuite outcome contains duplicate scenario ids")
+        scenario_parents = {
+            parent.artifact_id: parent for parent in _role_parents(typed, "scenarios")
+        }
+        if len(scenario_payloads_by_hash) != len(scenario_parents):
+            _fail("TaskSuite scenario payload set differs from its typed lineage")
+        for index, episode in enumerate(episodes):
+            if not isinstance(episode, Mapping):
+                _fail("TaskSuite episode is not an object", field=f"episodes/{index}")
+            scenario_id = episode.get("scenario_spec_artifact_id")
+            parent = scenario_parents.get(scenario_id) if isinstance(scenario_id, str) else None
+            if parent is None or parent.payload_hash is None:
+                _fail(
+                    "TaskSuite episode has no exact scenario payload authority",
+                    field=f"episodes/{index}/scenario_spec_artifact_id",
+                )
+            scenario_payload = scenario_payloads_by_hash.get(parent.payload_hash)
+            if scenario_payload is None:
+                _fail(
+                    "TaskSuite scenario payload hash differs from its typed parent",
+                    field=f"episodes/{index}/scenario_spec_artifact_id",
+                )
+            _expect(
+                episode.get("domain_scope"),
+                _required_field(scenario_payload, "domain_scope"),
+                field=f"episodes/{index}/domain_scope",
+            )
+            _expect(
+                episode.get("reset_binding"),
+                _required_field(scenario_payload, "reset_binding"),
+                field=f"episodes/{index}/reset_binding",
+            )
     elif payload_schema_id == "playtest-trace@1":
         assert isinstance(params, PlaytestRunPayloadV1)
+        try:
+            trace = PlaytestTraceV1.model_validate(payload)
+            suite = TaskSuiteV1.model_validate(
+                _authoritative_parent_payload(
+                    authoritative_parent_payloads,
+                    params.task_suite_artifact_id,
+                )
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "playtest trace or exact TaskSuite authority is invalid"
+            ) from exc
         for field, role in (
             ("config_artifact_id", "config"),
             ("constraint_snapshot_artifact_id", "constraint"),
@@ -1086,20 +1149,87 @@ def _validate_payload_semantics(
             field="env_contract_version",
         )
         _expect(_required_field(payload, "seed"), projected.seed, field="seed")
-        episodes = _required_field(payload, "episodes")
-        if not isinstance(episodes, Sequence) or isinstance(episodes, (str, bytes)):
-            _fail("playtest trace episodes are not an array")
-        actual = tuple(
-            sorted(
-                (item.get("episode_id"), item.get("scenario_spec_artifact_id"))
-                for item in episodes
-                if isinstance(item, Mapping)
+        _expect(
+            trace.requested_max_steps_per_episode,
+            params.max_steps_per_episode,
+            field="requested_max_steps_per_episode",
+        )
+        planner_binding = next(
+            (
+                item
+                for item in run.payload.resolved_profiles
+                if item.field_path == "/params/planner_policy"
+            ),
+            None,
+        )
+        if planner_binding is None:
+            _fail("playtest Run lacks its exact planner profile binding")
+        _expect(
+            trace.execution_envelope.planner_profile_payload_hash,
+            planner_binding.profile_payload_hash,
+            field="execution_envelope.planner_profile_payload_hash",
+        )
+        expected_selected = {
+            item.episode_id: item.scenario_spec_artifact_id for item in params.episodes
+        }
+        suite_episodes = {item.episode_id: item for item in suite.episodes}
+        actual_selected: dict[str, str] = {}
+        for index, episode_trace in enumerate(trace.episodes):
+            scenario_id = expected_selected.get(episode_trace.episode_id)
+            suite_episode = suite_episodes.get(episode_trace.episode_id)
+            if (
+                scenario_id is None
+                or suite_episode is None
+                or scenario_id != episode_trace.scenario_spec_artifact_id
+            ):
+                _fail("playtest trace episode differs from the exact Run selection")
+            actual_selected[episode_trace.episode_id] = episode_trace.scenario_spec_artifact_id
+            _expect(
+                episode_trace.step_budget,
+                suite_episode.step_budget,
+                field=f"episodes/{index}/step_budget",
             )
-        )
-        expected = tuple(
-            sorted((item.episode_id, item.scenario_spec_artifact_id) for item in params.episodes)
-        )
-        _expect(actual, expected, field="episodes")
+            _expect(
+                episode_trace.execution_step_limit,
+                params.max_steps_per_episode,
+                field=f"episodes/{index}/execution_step_limit",
+            )
+            _expect(
+                episode_trace.completion_oracle,
+                suite_episode.completion_oracle,
+                field=f"episodes/{index}/completion_oracle",
+            )
+            try:
+                scenario = ScenarioSpecV1.model_validate(
+                    _authoritative_parent_payload(
+                        authoritative_parent_payloads,
+                        episode_trace.scenario_spec_artifact_id,
+                    )
+                )
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation("selected ScenarioSpec authority is invalid") from exc
+            for field, actual_value, expected_value in (
+                ("domain_scope", scenario.domain_scope, suite_episode.domain_scope),
+                ("reset_binding", scenario.reset_binding, suite_episode.reset_binding),
+                (
+                    "config_export_artifact_id",
+                    scenario.config_export_artifact_id,
+                    params.config_artifact_id,
+                ),
+                (
+                    "constraint_snapshot_artifact_id",
+                    scenario.constraint_snapshot_artifact_id,
+                    params.constraint_snapshot_artifact_id,
+                ),
+                ("environment_profile", scenario.environment_profile, params.environment_profile),
+                ("env_contract_version", scenario.env_contract_version, trace.env_contract_version),
+            ):
+                _expect(
+                    actual_value,
+                    expected_value,
+                    field=f"episodes/{index}/scenario/{field}",
+                )
+        _expect(actual_selected, expected_selected, field="episodes")
     elif payload_schema_id == "regression-evidence@1":
         _validate_regression_payload(run=run, payload=payload, projected=projected)
     elif payload_schema_id == "constraint-compile-evidence@1":

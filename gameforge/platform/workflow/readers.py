@@ -354,33 +354,65 @@ class WorkflowDraftLineageVerifier:
             if len(previews) != 1:
                 raise IntegrityViolation("Patch draft requires exactly one preview companion")
             preview = previews[0]
-            if len(subject.lineage) == 1:
-                # Initial draft: Patch descends from its base; preview = {base, Patch}.
-                if set(preview.lineage) != {subject.lineage[0], subject.artifact_id}:
-                    raise IntegrityViolation("preview direct parents must be base plus Patch")
-            elif len(subject.lineage) == 2:
-                # Rebased draft: Patch descends from {source Patch, current}; the preview
-                # descends from {current, Patch}. The rebased base (current) must be one of
-                # the Patch's exact lineage parents.
-                preview_parents = set(preview.lineage)
-                if subject.artifact_id not in preview_parents:
-                    raise IntegrityViolation("rebased preview must descend from its Patch")
-                rebased_base = preview_parents - {subject.artifact_id}
-                if len(rebased_base) != 1 or not rebased_base <= set(subject.lineage):
-                    raise IntegrityViolation(
-                        "rebased preview base must be an exact Patch lineage parent"
-                    )
+            preview_parents = set(preview.lineage)
+            preview_base = preview_parents - {subject.artifact_id}
+            if subject.artifact_id not in preview_parents or len(preview_base) != 1:
+                raise IntegrityViolation("preview direct parents must be base plus Patch")
+            base_parent_id = next(iter(preview_base))
+            constraint_parent_id: str | None = None
+            if prepared.expected_subject_head is None:
+                # An initial human Patch directly binds its exact base plus the optional
+                # authoritative constraint Artifact.  The constraint is not inferred
+                # from config-export companions: a caller may deliberately bind one
+                # even when no executable export was requested.
+                other_parents = set(subject.lineage) - {base_parent_id}
+                if subject.version_tuple.constraint_snapshot_id is None:
+                    if other_parents or set(subject.lineage) != {base_parent_id}:
+                        raise IntegrityViolation(
+                            "unconstrained Patch draft must directly bind only its base"
+                        )
+                else:
+                    if len(other_parents) != 1 or base_parent_id not in subject.lineage:
+                        raise IntegrityViolation(
+                            "constrained Patch draft must directly bind base plus constraint"
+                        )
+                    constraint_parent_id = next(iter(other_parents))
             else:
-                raise IntegrityViolation("Patch draft has an unexpected lineage shape")
+                # A rebase remains the explicit merge projection {source Patch,current};
+                # its constraint semantic may be inherited transitively from the source
+                # Patch and therefore does not add a third direct parent.
+                if len(subject.lineage) != 2 or base_parent_id not in subject.lineage:
+                    raise IntegrityViolation(
+                        "rebased Patch must bind source Patch plus its exact current base"
+                    )
+            if subject.version_tuple.doc_version != preview.version_tuple.doc_version:
+                raise IntegrityViolation(
+                    "Patch and preview document versions must inherit the same exact base"
+                )
             profiles: set[str] = set()
             for config in configs:
-                if preview.artifact_id not in config.lineage or len(config.lineage) != 2:
+                config_parents = set(config.lineage)
+                config_constraints = config_parents - {preview.artifact_id}
+                if (
+                    preview.artifact_id not in config_parents
+                    or len(config_parents) != 2
+                    or len(config_constraints) != 1
+                ):
                     raise IntegrityViolation(
                         "config export must descend from the exact Patch preview and constraint"
                     )
+                config_constraint_id = next(iter(config_constraints))
+                if constraint_parent_id is None:
+                    constraint_parent_id = config_constraint_id
+                elif config_constraint_id != constraint_parent_id:
+                    raise IntegrityViolation(
+                        "Patch draft config exports bind different constraint Artifacts"
+                    )
                 if (
-                    config.version_tuple.ir_snapshot_id != preview.version_tuple.ir_snapshot_id
-                    or config.version_tuple.constraint_snapshot_id is None
+                    config.version_tuple.doc_version != preview.version_tuple.doc_version
+                    or config.version_tuple.ir_snapshot_id != preview.version_tuple.ir_snapshot_id
+                    or config.version_tuple.constraint_snapshot_id
+                    != subject.version_tuple.constraint_snapshot_id
                     or config.meta.get("payload_schema_id") != "config-export-package@1"
                 ):
                     raise IntegrityViolation(

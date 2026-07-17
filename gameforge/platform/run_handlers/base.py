@@ -40,7 +40,7 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ResolvedExecutionProfileBindingV1
 from gameforge.contracts.findings import Finding, FindingPayloadV1
 from gameforge.contracts.jobs import (
-    MAX_COLLECTION_ITEMS,
+    MAX_PREPARED_DOMAIN_ARTIFACTS,
     MAX_PREPARED_ARTIFACT_BYTES,
     MAX_PREPARED_FINDINGS,
     MAX_PREPARED_OUTCOME_BYTES,
@@ -116,11 +116,11 @@ class PreparedArtifactBatchStore:
         self,
         *,
         max_bytes: int = MAX_PREPARED_OUTCOME_BYTES,
-        max_artifacts: int = MAX_COLLECTION_ITEMS,
+        max_artifacts: int = MAX_PREPARED_DOMAIN_ARTIFACTS,
     ) -> None:
         if not 1 <= max_bytes <= MAX_PREPARED_OUTCOME_BYTES:
             raise IntegrityViolation("prepared batch byte authority is outside the hard bound")
-        if not 1 <= max_artifacts <= MAX_COLLECTION_ITEMS:
+        if not 1 <= max_artifacts <= MAX_PREPARED_DOMAIN_ARTIFACTS:
             raise IntegrityViolation("prepared batch artifact authority is outside the hard bound")
         self._max_bytes = max_bytes
         self._max_artifacts = max_artifacts

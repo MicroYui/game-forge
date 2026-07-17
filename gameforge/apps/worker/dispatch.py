@@ -34,6 +34,7 @@ from gameforge.apps.worker.app import (
     build_executor_resolver,
     build_reaper_scan,
     build_timeout_scan,
+    build_worker_registry,
     build_worker_runtime,
 )
 from gameforge.apps.worker.agent_drafts import (
@@ -50,6 +51,7 @@ from gameforge.apps.worker.components import (
     build_rollback_ports,
     build_trusted_components,
 )
+from gameforge.apps.worker.config_export import build_aureus_config_exporter
 from gameforge.apps.worker.bench_codec import BENCH_PAYLOAD_DECODERS
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import WorkerModelBridgePort
@@ -91,6 +93,7 @@ from gameforge.apps.worker.routing_bridge import (
     WorkerRoutingDecider,
 )
 from gameforge.apps.worker.terminal import WorkerTerminalPublisher
+from gameforge.apps.worker.task_suite import build_scenario_shaper_resolver
 from gameforge.contracts.canonical import sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.cost import PriceBook
@@ -109,8 +112,14 @@ from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.approvals.commands import ApprovalCommandService
 from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
 from gameforge.platform.publication import TerminalPublisher
-from gameforge.platform.registry import TrustedComponentMaps, build_builtin_registry
+from gameforge.platform.playtest_payload_schemas import (
+    PlaytestPayloadValidationService,
+    build_builtin_playtest_payload_validators,
+)
+from gameforge.platform.registry import TrustedComponentMaps
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.run_handlers.generation import ConfigExporter
+from gameforge.platform.run_handlers.task_suite import ScenarioShaperResolver
 from gameforge.platform.provenance import build_source_kind_registry
 from gameforge.platform.runs.admission import (
     DefaultRunBudgetPlanProvider,
@@ -495,6 +504,8 @@ def build_worker_dispatch(
     runtime: WorkerRuntime,
     registry: ImmutablePlatformRegistry,
     terminal_cursor_signing_key: bytes,
+    config_exporter: ConfigExporter,
+    task_suite_scenario_shaper_resolver: ScenarioShaperResolver,
     run_audit_chain_id: str = WORKER_RUN_AUDIT_CHAIN_ID,
     notify: Callable[[str], None] | None = None,
     model_transport: TypedLlmTransport | None = None,
@@ -608,6 +619,12 @@ def build_worker_dispatch(
             audit=WorkerAuditPort(audit_gate=audit_gate, chain_id=run_audit_chain_id),
             approvals=transaction.approvals,  # type: ignore[attr-defined]
             payload_decoders=BENCH_PAYLOAD_DECODERS,
+            playtest_payload_validator=PlaytestPayloadValidationService(
+                registry=registry,
+                validators=runtime.components.playtest_payload_validators,
+            ),
+            config_exporter=config_exporter,
+            task_suite_scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
             agent_drafts=build_agent_draft_workflow_port(
                 transaction=transaction,
                 object_store=object_store,
@@ -1196,7 +1213,10 @@ def build_worker_process(
             cursor_signing_key=_derive_key(config.root_secret, "object-store-cursor"),
         )
         terminal_cursor_key = _derive_key(config.root_secret, "worker-terminal-cursor")
-        registry = build_builtin_registry()
+        registry = build_worker_registry(engine, clock=clock)
+        playtest_payload_validators = build_builtin_playtest_payload_validators()
+        config_exporter = build_aureus_config_exporter(registry)
+        task_suite_scenario_shaper_resolver = build_scenario_shaper_resolver(registry)
         required_prompt_plan_keys = tuple(
             sorted(
                 {
@@ -1236,6 +1256,9 @@ def build_worker_process(
             registry=registry,
             blobs=blobs,
             store=store,
+            playtest_payload_validators=playtest_payload_validators,
+            config_exporter=config_exporter,
+            task_suite_scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
             rollback_history_verifier=rollback_history_verifier,
             rollback_schema_analyzer=rollback_schema_analyzer,
         )
@@ -1245,11 +1268,14 @@ def build_worker_process(
             engine=engine,
             object_store=object_store,
             model_execution_authorities=model_execution_authorities,
+            registry=registry,
         )
         dispatcher = build_worker_dispatch(
             runtime=runtime,
             registry=runtime.registry,
             terminal_cursor_signing_key=terminal_cursor_key,
+            config_exporter=config_exporter,
+            task_suite_scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
             notify=notify,
             model_transport=model_transport,
             model_snapshot_authority=model_snapshot_authority,

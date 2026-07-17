@@ -40,6 +40,7 @@ from gameforge.contracts.execution_profiles import (
     MigrationProfileDetailsV1,
     PatchRepairProfileConfigV1,
     PlaytestPlannerProfileConfigV1,
+    PlaytestPlannerProfileConfigV2,
     ProfileRefV1,
     ProfileCollectionResolvedPolicyRequirementConfigV1,
     FixedResolvedPolicyRequirementConfigV1,
@@ -47,6 +48,8 @@ from gameforge.contracts.execution_profiles import (
     ReviewProfileConfigV1,
     RunKindRef,
     SimulationProfileConfigV1,
+    TaskSuiteDerivationProfileConfigV1,
+    TaskSuiteDerivationProfileConfigV2,
     ValidationProfileDetailsV1,
     VersionTransitionPolicyRefV1,
     WorkloadProfileConfigV1,
@@ -96,7 +99,10 @@ from gameforge.contracts.lineage import ArtifactKind, VersionTuple
 from gameforge.contracts.playtest import (
     CompletionOracleDefinitionV1,
     CompletionOracleRegistryV1,
+    PlaytestPayloadSchemaDefinitionV1,
+    PlaytestPayloadSchemaRegistryV1,
     compute_completion_oracle_registry_digest,
+    compute_playtest_payload_schema_registry_digest,
 )
 from gameforge.platform.registry.model import (
     FROZEN_PROFILE_REQUIREMENT_SHAPES,
@@ -735,6 +741,7 @@ def _lineage_spec(
             )
             projection.update(
                 {
+                    "doc_version": ("preview", ()),
                     "ir_snapshot_id": ("preview", ()),
                     "constraint_snapshot_id": ("constraint", ()),
                 }
@@ -825,6 +832,7 @@ def _lineage_spec(
             )
             projection.update(
                 {
+                    "doc_version": ("preview", ()),
                     "ir_snapshot_id": ("preview", ()),
                     "constraint_snapshot_id": ("constraint", ()),
                 }
@@ -2352,6 +2360,31 @@ def _completion_oracle_registry() -> CompletionOracleRegistryV1:
     )
 
 
+def _playtest_payload_schema_registry() -> PlaytestPayloadSchemaRegistryV1:
+    definitions = (
+        PlaytestPayloadSchemaDefinitionV1(
+            schema_id="generic-env-reset@1",
+            purpose="scenario_reset",
+            validator_key="generic_env_reset_payload@1",
+        ),
+        PlaytestPayloadSchemaDefinitionV1(
+            schema_id="state-predicate-params@1",
+            purpose="completion_oracle_params",
+            validator_key="state_predicate_params@1",
+        ),
+        PlaytestPayloadSchemaDefinitionV1(
+            schema_id="bounded-progress-params@1",
+            purpose="completion_oracle_params",
+            validator_key="bounded_progress_params@1",
+        ),
+    )
+    payload = {"registry_version": 1, "definitions": definitions}
+    return PlaytestPayloadSchemaRegistryV1(
+        **payload,
+        registry_digest=compute_playtest_payload_schema_registry_digest(payload),
+    )
+
+
 def _migration_registry() -> MigrationCapabilityMatrixRegistryV1:
     matrix_payload = {
         "matrix_version": 1,
@@ -2378,9 +2411,14 @@ def _migration_registry() -> MigrationCapabilityMatrixRegistryV1:
     )
 
 
-def _profile_compatibility() -> dict[ExecutionProfileKindV1, tuple[RunKindRef, ...]]:
+def _profile_compatibility(
+    *,
+    historical_v1_only: bool = False,
+) -> dict[ExecutionProfileKindV1, tuple[RunKindRef, ...]]:
     by_kind: dict[str, set[RunKindIdentity]] = {}
     for run_kind, requirements in FROZEN_PROFILE_REQUIREMENT_SHAPES.items():
+        if historical_v1_only and run_kind[1] != 1:
+            continue
         for _field_path, profile_kind, _cardinality in requirements:
             by_kind.setdefault(profile_kind, set()).add(run_kind)
     return {
@@ -2389,7 +2427,11 @@ def _profile_compatibility() -> dict[ExecutionProfileKindV1, tuple[RunKindRef, .
     }
 
 
-def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dict[str, Any]:
+def _resolved_policy_profile_config(
+    profile_kind: ExecutionProfileKindV1,
+    *,
+    profile_version: int = 1,
+) -> dict[str, Any]:
     if profile_kind == "checker":
         return CheckerProfileConfigV1(
             allowed_checker_ids=("asp", "graph", "smt"),
@@ -2525,7 +2567,31 @@ def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dic
         )
         return config.model_dump(mode="json")
     if profile_kind == "playtest_planner":
-        return PlaytestPlannerProfileConfigV1(memory_mode="off").model_dump(mode="json")
+        if profile_version == 1:
+            return PlaytestPlannerProfileConfigV1(memory_mode="off").model_dump(mode="json")
+        if profile_version != 2:
+            raise ValueError("unsupported built-in playtest planner profile version")
+        return PlaytestPlannerProfileConfigV2(
+            memory_mode="off",
+            max_episode_count=1024,
+            max_steps_per_episode=1024,
+            max_total_steps=1024,
+            max_total_model_calls=3072,
+            max_total_trace_bytes=256 * 1024 * 1024,
+        ).model_dump(mode="json")
+    if profile_kind == "task_suite_derivation":
+        if profile_version == 1:
+            return TaskSuiteDerivationProfileConfigV1().model_dump(mode="json")
+        if profile_version != 2:
+            raise ValueError("unsupported built-in task-suite profile version")
+        oracle_registry = _completion_oracle_registry()
+        return TaskSuiteDerivationProfileConfigV2(
+            target_environment_profile=ProfileRefV1(profile_id="builtin.environment", version=1),
+            completion_oracle_registry_version=oracle_registry.registry_version,
+            completion_oracle_registry_digest=oracle_registry.registry_digest,
+            max_scenarios=1024,
+            max_total_prepared_artifact_bytes=256 * 1024 * 1024,
+        ).model_dump(mode="json")
     if profile_kind == "bench_evaluator":
         return BenchmarkEvaluatorProfileConfigV1(
             policy=build_builtin_benchmark_evaluator_policy()
@@ -2533,58 +2599,80 @@ def _resolved_policy_profile_config(profile_kind: ExecutionProfileKindV1) -> dic
     return {}
 
 
-def _execution_profile_catalog() -> ExecutionProfileCatalogSnapshotV1:
-    compatibility = _profile_compatibility()
+def _execution_profile_definition(
+    *,
+    profile_kind: ExecutionProfileKindV1,
+    run_kinds: tuple[RunKindRef, ...],
+    profile_version: int,
+) -> ExecutionProfileDefinitionV1:
+    """Materialize one immutable built-in profile definition."""
+
     environment_ref = ProfileRefV1(profile_id="builtin.environment", version=1)
-    definitions: list[ExecutionProfileDefinitionV1] = []
-    for profile_kind, run_kinds in compatibility.items():
-        profile = ProfileRefV1(profile_id=f"builtin.{profile_kind}", version=1)
-        if profile_kind == "environment":
-            details = EnvironmentProfileDetailsV1(
-                contract=EnvironmentContractDescriptorV1(
-                    env_contract_version="generic-agent-env@1",
-                    reset_schema_id="generic-env-reset@1",
-                    action_schema_id="generic-env-action@1",
-                    observation_schema_id="generic-env-observation@1",
-                    max_navigation_grid_cells=65_536,
-                )
-            )
-        elif profile_kind == "config_export":
-            details = ConfigExportProfileDetailsV1(
-                target_environment_profile=environment_ref,
+    profile = ProfileRefV1(
+        profile_id=f"builtin.{profile_kind}",
+        version=profile_version,
+    )
+    if profile_kind == "environment":
+        details = EnvironmentProfileDetailsV1(
+            contract=EnvironmentContractDescriptorV1(
                 env_contract_version="generic-agent-env@1",
-                format_schema_id="config-export-files@1",
-            )
-        elif profile_kind == "validation":
-            details = ValidationProfileDetailsV1(
-                subject_kinds=("patch", "constraint_proposal", "rollback_request"),
-            )
-        elif profile_kind == "artifact_migrator":
-            details = MigrationProfileDetailsV1(edges=())
-        else:
-            details = GenericProfileDetailsV1()
-        config = _resolved_policy_profile_config(profile_kind)
-        definitions.append(
-            ExecutionProfileDefinitionV1(
-                profile=profile,
-                profile_kind=profile_kind,
-                compatible_run_kinds=run_kinds,
-                domain_scope=DomainScope(domain_ids=("builtin",)),
-                stochastic=profile_kind == "simulation",
-                input_schema_ids=tuple(
-                    FROZEN_RUN_KIND_SHAPES[(item.kind, item.version)].payload_schema_id
-                    for item in run_kinds
-                ),
-                output_schema_ids=PROFILE_OUTPUT_SCHEMA_REQUIREMENTS[profile_kind],
-                required_capabilities=(),
-                display_name=f"Built-in {profile_kind.replace('_', ' ')} profile",
-                handler_key=f"builtin_{profile_kind}_profile@1",
-                config_schema_id=f"{profile_kind}-profile-config@1",
-                config=config,
-                config_hash=canonical_config_hash(config),
-                details=details,
+                reset_schema_id="generic-env-reset@1",
+                action_schema_id="generic-env-action@1",
+                observation_schema_id="generic-env-observation@1",
+                max_navigation_grid_cells=65_536,
             )
         )
+    elif profile_kind == "config_export":
+        details = ConfigExportProfileDetailsV1(
+            target_environment_profile=environment_ref,
+            env_contract_version="generic-agent-env@1",
+            format_schema_id="config-export-files@1",
+        )
+    elif profile_kind == "validation":
+        details = ValidationProfileDetailsV1(
+            subject_kinds=("patch", "constraint_proposal", "rollback_request"),
+        )
+    elif profile_kind == "artifact_migrator":
+        details = MigrationProfileDetailsV1(edges=())
+    else:
+        details = GenericProfileDetailsV1()
+    config = _resolved_policy_profile_config(
+        profile_kind,
+        profile_version=profile_version,
+    )
+    return ExecutionProfileDefinitionV1(
+        profile=profile,
+        profile_kind=profile_kind,
+        compatible_run_kinds=run_kinds,
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+        stochastic=profile_kind == "simulation",
+        input_schema_ids=tuple(
+            FROZEN_RUN_KIND_SHAPES[(item.kind, item.version)].payload_schema_id
+            for item in run_kinds
+        ),
+        output_schema_ids=PROFILE_OUTPUT_SCHEMA_REQUIREMENTS[profile_kind],
+        required_capabilities=(),
+        display_name=f"Built-in {profile_kind.replace('_', ' ')} profile",
+        handler_key=f"builtin_{profile_kind}_profile@{profile_version if profile_kind in {'playtest_planner', 'task_suite_derivation'} else 1}",
+        config_schema_id=f"{profile_kind}-profile-config@{profile_version if profile_kind in {'playtest_planner', 'task_suite_derivation'} else 1}",
+        config=config,
+        config_hash=canonical_config_hash(config),
+        details=details,
+    )
+
+
+def _execution_profile_catalog_v1() -> ExecutionProfileCatalogSnapshotV1:
+    """Return the byte-identical Task 11 catalog retained for audit/history."""
+
+    compatibility = _profile_compatibility(historical_v1_only=True)
+    definitions = tuple(
+        _execution_profile_definition(
+            profile_kind=profile_kind,
+            run_kinds=run_kinds,
+            profile_version=1,
+        )
+        for profile_kind, run_kinds in compatibility.items()
+    )
     lifecycle = tuple(
         ExecutionProfileLifecycleV1(
             profile=definition.profile,
@@ -2596,7 +2684,79 @@ def _execution_profile_catalog() -> ExecutionProfileCatalogSnapshotV1:
     )
     payload = {
         "catalog_version": 1,
-        "definitions": tuple(definitions),
+        "definitions": definitions,
+        "lifecycle": lifecycle,
+    }
+    return ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
+def _execution_profile_catalog_v2() -> ExecutionProfileCatalogSnapshotV1:
+    """Add bounded Task 12 profiles without redefining either historical @1."""
+
+    previous = _execution_profile_catalog_v1()
+    compatibility = _profile_compatibility()
+    upgraded_kinds: tuple[ExecutionProfileKindV1, ...] = (
+        "playtest_planner",
+        "task_suite_derivation",
+    )
+    disabled_v1_kinds: tuple[ExecutionProfileKindV1, ...] = (
+        "playtest_planner",
+        "task_suite_derivation",
+    )
+    definitions = (
+        *previous.definitions,
+        *(
+            _execution_profile_definition(
+                profile_kind=profile_kind,
+                run_kinds=compatibility[profile_kind],
+                profile_version=2,
+            )
+            for profile_kind in upgraded_kinds
+        ),
+    )
+    previous_by_ref = {item.profile: item for item in previous.lifecycle}
+    lifecycle = tuple(
+        ExecutionProfileLifecycleV1(
+            profile=definition.profile,
+            state=(
+                "disabled"
+                if definition.profile_kind in disabled_v1_kinds and definition.profile.version == 1
+                else "active"
+            ),
+            revision=(
+                2
+                if definition.profile_kind in disabled_v1_kinds and definition.profile.version == 1
+                else previous_by_ref.get(
+                    definition.profile,
+                    ExecutionProfileLifecycleV1(
+                        profile=definition.profile,
+                        state="active",
+                        revision=1,
+                        changed_at="2026-07-16T00:00:00Z",
+                    ),
+                ).revision
+            ),
+            reason_code=(
+                "missing_exact_task12_resource_authority"
+                if definition.profile_kind in disabled_v1_kinds and definition.profile.version == 1
+                else None
+            ),
+            changed_at=(
+                "2026-07-16T00:00:00Z"
+                if definition.profile_kind in disabled_v1_kinds
+                and definition.profile.version == 1
+                or definition.profile.version == 2
+                else previous_by_ref[definition.profile].changed_at
+            ),
+        )
+        for definition in definitions
+    )
+    payload = {
+        "catalog_version": 2,
+        "definitions": definitions,
         "lifecycle": lifecycle,
     }
     return ExecutionProfileCatalogSnapshotV1(
@@ -2850,8 +3010,12 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
         finding_output_policies=finding_policies,
         run_event_registries=(_run_event_registry(),),
         completion_oracle_registries=(_completion_oracle_registry(),),
+        playtest_payload_schema_registries=(_playtest_payload_schema_registry(),),
         agent_execution_graphs=_agent_execution_graphs(),
-        execution_profile_catalogs=(_execution_profile_catalog(),),
+        execution_profile_catalogs=(
+            _execution_profile_catalog_v1(),
+            _execution_profile_catalog_v2(),
+        ),
         migration_capability_registries=(migration_registry,),
         profile_requirements=_profile_requirements(),
         permission_resolver_keys=permission_resolvers,
