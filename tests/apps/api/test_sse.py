@@ -922,6 +922,32 @@ def test_legacy_resource_run_without_frozen_scope_falls_back_conservatively(
     assert set(resolved.domain_ids) == set(DOMAIN_IDS)
 
 
+def test_legacy_validation_run_rejects_mismatched_approval_subject_scope(
+    tmp_path: Path,
+) -> None:
+    from gameforge.apps.api.streaming import _resolve_run_read_domain
+
+    harness = AppHarness(tmp_path)
+    run_id = harness.admit_patch_validate_run("legacy-validation-mismatch")
+    with Session(harness.engine) as session:
+        run = SqlRunRepository(session).get_run_projection(run_id)
+    assert run is not None
+    assert harness.approvals is not None
+    legacy = run.model_copy(update={"resource_domain_scope": None})
+    mismatched = harness.approvals._item.model_copy(  # noqa: SLF001
+        update={"subject_artifact_id": "artifact:unrelated"}
+    )
+
+    resolved = _resolve_run_read_domain(
+        legacy,
+        harness.domain_registry,
+        _FixedApprovals(mismatched),
+    )
+
+    assert isinstance(resolved, DomainScope)
+    assert set(resolved.domain_ids) == set(DOMAIN_IDS)
+
+
 def test_resolve_run_read_domain_dr_drill_is_domainless(tmp_path: Path) -> None:
     from types import SimpleNamespace
 

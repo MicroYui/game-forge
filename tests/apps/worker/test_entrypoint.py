@@ -64,6 +64,7 @@ from gameforge.platform.run_handlers.patch_validation import PatchValidationHand
 from gameforge.platform.run_handlers.rollback_validation import RollbackValidationHandler
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.observability.logs import StructuredLogger
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from tests.platform.m4c.handler_support import build_envelope
@@ -320,6 +321,8 @@ def test_build_worker_process_requires_exact_model_authorities_for_readiness(
     process = build_worker_process(config)
     try:
         assert isinstance(process.dispatcher, RunDispatcher)
+        assert isinstance(process.runtime.logger, StructuredLogger)
+        assert process.dispatcher._logger is process.runtime.logger
         assert len(process.components.executors) == 14
         assert "checker_runner@1" in process.components.executors
         with pytest.raises(WorkerConfigurationError, match="model execution authority"):
@@ -977,6 +980,7 @@ def test_worker_runtime_close_attempts_all_resources_after_one_close_fails(
         object_store=object(),  # type: ignore[arg-type]
         telemetry_store=Resource("telemetry"),  # type: ignore[arg-type]
         tracer=object(),  # type: ignore[arg-type]
+        logger=object(),  # type: ignore[arg-type]
         executor_pool=Resource("executor", fail=True),  # type: ignore[arg-type]
         control_pool=Resource("control"),  # type: ignore[arg-type]
         heartbeat_pool=Resource("heartbeat"),  # type: ignore[arg-type]

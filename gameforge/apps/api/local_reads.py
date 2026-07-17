@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
 
-from sqlalchemy import Engine
+from pydantic import BaseModel, ValidationError
+from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.content_persistence import (
@@ -21,11 +22,28 @@ from gameforge.apps.api.content_persistence import (
 from gameforge.apps.api.observability_paging import SqlCostUsagePageAdapter
 from gameforge.apps.api.pagination import OpaquePageCursorCodec
 from gameforge.apps.api.read_paging import SqlMaterializedPageAdapter
-from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.apps.api.run_read_domain import resolve_run_read_domain
+from gameforge.contracts.canonical import sha256_lowerhex
+from gameforge.contracts.errors import (
+    DependencyUnavailable,
+    IntegrityViolation,
+    PayloadTooLarge,
+    QueryTooBroad,
+)
+from gameforge.contracts.diff import ConflictSet
 from gameforge.contracts.execution_profiles import ExecutionProfileCatalogSnapshotV1
+from gameforge.contracts.findings import FindingRevisionV1, finding_revision_digest
+from gameforge.contracts.identity import (
+    DomainRegistryV1,
+    DomainScope,
+    Permission,
+    RolePolicy,
+)
+from gameforge.contracts.jobs import RunRecord
+from gameforge.contracts.lineage import ArtifactV1, ArtifactV2
+from gameforge.contracts.playtest import ScenarioSpecV1, TaskSuiteV1
 from gameforge.contracts.observability import (
     LogErrorV1,
-    LogPageV1,
     LogQueryV1,
     LogRecordViewV1,
     MetricDescriptorRefV1,
@@ -39,7 +57,11 @@ from gameforge.contracts.observability import (
     TraceSummaryV1,
 )
 from gameforge.contracts.storage import ObjectStore, UtcClock
-from gameforge.platform.read_models.artifacts import ArtifactPayloadReader
+from gameforge.platform.read_models.artifacts import (
+    ArtifactPayloadReader,
+    read_exact_object_bytes,
+    strict_canonical_json_object,
+)
 from gameforge.platform.read_models.authorization import (
     ReadAuthorizationBinding,
     ReadAuthorizationService,
@@ -49,6 +71,9 @@ from gameforge.platform.read_models.content import (
     ContentReadService,
 )
 from gameforge.platform.read_models.observability import (
+    AuthorizedLogReadPage,
+    AuthorizedTelemetryRunScope,
+    LogTraceScopeProof,
     ObservabilityReadCapabilities,
     ObservabilityReadService,
     RunCostReadPage,
@@ -74,16 +99,20 @@ from gameforge.runtime.persistence.cost import SqlCostRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
+from gameforge.runtime.persistence.models import RunFindingLinkRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.workflow_reads import SqlWorkflowReadRepository
+from gameforge.contracts.workflow import ConstraintProposalV1
 
 
 _SNAPSHOT_TTL = timedelta(minutes=5)
 _MAX_MATERIALIZED_ITEMS = 1_000
 _MAX_ARTIFACT_PAYLOAD_BYTES = 4 * 1024 * 1024
+_MAX_ARTIFACT_DOMAIN_LINEAGE_ITEMS = 1_000
+_MAX_ARTIFACT_DOMAIN_LINEAGE_EDGES = 10_000
 
 
 class _UnavailableAuthority:
@@ -102,6 +131,490 @@ class _UnavailableAuthority:
             )
 
         return unavailable
+
+
+class _ArtifactDomainPayloadReader:
+    """Verify and decode only typed payloads that carry domain authority."""
+
+    def __init__(
+        self,
+        *,
+        object_bindings: SqlObjectBindingRepository,
+        object_store: ObjectStore,
+    ) -> None:
+        self._object_bindings = object_bindings
+        self._object_store = object_store
+
+    def load[T: BaseModel](
+        self,
+        artifact: ArtifactV1 | ArtifactV2,
+        *,
+        schema_id: str,
+        model: type[T],
+    ) -> T:
+        if not isinstance(artifact, ArtifactV2):
+            raise IntegrityViolation(
+                "typed Artifact domain authority requires lineage@2",
+                artifact_id=artifact.artifact_id,
+            )
+        metadata_schema = artifact.meta.get("payload_schema_id")
+        if metadata_schema is not None and metadata_schema != schema_id:
+            raise IntegrityViolation(
+                "typed Artifact domain schema binding is invalid",
+                artifact_id=artifact.artifact_id,
+            )
+        try:
+            binding = self._object_bindings.resolve(artifact.object_ref)
+            stat = self._object_store.stat(binding.location)
+        except FileNotFoundError as exc:
+            raise IntegrityViolation(
+                "typed Artifact domain payload binding is unavailable",
+                artifact_id=artifact.artifact_id,
+            ) from exc
+        except OSError as exc:
+            raise DependencyUnavailable(
+                "typed Artifact domain payload is unavailable",
+                component="object_store",
+                artifact_id=artifact.artifact_id,
+            ) from exc
+        if (
+            binding.object_ref != artifact.object_ref
+            or stat.ref != artifact.object_ref
+            or stat.location != binding.location
+        ):
+            raise IntegrityViolation(
+                "typed Artifact domain ObjectBinding differs from its Artifact",
+                artifact_id=artifact.artifact_id,
+            )
+        if artifact.object_ref.size_bytes > _MAX_ARTIFACT_PAYLOAD_BYTES:
+            raise PayloadTooLarge(
+                "typed Artifact domain payload exceeds the read cap",
+                artifact_id=artifact.artifact_id,
+                max_payload_bytes=_MAX_ARTIFACT_PAYLOAD_BYTES,
+            )
+        payload_bytes = read_exact_object_bytes(
+            self._object_store,
+            binding,
+            artifact_id=artifact.artifact_id,
+            expected_size=artifact.object_ref.size_bytes,
+        )
+        if sha256_lowerhex(payload_bytes) != artifact.payload_hash:
+            raise IntegrityViolation(
+                "typed Artifact domain payload differs from its content address",
+                artifact_id=artifact.artifact_id,
+            )
+        try:
+            payload = strict_canonical_json_object(
+                payload_bytes,
+                artifact_id=artifact.artifact_id,
+            )
+            parsed = model.model_validate(payload)
+        except (TypeError, ValueError, ValidationError, RecursionError) as exc:
+            raise IntegrityViolation(
+                "typed Artifact domain payload is invalid",
+                artifact_id=artifact.artifact_id,
+            ) from exc
+        return parsed
+
+
+class _ArtifactDomainAuthority:
+    """Resolve immutable Artifact scope from canonical producer metadata + lineage."""
+
+    def __init__(
+        self,
+        *,
+        artifacts: SqlArtifactRepository,
+        registry: DomainRegistryV1,
+        payloads: _ArtifactDomainPayloadReader,
+        payload_bindings: SqlApprovalPayloadBindingProvider,
+    ) -> None:
+        self._artifacts = artifacts
+        self._payloads = payloads
+        self._payload_bindings = payload_bindings
+        self._schema_cache: dict[str, str | None] = {}
+        self._known_domains = frozenset(definition.domain_id for definition in registry.definitions)
+        if not self._known_domains:
+            raise IntegrityViolation("content domain registry has no retained domains")
+
+    def resolve(self, artifact: ArtifactV1 | ArtifactV2) -> DomainScope:
+        ordered, parents = self._bounded_lineage(artifact)
+        resolved: dict[str, DomainScope | None] = {}
+        for current in ordered:
+            if self._domain_neutral_leaf(current):
+                resolved[current.artifact_id] = None
+                continue
+            explicit = self._explicit_scope(current)
+            typed = self._typed_scope(current)
+            if explicit is not None and typed is not None and explicit != typed:
+                raise IntegrityViolation(
+                    "Artifact metadata and typed payload domains disagree",
+                    artifact_id=current.artifact_id,
+                )
+            resolved_authority = explicit or typed
+            parent_scopes = tuple(
+                scope
+                for parent in parents[current.artifact_id]
+                if (scope := resolved[parent.artifact_id]) is not None
+            )
+            lineage_scope = self._union(parent_scopes) if parent_scopes else None
+            if resolved_authority is None:
+                if lineage_scope is None:
+                    raise DependencyUnavailable(
+                        "Artifact has no authoritative resource-domain binding",
+                        component="content_producer_binding",
+                        artifact_id=current.artifact_id,
+                    )
+                scope = lineage_scope
+            else:
+                scope = resolved_authority
+                if lineage_scope is not None and not set(scope.domain_ids).issubset(
+                    lineage_scope.domain_ids
+                ):
+                    raise IntegrityViolation(
+                        "Artifact domain metadata exceeds its lineage authority",
+                        artifact_id=current.artifact_id,
+                    )
+            resolved[current.artifact_id] = scope
+        root_scope = resolved[artifact.artifact_id]
+        if root_scope is None:
+            raise DependencyUnavailable(
+                "Artifact has no authoritative resource-domain binding",
+                component="content_producer_binding",
+                artifact_id=artifact.artifact_id,
+            )
+        return root_scope
+
+    def legacy_workflow_fallback_allowed(self, artifact: ArtifactV1 | ArtifactV2) -> bool:
+        """Return true only when the complete retained lineage predates domain claims."""
+
+        ordered, _parents = self._bounded_lineage(artifact)
+        return all(
+            current.meta.get("domain_scope") is None and not self._has_typed_domain_schema(current)
+            for current in ordered
+        )
+
+    def _bounded_lineage(
+        self,
+        root: ArtifactV1 | ArtifactV2,
+    ) -> tuple[
+        tuple[ArtifactV1 | ArtifactV2, ...],
+        dict[str, tuple[ArtifactV1 | ArtifactV2, ...]],
+    ]:
+        """Load one bounded acyclic lineage in deterministic post-order."""
+
+        loaded: dict[str, ArtifactV1 | ArtifactV2] = {root.artifact_id: root}
+        discovered = {root.artifact_id}
+        state: dict[str, str] = {}
+        parents: dict[str, tuple[ArtifactV1 | ArtifactV2, ...]] = {}
+        ordered: list[ArtifactV1 | ArtifactV2] = []
+        stack: list[tuple[ArtifactV1 | ArtifactV2, bool]] = [(root, False)]
+        edge_count = 0
+        while stack:
+            current, expanded = stack.pop()
+            artifact_id = current.artifact_id
+            if expanded:
+                if state.get(artifact_id) == "done":
+                    continue
+                state[artifact_id] = "done"
+                ordered.append(current)
+                continue
+            current_state = state.get(artifact_id)
+            if current_state == "done":
+                continue
+            if current_state == "visiting":
+                raise IntegrityViolation(
+                    "Artifact domain lineage contains a cycle",
+                    artifact_id=artifact_id,
+                )
+            state[artifact_id] = "visiting"
+            next_edge_count = edge_count + len(current.lineage)
+            if next_edge_count > _MAX_ARTIFACT_DOMAIN_LINEAGE_EDGES:
+                raise QueryTooBroad(
+                    "Artifact domain lineage exceeds the configured edge bound",
+                    max_items=_MAX_ARTIFACT_DOMAIN_LINEAGE_EDGES,
+                )
+            lineage_ids = tuple(current.lineage)
+            if len(lineage_ids) != len(set(lineage_ids)):
+                raise IntegrityViolation(
+                    "Artifact domain lineage repeats a parent",
+                    artifact_id=artifact_id,
+                )
+            edge_count = next_edge_count
+            unseen = set(lineage_ids) - discovered
+            if len(discovered) - 1 + len(unseen) > _MAX_ARTIFACT_DOMAIN_LINEAGE_ITEMS:
+                raise QueryTooBroad(
+                    "Artifact domain lineage exceeds the configured traversal bound",
+                    max_items=_MAX_ARTIFACT_DOMAIN_LINEAGE_ITEMS,
+                )
+            discovered.update(unseen)
+            retained_parents: list[ArtifactV1 | ArtifactV2] = []
+            for parent_id in lineage_ids:
+                parent = loaded.get(parent_id)
+                if parent is None:
+                    retained = self._artifacts.get(parent_id)
+                    if not isinstance(retained, (ArtifactV1, ArtifactV2)):
+                        raise IntegrityViolation(
+                            "Artifact domain lineage parent is unavailable",
+                            artifact_id=artifact_id,
+                            parent_artifact_id=parent_id,
+                        )
+                    parent = retained
+                    loaded[parent_id] = parent
+                retained_parents.append(parent)
+            parents[artifact_id] = tuple(retained_parents)
+            stack.append((current, True))
+            for parent in reversed(retained_parents):
+                parent_state = state.get(parent.artifact_id)
+                if parent_state == "visiting":
+                    raise IntegrityViolation(
+                        "Artifact domain lineage contains a cycle",
+                        artifact_id=parent.artifact_id,
+                    )
+                if parent_state != "done":
+                    stack.append((parent, False))
+        return tuple(ordered), parents
+
+    @staticmethod
+    def _domain_neutral_leaf(artifact: ArtifactV1 | ArtifactV2) -> bool:
+        return (
+            artifact.kind in {"source_raw", "source_rendered"}
+            and artifact.meta.get("domain_scope") is None
+            and not artifact.lineage
+        )
+
+    def _explicit_scope(self, artifact: ArtifactV1 | ArtifactV2) -> DomainScope | None:
+        raw = artifact.meta.get("domain_scope")
+        if raw is None:
+            return None
+        try:
+            scope = DomainScope.model_validate(raw)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "Artifact domain_scope metadata is invalid",
+                artifact_id=artifact.artifact_id,
+            ) from exc
+        if raw != scope.model_dump(mode="json"):
+            raise IntegrityViolation(
+                "Artifact domain_scope metadata is noncanonical",
+                artifact_id=artifact.artifact_id,
+            )
+        if not set(scope.domain_ids).issubset(self._known_domains):
+            raise IntegrityViolation(
+                "Artifact domain_scope selects an unknown domain",
+                artifact_id=artifact.artifact_id,
+            )
+        return scope
+
+    def _typed_scope(self, artifact: ArtifactV1 | ArtifactV2) -> DomainScope | None:
+        schema_id = self._trusted_schema_id(artifact)
+        scope: DomainScope | None = None
+        if artifact.kind == "constraint_proposal" and schema_id == "constraint-proposal@1":
+            proposal = self._payloads.load(
+                artifact,
+                schema_id="constraint-proposal@1",
+                model=ConstraintProposalV1,
+            )
+            scope = proposal.domain_scope
+        elif artifact.kind == "scenario_spec" and schema_id == "scenario-spec@1":
+            scenario = self._payloads.load(
+                artifact,
+                schema_id="scenario-spec@1",
+                model=ScenarioSpecV1,
+            )
+            scope = scenario.domain_scope
+        elif artifact.kind == "task_suite" and schema_id == "task-suite@1":
+            suite = self._payloads.load(
+                artifact,
+                schema_id="task-suite@1",
+                model=TaskSuiteV1,
+            )
+            scope = self._union(tuple(episode.domain_scope for episode in suite.episodes))
+        if scope is not None and not set(scope.domain_ids).issubset(self._known_domains):
+            raise IntegrityViolation(
+                "typed Artifact selects an unknown domain",
+                artifact_id=artifact.artifact_id,
+            )
+        return scope
+
+    def _has_typed_domain_schema(self, artifact: ArtifactV1 | ArtifactV2) -> bool:
+        return (artifact.kind, self._trusted_schema_id(artifact)) in {
+            ("constraint_proposal", "constraint-proposal@1"),
+            ("scenario_spec", "scenario-spec@1"),
+            ("task_suite", "task-suite@1"),
+        }
+
+    def _trusted_schema_id(self, artifact: ArtifactV1 | ArtifactV2) -> str | None:
+        if artifact.artifact_id in self._schema_cache:
+            return self._schema_cache[artifact.artifact_id]
+        if isinstance(artifact, ArtifactV1):
+            # lineage@1 metadata was self-declared and has no ObjectRef/payload
+            # binding that the typed V2 reader can authenticate.
+            self._schema_cache[artifact.artifact_id] = None
+            return None
+        if artifact.kind == "constraint_proposal":
+            binding = self._payload_bindings.resolve(artifact.artifact_id)
+            schema_id = None if binding is None else binding.payload_schema_id
+        else:
+            metadata_schema = artifact.meta.get("payload_schema_id")
+            schema_id = metadata_schema if isinstance(metadata_schema, str) else None
+        self._schema_cache[artifact.artifact_id] = schema_id
+        return schema_id
+
+    @staticmethod
+    def _union(scopes: tuple[DomainScope, ...]) -> DomainScope:
+        return DomainScope(
+            domain_ids=tuple(
+                sorted({domain_id for scope in scopes for domain_id in scope.domain_ids})
+            )
+        )
+
+
+class _ContentPermissionAuthority:
+    """Cross-check workflow bindings with immutable producer domain authority."""
+
+    def __init__(
+        self,
+        *,
+        approvals: SqlApprovalContentAuthority,
+        domains: _ArtifactDomainAuthority,
+    ) -> None:
+        self._approvals = approvals
+        self._domains = domains
+
+    def for_artifact(
+        self,
+        artifact: ArtifactV1 | ArtifactV2,
+        *,
+        resource_kind: str,
+    ) -> Permission:
+        try:
+            workflow_permission = self._approvals.for_artifact(
+                artifact,
+                resource_kind=resource_kind,
+            )
+        except DependencyUnavailable:
+            workflow_permission = None
+        if workflow_permission is not None:
+            try:
+                scope = self._domains.resolve(artifact)
+            except DependencyUnavailable:
+                # Retained ApprovalItem authority is sufficient for legacy workflow
+                # graphs only when their complete retained lineage predates all
+                # immutable domain claims. A partial modern graph remains fail-closed.
+                if self._domains.legacy_workflow_fallback_allowed(artifact):
+                    return workflow_permission
+                raise
+            if workflow_permission.domain_scope != scope:
+                raise IntegrityViolation(
+                    "workflow and Artifact domain authorities disagree",
+                    artifact_id=artifact.artifact_id,
+                )
+            return workflow_permission
+        scope = self._domains.resolve(artifact)
+        return Permission(action="read", resource_kind=resource_kind, domain_scope=scope)
+
+    def for_ref(
+        self,
+        ref_name: str,
+        value: object,
+        artifact: ArtifactV1 | ArtifactV2,
+    ) -> Permission:
+        if not ref_name or getattr(value, "artifact_id", None) != artifact.artifact_id:
+            raise IntegrityViolation("ref read does not bind its exact Artifact")
+        return Permission(
+            action="read",
+            resource_kind="ref",
+            domain_scope=self._domains.resolve(artifact),
+        )
+
+
+class _RunDomainAuthority:
+    def __init__(
+        self,
+        *,
+        registry: DomainRegistryV1,
+        approvals: SqlApprovalRepository,
+    ) -> None:
+        self._registry = registry
+        self._approvals = approvals
+
+    def scope(self, run: RunRecord):
+        return resolve_run_read_domain(run, self._registry, self._approvals)
+
+
+class _WorkflowPermissionAuthority:
+    """Resolve workflow resource domains from retained Run/link/context authority."""
+
+    def __init__(
+        self,
+        session: Session,
+        *,
+        runs: SqlRunRepository,
+        approvals: SqlApprovalRepository,
+        conflicts: SqlConflictSetRepository,
+        run_domains: _RunDomainAuthority,
+    ) -> None:
+        self._session = session
+        self._runs = runs
+        self._approvals = approvals
+        self._conflicts = conflicts
+        self._run_domains = run_domains
+
+    def for_run(self, run: RunRecord) -> Permission:
+        return Permission(
+            action="read",
+            resource_kind="run",
+            domain_scope=self._run_domains.scope(run),
+        )
+
+    def for_finding(self, finding: FindingRevisionV1) -> Permission:
+        digest = finding_revision_digest(finding)
+        links = (
+            self._session.execute(
+                select(RunFindingLinkRow.run_id)
+                .where(
+                    RunFindingLinkRow.finding_id == finding.finding_id,
+                    RunFindingLinkRow.finding_revision == finding.revision,
+                    RunFindingLinkRow.finding_digest == digest,
+                )
+                .distinct()
+                .limit(2)
+            )
+            .scalars()
+            .all()
+        )
+        if len(links) != 1 or links[0] != finding.payload.producer_run_id:
+            raise IntegrityViolation(
+                "Finding revision has no unique producer Run binding",
+                finding_id=finding.finding_id,
+                finding_revision=finding.revision,
+            )
+        run = self._runs.get(links[0])
+        if run is None:
+            raise IntegrityViolation("Finding producer Run is unavailable")
+        return Permission(
+            action="read",
+            resource_kind="finding",
+            domain_scope=self._run_domains.scope(run),
+        )
+
+    def for_conflict_set(self, conflict_set: ConflictSet) -> Permission:
+        context = self._conflicts.get_context(conflict_set.id)
+        if context is None:
+            raise IntegrityViolation("ConflictSet context is unavailable")
+        item = self._approvals.get(context.expected_approval_id)
+        if (
+            item is None
+            or item.subject_series_id != context.subject_series_id
+            or item.subject_artifact_id != context.expected_subject_artifact_id
+            or conflict_set.proposed_patch_artifact_id != context.expected_subject_artifact_id
+        ):
+            raise IntegrityViolation("ConflictSet context differs from its approval subject")
+        return Permission(
+            action="read",
+            resource_kind="conflict_set",
+            domain_scope=item.domain_scope,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -168,11 +681,13 @@ class _LocalObservabilityReadPort:
         *,
         telemetry: LocalTelemetryStore,
         runs: SqlRunRepository,
+        run_domains: _RunDomainAuthority,
         costs: SqlCostRepository,
         cost_pages: SqlCostUsagePageAdapter,
     ) -> None:
         self._telemetry = telemetry
         self._runs = runs
+        self._run_domains = run_domains
         self._costs = costs
         self._cost_pages = cost_pages
 
@@ -180,10 +695,10 @@ class _LocalObservabilityReadPort:
         run = self._runs.get(run_id)
         if run is None:
             return None
-        raise DependencyUnavailable(
-            "Run domain scope binding is unavailable",
-            component="run_domain_binding",
+        return RunObservabilityScope(
             run_id=run_id,
+            domain_scope=self._run_domains.scope(run),
+            run_revision=run.revision,
         )
 
     def get_trace_summary(self, trace_id: str) -> TraceSummaryV1 | None:
@@ -196,6 +711,7 @@ class _LocalObservabilityReadPort:
         cursor: str | None,
         limit: int,
         authorization: ReadAuthorizationBinding,
+        scope: AuthorizedTelemetryRunScope,
     ) -> SpanPageV1:
         return self._telemetry.page_spans(
             trace_id,
@@ -203,7 +719,12 @@ class _LocalObservabilityReadPort:
             limit=limit,
             authz_fingerprint=authorization.authz_fingerprint,
             principal_binding=authorization.principal_binding,
+            run_scope_mode=scope.mode,
+            allowed_run_ids=scope.allowed_run_ids,
         )
+
+    def get_run_trace_scope(self, run_id: str) -> tuple[str, ...]:
+        return self._telemetry.get_run_trace_scope(run_id)
 
     def page_run_traces(
         self,
@@ -212,6 +733,7 @@ class _LocalObservabilityReadPort:
         cursor: str | None,
         limit: int,
         authorization: ReadAuthorizationBinding,
+        scope: AuthorizedTelemetryRunScope,
     ) -> TraceSummaryPageV1:
         return self._telemetry.page_run_traces(
             run_id,
@@ -219,6 +741,8 @@ class _LocalObservabilityReadPort:
             limit=limit,
             authz_fingerprint=authorization.authz_fingerprint,
             principal_binding=authorization.principal_binding,
+            run_scope_mode=scope.mode,
+            allowed_run_ids=scope.allowed_run_ids,
         )
 
     def query_logs(
@@ -226,10 +750,20 @@ class _LocalObservabilityReadPort:
         query: LogQueryV1,
         *,
         authorization: ReadAuthorizationBinding,
-    ) -> LogPageV1:
-        return self._telemetry.query_logs(
+        scope: AuthorizedTelemetryRunScope,
+    ) -> AuthorizedLogReadPage:
+        retained = self._telemetry.query_logs_with_scope(
             query,
             principal_binding=authorization.principal_binding,
+            run_scope_mode=scope.mode,
+            allowed_run_ids=scope.allowed_run_ids,
+        )
+        return AuthorizedLogReadPage(
+            page=retained.page,
+            trace_scopes=tuple(
+                LogTraceScopeProof(trace_id=value.trace_id, run_ids=value.run_ids)
+                for value in retained.trace_scopes
+            ),
         )
 
     def get_metric_descriptor_registry(self) -> MetricDescriptorRegistryV1 | None:
@@ -328,6 +862,24 @@ def build_local_read_services(
             role_policy_digest=role_policy_digest,
         )
 
+    def policy_authority(
+        session: Session,
+    ) -> tuple[SqlPolicySnapshotRepository, DomainRegistryV1]:
+        policies = SqlPolicySnapshotRepository(session, clock=selected_clock)
+        role_policy = policies.get_role_policy(role_policy_version, role_policy_digest)
+        if not isinstance(role_policy, RolePolicy):
+            raise DependencyUnavailable(
+                "local read role policy is unavailable",
+                component="read_authorization",
+            )
+        registry = policies.get_domain_registry(role_policy.domain_registry_ref)
+        if not isinstance(registry, DomainRegistryV1):
+            raise DependencyUnavailable(
+                "local read domain registry is unavailable",
+                component="read_authorization",
+            )
+        return policies, registry
+
     def page_factory(session: Session):
         return lambda page_size: SqlMaterializedPageAdapter(
             session,
@@ -342,6 +894,7 @@ def build_local_read_services(
     def content_uow():
         with session_scope() as session:
             unavailable = _UnavailableAuthority("content_producer_binding")
+            _policies, registry = policy_authority(session)
             approvals = SqlApprovalRepository(session)
             object_bindings = SqlObjectBindingRepository(
                 session,
@@ -381,6 +934,18 @@ def build_local_read_services(
                     payload_reader=payload_reader,
                 ),
             )
+            content_permissions = _ContentPermissionAuthority(
+                approvals=approval_authority,
+                domains=_ArtifactDomainAuthority(
+                    artifacts=artifacts,
+                    registry=registry,
+                    payloads=_ArtifactDomainPayloadReader(
+                        object_bindings=object_bindings,
+                        object_store=object_store,
+                    ),
+                    payload_bindings=payload_bindings,
+                ),
+            )
             yield ContentReadCapabilities(
                 repository=SqlContentReadRepository(artifacts),
                 immutable_artifact_pages=SqlImmutableArtifactPageProvider(
@@ -393,7 +958,7 @@ def build_local_read_services(
                 payload_reader=payload_reader,
                 payload_bindings=payload_bindings,
                 authorization=authorization(session),
-                permission_resolver=approval_authority,
+                permission_resolver=content_permissions,
                 specs=unavailable,
                 schema_registry=unavailable,
                 proposal_workflows=approval_authority,
@@ -415,7 +980,7 @@ def build_local_read_services(
     @contextmanager
     def workflow_uow():
         with session_scope() as session:
-            policies = SqlPolicySnapshotRepository(session, clock=selected_clock)
+            policies, registry = policy_authority(session)
             identities = SqlIdentityRepository(session, clock=selected_clock)
             runs = SqlRunRepository(session)
             findings = SqlFindingRepository(
@@ -431,6 +996,7 @@ def build_local_read_services(
                 snapshot_ttl=_SNAPSHOT_TTL,
             )
             approvals = SqlApprovalRepository(session)
+            run_domains = _RunDomainAuthority(registry=registry, approvals=approvals)
             yield WorkflowReadCapabilities(
                 repository=SqlWorkflowReadRepository(
                     session,
@@ -444,7 +1010,13 @@ def build_local_read_services(
                     role_policy_version=role_policy_version,
                     role_policy_digest=role_policy_digest,
                 ),
-                permission_resolver=_UnavailableAuthority("workflow_domain_binding"),
+                permission_resolver=_WorkflowPermissionAuthority(
+                    session,
+                    runs=runs,
+                    approvals=approvals,
+                    conflicts=conflicts,
+                    run_domains=run_domains,
+                ),
                 approval_projector=CurrentApprovalProgressProjector(
                     policy_repository=policies,
                     role_policy_version=role_policy_version,
@@ -457,7 +1029,9 @@ def build_local_read_services(
     @contextmanager
     def observability_uow():
         with session_scope() as session:
+            _policies, registry = policy_authority(session)
             runs = SqlRunRepository(session)
+            approvals = SqlApprovalRepository(session)
             costs = SqlCostRepository(session)
             cost_pages = SqlCostUsagePageAdapter(
                 repository=costs,
@@ -469,6 +1043,10 @@ def build_local_read_services(
                 port=_LocalObservabilityReadPort(
                     telemetry=telemetry_store,
                     runs=runs,
+                    run_domains=_RunDomainAuthority(
+                        registry=registry,
+                        approvals=approvals,
+                    ),
                     costs=costs,
                     cost_pages=cost_pages,
                 ),

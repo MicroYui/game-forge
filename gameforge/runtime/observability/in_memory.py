@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass, fields
 from datetime import datetime, timedelta
 from typing import Any, TypeVar, cast
@@ -33,10 +34,18 @@ from gameforge.contracts.observability import (
     TraceQueryV1,
     TraceSummaryPageV1,
     TraceSummaryV1,
+    span_run_ids,
 )
 from gameforge.contracts.storage import UtcClock
 from gameforge.runtime.observability._fields import redact_span_values
 from gameforge.runtime.observability.cursor import OpaqueCursorCodec
+from gameforge.runtime.observability.run_scope import (
+    RetainedLogPage,
+    RetainedTraceRunScope,
+    TelemetryRunScopeMode,
+    run_ids_are_in_scope,
+    validate_telemetry_run_scope,
+)
 from gameforge.runtime.observability.metrics import (
     aggregate_metric_points,
     validate_metric_query_shape,
@@ -81,6 +90,12 @@ class _QuerySnapshot:
     principal_binding: str | None
     items: tuple[Any, ...]
     expires_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class _ScopedLogItem:
+    record: LogRecordV1
+    trace_scope: RetainedTraceRunScope | None
 
 
 def _model_wire(value: Any) -> str:
@@ -274,11 +289,32 @@ class InMemoryTelemetryStore:
         query: TraceQueryV1,
         *,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> TraceSummaryPageV1:
         self._validate_range(query.time_range.start_utc, query.time_range.end_utc)
         if query.limit > self._limits.max_trace_page_size:
             raise QueryTooBroad("trace page limit exceeds service cap")
-        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        if scope_mode is None:
+            query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        else:
+            query_hash = canonical_sha256(
+                {
+                    "query": query.model_dump(
+                        mode="json",
+                        exclude={"cursor", "authz_fingerprint"},
+                    ),
+                    "authorized_run_scope": {
+                        "mode": scope_mode,
+                        "allowed_run_ids": scope_run_ids,
+                    },
+                }
+            )
+            legacy_query_hash = None
         authz = query.authz_fingerprint
         if query.cursor is None:
             grouped: dict[str, list[SpanDataV1]] = defaultdict(list)
@@ -295,6 +331,12 @@ class InMemoryTelemetryStore:
                 if query.service is not None and query.service not in summary.service_names:
                     continue
                 if query.status is not None and query.status != summary.status:
+                    continue
+                if scope_mode is not None and not run_ids_are_in_scope(
+                    summary.run_ids,
+                    mode=scope_mode,
+                    allowed_run_ids=scope_run_ids,
+                ):
                     continue
                 summaries.append(summary)
             summaries.sort(key=lambda item: (item.started_at, item.trace_id))
@@ -338,16 +380,28 @@ class InMemoryTelemetryStore:
         limit: int,
         authz_fingerprint: str,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> TraceSummaryPageV1:
         if limit <= 0 or limit > self._limits.max_trace_page_size:
             raise QueryTooBroad("trace page limit exceeds service cap")
-        query_hash = canonical_sha256({"run_id": run_id})
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        if scope_mode is not None and run_id not in scope_run_ids:
+            raise ValueError("Run trace scope must include the requested Run")
+        query_projection: dict[str, Any] = {"run_id": run_id}
+        if scope_mode is not None:
+            query_projection["authorized_run_scope"] = {
+                "mode": scope_mode,
+                "allowed_run_ids": scope_run_ids,
+            }
+        query_hash = canonical_sha256(query_projection)
         if cursor is None:
             grouped: dict[str, list[SpanDataV1]] = defaultdict(list)
             trace_ids = {
-                span.trace_id
-                for span in self._spans.values()
-                if span.attributes.get("run_id") == run_id
+                span.trace_id for span in self._spans.values() if run_id in span_run_ids(span)
             }
             for stored_span in self._spans.values():
                 span = redact_span_values(_detached(stored_span))
@@ -359,6 +413,16 @@ class InMemoryTelemetryStore:
                     key=lambda item: (item.started_at, item.trace_id),
                 )
             )
+            if scope_mode is not None:
+                summaries = tuple(
+                    summary
+                    for summary in summaries
+                    if run_ids_are_in_scope(
+                        summary.run_ids,
+                        mode=scope_mode,
+                        allowed_run_ids=scope_run_ids,
+                    )
+                )
             snapshot_id, offset = self._create_snapshot(
                 "run_traces",
                 query_hash,
@@ -403,6 +467,20 @@ class InMemoryTelemetryStore:
         self._check_response_size(page)
         return _detached(page)
 
+    def get_run_trace_scope(self, run_id: str) -> tuple[str, ...]:
+        if not isinstance(run_id, str) or not run_id:
+            raise ValueError("run_id must be non-empty")
+        trace_ids = {span.trace_id for span in self._spans.values() if run_id in span_run_ids(span)}
+        related_run_ids = {run_id}
+        for trace_id in trace_ids:
+            related_run_ids.update(
+                run_id
+                for span in self._spans.values()
+                if span.trace_id == trace_id
+                for run_id in span_run_ids(span)
+            )
+        return tuple(sorted(related_run_ids))
+
     def page_spans(
         self,
         trace_id: str,
@@ -411,10 +489,22 @@ class InMemoryTelemetryStore:
         limit: int,
         authz_fingerprint: str,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> SpanPageV1:
         if limit <= 0 or limit > self._limits.max_span_page_size:
             raise QueryTooBroad("span page limit exceeds service cap")
-        query_hash = canonical_sha256({"trace_id": trace_id})
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        query_projection: dict[str, Any] = {"trace_id": trace_id}
+        if scope_mode is not None:
+            query_projection["authorized_run_scope"] = {
+                "mode": scope_mode,
+                "allowed_run_ids": scope_run_ids,
+            }
+        query_hash = canonical_sha256(query_projection)
         if cursor is None:
             spans = sorted(
                 (
@@ -424,6 +514,15 @@ class InMemoryTelemetryStore:
                 ),
                 key=lambda item: (item.started_at, item.span_id),
             )
+            trace_run_ids = tuple(
+                sorted({run_id for span in spans for run_id in span_run_ids(span)})
+            )
+            if scope_mode is not None and not run_ids_are_in_scope(
+                trace_run_ids,
+                mode=scope_mode,
+                allowed_run_ids=scope_run_ids,
+            ):
+                raise IntegrityViolation("trace Run scope changed before span pagination")
             views = tuple(SpanViewV1(span=span) for span in spans)
             snapshot_id, offset = self._create_snapshot(
                 "spans", query_hash, authz_fingerprint, principal_binding, views
@@ -460,31 +559,103 @@ class InMemoryTelemetryStore:
         query: LogQueryV1,
         *,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> LogPageV1:
+        return self._query_logs(
+            query,
+            principal_binding=principal_binding,
+            run_scope_mode=run_scope_mode,
+            allowed_run_ids=allowed_run_ids,
+            require_trace_scope_proof=False,
+        ).page
+
+    def query_logs_with_scope(
+        self,
+        query: LogQueryV1,
+        *,
+        principal_binding: str,
+        run_scope_mode: TelemetryRunScopeMode,
+        allowed_run_ids: Sequence[str] = (),
+    ) -> RetainedLogPage:
+        return self._query_logs(
+            query,
+            principal_binding=principal_binding,
+            run_scope_mode=run_scope_mode,
+            allowed_run_ids=allowed_run_ids,
+            require_trace_scope_proof=True,
+        )
+
+    def _query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
+        require_trace_scope_proof: bool,
+    ) -> RetainedLogPage:
         self._validate_range(query.time_range.start_utc, query.time_range.end_utc)
         if query.limit > self._limits.max_log_page_size:
             raise QueryTooBroad("log page limit exceeds service cap")
-        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        if scope_mode is None:
+            query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        else:
+            query_hash = canonical_sha256(
+                {
+                    "query": query.model_dump(
+                        mode="json",
+                        exclude={"cursor", "authz_fingerprint"},
+                    ),
+                    "authorized_log_scope": {
+                        "mode": scope_mode,
+                        "allowed_run_ids": scope_run_ids,
+                    },
+                }
+            )
+            legacy_query_hash = None
         authz = query.authz_fingerprint
         if query.cursor is None:
+            selected: list[LogRecordV1 | _ScopedLogItem] = []
+            for record in self._logs.values():
+                if not (
+                    query.time_range.start_utc <= record.ts_utc < query.time_range.end_utc
+                    and (not query.services or record.service in query.services)
+                    and (not query.levels or record.level in query.levels)
+                    and (not query.event_names or record.event_name in query.event_names)
+                    and (query.run_id is None or record.run_id == query.run_id)
+                    and (query.trace_id is None or record.trace_id == query.trace_id)
+                    and (query.span_id is None or record.span_id == query.span_id)
+                    and (
+                        query.producer_run_id is None
+                        or record.producer_run_id == query.producer_run_id
+                    )
+                ):
+                    continue
+                if scope_mode is None:
+                    selected.append(record)
+                    continue
+                proof = self._log_scope_proof(record)
+                if proof is None:
+                    continue
+                item_run_ids, trace_scope = proof
+                if run_ids_are_in_scope(
+                    item_run_ids,
+                    mode=scope_mode,
+                    allowed_run_ids=scope_run_ids,
+                ):
+                    selected.append(_ScopedLogItem(record=record, trace_scope=trace_scope))
             items = tuple(
                 sorted(
-                    (
-                        record
-                        for record in self._logs.values()
-                        if query.time_range.start_utc <= record.ts_utc < query.time_range.end_utc
-                        and (not query.services or record.service in query.services)
-                        and (not query.levels or record.level in query.levels)
-                        and (not query.event_names or record.event_name in query.event_names)
-                        and (query.run_id is None or record.run_id == query.run_id)
-                        and (query.trace_id is None or record.trace_id == query.trace_id)
-                        and (query.span_id is None or record.span_id == query.span_id)
-                        and (
-                            query.producer_run_id is None
-                            or record.producer_run_id == query.producer_run_id
-                        )
+                    selected,
+                    key=lambda item: (
+                        item.record.ts_utc if isinstance(item, _ScopedLogItem) else item.ts_utc,
+                        item.record.log_id if isinstance(item, _ScopedLogItem) else item.log_id,
                     ),
-                    key=lambda item: (item.ts_utc, item.log_id),
                 )
             )
             snapshot_id, offset = self._create_snapshot(
@@ -501,13 +672,16 @@ class InMemoryTelemetryStore:
                 legacy_query_hash=legacy_query_hash,
             )
         snapshot = self._require_snapshot(snapshot_id, "logs", query_hash, authz)
-        page_items = snapshot.items[offset : offset + query.limit]
-        next_offset = offset + len(page_items)
+        snapshot_items = snapshot.items[offset : offset + query.limit]
+        next_offset = offset + len(snapshot_items)
         next_cursor = self._next_cursor(
             snapshot_id=snapshot_id,
             snapshot=snapshot,
             offset=next_offset,
             page_limit=query.limit,
+        )
+        page_items = tuple(
+            item.record if isinstance(item, _ScopedLogItem) else item for item in snapshot_items
         )
         page = LogPageV1(
             items=page_items,
@@ -517,7 +691,22 @@ class InMemoryTelemetryStore:
             truncated=next_cursor is not None,
         )
         self._check_response_size(page)
-        return _detached(page)
+        detached = _detached(page)
+        proofs = {
+            item.trace_scope.trace_id: item.trace_scope
+            for item in snapshot_items
+            if isinstance(item, _ScopedLogItem) and item.trace_scope is not None
+        }
+        if require_trace_scope_proof:
+            expected_trace_ids = {
+                item.record.trace_id for item in detached.items if item.record.trace_id is not None
+            }
+            if set(proofs) != expected_trace_ids:
+                raise IntegrityViolation("retained log trace scope proof is incomplete")
+        return RetainedLogPage(
+            page=detached,
+            trace_scopes=tuple(proofs[trace_id] for trace_id in sorted(proofs)),
+        )
 
     def query_metrics(
         self,
@@ -606,20 +795,29 @@ class InMemoryTelemetryStore:
     def _series_point_count(series: MetricSeriesV1) -> int:
         return len(series.scalar_points or ()) + len(series.histogram_points or ())
 
+    def _log_scope_proof(
+        self,
+        record: LogRecordV1,
+    ) -> tuple[tuple[str, ...], RetainedTraceRunScope | None] | None:
+        run_ids = {value for value in (record.run_id, record.producer_run_id) if value is not None}
+        if record.trace_id is None:
+            return tuple(sorted(run_ids)), None
+        spans = tuple(span for span in self._spans.values() if span.trace_id == record.trace_id)
+        if not spans:
+            return None
+        trace_run_ids = tuple(sorted({run_id for span in spans for run_id in span_run_ids(span)}))
+        run_ids.update(trace_run_ids)
+        return tuple(sorted(run_ids)), RetainedTraceRunScope(
+            trace_id=record.trace_id,
+            run_ids=trace_run_ids,
+        )
+
     @staticmethod
     def _summarize_trace(trace_id: str, spans: list[SpanDataV1]) -> TraceSummaryV1:
         ordered = sorted(spans, key=lambda item: (item.started_at, item.span_id))
         roots = [item for item in ordered if item.parent_span_id is None]
         root = roots[0] if len(roots) == 1 else None
-        run_ids = tuple(
-            sorted(
-                {
-                    value
-                    for span in ordered
-                    if isinstance((value := span.attributes.get("run_id")), str) and value
-                }
-            )
-        )
+        run_ids = tuple(sorted({run_id for span in ordered for run_id in span_run_ids(span)}))
         services = tuple(
             sorted(
                 {

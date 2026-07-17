@@ -287,6 +287,23 @@ def _read_exact_bytes(
     return payload
 
 
+def read_exact_object_bytes(
+    store: ObjectStore,
+    binding: ObjectBinding,
+    *,
+    artifact_id: str,
+    expected_size: int,
+) -> bytes:
+    """Shared bounded reader for authenticated object-backed read authorities."""
+
+    return _read_exact_bytes(
+        store,
+        binding,
+        artifact_id=artifact_id,
+        expected_size=expected_size,
+    )
+
+
 def _strict_canonical_json_object(
     payload: bytes,
     *,
@@ -334,6 +351,16 @@ def _strict_canonical_json_object(
             artifact_id=artifact_id,
         )
     return value
+
+
+def strict_canonical_json_object(
+    payload: bytes,
+    *,
+    artifact_id: str,
+) -> dict[str, Any]:
+    """Shared strict canonical JSON decoder with depth and shape limits."""
+
+    return _strict_canonical_json_object(payload, artifact_id=artifact_id)
 
 
 def _validate_json_shape(value: dict[str, Any], *, artifact_id: str) -> None:
@@ -481,6 +508,8 @@ __all__ = [
     "ArtifactPayloadBindingProvider",
     "ArtifactPayloadReader",
     "ArtifactReadRepository",
+    "read_exact_object_bytes",
+    "strict_canonical_json_object",
     "TrustedArtifactPayloadBinding",
     "VerifiedArtifactPayload",
 ]

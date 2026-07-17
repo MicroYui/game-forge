@@ -63,6 +63,9 @@ from gameforge.contracts.observability import (
 )
 from gameforge.platform.read_models.authorization import ReadAuthorizationService
 from gameforge.platform.read_models.observability import (
+    AuthorizedLogReadPage,
+    AuthorizedTelemetryRunScope,
+    LogTraceScopeProof,
     ObservabilityReadCapabilities,
     ObservabilityReadService,
     RunCostReadPage,
@@ -80,10 +83,17 @@ NOW = datetime(2026, 7, 14, 9, 0, tzinfo=UTC)
 TRACE_ID = "1" * 32
 SPAN_ID = "2" * 16
 DOMAIN = DomainScope(domain_ids=("numeric",))
+DOMAIN_B = DomainScope(domain_ids=("narrative",))
+DOMAIN_AB = DomainScope(domain_ids=("narrative", "numeric"))
 
 
 def _registry() -> DomainRegistryV1:
     definitions = (
+        DomainDefinitionV1(
+            domain_id="narrative",
+            display_name="Narrative",
+            status="active",
+        ),
         DomainDefinitionV1(
             domain_id="numeric",
             display_name="Numeric",
@@ -117,8 +127,12 @@ def _assignment(
     )
 
 
-def _principal(*, include_global: bool = True) -> Principal:
-    roles = [_assignment("assignment:domain", "content_designer", DOMAIN)]
+def _principal(
+    *,
+    include_global: bool = True,
+    domain_scope: DomainScope = DOMAIN,
+) -> Principal:
+    roles = [_assignment("assignment:domain", "content_designer", domain_scope)]
     if include_global:
         roles.append(_assignment("assignment:global", "tooling", None))
     return Principal(
@@ -154,7 +168,7 @@ class _Policies:
         )
         grants = {
             "content_designer": tuple(
-                Permission(action="read", resource_kind=kind, domain_scope=DOMAIN)
+                Permission(action="read", resource_kind=kind, domain_scope="all")
                 for kind in ("trace", "log", "cost")
             ),
             "tooling": tuple(
@@ -345,6 +359,9 @@ class _Port:
         self.registry = _metric_registry()
         self.trace_summary = _trace_summary()
         self.authorization_bindings: list[object] = []
+        self.log_scopes: list[AuthorizedTelemetryRunScope] = []
+        self.span_scopes: list[AuthorizedTelemetryRunScope] = []
+        self.run_trace_scopes: list[AuthorizedTelemetryRunScope] = []
 
     def get_run_scope(self, run_id: str) -> RunObservabilityScope | None:
         if self.missing_scope or run_id != "run:1":
@@ -365,10 +382,15 @@ class _Port:
         cursor: str | None,
         limit: int,
         authorization: object,
+        scope: AuthorizedTelemetryRunScope,
     ) -> SpanPageV1:
         del cursor, limit
         self.authorization_bindings.append(authorization)
+        self.span_scopes.append(scope)
         return _span_page()
+
+    def get_run_trace_scope(self, run_id: str) -> tuple[str, ...]:
+        return tuple(sorted(set(self.trace_summary.run_ids) | {run_id}))
 
     def page_run_traces(
         self,
@@ -377,9 +399,11 @@ class _Port:
         cursor: str | None,
         limit: int,
         authorization: object,
+        scope: AuthorizedTelemetryRunScope,
     ) -> TraceSummaryPageV1:
         del cursor, limit
         self.authorization_bindings.append(authorization)
+        self.run_trace_scopes.append(scope)
         if run_id != "run:1":
             raise AssertionError("unexpected run")
         return TraceSummaryPageV1(
@@ -390,9 +414,19 @@ class _Port:
             truncated=False,
         )
 
-    def query_logs(self, query: LogQueryV1, *, authorization: object) -> LogPageV1:
+    def query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> AuthorizedLogReadPage:
         self.authorization_bindings.append(authorization)
-        return _log_page(query)
+        self.log_scopes.append(scope)
+        return AuthorizedLogReadPage(
+            page=_log_page(query),
+            trace_scopes=(LogTraceScopeProof(trace_id=TRACE_ID, run_ids=("run:1",)),),
+        )
 
     def get_metric_descriptor_registry(self) -> MetricDescriptorRegistryV1 | None:
         return self.registry
@@ -429,6 +463,175 @@ class _Port:
             budget_set=_budget_set(),
             usage_entries=(_usage(),),
             next_cursor=None,
+        )
+
+
+class _CrossRunPort(_Port):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.trace_summary = self.trace_summary.model_copy(update={"run_ids": ("run:1", "run:2")})
+
+    def get_run_scope(self, run_id: str) -> RunObservabilityScope | None:
+        scopes = {"run:1": DOMAIN, "run:2": DOMAIN_B}
+        scope = scopes.get(run_id)
+        if scope is None:
+            return None
+        return RunObservabilityScope(run_id=run_id, domain_scope=scope, run_revision=3)
+
+    def page_run_traces(
+        self,
+        run_id: str,
+        *,
+        cursor: str | None,
+        limit: int,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> TraceSummaryPageV1:
+        del cursor, limit
+        self.authorization_bindings.append(authorization)
+        self.run_trace_scopes.append(scope)
+        assert run_id in self.trace_summary.run_ids
+        items = (
+            (self.trace_summary,)
+            if set(self.trace_summary.run_ids) <= set(scope.allowed_run_ids)
+            else ()
+        )
+        return TraceSummaryPageV1(
+            items=items,
+            next_cursor=None,
+            coverage_start=NOW,
+            coverage_end=NOW + timedelta(seconds=1),
+            truncated=False,
+        )
+
+
+class _ProducerMismatchPort(_CrossRunPort):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.trace_summary = self.trace_summary.model_copy(update={"run_ids": ("run:1",)})
+
+    def page_trace_spans(
+        self,
+        trace_id: str,
+        *,
+        cursor: str | None,
+        limit: int,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> SpanPageV1:
+        del trace_id, cursor, limit
+        self.authorization_bindings.append(authorization)
+        self.span_scopes.append(scope)
+        page = _span_page()
+        span = page.items[0].span.model_copy(
+            update={
+                "attributes": {
+                    **page.items[0].span.attributes,
+                    "producer_run_id": "run:2",
+                }
+            }
+        )
+        return page.model_copy(update={"items": (SpanViewV1(span=span),)})
+
+
+class _LogTraceMismatchPort(_Port):
+    def query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> AuthorizedLogReadPage:
+        self.authorization_bindings.append(authorization)
+        self.log_scopes.append(scope)
+        page = _log_page(query)
+        record = page.items[0].record.model_copy(update={"run_id": None})
+        return AuthorizedLogReadPage(
+            page=page.model_copy(update={"items": (LogRecordViewV1(record=record),)}),
+            trace_scopes=(LogTraceScopeProof(trace_id=TRACE_ID, run_ids=("run:1",)),),
+        )
+
+
+class _OrphanLogPort(_Port):
+    def query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> AuthorizedLogReadPage:
+        self.authorization_bindings.append(authorization)
+        self.log_scopes.append(scope)
+        page = _log_page(query)
+        record = page.items[0].record.model_copy(update={"run_id": None})
+        return AuthorizedLogReadPage(
+            page=page.model_copy(update={"items": (LogRecordViewV1(record=record),)}),
+            trace_scopes=(),
+        )
+
+
+class _FrozenLogCursorPort(_Port):
+    def query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> AuthorizedLogReadPage:
+        self.authorization_bindings.append(authorization)
+        self.log_scopes.append(scope)
+        page = _log_page(query)
+        suffix = "first" if query.cursor is None else "second"
+        record = page.items[0].record.model_copy(update={"log_id": f"log:{suffix}"})
+        return AuthorizedLogReadPage(
+            page=page.model_copy(
+                update={
+                    "items": (LogRecordViewV1(record=record),),
+                    "next_cursor": "retained-cursor" if query.cursor is None else None,
+                    "truncated": query.cursor is None,
+                }
+            ),
+            trace_scopes=(LogTraceScopeProof(trace_id=TRACE_ID, run_ids=("run:1",)),),
+        )
+
+
+class _MixedRunTracePort(_CrossRunPort):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.a_only = self.trace_summary.model_copy(
+            update={
+                "trace_id": "3" * 32,
+                "root_span_id": "4" * 16,
+                "run_ids": ("run:1",),
+                "started_at": NOW - timedelta(seconds=1),
+                "ended_at": NOW,
+            }
+        )
+
+    def page_run_traces(
+        self,
+        run_id: str,
+        *,
+        cursor: str | None,
+        limit: int,
+        authorization: object,
+        scope: AuthorizedTelemetryRunScope,
+    ) -> TraceSummaryPageV1:
+        del cursor, limit
+        self.authorization_bindings.append(authorization)
+        self.run_trace_scopes.append(scope)
+        allowed = set(scope.allowed_run_ids)
+        items = tuple(
+            summary
+            for summary in (self.a_only, self.trace_summary)
+            if run_id in summary.run_ids and set(summary.run_ids) <= allowed
+        )
+        return TraceSummaryPageV1(
+            items=items,
+            next_cursor=None,
+            coverage_start=NOW - timedelta(seconds=1),
+            coverage_end=NOW + timedelta(seconds=1),
+            truncated=False,
         )
 
 
@@ -552,10 +755,118 @@ def test_service_authorizes_run_scope_and_redacts_trace_log_and_cost_views() -> 
     assert spans.items[0].span.attributes["raw_prompt"] == "[REDACTED]"
     assert logs.items[0].record.fields["raw_response"] == "[REDACTED]"
     assert len(port.authorization_bindings) == 3
+    assert port.log_scopes == [
+        AuthorizedTelemetryRunScope(mode="run_allowlist", allowed_run_ids=("run:1",))
+    ]
     assert all(
         len(item.principal_binding) == 64 and len(item.authz_fingerprint) == 64
         for item in port.authorization_bindings
     )
+
+
+def test_trace_authorization_covers_run_and_producer_run_domains() -> None:
+    service, port = _service(_CrossRunPort())
+
+    with pytest.raises(Forbidden):
+        service.get_trace(principal=_principal(), trace_id=TRACE_ID)
+
+    principal = _principal(domain_scope=DOMAIN_AB)
+    assert service.get_trace(principal=principal, trace_id=TRACE_ID).run_ids == (
+        "run:1",
+        "run:2",
+    )
+    page = service.list_run_traces(
+        principal=principal,
+        run_id="run:2",
+        cursor=None,
+        limit=10,
+    )
+    assert page.items == (port.trace_summary,)
+
+
+def test_run_trace_collection_filters_mixed_domain_traces_before_paging() -> None:
+    service, port = _service(_MixedRunTracePort())
+
+    a_only = service.list_run_traces(
+        principal=_principal(),
+        run_id="run:1",
+        cursor=None,
+        limit=10,
+    )
+    assert a_only.items == (port.a_only,)
+    assert port.run_trace_scopes[-1] == AuthorizedTelemetryRunScope(
+        mode="run_allowlist",
+        allowed_run_ids=("run:1",),
+    )
+
+    both = service.list_run_traces(
+        principal=_principal(domain_scope=DOMAIN_AB),
+        run_id="run:1",
+        cursor=None,
+        limit=10,
+    )
+    assert both.items == (port.a_only, port.trace_summary)
+    assert port.run_trace_scopes[-1] == AuthorizedTelemetryRunScope(
+        mode="run_allowlist",
+        allowed_run_ids=("run:1", "run:2"),
+    )
+
+
+def test_producer_only_trace_is_not_treated_as_non_domain() -> None:
+    port = _CrossRunPort()
+    port.trace_summary = port.trace_summary.model_copy(update={"run_ids": ("run:2",)})
+    service, _ = _service(port)
+
+    with pytest.raises(Forbidden):
+        service.get_trace(principal=_principal(), trace_id=TRACE_ID)
+
+    principal = _principal(domain_scope=DOMAIN_B)
+    assert service.get_trace(principal=principal, trace_id=TRACE_ID).run_ids == ("run:2",)
+    assert service.list_run_traces(
+        principal=principal,
+        run_id="run:2",
+        cursor=None,
+        limit=10,
+    ).items == (port.trace_summary,)
+
+
+def test_span_page_rejects_producer_scope_omitted_by_trace_summary() -> None:
+    service, _ = _service(_ProducerMismatchPort())
+
+    with pytest.raises(IntegrityViolation, match="unauthorized Run"):
+        service.get_trace_spans(
+            principal=_principal(domain_scope=DOMAIN_AB),
+            trace_id=TRACE_ID,
+            cursor=None,
+            limit=10,
+        )
+
+
+def test_overbroad_trace_run_scope_stops_before_log_page_read() -> None:
+    port = _Port()
+    port.trace_summary = port.trace_summary.model_copy(
+        update={"run_ids": tuple(f"run:{index:03d}" for index in range(65))}
+    )
+    service, _ = _service(port)
+
+    with pytest.raises(QueryTooBroad, match="Run scope"):
+        service.query_logs(
+            principal=_principal(),
+            start_utc=NOW - timedelta(minutes=1),
+            end_utc=NOW + timedelta(minutes=1),
+            services=(),
+            levels=(),
+            event_names=(),
+            run_id=None,
+            trace_id=TRACE_ID,
+            span_id=None,
+            producer_run_id=None,
+            cursor=None,
+            limit=10,
+        )
+
+    assert port.authorization_bindings == []
+    assert port.log_scopes == []
 
 
 def test_missing_authoritative_run_scope_fails_closed_before_data_read() -> None:
@@ -588,6 +899,98 @@ def test_global_metric_and_log_reads_require_explicit_non_domain_permission() ->
             cursor=None,
             limit=10,
         )
+
+
+def test_domainless_log_query_rejects_run_bound_adapter_output() -> None:
+    service, port = _service()
+
+    with pytest.raises(IntegrityViolation, match="unauthorized Run"):
+        service.query_logs(
+            principal=_principal(),
+            start_utc=NOW - timedelta(minutes=1),
+            end_utc=NOW + timedelta(minutes=1),
+            services=(),
+            levels=(),
+            event_names=(),
+            run_id=None,
+            trace_id=None,
+            span_id=None,
+            producer_run_id=None,
+            cursor=None,
+            limit=10,
+        )
+
+    assert port.log_scopes == [AuthorizedTelemetryRunScope(mode="domainless_only")]
+
+
+def test_domainless_log_query_rejects_domain_trace_correlation() -> None:
+    service, port = _service(_LogTraceMismatchPort())
+
+    with pytest.raises(IntegrityViolation, match="unauthorized Run"):
+        service.query_logs(
+            principal=_principal(),
+            start_utc=NOW - timedelta(minutes=1),
+            end_utc=NOW + timedelta(minutes=1),
+            services=(),
+            levels=(),
+            event_names=(),
+            run_id=None,
+            trace_id=None,
+            span_id=None,
+            producer_run_id=None,
+            cursor=None,
+            limit=10,
+        )
+
+    assert port.log_scopes == [AuthorizedTelemetryRunScope(mode="domainless_only")]
+
+
+def test_log_page_requires_complete_retained_trace_scope_proof() -> None:
+    service, _ = _service(_OrphanLogPort())
+
+    with pytest.raises(IntegrityViolation, match="proof"):
+        service.query_logs(
+            principal=_principal(),
+            start_utc=NOW - timedelta(minutes=1),
+            end_utc=NOW + timedelta(minutes=1),
+            services=(),
+            levels=(),
+            event_names=(),
+            run_id=None,
+            trace_id=None,
+            span_id=None,
+            producer_run_id=None,
+            cursor=None,
+            limit=1,
+        )
+
+
+def test_log_continuation_uses_frozen_trace_scope_proof_not_current_summary() -> None:
+    port = _FrozenLogCursorPort()
+    service, _ = _service(port)
+    arguments = {
+        "principal": _principal(),
+        "start_utc": NOW - timedelta(minutes=1),
+        "end_utc": NOW + timedelta(minutes=1),
+        "services": (),
+        "levels": (),
+        "event_names": (),
+        "run_id": "run:1",
+        "trace_id": None,
+        "span_id": None,
+        "producer_run_id": None,
+        "limit": 1,
+    }
+
+    first = service.query_logs(**arguments, cursor=None)
+    assert first.next_cursor == "retained-cursor"
+    port.trace_summary = port.trace_summary.model_copy(update={"run_ids": ("run:1", "run:2")})
+    second = service.query_logs(**arguments, cursor=first.next_cursor)
+
+    assert tuple(item.record.log_id for item in first.items + second.items) == (
+        "log:first",
+        "log:second",
+    )
 
 
 def test_service_rejects_overbroad_queries_before_calling_port() -> None:

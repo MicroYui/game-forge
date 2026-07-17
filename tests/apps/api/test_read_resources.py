@@ -36,7 +36,7 @@ from gameforge.contracts.lineage import (
     build_artifact_v2,
     object_ref_for_bytes,
 )
-from gameforge.contracts.storage import PageCursorV1, PageV1
+from gameforge.contracts.storage import PageCursorV1, PageV1, RefValue
 from gameforge.platform.read_models.artifacts import (
     TrustedArtifactPayloadBinding,
     VerifiedArtifactPayload,
@@ -48,6 +48,7 @@ from gameforge.platform.read_models.authorization import (
 from gameforge.platform.read_models.content import (
     ContentReadCapabilities,
     ContentReadService,
+    LineageSourceEntry,
     PatchWorkflowReadBinding,
     SnapshotDiffRead,
     SpecReadBinding,
@@ -56,6 +57,8 @@ from gameforge.platform.read_models.paging import RetainedReadPageItem
 
 
 DOMAIN = DomainScope(domain_ids=("content",))
+OTHER_DOMAIN = DomainScope(domain_ids=("other",))
+MULTI_DOMAIN = DomainScope(domain_ids=("content", "other"))
 AUTHZ_BINDING = ReadAuthorizationBinding(
     principal_binding="1" * 64,
     authz_fingerprint="2" * 64,
@@ -210,6 +213,59 @@ class _Permissions:
         return Permission(action="read", resource_kind="ref", domain_scope=DOMAIN)
 
 
+class _MappedPermissions:
+    def __init__(self, artifact_scopes, ref_scopes=None) -> None:
+        self.artifact_scopes = artifact_scopes
+        self.ref_scopes = ref_scopes or {}
+
+    def for_artifact(self, artifact, *, resource_kind: str):
+        return Permission(
+            action="read",
+            resource_kind=resource_kind,
+            domain_scope=self.artifact_scopes[artifact.artifact_id],
+        )
+
+    def for_ref(self, ref_name, value, artifact):
+        del ref_name, artifact
+        return Permission(
+            action="read",
+            resource_kind="ref",
+            domain_scope=self.ref_scopes[value.revision],
+        )
+
+
+class _ScopeAuthorization:
+    def __init__(self, allowed_domain_ids: set[str]) -> None:
+        self.allowed_domain_ids = allowed_domain_ids
+
+    def require_singular(self, *, permission, **_: Any):
+        if permission is None or permission.domain_scope == "all":
+            raise Forbidden("singular permission is not covered")
+        if (
+            isinstance(permission.domain_scope, DomainScope)
+            and set(permission.domain_scope.domain_ids) <= self.allowed_domain_ids
+        ):
+            return AUTHZ_BINDING
+        raise Forbidden("singular permission is not covered")
+
+    def filter_collection(
+        self,
+        *,
+        candidates,
+        collection_permission,
+        permission_for,
+        **_: Any,
+    ):
+        assert collection_permission.domain_scope == "all"
+        selected = []
+        for candidate in candidates:
+            permission = permission_for(candidate)
+            scope = permission.domain_scope
+            if isinstance(scope, DomainScope) and set(scope.domain_ids) <= self.allowed_domain_ids:
+                selected.append(candidate)
+        return AuthorizedReadCollection(items=tuple(selected), binding=AUTHZ_BINDING)
+
+
 class _Specs:
     def __init__(self, values: dict[str, SpecReadBinding]) -> None:
         self.by_artifact = values
@@ -241,7 +297,7 @@ class _ImmutablePages:
         self.calls.append(kwargs)
         return PageV1(
             read_snapshot_id="snapshot:lineage",
-            items=(),
+            items=self.by_index.get("artifact_lineage", ()),
             expires_at="2026-07-14T00:05:00Z",
         )
 
@@ -334,6 +390,25 @@ class _Refs:
         raise AssertionError("ref history not expected")
 
 
+class _HistoryRefs:
+    def __init__(self, current: RefValue, history: tuple[RefValue, ...]) -> None:
+        self.current = current
+        self.history = history
+
+    def get_current(self, ref_name: str):
+        del ref_name
+        return self.current
+
+    def page_history(self, ref_name, *, cursor, binding, page_size):
+        del ref_name, cursor, binding
+        assert len(self.history) <= page_size
+        return PageV1(
+            read_snapshot_id="snapshot:ref-history",
+            items=self.history,
+            expires_at="2026-07-14T00:05:00Z",
+        )
+
+
 class _Diffs:
     def __init__(self) -> None:
         self.calls: list[tuple[str, str]] = []
@@ -375,6 +450,9 @@ def _service(
     specs,
     immutable_pages=None,
     subject_workflows=None,
+    authorization=None,
+    permission_resolver=None,
+    refs=None,
     events=None,
     max_items: int = 1,
 ):
@@ -388,14 +466,14 @@ def _service(
         immutable_artifact_pages=pages,
         payload_reader=reader,
         payload_bindings=_Bindings(bindings),
-        authorization=_Authorization(events),
-        permission_resolver=_Permissions(),
+        authorization=authorization or _Authorization(events),
+        permission_resolver=permission_resolver or _Permissions(),
         specs=_Specs(specs),
         schema_registry=_SchemaRegistry(),
         proposal_workflows=_ProposalWorkflows(),
         subject_workflows=subject_workflows or _SubjectWorkflows(),
         playtest_results=_PlaytestResults(),
-        refs=_Refs(),
+        refs=refs or _Refs(),
         diffs=diffs,
         bench_reports=_Bench(),
         execution_profiles=_Catalog(),
@@ -450,6 +528,146 @@ def test_artifact_summary_accepts_honest_legacy_hashes_but_keeps_v2_strict() -> 
             payload_schema_id="ir-core@1",
             domain_scope=DOMAIN,
         )
+
+
+def test_lineage_summary_keeps_unbound_payload_schema_optional() -> None:
+    parent_ref = object_ref_for_bytes(b"parent")
+    parent = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(tool_version="lineage-test@1"),
+        lineage=(),
+        payload_hash=parent_ref.sha256,
+        object_ref=parent_ref,
+    )
+    root_ref = object_ref_for_bytes(b"root")
+    root = build_artifact_v2(
+        kind="validation_evidence",
+        version_tuple=VersionTuple(tool_version="lineage-test@1"),
+        lineage=(parent.artifact_id,),
+        payload_hash=root_ref.sha256,
+        object_ref=root_ref,
+    )
+    pages = _ImmutablePages(
+        {"artifact_lineage": (LineageSourceEntry(artifact_id=parent.artifact_id, depth=1),)}
+    )
+    service, *_ = _service(
+        artifacts=(root, parent),
+        verified={},
+        bindings={},
+        specs={},
+        immutable_pages=pages,
+        max_items=10,
+    )
+
+    page = service.lineage(
+        _principal(),
+        root.artifact_id,
+        cursor=None,
+        limit=10,
+    )
+
+    assert len(page.items) == 1
+    assert page.items[0].artifact.artifact_id == parent.artifact_id
+    assert page.items[0].artifact.payload_schema_id is None
+
+
+@pytest.mark.parametrize(
+    ("allowed_domains", "parent_visible"),
+    [
+        ({"content"}, False),
+        ({"content", "other"}, True),
+    ],
+)
+def test_lineage_uses_all_domain_collection_then_filters_exact_parent_scopes(
+    allowed_domains: set[str],
+    parent_visible: bool,
+) -> None:
+    parent_ref = object_ref_for_bytes(b"parent")
+    parent = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(tool_version="lineage-test@1"),
+        lineage=(),
+        payload_hash=parent_ref.sha256,
+        object_ref=parent_ref,
+    )
+    root_ref = object_ref_for_bytes(b"root")
+    root = build_artifact_v2(
+        kind="validation_evidence",
+        version_tuple=VersionTuple(tool_version="lineage-test@1"),
+        lineage=(parent.artifact_id,),
+        payload_hash=root_ref.sha256,
+        object_ref=root_ref,
+    )
+    pages = _ImmutablePages(
+        {"artifact_lineage": (LineageSourceEntry(artifact_id=parent.artifact_id, depth=1),)}
+    )
+    service, *_ = _service(
+        artifacts=(root, parent),
+        verified={},
+        bindings={},
+        specs={},
+        immutable_pages=pages,
+        authorization=_ScopeAuthorization(allowed_domains),
+        permission_resolver=_MappedPermissions(
+            {root.artifact_id: DOMAIN, parent.artifact_id: MULTI_DOMAIN}
+        ),
+        max_items=10,
+    )
+
+    page = service.lineage(_principal(), root.artifact_id, cursor=None, limit=10)
+
+    expected_ids = (parent.artifact_id,) if parent_visible else ()
+    assert tuple(item.artifact.artifact_id for item in page.items) == expected_ids
+
+
+@pytest.mark.parametrize(
+    ("allowed_domains", "expected_revisions"),
+    [
+        ({"content"}, (2,)),
+        ({"content", "other"}, (1, 2)),
+    ],
+)
+def test_ref_history_filters_historical_domains_without_binding_to_current_scope(
+    allowed_domains: set[str],
+    expected_revisions: tuple[int, ...],
+) -> None:
+    old_ref = object_ref_for_bytes(b"old")
+    old = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(tool_version="ref-test@1"),
+        lineage=(),
+        payload_hash=old_ref.sha256,
+        object_ref=old_ref,
+    )
+    current_ref = object_ref_for_bytes(b"current")
+    current = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(tool_version="ref-test@1"),
+        lineage=(),
+        payload_hash=current_ref.sha256,
+        object_ref=current_ref,
+    )
+    history = (
+        RefValue(artifact_id=old.artifact_id, revision=1),
+        RefValue(artifact_id=current.artifact_id, revision=2),
+    )
+    service, *_ = _service(
+        artifacts=(old, current),
+        verified={},
+        bindings={},
+        specs={},
+        authorization=_ScopeAuthorization(allowed_domains),
+        permission_resolver=_MappedPermissions(
+            {old.artifact_id: OTHER_DOMAIN, current.artifact_id: DOMAIN},
+            {1: OTHER_DOMAIN, 2: DOMAIN},
+        ),
+        refs=_HistoryRefs(history[-1], history),
+        max_items=10,
+    )
+
+    page = service.ref_history(_principal(), "refs/live", cursor=None, limit=10)
+
+    assert tuple(item.value.revision for item in page.items) == expected_revisions
 
 
 def test_spec_list_uses_retained_immutable_page_without_full_list_cap() -> None:

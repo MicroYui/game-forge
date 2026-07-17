@@ -33,8 +33,8 @@ Proven here:
 * Rollback HAPPY path: a ``rollback_request`` repeats validate → submit → B approve →
   apply against the REAL deterministic ``rollback_validator@1`` history + schema ports,
   and the ref/history MOVE BACK to the prior revision (with a ref transition).
-* Rollback fail-closed: a rollback whose ref advances out from under it fails the
-  deterministic history dimension → ``validation_failed`` → ``:submit`` BLOCKED, ref
+* Rollback fail-closed: a rollback whose ref advances out from under it is rejected by
+  exact admission before a Run is created; ``:submit`` remains blocked and the ref is
   unmoved.
 """
 
@@ -42,20 +42,24 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+import socket
 
 from fastapi.testclient import TestClient
+import pytest
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import LocalApiConfig, create_readiness_closed_local_app
 from gameforge.apps.worker.app import LocalWorkerConfig
 from gameforge.apps.worker.dispatch import build_worker_process
-from gameforge.contracts.api import compute_resource_etag
+from gameforge.contracts.api import RunViewV1, compute_resource_etag
 from gameforge.contracts.auth import (
     PasswordCredentialRecordV1,
     SecretText,
 )
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.findings import FindingPayloadV1
 from gameforge.contracts.identity import (
     DomainDefinitionV1,
     DomainRegistryRefV1,
@@ -71,13 +75,13 @@ from gameforge.contracts.identity import (
 )
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
+from gameforge.contracts.workflow import ApprovalItem
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.passwords import Argon2PasswordRuntime, normalize_login_name
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence import migrations_api
-from gameforge.runtime.persistence.approvals import SqlApprovalRepository
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.auth import SqlAuthRepository
@@ -122,9 +126,32 @@ _READS = (
     Permission(action="read", resource_kind="run", domain_scope="all"),
     Permission(action="read", resource_kind="approval", domain_scope="all"),
     Permission(action="read", resource_kind="artifact", domain_scope="all"),
+    Permission(action="read", resource_kind="patch", domain_scope="all"),
+    Permission(action="read", resource_kind="rollback_request", domain_scope="all"),
+    Permission(action="read", resource_kind="ref", domain_scope="all"),
+    Permission(action="read", resource_kind="finding", domain_scope="all"),
+    Permission(action="read", resource_kind="trace", domain_scope="all"),
+    Permission(action="read", resource_kind="log", domain_scope="all"),
+    Permission(action="read", resource_kind="cost", domain_scope="all"),
     Permission(action="read", resource_kind="spec", domain_scope="all"),
     Permission(action="read", resource_kind="execution_profile", domain_scope="all"),
 )
+
+
+@pytest.fixture(autouse=True)
+def _deny_external_network(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Make the Journey-B no-egress claim executable, not documentary."""
+
+    def denied(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise AssertionError("Journey B attempted external network access")
+
+    monkeypatch.setattr(socket, "create_connection", denied)
+    monkeypatch.setattr(socket.socket, "connect", denied)
+    monkeypatch.setattr(socket.socket, "connect_ex", denied)
+    monkeypatch.setattr(socket.socket, "sendto", denied)
+    monkeypatch.setattr(socket.socket, "sendmsg", denied)
+    monkeypatch.setattr(socket, "getaddrinfo", denied)
 
 
 def _registry() -> DomainRegistryV1:
@@ -208,6 +235,7 @@ class _Harness:
         self.tmp_path = tmp_path
         self.database_url = f"sqlite:///{tmp_path / 'journey-b.db'}"
         self.object_root = tmp_path / "objects"
+        self.telemetry_path = tmp_path / "telemetry.sqlite3"
         self.clock = SystemUtcClock()
         migrations_api.upgrade(self.database_url)
 
@@ -267,18 +295,27 @@ class _Harness:
             login=MAKER_LOGIN,
             password=MAKER_PASSWORD,
             display_name="Maker A",
-            role="content_designer",
+            # A deliberately has the CURRENT route role and approval.decide grant.
+            # The self-approval assertion therefore isolates the maker-checker guard
+            # instead of passing because an ordinary RBAC check happened to deny A.
+            roles=("content_designer", "numeric_designer"),
         )
         self._provision_human(
             principal_id="human:approver",
             login=APPROVER_LOGIN,
             password=APPROVER_PASSWORD,
             display_name="Approver B",
-            role="numeric_designer",
+            roles=("numeric_designer",),
         )
 
     def _provision_human(
-        self, *, principal_id: str, login: str, password: str, display_name: str, role: str
+        self,
+        *,
+        principal_id: str,
+        login: str,
+        password: str,
+        display_name: str,
+        roles: tuple[str, ...],
     ) -> None:
         normalization = _normalization_policy()
         hash_policy = _password_policy()
@@ -308,30 +345,60 @@ class _Harness:
             bumped = identities.bump_credential_epoch(
                 principal_id, expected_revision=created.revision
             )
-            identities.grant(
-                assignment_id=f"assignment:{principal_id}:{role}",
-                principal_id=principal_id,
-                role=role,
-                scope=_DOMAIN,
-                granted_by=AuditActor(principal_id="system:test", principal_kind="system"),
-                expected_principal_revision=bumped.revision,
-            )
+            expected_revision = bumped.revision
+            for role in roles:
+                assignment = identities.grant(
+                    assignment_id=f"assignment:{principal_id}:{role}",
+                    principal_id=principal_id,
+                    role=role,
+                    scope=_DOMAIN,
+                    granted_by=AuditActor(
+                        principal_id="system:test",
+                        principal_kind="system",
+                    ),
+                    expected_principal_revision=expected_revision,
+                )
+                retained = identities.get(assignment.principal_id)
+                assert retained is not None
+                expected_revision = retained.revision
         engine.dispose()
 
     # ── base ref (a quest snapshot bound to content/head @ rev 1) ────────────
     def seed_base_snapshot(self) -> tuple[str, dict]:
-        # A referentially-complete quest graph that the production GraphChecker passes
-        # with ZERO findings (quest has a giver + a step; no isolated/dangling nodes), so
-        # a clean Patch's preview validates against real invariant evidence.
+        # A referentially-complete quest graph plus a deterministic balanced economy.
+        # The faucet emits exactly 5 gold/agent/tick and the sink consumes exactly 5,
+        # so the production GraphChecker and economy simulation both pass with exact,
+        # independently sealed evidence. Reward edits do not alter this balance.
         snapshot = Snapshot.from_entities_relations(
             [
                 Entity(id="npc:giver", type=NodeType.NPC, attrs={}),
                 Entity(id="qs:1", type=NodeType.QUEST_STEP, attrs={}),
                 Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120}),
+                Entity(id="gold", type=NodeType.CURRENCY, attrs={"output_rate_cap": 5}),
+                Entity(
+                    id="monster:econ",
+                    type=NodeType.MONSTER,
+                    attrs={"gold_min": 5, "gold_max": 5, "kills_per_tick": 1},
+                ),
+                Entity(id="shop:econ", type=NodeType.SHOP, attrs={}),
+                Entity(id="item:econ", type=NodeType.ITEM, attrs={}),
             ],
             [
                 Relation(id="r:starts", type=EdgeType.STARTS_AT, src_id="q:1", dst_id="npc:giver"),
                 Relation(id="r:step", type=EdgeType.HAS_STEP, src_id="q:1", dst_id="qs:1"),
+                Relation(
+                    id="r:econ-drop",
+                    type=EdgeType.DROPS_FROM,
+                    src_id="monster:econ",
+                    dst_id="gold",
+                ),
+                Relation(
+                    id="r:econ-sink",
+                    type=EdgeType.SELLS,
+                    src_id="shop:econ",
+                    dst_id="item:econ",
+                    attrs={"price": 5, "currency": "gold", "buy_prob": 1.0},
+                ),
             ],
         )
         blob = canonical_json(snapshot.content_payload).encode("utf-8")
@@ -381,7 +448,7 @@ class _Harness:
             database_url=self.database_url,
             object_store_root=self.object_root,
             object_store_id=OBJECT_STORE_ID,
-            telemetry_db_path=self.tmp_path / "api-telemetry.sqlite3",
+            telemetry_db_path=self.telemetry_path,
             current_password_hash_policy_version="argon2id@1",
             session_policy_version="session@1",
             role_policy_version=self.role_policy.policy_version,
@@ -400,71 +467,27 @@ class _Harness:
             database_url=self.database_url,
             object_store_root=self.object_root,
             object_store_id=OBJECT_STORE_ID,
-            telemetry_db_path=self.tmp_path / "worker-telemetry.sqlite3",
+            telemetry_db_path=self.telemetry_path,
             worker_principal_id="service:worker:1",
             reaper_principal_id="system:lease-reaper",
             root_secret=b"w" * 32,
         )
 
-    # ── read-back helpers (authoritative store reads for test scaffolding) ────
-    def load_item(self, approval_id: str):
-        engine = get_engine(self.database_url)
-        try:
-            with Session(engine) as session:
-                return SqlApprovalRepository(session).get(approval_id)
-        finally:
-            engine.dispose()
-
-    def run_record(self, run_id: str):
-        from gameforge.runtime.persistence.runs import SqlRunRepository
-
-        engine = get_engine(self.database_url)
-        try:
-            with Session(engine) as session:
-                return SqlRunRepository(session).get(run_id)
-        finally:
-            engine.dispose()
-
-    def current_ref(self) -> dict:
-        engine = get_engine(self.database_url)
-        try:
-            with Session(engine) as session:
-                value = SqlRefStore(
-                    session,
-                    cursor_signer=CursorSigner(signing_key=b"a" * 32, clock=self.clock),
-                    clock=self.clock,
-                ).get(REF_NAME)
-                return value.model_dump(mode="json")
-        finally:
-            engine.dispose()
-
-    def ref_history(self, revision: int) -> dict | None:
-        engine = get_engine(self.database_url)
-        try:
-            with Session(engine) as session:
-                value = SqlRefStore(
-                    session,
-                    cursor_signer=CursorSigner(signing_key=b"a" * 32, clock=self.clock),
-                    clock=self.clock,
-                ).get_history_entry(REF_NAME, revision)
-                return None if value is None else value.model_dump(mode="json")
-        finally:
-            engine.dispose()
-
 
 # ── HTTP session helpers ─────────────────────────────────────────────────────
 def _start_api(config: LocalApiConfig):
-    """Build the composed API and run its startup effect (audit-cache refresh).
-
-    The tests use several independent ``TestClient`` cookie jars over one app, so
-    they drive the lifespan startup manually (a single ``with TestClient`` would own
-    the shared lifespan and close the resources for every sibling client). Call
-    ``api.state.local_resources.close()`` when done.
-    """
+    """Start the real FastAPI lifespan while retaining independent cookie jars."""
 
     api = create_readiness_closed_local_app(config)
-    api.state.local_resources.refresh_audit_cache()
+    owner = TestClient(api, base_url="https://gameforge.test")
+    owner.__enter__()
+    api.state.journey_lifespan_owner = owner
     return api
+
+
+def _stop_api(api) -> None:
+    owner = api.state.journey_lifespan_owner
+    owner.__exit__(None, None, None)
 
 
 def _login(app, login_name: str, password: str) -> _Session:
@@ -496,6 +519,24 @@ def _headers(
         "If-Match": etag,
         "X-CSRF-Token": session.csrf,
     }
+
+
+def _approval(reader: _Session, approval_id: str) -> ApprovalItem:
+    response = reader.client.get(f"/api/v1/approvals/{approval_id}")
+    assert response.status_code == 200, response.text
+    return ApprovalItem.model_validate(response.json()["approval"])
+
+
+def _run(reader: _Session, run_id: str) -> RunViewV1:
+    response = reader.client.get(f"/api/v1/runs/{run_id}")
+    assert response.status_code == 200, response.text
+    return RunViewV1.model_validate(response.json())
+
+
+def _ref_history(reader: _Session) -> tuple[dict, ...]:
+    response = reader.client.get(f"/api/v1/refs/{REF_NAME}/history", params={"limit": 100})
+    assert response.status_code == 200, response.text
+    return tuple(item["value"] for item in response.json()["items"])
 
 
 def _patch_body(
@@ -573,21 +614,22 @@ def _validation_body(item, *, base_artifact_id: str, expected_ref: dict, checker
         "target": {"ref_name": REF_NAME, "expected_ref": expected_ref},
         "validation_policy": {"profile_id": "builtin.validation", "version": 1},
         "checker_profiles": checker_profiles,
-        "simulation_profiles": [],
+        "simulation_profiles": [{"profile_id": "builtin.simulation", "version": 1}],
         "findings": [],
         "review_artifact_ids": [],
         "playtest_trace_artifact_ids": [],
         "regression_suite_artifact_ids": [],
+        "seed": 7,
     }
 
 
-async def _drive(dispatcher, harness: _Harness, run_id: str, *, max_iterations: int = 80):
+async def _drive(dispatcher, reader: _Session, run_id: str, *, max_iterations: int = 80):
     for _ in range(max_iterations):
-        run = harness.run_record(run_id)
+        run = _run(reader, run_id)
         if run is not None and run.status in {"succeeded", "failed", "cancelled", "timed_out"}:
             return run
         await dispatcher.dispatch_once()
-    return harness.run_record(run_id)
+    return _run(reader, run_id)
 
 
 # ── the composed happy-path cycle (draft→validate→submit→approve→apply) ──────
@@ -598,6 +640,64 @@ class _CycleResult:
     validation_run_id: str
     evidence_set_artifact_id: str
     new_ref: dict
+
+
+def _assert_passed_patch_evidence(
+    reader: _Session,
+    *,
+    evidence_set_artifact_id: str,
+    run_id: str,
+    patch_artifact_id: str,
+) -> dict:
+    response = reader.client.get(f"/api/v1/artifacts/{evidence_set_artifact_id}")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["artifact"]["kind"] == "validation_evidence"
+    evidence = body["payload"]
+    assert evidence["validation_run_id"] == run_id
+    assert evidence["subject_artifact_id"] == patch_artifact_id
+    assert evidence["overall_status"] == "passed"
+    requirements = evidence["requirements"]
+    assert {item["requirement_id"] for item in requirements} == {
+        "checker:builtin.checker@1",
+        "simulation:builtin.simulation@1",
+    }
+    assert {item["tool_version"] for item in requirements} == {
+        "checker@1",
+        "economy-sim@1",
+    }
+    assert all(
+        item["applicability"] == "required"
+        and item["status"] == "passed"
+        and item["evidence_artifact_id"]
+        for item in requirements
+    )
+    evidence_ids = {item["evidence_artifact_id"] for item in requirements}
+    assert evidence_ids.issubset(evidence["supporting_artifact_ids"])
+    for requirement in requirements:
+        companion = reader.client.get(f"/api/v1/artifacts/{requirement['evidence_artifact_id']}")
+        assert companion.status_code == 200, companion.text
+        companion_body = companion.json()
+        assert companion_body["artifact"]["kind"] == "regression_evidence"
+        assert companion_body["artifact"]["version_tuple"]["seed"] == 7
+        assert companion_body["payload"]["requirement_id"] == requirement["requirement_id"]
+        assert companion_body["payload"]["status"] == "passed"
+        assert (
+            companion_body["payload"]["snapshot_id"]
+            == evidence["target_binding"]["target_snapshot_id"]
+        )
+        if requirement["requirement_id"] == "simulation:builtin.simulation@1":
+            simulation = companion_body["payload"]
+            binding = simulation["simulation_execution_binding"]
+            assert binding["simulation_profile"] == {
+                "profile_id": "builtin.simulation",
+                "version": 1,
+            }
+            assert simulation["root_seed"] == 7
+            assert binding["seed_binding"]["root_seed"] == 7
+            assert binding["seed_binding"]["seed"] == simulation["seed"]
+            assert binding["seed_binding"]["case_id"] == requirement["requirement_id"]
+    return body
 
 
 def _run_patch_cycle(
@@ -627,7 +727,7 @@ def _run_patch_cycle(
     assert draft.status_code == 201, draft.text
     patch_artifact_id = draft.json()["artifact"]["artifact_id"]
     approval_id = f"approval:patch:{patch_artifact_id}"
-    item = harness.load_item(approval_id)
+    item = _approval(maker, approval_id)
     assert item is not None and item.status == "draft"
 
     # A validates: the composed :validate admits the Run AND (17c) CASes draft→validating.
@@ -646,18 +746,24 @@ def _run_patch_cycle(
     )
     assert validate.status_code == 202, validate.text
     run_id = validate.json()["run_id"]
-    validating = harness.load_item(approval_id)
+    validating = _approval(maker, approval_id)
     assert validating.status == "validating"
     assert validating.active_validation_run_id == run_id
 
     # Worker runs patch.validate → terminal effect CASes validating→validated.
-    terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
+    terminal = asyncio.run(_drive(process.dispatcher, maker, run_id))
     assert terminal is not None and terminal.status == "succeeded", (
         f"validation run terminated as {None if terminal is None else terminal.status!r}"
     )
-    validated = harness.load_item(approval_id)
+    validated = _approval(maker, approval_id)
     assert validated.status == "validated", validated.status
     assert validated.evidence_set_artifact_id is not None
+    _assert_passed_patch_evidence(
+        maker,
+        evidence_set_artifact_id=validated.evidence_set_artifact_id,
+        run_id=run_id,
+        patch_artifact_id=patch_artifact_id,
+    )
 
     # A submits for approval.
     submit = maker.client.post(
@@ -676,7 +782,7 @@ def _run_patch_cycle(
         ),
     )
     assert submit.status_code == 200, submit.text
-    pending = harness.load_item(approval_id)
+    pending = _approval(maker, approval_id)
     assert pending.status == "pending_approval"
 
     # B (≠A) approves.
@@ -698,7 +804,7 @@ def _run_patch_cycle(
         ),
     )
     assert approve.status_code == 200, approve.text
-    approved = harness.load_item(approval_id)
+    approved = _approval(approver, approval_id)
     assert approved.status == "approved"
     binding = approved.target_binding
 
@@ -724,6 +830,8 @@ def _run_patch_cycle(
         ),
     )
     assert apply.status_code == 200, apply.text
+    applied = _approval(approver, approval_id)
+    assert applied.status == "applied"
     new_ref = apply.json()["ref_value"]
     assert new_ref["artifact_id"] == binding.target_artifact_id
     return _CycleResult(
@@ -761,9 +869,10 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             key="c1",
         )
         assert cycle1.new_ref["revision"] == 2
-        assert harness.current_ref()["revision"] == 2
-        assert harness.ref_history(1)["artifact_id"] == base_artifact_id
-        assert harness.ref_history(2)["artifact_id"] == cycle1.new_ref["artifact_id"]
+        history = _ref_history(maker)
+        assert [item["revision"] for item in history] == [1, 2]
+        assert history[0]["artifact_id"] == base_artifact_id
+        assert history[1] == cycle1.new_ref
 
         # ── Coverage: idempotency conflict — same key, different payload ───
         first = maker.client.post(
@@ -799,20 +908,23 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             run_id=cycle1.validation_run_id,
             approval_id=cycle1.approval_id,
             evidence_set_artifact_id=cycle1.evidence_set_artifact_id,
-            patch_artifact_id=cycle1.patch_artifact_id,
+            subject_artifact_id=cycle1.patch_artifact_id,
+            subject_collection="patches",
         )
     finally:
         process.close()
-        api.state.local_resources.close()
+        _stop_api(api)
 
     # ── Cycle 2 spanning an API + worker RESTART over the SAME DB ────────────
-    head_ref = harness.current_ref()
+    head_ref = cycle1.new_ref
     head_artifact_id = head_ref["artifact_id"]
 
     api2 = _start_api(harness.api_config())
     process2 = build_worker_process(harness.worker_config())
     approval_id2 = ""
     run_id2 = ""
+    patch2 = ""
+    dispatch_trace_id2 = ""
     try:
         maker2 = _login(api2, MAKER_LOGIN, MAKER_PASSWORD)
         draft = maker2.client.post(
@@ -829,7 +941,7 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
         assert draft.status_code == 201, draft.text
         patch2 = draft.json()["artifact"]["artifact_id"]
         approval_id2 = f"approval:patch:{patch2}"
-        item2 = harness.load_item(approval_id2)
+        item2 = _approval(maker2, approval_id2)
         validate = maker2.client.post(
             f"/api/v1/patches/{patch2}:validate",
             json=_validation_body(
@@ -845,32 +957,35 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
         )
         assert validate.status_code == 202, validate.text
         run_id2 = validate.json()["run_id"]
+        dispatch_trace_id2 = validate.headers["X-Trace-ID"]
         # The validation Run is QUEUED but NOT yet driven — leave it for the rebuilt worker.
-        assert harness.run_record(run_id2).status == "queued"
-        assert harness.load_item(approval_id2).status == "validating"
+        assert _run(maker2, run_id2).status == "queued"
+        assert _approval(maker2, approval_id2).status == "validating"
     finally:
         process2.close()
-        api2.state.local_resources.close()
-        # api2 TestClient contexts are per-request; nothing to close beyond the process.
-
-    # State persists across the restart: the applied ref is unchanged on the shared DB.
-    assert harness.current_ref()["revision"] == 2
+        _stop_api(api2)
 
     # Rebuild BOTH the API and the worker over the SAME DB/object store.
     api3 = _start_api(harness.api_config())
     process3 = build_worker_process(harness.worker_config())
     try:
+        maker3 = _login(api3, MAKER_LOGIN, MAKER_PASSWORD)
+        approver3 = _login(api3, APPROVER_LOGIN, APPROVER_PASSWORD)
+        assert _ref_history(maker3)[-1] == head_ref
         # The queued Run still completes on the rebuilt worker.
-        terminal = asyncio.run(_drive(process3.dispatcher, harness, run_id2))
+        terminal = asyncio.run(_drive(process3.dispatcher, maker3, run_id2))
         assert terminal is not None and terminal.status == "succeeded", (
             f"post-restart run terminated as {None if terminal is None else terminal.status!r}"
         )
-        validated2 = harness.load_item(approval_id2)
+        validated2 = _approval(maker3, approval_id2)
         assert validated2.status == "validated"
-
-        # Re-login on the rebuilt API (sessions are DB-backed; workflow continues).
-        maker3 = _login(api3, MAKER_LOGIN, MAKER_PASSWORD)
-        approver3 = _login(api3, APPROVER_LOGIN, APPROVER_PASSWORD)
+        assert validated2.evidence_set_artifact_id is not None
+        _assert_passed_patch_evidence(
+            maker3,
+            evidence_set_artifact_id=validated2.evidence_set_artifact_id,
+            run_id=run_id2,
+            patch_artifact_id=patch2,
+        )
 
         submit = maker3.client.post(
             f"/api/v1/patches/{validated2.subject_artifact_id}:submit-for-approval",
@@ -888,7 +1003,7 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             ),
         )
         assert submit.status_code == 200, submit.text
-        pending2 = harness.load_item(approval_id2)
+        pending2 = _approval(maker3, approval_id2)
 
         # ── Coverage: A self-approval is rejected (maker-checker, 403) ────────
         self_approve = maker3.client.post(
@@ -909,6 +1024,11 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             ),
         )
         assert self_approve.status_code == 403, self_approve.text
+        assert self_approve.json()["code"] == "forbidden"
+        after_self_approve = _approval(maker3, approval_id2)
+        assert after_self_approve.status == pending2.status
+        assert after_self_approve.workflow_revision == pending2.workflow_revision
+        assert after_self_approve.decisions == pending2.decisions
 
         # ── Coverage: a stale expected_workflow_revision → 409 ────────────────
         stale = approver3.client.post(
@@ -929,6 +1049,7 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             ),
         )
         assert stale.status_code == 409, stale.text
+        assert stale.json()["code"] == "revision_conflict"
 
         # B approves with the exact revision, then applies — ref moves rev 2 → rev 3.
         approve = approver3.client.post(
@@ -949,7 +1070,7 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             ),
         )
         assert approve.status_code == 200, approve.text
-        approved2 = harness.load_item(approval_id2)
+        approved2 = _approval(approver3, approval_id2)
         binding2 = approved2.target_binding
         apply = approver3.client.post(
             f"/api/v1/patches/{approved2.subject_artifact_id}:apply",
@@ -972,12 +1093,24 @@ def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path
             ),
         )
         assert apply.status_code == 200, apply.text
+        assert _approval(approver3, approval_id2).status == "applied"
         assert apply.json()["ref_value"]["revision"] == 3
-        assert harness.current_ref()["revision"] == 3
-        assert harness.ref_history(3)["artifact_id"] == binding2.target_artifact_id
+        history = _ref_history(maker3)
+        assert history[-1]["revision"] == 3
+        assert history[-1]["artifact_id"] == binding2.target_artifact_id
+        _assert_run_correlation(
+            harness,
+            maker3,
+            run_id=run_id2,
+            approval_id=approval_id2,
+            evidence_set_artifact_id=validated2.evidence_set_artifact_id,
+            subject_artifact_id=patch2,
+            subject_collection="patches",
+            expected_trace_id=dispatch_trace_id2,
+        )
     finally:
         process3.close()
-        api3.state.local_resources.close()
+        _stop_api(api3)
 
 
 def _assert_run_correlation(
@@ -987,44 +1120,99 @@ def _assert_run_correlation(
     run_id: str,
     approval_id: str,
     evidence_set_artifact_id: str,
-    patch_artifact_id: str,
+    subject_artifact_id: str,
+    subject_collection: str,
+    expected_trace_id: str | None = None,
 ) -> None:
-    from gameforge.runtime.persistence.runs import SqlRunRepository
+    # Content/workflow reads use the same public authority the UI consumes.
+    approval = reader.client.get(f"/api/v1/approvals/{approval_id}")
+    assert approval.status_code == 200, approval.text
+    subject = reader.client.get(f"/api/v1/{subject_collection}/{subject_artifact_id}")
+    assert subject.status_code == 200, subject.text
+    run = reader.client.get(f"/api/v1/runs/{run_id}")
+    assert run.status_code == 200, run.text
+    assert run.json()["status"] == "succeeded"
 
-    # lineage (read API): the published EvidenceSet is bound to this run + subject.
     artifact = reader.client.get(f"/api/v1/artifacts/{evidence_set_artifact_id}")
     assert artifact.status_code == 200, artifact.text
     body = artifact.json()
     assert body["artifact"]["kind"] == "validation_evidence"
     assert body["payload"]["validation_run_id"] == run_id
-    assert patch_artifact_id in body["artifact"]["parent_artifact_ids"]
+    assert subject_artifact_id in body["artifact"]["parent_artifact_ids"]
+
+    lineage = reader.client.get(
+        f"/api/v1/artifacts/{evidence_set_artifact_id}/lineage",
+        params={"limit": 100},
+    )
+    assert lineage.status_code == 200, lineage.text
+    lineage_ids = {item["artifact"]["artifact_id"] for item in lineage.json()["items"]}
+    assert subject_artifact_id in lineage_ids
+    assert set(body["artifact"]["parent_artifact_ids"]).issubset(lineage_ids)
+
+    # The API reads worker spans from the shared telemetry WAL. Resolve an exact
+    # worker trace and prove its attempt span is keyed to this Run.
+    traces = reader.client.get(f"/api/v1/runs/{run_id}/traces", params={"limit": 100})
+    assert traces.status_code == 200, traces.text
+    worker_trace = next(
+        item for item in traces.json()["items"] if "gameforge-worker" in item["service_names"]
+    )
+    assert {"gameforge-api", "gameforge-worker"}.issubset(worker_trace["service_names"])
+    trace_id = worker_trace["trace_id"]
+    if expected_trace_id is not None:
+        assert trace_id == expected_trace_id
+    trace = reader.client.get(f"/api/v1/traces/{trace_id}")
+    assert trace.status_code == 200, trace.text
+    assert run_id in trace.json()["run_ids"]
+    spans = reader.client.get(f"/api/v1/traces/{trace_id}/spans", params={"limit": 100})
+    assert spans.status_code == 200, spans.text
+    span_items = [item["span"] for item in spans.json()["items"]]
+    attempt_span = next(
+        item
+        for item in span_items
+        if item["name"] == "worker.attempt" and item["attributes"].get("run_id") == run_id
+    )
+    api_parent = next(
+        item for item in span_items if item["span_id"] == attempt_span["parent_span_id"]
+    )
+    assert api_parent["name"] == "http.request"
+    assert api_parent["resource"]["service.name"] == "gameforge-api"
+
+    # Structured logs are queried through their bounded public API and carry the
+    # exact span correlation automatically inherited inside worker.attempt.
+    now = datetime.now(UTC)
+    logs = reader.client.get(
+        "/api/v1/logs/query",
+        params={
+            "start_utc": (now - timedelta(minutes=5)).isoformat(),
+            "end_utc": (now + timedelta(minutes=5)).isoformat(),
+            "services": "gameforge-worker",
+            "event_names": "worker.attempt.started",
+            "run_id": run_id,
+            "limit": 100,
+        },
+    )
+    assert logs.status_code == 200, logs.text
+    attempt_log = next(item["record"] for item in logs.json()["items"])
+    assert attempt_log["run_id"] == run_id
+    assert attempt_log["trace_id"] == trace_id
+    assert attempt_log["span_id"] == attempt_span["span_id"]
+
+    cost = reader.client.get(f"/api/v1/cost/{run_id}", params={"limit": 100})
+    assert cost.status_code == 200, cost.text
+    assert cost.json()["run_id"] == run_id
+    assert cost.json()["budget_set"]["run_id"] == run_id
+    # This deterministic not_applicable-LLM Run has no model-call usage, but its
+    # admission-time budget set remains public, exact, and Run-bound.
+    assert cost.json()["usage"] == []
 
     engine = get_engine(harness.database_url)
     try:
         with Session(engine) as session:
-            runs = SqlRunRepository(session)
-            # run: the validation Run reached a succeeded terminal on the shared authority.
-            run = runs.get(run_id)
-            assert run is not None and run.status == "succeeded"
-            assert run.kind.kind == "patch.validate"
-            # log/trace: the run's authoritative execution event stream, keyed on run_id.
-            events = runs.list_events(run_id, after_seq=0, limit=100)
-            event_types = {event.event_type for event in events}
-            assert "run.succeeded" in event_types
-            assert "attempt.started" in event_types
-
-            # cost: the run's budget-set snapshot + reserved run-budget hold group are
-            # keyed on run_id (a deterministic not_applicable run books no per-call
-            # reservations, so cost accounting is the admission-time run budget hold).
-            ledger = SqlCostLedger(session, clock=harness.clock)
-            assert run.budget_set_snapshot_id == f"budget-set:{run_id}"
-            assert run.run_budget_hold_group_id is not None
-            assert ledger.get_reservation_group(run.run_budget_hold_group_id) is not None
-
-            # audit: the chain is intact and carries a run-correlated record; the
-            # validation-start record correlates on BOTH run_id and the approval subject.
+            # Audit has no public endpoint in M4c. Directly verify both append-only
+            # chains: API validation-start and worker terminal publication.
             audit = SqlAuditSink(session)
             assert audit.verify_chain("identity") is True
+            assert audit.verify_chain("runs") is True
             assert _find_audit(audit, chain_id="identity", run_id=run_id) is not None, (
                 "no audit record correlated on the validation run_id"
             )
@@ -1033,18 +1221,34 @@ def _assert_run_correlation(
             )
             assert started is not None, "no validation-start audit correlated on run_id + subject"
             assert started.action == "approval.validation_started"
+            terminal = _find_audit(
+                audit,
+                chain_id="runs",
+                run_id=run_id,
+                action="run.terminal",
+            )
+            assert terminal is not None
     finally:
         engine.dispose()
 
 
-def _find_audit(audit: SqlAuditSink, *, chain_id: str, run_id: str, subject_resource_id=None):
+def _find_audit(
+    audit: SqlAuditSink,
+    *,
+    chain_id: str,
+    run_id: str,
+    subject_resource_id=None,
+    action: str | None = None,
+):
     seq = 1
     while True:
         record = audit.get(chain_id, seq)
         if record is None:
             return None
-        if record.correlation.run_id == run_id and (
-            subject_resource_id is None or record.subject.resource_id == subject_resource_id
+        if (
+            record.correlation.run_id == run_id
+            and (subject_resource_id is None or record.subject.resource_id == subject_resource_id)
+            and (action is None or record.action == action)
         ):
             return record
         seq += 1
@@ -1068,7 +1272,7 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
         assert draft.status_code == 201, draft.text
         patch_id = draft.json()["artifact"]["artifact_id"]
         approval_id = f"approval:patch:{patch_id}"
-        item = harness.load_item(approval_id)
+        item = _approval(maker, approval_id)
 
         # Validate WITH the graph checker so the dangling preview is CONFIRMED a Finding.
         validate = maker.client.post(
@@ -1086,11 +1290,11 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
         )
         assert validate.status_code == 202, validate.text
         run_id = validate.json()["run_id"]
-        terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
+        terminal = asyncio.run(_drive(process.dispatcher, maker, run_id))
         assert terminal is not None and terminal.status == "succeeded", (
             f"validation run terminated as {None if terminal is None else terminal.status!r}"
         )
-        failed = harness.load_item(approval_id)
+        failed = _approval(maker, approval_id)
         assert failed.status == "validation_failed", failed.status
         assert failed.evidence_set_artifact_id is not None
 
@@ -1111,6 +1315,7 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
             ),
         )
         assert submit.status_code == 409, submit.text
+        assert submit.json()["code"] == "workflow_guard"
 
         # … and apply (409 workflow guard); the ref/history are UNCHANGED.
         binding = failed.target_binding
@@ -1135,17 +1340,72 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
             ),
         )
         assert apply.status_code == 409, apply.text
+        assert apply.json()["code"] == "workflow_guard"
 
-        assert harness.current_ref() == base_ref
-        assert harness.ref_history(2) is None
+        assert _ref_history(maker) == (base_ref,)
 
-        # The failed EvidenceSet + a confirmed Finding are readable through the API.
+        # The failed EvidenceSet and its exact immutable confirmed Finding are both
+        # readable through public APIs; the Run-scoped Finding matches the checker
+        # companion that the EvidenceSet freezes in its supporting closure.
         evidence = maker.client.get(f"/api/v1/artifacts/{failed.evidence_set_artifact_id}")
         assert evidence.status_code == 200, evidence.text
-        assert evidence.json()["payload"]["overall_status"] == "failed"
+        evidence_payload = evidence.json()["payload"]
+        assert evidence_payload["overall_status"] == "failed"
+        assert {item["tool_version"] for item in evidence_payload["requirements"]} == {
+            "checker@1",
+            "economy-sim@1",
+        }
+        # Patch validation must copy the exact request-side Finding closure into
+        # EvidenceSet.finding_bindings.  This request has no historical/selected
+        # bindings; the checker Finding produced by this Run is instead linked to
+        # its companion evidence by the atomic RunFindingLink publication.
+        assert evidence_payload["finding_bindings"] == []
+        checker_requirement = next(
+            item for item in evidence_payload["requirements"] if item["tool_version"] == "checker@1"
+        )
+        checker_evidence_id = checker_requirement["evidence_artifact_id"]
+        assert checker_evidence_id in evidence_payload["supporting_artifact_ids"]
+        checker_evidence = maker.client.get(f"/api/v1/artifacts/{checker_evidence_id}")
+        assert checker_evidence.status_code == 200, checker_evidence.text
+        checker_findings = checker_evidence.json()["payload"]["findings"]
+        assert len(checker_findings) == 1
+
+        finding_page = maker.client.get(
+            f"/api/v1/runs/{run_id}/findings",
+            params={"limit": 100},
+        )
+        assert finding_page.status_code == 200, finding_page.text
+        assert len(finding_page.json()["items"]) == 1
+        finding = finding_page.json()["items"][0]
+        companion_finding = dict(checker_findings[0])
+        companion_finding.pop("id")
+        companion_finding.pop("finding_schema_version")
+        companion_finding.pop("created_at", None)
+        published_payload = dict(finding["payload"])
+        published_payload["minimal_repro"] = {
+            key: value
+            for key, value in published_payload["minimal_repro"].items()
+            if value is not None
+        }
+        assert published_payload == FindingPayloadV1.model_validate(companion_finding).model_dump(
+            mode="json"
+        )
+        assert finding["finding_id"] == (f"checker:builtin.checker@1:{checker_findings[0]['id']}")
+        assert finding["revision"] == 1
+        assert finding["supersedes_revision"] is None
+        assert finding["payload"]["producer_run_id"] == run_id
+        assert finding["payload"]["oracle_type"] == "deterministic"
+        assert finding["payload"]["status"] == "confirmed"
+        assert (
+            finding["payload"]["snapshot_id"]
+            == evidence_payload["target_binding"]["target_snapshot_id"]
+        )
+        public_history = maker.client.get(f"/api/v1/refs/{REF_NAME}/history")
+        assert public_history.status_code == 200, public_history.text
+        assert [item["value"]["revision"] for item in public_history.json()["items"]] == [1]
     finally:
         process.close()
-        api.state.local_resources.close()
+        _stop_api(api)
 
 
 def _rollback_validation_body(
@@ -1206,7 +1466,7 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
         maker = _login(api, MAKER_LOGIN, MAKER_PASSWORD)
         approver = _login(api, APPROVER_LOGIN, APPROVER_PASSWORD)
         # Move the ref to rev 2 (reward 120 → 80) so a prior revision exists to restore.
-        _run_patch_cycle(
+        setup = _run_patch_cycle(
             harness,
             process,
             maker,
@@ -1216,7 +1476,7 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
             new_value=80,
             key="rb-setup",
         )
-        head_ref = harness.current_ref()
+        head_ref = setup.new_ref
         assert head_ref["revision"] == 2 and head_ref["artifact_id"] != base_artifact_id
 
         # A drafts a rollback_request back to the base (history revision 1).
@@ -1227,7 +1487,7 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
             target_revision=1,
             key="rb",
         )
-        item = harness.load_item(approval_id)
+        item = _approval(maker, approval_id)
         assert item is not None and item.status == "draft"
 
         # :validate → the real rollback ports pass → passed EvidenceSet → validated.
@@ -1246,12 +1506,13 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
         )
         assert validate.status_code == 202, validate.text
         run_id = validate.json()["run_id"]
-        assert harness.load_item(approval_id).status == "validating"
-        terminal = asyncio.run(_drive(process.dispatcher, harness, run_id))
+        dispatch_trace_id = validate.headers["X-Trace-ID"]
+        assert _approval(maker, approval_id).status == "validating"
+        terminal = asyncio.run(_drive(process.dispatcher, maker, run_id))
         assert terminal is not None and terminal.status == "succeeded", (
             f"rollback validation terminated as {None if terminal is None else terminal.status!r}"
         )
-        validated = harness.load_item(approval_id)
+        validated = _approval(maker, approval_id)
         assert validated.status == "validated", validated.status
         assert validated.evidence_set_artifact_id is not None
         evidence_response = maker.client.get(
@@ -1285,7 +1546,7 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
             ),
         )
         assert submit.status_code == 200, submit.text
-        pending = harness.load_item(approval_id)
+        pending = _approval(maker, approval_id)
         approve = approver.client.post(
             f"/api/v1/approvals/{approval_id}:approve",
             json={
@@ -1304,7 +1565,8 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
             ),
         )
         assert approve.status_code == 200, approve.text
-        approved = harness.load_item(approval_id)
+        approved = _approval(approver, approval_id)
+        assert approved.status == "approved"
         binding = approved.target_binding
         apply = approver.client.post(
             f"/api/v1/rollback-requests/{approved.subject_artifact_id}:apply",
@@ -1327,25 +1589,37 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
             ),
         )
         assert apply.status_code == 200, apply.text
+        assert _approval(approver, approval_id).status == "applied"
         result = apply.json()
         # The rollback moved the ref BACK to the base Artifact, at a NEW revision, and
         # recorded a ref transition (rollback apply, unlike a patch apply, is a transition).
         assert result["ref_value"]["artifact_id"] == base_artifact_id
         assert result["ref_value"]["revision"] == 3
         assert result["ref_transition_id"] is not None
-        assert harness.current_ref() == {"artifact_id": base_artifact_id, "revision": 3}
-        assert harness.ref_history(3)["artifact_id"] == base_artifact_id
+        assert _ref_history(maker) == (
+            base_ref,
+            setup.new_ref,
+            {"artifact_id": base_artifact_id, "revision": 3},
+        )
+        _assert_run_correlation(
+            harness,
+            maker,
+            run_id=run_id,
+            approval_id=approval_id,
+            evidence_set_artifact_id=validated.evidence_set_artifact_id,
+            subject_artifact_id=rollback_id,
+            subject_collection="rollback-requests",
+            expected_trace_id=dispatch_trace_id,
+        )
     finally:
         process.close()
-        api.state.local_resources.close()
+        _stop_api(api)
 
 
 def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
     # Fail-closed rollback surface: a rollback drafted against rev 2 whose ref then MOVES
-    # to rev 3 (out from under it) fails the deterministic history dimension at validation
-    # → failed EvidenceSet → validation_failed → submit BLOCKED (409); the ref never moves
-    # back. (Soundness: the real history port confirms the exact current-ref binding; it
-    # never passes a rollback whose base has advanced.)
+    # to rev 3 is rejected by exact admission before any Run/evidence is created. Submit
+    # remains blocked and the ref never moves back.
     harness = _Harness(tmp_path)
     base_artifact_id, base_ref = harness.seed_base_snapshot()
 
@@ -1364,7 +1638,7 @@ def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
             new_value=80,
             key="rbf-1",
         )
-        head_ref = harness.current_ref()
+        head_ref = cycle1.new_ref
         assert head_ref["revision"] == 2
 
         # A drafts a valid rollback to the base (rev 1), binding the current head (rev 2).
@@ -1375,12 +1649,12 @@ def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
             target_revision=1,
             key="rbf",
         )
-        item = harness.load_item(approval_id)
+        item = _approval(maker, approval_id)
         assert item.status == "draft"
 
         # The ref advances to rev 3 (a second, independent patch cycle) — the rollback's
         # bound base is now stale.
-        _run_patch_cycle(
+        cycle2 = _run_patch_cycle(
             harness,
             process,
             maker,
@@ -1391,7 +1665,8 @@ def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
             old_value=80,
             key="rbf-2",
         )
-        assert harness.current_ref()["revision"] == 3
+        assert cycle2.new_ref["revision"] == 3
+        assert _ref_history(maker)[-1] == cycle2.new_ref
 
         # Exact admission re-reads the bound ref and rejects the now-stale rollback before
         # creating a Run (current rev 3 != the retained expected rev 2).
@@ -1409,7 +1684,8 @@ def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
             ),
         )
         assert validate.status_code == 409, validate.text
-        rejected = harness.load_item(approval_id)
+        assert validate.json()["code"] == "revision_conflict"
+        rejected = _approval(maker, approval_id)
         assert rejected.status == "draft"
         assert rejected.active_validation_run_id is None
 
@@ -1429,7 +1705,8 @@ def test_journey_b_rollback_stale_ref_fails_closed(tmp_path: Path) -> None:
             ),
         )
         assert submit.status_code == 409, submit.text
-        assert harness.current_ref()["revision"] == 3
+        assert submit.json()["code"] == "workflow_guard"
+        assert _ref_history(maker)[-1] == cycle2.new_ref
     finally:
         process.close()
-        api.state.local_resources.close()
+        _stop_api(api)

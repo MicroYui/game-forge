@@ -52,7 +52,7 @@ MAX_QUERY_RESOLUTION_S = 24 * 60 * 60
 MAX_QUERY_POINTS = 10_000
 MAX_QUERY_SERIES = 500
 FORBIDDEN_METRIC_LABEL_KEYS = frozenset(
-    {"run_id", "span_id", "trace_id", "artifact_id", "principal_id"}
+    {"run_id", "producer_run_id", "span_id", "trace_id", "artifact_id", "principal_id"}
 )
 METRIC_UNITS = frozenset(
     {"1", "count", "ratio", "token", "request", "step", "ns", "ms", "s", "byte"}
@@ -224,7 +224,24 @@ class SpanDataV1(_FrozenModel):
     def _status_error_pair(self) -> SpanDataV1:
         if self.error is not None and self.status != "error":
             raise ValueError("span error details require error status")
+        for key in ("run_id", "producer_run_id"):
+            if key not in self.attributes:
+                continue
+            value = self.attributes[key]
+            if not isinstance(value, str) or not 1 <= len(value) <= 512:
+                raise ValueError(f"span {key} must be a non-empty bounded string")
         return self
+
+
+def span_run_ids(span: SpanDataV1) -> tuple[str, ...]:
+    """Return every authoritative Run correlation carried by a span."""
+
+    values = {
+        value
+        for key in ("run_id", "producer_run_id")
+        if isinstance((value := span.attributes.get(key)), str) and value
+    }
+    return tuple(sorted(values))
 
 
 class TimeRangeV1(_FrozenModel):
@@ -748,10 +765,23 @@ class TraceQueryStore(Protocol):
 
     def get(self, trace_id: str, span_id: str) -> SpanDataV1 | None: ...
 
-    def query_traces(self, query: TraceQueryV1) -> TraceSummaryPageV1: ...
+    def query_traces(
+        self,
+        query: TraceQueryV1,
+        *,
+        run_scope_mode: Literal["domainless_only", "run_allowlist"] | None = None,
+        allowed_run_ids: Sequence[str] = (),
+    ) -> TraceSummaryPageV1: ...
 
     def page_spans(
-        self, trace_id: str, *, cursor: str | None, limit: int, authz_fingerprint: str
+        self,
+        trace_id: str,
+        *,
+        cursor: str | None,
+        limit: int,
+        authz_fingerprint: str,
+        run_scope_mode: Literal["domainless_only", "run_allowlist"] | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> SpanPageV1: ...
 
 
@@ -828,4 +858,5 @@ __all__ = [
     "TraceSummaryV1",
     "compute_metric_descriptor_digest",
     "compute_metric_registry_digest",
+    "span_run_ids",
 ]

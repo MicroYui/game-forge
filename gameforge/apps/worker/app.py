@@ -35,6 +35,7 @@ import math
 import os
 from pathlib import Path
 import re
+import secrets
 from urllib.parse import unquote
 
 from alembic.runtime.migration import MigrationContext
@@ -67,6 +68,7 @@ from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
 from gameforge.runtime.observability.local_store import LocalTelemetryStore
+from gameforge.runtime.observability.logs import StructuredLogger
 from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, DEFAULT_URL, get_engine
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.audit import SqlAuditSink
@@ -396,6 +398,7 @@ class WorkerRuntime:
     object_store: LocalObjectStore
     telemetry_store: LocalTelemetryStore
     tracer: Tracer
+    logger: StructuredLogger
     executor_pool: ThreadedBlockingExecutorPool
     control_pool: ControlPlanePool
     heartbeat_pool: ControlPlanePool
@@ -507,6 +510,12 @@ def build_worker_runtime(
             sampler=AlwaysOnSampler(),
             resource={"service.name": "gameforge-worker"},
         )
+        logger = StructuredLogger(
+            service="gameforge-worker",
+            store=telemetry_store,
+            clock=clock,
+            id_generator=lambda: f"log:{secrets.token_hex(16)}",
+        )
         executor_pool = ThreadedBlockingExecutorPool(
             max_workers=config.max_workers,
             max_concurrency=config.max_concurrency,
@@ -523,6 +532,7 @@ def build_worker_runtime(
             object_store=object_store,
             telemetry_store=telemetry_store,
             tracer=tracer,
+            logger=logger,
             executor_pool=executor_pool,
             control_pool=control_pool,
             heartbeat_pool=heartbeat_pool,

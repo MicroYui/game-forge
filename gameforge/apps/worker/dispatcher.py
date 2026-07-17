@@ -42,6 +42,7 @@ from gameforge.platform.runs.lifecycle import (
 )
 from gameforge.runtime.observability import Tracer
 from gameforge.runtime.observability.context import TraceCarrier, use_trace_context
+from gameforge.runtime.observability.logs import StructuredLogger
 
 
 ReaperScan = Callable[..., Sequence[RunRecord]]
@@ -81,6 +82,7 @@ class RunDispatcher:
         reaper_actor: AuditActor,
         lease_duration_ns: int,
         tracer: Tracer,
+        logger: StructuredLogger,
         heartbeat_interval_s: float = 5.0,
         reaper_limit: int = 32,
         poll_interval_s: float = 1.0,
@@ -107,6 +109,7 @@ class RunDispatcher:
         self._reaper_actor = reaper_actor
         self._lease_duration_ns = lease_duration_ns
         self._tracer = tracer
+        self._logger = logger
         self._heartbeat_interval_s = heartbeat_interval_s
         self._reaper_limit = reaper_limit
         self._poll_interval_s = poll_interval_s
@@ -311,6 +314,17 @@ class RunDispatcher:
                 trace_id = None if span.context is None else span.context.trace_id
                 started = await self._control_pool.run(lambda: self._start(claim, trace_id))
                 run, attempt, lease = started.run, started.attempt, started.lease
+                self._logger.log(
+                    level="info",
+                    event_name="worker.attempt.started",
+                    message="Worker attempt started.",
+                    run_id=run.run_id,
+                    fields={
+                        "attempt_no": attempt.attempt_no,
+                        "run_kind": run.kind.kind,
+                        "run_kind_version": run.kind.version,
+                    },
+                )
                 heartbeat = self._heartbeat_factory(run=run, attempt=attempt, lease=lease)
                 heartbeat_stop = asyncio.Event()
                 heartbeat_task = asyncio.create_task(

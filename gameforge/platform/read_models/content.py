@@ -406,10 +406,25 @@ def _payload_binding(
     provider: ArtifactPayloadBindingProvider,
     artifact: ArtifactV2,
 ) -> TrustedArtifactPayloadBinding:
-    value = provider.resolve(artifact.artifact_id)
-    if type(value) is not TrustedArtifactPayloadBinding:
+    value = _optional_payload_binding(provider, artifact)
+    if value is None:
         raise IntegrityViolation(
             "trusted Artifact payload binding is unavailable",
+            artifact_id=artifact.artifact_id,
+        )
+    return value
+
+
+def _optional_payload_binding(
+    provider: ArtifactPayloadBindingProvider,
+    artifact: ArtifactV2,
+) -> TrustedArtifactPayloadBinding | None:
+    value = provider.resolve(artifact.artifact_id)
+    if value is None:
+        return None
+    if type(value) is not TrustedArtifactPayloadBinding:
+        raise IntegrityViolation(
+            "trusted Artifact payload binding is invalid",
             artifact_id=artifact.artifact_id,
         )
     if (
@@ -1115,7 +1130,7 @@ class _ContentReadOperations:
         limit: int,
     ) -> PageV1[LineageEntryV1]:
         limit = _page_limit(limit)
-        root, root_permission = self._load_authorized_artifact(
+        root, _ = self._load_authorized_artifact(
             principal,
             artifact_id,
             resource_kind="artifact",
@@ -1128,11 +1143,12 @@ class _ContentReadOperations:
             projection="lineage-entry@1",
             page_size=limit,
         )
+        collection_permission = _collection_permission("artifact")
         query_authorization = self._authorization.filter_collection(
             principal=principal,
             candidates=(),
-            collection_permission=root_permission,
-            permission_for=lambda _: root_permission,
+            collection_permission=collection_permission,
+            permission_for=lambda _: collection_permission,
             query_hash=query,
         )
         read_binding = ReadPageBinding(
@@ -1170,7 +1186,7 @@ class _ContentReadOperations:
         authorized = self._authorization.filter_collection(
             principal=principal,
             candidates=source_entries,
-            collection_permission=root_permission,
+            collection_permission=collection_permission,
             permission_for=lambda value: permissions[value.artifact_id],
             query_hash=query,
         )
@@ -1218,11 +1234,17 @@ class _ContentReadOperations:
             projection="ref-history-entry@1",
             page_size=limit,
         )
+        self._authorization.require_singular(
+            principal=principal,
+            permission=current_permission,
+            query_hash=query,
+        )
+        collection_permission = _collection_permission("ref")
         query_authorization = self._authorization.filter_collection(
             principal=principal,
             candidates=(),
-            collection_permission=current_permission,
-            permission_for=lambda _: current_permission,
+            collection_permission=collection_permission,
+            permission_for=lambda _: collection_permission,
             query_hash=query,
         )
         read_binding = ReadPageBinding(
@@ -1264,7 +1286,7 @@ class _ContentReadOperations:
         authorized = self._authorization.filter_collection(
             principal=principal,
             candidates=history,
-            collection_permission=current_permission,
+            collection_permission=collection_permission,
             permission_for=lambda value: permissions[value.revision],
             query_hash=query,
         )
@@ -1487,7 +1509,8 @@ class _ContentReadOperations:
     def _summary_schema(self, artifact: ArtifactWire) -> str | None:
         if type(artifact) is ArtifactV1:
             return None
-        return _payload_binding(self._bindings, artifact).payload_schema_id
+        binding = _optional_payload_binding(self._bindings, artifact)
+        return None if binding is None else binding.payload_schema_id
 
     def _spec_binding(self, artifact: ArtifactWire) -> SpecReadBinding:
         value = self._capabilities.specs.resolve(artifact.artifact_id)

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 import sqlite3
+import threading
 
 import pytest
+
+import gameforge.runtime.observability.local_store as local_store_module
 
 from gameforge.contracts.errors import (
     CursorExpired,
@@ -398,6 +402,258 @@ def test_v2_cursor_distinguishes_query_principal_and_authz_changes(tmp_path: Pat
         )
 
 
+def test_log_run_scope_filters_before_paging_and_binds_cursor(tmp_path: Path) -> None:
+    store = _store(tmp_path / "telemetry.sqlite3", _Clock(NOW))
+    runless = _log(1).model_copy(update={"run_id": None})
+    run_a = _log(2).model_copy(update={"run_id": "run:A"})
+    producer_b = _log(3).model_copy(update={"run_id": None, "producer_run_id": "run:B"})
+    cross_domain = _log(4).model_copy(update={"run_id": "run:A", "producer_run_id": "run:B"})
+    for record in (runless, run_a, producer_b, cross_domain):
+        store.append(record)
+    query = _log_query(limit=1)
+    principal = "1" * 64
+
+    domainless = store.query_logs(
+        query,
+        principal_binding=principal,
+        run_scope_mode="domainless_only",
+    )
+    assert tuple(item.record for item in domainless.items) == (runless,)
+    assert domainless.next_cursor is None
+
+    first = store.query_logs(
+        query,
+        principal_binding=principal,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.record for item in first.items) == (runless,)
+    assert first.next_cursor is not None
+    second = store.query_logs(
+        query.model_copy(update={"cursor": first.next_cursor}),
+        principal_binding=principal,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.record for item in second.items) == (run_a,)
+    assert second.next_cursor is None
+
+    with pytest.raises(CursorInvalid):
+        store.query_logs(
+            query.model_copy(update={"cursor": first.next_cursor}),
+            principal_binding=principal,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:B",),
+        )
+
+
+def test_log_scope_includes_frozen_trace_run_membership(tmp_path: Path) -> None:
+    store = _store(tmp_path / "log-trace-scope.sqlite3", _Clock(NOW))
+    trace_a = _span(10, trace_id="a" * 32).model_copy(update={"attributes": {"run_id": "run:A"}})
+    trace_ab = _span(11, trace_id="b" * 32).model_copy(
+        update={"attributes": {"run_id": "run:A", "producer_run_id": "run:B"}}
+    )
+    store.put(trace_a)
+    store.put(trace_ab)
+    log_a = _log(10).model_copy(
+        update={"run_id": None, "trace_id": trace_a.trace_id, "span_id": trace_a.span_id}
+    )
+    log_ab = _log(11).model_copy(
+        update={"run_id": None, "trace_id": trace_ab.trace_id, "span_id": trace_ab.span_id}
+    )
+    store.append(log_a)
+    store.append(log_ab)
+    query = _log_query()
+
+    assert (
+        store.query_logs(
+            query,
+            run_scope_mode="domainless_only",
+        ).items
+        == ()
+    )
+    assert tuple(
+        item.record
+        for item in store.query_logs(
+            query,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A",),
+        ).items
+    ) == (log_a,)
+    assert tuple(
+        item.record
+        for item in store.query_logs(
+            query,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A", "run:B"),
+        ).items
+    ) == (log_a, log_ab)
+
+
+def test_scoped_log_query_excludes_orphan_trace_correlation(tmp_path: Path) -> None:
+    store = _store(tmp_path / "orphan-log.sqlite3", _Clock(NOW))
+    orphan = _log(12).model_copy(update={"run_id": None, "trace_id": "f" * 32, "span_id": "1" * 16})
+    store.append(orphan)
+
+    assert (
+        store.query_logs(
+            _log_query(),
+            run_scope_mode="domainless_only",
+        ).items
+        == ()
+    )
+
+
+def test_log_cursor_freezes_trace_scope_high_watermark(tmp_path: Path) -> None:
+    store = _store(tmp_path / "log-trace-cursor.sqlite3", _Clock(NOW))
+    trace_id = "c" * 32
+    span_a = _span(20, trace_id=trace_id).model_copy(update={"attributes": {"run_id": "run:A"}})
+    store.put(span_a)
+    logs = tuple(
+        _log(index).model_copy(
+            update={"run_id": None, "trace_id": trace_id, "span_id": span_a.span_id}
+        )
+        for index in (20, 21)
+    )
+    for record in logs:
+        store.append(record)
+    query = _log_query(limit=1)
+    first = store.query_logs(
+        query,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert first.next_cursor is not None
+
+    store.put(
+        _span(22, trace_id=trace_id).model_copy(update={"attributes": {"producer_run_id": "run:B"}})
+    )
+    second = store.query_logs(
+        query.model_copy(update={"cursor": first.next_cursor}),
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+
+    assert tuple(item.record for item in first.items + second.items) == logs
+    assert (
+        store.query_logs(
+            _log_query(),
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A",),
+        ).items
+        == ()
+    )
+
+
+def test_v1_local_telemetry_schema_migrates_trace_scope_watermark(tmp_path: Path) -> None:
+    path = tmp_path / "telemetry-v1.sqlite3"
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            """
+            CREATE TABLE read_snapshots (
+                snapshot_id TEXT PRIMARY KEY,
+                kind TEXT NOT NULL,
+                query_hash TEXT NOT NULL,
+                authz_fingerprint TEXT NOT NULL,
+                high_watermark INTEGER NOT NULL,
+                created_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                retention_fingerprint TEXT NOT NULL
+            ) WITHOUT ROWID
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO read_snapshots(
+                snapshot_id, kind, query_hash, authz_fingerprint,
+                high_watermark, created_at, expires_at, retention_fingerprint
+            ) VALUES (?, 'logs', ?, ?, 1, ?, ?, ?)
+            """,
+            (
+                "legacy-log-snapshot",
+                "a" * 64,
+                "b" * 64,
+                NOW.isoformat(),
+                (NOW + timedelta(minutes=5)).isoformat(),
+                "c" * 64,
+            ),
+        )
+        connection.execute("PRAGMA user_version=1")
+
+    store = _store(path, _Clock(NOW))
+    store.close()
+    with sqlite3.connect(path) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(read_snapshots)")}
+        version = connection.execute("PRAGMA user_version").fetchone()[0]
+        retained_legacy_logs = connection.execute(
+            "SELECT COUNT(*) FROM read_snapshots WHERE kind = 'logs'"
+        ).fetchone()[0]
+
+    assert "secondary_high_watermark" in columns
+    assert version == 2
+    assert retained_legacy_logs == 0
+
+
+def test_v1_schema_migration_is_safe_under_concurrent_initialization(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = tmp_path / "telemetry-v1-concurrent.sqlite3"
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            """
+            CREATE TABLE read_snapshots (
+                snapshot_id TEXT PRIMARY KEY,
+                kind TEXT NOT NULL,
+                query_hash TEXT NOT NULL,
+                authz_fingerprint TEXT NOT NULL,
+                high_watermark INTEGER NOT NULL,
+                created_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                retention_fingerprint TEXT NOT NULL
+            ) WITHOUT ROWID
+            """
+        )
+        connection.execute("PRAGMA user_version=1")
+
+    real_connect = sqlite3.connect
+    unlocked_version_reads = threading.Barrier(2)
+
+    class _CoordinatedConnection:
+        def __init__(self, connection: sqlite3.Connection) -> None:
+            self._connection = connection
+
+        def execute(self, statement: str, *args: object):
+            result = self._connection.execute(statement, *args)
+            if statement.strip() == "PRAGMA user_version" and not self._connection.in_transaction:
+                unlocked_version_reads.wait(timeout=5)
+            return result
+
+        def __getattr__(self, name: str):
+            return getattr(self._connection, name)
+
+    def _connect(*args: object, **kwargs: object) -> _CoordinatedConnection:
+        return _CoordinatedConnection(real_connect(*args, **kwargs))
+
+    monkeypatch.setattr(local_store_module.sqlite3, "connect", _connect)
+
+    def _open_and_close() -> None:
+        store = _store(path, _Clock(NOW))
+        store.close()
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = tuple(executor.submit(_open_and_close) for _ in range(2))
+        for future in futures:
+            future.result(timeout=10)
+
+    with real_connect(path) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(read_snapshots)")}
+        version = connection.execute("PRAGMA user_version").fetchone()[0]
+
+    assert "secondary_high_watermark" in columns
+    assert version == 2
+
+
 def test_local_exact_trace_summary_log_filters_and_descriptor_resolution(
     tmp_path: Path,
 ) -> None:
@@ -719,3 +975,158 @@ def test_active_run_trace_cursor_pins_old_spans_until_snapshot_expiry(tmp_path: 
 
     assert retained.deleted_spans == 0
     assert [item.trace_id for item in first.items + second.items] == ["1" * 32, "2" * 32]
+
+
+def test_trace_scope_includes_run_and_producer_run_correlations(tmp_path: Path) -> None:
+    store = _store(tmp_path / "trace-scope.sqlite3", _Clock(NOW))
+    producer_only = _span(1, trace_id="1" * 32).model_copy(
+        update={"attributes": {"producer_run_id": "run:B"}}
+    )
+    cross_domain = _span(2, trace_id="2" * 32).model_copy(
+        update={"attributes": {"run_id": "run:A", "producer_run_id": "run:B"}}
+    )
+    store.put(producer_only)
+    store.put(cross_domain)
+
+    assert store.get_trace_summary(producer_only.trace_id).run_ids == ("run:B",)
+    assert store.get_trace_summary(cross_domain.trace_id).run_ids == ("run:A", "run:B")
+    page = store.page_run_traces(
+        "run:B",
+        cursor=None,
+        limit=10,
+        authz_fingerprint="a" * 64,
+    )
+    assert tuple(item.trace_id for item in page.items) == (
+        producer_only.trace_id,
+        cross_domain.trace_id,
+    )
+
+
+def test_span_scope_is_checked_at_snapshot_and_bound_to_cursor(tmp_path: Path) -> None:
+    store = _store(tmp_path / "span-scope.sqlite3", _Clock(NOW))
+    trace_id = "d" * 32
+    runless = _span(30, trace_id=trace_id).model_copy(update={"attributes": {}})
+    run_a = _span(31, trace_id=trace_id).model_copy(update={"attributes": {"run_id": "run:A"}})
+    store.put(runless)
+    store.put(run_a)
+
+    first = store.page_spans(
+        trace_id,
+        cursor=None,
+        limit=1,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert first.next_cursor is not None
+    second = store.page_spans(
+        trace_id,
+        cursor=first.next_cursor,
+        limit=1,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.span for item in first.items + second.items) == (runless, run_a)
+
+    with pytest.raises(CursorInvalid):
+        store.page_spans(
+            trace_id,
+            cursor=first.next_cursor,
+            limit=1,
+            authz_fingerprint="a" * 64,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:B",),
+        )
+
+    race_trace_id = "e" * 32
+    store.put(
+        _span(32, trace_id=race_trace_id).model_copy(update={"attributes": {"run_id": "run:A"}})
+    )
+    store.put(
+        _span(33, trace_id=race_trace_id).model_copy(
+            update={"attributes": {"producer_run_id": "run:B"}}
+        )
+    )
+    with pytest.raises(IntegrityViolation, match="scope changed"):
+        store.page_spans(
+            race_trace_id,
+            cursor=None,
+            limit=10,
+            authz_fingerprint="a" * 64,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A",),
+        )
+
+
+def test_run_trace_scope_filters_whole_traces_before_paging(tmp_path: Path) -> None:
+    store = _store(tmp_path / "run-trace-scope.sqlite3", _Clock(NOW))
+    a_only = _span(40, trace_id="4" * 32).model_copy(update={"attributes": {"run_id": "run:A"}})
+    a_only_second = _span(41, trace_id="5" * 32).model_copy(
+        update={"attributes": {"producer_run_id": "run:A"}}
+    )
+    cross = _span(42, trace_id="6" * 32).model_copy(
+        update={"attributes": {"run_id": "run:A", "producer_run_id": "run:B"}}
+    )
+    for span in (a_only, a_only_second, cross):
+        store.put(span)
+
+    assert store.get_run_trace_scope("run:A") == ("run:A", "run:B")
+    first = store.page_run_traces(
+        "run:A",
+        cursor=None,
+        limit=1,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert first.next_cursor is not None
+    second = store.page_run_traces(
+        "run:A",
+        cursor=first.next_cursor,
+        limit=1,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.trace_id for item in first.items + second.items) == (
+        a_only.trace_id,
+        a_only_second.trace_id,
+    )
+
+    with pytest.raises(CursorInvalid):
+        store.page_run_traces(
+            "run:A",
+            cursor=first.next_cursor,
+            limit=1,
+            authz_fingerprint="a" * 64,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A", "run:B"),
+        )
+    all_traces = store.page_run_traces(
+        "run:A",
+        cursor=None,
+        limit=10,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A", "run:B"),
+    )
+    assert tuple(item.trace_id for item in all_traces.items) == (
+        a_only.trace_id,
+        a_only_second.trace_id,
+        cross.trace_id,
+    )
+
+    trace_query = _trace_query(limit=1)
+    trace_first = store.query_traces(
+        trace_query,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert trace_first.next_cursor is not None
+    with pytest.raises(CursorInvalid):
+        store.query_traces(
+            trace_query.model_copy(update={"cursor": trace_first.next_cursor}),
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A", "run:B"),
+        )

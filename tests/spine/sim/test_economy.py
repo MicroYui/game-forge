@@ -15,7 +15,13 @@ Two inline scenarios built directly from Entity/Relation +
 
 from __future__ import annotations
 
+import json
+
+import pytest
+
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
+from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
 from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.sim.economy import (
@@ -33,21 +39,31 @@ def _snap(entities, relations) -> Snapshot:
 def _balanced_snapshot() -> Snapshot:
     entities = [
         Entity(id="gold", type=NodeType.CURRENCY, attrs={"output_rate_cap": 50.0}),
-        Entity(id="m1", type=NodeType.MONSTER,
-               attrs={"gold_min": 5, "gold_max": 9, "kills_per_tick": 1}),
+        Entity(
+            id="m1",
+            type=NodeType.MONSTER,
+            attrs={"gold_min": 5, "gold_max": 9, "kills_per_tick": 1},
+        ),
         Entity(id="shop1", type=NodeType.SHOP, attrs={}),
         Entity(id="potion", type=NodeType.ITEM, attrs={}),
-        Entity(id="pool1", type=NodeType.GACHA_POOL,
-               attrs={"base_rate": 0.06, "pity_threshold": 90,
-                      "cost_per_draw": 3, "draw_prob": 0.0}),
+        Entity(
+            id="pool1",
+            type=NodeType.GACHA_POOL,
+            attrs={"base_rate": 0.06, "pity_threshold": 90, "cost_per_draw": 3, "draw_prob": 0.0},
+        ),
         Entity(id="eq_t1", type=NodeType.EQUIPMENT, attrs={"tier": 1, "power": 10}),
         Entity(id="eq_t2", type=NodeType.EQUIPMENT, attrs={"tier": 2, "power": 20}),
         Entity(id="eq_t3", type=NodeType.EQUIPMENT, attrs={"tier": 3, "power": 35}),
     ]
     relations = [
         Relation(id="r_drop_gold", type=EdgeType.DROPS_FROM, src_id="m1", dst_id="gold"),
-        Relation(id="r_sell_potion", type=EdgeType.SELLS, src_id="shop1", dst_id="potion",
-                  attrs={"price": 7, "currency": "gold", "buy_prob": 1.0}),
+        Relation(
+            id="r_sell_potion",
+            type=EdgeType.SELLS,
+            src_id="shop1",
+            dst_id="potion",
+            attrs={"price": 7, "currency": "gold", "buy_prob": 1.0},
+        ),
     ]
     return _snap(entities, relations)
 
@@ -55,8 +71,11 @@ def _balanced_snapshot() -> Snapshot:
 def _collapse_snapshot() -> Snapshot:
     entities = [
         Entity(id="gold", type=NodeType.CURRENCY, attrs={"output_rate_cap": 50.0}),
-        Entity(id="m1", type=NodeType.MONSTER,
-               attrs={"gold_min": 500, "gold_max": 1000, "kills_per_tick": 1}),
+        Entity(
+            id="m1",
+            type=NodeType.MONSTER,
+            attrs={"gold_min": 500, "gold_max": 1000, "kills_per_tick": 1},
+        ),
     ]
     relations = [
         Relation(id="r_drop_gold", type=EdgeType.DROPS_FROM, src_id="m1", dst_id="gold"),
@@ -74,6 +93,90 @@ def test_balanced_economy_has_no_collapse_and_is_seed_reproducible():
     assert all(inv.ok for inv in a.invariants), [
         (inv.name, inv.observed, inv.threshold) for inv in a.invariants if not inv.ok
     ]
+
+
+@pytest.mark.parametrize("buy_prob", (0.5, 1.0))
+def test_economy_decodes_schema_known_numbers_after_canonical_snapshot_roundtrip(
+    buy_prob: float,
+) -> None:
+    snapshot = _balanced_snapshot()
+    relation = snapshot.relations["r_sell_potion"]
+    snapshot = Snapshot.from_entities_relations(
+        snapshot.entities.values(),
+        (
+            *(item for item in snapshot.relations.values() if item.id != relation.id),
+            relation.model_copy(update={"attrs": {**relation.attrs, "buy_prob": buy_prob}}),
+        ),
+    )
+    wire = json.loads(canonical_json(snapshot.content_payload))
+    restored = snapshot_from_canonical_view(wire)
+
+    model = EconomyModel.from_snapshot(restored)
+
+    assert model.sinks[0]["buy_prob"] == buy_prob
+    assert model.currencies["gold"]["output_rate_cap"] == 50.0
+    assert model.gacha is not None
+    assert model.gacha["base_rate"] == 0.06
+    result = EconomySimulator().run(model, seed=7, n_agents=10, n_ticks=20)
+    assert len(result.invariants) == 6
+    if buy_prob == 1.0:
+        assert all(check.ok for check in result.invariants)
+
+
+@pytest.mark.parametrize(
+    "output_rate_cap",
+    (
+        float.fromhex("0x0.0000000000001p-1022"),
+        float.fromhex("0x1.fffffffffffffp+1023"),
+    ),
+)
+def test_economy_accepts_full_finite_float_range_after_canonical_roundtrip(
+    output_rate_cap: float,
+) -> None:
+    snapshot = _balanced_snapshot()
+    currency = snapshot.entities["gold"]
+    snapshot = Snapshot.from_entities_relations(
+        (
+            *(item for item in snapshot.entities.values() if item.id != currency.id),
+            currency.model_copy(
+                update={"attrs": {**currency.attrs, "output_rate_cap": output_rate_cap}}
+            ),
+        ),
+        snapshot.relations.values(),
+    )
+    restored = snapshot_from_canonical_view(json.loads(canonical_json(snapshot.content_payload)))
+
+    assert EconomyModel.from_snapshot(restored).currencies["gold"]["output_rate_cap"] == (
+        output_rate_cap
+    )
+
+
+@pytest.mark.parametrize(
+    "invalid",
+    (
+        "f:1.0",
+        "f:NaN",
+        "f:sNaN",
+        "f:1E-1000000000",
+        "f:" + "9" * 400,
+        "f:0." + "0" * 400 + "1",
+        "0.5",
+        True,
+    ),
+)
+def test_economy_rejects_invalid_canonical_numeric_attributes(invalid: object) -> None:
+    snapshot = _balanced_snapshot()
+    relation = snapshot.relations["r_sell_potion"]
+    forged = Snapshot.from_entities_relations(
+        snapshot.entities.values(),
+        (
+            *(item for item in snapshot.relations.values() if item.id != relation.id),
+            relation.model_copy(update={"attrs": {**relation.attrs, "buy_prob": invalid}}),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="buy_prob"):
+        EconomyModel.from_snapshot(forged)
 
 
 def test_balanced_economy_different_seed_can_differ():
@@ -94,10 +197,7 @@ def test_reproduces_one_collapse_with_early_warning():
     assert rep.early_warning_tick < rep.collapse_tick
 
     fs = to_findings(res, "sha256:collapse-snap")
-    assert any(
-        f.defect_class == "economy_collapse" and f.oracle_type == "simulation"
-        for f in fs
-    )
+    assert any(f.defect_class == "economy_collapse" and f.oracle_type == "simulation" for f in fs)
 
 
 def test_collapse_is_seed_reproducible():
@@ -132,7 +232,8 @@ def test_collapse_finding_carries_faucet_entities_when_model_given():
     res = EconomySimulator().run(model, seed=1, n_agents=50, n_ticks=200)
 
     with_model = next(
-        f for f in to_findings(res, "sha256:collapse-snap", model=model)
+        f
+        for f in to_findings(res, "sha256:collapse-snap", model=model)
         if f.defect_class == "economy_collapse"
     )
     producers = {s["producer"] for s in model.sources}
@@ -140,8 +241,7 @@ def test_collapse_finding_carries_faucet_entities_when_model_given():
     assert producers.issubset(set(with_model.entities))
 
     without_model = next(
-        f for f in to_findings(res, "sha256:collapse-snap")
-        if f.defect_class == "economy_collapse"
+        f for f in to_findings(res, "sha256:collapse-snap") if f.defect_class == "economy_collapse"
     )
     assert without_model.entities == []
 
@@ -175,22 +275,45 @@ def _econ_workbook(gold_min, gold_max, sink_price, buy_prob):
     # sink (SELLS with price/currency/buy_prob). Region+npc keep the snapshot
     # well-formed for to_graph.
     return {
-        "regions": [{"region_id": "region:r", "name": "R",
-                     "grid": {"width": 4, "height": 4, "blocked": []},
-                     "start_pos": [0, 0], "scenario_id": "sc"}],
+        "regions": [
+            {
+                "region_id": "region:r",
+                "name": "R",
+                "grid": {"width": 4, "height": 4, "blocked": []},
+                "start_pos": [0, 0],
+                "scenario_id": "sc",
+            }
+        ],
         "npcs": [{"npc_id": "npc:a", "name": "A", "region": "region:r", "pos": [1, 0]}],
         "currencies": [{"currency_id": "gold", "name": "Gold"}],
         "items": [{"item_id": "item:potion", "name": "Potion"}],
-        "monsters": [{
-            "monster_id": "m:wolf", "name": "Wolf",
-            "stats": {"atk": 1, "def": 1, "hp": 1}, "skills": None,
-            "drop_table_id": None, "ai": "aggressive",
-            "gold_min": gold_min, "gold_max": gold_max,
-            "currency": "gold", "kills_per_tick": 1,
-        }],
-        "shops": [{"shop_id": "shop:s", "entries": [
-            {"currency": "gold", "item": "item:potion",
-             "price": sink_price, "buy_prob": buy_prob}]}],
+        "monsters": [
+            {
+                "monster_id": "m:wolf",
+                "name": "Wolf",
+                "stats": {"atk": 1, "def": 1, "hp": 1},
+                "skills": None,
+                "drop_table_id": None,
+                "ai": "aggressive",
+                "gold_min": gold_min,
+                "gold_max": gold_max,
+                "currency": "gold",
+                "kills_per_tick": 1,
+            }
+        ],
+        "shops": [
+            {
+                "shop_id": "shop:s",
+                "entries": [
+                    {
+                        "currency": "gold",
+                        "item": "item:potion",
+                        "price": sink_price,
+                        "buy_prob": buy_prob,
+                    }
+                ],
+            }
+        ],
     }
 
 
@@ -199,8 +322,7 @@ def _model_from_wb(wb):
 
 
 def test_adapter_derived_model_has_nonempty_sink():
-    model = _model_from_wb(_econ_workbook(gold_min=5, gold_max=9,
-                                          sink_price=50, buy_prob=0.5))
+    model = _model_from_wb(_econ_workbook(gold_min=5, gold_max=9, sink_price=50, buy_prob=0.5))
     assert model.sources, "faucet must be modeled from CSV"
     assert model.sinks, "sink must now be modeled from CSV (the fix)"
     sink = model.sinks[0]
@@ -212,10 +334,10 @@ def test_adapter_sink_causally_prevents_collapse():
     # no collapse. Runaway: same shape but a huge faucet the sink can't absorb
     # -> collapse. The ONLY difference is faucet size, so the sink is proven
     # causally load-bearing (not a measured no-op).
-    balanced = _model_from_wb(_econ_workbook(gold_min=5, gold_max=9,
-                                             sink_price=50, buy_prob=1.0))
-    runaway = _model_from_wb(_econ_workbook(gold_min=500, gold_max=1000,
-                                            sink_price=50, buy_prob=1.0))
+    balanced = _model_from_wb(_econ_workbook(gold_min=5, gold_max=9, sink_price=50, buy_prob=1.0))
+    runaway = _model_from_wb(
+        _econ_workbook(gold_min=500, gold_max=1000, sink_price=50, buy_prob=1.0)
+    )
     rb = EconomySimulator().run(balanced, seed=0, n_agents=50, n_ticks=200)
     rr = EconomySimulator().run(runaway, seed=0, n_agents=50, n_ticks=200)
     assert detect_collapse(rb) is None, "balanced faucet+sink must not collapse"

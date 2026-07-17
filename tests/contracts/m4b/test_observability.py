@@ -28,6 +28,7 @@ from gameforge.contracts.observability import (
     TraceSummaryPageV1,
     compute_metric_descriptor_digest,
     compute_metric_registry_digest,
+    span_run_ids,
 )
 
 
@@ -103,7 +104,57 @@ def test_span_keeps_utc_timestamps_and_monotonic_duration_separate() -> None:
     assert span.duration_ns == 17
 
 
-@pytest.mark.parametrize("label", ["run_id", "span_id", "artifact_id", "principal_id"])
+@pytest.mark.parametrize("key", ["run_id", "producer_run_id"])
+@pytest.mark.parametrize("value", [None, 1, "", "x" * 513])
+def test_span_reserved_run_scope_attributes_are_typed_and_bounded(
+    key: str,
+    value: object,
+) -> None:
+    with pytest.raises(ValidationError, match=f"span {key}"):
+        SpanDataV1(
+            trace_id="1" * 32,
+            span_id="2" * 16,
+            parent_span_id=None,
+            name="checker",
+            attributes={key: value},
+            links=(),
+            events=(),
+            status="ok",
+            error=None,
+            resource={"service.name": "gameforge-test"},
+            started_at=NOW,
+            ended_at=NOW,
+            duration_ns=0,
+        )
+
+
+def test_span_run_ids_unions_and_deduplicates_both_correlations() -> None:
+    span = SpanDataV1(
+        trace_id="1" * 32,
+        span_id="2" * 16,
+        parent_span_id=None,
+        name="checker",
+        attributes={"run_id": "run:B", "producer_run_id": "run:A"},
+        links=(),
+        events=(),
+        status="ok",
+        error=None,
+        resource={"service.name": "gameforge-test"},
+        started_at=NOW,
+        ended_at=NOW,
+        duration_ns=0,
+    )
+
+    assert span_run_ids(span) == ("run:A", "run:B")
+    assert span_run_ids(
+        span.model_copy(update={"attributes": {"run_id": "run:A", "producer_run_id": "run:A"}})
+    ) == ("run:A",)
+
+
+@pytest.mark.parametrize(
+    "label",
+    ["run_id", "producer_run_id", "span_id", "artifact_id", "principal_id"],
+)
 def test_metric_descriptors_reject_forbidden_high_cardinality_labels(label: str) -> None:
     with pytest.raises(ValidationError, match="high-cardinality"):
         _descriptor(label_keys=(label,))

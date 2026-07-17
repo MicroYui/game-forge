@@ -19,7 +19,9 @@ n_agents, n_ticks)` always reproduces bit-identical `distributions`.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from decimal import Decimal, DecimalException
 import math
+import re
 from typing import Any
 
 from gameforge.contracts.findings import Finding
@@ -48,6 +50,60 @@ _DROP_PRODUCER_TYPES = frozenset(
         NodeType.BATTLE_ENCOUNTER,
     }
 )
+_MAX_CANONICAL_FLOAT_CHARS = 384
+_CANONICAL_FLOAT_RE = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]*[1-9])?\Z")
+
+
+def _numeric_attr(
+    value: object,
+    *,
+    field_name: str,
+    integer: bool = False,
+    minimum: float | None = None,
+    maximum: float | None = None,
+) -> int | float:
+    """Decode one schema-known IR number, including canonical ``f:`` wire values."""
+
+    number: int | float
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a number, not a boolean")
+    if isinstance(value, int):
+        number = value
+    elif isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError(f"{field_name} must be finite")
+        number = value
+    elif isinstance(value, str) and value.startswith("f:"):
+        raw = value.removeprefix("f:")
+        if (
+            not raw
+            or len(raw) > _MAX_CANONICAL_FLOAT_CHARS
+            or _CANONICAL_FLOAT_RE.fullmatch(raw) is None
+        ):
+            raise ValueError(f"{field_name} has an invalid canonical float")
+        try:
+            decimal = Decimal(raw)
+            number = float(decimal)
+        except (DecimalException, OverflowError, ValueError) as exc:
+            raise ValueError(f"{field_name} has an invalid canonical float") from exc
+        if not math.isfinite(number):
+            raise ValueError(f"{field_name} must use a finite canonical float")
+        roundtrip = format(Decimal(str(number)).normalize(), "f")
+        if raw != roundtrip:
+            raise ValueError(f"{field_name} must use a canonical float representation")
+    else:
+        raise ValueError(f"{field_name} must be an integer, float, or canonical f: value")
+    if isinstance(number, float) and not math.isfinite(number):
+        raise ValueError(f"{field_name} must remain finite after canonical decoding")
+    if integer:
+        if isinstance(number, float) and not number.is_integer():
+            raise ValueError(f"{field_name} must be an integer")
+        number = int(number)
+    if minimum is not None and number < minimum:
+        raise ValueError(f"{field_name} must be at least {minimum}")
+    if maximum is not None and number > maximum:
+        raise ValueError(f"{field_name} must be at most {maximum}")
+    return number
 
 
 @dataclass
@@ -64,7 +120,16 @@ class EconomyModel:
     def from_snapshot(cls, snapshot: Snapshot) -> "EconomyModel":
         g = snapshot.to_graph()
 
-        currencies = {e.id: dict(e.attrs) for e in g.nodes_of_type(NodeType.CURRENCY)}
+        currencies: dict[str, dict[str, Any]] = {}
+        for entity in g.nodes_of_type(NodeType.CURRENCY):
+            attrs = dict(entity.attrs)
+            if "output_rate_cap" in attrs:
+                attrs["output_rate_cap"] = _numeric_attr(
+                    attrs["output_rate_cap"],
+                    field_name=f"{entity.id}.output_rate_cap",
+                    minimum=0,
+                )
+            currencies[entity.id] = attrs
         default_currency = next(iter(currencies), "gold")
 
         # --- sources: MONSTER/DROP_TABLE --DROPS_FROM--> CURRENCY ---
@@ -78,8 +143,24 @@ class EconomyModel:
             producer = g.get_node(r.src_id)
             if producer is None or producer.type not in _DROP_PRODUCER_TYPES:
                 continue
-            gold_min = producer.attrs.get("gold_min", 0)
-            gold_max = producer.attrs.get("gold_max", gold_min)
+            gold_min = _numeric_attr(
+                producer.attrs.get("gold_min", 0),
+                field_name=f"{producer.id}.gold_min",
+                integer=True,
+                minimum=0,
+            )
+            gold_max = _numeric_attr(
+                producer.attrs.get("gold_max", gold_min),
+                field_name=f"{producer.id}.gold_max",
+                integer=True,
+                minimum=gold_min,
+            )
+            kills_per_tick = _numeric_attr(
+                producer.attrs.get("kills_per_tick", 1),
+                field_name=f"{producer.id}.kills_per_tick",
+                integer=True,
+                minimum=0,
+            )
             sources.append(
                 {
                     "relation_id": r.id,
@@ -87,7 +168,7 @@ class EconomyModel:
                     "currency": r.dst_id,
                     "gold_min": gold_min,
                     "gold_max": gold_max,
-                    "kills_per_tick": producer.attrs.get("kills_per_tick", 1),
+                    "kills_per_tick": kills_per_tick,
                 }
             )
 
@@ -103,6 +184,17 @@ class EconomyModel:
             price = attrs.get("price")
             if price is None:
                 continue
+            price = _numeric_attr(
+                price,
+                field_name=f"{r.id}.price",
+                minimum=0,
+            )
+            buy_prob = _numeric_attr(
+                attrs.get("buy_prob", 0.5),
+                field_name=f"{r.id}.buy_prob",
+                minimum=0,
+                maximum=1,
+            )
             sinks.append(
                 {
                     "relation_id": r.id,
@@ -110,7 +202,7 @@ class EconomyModel:
                     "target": r.dst_id,
                     "price": price,
                     "currency": attrs.get("currency", default_currency),
-                    "buy_prob": attrs.get("buy_prob", 0.5),
+                    "buy_prob": buy_prob,
                 }
             )
 
@@ -120,10 +212,39 @@ class EconomyModel:
         pools = sorted(g.nodes_of_type(NodeType.GACHA_POOL), key=lambda e: e.id)
         if pools:
             pool = pools[0]
-            p = pool.attrs.get("base_rate")
-            n = pool.attrs.get("pity_threshold")
-            cost = pool.attrs.get("cost_per_draw", 0)
-            draw_prob = pool.attrs.get("draw_prob", 0.0)
+            raw_rate = pool.attrs.get("base_rate")
+            p = (
+                None
+                if raw_rate is None
+                else _numeric_attr(
+                    raw_rate,
+                    field_name=f"{pool.id}.base_rate",
+                    minimum=0,
+                    maximum=1,
+                )
+            )
+            raw_pity = pool.attrs.get("pity_threshold")
+            n = (
+                None
+                if raw_pity is None
+                else _numeric_attr(
+                    raw_pity,
+                    field_name=f"{pool.id}.pity_threshold",
+                    integer=True,
+                    minimum=1,
+                )
+            )
+            cost = _numeric_attr(
+                pool.attrs.get("cost_per_draw", 0),
+                field_name=f"{pool.id}.cost_per_draw",
+                minimum=0,
+            )
+            draw_prob = _numeric_attr(
+                pool.attrs.get("draw_prob", 0.0),
+                field_name=f"{pool.id}.draw_prob",
+                minimum=0,
+                maximum=1,
+            )
             expected = (1 - (1 - p) ** n) / p if p and n else None
             gacha = {
                 "pool_id": pool.id,
@@ -147,9 +268,30 @@ class EconomyModel:
 
         # --- equipment strength curve: EQUIPMENT entities sorted by tier ---
         equipment = sorted(
-            g.nodes_of_type(NodeType.EQUIPMENT), key=lambda e: e.attrs.get("tier", 0)
+            (
+                (
+                    _numeric_attr(
+                        entity.attrs.get("tier", 0),
+                        field_name=f"{entity.id}.tier",
+                        integer=True,
+                        minimum=0,
+                    ),
+                    entity,
+                )
+                for entity in g.nodes_of_type(NodeType.EQUIPMENT)
+            ),
+            key=lambda item: (item[0], item[1].id),
         )
-        equipment_curve = [float(e.attrs.get("power", 0.0)) for e in equipment]
+        equipment_curve = [
+            float(
+                _numeric_attr(
+                    entity.attrs.get("power", 0.0),
+                    field_name=f"{entity.id}.power",
+                    minimum=0,
+                )
+            )
+            for _tier, entity in equipment
+        ]
 
         return cls(
             currencies=currencies,

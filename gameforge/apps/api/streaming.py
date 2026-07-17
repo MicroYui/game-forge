@@ -52,6 +52,10 @@ from gameforge.apps.api.dependencies import (
     api_dependencies,
     require_actor,
 )
+from gameforge.apps.api.run_read_domain import (
+    ApprovalItemReader,
+    resolve_run_read_domain as _resolve_run_read_domain,
+)
 from gameforge.contracts.auth import ApiKeyAuthRequestV1, ApiKeySecret, SessionToken
 from gameforge.contracts.api import encode_sse_event
 from gameforge.contracts.canonical import canonical_sha256
@@ -67,22 +71,10 @@ from gameforge.contracts.errors import (
 from gameforge.contracts.identity import (
     ActorContext,
     DomainRegistryV1,
-    DomainScope,
-    DomainScopeValue,
     Permission,
     RolePolicy,
 )
-from gameforge.contracts.jobs import (
-    ConstraintProposalProposePayloadV1,
-    ConstraintValidationPayloadV1,
-    DrDrillPayloadV1,
-    GenerationProposePayloadV1,
-    PatchValidationPayloadV1,
-    RollbackValidationPayloadV1,
-    RunEvent,
-    RunRecord,
-)
-from gameforge.contracts.workflow import ApprovalItem
+from gameforge.contracts.jobs import RunEvent, RunRecord
 from gameforge.platform.read_models.authorization import (
     ReadAuthorizationService,
     ReadPolicyRepository,
@@ -122,12 +114,6 @@ class RunEventReadRepository(Protocol):
     ) -> tuple[RunEvent, ...]: ...
 
 
-class ApprovalItemReader(Protocol):
-    """Load one ApprovalItem by id — the validation subject's domain authority."""
-
-    def get(self, approval_id: str) -> ApprovalItem | None: ...
-
-
 @dataclass(frozen=True, slots=True)
 class RunEventReadScope:
     """One short read transaction's capabilities for a single stream operation."""
@@ -138,58 +124,6 @@ class RunEventReadScope:
 
 
 ReadScopeFactory = Callable[[], AbstractContextManager[RunEventReadScope]]
-
-
-def _all_active_domain_scope(registry: DomainRegistryV1) -> DomainScope:
-    active = tuple(
-        definition.domain_id for definition in registry.definitions if definition.status == "active"
-    )
-    if not active:
-        raise IntegrityViolation("domain registry has no active domain for run event read")
-    return DomainScope(domain_ids=active)
-
-
-def _resolve_run_read_domain(
-    run: RunRecord,
-    registry: DomainRegistryV1,
-    approvals: ApprovalItemReader | None,
-) -> DomainScopeValue:
-    """Return the admission-frozen Run domain, with a legacy-only fallback.
-
-    Current Runs persist the exact domain scope admission authorized in
-    ``RunRecord.resource_domain_scope``. Recomputing it from mutable ApprovalItems,
-    payloads, or a later domain registry makes authority drift and can deny the actor
-    that legitimately admitted the Run. The payload derivation below exists only for
-    historical records whose optional v0.3 compatibility field is absent:
-
-    * ``dr.drill`` is the sole domainless kind (admission marker ``None``) -> non-domain;
-    * validation kinds bind the loaded subject's ``ApprovalItem.domain_scope`` (the same
-      subject admission authorized against), loaded here via the subject ``approval_id``;
-    * generation / constraint-proposal carry an authoritative ``domain_scope``;
-    * every other kind exposes no per-Run domain binding yet -> fail-closed to authority
-      over every active registry domain (admission's identical posture).
-
-    Missing legacy validation subjects fall back to all active domains. New records never
-    enter that branch because admission freezes their resolved scope.
-    """
-
-    frozen_scope = getattr(run, "resource_domain_scope", None)
-    if frozen_scope is not None:
-        return frozen_scope
-    params = run.payload.params
-    if isinstance(params, DrDrillPayloadV1):
-        return None
-    if isinstance(
-        params,
-        (PatchValidationPayloadV1, ConstraintValidationPayloadV1, RollbackValidationPayloadV1),
-    ):
-        item = approvals.get(params.subject.approval_id) if approvals is not None else None
-        if isinstance(item, ApprovalItem):
-            return item.domain_scope
-        return _all_active_domain_scope(registry)
-    if isinstance(params, (GenerationProposePayloadV1, ConstraintProposalProposePayloadV1)):
-        return params.domain_scope
-    return _all_active_domain_scope(registry)
 
 
 class RunEventStreamService:

@@ -14,10 +14,13 @@ from gameforge.contracts.execution_profiles import (
     ResolvedExecutionProfileBindingV1,
 )
 from gameforge.contracts.identity import (
+    DomainDefinitionV1,
+    DomainRegistryV1,
     DomainRegistryRefV1,
     DomainRoutePolicyRefV1,
     DomainScope,
     Permission,
+    compute_domain_registry_digest,
 )
 from gameforge.contracts.lineage import (
     ArtifactV1,
@@ -37,6 +40,7 @@ from gameforge.contracts.workflow import (
     PatchTargetBindingV1,
     RollbackTargetBindingV1,
     SubjectHead,
+    ConstraintProposalV1,
 )
 from gameforge.platform.read_models.artifacts import VerifiedArtifactPayload
 from gameforge.platform.read_models.paging import ReadPageBinding
@@ -51,6 +55,7 @@ from gameforge.apps.api.content_persistence import (
     SqlImmutableArtifactPageProvider,
     SqlRefHistoryReadProvider,
 )
+from gameforge.apps.api.local_reads import _ArtifactDomainAuthority, _ArtifactDomainPayloadReader
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.models import Base, ReadSnapshotRow
@@ -314,6 +319,7 @@ def _publish_validated_patch(
     subject: ArtifactV1,
     evidence: ArtifactV1,
     series_id: str,
+    regression_evidence_artifact_ids: tuple[str, ...] = (),
 ) -> ApprovalItem:
     artifacts = _artifacts(session)
     artifacts.put(subject)
@@ -346,6 +352,7 @@ def _publish_validated_patch(
         workflow_revision=3,
         active_validation_run_id=None,
         evidence_set_artifact_id=evidence.artifact_id,
+        regression_evidence_artifact_ids=regression_evidence_artifact_ids,
     )
     approvals.compare_and_set_validation_completion(
         validating.approval_id,
@@ -723,8 +730,89 @@ def test_sql_approval_content_authority_rejects_subject_evidence_binding_conflic
             artifacts=artifacts,
         )
 
-        with pytest.raises(IntegrityViolation, match="both subject and EvidenceSet"):
+        with pytest.raises(IntegrityViolation, match="multiple ApprovalItem resource roles"):
             authority.for_artifact(conflicted, resource_kind="artifact")
+
+
+def test_sql_approval_content_authority_binds_regression_evidence_domain(
+    engine: Engine,
+) -> None:
+    subject = _artifact("patch:regression-owner", kind="patch", payload_hash="1" * 64)
+    evidence = _artifact(
+        "evidence:regression-owner",
+        kind="validation_evidence",
+        payload_hash="2" * 64,
+    )
+    regression = _artifact(
+        "regression:owned",
+        kind="regression_evidence",
+        payload_hash="3" * 64,
+    )
+    with Session(engine) as session, session.begin():
+        artifacts = _artifacts(session)
+        artifacts.put(regression)
+        approvals = SqlApprovalRepository(session)
+        item = _publish_validated_patch(
+            session,
+            approvals=approvals,
+            subject=subject,
+            evidence=evidence,
+            series_id="series:regression-owner",
+            regression_evidence_artifact_ids=(regression.artifact_id,),
+        )
+        authority = _approval_authority(
+            session,
+            approvals=approvals,
+            artifacts=artifacts,
+        )
+
+        permission = authority.for_artifact(regression, resource_kind="artifact")
+        with pytest.raises(IntegrityViolation, match="wrong-kind"):
+            authority.for_artifact(
+                regression.model_copy(update={"kind": "ir_snapshot"}),
+                resource_kind="artifact",
+            )
+
+    assert permission.domain_scope == item.domain_scope
+
+
+def test_sql_approval_content_authority_rejects_duplicate_regression_owners(
+    engine: Engine,
+) -> None:
+    regression = _artifact(
+        "regression:duplicate-owner",
+        kind="regression_evidence",
+        payload_hash="4" * 64,
+    )
+    with Session(engine) as session, session.begin():
+        artifacts = _artifacts(session)
+        artifacts.put(regression)
+        approvals = SqlApprovalRepository(session)
+        for index in (1, 2):
+            _publish_validated_patch(
+                session,
+                approvals=approvals,
+                subject=_artifact(
+                    f"patch:regression-owner:{index}",
+                    kind="patch",
+                    payload_hash=str(index + 4) * 64,
+                ),
+                evidence=_artifact(
+                    f"evidence:regression-owner:{index}",
+                    kind="validation_evidence",
+                    payload_hash=str(index + 6) * 64,
+                ),
+                series_id=f"series:regression-owner:{index}",
+                regression_evidence_artifact_ids=(regression.artifact_id,),
+            )
+        authority = _approval_authority(
+            session,
+            approvals=approvals,
+            artifacts=artifacts,
+        )
+
+        with pytest.raises(IntegrityViolation, match="multiple ApprovalItems"):
+            authority.for_artifact(regression, resource_kind="artifact")
 
 
 def test_sql_approval_content_authority_retains_superseded_patch_projection(
@@ -1006,6 +1094,129 @@ def test_approval_payload_binding_uses_subject_kind_without_client_schema(
     assert binding.artifact_id == artifact.artifact_id
     assert binding.artifact_kind == "patch"
     assert binding.payload_schema_id == "patch@2"
+
+
+def test_payload_binding_rejects_unbound_self_declared_artifact_schema(
+    engine: Engine,
+    tmp_path,
+) -> None:
+    store = LocalObjectStore(
+        tmp_path / "unbound-objects",
+        store_id="local:test",
+        clock=_clock(),
+        cursor_signing_key=SIGNING_KEY,
+    )
+    payload = canonical_json({"payload_schema_version": "regression-evidence@1"}).encode("utf-8")
+    stored = store.put_verified(payload)
+    artifact = build_artifact_v2(
+        kind="regression_evidence",
+        version_tuple=VersionTuple(tool_version="content-read-test@1"),
+        lineage=(),
+        payload_hash=stored.ref.sha256,
+        object_ref=stored.ref,
+        meta={"payload_schema_id": "regression-evidence@1"},
+    )
+
+    with Session(engine) as session, session.begin():
+        object_bindings = SqlObjectBindingRepository(session, store, "local:test")
+        object_bindings.bind_verified(stored.ref, stored.location, None)
+        artifacts = SqlArtifactRepository(
+            session,
+            binding_repository=object_bindings,
+            cursor_signer=_signer(),
+            clock=_clock(),
+        )
+        artifacts.put(artifact)
+        approvals = SqlApprovalRepository(session)
+        binding = SqlApprovalPayloadBindingProvider(
+            session,
+            approvals=approvals,
+            artifacts=artifacts,
+        ).resolve(artifact.artifact_id)
+
+    assert binding is None
+
+
+@pytest.mark.parametrize(
+    ("payload_domain", "mismatch"),
+    (("content", False), ("other", True)),
+)
+def test_trusted_workflow_schema_binds_constraint_payload_domain_without_metadata(
+    engine: Engine,
+    tmp_path,
+    payload_domain: str,
+    mismatch: bool,
+) -> None:
+    store = LocalObjectStore(
+        tmp_path / f"constraint-domain-{payload_domain}",
+        store_id="local:test",
+        clock=_clock(),
+        cursor_signing_key=SIGNING_KEY,
+    )
+    proposal = ConstraintProposalV1(
+        revision=1,
+        dsl_grammar_version="dsl@1",
+        domain_scope=DomainScope(domain_ids=(payload_domain,)),
+        constraints=(),
+        source_bindings=(),
+        produced_by="human",
+        producer_run_id=None,
+        rationale="domain binding test",
+    )
+    payload = canonical_json(proposal.model_dump(mode="json")).encode("utf-8")
+    stored = store.put_verified(payload)
+    artifact = build_artifact_v2(
+        kind="constraint_proposal",
+        version_tuple=VersionTuple(tool_version="content-read-test@1"),
+        lineage=(),
+        payload_hash=stored.ref.sha256,
+        object_ref=stored.ref,
+        meta={"domain_scope": DomainScope(domain_ids=("content",)).model_dump(mode="json")},
+    )
+    definitions = (
+        DomainDefinitionV1(domain_id="content", display_name="Content", status="active"),
+        DomainDefinitionV1(domain_id="other", display_name="Other", status="active"),
+    )
+    registry = DomainRegistryV1(
+        registry_version="constraint-domain-test@1",
+        definitions=definitions,
+        registry_digest=compute_domain_registry_digest(
+            "constraint-domain-test@1",
+            definitions,
+        ),
+    )
+
+    with Session(engine) as session, session.begin():
+        object_bindings = SqlObjectBindingRepository(session, store, "local:test")
+        object_bindings.bind_verified(stored.ref, stored.location, None)
+        artifacts = SqlArtifactRepository(
+            session,
+            binding_repository=object_bindings,
+            cursor_signer=_signer(),
+            clock=_clock(),
+        )
+        artifacts.put(artifact)
+        approvals = SqlApprovalRepository(session)
+        approvals.insert_draft(_constraint_approval(artifact.artifact_id, artifact.payload_hash))
+        payload_bindings = SqlApprovalPayloadBindingProvider(
+            session,
+            approvals=approvals,
+            artifacts=artifacts,
+        )
+        authority = _ArtifactDomainAuthority(
+            artifacts=artifacts,
+            registry=registry,
+            payloads=_ArtifactDomainPayloadReader(
+                object_bindings=object_bindings,
+                object_store=store,
+            ),
+            payload_bindings=payload_bindings,
+        )
+        if mismatch:
+            with pytest.raises(IntegrityViolation, match="typed payload domains disagree"):
+                authority.resolve(artifact)
+        else:
+            assert authority.resolve(artifact) == DomainScope(domain_ids=("content",))
 
 
 def test_lineage_traversal_is_stable_bounded_and_snapshot_retained(

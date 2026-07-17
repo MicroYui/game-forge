@@ -28,10 +28,11 @@ from gameforge.contracts.jobs import (
     RunLease,
 )
 from gameforge.contracts.lineage import AuditActor
-from gameforge.contracts.observability import TraceContextV1
+from gameforge.contracts.observability import LogRecordV1, TraceContextV1
 from gameforge.platform.runs.commands import RunClaimResult
 from gameforge.platform.runs.lifecycle import StartAttemptResult
 from gameforge.runtime.observability import AlwaysOnSampler, InMemoryExporter, TraceCarrier, Tracer
+from gameforge.runtime.observability.logs import StructuredLogger
 from tests.platform.m4c.test_terminal_publisher import (
     _attempt,
     _registry_and_definition,
@@ -103,6 +104,30 @@ class _Clock:
         from datetime import UTC, datetime
 
         return datetime(2026, 7, 14, 12, 0, 20, tzinfo=UTC)
+
+
+class _CapturingLogStore:
+    def __init__(self) -> None:
+        self.records: list[LogRecordV1] = []
+
+    def append(self, record: LogRecordV1) -> None:
+        self.records.append(record)
+
+
+def _structured_logger(store=None) -> StructuredLogger:
+    next_id = 0
+
+    def id_generator() -> str:
+        nonlocal next_id
+        next_id += 1
+        return f"log:test:{next_id}"
+
+    return StructuredLogger(
+        service="gameforge-worker",
+        store=store or _CapturingLogStore(),
+        clock=_Clock(),
+        id_generator=id_generator,
+    )
 
 
 class _FakeClaim:
@@ -218,6 +243,7 @@ def _dispatcher(
     on_contention=None,
     max_in_flight=1,
     tracer=None,
+    logger=None,
 ):
     return RunDispatcher(
         claim_service=_FakeClaim(claim_results),
@@ -235,6 +261,7 @@ def _dispatcher(
         on_contention=on_contention,
         max_in_flight=max_in_flight,
         tracer=tracer or Tracer(exporter=InMemoryExporter(capacity=32)),
+        logger=logger or _structured_logger(),
     )
 
 
@@ -305,6 +332,7 @@ def test_idle_iteration_returns_false_and_a_missed_hint_loses_nothing() -> None:
             lease_duration_ns=30_000_000_000,
             lease_id_factory=lambda: "lease:1",
             tracer=Tracer(exporter=InMemoryExporter(capacity=32)),
+            logger=_structured_logger(),
         )
         first = asyncio.run(dispatcher.dispatch_once())
         second = asyncio.run(dispatcher.dispatch_once())
@@ -499,6 +527,7 @@ def test_run_forever_bounds_parallel_claims_and_stops_claiming_before_drain() ->
                 max_in_flight=2,
                 poll_interval_s=0.01,
                 tracer=Tracer(exporter=InMemoryExporter(capacity=32)),
+                logger=_structured_logger(),
             )
             dispatcher._execute_guarded = execute  # type: ignore[method-assign]
             stop = asyncio.Event()
@@ -562,6 +591,7 @@ def test_run_forever_keeps_reaping_while_a_blocking_attempt_is_in_flight() -> No
                 max_in_flight=1,
                 poll_interval_s=0.01,
                 tracer=Tracer(exporter=InMemoryExporter(capacity=32)),
+                logger=_structured_logger(),
             )
             dispatcher._execute_guarded = execute  # type: ignore[method-assign]
             stop = asyncio.Event()
@@ -621,3 +651,73 @@ def test_attempt_consumer_span_uses_persisted_parent_and_binds_actual_trace_id()
     assert worker_span.span_id != parent.span_id
     assert lifecycle.started_trace_ids == [worker_span.trace_id]
     assert worker_span.trace_id == run.dispatch_trace_carrier.traceparent.split("-")[1]
+
+
+def test_attempt_log_inherits_worker_span_and_binds_run_identity() -> None:
+    _, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(update={"status": "leased"})
+    leased_attempt = _leased_attempt()
+    lease = _lease()
+    heartbeat = _FakeHeartbeat()
+    runner = _FakeRunner(heartbeat)
+    lifecycle = _FakeLifecycle(run, leased_attempt, lease)
+    exporter = InMemoryExporter(capacity=8)
+    tracer = Tracer(exporter=exporter, sampler=AlwaysOnSampler())
+    log_store = _CapturingLogStore()
+
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        dispatcher = _dispatcher(
+            claim_results=[_claim_result(run, leased_attempt, lease)],
+            expired=(),
+            heartbeat=heartbeat,
+            runner=runner,
+            lifecycle=lifecycle,
+            pool=pool,
+            tracer=tracer,
+            logger=_structured_logger(log_store),
+        )
+        asyncio.run(dispatcher.dispatch_once())
+
+    worker_span = next(span for span in exporter.spans if span.name == "worker.attempt")
+    [record] = log_store.records
+    assert record.event_name == "worker.attempt.started"
+    assert record.run_id == run.run_id
+    assert record.trace_id == worker_span.trace_id
+    assert record.span_id == worker_span.span_id
+    assert record.fields == {
+        "attempt_no": leased_attempt.attempt_no,
+        "run_kind": run.kind.kind,
+        "run_kind_version": run.kind.version,
+    }
+
+
+def test_attempt_log_store_failure_is_fail_open() -> None:
+    class BrokenStore:
+        def append(self, record: LogRecordV1) -> None:
+            del record
+            raise OSError("telemetry disk unavailable")
+
+    _, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(update={"status": "leased"})
+    leased_attempt = _leased_attempt()
+    lease = _lease()
+    heartbeat = _FakeHeartbeat()
+    runner = _FakeRunner(heartbeat)
+    lifecycle = _FakeLifecycle(run, leased_attempt, lease)
+    logger = _structured_logger(BrokenStore())
+
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        dispatcher = _dispatcher(
+            claim_results=[_claim_result(run, leased_attempt, lease)],
+            expired=(),
+            heartbeat=heartbeat,
+            runner=runner,
+            lifecycle=lifecycle,
+            pool=pool,
+            logger=logger,
+        )
+        worked = asyncio.run(dispatcher.dispatch_once())
+
+    assert worked is True
+    assert runner.calls and runner.calls[0][:2] == (run.run_id, leased_attempt.attempt_no)
+    assert logger.dropped_count == 1

@@ -1159,6 +1159,7 @@ def build_worker_dispatch(
         reaper_actor=runtime.reaper_actor,
         lease_duration_ns=config.lease_duration_ns,
         tracer=runtime.tracer,
+        logger=runtime.logger,
         heartbeat_interval_s=config.heartbeat_interval_s,
         reaper_limit=config.reaper_limit,
         poll_interval_s=config.poll_interval_s,

@@ -10,6 +10,7 @@ import hashlib
 import json
 import secrets
 import sqlite3
+import time
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
@@ -42,6 +43,7 @@ from gameforge.contracts.observability import (
     TraceQueryV1,
     TraceSummaryPageV1,
     TraceSummaryV1,
+    span_run_ids,
 )
 from gameforge.contracts.storage import UtcClock
 from gameforge.runtime.observability._fields import redact_span_values
@@ -51,9 +53,16 @@ from gameforge.runtime.observability.metrics import (
     metric_descriptor_key,
     validate_metric_query_shape,
 )
+from gameforge.runtime.observability.run_scope import (
+    RetainedLogPage,
+    RetainedTraceRunScope,
+    TelemetryRunScopeMode,
+    run_ids_are_in_scope,
+    validate_telemetry_run_scope,
+)
 
 
-_SCHEMA_VERSION = 1
+_SCHEMA_VERSION = 2
 _READ_KINDS = frozenset({"traces", "run_traces", "spans", "logs", "metrics"})
 _PIN_OWNER_KINDS = frozenset({"slo", "alert", "saved_query"})
 
@@ -140,6 +149,7 @@ class _ReadSnapshot:
     authz_fingerprint: str
     principal_binding: str | None
     high_watermark: int
+    secondary_high_watermark: int
     expires_at: datetime
     retention_fingerprint: str
     offset: int
@@ -176,6 +186,20 @@ def _wire(value: Any) -> str:
 
 def _wire_hash(payload: str) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _enter_wal_mode(connection: sqlite3.Connection, *, timeout_s: float) -> str:
+    deadline = time.monotonic() + timeout_s
+    while True:
+        try:
+            mode = str(connection.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+            if mode != "wal":
+                mode = str(connection.execute("PRAGMA journal_mode=WAL").fetchone()[0]).lower()
+            return mode
+        except sqlite3.OperationalError as exc:
+            if "locked" not in str(exc).lower() or time.monotonic() >= deadline:
+                raise
+            time.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
 
 
 def _labels_key(labels: Mapping[str, str]) -> str:
@@ -295,18 +319,29 @@ class LocalTelemetryStore:
         )
         try:
             connection.execute(f"PRAGMA busy_timeout={int(self._busy_timeout_s * 1000)}")
-            mode = str(connection.execute("PRAGMA journal_mode=WAL").fetchone()[0]).lower()
+            mode = _enter_wal_mode(connection, timeout_s=self._busy_timeout_s)
             if mode != "wal":
                 raise IntegrityViolation("local telemetry SQLite database did not enter WAL mode")
             connection.execute("PRAGMA synchronous=NORMAL")
             connection.execute("PRAGMA foreign_keys=ON")
+            connection.execute("BEGIN IMMEDIATE")
             version = int(connection.execute("PRAGMA user_version").fetchone()[0])
-            if version not in {0, _SCHEMA_VERSION}:
+            if version not in {0, 1, _SCHEMA_VERSION}:
                 raise IntegrityViolation(
                     "local telemetry schema version is unsupported",
                     actual_version=version,
                     supported_version=_SCHEMA_VERSION,
                 )
+            if version == 1:
+                connection.execute("DELETE FROM read_snapshots WHERE kind = 'logs'")
+                connection.execute(
+                    """
+                    ALTER TABLE read_snapshots
+                        ADD COLUMN secondary_high_watermark INTEGER NOT NULL DEFAULT 0
+                    """
+                )
+                connection.execute("PRAGMA user_version=2")
+            connection.commit()
             connection.executescript(
                 """
                 BEGIN IMMEDIATE;
@@ -450,6 +485,7 @@ class LocalTelemetryStore:
                     query_hash TEXT NOT NULL,
                     authz_fingerprint TEXT NOT NULL,
                     high_watermark INTEGER NOT NULL,
+                    secondary_high_watermark INTEGER NOT NULL DEFAULT 0,
                     created_at TEXT NOT NULL,
                     expires_at TEXT NOT NULL,
                     retention_fingerprint TEXT NOT NULL
@@ -501,7 +537,7 @@ class LocalTelemetryStore:
                 ) WITHOUT ROWID;
                 CREATE INDEX IF NOT EXISTS ix_metric_descriptor_pins_expiry
                     ON metric_descriptor_pins(expires_at);
-                PRAGMA user_version=1;
+                PRAGMA user_version=2;
                 COMMIT;
                 """
             )
@@ -893,10 +929,31 @@ class LocalTelemetryStore:
         query: TraceQueryV1,
         *,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> TraceSummaryPageV1:
         self._validate_time_range(query.time_range.start_utc, query.time_range.end_utc)
         self._validate_page_limit(query.limit, kind="trace")
-        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        if scope_mode is None:
+            query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        else:
+            query_hash = self._query_hash(
+                {
+                    "query": query.model_dump(
+                        mode="json",
+                        exclude={"cursor", "authz_fingerprint"},
+                    ),
+                    "authorized_run_scope": {
+                        "mode": scope_mode,
+                        "allowed_run_ids": scope_run_ids,
+                    },
+                }
+            )
+            legacy_query_hash = None
         snapshot = self._resolve_snapshot(
             kind="traces",
             query_hash=query_hash,
@@ -936,6 +993,12 @@ class LocalTelemetryStore:
                 continue
             if query.status is not None and query.status != summary.status:
                 continue
+            if scope_mode is not None and not run_ids_are_in_scope(
+                summary.run_ids,
+                mode=scope_mode,
+                allowed_run_ids=scope_run_ids,
+            ):
+                continue
             summaries.append(summary)
         summaries.sort(key=lambda item: (item.started_at, item.trace_id))
         items, next_cursor = self._page_items(
@@ -961,11 +1024,25 @@ class LocalTelemetryStore:
         limit: int,
         authz_fingerprint: str,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> TraceSummaryPageV1:
         if not isinstance(run_id, str) or not run_id:
             raise ValueError("run_id must be non-empty")
         self._validate_page_limit(limit, kind="trace")
-        query_hash = self._query_hash({"run_id": run_id})
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        if scope_mode is not None and run_id not in scope_run_ids:
+            raise ValueError("Run trace scope must include the requested Run")
+        query_projection: dict[str, Any] = {"run_id": run_id}
+        if scope_mode is not None:
+            query_projection["authorized_run_scope"] = {
+                "mode": scope_mode,
+                "allowed_run_ids": scope_run_ids,
+            }
+        query_hash = self._query_hash(query_projection)
         snapshot = self._resolve_snapshot(
             kind="run_traces",
             query_hash=query_hash,
@@ -980,7 +1057,10 @@ class LocalTelemetryStore:
                 SELECT payload FROM spans
                 WHERE seq <= ? AND trace_id IN (
                     SELECT DISTINCT trace_id FROM spans
-                    WHERE seq <= ? AND run_id = ?
+                    WHERE seq <= ? AND (
+                        run_id = ? OR
+                        json_extract(payload, '$.attributes.producer_run_id') = ?
+                    )
                 )
                 ORDER BY started_at, trace_id, span_id
                 LIMIT ?
@@ -988,6 +1068,7 @@ class LocalTelemetryStore:
                 (
                     snapshot.high_watermark,
                     snapshot.high_watermark,
+                    run_id,
                     run_id,
                     self._limits.max_span_count + 1,
                 ),
@@ -1002,6 +1083,16 @@ class LocalTelemetryStore:
             (self._summarize_trace(trace_id, spans) for trace_id, spans in grouped.items()),
             key=lambda item: (item.started_at, item.trace_id),
         )
+        if scope_mode is not None:
+            summaries = [
+                summary
+                for summary in summaries
+                if run_ids_are_in_scope(
+                    summary.run_ids,
+                    mode=scope_mode,
+                    allowed_run_ids=scope_run_ids,
+                )
+            ]
         items, next_cursor = self._page_items(
             summaries,
             snapshot=snapshot,
@@ -1022,6 +1113,36 @@ class LocalTelemetryStore:
         self._check_response_size(page)
         return page
 
+    def get_run_trace_scope(self, run_id: str) -> tuple[str, ...]:
+        """Discover the complete bounded Run membership of current candidate traces."""
+
+        if not isinstance(run_id, str) or not run_id:
+            raise ValueError("run_id must be non-empty")
+        with self._connection() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload FROM spans
+                WHERE trace_id IN (
+                    SELECT DISTINCT trace_id FROM spans
+                    WHERE run_id = ? OR
+                        json_extract(payload, '$.attributes.producer_run_id') = ?
+                )
+                ORDER BY started_at, trace_id, span_id
+                LIMIT ?
+                """,
+                (run_id, run_id, self._limits.max_span_count + 1),
+            ).fetchall()
+        if len(rows) > self._limits.max_span_count:
+            raise QueryTooBroad("Run trace scope span count exceeds service cap")
+        grouped: dict[str, list[SpanDataV1]] = defaultdict(list)
+        for row in rows:
+            span = self._parse_span(row["payload"])
+            grouped[span.trace_id].append(span)
+        related_run_ids = {run_id}
+        for trace_id, spans in grouped.items():
+            related_run_ids.update(self._summarize_trace(trace_id, spans).run_ids)
+        return tuple(sorted(related_run_ids))
+
     def page_spans(
         self,
         trace_id: str,
@@ -1030,13 +1151,25 @@ class LocalTelemetryStore:
         limit: int,
         authz_fingerprint: str,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> SpanPageV1:
         if not trace_id:
             raise ValueError("trace_id must be non-empty")
         if not authz_fingerprint:
             raise ValueError("authz_fingerprint must be non-empty")
         self._validate_page_limit(limit, kind="span")
-        query_hash = self._query_hash({"trace_id": trace_id})
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        query_projection: dict[str, Any] = {"trace_id": trace_id}
+        if scope_mode is not None:
+            query_projection["authorized_run_scope"] = {
+                "mode": scope_mode,
+                "allowed_run_ids": scope_run_ids,
+            }
+        query_hash = self._query_hash(query_projection)
         snapshot = self._resolve_snapshot(
             kind="spans",
             query_hash=query_hash,
@@ -1046,12 +1179,38 @@ class LocalTelemetryStore:
             cursor=cursor,
         )
         with self._connection() as connection:
-            count = int(
-                connection.execute(
-                    "SELECT COUNT(*) FROM spans WHERE seq <= ? AND trace_id = ?",
-                    (snapshot.high_watermark, trace_id),
-                ).fetchone()[0]
-            )
+            if scope_mode is None:
+                count = int(
+                    connection.execute(
+                        "SELECT COUNT(*) FROM spans WHERE seq <= ? AND trace_id = ?",
+                        (snapshot.high_watermark, trace_id),
+                    ).fetchone()[0]
+                )
+            else:
+                scope_rows = connection.execute(
+                    """
+                    SELECT payload FROM spans
+                    WHERE seq <= ? AND trace_id = ?
+                    ORDER BY started_at, span_id LIMIT ?
+                    """,
+                    (snapshot.high_watermark, trace_id, self._limits.max_span_count + 1),
+                ).fetchall()
+                count = len(scope_rows)
+                trace_run_ids = tuple(
+                    sorted(
+                        {
+                            run_id
+                            for row in scope_rows
+                            for run_id in span_run_ids(self._parse_span(row["payload"]))
+                        }
+                    )
+                )
+                if not run_ids_are_in_scope(
+                    trace_run_ids,
+                    mode=scope_mode,
+                    allowed_run_ids=scope_run_ids,
+                ):
+                    raise IntegrityViolation("trace Run scope changed before span pagination")
             if count > self._limits.max_span_count:
                 raise QueryTooBroad("trace span count exceeds service cap")
             rows = connection.execute(
@@ -1089,10 +1248,64 @@ class LocalTelemetryStore:
         query: LogQueryV1,
         *,
         principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
     ) -> LogPageV1:
+        return self._query_logs(
+            query,
+            principal_binding=principal_binding,
+            run_scope_mode=run_scope_mode,
+            allowed_run_ids=allowed_run_ids,
+            require_trace_scope_proof=False,
+        ).page
+
+    def query_logs_with_scope(
+        self,
+        query: LogQueryV1,
+        *,
+        principal_binding: str,
+        run_scope_mode: TelemetryRunScopeMode,
+        allowed_run_ids: Sequence[str] = (),
+    ) -> RetainedLogPage:
+        return self._query_logs(
+            query,
+            principal_binding=principal_binding,
+            run_scope_mode=run_scope_mode,
+            allowed_run_ids=allowed_run_ids,
+            require_trace_scope_proof=True,
+        )
+
+    def _query_logs(
+        self,
+        query: LogQueryV1,
+        *,
+        principal_binding: str | None = None,
+        run_scope_mode: TelemetryRunScopeMode | None = None,
+        allowed_run_ids: Sequence[str] = (),
+        require_trace_scope_proof: bool,
+    ) -> RetainedLogPage:
         self._validate_time_range(query.time_range.start_utc, query.time_range.end_utc)
         self._validate_page_limit(query.limit, kind="log")
-        query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        scope_mode, scope_run_ids = validate_telemetry_run_scope(
+            run_scope_mode,
+            allowed_run_ids,
+        )
+        if scope_mode is None:
+            query_hash, legacy_query_hash = self._query_hashes(query, principal_binding)
+        else:
+            query_hash = self._query_hash(
+                {
+                    "query": query.model_dump(
+                        mode="json",
+                        exclude={"cursor", "authz_fingerprint"},
+                    ),
+                    "authorized_log_scope": {
+                        "mode": scope_mode,
+                        "allowed_run_ids": scope_run_ids,
+                    },
+                }
+            )
+            legacy_query_hash = None
         snapshot = self._resolve_snapshot(
             kind="logs",
             query_hash=query_hash,
@@ -1111,6 +1324,75 @@ class LocalTelemetryStore:
         self._append_in_filter(clauses, parameters, "service", query.services)
         self._append_in_filter(clauses, parameters, "level", query.levels)
         self._append_in_filter(clauses, parameters, "event_name", query.event_names)
+        if scope_mode == "domainless_only":
+            clauses.extend(("run_id IS NULL", "producer_run_id IS NULL"))
+            clauses.append(
+                """
+                NOT EXISTS (
+                    SELECT 1 FROM spans AS scoped_span
+                    WHERE scoped_span.seq <= ?
+                      AND scoped_span.trace_id = logs.trace_id
+                      AND (
+                          scoped_span.run_id IS NOT NULL OR
+                          json_extract(
+                              scoped_span.payload,
+                              '$.attributes.producer_run_id'
+                          ) IS NOT NULL
+                      )
+                )
+                """
+            )
+            parameters.append(snapshot.secondary_high_watermark)
+        elif scope_mode == "run_allowlist":
+            placeholders = ",".join("?" for _ in scope_run_ids)
+            clauses.extend(
+                (
+                    f"(run_id IS NULL OR run_id IN ({placeholders}))",
+                    f"(producer_run_id IS NULL OR producer_run_id IN ({placeholders}))",
+                )
+            )
+            parameters.extend(scope_run_ids)
+            parameters.extend(scope_run_ids)
+            clauses.append(
+                f"""
+                NOT EXISTS (
+                    SELECT 1 FROM spans AS scoped_span
+                    WHERE scoped_span.seq <= ?
+                      AND scoped_span.trace_id = logs.trace_id
+                      AND (
+                          (
+                              scoped_span.run_id IS NOT NULL AND
+                              scoped_span.run_id NOT IN ({placeholders})
+                          ) OR (
+                              json_extract(
+                                  scoped_span.payload,
+                                  '$.attributes.producer_run_id'
+                              ) IS NOT NULL AND
+                              json_extract(
+                                  scoped_span.payload,
+                                  '$.attributes.producer_run_id'
+                              ) NOT IN ({placeholders})
+                          )
+                      )
+                )
+                """
+            )
+            parameters.append(snapshot.secondary_high_watermark)
+            parameters.extend(scope_run_ids)
+            parameters.extend(scope_run_ids)
+        if scope_mode is not None:
+            clauses.append(
+                """
+                (
+                    trace_id IS NULL OR EXISTS (
+                        SELECT 1 FROM spans AS retained_trace_span
+                        WHERE retained_trace_span.seq <= ?
+                          AND retained_trace_span.trace_id = logs.trace_id
+                    )
+                )
+                """
+            )
+            parameters.append(snapshot.secondary_high_watermark)
         if query.run_id is not None:
             clauses.append("run_id = ?")
             parameters.append(query.run_id)
@@ -1146,7 +1428,48 @@ class LocalTelemetryStore:
             truncated=next_cursor is not None,
         )
         self._check_response_size(page)
-        return page
+        trace_scopes: list[RetainedTraceRunScope] = []
+        if require_trace_scope_proof:
+            for trace_id in sorted({item.trace_id for item in items if item.trace_id is not None}):
+                trace_scopes.append(
+                    RetainedTraceRunScope(
+                        trace_id=trace_id,
+                        run_ids=self._retained_trace_run_scope(
+                            trace_id,
+                            high_watermark=snapshot.secondary_high_watermark,
+                        ),
+                    )
+                )
+        return RetainedLogPage(page=page, trace_scopes=tuple(trace_scopes))
+
+    def _retained_trace_run_scope(
+        self,
+        trace_id: str,
+        *,
+        high_watermark: int,
+    ) -> tuple[str, ...]:
+        with self._connection() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload FROM spans
+                WHERE seq <= ? AND trace_id = ?
+                ORDER BY started_at, span_id LIMIT ?
+                """,
+                (high_watermark, trace_id, self._limits.max_span_count + 1),
+            ).fetchall()
+        if not rows:
+            raise IntegrityViolation("retained log trace scope is unavailable")
+        if len(rows) > self._limits.max_span_count:
+            raise QueryTooBroad("retained log trace exceeds the span count cap")
+        return tuple(
+            sorted(
+                {
+                    run_id
+                    for row in rows
+                    for run_id in span_run_ids(self._parse_span(row["payload"]))
+                }
+            )
+        )
 
     @staticmethod
     def _append_in_filter(
@@ -1411,13 +1734,19 @@ class LocalTelemetryStore:
                 high_watermark = int(
                     connection.execute(f"SELECT COALESCE(MAX(seq), 0) FROM {table}").fetchone()[0]
                 )
+                secondary_high_watermark = (
+                    int(connection.execute("SELECT COALESCE(MAX(seq), 0) FROM spans").fetchone()[0])
+                    if kind == "logs"
+                    else 0
+                )
                 snapshot_id = f"telemetry-snapshot:{secrets.token_hex(16)}"
                 connection.execute(
                     """
                     INSERT INTO read_snapshots(
                         snapshot_id, kind, query_hash, authz_fingerprint,
-                        high_watermark, created_at, expires_at, retention_fingerprint
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        high_watermark, secondary_high_watermark, created_at,
+                        expires_at, retention_fingerprint
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         snapshot_id,
@@ -1425,6 +1754,7 @@ class LocalTelemetryStore:
                         query_hash,
                         authz_fingerprint,
                         high_watermark,
+                        secondary_high_watermark,
                         _format_utc(now),
                         _format_utc(expires_at),
                         self._retention.fingerprint,
@@ -1451,6 +1781,7 @@ class LocalTelemetryStore:
             authz_fingerprint=authz_fingerprint,
             principal_binding=principal_binding,
             high_watermark=high_watermark,
+            secondary_high_watermark=secondary_high_watermark,
             expires_at=expires_at,
             retention_fingerprint=self._retention.fingerprint,
             offset=0,
@@ -1470,6 +1801,7 @@ class LocalTelemetryStore:
             authz_fingerprint=row["authz_fingerprint"],
             principal_binding=principal_binding,
             high_watermark=int(row["high_watermark"]),
+            secondary_high_watermark=int(row["secondary_high_watermark"]),
             expires_at=_parse_utc(row["expires_at"]),
             retention_fingerprint=row["retention_fingerprint"],
             offset=offset,
@@ -1541,15 +1873,7 @@ class LocalTelemetryStore:
         ordered = sorted(spans, key=lambda item: (item.started_at, item.span_id))
         roots = [item for item in ordered if item.parent_span_id is None]
         root = roots[0] if len(roots) == 1 else None
-        run_ids = tuple(
-            sorted(
-                {
-                    value
-                    for span in ordered
-                    if isinstance((value := span.attributes.get("run_id")), str) and value
-                }
-            )
-        )
+        run_ids = tuple(sorted({run_id for span in ordered for run_id in span_run_ids(span)}))
         services = tuple(
             sorted(
                 {
@@ -1683,7 +2007,7 @@ class LocalTelemetryStore:
                     ).fetchall()
                 }
                 deleted_spans = 0
-                if not active_kinds.intersection({"traces", "run_traces", "spans"}):
+                if not active_kinds.intersection({"traces", "run_traces", "spans", "logs"}):
                     deleted_spans = connection.execute(
                         "DELETE FROM spans WHERE ended_at < ?",
                         (_format_utc(now - self._retention.spans),),

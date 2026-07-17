@@ -99,6 +99,264 @@ def test_log_queries_are_bounded_stable_and_authorization_bound() -> None:
         )
 
 
+def test_in_memory_log_run_scope_filters_before_paging_and_binds_cursor() -> None:
+    store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
+    records = (
+        LogRecordV1(
+            log_id="log-runless",
+            ts_utc=NOW,
+            level="info",
+            message="done",
+            service="api",
+            event_name="run.done",
+        ),
+        LogRecordV1(
+            log_id="log-a",
+            ts_utc=NOW + timedelta(seconds=1),
+            level="info",
+            message="done",
+            service="api",
+            event_name="run.done",
+            run_id="run:A",
+        ),
+        LogRecordV1(
+            log_id="log-b",
+            ts_utc=NOW + timedelta(seconds=2),
+            level="info",
+            message="done",
+            service="api",
+            event_name="run.done",
+            producer_run_id="run:B",
+        ),
+    )
+    for record in records:
+        store.append(record)
+    query = LogQueryV1(
+        time_range=TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(minutes=1)),
+        limit=1,
+        authz_fingerprint="b" * 64,
+    )
+    principal = "1" * 64
+
+    domainless = store.query_logs(
+        query,
+        principal_binding=principal,
+        run_scope_mode="domainless_only",
+    )
+    assert tuple(item.record for item in domainless.items) == (records[0],)
+    assert domainless.next_cursor is None
+
+    first = store.query_logs(
+        query,
+        principal_binding=principal,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.record for item in first.items) == (records[0],)
+    assert first.next_cursor is not None
+    second = store.query_logs(
+        query.model_copy(update={"cursor": first.next_cursor}),
+        principal_binding=principal,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.record for item in second.items) == (records[1],)
+
+    with pytest.raises(CursorInvalid):
+        store.query_logs(
+            query.model_copy(update={"cursor": first.next_cursor}),
+            principal_binding=principal,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:B",),
+        )
+
+
+def test_in_memory_log_scope_includes_trace_membership_and_freezes_snapshot() -> None:
+    store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
+    trace_id = "a" * 32
+    span_a = _span(10, run_id="run:A").model_copy(update={"trace_id": trace_id})
+    store.put(span_a)
+    logs = tuple(
+        LogRecordV1(
+            log_id=f"trace-log-{index}",
+            ts_utc=NOW + timedelta(seconds=index),
+            level="info",
+            message="done",
+            service="api",
+            event_name="run.done",
+            trace_id=trace_id,
+            span_id=span_a.span_id,
+        )
+        for index in (1, 2)
+    )
+    for record in logs:
+        store.append(record)
+    query = LogQueryV1(
+        time_range=TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(minutes=1)),
+        limit=1,
+        authz_fingerprint="b" * 64,
+    )
+    assert (
+        store.query_logs(
+            query,
+            run_scope_mode="domainless_only",
+        ).items
+        == ()
+    )
+    first = store.query_logs(
+        query,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert first.next_cursor is not None
+
+    store.put(
+        _span(11, run_id="ignored").model_copy(
+            update={"trace_id": trace_id, "attributes": {"producer_run_id": "run:B"}}
+        )
+    )
+    second = store.query_logs(
+        query.model_copy(update={"cursor": first.next_cursor}),
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+
+    assert tuple(item.record for item in first.items + second.items) == logs
+    assert (
+        store.query_logs(
+            query.model_copy(update={"limit": 10}),
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A",),
+        ).items
+        == ()
+    )
+
+
+def test_in_memory_scoped_logs_exclude_orphan_trace_correlation() -> None:
+    store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
+    store.append(
+        LogRecordV1(
+            log_id="orphan-log",
+            ts_utc=NOW,
+            level="info",
+            message="done",
+            service="api",
+            event_name="run.done",
+            trace_id="f" * 32,
+            span_id="1" * 16,
+        )
+    )
+    query = LogQueryV1(
+        time_range=TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(minutes=1)),
+        limit=10,
+        authz_fingerprint="b" * 64,
+    )
+
+    assert store.query_logs(query, run_scope_mode="domainless_only").items == ()
+
+
+def test_in_memory_trace_scope_includes_producer_run_correlations() -> None:
+    store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
+    producer_only = _span(1, run_id="ignored").model_copy(
+        update={"attributes": {"producer_run_id": "run:B"}}
+    )
+    cross_domain = _span(2, run_id="ignored").model_copy(
+        update={"attributes": {"run_id": "run:A", "producer_run_id": "run:B"}}
+    )
+    store.put(producer_only)
+    store.put(cross_domain)
+
+    assert store.get_trace_summary(producer_only.trace_id).run_ids == ("run:B",)
+    assert store.get_trace_summary(cross_domain.trace_id).run_ids == ("run:A", "run:B")
+    page = store.page_run_traces(
+        "run:B",
+        cursor=None,
+        limit=10,
+        authz_fingerprint="a" * 64,
+    )
+    assert tuple(item.trace_id for item in page.items) == (
+        producer_only.trace_id,
+        cross_domain.trace_id,
+    )
+
+
+def test_in_memory_span_and_run_trace_scopes_precede_pagination() -> None:
+    store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
+    trace_id = "d" * 32
+    runless = _span(30, run_id="ignored").model_copy(
+        update={"trace_id": trace_id, "attributes": {}}
+    )
+    run_a = _span(31, run_id="run:A").model_copy(update={"trace_id": trace_id})
+    cross = _span(32, run_id="ignored").model_copy(
+        update={
+            "trace_id": "e" * 32,
+            "attributes": {"run_id": "run:A", "producer_run_id": "run:B"},
+        }
+    )
+    for span in (runless, run_a, cross):
+        store.put(span)
+
+    first = store.page_spans(
+        trace_id,
+        cursor=None,
+        limit=1,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert first.next_cursor is not None
+    with pytest.raises(CursorInvalid):
+        store.page_spans(
+            trace_id,
+            cursor=first.next_cursor,
+            limit=1,
+            authz_fingerprint="a" * 64,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:B",),
+        )
+    with pytest.raises(IntegrityViolation, match="scope changed"):
+        store.page_spans(
+            cross.trace_id,
+            cursor=None,
+            limit=10,
+            authz_fingerprint="a" * 64,
+            run_scope_mode="run_allowlist",
+            allowed_run_ids=("run:A",),
+        )
+
+    assert store.get_run_trace_scope("run:A") == ("run:A", "run:B")
+    a_only = store.page_run_traces(
+        "run:A",
+        cursor=None,
+        limit=10,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.trace_id for item in a_only.items) == (trace_id,)
+    both = store.page_run_traces(
+        "run:A",
+        cursor=None,
+        limit=10,
+        authz_fingerprint="a" * 64,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A", "run:B"),
+    )
+    assert tuple(item.trace_id for item in both.items) == (trace_id, cross.trace_id)
+
+    query = TraceQueryV1(
+        time_range=TimeRangeV1(start_utc=NOW, end_utc=NOW + timedelta(minutes=1)),
+        limit=10,
+        authz_fingerprint="a" * 64,
+    )
+    scoped = store.query_traces(
+        query,
+        run_scope_mode="run_allowlist",
+        allowed_run_ids=("run:A",),
+    )
+    assert tuple(item.trace_id for item in scoped.items) == (trace_id,)
+
+
 def test_in_memory_store_detaches_nested_payloads_on_write_and_read() -> None:
     store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
     source = _span(1, run_id="run-1")

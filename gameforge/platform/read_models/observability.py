@@ -7,7 +7,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 import re
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel, ValidationError
 
@@ -51,6 +51,7 @@ from gameforge.contracts.observability import (
     TimeRangeV1,
     TraceSummaryPageV1,
     TraceSummaryV1,
+    span_run_ids,
 )
 from gameforge.platform.read_models.authorization import (
     ReadAuthorizationBinding,
@@ -88,6 +89,61 @@ class RunObservabilityScope:
 
 
 @dataclass(frozen=True, slots=True)
+class AuthorizedTelemetryRunScope:
+    """Exact Run boundary that a telemetry adapter applies before pagination."""
+
+    mode: Literal["domainless_only", "run_allowlist"]
+    allowed_run_ids: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        canonical = tuple(sorted(set(self.allowed_run_ids)))
+        if canonical != self.allowed_run_ids or any(
+            not isinstance(value, str) or not 1 <= len(value) <= 512 for value in canonical
+        ):
+            raise ValueError("allowed_run_ids must be canonical bounded strings")
+        if len(canonical) > MAX_QUERY_FILTER_ITEMS:
+            raise ValueError("allowed_run_ids exceed the log scope limit")
+        if self.mode == "domainless_only" and canonical:
+            raise ValueError("domainless log scope cannot include Run ids")
+        if self.mode == "run_allowlist" and not canonical:
+            raise ValueError("run allowlist log scope must include at least one Run id")
+
+
+@dataclass(frozen=True, slots=True)
+class LogTraceScopeProof:
+    """Trace Run membership frozen at the exact retained log snapshot cut."""
+
+    trace_id: str
+    run_ids: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if _TRACE_ID.fullmatch(self.trace_id) is None:
+            raise ValueError("trace_id must be a lowercase 128-bit hex id")
+        if self.run_ids != tuple(sorted(set(self.run_ids))) or any(
+            not isinstance(value, str) or not 1 <= len(value) <= 512 for value in self.run_ids
+        ):
+            raise ValueError("trace Run ids must be canonical bounded strings")
+        if len(self.run_ids) > MAX_QUERY_FILTER_ITEMS:
+            raise ValueError("trace Run ids exceed the scope limit")
+
+
+@dataclass(frozen=True, slots=True)
+class AuthorizedLogReadPage:
+    page: LogPageV1
+    trace_scopes: tuple[LogTraceScopeProof, ...]
+
+
+def _telemetry_scope(
+    scopes: Sequence[RunObservabilityScope],
+) -> AuthorizedTelemetryRunScope:
+    allowed_run_ids = tuple(sorted(item.run_id for item in scopes))
+    return AuthorizedTelemetryRunScope(
+        mode="run_allowlist" if allowed_run_ids else "domainless_only",
+        allowed_run_ids=allowed_run_ids,
+    )
+
+
+@dataclass(frozen=True, slots=True)
 class RunCostReadPage:
     """Internal exact ledger page; the service projects only safe fields."""
 
@@ -115,6 +171,7 @@ class ObservabilityReadPort(Protocol):
         cursor: str | None,
         limit: int,
         authorization: ReadAuthorizationBinding,
+        scope: AuthorizedTelemetryRunScope,
     ) -> SpanPageV1: ...
 
     def page_run_traces(
@@ -124,14 +181,18 @@ class ObservabilityReadPort(Protocol):
         cursor: str | None,
         limit: int,
         authorization: ReadAuthorizationBinding,
+        scope: AuthorizedTelemetryRunScope,
     ) -> TraceSummaryPageV1: ...
+
+    def get_run_trace_scope(self, run_id: str) -> tuple[str, ...]: ...
 
     def query_logs(
         self,
         query: LogQueryV1,
         *,
         authorization: ReadAuthorizationBinding,
-    ) -> LogPageV1: ...
+        scope: AuthorizedTelemetryRunScope,
+    ) -> AuthorizedLogReadPage: ...
 
     def get_metric_descriptor_registry(self) -> MetricDescriptorRegistryV1 | None: ...
 
@@ -231,24 +292,25 @@ class _ObservabilityReadOperations:
             resource_kind="trace",
             query_hash=query_hash,
         )
+        scope = _telemetry_scope(scopes)
         page = self._port.page_trace_spans(
             trace_id,
             cursor=exact_cursor,
             limit=exact_limit,
             authorization=binding,
+            scope=scope,
         )
         if type(page) is not SpanPageV1:
             raise IntegrityViolation("trace span adapter returned an invalid page")
         if page.trace_id != trace_id or len(page.items) > exact_limit:
             raise IntegrityViolation("trace span page differs from its bounded query")
         _validate_cursor(page.next_cursor)
-        allowed_run_ids = {item.run_id for item in scopes}
+        allowed_run_ids = set(scope.allowed_run_ids)
         sanitized: list[SpanViewV1] = []
         for item in page.items:
             if item.span.trace_id != trace_id:
                 raise IntegrityViolation("trace span belongs to a different trace")
-            run_id = item.span.attributes.get("run_id")
-            if isinstance(run_id, str) and run_id not in allowed_run_ids:
+            if not set(span_run_ids(item.span)) <= allowed_run_ids:
                 raise IntegrityViolation("trace span contains an unauthorized Run scope")
             redacted = self._redactor.redact_span(item)
             if (
@@ -282,17 +344,51 @@ class _ObservabilityReadOperations:
             filters={"run_id": run_id, "limit": exact_limit},
             projection="trace-summary-page@1",
         )
-        binding, _ = self._authorize_runs(
+        related_run_ids = self._port.get_run_trace_scope(run_id)
+        if (
+            type(related_run_ids) is not tuple
+            or related_run_ids != tuple(sorted(set(related_run_ids)))
+            or run_id not in related_run_ids
+        ):
+            raise IntegrityViolation("Run trace scope authority returned an invalid scope")
+        singular_binding, _ = self._authorize_runs(
             principal=principal,
             run_ids=(run_id,),
             resource_kind="trace",
             query_hash=query_hash,
         )
+        related_scopes = self._load_run_scopes(related_run_ids)
+        authorized = self._authorization.filter_collection(
+            principal=principal,
+            candidates=related_scopes,
+            collection_permission=Permission(
+                action="read",
+                resource_kind="trace",
+                domain_scope="all",
+            ),
+            permission_for=lambda value: Permission(
+                action="read",
+                resource_kind="trace",
+                domain_scope=value.domain_scope,
+            ),
+            query_hash=canonical_sha256(
+                {
+                    "query_hash": query_hash,
+                    "collection_binding": "run-trace-scopes@1",
+                }
+            ),
+        )
+        if authorized.binding.principal_binding != singular_binding.principal_binding:
+            raise IntegrityViolation("Run trace authorization changed principal binding")
+        scope = _telemetry_scope(authorized.items)
+        if run_id not in scope.allowed_run_ids:
+            raise IntegrityViolation("requested Run disappeared from authorized trace scope")
         page = self._port.page_run_traces(
             run_id,
             cursor=exact_cursor,
             limit=exact_limit,
-            authorization=binding,
+            authorization=authorized.binding,
+            scope=scope,
         )
         if type(page) is not TraceSummaryPageV1 or len(page.items) > exact_limit:
             raise IntegrityViolation("Run trace adapter returned an invalid bounded page")
@@ -300,25 +396,19 @@ class _ObservabilityReadOperations:
             raise IntegrityViolation("Run trace page returned invalid coverage")
         _validate_cursor(page.next_cursor)
         ordered_keys: list[tuple[datetime, str]] = []
-        related_run_ids: set[str] = {run_id}
+        allowed_run_ids = set(scope.allowed_run_ids)
         seen_trace_ids: set[str] = set()
         for trace in page.items:
             if type(trace) is not TraceSummaryV1 or run_id not in trace.run_ids:
                 raise IntegrityViolation("Run trace page contains an unrelated trace")
+            if not set(trace.run_ids) <= allowed_run_ids:
+                raise IntegrityViolation("Run trace page contains an unauthorized Run scope")
             if trace.trace_id in seen_trace_ids:
                 raise IntegrityViolation("Run trace page contains a duplicate trace")
             seen_trace_ids.add(trace.trace_id)
             ordered_keys.append((trace.started_at, trace.trace_id))
-            related_run_ids.update(trace.run_ids)
         if ordered_keys != sorted(ordered_keys):
             raise IntegrityViolation("Run trace page is not in stable store order")
-        if related_run_ids != {run_id}:
-            self._authorize_runs(
-                principal=principal,
-                run_ids=tuple(sorted(related_run_ids)),
-                resource_kind="trace",
-                query_hash=query_hash,
-            )
         return page
 
     def query_logs(
@@ -368,24 +458,37 @@ class _ObservabilityReadOperations:
         }
         if provisional.trace_id is not None:
             run_ids.update(self._trace(provisional.trace_id).run_ids)
+        requested_run_ids = tuple(sorted(run_ids))
         query_hash = _query_hash(
             resource_kind="logs",
-            filters=provisional.model_dump(
-                mode="json",
-                exclude={"query_schema_version", "cursor", "authz_fingerprint"},
-            ),
+            filters={
+                "query": provisional.model_dump(
+                    mode="json",
+                    exclude={"query_schema_version", "cursor", "authz_fingerprint"},
+                ),
+                "run_scope_mode": "allowlist" if requested_run_ids else "runless_only",
+                "requested_run_ids": requested_run_ids,
+            },
             projection="log-page@1",
         )
         binding, scopes = self._authorize_runs(
             principal=principal,
-            run_ids=tuple(sorted(run_ids)),
+            run_ids=requested_run_ids,
             resource_kind="log",
             query_hash=query_hash,
         )
         query_values = provisional.model_dump(mode="python")
         query_values["authz_fingerprint"] = binding.authz_fingerprint
         query = _validated(LogQueryV1, **query_values)
-        page = self._port.query_logs(query, authorization=binding)
+        log_scope = _telemetry_scope(scopes)
+        retained = self._port.query_logs(
+            query,
+            authorization=binding,
+            scope=log_scope,
+        )
+        if type(retained) is not AuthorizedLogReadPage:
+            raise IntegrityViolation("log adapter returned an invalid retained page")
+        page = retained.page
         if type(page) is not LogPageV1:
             raise IntegrityViolation("log adapter returned an invalid page")
         if (
@@ -395,10 +498,33 @@ class _ObservabilityReadOperations:
         ):
             raise IntegrityViolation("log page differs from its bounded query")
         _validate_cursor(page.next_cursor)
-        allowed_run_ids = {item.run_id for item in scopes}
+        allowed_run_id_set = set(log_scope.allowed_run_ids)
+        expected_trace_ids = {
+            item.record.trace_id for item in page.items if item.record.trace_id is not None
+        }
+        if any(type(proof) is not LogTraceScopeProof for proof in retained.trace_scopes):
+            raise IntegrityViolation("log trace scope proof has an invalid type")
+        trace_run_ids = {proof.trace_id: proof.run_ids for proof in retained.trace_scopes}
+        if (
+            len(trace_run_ids) != len(retained.trace_scopes)
+            or set(trace_run_ids) != expected_trace_ids
+        ):
+            raise IntegrityViolation("log trace scope proof is incomplete or ambiguous")
         sanitized: list[LogRecordViewV1] = []
         for item in page.items:
-            _validate_log_result(item.record, query, allowed_run_ids)
+            item_run_ids = {
+                value
+                for value in (item.record.run_id, item.record.producer_run_id)
+                if value is not None
+            }
+            if item.record.trace_id is not None:
+                item_run_ids.update(trace_run_ids[item.record.trace_id])
+            _validate_log_result(
+                item.record,
+                query,
+                allowed_run_id_set,
+                item_run_ids=item_run_ids,
+            )
             redacted = self._redactor.redact_log(item)
             if (
                 type(redacted) is not LogRecordViewV1
@@ -586,18 +712,7 @@ class _ObservabilityReadOperations:
         resource_kind: str,
         query_hash: str,
     ) -> tuple[ReadAuthorizationBinding, tuple[RunObservabilityScope, ...]]:
-        unique_run_ids = tuple(sorted(set(run_ids)))
-        scopes: list[RunObservabilityScope] = []
-        for run_id in unique_run_ids:
-            scope = self._port.get_run_scope(run_id)
-            if scope is None:
-                raise IntegrityViolation(
-                    "authoritative Run scope is unavailable",
-                    run_id=run_id,
-                )
-            if type(scope) is not RunObservabilityScope or scope.run_id != run_id:
-                raise IntegrityViolation("Run scope authority returned a different Run")
-            scopes.append(scope)
+        scopes = list(self._load_run_scopes(run_ids))
 
         scope_evidence = [
             {
@@ -648,6 +763,26 @@ class _ObservabilityReadOperations:
             ),
             tuple(scopes),
         )
+
+    def _load_run_scopes(
+        self,
+        run_ids: Sequence[str],
+    ) -> tuple[RunObservabilityScope, ...]:
+        unique_run_ids = tuple(sorted(set(run_ids)))
+        if len(unique_run_ids) > MAX_QUERY_FILTER_ITEMS:
+            raise QueryTooBroad("observability Run scope exceeds the service cap")
+        scopes: list[RunObservabilityScope] = []
+        for run_id in unique_run_ids:
+            scope = self._port.get_run_scope(run_id)
+            if scope is None:
+                raise IntegrityViolation(
+                    "authoritative Run scope is unavailable",
+                    run_id=run_id,
+                )
+            if type(scope) is not RunObservabilityScope or scope.run_id != run_id:
+                raise IntegrityViolation("Run scope authority returned a different Run")
+            scopes.append(scope)
+        return tuple(scopes)
 
 
 class ObservabilityReadService:
@@ -868,6 +1003,8 @@ def _validate_log_result(
     record: LogRecordV1,
     query: LogQueryV1,
     allowed_run_ids: set[str],
+    *,
+    item_run_ids: set[str],
 ) -> None:
     if not query.time_range.start_utc <= record.ts_utc < query.time_range.end_utc:
         raise IntegrityViolation("log adapter returned an item outside the time range")
@@ -882,12 +1019,8 @@ def _validate_log_result(
     )
     if not all(checks):
         raise IntegrityViolation("log adapter returned an item outside the exact filters")
-    if allowed_run_ids:
-        item_run_ids = {
-            value for value in (record.run_id, record.producer_run_id) if value is not None
-        }
-        if not item_run_ids <= allowed_run_ids:
-            raise IntegrityViolation("log adapter returned an unauthorized Run scope")
+    if not item_run_ids <= allowed_run_ids:
+        raise IntegrityViolation("log adapter returned an unauthorized Run scope")
 
 
 def _exact_metric_descriptors(
