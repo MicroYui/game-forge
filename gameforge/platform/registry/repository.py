@@ -46,6 +46,7 @@ from gameforge.contracts.jobs import (
     VersionTransitionPolicyV1,
     artifact_lineage_policy_digest,
     patch_repair_requires_root_seed,
+    validation_regression_requires_root_seed,
 )
 from gameforge.contracts.playtest import (
     CompletionOracleRegistryRefV1,
@@ -249,6 +250,24 @@ class ImmutablePlatformRegistry:
             identity=lambda item: item.catalog_version,
             label="execution-profile catalog",
         )
+        retained_profile_definitions: dict[ProfileRefV1, tuple[str, int]] = {}
+        for catalog_version in sorted(self._execution_profile_catalogs):
+            catalog = self._execution_profile_catalogs[catalog_version]
+            for definition in catalog.definitions:
+                payload_hash = execution_profile_payload_hash(definition)
+                retained = retained_profile_definitions.get(definition.profile)
+                if retained is not None and retained[0] != payload_hash:
+                    raise IntegrityViolation(
+                        "execution profile definition has conflicting retained history",
+                        profile_id=definition.profile.profile_id,
+                        profile_version=definition.profile.version,
+                        first_catalog_version=retained[1],
+                        conflicting_catalog_version=catalog_version,
+                    )
+                retained_profile_definitions[definition.profile] = (
+                    payload_hash,
+                    catalog_version,
+                )
         matrices = list(migration_capability_matrices)
         registries = tuple(migration_capability_registries)
         _index_exact(
@@ -694,10 +713,16 @@ class ImmutablePlatformRegistry:
             )
 
         if definition.seed_policy == "profile_dependent":
-            stochastic = any(
-                definitions_by_ref[(binding.profile.profile_id, binding.profile.version)].stochastic
-                for binding in actual.values()
-            ) or patch_repair_requires_root_seed(payload.params)
+            stochastic = (
+                any(
+                    definitions_by_ref[
+                        (binding.profile.profile_id, binding.profile.version)
+                    ].stochastic
+                    for binding in actual.values()
+                )
+                or patch_repair_requires_root_seed(payload.params)
+                or validation_regression_requires_root_seed(payload.params)
+            )
             if stochastic != (payload.seed is not None):
                 raise IntegrityViolation(
                     "profile-dependent seed must match the resolved stochastic profiles"

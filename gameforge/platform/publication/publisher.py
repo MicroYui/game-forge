@@ -22,7 +22,12 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
-from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
+from gameforge.contracts.canonical import (
+    canonical_json,
+    canonical_sha256,
+    sha256_lowerhex,
+    typed_canonical_json,
+)
 from gameforge.contracts.cassette import CassetteRecordV1, CassetteRecordV2
 from gameforge.contracts.cassette_import import CassetteBundleV1
 from gameforge.contracts.config_export import (
@@ -38,7 +43,7 @@ from gameforge.contracts.execution_profiles import (
     TaskSuiteDerivationProfileConfigV2,
     execution_profile_payload_hash,
 )
-from gameforge.contracts.findings import FindingRevisionV1
+from gameforge.contracts.findings import Finding, FindingRevisionV1
 from gameforge.contracts.jobs import (
     AgentPromptContextV1,
     CheckerRunPayloadV1,
@@ -51,6 +56,7 @@ from gameforge.contracts.jobs import (
     PreparedRunResult,
     PatchValidationPayloadV1,
     PlaytestRunPayloadV1,
+    ReviewRunPayloadV1,
     RequirementDispositionV1,
     ResolvedPolicySnapshotV1,
     RetryDecisionV1,
@@ -118,9 +124,11 @@ from gameforge.platform.approvals.validation import (
     validate_strict_superseded_subject_binding,
 )
 from gameforge.platform.publication.findings import PlannedFindingWrite, plan_finding_write
+from gameforge.platform.run_handlers.base import finding_to_payload
 from gameforge.platform.publication.lineage import (
     LineageParentSources,
     ParentInfo,
+    TypedLineage,
     project_typed_lineage,
     resolve_child_payload_references,
 )
@@ -2006,11 +2014,12 @@ class TerminalPublisher:
                         cassette_id = runtime.cassette_ids_by_scope.get("run_bundle")
                     elif run.payload.llm_execution_mode == "replay":
                         cassette_id = runtime.cassette_ids_by_scope.get("replay_input")
-                producer_env_contract_version = self._config_export_producer_env(
+                producer_env_contract_version = self._domain_producer_env(
                     run=run,
                     rule=rule,
                     payload_schema_id=view.payload_schema_id,
                     payload=payload,
+                    typed_lineage=typed,
                 )
                 producer_facts = self._producer_facts.resolve(
                     run=run,
@@ -2108,13 +2117,28 @@ class TerminalPublisher:
                 authoritative_parent_payloads: dict[str, Mapping[str, object]] = {}
                 if isinstance(
                     run.payload.params,
-                    (CheckerRunPayloadV1, SimulationRunPayloadV1, PlaytestRunPayloadV1),
+                    (
+                        CheckerRunPayloadV1,
+                        SimulationRunPayloadV1,
+                        PlaytestRunPayloadV1,
+                        ReviewRunPayloadV1,
+                        PatchValidationPayloadV1,
+                        ConstraintValidationPayloadV1,
+                    ),
                 ):
-                    parent_roles = (
-                        ("task_suite", "selected_scenarios")
-                        if isinstance(run.payload.params, PlaytestRunPayloadV1)
-                        else ("constraint", "scenario")
-                    )
+                    if isinstance(run.payload.params, PlaytestRunPayloadV1):
+                        parent_roles = ("task_suite", "selected_scenarios")
+                    elif isinstance(run.payload.params, SimulationRunPayloadV1):
+                        parent_roles = ("constraint", "scenario")
+                    elif isinstance(run.payload.params, ConstraintValidationPayloadV1):
+                        parent_roles = ("proposal",)
+                    else:
+                        # Checker, Review checker/simulation companions, and Patch
+                        # validation checker/simulation companions all prove their
+                        # exact constraint application against the retained parent
+                        # payload.  Supplying only typed parent metadata here leaves
+                        # that proof unreachable at the real Terminal boundary.
+                        parent_roles = ("constraint",)
                     for role in parent_roles:
                         for parent in typed.parents_by_role.get(role, ()):
                             parent_payload = authoritative_parent_payload_cache.get(
@@ -2240,15 +2264,59 @@ class TerminalPublisher:
             agent_graph_version=identity.agent_graph_version,
         )
 
-    def _config_export_producer_env(
+    def _domain_producer_env(
         self,
         *,
         run: RunRecord,
         rule: OutcomeArtifactRuleV1,
         payload_schema_id: str,
         payload: Mapping[str, object],
+        typed_lineage: TypedLineage,
     ) -> str | None:
-        """Resolve per-export environment facts from the exact frozen profile."""
+        """Resolve child-local environment facts from retained authorities."""
+
+        if (
+            rule.artifact_kind == "regression_evidence"
+            and payload_schema_id == "regression-evidence@1"
+        ):
+            suites = tuple(typed_lineage.parents_by_role.get("regression_suite", ()))
+            if len(suites) > 1:
+                raise IntegrityViolation(
+                    "regression evidence resolves more than one suite environment"
+                )
+            if suites:
+                env_contract_version = suites[0].version_tuple.env_contract_version
+                if env_contract_version is None:
+                    raise IntegrityViolation(
+                        "regression suite lacks its environment contract version"
+                    )
+                return env_contract_version
+
+            if isinstance(run.payload.params, PatchValidationPayloadV1):
+                configs = tuple(typed_lineage.parents_by_role.get("candidate_config", ()))
+                config_envs = {artifact.version_tuple.env_contract_version for artifact in configs}
+                if None in config_envs:
+                    raise IntegrityViolation(
+                        "patch validation candidate config lacks its environment contract"
+                    )
+                if len(config_envs) > 1:
+                    raise IntegrityViolation(
+                        "patch validation candidate configs disagree on environment contract"
+                    )
+                if config_envs:
+                    return next(iter(config_envs))
+
+            # Rollback uses this rule both for target-only deterministic
+            # dimensions and for optional per-suite children.  Suite authority
+            # above takes precedence; otherwise the exact target is authoritative.
+            targets = tuple(typed_lineage.parents_by_role.get("target", ()))
+            if len(targets) > 1:
+                raise IntegrityViolation(
+                    "regression evidence resolves more than one target environment"
+                )
+            if targets:
+                return targets[0].version_tuple.env_contract_version
+            return None
 
         if payload_schema_id != "config-export-package@1":
             return None
@@ -2815,6 +2883,103 @@ class TerminalPublisher:
         published: "_PublishedArtifacts",
         occurred_at: str,
     ) -> int:
+        prepared_by_index: dict[int, list[object]] = {}
+        for item in prepared.findings:
+            prepared_by_index.setdefault(item.evidence_artifact_index, []).append(
+                json.loads(canonical_json(item.payload.model_dump(mode="json")))
+            )
+        embedded_fields = (
+            "findings",
+            "deterministic_findings",
+            "llm_assisted_findings",
+            "simulation_findings",
+            "unproven_findings",
+        )
+        for index, payload in published.payloads_by_index.items():
+            if (
+                run.kind.kind
+                not in {
+                    "patch.validate",
+                    "constraint_proposal.validate",
+                    "rollback.validate",
+                }
+                or prepared.artifacts[index].payload_schema_id != "regression-evidence@1"
+            ):
+                continue
+            actual: list[object] = []
+            containers = [payload]
+            detail = payload.get("detail")
+            if isinstance(detail, Mapping):
+                containers.append(detail)
+            has_embedded = False
+            for container in containers:
+                for field_name in embedded_fields:
+                    raw = container.get(field_name)
+                    if raw is None:
+                        continue
+                    has_embedded = True
+                    if not isinstance(raw, (list, tuple)):
+                        raise IntegrityViolation(
+                            "published embedded Finding collection is invalid",
+                            field=field_name,
+                        )
+                    for value in raw:
+                        try:
+                            finding = Finding.model_validate(value)
+                        except (TypeError, ValueError) as exc:
+                            raise IntegrityViolation(
+                                "published embedded Finding is invalid",
+                                field=field_name,
+                            ) from exc
+                        if finding.producer_run_id != run.run_id:
+                            raise IntegrityViolation(
+                                "embedded Finding producer differs from current Run"
+                            )
+                        if (
+                            run.kind.kind == "patch.validate"
+                            and payload.get("dimension") == "checker"
+                            and finding.source == "llm"
+                            and finding.oracle_type == "llm-assisted"
+                            and finding.status == "unproven"
+                            and finding.producer_id == "llm-routed"
+                            and finding.defect_class == "llm_assisted_predicate"
+                            and finding.constraint_id is not None
+                        ):
+                            # This is the exact fail-closed placeholder for a DSL
+                            # predicate outside deterministic checker authority. It
+                            # remains embedded evidence (and keeps the dimension
+                            # unproven), but the validation Finding policy correctly
+                            # forbids publishing LLM judgment as a Finding row. The
+                            # payload binder already re-proved the constraint id and
+                            # LLM predicate against the retained parent DSL.
+                            continue
+                        actual.append(
+                            json.loads(
+                                canonical_json(
+                                    finding_to_payload(
+                                        finding,
+                                        producer_run_id=run.run_id,
+                                    ).model_dump(mode="json")
+                                )
+                            )
+                        )
+            expected = prepared_by_index.pop(index, [])
+            if not has_embedded:
+                if expected:
+                    raise IntegrityViolation(
+                        "PreparedFinding has no exact embedded Finding closure",
+                        evidence_artifact_index=index,
+                    )
+                continue
+            if sorted(map(typed_canonical_json, actual)) != sorted(
+                map(typed_canonical_json, expected)
+            ):
+                raise IntegrityViolation(
+                    "embedded Findings differ from PreparedFinding closure",
+                    evidence_artifact_index=index,
+                    embedded=tuple(sorted(map(typed_canonical_json, actual))),
+                    prepared=tuple(sorted(map(typed_canonical_json, expected))),
+                )
         if not prepared.findings:
             return 0
         if plan.finding_policy is None:

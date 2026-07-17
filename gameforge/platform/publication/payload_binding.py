@@ -22,6 +22,7 @@ from gameforge.contracts.canonical import (
     compute_snapshot_id,
     typed_canonical_json,
 )
+from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
     ArtifactMigrationPayloadV1,
@@ -45,9 +46,19 @@ from gameforge.contracts.jobs import (
 )
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.playtest import PlaytestTraceV1, ScenarioSpecV1, TaskSuiteV1
+from gameforge.contracts.workflow import (
+    CONSTRAINT_COMPILE_REASON_CODES_V1,
+    CONSTRAINT_COMPILE_REQUIREMENT_KIND,
+)
 from gameforge.platform.publication.lineage import ParentInfo, TypedLineage
 from gameforge.platform.publication.payload_schema import ARTIFACT_PAYLOAD_VALIDATORS
 from gameforge.platform.publication.producer import BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES
+from gameforge.platform.run_handlers.validation_common import (
+    PATCH_SIMULATION_EXECUTION_MODE_V1,
+    VALIDATION_SEED_DERIVATION_VERSION,
+    derive_validation_subseed,
+    regression_suite_execution_coverage_binding,
+)
 
 
 SemanticSelector = tuple[str, int, str, int, str, str, str]
@@ -223,6 +234,108 @@ def _constraint_ids_from_parent(
     return tuple(sorted(ids))
 
 
+def _llm_constraint_ids_from_parent(
+    payloads: Mapping[str, Mapping[str, object]] | None,
+    artifact_id: str,
+) -> frozenset[str]:
+    """Resolve the exact constraints whose retained DSL needs LLM fallback."""
+
+    payload = _authoritative_parent_payload(payloads, artifact_id)
+    raw_constraints = payload.get("constraints")
+    if not isinstance(raw_constraints, Sequence) or isinstance(
+        raw_constraints, (str, bytes, bytearray)
+    ):
+        raise IntegrityViolation(
+            "authoritative constraint parent has no exact constraint array",
+            artifact_id=artifact_id,
+        )
+    values: set[str] = set()
+    try:
+        constraints = tuple(Constraint.model_validate(item) for item in raw_constraints)
+    except (TypeError, ValueError) as exc:
+        raise IntegrityViolation(
+            "authoritative constraint parent has invalid DSL",
+            artifact_id=artifact_id,
+        ) from exc
+    for constraint in constraints:
+        if constraint.has_llm_predicate():
+            values.add(constraint.id)
+    return frozenset(values)
+
+
+def _validate_constraint_compile_execution(
+    *,
+    params: ConstraintValidationPayloadV1,
+    payload: Mapping[str, object],
+) -> None:
+    """Bind the frozen V1 stage set to the exact Run engine/golden request."""
+
+    raw_stages = payload.get("stages")
+    if not isinstance(raw_stages, Sequence) or isinstance(raw_stages, (str, bytes, bytearray)):
+        _fail("constraint compile evidence has no exact stage array")
+    for stage in raw_stages:
+        if not isinstance(stage, Mapping):
+            _fail("constraint compile evidence contains an invalid stage")
+        status = stage.get("status")
+        if status == "passed":
+            continue
+        stage_kind = stage.get("stage")
+        engine_id = stage.get("engine_id") if stage_kind == "differential" else None
+        identity = (stage_kind, status, engine_id, stage.get("reason_code"))
+        wildcard_identity = (stage_kind, status, "*", stage.get("reason_code"))
+        if (
+            identity not in CONSTRAINT_COMPILE_REASON_CODES_V1
+            and wildcard_identity not in CONSTRAINT_COMPILE_REASON_CODES_V1
+        ):
+            _fail("constraint compile evidence reason is not allowlisted")
+    differential_stages = tuple(
+        stage
+        for stage in raw_stages
+        if isinstance(stage, Mapping) and stage.get("stage") == "differential"
+    )
+    if len(differential_stages) < 2:
+        _fail("constraint compile evidence requires at least two engines")
+    golden_stages = tuple(
+        stage
+        for stage in raw_stages
+        if isinstance(stage, Mapping) and stage.get("stage") == "golden"
+    )
+    if len(golden_stages) != 1:
+        _fail("constraint compile evidence requires one exact golden stage")
+    golden_stage = golden_stages[0]
+    if params.golden_suite_artifact_id is None:
+        if (
+            golden_stage.get("status") != "not_applicable"
+            or golden_stage.get("reason_code") != "golden_suite_absent"
+        ):
+            _fail("constraint compile evidence golden absence is not exact")
+    elif golden_stage.get("status") == "not_applicable":
+        _fail("constraint compile evidence skipped the bound golden suite")
+
+    expected_engines = {
+        (engine.engine_id, engine.version) for engine in params.differential_engines
+    }
+    actual_engines: set[tuple[str, int]] = set()
+    for stage in differential_stages:
+        engine_id = stage.get("engine_id")
+        engine_version = stage.get("engine_version")
+        if not isinstance(engine_id, str) or not engine_id:
+            _fail("constraint compile evidence stage has no exact engine id")
+        if (
+            not isinstance(engine_version, str)
+            or not engine_version.isdecimal()
+            or engine_version != str(int(engine_version))
+            or int(engine_version) < 1
+        ):
+            _fail("constraint compile evidence engine version is not canonical")
+        engine_key = (engine_id, int(engine_version))
+        if engine_key in actual_engines:
+            _fail("constraint compile evidence repeats an engine identity")
+        actual_engines.add(engine_key)
+    if actual_engines != expected_engines:
+        _fail("constraint compile evidence engines differ from the exact Run")
+
+
 def _scenario_id_from_parent(
     payloads: Mapping[str, Mapping[str, object]] | None,
     artifact_id: str,
@@ -349,14 +462,20 @@ def _validate_typed_run_parents(
     if isinstance(params, PatchValidationPayloadV1):
         _expect_role_ids(typed, "subject", (params.subject.subject_artifact_id,))
         _expect_role_ids(typed, "target", (params.preview_snapshot_artifact_id,))
+        _expect_role_ids(typed, "constraint", (params.constraint_snapshot_artifact_id,))
         _expect_role_ids(typed, "candidate_config", params.candidate_config_export_artifact_ids)
         _expect_role_ids(
             typed,
             "supporting_evidence",
-            (
-                *params.review_artifact_ids,
-                *params.playtest_trace_artifact_ids,
-                *(item.evidence_artifact_id for item in params.findings),
+            tuple(
+                sorted(
+                    {
+                        *params.review_artifact_ids,
+                        *params.playtest_trace_artifact_ids,
+                        *(item.evidence_artifact_id for item in params.expected_findings),
+                        *(item.evidence_artifact_id for item in params.findings),
+                    }
+                )
             ),
         )
         return
@@ -367,6 +486,7 @@ def _validate_typed_run_parents(
     if isinstance(params, RollbackValidationPayloadV1):
         _expect_role_ids(typed, "subject", (params.subject.subject_artifact_id,))
         _expect_role_ids(typed, "target", (params.target_artifact_id,))
+        _expect_role_ids(typed, "current", (params.expected_current_ref.artifact_id,))
         return
     if isinstance(params, BenchRunPayloadV1):
         _expect_role_ids(typed, "dataset", (params.dataset_artifact_id,))
@@ -391,6 +511,130 @@ def _validate_profile_member(
         return
     if not any(_same(payload[field], profile) for profile in profiles):
         _fail("payload profile is not one of the frozen Run profiles", field=field)
+
+
+def _checker_finding_execution_keys(
+    payload: Mapping[str, object],
+) -> tuple[tuple[str, str | None], ...]:
+    raw_findings = payload.get("findings")
+    if raw_findings is None:
+        detail = payload.get("detail")
+        if isinstance(detail, Mapping):
+            raw_findings = detail.get("findings")
+    if not isinstance(raw_findings, Sequence) or isinstance(raw_findings, (str, bytes, bytearray)):
+        return ()
+    keys: list[tuple[str, str | None]] = []
+    for finding in raw_findings:
+        if not isinstance(finding, Mapping):
+            continue
+        if finding.get("source") != "checker" or finding.get("oracle_type") != "deterministic":
+            continue
+        producer_id = finding.get("producer_id")
+        constraint_id = finding.get("constraint_id")
+        if not isinstance(producer_id, str) or not producer_id:
+            _fail("checker Finding has no exact producer", field="findings.producer_id")
+        if constraint_id is not None and (not isinstance(constraint_id, str) or not constraint_id):
+            _fail("checker Finding has an invalid constraint", field="findings.constraint_id")
+        keys.append((producer_id.removeprefix("checker:"), constraint_id))
+    return tuple(keys)
+
+
+def _validate_review_checker_companion(
+    *,
+    params: ReviewRunPayloadV1,
+    payload: Mapping[str, object],
+    authoritative_parent_payloads: Mapping[str, Mapping[str, object]] | None,
+) -> None:
+    """Close Review's checker evidence over profile, input and real executors."""
+
+    _validate_profile_member(payload, "profile", params.checker_profiles)
+    _expect(
+        _required_field(payload, "checker_profile"),
+        _required_field(payload, "profile"),
+        field="checker_profile",
+    )
+    bindings = _required_field(payload, "checker_execution_bindings")
+    applications = _required_field(payload, "constraint_application")
+    if not isinstance(bindings, Sequence) or isinstance(bindings, (str, bytes, bytearray)):
+        _fail("review checker execution bindings are not an array")
+    if not isinstance(applications, Sequence) or isinstance(applications, (str, bytes, bytearray)):
+        _fail("review checker constraint applications are not an array")
+
+    binding_keys: set[tuple[object, object]] = set()
+    scoped_ids: list[str] = []
+    for item in bindings:
+        if not isinstance(item, Mapping):
+            _fail("review checker execution binding is not an object")
+        native_id = item.get("native_id")
+        constraint_id = item.get("constraint_id")
+        if not isinstance(native_id, str) or not native_id:
+            _fail("review checker execution binding has no native id")
+        binding_keys.add((native_id, constraint_id))
+        if constraint_id is not None:
+            if not isinstance(constraint_id, str) or not constraint_id:
+                _fail("review checker execution binding has an invalid constraint id")
+            scoped_ids.append(constraint_id)
+    if len(binding_keys) != len(bindings) or len(scoped_ids) != len(set(scoped_ids)):
+        _fail("review checker execution bindings are not exact-unique")
+
+    application_keys = {
+        (item.get("checker_id"), item.get("constraint_id"))
+        for item in applications
+        if isinstance(item, Mapping) and item.get("status") == "executed"
+    }
+    expected_application_keys = {
+        (native_id, constraint_id)
+        for native_id, constraint_id in binding_keys
+        if constraint_id is not None
+    }
+    if application_keys != expected_application_keys or len(application_keys) != len(applications):
+        _fail("review checker applications differ from trusted execution bindings")
+
+    constraint_artifact_id = params.constraint_snapshot_artifact_id
+    expected_status = "not_applicable" if constraint_artifact_id is None else "bound"
+    _expect(
+        _required_field(payload, "constraint_snapshot_binding_status"),
+        expected_status,
+        field="constraint_snapshot_binding_status",
+    )
+    _expect(
+        payload.get("constraint_snapshot_artifact_id"),
+        constraint_artifact_id,
+        field="constraint_snapshot_artifact_id",
+    )
+    expected_constraint_ids = (
+        ()
+        if constraint_artifact_id is None
+        else _constraint_ids_from_parent(authoritative_parent_payloads, constraint_artifact_id)
+    )
+    if not set(scoped_ids).issubset(expected_constraint_ids):
+        _fail("review checker binding names a constraint outside the exact Run input")
+
+    llm_placeholder_ids: set[str] = set()
+    raw_findings = payload.get("findings")
+    if not isinstance(raw_findings, Sequence) or isinstance(raw_findings, (str, bytes, bytearray)):
+        _fail("review checker findings are not an array")
+    for finding in raw_findings:
+        if not isinstance(finding, Mapping):
+            _fail("review checker finding is not an object")
+        constraint_id = finding.get("constraint_id")
+        if constraint_id is not None and constraint_id not in expected_constraint_ids:
+            _fail("review checker Finding names a constraint outside the exact Run input")
+        if finding.get("source") == "checker" and finding.get("oracle_type") == "deterministic":
+            producer_id = finding.get("producer_id")
+            if (producer_id, constraint_id) not in binding_keys:
+                _fail("review checker Finding differs from its trusted execution binding")
+        elif (
+            finding.get("source") == "llm"
+            and finding.get("oracle_type") == "llm-assisted"
+            and isinstance(constraint_id, str)
+        ):
+            llm_placeholder_ids.add(constraint_id)
+        elif constraint_id is not None:
+            _fail("review checker constrained Finding has no exact execution authority")
+
+    if set(scoped_ids) | llm_placeholder_ids != set(expected_constraint_ids):
+        _fail("review checker evidence does not close the exact constraint input")
 
 
 def _validate_patch_payload(
@@ -463,16 +707,24 @@ def _validate_config_payload(
 def _expected_requirement_ids(run: RunRecord) -> frozenset[str]:
     params = run.payload.params
     if isinstance(params, PatchValidationPayloadV1):
-        return frozenset(
-            {
-                *(f"checker:{_profile_key(profile)}" for profile in params.checker_profiles),
-                *(f"simulation:{_profile_key(profile)}" for profile in params.simulation_profiles),
-                *(
-                    f"regression:{artifact_id}"
-                    for artifact_id in params.regression_suite_artifact_ids
-                ),
-            }
-        )
+        values = {
+            *(f"checker:{_profile_key(profile)}" for profile in params.checker_profiles),
+            *(f"simulation:{_profile_key(profile)}" for profile in params.simulation_profiles),
+            *(f"regression:{artifact_id}" for artifact_id in params.regression_suite_artifact_ids),
+            *(
+                f"expected-finding:{binding.finding_id}@{binding.finding_revision}"
+                for binding in params.expected_findings
+            ),
+            *(
+                f"finding:{binding.finding_id}@{binding.finding_revision}"
+                for binding in params.findings
+            ),
+            *(f"review:{artifact_id}" for artifact_id in params.review_artifact_ids),
+            *(f"playtest:{artifact_id}" for artifact_id in params.playtest_trace_artifact_ids),
+        }
+        if not values:
+            values.add("validation:required-dimension")
+        return frozenset(values)
     if isinstance(params, ConstraintValidationPayloadV1):
         return frozenset(
             {
@@ -504,8 +756,232 @@ def _expected_requirement_ids(run: RunRecord) -> frozenset[str]:
     )
 
 
+def _require_dimension_detail(payload: Mapping[str, object]) -> Mapping[str, object]:
+    detail = _required_field(payload, "detail")
+    if not isinstance(detail, Mapping):
+        _fail("validation requirement detail is not an object", field="detail")
+    return detail
+
+
+def _validate_patch_requirement_descriptor(
+    *, run: RunRecord, payload: Mapping[str, object], requirement_id: str
+) -> None:
+    params = run.payload.params
+    assert isinstance(params, PatchValidationPayloadV1)
+
+    descriptors: dict[str, tuple[str | None, object | None]] = {
+        f"checker:{_profile_key(profile)}": ("checker", profile)
+        for profile in params.checker_profiles
+    }
+    descriptors.update(
+        {
+            f"simulation:{_profile_key(profile)}": ("simulation", profile)
+            for profile in params.simulation_profiles
+        }
+    )
+    descriptors.update(
+        {
+            f"regression:{artifact_id}": (None, artifact_id)
+            for artifact_id in params.regression_suite_artifact_ids
+        }
+    )
+    descriptors.update(
+        {
+            f"expected-finding:{binding.finding_id}@{binding.finding_revision}": (
+                "expected_finding_reverification",
+                binding,
+            )
+            for binding in params.expected_findings
+        }
+    )
+    descriptors.update(
+        {
+            f"finding:{binding.finding_id}@{binding.finding_revision}": ("finding", binding)
+            for binding in params.findings
+        }
+    )
+    descriptors.update(
+        {
+            f"review:{artifact_id}": ("review", artifact_id)
+            for artifact_id in params.review_artifact_ids
+        }
+    )
+    descriptors.update(
+        {
+            f"playtest:{artifact_id}": ("playtest", artifact_id)
+            for artifact_id in params.playtest_trace_artifact_ids
+        }
+    )
+    if not descriptors:
+        descriptors["validation:required-dimension"] = ("validation_input", None)
+
+    descriptor = descriptors.get(requirement_id)
+    if descriptor is None:
+        _fail(
+            "patch validation requirement has no exact frozen descriptor",
+            field="requirement_id",
+        )
+    expected_dimension, authority = descriptor
+    _expect(payload.get("dimension"), expected_dimension, field="dimension")
+
+    if expected_dimension is None:
+        _expect(
+            payload.get("suite_artifact_id"),
+            authority,
+            field="suite_artifact_id",
+        )
+        return
+    if expected_dimension in {"checker", "simulation"}:
+        return
+
+    detail = _require_dimension_detail(payload)
+    if expected_dimension in {"review", "playtest"}:
+        _expect(
+            _required_field(detail, "source_artifact_id"),
+            authority,
+            field="detail.source_artifact_id",
+        )
+        return
+    if expected_dimension in {"finding", "expected_finding_reverification"}:
+        binding = authority
+        _expect(
+            _required_field(detail, "finding_id"),
+            binding.finding_id,
+            field="detail.finding_id",
+        )
+        _expect(
+            _required_field(detail, "finding_revision"),
+            binding.finding_revision,
+            field="detail.finding_revision",
+        )
+        _expect(
+            _required_field(detail, "finding_digest"),
+            binding.finding_digest,
+            field="detail.finding_digest",
+        )
+        _expect(
+            _required_field(detail, "source_artifact_id"),
+            binding.evidence_artifact_id,
+            field="detail.source_artifact_id",
+        )
+        return
+    if expected_dimension == "validation_input":
+        _expect(
+            _required_field(detail, "selected_dimension_count"),
+            0,
+            field="detail.selected_dimension_count",
+        )
+
+
+def _validate_constraint_requirement_descriptor(
+    *, run: RunRecord, payload: Mapping[str, object], requirement_id: str
+) -> None:
+    params = run.payload.params
+    assert isinstance(params, ConstraintValidationPayloadV1)
+    suites_by_requirement = {
+        f"regression:{artifact_id}": artifact_id
+        for artifact_id in params.regression_suite_artifact_ids
+    }
+    suite_id = suites_by_requirement.get(requirement_id)
+    if suite_id is None:
+        _fail(
+            "constraint validation requirement has no exact frozen descriptor",
+            field="requirement_id",
+        )
+    _expect(payload.get("dimension"), None, field="dimension")
+    _expect(payload.get("suite_artifact_id"), suite_id, field="suite_artifact_id")
+
+
+def _validate_rollback_requirement_descriptor(
+    *, run: RunRecord, payload: Mapping[str, object], requirement_id: str
+) -> None:
+    params = run.payload.params
+    assert isinstance(params, RollbackValidationPayloadV1)
+    descriptors: dict[str, tuple[str, object | None]] = {
+        "history": ("history", None),
+        "artifact": ("artifact", None),
+        "schema": ("schema", None),
+        "profile": ("profile", None),
+    }
+    descriptors.update(
+        {
+            f"impact:{_profile_key(profile)}": ("impact", index)
+            for index, profile in enumerate(params.impact_profiles)
+        }
+    )
+    descriptors.update(
+        {
+            f"regression:{artifact_id}": ("regression", artifact_id)
+            for artifact_id in params.regression_suite_artifact_ids
+        }
+    )
+    descriptor = descriptors.get(requirement_id)
+    if descriptor is None:
+        _fail(
+            "rollback validation requirement has no exact frozen descriptor",
+            field="requirement_id",
+        )
+    expected_dimension, authority = descriptor
+    _expect(payload.get("dimension"), expected_dimension, field="dimension")
+    detail = _require_dimension_detail(payload)
+
+    if expected_dimension == "impact":
+        field_path = f"/params/impact_profiles/{authority}"
+        bindings = tuple(
+            binding for binding in run.payload.resolved_profiles if binding.field_path == field_path
+        )
+        if len(bindings) != 1:
+            _fail(
+                "rollback impact requirement has no exact frozen profile binding",
+                field="detail.impact_profile_binding",
+            )
+        _expect(
+            _required_field(detail, "impact_profile_binding"),
+            bindings[0],
+            field="detail.impact_profile_binding",
+        )
+    elif expected_dimension == "regression":
+        _expect(
+            _required_field(detail, "suite_artifact_id"),
+            authority,
+            field="detail.suite_artifact_id",
+        )
+
+
+def _validate_validation_requirement_descriptor(
+    *, run: RunRecord, payload: Mapping[str, object]
+) -> None:
+    requirement_id = _required_field(payload, "requirement_id")
+    if not isinstance(requirement_id, str):
+        _fail("validation requirement identity is not a string", field="requirement_id")
+    params = run.payload.params
+    if isinstance(params, PatchValidationPayloadV1):
+        _validate_patch_requirement_descriptor(
+            run=run,
+            payload=payload,
+            requirement_id=requirement_id,
+        )
+    elif isinstance(params, ConstraintValidationPayloadV1):
+        _validate_constraint_requirement_descriptor(
+            run=run,
+            payload=payload,
+            requirement_id=requirement_id,
+        )
+    elif isinstance(params, RollbackValidationPayloadV1):
+        _validate_rollback_requirement_descriptor(
+            run=run,
+            payload=payload,
+            requirement_id=requirement_id,
+        )
+
+
 def _validate_regression_payload(
-    *, run: RunRecord, payload: Mapping[str, object], projected: VersionTuple
+    *,
+    run: RunRecord,
+    payload: Mapping[str, object],
+    typed: TypedLineage,
+    projected: VersionTuple,
+    authoritative_parent_payloads: Mapping[str, Mapping[str, object]] | None,
 ) -> None:
     if "snapshot_id" in payload:
         _expect(payload["snapshot_id"], projected.ir_snapshot_id, field="snapshot_id")
@@ -516,7 +992,8 @@ def _validate_regression_payload(
     params = run.payload.params
     profile = None
     if isinstance(params, PatchValidationPayloadV1):
-        profile = params.validation_policy
+        if payload.get("dimension") != "simulation":
+            profile = params.validation_policy
     elif isinstance(params, ConstraintValidationPayloadV1):
         profile = params.validation_policy
     elif isinstance(params, RollbackValidationPayloadV1):
@@ -529,12 +1006,492 @@ def _validate_regression_payload(
         if "profile_version" in payload:
             _expect(payload["profile_version"], profile.version, field="profile_version")
     suite_id = payload.get("suite_artifact_id")
+    semantic_suite_id = suite_id
+    if isinstance(params, RollbackValidationPayloadV1):
+        detail = payload.get("detail")
+        if payload.get("dimension") == "regression" and isinstance(detail, Mapping):
+            semantic_suite_id = detail.get("suite_artifact_id")
+    if isinstance(params, (PatchValidationPayloadV1, RollbackValidationPayloadV1)):
+        lineage_suite_raw = payload.get("lineage_suite_artifact_ids")
+        if not isinstance(lineage_suite_raw, Sequence) or isinstance(
+            lineage_suite_raw, (str, bytes, bytearray)
+        ):
+            _fail(
+                "validation regression evidence lacks its exact suite lineage selector",
+                field="lineage_suite_artifact_ids",
+            )
+        lineage_suite_ids = tuple(lineage_suite_raw)
+        expected_suite_ids = () if semantic_suite_id is None else (semantic_suite_id,)
+        if lineage_suite_ids != expected_suite_ids:
+            _fail(
+                "regression suite lineage selector differs from its semantic suite",
+                field="lineage_suite_artifact_ids",
+            )
+        typed_suite_ids = _role_ids(typed, "regression_suite")
+        if typed_suite_ids != expected_suite_ids:
+            _fail(
+                "regression suite lineage selector differs from its exact typed parent",
+                field="lineage_suite_artifact_ids",
+            )
     regression_ids = tuple(getattr(params, "regression_suite_artifact_ids", ()))
     if suite_id is not None and suite_id not in regression_ids:
         _fail("regression payload suite is not frozen in the Run", field="suite_artifact_id")
+    if isinstance(params, PatchValidationPayloadV1) and isinstance(suite_id, str):
+        coverage = payload.get("execution_coverage_binding")
+        status = payload.get("status")
+        if status in {"passed", "failed"}:
+            root_seed = _required_field(payload, "root_seed")
+            execution_seed = _required_field(payload, "seed")
+            if (
+                isinstance(root_seed, bool)
+                or not isinstance(root_seed, int)
+                or isinstance(execution_seed, bool)
+                or not isinstance(execution_seed, int)
+                or projected.env_contract_version is None
+            ):
+                _fail("executed regression suite lacks exact coverage authority")
+            expected_coverage = regression_suite_execution_coverage_binding(
+                suite_artifact_id=suite_id,
+                validation_profile=params.validation_policy,
+                constraint_snapshot_artifact_id=(params.constraint_snapshot_artifact_id),
+                env_contract_version=projected.env_contract_version,
+                root_seed=root_seed,
+                run_kind=run.kind,
+                execution_seed=execution_seed,
+            )
+            _expect(
+                _required_field(payload, "execution_coverage_binding"),
+                expected_coverage,
+                field="execution_coverage_binding",
+            )
+        elif coverage is not None:
+            _fail("unproven regression suite carries deterministic execution coverage")
     requirement_id = payload.get("requirement_id")
     if requirement_id is not None and requirement_id not in _expected_requirement_ids(run):
         _fail("regression payload requirement is not frozen in the Run", field="requirement_id")
+    if isinstance(
+        params,
+        (
+            PatchValidationPayloadV1,
+            ConstraintValidationPayloadV1,
+            RollbackValidationPayloadV1,
+        ),
+    ):
+        _validate_validation_requirement_descriptor(run=run, payload=payload)
+    checker_authority_fields = frozenset(
+        {
+            "checker_profile",
+            "checker_execution_bindings",
+            "constraint_snapshot_binding_status",
+            "constraint_snapshot_artifact_id",
+        }
+    )
+    checker_authority_present = any(field in payload for field in checker_authority_fields)
+    checker_dimension = (
+        isinstance(params, PatchValidationPayloadV1) and payload.get("dimension") == "checker"
+    )
+    if checker_dimension:
+        profile_raw = _required_field(payload, "checker_profile")
+        selected_profiles = tuple(
+            profile for profile in params.checker_profiles if _same(profile_raw, profile)
+        )
+        if len(selected_profiles) != 1:
+            _fail(
+                "checker evidence profile is not one exact frozen Run profile",
+                field="checker_profile",
+            )
+        selected_profile = selected_profiles[0]
+        _expect(
+            requirement_id,
+            f"checker:{_profile_key(selected_profile)}",
+            field="requirement_id",
+        )
+        expected_constraint_status = (
+            "not_applicable" if params.constraint_snapshot_artifact_id is None else "bound"
+        )
+        _expect(
+            _required_field(payload, "constraint_snapshot_binding_status"),
+            expected_constraint_status,
+            field="constraint_snapshot_binding_status",
+        )
+        _expect(
+            payload.get("constraint_snapshot_artifact_id"),
+            params.constraint_snapshot_artifact_id,
+            field="constraint_snapshot_artifact_id",
+        )
+        exact_constraint_ids = (
+            frozenset()
+            if params.constraint_snapshot_artifact_id is None
+            else frozenset(
+                _constraint_ids_from_parent(
+                    authoritative_parent_payloads,
+                    params.constraint_snapshot_artifact_id,
+                )
+            )
+        )
+        bindings = _required_field(payload, "checker_execution_bindings")
+        if (
+            not isinstance(bindings, Sequence)
+            or isinstance(bindings, (str, bytes, bytearray))
+            or not bindings
+        ):
+            _fail(
+                "checker evidence lacks deterministic execution bindings",
+                field="checker_execution_bindings",
+            )
+        execution_keys: set[tuple[str, str | None]] = set()
+        for index, binding in enumerate(bindings):
+            if not isinstance(binding, Mapping):
+                _fail(
+                    "checker execution binding is not an object",
+                    field=f"checker_execution_bindings/{index}",
+                )
+            wrapper_id = binding.get("wrapper_id")
+            native_id = binding.get("native_id")
+            constraint_id = binding.get("constraint_id")
+            if not isinstance(wrapper_id, str) or not wrapper_id:
+                _fail(
+                    "checker execution binding has no wrapper identity",
+                    field=f"checker_execution_bindings/{index}/wrapper_id",
+                )
+            if not isinstance(native_id, str) or not native_id:
+                _fail(
+                    "checker execution binding has no native identity",
+                    field=f"checker_execution_bindings/{index}/native_id",
+                )
+            if constraint_id is not None and (
+                not isinstance(constraint_id, str) or not constraint_id
+            ):
+                _fail(
+                    "checker execution binding has an invalid constraint identity",
+                    field=f"checker_execution_bindings/{index}/constraint_id",
+                )
+            if constraint_id is not None and constraint_id not in exact_constraint_ids:
+                _fail(
+                    "checker execution binding names a constraint outside the exact Run input",
+                    field=f"checker_execution_bindings/{index}/constraint_id",
+                )
+            execution_keys.add((native_id, constraint_id))
+        deterministic_finding_keys = _checker_finding_execution_keys(payload)
+        for finding_key in deterministic_finding_keys:
+            if finding_key not in execution_keys:
+                _fail(
+                    "checker Finding differs from its trusted execution binding",
+                    field="findings.producer_id",
+                )
+        raw_findings = payload.get("findings")
+        if raw_findings is None:
+            detail = payload.get("detail")
+            raw_findings = detail.get("findings") if isinstance(detail, Mapping) else None
+        if not isinstance(raw_findings, Sequence) or isinstance(
+            raw_findings, (str, bytes, bytearray)
+        ):
+            _fail("checker evidence findings are not an array")
+        llm_constraint_ids = (
+            frozenset()
+            if params.constraint_snapshot_artifact_id is None
+            else _llm_constraint_ids_from_parent(
+                authoritative_parent_payloads,
+                params.constraint_snapshot_artifact_id,
+            )
+        )
+        for finding in raw_findings:
+            if not isinstance(finding, Mapping):
+                _fail("checker evidence Finding is not an object")
+            if finding.get("source") == "checker" and finding.get("oracle_type") == "deterministic":
+                continue
+            if not (
+                finding.get("source") == "llm"
+                and finding.get("oracle_type") == "llm-assisted"
+                and finding.get("status") == "unproven"
+                and finding.get("producer_id") == "llm-routed"
+                and finding.get("defect_class") == "llm_assisted_predicate"
+                and finding.get("constraint_id") in llm_constraint_ids
+            ):
+                _fail("checker evidence Finding differs from exact execution authority")
+    elif checker_authority_present:
+        _fail(
+            "non-checker regression evidence carries checker execution authority",
+            field="checker_execution_bindings",
+        )
+    simulation_authority = payload.get("simulation_execution_binding")
+    simulation_dimension = (
+        isinstance(params, PatchValidationPayloadV1) and payload.get("dimension") == "simulation"
+    )
+    if simulation_dimension:
+        if not isinstance(simulation_authority, Mapping):
+            _fail("simulation evidence lacks its exact execution binding")
+        profile_raw = _required_field(simulation_authority, "simulation_profile")
+        selected_profiles = tuple(
+            profile for profile in params.simulation_profiles if _same(profile_raw, profile)
+        )
+        if len(selected_profiles) != 1:
+            _fail("simulation evidence profile is not one exact frozen Run profile")
+        selected_profile = selected_profiles[0]
+        simulation_requirement_id = f"simulation:{_profile_key(selected_profile)}"
+        _expect(requirement_id, simulation_requirement_id, field="requirement_id")
+        root_seed = projected.seed
+        if root_seed is None:
+            _fail(
+                "simulation evidence has no frozen Run root seed",
+                field="simulation_execution_binding.seed_binding.root_seed",
+            )
+        execution_seed = derive_validation_subseed(
+            root_seed=root_seed,
+            run_kind=run.kind,
+            profile=selected_profile,
+            case_id=simulation_requirement_id,
+            replication_index=0,
+        )
+        expected_seed_binding = {
+            "root_seed": root_seed,
+            "run_kind": run.kind.model_dump(mode="json"),
+            "profile_id": selected_profile.profile_id,
+            "profile_version": selected_profile.version,
+            "case_id": simulation_requirement_id,
+            "replication_index": 0,
+            "seed": execution_seed,
+            "seed_derivation_version": VALIDATION_SEED_DERIVATION_VERSION,
+        }
+        _expect(
+            _required_field(simulation_authority, "execution_mode"),
+            PATCH_SIMULATION_EXECUTION_MODE_V1,
+            field="simulation_execution_binding.execution_mode",
+        )
+        _expect(
+            _required_field(simulation_authority, "seed_binding"),
+            expected_seed_binding,
+            field="simulation_execution_binding.seed_binding",
+        )
+        seed_authority: Mapping[str, object] = payload
+        if "root_seed" not in seed_authority:
+            detail = payload.get("detail")
+            if not isinstance(detail, Mapping):
+                _fail("simulation evidence has no outer seed authority")
+            seed_authority = detail
+        for field, expected in expected_seed_binding.items():
+            _expect(
+                _required_field(seed_authority, field),
+                expected,
+                field=field,
+            )
+        _expect(
+            _required_field(simulation_authority, "producer_id"),
+            "economy_sim",
+            field="simulation_execution_binding.producer_id",
+        )
+        constraint_artifact_id = params.constraint_snapshot_artifact_id
+        expected_constraint_status = "not_applicable" if constraint_artifact_id is None else "bound"
+        _expect(
+            _required_field(simulation_authority, "constraint_snapshot_binding_status"),
+            expected_constraint_status,
+            field="simulation_execution_binding.constraint_snapshot_binding_status",
+        )
+        _expect(
+            simulation_authority.get("constraint_snapshot_artifact_id"),
+            constraint_artifact_id,
+            field="simulation_execution_binding.constraint_snapshot_artifact_id",
+        )
+        expected_constraint_ids = (
+            ()
+            if constraint_artifact_id is None
+            else _constraint_ids_from_parent(
+                authoritative_parent_payloads,
+                constraint_artifact_id,
+            )
+        )
+        _expect(
+            _required_field(simulation_authority, "constraint_ids"),
+            expected_constraint_ids,
+            field="simulation_execution_binding.constraint_ids",
+        )
+        expected_application = (
+            {"status": "not_applicable"}
+            if constraint_artifact_id is None
+            else {
+                "status": "unproven",
+                "reason_code": "constraint_profile_not_executable",
+            }
+        )
+        _expect(
+            _required_field(simulation_authority, "constraint_application"),
+            expected_application,
+            field="simulation_execution_binding.constraint_application",
+        )
+        if constraint_artifact_id is not None:
+            _expect(payload.get("status"), "unproven", field="status")
+        raw_findings = payload.get("findings")
+        if raw_findings is None:
+            detail = payload.get("detail")
+            raw_findings = detail.get("findings") if isinstance(detail, Mapping) else None
+        if not isinstance(raw_findings, Sequence) or isinstance(
+            raw_findings, (str, bytes, bytearray)
+        ):
+            _fail("simulation evidence findings are not an array")
+        for finding in raw_findings:
+            if not isinstance(finding, Mapping) or (
+                finding.get("source") != "sim"
+                or finding.get("oracle_type") != "simulation"
+                or finding.get("producer_id") != "economy_sim"
+            ):
+                _fail("simulation Finding differs from its exact execution binding")
+    elif simulation_authority is not None:
+        _fail("non-simulation regression evidence carries simulation execution authority")
+    if isinstance(params, RollbackValidationPayloadV1):
+        detail = _required_field(payload, "detail")
+        if not isinstance(detail, Mapping):
+            _fail("rollback validation evidence detail is not an object", field="detail")
+        _expect(
+            _required_field(detail, "current_artifact_id"),
+            params.expected_current_ref.artifact_id,
+            field="detail.current_artifact_id",
+        )
+        _expect(
+            _required_field(detail, "target_artifact_id"),
+            params.target_artifact_id,
+            field="detail.target_artifact_id",
+        )
+        rollback_bindings = tuple(
+            item
+            for item in run.payload.resolved_profiles
+            if item.field_path == "/params/rollback_profile"
+        )
+        if len(rollback_bindings) != 1:
+            _fail("rollback Run has no exact rollback profile binding")
+        rollback_binding = rollback_bindings[0]
+        dimension = _required_field(payload, "dimension")
+        if dimension == "profile":
+            _expect(
+                _required_field(detail, "rollback_profile_binding"),
+                rollback_binding,
+                field="detail.rollback_profile_binding",
+            )
+        elif dimension == "schema":
+            schema_bindings = tuple(
+                item
+                for item in run.payload.resolved_profiles
+                if item.field_path == "/params/schema_compatibility_policy"
+            )
+            if len(schema_bindings) != 1:
+                _fail("rollback Run has no exact schema profile binding")
+            _expect(
+                _required_field(detail, "schema_profile_binding"),
+                schema_bindings[0],
+                field="detail.schema_profile_binding",
+            )
+            _expect(
+                _required_field(detail, "rollback_profile_binding"),
+                rollback_binding,
+                field="detail.rollback_profile_binding",
+            )
+        elif dimension == "impact":
+            _expect(
+                _required_field(detail, "current_artifact_id"),
+                params.expected_current_ref.artifact_id,
+                field="detail.current_artifact_id",
+            )
+            _expect(
+                _required_field(detail, "current_ref_revision"),
+                params.expected_current_ref.revision,
+                field="detail.current_ref_revision",
+            )
+            impact_binding = detail.get("impact_profile_binding")
+            if not any(
+                impact_binding == item.model_dump(mode="json")
+                for item in run.payload.resolved_profiles
+                if item.field_path.startswith("/params/impact_profiles/")
+            ):
+                _fail(
+                    "rollback impact evidence uses an unfrozen profile binding",
+                    field="detail.impact_profile_binding",
+                )
+            _expect(
+                _required_field(detail, "rollback_profile_binding"),
+                rollback_binding,
+                field="detail.rollback_profile_binding",
+            )
+        elif dimension == "regression":
+            suite = _required_field(detail, "suite_artifact_id")
+            if suite not in params.regression_suite_artifact_ids:
+                _fail(
+                    "rollback regression evidence uses an unfrozen suite",
+                    field="detail.suite_artifact_id",
+                )
+            if not isinstance(suite, str):
+                _fail(
+                    "rollback regression evidence suite is not an Artifact ID",
+                    field="detail.suite_artifact_id",
+                )
+            _expect(
+                _required_field(payload, "requirement_id"),
+                f"regression:{suite}",
+                field="requirement_id",
+            )
+            _expect(
+                _required_field(detail, "payload_schema_version"),
+                "regression-evidence@1",
+                field="detail.payload_schema_version",
+            )
+            _expect(
+                _required_field(detail, "snapshot_id"),
+                projected.ir_snapshot_id,
+                field="detail.snapshot_id",
+            )
+            _expect(
+                _required_field(detail, "status"),
+                _required_field(payload, "status"),
+                field="detail.status",
+            )
+            root_seed = _required_field(detail, "root_seed")
+            _expect(root_seed, projected.seed, field="detail.root_seed")
+            _expect(
+                _required_field(detail, "run_kind"),
+                run.kind,
+                field="detail.run_kind",
+            )
+            _expect(
+                _required_field(detail, "profile_id"),
+                params.rollback_profile.profile_id,
+                field="detail.profile_id",
+            )
+            _expect(
+                _required_field(detail, "profile_version"),
+                params.rollback_profile.version,
+                field="detail.profile_version",
+            )
+            _expect(_required_field(detail, "case_id"), suite, field="detail.case_id")
+            _expect(
+                _required_field(detail, "replication_index"),
+                0,
+                field="detail.replication_index",
+            )
+            if isinstance(root_seed, bool) or not isinstance(root_seed, int):
+                _fail(
+                    "rollback regression evidence root seed is not an integer",
+                    field="detail.root_seed",
+                )
+            expected_seed = derive_validation_subseed(
+                root_seed=root_seed,
+                run_kind=run.kind,
+                profile=params.rollback_profile,
+                case_id=suite,
+                replication_index=0,
+            )
+            _expect(
+                _required_field(detail, "seed"),
+                expected_seed,
+                field="detail.seed",
+            )
+            _expect(
+                _required_field(detail, "seed_derivation_version"),
+                VALIDATION_SEED_DERIVATION_VERSION,
+                field="detail.seed_derivation_version",
+            )
+            _expect(
+                _required_field(detail, "rollback_profile_binding"),
+                rollback_binding,
+                field="detail.rollback_profile_binding",
+            )
 
 
 def _validate_target_binding(
@@ -614,10 +1571,16 @@ def _expected_evidence_supporting_ids(
     if isinstance(params, PatchValidationPayloadV1):
         values = (
             *sibling_ids("regression"),
+            *(
+                (params.constraint_snapshot_artifact_id,)
+                if params.constraint_snapshot_artifact_id is not None
+                else ()
+            ),
             *params.candidate_config_export_artifact_ids,
             *params.review_artifact_ids,
             *params.playtest_trace_artifact_ids,
             *params.regression_suite_artifact_ids,
+            *(item.evidence_artifact_id for item in params.expected_findings),
             *(item.evidence_artifact_id for item in params.findings),
         )
     elif isinstance(params, ConstraintValidationPayloadV1):
@@ -640,6 +1603,7 @@ def _expected_evidence_supporting_ids(
     elif isinstance(params, RollbackValidationPayloadV1):
         values = (
             *sibling_ids("regression"),
+            params.expected_current_ref.artifact_id,
             params.target_artifact_id,
             *params.regression_suite_artifact_ids,
         )
@@ -656,7 +1620,13 @@ def _expected_evidence_supporting_ids(
 def _validate_evidence_finding_bindings(*, run: RunRecord, payload: Mapping[str, object]) -> None:
     params = run.payload.params
     expected = (
-        tuple(item.model_dump(mode="json") for item in params.findings)
+        tuple(
+            item.model_dump(mode="json")
+            for item in sorted(
+                (*params.expected_findings, *params.findings),
+                key=lambda binding: (binding.finding_id, binding.finding_revision),
+            )
+        )
         if isinstance(params, PatchValidationPayloadV1)
         else ()
     )
@@ -789,6 +1759,24 @@ def _validate_payload_semantics(
         _expect_snapshot(payload, projected)
         if isinstance(params, CheckerRunPayloadV1):
             _expect(
+                _required_field(payload, "checker_profile"),
+                params.checker_profile,
+                field="checker_profile",
+            )
+            expected_constraint_status = (
+                "not_applicable" if params.constraint_snapshot_artifact_id is None else "bound"
+            )
+            _expect(
+                _required_field(payload, "constraint_snapshot_binding_status"),
+                expected_constraint_status,
+                field="constraint_snapshot_binding_status",
+            )
+            _expect(
+                payload.get("constraint_snapshot_artifact_id"),
+                params.constraint_snapshot_artifact_id,
+                field="constraint_snapshot_artifact_id",
+            )
+            _expect(
                 _required_field(payload, "checker_ids"), params.checker_ids, field="checker_ids"
             )
             _expect(
@@ -817,13 +1805,40 @@ def _validate_payload_semantics(
                     expected_constraint_ids,
                     field="constraint_application.constraint_ids",
                 )
+            direct_ids = {value for value in params.checker_ids if isinstance(value, str)}
+            application_keys = {
+                (item.get("checker_id"), item.get("constraint_id"))
+                for item in applications
+                if isinstance(item, Mapping)
+            }
+            for producer_id, constraint_id in _checker_finding_execution_keys(payload):
+                if constraint_id is None:
+                    if producer_id not in direct_ids:
+                        _fail(
+                            "checker Finding producer is not a selected direct executor",
+                            field="findings.producer_id",
+                        )
+                elif (producer_id, constraint_id) not in application_keys:
+                    _fail(
+                        "checker Finding differs from its exact constraint execution",
+                        field="findings.constraint_id",
+                    )
         elif isinstance(params, ReviewRunPayloadV1):
-            _validate_profile_member(payload, "profile", params.checker_profiles)
+            _validate_review_checker_companion(
+                params=params,
+                payload=payload,
+                authoritative_parent_payloads=authoritative_parent_payloads,
+            )
     elif payload_schema_id == "simulation-result@1":
         _expect_snapshot(payload, projected)
         if "seed" in payload:
             _expect(payload["seed"], projected.seed, field="seed")
         if isinstance(params, SimulationRunPayloadV1):
+            _expect(
+                _required_field(payload, "profile"),
+                params.simulation_profile,
+                field="profile",
+            )
             _expect(_required_field(payload, "seed"), projected.seed, field="seed")
             _expect(
                 _required_field(payload, "replication_count"),
@@ -1230,8 +2245,53 @@ def _validate_payload_semantics(
                     field=f"episodes/{index}/scenario/{field}",
                 )
         _expect(actual_selected, expected_selected, field="episodes")
+    elif payload_schema_id == "constraint-snapshot@1" and isinstance(
+        params, ConstraintValidationPayloadV1
+    ):
+        proposal_payload = _authoritative_parent_payload(
+            authoritative_parent_payloads,
+            params.subject.subject_artifact_id,
+        )
+        candidate_dsl = _required_field(payload, "dsl_grammar_version")
+        proposal_dsl = _required_field(proposal_payload, "dsl_grammar_version")
+        candidate_constraints = _required_field(payload, "constraints")
+        proposal_constraints = _required_field(proposal_payload, "constraints")
+        if (
+            not isinstance(candidate_constraints, Sequence)
+            or isinstance(candidate_constraints, (str, bytes, bytearray))
+            or not isinstance(proposal_constraints, Sequence)
+            or isinstance(proposal_constraints, (str, bytes, bytearray))
+        ):
+            _fail("constraint candidate exact proposal has no constraint array")
+        try:
+            normalized_candidate_constraints = tuple(
+                Constraint.model_validate(constraint) for constraint in candidate_constraints
+            )
+            normalized_proposal_constraints = tuple(
+                Constraint.model_validate(constraint).model_dump(mode="python")
+                for constraint in proposal_constraints
+            )
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "constraint candidate exact proposal contains invalid DSL"
+            ) from exc
+        normalized_candidate_payloads = tuple(
+            constraint.model_dump(mode="python") for constraint in normalized_candidate_constraints
+        )
+        if (
+            not _same(candidate_dsl, params.dsl_grammar_version)
+            or not _same(candidate_dsl, proposal_dsl)
+            or normalized_candidate_payloads != normalized_proposal_constraints
+        ):
+            _fail("constraint candidate differs from exact proposal")
     elif payload_schema_id == "regression-evidence@1":
-        _validate_regression_payload(run=run, payload=payload, projected=projected)
+        _validate_regression_payload(
+            run=run,
+            payload=payload,
+            typed=typed,
+            projected=projected,
+            authoritative_parent_payloads=authoritative_parent_payloads,
+        )
     elif payload_schema_id == "constraint-compile-evidence@1":
         assert isinstance(params, ConstraintValidationPayloadV1)
         _expect(
@@ -1259,6 +2319,10 @@ def _validate_payload_semantics(
             _required_field(payload, "compiler_profile"),
             params.compiler_profile,
             field="compiler_profile",
+        )
+        _validate_constraint_compile_execution(
+            params=params,
+            payload=payload,
         )
     elif payload_schema_id == "evidence-set@1":
         _validate_evidence_set(run=run, payload=payload, typed=typed, projected=projected)
@@ -1326,6 +2390,8 @@ def _expected_domain_scope(run: RunRecord, payload: Mapping[str, object]) -> obj
         return params.domain_scope
     if isinstance(params, ConstraintProposalProposePayloadV1):
         return params.domain_scope
+    if isinstance(params, PatchRepairPayloadV1):
+        return run.resource_domain_scope
     return None
 
 
@@ -1428,25 +2494,6 @@ def _requirement_dispositions_for(
         if raw_status not in {"passed", "failed", "unproven"}:
             _fail("compile sibling has no exact overall status", field="overall_status")
         tool = _profile_key(params.compiler_profile)
-        if raw_status == "passed":
-            # A passed stage aggregate can still be conservatively unproven when
-            # no applicable differential engine positively covered the candidate.
-            # That soundness guard is the only allowed divergence and has one
-            # frozen reason code.
-            return (
-                FinalRequirementDispositionFact(
-                    applicability="required",
-                    status="passed",
-                    reason_code=None,
-                    tool_version=tool,
-                ),
-                FinalRequirementDispositionFact(
-                    applicability="required",
-                    status="unproven",
-                    reason_code="no_engine_positively_decided_candidate",
-                    tool_version=tool,
-                ),
-            )
         return (
             FinalRequirementDispositionFact(
                 applicability="required",
@@ -1473,7 +2520,13 @@ def _requirement_dispositions_for(
                 )
             reason_code = reason
         elif isinstance(params, PatchValidationPayloadV1) and "dimension" in payload:
-            reason_code = "checker_budget_unproven"
+            reason = payload.get("reason_code")
+            if not isinstance(reason, str) or not reason:
+                _fail(
+                    "unproven patch validation evidence has no exact reason",
+                    field="reason_code",
+                )
+            reason_code = reason
         elif isinstance(params, RollbackValidationPayloadV1) and "dimension" in payload:
             reason = payload.get("reason_code")
             if not isinstance(reason, str) or not reason:
@@ -1495,6 +2548,11 @@ def _requirement_dispositions_for(
             tool = {
                 "checker": "checker@1",
                 "simulation": "economy-sim@1",
+                "expected_finding_reverification": "finding@1",
+                "finding": "finding@1",
+                "review": "review@1",
+                "playtest": "playtest@1",
+                "validation_input": "patch-validation@1",
             }.get(str(payload.get("dimension")))
             if tool is None:
                 _fail(
@@ -1548,7 +2606,7 @@ def final_sibling_fact_for(
         if requirement_id not in {None, "compile"}:
             _fail("compile-evidence sibling claims a non-compile requirement")
         requirement_id = "compile"
-        requirement_kind = "compile"
+        requirement_kind = CONSTRAINT_COMPILE_REQUIREMENT_KIND
     elif outcome_rule.rule_id == "regression":
         if isinstance(run.payload.params, RollbackValidationPayloadV1):
             dimension = canonical_payload.get("dimension")

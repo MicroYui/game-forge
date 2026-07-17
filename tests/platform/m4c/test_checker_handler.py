@@ -268,6 +268,9 @@ def test_checker_report_payload_carries_findings_and_snapshot_id() -> None:
     primary = outcome.artifacts[0]
     payload = json.loads(store.read_prepared(primary.object_ref))
     assert payload["payload_schema_version"] == CHECKER_REPORT_SCHEMA_ID
+    assert payload["checker_profile"] == {"profile_id": "checker", "version": 1}
+    assert payload["constraint_snapshot_binding_status"] == "not_applicable"
+    assert "constraint_snapshot_artifact_id" not in payload
     assert payload["checker_ids"] == ["graph"]
     assert payload["constraint_application"] == []
     assert len(payload["findings"]) == len(outcome.findings)
@@ -375,6 +378,105 @@ def test_smt_selection_executes_each_exact_numeric_constraint_once() -> None:
     assert report["constraint_application"] == [
         {"constraint_id": "C_cap", "checker_id": "smt", "status": "executed"}
     ]
+    assert report["constraint_snapshot_binding_status"] == "bound"
+    assert report["constraint_snapshot_artifact_id"] == constraint_id
+
+
+def test_checker_profile_rejects_compiled_native_outside_exact_allowlist() -> None:
+    store = FakeArtifactStore()
+    constraint_id = "artifact:numeric-constraints"
+    constraint = Constraint(
+        id="C_cap",
+        kind="numeric",
+        oracle="deterministic",
+        scope=Selector(var="q", node_type="QUEST"),
+        **{"assert": "reward_gold <= 80"},
+        severity="major",
+    )
+    store.register(
+        constraint_id,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    payload = _checker_payload(checker_ids=("graph",)).model_copy(
+        update={"constraint_snapshot_artifact_id": constraint_id}
+    )
+    context = _context(store, payload)
+    store.register(
+        SNAPSHOT_ID,
+        snapshot_bytes(
+            [Entity(id="quest:1", type=NodeType.QUEST, attrs={"reward_gold": 120})],
+            [],
+        ),
+    )
+    restricted = CheckerExecutionPolicy(
+        allowed_checker_ids=("graph",),
+        allowed_defect_classes=("dangling_reference",),
+        max_direct_checker_count=1,
+        max_constraint_count=1,
+        max_work_units=2_000_000,
+    )
+    handler = CheckerRunHandler(
+        blobs=store,
+        store=store,
+        checker_factory=DefaultCheckerFactory(),
+        execution_policy_resolver=lambda _profile: restricted,
+    )
+
+    with pytest.raises(IntegrityViolation, match="compiled checker route"):
+        handler(context)
+
+    assert store.put_count == 0
+
+
+def test_checker_profile_rejects_actual_finding_outside_exact_defect_allowlist() -> None:
+    store = FakeArtifactStore()
+    context = _context(store, _checker_payload())
+    store.register(
+        SNAPSHOT_ID,
+        snapshot_bytes([Entity(id="quest:1", type=NodeType.QUEST, attrs={})], []),
+    )
+    restricted = CheckerExecutionPolicy(
+        allowed_checker_ids=("graph",),
+        allowed_defect_classes=("dangling_reference",),
+        max_direct_checker_count=1,
+        max_constraint_count=0,
+        max_work_units=2_000_000,
+    )
+    handler = CheckerRunHandler(
+        blobs=store,
+        store=store,
+        checker_factory=DefaultCheckerFactory(),
+        execution_policy_resolver=lambda _profile: restricted,
+    )
+
+    with pytest.raises(IntegrityViolation, match="output is outside"):
+        handler(context)
+
+    assert store.put_count == 0
+
+
+def test_restricted_checker_profile_accepts_matching_native_and_finding_taxonomy() -> None:
+    store = FakeArtifactStore()
+    restricted = CheckerExecutionPolicy(
+        allowed_checker_ids=("graph",),
+        allowed_defect_classes=("dangling_reference",),
+        max_direct_checker_count=1,
+        max_constraint_count=0,
+        max_work_units=2_000_000,
+    )
+    handler = CheckerRunHandler(
+        blobs=store,
+        store=store,
+        checker_factory=DefaultCheckerFactory(),
+        execution_policy_resolver=lambda _profile: restricted,
+    )
+
+    outcome = handler(_context(store, _checker_payload()))
+
+    assert [finding.payload.defect_class for finding in outcome.findings] == ["dangling_reference"]
 
 
 def test_checker_work_budget_rejects_before_backend_execution() -> None:

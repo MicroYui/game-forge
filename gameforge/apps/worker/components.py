@@ -10,13 +10,10 @@ The ``executors`` values are the REAL Task-11/12/13 platform handlers (never fak
 the deterministic ``checker``/``simulation`` handlers, the ``task_suite``/``playtest``
 game-composed handlers, the agent-backed generation/repair/constraint handlers, and
 the validation handlers — plus the two Task-14 ``DEFERRED_EXECUTORS`` (auto-wrapped by
-``build_executor_resolver``). Handler game ports that already have production impls or
-production defaults are wired as-is; the small number of game ports without a
-production implementation yet (the remaining rollback analyzer) are bound
-to interface-complete, fail-closed *deferred* ports — the executor is still the real
-handler, its game body is deferred (project rule: define the contract now, defer the
-implementation). Bench case loading, real oracle evaluation, exact aggregate reads,
-and strict BenchReport composition are production-bound here.
+``build_executor_resolver``). Rollback validation binds real SQL history, exact
+catalog-backed schema, bounded current→target impact, and headless regression ports.
+Bench case loading, real oracle evaluation, exact aggregate reads, and strict
+BenchReport composition are production-bound here.
 
 The other five maps (``terminal_hooks`` / ``workflow_effects`` / ``profile_handlers`` /
 ``permission_domain_resolvers`` / ``completion_oracles``) are readiness-closure
@@ -45,18 +42,20 @@ from gameforge.contracts.execution_profiles import (
     GenerationProfileConfigV1,
     PatchRepairProfileConfigV1,
     ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
     ReviewProfileConfigV1,
+    RunKindRef,
     SimulationProfileConfigV1,
     WorkloadProfileConfigV1,
 )
 from gameforge.contracts.findings import Finding, FindingRevisionV1, finding_revision_digest
 from gameforge.contracts.jobs import (
+    MAX_COLLECTION_ITEMS,
     MAX_PREPARED_ARTIFACT_BYTES,
     GenerationProposePayloadV1,
     PatchRepairPayloadV1,
 )
 from gameforge.contracts.lineage import ArtifactV2, ObjectLocation, ObjectRef
-from gameforge.contracts.versions import IR_SCHEMA_VERSION
 from gameforge.platform.registry import (
     TrustedComponentMaps,
     build_readiness_component_maps,
@@ -81,21 +80,23 @@ from gameforge.platform.run_handlers.base import ArtifactBlobReader, PreparedArt
 from gameforge.platform.run_handlers.checker import (
     CheckerExecutionPolicy,
     validate_checker_execution_policy,
+    validate_checker_output_policy,
 )
 from gameforge.platform.run_handlers.constraint_validation import ConstraintValidationHandler
 from gameforge.platform.run_handlers.constraint_proposal import (
     ConstraintExtractionExecutionConfig,
 )
 from gameforge.platform.run_handlers.generation import ConfigExporter, GenerationExecutionConfig
-from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
+from gameforge.platform.run_handlers.patch_validation import (
+    ExactLinkedFindingRevision,
+    PatchValidationHandler,
+)
 from gameforge.platform.run_handlers.repair import RepairExecutionConfig
 from gameforge.platform.run_handlers.review import ReviewExecutionConfig, ReviewSimConfig
 from gameforge.platform.run_handlers.simulation import SimulationExecutionBudget
 from gameforge.platform.run_handlers.rollback_validation import (
     DimensionCheckV1,
     RollbackHistoryRequest,
-    RollbackSchemaRequest,
-    RollbackTargetInspectionV1,
     RollbackValidationHandler,
 )
 from gameforge.runtime.persistence.refs import SqlRefStore
@@ -106,11 +107,13 @@ from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
+from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.apps.worker.agent_runners import (
     M2ConstraintProposalAgentRunner,
     M2GenerationAgentRunner,
     M2RepairAgentRunner,
 )
+from gameforge.apps.worker.auto_apply import build_worker_auto_apply_evaluator
 from gameforge.apps.worker.bench import build_bench_ports
 from gameforge.apps.worker.completion_oracles import build_completion_oracle_executors
 from gameforge.apps.worker.config_export import build_aureus_config_exporter
@@ -120,16 +123,23 @@ from gameforge.apps.worker.regression import (
     RegressionEnvironmentPlanV1,
     build_worker_regression_runner,
 )
+from gameforge.apps.worker.rollback_validation import (
+    DeterministicRollbackImpactAnalyzer,
+    ExactRollbackSchemaAnalyzer,
+)
 from gameforge.apps.worker.task_suite import (
     build_scenario_shaper_resolver,
     build_task_suite_handler,
 )
 from gameforge.platform.run_handlers.task_suite import ScenarioShaperResolver
-from gameforge.apps.worker.validation import build_differential_engines
+from gameforge.apps.worker.validation import (
+    RegistryConstraintValidationProfileResolver,
+    build_differential_engines,
+)
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.game.aureus.kernel import AureusEnv
 from gameforge.spine.checkers.graph import GraphChecker
-from gameforge.spine.checkers.base import Checker
+from gameforge.spine.checkers.base import Checker, CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import NavProvider
@@ -230,6 +240,43 @@ class WorkerExactFindingRevisionLoader:
         )
         return tuple(_materialise_finding(revision) for revision in revisions)
 
+    def list_linked_exact(
+        self,
+        *,
+        evidence_artifact_ids: tuple[str, ...],
+    ) -> tuple[ExactLinkedFindingRevision, ...]:
+        """Load the complete bounded RunFindingLink closure for evidence."""
+
+        with Session(self._engine) as session:
+            links = SqlRunRepository(session).list_finding_links_by_evidence_artifact_ids(
+                evidence_artifact_ids,
+                max_items=MAX_COLLECTION_ITEMS,
+            )
+            repository = self._repository(session)
+            linked: list[ExactLinkedFindingRevision] = []
+            for link in links:
+                revision = repository.get(link.finding_id, link.finding_revision)
+                if revision is None:
+                    raise IntegrityViolation(
+                        "evidence-linked Finding revision is unavailable at execution",
+                        finding_id=link.finding_id,
+                        finding_revision=link.finding_revision,
+                    )
+                digest = finding_revision_digest(revision)
+                if not hmac.compare_digest(digest, link.finding_digest):
+                    raise IntegrityViolation(
+                        "evidence-linked Finding digest differs from its revision",
+                        finding_id=link.finding_id,
+                        finding_revision=link.finding_revision,
+                    )
+                linked.append(
+                    ExactLinkedFindingRevision(
+                        evidence_artifact_id=link.evidence_artifact_id,
+                        revision=revision,
+                    )
+                )
+        return tuple(linked)
+
     def _repository(self, session: Session) -> SqlFindingRepository:
         return SqlFindingRepository(
             session,
@@ -325,6 +372,20 @@ class WorkerArtifactBlobReader:
             raise IntegrityViolation("run input Artifact is unavailable", artifact_id=artifact_id)
         return artifact
 
+    def get_ref(self, ref_name: str):
+        """Read the current exact CAS value used by auto-apply prequalification."""
+
+        with Session(self._engine) as session:
+            refs = SqlRefStore(
+                session,
+                cursor_signer=CursorSigner(
+                    signing_key=self._cursor_signing_key,
+                    clock=self._clock,
+                ),
+                clock=self._clock,
+            )
+            return refs.get(ref_name)
+
     def read_bytes_bounded(self, artifact_id: str, *, max_bytes: int) -> bytes:
         """Read and re-hash the exact retained object within the caller's cap."""
 
@@ -408,21 +469,80 @@ class _CheckerGroup:
         constraint_count: int,
     ) -> None:
         self.id = f"profile:{profile.profile_id}@{profile.version}"
+        # Patch validation must prove which native deterministic executors ran
+        # even when their clean result contains no Finding carrying producer_id.
+        bindings = []
+        for checker in checkers:
+            if not getattr(checker, "deterministic_execution", True):
+                continue
+            binding = getattr(checker, "execution_binding", None)
+            if not isinstance(binding, CheckerExecutionBinding):
+                binding = CheckerExecutionBinding(
+                    wrapper_id=checker.id,
+                    native_id=checker.id,
+                    constraint_id=None,
+                )
+            bindings.append(binding)
+        self.executed_checker_bindings = tuple(
+            sorted(
+                set(bindings),
+                key=lambda item: (
+                    item.native_id,
+                    item.constraint_id is not None,
+                    item.constraint_id or "",
+                    item.wrapper_id,
+                ),
+            )
+        )
+        # Retain the legacy scalar view only for direct/global executors. A
+        # compiled backend must never escape here as a naked global native id;
+        # its authority exists only in the structured constraint-scoped view.
+        self.executed_checker_ids = tuple(
+            sorted(
+                {
+                    binding.native_id
+                    for binding in self.executed_checker_bindings
+                    if binding.constraint_id is None
+                }
+            )
+        )
         self._checkers = checkers
         self._policy = policy
         self._constraint_count = constraint_count
 
     def check(self, snapshot: Snapshot, nav: NavProvider | None = None) -> list[Finding]:
+        direct_checker_ids = tuple(
+            sorted(
+                {
+                    binding.native_id
+                    for binding in self.executed_checker_bindings
+                    if binding.constraint_id is None
+                }
+            )
+        )
+        native_checker_ids = {binding.native_id for binding in self.executed_checker_bindings}
+        disallowed_native_ids = tuple(
+            sorted(native_checker_ids - set(self._policy.allowed_checker_ids))
+        )
+        if disallowed_native_ids:
+            raise IntegrityViolation(
+                "compiled checker route is outside the exact profile taxonomy",
+                checker_ids=disallowed_native_ids,
+            )
         validate_checker_execution_policy(
-            checker_ids=("graph",),
+            # Constraint-scoped native routes consume work/count authority below,
+            # but do not inflate the profile's direct-backend count.
+            checker_ids=direct_checker_ids,
             defect_classes=(),
             constraint_count=self._constraint_count,
             snapshot=snapshot,
             policy=self._policy,
         )
-        return [
+        findings = [
             finding for checker in self._checkers for finding in checker.check(snapshot, nav=nav)
         ]
+        validate_checker_output_policy(findings, policy=self._policy)
+        return findings
 
 
 def _profile_definition(
@@ -568,10 +688,12 @@ def _build_repair_execution_config_resolver(registry: ImmutablePlatformRegistry)
 
 
 def _build_review_execution_config_resolver(registry: ImmutablePlatformRegistry):
-    def resolve(profile: ProfileRefV1) -> ReviewExecutionConfig:
-        definition = _profile_definition(registry, profile, expected_kind="review")
-        if definition.handler_key != "builtin_review_profile@1":
-            raise IntegrityViolation("review profile handler is unavailable")
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> ReviewExecutionConfig:
+        definition = _resolve_review_executor_definition(
+            registry,
+            binding,
+            expected_kind="review",
+        )
         config = ReviewProfileConfigV1.model_validate(definition.config)
         return ReviewExecutionConfig(
             max_prompt_message_bytes=config.max_prompt_message_bytes,
@@ -580,6 +702,25 @@ def _build_review_execution_config_resolver(registry: ImmutablePlatformRegistry)
             max_total_checker_work_units=config.max_total_checker_work_units,
             max_total_simulation_work_units=config.max_total_simulation_work_units,
             max_total_prepared_artifact_bytes=config.max_total_prepared_artifact_bytes,
+        )
+
+    return resolve
+
+
+def _build_review_checker_policy_resolver(registry: ImmutablePlatformRegistry):
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> CheckerExecutionPolicy:
+        definition = _resolve_review_executor_definition(
+            registry,
+            binding,
+            expected_kind="checker",
+        )
+        config = CheckerProfileConfigV1.model_validate(definition.config)
+        return CheckerExecutionPolicy(
+            allowed_checker_ids=config.allowed_checker_ids,
+            allowed_defect_classes=config.allowed_defect_classes,
+            max_direct_checker_count=config.max_direct_checker_count,
+            max_constraint_count=config.max_constraint_count,
+            max_work_units=config.max_work_units,
         )
 
     return resolve
@@ -610,6 +751,221 @@ def _build_sim_config_resolver(registry: ImmutablePlatformRegistry):
         definition = _profile_definition(registry, profile, expected_kind="simulation")
         if getattr(definition, "handler_key", None) != "builtin_simulation_profile@1":
             raise IntegrityViolation("simulation profile handler is unavailable")
+        config = SimulationProfileConfigV1.model_validate(definition.config)
+        return ReviewSimConfig(
+            n_agents=config.default_population,
+            n_ticks=config.default_horizon_steps,
+            max_work_units=config.max_work_units,
+        )
+
+    return resolve
+
+
+def _resolve_review_executor_definition(
+    registry: ImmutablePlatformRegistry,
+    binding: ResolvedExecutionProfileBindingV1,
+    *,
+    expected_kind: str,
+) -> ExecutionProfileDefinitionV1:
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+    contracts = {
+        "review": (
+            "builtin_review_profile@1",
+            "review-profile-config@1",
+            {"review-run@1"},
+            {"review@1"},
+            {RunKindRef(kind="review.run", version=1)},
+            False,
+        ),
+        "checker": (
+            "builtin_checker_profile@1",
+            "checker-profile-config@1",
+            {"checker-run@1", "patch-repair@1", "patch-validation@1", "review-run@1"},
+            {"checker-report@1", "regression-evidence@1"},
+            {
+                RunKindRef(kind="checker.run", version=1),
+                RunKindRef(kind="patch.repair", version=1),
+                RunKindRef(kind="patch.validate", version=1),
+                RunKindRef(kind="review.run", version=1),
+            },
+            False,
+        ),
+        "simulation": (
+            "builtin_simulation_profile@1",
+            "simulation-profile-config@1",
+            {"patch-repair@1", "patch-validation@1", "review-run@1", "simulation-run@1"},
+            {"regression-evidence@1", "simulation-result@1"},
+            {
+                RunKindRef(kind="patch.repair", version=1),
+                RunKindRef(kind="patch.validate", version=1),
+                RunKindRef(kind="review.run", version=1),
+                RunKindRef(kind="simulation.run", version=1),
+            },
+            True,
+        ),
+    }
+    handler_key, config_schema_id, inputs, outputs, compatible_kinds, stochastic = contracts[
+        expected_kind
+    ]
+    if (
+        lifecycle.state != "active"
+        or definition.profile != binding.profile
+        or definition.profile_kind != expected_kind
+        or set(definition.compatible_run_kinds) != compatible_kinds
+        or definition.handler_key != handler_key
+        or definition.config_schema_id != config_schema_id
+        or set(definition.input_schema_ids) != inputs
+        or set(definition.output_schema_ids) != outputs
+        or definition.stochastic is not stochastic
+        or definition.required_capabilities
+    ):
+        raise IntegrityViolation(
+            "review executor profile does not authorize the built-in adapter",
+            field_path=binding.field_path,
+        )
+    return definition
+
+
+def _build_review_checker_resolver(registry: ImmutablePlatformRegistry):
+    policy_resolver = _build_review_checker_policy_resolver(registry)
+
+    def resolve(
+        binding: ResolvedExecutionProfileBindingV1,
+        constraints: list[Constraint],
+    ) -> Checker:
+        definition = _resolve_review_executor_definition(
+            registry,
+            binding,
+            expected_kind="checker",
+        )
+        policy = policy_resolver(binding)
+        if len(constraints) > policy.max_constraint_count:
+            raise IntegrityViolation(
+                "review checker constraint set exceeds the exact profile count budget"
+            )
+        return _CheckerGroup(
+            profile=definition.profile,
+            checkers=(GraphChecker(), *compile_all(constraints)),
+            policy=policy,
+            constraint_count=len(constraints),
+        )
+
+    return resolve
+
+
+def _build_review_sim_config_resolver(registry: ImmutablePlatformRegistry):
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> ReviewSimConfig:
+        definition = _resolve_review_executor_definition(
+            registry,
+            binding,
+            expected_kind="simulation",
+        )
+        config = SimulationProfileConfigV1.model_validate(definition.config)
+        return ReviewSimConfig(
+            n_agents=config.default_population,
+            n_ticks=config.default_horizon_steps,
+            max_work_units=config.max_work_units,
+        )
+
+    return resolve
+
+
+def _resolve_patch_executor_definition(
+    registry: ImmutablePlatformRegistry,
+    binding: ResolvedExecutionProfileBindingV1,
+    *,
+    expected_kind: str,
+) -> ExecutionProfileDefinitionV1:
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+    contracts = {
+        "checker": (
+            "builtin_checker_profile@1",
+            "checker-profile-config@1",
+            {"checker-run@1", "patch-repair@1", "patch-validation@1", "review-run@1"},
+            {"checker-report@1", "regression-evidence@1"},
+            {
+                RunKindRef(kind="checker.run", version=1),
+                RunKindRef(kind="patch.repair", version=1),
+                RunKindRef(kind="patch.validate", version=1),
+                RunKindRef(kind="review.run", version=1),
+            },
+            False,
+        ),
+        "simulation": (
+            "builtin_simulation_profile@1",
+            "simulation-profile-config@1",
+            {"patch-repair@1", "patch-validation@1", "review-run@1", "simulation-run@1"},
+            {"regression-evidence@1", "simulation-result@1"},
+            {
+                RunKindRef(kind="patch.repair", version=1),
+                RunKindRef(kind="patch.validate", version=1),
+                RunKindRef(kind="review.run", version=1),
+                RunKindRef(kind="simulation.run", version=1),
+            },
+            True,
+        ),
+    }
+    handler_key, config_schema_id, inputs, outputs, compatible_kinds, stochastic = contracts[
+        expected_kind
+    ]
+    if (
+        lifecycle.state != "active"
+        or definition.profile != binding.profile
+        or definition.profile_kind != expected_kind
+        or set(definition.compatible_run_kinds) != compatible_kinds
+        or definition.handler_key != handler_key
+        or definition.config_schema_id != config_schema_id
+        or set(definition.input_schema_ids) != inputs
+        or set(definition.output_schema_ids) != outputs
+        or definition.stochastic is not stochastic
+        or definition.required_capabilities
+    ):
+        raise IntegrityViolation(
+            "patch validation executor profile does not authorize the built-in adapter",
+            field_path=binding.field_path,
+        )
+    return definition
+
+
+def _build_patch_checker_resolver(registry: ImmutablePlatformRegistry):
+    def resolve(
+        binding: ResolvedExecutionProfileBindingV1,
+        constraints: list[Constraint],
+    ) -> Checker:
+        definition = _resolve_patch_executor_definition(
+            registry,
+            binding,
+            expected_kind="checker",
+        )
+        config = CheckerProfileConfigV1.model_validate(definition.config)
+        if len(constraints) > config.max_constraint_count:
+            raise IntegrityViolation(
+                "checker constraint set exceeds the exact profile count budget"
+            )
+        policy = CheckerExecutionPolicy(
+            allowed_checker_ids=config.allowed_checker_ids,
+            allowed_defect_classes=config.allowed_defect_classes,
+            max_direct_checker_count=config.max_direct_checker_count,
+            max_constraint_count=config.max_constraint_count,
+            max_work_units=config.max_work_units,
+        )
+        return _CheckerGroup(
+            profile=definition.profile,
+            checkers=(GraphChecker(), *compile_all(constraints)),
+            policy=policy,
+            constraint_count=len(constraints),
+        )
+
+    return resolve
+
+
+def _build_patch_sim_config_resolver(registry: ImmutablePlatformRegistry):
+    def resolve(binding: ResolvedExecutionProfileBindingV1) -> ReviewSimConfig:
+        definition = _resolve_patch_executor_definition(
+            registry,
+            binding,
+            expected_kind="simulation",
+        )
         config = SimulationProfileConfigV1.model_validate(definition.config)
         return ReviewSimConfig(
             n_agents=config.default_population,
@@ -667,57 +1023,6 @@ def _build_builtin_environment(
     )
 
 
-# ── deferred game ports (interface-complete, fail-closed; Task 11-13 follow-ups) ──
-class _DeferredGamePort:
-    """A registered-but-deferred game port: constructible now, body deferred.
-
-    Registering the REAL platform handler keeps readiness genuinely closed; the game
-    algorithm behind a not-yet-implemented port is deferred, so invoking it fails
-    closed (the runner converts it to a classified attempt failure) exactly like the
-    Task-14 deferred executors. Never invoked by the Task-17a ``checker.run`` path.
-    """
-
-    def __init__(self, port_name: str) -> None:
-        self._port_name = port_name
-
-    def _fail(self) -> None:
-        raise IntegrityViolation(
-            "game port implementation is deferred to its Task 11-13 follow-up",
-            port=self._port_name,
-        )
-
-    def load_cases(self, **_: object) -> object:
-        self._fail()
-
-    def evaluate(self, *_: object, **__: object) -> object:
-        self._fail()
-
-    def compose_execute(self, **_: object) -> object:
-        self._fail()
-
-    def compose_aggregate(self, **_: object) -> object:
-        self._fail()
-
-    def verify(self, *_: object, **__: object) -> object:
-        self._fail()
-
-    def analyze(self, *_: object, **__: object) -> object:
-        self._fail()
-
-
-class _WorkerReadinessBlockedExecutor:
-    """Callable executor whose mandatory nested production port is not yet closed."""
-
-    def __init__(self, executor: object, *, blocker: str) -> None:
-        if not callable(executor) or not blocker:
-            raise ValueError("readiness-blocked executor requires a callable and reason")
-        self._executor = executor
-        self.worker_readiness_blocker = blocker
-
-    def __call__(self, context: object) -> object:
-        return self._executor(context)  # type: ignore[operator]
-
-
 # ── real deterministic rollback ports (platform-generic ref/artifact reads) ──────
 class _SqlRollbackHistoryVerifier:
     """Deterministic ``RollbackHistoryVerifier`` over the authoritative ref store.
@@ -766,76 +1071,6 @@ class _SqlRollbackHistoryVerifier:
             )
 
 
-class _SqlRollbackSchemaAnalyzer:
-    """Deterministic ``RollbackSchemaAnalyzer``: target inspection + same-schema compat.
-
-    Target inspection (kind / snapshot id / digest) is a plain committed-Artifact read.
-    The schema-compatibility verdict is deliberately conservative: restoring a
-    previously-published ``ir_snapshot`` whose declared payload schema is the CURRENT IR
-    schema is a compatible rollback (``passed``); anything whose forward-compatibility
-    cannot be proven here is ``unproven`` (never a fabricated pass). Cross-schema /
-    migration-shaped compatibility remains a deferred game-shaped follow-up.
-    """
-
-    def __init__(
-        self,
-        *,
-        engine: Engine,
-        object_store: LocalObjectStore,
-        object_store_id: str,
-        cursor_signing_key: bytes,
-        clock: UtcClock,
-    ) -> None:
-        self._engine = engine
-        self._object_store = object_store
-        self._object_store_id = object_store_id
-        self._cursor_signing_key = cursor_signing_key
-        self._clock = clock
-
-    def analyze(self, request: RollbackSchemaRequest) -> RollbackTargetInspectionV1:
-        with Session(self._engine) as session:
-            bindings = SqlObjectBindingRepository(
-                session, self._object_store, self._object_store_id
-            )
-            artifacts = SqlArtifactRepository(
-                session,
-                binding_repository=bindings,
-                cursor_signer=CursorSigner(signing_key=self._cursor_signing_key, clock=self._clock),
-                clock=self._clock,
-            )
-            target = artifacts.get(request.target_artifact_id)
-            if target is None:
-                return RollbackTargetInspectionV1(
-                    status="failed",
-                    target_artifact_kind="ir_snapshot",
-                    target_digest="0" * 64,
-                    reason_code="rollback_target_unreadable",
-                )
-            kind = target.kind
-            declared_schema = (getattr(target, "meta", {}) or {}).get("payload_schema_id")
-            snapshot_id = None
-            if kind == "ir_snapshot":
-                snapshot_id = target.version_tuple.ir_snapshot_id
-            elif kind == "constraint_snapshot":
-                snapshot_id = target.version_tuple.constraint_snapshot_id
-            if kind == "ir_snapshot" and declared_schema == IR_SCHEMA_VERSION:
-                return RollbackTargetInspectionV1(
-                    status="passed",
-                    target_artifact_kind=kind,
-                    target_digest=target.payload_hash,
-                    target_snapshot_id=snapshot_id,
-                    target_version_tuple=target.version_tuple,
-                )
-            return RollbackTargetInspectionV1(
-                status="unproven",
-                target_artifact_kind=kind,
-                target_digest=target.payload_hash,
-                target_snapshot_id=snapshot_id,
-                target_version_tuple=target.version_tuple,
-                reason_code="rollback_schema_compat_unproven",
-            )
-
-
 def build_rollback_ports(
     *,
     engine: Engine,
@@ -843,20 +1078,21 @@ def build_rollback_ports(
     object_store_id: str,
     cursor_signing_key: bytes,
     clock: UtcClock,
-) -> tuple[_SqlRollbackHistoryVerifier, _SqlRollbackSchemaAnalyzer]:
-    """The real deterministic rollback history + schema ports for the worker."""
+) -> tuple[_SqlRollbackHistoryVerifier, None]:
+    """Build the SQL history port; schema/impact bind after registry construction.
+
+    The retained call shape is used by ``dispatch.py``.  Exact schema/impact ports
+    need both the immutable registry and the identity-aware Artifact reader, which
+    are already available to :func:`build_trusted_components`.
+    """
+
+    del object_store, object_store_id
 
     return (
         _SqlRollbackHistoryVerifier(
             engine=engine, cursor_signing_key=cursor_signing_key, clock=clock
         ),
-        _SqlRollbackSchemaAnalyzer(
-            engine=engine,
-            object_store=object_store,
-            object_store_id=object_store_id,
-            cursor_signing_key=cursor_signing_key,
-            clock=clock,
-        ),
+        None,
     )
 
 
@@ -884,7 +1120,10 @@ def _build_executor_handlers(
         )
 
     checker_resolver = _build_checker_resolver(registry)
+    patch_checker_resolver = _build_patch_checker_resolver(registry)
     checker_execution_policy_resolver = _build_checker_execution_policy_resolver(registry)
+    review_checker_resolver = _build_review_checker_resolver(registry)
+    review_checker_policy_resolver = _build_review_checker_policy_resolver(registry)
     simulation_execution_budget_resolver = _build_simulation_execution_budget_resolver(registry)
     generation_execution_config_resolver = _build_generation_execution_config_resolver(registry)
     repair_execution_config_resolver = _build_repair_execution_config_resolver(registry)
@@ -893,6 +1132,8 @@ def _build_executor_handlers(
         _build_constraint_extraction_execution_config_resolver(registry)
     )
     sim_config_resolver = _build_sim_config_resolver(registry)
+    patch_sim_config_resolver = _build_patch_sim_config_resolver(registry)
+    review_sim_config_resolver = _build_review_sim_config_resolver(registry)
     oracle_registries = registry.completion_oracle_registries
     if not oracle_registries:
         raise IntegrityViolation("builtin registry retains no completion-oracle registry")
@@ -909,12 +1150,25 @@ def _build_executor_handlers(
         environment_builders={"builtin_environment_profile@1": _build_builtin_environment},
         oracle_executors=build_completion_oracle_executors(),
     )
-    rollback_port = _DeferredGamePort("rollback")
-    # The rollback history + schema ports are real deterministic platform reads when the
-    # composition supplies them; the impact analyzer stays deferred (the happy path never
-    # invokes it — it passes no impact profiles).
-    history_verifier = rollback_history_verifier or rollback_port
-    schema_analyzer = rollback_schema_analyzer or rollback_port
+    history_verifier = rollback_history_verifier or _SqlRollbackHistoryVerifier(
+        engine=blobs._engine,
+        cursor_signing_key=blobs._cursor_signing_key,
+        clock=blobs._clock,
+    )
+    schema_analyzer = rollback_schema_analyzer or ExactRollbackSchemaAnalyzer(
+        artifacts=blobs,
+        registry=registry,
+    )
+    impact_analyzer = DeterministicRollbackImpactAnalyzer(
+        artifacts=blobs,
+        registry=registry,
+    )
+    auto_apply_evaluator = build_worker_auto_apply_evaluator(
+        registry=registry,
+        engine=blobs._engine,
+        clock=blobs._clock,
+        artifacts=blobs,
+    )
 
     handlers: dict[str, object] = {
         "checker_runner@1": CheckerRunHandler(
@@ -933,9 +1187,9 @@ def _build_executor_handlers(
         "review_runner@1": ReviewRunHandler(
             blobs=blobs,
             store=store,
-            checker_resolver=checker_resolver,
-            sim_config_resolver=sim_config_resolver,
-            checker_execution_policy_resolver=checker_execution_policy_resolver,
+            checker_resolver=review_checker_resolver,
+            sim_config_resolver=review_sim_config_resolver,
+            checker_execution_policy_resolver=review_checker_policy_resolver,
             execution_config_resolver=review_execution_config_resolver,
             finding_head_revision=finding_head_revision,
         ),
@@ -990,23 +1244,26 @@ def _build_executor_handlers(
         "patch_validator@1": PatchValidationHandler(
             blobs=blobs,
             store=store,
-            checker_resolver=checker_resolver,
-            sim_config_resolver=sim_config_resolver,
+            checker_resolver=patch_checker_resolver,
+            sim_config_resolver=patch_sim_config_resolver,
+            auto_apply_evaluator=auto_apply_evaluator,
+            finding_revision_loader=finding_revision_loader,
+            regression_runner=regression_runner,
         ),
         "constraint_validator@1": ConstraintValidationHandler(
             blobs=blobs,
             store=store,
             differential_engines=build_differential_engines(),
+            profile_resolver=RegistryConstraintValidationProfileResolver(registry),
+            regression_runner=regression_runner,
         ),
-        "rollback_validator@1": _WorkerReadinessBlockedExecutor(
-            RollbackValidationHandler(
-                blobs=blobs,
-                store=store,
-                history_verifier=history_verifier,
-                schema_analyzer=schema_analyzer,
-                impact_analyzer=rollback_port,
-            ),
-            blocker="rollback impact-analysis production port is unavailable",
+        "rollback_validator@1": RollbackValidationHandler(
+            blobs=blobs,
+            store=store,
+            history_verifier=history_verifier,
+            schema_analyzer=schema_analyzer,
+            impact_analyzer=impact_analyzer,
+            regression_runner=regression_runner,
         ),
     }
     handlers.update(DEFERRED_EXECUTORS)
@@ -1051,8 +1308,9 @@ def build_trusted_components(
     of truth shared with the API's key-only readiness composition). The worker EXECUTES
     Runs, so it replaces the key-only sentinels with the REAL executor + completion-oracle
     instances and binds every ``workflow_effect_key`` to its callable ``effects.py``
-    handler. String/deferred sentinels are forbidden in an executing process. When the composition supplies
-    the deterministic rollback history/schema ports they back ``rollback_validator@1``.
+    handler. String/deferred sentinels are forbidden in an executing process. Rollback
+    history defaults to the same reader's SQL authority; schema and impact default to
+    exact registry-bound Artifact adapters.
     """
 
     base = build_readiness_component_maps(registry)

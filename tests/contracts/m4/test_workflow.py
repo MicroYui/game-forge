@@ -34,6 +34,7 @@ from gameforge.contracts.workflow import (
     AutoApplyProofV1,
     ConstraintCompileEvidenceV1,
     ConstraintCompileStageV1,
+    CONSTRAINT_COMPILE_REQUIREMENT_KIND,
     ConstraintProposalV1,
     ConstraintSourceBinding,
     ConstraintTargetBindingV1,
@@ -55,6 +56,7 @@ from gameforge.contracts.workflow import (
     compute_auto_apply_policy_registry_digest,
     compute_deterministic_oracle_digest,
     compute_deterministic_oracle_registry_digest,
+    regression_companion_evidence_ids,
 )
 
 
@@ -376,6 +378,42 @@ def test_evidence_set_canonicalizes_ids_and_finding_revisions() -> None:
     assert evidence.supporting_artifact_ids == ("artifact:a", "artifact:z")
 
 
+def test_regression_companion_ids_follow_artifact_rule_not_semantic_kind() -> None:
+    requirements = tuple(
+        EvidenceRequirement(
+            requirement_id=requirement_id,
+            kind=kind,
+            applicability="required",
+            status="passed",
+            evidence_artifact_id=artifact_id,
+            tool_version="validator@1",
+        )
+        for requirement_id, kind, artifact_id in (
+            ("artifact", "artifact", "artifact:evidence:artifact"),
+            ("compile", CONSTRAINT_COMPILE_REQUIREMENT_KIND, "artifact:compile"),
+            ("history", "history", "artifact:evidence:history"),
+            ("regression", "regression", "artifact:evidence:regression"),
+        )
+    )
+    evidence = EvidenceSet(
+        subject_artifact_id="artifact:subject",
+        subject_digest="9" * 64,
+        policy_version="validation@1",
+        validation_run_id="run:1",
+        target_binding=_patch_binding(),
+        supporting_artifact_ids=(),
+        finding_bindings=(),
+        requirements=requirements,
+        overall_status="passed",
+    )
+
+    assert regression_companion_evidence_ids(evidence) == (
+        "artifact:evidence:artifact",
+        "artifact:evidence:history",
+        "artifact:evidence:regression",
+    )
+
+
 def test_constraint_compile_evidence_requires_core_stages_and_candidate_binding() -> None:
     stage_without_engine = ConstraintCompileStageV1(
         stage_id="parse", stage="parse", status="passed"
@@ -421,7 +459,12 @@ def test_constraint_compile_evidence_requires_core_stages_and_candidate_binding(
         )
 
     failed_after_compile = tuple(
-        stage.model_copy(update={"status": "failed", "reason_code": "differential_mismatch"})
+        stage.model_copy(
+            update={
+                "status": "failed",
+                "reason_code": "differential_mismatch",
+            }
+        )
         if stage.stage == "differential" and stage.engine_id == "z3"
         else stage
         for stage in evidence.stages
@@ -461,6 +504,19 @@ def test_constraint_compile_stage_rejects_invalid_engine_or_reason_shape(
 ) -> None:
     with pytest.raises(ValidationError):
         ConstraintCompileStageV1.model_validate(values)
+
+
+def test_constraint_compile_v1_reader_preserves_historical_reason_codes() -> None:
+    stage = ConstraintCompileStageV1(
+        stage_id="differential:legacy@1",
+        stage="differential",
+        status="unproven",
+        engine_id="legacy",
+        engine_version="1",
+        reason_code="historical_adapter_reason",
+    )
+
+    assert stage.reason_code == "historical_adapter_reason"
 
 
 def test_approval_policy_guards_are_literal_true_and_digest_bound() -> None:

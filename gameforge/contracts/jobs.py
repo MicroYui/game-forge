@@ -727,6 +727,7 @@ class PatchValidationPayloadV1(_FrozenModel):
     subject: ValidationSubjectBindingV1
     base_snapshot_artifact_id: BoundedId
     preview_snapshot_artifact_id: BoundedId
+    constraint_snapshot_artifact_id: BoundedId | None = None
     candidate_config_export_artifact_ids: tuple[BoundedId, ...] = Field(
         max_length=MAX_COLLECTION_ITEMS
     )
@@ -734,6 +735,9 @@ class PatchValidationPayloadV1(_FrozenModel):
     validation_policy: ProfileRefV1
     checker_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     simulation_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    expected_findings: tuple[FindingEvidenceBindingV1, ...] = Field(
+        default=(), max_length=MAX_COLLECTION_ITEMS
+    )
     findings: tuple[FindingEvidenceBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     review_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     playtest_trace_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
@@ -754,7 +758,7 @@ class PatchValidationPayloadV1(_FrozenModel):
     def _profiles(cls, value: tuple[ProfileRefV1, ...]) -> tuple[ProfileRefV1, ...]:
         return _canonical_unique_models(value)
 
-    @field_validator("findings")
+    @field_validator("expected_findings", "findings")
     @classmethod
     def _findings(
         cls, value: tuple[FindingEvidenceBindingV1, ...]
@@ -893,6 +897,25 @@ def patch_repair_requires_root_seed(params: RunKindPayload) -> bool:
     return isinstance(params, PatchRepairPayloadV1) and bool(params.regression_suite_artifact_ids)
 
 
+def validation_regression_requires_root_seed(params: RunKindPayload) -> bool:
+    """Whether a validation Run has an exact seeded regression child.
+
+    Every retained regression suite executes through the frozen ``subseed@1``
+    closure.  This is independent of whether the validation/checker profile is
+    otherwise deterministic: once a real suite is selected, admission must
+    freeze a root seed that the worker and terminal evidence can both replay.
+    """
+
+    return isinstance(
+        params,
+        (
+            PatchValidationPayloadV1,
+            ConstraintValidationPayloadV1,
+            RollbackValidationPayloadV1,
+        ),
+    ) and bool(params.regression_suite_artifact_ids)
+
+
 def _target_artifact_id(target: RefReadBindingV1) -> str | None:
     return target.expected_ref.artifact_id if target.expected_ref is not None else None
 
@@ -952,8 +975,10 @@ def _referenced_input_artifact_ids(params: RunKindPayload) -> tuple[str, ...]:
             params.subject.subject_artifact_id,
             params.base_snapshot_artifact_id,
             params.preview_snapshot_artifact_id,
+            params.constraint_snapshot_artifact_id,
             *params.candidate_config_export_artifact_ids,
             _target_artifact_id(params.target),
+            *(binding.evidence_artifact_id for binding in params.expected_findings),
             *(binding.evidence_artifact_id for binding in params.findings),
             *params.review_artifact_ids,
             *params.playtest_trace_artifact_ids,

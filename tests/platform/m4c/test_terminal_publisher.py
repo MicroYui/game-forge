@@ -9,13 +9,13 @@ mirror the production write pattern (Artifact rows / findings / links / audit).
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import pytest
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import Conflict, IntegrityViolation
-from gameforge.contracts.execution_profiles import RunKindRef
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import FindingPayloadV1, FindingRevisionV1
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.jobs import (
@@ -63,13 +63,16 @@ from gameforge.platform.registry.defaults import (
     _runtime_parent_rules,
     _simple_primary_policy,
     _transition_policy,
+    build_builtin_registry,
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.runs.admission import RunAdmissionEngine
 from gameforge.platform.runs.lifecycle import (
     AttemptFailurePublication,
     RunFailurePublication,
     select_outcome_policy,
 )
+from gameforge.platform.run_handlers.validation_common import content_addressed_artifact_id
 from tests.platform.m4.test_run_create_claim import _payload, _retry_policy
 
 
@@ -395,6 +398,8 @@ def _checker_artifact(blobs: _Blobs) -> PreparedArtifact:
     blob = canonical_json(
         {
             "payload_schema_version": "checker-report@1",
+            "checker_profile": {"profile_id": "checker", "version": 1},
+            "constraint_snapshot_binding_status": "not_applicable",
             "snapshot_id": "snapshot:input",
             "checker_ids": ["graph"],
             "defect_classes": ["dangling_ref"],
@@ -516,6 +521,163 @@ def _publisher(
     )
 
 
+def _exact_profile_binding(registry, catalog, *, field_path, profile, profile_kind):
+    return registry.resolve_execution_profile(
+        catalog_version=catalog.catalog_version,
+        catalog_digest=catalog.catalog_digest,
+        field_path=field_path,
+        profile=profile,
+        expected_profile_kind=profile_kind,
+    )
+
+
+def _bind_context_to_exact_catalog(context, catalog, bindings):
+    envelope = context.payload.model_copy(
+        update={
+            "execution_profile_catalog_version": catalog.catalog_version,
+            "execution_profile_catalog_digest": catalog.catalog_digest,
+            "resolved_profiles": tuple(bindings),
+        }
+    )
+    return replace(
+        context,
+        payload=envelope,
+        run=context.run.model_copy(
+            update={"payload": envelope, "payload_hash": canonical_payload_hash(envelope)}
+        ),
+    )
+
+
+def _publish_validation_handler_outcome(
+    monkeypatch,
+    *,
+    registry,
+    catalog,
+    context,
+    outcome,
+    store,
+    input_artifacts,
+):
+    """Drive a real handler result through Terminal planning, reseal and commit."""
+
+    from gameforge.platform.publication import publisher as publisher_module
+
+    definition = registry.get_run_kind(context.run.kind)
+    assert definition is not None
+    snapshots = RunAdmissionEngine._resolve_policy_snapshots(  # noqa: SLF001
+        object(),
+        params=context.payload.params,
+        definition=definition,
+        resolved_profiles=context.payload.resolved_profiles,
+        catalog=catalog,
+    )
+    envelope = context.payload.model_copy(update={"resolved_policy_snapshots": snapshots})
+    retry = registry.get_retry_policy(definition.retry_policy)
+    assert retry is not None
+    run = context.run.model_copy(
+        update={
+            "payload": envelope,
+            "payload_hash": canonical_payload_hash(envelope),
+            "run_kind_definition_digest": run_kind_definition_digest(definition),
+            "outcome_policy_set_digest": outcome_policy_set_digest(
+                context.run.kind, definition.outcome_policies
+            ),
+            "failure_classifier": definition.failure_classifier,
+            "retry_policy": definition.retry_policy,
+            "max_attempts": retry.max_attempts,
+        }
+    )
+    artifacts, blobs, findings, ledger, audit = (
+        _Artifacts(),
+        _Blobs(),
+        _Findings(),
+        _Ledger(),
+        _Audit(),
+    )
+    assert {item.artifact_id for item in input_artifacts} == set(run.payload.input_artifact_ids)
+    for artifact in input_artifacts:
+        artifacts.add(artifact)
+        blobs._by_key[artifact.object_ref.key] = store.read_bytes(artifact.artifact_id)
+    for artifact in outcome.artifacts:
+        blobs._by_key[artifact.object_ref.key] = store.read_prepared(artifact.object_ref)
+        blobs._locations[artifact.object_ref.key] = artifact.location
+
+    policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=outcome.summary.outcome_code,
+        prepared_outcome="success",
+        publication_scope="run",
+        run_status="succeeded",
+        attempt_status=None,
+        failure_class=None,
+        retry_disposition=None,
+    )
+    # These tests target the real Terminal Artifact/Finding path. Workflow CAS is
+    # independently exercised with real repositories in
+    # test_validation_completion_effect.py.
+    monkeypatch.setattr(publisher_module, "apply_workflow_effect", lambda *_args, **_kw: None)
+    published = _publisher(registry, artifacts, blobs, findings, ledger, audit).publish_run_result(
+        run=run,
+        attempt=context.attempt,
+        prepared=outcome,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    return published, findings, ledger, artifacts, blobs
+
+
+def _reseal_prepared_payload(store, artifact, payload):
+    blob = canonical_json(payload).encode()
+    object_ref, location = store.put_prepared(blob)
+    return artifact.model_copy(
+        update={
+            "object_ref": object_ref,
+            "location": location,
+            "payload_hash": object_ref.sha256,
+        }
+    )
+
+
+def _replace_validation_companion_payload(
+    *,
+    store,
+    outcome,
+    requirement_id: str,
+    replacement_payload: dict[str, object],
+    replacement_requirement_kind: str | None = None,
+):
+    artifacts = list(outcome.artifacts)
+    companion_index = next(
+        index
+        for index, artifact in enumerate(artifacts)
+        if artifact.meta.get("requirement_id") == requirement_id
+    )
+    companion = artifacts[companion_index]
+    old_companion_id = content_addressed_artifact_id(companion)
+    replacement = _reseal_prepared_payload(store, companion, replacement_payload)
+    new_companion_id = content_addressed_artifact_id(replacement)
+    artifacts[companion_index] = replacement
+
+    primary = artifacts[outcome.primary_index]
+    primary_payload = json.loads(store.read_prepared(primary.object_ref))
+    primary_payload["supporting_artifact_ids"] = sorted(
+        new_companion_id if artifact_id == old_companion_id else artifact_id
+        for artifact_id in primary_payload["supporting_artifact_ids"]
+    )
+    for requirement in primary_payload["requirements"]:
+        if requirement.get("evidence_artifact_id") == old_companion_id:
+            requirement["evidence_artifact_id"] = new_companion_id
+            if replacement_requirement_kind is not None:
+                requirement["kind"] = replacement_requirement_kind
+    artifacts[outcome.primary_index] = _reseal_prepared_payload(
+        store,
+        primary,
+        primary_payload,
+    )
+    return outcome.model_copy(update={"artifacts": tuple(artifacts)})
+
+
 # ---------------------------------------------------------------------------- tests
 def test_non_validation_outcome_preflight_is_identity():
     registry, definition = _registry_and_definition()
@@ -602,7 +764,7 @@ def test_checker_publication_rejects_forged_constraint_id_against_exact_parent_b
                 "kind": "structural",
                 "oracle": "deterministic",
                 "predicates": [],
-                "assert_": "true",
+                "assert": "true",
                 "severity": "major",
             }
         ],
@@ -640,6 +802,9 @@ def test_checker_publication_rejects_forged_constraint_id_against_exact_parent_b
     checker_blob = canonical_json(
         {
             "payload_schema_version": "checker-report@1",
+            "checker_profile": {"profile_id": "checker", "version": 1},
+            "constraint_snapshot_binding_status": "bound",
+            "constraint_snapshot_artifact_id": constraint_artifact.artifact_id,
             "snapshot_id": "snapshot:input",
             "checker_ids": ["graph"],
             "defect_classes": ["dangling_ref"],
@@ -712,7 +877,7 @@ def test_workflow_effect_receives_the_final_resealed_primary_payload(monkeypatch
                 "id": "finding:resealed",
                 "finding_schema_version": "finding@1",
                 "source": "checker",
-                "producer_id": "checker@1",
+                "producer_id": "checker:graph",
                 "producer_run_id": run.run_id,
                 "oracle_type": "deterministic",
                 "defect_class": "dangling_ref",
@@ -1607,4 +1772,990 @@ def test_run_failure_rejects_fabricated_attempt_no():
             attempt_failure_artifact_id="artifact:attempt-failure",
             occurred_at=NOW,
             actor=WORKER,
+        )
+
+
+def test_patch_llm_constraint_unproven_reaches_real_terminal(monkeypatch):
+    from gameforge.apps.worker import components as worker_components
+    from gameforge.contracts.dsl import Constraint, Predicate
+    from tests.platform.m4c import test_patch_validation_handler as patch_mod
+
+    registry = build_builtin_registry()
+    catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
+    validation_profile = ProfileRefV1(profile_id="builtin.validation", version=1)
+    checker_profile = ProfileRefV1(profile_id="builtin.checker", version=1)
+    bindings = (
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/validation_policy",
+            profile=validation_profile,
+            profile_kind="validation",
+        ),
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/checker_profiles/0",
+            profile=checker_profile,
+            profile_kind="checker",
+        ),
+    )
+    store = patch_mod._store(snapshot=patch_mod.snapshot_bytes([], []))
+    base_blob = store.read_bytes(patch_mod.BASE_ID)
+    preview_blob = store.read_bytes(patch_mod.PREVIEW_ID)
+    base_snapshot = patch_mod.load_snapshot(store, patch_mod.BASE_ID)
+    preview_snapshot = patch_mod.load_snapshot(store, patch_mod.PREVIEW_ID)
+    constraint_snapshot_id = "constraint:llm-terminal:1"
+    llm_constraint = Constraint(
+        id="C_llm",
+        kind="narrative",
+        oracle="mixed",
+        predicates=(Predicate(expr="semantic_consistency(story)", oracle="llm-assisted"),),
+        **{"assert": "continuity_consistent"},
+        severity="major",
+    )
+    base = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=base_blob,
+        version_tuple=VersionTuple(doc_version="doc@1", ir_snapshot_id=base_snapshot.snapshot_id),
+    )
+    preview = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=preview_blob,
+        version_tuple=VersionTuple(
+            doc_version="doc@1", ir_snapshot_id=preview_snapshot.snapshot_id
+        ),
+    )
+    constraints = store.register_exact_artifact(
+        kind="constraint_snapshot",
+        payload_schema_id="constraint-snapshot@1",
+        payload={
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [llm_constraint.model_dump(mode="json", by_alias=True)],
+        },
+        version_tuple=VersionTuple(constraint_snapshot_id=constraint_snapshot_id),
+    )
+    subject = store.register_exact_artifact(
+        kind="patch",
+        payload_schema_id="patch@2",
+        payload={"patch_schema_version": "patch@2", "ops": []},
+        version_tuple=VersionTuple(
+            constraint_snapshot_id=constraint_snapshot_id,
+            tool_version="patch@2",
+        ),
+    )
+    payload = patch_mod._payload(
+        constraint_snapshot_artifact_id=constraints.artifact_id,
+        checker_profiles=(checker_profile,),
+    ).model_copy(
+        update={
+            "subject": patch_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": subject.artifact_id,
+                    "subject_digest": subject.payload_hash,
+                }
+            ),
+            "base_snapshot_artifact_id": base.artifact_id,
+            "preview_snapshot_artifact_id": preview.artifact_id,
+            "constraint_snapshot_artifact_id": constraints.artifact_id,
+            "target": patch_mod._payload().target.model_copy(
+                update={
+                    "expected_ref": patch_mod.RefValue(artifact_id=base.artifact_id, revision=1)
+                }
+            ),
+            "validation_policy": validation_profile,
+        }
+    )
+    context = _bind_context_to_exact_catalog(
+        patch_mod._context(
+            store,
+            payload,
+            constraint_snapshot_id=constraint_snapshot_id,
+            resolved_profiles_override=bindings,
+        ),
+        catalog,
+        bindings,
+    )
+    outcome = patch_mod._handler(
+        store,
+        checker_resolver=worker_components._build_patch_checker_resolver(registry),
+    )(context)
+
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert outcome.findings == ()
+    published, findings, _ledger, artifacts, blobs = _publish_validation_handler_outcome(
+        monkeypatch,
+        registry=registry,
+        catalog=catalog,
+        context=context,
+        outcome=outcome,
+        store=store,
+        input_artifacts=(base, constraints, preview, subject),
+    )
+
+    assert findings.revisions == []
+    manifest = artifacts.by_id[published.result_artifact_id]
+    result = json.loads(blobs.read(manifest.object_ref))
+    companion = next(
+        artifacts.by_id[artifact_id]
+        for artifact_id in result["produced_artifact_ids"]
+        if artifacts.by_id[artifact_id].meta.get("requirement_id") == "checker:builtin.checker@1"
+    )
+    companion_payload = json.loads(blobs.read(companion.object_ref))
+    assert companion_payload["status"] == "unproven"
+    assert companion_payload["detail"]["findings"][0]["producer_id"] == "llm-routed"
+
+
+def test_patch_review_finding_overlap_reaches_terminal_and_rejects_label_swap(
+    monkeypatch,
+):
+    from tests.platform.m4c import test_patch_validation_handler as patch_mod
+
+    registry = build_builtin_registry()
+    catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
+    validation_profile = ProfileRefV1(profile_id="builtin.validation", version=1)
+    bindings = (
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/validation_policy",
+            profile=validation_profile,
+            profile_kind="validation",
+        ),
+    )
+    store = patch_mod._store()
+    base_blob = store.read_bytes(patch_mod.BASE_ID)
+    preview_blob = store.read_bytes(patch_mod.PREVIEW_ID)
+    base_snapshot = patch_mod.load_snapshot(store, patch_mod.BASE_ID)
+    preview_snapshot = patch_mod.load_snapshot(store, patch_mod.PREVIEW_ID)
+    base = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=base_blob,
+        version_tuple=VersionTuple(
+            doc_version="doc@1",
+            ir_snapshot_id=base_snapshot.snapshot_id,
+        ),
+    )
+    preview = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=preview_blob,
+        version_tuple=VersionTuple(
+            doc_version="doc@1",
+            ir_snapshot_id=preview_snapshot.snapshot_id,
+        ),
+    )
+    subject = store.register_exact_artifact(
+        kind="patch",
+        payload_schema_id="patch@2",
+        payload={"patch_schema_version": "patch@2", "ops": []},
+        version_tuple=VersionTuple(tool_version="patch@2"),
+    )
+    review = store.register_exact_artifact(
+        kind="review_report",
+        payload_schema_id="review@1",
+        payload=patch_mod.ReviewReport(snapshot_id=preview_snapshot.snapshot_id).model_dump(
+            mode="json"
+        ),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=preview_snapshot.snapshot_id,
+            tool_version="review@1",
+        ),
+    )
+    revision = patch_mod._finding_revision(
+        patch_mod.Finding(
+            id="review-suggestion",
+            source="llm",
+            producer_id="review.triage",
+            producer_run_id="run:review-producer",
+            oracle_type="llm-assisted",
+            defect_class="narrative_consistency",
+            severity="major",
+            snapshot_id=preview_snapshot.snapshot_id,
+            status="unproven",
+            message="human review is required",
+        ),
+        finding_id="finding-series:review:1",
+    )
+    finding_binding = patch_mod._finding_binding(
+        revision,
+        evidence_artifact_id=review.artifact_id,
+    )
+    payload = patch_mod._payload(
+        checker_profiles=(),
+        findings=(finding_binding,),
+        review_artifact_ids=(review.artifact_id,),
+    ).model_copy(
+        update={
+            "subject": patch_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": subject.artifact_id,
+                    "subject_digest": subject.payload_hash,
+                }
+            ),
+            "base_snapshot_artifact_id": base.artifact_id,
+            "preview_snapshot_artifact_id": preview.artifact_id,
+            "target": patch_mod._payload().target.model_copy(
+                update={
+                    "expected_ref": patch_mod.RefValue(
+                        artifact_id=base.artifact_id,
+                        revision=1,
+                    )
+                }
+            ),
+            "validation_policy": validation_profile,
+        }
+    )
+    context = _bind_context_to_exact_catalog(
+        patch_mod._context(
+            store,
+            payload,
+            resolved_profiles_override=bindings,
+        ),
+        catalog,
+        bindings,
+    )
+    outcome = patch_mod._handler(
+        store,
+        finding_revision_loader=patch_mod._ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=review.artifact_id,
+        ),
+    )(context)
+
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    _publish_validation_handler_outcome(
+        monkeypatch,
+        registry=registry,
+        catalog=catalog,
+        context=context,
+        outcome=outcome,
+        store=store,
+        input_artifacts=(base, preview, review, subject),
+    )
+
+    requirement_id = f"review:{review.artifact_id}"
+    companion = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == requirement_id
+    )
+    forged_payload = json.loads(store.read_prepared(companion.object_ref))
+    forged_payload["dimension"] = "validation_input"
+    forged_payload["detail"] = {"selected_dimension_count": 0}
+    forged = _replace_validation_companion_payload(
+        store=store,
+        outcome=outcome,
+        requirement_id=requirement_id,
+        replacement_payload=forged_payload,
+    )
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        _publish_validation_handler_outcome(
+            monkeypatch,
+            registry=registry,
+            catalog=catalog,
+            context=context,
+            outcome=forged,
+            store=store,
+            input_artifacts=(base, preview, review, subject),
+        )
+
+
+def test_patch_regression_playtest_finding_reaches_real_terminal(monkeypatch):
+    from tests.platform.m4c import test_patch_validation_handler as patch_mod
+
+    registry = build_builtin_registry()
+    catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
+    validation_profile = ProfileRefV1(profile_id="builtin.validation", version=1)
+    bindings = (
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/validation_policy",
+            profile=validation_profile,
+            profile_kind="validation",
+        ),
+    )
+    store = patch_mod._store()
+    base_blob = store.read_bytes(patch_mod.BASE_ID)
+    preview_blob = store.read_bytes(patch_mod.PREVIEW_ID)
+    base_snapshot = patch_mod.load_snapshot(store, patch_mod.BASE_ID)
+    preview_snapshot = patch_mod.load_snapshot(store, patch_mod.PREVIEW_ID)
+    base = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=base_blob,
+        version_tuple=VersionTuple(doc_version="doc@1", ir_snapshot_id=base_snapshot.snapshot_id),
+    )
+    preview = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=preview_blob,
+        version_tuple=VersionTuple(
+            doc_version="doc@1", ir_snapshot_id=preview_snapshot.snapshot_id
+        ),
+    )
+    subject = store.register_exact_artifact(
+        kind="patch",
+        payload_schema_id="patch@2",
+        payload={"patch_schema_version": "patch@2", "ops": []},
+        version_tuple=VersionTuple(tool_version="patch@2"),
+    )
+    suite = store.register_exact_artifact(
+        kind="regression_suite",
+        payload_schema_id="regression-suite@1",
+        payload={"suite": "terminal-playtest"},
+        version_tuple=VersionTuple(
+            env_contract_version="suite-env@1",
+            tool_version="regression-suite@1",
+        ),
+    )
+    payload = patch_mod._payload(
+        checker_profiles=(),
+        regression_suite_artifact_ids=(suite.artifact_id,),
+    ).model_copy(
+        update={
+            "subject": patch_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": subject.artifact_id,
+                    "subject_digest": subject.payload_hash,
+                }
+            ),
+            "base_snapshot_artifact_id": base.artifact_id,
+            "preview_snapshot_artifact_id": preview.artifact_id,
+            "target": patch_mod._payload().target.model_copy(
+                update={
+                    "expected_ref": patch_mod.RefValue(artifact_id=base.artifact_id, revision=1)
+                }
+            ),
+            "validation_policy": validation_profile,
+        }
+    )
+    context = _bind_context_to_exact_catalog(
+        patch_mod._context(
+            store,
+            payload,
+            seed=17,
+            resolved_profiles_override=bindings,
+        ),
+        catalog,
+        bindings,
+    )
+    outcome = patch_mod._handler(store, regression_runner=patch_mod._FailingRegressionRunner())(
+        context
+    )
+
+    assert outcome.summary.outcome_code == "patch_validation_failed"
+    assert len(outcome.findings) == 1
+    _published, findings, ledger, _artifacts, _blobs = _publish_validation_handler_outcome(
+        monkeypatch,
+        registry=registry,
+        catalog=catalog,
+        context=context,
+        outcome=outcome,
+        store=store,
+        input_artifacts=(base, preview, subject, suite),
+    )
+    assert len(findings.revisions) == 1
+    assert findings.revisions[0].payload.source == "playtest"
+    assert findings.revisions[0].payload.producer_id == "agent-env-action-replay@1"
+    assert len(ledger.links) == 1
+
+
+def test_constraint_failed_with_candidate_playtest_finding_reaches_real_terminal(
+    monkeypatch,
+):
+    from gameforge.apps.worker import validation as worker_validation
+    from tests.platform.m4c import test_constraint_validation_handler as constraint_mod
+
+    registry = build_builtin_registry()
+    catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
+    validation_profile = ProfileRefV1(profile_id="builtin.validation", version=1)
+    compiler_profile = ProfileRefV1(profile_id="builtin.constraint_compiler", version=1)
+    bindings = (
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/validation_policy",
+            profile=validation_profile,
+            profile_kind="validation",
+        ),
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/compiler_profile",
+            profile=compiler_profile,
+            profile_kind="constraint_compiler",
+        ),
+    )
+    store = constraint_mod._store(constraint_mod._MIXED)
+    base_constraint_snapshot_id = "constraint:base-terminal:1"
+    base = store.register_exact_artifact(
+        kind="constraint_snapshot",
+        payload_schema_id="constraint-snapshot@1",
+        payload={"dsl_grammar_version": "dsl@1", "constraints": []},
+        version_tuple=VersionTuple(
+            ir_snapshot_id=constraint_mod.SOURCE_SNAPSHOT_ID,
+            constraint_snapshot_id=base_constraint_snapshot_id,
+        ),
+    )
+    proposal = store.register_exact_artifact(
+        kind="constraint_proposal",
+        payload_schema_id="constraint-proposal@1",
+        payload=constraint_mod._proposal(constraint_mod._MIXED).model_dump(mode="json"),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=constraint_mod.SOURCE_SNAPSHOT_ID,
+            constraint_snapshot_id=base_constraint_snapshot_id,
+            tool_version="constraint-proposal@1",
+        ),
+    )
+    suite = store.register_exact_artifact(
+        kind="regression_suite",
+        payload_schema_id="regression-suite@1",
+        payload={"suite": "terminal-playtest"},
+        version_tuple=VersionTuple(
+            env_contract_version="suite-env@1",
+            tool_version="regression-suite@1",
+        ),
+    )
+    golden = store.register_exact_artifact(
+        kind="golden_suite",
+        payload_schema_id="golden-suite@1",
+        payload={"suite": "terminal-golden"},
+        version_tuple=VersionTuple(tool_version="golden-suite@1"),
+    )
+    payload = constraint_mod._payload(
+        base=base.artifact_id,
+        regression=(suite.artifact_id,),
+        golden=golden.artifact_id,
+    ).model_copy(
+        update={
+            "subject": constraint_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": proposal.artifact_id,
+                    "subject_digest": proposal.payload_hash,
+                }
+            ),
+            "target": constraint_mod._payload().target.model_copy(
+                update={
+                    "expected_ref": constraint_mod.RefValue(
+                        artifact_id=base.artifact_id, revision=1
+                    )
+                }
+            ),
+            "validation_policy": validation_profile,
+            "compiler_profile": compiler_profile,
+        }
+    )
+    context = _bind_context_to_exact_catalog(
+        constraint_mod._context(
+            store,
+            payload,
+            seed=17,
+            version_tuple=VersionTuple(
+                ir_snapshot_id=constraint_mod.SOURCE_SNAPSHOT_ID,
+                constraint_snapshot_id=base_constraint_snapshot_id,
+                tool_version="constraint-proposal@1",
+                seed=17,
+            ),
+        ),
+        catalog,
+        bindings,
+    )
+    outcome = constraint_mod._handler(
+        store,
+        profile_resolver=worker_validation.RegistryConstraintValidationProfileResolver(registry),
+        golden_runner=constraint_mod._PassingGoldenRunner(),
+        regression_runner=constraint_mod._FailingRegressionRunner(),
+    )(context)
+
+    assert outcome.summary.outcome_code == "constraint_validation_failed_with_candidate"
+    assert len(outcome.findings) == 1
+    prepared_compile = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.payload_schema_id == "constraint-compile-evidence@1"
+    )
+    assert golden.artifact_id not in prepared_compile.lineage
+    assert all(
+        golden.artifact_id not in artifact.lineage
+        for artifact in outcome.artifacts
+        if artifact is not prepared_compile
+    )
+    published, findings, ledger, published_artifacts, published_blobs = (
+        _publish_validation_handler_outcome(
+            monkeypatch,
+            registry=registry,
+            catalog=catalog,
+            context=context,
+            outcome=outcome,
+            store=store,
+            input_artifacts=(base, golden, proposal, suite),
+        )
+    )
+    assert len(findings.revisions) == 1
+    assert findings.revisions[0].payload.source == "playtest"
+    assert findings.revisions[0].payload.producer_id == "agent-env-action-replay@1"
+    assert len(ledger.links) == 1
+    result_manifest = published_artifacts.by_id[published.result_artifact_id]
+    result_payload = json.loads(published_blobs.read(result_manifest.object_ref))
+    final_compile = next(
+        published_artifacts.by_id[artifact_id]
+        for artifact_id in result_payload["produced_artifact_ids"]
+        if published_artifacts.by_id[artifact_id].meta.get("payload_schema_id")
+        == "constraint-compile-evidence@1"
+    )
+    assert golden.artifact_id not in final_compile.lineage
+
+    candidate_index = next(
+        index
+        for index, artifact in enumerate(outcome.artifacts)
+        if artifact.payload_schema_id == "constraint-snapshot@1"
+    )
+    candidate_artifact = outcome.artifacts[candidate_index]
+    forged_candidate_payload = json.loads(store.read_prepared(candidate_artifact.object_ref))
+    next(
+        constraint
+        for constraint in forged_candidate_payload["constraints"]
+        if constraint["id"] == "C_cap"
+    )["assert"] = "reward_gold <= 999"
+    forged_candidate_blob = canonical_json(forged_candidate_payload).encode()
+    forged_candidate_ref, forged_candidate_location = store.put_prepared(forged_candidate_blob)
+    candidate_artifacts = list(outcome.artifacts)
+    candidate_artifacts[candidate_index] = candidate_artifact.model_copy(
+        update={
+            "object_ref": forged_candidate_ref,
+            "location": forged_candidate_location,
+            "payload_hash": forged_candidate_ref.sha256,
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        _publish_validation_handler_outcome(
+            monkeypatch,
+            registry=registry,
+            catalog=catalog,
+            context=context,
+            outcome=outcome.model_copy(update={"artifacts": tuple(candidate_artifacts)}),
+            store=store,
+            input_artifacts=(base, golden, proposal, suite),
+        )
+
+    compile_index = next(
+        index
+        for index, artifact in enumerate(outcome.artifacts)
+        if artifact.payload_schema_id == "constraint-compile-evidence@1"
+    )
+    compile_artifact = outcome.artifacts[compile_index]
+    old_compile_id = constraint_mod.content_addressed_artifact_id(compile_artifact)
+    primary_artifact = outcome.artifacts[outcome.primary_index]
+
+    def forged_outcome(mutator):
+        forged_payload = json.loads(store.read_prepared(compile_artifact.object_ref))
+        mutator(forged_payload)
+        forged_blob = canonical_json(forged_payload).encode()
+        forged_ref, forged_location = store.put_prepared(forged_blob)
+        forged_artifacts = list(outcome.artifacts)
+        forged_compile_artifact = compile_artifact.model_copy(
+            update={
+                "object_ref": forged_ref,
+                "location": forged_location,
+                "payload_hash": forged_ref.sha256,
+            }
+        )
+        forged_artifacts[compile_index] = forged_compile_artifact
+        forged_compile_id = constraint_mod.content_addressed_artifact_id(forged_compile_artifact)
+        forged_primary_payload = json.loads(store.read_prepared(primary_artifact.object_ref))
+        forged_primary_payload["supporting_artifact_ids"] = sorted(
+            forged_compile_id if artifact_id == old_compile_id else artifact_id
+            for artifact_id in forged_primary_payload["supporting_artifact_ids"]
+        )
+        for requirement in forged_primary_payload["requirements"]:
+            if requirement.get("evidence_artifact_id") == old_compile_id:
+                requirement["evidence_artifact_id"] = forged_compile_id
+        forged_primary_blob = canonical_json(forged_primary_payload).encode()
+        forged_primary_ref, forged_primary_location = store.put_prepared(forged_primary_blob)
+        forged_artifacts[outcome.primary_index] = primary_artifact.model_copy(
+            update={
+                "object_ref": forged_primary_ref,
+                "location": forged_primary_location,
+                "payload_hash": forged_primary_ref.sha256,
+            }
+        )
+        return outcome.model_copy(update={"artifacts": tuple(forged_artifacts)})
+
+    artifacts_with_extra_golden = list(outcome.artifacts)
+    artifacts_with_extra_golden[compile_index] = compile_artifact.model_copy(
+        update={"lineage": tuple(sorted((*compile_artifact.lineage, golden.artifact_id)))}
+    )
+    with pytest.raises(IntegrityViolation, match="lineage|parent"):
+        _publish_validation_handler_outcome(
+            monkeypatch,
+            registry=registry,
+            catalog=catalog,
+            context=context,
+            outcome=outcome.model_copy(update={"artifacts": tuple(artifacts_with_extra_golden)}),
+            store=store,
+            input_artifacts=(base, golden, proposal, suite),
+        )
+
+    def forge_engine_id(payload):
+        next(stage for stage in payload["stages"] if stage["stage"] == "differential")[
+            "engine_id"
+        ] = "forged"
+
+    def forge_noncanonical_engine_version(payload):
+        next(stage for stage in payload["stages"] if stage["stage"] == "differential")[
+            "engine_version"
+        ] = "01"
+
+    def forge_same_engine(payload):
+        stages = [stage for stage in payload["stages"] if stage["stage"] == "differential"]
+        stages[1]["engine_id"] = stages[0]["engine_id"]
+        stages[1]["engine_version"] = "99"
+
+    def forge_reason_code(payload):
+        stage = next(
+            stage
+            for stage in payload["stages"]
+            if stage["stage"] == "differential" and stage["status"] == "passed"
+        )
+        stage["status"] = "unproven"
+        stage["reason_code"] = "forged_reason"
+        payload["overall_status"] = "unproven"
+
+    def forge_cross_engine_reason_code(payload):
+        stage = next(
+            stage
+            for stage in payload["stages"]
+            if stage["stage"] == "differential"
+            and stage["engine_id"] == "clingo"
+            and stage["status"] == "passed"
+        )
+        stage["status"] = "unproven"
+        stage["reason_code"] = "z3_budget_exhausted"
+        payload["overall_status"] = "unproven"
+
+    def forge_golden_not_applicable(payload):
+        golden_stage = next(stage for stage in payload["stages"] if stage["stage"] == "golden")
+        golden_stage["status"] = "not_applicable"
+        golden_stage["reason_code"] = "golden_suite_absent"
+
+    for mutator in (
+        forge_engine_id,
+        forge_noncanonical_engine_version,
+        forge_same_engine,
+        forge_reason_code,
+        forge_cross_engine_reason_code,
+        forge_golden_not_applicable,
+    ):
+        with pytest.raises(IntegrityViolation, match="compile evidence"):
+            _publish_validation_handler_outcome(
+                monkeypatch,
+                registry=registry,
+                catalog=catalog,
+                context=context,
+                outcome=forged_outcome(mutator),
+                store=store,
+                input_artifacts=(base, golden, proposal, suite),
+            )
+
+    invalid_constraint = constraint_mod._constraint(
+        "C_invalid_terminal",
+        "__import__('os').system('forbidden')",
+    )
+    invalid_proposal = store.register_exact_artifact(
+        kind="constraint_proposal",
+        payload_schema_id="constraint-proposal@1",
+        payload=constraint_mod._proposal((invalid_constraint,)).model_dump(mode="json"),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=constraint_mod.SOURCE_SNAPSHOT_ID,
+            constraint_snapshot_id=base_constraint_snapshot_id,
+            tool_version="constraint-proposal@1",
+        ),
+    )
+    invalid_payload = constraint_mod._payload(base=base.artifact_id).model_copy(
+        update={
+            "subject": constraint_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": invalid_proposal.artifact_id,
+                    "subject_digest": invalid_proposal.payload_hash,
+                }
+            ),
+            "target": constraint_mod._payload().target.model_copy(
+                update={
+                    "expected_ref": constraint_mod.RefValue(
+                        artifact_id=base.artifact_id,
+                        revision=1,
+                    )
+                }
+            ),
+            "validation_policy": validation_profile,
+            "compiler_profile": compiler_profile,
+        }
+    )
+    invalid_context = _bind_context_to_exact_catalog(
+        constraint_mod._context(
+            store,
+            invalid_payload,
+            version_tuple=VersionTuple(
+                ir_snapshot_id=constraint_mod.SOURCE_SNAPSHOT_ID,
+                constraint_snapshot_id=base_constraint_snapshot_id,
+                tool_version="constraint-proposal@1",
+            ),
+        ),
+        catalog,
+        bindings,
+    )
+    invalid_outcome = constraint_mod._handler(
+        store,
+        profile_resolver=worker_validation.RegistryConstraintValidationProfileResolver(registry),
+    )(invalid_context)
+    assert invalid_outcome.summary.outcome_code == (
+        "constraint_validation_failed_without_candidate"
+    )
+    _publish_validation_handler_outcome(
+        monkeypatch,
+        registry=registry,
+        catalog=catalog,
+        context=invalid_context,
+        outcome=invalid_outcome,
+        store=store,
+        input_artifacts=(base, invalid_proposal),
+    )
+
+
+def test_rollback_regression_playtest_finding_reaches_real_terminal(monkeypatch):
+    from tests.platform.m4c import test_rollback_validation_handler as rollback_mod
+
+    registry = build_builtin_registry()
+    catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
+    rollback_profile = ProfileRefV1(profile_id="builtin.rollback", version=1)
+    schema_profile = ProfileRefV1(profile_id="builtin.schema_compatibility", version=1)
+    impact_profile = ProfileRefV1(profile_id="builtin.impact_analysis", version=1)
+    bindings = (
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/rollback_profile",
+            profile=rollback_profile,
+            profile_kind="rollback",
+        ),
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/schema_compatibility_policy",
+            profile=schema_profile,
+            profile_kind="schema_compatibility",
+        ),
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/impact_profiles/0",
+            profile=impact_profile,
+            profile_kind="impact_analysis",
+        ),
+    )
+    store = rollback_mod._store()
+    current = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=rollback_mod._TARGET_SNAPSHOT.content_payload,
+        version_tuple=VersionTuple(ir_snapshot_id="snapshot:current-terminal"),
+    )
+    target = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=rollback_mod._TARGET_SNAPSHOT.content_payload,
+        version_tuple=VersionTuple(ir_snapshot_id=rollback_mod._TARGET_SNAPSHOT.snapshot_id),
+    )
+    current_ref = rollback_mod.RefValue(artifact_id=current.artifact_id, revision=5)
+    subject_payload = rollback_mod._rollback_request().model_copy(
+        update={
+            "expected_current_ref": current_ref,
+            "target_artifact_id": target.artifact_id,
+            "rollback_profile_binding": bindings[0],
+        }
+    )
+    subject = store.register_exact_artifact(
+        kind="rollback_request",
+        payload_schema_id="rollback-request@1",
+        payload=subject_payload.model_dump(mode="json"),
+        version_tuple=VersionTuple(tool_version="rollback-request@1"),
+    )
+    suite = store.register_exact_artifact(
+        kind="regression_suite",
+        payload_schema_id="regression-suite@1",
+        payload={"suite": "terminal-playtest"},
+        version_tuple=VersionTuple(
+            env_contract_version="suite-env@1",
+            tool_version="regression-suite@1",
+        ),
+    )
+    payload = rollback_mod._payload(
+        impact_profiles=(impact_profile,),
+        regression=(suite.artifact_id,),
+    ).model_copy(
+        update={
+            "subject": rollback_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": subject.artifact_id,
+                    "subject_digest": subject.payload_hash,
+                }
+            ),
+            "expected_current_ref": current_ref,
+            "target_artifact_id": target.artifact_id,
+            "rollback_profile": rollback_profile,
+            "schema_compatibility_policy": schema_profile,
+        }
+    )
+    context = _bind_context_to_exact_catalog(
+        rollback_mod._context(store, payload, seed=17),
+        catalog,
+        bindings,
+    )
+    outcome = rollback_mod._handler(
+        store, regression_runner=rollback_mod._FailingRegressionRunner()
+    )(context)
+
+    assert outcome.summary.outcome_code == "rollback_validation_failed"
+    assert len(outcome.findings) == 1
+    _published, findings, ledger, _artifacts, _blobs = _publish_validation_handler_outcome(
+        monkeypatch,
+        registry=registry,
+        catalog=catalog,
+        context=context,
+        outcome=outcome,
+        store=store,
+        input_artifacts=(current, subject, suite, target),
+    )
+    assert len(findings.revisions) == 1
+    assert findings.revisions[0].payload.source == "playtest"
+    assert findings.revisions[0].payload.producer_id == "agent-env-action-replay@1"
+    assert len(ledger.links) == 1
+
+
+def test_rollback_terminal_rejects_history_requirement_labeled_as_schema(monkeypatch):
+    from tests.platform.m4c import test_rollback_validation_handler as rollback_mod
+
+    registry = build_builtin_registry()
+    catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
+    rollback_profile = ProfileRefV1(profile_id="builtin.rollback", version=1)
+    schema_profile = ProfileRefV1(profile_id="builtin.schema_compatibility", version=1)
+    impact_profile = ProfileRefV1(profile_id="builtin.impact_analysis", version=1)
+    bindings = (
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/rollback_profile",
+            profile=rollback_profile,
+            profile_kind="rollback",
+        ),
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/schema_compatibility_policy",
+            profile=schema_profile,
+            profile_kind="schema_compatibility",
+        ),
+        _exact_profile_binding(
+            registry,
+            catalog,
+            field_path="/params/impact_profiles/0",
+            profile=impact_profile,
+            profile_kind="impact_analysis",
+        ),
+    )
+    store = rollback_mod._store()
+    current = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=rollback_mod._TARGET_SNAPSHOT.content_payload,
+        version_tuple=VersionTuple(ir_snapshot_id="snapshot:current-history-terminal"),
+    )
+    target = store.register_exact_artifact(
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        payload=rollback_mod._TARGET_SNAPSHOT.content_payload,
+        version_tuple=VersionTuple(ir_snapshot_id=rollback_mod._TARGET_SNAPSHOT.snapshot_id),
+    )
+    current_ref = rollback_mod.RefValue(artifact_id=current.artifact_id, revision=5)
+    subject_payload = rollback_mod._rollback_request().model_copy(
+        update={
+            "expected_current_ref": current_ref,
+            "target_artifact_id": target.artifact_id,
+            "rollback_profile_binding": bindings[0],
+        }
+    )
+    subject = store.register_exact_artifact(
+        kind="rollback_request",
+        payload_schema_id="rollback-request@1",
+        payload=subject_payload.model_dump(mode="json"),
+        version_tuple=VersionTuple(tool_version="rollback-request@1"),
+    )
+    payload = rollback_mod._payload(
+        impact_profiles=(impact_profile,),
+        regression=(),
+    ).model_copy(
+        update={
+            "subject": rollback_mod._subject().model_copy(
+                update={
+                    "subject_artifact_id": subject.artifact_id,
+                    "subject_digest": subject.payload_hash,
+                }
+            ),
+            "expected_current_ref": current_ref,
+            "target_artifact_id": target.artifact_id,
+            "rollback_profile": rollback_profile,
+            "schema_compatibility_policy": schema_profile,
+        }
+    )
+    context = _bind_context_to_exact_catalog(
+        rollback_mod._context(store, payload),
+        catalog,
+        bindings,
+    )
+    outcome = rollback_mod._handler(store)(context)
+
+    assert outcome.summary.outcome_code == "rollback_validation_passed"
+    _publish_validation_handler_outcome(
+        monkeypatch,
+        registry=registry,
+        catalog=catalog,
+        context=context,
+        outcome=outcome,
+        store=store,
+        input_artifacts=(current, subject, target),
+    )
+
+    history = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == "history"
+    )
+    forged_payload = json.loads(store.read_prepared(history.object_ref))
+    forged_payload["dimension"] = "schema"
+    forged_payload["detail"] = {
+        **forged_payload["detail"],
+        "schema_profile_binding": bindings[1].model_dump(mode="json"),
+        "rollback_profile_binding": bindings[0].model_dump(mode="json"),
+    }
+    forged = _replace_validation_companion_payload(
+        store=store,
+        outcome=outcome,
+        requirement_id="history",
+        replacement_payload=forged_payload,
+        replacement_requirement_kind="schema",
+    )
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        _publish_validation_handler_outcome(
+            monkeypatch,
+            registry=registry,
+            catalog=catalog,
+            context=context,
+            outcome=forged,
+            store=store,
+            input_artifacts=(current, subject, target),
         )

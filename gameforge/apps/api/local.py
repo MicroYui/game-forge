@@ -43,6 +43,12 @@ from gameforge.apps.api.streaming import (
 )
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
 from gameforge.apps.worker.config_export import build_aureus_config_exporter
+from gameforge.apps.worker.auto_apply import (
+    SqlAutoApplyPolicyRegistryResolver,
+    SqlDeterministicOracleRegistryResolver,
+    SqlDomainRegistryResolver,
+    ensure_worker_auto_apply_catalog_supported,
+)
 from gameforge.apps.cli.identity import (
     AUDIT_CHAIN_ID_ENV,
     PASSWORD_HASH_POLICY_VERSION_ENV,
@@ -70,6 +76,11 @@ from gameforge.platform.approvals.apply import (
 from gameforge.platform.approvals.commands import (
     ApprovalCommandCapabilities,
     ApprovalCommandService,
+)
+from gameforge.platform.approvals.auto_apply_runtime import (
+    ExactAutoApplyApprovalGateway,
+    ExactAutoApplyEligibilityService,
+    TransactionBoundAutoApplyAuthority,
 )
 from gameforge.platform.approvals.state import validate_status_transition
 from gameforge.platform.diff.rebase import (
@@ -780,10 +791,10 @@ def _build_workflow_command_service(
     Workflow governance (registry/route/roles/approval snapshot stamped on new drafts)
     and patch/rollback domain-scope resolution are resolved from the authoritative
     policy snapshot repository when the config declares its governance pointers, so
-    every draft/rebase op is functional against real SQLite. Run admission
-    (``*.validate``) stays deferred (interface-present) until Task 8 wires it; those
-    ops fail closed. Spec upload, submit/decide, apply/publish and rebase operate on
-    the real SQLite authority.
+    every draft/rebase op is functional against real SQLite. Validation commands
+    admit their exact Run through the same transaction-bound admission authority.
+    Spec upload, submit/decide, apply/publish and rebase likewise operate on the real
+    SQLite authority.
     """
 
     draft_verifier = WorkflowDraftLineageVerifier()
@@ -801,6 +812,16 @@ def _build_workflow_command_service(
             persistent=transaction.policies,  # type: ignore[attr-defined]
             registry=registry,
         )
+        auto_apply = ExactAutoApplyApprovalGateway(
+            eligibility=ExactAutoApplyEligibilityService(
+                authority=TransactionBoundAutoApplyAuthority(
+                    transaction=transaction,
+                    object_store=object_store,
+                    profiles=registry,  # type: ignore[arg-type]
+                )
+            ),
+            runs=transaction.runs,  # type: ignore[attr-defined]
+        )
         return ApprovalCommandCapabilities(
             approvals=transaction.approvals,  # type: ignore[attr-defined]
             policies=policies,
@@ -812,6 +833,7 @@ def _build_workflow_command_service(
             subjects=bound,
             lineage=draft_verifier,
             evidence=bound,
+            auto_apply=auto_apply,
             refs=transaction.refs,  # type: ignore[attr-defined]
             principals=_PrincipalGet(transaction.identity),  # type: ignore[attr-defined]
         )
@@ -821,6 +843,16 @@ def _build_workflow_command_service(
         policies = _AdmissionPolicyAuthority(
             persistent=transaction.policies,  # type: ignore[attr-defined]
             registry=registry,
+        )
+        auto_apply = ExactAutoApplyApprovalGateway(
+            eligibility=ExactAutoApplyEligibilityService(
+                authority=TransactionBoundAutoApplyAuthority(
+                    transaction=transaction,
+                    object_store=object_store,
+                    profiles=registry,  # type: ignore[arg-type]
+                )
+            ),
+            runs=transaction.runs,  # type: ignore[attr-defined]
         )
         return ApprovedApplyCapabilities(
             approvals=transaction.approvals,  # type: ignore[attr-defined]
@@ -834,6 +866,7 @@ def _build_workflow_command_service(
             subjects=bound,
             evidence=bound,
             targets=bound,
+            auto_apply=auto_apply,
             rollback_execution=ExactRollbackExecutionVerifier(
                 runs=transaction.runs,  # type: ignore[attr-defined]
                 profiles=policies,
@@ -1167,6 +1200,22 @@ def build_local_api_resources(
         registry=builtin_registry,
         components=components,
     )
+
+    def registry_readiness() -> None:
+        RegistryReadinessProbe(registry_validator)()
+        ensure_worker_auto_apply_catalog_supported(
+            builtin_registry,
+            policy_registries=SqlAutoApplyPolicyRegistryResolver(
+                engine=engine,
+                clock=clock,
+            ),
+            domain_registries=SqlDomainRegistryResolver(engine=engine, clock=clock),
+            oracle_registries=SqlDeterministicOracleRegistryResolver(
+                engine=engine,
+                clock=clock,
+            ),
+        )
+
     audit_cache = AuditVerificationCache()
     readiness = ReadinessService(
         ReadinessChecks(
@@ -1177,7 +1226,7 @@ def build_local_api_resources(
             database=DatabaseReadinessProbe(engine),
             object_store=LocalObjectStoreReadinessProbe(object_store),
             cost_ledger=CostLedgerReadinessProbe(engine),
-            registry=RegistryReadinessProbe(registry_validator),
+            registry=registry_readiness,
             slo_retention=SloRetentionReadinessProbe(slo_service),
             audit_cache=audit_cache.check_ready,
         )

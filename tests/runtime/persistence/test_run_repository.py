@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
-from sqlalchemy import Engine, delete, func, select, update
+from sqlalchemy import Engine, delete, event, func, select, update
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.errors import Conflict, IntegrityViolation
@@ -31,6 +31,7 @@ from gameforge.contracts.jobs import (
     FailureClassifierRefV1,
     GraphSelectionV1,
     LeaseExpiredDataV1,
+    MAX_COLLECTION_ITEMS,
     PlaytestProvideInputPayloadV1,
     PlannedAgentNodeVersionV1,
     RetryDecisionV1,
@@ -2062,6 +2063,75 @@ def test_finding_link_can_be_read_by_its_exact_run_and_finding_revision(
                 finding_revision=2,
             )
             is None
+        )
+
+
+def test_finding_links_can_be_enumerated_by_exact_evidence_artifact(
+    engine: Engine,
+) -> None:
+    expected = _persist_exact_finding_link(engine)
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.list_finding_links_by_evidence_artifact_ids(
+            (expected.evidence_artifact_id,),
+            max_items=1,
+        ) == (expected,)
+        assert (
+            repository.list_finding_links_by_evidence_artifact_ids(
+                ("artifact:evidence:missing",),
+                max_items=1,
+            )
+            == ()
+        )
+
+
+def test_finding_link_enumeration_chunks_the_maximum_selection_below_sqlite_bind_limit(
+    engine: Engine,
+) -> None:
+    selected = tuple(
+        f"artifact:evidence:missing:{ordinal:04d}" for ordinal in range(MAX_COLLECTION_ITEMS)
+    )
+    selected_statement_parameter_counts: list[int] = []
+
+    def _observe_statement(
+        _connection,
+        _cursor,
+        statement,
+        parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        if "run_finding_links.evidence_artifact_id IN" in statement:
+            selected_statement_parameter_counts.append(len(parameters))
+
+    event.listen(engine, "before_cursor_execute", _observe_statement)
+    try:
+        with Session(engine) as session:
+            assert (
+                SqlRunRepository(session).list_finding_links_by_evidence_artifact_ids(
+                    selected,
+                    max_items=MAX_COLLECTION_ITEMS,
+                )
+                == ()
+            )
+    finally:
+        event.remove(engine, "before_cursor_execute", _observe_statement)
+
+    assert len(selected_statement_parameter_counts) >= 2
+    assert max(selected_statement_parameter_counts) < 999
+
+
+def test_finding_link_enumeration_rejects_a_bound_above_the_contract_ceiling(
+    engine: Engine,
+) -> None:
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="contract bound"),
+    ):
+        SqlRunRepository(session).list_finding_links_by_evidence_artifact_ids(
+            ("artifact:evidence:one",),
+            max_items=MAX_COLLECTION_ITEMS + 1,
         )
 
 

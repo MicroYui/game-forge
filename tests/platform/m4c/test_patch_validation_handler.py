@@ -10,16 +10,30 @@ eligible policy.
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 import pytest
 
+import gameforge.apps.worker.components as worker_components
+from gameforge.contracts.dsl import Constraint, Predicate
 from gameforge.contracts.execution_profiles import (
+    MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
     AutoApplyPolicyRefV1,
     AutoApplyPolicyRegistryRefV1,
+    ExecutionProfileDefinitionV1,
     ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
     RunKindRef,
+    canonical_config_hash,
+    execution_profile_payload_hash,
 )
 from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.findings import (
+    Finding,
+    FindingPayloadV1,
+    FindingRevisionV1,
+    finding_revision_digest,
+)
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.jobs import (
@@ -30,6 +44,18 @@ from gameforge.contracts.jobs import (
     ValidationSubjectBindingV1,
 )
 from gameforge.contracts.lineage import artifact_id_v2_for
+from gameforge.contracts.lineage import VersionTuple
+from gameforge.contracts.playtest import (
+    MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES,
+    MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES,
+    MAX_PLAYTEST_TRACE_JSON_BYTES,
+    MAX_PLAYTEST_TRACE_ROOT_METADATA_CANONICAL_BYTES,
+    PLAYTEST_MODEL_CALLS_PER_STEP_OFF,
+    PlaytestTraceV1,
+    bind_exact_playtest_trace_bytes,
+    derive_playtest_trace_markers,
+)
+from gameforge.contracts.review import ReviewReport
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import (
     AutoApplyOracleEvidenceBindingV1,
@@ -42,11 +68,14 @@ from gameforge.contracts.workflow import (
     QualifiedOutcomeRuleRefV1,
 )
 from gameforge.spine.checkers.graph import GraphChecker
+from gameforge.spine.checkers.base import CheckerExecutionBinding
 from gameforge.spine.sim.economy import SimResult
 from gameforge.platform.run_handlers.patch_validation import (
     AutoApplyEvaluationRequest,
+    ExactLinkedFindingRevision,
     PatchValidationHandler,
 )
+from gameforge.platform.run_handlers.readers import load_snapshot
 from gameforge.platform.run_handlers.review import ReviewSimConfig
 from gameforge.platform.run_handlers.validation_common import (
     DETERMINISTIC_VALIDATION_EXECUTION_SEED,
@@ -54,11 +83,13 @@ from gameforge.platform.run_handlers.validation_common import (
     VALIDATION_SEED_DERIVATION_VERSION,
     derive_validation_subseed,
     content_addressed_artifact_id,
+    regression_suite_execution_coverage_binding,
 )
 from gameforge.platform.publication.payload_binding import (
     FinalSiblingFact,
     bind_final_payload_references,
 )
+from gameforge.platform.publication.payload_schema import decode_and_validate_artifact_payload
 from gameforge.platform.registry.defaults import build_builtin_registry
 from tests.platform.m4c.handler_support import (
     FakeArtifactStore,
@@ -74,10 +105,54 @@ PREVIEW_ID = "artifact:preview-snapshot"
 REVIEW_ID = "artifact:review"
 FINDING_EVIDENCE_ID = "artifact:finding-evidence"
 REGRESSION_SUITE_ID = "artifact:regression-suite"
+REGRESSION_SUITE_2_ID = "artifact:regression-suite:2"
+CONFIG_ID = "artifact:candidate-config"
+PLAYTEST_TRACE_ID = "artifact:playtest-trace"
+CONSTRAINT_ARTIFACT_ID = "artifact:constraint"
+CONSTRAINT_SNAPSHOT_ID = "constraint:semantic:1"
 _HEX = "a" * 64
 _CHECKER = ProfileRefV1(profile_id="checker", version=1)
 _SIM = ProfileRefV1(profile_id="sim", version=1)
 _VALIDATION = ProfileRefV1(profile_id="validation", version=1)
+_ENVIRONMENT = ProfileRefV1(profile_id="environment", version=1)
+
+
+def _patch_simulation_execution_binding(
+    *,
+    root_seed: int,
+    profile: ProfileRefV1 = _SIM,
+    n_agents: int = 6,
+    n_ticks: int = 12,
+) -> dict[str, object]:
+    case_id = f"simulation:{profile.profile_id}@{profile.version}"
+    execution_seed = derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=PATCH_VALIDATE_KIND,
+        profile=profile,
+        case_id=case_id,
+        replication_index=0,
+    )
+    return {
+        "binding_schema_version": "simulation-expected-finding-binding@1",
+        "producer_id": "economy_sim",
+        "simulation_profile": profile.model_dump(mode="json"),
+        "execution_mode": "single_population@1",
+        "seed_binding": {
+            "root_seed": root_seed,
+            "run_kind": PATCH_VALIDATE_KIND.model_dump(mode="json"),
+            "profile_id": profile.profile_id,
+            "profile_version": profile.version,
+            "case_id": case_id,
+            "replication_index": 0,
+            "seed": execution_seed,
+            "seed_derivation_version": VALIDATION_SEED_DERIVATION_VERSION,
+        },
+        "constraint_snapshot_binding_status": "not_applicable",
+        "constraint_ids": [],
+        "constraint_application": {"status": "not_applicable"},
+        "n_agents": n_agents,
+        "n_ticks": n_ticks,
+    }
 
 
 def _clean_snapshot() -> bytes:
@@ -104,28 +179,282 @@ def _subject() -> ValidationSubjectBindingV1:
 
 def _payload(
     *,
+    constraint_snapshot_artifact_id=None,
+    candidate_config_export_artifact_ids=(),
     checker_profiles=(_CHECKER,),
     simulation_profiles=(),
+    expected_findings=(),
     findings=(),
     review_artifact_ids=(),
+    playtest_trace_artifact_ids=(),
     regression_suite_artifact_ids=(),
 ) -> PatchValidationPayloadV1:
     return PatchValidationPayloadV1(
         subject=_subject(),
         base_snapshot_artifact_id=BASE_ID,
         preview_snapshot_artifact_id=PREVIEW_ID,
-        candidate_config_export_artifact_ids=(),
+        constraint_snapshot_artifact_id=constraint_snapshot_artifact_id,
+        candidate_config_export_artifact_ids=candidate_config_export_artifact_ids,
         target=RefReadBindingV1(
             ref_name="ref:main", expected_ref=RefValue(artifact_id=BASE_ID, revision=1)
         ),
         validation_policy=_VALIDATION,
         checker_profiles=checker_profiles,
         simulation_profiles=simulation_profiles,
+        expected_findings=expected_findings,
         findings=findings,
         review_artifact_ids=review_artifact_ids,
-        playtest_trace_artifact_ids=(),
+        playtest_trace_artifact_ids=playtest_trace_artifact_ids,
         regression_suite_artifact_ids=regression_suite_artifact_ids,
     )
+
+
+def _finding(*, status: str, finding_id: str = "f1", snapshot_id: str) -> Finding:
+    return Finding(
+        id=finding_id,
+        source="checker",
+        producer_id="checker:graph",
+        producer_run_id="run:finding-producer",
+        oracle_type="deterministic",
+        defect_class="dangling_reference",
+        severity="major",
+        snapshot_id=snapshot_id,
+        status=status,
+        message="bound target finding",
+    )
+
+
+def _simulation_finding(*, status: str, snapshot_id: str) -> Finding:
+    return Finding(
+        id="sim:economy-collapse",
+        source="sim",
+        producer_id="economy_sim",
+        producer_run_id="run:simulation-producer",
+        oracle_type="simulation",
+        defect_class="economy_collapse",
+        severity="major",
+        snapshot_id=snapshot_id,
+        status=status,
+        message="economy collapsed",
+    )
+
+
+def _compiled_finding(
+    *,
+    status: str,
+    snapshot_id: str,
+    constraint_id: str = "C_compiled",
+    producer_id: str = "checker:asp",
+) -> Finding:
+    return Finding(
+        id="compiled:finding",
+        source="checker",
+        producer_id=producer_id,
+        producer_run_id="run:compiled-checker",
+        oracle_type="deterministic",
+        defect_class="cyclic_dependency",
+        severity="major",
+        snapshot_id=snapshot_id,
+        constraint_id=constraint_id,
+        status=status,
+        message="compiled constraint defect",
+    )
+
+
+def _playtest_finding(
+    *,
+    status: str,
+    snapshot_id: str,
+    episode_id: str = "episode:1",
+) -> Finding:
+    return Finding(
+        id="playtest-incomplete:agent_stopped",
+        source="playtest",
+        producer_id="playtest.completion_oracle",
+        producer_run_id="run:playtest-producer",
+        oracle_type="deterministic",
+        defect_class="playtest_incomplete",
+        severity="major",
+        snapshot_id=snapshot_id,
+        evidence={
+            "episode_id": episode_id,
+            "scenario_spec_artifact_id": "artifact:scenario",
+            "terminal_reason": "agent_stopped",
+        },
+        minimal_repro={
+            "episode_id": episode_id,
+            "scenario_spec_artifact_id": "artifact:scenario",
+        },
+        status=status,
+        message="completion oracle was not satisfied",
+    )
+
+
+def _finding_revision(
+    finding: Finding,
+    *,
+    finding_id: str | None = None,
+) -> FindingRevisionV1:
+    return FindingRevisionV1(
+        finding_id=finding_id or finding.id,
+        revision=1,
+        created_at="2026-07-17T09:00:00Z",
+        payload=FindingPayloadV1.model_validate(
+            finding.model_dump(
+                mode="python",
+                exclude={"id", "finding_schema_version", "created_at"},
+            )
+        ),
+    )
+
+
+def _finding_binding(
+    revision: FindingRevisionV1,
+    *,
+    evidence_artifact_id: str = FINDING_EVIDENCE_ID,
+) -> FindingEvidenceBindingV1:
+    return FindingEvidenceBindingV1(
+        finding_id=revision.finding_id,
+        finding_revision=revision.revision,
+        evidence_artifact_id=evidence_artifact_id,
+        finding_digest=finding_revision_digest(revision),
+    )
+
+
+class _ExactFindingRevisionLoader:
+    def __init__(
+        self,
+        *revisions: FindingRevisionV1,
+        evidence_artifact_id: str = FINDING_EVIDENCE_ID,
+        linked_evidence_by_finding: dict[tuple[str, int], str] | None = None,
+    ) -> None:
+        self._revisions = {(item.finding_id, item.revision): item for item in revisions}
+        self._linked_evidence_by_finding = (
+            {identity: evidence_artifact_id for identity in self._revisions}
+            if linked_evidence_by_finding is None
+            else dict(linked_evidence_by_finding)
+        )
+
+    def load_exact(
+        self,
+        *,
+        finding_id: str,
+        finding_revision: int,
+        finding_digest: str,
+    ) -> FindingRevisionV1:
+        revision = self._revisions[(finding_id, finding_revision)]
+        if finding_revision_digest(revision) != finding_digest:
+            raise IntegrityViolation("bound Finding digest differs from exact revision")
+        return revision
+
+    def list_linked_exact(
+        self,
+        *,
+        evidence_artifact_ids: tuple[str, ...],
+    ) -> tuple[ExactLinkedFindingRevision, ...]:
+        return tuple(
+            ExactLinkedFindingRevision(
+                evidence_artifact_id=evidence_artifact_id,
+                revision=revision,
+            )
+            for identity, revision in self._revisions.items()
+            if (evidence_artifact_id := self._linked_evidence_by_finding.get(identity))
+            in evidence_artifact_ids
+        )
+
+
+def _playtest_trace(
+    *,
+    completed: bool,
+    root_seed: int = 11,
+    environment_profile: ProfileRefV1 = _ENVIRONMENT,
+    completion_oracle_id: str = "all-quests",
+    config_artifact_id: str = CONFIG_ID,
+) -> PlaytestTraceV1:
+    task_suite_id = "artifact:task-suite"
+    episode_id = "episode:1"
+    run_kind = RunKindRef(kind="playtest.run", version=1)
+    execution_seed = derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=run_kind,
+        profile=environment_profile,
+        case_id=f"{task_suite_id}:{episode_id}",
+        replication_index=0,
+    )
+    state_hash = f"sha256:{'0' * 64}"
+    terminal_reason = "completion_oracle_satisfied" if completed else "agent_stopped"
+    requested_steps = 1
+    per_episode_upper_bound = min(
+        MAX_PLAYTEST_TRACE_JSON_BYTES,
+        2 + requested_steps * (MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES + 1),
+    )
+    raw = {
+        "playtest_trace_schema_version": "playtest-trace@1",
+        "config_artifact_id": config_artifact_id,
+        "constraint_snapshot_artifact_id": "artifact:constraint",
+        "task_suite_artifact_id": task_suite_id,
+        "environment_profile": environment_profile.model_dump(mode="json"),
+        "planner_policy": {"profile_id": "planner", "version": 1},
+        "env_contract_version": "env@1",
+        "interaction_mode": "autonomous",
+        "seed": root_seed,
+        "requested_max_steps_per_episode": requested_steps,
+        "planner_memory_mode": "off",
+        "execution_envelope": {
+            "planner_profile_payload_hash": _HEX,
+            "selected_episode_count": 1,
+            "total_step_limit": requested_steps,
+            "model_call_upper_bound": (requested_steps * PLAYTEST_MODEL_CALLS_PER_STEP_OFF),
+            "total_trace_byte_upper_bound": (
+                MAX_PLAYTEST_TRACE_ROOT_METADATA_CANONICAL_BYTES
+                + per_episode_upper_bound
+                + MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES
+            ),
+            "actual_model_calls": 0,
+            "total_action_count": 0,
+            "total_action_trace_bytes": 2,
+            "actual_trace_bytes": 1,
+        },
+        "episodes": [
+            {
+                "episode_id": episode_id,
+                "scenario_spec_artifact_id": "artifact:scenario",
+                "seed": execution_seed,
+                "seed_binding": {
+                    "seed_derivation_version": "subseed@1",
+                    "root_seed": root_seed,
+                    "run_kind": run_kind.model_dump(mode="json"),
+                    "profile": environment_profile.model_dump(mode="json"),
+                    "case_id": f"{task_suite_id}:{episode_id}",
+                    "replication_index": 0,
+                    "seed": execution_seed,
+                },
+                "step_budget": requested_steps,
+                "execution_step_limit": requested_steps,
+                "completion_oracle": {
+                    "oracle_id": completion_oracle_id,
+                    "version": 1,
+                    "params_schema_id": "state-predicate-params@1",
+                    "params": {"predicate": "all_quests_completed"},
+                },
+                "completed": completed,
+                "terminal_reason": terminal_reason,
+                "initial_state_hash": state_hash,
+                "final_state_hash": state_hash,
+                "action_trace": [],
+                "markers": [
+                    marker.model_dump(mode="json")
+                    for marker in derive_playtest_trace_markers(
+                        (),
+                        initial_state_hash=state_hash,
+                        final_state_hash=state_hash,
+                        terminal_reason=terminal_reason,
+                    )
+                ],
+            }
+        ],
+    }
+    return PlaytestTraceV1.model_validate(bind_exact_playtest_trace_bytes(raw))
 
 
 class _FakeAutoApplyEvaluator:
@@ -209,24 +538,42 @@ class _RecordingRegressionRunner:
         return RegressionSuiteResultV1(
             suite_artifact_id=request.suite_artifact_id,
             status="passed",
+            env_contract_version="suite-env@1",
             payload={
                 "payload_schema_version": "regression-evidence@1",
                 "status": "passed",
                 "seed": request.seed,
             },
+            action_work_units=10,
         )
 
 
 class _FailingRegressionRunner:
     def run(self, request) -> RegressionSuiteResultV1:
+        finding = Finding(
+            id="regression:failed",
+            source="playtest",
+            producer_id="agent-env-action-replay@1",
+            producer_run_id="regression-runner",
+            oracle_type="deterministic",
+            defect_class="regression_expectation_mismatch",
+            severity="major",
+            snapshot_id=request.snapshot_id,
+            status="confirmed",
+            message="committed regression expectation failed",
+        )
         return RegressionSuiteResultV1(
             suite_artifact_id=request.suite_artifact_id,
             status="failed",
+            env_contract_version="suite-env@1",
             payload={
                 "payload_schema_version": "regression-evidence@1",
                 "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": request.snapshot_id,
                 "status": "failed",
+                "findings": [finding.model_dump(mode="json")],
             },
+            action_work_units=10,
         )
 
 
@@ -247,14 +594,73 @@ class _UnprovenRegressionRunner:
         )
 
 
+class _MeasuredWorkRegressionRunner:
+    def __init__(self, work_units: tuple[int | None, ...]) -> None:
+        self.work_units = list(work_units)
+        self.remaining_limits: list[int | None] = []
+
+    def run(self, request) -> RegressionSuiteResultV1:
+        self.remaining_limits.append(request.max_action_work_units)
+        work_units = self.work_units.pop(0)
+        return RegressionSuiteResultV1(
+            suite_artifact_id=request.suite_artifact_id,
+            status="passed",
+            env_contract_version="suite-env@1",
+            payload={
+                "payload_schema_version": "regression-evidence@1",
+                "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": request.snapshot_id,
+                "status": "passed",
+            },
+            action_work_units=work_units,
+        )
+
+
 def _store(*, snapshot: bytes | None = None) -> FakeArtifactStore:
     store = FakeArtifactStore()
     store.register(BASE_ID, _clean_snapshot())
     store.register(PREVIEW_ID, snapshot if snapshot is not None else _clean_snapshot())
-    store.register(REVIEW_ID, {"payload_schema_version": "review@1"})
-    store.register(FINDING_EVIDENCE_ID, {"payload_schema_version": "checker-report@1"})
+    preview = load_snapshot(store, PREVIEW_ID)
+    store.register(REVIEW_ID, ReviewReport(snapshot_id=preview.snapshot_id).model_dump(mode="json"))
+    store.register(
+        FINDING_EVIDENCE_ID,
+        {
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": preview.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [],
+            "constraint_application": [],
+            "findings": [
+                _finding(status="fixed", snapshot_id=preview.snapshot_id).model_dump(mode="json")
+            ],
+        },
+    )
     store.register(REGRESSION_SUITE_ID, {"suite": "s"})
+    store.register(REGRESSION_SUITE_2_ID, {"suite": "s2"})
+    store.register(CONFIG_ID, {"config": "candidate"})
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {"dsl_grammar_version": "dsl@1", "constraints": []},
+    )
     return store
+
+
+def _register_historical_evidence(
+    store: FakeArtifactStore,
+    *,
+    kind: str,
+    payload_schema_id: str,
+    payload: object,
+    version_tuple: VersionTuple | None = None,
+    lineage: tuple[str, ...] = (),
+) -> str:
+    return store.register_exact_artifact(
+        kind=kind,
+        payload_schema_id=payload_schema_id,
+        payload=payload,
+        version_tuple=version_tuple,
+        lineage=lineage,
+    ).artifact_id
 
 
 def _handler(
@@ -262,8 +668,11 @@ def _handler(
     *,
     checker_resolver=lambda profile, constraints: _CleanChecker(),
     simulator=None,
+    wire_finding_authority: bool = True,
     **kwargs,
 ) -> PatchValidationHandler:
+    if wire_finding_authority:
+        kwargs.setdefault("finding_revision_loader", _ExactFindingRevisionLoader())
     return PatchValidationHandler(
         blobs=store,
         store=store,
@@ -281,22 +690,2064 @@ def _context(
     payload: PatchValidationPayloadV1,
     *,
     seed: int | None = None,
+    constraint_snapshot_id: str | None = None,
+    env_contract_version: str | None = None,
+    resolved_profiles_override=None,
 ):
+    preview = load_snapshot(store, payload.preview_snapshot_artifact_id)
     return build_context(
         params=payload,
         kind=PATCH_VALIDATE_KIND,
         resolved_profiles=(
-            resolved_binding(
-                "/params/validation_policy", profile_id="validation", version=1, kind="validation"
-            ),
+            resolved_profiles_override
+            if resolved_profiles_override is not None
+            else (
+                resolved_binding(
+                    "/params/validation_policy",
+                    profile_id="validation",
+                    version=1,
+                    kind="validation",
+                ),
+                *(
+                    resolved_binding(
+                        f"/params/checker_profiles/{index}",
+                        profile_id=profile.profile_id,
+                        version=profile.version,
+                        kind="checker",
+                    )
+                    for index, profile in enumerate(payload.checker_profiles)
+                ),
+                *(
+                    resolved_binding(
+                        f"/params/simulation_profiles/{index}",
+                        profile_id=profile.profile_id,
+                        version=profile.version,
+                        kind="simulation",
+                    )
+                    for index, profile in enumerate(payload.simulation_profiles)
+                ),
+            )
         ),
         seed=seed,
+        version_tuple=VersionTuple(
+            doc_version="doc@1",
+            ir_snapshot_id=preview.snapshot_id,
+            constraint_snapshot_id=constraint_snapshot_id,
+            env_contract_version=env_contract_version,
+            tool_version="patch-validation@1",
+            seed=seed,
+        ),
     )
 
 
 def _read_evidence_set(store: FakeArtifactStore, outcome: PreparedRunResult) -> EvidenceSet:
     primary = outcome.artifacts[outcome.primary_index]
     return EvidenceSet.model_validate(json.loads(store.read_prepared(primary.object_ref)))
+
+
+def test_empty_validation_request_is_explicitly_unproven() -> None:
+    store = _store()
+    outcome = _handler(store)(_context(store, _payload(checker_profiles=())))
+
+    evidence = _read_evidence_set(store, outcome)
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert evidence.overall_status == "unproven"
+    assert [item.requirement_id for item in evidence.requirements] == [
+        "validation:required-dimension"
+    ]
+    assert evidence.requirements[0].reason_code == "no_validation_dimension_selected"
+    companion = outcome.artifacts[1]
+    sealed = decode_and_validate_artifact_payload(
+        payload_schema_id=companion.payload_schema_id,
+        blob=store.read_prepared(companion.object_ref),
+    )
+    assert sealed["status"] == "unproven"
+    assert sealed["lineage_suite_artifact_ids"] == []
+
+
+def test_patch_validation_rejects_incomplete_exact_executor_profile_closure() -> None:
+    store = _store()
+    payload = _payload()
+    validation_only = (
+        resolved_binding(
+            "/params/validation_policy",
+            profile_id="validation",
+            version=1,
+            kind="validation",
+        ),
+    )
+
+    with pytest.raises(IntegrityViolation, match="profile closure"):
+        _handler(store)(
+            _context(
+                store,
+                payload,
+                resolved_profiles_override=validation_only,
+            )
+        )
+
+
+def test_production_patch_sim_config_resolves_only_the_exact_catalog_binding() -> None:
+    registry = build_builtin_registry()
+    profile = ProfileRefV1(profile_id="builtin.simulation", version=1)
+    catalog = next(
+        catalog
+        for catalog in registry.list_execution_profile_catalogs()
+        if any(definition.profile == profile for definition in catalog.definitions)
+    )
+    binding = registry.resolve_execution_profile(
+        catalog_version=catalog.catalog_version,
+        catalog_digest=catalog.catalog_digest,
+        field_path="/params/simulation_profiles/0",
+        profile=profile,
+        expected_profile_kind="simulation",
+    )
+    resolver = worker_components._build_patch_sim_config_resolver(registry)
+
+    assert resolver(binding).n_agents > 0
+    with pytest.raises(IntegrityViolation, match="catalog history"):
+        resolver(binding.model_copy(update={"catalog_digest": "b" * 64}))
+
+
+@pytest.mark.parametrize("forgery", ("compiled_native", "output_defect"))
+def test_production_patch_checker_enforces_exact_profile_taxonomy(forgery: str) -> None:
+    builtin = next(
+        definition
+        for catalog in build_builtin_registry().list_execution_profile_catalogs()
+        for definition in catalog.definitions
+        if definition.profile_kind == "checker"
+        and definition.profile.profile_id == "builtin.checker"
+    )
+    config = dict(builtin.config)
+    config["allowed_checker_ids"] = ["graph"]
+    config["allowed_defect_classes"] = [
+        "cyclic_dependency" if forgery == "output_defect" else "reward_out_of_range"
+    ]
+    definition = ExecutionProfileDefinitionV1.model_validate(
+        builtin.model_copy(
+            update={
+                "config": config,
+                "config_hash": canonical_config_hash(config),
+            }
+        ).model_dump(mode="python")
+    )
+    binding = ResolvedExecutionProfileBindingV1(
+        field_path="/params/checker_profiles/0",
+        profile=definition.profile,
+        expected_profile_kind="checker",
+        profile_payload_hash=execution_profile_payload_hash(definition),
+        catalog_version=1,
+        catalog_digest="a" * 64,
+    )
+
+    class _ExactRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition, SimpleNamespace(state="active")
+
+    constraints = (
+        [
+            Constraint(
+                id="C_numeric",
+                kind="numeric",
+                oracle="deterministic",
+                **{"assert": "reward >= 0"},
+                severity="major",
+            )
+        ]
+        if forgery == "compiled_native"
+        else []
+    )
+    checker = worker_components._build_patch_checker_resolver(_ExactRegistry())(
+        binding,
+        constraints,
+    )
+    snapshot = load_snapshot(
+        _store(snapshot=_dangling_snapshot() if forgery == "output_defect" else _clean_snapshot()),
+        PREVIEW_ID,
+    )
+
+    with pytest.raises(IntegrityViolation, match=r"exact profile.*taxonomy"):
+        checker.check(snapshot)
+
+
+def test_default_regression_runner_is_unavailable_not_passing() -> None:
+    store = _store()
+    outcome = _handler(store)(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                regression_suite_artifact_ids=(REGRESSION_SUITE_ID,),
+            ),
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "regression_runner_unavailable"
+
+
+def test_regression_work_ledger_debits_each_suite_and_binds_its_lineage() -> None:
+    store = _store()
+    first_work = 15_000_000
+    second_work = MAX_REPAIR_REGRESSION_WORK_UNITS_V1 - first_work
+    runner = _MeasuredWorkRegressionRunner((first_work, second_work))
+    outcome = _handler(store, regression_runner=runner)(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                regression_suite_artifact_ids=(
+                    REGRESSION_SUITE_ID,
+                    REGRESSION_SUITE_2_ID,
+                ),
+            ),
+            seed=23,
+        )
+    )
+
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    regression_artifacts = [
+        item for item in outcome.artifacts if item.payload_schema_id == "regression-evidence@1"
+    ]
+    assert {item.version_tuple.env_contract_version for item in regression_artifacts} == {
+        "suite-env@1"
+    }
+    assert runner.remaining_limits == [
+        MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
+        second_work,
+    ]
+    evidence_by_requirement = {
+        item.meta.get("requirement_id"): item
+        for item in outcome.artifacts
+        if item.payload_schema_id == "regression-evidence@1"
+    }
+    first = evidence_by_requirement[f"regression:{REGRESSION_SUITE_ID}"]
+    second = evidence_by_requirement[f"regression:{REGRESSION_SUITE_2_ID}"]
+    assert REGRESSION_SUITE_ID in first.lineage
+    assert REGRESSION_SUITE_2_ID not in first.lineage
+    assert REGRESSION_SUITE_2_ID in second.lineage
+    assert REGRESSION_SUITE_ID not in second.lineage
+    for artifact, suite_id in (
+        (first, REGRESSION_SUITE_ID),
+        (second, REGRESSION_SUITE_2_ID),
+    ):
+        sealed = decode_and_validate_artifact_payload(
+            payload_schema_id=artifact.payload_schema_id,
+            blob=store.read_prepared(artifact.object_ref),
+        )
+        assert sealed["lineage_suite_artifact_ids"] == [suite_id]
+
+
+@pytest.mark.parametrize(
+    ("reported_work", "message"),
+    (
+        (None, "omitted measured action work"),
+        (MAX_REPAIR_REGRESSION_WORK_UNITS_V1 + 1, "aggregate work budget"),
+    ),
+)
+def test_passing_regression_requires_bounded_measured_work(
+    reported_work: int | None,
+    message: str,
+) -> None:
+    store = _store()
+    with pytest.raises(IntegrityViolation, match=message):
+        _handler(
+            store,
+            regression_runner=_MeasuredWorkRegressionRunner((reported_work,)),
+        )(
+            _context(
+                store,
+                _payload(
+                    checker_profiles=(),
+                    regression_suite_artifact_ids=(REGRESSION_SUITE_ID,),
+                ),
+                seed=29,
+            )
+        )
+
+
+@pytest.mark.parametrize(
+    ("finding_status", "expected_status"),
+    (
+        ("confirmed", "failed"),
+        ("unproven", "unproven"),
+        ("fixed", "passed"),
+        ("dismissed", "passed"),
+    ),
+)
+def test_exact_scoped_playtest_finding_status_affects_validation_without_embedded_findings(
+    finding_status: str,
+    expected_status: str,
+) -> None:
+    store = _store()
+    preview = load_snapshot(store, PREVIEW_ID)
+    finding = Finding(
+        id="local-playtest-finding-id",
+        source="playtest",
+        producer_id="playtest-completion@1",
+        producer_run_id="run:playtest-producer",
+        oracle_type="deterministic",
+        defect_class="playtest_completion",
+        severity="major",
+        snapshot_id=preview.snapshot_id,
+        status=finding_status,
+        message="exact playtest completion finding",
+    )
+    revision = _finding_revision(
+        finding,
+        finding_id="finding-series:playtest-run:episode-1:completion",
+    )
+    binding = _finding_binding(revision)
+    # A playtest trace has no embedded ``findings`` array, and its local marker IDs
+    # are not the scoped Finding-series identity. The immutable revision authority,
+    # not this evidence blob, owns the status used by validation.
+    store.register(FINDING_EVIDENCE_ID, _playtest_trace(completed=True).model_dump(mode="json"))
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(_context(store, _payload(checker_profiles=(), findings=(binding,))))
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == "finding:finding-series:playtest-run:episode-1:completion@1"
+    )
+    assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
+    assert requirement.status == expected_status
+
+
+def test_target_finding_without_exact_revision_authority_fails_closed() -> None:
+    store = _store()
+    preview = load_snapshot(store, PREVIEW_ID)
+    revision = _finding_revision(_finding(status="fixed", snapshot_id=preview.snapshot_id))
+
+    with pytest.raises(IntegrityViolation, match="exact Finding revision authority"):
+        _handler(store, wire_finding_authority=False)(
+            _context(
+                store,
+                _payload(
+                    checker_profiles=(),
+                    findings=(_finding_binding(revision),),
+                ),
+            )
+        )
+
+
+def test_omitted_confirmed_playtest_finding_cannot_pass_selected_trace_closure() -> None:
+    store = _store()
+    preview = load_snapshot(store, PREVIEW_ID)
+    trace = _playtest_trace(completed=True)
+    store.register(PLAYTEST_TRACE_ID, trace.model_dump(mode="json"))
+    revision = _finding_revision(
+        Finding(
+            id="producer-local-playtest-id",
+            source="playtest",
+            producer_id="playtest-completion@1",
+            producer_run_id="run:playtest-producer",
+            oracle_type="deterministic",
+            defect_class="playtest_state_violation",
+            severity="major",
+            snapshot_id=preview.snapshot_id,
+            status="confirmed",
+            message="trace completed but violated a deterministic state predicate",
+        ),
+        finding_id="finding-series:playtest-run:episode-1:state",
+    )
+
+    with pytest.raises(IntegrityViolation, match="exactly cover selected evidence"):
+        _handler(
+            store,
+            finding_revision_loader=_ExactFindingRevisionLoader(
+                revision,
+                evidence_artifact_id=PLAYTEST_TRACE_ID,
+            ),
+        )(
+            _context(
+                store,
+                _payload(
+                    constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                    candidate_config_export_artifact_ids=(CONFIG_ID,),
+                    checker_profiles=(),
+                    playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+                    findings=(),
+                ),
+                constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+                env_contract_version="env@1",
+            )
+        )
+
+
+@pytest.mark.parametrize(
+    ("finding_status", "expected_status"),
+    (("confirmed", "failed"), ("unproven", "unproven")),
+)
+def test_supporting_review_status_affects_validation(
+    finding_status: str,
+    expected_status: str,
+) -> None:
+    store = _store()
+    preview = load_snapshot(store, PREVIEW_ID)
+    report = ReviewReport.partition(
+        preview.snapshot_id,
+        [_finding(status=finding_status, snapshot_id=preview.snapshot_id)],
+    )
+    store.register(REVIEW_ID, report.model_dump(mode="json"))
+
+    outcome = _handler(store)(
+        _context(
+            store,
+            _payload(checker_profiles=(), review_artifact_ids=(REVIEW_ID,)),
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == f"review:{REVIEW_ID}"
+    )
+    assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
+    assert requirement.status == expected_status
+
+
+@pytest.mark.parametrize(
+    ("completed", "expected_status"),
+    ((True, "passed"), (False, "failed")),
+)
+def test_supporting_playtest_completion_affects_validation(
+    completed: bool,
+    expected_status: str,
+) -> None:
+    store = _store()
+    store.register(
+        PLAYTEST_TRACE_ID,
+        _playtest_trace(completed=completed).model_dump(mode="json"),
+    )
+    outcome = _handler(store)(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == f"playtest:{PLAYTEST_TRACE_ID}"
+    )
+    assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
+    assert requirement.status == expected_status
+
+
+def test_checker_receives_exact_resolved_constraints_and_artifacts_project_run_tuple() -> None:
+    store = _store()
+    constraint = Constraint(
+        id="C_required",
+        kind="structural",
+        oracle="deterministic",
+        **{"assert": "relations_resolve"},
+        severity="major",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    seen: list[Constraint] = []
+
+    def resolve_checker(profile, constraints):
+        seen.extend(constraints)
+        return _CleanChecker()
+
+    context = _context(
+        store,
+        _payload(constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID),
+        seed=19,
+        constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        env_contract_version="env@1",
+    )
+    outcome = _handler(
+        store,
+        checker_resolver=resolve_checker,
+    )(context)
+
+    assert seen == [constraint]
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert CONSTRAINT_ARTIFACT_ID in outcome.artifacts[outcome.primary_index].lineage
+    assert all(
+        artifact.version_tuple.doc_version == "doc@1"
+        and artifact.version_tuple.ir_snapshot_id == context.payload.version_tuple.ir_snapshot_id
+        and artifact.version_tuple.constraint_snapshot_id == CONSTRAINT_SNAPSHOT_ID
+        and artifact.version_tuple.env_contract_version == "env@1"
+        and artifact.version_tuple.seed == 19
+        for artifact in outcome.artifacts
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ("source", "snapshot", "producer"),
+)
+def test_patch_checker_rejects_finding_outside_execution_authority(mutation: str) -> None:
+    class ForgedChecker:
+        id = "graph"
+
+        def check(self, snapshot, nav=None):
+            del nav
+            finding = Finding(
+                id="checker:forged",
+                source="checker",
+                producer_id="graph",
+                producer_run_id="checker-runner",
+                oracle_type="deterministic",
+                defect_class="dangling_reference",
+                severity="major",
+                snapshot_id=snapshot.snapshot_id,
+                status="confirmed",
+                message="forged checker output",
+            )
+            updates = {
+                "source": {"source": "llm"},
+                "snapshot": {"snapshot_id": "snapshot:other"},
+                "producer": {"producer_id": "asp"},
+            }
+            return [finding.model_copy(update=updates[mutation])]
+
+    store = _store()
+    with pytest.raises(IntegrityViolation, match="execution authority|exact target"):
+        _handler(
+            store,
+            checker_resolver=lambda _binding, _constraints: ForgedChecker(),
+        )(_context(store, _payload()))
+
+
+def test_llm_constraint_remains_unproven_without_entering_deterministic_checker_wire() -> None:
+    store = _store(snapshot=snapshot_bytes([], []))
+    constraint = Constraint(
+        id="C_llm",
+        kind="narrative",
+        oracle="mixed",
+        predicates=(Predicate(expr="semantic_consistency(story)", oracle="llm-assisted"),),
+        **{"assert": "continuity_consistent"},
+        severity="major",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    checker_profile = ProfileRefV1(profile_id="builtin.checker", version=1)
+    registry = build_builtin_registry()
+    catalog = next(
+        catalog
+        for catalog in registry.list_execution_profile_catalogs()
+        if any(definition.profile == checker_profile for definition in catalog.definitions)
+    )
+    checker_binding = registry.resolve_execution_profile(
+        catalog_version=catalog.catalog_version,
+        catalog_digest=catalog.catalog_digest,
+        field_path="/params/checker_profiles/0",
+        profile=checker_profile,
+        expected_profile_kind="checker",
+    )
+    validation_binding = resolved_binding(
+        "/params/validation_policy",
+        profile_id="validation",
+        version=1,
+        kind="validation",
+    ).model_copy(
+        update={
+            "catalog_version": catalog.catalog_version,
+            "catalog_digest": catalog.catalog_digest,
+        }
+    )
+    outcome = _handler(
+        store,
+        checker_resolver=worker_components._build_patch_checker_resolver(registry),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                checker_profiles=(checker_profile,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            resolved_profiles_override=(validation_binding, checker_binding),
+        )
+    )
+
+    companion = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == "checker:builtin.checker@1"
+    )
+    sealed = decode_and_validate_artifact_payload(
+        payload_schema_id=companion.payload_schema_id,
+        blob=store.read_prepared(companion.object_ref),
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert outcome.findings == ()
+    assert sealed["status"] == "unproven"
+    assert sealed["checker_execution_bindings"] == [{"wrapper_id": "graph", "native_id": "graph"}]
+    assert sealed["constraint_snapshot_artifact_id"] == CONSTRAINT_ARTIFACT_ID
+    assert sealed["detail"]["findings"][0]["producer_id"] == "llm-routed"
+
+
+def test_historical_expected_finding_without_matching_oracle_is_unproven_not_failed() -> None:
+    store = _store()
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical")
+    revision = _finding_revision(historical)
+    store.register(
+        FINDING_EVIDENCE_ID,
+        {
+            "payload_schema_version": "checker-report@1",
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [],
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    binding = _finding_binding(revision)
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(
+        _context(
+            store,
+            _payload(checker_profiles=(), expected_findings=(binding,)),
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "expected-finding:f1@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+def test_historical_confirmed_finding_passes_only_after_matching_clean_oracle_rerun() -> None:
+    store = _store()
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical")
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "not_applicable",
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [],
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    binding = _finding_binding(revision, evidence_artifact_id=evidence_artifact_id)
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(_context(store, _payload(expected_findings=(binding,))))
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "expected-finding:f1@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert requirement.status == "passed"
+
+    assert evidence.finding_bindings == (binding,)
+    assert evidence_artifact_id in evidence.supporting_artifact_ids
+    assert evidence_artifact_id in outcome.artifacts[outcome.primary_index].lineage
+
+
+def test_historical_patch_validation_checker_companion_reexecutes_exact_oracle() -> None:
+    store = _store()
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical")
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="regression_evidence",
+        payload_schema_id="regression-evidence@1",
+        payload={
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "checker:checker@1",
+            "dimension": "checker",
+            "lineage_suite_artifact_ids": [],
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "checker_execution_bindings": [
+                {
+                    "wrapper_id": "graph",
+                    "native_id": "graph",
+                    "constraint_id": None,
+                }
+            ],
+            "constraint_snapshot_binding_status": "not_applicable",
+            "snapshot_id": historical.snapshot_id,
+            "status": "failed",
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    binding = _finding_binding(revision, evidence_artifact_id=evidence_artifact_id)
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(_context(store, _payload(expected_findings=(binding,))))
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:f1@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert requirement.status == "passed"
+
+
+def test_historical_suite_companion_reexecutes_by_envelope_schema_not_finding_source() -> None:
+    store = _store()
+    root_seed = 7
+    execution_seed = derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=PATCH_VALIDATE_KIND,
+        profile=_VALIDATION,
+        case_id=REGRESSION_SUITE_ID,
+        replication_index=0,
+    )
+    execution_binding = regression_suite_execution_coverage_binding(
+        suite_artifact_id=REGRESSION_SUITE_ID,
+        validation_profile=_VALIDATION,
+        constraint_snapshot_artifact_id=None,
+        env_contract_version="suite-env@1",
+        root_seed=root_seed,
+        run_kind=PATCH_VALIDATE_KIND,
+        execution_seed=execution_seed,
+    )
+    historical = _playtest_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="regression_evidence",
+        payload_schema_id="regression-evidence@1",
+        payload={
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": f"regression:{REGRESSION_SUITE_ID}",
+            "suite_artifact_id": REGRESSION_SUITE_ID,
+            "lineage_suite_artifact_ids": [REGRESSION_SUITE_ID],
+            "snapshot_id": historical.snapshot_id,
+            "status": "failed",
+            "findings": [historical.model_dump(mode="json")],
+            "root_seed": root_seed,
+            "run_kind": PATCH_VALIDATE_KIND.model_dump(mode="json"),
+            "profile_id": _VALIDATION.profile_id,
+            "profile_version": _VALIDATION.version,
+            "case_id": REGRESSION_SUITE_ID,
+            "replication_index": 0,
+            "seed": execution_seed,
+            "seed_derivation_version": VALIDATION_SEED_DERIVATION_VERSION,
+            "execution_coverage_binding": execution_binding,
+        },
+        version_tuple=VersionTuple(
+            env_contract_version="suite-env@1",
+            tool_version="regression@1",
+        ),
+        lineage=(REGRESSION_SUITE_ID,),
+    )
+    binding = _finding_binding(revision, evidence_artifact_id=evidence_artifact_id)
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+        regression_runner=_RecordingRegressionRunner(),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                expected_findings=(binding,),
+                regression_suite_artifact_ids=(REGRESSION_SUITE_ID,),
+            ),
+            seed=root_seed,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:playtest-incomplete:agent_stopped@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert requirement.status == "passed"
+
+    unproven_finding = historical.model_copy(update={"status": "unproven"})
+    unproven_revision = _finding_revision(unproven_finding)
+    unproven_payload = json.loads(store.read_bytes(evidence_artifact_id))
+    unproven_payload.update(
+        {
+            "status": "unproven",
+            "reason_code": "suite_oracle_unavailable",
+            "findings": [unproven_finding.model_dump(mode="json")],
+        }
+    )
+    unproven_artifact_id = _register_historical_evidence(
+        store,
+        kind="regression_evidence",
+        payload_schema_id="regression-evidence@1",
+        payload=unproven_payload,
+        version_tuple=VersionTuple(
+            env_contract_version="suite-env@1",
+            tool_version="regression@1",
+        ),
+        lineage=(REGRESSION_SUITE_ID,),
+    )
+    unproven_binding = _finding_binding(
+        unproven_revision,
+        evidence_artifact_id=unproven_artifact_id,
+    )
+    unproven_outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            unproven_revision,
+            evidence_artifact_id=unproven_artifact_id,
+        ),
+        regression_runner=_RecordingRegressionRunner(),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                expected_findings=(unproven_binding,),
+                regression_suite_artifact_ids=(REGRESSION_SUITE_ID,),
+            ),
+            seed=root_seed,
+        )
+    )
+    unproven_requirement = next(
+        item
+        for item in _read_evidence_set(store, unproven_outcome).requirements
+        if item.requirement_id == "expected-finding:playtest-incomplete:agent_stopped@1"
+    )
+    assert unproven_outcome.summary.outcome_code == "patch_validation_unproven"
+    assert unproven_requirement.status == "unproven"
+
+
+@pytest.mark.parametrize(
+    "forgery",
+    ("severity", "status", "evidence", "duplicate"),
+)
+def test_historical_checker_requires_one_exact_identity_free_finding_payload(
+    forgery: str,
+) -> None:
+    store = _store()
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical")
+    revision = _finding_revision(historical)
+    update = {
+        "severity": {"severity": "minor"},
+        "status": {"status": "fixed"},
+        "evidence": {"evidence": {"forged": True}},
+    }
+    embedded = (
+        [historical, historical]
+        if forgery == "duplicate"
+        else [historical.model_copy(update=update[forgery])]
+    )
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "not_applicable",
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [],
+            "findings": [item.model_dump(mode="json") for item in embedded],
+        },
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                expected_findings=(
+                    _finding_binding(
+                        revision,
+                        evidence_artifact_id=evidence_artifact_id,
+                    ),
+                )
+            ),
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:f1@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+@pytest.mark.parametrize(
+    "historical_profile",
+    (
+        None,
+        ProfileRefV1(profile_id="checker-other", version=1),
+    ),
+)
+def test_historical_checker_requires_exact_profile_authority(
+    historical_profile: ProfileRefV1 | None,
+) -> None:
+    store = _store()
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical").model_copy(
+        update={"evidence": {"checker_profile": _CHECKER.model_dump(mode="json")}}
+    )
+    revision = _finding_revision(historical)
+    report = {
+        "payload_schema_version": "checker-report@1",
+        "snapshot_id": historical.snapshot_id,
+        "checker_ids": ["graph"],
+        "defect_classes": [historical.defect_class],
+        "constraint_application": [],
+        "findings": [historical.model_dump(mode="json")],
+    }
+    if historical_profile is not None:
+        report["checker_profile"] = historical_profile.model_dump(mode="json")
+        report["constraint_snapshot_binding_status"] = "not_applicable"
+    store.register(FINDING_EVIDENCE_ID, report)
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(_context(store, _payload(expected_findings=(_finding_binding(revision),))))
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "expected-finding:f1@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+@pytest.mark.parametrize(
+    "historical_profile",
+    (_SIM, ProfileRefV1(profile_id="sim-other", version=1)),
+)
+def test_review_simulation_result_never_covers_patch_single_population_mode(
+    historical_profile: ProfileRefV1,
+) -> None:
+    store = _store()
+    historical = _simulation_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="simulation_run",
+        payload_schema_id="simulation-result@1",
+        payload={
+            "payload_schema_version": "simulation-result@1",
+            "profile": historical_profile.model_dump(mode="json"),
+            "snapshot_id": historical.snapshot_id,
+            "seed": 999,
+            "replication_count": 6,
+            "horizon_steps": 12,
+            "invariants": [],
+            "sensitivity": {
+                "execution_binding": {
+                    "simulation_profile": historical_profile.model_dump(mode="json"),
+                    "constraint_ids": [],
+                    "constraint_application": {"status": "not_applicable"},
+                }
+            },
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+                expected_findings=(
+                    _finding_binding(
+                        revision,
+                        evidence_artifact_id=evidence_artifact_id,
+                    ),
+                ),
+            ),
+            seed=7,
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == "expected-finding:sim:economy-collapse@1"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+
+
+@pytest.mark.parametrize(
+    ("historical_root_seed", "expected_status"),
+    ((7, "passed"), (8, "unproven")),
+)
+def test_prior_patch_simulation_requires_exact_mode_and_subseed_closure(
+    historical_root_seed: int,
+    expected_status: str,
+) -> None:
+    store = _store()
+    historical = _simulation_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    execution_binding = _patch_simulation_execution_binding(
+        root_seed=historical_root_seed,
+    )
+    seed_binding = execution_binding["seed_binding"]
+    assert isinstance(seed_binding, dict)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="regression_evidence",
+        payload_schema_id="regression-evidence@1",
+        payload={
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "simulation:sim@1",
+            "dimension": "simulation",
+            "lineage_suite_artifact_ids": [],
+            "simulation_execution_binding": execution_binding,
+            "snapshot_id": historical.snapshot_id,
+            "status": "failed",
+            "findings": [historical.model_dump(mode="json")],
+            **seed_binding,
+        },
+        version_tuple=VersionTuple(
+            ir_snapshot_id=historical.snapshot_id,
+            tool_version="patch-validation@1",
+            seed=historical_root_seed,
+        ),
+    )
+    binding = _finding_binding(
+        revision,
+        evidence_artifact_id=evidence_artifact_id,
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+                expected_findings=(binding,),
+            ),
+            seed=7,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:sim:economy-collapse@1"
+    )
+    assert requirement.status == expected_status
+    assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
+
+
+def test_standalone_replication_mode_cannot_cover_patch_with_same_counts() -> None:
+    store = _store()
+    historical = _simulation_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="simulation_run",
+        payload_schema_id="simulation-result@1",
+        payload={
+            "payload_schema_version": "simulation-result@1",
+            "profile": _SIM.model_dump(mode="json"),
+            "snapshot_id": historical.snapshot_id,
+            "seed": 7,
+            "replication_count": 6,
+            "horizon_steps": 12,
+            "invariants": [],
+            "sensitivity": {
+                "execution_binding": {
+                    "simulation_profile": _SIM.model_dump(mode="json"),
+                    "workload_profile": {"profile_id": "workload", "version": 1},
+                    "constraint_ids": [],
+                    "constraint_application": {"status": "not_applicable"},
+                    "scenario_application": {"status": "not_applicable"},
+                }
+            },
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+                expected_findings=(
+                    _finding_binding(
+                        revision,
+                        evidence_artifact_id=evidence_artifact_id,
+                    ),
+                ),
+            ),
+            seed=7,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:sim:economy-collapse@1"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+@pytest.mark.parametrize(
+    "forgery",
+    ("severity", "status", "evidence", "duplicate"),
+)
+def test_historical_simulation_requires_one_exact_identity_free_finding_payload(
+    forgery: str,
+) -> None:
+    store = _store()
+    historical = _simulation_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    update = {
+        "severity": {"severity": "minor"},
+        "status": {"status": "fixed"},
+        "evidence": {"evidence": {"forged": True}},
+    }
+    embedded = (
+        [historical, historical]
+        if forgery == "duplicate"
+        else [historical.model_copy(update=update[forgery])]
+    )
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="simulation_run",
+        payload_schema_id="simulation-result@1",
+        payload={
+            "payload_schema_version": "simulation-result@1",
+            "profile": _SIM.model_dump(mode="json"),
+            "snapshot_id": historical.snapshot_id,
+            "seed": 999,
+            "replication_count": 6,
+            "horizon_steps": 12,
+            "invariants": [],
+            "sensitivity": {
+                "execution_binding": {
+                    "simulation_profile": _SIM.model_dump(mode="json"),
+                    "constraint_ids": [],
+                    "constraint_application": {"status": "not_applicable"},
+                }
+            },
+            "findings": [item.model_dump(mode="json") for item in embedded],
+        },
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+                expected_findings=(
+                    _finding_binding(
+                        revision,
+                        evidence_artifact_id=evidence_artifact_id,
+                    ),
+                ),
+            ),
+            seed=7,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:sim:economy-collapse@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+@pytest.mark.parametrize(
+    ("replication_count", "horizon_steps", "historical_constraint_artifact_id"),
+    (
+        (7, 12, None),
+        (6, 13, None),
+        (6, 12, "artifact:historical-constraints"),
+    ),
+)
+def test_historical_simulation_coverage_binds_config_and_constraint_snapshot(
+    replication_count: int,
+    horizon_steps: int,
+    historical_constraint_artifact_id: str | None,
+) -> None:
+    store = _store()
+    historical = _simulation_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    constraint_bound = historical_constraint_artifact_id is not None
+    fresh_constraint_artifact_id = CONSTRAINT_ARTIFACT_ID if constraint_bound else None
+    store.register(
+        FINDING_EVIDENCE_ID,
+        {
+            "payload_schema_version": "simulation-result@1",
+            "profile": _SIM.model_dump(mode="json"),
+            "snapshot_id": historical.snapshot_id,
+            "seed": 999,
+            "replication_count": replication_count,
+            "horizon_steps": horizon_steps,
+            "invariants": [],
+            "sensitivity": {
+                "execution_binding": {
+                    "simulation_profile": _SIM.model_dump(mode="json"),
+                    **(
+                        {"constraint_snapshot_artifact_id": (historical_constraint_artifact_id)}
+                        if constraint_bound
+                        else {}
+                    ),
+                    "constraint_ids": (["C_sim"] if constraint_bound else []),
+                    "constraint_application": (
+                        {
+                            "status": "unproven",
+                            "reason_code": "constraint_profile_not_executable",
+                        }
+                        if constraint_bound
+                        else {"status": "not_applicable"}
+                    ),
+                }
+            },
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=fresh_constraint_artifact_id,
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+                expected_findings=(_finding_binding(revision),),
+            ),
+            seed=7,
+            constraint_snapshot_id=(
+                CONSTRAINT_SNAPSHOT_ID if fresh_constraint_artifact_id else None
+            ),
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:sim:economy-collapse@1"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+def test_historical_simulation_with_applied_scenario_cannot_cover_plain_patch_simulation() -> None:
+    store = _store()
+    historical = _simulation_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    store.register(
+        FINDING_EVIDENCE_ID,
+        {
+            "payload_schema_version": "simulation-result@1",
+            "profile": _SIM.model_dump(mode="json"),
+            "snapshot_id": historical.snapshot_id,
+            "seed": 999,
+            "replication_count": 6,
+            "horizon_steps": 12,
+            "invariants": [],
+            "sensitivity": {
+                "execution_binding": {
+                    "simulation_profile": _SIM.model_dump(mode="json"),
+                    "workload_profile": {"profile_id": "workload", "version": 1},
+                    "scenario_artifact_id": "artifact:scenario",
+                    "constraint_ids": [],
+                    "scenario_id": "scenario:historical",
+                    "constraint_application": {"status": "not_applicable"},
+                    "scenario_application": {
+                        "status": "unproven",
+                        "reason_code": "scenario_reset_not_executable",
+                    },
+                }
+            },
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(
+        _context(
+            store,
+            _payload(
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+                expected_findings=(_finding_binding(revision),),
+            ),
+            seed=7,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:sim:economy-collapse@1"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+def test_historical_expected_finding_fails_when_matching_oracle_reproduces_defect() -> None:
+    store = _store()
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical")
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "not_applicable",
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [],
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    binding = _finding_binding(revision, evidence_artifact_id=evidence_artifact_id)
+    preview = load_snapshot(store, PREVIEW_ID)
+
+    class _ReproducingChecker:
+        id = "graph"
+
+        def check(self, snapshot, nav=None):
+            return [historical.model_copy(update={"snapshot_id": preview.snapshot_id})]
+
+    outcome = _handler(
+        store,
+        checker_resolver=lambda profile, constraints: _ReproducingChecker(),
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(_context(store, _payload(expected_findings=(binding,))))
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "expected-finding:f1@1"
+    )
+    artifact = next(
+        item
+        for item in outcome.artifacts
+        if item.meta.get("requirement_id") == "expected-finding:f1@1"
+    )
+    sealed = decode_and_validate_artifact_payload(
+        payload_schema_id=artifact.payload_schema_id,
+        blob=store.read_prepared(artifact.object_ref),
+    )
+    assert outcome.summary.outcome_code == "patch_validation_failed"
+    assert requirement.status == "failed"
+    assert requirement.reason_code is None
+    assert sealed["reason_code"] == "expected_finding_reproduced"
+
+
+@pytest.mark.parametrize(
+    ("reproduce", "expected_status"),
+    ((False, "passed"), (True, "failed")),
+)
+def test_compiled_checker_expected_finding_uses_exact_constraint_scoped_native_binding(
+    reproduce: bool,
+    expected_status: str,
+) -> None:
+    store = _store()
+    constraint = Constraint(
+        id="C_compiled",
+        kind="structural",
+        oracle="deterministic",
+        **{"assert": "acyclic(quest_steps)"},
+        severity="major",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    historical = _compiled_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+    )
+    revision = _finding_revision(historical)
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "bound",
+            "constraint_snapshot_artifact_id": CONSTRAINT_ARTIFACT_ID,
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [
+                {
+                    "constraint_id": "C_compiled",
+                    "checker_id": "asp",
+                    "status": "executed",
+                }
+            ],
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+    preview = load_snapshot(store, PREVIEW_ID)
+
+    class _CompiledCheckerGroup:
+        id = "profile:checker@1"
+        executed_checker_bindings = (
+            CheckerExecutionBinding(
+                wrapper_id="compiled:asp:C_compiled",
+                native_id="asp",
+                constraint_id="C_compiled",
+            ),
+        )
+
+        def check(self, snapshot, nav=None):
+            del snapshot, nav
+            return (
+                [historical.model_copy(update={"snapshot_id": preview.snapshot_id})]
+                if reproduce
+                else []
+            )
+
+    outcome = _handler(
+        store,
+        checker_resolver=lambda profile, constraints: _CompiledCheckerGroup(),
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            revision,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                expected_findings=(
+                    _finding_binding(
+                        revision,
+                        evidence_artifact_id=evidence_artifact_id,
+                    ),
+                ),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == "expected-finding:compiled:finding@1"
+    )
+    assert requirement.status == expected_status
+    assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
+
+
+@pytest.mark.parametrize(
+    (
+        "historical_profile",
+        "historical_constraint_artifact_id",
+        "historical_constraint_id",
+        "direct",
+        "historical_application_native",
+    ),
+    (
+        (
+            ProfileRefV1(profile_id="checker-other", version=1),
+            CONSTRAINT_ARTIFACT_ID,
+            "C_compiled",
+            False,
+            "asp",
+        ),
+        (_CHECKER, "artifact:other-constraints", "C_compiled", False, "asp"),
+        (_CHECKER, "artifact:other-constraints", "C_other", False, "asp"),
+        (_CHECKER, CONSTRAINT_ARTIFACT_ID, "C_compiled", True, "asp"),
+        (_CHECKER, CONSTRAINT_ARTIFACT_ID, "C_compiled", False, "graph"),
+    ),
+)
+def test_compiled_checker_coverage_does_not_cross_profile_snapshot_constraint_or_direct_context(
+    historical_profile: ProfileRefV1,
+    historical_constraint_artifact_id: str,
+    historical_constraint_id: str,
+    direct: bool,
+    historical_application_native: str,
+) -> None:
+    store = _store()
+    exact_constraint = Constraint(
+        id="C_compiled",
+        kind="structural",
+        oracle="deterministic",
+        **{"assert": "acyclic(quest_steps)"},
+        severity="major",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [exact_constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    historical = _compiled_finding(
+        status="confirmed",
+        snapshot_id="snapshot:historical",
+        constraint_id=historical_constraint_id,
+    )
+    revision = _finding_revision(historical)
+    store.register(
+        FINDING_EVIDENCE_ID,
+        {
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": historical_profile.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "bound",
+            "constraint_snapshot_artifact_id": historical_constraint_artifact_id,
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [
+                {
+                    "constraint_id": historical_constraint_id,
+                    "checker_id": historical_application_native,
+                    "status": "executed",
+                }
+            ],
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+
+    class _FreshCheckerGroup:
+        id = "profile:checker@1"
+        executed_checker_bindings = (
+            CheckerExecutionBinding(
+                wrapper_id=("asp" if direct else "compiled:asp:C_compiled"),
+                native_id="asp",
+                constraint_id=(None if direct else "C_compiled"),
+            ),
+        )
+
+        def check(self, snapshot, nav=None):
+            del snapshot, nav
+            return []
+
+    outcome = _handler(
+        store,
+        checker_resolver=lambda profile, constraints: _FreshCheckerGroup(),
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                expected_findings=(_finding_binding(revision),),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:compiled:finding@1"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+def test_direct_checker_coverage_does_not_cross_into_constraint_scoped_execution() -> None:
+    store = _store()
+    constraint = Constraint(
+        id="C_compiled",
+        kind="structural",
+        oracle="deterministic",
+        **{"assert": "relations_resolve"},
+        severity="major",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    historical = _finding(status="confirmed", snapshot_id="snapshot:historical")
+    revision = _finding_revision(historical)
+    store.register(
+        FINDING_EVIDENCE_ID,
+        {
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "bound",
+            "constraint_snapshot_artifact_id": CONSTRAINT_ARTIFACT_ID,
+            "snapshot_id": historical.snapshot_id,
+            "checker_ids": ["graph"],
+            "defect_classes": [historical.defect_class],
+            "constraint_application": [
+                {
+                    "constraint_id": "C_compiled",
+                    "checker_id": "graph",
+                    "status": "executed",
+                }
+            ],
+            "findings": [historical.model_dump(mode="json")],
+        },
+    )
+
+    class _ScopedGraphChecker:
+        id = "profile:checker@1"
+        executed_checker_bindings = (
+            CheckerExecutionBinding(
+                wrapper_id="compiled:graph:C_compiled",
+                native_id="graph",
+                constraint_id="C_compiled",
+            ),
+        )
+
+        def check(self, snapshot, nav=None):
+            del snapshot, nav
+            return []
+
+    outcome = _handler(
+        store,
+        checker_resolver=lambda profile, constraints: _ScopedGraphChecker(),
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                expected_findings=(_finding_binding(revision),),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == "expected-finding:f1@1"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+def test_historical_playtest_finding_passes_when_exact_episode_rerun_does_not_reproduce() -> None:
+    store = _store()
+    historical_trace = _playtest_trace(completed=False).model_dump(mode="json")
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="playtest_trace",
+        payload_schema_id="playtest-trace@1",
+        payload=historical_trace,
+    )
+    store.register(PLAYTEST_TRACE_ID, _playtest_trace(completed=True).model_dump(mode="json"))
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id="finding-series:playtest:episode-1:incomplete",
+    )
+    expected = _finding_binding(historical, evidence_artifact_id=evidence_artifact_id)
+    loader = _ExactFindingRevisionLoader(
+        historical,
+        linked_evidence_by_finding={
+            (historical.finding_id, historical.revision): evidence_artifact_id,
+        },
+    )
+
+    outcome = _handler(store, finding_revision_loader=loader)(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                expected_findings=(expected,),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == "expected-finding:finding-series:playtest:episode-1:incomplete@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert requirement.status == "passed"
+
+
+def test_historical_playtest_binding_to_non_trace_is_unproven() -> None:
+    store = _store()
+    store.register(PLAYTEST_TRACE_ID, _playtest_trace(completed=True).model_dump(mode="json"))
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id="finding-series:playtest:non-trace",
+    )
+    expected = _finding_binding(historical)
+    loader = _ExactFindingRevisionLoader(historical)
+
+    outcome = _handler(store, finding_revision_loader=loader)(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                expected_findings=(expected,),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == "expected-finding:finding-series:playtest:non-trace@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+@pytest.mark.parametrize("changed_binding", ("seed", "profile", "oracle"))
+def test_historical_playtest_requires_exact_execution_binding(
+    changed_binding: str,
+) -> None:
+    store = _store()
+    historical_trace = _playtest_trace(completed=False)
+    if changed_binding == "seed":
+        fresh_trace = _playtest_trace(completed=True, root_seed=12)
+    elif changed_binding == "profile":
+        fresh_trace = _playtest_trace(
+            completed=True,
+            environment_profile=ProfileRefV1(profile_id="environment-other", version=1),
+        )
+    else:
+        fresh_trace = _playtest_trace(
+            completed=True,
+            completion_oracle_id="another-completion-oracle",
+        )
+    store.register(FINDING_EVIDENCE_ID, historical_trace.model_dump(mode="json"))
+    store.register(PLAYTEST_TRACE_ID, fresh_trace.model_dump(mode="json"))
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id=f"finding-series:playtest:changed-{changed_binding}",
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(historical),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                expected_findings=(_finding_binding(historical),),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id
+        == f"expected-finding:finding-series:playtest:changed-{changed_binding}@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+def test_historical_playtest_allows_the_candidate_config_to_change() -> None:
+    store = _store()
+    new_config_id = "artifact:candidate-config:new"
+    store.register(new_config_id, {"config": "new candidate"})
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="playtest_trace",
+        payload_schema_id="playtest-trace@1",
+        payload=_playtest_trace(completed=False).model_dump(mode="json"),
+    )
+    store.register(
+        PLAYTEST_TRACE_ID,
+        _playtest_trace(
+            completed=True,
+            config_artifact_id=new_config_id,
+        ).model_dump(mode="json"),
+    )
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id="finding-series:playtest:new-config",
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            historical,
+            evidence_artifact_id=evidence_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(new_config_id,),
+                checker_profiles=(),
+                expected_findings=(
+                    _finding_binding(
+                        historical,
+                        evidence_artifact_id=evidence_artifact_id,
+                    ),
+                ),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == "expected-finding:finding-series:playtest:new-config@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert requirement.status == "passed"
+
+
+def test_historical_playtest_finding_fails_when_exact_episode_rerun_reproduces() -> None:
+    store = _store()
+    trace = _playtest_trace(completed=False).model_dump(mode="json")
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="playtest_trace",
+        payload_schema_id="playtest-trace@1",
+        payload=trace,
+    )
+    store.register(PLAYTEST_TRACE_ID, trace)
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id="finding-series:playtest:episode-1:incomplete:old",
+    )
+    preview = load_snapshot(store, PREVIEW_ID)
+    reproduced = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id=preview.snapshot_id),
+        finding_id="finding-series:playtest:episode-1:incomplete:new",
+    )
+    expected = _finding_binding(historical, evidence_artifact_id=evidence_artifact_id)
+    target = _finding_binding(
+        reproduced,
+        evidence_artifact_id=PLAYTEST_TRACE_ID,
+    )
+    loader = _ExactFindingRevisionLoader(
+        historical,
+        reproduced,
+        linked_evidence_by_finding={
+            (historical.finding_id, historical.revision): evidence_artifact_id,
+            (reproduced.finding_id, reproduced.revision): PLAYTEST_TRACE_ID,
+        },
+    )
+
+    outcome = _handler(store, finding_revision_loader=loader)(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                expected_findings=(expected,),
+                findings=(target,),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id
+        == "expected-finding:finding-series:playtest:episode-1:incomplete:old@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_failed"
+    assert requirement.status == "failed"
+    expected_artifact = next(
+        item
+        for item in outcome.artifacts
+        if item.meta.get("requirement_id") == requirement.requirement_id
+    )
+    sealed = decode_and_validate_artifact_payload(
+        payload_schema_id=expected_artifact.payload_schema_id,
+        blob=store.read_prepared(expected_artifact.object_ref),
+    )
+    assert sealed["reason_code"] == "expected_finding_reproduced"
+
+
+def test_selected_playtest_trace_does_not_republish_forged_deterministic_producer() -> None:
+    store = _store()
+    store.register(
+        PLAYTEST_TRACE_ID,
+        _playtest_trace(completed=True).model_dump(mode="json"),
+    )
+    preview = load_snapshot(store, PREVIEW_ID)
+    forged = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id=preview.snapshot_id).model_copy(
+            update={"producer_id": "playtest.forged"}
+        ),
+        finding_id="finding-series:playtest:forged",
+    )
+    binding = _finding_binding(forged, evidence_artifact_id=PLAYTEST_TRACE_ID)
+    loader = _ExactFindingRevisionLoader(
+        forged,
+        linked_evidence_by_finding={
+            (forged.finding_id, forged.revision): PLAYTEST_TRACE_ID,
+        },
+    )
+
+    outcome = _handler(store, finding_revision_loader=loader)(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                findings=(binding,),
+                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    assert outcome.summary.outcome_code == "patch_validation_failed"
+    assert outcome.findings == ()
 
 
 def test_clean_preview_passes_and_seals_evidence_set() -> None:
@@ -338,6 +2789,37 @@ def test_defect_preview_fails_validation() -> None:
     assert outcome.findings, "the dangling reference must be reported as a validation finding"
 
 
+def test_unproven_checker_finding_seals_exact_reasoned_dimension_wire() -> None:
+    store = _store()
+    preview = load_snapshot(store, PREVIEW_ID)
+
+    class _UnprovenChecker:
+        id = "graph"
+
+        def check(self, snapshot, nav=None):
+            return [_finding(status="unproven", snapshot_id=preview.snapshot_id)]
+
+    outcome = _handler(
+        store,
+        checker_resolver=lambda profile, constraints: _UnprovenChecker(),
+    )(_context(store, _payload()))
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "checker:checker@1"
+    )
+    artifact = next(
+        item for item in outcome.artifacts if item.meta.get("requirement_id") == "checker:checker@1"
+    )
+    sealed = decode_and_validate_artifact_payload(
+        payload_schema_id=artifact.payload_schema_id,
+        blob=store.read_prepared(artifact.object_ref),
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.reason_code == "checker_reported_unproven"
+    assert sealed["reason_code"] == requirement.reason_code
+
+
 def test_failing_regression_suite_fails_validation() -> None:
     store = _store()
     outcome = _handler(store, regression_runner=_FailingRegressionRunner())(
@@ -350,6 +2832,50 @@ def test_failing_regression_suite_fails_validation() -> None:
         req.requirement_id == f"regression:{REGRESSION_SUITE_ID}" and req.status == "failed"
         for req in evidence.requirements
     )
+
+
+def test_regression_runner_rejects_llm_finding_authority() -> None:
+    class LlmRegressionRunner:
+        def run(self, request) -> RegressionSuiteResultV1:
+            finding = Finding(
+                id="regression:llm",
+                source="llm",
+                producer_id="llm-routed",
+                producer_run_id="regression-runner",
+                oracle_type="llm-assisted",
+                defect_class="llm_assisted_predicate",
+                severity="major",
+                snapshot_id=request.snapshot_id,
+                status="unproven",
+                message="suggestion-only output",
+            )
+            return RegressionSuiteResultV1(
+                suite_artifact_id=request.suite_artifact_id,
+                status="unproven",
+                reason_code="llm_only",
+                env_contract_version="suite-env@1",
+                payload={
+                    "payload_schema_version": "regression-evidence@1",
+                    "suite_artifact_id": request.suite_artifact_id,
+                    "snapshot_id": request.snapshot_id,
+                    "status": "unproven",
+                    "reason_code": "llm_only",
+                    "findings": [finding.model_dump(mode="json")],
+                },
+            )
+
+    store = _store()
+    with pytest.raises(IntegrityViolation, match="deterministic oracle authority"):
+        _handler(store, regression_runner=LlmRegressionRunner())(
+            _context(
+                store,
+                _payload(
+                    checker_profiles=(),
+                    regression_suite_artifact_ids=(REGRESSION_SUITE_ID,),
+                ),
+                seed=7,
+            )
+        )
 
 
 def test_unproven_regression_seals_the_adapter_reason_on_both_wires() -> None:
@@ -378,15 +2904,13 @@ def test_unproven_regression_seals_the_adapter_reason_on_both_wires() -> None:
 
 def test_finding_bindings_and_supporting_are_bound_exactly() -> None:
     store = _store()
-    binding = FindingEvidenceBindingV1(
-        finding_id="f1",
-        finding_revision=1,
-        evidence_artifact_id=FINDING_EVIDENCE_ID,
-        finding_digest=_HEX,
-    )
-    outcome = _handler(store)(
-        _context(store, _payload(findings=(binding,), review_artifact_ids=(REVIEW_ID,)))
-    )
+    preview = load_snapshot(store, PREVIEW_ID)
+    revision = _finding_revision(_finding(status="fixed", snapshot_id=preview.snapshot_id))
+    binding = _finding_binding(revision)
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(revision),
+    )(_context(store, _payload(findings=(binding,), review_artifact_ids=(REVIEW_ID,))))
     evidence = _read_evidence_set(store, outcome)
     assert evidence.finding_bindings == (binding,)
     assert REVIEW_ID in evidence.supporting_artifact_ids
@@ -410,6 +2934,103 @@ def test_auto_apply_eligible_seals_proof() -> None:
     from gameforge.platform.run_handlers.validation_common import content_addressed_artifact_id
 
     assert proof.validation_evidence_artifact_id == content_addressed_artifact_id(primary)
+
+
+def test_empty_bound_constraint_snapshot_makes_simulation_explicitly_unproven() -> None:
+    store = _store()
+    outcome = _handler(store, auto_apply_evaluator=_FakeAutoApplyEvaluator())(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+            ),
+            seed=7,
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        )
+    )
+
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert not any(
+        artifact.payload_schema_id == "auto-apply-proof@1" for artifact in outcome.artifacts
+    )
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "simulation:sim@1"
+    )
+    assert requirement.status == "unproven"
+    companion = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == "simulation:sim@1"
+    )
+    sealed = json.loads(store.read_prepared(companion.object_ref))
+    constraint_findings = [
+        finding
+        for finding in sealed["detail"]["findings"]
+        if finding["defect_class"] == "simulation_constraint_unproven"
+    ]
+    assert len(constraint_findings) == 1
+    assert constraint_findings[0]["evidence"] == {
+        "reason": "constraint_profile_not_executable",
+        "constraint_snapshot_artifact_id": CONSTRAINT_ARTIFACT_ID,
+        "constraint_ids": [],
+    }
+
+
+def test_bound_impossible_constraint_makes_clean_simulation_unproven_and_ineligible() -> None:
+    store = _store()
+    constraint = Constraint(
+        id="C_impossible",
+        kind="numeric",
+        oracle="deterministic",
+        **{"assert": "reward_gold < 0"},
+        severity="critical",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    outcome = _handler(store, auto_apply_evaluator=_FakeAutoApplyEvaluator())(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+            ),
+            seed=7,
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        )
+    )
+
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert not any(
+        artifact.payload_schema_id == "auto-apply-proof@1" for artifact in outcome.artifacts
+    )
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "simulation:sim@1"
+    )
+    assert requirement.status == "unproven"
+    companion = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == "simulation:sim@1"
+    )
+    sealed = json.loads(store.read_prepared(companion.object_ref))
+    assert sealed["simulation_execution_binding"]["constraint_application"] == {
+        "status": "unproven",
+        "reason_code": "constraint_profile_not_executable",
+    }
+    assert any(
+        finding["defect_class"] == "simulation_constraint_unproven"
+        for finding in sealed["detail"]["findings"]
+    )
 
 
 def test_auto_apply_proof_reseals_pre_final_sibling_references() -> None:
@@ -609,6 +3230,42 @@ def test_deterministic_validation_keeps_root_seed_null_and_internal_default_priv
 
     assert regression.seeds == [DETERMINISTIC_VALIDATION_EXECUTION_SEED]
     assert all(artifact.version_tuple.seed is None for artifact in outcome.artifacts)
+
+
+def test_regression_evidence_seed_comes_from_the_exact_execution_request() -> None:
+    class MisreportingSeedRunner:
+        def run(self, request) -> RegressionSuiteResultV1:
+            return RegressionSuiteResultV1(
+                suite_artifact_id=request.suite_artifact_id,
+                status="passed",
+                env_contract_version="suite-env@1",
+                payload={
+                    "payload_schema_version": "forged-regression-evidence@9",
+                    "suite_artifact_id": request.suite_artifact_id,
+                    "snapshot_id": request.snapshot_id,
+                    "seed": request.seed + 1,
+                    "status": "passed",
+                },
+                action_work_units=1,
+            )
+
+    store = _store()
+    outcome = _handler(store, regression_runner=MisreportingSeedRunner())(
+        _context(
+            store,
+            _payload(regression_suite_artifact_ids=(REGRESSION_SUITE_ID,)),
+            seed=None,
+        )
+    )
+    artifact = next(
+        item
+        for item in outcome.artifacts
+        if item.meta.get("requirement_id") == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    sealed = json.loads(store.read_prepared(artifact.object_ref))
+
+    assert sealed["payload_schema_version"] == "regression-evidence@1"
+    assert sealed["seed"] == DETERMINISTIC_VALIDATION_EXECUTION_SEED
 
 
 def test_simulation_without_frozen_root_seed_fails_closed() -> None:

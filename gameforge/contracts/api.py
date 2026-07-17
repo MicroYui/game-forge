@@ -485,6 +485,7 @@ class PatchValidationAdmissionRequestV1(_FrozenModel):
     subject_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
     base_snapshot_artifact_id: BoundedId
     preview_snapshot_artifact_id: BoundedId
+    constraint_snapshot_artifact_id: BoundedId | None = None
     candidate_config_export_artifact_ids: tuple[BoundedId, ...] = Field(
         max_length=MAX_COLLECTION_ITEMS
     )
@@ -492,6 +493,9 @@ class PatchValidationAdmissionRequestV1(_FrozenModel):
     validation_policy: ProfileRefV1
     checker_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     simulation_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    expected_findings: tuple[FindingEvidenceBindingV1, ...] = Field(
+        default=(), max_length=MAX_COLLECTION_ITEMS
+    )
     findings: tuple[FindingEvidenceBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     review_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     playtest_trace_artifact_ids: tuple[BoundedId, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
@@ -509,14 +513,16 @@ class PatchValidationAdmissionRequestV1(_FrozenModel):
             object.__setattr__(self, field_name, _stable_unique_strings(getattr(self, field_name)))
         for field_name in ("checker_profiles", "simulation_profiles"):
             object.__setattr__(self, field_name, _stable_unique_profiles(getattr(self, field_name)))
-        finding_ids = [item.finding_id for item in self.findings]
-        if len(finding_ids) != len(set(finding_ids)):
-            raise ValueError("each finding series may be bound only once")
-        object.__setattr__(
-            self,
-            "findings",
-            tuple(sorted(self.findings, key=lambda item: item.finding_id)),
-        )
+        for field_name in ("expected_findings", "findings"):
+            findings = getattr(self, field_name)
+            finding_ids = [item.finding_id for item in findings]
+            if len(finding_ids) != len(set(finding_ids)):
+                raise ValueError("each finding series may be bound only once per role")
+            object.__setattr__(
+                self,
+                field_name,
+                tuple(sorted(findings, key=lambda item: item.finding_id)),
+            )
         _bounded_request_payload(self)
         return self
 

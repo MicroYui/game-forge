@@ -456,6 +456,67 @@ def test_active_success_stages_every_blob_between_read_and_write_uows() -> None:
     assert uow.begin_count == 1
 
 
+def test_success_superseded_after_stage_restages_typed_terminal_without_success_writes() -> None:
+    harness = _run_harness()
+    _start(harness)
+    uow = _TrackingUow(harness.unit_of_work)
+    reads = _ReadScopeTracker()
+    publication = _ThreePhasePublication(harness.state, harness.repo, uow, reads)
+    objects = _PutVerifiedSpy(uow, reads)
+    superseded = _prepared_failure(
+        harness,
+        cause_code="subject_superseded",
+        failure_class="subject_superseded",
+        intrinsic_retry_eligible=False,
+    )
+    stager = _BlobStager(
+        objects,
+        after_stage=lambda: setattr(
+            harness.state,
+            "forced_preflight_outcome",
+            superseded,
+        ),
+    )
+    service = _lifecycle_service(harness, publication, uow, reads, stager)
+
+    result = service.publish_attempt_outcome(
+        PublishAttemptOutcomeRequest(
+            fence=_fence(harness),
+            prepared_outcome=_prepared_success(harness),
+            actor=WORKER,
+        )
+    )
+
+    assert result.run.status == "cancelled"
+    assert result.run.result_artifact_id is None
+    assert result.result_artifact_id is None
+    assert result.retry_decision is not None
+    assert result.retry_decision.cause_code == "subject_superseded"
+    assert result.attempt is not None and result.attempt.status == "cancelled"
+    assert result.attempt_failure_artifact_id is not None
+    assert result.run_failure_artifact_id is not None
+    assert harness.state.publisher_actions == [
+        "commit:attempt_failure",
+        "commit:run_failure",
+    ]
+    assert publication.plan_calls == [
+        "run_result",
+        "attempt_failure",
+        "run_failure",
+        "attempt_failure",
+        "run_failure",
+        "attempt_failure",
+        "run_failure",
+    ]
+    assert publication.commit_calls == 2
+    assert stager.calls == 2
+    assert len(objects.calls) == 4
+    assert objects.calls[0].startswith(b"run_result:")
+    assert objects.calls[1].startswith(b"run_result:")
+    assert reads.begin_count == 2
+    assert uow.begin_count == 2
+
+
 @pytest.mark.parametrize(
     ("cause_code", "failure_class", "retry_eligible", "expected_status", "draft_count"),
     [
@@ -499,10 +560,9 @@ def test_active_failure_stages_complete_retry_or_terminal_aggregate(
     assert uow.begin_count == 1
 
 
-def test_terminal_aggregate_validates_run_drift_before_committing_attempt() -> None:
+def test_terminal_aggregate_restages_run_drift_before_committing_attempt() -> None:
     harness = _run_harness()
     _start(harness)
-    before = deepcopy(harness.state)
     uow = _TrackingUow(harness.unit_of_work)
     reads = _ReadScopeTracker()
     publication = _ThreePhasePublication(harness.state, harness.repo, uow, reads)
@@ -513,29 +573,35 @@ def test_terminal_aggregate_validates_run_drift_before_committing_attempt() -> N
     )
     service = _lifecycle_service(harness, publication, uow, reads, stager)
 
-    with pytest.raises(IntegrityViolation, match="projection"):
-        service.publish_attempt_outcome(
-            PublishAttemptOutcomeRequest(
-                fence=_fence(harness),
-                prepared_outcome=_prepared_failure(
-                    harness,
-                    cause_code="execution_failed",
-                    failure_class="execution",
-                    intrinsic_retry_eligible=False,
-                ),
-                actor=WORKER,
-            )
+    result = service.publish_attempt_outcome(
+        PublishAttemptOutcomeRequest(
+            fence=_fence(harness),
+            prepared_outcome=_prepared_failure(
+                harness,
+                cause_code="execution_failed",
+                failure_class="execution",
+                intrinsic_retry_eligible=False,
+            ),
+            actor=WORKER,
         )
+    )
 
-    assert harness.state == before
+    assert result.run.status == "failed"
     assert publication.plan_calls == [
         "attempt_failure",
         "run_failure",
         "attempt_failure",
         "run_failure",
+        "attempt_failure",
+        "run_failure",
+        "attempt_failure",
+        "run_failure",
     ]
-    assert publication.commit_calls == 0
-    assert len(objects.calls) == 2
+    assert publication.commit_calls == 2
+    assert len(objects.calls) == 4
+    assert stager.calls == 2
+    assert reads.begin_count == 2
+    assert uow.begin_count == 2
 
 
 @pytest.mark.parametrize(
@@ -587,12 +653,11 @@ def test_reaper_stages_retry_or_terminal_aggregate_outside_write_uow(
     assert uow.begin_count == 1
 
 
-def test_reaper_stage_crossing_overall_deadline_writes_no_authority() -> None:
+def test_reaper_stage_crossing_overall_deadline_restages_typed_timeout() -> None:
     harness = _run_harness(
         overall_deadline_utc="2026-07-14T12:00:20Z",
         lease_expires_at="2026-07-14T12:00:10Z",
     )
-    before = deepcopy(harness.state)
     uow = _TrackingUow(harness.unit_of_work)
     reads = _ReadScopeTracker()
     publication = _ThreePhasePublication(harness.state, harness.repo, uow, reads)
@@ -611,21 +676,25 @@ def test_reaper_stage_crossing_overall_deadline_writes_no_authority() -> None:
         clock=clock,
     )
 
-    with pytest.raises(IntegrityViolation, match="draft count"):
-        service.reap_expired_lease(
-            ReapExpiredLeaseRequest(
-                run_id="run:1",
-                expected_run_revision=2,
-                actor=AuditActor(
-                    principal_id="system:lease-reaper",
-                    principal_kind="system",
-                ),
-            )
+    result = service.reap_expired_lease(
+        ReapExpiredLeaseRequest(
+            run_id="run:1",
+            expected_run_revision=2,
+            actor=AuditActor(
+                principal_id="system:lease-reaper",
+                principal_kind="system",
+            ),
         )
+    )
 
-    assert harness.state == before
-    assert len(objects.calls) == 1
-    assert publication.commit_calls == 0
+    assert result.run.status == "timed_out"
+    assert result.retry_decision is not None
+    assert result.retry_decision.reason_code == "overall_deadline_exhausted"
+    assert len(objects.calls) == 3
+    assert publication.commit_calls == 2
+    assert stager.calls == 2
+    assert reads.begin_count == 2
+    assert uow.begin_count == 2
 
 
 @pytest.mark.parametrize("initial_status", ["queued", "retry_wait", "active"])
@@ -755,7 +824,7 @@ def test_partial_blob_stage_failure_leaves_all_database_authority_unchanged() ->
     assert uow.begin_count == 0
 
 
-def test_fresh_projection_drift_after_stage_performs_zero_authority_writes() -> None:
+def test_persistent_projection_drift_exhausts_bound_with_zero_authority_writes() -> None:
     harness = _run_harness()
     _start(harness)
     before = deepcopy(harness.state)
@@ -773,7 +842,7 @@ def test_fresh_projection_drift_after_stage_performs_zero_authority_writes() -> 
     )
     service = _lifecycle_service(harness, publication, uow, reads, stager)
 
-    with pytest.raises(IntegrityViolation, match="projection"):
+    with pytest.raises(IntegrityViolation, match="did not stabilize"):
         service.publish_attempt_outcome(
             PublishAttemptOutcomeRequest(
                 fence=_fence(harness),
@@ -783,11 +852,12 @@ def test_fresh_projection_drift_after_stage_performs_zero_authority_writes() -> 
         )
 
     assert harness.state == before
-    assert publication.plan_calls == ["run_result", "run_result"]
+    assert publication.plan_calls == ["run_result"] * 6
     assert publication.commit_calls == 0
-    assert len(objects.calls) == 2
-    assert reads.begin_count == 1
-    assert uow.begin_count == 1
+    assert len(objects.calls) == 6
+    assert stager.calls == 3
+    assert reads.begin_count == 3
+    assert uow.begin_count == 3
 
 
 class _ReceiptObjectStore:

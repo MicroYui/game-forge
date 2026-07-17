@@ -567,7 +567,7 @@ def _finding_policies() -> tuple[FindingOutputPolicyV1, ...]:
                 "regression",
             ),
             allowed_oracle_types=("deterministic", "simulation"),
-            allowed_sources=("checker", "sim"),
+            allowed_sources=("checker", "playtest", "sim"),
         ),
     )
 
@@ -1015,6 +1015,13 @@ def _lineage_spec(
                 _parent("subject", source="run_input", kinds=("patch",)),
                 _parent("target", source="run_input", kinds=("ir_snapshot",)),
                 _parent(
+                    "constraint",
+                    source="run_input",
+                    kinds=("constraint_snapshot",),
+                    min_count=0,
+                    max_count=1,
+                ),
+                _parent(
                     "candidate_config",
                     source="run_input",
                     kinds=("config_export",),
@@ -1024,15 +1031,35 @@ def _lineage_spec(
                 _supporting_input_parent(),
             )
         )
-        if rule_id == "primary":
+        if rule_id == "regression":
             parents.append(
                 _parent(
-                    "regression",
-                    source="prepared_rule",
-                    source_rule_id="regression",
-                    kinds=("regression_evidence",),
+                    "regression_suite",
+                    source="child_payload_reference",
+                    child_payload_pointer="/lineage_suite_artifact_ids",
+                    kinds=("regression_suite",),
                     min_count=0,
-                    max_count=None,
+                    max_count=1,
+                )
+            )
+        if rule_id == "primary":
+            parents.extend(
+                (
+                    _parent(
+                        "regression_suite",
+                        source="run_input",
+                        kinds=("regression_suite",),
+                        min_count=0,
+                        max_count=None,
+                    ),
+                    _parent(
+                        "regression",
+                        source="prepared_rule",
+                        source_rule_id="regression",
+                        kinds=("regression_evidence",),
+                        min_count=0,
+                        max_count=None,
+                    ),
                 )
             )
         elif rule_id == "auto-apply-proof":
@@ -1068,15 +1095,38 @@ def _lineage_spec(
                     ("candidate_config", *derived_equality),
                 ),
                 "constraint_snapshot_id": (
-                    "subject",
-                    ("candidate_config", *derived_equality),
-                ),
-                "env_contract_version": (
-                    "candidate_config",
-                    ("candidate_config", *derived_equality),
+                    "constraint",
+                    ("subject", "candidate_config", *derived_equality),
                 ),
             }
         )
+        if rule_id != "regression":
+            env_equality = () if rule_id == "primary" else derived_equality
+            projection["env_contract_version"] = (
+                "candidate_config",
+                ("candidate_config", *env_equality),
+            )
+        if rule_id == "auto-apply-proof":
+            # The proof is not another broad validation report.  Its direct
+            # lineage is the exact guard closure only: subject + target + final
+            # EvidenceSet + every qualified oracle/outcome/regression evidence.
+            # Constraint/config/review/playtest inputs remain transitively bound
+            # through that EvidenceSet and must not become extra proof parents.
+            parents[:] = [
+                parent
+                for parent in parents
+                if parent.parent_role in {"subject", "target", "evidence_set", "regression"}
+            ]
+            proof_equality = ("evidence_set", "regression")
+            projection = {
+                "doc_version": ("target", proof_equality),
+                "ir_snapshot_id": ("target", proof_equality),
+                "constraint_snapshot_id": ("evidence_set", ("regression",)),
+                # Individual regression suites may execute under distinct exact
+                # environment contracts.  The proof binds the primary
+                # EvidenceSet projection; it must not fabricate sibling equality.
+                "env_contract_version": ("evidence_set", ()),
+            }
 
     elif policy_id.startswith("constraint-validation-") or policy_id.startswith(
         "constraint-validated-"
@@ -1100,6 +1150,17 @@ def _lineage_spec(
                     source_rule_id="candidate",
                     kinds=("constraint_snapshot",),
                     min_count=0,
+                )
+            )
+        if rule_id == "regression":
+            parents.append(
+                _parent(
+                    "regression_suite",
+                    source="child_payload_reference",
+                    child_payload_pointer="/suite_artifact_id",
+                    kinds=("regression_suite",),
+                    min_count=1,
+                    max_count=1,
                 )
             )
         if rule_id == "primary":
@@ -1146,8 +1207,6 @@ def _lineage_spec(
                     "constraint_snapshot_id": (target_role, equality_roles),
                 }
             )
-            if rule_id == "primary":
-                projection["env_contract_version"] = ("regression", ("regression",))
 
     elif policy_id.startswith("rollback-validation-"):
         parents.append(_parent("subject", source="run_input", kinds=("rollback_request",)))
@@ -1161,9 +1220,37 @@ def _lineage_spec(
                     else "/detail/target_artifact_id"
                 ),
                 kinds=_ALL_ARTIFACT_KINDS,
-                min_count=0,
+                min_count=1,
+                max_count=1,
             )
         )
+        parents.append(
+            _parent(
+                "current",
+                source="child_payload_reference",
+                child_payload_pointer=(
+                    "/target_binding/expected_ref/artifact_id"
+                    if rule_id == "primary"
+                    else "/detail/current_artifact_id"
+                ),
+                kinds=_ALL_ARTIFACT_KINDS,
+                min_count=1,
+                max_count=1,
+            )
+        )
+        if rule_id == "regression":
+            parents.extend(
+                (
+                    _parent(
+                        "regression_suite",
+                        source="child_payload_reference",
+                        child_payload_pointer="/lineage_suite_artifact_ids",
+                        kinds=("regression_suite",),
+                        min_count=0,
+                        max_count=1,
+                    ),
+                )
+            )
         if rule_id == "primary":
             parents.extend(
                 (
@@ -1182,9 +1269,10 @@ def _lineage_spec(
             "doc_version",
             "ir_snapshot_id",
             "constraint_snapshot_id",
-            "env_contract_version",
         ):
             projection[field] = ("target", equality_roles)
+        if rule_id == "primary":
+            projection["env_contract_version"] = ("target", ())
 
     elif policy_id == "bench-completed":
         parents.extend(

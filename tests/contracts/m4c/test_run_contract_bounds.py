@@ -34,6 +34,7 @@ from gameforge.contracts.jobs import (
     MAX_PREPARED_DOMAIN_ARTIFACTS,
     MAX_RUN_MANIFEST_PARENT_BINDINGS,
     PatchRepairPayloadV1,
+    PatchValidationPayloadV1,
     PlaytestEpisodeBindingV1,
     PlaytestRunPayloadV1,
     PlannedAgentNodeVersionV1,
@@ -57,11 +58,13 @@ from gameforge.contracts.jobs import (
     RunFailureV1,
     RunResultSummaryV1,
     RunResultV1,
+    ValidationSubjectBindingV1,
     execution_version_plan_digest,
     referenced_input_artifact_ids,
 )
 from gameforge.contracts.lineage import ObjectLocation, ObjectRef, VersionTuple
 from gameforge.contracts.storage import RefValue
+from gameforge.contracts.workflow import FindingEvidenceBindingV1
 
 
 _HASH_A = "a" * 64
@@ -234,6 +237,57 @@ def test_empty_candidate_exports_allow_missing_constraint_snapshot(
 
     assert payload.constraint_snapshot_artifact_id is None
     assert payload.candidate_export_profiles == ()
+
+
+def test_patch_validation_input_contract_closes_constraint_and_both_finding_roles() -> None:
+    expected = FindingEvidenceBindingV1(
+        finding_id="finding:expected",
+        finding_revision=1,
+        evidence_artifact_id="artifact:evidence:expected",
+        finding_digest=_HASH_A,
+    )
+    target = FindingEvidenceBindingV1(
+        finding_id="finding:target",
+        finding_revision=2,
+        evidence_artifact_id="artifact:evidence:target",
+        finding_digest=_HASH_B,
+    )
+    params = PatchValidationPayloadV1(
+        subject=ValidationSubjectBindingV1(
+            approval_id="approval:patch:1",
+            expected_workflow_revision=2,
+            subject_head_revision=1,
+            subject_artifact_id="artifact:patch",
+            subject_digest=_HASH_A,
+            active_validation_run_id="run:patch-validation:1",
+        ),
+        base_snapshot_artifact_id="artifact:base",
+        preview_snapshot_artifact_id="artifact:preview",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        candidate_config_export_artifact_ids=(),
+        target=_target(),
+        validation_policy=_profile("validation"),
+        checker_profiles=(),
+        simulation_profiles=(),
+        expected_findings=(expected,),
+        findings=(target,),
+        review_artifact_ids=(),
+        playtest_trace_artifact_ids=(),
+        regression_suite_artifact_ids=(),
+    )
+
+    assert referenced_input_artifact_ids(params) == tuple(
+        sorted(
+            {
+                "artifact:patch",
+                "artifact:base",
+                "artifact:preview",
+                "artifact:constraint",
+                expected.evidence_artifact_id,
+                target.evidence_artifact_id,
+            }
+        )
+    )
 
 
 def test_run_payload_envelope_publishes_direct_hard_bounds() -> None:

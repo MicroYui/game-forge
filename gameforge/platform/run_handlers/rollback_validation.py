@@ -22,14 +22,17 @@ execution (an unavailable analyzer / unreadable target) is ``unproven`` or
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Literal, Mapping, Protocol
 
 from gameforge.contracts.execution_profiles import (
+    MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
+    ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
 )
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     PreparedArtifact,
     PreparedRunOutcome,
@@ -42,18 +45,21 @@ from gameforge.contracts.workflow import (
     RollbackRequestV1,
     RollbackTargetBindingV1,
 )
+from gameforge.spine.ir.snapshot import Snapshot
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
+    FindingEvidence,
     PreparedArtifactStore,
+    build_prepared_findings,
     build_success_result,
     load_json_blob,
     resolved_profile,
+    rebind_finding_producers,
     store_prepared_artifact,
 )
 from gameforge.platform.run_handlers.validation_common import (
-    DEFAULT_REGRESSION_RUNNER,
     EVIDENCE_SET_SCHEMA_ID,
     REGRESSION_EVIDENCE_KIND,
     REGRESSION_EVIDENCE_SCHEMA_ID,
@@ -61,16 +67,23 @@ from gameforge.platform.run_handlers.validation_common import (
     DimensionResult,
     RegressionRunner,
     RegressionRunRequest,
+    RegressionSuiteResultV1,
     content_addressed_artifact_id,
+    deterministic_finding_status,
     evidence_requirement,
     evidence_version_tuple,
     overall_status_of,
+    regression_evidence_version_tuple,
     require_exists,
     validation_child_execution_seed,
+    validate_authoritative_regression_findings,
     with_validation_child_seed_evidence,
 )
+from gameforge.platform.run_handlers.readers import load_snapshot
 
 ROLLBACK_PROFILE_FIELD = "/params/rollback_profile"
+SCHEMA_PROFILE_FIELD = "/params/schema_compatibility_policy"
+IMPACT_PROFILE_FIELD = "/params/impact_profiles"
 VALIDATION_TOOL_VERSION = "rollback-validation@1"
 REGRESSION_TOOL_VERSION = "regression@1"
 
@@ -90,6 +103,8 @@ class DimensionCheckV1:
     status: CheckStatus
     reason_code: str | None = None
     detail: Mapping[str, object] = field(default_factory=dict)
+    profile_binding: ResolvedExecutionProfileBindingV1 | None = None
+    rollback_profile_binding: ResolvedExecutionProfileBindingV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -102,6 +117,8 @@ class RollbackTargetInspectionV1:
     target_snapshot_id: str | None = None
     target_version_tuple: VersionTuple | None = None
     reason_code: str | None = None
+    schema_profile_binding: ResolvedExecutionProfileBindingV1 | None = None
+    rollback_profile_binding: ResolvedExecutionProfileBindingV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,16 +134,38 @@ class RollbackHistoryRequest:
 class RollbackSchemaRequest:
     target_artifact_id: str
     ref_name: str
-    schema_compatibility_policy_id: str
-    schema_compatibility_policy_version: int
+    schema_profile_binding: ResolvedExecutionProfileBindingV1
+    rollback_profile_binding: ResolvedExecutionProfileBindingV1
+
+    @property
+    def schema_compatibility_policy_id(self) -> str:
+        """Compatibility projection for existing concrete ports."""
+
+        return self.schema_profile_binding.profile.profile_id
+
+    @property
+    def schema_compatibility_policy_version(self) -> int:
+        return self.schema_profile_binding.profile.version
 
 
 @dataclass(frozen=True, slots=True)
 class RollbackImpactRequest:
+    current_artifact_id: str
+    current_ref_revision: int
     target_artifact_id: str
     ref_name: str
-    impact_profile_id: str
-    impact_profile_version: int
+    impact_profile_binding: ResolvedExecutionProfileBindingV1
+    rollback_profile_binding: ResolvedExecutionProfileBindingV1
+
+    @property
+    def impact_profile_id(self) -> str:
+        """Compatibility projection for existing concrete ports."""
+
+        return self.impact_profile_binding.profile.profile_id
+
+    @property
+    def impact_profile_version(self) -> int:
+        return self.impact_profile_binding.profile.version
 
 
 class RollbackSubjectInspector(Protocol):
@@ -153,6 +192,29 @@ class RollbackImpactAnalyzer(Protocol):
     def analyze(self, request: RollbackImpactRequest) -> DimensionCheckV1: ...
 
 
+@dataclass(frozen=True, slots=True)
+class _UnavailableRegressionRunner:
+    """Fail-closed default: an unwired regression execution never passes."""
+
+    def run(self, request: RegressionRunRequest) -> RegressionSuiteResultV1:
+        return RegressionSuiteResultV1(
+            suite_artifact_id=request.suite_artifact_id,
+            status="not_executed",
+            reason_code="regression_runner_unavailable",
+            payload={
+                "payload_schema_version": REGRESSION_EVIDENCE_SCHEMA_ID,
+                "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": request.snapshot_id,
+                "seed": request.seed,
+                "status": "not_executed",
+                "reason_code": "regression_runner_unavailable",
+            },
+        )
+
+
+UNAVAILABLE_REGRESSION_RUNNER: RegressionRunner = _UnavailableRegressionRunner()
+
+
 def load_rollback_request(blobs: ArtifactBlobReader, subject_artifact_id: str) -> RollbackRequestV1:
     """Default subject inspector: parse the subject blob into its typed request."""
 
@@ -177,7 +239,7 @@ class RollbackValidationHandler:
     schema_analyzer: RollbackSchemaAnalyzer
     impact_analyzer: RollbackImpactAnalyzer
     subject_inspector: RollbackSubjectInspector | None = None
-    regression_runner: RegressionRunner = DEFAULT_REGRESSION_RUNNER
+    regression_runner: RegressionRunner = UNAVAILABLE_REGRESSION_RUNNER
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
@@ -186,19 +248,61 @@ class RollbackValidationHandler:
 
         inspector = self.subject_inspector or _DefaultSubjectInspector(self.blobs)
         request = inspector.inspect(payload.subject.subject_artifact_id)
-        rollback_profile_binding = resolved_profile(context.payload, ROLLBACK_PROFILE_FIELD)
+        rollback_profile_binding = self._exact_profile_binding(
+            context,
+            field_path=ROLLBACK_PROFILE_FIELD,
+            profile=payload.rollback_profile,
+            expected_kind="rollback",
+        )
+        schema_profile_binding = self._exact_profile_binding(
+            context,
+            field_path=SCHEMA_PROFILE_FIELD,
+            profile=payload.schema_compatibility_policy,
+            expected_kind="schema_compatibility",
+        )
+        impact_profile_bindings = tuple(
+            self._exact_profile_binding(
+                context,
+                field_path=f"{IMPACT_PROFILE_FIELD}/{index}",
+                profile=profile,
+                expected_kind="impact_analysis",
+            )
+            for index, profile in enumerate(payload.impact_profiles)
+        )
+        expected_profile_paths = {
+            ROLLBACK_PROFILE_FIELD,
+            SCHEMA_PROFILE_FIELD,
+            *(f"{IMPACT_PROFILE_FIELD}/{index}" for index in range(len(payload.impact_profiles))),
+        }
+        actual_profile_paths = {item.field_path for item in context.payload.resolved_profiles}
+        if actual_profile_paths != expected_profile_paths:
+            raise IntegrityViolation(
+                "rollback validation resolved profile closure is not exact",
+                expected_paths=tuple(sorted(expected_profile_paths)),
+                actual_paths=tuple(sorted(actual_profile_paths)),
+            )
         root_seed = context.payload.seed
-        # The terminal lineage policy resolves and injects the exact target from
-        # each child payload through authoritative Run inputs.
-        lineage = (payload.subject.subject_artifact_id,)
+        # Every rollback verdict depends on the subject request, the observed
+        # current head, and the selected historical target. Keep that complete
+        # closure in prepared lineage as well as in terminal typed roles.
+        lineage = (
+            payload.subject.subject_artifact_id,
+            payload.expected_current_ref.artifact_id,
+            payload.target_artifact_id,
+        )
 
         inspection = self.schema_analyzer.analyze(
             RollbackSchemaRequest(
                 target_artifact_id=payload.target_artifact_id,
                 ref_name=payload.ref_name,
-                schema_compatibility_policy_id=payload.schema_compatibility_policy.profile_id,
-                schema_compatibility_policy_version=payload.schema_compatibility_policy.version,
+                schema_profile_binding=schema_profile_binding,
+                rollback_profile_binding=rollback_profile_binding,
             )
+        )
+        inspection = self._validate_schema_execution_binding(
+            inspection,
+            schema_profile_binding=schema_profile_binding,
+            rollback_profile_binding=rollback_profile_binding,
         )
         target_binding = self._target_binding(payload, rollback_profile_binding, inspection)
         target_tuple = inspection.target_version_tuple
@@ -223,6 +327,7 @@ class RollbackValidationHandler:
             self._schema_dimension(
                 inspection,
                 payload.target_artifact_id,
+                payload.expected_current_ref.artifact_id,
                 lineage,
                 evidence_tuple,
             )
@@ -236,16 +341,26 @@ class RollbackValidationHandler:
                 evidence_tuple,
             )
         )
-        dimensions.extend(self._impact_dimensions(payload, lineage, evidence_tuple))
         dimensions.extend(
-            self._regression_dimensions(
+            self._impact_dimensions(
                 payload,
+                impact_profile_bindings,
+                rollback_profile_binding,
                 lineage,
-                context.run.kind,
-                root_seed,
                 evidence_tuple,
             )
         )
+        regression_dimensions = self._regression_dimensions(
+            payload,
+            lineage,
+            context.run.kind,
+            context.run.run_id,
+            root_seed,
+            evidence_tuple,
+            rollback_profile_binding,
+            inspection,
+        )
+        dimensions.extend((result, artifact) for result, artifact, _ in regression_dimensions)
 
         requirements = tuple(evidence_requirement(result) for result, _ in dimensions)
         overall = overall_status_of(tuple(result.status for result, _ in dimensions))
@@ -253,6 +368,7 @@ class RollbackValidationHandler:
 
         supporting = (
             *(content_addressed_artifact_id(artifact) for artifact in regression_artifacts),
+            payload.expected_current_ref.artifact_id,
             payload.target_artifact_id,
             *payload.regression_suite_artifact_ids,
         )
@@ -268,14 +384,83 @@ class RollbackValidationHandler:
         )
 
         artifacts = (evidence_set, *regression_artifacts)
+        findings_by_artifact_id = {
+            content_addressed_artifact_id(artifact): findings
+            for _, artifact, findings in regression_dimensions
+            if findings
+        }
+        prepared_findings = build_prepared_findings(
+            tuple(
+                FindingEvidence(
+                    finding=finding,
+                    evidence_artifact_index=index + 1,
+                    finding_id=f"rollback:{result.requirement_id}:{finding.id}",
+                )
+                for index, (result, artifact) in enumerate(dimensions)
+                for finding in findings_by_artifact_id.get(
+                    content_addressed_artifact_id(artifact), ()
+                )
+            ),
+            run_id=context.run.run_id,
+        )
         return build_success_result(
             run=context.run,
             attempt=context.attempt,
             outcome_code=_OUTCOME_CODE[overall],
             primary_index=0,
             artifacts=artifacts,
-            findings=(),
+            findings=prepared_findings,
         )
+
+    @staticmethod
+    def _exact_profile_binding(
+        context: ExecutorContextLike,
+        *,
+        field_path: str,
+        profile: ProfileRefV1,
+        expected_kind: str,
+    ) -> ResolvedExecutionProfileBindingV1:
+        try:
+            binding = resolved_profile(context.payload, field_path)
+        except ValueError as exc:
+            raise IntegrityViolation(
+                "rollback validation execution profile binding is missing",
+                field_path=field_path,
+            ) from exc
+        assert binding is not None
+        if (
+            binding.field_path != field_path
+            or binding.profile != profile
+            or binding.expected_profile_kind != expected_kind
+        ):
+            raise IntegrityViolation(
+                "rollback validation execution profile binding is not exact",
+                field_path=field_path,
+                expected_profile=profile.model_dump(mode="json"),
+                expected_kind=expected_kind,
+            )
+        return binding
+
+    @staticmethod
+    def _validate_schema_execution_binding(
+        inspection: RollbackTargetInspectionV1,
+        *,
+        schema_profile_binding: ResolvedExecutionProfileBindingV1,
+        rollback_profile_binding: ResolvedExecutionProfileBindingV1,
+    ) -> RollbackTargetInspectionV1:
+        if inspection.schema_profile_binding is None or inspection.rollback_profile_binding is None:
+            return replace(
+                inspection,
+                status="unproven",
+                reason_code="rollback_schema_execution_unavailable",
+                schema_profile_binding=schema_profile_binding,
+                rollback_profile_binding=rollback_profile_binding,
+            )
+        if inspection.schema_profile_binding != schema_profile_binding:
+            raise IntegrityViolation("schema analyzer used another execution profile")
+        if inspection.rollback_profile_binding != rollback_profile_binding:
+            raise IntegrityViolation("schema analyzer used another rollback profile")
+        return inspection
 
     # --------------------------------------------------------------- dimensions
     def _history_dimension(
@@ -298,6 +483,7 @@ class RollbackValidationHandler:
             "history",
             check,
             payload.target_artifact_id,
+            payload.expected_current_ref.artifact_id,
             lineage,
             evidence_tuple,
         )
@@ -309,23 +495,24 @@ class RollbackValidationHandler:
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
     ) -> tuple[DimensionResult, PreparedArtifact]:
-        try:
-            require_exists(self.blobs, payload.target_artifact_id)
-            check = DimensionCheckV1(
-                status="passed",
-                detail={
-                    "target_artifact_id": payload.target_artifact_id,
-                    "target_artifact_kind": inspection.target_artifact_kind,
-                    "target_digest": inspection.target_digest,
-                },
-            )
-        except Exception:  # noqa: BLE001 - an unreadable target is a definite failed dimension
-            check = DimensionCheckV1(status="failed", reason_code="target_artifact_unreadable")
+        # The target was frozen as a Run input. A read/integrity/dependency fault is
+        # therefore an execution failure (and must restore the current draft), not a
+        # deterministic business verdict that can strand the item as validation_failed.
+        require_exists(self.blobs, payload.target_artifact_id)
+        check = DimensionCheckV1(
+            status="passed",
+            detail={
+                "target_artifact_id": payload.target_artifact_id,
+                "target_artifact_kind": inspection.target_artifact_kind,
+                "target_digest": inspection.target_digest,
+            },
+        )
         return self._seal_dimension(
             "artifact",
             "artifact",
             check,
             payload.target_artifact_id,
+            payload.expected_current_ref.artifact_id,
             lineage,
             evidence_tuple,
         )
@@ -334,6 +521,7 @@ class RollbackValidationHandler:
         self,
         inspection: RollbackTargetInspectionV1,
         target_artifact_id: str,
+        current_artifact_id: str,
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
     ) -> tuple[DimensionResult, PreparedArtifact]:
@@ -343,6 +531,16 @@ class RollbackValidationHandler:
             detail={
                 "target_artifact_kind": inspection.target_artifact_kind,
                 "target_snapshot_id": inspection.target_snapshot_id,
+                "schema_profile_binding": (
+                    None
+                    if inspection.schema_profile_binding is None
+                    else inspection.schema_profile_binding.model_dump(mode="json")
+                ),
+                "rollback_profile_binding": (
+                    None
+                    if inspection.rollback_profile_binding is None
+                    else inspection.rollback_profile_binding.model_dump(mode="json")
+                ),
             },
         )
         return self._seal_dimension(
@@ -350,6 +548,7 @@ class RollbackValidationHandler:
             "schema",
             check,
             target_artifact_id,
+            current_artifact_id,
             lineage,
             evidence_tuple,
         )
@@ -367,6 +566,8 @@ class RollbackValidationHandler:
             or request.target_artifact_id != payload.target_artifact_id
             or request.target_history_revision != payload.target_history_revision
             or request.expected_current_ref != payload.expected_current_ref
+            or request.rollback_profile_binding != rollback_profile_binding
+            or payload.rollback_profile != rollback_profile_binding.profile
         )
         if mismatch:
             check = DimensionCheckV1(status="failed", reason_code="subject_payload_mismatch")
@@ -376,7 +577,7 @@ class RollbackValidationHandler:
             check = DimensionCheckV1(
                 status="passed",
                 detail={
-                    "rollback_profile": rollback_profile_binding.profile.model_dump(mode="json")
+                    "rollback_profile_binding": rollback_profile_binding.model_dump(mode="json")
                 },
             )
         return self._seal_dimension(
@@ -384,6 +585,7 @@ class RollbackValidationHandler:
             "profile",
             check,
             payload.target_artifact_id,
+            payload.expected_current_ref.artifact_id,
             lineage,
             evidence_tuple,
         )
@@ -391,19 +593,53 @@ class RollbackValidationHandler:
     def _impact_dimensions(
         self,
         payload: RollbackValidationPayloadV1,
+        impact_profile_bindings: tuple[ResolvedExecutionProfileBindingV1, ...],
+        rollback_profile_binding: ResolvedExecutionProfileBindingV1,
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
     ) -> tuple[tuple[DimensionResult, PreparedArtifact], ...]:
         dims: list[tuple[DimensionResult, PreparedArtifact]] = []
-        for profile in payload.impact_profiles:
-            check = self.impact_analyzer.analyze(
-                RollbackImpactRequest(
-                    target_artifact_id=payload.target_artifact_id,
-                    ref_name=payload.ref_name,
-                    impact_profile_id=profile.profile_id,
-                    impact_profile_version=profile.version,
+        for profile, profile_binding in zip(
+            payload.impact_profiles, impact_profile_bindings, strict=True
+        ):
+            try:
+                check = self.impact_analyzer.analyze(
+                    RollbackImpactRequest(
+                        current_artifact_id=payload.expected_current_ref.artifact_id,
+                        current_ref_revision=payload.expected_current_ref.revision,
+                        target_artifact_id=payload.target_artifact_id,
+                        ref_name=payload.ref_name,
+                        impact_profile_binding=profile_binding,
+                        rollback_profile_binding=rollback_profile_binding,
+                    )
                 )
-            )
+            except (DependencyUnavailable, NotImplementedError):
+                check = DimensionCheckV1(
+                    status="unproven",
+                    reason_code="rollback_impact_execution_unavailable",
+                    profile_binding=profile_binding,
+                    rollback_profile_binding=rollback_profile_binding,
+                )
+            if check.profile_binding is None or check.rollback_profile_binding is None:
+                check = replace(
+                    check,
+                    status="unproven",
+                    reason_code="rollback_impact_execution_unavailable",
+                    profile_binding=profile_binding,
+                    rollback_profile_binding=rollback_profile_binding,
+                )
+            elif check.profile_binding != profile_binding:
+                raise IntegrityViolation("impact analyzer used another execution profile")
+            elif check.rollback_profile_binding != rollback_profile_binding:
+                raise IntegrityViolation("impact analyzer used another rollback profile")
+            detail = {
+                **dict(check.detail),
+                "current_artifact_id": payload.expected_current_ref.artifact_id,
+                "current_ref_revision": payload.expected_current_ref.revision,
+                "impact_profile_binding": profile_binding.model_dump(mode="json"),
+                "rollback_profile_binding": rollback_profile_binding.model_dump(mode="json"),
+            }
+            check = replace(check, detail=detail)
             requirement_id = f"impact:{profile.profile_id}@{profile.version}"
             dims.append(
                 self._seal_dimension(
@@ -411,6 +647,7 @@ class RollbackValidationHandler:
                     "impact",
                     check,
                     payload.target_artifact_id,
+                    payload.expected_current_ref.artifact_id,
                     lineage,
                     evidence_tuple,
                 )
@@ -422,10 +659,17 @@ class RollbackValidationHandler:
         payload: RollbackValidationPayloadV1,
         lineage: tuple[str, ...],
         run_kind: RunKindRef,
+        run_id: str,
         root_seed: int | None,
         evidence_tuple: VersionTuple,
-    ) -> tuple[tuple[DimensionResult, PreparedArtifact], ...]:
-        dims: list[tuple[DimensionResult, PreparedArtifact]] = []
+        rollback_profile_binding: ResolvedExecutionProfileBindingV1,
+        inspection: RollbackTargetInspectionV1,
+    ) -> tuple[tuple[DimensionResult, PreparedArtifact, tuple[Finding, ...]], ...]:
+        if not payload.regression_suite_artifact_ids:
+            return ()
+        dims: list[tuple[DimensionResult, PreparedArtifact, tuple[Finding, ...]]] = []
+        snapshot = self._load_regression_snapshot(inspection, payload.target_artifact_id)
+        remaining_work_units = MAX_REPAIR_REGRESSION_WORK_UNITS_V1
         for suite_id in payload.regression_suite_artifact_ids:
             require_exists(self.blobs, suite_id)
             execution_seed = validation_child_execution_seed(
@@ -437,20 +681,105 @@ class RollbackValidationHandler:
             outcome = self.regression_runner.run(
                 RegressionRunRequest(
                     suite_artifact_id=suite_id,
-                    snapshot_id=None,
+                    snapshot_id=inspection.target_snapshot_id,
                     seed=execution_seed,
+                    snapshot=snapshot,
+                    root_seed=root_seed,
+                    run_kind=run_kind,
+                    profile=payload.rollback_profile,
+                    max_action_work_units=remaining_work_units,
                 )
             )
+            if outcome.suite_artifact_id != suite_id:
+                raise IntegrityViolation("regression runner returned another suite Artifact")
+            payload_snapshot_id = outcome.payload.get("snapshot_id")
+            if (
+                payload_snapshot_id is not None
+                and payload_snapshot_id != inspection.target_snapshot_id
+            ):
+                raise IntegrityViolation("regression runner returned another target snapshot")
+            measured_work = outcome.action_work_units
+            if measured_work is not None and (
+                isinstance(measured_work, bool)
+                or not isinstance(measured_work, int)
+                or measured_work < 0
+            ):
+                raise IntegrityViolation("regression runner returned invalid measured work")
+            if outcome.status in {"passed", "failed"} and measured_work is None:
+                raise IntegrityViolation(
+                    "executed regression omitted measured action work",
+                    suite_artifact_id=suite_id,
+                )
+            if measured_work is not None:
+                if measured_work > remaining_work_units:
+                    raise IntegrityViolation(
+                        "rollback validation regressions exceed the aggregate work budget",
+                        suite_artifact_id=suite_id,
+                        remaining_work_units=remaining_work_units,
+                        measured_work_units=measured_work,
+                    )
+                remaining_work_units -= measured_work
+            raw_findings = outcome.payload.get("findings")
+            if raw_findings is None:
+                suite_findings: tuple[Finding, ...] = ()
+            else:
+                if not isinstance(raw_findings, (list, tuple)):
+                    raise IntegrityViolation("regression runner returned invalid Findings")
+                try:
+                    suite_findings = tuple(Finding.model_validate(value) for value in raw_findings)
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation("regression runner returned invalid Findings") from exc
+                if any(
+                    finding.snapshot_id != inspection.target_snapshot_id
+                    for finding in suite_findings
+                ):
+                    raise IntegrityViolation("regression runner Finding targets another snapshot")
+                validate_authoritative_regression_findings(
+                    suite_findings,
+                    snapshot_id=inspection.target_snapshot_id,
+                )
+                expected_status = deterministic_finding_status(suite_findings)
+                if outcome.status != expected_status:
+                    raise IntegrityViolation(
+                        "regression runner status contradicts exact Finding verdicts"
+                    )
+            if outcome.status == "failed" and not suite_findings:
+                raise IntegrityViolation("failed regression runner omitted exact Findings")
+
             status = "unproven" if outcome.status == "not_executed" else outcome.status
             reason = outcome.reason_code
+            if snapshot is None and status in {"passed", "failed"}:
+                status = "unproven"
+                reason = "candidate_snapshot_unavailable"
+            elif status in {"passed", "failed"} and outcome.env_contract_version is None:
+                status = "unproven"
+                reason = "regression_environment_binding_unavailable"
             if status == "unproven" and reason is None:
                 reason = "regression_not_executed"
+            if status != outcome.status:
+                suite_findings = ()
+            suite_findings = tuple(rebind_finding_producers(suite_findings, run_id=run_id))
+            outcome_payload = {
+                key: value for key, value in outcome.payload.items() if key != "findings"
+            }
+            if suite_findings:
+                outcome_payload["findings"] = [
+                    finding.model_dump(mode="json") for finding in suite_findings
+                ]
             check = DimensionCheckV1(
                 status=status,  # type: ignore[arg-type]
                 reason_code=reason if status != "passed" else None,
                 detail=with_validation_child_seed_evidence(
                     {
-                        **outcome.payload,
+                        **outcome_payload,
+                        "payload_schema_version": REGRESSION_EVIDENCE_SCHEMA_ID,
+                        "suite_artifact_id": suite_id,
+                        "snapshot_id": inspection.target_snapshot_id,
+                        "seed": execution_seed,
+                        "status": status,
+                        "rollback_profile_binding": rollback_profile_binding.model_dump(
+                            mode="json"
+                        ),
                         "reason_code": reason if status == "unproven" else None,
                     },
                     root_seed=root_seed,
@@ -460,17 +789,41 @@ class RollbackValidationHandler:
                     case_id=suite_id,
                 ),
             )
+            result, artifact = self._seal_dimension(
+                f"regression:{suite_id}",
+                "regression",
+                check,
+                payload.target_artifact_id,
+                payload.expected_current_ref.artifact_id,
+                (*lineage, suite_id),
+                regression_evidence_version_tuple(evidence_tuple, outcome),
+                lineage_suite_artifact_ids=(suite_id,),
+            )
             dims.append(
-                self._seal_dimension(
-                    f"regression:{suite_id}",
-                    "regression",
-                    check,
-                    payload.target_artifact_id,
-                    lineage,
-                    evidence_tuple,
+                (
+                    result,
+                    artifact,
+                    suite_findings,
                 )
             )
         return tuple(dims)
+
+    def _load_regression_snapshot(
+        self,
+        inspection: RollbackTargetInspectionV1,
+        target_artifact_id: str,
+    ) -> Snapshot | None:
+        if inspection.target_artifact_kind != "ir_snapshot":
+            return None
+        try:
+            snapshot = load_snapshot(self.blobs, target_artifact_id)
+        except (IntegrityViolation, KeyError, TypeError, ValueError):
+            return None
+        if inspection.target_snapshot_id is None:
+            raise IntegrityViolation("IR rollback target inspection omitted snapshot id")
+        if snapshot.snapshot_id != inspection.target_snapshot_id:
+            raise IntegrityViolation("rollback target snapshot bytes differ from inspection")
+        return snapshot
 
     # ----------------------------------------------------------------- sealing
     def _seal_dimension(
@@ -479,14 +832,27 @@ class RollbackValidationHandler:
         kind: str,
         check: DimensionCheckV1,
         target_artifact_id: str,
+        current_artifact_id: str,
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
+        *,
+        lineage_suite_artifact_ids: tuple[str, ...] = (),
     ) -> tuple[DimensionResult, PreparedArtifact]:
+        if check.status == "passed":
+            normalized_reason = None
+        else:
+            normalized_reason = check.reason_code or f"rollback_{kind}_{check.status}"
         detail = dict(check.detail)
         retained_target = detail.setdefault("target_artifact_id", target_artifact_id)
         if retained_target != target_artifact_id:
             raise IntegrityViolation(
                 "rollback dimension detail names another target Artifact",
+                requirement_id=requirement_id,
+            )
+        retained_current = detail.setdefault("current_artifact_id", current_artifact_id)
+        if retained_current != current_artifact_id:
+            raise IntegrityViolation(
+                "rollback dimension detail names another current Artifact",
                 requirement_id=requirement_id,
             )
         artifact = store_prepared_artifact(
@@ -501,8 +867,9 @@ class RollbackValidationHandler:
                 "payload_schema_version": REGRESSION_EVIDENCE_SCHEMA_ID,
                 "requirement_id": requirement_id,
                 "dimension": kind,
+                "lineage_suite_artifact_ids": list(lineage_suite_artifact_ids),
                 "status": check.status,
-                "reason_code": check.reason_code,
+                "reason_code": normalized_reason,
                 "detail": detail,
             },
             extra_meta={"requirement_id": requirement_id},
@@ -513,7 +880,7 @@ class RollbackValidationHandler:
             tool_version=VALIDATION_TOOL_VERSION,
             status=check.status,
             evidence_artifact_id=content_addressed_artifact_id(artifact),
-            reason_code=check.reason_code if check.status == "unproven" else None,
+            reason_code=normalized_reason if check.status == "unproven" else None,
         )
         return result, artifact
 

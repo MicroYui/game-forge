@@ -67,7 +67,9 @@ def _canonical(payload: object) -> bytes:
 
 
 def _clean_snapshot() -> tuple[bytes, str]:
-    snapshot = Snapshot({"npc:1": Entity(id="npc:1", type=NodeType.NPC, attrs={})}, {})
+    # REGION is intentionally outside GraphChecker's key-node isolation rule, so
+    # this fixture is genuinely checker-clean rather than merely well-formed IR.
+    snapshot = Snapshot({"region:1": Entity(id="region:1", type=NodeType.REGION, attrs={})}, {})
     return _canonical(snapshot.content_payload), snapshot.snapshot_id
 
 
@@ -340,7 +342,7 @@ def test_patch_validate_passed_cases_item_to_validated(tmp_path: Path) -> None:
         series_id="series:passed",
         preview_blob=clean_blob,
         preview_snapshot_id=clean_snap,
-        checker_profiles=(),
+        checker_profiles=(_GRAPH_CHECKER,),
         idem="passed:1",
     )
     assert terminal is not None and terminal.status == "succeeded", (

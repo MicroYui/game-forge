@@ -23,6 +23,7 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.model_router import request_hash
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.spine.checkers.graph import GraphChecker
+from gameforge.spine.checkers.base import CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
 from gameforge.platform.run_handlers.bench import (
     BENCH_REPORT_SCHEMA_ID,
@@ -72,7 +73,7 @@ def _combined_snapshot() -> bytes:
 
 
 def _checker_resolver(profile, constraints):
-    return GraphChecker()
+    return _CompiledCheckerGroup(constraints, include_graph=True) if constraints else GraphChecker()
 
 
 class _CompiledCheckerGroup:
@@ -81,6 +82,19 @@ class _CompiledCheckerGroup:
         self._checkers = (
             *((GraphChecker(),) if include_graph else ()),
             *compile_all(constraints),
+        )
+        self.executed_checker_bindings = tuple(
+            binding
+            for checker in self._checkers
+            if getattr(checker, "deterministic_execution", True)
+            for binding in (
+                getattr(checker, "execution_binding", None)
+                or CheckerExecutionBinding(
+                    wrapper_id=checker.id,
+                    native_id=checker.id,
+                    constraint_id=None,
+                ),
+            )
         )
 
     def check(self, snapshot, nav=None):
@@ -130,9 +144,11 @@ def _review_handler(
 def _review_profiles():
     return (
         resolved_binding("/params/review_profile", profile_id="review", version=1, kind="review"),
-        resolved_binding("/params/checker_profiles", profile_id="graph", version=1, kind="checker"),
         resolved_binding(
-            "/params/simulation_profiles", profile_id="econ", version=1, kind="simulation"
+            "/params/checker_profiles/0", profile_id="graph", version=1, kind="checker"
+        ),
+        resolved_binding(
+            "/params/simulation_profiles/0", profile_id="econ", version=1, kind="simulation"
         ),
     )
 
@@ -166,6 +182,11 @@ def test_review_without_triage_is_deterministic_only_and_not_applicable() -> Non
     checker_artifact = next(a for a in outcome.artifacts if a.kind == "checker_run")
     payload = json.loads(store.read_prepared(checker_artifact.object_ref))
     assert payload["profile"] == {"profile_id": "graph", "version": 1}
+    assert payload["checker_profile"] == payload["profile"]
+    assert payload["checker_execution_bindings"] == [{"wrapper_id": "graph", "native_id": "graph"}]
+    assert payload["constraint_snapshot_binding_status"] == "not_applicable"
+    assert payload["constraint_application"] == []
+    validate_artifact_payload(payload_schema_id="checker-report@1", payload=payload)
     simulation_artifact = next(a for a in outcome.artifacts if a.kind == "simulation_run")
     simulation_payload = json.loads(store.read_prepared(simulation_artifact.object_ref))
     expected_child_seed = derive_validation_subseed(
@@ -314,6 +335,9 @@ def test_review_without_triage_preserves_mixed_predicate_as_profile_advisory() -
     assert outcome.artifacts[1].kind == "checker_run"
     checker_payload = json.loads(store.read_prepared(outcome.artifacts[1].object_ref))
     assert checker_payload["profile"] == {"profile_id": "graph", "version": 1}
+    assert checker_payload["constraint_snapshot_binding_status"] == "bound"
+    assert checker_payload["constraint_snapshot_artifact_id"] == constraint_artifact_id
+    assert checker_payload["checker_execution_bindings"] == []
     assert checker_payload["findings"][0]["id"] == advisory.finding_id
 
     report = json.loads(store.read_prepared(outcome.artifacts[0].object_ref))
@@ -769,7 +793,16 @@ def test_review_two_profiles_same_checker_id_emit_distinct_finding_ids() -> None
                 "/params/review_profile", profile_id="review", version=1, kind="review"
             ),
             resolved_binding(
-                "/params/checker_profiles", profile_id="graph-a", version=1, kind="checker"
+                "/params/checker_profiles/0",
+                profile_id="graph-a",
+                version=1,
+                kind="checker",
+            ),
+            resolved_binding(
+                "/params/checker_profiles/1",
+                profile_id="graph-b",
+                version=1,
+                kind="checker",
             ),
         ),
     )

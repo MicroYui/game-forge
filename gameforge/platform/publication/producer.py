@@ -619,11 +619,15 @@ class DomainProducerFactsResolver:
         producer_values["seed"] = (
             facts.fixed_seed if facts.seed_source == "fixed" else run.payload.seed
         )
-        if producer_env_contract_version is not None and (
-            rule.artifact_kind != "config_export" or payload_schema_id != "config-export-package@1"
-        ):
+        env_override_allowed = (
+            rule.artifact_kind == "config_export" and payload_schema_id == "config-export-package@1"
+        ) or (
+            rule.artifact_kind == "regression_evidence"
+            and payload_schema_id == "regression-evidence@1"
+        )
+        if producer_env_contract_version is not None and not env_override_allowed:
             raise IntegrityViolation(
-                "producer environment override belongs only to config export Artifacts"
+                "producer environment override belongs only to environment-bound Artifacts"
             )
         producer_values["env_contract_version"] = (
             producer_env_contract_version

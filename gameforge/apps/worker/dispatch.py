@@ -45,6 +45,9 @@ from gameforge.apps.worker.agent_drafts import (
 from gameforge.apps.worker.agent_prompt_context import (
     bind_production_agent_prompt_context_authority,
 )
+from gameforge.apps.worker.auto_apply import (
+    build_transaction_auto_apply_validation_port,
+)
 from gameforge.apps.worker.components import (
     WorkerArtifactBlobReader,
     WorkerPreparedArtifactStore,
@@ -632,7 +635,11 @@ def build_worker_dispatch(
                 commands=agent_draft_commands,
                 governance_refs=agent_draft_governance,
             ),
-            auto_apply=None,
+            auto_apply=build_transaction_auto_apply_validation_port(
+                transaction=transaction,
+                object_store=object_store,
+                registry=registry,
+            ),
         )
 
     @contextmanager

@@ -23,6 +23,7 @@ from gameforge.contracts.workflow import (
     ConstraintProposalV1,
     EvidenceSet,
     RollbackRequestV1,
+    regression_companion_evidence_ids,
 )
 from gameforge.platform.approvals.apply import VerifiedTargetPayload
 from gameforge.platform.approvals.commands import (
@@ -259,25 +260,30 @@ class WorkflowTypedReaders:
         economy-validated Patch).
         """
 
-        requirements = {
+        requirements_by_artifact_id = {
             requirement.evidence_artifact_id: requirement
             for requirement in evidence.requirements
-            if requirement.kind == "regression" and requirement.evidence_artifact_id is not None
+            if requirement.evidence_artifact_id is not None
         }
-        expected_ids = tuple(sorted(requirements))
+        expected_ids = regression_companion_evidence_ids(evidence)
         presented_ids = tuple(sorted(artifact.artifact_id for artifact in regression_artifacts))
         if presented_ids != expected_ids:
             raise IntegrityViolation(
                 "frozen regression evidence differs from the EvidenceSet requirements"
             )
-        statuses: list[str] = []
         for artifact in regression_artifacts:
             if artifact.kind != "regression_evidence":
                 raise IntegrityViolation("regression evidence has the wrong Artifact kind")
             schema = (getattr(artifact, "meta", {}) or {}).get("payload_schema_id")
             if schema != "regression-evidence@1":
                 raise IntegrityViolation("regression evidence declares the wrong payload schema")
-            statuses.append(requirements[artifact.artifact_id].status)
+            if artifact.artifact_id not in requirements_by_artifact_id:
+                raise IntegrityViolation("regression evidence has no EvidenceSet requirement")
+        statuses = [
+            requirement.status
+            for requirement in evidence.requirements
+            if requirement.kind == "regression" and requirement.applicability == "required"
+        ]
         if not statuses:
             return "not_applicable"
         if all(status == "passed" for status in statuses):

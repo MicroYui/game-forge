@@ -4,7 +4,7 @@ Builds the REAL composed API (admission engine + read APIs + readiness) and the 
 persistent worker (dispatch loop + Task-9 ``TerminalPublisher`` + concrete SQL
 adapters) over ONE shared SQLite authority + ObjectStore, proves registry closure
 for all 14 RunKinds while deployment readiness remains honestly closed until the
-model/handler authorities from Tasks 11–13 are provisioned, admits a
+model authorities are provisioned, admits a
 ``checker.run@1`` through the real admission path, drives the worker's
 ``dispatch_once()`` to a published ``RunResult``, and asserts the terminal publisher
 produced the run_result manifest + the ``checker_run`` domain Artifact + the terminal
@@ -36,6 +36,10 @@ from gameforge.apps.worker.app import (
     validate_worker_readiness,
 )
 from gameforge.apps.worker.dispatch import build_worker_process
+from gameforge.apps.worker.rollback_validation import (
+    DeterministicRollbackImpactAnalyzer,
+    ExactRollbackSchemaAnalyzer,
+)
 from gameforge.contracts.auth import (
     LoginNameNormalizationPolicyV1,
     PasswordHashPolicyV1,
@@ -61,6 +65,9 @@ from gameforge.contracts.jobs import CheckerRunPayloadV1, GraphSelectionV1
 from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
 from gameforge.platform.identity.bootstrap import BootstrapAdminRequest
 from gameforge.platform.registry import PlatformReadinessValidator, build_builtin_registry
+from gameforge.platform.run_handlers.constraint_validation import ConstraintValidationHandler
+from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
+from gameforge.platform.run_handlers.rollback_validation import RollbackValidationHandler
 from gameforge.platform.runs.admission import AdmissionRequestContext
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
 from gameforge.runtime.clock import SystemUtcClock
@@ -432,6 +439,17 @@ def test_registry_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) ->
         ).validate()
         assert report.ready is True
         assert report.checked_run_kind_count == 14
+        rollback = process.components.executors["rollback_validator@1"]
+        patch = process.components.executors["patch_validator@1"]
+        constraint = process.components.executors["constraint_validator@1"]
+        assert isinstance(rollback, RollbackValidationHandler)
+        assert isinstance(patch, PatchValidationHandler)
+        assert isinstance(constraint, ConstraintValidationHandler)
+        assert isinstance(rollback.schema_analyzer, ExactRollbackSchemaAnalyzer)
+        assert isinstance(rollback.impact_analyzer, DeterministicRollbackImpactAnalyzer)
+        assert rollback.regression_runner is patch.regression_runner
+        assert rollback.regression_runner is constraint.regression_runner
+        assert not hasattr(rollback, "worker_readiness_blocker")
         with pytest.raises(WorkerConfigurationError, match="model execution authority"):
             validate_worker_readiness(process.runtime)
 

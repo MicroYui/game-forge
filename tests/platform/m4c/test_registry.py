@@ -13,6 +13,7 @@ from gameforge.contracts.execution_profiles import (
     PatchRepairProfileConfigV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
+    execution_profile_catalog_digest,
     execution_profile_payload_hash,
 )
 from gameforge.contracts.jobs import (
@@ -434,7 +435,7 @@ def test_frozen_lineage_projects_existing_canonical_facts_from_typed_parents() -
         ("patch.validate", "patch-validation-passed", "primary"): {
             "doc_version": "target",
             "ir_snapshot_id": "target",
-            "constraint_snapshot_id": "subject",
+            "constraint_snapshot_id": "constraint",
             "env_contract_version": "candidate_config",
         },
         (
@@ -545,6 +546,66 @@ def test_repair_regression_evidence_selects_one_exact_suite_from_payload() -> No
     assert suite.min_count == 1
     assert suite.max_count == 1
     assert rule.lineage_policy_ref.digest == artifact_lineage_policy_digest(lineage)
+
+
+@pytest.mark.parametrize(
+    ("run_kind", "policy_id", "suite_pointer", "suite_min_count"),
+    (
+        (
+            "patch.validate",
+            "patch-validation-passed",
+            "/lineage_suite_artifact_ids",
+            0,
+        ),
+        (
+            "constraint_proposal.validate",
+            "constraint-validated-with-candidate",
+            "/suite_artifact_id",
+            1,
+        ),
+        (
+            "rollback.validate",
+            "rollback-validation-passed",
+            "/lineage_suite_artifact_ids",
+            0,
+        ),
+    ),
+)
+def test_validation_regression_environment_is_terminally_derived_per_suite(
+    run_kind: str,
+    policy_id: str,
+    suite_pointer: str,
+    suite_min_count: int,
+) -> None:
+    registry = build_builtin_registry()
+    definition = registry.get_run_kind(RunKindRef(kind=run_kind, version=1))
+    assert definition is not None
+    policy = next(item for item in definition.outcome_policies if item.policy_id == policy_id)
+    regression_rule = next(item for item in policy.artifact_rules if item.rule_id == "regression")
+    regression_lineage = registry.get_lineage_policy(regression_rule.lineage_policy_ref)
+    assert regression_lineage is not None
+
+    suite = next(
+        item for item in regression_lineage.parent_rules if item.parent_role == "regression_suite"
+    )
+    assert suite.source == "child_payload_reference"
+    assert suite.child_payload_pointer == suite_pointer
+    assert suite.min_count == suite_min_count
+    assert suite.max_count == 1
+    env_projection = next(
+        item
+        for item in regression_lineage.version_projection
+        if item.field == "env_contract_version"
+    )
+    assert env_projection.source == "producer_value"
+
+    primary_rule = next(item for item in policy.artifact_rules if item.rule_id == "primary")
+    primary_lineage = registry.get_lineage_policy(primary_rule.lineage_policy_ref)
+    assert primary_lineage is not None
+    primary_env = next(
+        item for item in primary_lineage.version_projection if item.field == "env_contract_version"
+    )
+    assert "regression" not in primary_env.equality_parent_roles
 
 
 def test_runtime_parent_rules_close_record_and_replay_cassette_scopes() -> None:
@@ -676,7 +737,6 @@ def test_profile_oracle_and_event_metadata_are_exactly_addressable() -> None:
             )
             is None
         )
-
     for definition in registry.list_run_kinds():
         requirements = registry.get_profile_requirements(
             RunKindRef(kind=definition.kind, version=definition.version)
@@ -716,6 +776,28 @@ def test_profile_oracle_and_event_metadata_are_exactly_addressable() -> None:
             )
             is None
         )
+
+
+def test_profile_definition_cannot_change_across_retained_catalogs() -> None:
+    registry = build_builtin_registry()
+    latest = registry.list_execution_profile_catalogs()[-1]
+    definitions = list(latest.definitions)
+    definitions[0] = definitions[0].model_copy(
+        update={"display_name": f"{definitions[0].display_name} conflicting"}
+    )
+    payload = {
+        "catalog_schema_version": latest.catalog_schema_version,
+        "catalog_version": latest.catalog_version + 1,
+        "definitions": definitions,
+        "lifecycle": latest.lifecycle,
+    }
+    conflicting = ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+    with pytest.raises(IntegrityViolation, match="conflicting retained history"):
+        registry.with_execution_profile_catalogs((conflicting,), replace=False)
 
 
 @dataclass(frozen=True, slots=True)

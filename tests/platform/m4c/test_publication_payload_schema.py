@@ -194,6 +194,77 @@ def test_checker_report_returns_a_canonical_typed_mapping() -> None:
     assert parsed == payload
 
 
+def test_checker_report_adds_profiled_standalone_variant_without_breaking_legacy_decode() -> None:
+    legacy = {
+        "payload_schema_version": "checker-report@1",
+        "snapshot_id": "snapshot:1",
+        "checker_ids": ["graph"],
+        "defect_classes": [],
+        "constraint_application": [],
+        "findings": [],
+    }
+    profiled = {
+        **legacy,
+        "checker_profile": {"profile_id": "checker", "version": 1},
+    }
+    exact = {
+        **profiled,
+        "constraint_snapshot_binding_status": "not_applicable",
+    }
+    assert validate_artifact_payload(payload_schema_id="checker-report@1", payload=legacy) == legacy
+    assert (
+        validate_artifact_payload(payload_schema_id="checker-report@1", payload=profiled)
+        == profiled
+    )
+    assert validate_artifact_payload(payload_schema_id="checker-report@1", payload=exact) == exact
+
+
+def test_checker_companion_requires_nonempty_structured_execution_binding() -> None:
+    payload = {
+        "payload_schema_version": "regression-evidence@1",
+        "requirement_id": "checker:checker@1",
+        "dimension": "checker",
+        "lineage_suite_artifact_ids": [],
+        "checker_profile": {"profile_id": "checker", "version": 1},
+        "checker_execution_bindings": [{"wrapper_id": "graph", "native_id": "graph"}],
+        "constraint_snapshot_binding_status": "not_applicable",
+        "snapshot_id": "snapshot:1",
+        "status": "passed",
+        "findings": [],
+    }
+    assert (
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=payload,
+        )
+        == payload
+    )
+
+    for field, forged_value in (
+        ("wrapper_id", ""),
+        ("native_id", ""),
+        ("wrapper_id", "   "),
+        ("native_id", "   "),
+        ("constraint_id", ""),
+        ("constraint_id", "   "),
+    ):
+        forged = {
+            **payload,
+            "checker_execution_bindings": [
+                {
+                    "wrapper_id": "graph",
+                    "native_id": "graph",
+                    field: forged_value,
+                }
+            ],
+        }
+        with pytest.raises(IntegrityViolation, match="exact registered schema"):
+            validate_artifact_payload(
+                payload_schema_id="regression-evidence@1",
+                payload=forged,
+            )
+
+
 def test_simulation_execution_binding_is_an_exact_closed_wire_shape() -> None:
     payload = _wire(
         {
@@ -227,6 +298,101 @@ def test_simulation_execution_binding_is_an_exact_closed_wire_shape() -> None:
     execution["worker_claim"] = "trusted"
     with pytest.raises(IntegrityViolation, match="exact registered schema"):
         validate_artifact_payload(payload_schema_id="simulation-result@1", payload=payload)
+
+
+def test_patch_simulation_companion_binds_mode_and_complete_subseed() -> None:
+    root_seed = 7
+    run_kind = RunKindRef(kind="patch.validate", version=1)
+    profile = ProfileRefV1(profile_id="sim", version=1)
+    case_id = "simulation:sim@1"
+    seed = derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=run_kind,
+        profile=profile,
+        case_id=case_id,
+        replication_index=0,
+    )
+    finding = Finding(
+        id="sim:economy-collapse",
+        source="sim",
+        producer_id="economy_sim",
+        producer_run_id="run:1",
+        oracle_type="simulation",
+        defect_class="economy_collapse",
+        severity="major",
+        snapshot_id="snapshot:1",
+        status="confirmed",
+        message="economy collapsed",
+    )
+    seed_binding = {
+        "root_seed": root_seed,
+        "run_kind": run_kind.model_dump(mode="json"),
+        "profile_id": profile.profile_id,
+        "profile_version": profile.version,
+        "case_id": case_id,
+        "replication_index": 0,
+        "seed": seed,
+        "seed_derivation_version": "subseed@1",
+    }
+    execution_binding = {
+        "binding_schema_version": "simulation-expected-finding-binding@1",
+        "producer_id": "economy_sim",
+        "simulation_profile": profile.model_dump(mode="json"),
+        "execution_mode": "single_population@1",
+        "seed_binding": seed_binding,
+        "constraint_snapshot_binding_status": "not_applicable",
+        "constraint_ids": [],
+        "constraint_application": {"status": "not_applicable"},
+        "n_agents": 6,
+        "n_ticks": 12,
+    }
+    payload = _wire(
+        {
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": case_id,
+            "dimension": "simulation",
+            "lineage_suite_artifact_ids": [],
+            "simulation_execution_binding": execution_binding,
+            "snapshot_id": finding.snapshot_id,
+            "status": "failed",
+            "findings": [finding.model_dump(mode="json")],
+            **seed_binding,
+        }
+    )
+    assert (
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=payload,
+        )
+        == payload
+    )
+
+    forged_mode = json.loads(json.dumps(payload))
+    forged_mode["simulation_execution_binding"]["execution_mode"] = "replication_ensemble@1"
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=forged_mode,
+        )
+
+    other_root_seed = root_seed + 1
+    other_seed = derive_validation_subseed(
+        root_seed=other_root_seed,
+        run_kind=run_kind,
+        profile=profile,
+        case_id=case_id,
+        replication_index=0,
+    )
+    forged_outer_seed = {
+        **payload,
+        "root_seed": other_root_seed,
+        "seed": other_seed,
+    }
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=forged_outer_seed,
+        )
 
 
 @pytest.mark.parametrize(
@@ -275,7 +441,7 @@ def test_ir_and_constraint_snapshots_use_their_real_version_discriminators() -> 
     constraint_payload = _wire(
         {
             "dsl_grammar_version": DSL_GRAMMAR_VERSION,
-            "constraints": [constraint.model_dump(mode="json")],
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
         }
     )
     assert (
@@ -291,6 +457,16 @@ def test_ir_and_constraint_snapshots_use_their_real_version_discriminators() -> 
         validate_artifact_payload(
             payload_schema_id="constraint-snapshot@1",
             payload=wrong_grammar,
+        )
+
+    internal_field_wire = {
+        **constraint_payload,
+        "constraints": [constraint.model_dump(mode="json")],
+    }
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(
+            payload_schema_id="constraint-snapshot@1",
+            payload=internal_field_wire,
         )
 
 
@@ -384,6 +560,53 @@ def test_regression_suite_evidence_requires_the_exact_unproven_reason() -> None:
         )
 
 
+def test_regression_lineage_suite_selector_matches_the_semantic_variant() -> None:
+    suite_payload = {
+        "payload_schema_version": "regression-evidence@1",
+        "suite_artifact_id": "artifact:suite",
+        "lineage_suite_artifact_ids": ["artifact:suite"],
+        "snapshot_id": "snapshot:1",
+        "status": "passed",
+    }
+    assert (
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=suite_payload,
+        )
+        == suite_payload
+    )
+    for forged in ([], ["artifact:other"], ["artifact:suite", "artifact:other"]):
+        with pytest.raises(IntegrityViolation, match="exact registered schema"):
+            validate_artifact_payload(
+                payload_schema_id="regression-evidence@1",
+                payload={**suite_payload, "lineage_suite_artifact_ids": forged},
+            )
+
+    dimension_payload = {
+        "payload_schema_version": "regression-evidence@1",
+        "requirement_id": "history",
+        "dimension": "history",
+        "lineage_suite_artifact_ids": [],
+        "status": "passed",
+        "detail": {"target_artifact_id": "artifact:target"},
+    }
+    assert (
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=dimension_payload,
+        )
+        == dimension_payload
+    )
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload={
+                **dimension_payload,
+                "lineage_suite_artifact_ids": ["artifact:suite"],
+            },
+        )
+
+
 def test_passed_regression_dimension_uses_the_canonical_omitted_reason() -> None:
     payload = {
         "payload_schema_version": "regression-evidence@1",
@@ -404,4 +627,38 @@ def test_passed_regression_dimension_uses_the_canonical_omitted_reason() -> None
         validate_artifact_payload(
             payload_schema_id="regression-evidence@1",
             payload={**payload, "status": "failed"},
+        )
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_regression_evidence_rejects_passed_status_with_confirmed_finding(
+    nested: bool,
+) -> None:
+    finding = _finding().model_dump(mode="json")
+    if nested:
+        payload = {
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "regression:fixture",
+            "dimension": "regression",
+            "status": "passed",
+            "detail": {
+                "target_artifact_id": "artifact:target",
+                "snapshot_id": "snapshot:1",
+                "findings": [finding],
+            },
+        }
+    else:
+        payload = {
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "checker:fixture@1",
+            "dimension": "checker",
+            "snapshot_id": "snapshot:1",
+            "status": "passed",
+            "findings": [finding],
+        }
+
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(
+            payload_schema_id="regression-evidence@1",
+            payload=payload,
         )

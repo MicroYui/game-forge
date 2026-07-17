@@ -1254,6 +1254,19 @@ def test_journey_b_rollback_happy_path_moves_ref_back(tmp_path: Path) -> None:
         validated = harness.load_item(approval_id)
         assert validated.status == "validated", validated.status
         assert validated.evidence_set_artifact_id is not None
+        evidence_response = maker.client.get(
+            f"/api/v1/artifacts/{validated.evidence_set_artifact_id}"
+        )
+        assert evidence_response.status_code == 200, evidence_response.text
+        evidence_payload = evidence_response.json()["payload"]
+        expected_evidence_ids = tuple(
+            sorted(
+                requirement["evidence_artifact_id"]
+                for requirement in evidence_payload["requirements"]
+            )
+        )
+        assert len(expected_evidence_ids) == 4
+        assert validated.regression_evidence_artifact_ids == expected_evidence_ids
 
         # A submits; B approves; B applies — the ref MOVES BACK to the base at a new revision.
         submit = maker.client.post(

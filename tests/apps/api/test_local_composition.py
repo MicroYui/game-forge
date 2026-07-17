@@ -15,7 +15,9 @@ from gameforge.apps.api.local import (
     LocalApiConfigurationError,
     _typed_playtest_payload_validators,
     create_local_app,
+    create_readiness_closed_local_app,
 )
+import gameforge.apps.api.local as local_module
 from gameforge.apps.cli.identity import (
     PASSWORD_HASH_POLICY_VERSION_ENV,
     ROLE_POLICY_DIGEST_ENV,
@@ -37,6 +39,7 @@ from gameforge.contracts.execution_profiles import (
     ProfileRefV1,
     execution_profile_catalog_digest,
 )
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.identity import (
     DomainDefinitionV1,
     DomainRegistryRefV1,
@@ -656,6 +659,39 @@ def test_local_composition_never_auto_migrates_authoritative_database(tmp_path) 
     engine = get_engine(database_url)
     assert "alembic_version" not in inspect(engine).get_table_names()
     engine.dispose()
+
+
+def test_local_api_readyz_runs_persistent_auto_apply_history_closure(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database_url = f"sqlite:///{tmp_path / 'auto-apply-readyz.db'}"
+    _seed_and_bootstrap(database_url)
+    seen: list[object] = []
+
+    def reject(registry, **resolvers) -> None:
+        seen.append(registry)
+        assert set(resolvers) == {
+            "policy_registries",
+            "domain_registries",
+            "oracle_registries",
+        }
+        raise IntegrityViolation("retained auto-apply history is unavailable")
+
+    monkeypatch.setattr(
+        local_module,
+        "ensure_worker_auto_apply_catalog_supported",
+        reject,
+    )
+    app = create_readiness_closed_local_app(config=_config(tmp_path, database_url))
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        response = client.get("/readyz")
+
+    assert response.status_code == 503
+    problem = Problem.model_validate(response.json())
+    assert problem.errors == ({"component": "registry"},)
+    assert len(seen) == 1
 
 
 def test_local_api_rejects_readiness_only_playtest_validator_sentinels() -> None:

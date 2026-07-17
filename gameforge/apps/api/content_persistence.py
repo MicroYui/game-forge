@@ -14,7 +14,11 @@ from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.lineage import ArtifactKind, ArtifactV1, ArtifactV2
 from gameforge.contracts.storage import PageCursorV1, PageV1, RefValue, UtcClock
-from gameforge.contracts.workflow import ApprovalItem, EvidenceSet
+from gameforge.contracts.workflow import (
+    ApprovalItem,
+    EvidenceSet,
+    regression_companion_evidence_ids,
+)
 from gameforge.platform.approvals.commands import EvidenceStateProjection
 from gameforge.platform.read_models.artifacts import (
     ArtifactPayloadReader,
@@ -244,15 +248,7 @@ class ApprovalEvidenceStateProjector:
         regression_requirements = tuple(
             requirement for requirement in evidence.requirements if requirement.kind == "regression"
         )
-        evidence_ids = tuple(
-            sorted(
-                {
-                    requirement.evidence_artifact_id
-                    for requirement in regression_requirements
-                    if requirement.evidence_artifact_id is not None
-                }
-            )
-        )
+        evidence_ids = regression_companion_evidence_ids(evidence)
         if evidence_ids != item.regression_evidence_artifact_ids:
             raise IntegrityViolation(
                 "ApprovalItem regression evidence differs from its EvidenceSet",

@@ -524,7 +524,9 @@ def constraint_prepared(
         lease_id="lease:constraint:1",
         fencing_token=9,
         payload=payload,
-        resolved_profiles=tuple(sorted((compiler_binding, validation_binding), key=lambda v: v.field_path)),
+        resolved_profiles=tuple(
+            sorted((compiler_binding, validation_binding), key=lambda v: v.field_path)
+        ),
     )
     candidate = None
     compile_status = "failed"
@@ -627,9 +629,7 @@ def constraint_prepared(
                 applicability="required",
                 status=outcome,  # type: ignore[arg-type]
                 evidence_artifact_id=regression.artifact_id,
-                reason_code=(
-                    "regression_unproven" if outcome == "unproven" else None
-                ),
+                reason_code=("regression_unproven" if outcome == "unproven" else None),
                 tool_version="regression@1",
             )
         )
@@ -956,7 +956,7 @@ def harness(
         SubjectHead,
         tuple[ArtifactV2, ...],
         ResolvedValidationProfiles,
-    ]
+    ],
 ) -> Harness:
     prepared, item, head, retained, resolution = fixture
     state = State(

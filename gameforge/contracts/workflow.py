@@ -9,6 +9,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    JsonValue,
     StringConstraints,
     field_validator,
     model_validator,
@@ -57,6 +58,72 @@ _ARTIFACT_KIND_ORDER = {value: index for index, value in enumerate(get_args(Arti
 # solver domain does not apply to the candidate (a sound, non-attesting outcome —
 # never a forged skip of a real check).
 _DIFFERENTIAL_NOT_APPLICABLE_REASONS: frozenset[str] = frozenset({"engine_domain_not_applicable"})
+
+# Versioned semantic allowlist for newly published ``constraint-compile-evidence@1``.
+# Historical V1 payloads remain structurally readable; terminal publication binds
+# new evidence to this exact list so an arbitrary worker string cannot become
+# authoritative audit evidence.
+CONSTRAINT_COMPILE_REASON_CODES_V1: frozenset[tuple[str, str, str | None, str]] = frozenset(
+    {
+        ("parse", "failed", None, "empty_assert_expression"),
+        ("parse", "failed", None, "assert_parse_error"),
+        ("typecheck", "failed", None, "empty_constraint_candidate"),
+        ("typecheck", "failed", None, "dsl_grammar_version_mismatch"),
+        ("typecheck", "failed", None, "selector_scope_ambiguous"),
+        ("typecheck", "failed", None, "selector_node_type_invalid"),
+        ("typecheck", "unproven", None, "execution_short_circuited"),
+        ("typecheck", "unproven", None, "llm_assisted_predicate_deferred"),
+        ("compile", "unproven", None, "execution_short_circuited"),
+        ("differential", "failed", "*", "candidate_inconsistent"),
+        ("differential", "unproven", "*", "execution_short_circuited"),
+        ("differential", "unproven", "*", "engine_unavailable"),
+        ("differential", "unproven", "*", "engine_identity_mismatch"),
+        ("differential", "unproven", "*", "engine_reported_no_coverage"),
+        ("differential", "unproven", "*", "engine_reported_invalid_coverage"),
+        (
+            "differential",
+            "unproven",
+            "*",
+            "candidate_independent_coverage_incomplete",
+        ),
+        ("differential", "not_applicable", "*", "engine_domain_not_applicable"),
+        ("golden", "failed", None, "golden_suite_failed"),
+        ("golden", "unproven", None, "execution_short_circuited"),
+        ("golden", "unproven", None, "golden_runner_unavailable"),
+        ("golden", "unproven", None, "golden_suite_unproven"),
+        ("golden", "not_applicable", None, "golden_suite_absent"),
+    }
+    | {
+        ("differential", "unproven", engine_id, f"{prefix}_{reason}")
+        for engine_id, prefix in (("clingo", "clingo"), ("graph-reference", "graph_reference"))
+        for reason in (
+            "predicate_unsupported",
+            "reference_budget_exhausted",
+            "compiled_checker_unproven",
+        )
+    }
+    | {
+        ("differential", "unproven", "z3", reason)
+        for reason in (
+            "z3_parse_error",
+            "z3_non_boolean_predicate",
+            "z3_cannot_bind_predicate",
+            "z3_budget_exhausted",
+            "z3_numeric_witness_unsupported",
+            "z3_numeric_witness_selector_unsupported",
+            "z3_numeric_compiled_checker_unproven",
+        )
+    }
+    | {
+        ("differential", "unproven", "numeric-reference", reason)
+        for reason in (
+            "numeric_reference_parse_error",
+            "numeric_reference_unsupported_predicate",
+            "numeric_reference_witness_selector_unsupported",
+            "numeric_reference_compiled_checker_unproven",
+        )
+    }
+)
 
 
 class _FrozenModel(BaseModel):
@@ -182,6 +249,9 @@ ApprovalStatus = Literal[
     "rolled_back",
     "superseded",
 ]
+
+
+CONSTRAINT_COMPILE_REQUIREMENT_KIND = "constraint_compile"
 
 
 class EvidenceRequirement(_FrozenModel):
@@ -313,6 +383,24 @@ class EvidenceSet(_FrozenModel):
         if self.overall_status != expected:
             raise ValueError(f"overall_status must be {expected} for requirement dispositions")
         return self
+
+
+def regression_companion_evidence_ids(evidence: EvidenceSet) -> tuple[str, ...]:
+    """Artifact ids published by a validation outcome's ``regression`` rule.
+
+    Requirement ``kind`` describes the semantic dimension (history, schema,
+    impact, regression, ...), not the terminal artifact rule. Constraint compile
+    evidence is the sole separate companion rule and is therefore excluded.
+    """
+
+    return tuple(
+        sorted(
+            requirement.evidence_artifact_id
+            for requirement in evidence.requirements
+            if requirement.evidence_artifact_id is not None
+            and requirement.kind != CONSTRAINT_COMPILE_REQUIREMENT_KIND
+        )
+    )
 
 
 class ConstraintCompileStageV1(_FrozenModel):
@@ -859,6 +947,95 @@ class AutoApplyOutcomeEvidenceBindingV1(_FrozenModel):
     evidence_payload_hash: LowerHexSha256
 
 
+class AutoApplyEvidenceContextV1(_FrozenModel):
+    """Exact subject/target/scope projection sealed into qualified evidence.
+
+    ``regression-evidence@1`` is the common deterministic validation wire.  This
+    nested projection lets the production auto-apply decoder prove that the exact
+    hashed evidence (rather than process-local evaluator state) names the Patch,
+    preview, affected scope, authority, and complete direct-parent lineage it
+    evaluated.  Oracle/rule identity remains registry authority and is bound by
+    :class:`AutoApplyProofV1`.
+    """
+
+    context_schema_version: Literal["auto-apply-evidence-context@1"] = (
+        "auto-apply-evidence-context@1"
+    )
+    subject_artifact_id: NonEmptyStr
+    subject_digest: LowerHexSha256
+    target_binding: PatchTargetBindingV1
+    evaluated_domain_scope: DomainScope
+    verdict_authority: Literal["deterministic"] = "deterministic"
+    direct_parent_artifact_ids: tuple[NonEmptyStr, ...]
+
+    @field_validator("direct_parent_artifact_ids")
+    @classmethod
+    def _canonical_direct_parents(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        canonical = _stable_unique_strings(value)
+        if len(canonical) != len(value):
+            raise ValueError("auto-apply evidence parents must be unique")
+        return canonical
+
+    @model_validator(mode="after")
+    def _required_parents(self) -> AutoApplyEvidenceContextV1:
+        required = {
+            self.subject_artifact_id,
+            self.target_binding.target_artifact_id,
+        }
+        if not required.issubset(self.direct_parent_artifact_ids):
+            raise ValueError("auto-apply evidence must directly bind subject and target")
+        return self
+
+
+class AutoApplyOracleAttestationV1(_FrozenModel):
+    """Deterministic executor claim sealed into the exact evidence payload."""
+
+    attestation_schema_version: Literal["auto-apply-oracle-attestation@1"] = (
+        "auto-apply-oracle-attestation@1"
+    )
+    oracle: DeterministicOracleRefV1
+    engine_kind: Literal["graph", "asp", "smt", "simulation", "playtest_completion"]
+    engine_id: NonEmptyStr
+    engine_version: NonEmptyStr
+    tool_version: NonEmptyStr
+    predicate_schema_id: NonEmptyStr
+    predicate: dict[str, JsonValue] = Field(min_length=1)
+    evaluated_domain_scope: DomainScope
+    verdict: Literal["passed", "failed", "unproven"]
+    verdict_authority: Literal["deterministic"] = "deterministic"
+    direct_parent_artifact_ids: tuple[NonEmptyStr, ...]
+
+    @field_validator("direct_parent_artifact_ids")
+    @classmethod
+    def _canonical_parents(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        canonical = _stable_unique_strings(value)
+        if len(canonical) != len(value):
+            raise ValueError("oracle attestation parents must be unique")
+        return canonical
+
+
+class AutoApplyOutcomeAttestationV1(_FrozenModel):
+    """Qualified Run-frozen outcome claim sealed into exact evidence bytes."""
+
+    attestation_schema_version: Literal["auto-apply-outcome-attestation@1"] = (
+        "auto-apply-outcome-attestation@1"
+    )
+    rule: QualifiedOutcomeRuleRefV1
+    requirement_id: NonEmptyStr
+    evaluated_domain_scope: DomainScope
+    verdict: Literal["passed", "failed", "unproven"]
+    verdict_authority: Literal["deterministic"] = "deterministic"
+    direct_parent_artifact_ids: tuple[NonEmptyStr, ...]
+
+    @field_validator("direct_parent_artifact_ids")
+    @classmethod
+    def _canonical_parents(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        canonical = _stable_unique_strings(value)
+        if len(canonical) != len(value):
+            raise ValueError("outcome attestation parents must be unique")
+        return canonical
+
+
 class AutoApplyProofV1(_FrozenModel):
     proof_schema_version: Literal["auto-apply-proof@1"] = "auto-apply-proof@1"
     subject_artifact_id: NonEmptyStr
@@ -1126,6 +1303,9 @@ __all__ = [
     "ApprovalTargetBinding",
     "AutoApplyOracleEvidenceBindingV1",
     "AutoApplyOutcomeEvidenceBindingV1",
+    "AutoApplyEvidenceContextV1",
+    "AutoApplyOracleAttestationV1",
+    "AutoApplyOutcomeAttestationV1",
     "AutoApplyPolicyRefV1",
     "AutoApplyPolicyRegistryRefV1",
     "AutoApplyPolicyRegistryV1",
@@ -1134,6 +1314,8 @@ __all__ = [
     "AutoApplyProofV1",
     "AutoApplyValidationProfileBindingV1",
     "ConstraintCompileEvidenceV1",
+    "CONSTRAINT_COMPILE_REQUIREMENT_KIND",
+    "CONSTRAINT_COMPILE_REASON_CODES_V1",
     "ConstraintCompileStageV1",
     "ConstraintProposalV1",
     "ConstraintSourceBinding",
@@ -1156,4 +1338,5 @@ __all__ = [
     "compute_auto_apply_policy_registry_digest",
     "compute_deterministic_oracle_digest",
     "compute_deterministic_oracle_registry_digest",
+    "regression_companion_evidence_ids",
 ]

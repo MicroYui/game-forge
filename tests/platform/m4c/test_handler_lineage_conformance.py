@@ -76,7 +76,14 @@ _RUN_INPUTS: dict[str, tuple[str, str]] = {
     patch_val_mod.SUBJECT_ID: ("patch", "patch@2"),
     patch_val_mod.PREVIEW_ID: ("ir_snapshot", "ir-core@1"),
     constraint_val_mod.SUBJECT_ID: ("constraint_proposal", "constraint-proposal@1"),
+    constraint_val_mod.BASE_ID: ("constraint_snapshot", "constraint-snapshot@1"),
+    constraint_val_mod.REGRESSION_SUITE_ID: (
+        "regression_suite",
+        "regression-suite@1",
+    ),
     rollback_val_mod.SUBJECT_ID: ("rollback_request", "rollback-request@1"),
+    rollback_val_mod.TARGET_ID: ("ir_snapshot", "ir-core@1"),
+    rollback_val_mod._EXPECTED_REF.artifact_id: ("ir_snapshot", "ir-core@1"),
 }
 
 

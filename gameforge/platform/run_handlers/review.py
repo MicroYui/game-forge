@@ -25,7 +25,11 @@ from typing import Callable, Protocol
 
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.execution_profiles import (
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     MAX_PREPARED_FINDINGS,
@@ -34,7 +38,7 @@ from gameforge.contracts.jobs import (
     ReviewRunPayloadV1,
 )
 from gameforge.contracts.review import ReviewReport
-from gameforge.spine.checkers.base import Checker
+from gameforge.spine.checkers.base import Checker, CheckerExecutionBinding
 from gameforge.spine.checkers.report import build_review_report
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import NavProvider
@@ -51,6 +55,7 @@ from gameforge.platform.run_handlers.base import (
     build_success_result,
     prepared_version_tuple,
     rebind_finding_producers,
+    resolved_profile,
     scoped_finding_series_id,
     store_prepared_artifact,
 )
@@ -59,6 +64,7 @@ from gameforge.platform.run_handlers.checker import (
     default_checker_execution_policy,
     filter_findings_by_selection,
     navigation_unproven_findings,
+    validate_checker_output_policy,
     validate_checker_execution_policy,
 )
 from gameforge.platform.run_handlers.model_routing import (
@@ -119,17 +125,23 @@ class ReviewExecutionConfig:
     max_total_prepared_artifact_bytes: int = 128 * 1024 * 1024
 
 
-CheckerResolver = Callable[[ProfileRefV1, list[Constraint]], Checker]
-SimConfigResolver = Callable[[ProfileRefV1], ReviewSimConfig]
-ReviewExecutionConfigResolver = Callable[[ProfileRefV1], ReviewExecutionConfig]
+CheckerResolver = Callable[[ResolvedExecutionProfileBindingV1, list[Constraint]], Checker]
+SimConfigResolver = Callable[[ResolvedExecutionProfileBindingV1], ReviewSimConfig]
+ReviewExecutionConfigResolver = Callable[[ResolvedExecutionProfileBindingV1], ReviewExecutionConfig]
 
 
-def default_review_execution_config(_profile: ProfileRefV1) -> ReviewExecutionConfig:
+def default_review_execution_config(
+    _binding: ResolvedExecutionProfileBindingV1,
+) -> ReviewExecutionConfig:
     return ReviewExecutionConfig()
 
 
 class _CheckerResolverProto(Protocol):
-    def __call__(self, profile: ProfileRefV1, constraints: list[Constraint]) -> Checker: ...
+    def __call__(
+        self,
+        binding: ResolvedExecutionProfileBindingV1,
+        constraints: list[Constraint],
+    ) -> Checker: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -164,7 +176,13 @@ class ReviewRunHandler:
             )
         if payload.simulation_profiles and payload.selection.mode != "full":
             raise IntegrityViolation("review simulation profiles require full graph selection")
-        execution_config = self.execution_config_resolver(payload.review_profile)
+        review_binding = _require_exact_profile_binding(
+            context,
+            field_path="/params/review_profile",
+            profile=payload.review_profile,
+            profile_kind="review",
+        )
+        execution_config = self.execution_config_resolver(review_binding)
         if (
             len(payload.checker_profiles) > execution_config.max_checker_profile_count
             or len(payload.simulation_profiles) > execution_config.max_simulation_profile_count
@@ -184,7 +202,13 @@ class ReviewRunHandler:
 
         snapshot = self.snapshot_loader(self.blobs, payload.snapshot_artifact_id)
         constraints = self._constraints(payload)
-        self._validate_checker_budgets(payload, snapshot, constraints, execution_config)
+        self._validate_checker_budgets(
+            context,
+            payload,
+            snapshot,
+            constraints,
+            execution_config,
+        )
         nav = self.nav_loader(self.blobs, payload.snapshot_artifact_id)
         lineage = _snapshot_lineage(payload)
 
@@ -284,6 +308,7 @@ class ReviewRunHandler:
 
     def _validate_checker_budgets(
         self,
+        context: ExecutorContextLike,
         payload: ReviewRunPayloadV1,
         snapshot: Snapshot,
         constraints: list[Constraint],
@@ -291,8 +316,14 @@ class ReviewRunHandler:
     ) -> None:
         total_work = 0
         aggregate_limit = execution_config.max_total_checker_work_units
-        for profile in payload.checker_profiles:
-            policy = self.checker_execution_policy_resolver(profile)
+        for index, profile in enumerate(payload.checker_profiles):
+            binding = _require_exact_profile_binding(
+                context,
+                field_path=f"/params/checker_profiles/{index}",
+                profile=profile,
+                profile_kind="checker",
+            )
+            policy = self.checker_execution_policy_resolver(binding)
             total_work += validate_checker_execution_policy(
                 checker_ids=("graph",),
                 defect_classes=(),
@@ -321,15 +352,28 @@ class ReviewRunHandler:
         artifacts: list[PreparedArtifact] = []
         checkers: list[Checker] = []
         evidence: list[FindingEvidence] = []
-        for profile in payload.checker_profiles:
-            checker = self.checker_resolver(profile, constraints)
+        for index, profile in enumerate(payload.checker_profiles):
+            binding = _require_exact_profile_binding(
+                context,
+                field_path=f"/params/checker_profiles/{index}",
+                profile=profile,
+                profile_kind="checker",
+            )
+            checker = self.checker_resolver(binding, constraints)
+            execution_bindings = _trusted_checker_execution_bindings(checker, constraints)
             checkers.append(checker)
             profile_findings = checker.check(snapshot, nav=nav)
             profile_findings.extend(navigation_unproven_findings(snapshot, nav))
+            if len(findings) + len(profile_findings) > MAX_PREPARED_FINDINGS:
+                raise IntegrityViolation("review findings exceed the frozen output bound")
             _require_checker_finding_authority(
                 profile_findings,
                 snapshot_id=snapshot.snapshot_id,
                 constraints=constraints,
+            )
+            validate_checker_output_policy(
+                profile_findings,
+                policy=self.checker_execution_policy_resolver(binding),
             )
             profile_findings = filter_findings_by_selection(
                 profile_findings, payload.selection, snapshot
@@ -362,7 +406,11 @@ class ReviewRunHandler:
                     ),
                     lineage=lineage,
                     payload=_profile_checker_payload(
-                        profile, snapshot.snapshot_id, profile_findings
+                        profile,
+                        snapshot.snapshot_id,
+                        profile_findings,
+                        execution_bindings=execution_bindings,
+                        constraint_snapshot_artifact_id=(payload.constraint_snapshot_artifact_id),
                     ),
                 )
             )
@@ -394,8 +442,14 @@ class ReviewRunHandler:
         resolved_configs: list[tuple[ProfileRefV1, ReviewSimConfig]] = []
         total_work_units = 0
         aggregate_limit = execution_config.max_total_simulation_work_units
-        for profile in payload.simulation_profiles:
-            config = self.sim_config_resolver(profile)
+        for index, profile in enumerate(payload.simulation_profiles):
+            binding = _require_exact_profile_binding(
+                context,
+                field_path=f"/params/simulation_profiles/{index}",
+                profile=profile,
+                profile_kind="simulation",
+            )
+            config = self.sim_config_resolver(binding)
             total_work_units += validate_economy_simulation_work_budget(
                 model,
                 n_agents=config.n_agents,
@@ -549,6 +603,82 @@ def _snapshot_lineage(payload: ReviewRunPayloadV1) -> tuple[str, ...]:
     return tuple(lineage)
 
 
+def _require_exact_profile_binding(
+    context: ExecutorContextLike,
+    *,
+    field_path: str,
+    profile: ProfileRefV1,
+    profile_kind: str,
+) -> ResolvedExecutionProfileBindingV1:
+    """Bind execution to the exact catalog member frozen on this Run."""
+
+    binding = resolved_profile(context.payload, field_path)
+    if binding is None:  # pragma: no cover - ``required=True`` above
+        raise IntegrityViolation("review execution profile binding is unavailable")
+    if (
+        binding.profile != profile
+        or binding.expected_profile_kind != profile_kind
+        or binding.catalog_version != context.payload.execution_profile_catalog_version
+        or binding.catalog_digest != context.payload.execution_profile_catalog_digest
+    ):
+        raise IntegrityViolation(
+            "review execution profile differs from its exact Run binding",
+            field_path=field_path,
+        )
+    return binding
+
+
+def _trusted_checker_execution_bindings(
+    checker: Checker,
+    constraints: list[Constraint],
+) -> tuple[CheckerExecutionBinding, ...]:
+    """Close a review companion over every deterministic executor actually run."""
+
+    raw = getattr(checker, "executed_checker_bindings", None)
+    if raw is None:
+        checker_id = getattr(checker, "id", None)
+        if constraints:
+            raise IntegrityViolation(
+                "constrained review checker omitted trusted execution bindings"
+            )
+        raw = (
+            (
+                CheckerExecutionBinding(
+                    wrapper_id=checker_id,
+                    native_id=checker_id,
+                    constraint_id=None,
+                ),
+            )
+            if isinstance(checker_id, str) and checker_id
+            else ()
+        )
+    if not isinstance(raw, tuple) or any(
+        not isinstance(value, CheckerExecutionBinding) for value in raw
+    ):
+        raise IntegrityViolation("review checker returned malformed execution bindings")
+    ordered = tuple(
+        sorted(
+            set(raw),
+            key=lambda item: (
+                item.native_id,
+                item.constraint_id or "",
+                item.wrapper_id,
+            ),
+        )
+    )
+    if not ordered and not constraints:
+        raise IntegrityViolation("review checker omitted trusted execution bindings")
+    deterministic_constraint_ids = {
+        constraint.id for constraint in constraints if not constraint.has_llm_predicate()
+    }
+    scoped = tuple(item.constraint_id for item in ordered if item.constraint_id is not None)
+    if len(scoped) != len(set(scoped)) or set(scoped) != deterministic_constraint_ids:
+        raise IntegrityViolation(
+            "review checker execution bindings differ from the exact deterministic constraints"
+        )
+    return ordered
+
+
 def _scope_profile_finding(profile: ProfileRefV1, finding: Finding) -> Finding:
     """Give each profile execution its own stable Finding series identity."""
 
@@ -645,14 +775,43 @@ def _require_finding_authority(
 
 
 def _profile_checker_payload(
-    profile: ProfileRefV1, snapshot_id: str, findings: list[Finding]
+    profile: ProfileRefV1,
+    snapshot_id: str,
+    findings: list[Finding],
+    *,
+    execution_bindings: tuple[CheckerExecutionBinding, ...],
+    constraint_snapshot_artifact_id: str | None,
 ) -> dict[str, object]:
-    return {
+    payload: dict[str, object] = {
         "payload_schema_version": CHECKER_REPORT_SCHEMA_ID,
         "profile": profile.model_dump(mode="json"),
+        "checker_profile": profile.model_dump(mode="json"),
+        "checker_execution_bindings": [
+            {
+                "wrapper_id": item.wrapper_id,
+                "native_id": item.native_id,
+                "constraint_id": item.constraint_id,
+            }
+            for item in execution_bindings
+        ],
+        "constraint_snapshot_binding_status": (
+            "not_applicable" if constraint_snapshot_artifact_id is None else "bound"
+        ),
         "snapshot_id": snapshot_id,
+        "constraint_application": [
+            {
+                "constraint_id": item.constraint_id,
+                "checker_id": item.native_id,
+                "status": "executed",
+            }
+            for item in execution_bindings
+            if item.constraint_id is not None
+        ],
         "findings": [finding.model_dump(mode="json") for finding in findings],
     }
+    if constraint_snapshot_artifact_id is not None:
+        payload["constraint_snapshot_artifact_id"] = constraint_snapshot_artifact_id
+    return payload
 
 
 def _profile_sim_payload(

@@ -26,12 +26,18 @@ from gameforge.apps.worker.app import (
 )
 import gameforge.apps.worker.dispatch as worker_dispatch
 from gameforge.apps.worker.artifact_replay_bridge import ArtifactReplayModelBridge
+from gameforge.apps.worker.auto_apply import RegistryResolvedAutoApplyEvaluator
+from gameforge.apps.worker.rollback_validation import (
+    DeterministicRollbackImpactAnalyzer,
+    ExactRollbackSchemaAnalyzer,
+)
 from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.apps.worker.replay import LegacyArtifactReplaySource
+from gameforge.apps.worker.regression import WorkerRegressionRunner
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import ExecutorContext
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.dsl import Constraint
+from gameforge.contracts.dsl import Constraint, Predicate
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileCatalogSnapshotV1,
     ExecutionProfileLifecycleV1,
@@ -55,6 +61,9 @@ from gameforge.contracts.jobs import (
 from gameforge.platform.registry import TrustedComponentMaps
 from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
+from gameforge.platform.run_handlers.constraint_validation import ConstraintValidationHandler
+from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
+from gameforge.platform.run_handlers.rollback_validation import RollbackValidationHandler
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.persistence.engine import get_engine
@@ -180,6 +189,42 @@ def test_production_checker_resolver_rejects_constraint_cap_before_compilation(
         resolver(ProfileRefV1(profile_id="builtin.checker", version=1), constraints)
 
 
+def test_production_checker_resolver_exposes_only_deterministic_structured_bindings() -> None:
+    resolver = worker_components._build_checker_resolver(build_builtin_registry())
+    constraints = [
+        Constraint(
+            id="C_cap",
+            kind="numeric",
+            oracle="deterministic",
+            **{"assert": "reward_gold <= 80"},
+            severity="major",
+        ),
+        Constraint(
+            id="C_llm",
+            kind="narrative",
+            oracle="mixed",
+            predicates=(Predicate(expr="semantic_consistency(story)", oracle="llm-assisted"),),
+            **{"assert": "continuity_consistent"},
+            severity="major",
+        ),
+    ]
+
+    group = resolver(
+        ProfileRefV1(profile_id="builtin.checker", version=1),
+        constraints,
+    )
+
+    assert {
+        (binding.wrapper_id, binding.native_id, binding.constraint_id)
+        for binding in group.executed_checker_bindings
+    } == {
+        ("graph", "graph", None),
+        ("compiled:smt:C_cap", "smt", "C_cap"),
+    }
+    assert group.executed_checker_ids == ("graph",)
+    assert all(binding.native_id != "llm-routed" for binding in group.executed_checker_bindings)
+
+
 def test_entrypoint_requires_real_configuration_not_a_placeholder(monkeypatch) -> None:
     # The placeholder "not configured" RuntimeError is gone: main() now performs
     # real composition and fails closed on missing configuration instead.
@@ -276,11 +321,37 @@ def test_build_worker_process_requires_exact_model_authorities_for_readiness(
     migrations_api.upgrade(config.database_url, "head")
     process = build_worker_process(config)
     try:
-        with pytest.raises(WorkerConfigurationError, match="model execution authority"):
-            validate_worker_readiness(process.runtime)
         assert isinstance(process.dispatcher, RunDispatcher)
         assert len(process.components.executors) == 14
         assert "checker_runner@1" in process.components.executors
+        with pytest.raises(WorkerConfigurationError, match="model execution authority"):
+            validate_worker_readiness(process.runtime)
+    finally:
+        process.close()
+
+
+def test_worker_composition_closes_all_validation_execution_ports(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    process = build_worker_process(config)
+    try:
+        rollback = process.components.executors["rollback_validator@1"]
+        patch = process.components.executors["patch_validator@1"]
+        constraint = process.components.executors["constraint_validator@1"]
+
+        assert isinstance(rollback, RollbackValidationHandler)
+        assert isinstance(patch, PatchValidationHandler)
+        assert isinstance(constraint, ConstraintValidationHandler)
+        assert isinstance(
+            patch.auto_apply_evaluator,
+            RegistryResolvedAutoApplyEvaluator,
+        )
+        assert isinstance(rollback.schema_analyzer, ExactRollbackSchemaAnalyzer)
+        assert isinstance(rollback.impact_analyzer, DeterministicRollbackImpactAnalyzer)
+        assert rollback.regression_runner is patch.regression_runner
+        assert rollback.regression_runner is constraint.regression_runner
+        assert isinstance(constraint.regression_runner, WorkerRegressionRunner)
+        assert not hasattr(rollback, "worker_readiness_blocker")
     finally:
         process.close()
 
@@ -454,6 +525,41 @@ def test_worker_registry_rejects_persisted_same_version_catalog_conflict(
     engine = get_engine(config.database_url)
     try:
         with pytest.raises(IntegrityViolation, match="conflicting history"):
+            build_worker_registry(engine)
+    finally:
+        engine.dispose()
+
+
+def test_worker_registry_rejects_fresh_db_later_catalog_with_changed_profile_definition(
+    tmp_path: Path,
+) -> None:
+    config = _config(tmp_path)
+    migrations_api.upgrade(config.database_url, "head")
+    latest = build_builtin_registry().list_execution_profile_catalogs()[-1]
+    definitions = list(latest.definitions)
+    definitions[0] = definitions[0].model_copy(
+        update={"display_name": f"{definitions[0].display_name} conflicting"}
+    )
+    payload = {
+        "catalog_schema_version": latest.catalog_schema_version,
+        "catalog_version": latest.catalog_version + 1,
+        "definitions": definitions,
+        "lifecycle": tuple(
+            lifecycle.model_copy(update={"revision": 1}) for lifecycle in latest.lifecycle
+        ),
+    }
+    conflicting = ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+    # The SQL repository has no earlier same-ProfileRef definition in this fresh
+    # database. The composed process registry must still compare it with built-in
+    # history rather than letting the later catalog redefine that semantic id.
+    _persist_catalogs(config.database_url, (conflicting,))
+
+    engine = get_engine(config.database_url)
+    try:
+        with pytest.raises(IntegrityViolation, match="conflicting retained history"):
             build_worker_registry(engine)
     finally:
         engine.dispose()

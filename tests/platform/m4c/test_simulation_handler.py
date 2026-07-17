@@ -224,6 +224,7 @@ def test_simulation_result_payload_is_bounded_to_verdicts() -> None:
     assert {"invariants", "sensitivity", "findings", "seed"} <= set(payload)
     assert "avg_balance_per_tick" not in payload
     assert payload["seed"] == 7
+    assert payload["profile"] == {"profile_id": "sim", "version": 1}
     assert payload["sensitivity"]["execution_binding"] == {
         "simulation_profile": {"profile_id": "sim", "version": 1},
         "workload_profile": {"profile_id": "wl", "version": 1},

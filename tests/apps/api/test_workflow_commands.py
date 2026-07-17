@@ -15,6 +15,9 @@ from gameforge.contracts.config_export import (
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.ir import Entity, NodeType
 from gameforge.platform.registry import build_builtin_registry
+from gameforge.platform.run_handlers.constraint_validation import (
+    BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
+)
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.models import ArtifactRow
@@ -525,6 +528,7 @@ def test_patch_validate_without_admission_fails_closed(tmp_path: Path) -> None:
         "subject_digest": "1" * 64,
         "base_snapshot_artifact_id": harness.base_artifact_id,
         "preview_snapshot_artifact_id": harness.base_artifact_id,
+        "constraint_snapshot_artifact_id": None,
         "candidate_config_export_artifact_ids": [],
         "target": {
             "ref_name": "content/head",
@@ -533,6 +537,7 @@ def test_patch_validate_without_admission_fails_closed(tmp_path: Path) -> None:
         "validation_policy": {"profile_id": "validation.patch", "version": 1},
         "checker_profiles": [],
         "simulation_profiles": [],
+        "expected_findings": [],
         "findings": [],
         "review_artifact_ids": [],
         "playtest_trace_artifact_ids": [],
@@ -562,6 +567,7 @@ def test_patch_validate_with_admission_returns_accepted_run(tmp_path: Path) -> N
         "subject_digest": "1" * 64,
         "base_snapshot_artifact_id": harness.base_artifact_id,
         "preview_snapshot_artifact_id": harness.base_artifact_id,
+        "constraint_snapshot_artifact_id": "artifact:constraint:exact",
         "candidate_config_export_artifact_ids": [],
         "target": {
             "ref_name": "content/head",
@@ -570,7 +576,22 @@ def test_patch_validate_with_admission_returns_accepted_run(tmp_path: Path) -> N
         "validation_policy": {"profile_id": "validation.patch", "version": 1},
         "checker_profiles": [],
         "simulation_profiles": [],
-        "findings": [],
+        "expected_findings": [
+            {
+                "finding_id": "finding:expected",
+                "finding_revision": 1,
+                "evidence_artifact_id": "artifact:evidence:expected",
+                "finding_digest": "a" * 64,
+            }
+        ],
+        "findings": [
+            {
+                "finding_id": "finding:target",
+                "finding_revision": 2,
+                "evidence_artifact_id": "artifact:evidence:target",
+                "finding_digest": "b" * 64,
+            }
+        ],
         "review_artifact_ids": [],
         "playtest_trace_artifact_ids": [],
         "regression_suite_artifact_ids": [],
@@ -590,7 +611,13 @@ def test_patch_validate_with_admission_returns_accepted_run(tmp_path: Path) -> N
         )
     assert response.status_code == 202, response.text
     assert response.json()["run_id"].startswith("run:patch.validate:")
-    assert harness.admission.calls[-1]["idempotency_key"] == "patch:validate:2"
+    call = harness.admission.calls[-1]
+    assert call["idempotency_key"] == "patch:validate:2"
+    assert call["request"].constraint_snapshot_artifact_id == "artifact:constraint:exact"
+    assert tuple(item.finding_id for item in call["request"].expected_findings) == (
+        "finding:expected",
+    )
+    assert tuple(item.finding_id for item in call["request"].findings) == ("finding:target",)
 
 
 def test_all_validation_routes_reject_etag_for_another_subject(tmp_path: Path) -> None:
@@ -613,6 +640,7 @@ def test_all_validation_routes_reject_etag_for_another_subject(tmp_path: Path) -
                 **common,
                 "base_snapshot_artifact_id": harness.base_artifact_id,
                 "preview_snapshot_artifact_id": harness.base_artifact_id,
+                "constraint_snapshot_artifact_id": None,
                 "candidate_config_export_artifact_ids": [],
                 "target": {
                     "ref_name": "content/head",
@@ -621,6 +649,7 @@ def test_all_validation_routes_reject_etag_for_another_subject(tmp_path: Path) -
                 "validation_policy": {"profile_id": "validation.patch", "version": 1},
                 "checker_profiles": [],
                 "simulation_profiles": [],
+                "expected_findings": [],
                 "findings": [],
                 "review_artifact_ids": [],
                 "playtest_trace_artifact_ids": [],
@@ -643,8 +672,8 @@ def test_all_validation_routes_reject_etag_for_another_subject(tmp_path: Path) -
                 "dsl_grammar_version": "dsl@1",
                 "compiler_profile": {"profile_id": "compiler", "version": 1},
                 "differential_engines": [
-                    {"engine_id": "clingo", "version": 1},
-                    {"engine_id": "z3", "version": 1},
+                    item.model_dump(mode="json")
+                    for item in BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1
                 ],
                 "golden_suite_artifact_id": None,
                 "regression_suite_artifact_ids": [],

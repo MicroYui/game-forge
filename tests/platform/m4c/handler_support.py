@@ -36,9 +36,11 @@ from gameforge.contracts.jobs import (
     resolved_policy_snapshot_digest,
 )
 from gameforge.contracts.lineage import (
+    ArtifactV2,
     AuditActor,
     ObjectLocation,
     VersionTuple,
+    artifact_id_v2_for,
     object_ref_for_bytes,
 )
 from gameforge.contracts.identity import DomainScope
@@ -56,6 +58,7 @@ class FakeArtifactStore:
 
     def __init__(self) -> None:
         self._by_artifact_id: dict[str, bytes] = {}
+        self._artifact_envelopes: dict[str, ArtifactV2] = {}
         self._by_key: dict[str, bytes] = {}
         self.put_count = 0
 
@@ -66,6 +69,49 @@ class FakeArtifactStore:
 
     def read_bytes(self, artifact_id: str) -> bytes:
         return self._by_artifact_id[artifact_id]
+
+    def register_exact_artifact(
+        self,
+        *,
+        kind: str,
+        payload_schema_id: str,
+        payload: object,
+        version_tuple: VersionTuple | None = None,
+        lineage: tuple[str, ...] = (),
+        meta: dict[str, object] | None = None,
+    ) -> ArtifactV2:
+        """Register bytes plus their real content-addressed ArtifactV2 envelope."""
+
+        blob = payload if isinstance(payload, (bytes, bytearray)) else _canon(payload)
+        exact_blob = bytes(blob)
+        object_ref = object_ref_for_bytes(exact_blob)
+        exact_meta = {"payload_schema_id": payload_schema_id, **(meta or {})}
+        exact_tuple = version_tuple or VersionTuple(
+            doc_version="doc@1",
+            tool_version="test-artifact@1",
+        )
+        artifact_id = artifact_id_v2_for(
+            kind=kind,  # type: ignore[arg-type]
+            version_tuple=exact_tuple,
+            lineage=lineage,
+            payload_hash=object_ref.sha256,
+            meta=exact_meta,
+        )
+        artifact = ArtifactV2(
+            artifact_id=artifact_id,
+            kind=kind,  # type: ignore[arg-type]
+            version_tuple=exact_tuple,
+            lineage=lineage,
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta=exact_meta,
+        )
+        self._by_artifact_id[artifact_id] = exact_blob
+        self._artifact_envelopes[artifact_id] = artifact
+        return artifact
+
+    def load_artifact(self, artifact_id: str) -> ArtifactV2:
+        return self._artifact_envelopes[artifact_id]
 
     def put_prepared(self, payload: bytes):
         self.put_count += 1

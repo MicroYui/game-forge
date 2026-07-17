@@ -65,6 +65,7 @@ from gameforge.contracts.execution_profiles import (
     execution_profile_catalog_digest,
 )
 from gameforge.contracts.findings import (
+    Finding,
     FindingPayloadV1,
     FindingRevisionV1,
     PatchV2,
@@ -225,6 +226,7 @@ SCHEMA_COMPATIBILITY_PROFILE = ProfileRefV1(profile_id="builtin.schema_compatibi
 BENCH_EVALUATOR_PROFILE = ProfileRefV1(profile_id="builtin.bench_evaluator", version=1)
 ENV_CONTRACT_VERSION = "generic-agent-env@1"
 RESET_SCHEMA_ID = "generic-env-reset@1"
+_INFER_CONSTRAINT = object()
 
 ROLE_POLICY_VERSION = "run-admission-roles@1"
 DOMAIN_REGISTRY_VERSION = "run-admission-domains@1"
@@ -633,18 +635,31 @@ class _DriftingSubjectHeadApprovals(_FixedApprovals):
 
 
 class _FixedFindings:
-    def __init__(self, revision: FindingRevisionV1) -> None:
-        self.revision = revision
+    def __init__(
+        self,
+        revisions: FindingRevisionV1 | tuple[FindingRevisionV1, ...],
+    ) -> None:
+        self.revisions = (revisions,) if isinstance(revisions, FindingRevisionV1) else revisions
 
     def get(self, finding_id: str, revision: int) -> FindingRevisionV1 | None:
-        if (finding_id, revision) == (self.revision.finding_id, self.revision.revision):
-            return self.revision
-        return None
+        return next(
+            (
+                item
+                for item in self.revisions
+                if (finding_id, revision) == (item.finding_id, item.revision)
+            ),
+            None,
+        )
 
 
 class _FixedFindingLinks:
-    def __init__(self, link: RunFindingLinkV1 | None) -> None:
-        self.link = link
+    def __init__(
+        self,
+        links: RunFindingLinkV1 | tuple[RunFindingLinkV1, ...] | None,
+    ) -> None:
+        self.links = (
+            () if links is None else (links,) if isinstance(links, RunFindingLinkV1) else links
+        )
 
     def get_finding_link_by_revision(
         self,
@@ -653,16 +668,69 @@ class _FixedFindingLinks:
         finding_id: str,
         finding_revision: int,
     ) -> RunFindingLinkV1 | None:
-        link = self.link
-        if link is None:
-            return None
-        if (run_id, finding_id, finding_revision) != (
-            link.run_id,
-            link.finding_id,
-            link.finding_revision,
-        ):
-            return None
-        return link
+        return next(
+            (
+                link
+                for link in self.links
+                if (run_id, finding_id, finding_revision)
+                == (link.run_id, link.finding_id, link.finding_revision)
+            ),
+            None,
+        )
+
+    def list_finding_links_by_evidence_artifact_ids(
+        self,
+        evidence_artifact_ids: tuple[str, ...],
+        *,
+        max_items: int,
+    ) -> tuple[RunFindingLinkV1, ...]:
+        selected = frozenset(evidence_artifact_ids)
+        matches = tuple(
+            sorted(
+                (link for link in self.links if link.evidence_artifact_id in selected),
+                key=lambda item: (
+                    item.evidence_artifact_id,
+                    item.run_id,
+                    item.attempt_no,
+                    item.ordinal,
+                ),
+            )
+        )
+        if len(matches) > max_items:
+            raise IntegrityViolation("fixed Finding link closure exceeds its bound")
+        return matches
+
+
+class _UnorderedFindingLinks(_FixedFindingLinks):
+    def list_finding_links_by_evidence_artifact_ids(
+        self,
+        evidence_artifact_ids: tuple[str, ...],
+        *,
+        max_items: int,
+    ) -> tuple[RunFindingLinkV1, ...]:
+        return tuple(
+            reversed(
+                super().list_finding_links_by_evidence_artifact_ids(
+                    evidence_artifact_ids,
+                    max_items=max_items,
+                )
+            )
+        )
+
+
+class _OverBoundFindingLinks(_FixedFindingLinks):
+    def list_finding_links_by_evidence_artifact_ids(
+        self,
+        evidence_artifact_ids: tuple[str, ...],
+        *,
+        max_items: int,
+    ) -> tuple[RunFindingLinkV1, ...]:
+        exact = super().list_finding_links_by_evidence_artifact_ids(
+            evidence_artifact_ids,
+            max_items=max_items,
+        )
+        assert len(exact) == 1
+        return exact * (max_items + 1)
 
 
 class _RunReadAuthority:
@@ -811,8 +879,8 @@ class Harness:
         self.domain_registry = _domain_registry()
         self.role_policy = _role_policy(self.domain_registry)
         self.approvals: _NullApprovals | _FixedApprovals = _NullApprovals()
-        self.findings: _FixedFindings | None = None
-        self.finding_links: _FixedFindingLinks | None = None
+        self.findings: _FixedFindings | None = _FixedFindings(())
+        self.finding_links: _FixedFindingLinks | None = _FixedFindingLinks(None)
         self.synthetic_runs: dict[str, Any] = {}
         self.synthetic_prompt_links: dict[
             tuple[str, int, int, int], RunIntermediateArtifactLinkV1
@@ -1241,13 +1309,14 @@ def _seed_patch_candidate(
     label: str,
     base: ArtifactV2,
     constraint: ArtifactV2 | None = None,
+    expected_to_fix: tuple[str, ...] = (),
 ) -> tuple[ArtifactV2, ArtifactV2]:
     target_snapshot_id = f"snapshot:{label}"
     patch = PatchV2(
         revision=1,
         base_snapshot_id=base.version_tuple.ir_snapshot_id or "",
         target_snapshot_id=target_snapshot_id,
-        expected_to_fix=[],
+        expected_to_fix=list(expected_to_fix),
         preconditions=[],
         side_effect_risk="low",
         ops=[],
@@ -1666,21 +1735,25 @@ def _bind_retained_finding(
     harness: Harness,
     *,
     evidence_artifact_id: str,
+    finding_id: str = "finding:admission:1",
     retain_link: bool = True,
+    source: str = "checker",
+    producer_id: str = "checker:graph",
+    defect_class: str = "economy.balance",
 ) -> FindingEvidenceBindingV1:
     evidence_artifact = harness.load_artifact(evidence_artifact_id)
     snapshot_id = evidence_artifact.version_tuple.ir_snapshot_id
     assert snapshot_id is not None
     revision = FindingRevisionV1(
-        finding_id="finding:admission:1",
+        finding_id=finding_id,
         revision=1,
         created_at=NOW,
         payload=FindingPayloadV1(
-            source="checker",
-            producer_id="checker:graph",
-            producer_run_id="run:finding-producer",
+            source=source,
+            producer_id=producer_id,
+            producer_run_id=f"run:finding-producer:{finding_id}",
             oracle_type="deterministic",
-            defect_class="economy.balance",
+            defect_class=defect_class,
             severity="major",
             snapshot_id=snapshot_id,
             entities=["reward:1"],
@@ -1702,13 +1775,59 @@ def _bind_retained_finding(
         finding_digest=digest,
         evidence_artifact_id=evidence_artifact_id,
     )
-    harness.findings = _FixedFindings(revision)
-    harness.finding_links = _FixedFindingLinks(link if retain_link else None)
+    retained_revisions = () if harness.findings is None else harness.findings.revisions
+    retained_links = () if harness.finding_links is None else harness.finding_links.links
+    harness.findings = _FixedFindings((*retained_revisions, revision))
+    harness.finding_links = _FixedFindingLinks((*retained_links, *((link,) if retain_link else ())))
     return FindingEvidenceBindingV1(
         finding_id=revision.finding_id,
         finding_revision=revision.revision,
         evidence_artifact_id=evidence_artifact_id,
         finding_digest=digest,
+    )
+
+
+def _seed_retained_review_finding(
+    harness: Harness,
+    *,
+    snapshot: ArtifactV2,
+    finding_id: str,
+) -> tuple[ArtifactV2, FindingEvidenceBindingV1]:
+    snapshot_id = snapshot.version_tuple.ir_snapshot_id
+    assert snapshot_id is not None
+    finding = Finding(
+        id=finding_id,
+        source="checker",
+        producer_id="checker:graph",
+        producer_run_id=f"run:finding-producer:{finding_id}",
+        oracle_type="deterministic",
+        defect_class="economy.balance",
+        severity="major",
+        snapshot_id=snapshot_id,
+        entities=["reward:1"],
+        relations=[],
+        evidence={"predicate": "net_inflow <= sink"},
+        minimal_repro={},
+        status="confirmed",
+        confidence=None,
+        message="net inflow exceeds the retained sink",
+        created_at=NOW,
+    )
+    evidence = harness.seed_payload_artifact(
+        kind="review_report",
+        payload=ReviewReport.partition(snapshot_id, [finding]).model_dump(mode="json"),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=snapshot_id,
+            tool_version="review@1",
+        ),
+        lineage=(snapshot.artifact_id,),
+        payload_schema_id="review@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+    )
+    return evidence, _bind_retained_finding(
+        harness,
+        evidence_artifact_id=evidence.artifact_id,
+        finding_id=finding_id,
     )
 
 
@@ -3977,6 +4096,54 @@ def test_generic_simulation_run_requires_and_carries_seed(tmp_path: Path) -> Non
     }
 
 
+def test_validation_regression_suite_requires_and_retains_root_seed(tmp_path: Path) -> None:
+    harness = Harness(tmp_path)
+    _target, _current, _current_ref, item, request = _rollback_admission_fixture(harness)
+    suite = harness.seed_artifact(
+        kind="regression_suite",
+        tool_version="suite@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+    )
+    request = request.model_copy(update={"regression_suite_artifact_ids": (suite,), "seed": None})
+
+    with pytest.raises(Conflict, match="profile-dependent seed is required"):
+        harness.engine_admission.admit(
+            operation="rollback.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=_server("rollback-validation:regression-seed:missing"),
+        )
+
+    accepted = harness.engine_admission.admit(
+        operation="rollback.validate",
+        resource_id=item.subject_artifact_id,
+        request=request.model_copy(update={"seed": 23}),
+        actor=_tooling_actor(),
+        server=_server("rollback-validation:regression-seed:exact"),
+    )
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.seed == 23
+    assert run.payload.params.regression_suite_artifact_ids == (suite,)
+
+
+def test_deterministic_validation_without_regression_forbids_fabricated_seed(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    _target, _current, _current_ref, item, request = _rollback_admission_fixture(harness)
+
+    with pytest.raises(Conflict, match="profile-dependent seed is forbidden"):
+        harness.engine_admission.admit(
+            operation="rollback.validate",
+            resource_id=item.subject_artifact_id,
+            request=request.model_copy(update={"seed": 23}),
+            actor=_tooling_actor(),
+            server=_server("rollback-validation:fabricated-seed"),
+        )
+
+
 def test_rollback_validation_binds_non_ir_target_history_and_profile_exactly(
     tmp_path: Path,
 ) -> None:
@@ -5161,7 +5328,23 @@ def _patch_validation_request(
     candidate_config_ids: tuple[str, ...],
     review_ids: tuple[str, ...],
     trace_ids: tuple[str, ...],
+    constraint_snapshot_artifact_id: str | None | object = _INFER_CONSTRAINT,
+    expected_findings: tuple[FindingEvidenceBindingV1, ...] = (),
+    findings: tuple[FindingEvidenceBindingV1, ...] = (),
 ) -> tuple[ApprovalItem, PatchValidationAdmissionRequestV1]:
+    if constraint_snapshot_artifact_id is _INFER_CONSTRAINT:
+        constraint_ids = tuple(
+            parent_id
+            for parent_id in subject.lineage
+            if harness.load_artifact(parent_id).kind == "constraint_snapshot"
+        )
+        assert len(constraint_ids) <= 1
+        exact_constraint_id = constraint_ids[0] if constraint_ids else None
+    else:
+        assert constraint_snapshot_artifact_id is None or isinstance(
+            constraint_snapshot_artifact_id, str
+        )
+        exact_constraint_id = constraint_snapshot_artifact_id
     current_ref = harness.seed_ref("content/head", base.artifact_id)
     item = validation_testkit.approval_item(
         subject=subject,
@@ -5195,12 +5378,14 @@ def _patch_validation_request(
         subject_digest=item.subject_digest,
         base_snapshot_artifact_id=base.artifact_id,
         preview_snapshot_artifact_id=preview.artifact_id,
+        constraint_snapshot_artifact_id=exact_constraint_id,
         candidate_config_export_artifact_ids=candidate_config_ids,
         target=RefReadBindingV1(ref_name="content/head", expected_ref=current_ref),
         validation_policy=VALIDATION_PROFILE,
         checker_profiles=(),
         simulation_profiles=(),
-        findings=(),
+        expected_findings=expected_findings,
+        findings=findings,
         review_artifact_ids=review_ids,
         playtest_trace_artifact_ids=trace_ids,
         regression_suite_artifact_ids=(),
@@ -5655,17 +5840,361 @@ def test_patch_validation_cross_binds_review_and_playtest_to_exact_candidate(
     assert harness.run_record(accepted.run_id) is not None
 
 
+def test_patch_validation_admits_exact_absent_target_ref(tmp_path: Path) -> None:
+    """A null expected_ref is an exact must-be-absent CAS precondition."""
+
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="absent-ref-base")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="absent-ref-preview",
+        base=base,
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+    )
+    absent_target = RefReadBindingV1(ref_name="content/new", expected_ref=None)
+    binding = item.target_binding
+    assert isinstance(binding, PatchTargetBindingV1)
+    item = item.model_copy(
+        update={
+            "target_binding": binding.model_copy(
+                update={"ref_name": absent_target.ref_name, "expected_ref": None}
+            )
+        }
+    )
+    harness.approvals = _FixedApprovals(item)
+    request = request.model_copy(update={"target": absent_target})
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:absent-ref"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.params.target == absent_target
+
+
+def test_patch_validation_rejects_omitted_finding_linked_to_selected_playtest_trace(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="omitted-playtest-finding-base")
+    constraint = _seed_constraint(harness)
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="omitted-playtest-finding-preview",
+        base=base,
+        constraint=constraint,
+    )
+    config = _seed_config(
+        harness,
+        label="omitted-playtest-finding",
+        preview=preview,
+        constraint=constraint,
+    )
+    suite, scenario, episode = _seed_task_suite(
+        harness,
+        preview=preview,
+        config=config,
+        constraint=constraint,
+    )
+    trace = harness.seed_payload_artifact(
+        kind="playtest_trace",
+        payload=_playtest_trace_payload(
+            config=config,
+            constraint=constraint,
+            suite=suite,
+            scenario=scenario,
+            episode=episode,
+        ).model_dump(mode="json"),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=preview.version_tuple.ir_snapshot_id,
+            constraint_snapshot_id=constraint.version_tuple.constraint_snapshot_id,
+            env_contract_version=ENV_CONTRACT_VERSION,
+            tool_version="playtest@1",
+            seed=7,
+        ),
+        lineage=(
+            config.artifact_id,
+            constraint.artifact_id,
+            suite.artifact_id,
+            scenario.artifact_id,
+        ),
+        payload_schema_id="playtest-trace@1",
+    )
+    _bind_retained_finding(
+        harness,
+        evidence_artifact_id=trace.artifact_id,
+        finding_id="finding-series:playtest:episode-1:state",
+        source="playtest",
+        producer_id="playtest-completion@1",
+        defect_class="playtest_state_violation",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(config.artifact_id,),
+        review_ids=(),
+        trace_ids=(trace.artifact_id,),
+        findings=(),
+    )
+    server = _server("patch-validation:omitted-playtest-finding")
+
+    with pytest.raises(Conflict, match="exactly cover selected evidence"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+def test_patch_validation_accepts_target_finding_from_real_playtest_trace_lineage(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="playtest-finding-target-base")
+    constraint = _seed_constraint(harness)
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="playtest-finding-target-preview",
+        base=base,
+        constraint=constraint,
+    )
+    config = _seed_config(
+        harness,
+        label="playtest-finding-target",
+        preview=preview,
+        constraint=constraint,
+    )
+    suite, scenario, episode = _seed_task_suite(
+        harness,
+        preview=preview,
+        config=config,
+        constraint=constraint,
+    )
+    trace = _seed_playtest_trace_with_runtime_prompt(
+        harness,
+        preview=preview,
+        config=config,
+        constraint=constraint,
+        suite=suite,
+        scenario=scenario,
+        episode=episode,
+    )
+    finding = _bind_retained_finding(
+        harness,
+        evidence_artifact_id=trace.artifact_id,
+        finding_id="finding-series:playtest:target",
+        source="playtest",
+        producer_id="playtest-completion@1",
+        defect_class="playtest_state_violation",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(config.artifact_id,),
+        review_ids=(),
+        trace_ids=(trace.artifact_id,),
+        findings=(finding,),
+    )
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:playtest-target-finding"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.params.findings == (finding,)
+
+
+def test_patch_validation_accepts_expected_finding_from_historical_playtest_trace(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    old_preview = _seed_preview(harness, label="playtest-finding-history")
+    constraint = _seed_constraint(harness)
+    old_config = _seed_config(
+        harness,
+        label="playtest-finding-history",
+        preview=old_preview,
+        constraint=constraint,
+    )
+    old_suite, old_scenario, old_episode = _seed_task_suite(
+        harness,
+        preview=old_preview,
+        config=old_config,
+        constraint=constraint,
+    )
+    old_trace = _seed_playtest_trace_with_runtime_prompt(
+        harness,
+        preview=old_preview,
+        config=old_config,
+        constraint=constraint,
+        suite=old_suite,
+        scenario=old_scenario,
+        episode=old_episode,
+    )
+    expected = _bind_retained_finding(
+        harness,
+        evidence_artifact_id=old_trace.artifact_id,
+        finding_id="finding-series:playtest:historical",
+        source="playtest",
+        producer_id="playtest-completion@1",
+        defect_class="playtest_state_violation",
+    )
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="playtest-finding-history-fixed",
+        base=old_preview,
+        constraint=constraint,
+        expected_to_fix=(expected.finding_id,),
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=old_preview,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        expected_findings=(expected,),
+    )
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:playtest-historical-finding"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.params.expected_findings == (expected,)
+
+
+def test_patch_validation_rejects_finding_with_only_a_claimed_snapshot_tuple(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="finding-claimed-tuple-base")
+    unrelated = _seed_preview(harness, label="finding-claimed-tuple-unrelated")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="finding-claimed-tuple-target",
+        base=base,
+    )
+    claimed = harness.seed_payload_artifact(
+        kind="review_report",
+        payload=ReviewReport(snapshot_id=preview.version_tuple.ir_snapshot_id or "").model_dump(
+            mode="json"
+        ),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=preview.version_tuple.ir_snapshot_id,
+            tool_version="review@1",
+        ),
+        lineage=(unrelated.artifact_id,),
+        payload_schema_id="review@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+    )
+    finding = _bind_retained_finding(
+        harness,
+        evidence_artifact_id=claimed.artifact_id,
+        finding_id="finding:claimed-snapshot-tuple",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        findings=(finding,),
+    )
+    server = _server("patch-validation:finding-claimed-snapshot-tuple")
+
+    with pytest.raises(Conflict, match="admitted subject snapshot"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+def test_finding_evidence_ancestry_rejects_a_retained_cycle(tmp_path: Path) -> None:
+    harness = Harness(tmp_path)
+    first = harness.seed_payload_artifact(
+        kind="review_report",
+        payload=ReviewReport(snapshot_id="snapshot:cycle").model_dump(mode="json"),
+        version_tuple=VersionTuple(ir_snapshot_id="snapshot:cycle", tool_version="review@1"),
+        payload_schema_id="review@1",
+    )
+    second = harness.seed_payload_artifact(
+        kind="review_report",
+        payload=ReviewReport(snapshot_id="snapshot:cycle").model_dump(mode="json"),
+        version_tuple=VersionTuple(ir_snapshot_id="snapshot:cycle", tool_version="review@1"),
+        payload_schema_id="review@1",
+    )
+    first = first.model_copy(update={"lineage": (second.artifact_id,)})
+    second = second.model_copy(update={"lineage": (first.artifact_id,)})
+
+    class ArtifactReader:
+        def get(self, artifact_id: str):
+            return {first.artifact_id: first, second.artifact_id: second}.get(artifact_id)
+
+    class Read:
+        artifacts = ArtifactReader()
+
+    with pytest.raises(IntegrityViolation, match="lineage contains a cycle"):
+        RunAdmissionEngine._finding_evidence_descends_from_subject(
+            evidence=first,
+            expected_artifact_ids=("artifact:unreachable-subject",),
+            artifacts={first.artifact_id: first, second.artifact_id: second},
+            read=Read(),  # type: ignore[arg-type]
+            ancestry_node_budget=[0],
+        )
+
+
 def test_patch_validation_accepts_review_runtime_prompt_from_exact_producer(
     tmp_path: Path,
 ) -> None:
     harness = Harness(tmp_path)
     base = _seed_preview(harness, label="prompt-review-base")
+    constraint = _seed_constraint(harness)
     subject, preview = _seed_patch_candidate(
         harness,
         label="prompt-review-preview",
         base=base,
+        constraint=constraint,
     )
-    constraint = _seed_constraint(harness)
     review = _seed_review_with_runtime_prompt(
         harness,
         preview=preview,
@@ -5734,6 +6263,391 @@ def test_patch_validation_preserves_subject_constraint_without_candidate_config(
     )
 
 
+def test_patch_validation_accepts_expected_finding_on_old_preview_with_empty_target_findings(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    old_preview = _seed_preview(harness, label="expected-finding-old-preview")
+    expected_evidence, expected = _seed_retained_review_finding(
+        harness,
+        snapshot=old_preview,
+        finding_id="finding:expected:old-preview",
+    )
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="expected-finding-new-preview",
+        base=old_preview,
+        expected_to_fix=(expected.finding_id,),
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=old_preview,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        expected_findings=(expected,),
+        findings=(),
+    )
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:expected-old-preview"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.params.expected_findings == (expected,)
+    assert run.payload.params.findings == ()
+    assert expected_evidence.artifact_id in run.payload.input_artifact_ids
+
+
+@pytest.mark.parametrize(
+    ("evidence_role", "admitted"),
+    (("old-preview", False), ("new-preview", True)),
+)
+def test_patch_validation_target_finding_must_bind_new_preview(
+    tmp_path: Path,
+    evidence_role: str,
+    admitted: bool,
+) -> None:
+    harness = Harness(tmp_path)
+    old_preview = _seed_preview(harness, label=f"target-finding-old:{evidence_role}")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label=f"target-finding-new:{evidence_role}",
+        base=old_preview,
+    )
+    evidence_snapshot = old_preview if evidence_role == "old-preview" else preview
+    _, target = _seed_retained_review_finding(
+        harness,
+        snapshot=evidence_snapshot,
+        finding_id=f"finding:target:{evidence_role}",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=old_preview,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        findings=(target,),
+    )
+    server = _server(f"patch-validation:target-finding:{evidence_role}")
+
+    if admitted:
+        accepted = harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+        assert harness.run_record(accepted.run_id) is not None
+    else:
+        with pytest.raises(Conflict, match="admitted subject snapshot"):
+            harness.engine_admission.admit(
+                operation="patch.validate",
+                resource_id=item.subject_artifact_id,
+                request=request,
+                actor=_tooling_actor(),
+                server=server,
+            )
+        _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+def test_patch_validation_rejects_noncanonical_finding_link_enumeration(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="finding-enumeration-order-base")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="finding-enumeration-order-preview",
+        base=base,
+    )
+    _, first = _seed_retained_review_finding(
+        harness,
+        snapshot=preview,
+        finding_id="finding:enumeration-order:first",
+    )
+    _, second = _seed_retained_review_finding(
+        harness,
+        snapshot=preview,
+        finding_id="finding:enumeration-order:second",
+    )
+    assert harness.finding_links is not None
+    harness.finding_links = _UnorderedFindingLinks(harness.finding_links.links)
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        findings=(first, second),
+    )
+    server = _server("patch-validation:finding-enumeration-order")
+
+    with pytest.raises(IntegrityViolation, match="canonically ordered"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+def test_patch_validation_bounds_finding_link_enumeration_authority(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="finding-enumeration-bound-base")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="finding-enumeration-bound-preview",
+        base=base,
+    )
+    _, binding = _seed_retained_review_finding(
+        harness,
+        snapshot=preview,
+        finding_id="finding:enumeration-bound",
+    )
+    assert harness.finding_links is not None
+    harness.finding_links = _OverBoundFindingLinks(harness.finding_links.links)
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        findings=(binding,),
+    )
+    server = _server("patch-validation:finding-enumeration-bound")
+
+    with pytest.raises(IntegrityViolation, match="closure exceeds its contract bound"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+@pytest.mark.parametrize("binding_role", ("missing", "extra"))
+def test_patch_validation_expected_finding_ids_exactly_equal_patch_expected_to_fix(
+    tmp_path: Path,
+    binding_role: str,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label=f"expected-id-base:{binding_role}")
+    _, expected = _seed_retained_review_finding(
+        harness,
+        snapshot=base,
+        finding_id=f"finding:expected-id:{binding_role}",
+    )
+    patch_expected = (expected.finding_id,) if binding_role == "missing" else ()
+    request_expected = () if binding_role == "missing" else (expected,)
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label=f"expected-id-preview:{binding_role}",
+        base=base,
+        expected_to_fix=patch_expected,
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        expected_findings=request_expected,
+    )
+    server = _server(f"patch-validation:expected-id:{binding_role}")
+
+    with pytest.raises(Conflict, match="exact workflow candidate"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+@pytest.mark.parametrize("constraint_role", ("missing", "wrong"))
+def test_patch_validation_rejects_missing_or_wrong_exact_constraint_artifact(
+    tmp_path: Path,
+    constraint_role: str,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label=f"constraint-binding-base:{constraint_role}")
+    exact_constraint = _seed_constraint(
+        harness,
+        snapshot_id=f"constraint:exact:{constraint_role}",
+    )
+    wrong_constraint = _seed_constraint(
+        harness,
+        snapshot_id=f"constraint:wrong:{constraint_role}",
+    )
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label=f"constraint-binding-preview:{constraint_role}",
+        base=base,
+        constraint=exact_constraint,
+    )
+    requested_constraint_id = None if constraint_role == "missing" else wrong_constraint.artifact_id
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        constraint_snapshot_artifact_id=requested_constraint_id,
+    )
+    server = _server(f"patch-validation:constraint-binding:{constraint_role}")
+
+    with pytest.raises(Conflict, match="exact workflow candidate"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+def test_patch_validation_rejects_review_with_another_constraint_artifact(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="review-constraint-base")
+    exact_constraint = _seed_constraint(harness, snapshot_id="constraint:review-exact")
+    other_constraint = _seed_constraint(harness, snapshot_id="constraint:review-other")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="review-constraint-preview",
+        base=base,
+        constraint=exact_constraint,
+    )
+    review = harness.seed_payload_artifact(
+        kind="review_report",
+        payload=ReviewReport(snapshot_id=preview.version_tuple.ir_snapshot_id or "").model_dump(
+            mode="json"
+        ),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=preview.version_tuple.ir_snapshot_id,
+            constraint_snapshot_id=other_constraint.version_tuple.constraint_snapshot_id,
+            tool_version="review@1",
+        ),
+        lineage=(preview.artifact_id, other_constraint.artifact_id),
+        payload_schema_id="review@1",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(review.artifact_id,),
+        trace_ids=(),
+    )
+    server = _server("patch-validation:review-constraint-mismatch")
+
+    with pytest.raises(Conflict, match="exact Patch constraint"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
+
+
+def test_patch_validation_input_closure_contains_constraint_and_both_finding_roles(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="finding-input-closure-base")
+    constraint = _seed_constraint(harness, snapshot_id="constraint:finding-input-closure")
+    expected_evidence, expected = _seed_retained_review_finding(
+        harness,
+        snapshot=base,
+        finding_id="finding:input-closure:expected",
+    )
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="finding-input-closure-preview",
+        base=base,
+        constraint=constraint,
+        expected_to_fix=(expected.finding_id,),
+    )
+    target_evidence, target = _seed_retained_review_finding(
+        harness,
+        snapshot=preview,
+        finding_id="finding:input-closure:target",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+        expected_findings=(expected,),
+        findings=(target,),
+    )
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:finding-input-closure"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.payload.input_artifact_ids == tuple(
+        sorted(
+            {
+                subject.artifact_id,
+                base.artifact_id,
+                preview.artifact_id,
+                constraint.artifact_id,
+                expected_evidence.artifact_id,
+                target_evidence.artifact_id,
+            }
+        )
+    )
+    assert run.payload.params.expected_findings == (expected,)
+    assert run.payload.params.findings == (target,)
+
+
 def test_patch_validation_rejects_candidate_config_from_another_subject_constraint(
     tmp_path: Path,
 ) -> None:
@@ -5787,12 +6701,13 @@ def test_patch_validation_rejects_forged_review_runtime_prompt_parent(
 ) -> None:
     harness = Harness(tmp_path)
     base = _seed_preview(harness, label="forged-prompt-base")
+    constraint = _seed_constraint(harness)
     subject, preview = _seed_patch_candidate(
         harness,
         label="forged-prompt-preview",
         base=base,
+        constraint=constraint,
     )
-    constraint = _seed_constraint(harness)
     review = _seed_review_with_runtime_prompt(
         harness,
         preview=preview,
@@ -5829,12 +6744,13 @@ def test_patch_validation_rejects_llm_review_with_stripped_prompt_lineage(
 ) -> None:
     harness = Harness(tmp_path)
     base = _seed_preview(harness, label="stripped-prompt-base")
+    constraint = _seed_constraint(harness)
     subject, preview = _seed_patch_candidate(
         harness,
         label="stripped-prompt-preview",
         base=base,
+        constraint=constraint,
     )
-    constraint = _seed_constraint(harness)
     review = harness.seed_payload_artifact(
         kind="review_report",
         payload=ReviewReport(snapshot_id=preview.version_tuple.ir_snapshot_id or "").model_dump(

@@ -27,7 +27,7 @@ from gameforge.contracts.jobs import (
     PreparedRunOutcome,
 )
 from gameforge.contracts.ir import EdgeType, NodeType
-from gameforge.spine.checkers.base import Checker
+from gameforge.spine.checkers.base import Checker, CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import NavProvider
@@ -138,6 +138,31 @@ def validate_checker_execution_policy(
     )
 
 
+def validate_checker_output_policy(
+    findings: list[Finding] | tuple[Finding, ...],
+    *,
+    policy: CheckerExecutionPolicy,
+) -> None:
+    """Reject deterministic checker defect codes outside the exact profile."""
+
+    disallowed = tuple(
+        sorted(
+            {
+                finding.defect_class
+                for finding in findings
+                if finding.source == "checker"
+                and finding.oracle_type == "deterministic"
+                and finding.defect_class not in policy.allowed_defect_classes
+            }
+        )
+    )
+    if disallowed:
+        raise IntegrityViolation(
+            "checker output is outside the exact profile defect taxonomy",
+            defect_classes=disallowed,
+        )
+
+
 def validate_checker_work_budget(
     *,
     snapshot: Snapshot,
@@ -214,7 +239,7 @@ class CheckerRunHandler:
             raise IntegrityViolation(
                 "checker.run has no direct backend or compiled constraint work"
             )
-        self._validate_execution_policy(payload, snapshot, constraints)
+        execution_policy = self._validate_execution_policy(payload, snapshot, constraints)
         self._validate_smt_selection(payload, constraints)
         nav = self.nav_loader(self.blobs, payload.snapshot_artifact_id)
 
@@ -223,10 +248,15 @@ class CheckerRunHandler:
             snapshot,
             constraints,
             nav,
+            execution_policy,
         )
         findings.extend(compiled_findings)
         if "graph" in payload.checker_ids:
             findings.extend(navigation_unproven_findings(snapshot, nav))
+        # The request selector is not an authority to hide a backend/profile
+        # mismatch. Validate every actual deterministic verdict before applying
+        # graph-selection or defect-class presentation filters.
+        validate_checker_output_policy(findings, policy=execution_policy)
         findings = filter_findings_by_selection(findings, payload.selection, snapshot)
         findings = _filter_defect_classes(findings, payload.defect_classes)
         findings = rebind_finding_producers(findings, run_id=context.run.run_id)
@@ -314,7 +344,7 @@ class CheckerRunHandler:
         payload: CheckerRunPayloadV1,
         snapshot: Snapshot,
         constraints: list[Constraint],
-    ) -> None:
+    ) -> CheckerExecutionPolicy:
         policy = self.execution_policy_resolver(payload.checker_profile)
         validate_checker_execution_policy(
             checker_ids=payload.checker_ids,
@@ -323,12 +353,14 @@ class CheckerRunHandler:
             snapshot=snapshot,
             policy=policy,
         )
+        return policy
 
     @staticmethod
     def _run_compiled_constraints(
         snapshot: Snapshot,
         constraints: list[Constraint],
         nav: NavProvider | None,
+        policy: CheckerExecutionPolicy,
     ) -> tuple[list[Finding], tuple[dict[str, str], ...]]:
         """Compile and execute the exact constraint snapshot independently.
 
@@ -354,10 +386,38 @@ class CheckerRunHandler:
             )
 
         compiled = compile_all(ordered)
-        findings: list[Finding] = []
-        applications: list[dict[str, str]] = []
+        execution_plan: list[tuple[Constraint, Checker, str | None, str]] = []
         for constraint, checker in zip(ordered, compiled, strict=True):
             navigation_defect_class = _constraint_navigation_defect_class(constraint)
+            if navigation_defect_class is not None:
+                native_id = "graph"
+            else:
+                binding = getattr(checker, "execution_binding", None)
+                if (
+                    not isinstance(binding, CheckerExecutionBinding)
+                    or binding.constraint_id != constraint.id
+                ):
+                    raise IntegrityViolation(
+                        "compiled constraint omitted its trusted execution binding",
+                        constraint_id=constraint.id,
+                    )
+                native_id = binding.native_id
+            if native_id not in {"graph", "asp", "smt"}:
+                raise IntegrityViolation(
+                    "compiled constraint did not resolve a deterministic backend",
+                    constraint_id=constraint.id,
+                )
+            if native_id not in policy.allowed_checker_ids:
+                raise IntegrityViolation(
+                    "compiled checker route is outside the exact profile taxonomy",
+                    constraint_id=constraint.id,
+                    checker_id=native_id,
+                )
+            execution_plan.append((constraint, checker, navigation_defect_class, native_id))
+
+        findings: list[Finding] = []
+        applications: list[dict[str, str]] = []
+        for constraint, checker, navigation_defect_class, backend_id in execution_plan:
             if navigation_defect_class is not None and nav is None:
                 applications.append(
                     {
@@ -369,18 +429,10 @@ class CheckerRunHandler:
                 )
                 findings.append(_constraint_navigation_unproven_finding(snapshot, constraint))
                 continue
-            backend = getattr(checker, "backend", None)
-            backend_id = getattr(backend, "id", None)
             if navigation_defect_class is not None:
                 from gameforge.spine.checkers.graph import GraphChecker
 
                 checker = GraphChecker()
-                backend_id = "graph"
-            if backend_id not in {"graph", "asp", "smt"}:
-                raise IntegrityViolation(
-                    "compiled constraint did not resolve a deterministic backend",
-                    constraint_id=constraint.id,
-                )
             applications.append(
                 {
                     "constraint_id": constraint.id,
@@ -641,6 +693,11 @@ def _checker_report_payload(
 ) -> dict[str, object]:
     return {
         "payload_schema_version": CHECKER_REPORT_SCHEMA_ID,
+        "checker_profile": payload.checker_profile.model_dump(mode="json"),
+        "constraint_snapshot_binding_status": (
+            "not_applicable" if payload.constraint_snapshot_artifact_id is None else "bound"
+        ),
+        "constraint_snapshot_artifact_id": payload.constraint_snapshot_artifact_id,
         "snapshot_id": snapshot.snapshot_id,
         "checker_ids": list(payload.checker_ids),
         "defect_classes": list(payload.defect_classes),
@@ -660,5 +717,6 @@ __all__ = [
     "filter_findings_by_selection",
     "navigation_unproven_findings",
     "validate_checker_execution_policy",
+    "validate_checker_output_policy",
     "validate_checker_work_budget",
 ]

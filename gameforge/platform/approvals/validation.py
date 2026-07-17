@@ -33,6 +33,7 @@ from gameforge.contracts.lineage import (
     AuditSubject,
 )
 from gameforge.contracts.workflow import (
+    CONSTRAINT_COMPILE_REQUIREMENT_KIND,
     ApprovalItem,
     AutoApplyProofBindingV1,
     AutoApplyProofV1,
@@ -42,6 +43,7 @@ from gameforge.contracts.workflow import (
     RollbackRequestV1,
     RollbackTargetBindingV1,
     SubjectHead,
+    regression_companion_evidence_ids,
 )
 from gameforge.platform.approvals.commands import (
     ApprovalAuditWriter,
@@ -467,7 +469,13 @@ def validate_patch_evidence_binding(
         item.target_binding.target_artifact_id != payload.preview_snapshot_artifact_id
         or item.target_binding.ref_name != payload.target.ref_name
         or item.target_binding.expected_ref != payload.target.expected_ref
-        or evidence.finding_bindings != payload.findings
+        or evidence.finding_bindings
+        != tuple(
+            sorted(
+                (*payload.expected_findings, *payload.findings),
+                key=lambda binding: (binding.finding_id, binding.finding_revision),
+            )
+        )
     ):
         raise IntegrityViolation("Patch validation payload differs from exact evidence")
 
@@ -477,13 +485,13 @@ def validate_rollback_evidence_binding(
     item: ApprovalItem,
     payload: RollbackValidationPayloadV1,
     *,
-    profile_binding: ResolvedExecutionProfileBindingV1 | None,
+    profile_binding: ResolvedExecutionProfileBindingV1,
 ) -> None:
     """Rollback EvidenceSet target binding re-verification.
 
-    ``profile_binding`` is the resolved rollback profile the synchronous service
-    cross-checks; the in-transaction effect (which does not resolve profiles)
-    passes ``None`` to skip that exact-profile check.
+    ``profile_binding`` is the exact resolved rollback profile frozen on the Run.
+    Both completion paths must compare it; terminal publication may not skip the
+    check merely because it already runs inside the write UnitOfWork.
     """
 
     binding = item.target_binding
@@ -493,7 +501,7 @@ def validate_rollback_evidence_binding(
         binding.ref_name != payload.ref_name
         or binding.expected_ref != payload.expected_current_ref
         or binding.target_artifact_id != payload.target_artifact_id
-        or (profile_binding is not None and binding.rollback_profile_binding != profile_binding)
+        or binding.rollback_profile_binding != profile_binding
     ):
         raise IntegrityViolation("Rollback validation payload differs from exact target")
 
@@ -603,20 +611,9 @@ def build_validation_revert_replacement(
 
 
 def regression_evidence_ids_from_set(evidence: EvidenceSet) -> tuple[str, ...]:
-    """The published regression-evidence Artifact ids an EvidenceSet references.
+    """Compatibility name for the exact ``regression`` outcome-rule closure."""
 
-    Each ``regression`` dimension requirement binds its regression-evidence
-    Artifact id; regression evidence carries no ``prepared_rule`` parent, so its
-    published id equals the content-addressed id the requirement records.
-    """
-
-    return tuple(
-        sorted(
-            requirement.evidence_artifact_id
-            for requirement in evidence.requirements
-            if requirement.kind == "regression" and requirement.evidence_artifact_id is not None
-        )
-    )
+    return regression_companion_evidence_ids(evidence)
 
 
 class ValidationCompletionService:
@@ -1086,9 +1083,16 @@ class ValidationCompletionService:
 
         if isinstance(payload, PatchValidationPayloadV1):
             validate_patch_evidence_binding(evidence, item, payload)
-            required_support = set(payload.review_artifact_ids) | set(
-                payload.playtest_trace_artifact_ids
-            )
+            required_support = {
+                *payload.candidate_config_export_artifact_ids,
+                *payload.review_artifact_ids,
+                *payload.playtest_trace_artifact_ids,
+                *payload.regression_suite_artifact_ids,
+                *(binding.evidence_artifact_id for binding in payload.expected_findings),
+                *(binding.evidence_artifact_id for binding in payload.findings),
+            }
+            if payload.constraint_snapshot_artifact_id is not None:
+                required_support.add(payload.constraint_snapshot_artifact_id)
             if not required_support.issubset(evidence.supporting_artifact_ids):
                 raise IntegrityViolation("Patch EvidenceSet omits frozen supporting evidence")
             return
@@ -1136,7 +1140,7 @@ class ValidationCompletionService:
         compile_requirements = tuple(
             requirement
             for requirement in evidence.requirements
-            if requirement.kind == "constraint_compile"
+            if requirement.kind == CONSTRAINT_COMPILE_REQUIREMENT_KIND
         )
         if len(compile_requirements) != 1:
             raise IntegrityViolation(
@@ -1239,9 +1243,23 @@ class ValidationCompletionService:
         request = facts.rollback_request
         if facts.subject_kind != "rollback_request" or not isinstance(request, RollbackRequestV1):
             raise IntegrityViolation("rollback subject parser omitted RollbackRequest")
-        if request.target_history_revision != payload.target_history_revision:
+        binding = item.target_binding
+        if not isinstance(binding, RollbackTargetBindingV1):
+            raise IntegrityViolation("rollback request lacks its exact target binding")
+        if (
+            request.ref_name != payload.ref_name
+            or request.expected_current_ref != payload.expected_current_ref
+            or request.target_artifact_id != payload.target_artifact_id
+            or request.target_history_revision != payload.target_history_revision
+            or request.rollback_profile_binding != binding.rollback_profile_binding
+            or request.rollback_profile_binding.profile != payload.rollback_profile
+            or binding.ref_name != payload.ref_name
+            or binding.expected_ref != payload.expected_current_ref
+            or binding.target_artifact_id != payload.target_artifact_id
+        ):
             raise IntegrityViolation(
-                "rollback validation target history revision differs from RollbackRequest"
+                "rollback validation payload/history revision differs from the immutable "
+                "RollbackRequest"
             )
 
     @staticmethod

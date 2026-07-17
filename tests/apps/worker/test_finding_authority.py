@@ -24,6 +24,7 @@ from gameforge.contracts.findings import (
     finding_revision_digest,
 )
 from gameforge.contracts.workflow import FindingEvidenceBindingV1
+from gameforge.contracts.jobs import RunFindingLinkV1
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.platform.run_handlers import (
     CheckerRunHandler,
@@ -32,6 +33,7 @@ from gameforge.platform.run_handlers import (
     ReviewRunHandler,
     SimulationRunHandler,
 )
+from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
 from gameforge.platform.run_handlers.playtest import PlaytestRunHandler
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.object_store import LocalObjectStore
@@ -39,6 +41,7 @@ from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.models import Base
+from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.spine.ir.snapshot import Snapshot
 
 
@@ -148,6 +151,48 @@ def test_exact_loader_rejects_missing_or_digest_mismatched_revision(engine: Engi
         )
 
 
+def test_exact_loader_enumerates_evidence_linked_revisions(
+    engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    retained = _revision(
+        1,
+        finding_id="finding-series:playtest:episode-1:completion",
+    )
+    _put(engine, retained)
+    digest = finding_revision_digest(retained)
+    link = RunFindingLinkV1(
+        run_id=retained.payload.producer_run_id,
+        attempt_no=1,
+        ordinal=1,
+        finding_id=retained.finding_id,
+        finding_revision=retained.revision,
+        finding_digest=digest,
+        evidence_artifact_id="artifact:playtest-trace",
+    )
+
+    def _linked(self, evidence_artifact_ids, *, max_items):
+        del self, max_items
+        return (link,) if link.evidence_artifact_id in evidence_artifact_ids else ()
+
+    monkeypatch.setattr(
+        SqlRunRepository,
+        "list_finding_links_by_evidence_artifact_ids",
+        _linked,
+    )
+    loader = WorkerExactFindingRevisionLoader(
+        engine=engine,
+        cursor_signing_key=SIGNING_KEY,
+        clock=FrozenUtcClock(NOW),
+    )
+
+    linked = loader.list_linked_exact(evidence_artifact_ids=(link.evidence_artifact_id,))
+
+    assert len(linked) == 1
+    assert linked[0].evidence_artifact_id == link.evidence_artifact_id
+    assert linked[0].revision == retained
+
+
 def test_head_resolver_returns_the_verified_current_revision(engine: Engine) -> None:
     resolver = WorkerFindingHeadRevisionResolver(
         engine=engine,
@@ -194,18 +239,21 @@ def test_worker_composition_injects_one_sql_finding_authority_into_all_consumers
     playtest = components.executors["playtest_runner@1"]
     generation = components.executors["generation_proposer@1"]
     repair = components.executors["repair_search@1"]
+    patch_validation = components.executors["patch_validator@1"]
     assert isinstance(checker, CheckerRunHandler)
     assert isinstance(simulation, SimulationRunHandler)
     assert isinstance(review, ReviewRunHandler)
     assert isinstance(playtest, PlaytestRunHandler)
     assert isinstance(generation, GenerationProposalHandler)
     assert isinstance(repair, RepairSearchHandler)
+    assert isinstance(patch_validation, PatchValidationHandler)
     assert checker.finding_head_revision is blobs.finding_head_revision
     assert simulation.finding_head_revision is blobs.finding_head_revision
     assert review.finding_head_revision is blobs.finding_head_revision
     assert playtest.finding_head_revision is blobs.finding_head_revision
     assert generation.finding_loader is blobs.finding_revision_loader
     assert repair.finding_loader is blobs.finding_revision_loader
+    assert patch_validation.finding_revision_loader is blobs.finding_revision_loader
 
     numeric = Constraint(
         id="C_cap",
@@ -219,5 +267,5 @@ def test_worker_composition_injects_one_sql_finding_authority_into_all_consumers
         "graph",
         "compiled:smt:C_cap",
     ]
-    with pytest.raises(IntegrityViolation, match="does not resolve"):
+    with pytest.raises(IntegrityViolation, match="exact resolved binding"):
         review.checker_resolver(ProfileRefV1(profile_id="unknown", version=1), [])

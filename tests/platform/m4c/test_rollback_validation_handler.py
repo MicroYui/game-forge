@@ -11,7 +11,15 @@ from __future__ import annotations
 
 import json
 
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+import pytest
+
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import (
+    MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
+    ProfileRefV1,
+    RunKindRef,
+)
+from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     PreparedRunResult,
     RollbackValidationPayloadV1,
@@ -20,8 +28,11 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import EvidenceSet, RollbackRequestV1, RollbackTargetBindingV1
+from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.platform.run_handlers.rollback_validation import (
     DimensionCheckV1,
+    RollbackImpactRequest,
+    RollbackSchemaRequest,
     RollbackTargetInspectionV1,
     RollbackValidationHandler,
 )
@@ -36,6 +47,7 @@ ROLLBACK_VALIDATE_KIND = RunKindRef(kind="rollback.validate", version=1)
 SUBJECT_ID = "artifact:rollback-request"
 TARGET_ID = "artifact:rollback-target"
 REGRESSION_SUITE_ID = "artifact:regression-suite"
+SECOND_REGRESSION_SUITE_ID = "artifact:regression-suite:2"
 _HEX = "a" * 64
 _ROLLBACK_PROFILE = ProfileRefV1(profile_id="rollback", version=1)
 _SCHEMA_POLICY = ProfileRefV1(profile_id="schema-compat", version=1)
@@ -43,7 +55,20 @@ _IMPACT = ProfileRefV1(profile_id="impact", version=1)
 _ROLLBACK_BINDING = resolved_binding(
     "/params/rollback_profile", profile_id="rollback", version=1, kind="rollback"
 )
+_SCHEMA_BINDING = resolved_binding(
+    "/params/schema_compatibility_policy",
+    profile_id="schema-compat",
+    version=1,
+    kind="schema_compatibility",
+)
+_IMPACT_BINDING = resolved_binding(
+    "/params/impact_profiles/0",
+    profile_id="impact",
+    version=1,
+    kind="impact_analysis",
+)
 _EXPECTED_REF = RefValue(artifact_id="artifact:current-head", revision=5)
+_TARGET_SNAPSHOT = Snapshot({}, {})
 
 
 def _subject() -> ValidationSubjectBindingV1:
@@ -99,12 +124,14 @@ class _FakeSchema:
             status=self.status,
             target_artifact_kind="ir_snapshot",
             target_digest=_HEX,
-            target_snapshot_id="snap:target",
+            target_snapshot_id=_TARGET_SNAPSHOT.snapshot_id,
             target_version_tuple=VersionTuple(
-                ir_snapshot_id="snap:target",
+                ir_snapshot_id=_TARGET_SNAPSHOT.snapshot_id,
                 tool_version="fixture@1",
             ),
             reason_code=self.reason,
+            schema_profile_binding=request.schema_profile_binding,
+            rollback_profile_binding=request.rollback_profile_binding,
         )
 
 
@@ -113,15 +140,59 @@ class _FakeImpact:
         self.status, self.reason = status, reason
 
     def analyze(self, request) -> DimensionCheckV1:
-        return DimensionCheckV1(status=self.status, reason_code=self.reason)
+        return DimensionCheckV1(
+            status=self.status,
+            reason_code=self.reason,
+            profile_binding=request.impact_profile_binding,
+            rollback_profile_binding=request.rollback_profile_binding,
+        )
+
+
+class _PassingRegressionRunner:
+    def __init__(self) -> None:
+        self.requests = []
+
+    def run(self, request) -> RegressionSuiteResultV1:
+        self.requests.append(request)
+        return RegressionSuiteResultV1(
+            suite_artifact_id=request.suite_artifact_id,
+            status="passed",
+            env_contract_version="suite-env@1",
+            payload={
+                "payload_schema_version": "regression-evidence@1",
+                "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": request.snapshot_id,
+                "status": "passed",
+                "reason_code": None,
+            },
+            action_work_units=1,
+        )
 
 
 class _FailingRegressionRunner:
     def run(self, request) -> RegressionSuiteResultV1:
+        finding = Finding(
+            id="regression:rollback-mismatch",
+            source="playtest",
+            producer_id="agent-env-action-replay@1",
+            producer_run_id="regression-runner",
+            oracle_type="deterministic",
+            defect_class="rollback_regression_mismatch",
+            severity="major",
+            snapshot_id=request.snapshot_id,
+            status="confirmed",
+            message="rollback target violates the committed regression expectation",
+        )
         return RegressionSuiteResultV1(
             suite_artifact_id=request.suite_artifact_id,
             status="failed",
-            payload={"payload_schema_version": "regression-evidence@1", "status": "failed"},
+            env_contract_version="suite-env@1",
+            payload={
+                "payload_schema_version": "regression-evidence@1",
+                "status": "failed",
+                "findings": [finding.model_dump(mode="json")],
+            },
+            action_work_units=1,
         )
 
 
@@ -145,9 +216,17 @@ class _UnprovenRegressionRunner:
 def _store() -> FakeArtifactStore:
     store = FakeArtifactStore()
     store.register(SUBJECT_ID, _rollback_request().model_dump(mode="json"))
-    store.register(TARGET_ID, {"payload_schema_version": "ir-core@1"})
+    store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
     store.register(REGRESSION_SUITE_ID, {"suite": "s"})
+    store.register(SECOND_REGRESSION_SUITE_ID, {"suite": "s2"})
     return store
+
+
+class _IntegrityFaultStore(FakeArtifactStore):
+    def read_bytes(self, artifact_id: str) -> bytes:
+        if artifact_id == TARGET_ID:
+            raise IntegrityViolation("target object binding is corrupt")
+        return super().read_bytes(artifact_id)
 
 
 def _handler(
@@ -171,12 +250,19 @@ def _handler(
     )
 
 
-def _context(store: FakeArtifactStore, payload: RollbackValidationPayloadV1):
+def _context(
+    store: FakeArtifactStore,
+    payload: RollbackValidationPayloadV1,
+    *,
+    seed: int | None = None,
+):
+    resolved = [_ROLLBACK_BINDING, _SCHEMA_BINDING]
+    resolved.extend(_IMPACT_BINDING for _ in payload.impact_profiles)
     return build_context(
         params=payload,
         kind=ROLLBACK_VALIDATE_KIND,
-        resolved_profiles=(_ROLLBACK_BINDING,),
-        seed=None,
+        resolved_profiles=tuple(sorted(resolved, key=lambda item: item.field_path)),
+        seed=seed,
     )
 
 
@@ -185,15 +271,27 @@ def _evidence_set(store: FakeArtifactStore, outcome: PreparedRunResult) -> Evide
     return EvidenceSet.model_validate(json.loads(store.read_prepared(primary.object_ref)))
 
 
+def test_target_read_integrity_fault_propagates_as_execution_failure() -> None:
+    store = _IntegrityFaultStore()
+    store.register(SUBJECT_ID, _rollback_request().model_dump(mode="json"))
+    store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
+
+    with pytest.raises(IntegrityViolation, match="object binding is corrupt"):
+        _handler(store)(_context(store, _payload()))
+
+
 def test_all_dimensions_pass_is_a_successful_business_result() -> None:
     store = _store()
-    outcome = _handler(store)(_context(store, _payload(regression=(REGRESSION_SUITE_ID,))))
+    outcome = _handler(store, regression_runner=_PassingRegressionRunner())(
+        _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
+    )
 
     assert isinstance(outcome, PreparedRunResult)  # NOT a RunFailure
     assert outcome.summary.outcome_code == "rollback_validation_passed"
     assert all(artifact.version_tuple.seed is None for artifact in outcome.artifacts)
     assert all(
-        artifact.version_tuple.ir_snapshot_id == "snap:target" for artifact in outcome.artifacts
+        artifact.version_tuple.ir_snapshot_id == _TARGET_SNAPSHOT.snapshot_id
+        for artifact in outcome.artifacts
     )
     evidence = _evidence_set(store, outcome)
     assert evidence.overall_status == "passed"
@@ -205,6 +303,17 @@ def test_all_dimensions_pass_is_a_successful_business_result() -> None:
     assert kinds == ["artifact", "history", "impact", "profile", "regression", "schema"]
     regression = [a for a in outcome.artifacts if a.kind == "regression_evidence"]
     assert len(regression) == 6
+    suite_evidence = next(
+        item
+        for item in regression
+        if item.meta.get("requirement_id") == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    assert suite_evidence.version_tuple.env_contract_version == "suite-env@1"
+    assert all(
+        item.version_tuple.env_contract_version is None
+        for item in regression
+        if item is not suite_evidence
+    )
 
 
 def test_schema_incompatibility_fails_as_business_result() -> None:
@@ -238,7 +347,7 @@ def test_subject_payload_mismatch_fails_profile_dimension() -> None:
     # subject request references a DIFFERENT target than the payload -> profile mismatch.
     request = _rollback_request().model_copy(update={"target_artifact_id": "artifact:other"})
     store.register(SUBJECT_ID, request.model_dump(mode="json"))
-    store.register(TARGET_ID, {"payload_schema_version": "ir-core@1"})
+    store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
     outcome = _handler(store)(_context(store, _payload()))
     assert outcome.summary.outcome_code == "rollback_validation_failed"
     evidence = _evidence_set(store, outcome)
@@ -252,6 +361,262 @@ def test_failing_regression_fails_business_result() -> None:
         _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
     )
     assert outcome.summary.outcome_code == "rollback_validation_failed"
+    assert len(outcome.findings) == 1
+    regression_artifact = outcome.artifacts[outcome.findings[0].evidence_artifact_index]
+    embedded = json.loads(store.read_prepared(regression_artifact.object_ref))["detail"]["findings"]
+    assert embedded[0]["producer_run_id"] == "run:1"
+    assert outcome.findings[0].payload.producer_run_id == "run:1"
+
+
+def test_rollback_regression_rejects_llm_finding_authority() -> None:
+    class LlmRegressionRunner:
+        def run(self, request) -> RegressionSuiteResultV1:
+            finding = Finding(
+                id="regression:llm",
+                source="llm",
+                producer_id="llm-routed",
+                producer_run_id="regression-runner",
+                oracle_type="llm-assisted",
+                defect_class="llm_assisted_predicate",
+                severity="major",
+                snapshot_id=request.snapshot_id,
+                status="unproven",
+                message="suggestion-only output",
+            )
+            return RegressionSuiteResultV1(
+                suite_artifact_id=request.suite_artifact_id,
+                status="unproven",
+                reason_code="llm_only",
+                env_contract_version="suite-env@1",
+                payload={
+                    "payload_schema_version": "regression-evidence@1",
+                    "suite_artifact_id": request.suite_artifact_id,
+                    "snapshot_id": request.snapshot_id,
+                    "status": "unproven",
+                    "reason_code": "llm_only",
+                    "findings": [finding.model_dump(mode="json")],
+                },
+            )
+
+    store = _store()
+    with pytest.raises(IntegrityViolation, match="deterministic oracle authority"):
+        _handler(store, regression_runner=LlmRegressionRunner())(
+            _context(store, _payload(regression=(REGRESSION_SUITE_ID,)), seed=17)
+        )
+
+
+def test_regression_without_a_bound_runner_is_unproven_never_a_default_pass() -> None:
+    store = _store()
+    outcome = _handler(store)(_context(store, _payload(regression=(REGRESSION_SUITE_ID,))))
+
+    assert outcome.summary.outcome_code == "rollback_validation_unproven"
+    evidence = _evidence_set(store, outcome)
+    requirement = next(
+        item
+        for item in evidence.requirements
+        if item.requirement_id == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "regression_runner_unavailable"
+
+
+def test_schema_and_impact_ports_receive_exact_resolved_profile_bindings() -> None:
+    store = _store()
+    seen: dict[str, object] = {}
+
+    class Schema(_FakeSchema):
+        def analyze(self, request: RollbackSchemaRequest) -> RollbackTargetInspectionV1:
+            seen["schema"] = request
+            return super().analyze(request)
+
+    class Impact(_FakeImpact):
+        def analyze(self, request: RollbackImpactRequest) -> DimensionCheckV1:
+            seen["impact"] = request
+            return super().analyze(request)
+
+    _handler(store, schema=Schema(), impact=Impact())(_context(store, _payload()))
+
+    schema = seen["schema"]
+    impact = seen["impact"]
+    assert isinstance(schema, RollbackSchemaRequest)
+    assert schema.schema_profile_binding == _SCHEMA_BINDING
+    assert schema.rollback_profile_binding == _ROLLBACK_BINDING
+    assert isinstance(impact, RollbackImpactRequest)
+    assert impact.current_artifact_id == _EXPECTED_REF.artifact_id
+    assert impact.current_ref_revision == _EXPECTED_REF.revision
+    assert impact.impact_profile_binding == _IMPACT_BINDING
+    assert impact.rollback_profile_binding == _ROLLBACK_BINDING
+
+
+def test_missing_schema_execution_binding_is_unproven_not_passed() -> None:
+    store = _store()
+
+    class MissingBinding(_FakeSchema):
+        def analyze(self, request) -> RollbackTargetInspectionV1:
+            return RollbackTargetInspectionV1(
+                status="passed",
+                target_artifact_kind="ir_snapshot",
+                target_digest=_HEX,
+                target_snapshot_id=_TARGET_SNAPSHOT.snapshot_id,
+                target_version_tuple=VersionTuple(
+                    ir_snapshot_id=_TARGET_SNAPSHOT.snapshot_id,
+                    tool_version="fixture@1",
+                ),
+            )
+
+    outcome = _handler(store, schema=MissingBinding())(_context(store, _payload()))
+
+    assert outcome.summary.outcome_code == "rollback_validation_unproven"
+    evidence = _evidence_set(store, outcome)
+    schema = next(item for item in evidence.requirements if item.kind == "schema")
+    assert schema.status == "unproven"
+    assert schema.reason_code == "rollback_schema_execution_unavailable"
+
+
+def test_mismatched_impact_execution_binding_is_an_integrity_violation() -> None:
+    store = _store()
+
+    class WrongBinding(_FakeImpact):
+        def analyze(self, request) -> DimensionCheckV1:
+            return DimensionCheckV1(
+                status="passed",
+                profile_binding=_SCHEMA_BINDING,
+                rollback_profile_binding=request.rollback_profile_binding,
+            )
+
+    with pytest.raises(IntegrityViolation, match="impact analyzer used another execution profile"):
+        _handler(store, impact=WrongBinding())(_context(store, _payload()))
+
+
+def test_regression_request_closes_target_snapshot_seed_profile_and_budget() -> None:
+    store = _store()
+    runner = _PassingRegressionRunner()
+
+    _handler(store, regression_runner=runner)(
+        _context(store, _payload(regression=(REGRESSION_SUITE_ID,)), seed=17)
+    )
+
+    [request] = runner.requests
+    assert request.snapshot_id == _TARGET_SNAPSHOT.snapshot_id
+    assert request.snapshot is not None
+    assert request.snapshot.snapshot_id == _TARGET_SNAPSHOT.snapshot_id
+    assert request.root_seed == 17
+    assert request.run_kind == ROLLBACK_VALIDATE_KIND
+    assert request.profile == _ROLLBACK_PROFILE
+    assert request.max_action_work_units is not None
+
+
+def test_regression_dimension_seed_comes_from_the_exact_execution_request() -> None:
+    class MisreportingSeedRunner:
+        def run(self, request) -> RegressionSuiteResultV1:
+            return RegressionSuiteResultV1(
+                suite_artifact_id=request.suite_artifact_id,
+                status="passed",
+                env_contract_version="suite-env@1",
+                payload={
+                    "payload_schema_version": "forged-regression-evidence@9",
+                    "suite_artifact_id": request.suite_artifact_id,
+                    "snapshot_id": request.snapshot_id,
+                    "seed": request.seed + 1,
+                    "status": "failed",
+                },
+                action_work_units=1,
+            )
+
+    store = _store()
+    outcome = _handler(store, regression_runner=MisreportingSeedRunner())(
+        _context(store, _payload(regression=(REGRESSION_SUITE_ID,)), seed=None)
+    )
+    artifact = next(
+        item
+        for item in outcome.artifacts
+        if item.meta.get("requirement_id") == f"regression:{REGRESSION_SUITE_ID}"
+    )
+    sealed = json.loads(store.read_prepared(artifact.object_ref))
+
+    assert sealed["detail"]["payload_schema_version"] == "regression-evidence@1"
+    assert sealed["detail"]["seed"] == 0
+    assert sealed["detail"]["status"] == "passed"
+
+
+def test_regression_requires_measured_work_for_an_executed_verdict() -> None:
+    class MissingWorkRunner:
+        def run(self, request) -> RegressionSuiteResultV1:
+            return RegressionSuiteResultV1(
+                suite_artifact_id=request.suite_artifact_id,
+                status="passed",
+                payload={
+                    "payload_schema_version": "regression-evidence@1",
+                    "suite_artifact_id": request.suite_artifact_id,
+                    "snapshot_id": request.snapshot_id,
+                    "status": "passed",
+                },
+            )
+
+    store = _store()
+    with pytest.raises(IntegrityViolation, match="omitted measured action work"):
+        _handler(store, regression_runner=MissingWorkRunner())(
+            _context(store, _payload(regression=(REGRESSION_SUITE_ID,)), seed=17)
+        )
+
+
+def test_regression_suites_share_one_aggregate_work_ledger() -> None:
+    class BudgetRunner:
+        def __init__(self) -> None:
+            self.requests = []
+            self.works = iter((MAX_REPAIR_REGRESSION_WORK_UNITS_V1 - 1, 2))
+
+        def run(self, request) -> RegressionSuiteResultV1:
+            self.requests.append(request)
+            return RegressionSuiteResultV1(
+                suite_artifact_id=request.suite_artifact_id,
+                status="passed",
+                payload={
+                    "payload_schema_version": "regression-evidence@1",
+                    "suite_artifact_id": request.suite_artifact_id,
+                    "snapshot_id": request.snapshot_id,
+                    "status": "passed",
+                },
+                action_work_units=next(self.works),
+            )
+
+    store = _store()
+    runner = BudgetRunner()
+    with pytest.raises(IntegrityViolation, match="aggregate work budget"):
+        _handler(store, regression_runner=runner)(
+            _context(
+                store,
+                _payload(regression=(REGRESSION_SUITE_ID, SECOND_REGRESSION_SUITE_ID)),
+                seed=17,
+            )
+        )
+
+    assert [request.max_action_work_units for request in runner.requests] == [
+        MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
+        1,
+    ]
+
+
+def test_dimension_local_lineage_retains_consumed_current_and_suite_inputs() -> None:
+    store = _store()
+    outcome = _handler(store, regression_runner=_PassingRegressionRunner())(
+        _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
+    )
+    payloads_by_requirement = {
+        json.loads(store.read_prepared(item.object_ref))["requirement_id"]: (
+            item,
+            json.loads(store.read_prepared(item.object_ref)),
+        )
+        for item in outcome.artifacts
+        if item.kind == "regression_evidence"
+    }
+
+    impact, impact_payload = payloads_by_requirement["impact:impact@1"]
+    regression, regression_payload = payloads_by_requirement[f"regression:{REGRESSION_SUITE_ID}"]
+    assert _EXPECTED_REF.artifact_id in impact.lineage
+    assert impact_payload["lineage_suite_artifact_ids"] == []
+    assert REGRESSION_SUITE_ID in regression.lineage
+    assert regression_payload["lineage_suite_artifact_ids"] == [REGRESSION_SUITE_ID]
 
 
 def test_unproven_regression_seals_the_adapter_reason_on_both_wires() -> None:
@@ -282,6 +647,10 @@ def test_unproven_regression_seals_the_adapter_reason_on_both_wires() -> None:
 
 def test_rollback_validation_is_byte_deterministic() -> None:
     store_a, store_b = _store(), _store()
-    out_a = _handler(store_a)(_context(store_a, _payload(regression=(REGRESSION_SUITE_ID,))))
-    out_b = _handler(store_b)(_context(store_b, _payload(regression=(REGRESSION_SUITE_ID,))))
+    out_a = _handler(store_a, regression_runner=_PassingRegressionRunner())(
+        _context(store_a, _payload(regression=(REGRESSION_SUITE_ID,)))
+    )
+    out_b = _handler(store_b, regression_runner=_PassingRegressionRunner())(
+        _context(store_b, _payload(regression=(REGRESSION_SUITE_ID,)))
+    )
     assert [a.payload_hash for a in out_a.artifacts] == [a.payload_hash for a in out_b.artifacts]

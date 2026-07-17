@@ -6,7 +6,7 @@ from collections.abc import Callable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -51,6 +51,14 @@ if TYPE_CHECKING:
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
 PositiveInt = Annotated[int, Field(gt=0)]
+
+
+_TerminalResult = TypeVar("_TerminalResult")
+_MAX_TERMINAL_STAGE_ATTEMPTS = 3
+
+
+class _TerminalProjectionDrift(IntegrityViolation):
+    """Fresh terminal authority no longer matches the blob-staged projection."""
 
 
 class _FrozenModel(BaseModel):
@@ -866,6 +874,23 @@ def _run_terminal_status(
     return "failed"
 
 
+def _require_exact_staged_projection(
+    *,
+    fresh_drafts: tuple[TerminalPublicationDraft, ...],
+    staged_publications: tuple[StagedTerminalPublication, ...],
+) -> None:
+    """Reject stage/write drift before any terminal authority is mutated."""
+
+    fresh_digests = tuple(draft.projection_digest for draft in fresh_drafts)
+    staged_digests = tuple(item.projection_digest for item in staged_publications)
+    if fresh_digests != staged_digests:
+        raise _TerminalProjectionDrift(
+            "fresh terminal authority differs from the staged projection",
+            fresh_publication_count=len(fresh_digests),
+            staged_publication_count=len(staged_digests),
+        )
+
+
 class RunLifecycleService:
     def __init__(
         self,
@@ -894,6 +919,45 @@ class RunLifecycleService:
         self._planning_scope = planning_scope
         self._bind_planning_capabilities = bind_planning_capabilities
         self._stage_publications = stage_publications
+
+    def _stage_then_publish(
+        self,
+        *,
+        plan: Callable[[datetime], tuple[TerminalPublicationDraft, ...]],
+        publish: Callable[[datetime, tuple[StagedTerminalPublication, ...]], _TerminalResult],
+    ) -> _TerminalResult:
+        """Bound the read -> blob stage -> fresh write-authority convergence loop.
+
+        Blob staging deliberately happens outside the database UoW.  Authority can
+        therefore change after a valid draft was staged.  A fresh write snapshot
+        detects that drift before the first repository/effect/accounting write and
+        aborts its UoW with ``_TerminalProjectionDrift``.  Replanning and restaging
+        from a new read snapshot makes a stable supersede/cancel/deadline decision
+        publish through its exact typed terminal policy.  Persistent churn remains
+        fail-closed after a small fixed number of attempts; staged blobs are only
+        verified, content-addressed GC-eligible orphans.
+        """
+
+        stager = self._stage_publications
+        if stager is None:  # pragma: no cover - callers guard the non-staged path
+            raise IntegrityViolation("terminal publication stager is unavailable")
+        last_drift: _TerminalProjectionDrift | None = None
+        for stage_attempt in range(1, _MAX_TERMINAL_STAGE_ATTEMPTS + 1):
+            operation_now = _utc_now(self._clock)
+            drafts = plan(operation_now)
+            staged = stager.stage(drafts)
+            if len(staged) != len(drafts):
+                raise IntegrityViolation("terminal stager returned another publication count")
+            try:
+                return publish(operation_now, staged)
+            except _TerminalProjectionDrift as exc:
+                last_drift = exc
+                if stage_attempt == _MAX_TERMINAL_STAGE_ATTEMPTS:
+                    break
+        raise IntegrityViolation(
+            "terminal authority did not stabilize across bounded replan/restage",
+            stage_attempts=_MAX_TERMINAL_STAGE_ATTEMPTS,
+        ) from last_drift
 
     def start_attempt(self, request: StartAttemptRequest) -> StartAttemptResult:
         with self._unit_of_work.begin() as transaction:
@@ -1097,15 +1161,16 @@ class RunLifecycleService:
         request: PublishAttemptOutcomeRequest,
     ) -> AttemptOutcomePublicationResult:
         if self._stage_publications is not None:
-            operation_now = _utc_now(self._clock)
-            drafts = self._plan_attempt_outcome(request=request, now=operation_now)
-            staged = self._stage_publications.stage(drafts)
-            if len(staged) != len(drafts):
-                raise IntegrityViolation("terminal stager returned another publication count")
-            return self._publish_attempt_outcome_in_write_uow(
-                request=request,
-                operation_now=operation_now,
-                staged_publications=staged,
+            return self._stage_then_publish(
+                plan=lambda operation_now: self._plan_attempt_outcome(
+                    request=request,
+                    now=operation_now,
+                ),
+                publish=lambda operation_now, staged: self._publish_attempt_outcome_in_write_uow(
+                    request=request,
+                    operation_now=operation_now,
+                    staged_publications=staged,
+                ),
             )
         return self._publish_attempt_outcome_in_write_uow(
             request=request,
@@ -1200,11 +1265,11 @@ class RunLifecycleService:
                 if staged_publications is None:
                     published_result = publication.publish_run_result(**publication_kwargs)
                 else:
-                    if len(staged_publications) != 1:
-                        raise IntegrityViolation(
-                            "success terminal staging requires exactly one draft"
-                        )
                     fresh_draft = publication.plan_run_result(**publication_kwargs)
+                    _require_exact_staged_projection(
+                        fresh_drafts=(fresh_draft,),
+                        staged_publications=staged_publications,
+                    )
                     published_result = publication.commit(
                         fresh_draft,
                         staged_publications[0],
@@ -1418,15 +1483,16 @@ class RunLifecycleService:
         request: ReapExpiredLeaseRequest,
     ) -> AttemptOutcomePublicationResult:
         if self._stage_publications is not None:
-            operation_now = _utc_now(self._clock)
-            drafts = self._plan_reap_expired_lease(request=request, now=operation_now)
-            staged = self._stage_publications.stage(drafts)
-            if len(staged) != len(drafts):
-                raise IntegrityViolation("terminal stager returned another publication count")
-            return self._reap_expired_lease_in_write_uow(
-                request=request,
-                operation_now=operation_now,
-                staged_publications=staged,
+            return self._stage_then_publish(
+                plan=lambda operation_now: self._plan_reap_expired_lease(
+                    request=request,
+                    now=operation_now,
+                ),
+                publish=lambda operation_now, staged: self._reap_expired_lease_in_write_uow(
+                    request=request,
+                    operation_now=operation_now,
+                    staged_publications=staged,
+                ),
             )
         return self._reap_expired_lease_in_write_uow(
             request=request,
@@ -1631,15 +1697,16 @@ class RunLifecycleService:
         request: SweepRunTimeoutRequest,
     ) -> AttemptOutcomePublicationResult:
         if self._stage_publications is not None:
-            operation_now = _utc_now(self._clock)
-            drafts = self._plan_sweep_timeout(request=request, now=operation_now)
-            staged = self._stage_publications.stage(drafts)
-            if len(staged) != len(drafts):
-                raise IntegrityViolation("terminal stager returned another publication count")
-            return self._sweep_timeout_in_write_uow(
-                request=request,
-                operation_now=operation_now,
-                staged_publications=staged,
+            return self._stage_then_publish(
+                plan=lambda operation_now: self._plan_sweep_timeout(
+                    request=request,
+                    now=operation_now,
+                ),
+                publish=lambda operation_now, staged: self._sweep_timeout_in_write_uow(
+                    request=request,
+                    operation_now=operation_now,
+                    staged_publications=staged,
+                ),
             )
         return self._sweep_timeout_in_write_uow(
             request=request,
@@ -2247,8 +2314,6 @@ class RunLifecycleService:
             run_publication: RunFailurePublication | None = None
         else:
             expected_count = 1 if retrying else 2
-            if len(staged_publications) != expected_count:
-                raise IntegrityViolation("active failure terminal staging has another draft count")
             fresh_drafts = publication.plan_active_failure_aggregate(
                 run=run,
                 attempt=attempt,
@@ -2261,6 +2326,10 @@ class RunLifecycleService:
             )
             if len(fresh_drafts) != expected_count:
                 raise IntegrityViolation("fresh active failure aggregate has another draft count")
+            _require_exact_staged_projection(
+                fresh_drafts=fresh_drafts,
+                staged_publications=staged_publications,
+            )
             committed = publication.commit_many(
                 tuple(zip(fresh_drafts, staged_publications, strict=True))
             )
@@ -2511,12 +2580,13 @@ class RunLifecycleService:
         if staged_publications is None:
             run_publication = publication.publish_run_failure(**publication_kwargs)
         else:
-            if len(staged_publications) != 1:
-                raise IntegrityViolation(
-                    "inactive failure terminal staging requires exactly one draft"
-                )
+            fresh_draft = publication.plan_run_failure(**publication_kwargs)
+            _require_exact_staged_projection(
+                fresh_drafts=(fresh_draft,),
+                staged_publications=staged_publications,
+            )
             run_publication = publication.commit(
-                publication.plan_run_failure(**publication_kwargs),
+                fresh_draft,
                 staged_publications[0],
             )
             if not isinstance(run_publication, RunFailurePublication):

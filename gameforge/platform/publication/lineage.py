@@ -47,6 +47,18 @@ class TypedLineage:
     parents_by_role: Mapping[str, tuple[ParentInfo, ...]]
 
 
+class _ResolvedChildPayloadReferences(dict[str, ParentInfo]):
+    """Flat compatibility map plus the exact payload-reference role per id."""
+
+    def __init__(
+        self,
+        values: Mapping[str, ParentInfo],
+        roles_by_id: Mapping[str, str],
+    ) -> None:
+        super().__init__(values)
+        self.roles_by_id = dict(roles_by_id)
+
+
 def resolve_child_payload_references(
     *,
     policy: ArtifactLineagePolicyV1,
@@ -64,6 +76,7 @@ def resolve_child_payload_references(
     """
 
     resolved: dict[str, ParentInfo] = {}
+    roles_by_id: dict[str, str] = {}
     referenced_ids: list[str] = []
     for rule in policy.parent_rules:
         if rule.source != "child_payload_reference":
@@ -127,12 +140,13 @@ def resolve_child_payload_references(
                     artifact_id=artifact_id,
                 )
             resolved[artifact_id] = info
+            roles_by_id[artifact_id] = rule.parent_role
             referenced_ids.append(artifact_id)
     if len(referenced_ids) != len(set(referenced_ids)):
         raise IntegrityViolation(
             "one child Artifact ID is claimed by multiple payload-reference roles"
         )
-    return resolved, tuple(referenced_ids)
+    return _ResolvedChildPayloadReferences(resolved, roles_by_id), tuple(referenced_ids)
 
 
 def _candidate_for_rule(
@@ -149,6 +163,9 @@ def _candidate_for_rule(
         pool = sources.prepared_siblings.get(rule.source_rule_id or "", {})
         info = pool.get(parent_id)
     elif rule.source == "child_payload_reference":
+        roles_by_id = getattr(sources.child_payload_references, "roles_by_id", None)
+        if roles_by_id is not None and roles_by_id.get(parent_id) != rule.parent_role:
+            return None
         info = sources.child_payload_references.get(parent_id)
     else:  # pragma: no cover - exhaustive over ArtifactParentRuleV1.source
         return None

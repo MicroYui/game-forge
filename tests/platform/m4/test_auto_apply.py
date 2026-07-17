@@ -6,7 +6,10 @@ from typing import Any, Literal
 
 import pytest
 
-from gameforge.contracts.canonical import canonical_sha256
+from gameforge.contracts.auto_apply_ownership import (
+    AUTO_APPLY_IR_ALL_TAG_V1,
+    auto_apply_ir_classifier_binding,
+)
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileDefinitionV1,
     ProfileRefV1,
@@ -68,6 +71,7 @@ from gameforge.platform.approvals.auto_apply import (
     OracleEvidenceClaims,
     QualifiedOutcomeEvidenceClaims,
     ResolvedArtifactPayload,
+    is_auto_apply_candidate_eligible,
     validate_auto_apply,
 )
 
@@ -117,14 +121,17 @@ def _artifact_payload(
     )
 
 
-def _domain_registry(domain_ids: tuple[str, ...]) -> DomainRegistryV1:
+def _domain_registry(
+    domain_ids: tuple[str, ...], *, ownership_complete: bool = True
+) -> DomainRegistryV1:
     definitions = tuple(
         DomainDefinitionV1(
             domain_id=domain_id,
             display_name=domain_id,
+            tags=((AUTO_APPLY_IR_ALL_TAG_V1,) if ownership_complete and index == 0 else ()),
             status="active",
         )
-        for domain_id in domain_ids
+        for index, domain_id in enumerate(domain_ids)
     )
     version = "domains@1"
     return DomainRegistryV1(
@@ -183,9 +190,7 @@ def _oracle_registry(
         definitions.append(
             DeterministicOracleDefinitionV1(
                 **unrelated_fields,
-                oracle_digest=compute_deterministic_oracle_digest(
-                    **unrelated_fields
-                ),
+                oracle_digest=compute_deterministic_oracle_digest(**unrelated_fields),
             )
         )
     canonical_definitions = tuple(definitions)
@@ -360,11 +365,15 @@ def _build_case(
     required_outcome_payload_schema_id: str = "regression-evidence@1",
     include_oracle_binding: bool = True,
     include_outcome_binding: bool = True,
+    ownership_complete: bool = True,
     outcome_claim_overrides: dict[str, Any] | None = None,
     extra_evidence_set_parent: str | None = None,
     extra_proof_parent: str | None = None,
 ) -> dict[str, Any]:
-    domain_registry = _domain_registry(known_domain_ids)
+    domain_registry = _domain_registry(
+        known_domain_ids,
+        ownership_complete=ownership_complete,
+    )
     affected_scope = DomainScope(domain_ids=affected_domain_ids)
     oracle_registry = _oracle_registry(
         domain_registry=domain_registry,
@@ -468,9 +477,7 @@ def _build_case(
         lineage=oracle_parent_ids,
     )
     outcome_claims: dict[str, Any] = {
-        "rule": policy_registry.policies[0].required_outcome_rules[0].model_dump(
-            mode="json"
-        ),
+        "rule": policy_registry.policies[0].required_outcome_rules[0].model_dump(mode="json"),
         "requirement_id": "regression",
         "subject_artifact_id": subject.artifact.artifact_id,
         "subject_digest": subject.artifact.payload_hash,
@@ -535,21 +542,29 @@ def _build_case(
     )
 
     oracle_bindings = (
-        AutoApplyOracleEvidenceBindingV1(
-            oracle=oracle_ref,
-            evaluated_domain_scope=affected_scope,
-            evidence_artifact_id=oracle_evidence.artifact.artifact_id,
-            evidence_payload_hash=oracle_evidence.artifact.payload_hash,
-        ),
-    ) if include_oracle_binding else ()
+        (
+            AutoApplyOracleEvidenceBindingV1(
+                oracle=oracle_ref,
+                evaluated_domain_scope=affected_scope,
+                evidence_artifact_id=oracle_evidence.artifact.artifact_id,
+                evidence_payload_hash=oracle_evidence.artifact.payload_hash,
+            ),
+        )
+        if include_oracle_binding
+        else ()
+    )
     outcome_bindings = (
-        AutoApplyOutcomeEvidenceBindingV1(
-            rule=policy_registry.policies[0].required_outcome_rules[0],
-            requirement_id="regression",
-            evidence_artifact_id=outcome_evidence.artifact.artifact_id,
-            evidence_payload_hash=outcome_evidence.artifact.payload_hash,
-        ),
-    ) if include_outcome_binding else ()
+        (
+            AutoApplyOutcomeEvidenceBindingV1(
+                rule=policy_registry.policies[0].required_outcome_rules[0],
+                requirement_id="regression",
+                evidence_artifact_id=outcome_evidence.artifact.artifact_id,
+                evidence_payload_hash=outcome_evidence.artifact.payload_hash,
+            ),
+        )
+        if include_outcome_binding
+        else ()
+    )
     proof_payload = AutoApplyProofV1(
         subject_artifact_id=subject.artifact.artifact_id,
         subject_digest=subject.artifact.payload_hash,
@@ -620,6 +635,7 @@ def _build_case(
         auto_apply_proof=proof_binding,
         created_at="2026-07-14T00:00:00Z",
     )
+    classifier = auto_apply_ir_classifier_binding(domain_registry)
     assessment = AutoApplyChangeAssessment(
         base_artifact_id=_BASE_ARTIFACT_ID,
         base_snapshot_id=_BASE_SNAPSHOT_ID,
@@ -629,8 +645,8 @@ def _build_case(
         target_snapshot_id=_TARGET_SNAPSHOT_ID,
         target_digest=target.artifact.payload_hash,
         target_payload_schema_id="ir-snapshot@1",
-        schema_id="game-content-schema@1",
-        schema_digest=canonical_sha256({"schema": "game-content-schema@1"}),
+        schema_id=classifier.classifier_schema_id,
+        schema_digest=classifier.classifier_schema_digest,
         affected_domain_scope=affected_scope,
         field_classification_complete=field_classification_complete,
         numeric_value_changed=numeric_value_changed,
@@ -663,8 +679,288 @@ def _assert_rejected(case: dict[str, Any], reason_code: str) -> None:
     assert raised.value.context["reason_code"] == reason_code
 
 
+def _candidate_args(case: dict[str, Any]) -> dict[str, Any]:
+    target_binding = case["item"].target_binding
+    proof_binding = case["item"].auto_apply_proof
+    assert isinstance(target_binding, PatchTargetBindingV1)
+    assert proof_binding is not None
+    return {
+        "subject": case["subject"],
+        "target": case["target"],
+        "target_binding": target_binding,
+        "policy_ref": proof_binding.policy,
+        "domain_registry": case["domain_registry"],
+        "policy_registry": case["policy_registry"],
+        "oracle_registry": case["oracle_registry"],
+        "validation_profile": case["validation_profile"],
+        "change_assessment": case["change_assessment"],
+        "current_ref": case["current_ref"],
+    }
+
+
+def _with_additional_outcome_requirement(
+    case: dict[str, Any],
+    *,
+    requirement_id: str,
+    include_proof_binding: bool = True,
+) -> dict[str, Any]:
+    subject = case["subject"]
+    target = case["target"]
+    target_binding = case["item"].target_binding
+    assert isinstance(target_binding, PatchTargetBindingV1)
+    rule = case["policy_registry"].policies[0].required_outcome_rules[0]
+
+    retained_snapshot = case["resolved_outcome_policies"][0]
+    additional_requirement = ResolvedArtifactRequirementV1(
+        requirement_id=requirement_id,
+        outcome_rule_id=rule.outcome_rule_id,
+        artifact_kind="regression_evidence",
+        payload_schema_id="regression-evidence@1",
+        ordinal=2,
+    )
+    snapshot_fields = {
+        "resolved_policy_id": retained_snapshot.resolved_policy_id,
+        "source_profile_field_path": retained_snapshot.source_profile_field_path,
+        "source_profile_payload_hash": retained_snapshot.source_profile_payload_hash,
+        "requirements": (*retained_snapshot.requirements, additional_requirement),
+    }
+    expanded_snapshot = ResolvedPolicySnapshotV1(
+        **snapshot_fields,
+        digest=resolved_policy_snapshot_digest(snapshot_fields),
+    )
+
+    claims = QualifiedOutcomeEvidenceClaims(
+        rule=rule,
+        requirement_id=requirement_id,
+        subject_artifact_id=subject.artifact.artifact_id,
+        subject_digest=subject.artifact.payload_hash,
+        target_binding=target_binding,
+        evaluated_domain_scope=case["change_assessment"].affected_domain_scope,
+        verdict="passed",
+        verdict_authority="deterministic",
+        direct_parent_artifact_ids=(
+            subject.artifact.artifact_id,
+            target.artifact.artifact_id,
+        ),
+    )
+    additional_evidence = _artifact_payload(
+        kind="regression_evidence",
+        payload_schema_id="regression-evidence@1",
+        payload=claims,
+        lineage=(subject.artifact.artifact_id, target.artifact.artifact_id),
+    )
+
+    evidence_set_payload = EvidenceSet.model_validate(
+        json.loads(case["evidence_set"].payload_bytes)
+    )
+    evidence_set_payload = EvidenceSet.model_validate(
+        {
+            **evidence_set_payload.model_dump(mode="python"),
+            "requirements": (
+                *evidence_set_payload.requirements,
+                EvidenceRequirement(
+                    requirement_id=requirement_id,
+                    kind="regression",
+                    applicability="required",
+                    status="passed",
+                    evidence_artifact_id=additional_evidence.artifact.artifact_id,
+                    tool_version="regression@1",
+                ),
+            ),
+        }
+    )
+    evidence_records = (*case["evidence_artifacts"], additional_evidence)
+    expanded_evidence_set = _artifact_payload(
+        kind="validation_evidence",
+        payload_schema_id="evidence-set@1",
+        payload=evidence_set_payload,
+        lineage=(
+            subject.artifact.artifact_id,
+            target.artifact.artifact_id,
+            *(record.artifact.artifact_id for record in evidence_records),
+        ),
+    )
+
+    proof_payload = AutoApplyProofV1.model_validate(json.loads(case["proof"].payload_bytes))
+    additional_binding = AutoApplyOutcomeEvidenceBindingV1(
+        rule=rule,
+        requirement_id=requirement_id,
+        evidence_artifact_id=additional_evidence.artifact.artifact_id,
+        evidence_payload_hash=additional_evidence.artifact.payload_hash,
+    )
+    outcome_bindings = proof_payload.required_outcome_evidence
+    if include_proof_binding:
+        outcome_bindings = (*outcome_bindings, additional_binding)
+    proof_payload = AutoApplyProofV1.model_validate(
+        {
+            **proof_payload.model_dump(mode="python"),
+            "validation_evidence_artifact_id": expanded_evidence_set.artifact.artifact_id,
+            "regression_evidence_artifact_ids": (
+                *proof_payload.regression_evidence_artifact_ids,
+                additional_evidence.artifact.artifact_id,
+            ),
+            "required_outcome_evidence": outcome_bindings,
+        }
+    )
+    expanded_proof = _artifact_payload(
+        kind="validation_evidence",
+        payload_schema_id="auto-apply-proof@1",
+        payload=proof_payload,
+        lineage=(
+            subject.artifact.artifact_id,
+            target.artifact.artifact_id,
+            expanded_evidence_set.artifact.artifact_id,
+            *(record.artifact.artifact_id for record in evidence_records),
+        ),
+    )
+
+    old_proof_binding = case["item"].auto_apply_proof
+    assert old_proof_binding is not None
+    expanded_proof_binding = AutoApplyProofBindingV1(
+        proof_artifact_id=expanded_proof.artifact.artifact_id,
+        policy=old_proof_binding.policy,
+        subject_digest=old_proof_binding.subject_digest,
+        target_digest=old_proof_binding.target_digest,
+        expected_ref=old_proof_binding.expected_ref,
+        validation_evidence_artifact_id=expanded_evidence_set.artifact.artifact_id,
+    )
+    expanded_item = ApprovalItem.model_validate(
+        {
+            **case["item"].model_dump(mode="python"),
+            "evidence_set_artifact_id": expanded_evidence_set.artifact.artifact_id,
+            "regression_evidence_artifact_ids": proof_payload.regression_evidence_artifact_ids,
+            "auto_apply_proof": expanded_proof_binding,
+        }
+    )
+    return {
+        **case,
+        "item": expanded_item,
+        "proof": expanded_proof,
+        "evidence_set": expanded_evidence_set,
+        "evidence_artifacts": evidence_records,
+        "resolved_outcome_policies": (expanded_snapshot,),
+    }
+
+
 def test_auto_apply_accepts_one_exactly_closed_deterministic_patch_proof() -> None:
     validate_auto_apply(**_build_case())
+
+
+def test_auto_apply_expands_one_required_rule_to_all_resolved_requirements() -> None:
+    case = _with_additional_outcome_requirement(
+        _build_case(),
+        requirement_id="alpha-regression",
+    )
+
+    proof = AutoApplyProofV1.model_validate(json.loads(case["proof"].payload_bytes))
+    assert [
+        (binding.rule.outcome_rule_id, binding.requirement_id)
+        for binding in proof.required_outcome_evidence
+    ] == [
+        ("regression-passed", "alpha-regression"),
+        ("regression-passed", "regression"),
+    ]
+    validate_auto_apply(**case)
+
+
+def test_auto_apply_rejects_one_missing_requirement_from_a_required_rule() -> None:
+    case = _with_additional_outcome_requirement(
+        _build_case(),
+        requirement_id="alpha-regression",
+        include_proof_binding=False,
+    )
+
+    _assert_rejected(case, "required_outcome_set_mismatch")
+
+
+def test_auto_apply_validates_each_artifact_from_an_expanded_required_rule() -> None:
+    case = _with_additional_outcome_requirement(
+        _build_case(),
+        requirement_id="alpha-regression",
+    )
+    additional = case["evidence_artifacts"][-1]
+    case["evidence_artifacts"] = (
+        *case["evidence_artifacts"][:-1],
+        replace(additional, payload_schema_id="wrong-regression@1"),
+    )
+
+    _assert_rejected(case, "outcome_artifact_schema_mismatch")
+
+
+def test_candidate_eligibility_reuses_the_exact_prepublication_policy_guard() -> None:
+    case = _build_case()
+    assert is_auto_apply_candidate_eligible(**_candidate_args(case))
+
+    forbidden = _build_case(allowed_operation_kinds=("delete_relation",))
+    assert not is_auto_apply_candidate_eligible(**_candidate_args(forbidden))
+
+    stale_ref = _candidate_args(_build_case())
+    stale_ref["current_ref"] = RefValue(artifact_id="artifact:stale", revision=8)
+    assert not is_auto_apply_candidate_eligible(**stale_ref)
+
+
+def test_candidate_eligibility_rejects_forged_classifier_authority() -> None:
+    case = _build_case()
+    candidate = _candidate_args(case)
+    candidate["change_assessment"] = replace(
+        candidate["change_assessment"],
+        schema_digest="0" * 64,
+    )
+
+    with pytest.raises(AutoApplyGuardError) as raised:
+        is_auto_apply_candidate_eligible(**candidate)
+
+    assert raised.value.context["reason_code"] == "change_assessment_mismatch"
+
+
+def test_candidate_eligibility_rejects_incomplete_multi_domain_ownership() -> None:
+    case = _build_case(ownership_complete=False)
+
+    with pytest.raises(AutoApplyGuardError) as raised:
+        is_auto_apply_candidate_eligible(**_candidate_args(case))
+
+    assert raised.value.context["reason_code"] == "domain_ownership_incomplete"
+
+
+@pytest.mark.parametrize("authority", ["policy", "profile", "assessment", "payload"])
+def test_candidate_eligibility_fails_typed_on_malformed_authority(authority: str) -> None:
+    case = _build_case()
+    candidate = _candidate_args(case)
+    expected_reason = {
+        "policy": "policy_registry_mismatch",
+        "profile": "validation_profile_mismatch",
+        "assessment": "change_assessment_mismatch",
+        "payload": "artifact_payload_hash_mismatch",
+    }[authority]
+    if authority == "policy":
+        old = candidate["policy_registry"]
+        candidate["policy_registry"] = AutoApplyPolicyRegistryV1(
+            registry_version="auto@other",
+            policies=old.policies,
+            registry_digest=compute_auto_apply_policy_registry_digest("auto@other", old.policies),
+        )
+    elif authority == "profile":
+        profile = candidate["validation_profile"]
+        details = profile.details
+        assert isinstance(details, ValidationProfileDetailsV1)
+        candidate["validation_profile"] = profile.model_copy(
+            update={"details": details.model_copy(update={"auto_apply_policy": None})}
+        )
+    elif authority == "assessment":
+        candidate["change_assessment"] = replace(
+            candidate["change_assessment"],
+            target_snapshot_id="sha256:other-target",
+        )
+    else:
+        subject = candidate["subject"]
+        candidate["subject"] = replace(
+            subject,
+            payload_bytes=subject.payload_bytes + b" ",
+        )
+
+    with pytest.raises(AutoApplyGuardError) as raised:
+        is_auto_apply_candidate_eligible(**candidate)
+    assert raised.value.context["reason_code"] == expected_reason
 
 
 @pytest.mark.parametrize(
@@ -687,7 +983,10 @@ def test_auto_apply_is_exclusive_to_the_dedicated_patch_outcome(
 @pytest.mark.parametrize(
     ("updates", "reason_code"),
     [
-        ({"maximum_operation_count": 1, "patch_operation_kinds": ("add_relation",) * 2}, "operation_count_exceeded"),
+        (
+            {"maximum_operation_count": 1, "patch_operation_kinds": ("add_relation",) * 2},
+            "operation_count_exceeded",
+        ),
         ({"allowed_operation_kinds": ("delete_relation",)}, "operation_kind_forbidden"),
     ],
 )
@@ -765,9 +1064,7 @@ def test_auto_apply_binds_the_exact_historical_policy_registry() -> None:
     case["policy_registry"] = AutoApplyPolicyRegistryV1(
         registry_version="auto@other",
         policies=old.policies,
-        registry_digest=compute_auto_apply_policy_registry_digest(
-            "auto@other", old.policies
-        ),
+        registry_digest=compute_auto_apply_policy_registry_digest("auto@other", old.policies),
     )
     _assert_rejected(case, "policy_registry_mismatch")
 
@@ -927,9 +1224,9 @@ def test_auto_apply_outcome_artifact_kind_is_exact() -> None:
         ),
         (
             {
-                "evaluated_domain_scope": DomainScope(
-                    domain_ids=("numeric",)
-                ).model_dump(mode="json")
+                "evaluated_domain_scope": DomainScope(domain_ids=("numeric",)).model_dump(
+                    mode="json"
+                )
             },
             "outcome_evidence_binding_mismatch",
         ),

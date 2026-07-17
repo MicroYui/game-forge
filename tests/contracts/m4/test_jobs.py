@@ -680,6 +680,20 @@ def test_every_frozen_run_kind_payload_has_a_json_round_trip() -> None:
         assert adapter.validate_python(encoded) == payload
 
 
+def test_patch_validation_v1_accepts_the_pre_extension_wire_shape() -> None:
+    payload = next(
+        item for item in _all_run_kind_payloads() if isinstance(item, PatchValidationPayloadV1)
+    )
+    historical_wire = payload.model_dump(mode="json")
+    historical_wire.pop("constraint_snapshot_artifact_id")
+    historical_wire.pop("expected_findings")
+
+    parsed = PatchValidationPayloadV1.model_validate(historical_wire)
+
+    assert parsed.constraint_snapshot_artifact_id is None
+    assert parsed.expected_findings == ()
+
+
 def test_run_payload_inputs_exactly_cover_every_referenced_artifact() -> None:
     expected_by_schema = {
         "generation-propose@1": {

@@ -33,6 +33,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from itertools import islice
 from typing import Any, Literal, Protocol
 
 from gameforge.contracts.api import (
@@ -120,6 +121,7 @@ from gameforge.contracts.jobs import (
     DrDrillPayloadV1,
     ExecutionVersionPlanV1,
     GenerationProposePayloadV1,
+    MAX_COLLECTION_ITEMS,
     PatchRepairPayloadV1,
     PatchValidationPayloadV1,
     PlaytestRunPayloadV1,
@@ -132,6 +134,7 @@ from gameforge.contracts.jobs import (
     ReviewRunPayloadV1,
     RollbackValidationPayloadV1,
     RunDispatchTraceCarrierV1,
+    RunFindingLinkV1,
     RunKindDefinition,
     RunKindPayload,
     RunPayloadEnvelope,
@@ -143,6 +146,7 @@ from gameforge.contracts.jobs import (
     patch_repair_requires_root_seed,
     referenced_input_artifact_ids,
     resolved_policy_snapshot_digest,
+    validation_regression_requires_root_seed,
 )
 from gameforge.contracts.lineage import (
     ArtifactKind,
@@ -188,6 +192,9 @@ from gameforge.platform.registry.defaults import (
     PROFILE_OUTPUT_SCHEMA_REQUIREMENTS,
 )
 from gameforge.platform.run_handlers.checker import validate_checker_work_budget
+from gameforge.platform.run_handlers.constraint_validation import (
+    BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
+)
 from gameforge.platform.run_handlers.simulation import (
     validate_economy_simulation_work_budget,
 )
@@ -765,11 +772,22 @@ def _validation_regression_requirement_ids(params: RunKindPayload) -> tuple[str,
     """
 
     if isinstance(params, PatchValidationPayloadV1):
-        return (
+        values = (
             *(f"checker:{p.profile_id}@{p.version}" for p in params.checker_profiles),
             *(f"simulation:{p.profile_id}@{p.version}" for p in params.simulation_profiles),
             *(f"regression:{suite_id}" for suite_id in params.regression_suite_artifact_ids),
+            *(
+                f"expected-finding:{binding.finding_id}@{binding.finding_revision}"
+                for binding in params.expected_findings
+            ),
+            *(
+                f"finding:{binding.finding_id}@{binding.finding_revision}"
+                for binding in params.findings
+            ),
+            *(f"review:{artifact_id}" for artifact_id in params.review_artifact_ids),
+            *(f"playtest:{artifact_id}" for artifact_id in params.playtest_trace_artifact_ids),
         )
+        return values or ("validation:required-dimension",)
     if isinstance(params, ConstraintValidationPayloadV1):
         return tuple(f"regression:{suite_id}" for suite_id in params.regression_suite_artifact_ids)
     if isinstance(params, RollbackValidationPayloadV1):
@@ -830,6 +848,8 @@ _MAX_ADMISSION_BLOB_BYTES = (
     MAX_CONFIG_EXPORT_PACKAGE_BYTES + MAX_CONFIG_EXPORT_MANIFEST_BYTES + 16 * 1024 * 1024
 )
 _MAX_PROMPT_PARENT_PRODUCER_LINKS = 1024
+_MAX_FINDING_EVIDENCE_ANCESTRY_NODES = 4096
+_MAX_FINDING_EVIDENCE_ANCESTRY_DEPTH = 64
 
 
 # ── source-write instruction produced before Run creation ────────────────────
@@ -1040,11 +1060,13 @@ class RunAdmissionEngine:
                 subject=subject,
                 base_snapshot_artifact_id=request.base_snapshot_artifact_id,
                 preview_snapshot_artifact_id=request.preview_snapshot_artifact_id,
+                constraint_snapshot_artifact_id=request.constraint_snapshot_artifact_id,
                 candidate_config_export_artifact_ids=(request.candidate_config_export_artifact_ids),
                 target=request.target,
                 validation_policy=request.validation_policy,
                 checker_profiles=request.checker_profiles,
                 simulation_profiles=request.simulation_profiles,
+                expected_findings=request.expected_findings,
                 findings=request.findings,
                 review_artifact_ids=request.review_artifact_ids,
                 playtest_trace_artifact_ids=request.playtest_trace_artifact_ids,
@@ -1878,6 +1900,27 @@ class RunAdmissionEngine:
                 base is None or expected_ref.artifact_id != base.artifact_id
             ):
                 raise Conflict("constraint target ref does not bind the exact base snapshot")
+            compiler_bindings = tuple(
+                binding
+                for binding in resolved_profiles
+                if binding.field_path == "/params/compiler_profile"
+            )
+            if len(compiler_bindings) != 1:
+                raise IntegrityViolation(
+                    "constraint validation lacks one exact compiler profile binding"
+                )
+            compiler_definition, _ = self._registry.resolve_execution_profile_binding(
+                compiler_bindings[0]
+            )
+            if (
+                compiler_definition.profile != params.compiler_profile
+                or compiler_definition.handler_key != "builtin_constraint_compiler_profile@1"
+            ):
+                raise Conflict("constraint compiler implementation is not available exactly")
+            if params.differential_engines != (BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1):
+                raise Conflict(
+                    "constraint differential engines differ from the exact compiler authority"
+                )
             return
 
         binding = item.target_binding
@@ -1889,7 +1932,8 @@ class RunAdmissionEngine:
                 subject=subject,
                 base=base,
                 preview=preview,
-                findings=params.findings,
+                constraint_snapshot_artifact_id=params.constraint_snapshot_artifact_id,
+                expected_findings=params.expected_findings,
                 read=read,
             )
             if (
@@ -1900,8 +1944,10 @@ class RunAdmissionEngine:
                 or binding.target_digest != preview.payload_hash
                 or binding.ref_name != params.target.ref_name
                 or binding.expected_ref != params.target.expected_ref
-                or params.target.expected_ref is None
-                or params.target.expected_ref.artifact_id != params.base_snapshot_artifact_id
+                or (
+                    params.target.expected_ref is not None
+                    and params.target.expected_ref.artifact_id != params.base_snapshot_artifact_id
+                )
             ):
                 raise Conflict("patch validation payload differs from its exact target binding")
             self._verify_patch_supporting_artifacts(
@@ -1973,7 +2019,8 @@ class RunAdmissionEngine:
         subject: ArtifactV2,
         base: ArtifactV2,
         preview: ArtifactV2,
-        findings: tuple[FindingEvidenceBindingV1, ...],
+        constraint_snapshot_artifact_id: str | None,
+        expected_findings: tuple[FindingEvidenceBindingV1, ...],
         read: AdmissionReadPort,
     ) -> PatchV2:
         patch = self._load_json_artifact(
@@ -1984,7 +2031,26 @@ class RunAdmissionEngine:
         )
         if not isinstance(patch, PatchV2):
             raise IntegrityViolation("Patch subject payload is invalid")
-        expected_finding_ids = tuple(sorted(item.finding_id for item in findings))
+        expected_finding_ids = tuple(sorted(item.finding_id for item in expected_findings))
+        constraint = (
+            None
+            if constraint_snapshot_artifact_id is None
+            else read.artifacts.get(constraint_snapshot_artifact_id)
+        )
+        constraint_parent_ids = {
+            parent_id
+            for parent_id in subject.lineage
+            if isinstance(parent := read.artifacts.get(parent_id), ArtifactV2)
+            and parent.kind == "constraint_snapshot"
+        }
+        expected_constraint_parent_ids = (
+            set() if constraint_snapshot_artifact_id is None else {constraint_snapshot_artifact_id}
+        )
+        semantic_constraint_id = (
+            None
+            if not isinstance(constraint, ArtifactV2)
+            else constraint.version_tuple.constraint_snapshot_id
+        )
         if (
             patch.revision != item.subject_revision
             or patch.base_snapshot_id != base.version_tuple.ir_snapshot_id
@@ -1993,8 +2059,16 @@ class RunAdmissionEngine:
             or set(preview.lineage) != {base.artifact_id, subject.artifact_id}
             or tuple(sorted(set(patch.expected_to_fix))) != expected_finding_ids
             or len(patch.expected_to_fix) != len(set(patch.expected_to_fix))
+            or constraint_parent_ids != expected_constraint_parent_ids
+            or subject.version_tuple.constraint_snapshot_id != semantic_constraint_id
         ):
             raise Conflict("Patch payload/preview does not bind the exact workflow candidate")
+        if constraint_snapshot_artifact_id is not None and (
+            not isinstance(constraint, ArtifactV2)
+            or constraint.kind != "constraint_snapshot"
+            or semantic_constraint_id is None
+        ):
+            raise Conflict("Patch constraint snapshot Artifact is unavailable or stale")
         if base.artifact_id not in subject.lineage:
             raise Conflict("Patch subject does not directly bind its exact base Artifact")
         if patch.revision == 1 and patch.supersedes_artifact_id is not None:
@@ -2055,6 +2129,11 @@ class RunAdmissionEngine:
                     "candidate config constraint differs from the Patch subject",
                     artifact_id=config_id,
                 )
+            if package.constraint_snapshot_artifact_id != params.constraint_snapshot_artifact_id:
+                raise Conflict(
+                    "candidate config does not bind the exact Patch constraint Artifact",
+                    artifact_id=config_id,
+                )
             configs[config_id] = (package, constraint)
 
         for review_id in params.review_artifact_ids:
@@ -2097,6 +2176,8 @@ class RunAdmissionEngine:
                     raise Conflict("Review evidence constraint lineage is unavailable or stale")
             elif review_artifact.version_tuple.constraint_snapshot_id is not None:
                 raise Conflict("Review evidence has an unbound constraint VersionTuple")
+            if constraint_id != params.constraint_snapshot_artifact_id:
+                raise Conflict("Review evidence does not bind the exact Patch constraint")
             self._verify_runtime_prompt_producer(
                 artifact=review_artifact,
                 runtime_parent_ids=runtime_parent_ids,
@@ -2367,8 +2448,10 @@ class RunAdmissionEngine:
             or binding.target_artifact_id != params.preview_snapshot_artifact_id
             or binding.ref_name != params.target.ref_name
             or binding.expected_ref != params.target.expected_ref
-            or params.target.expected_ref is None
-            or params.target.expected_ref.artifact_id != params.base_snapshot_artifact_id
+            or (
+                params.target.expected_ref is not None
+                and params.target.expected_ref.artifact_id != params.base_snapshot_artifact_id
+            )
         ):
             raise Conflict("repair payload does not bind the exact current failed subject")
         subject = artifacts[params.subject_patch_artifact_id]
@@ -2379,7 +2462,8 @@ class RunAdmissionEngine:
             subject=subject,
             base=base,
             preview=preview,
-            findings=params.findings,
+            constraint_snapshot_artifact_id=params.constraint_snapshot_artifact_id,
+            expected_findings=params.findings,
             read=read,
         )
         evidence_artifact = artifacts[params.validation_evidence_artifact_id]
@@ -2915,6 +2999,7 @@ class RunAdmissionEngine:
             profile_definitions.append(profile)
         stochastic = any(item.stochastic for item in profile_definitions) or (
             patch_repair_requires_root_seed(params)
+            or validation_regression_requires_root_seed(params)
         )
         if stochastic and seed is None:
             raise Conflict("profile-dependent seed is required by stochastic profiles")
@@ -4031,11 +4116,24 @@ class RunAdmissionEngine:
                 equal_ids=config_ids,
                 label="target",
             )
+            constraint_source_id = (
+                params.subject.subject_artifact_id
+                if params.constraint_snapshot_artifact_id is None
+                else params.constraint_snapshot_artifact_id
+            )
+            constraint_peers = (
+                *(
+                    ()
+                    if params.constraint_snapshot_artifact_id is None
+                    else (params.subject.subject_artifact_id,)
+                ),
+                *config_ids,
+            )
             project(
-                params.subject.subject_artifact_id,
+                constraint_source_id,
                 ("constraint_snapshot_id",),
-                equal_ids=config_ids,
-                label="subject",
+                equal_ids=constraint_peers,
+                label="constraint",
             )
             if config_ids:
                 project(
@@ -4125,9 +4223,11 @@ class RunAdmissionEngine:
     def _finding_bindings(params: RunKindPayload) -> tuple[FindingEvidenceBindingV1, ...]:
         if isinstance(
             params,
-            (GenerationProposePayloadV1, PatchRepairPayloadV1, PatchValidationPayloadV1),
+            (GenerationProposePayloadV1, PatchRepairPayloadV1),
         ):
             return params.findings
+        if isinstance(params, PatchValidationPayloadV1):
+            return (*params.expected_findings, *params.findings)
         return ()
 
     def _verify_finding_bindings(
@@ -4138,89 +4238,346 @@ class RunAdmissionEngine:
         read: AdmissionReadPort,
     ) -> None:
         bindings = self._finding_bindings(params)
-        if not bindings:
+        target_evidence_ids = (
+            tuple(
+                sorted(
+                    {
+                        *params.review_artifact_ids,
+                        *params.playtest_trace_artifact_ids,
+                        *(item.evidence_artifact_id for item in params.findings),
+                    }
+                )
+            )
+            if isinstance(params, PatchValidationPayloadV1)
+            else ()
+        )
+        if not bindings and not target_evidence_ids:
             return
         if read.findings is None or read.finding_links is None:
             raise DependencyUnavailable(
                 "Finding admission authority is unavailable",
                 component="finding_admission",
             )
-        expected_artifact_ids: tuple[str, ...]
+        if isinstance(params, PatchValidationPayloadV1):
+            self._verify_patch_target_finding_closure(
+                params=params,
+                evidence_artifact_ids=target_evidence_ids,
+                read=read,
+            )
+        binding_scopes: list[tuple[tuple[FindingEvidenceBindingV1, ...], tuple[str, ...]]] = []
         if isinstance(params, GenerationProposePayloadV1):
-            expected_artifact_ids = (params.base_snapshot_artifact_id,)
-        elif isinstance(params, (PatchRepairPayloadV1, PatchValidationPayloadV1)):
-            expected_artifact_ids = (params.preview_snapshot_artifact_id,)
-        else:
-            expected_artifact_ids = ()
-        allowed_snapshot_ids: set[str] = set()
-        for artifact_id in expected_artifact_ids:
-            snapshot_id = artifacts[artifact_id].version_tuple.ir_snapshot_id
-            if snapshot_id is None:
-                raise IntegrityViolation("Finding subject Artifact omits its IR snapshot identity")
-            allowed_snapshot_ids.add(snapshot_id)
-        for binding in bindings:
-            revision = read.findings.get(binding.finding_id, binding.finding_revision)
+            binding_scopes.append((params.findings, (params.base_snapshot_artifact_id,)))
+        elif isinstance(params, PatchRepairPayloadV1):
+            binding_scopes.append((params.findings, (params.preview_snapshot_artifact_id,)))
+        elif isinstance(params, PatchValidationPayloadV1):
+            subject = artifacts[params.subject.subject_artifact_id]
+            historical_snapshot_ids = tuple(
+                sorted(
+                    parent_id
+                    for parent_id in subject.lineage
+                    if isinstance(
+                        parent := artifacts.get(parent_id) or read.artifacts.get(parent_id),
+                        ArtifactV2,
+                    )
+                    and parent.kind == "ir_snapshot"
+                )
+            )
+            if params.expected_findings and not historical_snapshot_ids:
+                raise Conflict("Patch expected Findings have no historical snapshot lineage")
+            binding_scopes.extend(
+                (
+                    (params.expected_findings, historical_snapshot_ids),
+                    (params.findings, (params.preview_snapshot_artifact_id,)),
+                )
+            )
+        ancestry_cache: dict[tuple[str, tuple[str, ...]], bool] = {}
+        ancestry_node_budget = [0]
+        for scoped_bindings, expected_artifact_ids in binding_scopes:
+            allowed_snapshot_ids: set[str] = set()
+            for artifact_id in expected_artifact_ids:
+                artifact = artifacts.get(artifact_id) or read.artifacts.get(artifact_id)
+                if not isinstance(artifact, ArtifactV2):
+                    raise Conflict(
+                        "Finding subject snapshot Artifact is unavailable",
+                        artifact_id=artifact_id,
+                    )
+                snapshot_id = artifact.version_tuple.ir_snapshot_id
+                if snapshot_id is None:
+                    raise IntegrityViolation(
+                        "Finding subject Artifact omits its IR snapshot identity"
+                    )
+                allowed_snapshot_ids.add(snapshot_id)
+            for binding in scoped_bindings:
+                self._verify_one_finding_binding(
+                    binding=binding,
+                    expected_artifact_ids=expected_artifact_ids,
+                    allowed_snapshot_ids=allowed_snapshot_ids,
+                    artifacts=artifacts,
+                    read=read,
+                    ancestry_cache=ancestry_cache,
+                    ancestry_node_budget=ancestry_node_budget,
+                )
+
+    @staticmethod
+    def _verify_patch_target_finding_closure(
+        *,
+        params: PatchValidationPayloadV1,
+        evidence_artifact_ids: tuple[str, ...],
+        read: AdmissionReadPort,
+    ) -> None:
+        """Reject caller omission of Findings atomically linked to evidence."""
+
+        if not evidence_artifact_ids:
+            if params.findings:
+                raise IntegrityViolation("Patch target Finding evidence closure is empty")
+            return
+        list_links = getattr(
+            read.finding_links,
+            "list_finding_links_by_evidence_artifact_ids",
+            None,
+        )
+        if not callable(list_links):
+            raise DependencyUnavailable(
+                "Finding evidence-link enumeration authority is unavailable",
+                component="finding_admission",
+            )
+        enumerated_result = list_links(
+            evidence_artifact_ids,
+            max_items=MAX_COLLECTION_ITEMS,
+        )
+        try:
+            enumerated = iter(enumerated_result)
+        except TypeError as exc:
+            raise IntegrityViolation(
+                "Finding evidence-link enumeration returned a non-iterable result"
+            ) from exc
+        links = tuple(islice(enumerated, MAX_COLLECTION_ITEMS + 1))
+        if len(links) > MAX_COLLECTION_ITEMS:
+            raise IntegrityViolation(
+                "Finding evidence-link closure exceeds its contract bound",
+                maximum=MAX_COLLECTION_ITEMS,
+            )
+        if any(not isinstance(link, RunFindingLinkV1) for link in links):
+            raise IntegrityViolation("Finding evidence-link enumeration returned an invalid link")
+        order_keys = tuple(
+            (
+                link.evidence_artifact_id,
+                link.run_id,
+                link.attempt_no,
+                link.ordinal,
+            )
+            for link in links
+        )
+        if order_keys != tuple(sorted(order_keys)) or len(order_keys) != len(set(order_keys)):
+            raise IntegrityViolation("Finding evidence-link enumeration is not canonically ordered")
+        selected_evidence_ids = frozenset(evidence_artifact_ids)
+        linked_keys: list[tuple[str, str, int, str]] = []
+        seen_revisions: set[tuple[str, int]] = set()
+        for link in links:
+            if link.evidence_artifact_id not in selected_evidence_ids:
+                raise IntegrityViolation(
+                    "Finding enumeration returned an unrequested evidence Artifact"
+                )
+            identity = (link.finding_id, link.finding_revision)
+            if identity in seen_revisions:
+                raise IntegrityViolation(
+                    "selected evidence repeats an immutable Finding revision",
+                    finding_id=link.finding_id,
+                    finding_revision=link.finding_revision,
+                )
+            seen_revisions.add(identity)
+            revision = read.findings.get(link.finding_id, link.finding_revision)
             if not isinstance(revision, FindingRevisionV1):
-                raise Conflict(
-                    "Finding revision is unavailable",
-                    finding_id=binding.finding_id,
-                    finding_revision=binding.finding_revision,
+                raise IntegrityViolation(
+                    "evidence link names an unavailable Finding revision",
+                    finding_id=link.finding_id,
+                    finding_revision=link.finding_revision,
                 )
             digest = finding_revision_digest(revision)
-            if not compare_digest(digest, binding.finding_digest):
-                raise Conflict(
-                    "Finding digest differs from the retained revision",
-                    finding_id=binding.finding_id,
-                    finding_revision=binding.finding_revision,
+            if not compare_digest(digest, link.finding_digest):
+                raise IntegrityViolation(
+                    "evidence link digest differs from its Finding revision",
+                    finding_id=link.finding_id,
+                    finding_revision=link.finding_revision,
                 )
-            link = read.finding_links.get_finding_link_by_revision(
-                run_id=revision.payload.producer_run_id,
+            linked_keys.append(
+                (
+                    link.evidence_artifact_id,
+                    link.finding_id,
+                    link.finding_revision,
+                    link.finding_digest,
+                )
+            )
+        provided_keys = tuple(
+            sorted(
+                (
+                    item.evidence_artifact_id,
+                    item.finding_id,
+                    item.finding_revision,
+                    item.finding_digest,
+                )
+                for item in params.findings
+            )
+        )
+        if provided_keys != tuple(sorted(linked_keys)):
+            raise Conflict("Patch target Finding bindings do not exactly cover selected evidence")
+
+    @staticmethod
+    def _finding_evidence_descends_from_subject(
+        *,
+        evidence: ArtifactV2,
+        expected_artifact_ids: tuple[str, ...],
+        artifacts: dict[str, ArtifactV2],
+        read: AdmissionReadPort,
+        ancestry_node_budget: list[int],
+    ) -> bool:
+        """Prove subject ancestry through trusted immutable Artifact envelopes.
+
+        Playtest evidence is intentionally several hops away from its source IR
+        (trace -> config -> preview).  A VersionTuple match alone would trust a
+        producer-asserted field, while requiring a direct parent rejects that valid
+        topology.  Traverse retained ``ArtifactV2.lineage`` instead, with fixed node
+        and depth bounds and an active-path cycle guard.  The admitted subject is a
+        trust boundary: once reached, its older history is irrelevant here.
+        """
+
+        expected = frozenset(expected_artifact_ids)
+        if not expected:
+            return False
+        # (artifact id, depth, exit marker).  The exit marker implements iterative
+        # DFS so a diamond is accepted but a back-edge on the active path is not.
+        stack: list[tuple[str, int, bool]] = [(evidence.artifact_id, 0, False)]
+        active: set[str] = set()
+        complete: set[str] = set()
+        loaded: dict[str, ArtifactV2] = {evidence.artifact_id: evidence, **artifacts}
+        found_subject = False
+        while stack:
+            artifact_id, depth, exiting = stack.pop()
+            if exiting:
+                active.discard(artifact_id)
+                complete.add(artifact_id)
+                continue
+            if artifact_id in complete:
+                continue
+            if artifact_id in active:
+                raise IntegrityViolation("Finding evidence lineage contains a cycle")
+            if depth > _MAX_FINDING_EVIDENCE_ANCESTRY_DEPTH:
+                raise IntegrityViolation(
+                    "Finding evidence ancestry exceeds its depth bound",
+                    maximum=_MAX_FINDING_EVIDENCE_ANCESTRY_DEPTH,
+                )
+            ancestry_node_budget[0] += 1
+            if ancestry_node_budget[0] > _MAX_FINDING_EVIDENCE_ANCESTRY_NODES:
+                raise IntegrityViolation(
+                    "Finding evidence ancestry exceeds its node bound",
+                    maximum=_MAX_FINDING_EVIDENCE_ANCESTRY_NODES,
+                )
+            if artifact_id in expected:
+                found_subject = True
+                complete.add(artifact_id)
+                continue
+            artifact = loaded.get(artifact_id)
+            if artifact is None:
+                retained = read.artifacts.get(artifact_id)
+                if not isinstance(retained, ArtifactV2):
+                    raise Conflict(
+                        "Finding evidence ancestry Artifact is unavailable",
+                        artifact_id=artifact_id,
+                    )
+                if retained.artifact_id != artifact_id:
+                    raise IntegrityViolation(
+                        "Finding evidence ancestry returned another Artifact envelope"
+                    )
+                artifact = retained
+                loaded[artifact_id] = retained
+            active.add(artifact_id)
+            stack.append((artifact_id, depth, True))
+            stack.extend((parent_id, depth + 1, False) for parent_id in reversed(artifact.lineage))
+        return found_subject
+
+    @staticmethod
+    def _verify_one_finding_binding(
+        *,
+        binding: FindingEvidenceBindingV1,
+        expected_artifact_ids: tuple[str, ...],
+        allowed_snapshot_ids: set[str],
+        artifacts: dict[str, ArtifactV2],
+        read: AdmissionReadPort,
+        ancestry_cache: dict[tuple[str, tuple[str, ...]], bool],
+        ancestry_node_budget: list[int],
+    ) -> None:
+        revision = read.findings.get(binding.finding_id, binding.finding_revision)
+        if not isinstance(revision, FindingRevisionV1):
+            raise Conflict(
+                "Finding revision is unavailable",
                 finding_id=binding.finding_id,
                 finding_revision=binding.finding_revision,
             )
-            if link is None:
-                raise Conflict(
-                    "Finding revision has no retained producer Run link",
-                    finding_id=binding.finding_id,
-                    finding_revision=binding.finding_revision,
-                )
-            if link.run_id != revision.payload.producer_run_id or not compare_digest(
-                link.finding_digest, digest
-            ):
-                raise IntegrityViolation(
-                    "retained Finding link disagrees with its Finding revision"
-                )
-            if (
-                link.evidence_artifact_id != binding.evidence_artifact_id
-                or link.finding_digest != binding.finding_digest
-                or binding.evidence_artifact_id not in artifacts
-            ):
-                raise Conflict(
-                    "Finding evidence binding differs from the retained producer link",
-                    finding_id=binding.finding_id,
-                    finding_revision=binding.finding_revision,
-                )
-            evidence = artifacts[binding.evidence_artifact_id]
-            expected_schema = {
-                "review_report": "review@1",
-                "checker_run": "checker-report@1",
-                "simulation_run": "simulation-result@1",
-                "playtest_trace": "playtest-trace@1",
-                "validation_evidence": "evidence-set@1",
-                "regression_evidence": "regression-evidence@1",
-            }.get(evidence.kind)
-            if (
-                revision.payload.snapshot_id not in allowed_snapshot_ids
-                or evidence.version_tuple.ir_snapshot_id != revision.payload.snapshot_id
-                or not set(expected_artifact_ids).intersection(evidence.lineage)
-                or expected_schema is None
-                or evidence.meta.get("payload_schema_id") != expected_schema
-            ):
-                raise Conflict(
-                    "Finding revision/evidence does not bind an admitted subject snapshot",
-                    finding_id=binding.finding_id,
-                    finding_revision=binding.finding_revision,
-                )
+        digest = finding_revision_digest(revision)
+        if not compare_digest(digest, binding.finding_digest):
+            raise Conflict(
+                "Finding digest differs from the retained revision",
+                finding_id=binding.finding_id,
+                finding_revision=binding.finding_revision,
+            )
+        link = read.finding_links.get_finding_link_by_revision(
+            run_id=revision.payload.producer_run_id,
+            finding_id=binding.finding_id,
+            finding_revision=binding.finding_revision,
+        )
+        if link is None:
+            raise Conflict(
+                "Finding revision has no retained producer Run link",
+                finding_id=binding.finding_id,
+                finding_revision=binding.finding_revision,
+            )
+        if link.run_id != revision.payload.producer_run_id or not compare_digest(
+            link.finding_digest, digest
+        ):
+            raise IntegrityViolation("retained Finding link disagrees with its Finding revision")
+        if (
+            link.evidence_artifact_id != binding.evidence_artifact_id
+            or link.finding_digest != binding.finding_digest
+            or binding.evidence_artifact_id not in artifacts
+        ):
+            raise Conflict(
+                "Finding evidence binding differs from the retained producer link",
+                finding_id=binding.finding_id,
+                finding_revision=binding.finding_revision,
+            )
+        evidence = artifacts[binding.evidence_artifact_id]
+        expected_schema = {
+            "review_report": "review@1",
+            "checker_run": "checker-report@1",
+            "simulation_run": "simulation-result@1",
+            "playtest_trace": "playtest-trace@1",
+            "validation_evidence": "evidence-set@1",
+            "regression_evidence": "regression-evidence@1",
+        }.get(evidence.kind)
+        ancestry_key = (evidence.artifact_id, expected_artifact_ids)
+        if ancestry_key in ancestry_cache:
+            subject_ancestry = ancestry_cache[ancestry_key]
+        else:
+            subject_ancestry = RunAdmissionEngine._finding_evidence_descends_from_subject(
+                evidence=evidence,
+                expected_artifact_ids=expected_artifact_ids,
+                artifacts=artifacts,
+                read=read,
+                ancestry_node_budget=ancestry_node_budget,
+            )
+            ancestry_cache[ancestry_key] = subject_ancestry
+        if (
+            revision.payload.snapshot_id not in allowed_snapshot_ids
+            or evidence.version_tuple.ir_snapshot_id != revision.payload.snapshot_id
+            or not subject_ancestry
+            or expected_schema is None
+            or evidence.meta.get("payload_schema_id") != expected_schema
+        ):
+            raise Conflict(
+                "Finding revision/evidence does not bind an admitted subject snapshot",
+                finding_id=binding.finding_id,
+                finding_revision=binding.finding_revision,
+            )
 
     def _verify_prompt_goal_binding(
         self,
@@ -5173,6 +5530,7 @@ class RunAdmissionEngine:
             add(params.subject.subject_artifact_id, ("patch",))
             add(params.base_snapshot_artifact_id, ("ir_snapshot",))
             add(params.preview_snapshot_artifact_id, ("ir_snapshot",))
+            add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
             add_ref(params.target, ("ir_snapshot",))
             for config in params.candidate_config_export_artifact_ids:
                 add(config, ("config_export",))
@@ -5182,7 +5540,7 @@ class RunAdmissionEngine:
                 add(trace, ("playtest_trace",))
             for suite in params.regression_suite_artifact_ids:
                 add(suite, ("regression_suite",))
-            for binding in params.findings:
+            for binding in (*params.expected_findings, *params.findings):
                 add(binding.evidence_artifact_id, _FINDING_EVIDENCE_KINDS)
         elif isinstance(params, ConstraintValidationPayloadV1):
             add(params.subject.subject_artifact_id, ("constraint_proposal",))

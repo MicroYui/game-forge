@@ -44,7 +44,7 @@ from __future__ import annotations
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import Finding
 from gameforge.spine.checkers.asp import ASPChecker
-from gameforge.spine.checkers.base import Checker
+from gameforge.spine.checkers.base import Checker, CheckerExecutionBinding
 from gameforge.spine.checkers.graph import GraphChecker
 from gameforge.spine.checkers.smt import SMTChecker
 from gameforge.spine.ir.snapshot import Snapshot
@@ -75,13 +75,24 @@ class CompiledChecker:
         self.constraint = constraint
         self.defect_class_filter = defect_class_filter
         self.id = f"compiled:{backend.id}:{constraint.id}"
+        self.deterministic_execution = getattr(backend, "deterministic_execution", True)
+        self.execution_binding = (
+            CheckerExecutionBinding(
+                wrapper_id=self.id,
+                native_id=backend.id,
+                constraint_id=constraint.id,
+            )
+            if self.deterministic_execution
+            else None
+        )
 
     def check(self, snapshot: Snapshot, nav: NavProvider | None = None) -> list[Finding]:
         findings = self.backend.check(snapshot, nav=nav)
         if self.defect_class_filter is not None:
             findings = [f for f in findings if f.defect_class == self.defect_class_filter]
         return [
-            f if f.constraint_id == self.constraint.id
+            f
+            if f.constraint_id == self.constraint.id
             else f.model_copy(update={"constraint_id": self.constraint.id})
             for f in findings
         ]
@@ -100,6 +111,7 @@ class LlmRoutedChecker:
     """
 
     id = "llm-routed"
+    deterministic_execution = False
 
     def __init__(self, constraint: Constraint) -> None:
         self.constraint = constraint

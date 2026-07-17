@@ -666,6 +666,7 @@ def _simulation_result_payload(
     constraint_ids = sorted(constraint.id for constraint in constraints)
     return {
         "payload_schema_version": SIMULATION_RESULT_SCHEMA_ID,
+        "profile": payload.simulation_profile.model_dump(mode="json"),
         "snapshot_id": snapshot_id,
         # The Artifact tuple and payload top level bind the Run root seed. Every
         # actual child seed is committed by the complete derivation manifest.

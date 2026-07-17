@@ -30,6 +30,7 @@ from gameforge.contracts.execution_profiles import (
     execution_profile_payload_hash,
 )
 from gameforge.contracts.findings import Finding
+from gameforge.contracts.jobs import MAX_PREPARED_ARTIFACT_BYTES, MAX_PREPARED_FINDINGS
 from gameforge.contracts.lineage import ArtifactV2
 from gameforge.contracts.regression import (
     AgentEnvRegressionFindingTemplateV1,
@@ -41,14 +42,21 @@ from gameforge.contracts.regression import (
 )
 from gameforge.env.base import Environment
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
-from gameforge.platform.run_handlers.base import ArtifactBlobReader
+from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
+from gameforge.platform.publication.payload_schema import (
+    decode_and_validate_artifact_payload,
+)
+from gameforge.platform.run_handlers.base import ArtifactBlobReader, scoped_finding_series_id
 from gameforge.platform.run_handlers.validation_common import (
     REGRESSION_EVIDENCE_SCHEMA_ID,
+    ConstraintRegressionCandidateV1,
     RegressionRunRequest,
     RegressionRunner,
     RegressionSuiteResultV1,
     derive_validation_subseed,
+    deterministic_finding_status,
 )
+from gameforge.spine.dsl.compile import compile_all
 from gameforge.spine.ir.snapshot import Snapshot
 
 
@@ -139,6 +147,7 @@ class RegressionSuiteAdapter(Protocol):
 @dataclass(frozen=True, slots=True)
 class _CachedSuiteAuthority:
     artifact: ArtifactV2
+    source_artifact: ArtifactV2
     dispatch: RegressionSuiteDispatchV1
     environment_definition: ExecutionProfileDefinitionV1
 
@@ -485,6 +494,48 @@ class WorkerRegressionRunner(RegressionRunner):
             raise ValueError("regression seed must be an unsigned integer")
         if not 0 <= request.seed <= (1 << 64) - 1:
             raise ValueError("regression seed is outside uint64")
+
+        # Resolve the suite before any ordinary ``unproven`` exit.  The suite is
+        # the terminal authority for the per-evidence environment VersionTuple,
+        # so even a missing candidate/budget/seed binding must retain its exact
+        # environment contract instead of silently falling back to the Run-wide
+        # tuple.  Corrupt authority still escapes through ``run``'s integrity
+        # boundary and can never be published as a business verdict.
+        authority = self._load_suite_authority(request.suite_artifact_id)
+        dispatch = authority.dispatch
+        definition = authority.environment_definition
+        env_contract_version = dispatch.env_contract_version
+        supplied_constraint_candidate = request.constraint_candidate
+        constraint_candidate = None
+        if supplied_constraint_candidate is not None:
+            try:
+                constraint_candidate = ConstraintRegressionCandidateV1(
+                    candidate_snapshot_id=(supplied_constraint_candidate.candidate_snapshot_id),
+                    dsl_grammar_version=(supplied_constraint_candidate.dsl_grammar_version),
+                    constraints=supplied_constraint_candidate.constraints,
+                )
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation(
+                    "constraint regression candidate changed after request binding"
+                ) from exc
+        if request.snapshot is not None and constraint_candidate is not None:
+            raise IntegrityViolation(
+                "regression request cannot combine snapshot and constraint targets"
+            )
+        constraint_binding: dict[str, str] = {}
+        if constraint_candidate is not None:
+            if request.snapshot_id != constraint_candidate.candidate_snapshot_id:
+                raise IntegrityViolation(
+                    "constraint regression request differs from its candidate target"
+                )
+            source_snapshot_id = authority.source_artifact.version_tuple.ir_snapshot_id
+            if not source_snapshot_id:
+                raise IntegrityViolation("regression suite source IR identity is unavailable")
+            constraint_binding = {
+                "constraint_candidate_snapshot_id": (constraint_candidate.candidate_snapshot_id),
+                "constraint_candidate_digest": constraint_candidate.candidate_digest,
+                "constraint_source_snapshot_id": source_snapshot_id,
+            }
         if (
             request.root_seed is None
             or request.run_kind is None
@@ -493,14 +544,24 @@ class WorkerRegressionRunner(RegressionRunner):
             or not isinstance(request.root_seed, int)
             or not 0 <= request.root_seed <= (1 << 64) - 1
         ):
-            return _unproven(request, reason_code="regression_seed_binding_unavailable")
+            return _unproven(
+                request,
+                reason_code="regression_seed_binding_unavailable",
+                env_contract_version=env_contract_version,
+                **constraint_binding,
+            )
         if (
             request.max_action_work_units is None
             or isinstance(request.max_action_work_units, bool)
             or not isinstance(request.max_action_work_units, int)
             or request.max_action_work_units < 0
         ):
-            return _unproven(request, reason_code="regression_work_budget_unavailable")
+            return _unproven(
+                request,
+                reason_code="regression_work_budget_unavailable",
+                env_contract_version=env_contract_version,
+                **constraint_binding,
+            )
         expected_suite_seed = derive_validation_subseed(
             root_seed=request.root_seed,
             run_kind=request.run_kind,
@@ -509,25 +570,59 @@ class WorkerRegressionRunner(RegressionRunner):
             replication_index=0,
         )
         if request.seed != expected_suite_seed:
-            return _unproven(request, reason_code="regression_seed_binding_mismatch")
-        if request.snapshot is None or request.snapshot_id is None:
-            return _unproven(request, reason_code="candidate_snapshot_unavailable")
-        if request.snapshot.snapshot_id != request.snapshot_id:
-            return _unproven(request, reason_code="candidate_snapshot_mismatch")
-
-        authority = self._load_suite_authority(request.suite_artifact_id)
-        dispatch = authority.dispatch
-        definition = authority.environment_definition
+            return _unproven(
+                request,
+                reason_code="regression_seed_binding_mismatch",
+                env_contract_version=env_contract_version,
+                **constraint_binding,
+            )
+        if request.snapshot is None and constraint_candidate is None:
+            return _unproven(
+                request,
+                reason_code="candidate_snapshot_unavailable",
+                env_contract_version=env_contract_version,
+            )
+        if request.snapshot is not None and request.snapshot.snapshot_id != request.snapshot_id:
+            return _unproven(
+                request,
+                reason_code="candidate_snapshot_mismatch",
+                env_contract_version=env_contract_version,
+            )
         adapter = self.adapters.get((dispatch.adapter.adapter_id, dispatch.adapter.version))
         if adapter is None or adapter.adapter_ref != dispatch.adapter:
             return _unproven(
                 request,
                 reason_code="regression_adapter_unavailable",
                 env_contract_version=dispatch.env_contract_version,
+                **constraint_binding,
             )
-        candidate = _freeze_snapshot(request.snapshot)
-        if candidate.snapshot_id != request.snapshot_id:
-            return _unproven(request, reason_code="candidate_snapshot_mismatch")
+        compiler_work_units = 0
+        adapter_work_limit = request.max_action_work_units
+        compiler_source_snapshot: Snapshot | None = None
+        if constraint_candidate is not None:
+            compiler_source_snapshot = _freeze_snapshot(self._load_source_snapshot(authority))
+            candidate = _freeze_snapshot(compiler_source_snapshot)
+            compiler_work_units = _constraint_candidate_work_units(
+                compiler_source_snapshot,
+                constraint_candidate,
+            )
+            if compiler_work_units > request.max_action_work_units:
+                return _unproven(
+                    request,
+                    reason_code="constraint_regression_work_budget_exceeded",
+                    env_contract_version=env_contract_version,
+                    **constraint_binding,
+                )
+            adapter_work_limit -= compiler_work_units
+        else:
+            assert request.snapshot is not None
+            candidate = _freeze_snapshot(request.snapshot)
+            if candidate.snapshot_id != request.snapshot_id:
+                return _unproven(
+                    request,
+                    reason_code="candidate_snapshot_mismatch",
+                    env_contract_version=env_contract_version,
+                )
         result = adapter.run(
             RegressionAdapterRequestV1(
                 suite_artifact_id=request.suite_artifact_id,
@@ -537,14 +632,37 @@ class WorkerRegressionRunner(RegressionRunner):
                 root_seed=request.root_seed,
                 run_kind=request.run_kind,
                 profile=request.profile,
-                max_action_work_units=request.max_action_work_units,
+                max_action_work_units=adapter_work_limit,
                 environment_definition=definition,
             )
         )
-        return _validate_adapter_result(
-            request,
+        if _freeze_snapshot(candidate).snapshot_id != candidate.snapshot_id:
+            raise IntegrityViolation("regression adapter mutated its exact source snapshot")
+        adapter_contract = RegressionRunRequest(
+            suite_artifact_id=request.suite_artifact_id,
+            snapshot_id=candidate.snapshot_id,
+            seed=request.seed,
+            snapshot=candidate,
+            root_seed=request.root_seed,
+            run_kind=request.run_kind,
+            profile=request.profile,
+            max_action_work_units=adapter_work_limit,
+        )
+        validated = _validate_adapter_result(
+            adapter_contract,
             result,
             env_contract_version=dispatch.env_contract_version,
+        )
+        if constraint_candidate is None:
+            return validated
+        assert compiler_source_snapshot is not None
+        return _merge_constraint_candidate_result(
+            request=request,
+            adapter_result=validated,
+            source_snapshot=compiler_source_snapshot,
+            candidate=constraint_candidate,
+            compiler_work_units=compiler_work_units,
+            env_contract_version=env_contract_version,
         )
 
     def _load_suite_authority(self, suite_artifact_id: str) -> _CachedSuiteAuthority:
@@ -580,28 +698,55 @@ class WorkerRegressionRunner(RegressionRunner):
         if artifact.version_tuple.env_contract_version != dispatch.env_contract_version:
             raise ValueError("regression suite environment version differs from its Artifact")
 
-        self._validate_direct_lineage(artifact)
+        source_artifact = self._validate_direct_lineage(artifact)
         definition = self._resolve_environment_definition(dispatch)
         authority = _CachedSuiteAuthority(
             artifact=artifact,
+            source_artifact=source_artifact,
             dispatch=dispatch,
             environment_definition=definition,
         )
         self._authority_cache.put(suite_artifact_id, authority)
         return authority
 
-    def _validate_direct_lineage(self, suite: ArtifactV2) -> None:
+    def _validate_direct_lineage(self, suite: ArtifactV2) -> ArtifactV2:
         if len(suite.lineage) != 1:
             raise ValueError("Agent-Env regression suite requires one exact source parent")
         parent = self.artifacts.load_artifact(suite.lineage[0])
         if (
-            parent.kind != "ir_snapshot"
+            parent.artifact_id != suite.lineage[0]
+            or parent.kind != "ir_snapshot"
+            or parent.meta.get("payload_schema_id") != "ir-core@1"
             or parent.version_tuple.ir_snapshot_id != suite.version_tuple.ir_snapshot_id
             or parent.version_tuple.doc_version != suite.version_tuple.doc_version
             or parent.version_tuple.constraint_snapshot_id
             != suite.version_tuple.constraint_snapshot_id
         ):
             raise ValueError("regression suite source snapshot lineage is not exact")
+        return parent
+
+    def _load_source_snapshot(self, authority: _CachedSuiteAuthority) -> Snapshot:
+        artifact = authority.source_artifact
+        if artifact.object_ref.size_bytes > MAX_PREPARED_ARTIFACT_BYTES:
+            raise ValueError("regression suite source snapshot exceeds its byte bound")
+        blob = self.artifacts.read_bytes_bounded(
+            artifact.artifact_id,
+            max_bytes=MAX_PREPARED_ARTIFACT_BYTES,
+        )
+        if (
+            len(blob) != artifact.object_ref.size_bytes
+            or sha256(blob).hexdigest() != artifact.payload_hash
+            or artifact.object_ref.sha256 != artifact.payload_hash
+        ):
+            raise ValueError("regression suite source bytes differ from their ObjectRef")
+        payload = decode_and_validate_artifact_payload(
+            payload_schema_id="ir-core@1",
+            blob=blob,
+        )
+        snapshot = snapshot_from_canonical_view(payload)
+        if snapshot.snapshot_id != artifact.version_tuple.ir_snapshot_id:
+            raise ValueError("regression suite source payload has another snapshot identity")
+        return snapshot
 
     def _resolve_environment_definition(
         self, dispatch: RegressionSuiteDispatchV1
@@ -892,6 +1037,143 @@ def _validate_environment_plan(
         )
 
 
+def _constraint_candidate_work_units(
+    snapshot: Snapshot,
+    candidate: ConstraintRegressionCandidateV1,
+) -> int:
+    """Conservatively reserve exact checker work before adapter construction."""
+
+    node_count = len(snapshot.entities)
+    relation_count = len(snapshot.relations)
+    per_constraint = max(1, node_count * node_count + node_count + relation_count)
+    return per_constraint * len(candidate.constraints)
+
+
+def _constraint_binding_finding(
+    finding: Finding,
+    *,
+    candidate: ConstraintRegressionCandidateV1,
+    source_snapshot_id: str,
+) -> Finding:
+    evidence = dict(finding.evidence)
+    evidence["constraint_regression_binding"] = {
+        "candidate_snapshot_id": candidate.candidate_snapshot_id,
+        "candidate_digest": candidate.candidate_digest,
+        "source_snapshot_id": source_snapshot_id,
+    }
+    return finding.model_copy(
+        deep=True,
+        update={"evidence": evidence},
+    )
+
+
+def _merge_constraint_candidate_result(
+    *,
+    request: RegressionRunRequest,
+    adapter_result: RegressionSuiteResultV1,
+    source_snapshot: Snapshot,
+    candidate: ConstraintRegressionCandidateV1,
+    compiler_work_units: int,
+    env_contract_version: str,
+) -> RegressionSuiteResultV1:
+    """Run the real compiler on the suite source and merge exact Finding verdicts."""
+
+    adapter_findings_raw = adapter_result.payload.get("findings", ())
+    if not isinstance(adapter_findings_raw, (tuple, list)):
+        raise IntegrityViolation("regression adapter findings are not an exact collection")
+    parsed_adapter_findings = tuple(Finding.model_validate(item) for item in adapter_findings_raw)
+    adapter_findings = tuple(
+        finding
+        for finding in parsed_adapter_findings
+        if finding.status in {"confirmed", "unproven"}
+    )
+    compiled_findings: list[Finding] = []
+    compiler_unavailable = False
+    try:
+        compiled = compile_all(list(candidate.constraints))
+        if len(compiled) != len(candidate.constraints):
+            raise ValueError("constraint compiler returned another candidate cardinality")
+        for constraint, checker in zip(candidate.constraints, compiled, strict=True):
+            raw = checker.check(source_snapshot, nav=None)
+            if not isinstance(raw, list):
+                raise ValueError("compiled constraint checker returned another result contract")
+            for finding in raw:
+                if not isinstance(finding, Finding):
+                    raise ValueError("compiled constraint checker returned another Finding type")
+                if finding.snapshot_id != source_snapshot.snapshot_id:
+                    raise ValueError("compiled constraint Finding escaped its source snapshot")
+                if finding.constraint_id != constraint.id:
+                    raise ValueError("compiled constraint Finding escaped its candidate binding")
+                if finding.status not in {"confirmed", "unproven"}:
+                    continue
+                compiled_findings.append(
+                    finding.model_copy(
+                        update={
+                            "id": scoped_finding_series_id(
+                                namespace="constraint",
+                                scope_id=constraint.id,
+                                finding_id=finding.id,
+                            )
+                        }
+                    )
+                )
+    except IntegrityViolation:
+        raise
+    except Exception:  # noqa: BLE001 - a compiler failure proves no candidate verdict
+        compiler_unavailable = True
+
+    merged = tuple(
+        _constraint_binding_finding(
+            finding,
+            candidate=candidate,
+            source_snapshot_id=source_snapshot.snapshot_id,
+        )
+        for finding in (*adapter_findings, *compiled_findings)
+    )
+    if len(merged) > MAX_PREPARED_FINDINGS:
+        raise IntegrityViolation("constraint regression exceeds the Finding output bound")
+    finding_status = deterministic_finding_status(merged)
+    if finding_status == "failed" or adapter_result.status == "failed":
+        status = "failed"
+    elif (
+        compiler_unavailable
+        or finding_status == "unproven"
+        or adapter_result.status in {"unproven", "not_executed"}
+    ):
+        status = "unproven"
+    else:
+        status = "passed"
+    reason_code = None
+    if status == "unproven":
+        reason_code = adapter_result.reason_code or (
+            "constraint_candidate_execution_unavailable"
+            if compiler_unavailable
+            else "constraint_candidate_reported_unproven"
+        )
+    wire = {
+        **dict(adapter_result.payload),
+        "snapshot_id": source_snapshot.snapshot_id,
+        "status": status,
+        "reason_code": reason_code,
+    }
+    if merged:
+        wire["findings"] = [finding.model_dump(mode="json") for finding in merged]
+    else:
+        wire.pop("findings", None)
+    assert adapter_result.action_work_units is not None
+    return RegressionSuiteResultV1(
+        suite_artifact_id=request.suite_artifact_id,
+        status=status,
+        payload=wire,
+        reason_code=reason_code,
+        env_contract_version=env_contract_version,
+        action_work_units=adapter_result.action_work_units + compiler_work_units,
+        constraint_candidate_snapshot_id=candidate.candidate_snapshot_id,
+        constraint_candidate_digest=candidate.candidate_digest,
+        constraint_source_snapshot_id=source_snapshot.snapshot_id,
+    )
+
+
 def _validate_adapter_result(
     request: RegressionRunRequest,
     result: RegressionSuiteResultV1,
@@ -943,6 +1225,7 @@ def _validate_adapter_result(
         or unavailable != bool(result.reason_code)
         or (result.status == "passed" and findings)
         or (result.status == "failed" and not findings)
+        or (findings and result.status != deterministic_finding_status(findings))
         or any(finding.snapshot_id != request.snapshot_id for finding in findings)
     ):
         raise ValueError("regression adapter result escaped its exact execution binding")
@@ -954,16 +1237,25 @@ def _unproven(
     *,
     reason_code: str,
     env_contract_version: str | None = None,
+    action_work_units: int | None = None,
+    constraint_candidate_snapshot_id: str | None = None,
+    constraint_candidate_digest: str | None = None,
+    constraint_source_snapshot_id: str | None = None,
 ) -> RegressionSuiteResultV1:
+    payload_snapshot_id = constraint_source_snapshot_id or request.snapshot_id
     return RegressionSuiteResultV1(
         suite_artifact_id=request.suite_artifact_id,
         status="unproven",
         reason_code=reason_code,
         env_contract_version=env_contract_version,
+        action_work_units=action_work_units,
+        constraint_candidate_snapshot_id=constraint_candidate_snapshot_id,
+        constraint_candidate_digest=constraint_candidate_digest,
+        constraint_source_snapshot_id=constraint_source_snapshot_id,
         payload={
             "payload_schema_version": REGRESSION_EVIDENCE_SCHEMA_ID,
             "suite_artifact_id": request.suite_artifact_id,
-            "snapshot_id": request.snapshot_id,
+            "snapshot_id": payload_snapshot_id,
             "seed": request.seed,
             "status": "unproven",
             "reason_code": reason_code,

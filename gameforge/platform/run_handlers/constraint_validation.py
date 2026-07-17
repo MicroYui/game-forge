@@ -8,16 +8,13 @@ reason_code. The ``differential`` stage runs ≥2 EXACT engines named by
 Clingo/ASP + z3/SMT). Each engine authoritatively decides ITS OWN solver domain and
 reports honestly: a ``passed`` differential stage requires the engine to have
 GENUINELY evaluated a candidate in its domain and found it consistent; an engine
-whose domain does not apply is a sound ``not_applicable`` stage (it executed and
-found nothing to attest — it does NOT block validation and is NOT a vacuous pass);
-an engine that could not decide an in-domain constraint (``undecided`` — timeout /
-unbindable) is ``unproven`` (never a pass); a genuine contradiction (z3 ``unsat``)
-is ``failed``. The two initial engines are DOMAIN-PARTITIONED (z3 numeric / Clingo
-structural), so a single-domain candidate is validated by its ONE applicable engine
-(the other honestly ``not_applicable``). A cross-engine SOUNDNESS GUARD requires
-that at least one applicable engine POSITIVELY decided EVERY constraint — a
-candidate no engine positively decided (empty constraints / all ``not_applicable`` /
-all ``undecided``) is ``unproven``, NEVER a vacuous pass. When (and only when) the
+whose domain does not apply is a sound ``not_applicable`` stage; an engine that
+could not decide is ``unproven``; and a genuine contradiction is ``failed``. The
+soundness guard requires every constraint to receive positive decisions from two
+distinct exact engines. Domain-partitioned z3 + Clingo alone therefore cannot claim
+a differential pass; the worker supplies independent numeric-reference and
+graph-reference peers. Missing quorum is ``unproven``, never a vacuous pass. When
+(and only when) the
 ``compile`` stage passes, ONE candidate ``constraint_snapshot[constraint-snapshot@1]``
 is published in the exact ``readers.load_constraints`` wire shape; otherwise the
 candidate id is null.
@@ -42,7 +39,15 @@ from typing import Literal, Mapping, Protocol
 
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.execution_profiles import (
+    MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
+from gameforge.contracts.findings import Finding
+from gameforge.contracts.ir import NodeType
 from gameforge.contracts.jobs import (
     ConstraintValidationPayloadV1,
     PreparedArtifact,
@@ -52,6 +57,7 @@ from gameforge.contracts.jobs import (
 )
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.workflow import (
+    CONSTRAINT_COMPILE_REQUIREMENT_KIND,
     ConstraintCompileEvidenceV1,
     ConstraintCompileStageV1,
     ConstraintProposalV1,
@@ -60,15 +66,21 @@ from gameforge.contracts.workflow import (
     EvidenceSet,
 )
 from gameforge.spine.dsl.ast import DslError, parse_assert
+from gameforge.spine.checkers.base import CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExecutorContextLike,
+    FindingEvidence,
     PreparedArtifactStore,
+    build_prepared_findings,
     build_success_result,
     load_json_blob,
+    prepared_version_tuple,
+    rebind_finding_producers,
     resolved_profile,
+    scoped_finding_series_id,
     store_prepared_artifact,
     store_prepared_blob,
 )
@@ -77,21 +89,24 @@ from gameforge.platform.run_handlers.validation_common import (
     CONSTRAINT_COMPILE_EVIDENCE_SCHEMA_ID,
     CONSTRAINT_SNAPSHOT_KIND,
     CONSTRAINT_SNAPSHOT_SCHEMA_ID,
-    DEFAULT_REGRESSION_RUNNER,
     EVIDENCE_SET_SCHEMA_ID,
     REGRESSION_EVIDENCE_KIND,
     REGRESSION_EVIDENCE_SCHEMA_ID,
     RESOLVED_CONSTRAINT,
     VALIDATION_EVIDENCE_KIND,
+    ConstraintRegressionCandidateV1,
     DimensionResult,
     RegressionRunner,
     RegressionRunRequest,
+    RegressionSuiteResultV1,
     content_addressed_artifact_id,
+    deterministic_finding_status,
     evidence_requirement,
-    evidence_version_tuple,
     overall_status_of,
+    regression_evidence_version_tuple,
     require_exists,
     validation_child_execution_seed,
+    validate_authoritative_regression_findings,
     with_validation_child_seed_evidence,
 )
 
@@ -100,6 +115,12 @@ COMPILER_PROFILE_FIELD = "/params/compiler_profile"
 COMPILE_TOOL_VERSION = "constraint-compile@1"
 REGRESSION_TOOL_VERSION = "regression@1"
 EVIDENCE_TOOL_VERSION = "constraint-validation@1"
+BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1 = (
+    SolverEngineRefV1(engine_id="clingo", version=1),
+    SolverEngineRefV1(engine_id="graph-reference", version=1),
+    SolverEngineRefV1(engine_id="numeric-reference", version=1),
+    SolverEngineRefV1(engine_id="z3", version=1),
+)
 
 _VALIDATED_CODE = "constraint_validated"
 _FAILED_WITH_CANDIDATE_CODE = "constraint_validation_failed_with_candidate"
@@ -133,8 +154,8 @@ class DifferentialEngineResultV1:
       ``unknown`` / an in-domain constraint it cannot bind).
 
     ``decided_constraint_ids`` are the ids this engine POSITIVELY decided consistent
-    (its sound coverage contribution); the handler unions them across engines to
-    enforce that every constraint was covered by at least one applicable engine.
+    (its sound coverage contribution); the handler requires two distinct exact
+    engine identities for every candidate constraint.
 
     A ``passed`` differential stage requires ``evaluated`` + ``consistent``;
     ``not_applicable`` maps to a ``not_applicable`` stage (does not block validation)
@@ -146,6 +167,29 @@ class DifferentialEngineResultV1:
     reason_code: str | None = None
     decided_constraint_ids: tuple[str, ...] = ()
 
+    def __post_init__(self) -> None:
+        decided = self.decided_constraint_ids
+        if any(not isinstance(value, str) or not value for value in decided):
+            raise ValueError("differential result contains an invalid constraint id")
+        if len(decided) != len(set(decided)):
+            raise ValueError("differential result repeats a decided constraint id")
+        if len(decided) > 4_096:
+            raise ValueError("differential result exceeds the decided-id bound")
+        object.__setattr__(self, "decided_constraint_ids", tuple(sorted(decided)))
+        if self.status == "evaluated":
+            if self.consistency is None or self.reason_code is not None:
+                raise ValueError("evaluated differential result requires consistency and no reason")
+            return
+        if self.consistency is not None:
+            raise ValueError("non-evaluated differential result cannot claim consistency")
+        if not self.reason_code:
+            raise ValueError("non-evaluated differential result requires a reason")
+        if self.status == "not_applicable":
+            if self.reason_code != "engine_domain_not_applicable" or decided:
+                raise ValueError(
+                    "not-applicable differential result must carry the exact empty-domain reason"
+                )
+
 
 class ConstraintDifferentialEngine(Protocol):
     """One exact differential solver engine (concrete impls wrap ``spine/checkers``)."""
@@ -156,19 +200,82 @@ class ConstraintDifferentialEngine(Protocol):
     def evaluate(self, request: DifferentialEvalRequest) -> DifferentialEngineResultV1: ...
 
 
+@dataclass(frozen=True, slots=True)
+class ConstraintValidationProfileAuthorityV1:
+    """Trusted adapter authorization derived from both exact catalog bindings."""
+
+    validation_binding: ResolvedExecutionProfileBindingV1
+    compiler_binding: ResolvedExecutionProfileBindingV1
+    validation_handler_key: Literal["builtin_validation_profile@1"]
+    compiler_handler_key: Literal["builtin_constraint_compiler_profile@1"]
+
+
+class ConstraintValidationProfileResolver(Protocol):
+    def resolve(
+        self,
+        *,
+        run_kind: RunKindRef,
+        validation_binding: ResolvedExecutionProfileBindingV1,
+        compiler_binding: ResolvedExecutionProfileBindingV1,
+    ) -> ConstraintValidationProfileAuthorityV1: ...
+
+
 class GoldenSuiteRunner(Protocol):
     """Replay the bound golden suite against the compiled candidate (deterministic)."""
 
     def run(
         self, *, golden_suite_artifact_id: str, constraints: tuple[Constraint, ...]
-    ) -> bool: ...
+    ) -> GoldenSuiteResultV1: ...
 
 
-class _AlwaysGreenGoldenRunner:
-    """Default golden replay: a compiled candidate replays green deterministically."""
+@dataclass(frozen=True, slots=True)
+class GoldenSuiteResultV1:
+    """One exact golden replay verdict; unavailable execution is never a pass."""
 
-    def run(self, *, golden_suite_artifact_id: str, constraints: tuple[Constraint, ...]) -> bool:
-        return True
+    status: Literal["passed", "failed", "unproven"]
+    reason_code: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.status == "passed":
+            if self.reason_code is not None:
+                raise ValueError("passed golden replay cannot carry a reason")
+        elif self.status == "failed":
+            if self.reason_code != "golden_suite_failed":
+                raise ValueError("failed golden replay requires golden_suite_failed")
+        elif self.reason_code not in {"golden_runner_unavailable", "golden_suite_unproven"}:
+            raise ValueError("unproven golden replay requires an allowlisted reason")
+
+
+class _UnavailableGoldenSuiteRunner:
+    """Fail-closed process default until an exact golden adapter is injected."""
+
+    def run(
+        self, *, golden_suite_artifact_id: str, constraints: tuple[Constraint, ...]
+    ) -> GoldenSuiteResultV1:
+        return GoldenSuiteResultV1(
+            status="unproven",
+            reason_code="golden_runner_unavailable",
+        )
+
+
+class _UnavailableConstraintRegressionRunner:
+    """Fail-closed default: no adapter execution can manufacture green evidence."""
+
+    def run(self, request: RegressionRunRequest) -> RegressionSuiteResultV1:
+        reason = "constraint_regression_runner_unavailable"
+        return RegressionSuiteResultV1(
+            suite_artifact_id=request.suite_artifact_id,
+            status="unproven",
+            reason_code=reason,
+            payload={
+                "payload_schema_version": REGRESSION_EVIDENCE_SCHEMA_ID,
+                "suite_artifact_id": request.suite_artifact_id,
+                "snapshot_id": None,
+                "seed": request.seed,
+                "status": "unproven",
+                "reason_code": reason,
+            },
+        )
 
 
 def load_proposal(blobs: ArtifactBlobReader, artifact_id: str) -> ConstraintProposalV1:
@@ -181,11 +288,10 @@ def load_proposal(blobs: ArtifactBlobReader, artifact_id: str) -> ConstraintProp
 class _CompilePipelineV1:
     """The full compile pipeline result: every stage + whether a candidate formed.
 
-    ``differential_positively_covered`` is the SOUNDNESS GUARD: at least one engine
-    positively decided consistency AND every candidate constraint was covered by some
-    applicable engine that positively decided it. A candidate that no engine
-    positively decided (empty constraints, all stages ``not_applicable``, or every
-    applicable engine ``undecided``) is NEVER validated on it.
+    ``differential_positively_covered`` is the SOUNDNESS GUARD: every candidate
+    constraint was positively decided by at least two distinct exact engines. Domain
+    partitioning alone (for example z3 for numeric + Clingo for structural) is not a
+    differential cross-check and can never satisfy this quorum.
     """
 
     stages: tuple[ConstraintCompileStageV1, ...]
@@ -200,28 +306,41 @@ class ConstraintValidationHandler:
 
     blobs: ArtifactBlobReader
     store: PreparedArtifactStore
-    differential_engines: Mapping[str, ConstraintDifferentialEngine]
-    golden_runner: GoldenSuiteRunner = field(default_factory=_AlwaysGreenGoldenRunner)
-    regression_runner: RegressionRunner = DEFAULT_REGRESSION_RUNNER
+    differential_engines: Mapping[tuple[str, int], ConstraintDifferentialEngine]
+    profile_resolver: ConstraintValidationProfileResolver
+    golden_runner: GoldenSuiteRunner = field(default_factory=_UnavailableGoldenSuiteRunner)
+    regression_runner: RegressionRunner = field(
+        default_factory=_UnavailableConstraintRegressionRunner
+    )
     constraint_loader: ConstraintLoader = load_constraints
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, ConstraintValidationPayloadV1):
             raise TypeError("constraint_validator@1 requires a constraint-validation@1 payload")
+        self._profile_authority(context, payload)
         if payload.base_constraint_snapshot_artifact_id is not None:
             # re-verify the bound base snapshot exists (typed lineage parent).
             self.constraint_loader(self.blobs, payload.base_constraint_snapshot_artifact_id)
 
         proposal = load_proposal(self.blobs, payload.subject.subject_artifact_id)
         candidate = tuple(proposal.constraints)
-        root_seed = context.payload.seed
+        candidate_wire = _candidate_wire(payload.dsl_grammar_version, candidate)
+        candidate_digest = canonical_sha256(candidate_wire)
+        candidate_snapshot_id = f"candidate:{candidate_digest[:32]}"
         lineage = self._artifact_lineage(payload)
 
         pipeline = self._run_pipeline(payload, candidate)
 
         candidate_artifact = (
-            self._seal_candidate(payload, candidate, lineage) if pipeline.compile_passed else None
+            self._seal_candidate(
+                context,
+                candidate_wire,
+                candidate_snapshot_id,
+                lineage,
+            )
+            if pipeline.compile_passed
+            else None
         )
         candidate_id = (
             content_addressed_artifact_id(candidate_artifact)
@@ -229,7 +348,12 @@ class ConstraintValidationHandler:
             else None
         )
         compile_evidence = self._seal_compile_evidence(
-            payload, pipeline, candidate_id, lineage, root_seed
+            context,
+            payload,
+            pipeline,
+            candidate_id,
+            candidate_snapshot_id if candidate_id is not None else None,
+            lineage,
         )
         compile_evidence_id = content_addressed_artifact_id(compile_evidence)
 
@@ -237,7 +361,16 @@ class ConstraintValidationHandler:
             regression_artifacts,
             regression_dimensions,
             dispositions,
-        ) = self._regression_phase(payload, pipeline, lineage, context.run.kind, root_seed)
+            regression_finding_batches,
+        ) = self._regression_phase(
+            context,
+            payload,
+            pipeline,
+            candidate_snapshot_id if candidate_id is not None else None,
+            candidate_digest if candidate_id is not None else None,
+            candidate,
+            lineage,
+        )
 
         compile_dimension = self._compile_dimension(payload, pipeline, compile_evidence_id)
         requirements = tuple(
@@ -247,7 +380,12 @@ class ConstraintValidationHandler:
             tuple(dim.status for dim in (compile_dimension, *regression_dimensions))
         )
 
-        target_binding = self._target_binding(payload, candidate, candidate_id)
+        target_binding = self._target_binding(
+            payload,
+            candidate_id,
+            candidate_snapshot_id,
+            candidate_digest,
+        )
         supporting = (
             *([candidate_id] if candidate_id is not None else []),
             compile_evidence_id,
@@ -267,13 +405,11 @@ class ConstraintValidationHandler:
         evidence_set = self._seal_evidence_set(
             context,
             payload,
-            proposal,
             target_binding,
             requirements,
             supporting,
             lineage,
             overall,
-            root_seed,
         )
 
         artifacts: tuple[PreparedArtifact, ...] = (
@@ -282,6 +418,23 @@ class ConstraintValidationHandler:
             compile_evidence,
             *regression_artifacts,
         )
+        regression_artifact_offset = 2 + (1 if candidate_artifact is not None else 0)
+        prepared_findings = build_prepared_findings(
+            tuple(
+                FindingEvidence(
+                    finding=finding,
+                    evidence_artifact_index=regression_artifact_offset + index,
+                    finding_id=scoped_finding_series_id(
+                        namespace="constraint-regression",
+                        scope_id=suite_id,
+                        finding_id=finding.id,
+                    ),
+                )
+                for index, (suite_id, findings) in enumerate(regression_finding_batches)
+                for finding in findings
+            ),
+            run_id=context.run.run_id,
+        )
         outcome_code = self._outcome_code(pipeline, overall)
         return build_success_result(
             run=context.run,
@@ -289,9 +442,60 @@ class ConstraintValidationHandler:
             outcome_code=outcome_code,
             primary_index=0,
             artifacts=artifacts,
-            findings=(),
-            requirement_dispositions=dispositions,
+            findings=prepared_findings,
+            # A positively validated result publishes the complete resolved
+            # regression set, so there is no unexecuted subset for terminal
+            # completion to consume.  Produced dispositions are meaningful on
+            # the failed/unproven variants only.
+            requirement_dispositions=(() if outcome_code == _VALIDATED_CODE else dispositions),
         )
+
+    def _profile_authority(
+        self,
+        context: ExecutorContextLike,
+        payload: ConstraintValidationPayloadV1,
+    ) -> ConstraintValidationProfileAuthorityV1:
+        exact_paths = {VALIDATION_POLICY_FIELD, COMPILER_PROFILE_FIELD}
+        bindings = tuple(context.payload.resolved_profiles)
+        if {binding.field_path for binding in bindings} != exact_paths or len(bindings) != 2:
+            raise IntegrityViolation(
+                "constraint validation Run lacks its exact profile binding set"
+            )
+        validation_binding = resolved_profile(context.payload, VALIDATION_POLICY_FIELD)
+        compiler_binding = resolved_profile(context.payload, COMPILER_PROFILE_FIELD)
+        if validation_binding is None or compiler_binding is None:  # pragma: no cover
+            raise IntegrityViolation("constraint validation profile binding is unavailable")
+        expected = (
+            (validation_binding, payload.validation_policy, "validation"),
+            (compiler_binding, payload.compiler_profile, "constraint_compiler"),
+        )
+        for binding, profile, profile_kind in expected:
+            if (
+                binding.profile != profile
+                or binding.expected_profile_kind != profile_kind
+                or binding.catalog_version != context.payload.execution_profile_catalog_version
+                or binding.catalog_digest != context.payload.execution_profile_catalog_digest
+            ):
+                raise IntegrityViolation(
+                    "constraint validation profile differs from its exact Run authority",
+                    field_path=binding.field_path,
+                )
+        authority = self.profile_resolver.resolve(
+            run_kind=context.run.kind,
+            validation_binding=validation_binding,
+            compiler_binding=compiler_binding,
+        )
+        if (
+            type(authority) is not ConstraintValidationProfileAuthorityV1
+            or authority.validation_binding != validation_binding
+            or authority.compiler_binding != compiler_binding
+            or authority.validation_handler_key != "builtin_validation_profile@1"
+            or authority.compiler_handler_key != "builtin_constraint_compiler_profile@1"
+        ):
+            raise IntegrityViolation(
+                "constraint validation resolver returned another execution authority"
+            )
+        return authority
 
     # ------------------------------------------------------------------ pipeline
     def _run_pipeline(
@@ -325,8 +529,7 @@ class ConstraintValidationHandler:
 
         overall = overall_status_of(tuple(stage.status for stage in stages))
         candidate_ids = {constraint.id for constraint in candidate}
-        # SOUNDNESS GUARD: at least one engine positively decided consistency AND every
-        # constraint is covered by some applicable engine that positively decided it.
+        # SOUNDNESS GUARD: every constraint has two independent positive decisions.
         positively_covered = bool(covered_ids) and candidate_ids <= covered_ids
         return _CompilePipelineV1(
             stages=tuple(stages),
@@ -349,19 +552,43 @@ class ConstraintValidationHandler:
     def _typecheck(
         self, payload: ConstraintValidationPayloadV1, candidate: tuple[Constraint, ...]
     ) -> tuple[StageStatus, str | None]:
+        if not candidate:
+            return "failed", "empty_constraint_candidate"
         for constraint in candidate:
             if constraint.dsl_grammar_version != payload.dsl_grammar_version:
                 return "failed", "dsl_grammar_version_mismatch"
+            if constraint.scope is not None and constraint.forall is not None:
+                return "failed", "selector_scope_ambiguous"
+            for selector in (constraint.scope, constraint.forall):
+                if selector is None:
+                    continue
+                try:
+                    NodeType[selector.node_type]
+                except KeyError:
+                    return "failed", "selector_node_type_invalid"
         if any(constraint.has_llm_predicate() for constraint in candidate):
             # an llm-assisted predicate cannot be validated deterministically here.
             return "unproven", "llm_assisted_predicate_deferred"
         return "passed", None
 
     def _compile(self, candidate: tuple[Constraint, ...]) -> tuple[StageStatus, str | None]:
-        try:
-            compile_all(list(candidate))
-        except Exception:  # noqa: BLE001 - any compile failure is a definite failed stage
-            return "failed", "constraint_compile_error"
+        # Parse/typecheck already convert deterministic proposal defects into stage
+        # verdicts. Any exception here is an execution/integrity fault and must reach
+        # the worker failure classifier so the current draft is restored.
+        compiled = compile_all(list(candidate))
+        if len(compiled) != len(candidate):
+            raise IntegrityViolation("constraint compiler returned the wrong checker count")
+        for constraint, checker in zip(candidate, compiled, strict=True):
+            if constraint.kind != "numeric":
+                continue
+            binding = getattr(checker, "execution_binding", None)
+            if (
+                not isinstance(binding, CheckerExecutionBinding)
+                or binding.wrapper_id != getattr(checker, "id", None)
+                or binding.native_id != "smt"
+                or binding.constraint_id != constraint.id
+            ):
+                raise IntegrityViolation("constraint compiler returned the wrong numeric route")
         return "passed", None
 
     def _differential(
@@ -380,34 +607,89 @@ class ConstraintValidationHandler:
             )
             return stages, set()
         stages_list: list[ConstraintCompileStageV1] = []
-        covered_ids: set[str] = set()
+        coverage_by_constraint: dict[str, set[tuple[str, int]]] = {}
+        candidate_ids = {constraint.id for constraint in candidate}
         for engine_ref in payload.differential_engines:
-            engine = self.differential_engines.get(engine_ref.engine_id)
+            engine = self.differential_engines.get((engine_ref.engine_id, engine_ref.version))
             if engine is None:
                 # a missing engine is a MISSING execution -> unproven, never a pass.
                 stages_list.append(
                     self._differential_stage(engine_ref, "unproven", "engine_unavailable")
                 )
                 continue
+            if (
+                engine.engine_id != engine_ref.engine_id
+                or engine.engine_version != engine_ref.version
+            ):
+                stages_list.append(
+                    self._differential_stage(
+                        engine_ref,
+                        "unproven",
+                        "engine_identity_mismatch",
+                    )
+                )
+                continue
+            # Engines express bounded undecidable/unavailable outcomes in their
+            # result contract. Exceptions are execution/integrity faults, not
+            # authoritative evidence that a candidate is merely unproven.
             result = engine.evaluate(
                 DifferentialEvalRequest(
-                    constraints=candidate, dsl_grammar_version=payload.dsl_grammar_version
+                    constraints=candidate,
+                    dsl_grammar_version=payload.dsl_grammar_version,
                 )
             )
             status, reason = self._differential_verdict(result)
             if status == "passed":
-                covered_ids.update(result.decided_constraint_ids)
-            stages_list.append(self._differential_stage(engine_ref, status, reason))
-        return tuple(stages_list), covered_ids
+                decided_ids = set(result.decided_constraint_ids)
+                if not decided_ids:
+                    status = "unproven"
+                    reason = "engine_reported_no_coverage"
+                elif len(decided_ids) != len(result.decided_constraint_ids):
+                    status = "unproven"
+                    reason = "engine_reported_invalid_coverage"
+                elif not decided_ids <= candidate_ids:
+                    status = "unproven"
+                    reason = "engine_reported_invalid_coverage"
+                else:
+                    engine_key = (engine_ref.engine_id, engine_ref.version)
+                    for constraint_id in decided_ids:
+                        coverage_by_constraint.setdefault(constraint_id, set()).add(engine_key)
+            stages_list.append(
+                self._differential_stage(
+                    engine_ref,
+                    status,
+                    reason,
+                )
+            )
+        independently_covered_ids = {
+            constraint_id
+            for constraint_id, engines in coverage_by_constraint.items()
+            if len(engines) >= 2
+        }
+        if candidate_ids - independently_covered_ids and not any(
+            stage.status in {"failed", "unproven"} for stage in stages_list
+        ):
+            # All exact engines may have executed while still leaving some candidate
+            # constraint unattested (for example, a faulty engine reports only a
+            # subset of its domain). Encode that missing execution in the compile
+            # evidence itself so EvidenceSet and completion see the same verdict.
+            index = next(
+                (i for i, stage in enumerate(stages_list) if stage.status == "passed"),
+                0,
+            )
+            stages_list[index] = stages_list[index].model_copy(
+                update={
+                    "status": "unproven",
+                    "reason_code": "candidate_independent_coverage_incomplete",
+                }
+            )
+        return tuple(stages_list), independently_covered_ids
 
     def _differential_verdict(
         self, result: DifferentialEngineResultV1
     ) -> tuple[StageStatus, str | None]:
-        # Each engine authoritatively decides ITS OWN solver domain. With the two
-        # DOMAIN-PARTITIONED initial engines (z3 numeric / Clingo structural) each
-        # constraint is decided by exactly one applicable engine; the cross-engine
-        # SOUNDNESS GUARD (`differential_positively_covered`) enforces that every
-        # constraint was positively decided by some applicable engine. Honest labeling:
+        # Each engine authoritatively decides its own solver domain; the caller later
+        # enforces the independent two-engine quorum. Honest labeling:
         #   not_applicable (domain absent, sound non-attesting) -> not_applicable stage
         #     (does NOT block validation),
         #   undecided (in-domain but couldn't decide)           -> unproven (NEVER pass),
@@ -436,12 +718,17 @@ class ConstraintValidationHandler:
         if not run:
             return self._stage("golden", "golden", "unproven", _SHORT_CIRCUIT)
         require_exists(self.blobs, payload.golden_suite_artifact_id)
-        passed = self.golden_runner.run(
+        result = self.golden_runner.run(
             golden_suite_artifact_id=payload.golden_suite_artifact_id, constraints=candidate
         )
-        if passed:
+        if result.status == "passed":
             return self._stage("golden", "golden", "passed", None)
-        return self._stage("golden", "golden", "failed", "golden_replay_mismatch")
+        return self._stage(
+            "golden",
+            "golden",
+            result.status,
+            result.reason_code,
+        )
 
     @staticmethod
     def _stage(
@@ -475,28 +762,44 @@ class ConstraintValidationHandler:
     # --------------------------------------------------------------- regression
     def _regression_phase(
         self,
+        context: ExecutorContextLike,
         payload: ConstraintValidationPayloadV1,
         pipeline: _CompilePipelineV1,
+        candidate_snapshot_id: str | None,
+        candidate_digest: str | None,
+        candidate: tuple[Constraint, ...],
         lineage: tuple[str, ...],
-        run_kind: RunKindRef,
-        root_seed: int | None,
     ) -> tuple[
         tuple[PreparedArtifact, ...],
         tuple[DimensionResult, ...],
         tuple[RequirementDispositionV1, ...],
+        tuple[tuple[str, tuple[Finding, ...]], ...],
     ]:
         # Regression runs only when the compile pipeline positively validated the
-        # candidate (compile passed + overall passed + the soundness guard: some
-        # applicable engine positively decided every constraint). A candidate no
-        # engine positively decided short-circuits regression exactly like a failed
-        # prior requirement.
+        # candidate (compile passed + overall passed + the two-engine soundness
+        # quorum). Missing independent coverage short-circuits regression exactly
+        # like a failed prior requirement.
         run_regression = (
             pipeline.compile_passed
             and pipeline.overall_status == "passed"
             and pipeline.differential_positively_covered
         )
         if run_regression:
-            return self._run_regression(payload, lineage, run_kind, root_seed)
+            if candidate_snapshot_id is None or candidate_digest is None:
+                raise ValueError("passing compile pipeline omitted its semantic candidate id")
+            regression_candidate = ConstraintRegressionCandidateV1(
+                candidate_snapshot_id=candidate_snapshot_id,
+                dsl_grammar_version=payload.dsl_grammar_version,
+                constraints=candidate,
+            )
+            if regression_candidate.candidate_digest != candidate_digest:
+                raise IntegrityViolation("constraint candidate digest changed before regression")
+            return self._run_regression(
+                context,
+                payload,
+                regression_candidate,
+                lineage,
+            )
         reason = (
             "candidate_unavailable" if not pipeline.compile_passed else "prior_requirement_failed"
         )
@@ -510,22 +813,39 @@ class ConstraintValidationHandler:
             )
             for suite_id in payload.regression_suite_artifact_ids
         )
-        return (), (), dispositions
+        dimensions = tuple(
+            DimensionResult(
+                requirement_id=f"regression:{suite_id}",
+                kind="regression",
+                tool_version=REGRESSION_TOOL_VERSION,
+                status="unproven",
+                evidence_artifact_id=None,
+                reason_code=reason,
+            )
+            for suite_id in payload.regression_suite_artifact_ids
+        )
+        return (), dimensions, dispositions, ()
 
     def _run_regression(
         self,
+        context: ExecutorContextLike,
         payload: ConstraintValidationPayloadV1,
+        candidate: ConstraintRegressionCandidateV1,
         lineage: tuple[str, ...],
-        run_kind: RunKindRef,
-        root_seed: int | None,
     ) -> tuple[
         tuple[PreparedArtifact, ...],
         tuple[DimensionResult, ...],
         tuple[RequirementDispositionV1, ...],
+        tuple[tuple[str, tuple[Finding, ...]], ...],
     ]:
+        candidate_snapshot_id = candidate.candidate_snapshot_id
         artifacts: list[PreparedArtifact] = []
         dimensions: list[DimensionResult] = []
         dispositions: list[RequirementDispositionV1] = []
+        finding_batches: list[tuple[str, tuple[Finding, ...]]] = []
+        root_seed = context.payload.seed
+        run_kind = context.run.kind
+        remaining_work_units = MAX_REPAIR_REGRESSION_WORK_UNITS_V1
         for suite_id in payload.regression_suite_artifact_ids:
             require_exists(self.blobs, suite_id)
             execution_seed = validation_child_execution_seed(
@@ -534,35 +854,149 @@ class ConstraintValidationHandler:
                 profile=payload.validation_policy,
                 case_id=suite_id,
             )
+            execution_candidate = ConstraintRegressionCandidateV1(
+                candidate_snapshot_id=candidate.candidate_snapshot_id,
+                dsl_grammar_version=candidate.dsl_grammar_version,
+                constraints=candidate.constraints,
+            )
             outcome = self.regression_runner.run(
                 RegressionRunRequest(
                     suite_artifact_id=suite_id,
-                    snapshot_id=None,
+                    snapshot_id=candidate_snapshot_id,
                     seed=execution_seed,
+                    constraint_candidate=execution_candidate,
+                    root_seed=root_seed,
+                    run_kind=run_kind,
+                    profile=payload.validation_policy,
+                    max_action_work_units=remaining_work_units,
                 )
             )
+            if outcome.suite_artifact_id != suite_id:
+                raise IntegrityViolation("regression runner returned another suite Artifact")
+            candidate_binding = (
+                outcome.constraint_candidate_snapshot_id,
+                outcome.constraint_candidate_digest,
+                outcome.constraint_source_snapshot_id,
+            )
+            has_candidate_binding = all(candidate_binding)
+            if outcome.status in {"passed", "failed"} and not has_candidate_binding:
+                raise IntegrityViolation(
+                    "executed constraint regression omitted its exact candidate binding"
+                )
+            expected_source_snapshot_id = _target_version_tuple(
+                context,
+                target_snapshot_id=candidate_snapshot_id,
+                tool_version=EVIDENCE_TOOL_VERSION,
+            ).ir_snapshot_id
+            if not expected_source_snapshot_id:
+                raise IntegrityViolation("constraint regression source IR identity is unavailable")
+            if has_candidate_binding and candidate_binding != (
+                candidate_snapshot_id,
+                candidate.candidate_digest,
+                expected_source_snapshot_id,
+            ):
+                raise IntegrityViolation(
+                    "regression runner returned another constraint execution binding"
+                )
+            if (
+                outcome.payload.get("payload_schema_version") != REGRESSION_EVIDENCE_SCHEMA_ID
+                or outcome.payload.get("suite_artifact_id") != suite_id
+                or outcome.payload.get("seed") != execution_seed
+                or outcome.payload.get("status") != outcome.status
+                or outcome.payload.get("reason_code") != outcome.reason_code
+            ):
+                raise IntegrityViolation(
+                    "regression runner wire escaped its exact execution binding"
+                )
+            returned_snapshot_id = outcome.payload.get("snapshot_id")
+            if returned_snapshot_id != expected_source_snapshot_id and not (
+                not has_candidate_binding
+                and outcome.status in {"unproven", "not_executed"}
+                and returned_snapshot_id is None
+            ):
+                raise IntegrityViolation("regression runner returned another source snapshot")
+            findings_raw = outcome.payload.get("findings", ())
+            if not isinstance(findings_raw, (tuple, list)):
+                raise IntegrityViolation("regression runner returned invalid Finding evidence")
+            suite_findings = tuple(
+                rebind_finding_producers(
+                    [Finding.model_validate(item) for item in findings_raw],
+                    run_id=context.run.run_id,
+                )
+            )
+            if any(
+                finding.snapshot_id != expected_source_snapshot_id for finding in suite_findings
+            ):
+                raise IntegrityViolation("regression Finding escaped its source snapshot")
+            validate_authoritative_regression_findings(
+                suite_findings,
+                snapshot_id=expected_source_snapshot_id,
+            )
+            measured_work = outcome.action_work_units
+            if measured_work is not None and (
+                isinstance(measured_work, bool)
+                or not isinstance(measured_work, int)
+                or measured_work < 0
+            ):
+                raise IntegrityViolation("regression runner returned invalid measured work")
+            if outcome.status in {"passed", "failed"} and measured_work is None:
+                raise IntegrityViolation(
+                    "executed regression omitted measured action work",
+                    suite_artifact_id=suite_id,
+                )
+            if measured_work is not None:
+                if measured_work > remaining_work_units:
+                    raise IntegrityViolation(
+                        "constraint validation regressions exceed the aggregate work budget",
+                        suite_artifact_id=suite_id,
+                        remaining_work_units=remaining_work_units,
+                        measured_work_units=measured_work,
+                    )
+                remaining_work_units -= measured_work
             status = "unproven" if outcome.status == "not_executed" else outcome.status
             reason = outcome.reason_code
+            if suite_findings and status != deterministic_finding_status(suite_findings):
+                raise IntegrityViolation(
+                    "constraint regression status contradicts its exact Findings"
+                )
+            if status == "passed" and suite_findings:
+                raise IntegrityViolation("passed constraint regression returned Findings")
+            if status == "failed" and not suite_findings:
+                raise IntegrityViolation("failed constraint regression omitted Findings")
+            if status == "failed" and outcome.env_contract_version is None:
+                raise IntegrityViolation(
+                    "failed constraint regression omitted its environment binding"
+                )
+            if status == "passed" and outcome.env_contract_version is None:
+                status = "unproven"
+                reason = "regression_environment_binding_unavailable"
             if status == "unproven" and reason is None:
                 reason = "regression_not_executed"
+            regression_tuple = regression_evidence_version_tuple(
+                _target_version_tuple(
+                    context,
+                    target_snapshot_id=candidate_snapshot_id,
+                    tool_version=EVIDENCE_TOOL_VERSION,
+                ),
+                outcome,
+            )
             artifact = store_prepared_artifact(
                 self.store,
                 kind=REGRESSION_EVIDENCE_KIND,
                 payload_schema_id=REGRESSION_EVIDENCE_SCHEMA_ID,
-                version_tuple=evidence_version_tuple(
-                    ir_snapshot_id=None,
-                    constraint_snapshot_id=None,
-                    # producer-local (§3.3): the RUN's producer tool, which the
-                    # publisher re-projects via ``producer_value``. The dimension
-                    # tool is recorded on the EvidenceRequirement, not here.
-                    tool_version=EVIDENCE_TOOL_VERSION,
-                    seed=root_seed,
-                ),
-                lineage=lineage,
+                version_tuple=regression_tuple,
+                lineage=(*lineage, suite_id),
                 payload=with_validation_child_seed_evidence(
                     {
                         **outcome.payload,
+                        "payload_schema_version": REGRESSION_EVIDENCE_SCHEMA_ID,
+                        "requirement_id": f"regression:{suite_id}",
+                        "suite_artifact_id": suite_id,
+                        "snapshot_id": expected_source_snapshot_id,
+                        "seed": execution_seed,
+                        "status": status,
                         "reason_code": reason if status == "unproven" else None,
+                        "findings": [finding.model_dump(mode="json") for finding in suite_findings],
                     },
                     root_seed=root_seed,
                     execution_seed=execution_seed,
@@ -573,6 +1007,7 @@ class ConstraintValidationHandler:
                 extra_meta={"requirement_id": f"regression:{suite_id}"},
             )
             artifacts.append(artifact)
+            finding_batches.append((suite_id, suite_findings))
             dimensions.append(
                 DimensionResult(
                     requirement_id=f"regression:{suite_id}",
@@ -591,43 +1026,47 @@ class ConstraintValidationHandler:
                     status="produced",
                 )
             )
-        return tuple(artifacts), tuple(dimensions), tuple(dispositions)
+        return (
+            tuple(artifacts),
+            tuple(dimensions),
+            tuple(dispositions),
+            tuple(finding_batches),
+        )
 
     # ---------------------------------------------------------------- artifacts
     def _seal_candidate(
         self,
-        payload: ConstraintValidationPayloadV1,
-        candidate: tuple[Constraint, ...],
+        context: ExecutorContextLike,
+        wire: Mapping[str, object],
+        snapshot_id: str,
         lineage: tuple[str, ...],
     ) -> PreparedArtifact:
-        wire = _candidate_wire(payload.dsl_grammar_version, candidate)
         blob = _canonical_bytes(wire)
-        snapshot_id = f"candidate:{canonical_sha256(wire)[:32]}"
-        candidate_lineage = (payload.subject.subject_artifact_id,)
-        if payload.base_constraint_snapshot_artifact_id is not None:
-            candidate_lineage = (
-                payload.subject.subject_artifact_id,
-                payload.base_constraint_snapshot_artifact_id,
-            )
         return store_prepared_blob(
             self.store,
             kind=CONSTRAINT_SNAPSHOT_KIND,
             payload_schema_id=CONSTRAINT_SNAPSHOT_SCHEMA_ID,
-            version_tuple=VersionTuple(
-                constraint_snapshot_id=snapshot_id,
+            version_tuple=prepared_version_tuple(
+                context,
                 tool_version=COMPILE_TOOL_VERSION,
+                # The candidate is semantic content derived solely from proposal
+                # + base constraints.  Regression's root seed must not leak into
+                # its immutable VersionTuple.
+                projected_fields=("doc_version", "ir_snapshot_id"),
+                overrides={"constraint_snapshot_id": snapshot_id},
             ),
-            lineage=candidate_lineage,
+            lineage=lineage,
             blob=blob,
         )
 
     def _seal_compile_evidence(
         self,
+        context: ExecutorContextLike,
         payload: ConstraintValidationPayloadV1,
         pipeline: _CompilePipelineV1,
         candidate_id: str | None,
+        candidate_snapshot_id: str | None,
         lineage: tuple[str, ...],
-        root_seed: int | None,
     ) -> PreparedArtifact:
         evidence = ConstraintCompileEvidenceV1(
             proposal_artifact_id=payload.subject.subject_artifact_id,
@@ -638,23 +1077,16 @@ class ConstraintValidationHandler:
             stages=pipeline.stages,
             overall_status=pipeline.overall_status,
         )
-        compile_lineage = (payload.subject.subject_artifact_id,)
-        if payload.base_constraint_snapshot_artifact_id is not None:
-            compile_lineage = (
-                payload.subject.subject_artifact_id,
-                payload.base_constraint_snapshot_artifact_id,
-            )
         return store_prepared_artifact(
             self.store,
             kind=VALIDATION_EVIDENCE_KIND,
             payload_schema_id=CONSTRAINT_COMPILE_EVIDENCE_SCHEMA_ID,
-            version_tuple=evidence_version_tuple(
-                ir_snapshot_id=None,
-                constraint_snapshot_id=candidate_id,
+            version_tuple=_target_version_tuple(
+                context,
+                target_snapshot_id=candidate_snapshot_id,
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=root_seed,
             ),
-            lineage=compile_lineage,
+            lineage=lineage,
             payload=evidence.model_dump(mode="json"),
         )
 
@@ -662,13 +1094,11 @@ class ConstraintValidationHandler:
         self,
         context: ExecutorContextLike,
         payload: ConstraintValidationPayloadV1,
-        proposal: ConstraintProposalV1,
         target_binding: ConstraintTargetBindingV1 | None,
         requirements: tuple[EvidenceRequirement, ...],
         supporting: tuple[str, ...],
         lineage: tuple[str, ...],
         overall: str,
-        root_seed: int | None,
     ) -> PreparedArtifact:
         evidence_set = EvidenceSet(
             subject_artifact_id=payload.subject.subject_artifact_id,
@@ -687,13 +1117,12 @@ class ConstraintValidationHandler:
             self.store,
             kind=VALIDATION_EVIDENCE_KIND,
             payload_schema_id=EVIDENCE_SET_SCHEMA_ID,
-            version_tuple=evidence_version_tuple(
-                ir_snapshot_id=None,
-                constraint_snapshot_id=(
+            version_tuple=_target_version_tuple(
+                context,
+                target_snapshot_id=(
                     target_binding.target_snapshot_id if target_binding is not None else None
                 ),
                 tool_version=EVIDENCE_TOOL_VERSION,
-                seed=root_seed,
             ),
             lineage=lineage,
             payload=evidence_set.model_dump(mode="json"),
@@ -708,19 +1137,9 @@ class ConstraintValidationHandler:
     ) -> DimensionResult:
         status = pipeline.overall_status
         reason = None if status == "passed" else "compile_evidence_not_passed"
-        # SOUNDNESS GUARD: the raw compile-evidence stage derivation ignores
-        # `not_applicable` differential stages, so a candidate whose ONLY differential
-        # stages are `not_applicable` (empty / all-domain-absent) would otherwise
-        # vacuously derive `passed`. Downgrade the compile DIMENSION to `unproven`
-        # unless some applicable engine positively decided every constraint — this is
-        # the authoritative EvidenceSet verdict, so an unproven-covered candidate is
-        # never validated even though the compile-evidence artifact records `passed`.
-        if status == "passed" and not pipeline.differential_positively_covered:
-            status = "unproven"
-            reason = "no_engine_positively_decided_candidate"
         return DimensionResult(
             requirement_id="compile",
-            kind="compile",
+            kind=CONSTRAINT_COMPILE_REQUIREMENT_KIND,
             tool_version=_profile_key(payload.compiler_profile),
             status=status,
             evidence_artifact_id=compile_evidence_id,
@@ -730,17 +1149,16 @@ class ConstraintValidationHandler:
     def _target_binding(
         self,
         payload: ConstraintValidationPayloadV1,
-        candidate: tuple[Constraint, ...],
         candidate_id: str | None,
+        candidate_snapshot_id: str,
+        candidate_digest: str,
     ) -> ConstraintTargetBindingV1 | None:
         if candidate_id is None:
             return None
-        wire = _candidate_wire(payload.dsl_grammar_version, candidate)
-        snapshot_id = f"candidate:{canonical_sha256(wire)[:32]}"
         return ConstraintTargetBindingV1(
             target_artifact_id=candidate_id,
-            target_snapshot_id=snapshot_id,
-            target_digest=canonical_sha256(wire),
+            target_snapshot_id=candidate_snapshot_id,
+            target_digest=candidate_digest,
             ref_name=payload.target.ref_name,
             expected_ref=payload.target.expected_ref,
         )
@@ -766,6 +1184,31 @@ def _profile_key(profile: ProfileRefV1) -> str:
     return f"{profile.profile_id}@{profile.version}"
 
 
+def _target_version_tuple(
+    context: ExecutorContextLike,
+    *,
+    target_snapshot_id: str | None,
+    tool_version: str,
+) -> VersionTuple:
+    if target_snapshot_id is None:
+        return prepared_version_tuple(
+            context,
+            tool_version=tool_version,
+            projected_fields=(
+                "doc_version",
+                "ir_snapshot_id",
+                "constraint_snapshot_id",
+                "seed",
+            ),
+        )
+    return prepared_version_tuple(
+        context,
+        tool_version=tool_version,
+        projected_fields=("doc_version", "ir_snapshot_id", "seed"),
+        overrides={"constraint_snapshot_id": target_snapshot_id},
+    )
+
+
 def _candidate_wire(
     dsl_grammar_version: str, candidate: tuple[Constraint, ...]
 ) -> dict[str, object]:
@@ -784,12 +1227,16 @@ def _canonical_bytes(wire: Mapping[str, object]) -> bytes:
 
 
 __all__ = [
+    "BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1",
     "COMPILER_PROFILE_FIELD",
     "VALIDATION_POLICY_FIELD",
     "ConstraintDifferentialEngine",
+    "ConstraintValidationProfileAuthorityV1",
+    "ConstraintValidationProfileResolver",
     "ConstraintValidationHandler",
     "DifferentialEngineResultV1",
     "DifferentialEvalRequest",
+    "GoldenSuiteResultV1",
     "GoldenSuiteRunner",
     "load_proposal",
 ]

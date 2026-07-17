@@ -139,6 +139,7 @@ class _CannedAdmission:
             {
                 "operation": operation,
                 "resource_id": resource_id,
+                "request": request,
                 "actor": actor,
                 "idempotency_key": server.idempotency_key,
                 "request_hash": server.request_hash,

@@ -9,6 +9,7 @@ from weakref import ref
 
 import pytest
 
+import gameforge.apps.worker.regression as worker_regression
 from gameforge.apps.worker.regression import (
     AGENT_ENV_REPLAY_ADAPTER,
     MAX_REGRESSION_ENV_OUTPUT_BYTES,
@@ -20,7 +21,8 @@ from gameforge.apps.worker.app import LocalWorkerConfig
 from gameforge.apps.worker.components import _build_builtin_environment
 from gameforge.apps.worker.completion_oracles import build_completion_oracle_executors
 from gameforge.apps.worker.dispatch import build_worker_process
-from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.canonical import canonical_json, canonical_sha256
+from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.env_types import Observation, StepResult
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
@@ -51,6 +53,7 @@ from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.publication.payload_schema import validate_artifact_payload
 from gameforge.platform.run_handlers.repair import RepairSearchHandler
 from gameforge.platform.run_handlers.validation_common import (
+    ConstraintRegressionCandidateV1,
     RegressionRunRequest,
     derive_validation_subseed,
 )
@@ -180,6 +183,7 @@ def _fixture(
     expected_done: bool = True,
     expected_completed: bool = True,
     candidate_snapshot: Snapshot | None = None,
+    source_snapshot: Snapshot | None = None,
     oracle_executors=None,
     oracle_executor=None,
 ):
@@ -203,7 +207,7 @@ def _fixture(
         params={"min_completed_quest_fraction": 1},
     )
 
-    source = Snapshot({}, {})
+    source = source_snapshot or Snapshot({}, {})
     candidate = candidate_snapshot or Snapshot.from_entities_relations(
         [Entity(id="region:candidate", type=NodeType.REGION)], []
     )
@@ -287,6 +291,41 @@ def _fixture(
     return artifacts, suite_artifact, runner, request
 
 
+def _constraint_candidate_request(
+    request: RegressionRunRequest,
+    constraints: tuple[Constraint, ...],
+) -> RegressionRunRequest:
+    wire = {
+        "dsl_grammar_version": "dsl@1",
+        "constraints": [
+            constraint.model_dump(mode="json", by_alias=True) for constraint in constraints
+        ],
+    }
+    digest = canonical_sha256(wire)
+    candidate = ConstraintRegressionCandidateV1(
+        candidate_snapshot_id=f"candidate:{digest[:32]}",
+        dsl_grammar_version="dsl@1",
+        constraints=constraints,
+    )
+    return replace(
+        request,
+        snapshot_id=candidate.candidate_snapshot_id,
+        snapshot=None,
+        constraint_candidate=candidate,
+    )
+
+
+def _structural_constraint(constraint_id: str, expression: str) -> Constraint:
+    return Constraint(
+        id=constraint_id,
+        dsl_grammar_version="dsl@1",
+        kind="structural",
+        oracle="deterministic",
+        **{"assert": expression},
+        severity="major",
+    )
+
+
 def test_worker_regression_runner_executes_ephemeral_candidate() -> None:
     artifacts, suite, runner, request = _fixture()
 
@@ -301,6 +340,164 @@ def test_worker_regression_runner_executes_ephemeral_candidate() -> None:
     assert manifest["root_seed"] == 41
     assert "findings" not in result.payload
     assert artifacts.bounded_reads == [(suite.artifact_id, 17 * 1024 * 1024)]
+
+
+def test_constraint_regression_executes_suite_source_and_exact_candidate() -> None:
+    artifacts, suite, runner, snapshot_request = _fixture()
+    adapter = next(iter(runner.adapters.values()))
+    adapter_limits: list[int] = []
+
+    class RecordingAdapter:
+        adapter_ref = adapter.adapter_ref
+
+        def run(self, request):
+            adapter_limits.append(request.max_action_work_units)
+            return adapter.run(request)
+
+    runner = replace(
+        runner,
+        adapters={
+            (RecordingAdapter.adapter_ref.adapter_id, RecordingAdapter.adapter_ref.version): (
+                RecordingAdapter()
+            )
+        },
+    )
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (_structural_constraint("C_acyclic", "acyclic(quest_steps)"),),
+    )
+    source_artifact = artifacts.load_artifact(suite.lineage[0])
+
+    result = runner.run(request)
+
+    assert result.status == "passed"
+    assert result.reason_code is None
+    assert result.payload["snapshot_id"] == source_artifact.version_tuple.ir_snapshot_id
+    assert result.constraint_candidate_snapshot_id == request.snapshot_id
+    assert result.constraint_candidate_digest == request.constraint_candidate.candidate_digest
+    assert result.constraint_source_snapshot_id == source_artifact.version_tuple.ir_snapshot_id
+    assert result.action_work_units == 2  # one adapter action + one compiled-checker work unit
+    assert adapter_limits == [request.max_action_work_units - 1]
+    assert artifacts.bounded_reads == [
+        (suite.artifact_id, 17 * 1024 * 1024),
+        (source_artifact.artifact_id, 96 * 1024 * 1024),
+    ]
+
+
+def test_constraint_regression_returns_fresh_source_bound_findings() -> None:
+    source = Snapshot.from_entities_relations(
+        [
+            Entity(
+                id="step:collect",
+                type=NodeType.QUEST_STEP,
+                attrs={"kind": "collect", "item": "item:missing-source"},
+            ),
+            Entity(id="item:missing-source", type=NodeType.ITEM),
+        ],
+        [],
+    )
+    _artifacts, _suite, runner, snapshot_request = _fixture(source_snapshot=source)
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (
+            _structural_constraint(
+                "C_collect_source",
+                "every_collect_step_has_a_drop_source",
+            ),
+        ),
+    )
+
+    result = runner.run(request)
+
+    assert result.status == "failed"
+    findings = result.payload["findings"]
+    assert isinstance(findings, list) and findings
+    finding = findings[0]
+    assert finding["status"] == "confirmed"
+    assert finding["snapshot_id"] == source.snapshot_id
+    assert finding["constraint_id"] == "C_collect_source"
+    assert finding["evidence"]["constraint_regression_binding"] == {
+        "candidate_snapshot_id": request.constraint_candidate.candidate_snapshot_id,
+        "candidate_digest": request.constraint_candidate.candidate_digest,
+        "source_snapshot_id": source.snapshot_id,
+    }
+
+
+def test_regression_target_forms_are_mutually_exclusive() -> None:
+    _artifacts, _suite, runner, snapshot_request = _fixture()
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (_structural_constraint("C_acyclic", "acyclic(quest_steps)"),),
+    )
+
+    with pytest.raises(IntegrityViolation, match="cannot combine"):
+        runner.run(replace(request, snapshot=snapshot_request.snapshot))
+    with pytest.raises(IntegrityViolation, match="differs from its candidate target"):
+        runner.run(replace(request, snapshot_id="candidate:another"))
+
+
+def test_constraint_candidate_cannot_mutate_after_request_binding() -> None:
+    _artifacts, _suite, runner, snapshot_request = _fixture()
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (_structural_constraint("C_acyclic", "acyclic(quest_steps)"),),
+    )
+    assert request.constraint_candidate is not None
+    request.constraint_candidate.constraints[0].note = "mutated after identity derivation"
+
+    with pytest.raises(IntegrityViolation, match="changed after request binding"):
+        runner.run(request)
+
+
+def test_constraint_compiler_failure_preserves_known_adapter_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _artifacts, _suite, runner, snapshot_request = _fixture(expected_result="arrived")
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (_structural_constraint("C_acyclic", "acyclic(quest_steps)"),),
+    )
+
+    def unavailable_compiler(_constraints):
+        raise RuntimeError("compiler unavailable")
+
+    monkeypatch.setattr(worker_regression, "compile_all", unavailable_compiler)
+
+    result = runner.run(request)
+
+    assert result.status == "failed"
+    assert result.reason_code is None
+    assert result.action_work_units == 2
+    assert "case_seed_manifest" in result.payload
+    findings = result.payload["findings"]
+    assert isinstance(findings, list) and len(findings) == 1
+    assert findings[0]["status"] == "confirmed"
+    assert findings[0]["evidence"]["constraint_regression_binding"] == {
+        "candidate_snapshot_id": request.constraint_candidate.candidate_snapshot_id,
+        "candidate_digest": request.constraint_candidate.candidate_digest,
+        "source_snapshot_id": result.constraint_source_snapshot_id,
+    }
+
+
+def test_constraint_compiler_failure_is_unproven_without_a_known_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _artifacts, _suite, runner, snapshot_request = _fixture()
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (_structural_constraint("C_acyclic", "acyclic(quest_steps)"),),
+    )
+    monkeypatch.setattr(
+        worker_regression,
+        "compile_all",
+        lambda _constraints: (_ for _ in ()).throw(RuntimeError("compiler unavailable")),
+    )
+
+    result = runner.run(request)
+
+    assert result.status == "unproven"
+    assert result.reason_code == "constraint_candidate_execution_unavailable"
+    assert "findings" not in result.payload
 
 
 def test_repeated_candidate_execution_reuses_exact_parsed_suite_authority(monkeypatch) -> None:
@@ -565,6 +762,9 @@ def test_unknown_adapter_and_missing_candidate_are_unproven_never_passed() -> No
         "unproven",
         "regression_seed_binding_mismatch",
     )
+    assert unknown.env_contract_version == "generic-agent-env@1"
+    assert missing.env_contract_version == "generic-agent-env@1"
+    assert wrong_seed.env_contract_version == "generic-agent-env@1"
 
 
 def test_wrong_environment_contract_or_nonfinite_output_is_unproven() -> None:

@@ -9,6 +9,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError, field_validator
 
+from gameforge.contracts.auto_apply_ownership import auto_apply_ir_classifier_binding
 from gameforge.contracts.canonical import sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
@@ -81,6 +82,14 @@ class AutoApplyChangeAssessment:
     field_classification_complete: bool
     numeric_value_changed: bool
     narrative_text_changed: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _ValidatedAutoApplyCandidate:
+    """Exact authority resolved for one otherwise eligible Patch candidate."""
+
+    patch: PatchV2
+    policy: AutoApplyPolicyV1
 
 
 class OracleEvidenceClaims(BaseModel):
@@ -303,46 +312,83 @@ def _scope_ids(scope: DomainScope) -> set[str]:
     return set(scope.domain_ids)
 
 
-def _validate_domains(
+def _validate_candidate_domains(
     *,
-    item: ApprovalItem,
-    proof: AutoApplyProofV1,
+    affected_domain_scope: DomainScope,
     assessment: AutoApplyChangeAssessment,
     domain_registry: DomainRegistryV1,
     policy: AutoApplyPolicyV1,
     oracle_registry: DeterministicOracleRegistryV1,
 ) -> None:
     registry_ref = _domain_registry_ref(domain_registry)
-    if (
-        item.domain_registry_ref != registry_ref
-        or policy.domain_registry != registry_ref
-    ):
+    if policy.domain_registry != registry_ref:
         _reject(
             "domain_registry_mismatch",
-            "ApprovalItem and auto-apply policy must bind the supplied domain registry",
+            "Auto-apply policy must bind the supplied domain registry",
         )
-    if proof.affected_domain_scope != item.domain_scope:
+    try:
+        classifier = auto_apply_ir_classifier_binding(domain_registry)
+    except (TypeError, ValueError):
+        _reject(
+            "domain_ownership_invalid",
+            "Domain Registry auto-apply ownership tags violate their frozen contract",
+        )
+    if not classifier.ownership.complete:
+        _reject(
+            "domain_ownership_incomplete",
+            "Domain Registry does not assign every IR resource type to an owner",
+        )
+    if (
+        assessment.schema_id != classifier.classifier_schema_id
+        or assessment.schema_digest != classifier.classifier_schema_digest
+    ):
+        _reject(
+            "change_assessment_mismatch",
+            "Canonical diff assessment uses another classifier ownership authority",
+        )
+    if assessment.affected_domain_scope != affected_domain_scope:
         _reject(
             "affected_domain_scope_mismatch",
-            "Proof affected scope must equal ApprovalItem domain scope",
-        )
-    if assessment.affected_domain_scope != proof.affected_domain_scope:
-        _reject(
-            "affected_domain_scope_mismatch",
-            "Recomputed affected scope must equal proof scope",
+            "Recomputed affected scope must equal the candidate scope",
         )
 
+    if policy.deterministic_oracle_registry != _oracle_registry_ref(oracle_registry):
+        _reject(
+            "oracle_registry_mismatch",
+            "Auto-apply policy does not bind the supplied oracle registry",
+        )
+
+    required_definitions: list[DeterministicOracleDefinitionV1] = []
+    for oracle_ref in policy.required_deterministic_oracles:
+        definitions = tuple(
+            definition
+            for definition in oracle_registry.definitions
+            if (definition.oracle_id, definition.oracle_version)
+            == (oracle_ref.oracle_id, oracle_ref.oracle_version)
+        )
+        if len(definitions) != 1:
+            _reject(
+                "oracle_resolution_failed",
+                "Required deterministic oracle must resolve exactly once",
+            )
+        definition = definitions[0]
+        if definition.oracle_digest != oracle_ref.oracle_digest:
+            _reject(
+                "oracle_digest_mismatch",
+                "Required oracle ref digest differs from the resolved definition",
+            )
+        if definition.domain_registry != policy.domain_registry:
+            _reject(
+                "oracle_domain_registry_mismatch",
+                "Oracle definition and auto-apply policy use different domain registries",
+            )
+        required_definitions.append(definition)
+
     known_ids = {definition.domain_id for definition in domain_registry.definitions}
-    referenced_ids = _scope_ids(proof.affected_domain_scope)
+    referenced_ids = _scope_ids(affected_domain_scope)
     for scope in (*policy.allowed_domain_scopes, *policy.forbidden_domain_scopes):
         referenced_ids.update(scope.domain_ids)
-    required_oracle_ids = {
-        (oracle.oracle_id, oracle.oracle_version)
-        for oracle in policy.required_deterministic_oracles
-    }
-    for definition in oracle_registry.definitions:
-        if (definition.oracle_id, definition.oracle_version) not in required_oracle_ids:
-            continue
+    for definition in required_definitions:
         if isinstance(definition.supported_domain_scope, DomainScope):
             referenced_ids.update(definition.supported_domain_scope.domain_ids)
     unknown = referenced_ids - known_ids
@@ -353,11 +399,9 @@ def _validate_domains(
             domain_ids=sorted(unknown),
         )
 
-    affected = _scope_ids(proof.affected_domain_scope)
+    affected = _scope_ids(affected_domain_scope)
     forbidden = {
-        domain_id
-        for scope in policy.forbidden_domain_scopes
-        for domain_id in scope.domain_ids
+        domain_id for scope in policy.forbidden_domain_scopes for domain_id in scope.domain_ids
     }
     if affected & forbidden:
         _reject(
@@ -366,9 +410,7 @@ def _validate_domains(
             domain_ids=sorted(affected & forbidden),
         )
     allowed = {
-        domain_id
-        for scope in policy.allowed_domain_scopes
-        for domain_id in scope.domain_ids
+        domain_id for scope in policy.allowed_domain_scopes for domain_id in scope.domain_ids
     }
     uncovered = affected - allowed
     if uncovered:
@@ -378,22 +420,22 @@ def _validate_domains(
             domain_ids=sorted(uncovered),
         )
 
+    for definition in required_definitions:
+        if definition.supported_domain_scope != "all" and not affected <= _scope_ids(
+            definition.supported_domain_scope
+        ):
+            _reject(
+                "oracle_scope_not_covered",
+                "Oracle supported scope does not cover every affected domain",
+            )
 
-def _validate_profile(
+
+def _validate_candidate_profile(
     *,
-    proof: AutoApplyProofV1,
+    policy_ref: AutoApplyPolicyRefV1,
+    affected_domain_scope: DomainScope,
     profile: ExecutionProfileDefinitionV1,
 ) -> None:
-    binding = proof.validation_profile_binding
-    profile_hash = execution_profile_payload_hash(profile)
-    if (
-        profile.profile != binding.validation_profile
-        or profile_hash != binding.validation_profile_payload_hash
-    ):
-        _reject(
-            "validation_profile_mismatch",
-            "Resolved validation profile differs from the proof binding",
-        )
     if profile.profile_kind != "validation" or not isinstance(
         profile.details, ValidationProfileDetailsV1
     ):
@@ -406,10 +448,10 @@ def _validate_profile(
             "validation_profile_mismatch",
             "Validation profile does not support Patch subjects",
         )
-    if profile.details.auto_apply_policy != proof.policy:
+    if profile.details.auto_apply_policy != policy_ref:
         _reject(
             "validation_profile_mismatch",
-            "Validation profile does not bind the proof auto-apply policy",
+            "Validation profile does not bind the selected auto-apply policy",
         )
     if RunKindRef(kind="patch.validate", version=1) not in profile.compatible_run_kinds:
         _reject(
@@ -422,10 +464,27 @@ def _validate_profile(
             "validation_profile_mismatch",
             "Validation profile does not declare both auto-apply outputs",
         )
-    if not _scope_ids(proof.affected_domain_scope) <= _scope_ids(profile.domain_scope):
+    if not _scope_ids(affected_domain_scope) <= _scope_ids(profile.domain_scope):
         _reject(
             "validation_profile_mismatch",
             "Validation profile domain scope does not cover the affected scope",
+        )
+
+
+def _validate_proof_profile_binding(
+    *,
+    proof: AutoApplyProofV1,
+    profile: ExecutionProfileDefinitionV1,
+) -> None:
+    binding = proof.validation_profile_binding
+    if (
+        profile.profile != binding.validation_profile
+        or execution_profile_payload_hash(profile) != binding.validation_profile_payload_hash
+        or binding.policy != proof.policy
+    ):
+        _reject(
+            "validation_profile_mismatch",
+            "Resolved validation profile differs from the proof binding",
         )
 
 
@@ -567,9 +626,8 @@ def _validate_oracles(
             subject.artifact.artifact_id,
             target_binding.target_artifact_id,
         }
-        if (
-            claims.direct_parent_artifact_ids != artifact.lineage
-            or not required_parents <= set(artifact.lineage)
+        if claims.direct_parent_artifact_ids != artifact.lineage or not required_parents <= set(
+            artifact.lineage
         ):
             _reject(
                 "oracle_lineage_mismatch",
@@ -633,38 +691,80 @@ def _validate_outcomes(
             "outcome_policy_resolution_failed",
             "Resolved outcome policy IDs must be unique",
         )
-    required_rules = tuple(policy.required_outcome_rules)
-    bound_rules = tuple(binding.rule for binding in proof.required_outcome_evidence)
-    if bound_rules != required_rules:
+    expected_requirements: list[
+        tuple[
+            QualifiedOutcomeRuleRefV1,
+            ResolvedPolicySnapshotV1,
+            ResolvedArtifactRequirementV1,
+        ]
+    ] = []
+    for rule in policy.required_outcome_rules:
+        resolved = _outcome_requirements(snapshots, rule)
+        if not resolved:
+            _reject(
+                "outcome_policy_resolution_failed",
+                "Every required outcome rule must resolve to one or more requirements",
+            )
+        for snapshot, requirement in resolved:
+            if (
+                snapshot.source_profile_field_path != "/params/validation_policy"
+                or snapshot.source_profile_payload_hash != validation_profile_payload_hash
+            ):
+                _reject(
+                    "outcome_policy_profile_mismatch",
+                    "Resolved outcome policy does not bind the exact validation profile",
+                )
+            expected_requirements.append((rule, snapshot, requirement))
+
+    expected_requirements.sort(
+        key=lambda item: (
+            item[0].resolved_policy_id,
+            item[0].outcome_rule_id,
+            item[2].requirement_id,
+        )
+    )
+    expected_identities = tuple(
+        (
+            rule.resolved_policy_id,
+            rule.outcome_rule_id,
+            requirement.requirement_id,
+        )
+        for rule, _, requirement in expected_requirements
+    )
+    if len(expected_identities) != len(set(expected_identities)):
+        _reject(
+            "outcome_policy_resolution_failed",
+            "Resolved outcome requirements must have unique proof identities",
+        )
+    requirement_ids = tuple(
+        requirement.requirement_id for _, _, requirement in expected_requirements
+    )
+    if len(requirement_ids) != len(set(requirement_ids)):
+        _reject(
+            "outcome_policy_resolution_failed",
+            "Resolved outcome requirements must have unique EvidenceSet IDs",
+        )
+
+    bound_identities = tuple(
+        (
+            binding.rule.resolved_policy_id,
+            binding.rule.outcome_rule_id,
+            binding.requirement_id,
+        )
+        for binding in proof.required_outcome_evidence
+    )
+    if bound_identities != expected_identities:
         _reject(
             "required_outcome_set_mismatch",
-            "Proof outcome bindings must equal the policy required outcome set",
+            "Proof outcome bindings must equal every resolved required outcome requirement",
         )
 
     evidence_by_requirement = _required_evidence_by_id(evidence_set)
     evidence_ids: set[str] = set()
     regression_ids: set[str] = set()
-    for binding in proof.required_outcome_evidence:
-        resolved = _outcome_requirements(snapshots, binding.rule)
-        if len(resolved) != 1:
-            _reject(
-                "outcome_policy_resolution_failed",
-                "Required outcome rule must resolve to exactly one Artifact requirement",
-            )
-        snapshot, requirement = resolved[0]
-        if (
-            snapshot.source_profile_field_path != "/params/validation_policy"
-            or snapshot.source_profile_payload_hash != validation_profile_payload_hash
-        ):
-            _reject(
-                "outcome_policy_profile_mismatch",
-                "Resolved outcome policy does not bind the exact validation profile",
-            )
-        if requirement.requirement_id != binding.requirement_id:
-            _reject(
-                "outcome_requirement_mismatch",
-                "Outcome evidence requirement ID differs from the resolved policy",
-            )
+    for binding, (_, _, requirement) in zip(
+        proof.required_outcome_evidence, expected_requirements, strict=True
+    ):
         record = records.get(binding.evidence_artifact_id)
         if record is None:
             _reject(
@@ -693,9 +793,7 @@ def _validate_outcomes(
             )
         try:
             claims = decoder(record.payload_schema_id, payloads[artifact.artifact_id])
-            claims = QualifiedOutcomeEvidenceClaims.model_validate(
-                claims.model_dump(mode="python")
-            )
+            claims = QualifiedOutcomeEvidenceClaims.model_validate(claims.model_dump(mode="python"))
         except (AttributeError, TypeError, ValueError, ValidationError) as exc:
             _reject(
                 "outcome_evidence_invalid",
@@ -745,9 +843,8 @@ def _validate_outcomes(
                 artifact_id=artifact.artifact_id,
             )
         required_parents = {subject_artifact_id, target_binding.target_artifact_id}
-        if (
-            claims.direct_parent_artifact_ids != artifact.lineage
-            or not required_parents <= set(artifact.lineage)
+        if claims.direct_parent_artifact_ids != artifact.lineage or not required_parents <= set(
+            artifact.lineage
         ):
             _reject(
                 "outcome_lineage_mismatch",
@@ -768,7 +865,10 @@ def _validate_evidence_set(
     target_binding: PatchTargetBindingV1,
     evidence_records: Mapping[str, ResolvedArtifactPayload],
 ) -> None:
-    if record.artifact.kind != "validation_evidence" or record.payload_schema_id != "evidence-set@1":
+    if (
+        record.artifact.kind != "validation_evidence"
+        or record.payload_schema_id != "evidence-set@1"
+    ):
         _reject(
             "evidence_set_artifact_mismatch",
             "EvidenceSet must be a validation_evidence/evidence-set@1 Artifact",
@@ -813,13 +913,10 @@ def _validate_evidence_set(
         )
 
 
-def _validate_exact_subject_target(
+def _validate_item_candidate_binding(
     *,
     item: ApprovalItem,
     subject_record: ResolvedArtifactPayload,
-    subject_patch: PatchV2,
-    target_record: ResolvedArtifactPayload,
-    assessment: AutoApplyChangeAssessment,
 ) -> PatchTargetBindingV1:
     if item.subject_kind != "patch" or item.status not in {
         "validated",
@@ -829,14 +926,40 @@ def _validate_exact_subject_target(
             "subject_not_auto_apply_patch",
             "Auto-apply is valid only for validated or eligible Patch subjects",
         )
-    if item.auto_apply_proof is None or not isinstance(
-        item.target_binding, PatchTargetBindingV1
-    ):
+    if item.auto_apply_proof is None or not isinstance(item.target_binding, PatchTargetBindingV1):
         _reject(
             "subject_not_auto_apply_patch",
             "Patch auto-apply requires immutable target and proof bindings",
         )
     target_binding = item.target_binding
+    if (
+        item.subject_artifact_id != subject_record.artifact.artifact_id
+        or item.subject_digest != subject_record.artifact.payload_hash
+    ):
+        _reject(
+            "subject_binding_mismatch",
+            "ApprovalItem does not bind the exact Patch Artifact and payload",
+        )
+    return target_binding
+
+
+def _validate_candidate_subject_target(
+    *,
+    subject_record: ResolvedArtifactPayload,
+    subject_patch: PatchV2,
+    target_record: ResolvedArtifactPayload,
+    target_binding: PatchTargetBindingV1,
+    assessment: AutoApplyChangeAssessment,
+) -> None:
+    if (
+        subject_record.artifact.kind != "patch"
+        or subject_record.payload_schema_id != "patch@2"
+        or subject_record.artifact.version_tuple.ir_snapshot_id != subject_patch.base_snapshot_id
+    ):
+        _reject(
+            "subject_binding_mismatch",
+            "Candidate subject is not the exact version-bound Patch Artifact",
+        )
     if (
         target_binding.expected_ref is not None
         and target_binding.expected_ref.artifact_id != assessment.base_artifact_id
@@ -844,21 +967,6 @@ def _validate_exact_subject_target(
         _reject(
             "ref_base_mismatch",
             "Patch base Artifact does not match the frozen target ref value",
-        )
-    if (
-        subject_record.artifact.kind != "patch"
-        or subject_record.payload_schema_id != "patch@2"
-        or item.subject_artifact_id != subject_record.artifact.artifact_id
-        or item.subject_digest != subject_record.artifact.payload_hash
-    ):
-        _reject(
-            "subject_binding_mismatch",
-            "ApprovalItem does not bind the exact Patch Artifact and payload",
-        )
-    if subject_record.artifact.version_tuple.ir_snapshot_id != subject_patch.base_snapshot_id:
-        _reject(
-            "subject_binding_mismatch",
-            "Patch Artifact VersionTuple does not bind the Patch base snapshot",
         )
     if assessment.base_artifact_id not in subject_record.artifact.lineage:
         _reject(
@@ -914,7 +1022,195 @@ def _validate_exact_subject_target(
             "change_assessment_mismatch",
             "Canonical diff assessment lacks an exact schema binding",
         )
-    return target_binding
+
+
+_CANDIDATE_POLICY_INELIGIBILITY_REASONS = frozenset(
+    {
+        "affected_domain_not_allowed",
+        "field_classification_incomplete",
+        "forbidden_domain_affected",
+        "narrative_change_forbidden",
+        "numeric_change_forbidden",
+        "operation_count_exceeded",
+        "operation_kind_forbidden",
+        "oracle_scope_not_covered",
+        "ref_binding_mismatch",
+        "ref_name_forbidden",
+    }
+)
+
+
+def _validate_auto_apply_candidate_values(
+    *,
+    subject: ResolvedArtifactPayload,
+    subject_patch: PatchV2,
+    target: ResolvedArtifactPayload,
+    target_binding: PatchTargetBindingV1,
+    policy_ref: AutoApplyPolicyRefV1,
+    domain_registry: DomainRegistryV1,
+    policy_registry: AutoApplyPolicyRegistryV1,
+    oracle_registry: DeterministicOracleRegistryV1,
+    validation_profile: ExecutionProfileDefinitionV1,
+    change_assessment: AutoApplyChangeAssessment,
+    current_ref: RefValue | None,
+) -> _ValidatedAutoApplyCandidate:
+    """Resolve candidate authority and reject every non-eligible policy condition."""
+
+    _validate_candidate_subject_target(
+        subject_record=subject,
+        subject_patch=subject_patch,
+        target_record=target,
+        target_binding=target_binding,
+        assessment=change_assessment,
+    )
+    if current_ref != target_binding.expected_ref:
+        _reject(
+            "ref_binding_mismatch",
+            "Current ref does not equal the immutable auto-apply CAS precondition",
+        )
+
+    policy = _resolve_policy(policy_ref=policy_ref, registry=policy_registry)
+    if target_binding.ref_name not in policy.allowed_ref_names:
+        _reject(
+            "ref_name_forbidden",
+            "Patch target ref is not allowlisted for auto-apply",
+            ref_name=target_binding.ref_name,
+        )
+    if len(subject_patch.ops) > policy.maximum_operation_count:
+        _reject(
+            "operation_count_exceeded",
+            "Patch operation count exceeds the auto-apply policy",
+        )
+    forbidden_ops = sorted(
+        {operation.op for operation in subject_patch.ops} - set(policy.allowed_operation_kinds)
+    )
+    if forbidden_ops:
+        _reject(
+            "operation_kind_forbidden",
+            "Patch contains an operation kind outside the auto-apply allowlist",
+            operation_kinds=forbidden_ops,
+        )
+    if not change_assessment.field_classification_complete:
+        _reject(
+            "field_classification_incomplete",
+            "Unknown field classification makes auto-apply ineligible",
+        )
+    if policy.require_no_numeric_value_change and change_assessment.numeric_value_changed:
+        _reject(
+            "numeric_change_forbidden",
+            "Auto-apply policy forbids numeric value changes",
+        )
+    if policy.require_no_narrative_text_change and change_assessment.narrative_text_changed:
+        _reject(
+            "narrative_change_forbidden",
+            "Auto-apply policy forbids narrative text changes",
+        )
+
+    _validate_candidate_domains(
+        affected_domain_scope=change_assessment.affected_domain_scope,
+        assessment=change_assessment,
+        domain_registry=domain_registry,
+        policy=policy,
+        oracle_registry=oracle_registry,
+    )
+    _validate_candidate_profile(
+        policy_ref=policy_ref,
+        affected_domain_scope=change_assessment.affected_domain_scope,
+        profile=validation_profile,
+    )
+    return _ValidatedAutoApplyCandidate(patch=subject_patch, policy=policy)
+
+
+def _validated_candidate_input(
+    *,
+    subject: ResolvedArtifactPayload,
+    target: ResolvedArtifactPayload,
+    target_binding: PatchTargetBindingV1,
+    policy_ref: AutoApplyPolicyRefV1,
+    domain_registry: DomainRegistryV1,
+    policy_registry: AutoApplyPolicyRegistryV1,
+    oracle_registry: DeterministicOracleRegistryV1,
+    validation_profile: ExecutionProfileDefinitionV1,
+    change_assessment: AutoApplyChangeAssessment,
+    current_ref: RefValue | None,
+) -> _ValidatedAutoApplyCandidate:
+    domain_registry = _contract_value(domain_registry, DomainRegistryV1, "DomainRegistryV1")
+    policy_registry = _contract_value(
+        policy_registry, AutoApplyPolicyRegistryV1, "AutoApplyPolicyRegistryV1"
+    )
+    oracle_registry = _contract_value(
+        oracle_registry,
+        DeterministicOracleRegistryV1,
+        "DeterministicOracleRegistryV1",
+    )
+    validation_profile = _contract_value(
+        validation_profile,
+        ExecutionProfileDefinitionV1,
+        "ExecutionProfileDefinitionV1",
+    )
+    target_binding = _contract_value(target_binding, PatchTargetBindingV1, "PatchTargetBindingV1")
+    policy_ref = _contract_value(policy_ref, AutoApplyPolicyRefV1, "AutoApplyPolicyRefV1")
+    if current_ref is not None:
+        current_ref = _contract_value(current_ref, RefValue, "RefValue")
+    subject_patch = _parse_payload(
+        subject,
+        PatchV2,
+        reason_code="subject_payload_invalid",
+    )
+    _load_payload(target)
+    return _validate_auto_apply_candidate_values(
+        subject=subject,
+        subject_patch=subject_patch,
+        target=target,
+        target_binding=target_binding,
+        policy_ref=policy_ref,
+        domain_registry=domain_registry,
+        policy_registry=policy_registry,
+        oracle_registry=oracle_registry,
+        validation_profile=validation_profile,
+        change_assessment=change_assessment,
+        current_ref=current_ref,
+    )
+
+
+def is_auto_apply_candidate_eligible(
+    *,
+    subject: ResolvedArtifactPayload,
+    target: ResolvedArtifactPayload,
+    target_binding: PatchTargetBindingV1,
+    policy_ref: AutoApplyPolicyRefV1,
+    domain_registry: DomainRegistryV1,
+    policy_registry: AutoApplyPolicyRegistryV1,
+    oracle_registry: DeterministicOracleRegistryV1,
+    validation_profile: ExecutionProfileDefinitionV1,
+    change_assessment: AutoApplyChangeAssessment,
+    current_ref: RefValue | None,
+) -> bool:
+    """Return policy eligibility while preserving typed authority-integrity failures."""
+
+    try:
+        _validated_candidate_input(
+            subject=subject,
+            target=target,
+            target_binding=target_binding,
+            policy_ref=policy_ref,
+            domain_registry=domain_registry,
+            policy_registry=policy_registry,
+            oracle_registry=oracle_registry,
+            validation_profile=validation_profile,
+            change_assessment=change_assessment,
+            current_ref=current_ref,
+        )
+    except AutoApplyGuardError as exc:
+        if exc.context.get("reason_code") in _CANDIDATE_POLICY_INELIGIBILITY_REASONS:
+            return False
+        raise
+    except Exception as exc:
+        raise AutoApplyGuardError(
+            "Auto-apply candidate input could not be validated",
+            reason_code="invalid_guard_input",
+        ) from exc
+    return True
 
 
 def _validate_auto_apply(
@@ -982,22 +1278,43 @@ def _validate_auto_apply(
     )
     records, payloads = _artifact_records(evidence_artifacts)
 
-    target_binding = _validate_exact_subject_target(
+    target_binding = _validate_item_candidate_binding(
         item=item,
         subject_record=subject,
-        subject_patch=subject_patch,
-        target_record=target,
-        assessment=change_assessment,
     )
-    if current_ref != target_binding.expected_ref:
-        _reject(
-            "ref_binding_mismatch",
-            "Current ref does not equal the immutable auto-apply CAS precondition",
-        )
-
     proof_binding = item.auto_apply_proof
     assert proof_binding is not None
-    if proof.artifact.kind != "validation_evidence" or proof.payload_schema_id != "auto-apply-proof@1":
+    candidate = _validate_auto_apply_candidate_values(
+        subject=subject,
+        subject_patch=subject_patch,
+        target=target,
+        target_binding=target_binding,
+        policy_ref=proof_binding.policy,
+        domain_registry=domain_registry,
+        policy_registry=policy_registry,
+        oracle_registry=oracle_registry,
+        validation_profile=validation_profile,
+        change_assessment=change_assessment,
+        current_ref=current_ref,
+    )
+    if item.domain_registry_ref != _domain_registry_ref(domain_registry):
+        _reject(
+            "domain_registry_mismatch",
+            "ApprovalItem does not bind the supplied domain registry",
+        )
+    if (
+        proof_payload.affected_domain_scope != item.domain_scope
+        or proof_payload.affected_domain_scope != change_assessment.affected_domain_scope
+    ):
+        _reject(
+            "affected_domain_scope_mismatch",
+            "Proof, ApprovalItem, and recomputed affected scopes must be identical",
+        )
+
+    if (
+        proof.artifact.kind != "validation_evidence"
+        or proof.payload_schema_id != "auto-apply-proof@1"
+    ):
         _reject(
             "proof_artifact_mismatch",
             "Auto proof must be a validation_evidence/auto-apply-proof@1 Artifact",
@@ -1007,15 +1324,12 @@ def _validate_auto_apply(
         or proof_binding.subject_digest != item.subject_digest
         or proof_binding.target_digest != target_binding.target_digest
         or proof_binding.expected_ref != target_binding.expected_ref
-        or proof_binding.validation_evidence_artifact_id
-        != evidence_set.artifact.artifact_id
+        or proof_binding.validation_evidence_artifact_id != evidence_set.artifact.artifact_id
         or proof_payload.subject_artifact_id != item.subject_artifact_id
         or proof_payload.subject_digest != item.subject_digest
         or proof_payload.target_binding != target_binding
-        or proof_payload.validation_evidence_artifact_id
-        != evidence_set.artifact.artifact_id
-        or proof_payload.regression_evidence_artifact_ids
-        != item.regression_evidence_artifact_ids
+        or proof_payload.validation_evidence_artifact_id != evidence_set.artifact.artifact_id
+        or proof_payload.regression_evidence_artifact_ids != item.regression_evidence_artifact_ids
     ):
         _reject(
             "proof_binding_mismatch",
@@ -1030,56 +1344,7 @@ def _validate_auto_apply(
             "Auto proof policy refs are not identical",
         )
 
-    policy = _resolve_policy(policy_ref=proof_payload.policy, registry=policy_registry)
-    if target_binding.ref_name not in policy.allowed_ref_names:
-        _reject(
-            "ref_name_forbidden",
-            "Patch target ref is not allowlisted for auto-apply",
-            ref_name=target_binding.ref_name,
-        )
-    if len(subject_patch.ops) > policy.maximum_operation_count:
-        _reject(
-            "operation_count_exceeded",
-            "Patch operation count exceeds the auto-apply policy",
-        )
-    forbidden_ops = sorted(
-        {operation.op for operation in subject_patch.ops}
-        - set(policy.allowed_operation_kinds)
-    )
-    if forbidden_ops:
-        _reject(
-            "operation_kind_forbidden",
-            "Patch contains an operation kind outside the auto-apply allowlist",
-            operation_kinds=forbidden_ops,
-        )
-    if not change_assessment.field_classification_complete:
-        _reject(
-            "field_classification_incomplete",
-            "Unknown field classification makes auto-apply ineligible",
-        )
-    if policy.require_no_numeric_value_change and change_assessment.numeric_value_changed:
-        _reject(
-            "numeric_change_forbidden",
-            "Auto-apply policy forbids numeric value changes",
-        )
-    if (
-        policy.require_no_narrative_text_change
-        and change_assessment.narrative_text_changed
-    ):
-        _reject(
-            "narrative_change_forbidden",
-            "Auto-apply policy forbids narrative text changes",
-        )
-
-    _validate_domains(
-        item=item,
-        proof=proof_payload,
-        assessment=change_assessment,
-        domain_registry=domain_registry,
-        policy=policy,
-        oracle_registry=oracle_registry,
-    )
-    _validate_profile(
+    _validate_proof_profile_binding(
         proof=proof_payload,
         profile=validation_profile,
     )
@@ -1092,7 +1357,7 @@ def _validate_auto_apply(
     )
     oracle_ids = _validate_oracles(
         proof=proof_payload,
-        policy=policy,
+        policy=candidate.policy,
         oracle_registry=oracle_registry,
         records=records,
         payloads=payloads,
@@ -1103,7 +1368,7 @@ def _validate_auto_apply(
     )
     outcome_ids, regression_ids = _validate_outcomes(
         proof=proof_payload,
-        policy=policy,
+        policy=candidate.policy,
         snapshots=resolved_outcome_policies,
         records=records,
         payloads=payloads,
@@ -1197,5 +1462,6 @@ __all__ = [
     "OracleEvidenceClaims",
     "QualifiedOutcomeEvidenceClaims",
     "ResolvedArtifactPayload",
+    "is_auto_apply_candidate_eligible",
     "validate_auto_apply",
 ]

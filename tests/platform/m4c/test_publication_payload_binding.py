@@ -83,6 +83,7 @@ from gameforge.platform.publication.payload_schema import (
     validate_artifact_payload,
 )
 from gameforge.platform.registry.defaults import build_builtin_registry
+from gameforge.platform.run_handlers.validation_common import derive_validation_subseed
 from tests.platform.m4c.handler_support import (
     build_envelope,
     build_run_record,
@@ -588,7 +589,14 @@ def _validation_subject(subject_artifact_id: str) -> ValidationSubjectBindingV1:
     )
 
 
-def _patch_validation_run(*, overlapping_finding_evidence: bool = False):
+def _patch_validation_run(
+    *,
+    overlapping_finding_evidence: bool = False,
+    regression_suite_artifact_ids: tuple[str, ...] = ("artifact:suite",),
+    constraint_snapshot_artifact_id: str | None = None,
+    simulation_profiles: tuple[ProfileRefV1, ...] = (),
+    seed: int | None = None,
+):
     findings = (
         (
             FindingEvidenceBindingV1(
@@ -605,6 +613,7 @@ def _patch_validation_run(*, overlapping_finding_evidence: bool = False):
         subject=_validation_subject("artifact:patch"),
         base_snapshot_artifact_id="artifact:base",
         preview_snapshot_artifact_id="artifact:preview",
+        constraint_snapshot_artifact_id=constraint_snapshot_artifact_id,
         candidate_config_export_artifact_ids=("artifact:config",),
         target=RefReadBindingV1(
             ref_name="ref:content",
@@ -612,14 +621,14 @@ def _patch_validation_run(*, overlapping_finding_evidence: bool = False):
         ),
         validation_policy=ProfileRefV1(profile_id="validation", version=1),
         checker_profiles=(ProfileRefV1(profile_id="checker", version=1),),
-        simulation_profiles=(),
+        simulation_profiles=simulation_profiles,
         findings=findings,
         review_artifact_ids=("artifact:review",),
         playtest_trace_artifact_ids=("artifact:trace",),
-        regression_suite_artifact_ids=("artifact:suite",),
+        regression_suite_artifact_ids=regression_suite_artifact_ids,
     )
     return build_run_record(
-        build_envelope(params=params),
+        build_envelope(params=params, seed=seed),
         RunKindRef(kind="patch.validate", version=1),
     )
 
@@ -648,7 +657,7 @@ def _constraint_validation_run():
     )
 
 
-def _rollback_validation_run():
+def _rollback_validation_run(*, seed: int | None = None):
     params = RollbackValidationPayloadV1(
         subject=_validation_subject("artifact:rollback"),
         ref_name="ref:content",
@@ -661,7 +670,31 @@ def _rollback_validation_run():
         regression_suite_artifact_ids=("artifact:suite",),
     )
     return build_run_record(
-        build_envelope(params=params),
+        build_envelope(
+            params=params,
+            seed=seed,
+            version_tuple=VersionTuple(seed=seed),
+            resolved_profiles=(
+                resolved_binding(
+                    "/params/rollback_profile",
+                    profile_id="rollback",
+                    version=1,
+                    kind="rollback",
+                ),
+                resolved_binding(
+                    "/params/schema_compatibility_policy",
+                    profile_id="schema",
+                    version=1,
+                    kind="schema_compatibility",
+                ),
+                resolved_binding(
+                    "/params/impact_profiles/0",
+                    profile_id="impact",
+                    version=1,
+                    kind="impact_analysis",
+                ),
+            ),
+        ),
         RunKindRef(kind="rollback.validate", version=1),
     )
 
@@ -740,6 +773,27 @@ def test_unknown_prepared_metadata_is_rejected_even_without_authority_named_toke
         }
     )
 
+    with pytest.raises(IntegrityViolation, match="authoritative semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="checker-report@1",
+            canonical_payload={
+                "payload_schema_version": "checker-report@1",
+                "checker_profile": {"profile_id": "checker-other", "version": 1},
+                "constraint_snapshot_binding_status": "not_applicable",
+                "snapshot_id": "sha256:real",
+                "checker_ids": ["graph"],
+                "defect_classes": [],
+                "constraint_application": [],
+                "findings": [],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(ir_snapshot_id="sha256:real", tool_version="checker@1"),
+            prepared_meta={"payload_schema_id": "checker-report@1"},
+        )
+
     with pytest.raises(IntegrityViolation, match="unknown key"):
         validate_domain_payload_bindings(
             run=run,
@@ -748,6 +802,8 @@ def test_unknown_prepared_metadata_is_rejected_even_without_authority_named_toke
             payload_schema_id="checker-report@1",
             canonical_payload={
                 "payload_schema_version": "checker-report@1",
+                "checker_profile": {"profile_id": "checker", "version": 1},
+                "constraint_snapshot_binding_status": "not_applicable",
                 "snapshot_id": "sha256:real",
                 "checker_ids": ["graph"],
                 "defect_classes": [],
@@ -795,6 +851,8 @@ def test_checker_run_requires_constraint_application_even_without_constraints() 
             payload_schema_id="checker-report@1",
             canonical_payload={
                 "payload_schema_version": "checker-report@1",
+                "checker_profile": {"profile_id": "checker", "version": 1},
+                "constraint_snapshot_binding_status": "not_applicable",
                 "snapshot_id": "sha256:real",
                 "checker_ids": ["graph"],
                 "defect_classes": [],
@@ -841,6 +899,9 @@ def test_checker_constraint_application_ids_are_derived_from_exact_parent_payloa
             payload_schema_id="checker-report@1",
             canonical_payload={
                 "payload_schema_version": "checker-report@1",
+                "checker_profile": {"profile_id": "checker", "version": 1},
+                "constraint_snapshot_binding_status": "bound",
+                "constraint_snapshot_artifact_id": "artifact:constraint",
                 "snapshot_id": "sha256:real",
                 "checker_ids": [],
                 "defect_classes": [],
@@ -870,6 +931,79 @@ def test_checker_constraint_application_ids_are_derived_from_exact_parent_payloa
                             "severity": "major",
                         }
                     ],
+                }
+            },
+        )
+
+
+def test_checker_constraint_finding_must_match_selected_native_application() -> None:
+    params = CheckerRunPayloadV1(
+        snapshot_artifact_id="artifact:snapshot",
+        constraint_snapshot_artifact_id="artifact:constraint",
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        checker_profile=ProfileRefV1(profile_id="checker", version=1),
+        checker_ids=(),
+        defect_classes=(),
+    )
+    run = build_run_record(build_envelope(params=params), RunKindRef(kind="checker.run", version=1))
+    policy, rule = _outcome_binding("checker.run", "checker-completed", "primary")
+    typed = TypedLineage(
+        parents_by_role={
+            "snapshot": (
+                _parent(
+                    "artifact:snapshot",
+                    "ir_snapshot",
+                    "ir-core@1",
+                    VersionTuple(ir_snapshot_id="sha256:real"),
+                ),
+            ),
+            "constraint": (
+                _parent(
+                    "artifact:constraint",
+                    "constraint_snapshot",
+                    "constraint-snapshot@1",
+                ),
+            ),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="exact constraint execution"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="checker-report@1",
+            canonical_payload={
+                "payload_schema_version": "checker-report@1",
+                "checker_profile": {"profile_id": "checker", "version": 1},
+                "constraint_snapshot_binding_status": "bound",
+                "constraint_snapshot_artifact_id": "artifact:constraint",
+                "snapshot_id": "sha256:real",
+                "checker_ids": [],
+                "defect_classes": [],
+                "constraint_application": [
+                    {
+                        "constraint_id": "constraint:real",
+                        "checker_id": "graph",
+                        "status": "executed",
+                    }
+                ],
+                "findings": [
+                    {
+                        "source": "checker",
+                        "oracle_type": "deterministic",
+                        "producer_id": "checker:asp",
+                        "constraint_id": "constraint:real",
+                    }
+                ],
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(ir_snapshot_id="sha256:real", tool_version="checker@1"),
+            prepared_meta={"payload_schema_id": "checker-report@1"},
+            authoritative_parent_payloads={
+                "artifact:constraint": {
+                    "dsl_grammar_version": "dsl@1",
+                    "constraints": [{"id": "constraint:real"}],
                 }
             },
         )
@@ -911,6 +1045,7 @@ def test_standalone_simulation_rejects_budget_only_payload_without_execution_bin
             payload_schema_id="simulation-result@1",
             canonical_payload={
                 "payload_schema_version": "simulation-result@1",
+                "profile": {"profile_id": "simulation", "version": 1},
                 "snapshot_id": "sha256:real",
                 "seed": 7,
                 "replication_count": 2,
@@ -994,6 +1129,7 @@ def test_standalone_simulation_binds_exact_semantic_input_artifact_ids(
             payload_schema_id="simulation-result@1",
             canonical_payload={
                 "payload_schema_version": "simulation-result@1",
+                "profile": {"profile_id": "simulation", "version": 1},
                 "snapshot_id": "sha256:real",
                 "seed": 7,
                 "replication_count": 2,
@@ -1079,6 +1215,7 @@ def test_standalone_simulation_semantic_ids_are_derived_from_exact_parent_payloa
             payload_schema_id="simulation-result@1",
             canonical_payload={
                 "payload_schema_version": "simulation-result@1",
+                "profile": {"profile_id": "simulation", "version": 1},
                 "snapshot_id": "sha256:real",
                 "seed": 7,
                 "replication_count": 2,
@@ -1867,6 +2004,74 @@ def test_patch_evidence_supporting_closure_allows_cross_field_overlap() -> None:
     assert bound["supporting_artifact_ids"].count("artifact:review") == 1
 
 
+def test_patch_companion_typed_lineage_allows_cross_field_finding_overlap() -> None:
+    run = _patch_validation_run(
+        overlapping_finding_evidence=True,
+        regression_suite_artifact_ids=(),
+    )
+    policy, rule = _outcome_binding("patch.validate", "patch-validation-passed", "regression")
+    typed = TypedLineage(
+        parents_by_role={
+            "subject": (_parent("artifact:patch", "patch", "patch@2"),),
+            "target": (_parent("artifact:preview", "ir_snapshot", "ir-core@1"),),
+            "constraint": (),
+            "candidate_config": (
+                _parent("artifact:config", "config_export", "config-export-package@1"),
+            ),
+            "supporting_evidence": (
+                _parent("artifact:review", "review_report", "review@1"),
+                _parent("artifact:trace", "playtest_trace", "playtest-trace@1"),
+            ),
+            "regression_suite": (),
+        }
+    )
+
+    validate_domain_payload_bindings(
+        run=run,
+        outcome_policy=policy,
+        outcome_rule=rule,
+        payload_schema_id="regression-evidence@1",
+        canonical_payload={
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "review:artifact:review",
+            "dimension": "review",
+            "lineage_suite_artifact_ids": [],
+            "status": "passed",
+            "reason_code": None,
+            "detail": {
+                "source_artifact_id": "artifact:review",
+                "deterministic_finding_count": 0,
+                "simulation_finding_count": 0,
+                "llm_assisted_finding_count": 0,
+                "unproven_finding_count": 0,
+            },
+        },
+        typed_lineage=typed,
+        projected_tuple=VersionTuple(),
+        prepared_meta={"payload_schema_id": "regression-evidence@1"},
+    )
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="regression-evidence@1",
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": "review:artifact:review",
+                "dimension": "validation_input",
+                "lineage_suite_artifact_ids": [],
+                "status": "passed",
+                "reason_code": None,
+                "detail": {"selected_dimension_count": 0},
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(),
+            prepared_meta={"payload_schema_id": "regression-evidence@1"},
+        )
+
+
 def test_patch_evidence_set_finding_bindings_are_an_exact_run_payload_copy() -> None:
     run = _patch_validation_run()
     policy, rule = _outcome_binding("patch.validate", "patch-validation-passed", "primary")
@@ -2001,7 +2206,7 @@ def _constraint_evidence_closure() -> tuple[
         "requirements": [
             {
                 "requirement_id": "compile",
-                "kind": "compile",
+                "kind": "constraint_compile",
                 "applicability": "required",
                 "status": "passed",
                 "evidence_artifact_id": compile_id,
@@ -2146,7 +2351,7 @@ def test_constraint_not_executed_requirement_binds_exact_prepared_disposition() 
         "requirements": [
             {
                 "requirement_id": "compile",
-                "kind": "compile",
+                "kind": "constraint_compile",
                 "applicability": "required",
                 "status": "failed",
                 "evidence_artifact_id": compile_id,
@@ -2198,6 +2403,650 @@ def test_constraint_not_executed_requirement_binds_exact_prepared_disposition() 
         )
 
 
+def test_constraint_candidate_is_an_exact_semantic_copy_of_proposal_parent() -> None:
+    run = _constraint_validation_run()
+    policy, rule = _outcome_binding(
+        "constraint_proposal.validate",
+        "constraint-validated-with-candidate",
+        "candidate",
+    )
+    proposal_id = run.payload.params.subject.subject_artifact_id
+    base_id = run.payload.params.base_constraint_snapshot_artifact_id
+    assert base_id is not None
+    constraint = {
+        "id": "C_exact",
+        "dsl_grammar_version": "dsl@1",
+        "kind": "numeric",
+        "oracle": "deterministic",
+        "predicates": [],
+        "assert": "reward_gold <= 80",
+        "severity": "major",
+    }
+    proposal_payload = {
+        "dsl_grammar_version": "dsl@1",
+        "constraints": [constraint],
+    }
+    binding = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "constraint-snapshot@1",
+        "typed_lineage": TypedLineage(
+            parents_by_role={
+                "proposal": (_parent(proposal_id, "constraint_proposal", "constraint-proposal@1"),),
+                "base_constraint": (
+                    _parent(base_id, "constraint_snapshot", "constraint-snapshot@1"),
+                ),
+            }
+        ),
+        "projected_tuple": VersionTuple(constraint_snapshot_id="candidate:exact"),
+        "prepared_meta": {"payload_schema_id": "constraint-snapshot@1"},
+        "authoritative_parent_payloads": {proposal_id: proposal_payload},
+    }
+
+    validate_domain_payload_bindings(canonical_payload=proposal_payload, **binding)
+
+    forged = {
+        **proposal_payload,
+        "constraints": [{**constraint, "assert": "reward_gold <= 999"}],
+    }
+    with pytest.raises(IntegrityViolation, match="candidate differs from exact proposal"):
+        validate_domain_payload_bindings(canonical_payload=forged, **binding)
+
+
+def test_rollback_regression_detail_closes_exact_root_and_subseed_binding() -> None:
+    run = _rollback_validation_run(seed=17)
+    policy, rule = _outcome_binding("rollback.validate", "rollback-validation-passed", "regression")
+    projected = VersionTuple(
+        ir_snapshot_id="snapshot@target",
+        env_contract_version="suite-env@1",
+        tool_version="rollback-validation@1",
+        seed=17,
+    )
+    profile = run.payload.params.rollback_profile
+    execution_seed = derive_validation_subseed(
+        root_seed=17,
+        run_kind=run.kind,
+        profile=profile,
+        case_id="artifact:suite",
+        replication_index=0,
+    )
+    rollback_binding = next(
+        item
+        for item in run.payload.resolved_profiles
+        if item.field_path == "/params/rollback_profile"
+    )
+    detail = {
+        "target_artifact_id": "artifact:target",
+        "current_artifact_id": "artifact:current",
+        "payload_schema_version": "regression-evidence@1",
+        "suite_artifact_id": "artifact:suite",
+        "snapshot_id": "snapshot@target",
+        "status": "passed",
+        "reason_code": None,
+        "rollback_profile_binding": rollback_binding.model_dump(mode="json"),
+        "root_seed": 17,
+        "run_kind": run.kind.model_dump(mode="json"),
+        "profile_id": profile.profile_id,
+        "profile_version": profile.version,
+        "case_id": "artifact:suite",
+        "replication_index": 0,
+        "seed": execution_seed,
+        "seed_derivation_version": "subseed@1",
+    }
+    payload = {
+        "payload_schema_version": "regression-evidence@1",
+        "requirement_id": "regression:artifact:suite",
+        "dimension": "regression",
+        "lineage_suite_artifact_ids": ["artifact:suite"],
+        "status": "passed",
+        "reason_code": None,
+        "detail": detail,
+    }
+    typed = TypedLineage(
+        parents_by_role={
+            "subject": (_parent("artifact:rollback", "rollback_request", "rollback-request@1"),),
+            "target": (_parent("artifact:target", "ir_snapshot", "ir-core@1"),),
+            "current": (_parent("artifact:current", "ir_snapshot", "ir-core@1"),),
+            "regression_suite": (
+                _parent(
+                    "artifact:suite",
+                    "regression_suite",
+                    "regression-suite@1",
+                    VersionTuple(env_contract_version="suite-env@1"),
+                ),
+            ),
+        }
+    )
+    binding = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "regression-evidence@1",
+        "typed_lineage": typed,
+        "projected_tuple": projected,
+        "prepared_meta": {"payload_schema_id": "regression-evidence@1"},
+    }
+
+    validate_domain_payload_bindings(canonical_payload=payload, **binding)
+
+    for field, forged in (
+        ("root_seed", 18),
+        ("run_kind", {"kind": "patch.validate", "version": 1}),
+        ("profile_id", "other"),
+        ("profile_version", 2),
+        ("case_id", "artifact:other-suite"),
+        ("replication_index", 1),
+        ("seed", execution_seed + 1),
+        ("seed_derivation_version", "subseed@9"),
+    ):
+        with pytest.raises(IntegrityViolation, match="semantic binding"):
+            validate_domain_payload_bindings(
+                canonical_payload={**payload, "detail": {**detail, field: forged}},
+                **binding,
+            )
+
+
+def test_rollback_requirement_descriptor_rejects_dimension_and_profile_swaps() -> None:
+    first_impact = ProfileRefV1(profile_id="impact", version=1)
+    second_impact = ProfileRefV1(profile_id="impact-alt", version=1)
+    run = _rollback_validation_run()
+    params = run.payload.params
+    assert isinstance(params, RollbackValidationPayloadV1)
+    params = params.model_copy(update={"impact_profiles": (first_impact, second_impact)})
+    second_binding = resolved_binding(
+        "/params/impact_profiles/1",
+        profile_id=second_impact.profile_id,
+        version=second_impact.version,
+        kind="impact_analysis",
+    )
+    envelope = run.payload.model_copy(
+        update={
+            "params": params,
+            "resolved_profiles": (*run.payload.resolved_profiles, second_binding),
+        }
+    )
+    run = run.model_copy(update={"payload": envelope})
+    policy, rule = _outcome_binding("rollback.validate", "rollback-validation-passed", "regression")
+    rollback_binding = next(
+        item
+        for item in run.payload.resolved_profiles
+        if item.field_path == "/params/rollback_profile"
+    )
+    schema_binding = next(
+        item
+        for item in run.payload.resolved_profiles
+        if item.field_path == "/params/schema_compatibility_policy"
+    )
+    typed = TypedLineage(
+        parents_by_role={
+            "subject": (_parent("artifact:rollback", "rollback_request", "rollback-request@1"),),
+            "target": (_parent("artifact:target", "ir_snapshot", "ir-core@1"),),
+            "current": (_parent("artifact:current", "ir_snapshot", "ir-core@1"),),
+            "regression_suite": (),
+        }
+    )
+    common = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "regression-evidence@1",
+        "typed_lineage": typed,
+        "projected_tuple": VersionTuple(),
+        "prepared_meta": {"payload_schema_id": "regression-evidence@1"},
+    }
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": "history",
+                "dimension": "schema",
+                "lineage_suite_artifact_ids": [],
+                "status": "passed",
+                "reason_code": None,
+                "detail": {
+                    "target_artifact_id": "artifact:target",
+                    "current_artifact_id": "artifact:current",
+                    "schema_profile_binding": schema_binding.model_dump(mode="json"),
+                    "rollback_profile_binding": rollback_binding.model_dump(mode="json"),
+                },
+            },
+            **common,
+        )
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": "impact:impact@1",
+                "dimension": "impact",
+                "lineage_suite_artifact_ids": [],
+                "status": "passed",
+                "reason_code": None,
+                "detail": {
+                    "target_artifact_id": "artifact:target",
+                    "current_artifact_id": "artifact:current",
+                    "current_ref_revision": 4,
+                    "impact_profile_binding": second_binding.model_dump(mode="json"),
+                    "rollback_profile_binding": rollback_binding.model_dump(mode="json"),
+                },
+            },
+            **common,
+        )
+
+
+def test_patch_regression_children_select_exactly_one_of_two_suites_or_none() -> None:
+    suite_ids = ("artifact:suite-a", "artifact:suite-b")
+    run = _patch_validation_run(regression_suite_artifact_ids=suite_ids)
+    policy, rule = _outcome_binding("patch.validate", "patch-validation-passed", "regression")
+
+    def typed(selected: tuple[str, ...]) -> TypedLineage:
+        return TypedLineage(
+            parents_by_role={
+                "subject": (_parent("artifact:patch", "patch", "patch@2"),),
+                "target": (_parent("artifact:preview", "ir_snapshot", "ir-core@1"),),
+                "constraint": (),
+                "candidate_config": (
+                    _parent("artifact:config", "config_export", "config-export-package@1"),
+                ),
+                "supporting_evidence": (
+                    _parent("artifact:review", "review_report", "review-report@1"),
+                    _parent("artifact:trace", "playtest_trace", "playtest-trace@1"),
+                ),
+                "regression_suite": tuple(
+                    _parent(suite_id, "regression_suite", "regression-suite@1")
+                    for suite_id in selected
+                ),
+            }
+        )
+
+    binding = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "regression-evidence@1",
+        "projected_tuple": VersionTuple(ir_snapshot_id="snapshot:preview"),
+        "prepared_meta": {"payload_schema_id": "regression-evidence@1"},
+    }
+    for suite_id in suite_ids:
+        validate_domain_payload_bindings(
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": f"regression:{suite_id}",
+                "suite_artifact_id": suite_id,
+                "lineage_suite_artifact_ids": [suite_id],
+                "snapshot_id": "snapshot:preview",
+                "status": "unproven",
+                "reason_code": "regression_not_executed",
+            },
+            typed_lineage=typed((suite_id,)),
+            **binding,
+        )
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": f"regression:{suite_ids[1]}",
+                "suite_artifact_id": suite_ids[0],
+                "lineage_suite_artifact_ids": [suite_ids[0]],
+                "snapshot_id": "snapshot:preview",
+                "status": "unproven",
+                "reason_code": "regression_not_executed",
+            },
+            typed_lineage=typed((suite_ids[0],)),
+            **binding,
+        )
+
+    validate_domain_payload_bindings(
+        canonical_payload={
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "checker:checker@1",
+            "dimension": "checker",
+            "lineage_suite_artifact_ids": [],
+            "checker_profile": {"profile_id": "checker", "version": 1},
+            "checker_execution_bindings": [
+                {
+                    "wrapper_id": "graph",
+                    "native_id": "graph",
+                    "constraint_id": None,
+                }
+            ],
+            "constraint_snapshot_binding_status": "not_applicable",
+            "snapshot_id": "snapshot:preview",
+            "status": "passed",
+            "findings": [],
+        },
+        typed_lineage=typed(()),
+        **binding,
+    )
+
+    with pytest.raises(IntegrityViolation, match="suite lineage selector"):
+        validate_domain_payload_bindings(
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": f"regression:{suite_ids[0]}",
+                "suite_artifact_id": suite_ids[0],
+                "lineage_suite_artifact_ids": [suite_ids[1]],
+                "snapshot_id": "snapshot:preview",
+                "status": "passed",
+            },
+            typed_lineage=typed((suite_ids[1],)),
+            **binding,
+        )
+
+
+def test_constraint_regression_requirement_cannot_cross_frozen_suites() -> None:
+    suite_ids = ("artifact:suite-a", "artifact:suite-b")
+    run = _constraint_validation_run()
+    params = run.payload.params
+    assert isinstance(params, ConstraintValidationPayloadV1)
+    params = params.model_copy(update={"regression_suite_artifact_ids": suite_ids})
+    run = run.model_copy(update={"payload": run.payload.model_copy(update={"params": params})})
+    policy, rule = _outcome_binding(
+        "constraint_proposal.validate",
+        "constraint-validated-with-candidate",
+        "regression",
+    )
+    typed = TypedLineage(
+        parents_by_role={
+            "proposal": (
+                _parent("artifact:proposal", "constraint_proposal", "constraint-proposal@1"),
+            ),
+            "base_constraint": (
+                _parent(
+                    "artifact:base-constraint",
+                    "constraint_snapshot",
+                    "constraint-snapshot@1",
+                ),
+            ),
+            "regression_suite": (_parent(suite_ids[0], "regression_suite", "regression-suite@1"),),
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            run=run,
+            outcome_policy=policy,
+            outcome_rule=rule,
+            payload_schema_id="regression-evidence@1",
+            canonical_payload={
+                "payload_schema_version": "regression-evidence@1",
+                "requirement_id": f"regression:{suite_ids[1]}",
+                "suite_artifact_id": suite_ids[0],
+                "lineage_suite_artifact_ids": [suite_ids[0]],
+                "snapshot_id": "candidate:1",
+                "status": "unproven",
+                "reason_code": "regression_not_executed",
+            },
+            typed_lineage=typed,
+            projected_tuple=VersionTuple(constraint_snapshot_id="candidate:1"),
+            prepared_meta={"payload_schema_id": "regression-evidence@1"},
+        )
+
+
+def test_patch_checker_companion_binds_exact_constraints_and_ignores_llm_as_deterministic() -> None:
+    constraint_artifact_id = "artifact:constraint"
+    run = _patch_validation_run(
+        regression_suite_artifact_ids=(),
+        constraint_snapshot_artifact_id=constraint_artifact_id,
+    )
+    policy, rule = _outcome_binding("patch.validate", "patch-validation-unproven", "regression")
+    typed = TypedLineage(
+        parents_by_role={
+            "subject": (_parent("artifact:patch", "patch", "patch@2"),),
+            "target": (_parent("artifact:preview", "ir_snapshot", "ir-core@1"),),
+            "constraint": (
+                _parent(
+                    constraint_artifact_id,
+                    "constraint_snapshot",
+                    "constraint-snapshot@1",
+                ),
+            ),
+            "candidate_config": (
+                _parent("artifact:config", "config_export", "config-export-package@1"),
+            ),
+            "supporting_evidence": (
+                _parent("artifact:review", "review_report", "review-report@1"),
+                _parent("artifact:trace", "playtest_trace", "playtest-trace@1"),
+            ),
+            "regression_suite": (),
+        }
+    )
+    payload = {
+        "payload_schema_version": "regression-evidence@1",
+        "requirement_id": "checker:checker@1",
+        "dimension": "checker",
+        "lineage_suite_artifact_ids": [],
+        "checker_profile": {"profile_id": "checker", "version": 1},
+        "checker_execution_bindings": [
+            {"wrapper_id": "graph", "native_id": "graph", "constraint_id": None},
+            {
+                "wrapper_id": "compiled:smt:C_exact",
+                "native_id": "smt",
+                "constraint_id": "C_exact",
+            },
+        ],
+        "constraint_snapshot_binding_status": "bound",
+        "constraint_snapshot_artifact_id": constraint_artifact_id,
+        "status": "unproven",
+        "reason_code": "checker_reported_unproven",
+        "detail": {
+            "snapshot_id": "snapshot:preview",
+            "findings": [
+                {
+                    "source": "llm",
+                    "producer_id": "llm-routed",
+                    "oracle_type": "llm-assisted",
+                    "constraint_id": "C_llm",
+                    "status": "unproven",
+                    "defect_class": "llm_assisted_predicate",
+                }
+            ],
+        },
+    }
+    binding = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "regression-evidence@1",
+        "typed_lineage": typed,
+        "projected_tuple": VersionTuple(ir_snapshot_id="snapshot:preview"),
+        "prepared_meta": {"payload_schema_id": "regression-evidence@1"},
+        "authoritative_parent_payloads": {
+            constraint_artifact_id: {
+                "dsl_grammar_version": "dsl@1",
+                "constraints": [
+                    {
+                        "id": "C_exact",
+                        "kind": "numeric",
+                        "oracle": "deterministic",
+                        "assert": "reward_gold > 0",
+                        "severity": "major",
+                    },
+                    {
+                        "id": "C_llm",
+                        "kind": "narrative",
+                        "oracle": "llm-assisted",
+                        "assert": "narrative_is_consistent",
+                        "severity": "major",
+                    },
+                ],
+            }
+        },
+    }
+
+    validate_domain_payload_bindings(canonical_payload=payload, **binding)
+
+    forged_bindings = [dict(item) for item in payload["checker_execution_bindings"]]
+    forged_bindings[1]["constraint_id"] = "C_forged"
+    with pytest.raises(IntegrityViolation, match="outside the exact Run input"):
+        validate_domain_payload_bindings(
+            canonical_payload={
+                **payload,
+                "checker_execution_bindings": forged_bindings,
+            },
+            **binding,
+        )
+
+    for mutation in (
+        {"producer_id": "llm-forged"},
+        {"status": "confirmed"},
+        {"defect_class": "forged"},
+        {"constraint_id": "C_exact"},
+    ):
+        forged_finding = {**payload["detail"]["findings"][0], **mutation}
+        with pytest.raises(IntegrityViolation, match="exact execution authority"):
+            validate_domain_payload_bindings(
+                canonical_payload={
+                    **payload,
+                    "detail": {"snapshot_id": "snapshot:preview", "findings": [forged_finding]},
+                },
+                **binding,
+            )
+
+
+def test_patch_simulation_companion_seed_binding_must_equal_frozen_run() -> None:
+    profile = ProfileRefV1(profile_id="simulation", version=1)
+    root_seed = 7
+    run = _patch_validation_run(
+        regression_suite_artifact_ids=(),
+        simulation_profiles=(profile,),
+        seed=root_seed,
+    )
+    policy, rule = _outcome_binding("patch.validate", "patch-validation-passed", "regression")
+    requirement_id = "simulation:simulation@1"
+    execution_seed = derive_validation_subseed(
+        root_seed=root_seed,
+        run_kind=run.kind,
+        profile=profile,
+        case_id=requirement_id,
+        replication_index=0,
+    )
+    seed_binding = {
+        "root_seed": root_seed,
+        "run_kind": run.kind.model_dump(mode="json"),
+        "profile_id": profile.profile_id,
+        "profile_version": profile.version,
+        "case_id": requirement_id,
+        "replication_index": 0,
+        "seed": execution_seed,
+        "seed_derivation_version": "subseed@1",
+    }
+    execution_binding = {
+        "binding_schema_version": "simulation-expected-finding-binding@1",
+        "producer_id": "economy_sim",
+        "simulation_profile": profile.model_dump(mode="json"),
+        "execution_mode": "single_population@1",
+        "seed_binding": seed_binding,
+        "constraint_snapshot_binding_status": "not_applicable",
+        "constraint_ids": [],
+        "constraint_application": {"status": "not_applicable"},
+        "n_agents": 6,
+        "n_ticks": 12,
+    }
+    payload = {
+        "payload_schema_version": "regression-evidence@1",
+        "requirement_id": requirement_id,
+        "dimension": "simulation",
+        "lineage_suite_artifact_ids": [],
+        "simulation_execution_binding": execution_binding,
+        "snapshot_id": "snapshot:preview",
+        "status": "passed",
+        "findings": [],
+        **seed_binding,
+    }
+    typed = TypedLineage(
+        parents_by_role={
+            "subject": (_parent("artifact:patch", "patch", "patch@2"),),
+            "target": (_parent("artifact:preview", "ir_snapshot", "ir-core@1"),),
+            "constraint": (),
+            "candidate_config": (
+                _parent("artifact:config", "config_export", "config-export-package@1"),
+            ),
+            "supporting_evidence": (
+                _parent("artifact:review", "review_report", "review-report@1"),
+                _parent("artifact:trace", "playtest_trace", "playtest-trace@1"),
+            ),
+            "regression_suite": (),
+        }
+    )
+    binding = {
+        "run": run,
+        "outcome_policy": policy,
+        "outcome_rule": rule,
+        "payload_schema_id": "regression-evidence@1",
+        "typed_lineage": typed,
+        "projected_tuple": VersionTuple(
+            ir_snapshot_id="snapshot:preview",
+            seed=root_seed,
+        ),
+        "prepared_meta": {"payload_schema_id": "regression-evidence@1"},
+    }
+
+    validate_domain_payload_bindings(canonical_payload=payload, **binding)
+
+    other_root_seed = root_seed + 1
+    forged_seed_binding = {
+        **seed_binding,
+        "root_seed": other_root_seed,
+        "seed": derive_validation_subseed(
+            root_seed=other_root_seed,
+            run_kind=run.kind,
+            profile=profile,
+            case_id=requirement_id,
+            replication_index=0,
+        ),
+    }
+    with pytest.raises(IntegrityViolation, match="semantic binding"):
+        validate_domain_payload_bindings(
+            canonical_payload={
+                **payload,
+                "simulation_execution_binding": {
+                    **execution_binding,
+                    "seed_binding": forged_seed_binding,
+                },
+            },
+            **binding,
+        )
+
+
+def test_rollback_non_suite_dimension_has_explicit_empty_suite_lineage() -> None:
+    run = _rollback_validation_run()
+    policy, rule = _outcome_binding("rollback.validate", "rollback-validation-passed", "regression")
+    validate_domain_payload_bindings(
+        run=run,
+        outcome_policy=policy,
+        outcome_rule=rule,
+        payload_schema_id="regression-evidence@1",
+        canonical_payload={
+            "payload_schema_version": "regression-evidence@1",
+            "requirement_id": "history",
+            "dimension": "history",
+            "lineage_suite_artifact_ids": [],
+            "status": "passed",
+            "reason_code": None,
+            "detail": {
+                "target_artifact_id": "artifact:target",
+                "current_artifact_id": "artifact:current",
+            },
+        },
+        typed_lineage=TypedLineage(
+            parents_by_role={
+                "subject": (
+                    _parent("artifact:rollback", "rollback_request", "rollback-request@1"),
+                ),
+                "target": (_parent("artifact:target", "ir_snapshot", "ir-core@1"),),
+                "current": (_parent("artifact:current", "ir_snapshot", "ir-core@1"),),
+                "regression_suite": (),
+            }
+        ),
+        projected_tuple=VersionTuple(),
+        prepared_meta={"payload_schema_id": "regression-evidence@1"},
+    )
+
+
 def test_rollback_evidence_set_requires_exact_support_and_empty_findings() -> None:
     run = _rollback_validation_run()
     policy, rule = _outcome_binding("rollback.validate", "rollback-validation-passed", "primary")
@@ -2229,9 +3078,10 @@ def test_rollback_evidence_set_requires_exact_support_and_empty_findings() -> No
         "validation_run_id": "run:1",
         "target_binding": {"target_artifact_id": "artifact:target"},
         "supporting_artifact_ids": [
+            "artifact:current",
             evidence_id,
-            "artifact:target",
             "artifact:suite",
+            "artifact:target",
         ],
         "finding_bindings": [],
         "requirements": [

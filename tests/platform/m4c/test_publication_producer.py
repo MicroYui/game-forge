@@ -39,6 +39,7 @@ from gameforge.platform.publication.producer import (
     DomainProducerFactsResolver,
     validate_domain_artifact_producer,
 )
+from gameforge.platform.publication.lineage import ParentInfo, TypedLineage
 from gameforge.platform.publication.publisher import TerminalPublisher
 from gameforge.platform.publication.version import project_domain_version_tuple
 from gameforge.platform.registry.defaults import build_builtin_registry
@@ -236,11 +237,12 @@ def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -
     )
 
     assert (
-        publisher._config_export_producer_env(  # noqa: SLF001 - exact authority seam
+        publisher._domain_producer_env(  # noqa: SLF001 - exact authority seam
             run=run,
             rule=rule,
             payload_schema_id="config-export-package@1",
             payload=package,
+            typed_lineage=TypedLineage(parents_by_role={}),
         )
         == details.env_contract_version
     )
@@ -259,12 +261,64 @@ def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -
         }
     )
     with pytest.raises(IntegrityViolation, match="resolved profile binding"):
-        publisher._config_export_producer_env(  # noqa: SLF001
+        publisher._domain_producer_env(  # noqa: SLF001
             run=forged_run,
             rule=rule,
             payload_schema_id="config-export-package@1",
             payload=package,
+            typed_lineage=TypedLineage(parents_by_role={}),
         )
+
+
+def test_regression_producer_environment_comes_from_exact_suite_lineage() -> None:
+    run = _generation_run()
+    _, rule, _ = _binding("patch.validate", "patch-validation-passed", "regression")
+    suite = ParentInfo(
+        artifact_id="artifact:suite",
+        kind="regression_suite",
+        payload_schema_id="regression-suite@1",
+        version_tuple=VersionTuple(env_contract_version="suite-env@2"),
+    )
+
+    actual = TerminalPublisher._domain_producer_env(  # noqa: SLF001
+        object(),
+        run=run,
+        rule=rule,
+        payload_schema_id="regression-evidence@1",
+        payload={},
+        typed_lineage=TypedLineage(parents_by_role={"regression_suite": (suite,)}),
+    )
+
+    assert actual == "suite-env@2"
+
+    target = ParentInfo(
+        artifact_id="artifact:target",
+        kind="ir_snapshot",
+        payload_schema_id="ir-core@1",
+        version_tuple=VersionTuple(env_contract_version="target-env@1"),
+    )
+    _, rollback_rule, _ = _binding("rollback.validate", "rollback-validation-passed", "regression")
+    target_only = TerminalPublisher._domain_producer_env(  # noqa: SLF001
+        object(),
+        run=run,
+        rule=rollback_rule,
+        payload_schema_id="regression-evidence@1",
+        payload={},
+        typed_lineage=TypedLineage(parents_by_role={"target": (target,)}),
+    )
+    suite_over_target = TerminalPublisher._domain_producer_env(  # noqa: SLF001
+        object(),
+        run=run,
+        rule=rollback_rule,
+        payload_schema_id="regression-evidence@1",
+        payload={},
+        typed_lineage=TypedLineage(
+            parents_by_role={"target": (target,), "regression_suite": (suite,)}
+        ),
+    )
+
+    assert target_only == "target-env@1"
+    assert suite_over_target == "suite-env@2"
 
 
 def test_fabricated_artifact_identity_outside_execution_plan_fails_closed() -> None:

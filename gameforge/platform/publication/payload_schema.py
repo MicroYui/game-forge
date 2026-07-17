@@ -60,6 +60,9 @@ from gameforge.contracts.playtest import PlaytestTraceV1, ScenarioSpecV1, TaskSu
 from gameforge.contracts.regression import RegressionCaseSeedManifestV1
 from gameforge.contracts.versions import DSL_GRAMMAR_VERSION, META_SCHEMA_VERSION
 from gameforge.contracts.workflow import (
+    AutoApplyEvidenceContextV1,
+    AutoApplyOracleAttestationV1,
+    AutoApplyOutcomeAttestationV1,
     AutoApplyProofV1,
     ConstraintCompileEvidenceV1,
     ConstraintProposalV1,
@@ -68,6 +71,7 @@ from gameforge.contracts.workflow import (
 )
 from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
 from gameforge.platform.registry.defaults import ARTIFACT_PAYLOAD_SCHEMAS
+from gameforge.platform.run_handlers.validation_common import deterministic_finding_status
 
 
 MAX_PAYLOAD_JSON_BYTES = 96 * 1024 * 1024
@@ -171,6 +175,97 @@ class _CheckerStandaloneBoundPayload(_CheckerStandalonePayload):
         if keys != tuple(sorted(set(keys))):
             raise ValueError("checker constraint applications must be stable-unique")
         return value
+
+
+class _CheckerStandaloneProfileBoundPayload(_CheckerStandaloneBoundPayload):
+    checker_profile: ProfileRefV1
+
+
+class _CheckerStandaloneProfileNoConstraintPayload(_CheckerStandaloneProfileBoundPayload):
+    constraint_snapshot_binding_status: Literal["not_applicable"]
+
+
+class _CheckerStandaloneProfileConstraintPayload(_CheckerStandaloneProfileBoundPayload):
+    constraint_snapshot_binding_status: Literal["bound"]
+    constraint_snapshot_artifact_id: BoundedText
+
+
+class _CheckerExecutionBindingPayload(_StrictWireModel):
+    wrapper_id: BoundedText
+    native_id: BoundedText
+    constraint_id: BoundedText | None = None
+
+    @field_validator("wrapper_id", "native_id", "constraint_id")
+    @classmethod
+    def _nonblank_identity(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("checker execution identities must be non-blank")
+        return value
+
+
+class _CheckerReviewCompanionPayload(_CheckerProfilePayload):
+    checker_profile: ProfileRefV1
+    checker_execution_bindings: tuple[_CheckerExecutionBindingPayload, ...] = Field(
+        max_length=MAX_PAYLOAD_COLLECTION_ITEMS,
+    )
+    constraint_application: tuple[_CheckerConstraintApplication, ...] = Field(
+        max_length=MAX_PAYLOAD_COLLECTION_ITEMS
+    )
+
+    @field_validator("checker_execution_bindings")
+    @classmethod
+    def _stable_unique_bindings(
+        cls,
+        value: tuple[_CheckerExecutionBindingPayload, ...],
+    ) -> tuple[_CheckerExecutionBindingPayload, ...]:
+        keys = tuple((item.native_id, item.constraint_id or "", item.wrapper_id) for item in value)
+        if keys != tuple(sorted(set(keys))):
+            raise ValueError("checker execution bindings must be stable-unique")
+        return value
+
+    @field_validator("constraint_application")
+    @classmethod
+    def _stable_unique_applications(
+        cls,
+        value: tuple[_CheckerConstraintApplication, ...],
+    ) -> tuple[_CheckerConstraintApplication, ...]:
+        keys = tuple((item.constraint_id, item.checker_id) for item in value)
+        if keys != tuple(sorted(set(keys))):
+            raise ValueError("checker constraint applications must be stable-unique")
+        return value
+
+    @model_validator(mode="after")
+    def _profile_and_application_closure(self) -> "_CheckerReviewCompanionPayload":
+        if self.profile != self.checker_profile:
+            raise ValueError("review checker profile identities differ")
+        scoped = tuple(
+            (item.constraint_id, item.native_id)
+            for item in self.checker_execution_bindings
+            if item.constraint_id is not None
+        )
+        applied = tuple(
+            (item.constraint_id, item.checker_id) for item in self.constraint_application
+        )
+        if tuple(sorted(scoped)) != tuple(sorted(applied)):
+            raise ValueError("review checker applications differ from execution bindings")
+        return self
+
+
+class _CheckerReviewCompanionNoConstraintPayload(_CheckerReviewCompanionPayload):
+    constraint_snapshot_binding_status: Literal["not_applicable"]
+
+    @model_validator(mode="after")
+    def _no_scoped_constraints(self) -> "_CheckerReviewCompanionNoConstraintPayload":
+        if self.constraint_application or any(
+            item.constraint_id is not None for item in self.checker_execution_bindings
+        ):
+            raise ValueError("unbound review checker carries constraint execution")
+        return self
+
+
+class _CheckerReviewCompanionConstraintPayload(_CheckerReviewCompanionPayload):
+    constraint_snapshot_binding_status: Literal["bound"]
+    constraint_snapshot_artifact_id: BoundedText
 
 
 class _SimulationInvariant(_StrictWireModel):
@@ -319,6 +414,86 @@ class _SimulationProfilePayload(_SimulationFullPayload):
     profile: ProfileRefV1
 
 
+class _ValidationSeedBinding(_StrictWireModel):
+    root_seed: int = Field(ge=0, le=(1 << 64) - 1)
+    run_kind: RunKindRef
+    profile_id: BoundedText
+    profile_version: int = Field(ge=1)
+    case_id: BoundedText
+    replication_index: int = Field(ge=0)
+    seed: int = Field(ge=0, le=(1 << 64) - 1)
+    seed_derivation_version: Literal["subseed@1"]
+
+    @model_validator(mode="after")
+    def _derived_seed(self) -> "_ValidationSeedBinding":
+        expected = int(
+            sha256(
+                canonical_json(
+                    {
+                        "root_seed": self.root_seed,
+                        "run_kind": self.run_kind.model_dump(mode="json"),
+                        "profile_id": self.profile_id,
+                        "profile_version": self.profile_version,
+                        "case_id": self.case_id,
+                        "replication_index": self.replication_index,
+                    }
+                ).encode("utf-8")
+            ).hexdigest()[:16],
+            16,
+        )
+        if self.seed != expected:
+            raise ValueError("validation child seed differs from subseed@1")
+        return self
+
+
+class _PatchSimulationExecutionBinding(_StrictWireModel):
+    binding_schema_version: Literal["simulation-expected-finding-binding@1"]
+    producer_id: Literal["economy_sim"]
+    simulation_profile: ProfileRefV1
+    execution_mode: Literal["single_population@1"]
+    seed_binding: _ValidationSeedBinding
+    constraint_snapshot_binding_status: Literal["not_applicable", "bound"]
+    constraint_snapshot_artifact_id: BoundedText | None = None
+    constraint_ids: tuple[BoundedText, ...] = Field(max_length=MAX_PAYLOAD_COLLECTION_ITEMS)
+    constraint_application: _SimulationConstraintApplication
+    n_agents: int = Field(ge=1)
+    n_ticks: int = Field(ge=1)
+
+    @field_validator("constraint_ids")
+    @classmethod
+    def _stable_unique_constraint_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if value != tuple(sorted(set(value))):
+            raise ValueError("patch simulation constraint ids must be stable-unique")
+        return value
+
+    @model_validator(mode="after")
+    def _constraint_binding_shape(self) -> "_PatchSimulationExecutionBinding":
+        if (
+            self.seed_binding.run_kind != RunKindRef(kind="patch.validate", version=1)
+            or self.seed_binding.profile_id != self.simulation_profile.profile_id
+            or self.seed_binding.profile_version != self.simulation_profile.version
+            or self.seed_binding.case_id
+            != (
+                f"simulation:{self.simulation_profile.profile_id}@{self.simulation_profile.version}"
+            )
+            or self.seed_binding.replication_index != 0
+        ):
+            raise ValueError("patch simulation seed binding differs from its execution identity")
+        if self.constraint_snapshot_binding_status == "not_applicable":
+            if (
+                self.constraint_snapshot_artifact_id is not None
+                or self.constraint_ids
+                or self.constraint_application.status != "not_applicable"
+            ):
+                raise ValueError("unbound patch simulation carries constraint authority")
+        elif (
+            self.constraint_snapshot_artifact_id is None
+            or self.constraint_application.status != "unproven"
+        ):
+            raise ValueError("bound patch simulation is not explicitly unproven")
+        return self
+
+
 class _RegressionSuiteEvidence(_StrictWireModel):
     payload_schema_version: Literal["regression-evidence@1"]
     suite_artifact_id: BoundedText
@@ -353,8 +528,8 @@ class _RegressionSuiteFindingEvidence(_RegressionSuiteEvidence):
 
     @model_validator(mode="after")
     def _finding_verdict(self) -> "_RegressionSuiteFindingEvidence":
-        if self.status == "passed" and self.findings:
-            raise ValueError("passed regression suite cannot retain failing findings")
+        if self.findings and self.status != deterministic_finding_status(self.findings):
+            raise ValueError("regression suite status contradicts exact Finding verdicts")
         if self.status == "failed" and not self.findings:
             raise ValueError("failed regression suite requires exact findings")
         return self
@@ -371,26 +546,31 @@ class _RegressionSuiteFindingCaseSeedEvidence(_RegressionSuiteFindingEvidence):
         return self
 
 
-class _ValidationSeedBinding(_StrictWireModel):
+class _RegressionSuiteExecutionCoverageBinding(_StrictWireModel):
+    binding_schema_version: Literal["regression-suite-expected-finding-binding@1"]
+    suite_artifact_id: BoundedText
+    validation_profile: ProfileRefV1
+    constraint_snapshot_artifact_id: BoundedText | None = None
+    env_contract_version: BoundedText
     root_seed: int = Field(ge=0, le=(1 << 64) - 1)
     run_kind: RunKindRef
-    profile_id: BoundedText
-    profile_version: int = Field(ge=1)
     case_id: BoundedText
-    replication_index: int = Field(ge=0)
-    seed: int = Field(ge=0, le=(1 << 64) - 1)
+    replication_index: Literal[0]
+    execution_seed: int = Field(ge=0, le=(1 << 64) - 1)
     seed_derivation_version: Literal["subseed@1"]
 
     @model_validator(mode="after")
-    def _derived_seed(self) -> "_ValidationSeedBinding":
+    def _exact_seed_and_suite(self) -> "_RegressionSuiteExecutionCoverageBinding":
+        if self.case_id != self.suite_artifact_id:
+            raise ValueError("regression suite coverage case differs from its suite")
         expected = int(
             sha256(
                 canonical_json(
                     {
                         "root_seed": self.root_seed,
                         "run_kind": self.run_kind.model_dump(mode="json"),
-                        "profile_id": self.profile_id,
-                        "profile_version": self.profile_version,
+                        "profile_id": self.validation_profile.profile_id,
+                        "profile_version": self.validation_profile.version,
                         "case_id": self.case_id,
                         "replication_index": self.replication_index,
                     }
@@ -398,8 +578,8 @@ class _ValidationSeedBinding(_StrictWireModel):
             ).hexdigest()[:16],
             16,
         )
-        if self.seed != expected:
-            raise ValueError("validation child seed differs from subseed@1")
+        if self.execution_seed != expected:
+            raise ValueError("regression suite coverage seed differs from subseed@1")
         return self
 
 
@@ -456,6 +636,12 @@ class _RegressionFindingEvidence(_StrictWireModel):
     def _canonical_finding_numbers(cls, value: object) -> object:
         return _decode_finding_confidences(value)
 
+    @model_validator(mode="after")
+    def _finding_verdict(self) -> "_RegressionFindingEvidence":
+        if self.status != deterministic_finding_status(self.findings):
+            raise ValueError("regression dimension status contradicts exact Finding verdicts")
+        return self
+
 
 class _RegressionFindingBoundEvidence(_RegressionFindingEvidence, _ValidationSeedBinding):
     pass
@@ -473,6 +659,20 @@ class _RegressionDimensionEvidence(_StrictWireModel):
     def _reason_shape(self) -> "_RegressionDimensionEvidence":
         if (self.status == "passed") != (self.reason_code is None):
             raise ValueError("regression dimension reason_code differs from its status")
+        raw_findings = self.detail.get("findings")
+        if raw_findings is not None:
+            if not isinstance(raw_findings, list):
+                raise ValueError("regression dimension findings must be an array")
+            findings = tuple(Finding.model_validate(item) for item in raw_findings)
+            if self.status != deterministic_finding_status(findings):
+                raise ValueError("regression dimension status contradicts exact Finding verdicts")
+            snapshot_id = self.detail.get("snapshot_id")
+            if isinstance(snapshot_id, str):
+                _validate_findings_snapshot(
+                    snapshot_id=snapshot_id,
+                    findings=findings,
+                    label="regression dimension",
+                )
         return self
 
 
@@ -585,7 +785,7 @@ def _validate_constraint_snapshot(payload: Mapping[str, object]) -> dict[str, ob
     canonical = _json_mapping(
         {
             "dsl_grammar_version": DSL_GRAMMAR_VERSION,
-            "constraints": [item.model_dump(mode="json") for item in constraints],
+            "constraints": [item.model_dump(mode="json", by_alias=True) for item in constraints],
         }
     )
     if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
@@ -642,6 +842,62 @@ def _validate_checker_report(payload: Mapping[str, object]) -> dict[str, object]
         "findings",
     }:
         model = _CheckerStandaloneBoundPayload
+    elif fields == {
+        "payload_schema_version",
+        "checker_profile",
+        "snapshot_id",
+        "checker_ids",
+        "defect_classes",
+        "constraint_application",
+        "findings",
+    }:
+        model = _CheckerStandaloneProfileBoundPayload
+    elif fields == {
+        "payload_schema_version",
+        "checker_profile",
+        "constraint_snapshot_binding_status",
+        "snapshot_id",
+        "checker_ids",
+        "defect_classes",
+        "constraint_application",
+        "findings",
+    }:
+        model = _CheckerStandaloneProfileNoConstraintPayload
+    elif fields == {
+        "payload_schema_version",
+        "checker_profile",
+        "constraint_snapshot_binding_status",
+        "constraint_snapshot_artifact_id",
+        "snapshot_id",
+        "checker_ids",
+        "defect_classes",
+        "constraint_application",
+        "findings",
+    }:
+        model = _CheckerStandaloneProfileConstraintPayload
+    elif fields == {
+        "payload_schema_version",
+        "profile",
+        "checker_profile",
+        "checker_execution_bindings",
+        "constraint_snapshot_binding_status",
+        "snapshot_id",
+        "constraint_application",
+        "findings",
+    }:
+        model = _CheckerReviewCompanionNoConstraintPayload
+    elif fields == {
+        "payload_schema_version",
+        "profile",
+        "checker_profile",
+        "checker_execution_bindings",
+        "constraint_snapshot_binding_status",
+        "constraint_snapshot_artifact_id",
+        "snapshot_id",
+        "constraint_application",
+        "findings",
+    }:
+        model = _CheckerReviewCompanionConstraintPayload
     else:
         raise ValueError("checker report does not match a registered exact variant")
     parsed = model.model_validate(body)
@@ -681,6 +937,129 @@ def _validate_simulation_result(payload: Mapping[str, object]) -> dict[str, obje
 
 def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, object]:
     body = dict(payload)
+    suite_coverage_raw = body.pop("execution_coverage_binding", None)
+    suite_coverage = (
+        None
+        if suite_coverage_raw is None
+        else _RegressionSuiteExecutionCoverageBinding.model_validate(suite_coverage_raw)
+    )
+    simulation_execution_raw = body.pop("simulation_execution_binding", None)
+    simulation_execution = (
+        None
+        if simulation_execution_raw is None
+        else _PatchSimulationExecutionBinding.model_validate(simulation_execution_raw)
+    )
+    checker_profile_raw = body.pop("checker_profile", None)
+    checker_bindings_raw = body.pop("checker_execution_bindings", None)
+    checker_constraint_status = body.pop("constraint_snapshot_binding_status", None)
+    checker_constraint_id = body.pop("constraint_snapshot_artifact_id", None)
+    checker_present = any(
+        value is not None
+        for value in (
+            checker_profile_raw,
+            checker_bindings_raw,
+            checker_constraint_status,
+            checker_constraint_id,
+        )
+    )
+    checker_profile: ProfileRefV1 | None = None
+    checker_bindings: tuple[_CheckerExecutionBindingPayload, ...] = ()
+    if checker_present:
+        checker_profile = ProfileRefV1.model_validate(checker_profile_raw)
+        if not isinstance(checker_bindings_raw, Sequence) or isinstance(
+            checker_bindings_raw, (str, bytes, bytearray)
+        ):
+            raise ValueError("checker execution bindings must be an array")
+        checker_bindings = tuple(
+            _CheckerExecutionBindingPayload.model_validate(value) for value in checker_bindings_raw
+        )
+        binding_keys = tuple(
+            (item.native_id, item.constraint_id or "", item.wrapper_id) for item in checker_bindings
+        )
+        if not checker_bindings or binding_keys != tuple(sorted(set(binding_keys))):
+            raise ValueError("checker execution bindings must be stable-unique")
+        if checker_constraint_status == "bound":
+            if not isinstance(checker_constraint_id, str) or not checker_constraint_id:
+                raise ValueError("bound checker constraint snapshot has no Artifact ID")
+        elif checker_constraint_status == "not_applicable":
+            if checker_constraint_id is not None:
+                raise ValueError("unbound checker constraint snapshot carries an Artifact ID")
+        else:
+            raise ValueError("checker constraint snapshot binding status is invalid")
+    lineage_suite_present = "lineage_suite_artifact_ids" in body
+    lineage_suite_raw = body.pop("lineage_suite_artifact_ids", None)
+    lineage_suite_artifact_ids: tuple[str, ...] = ()
+    if lineage_suite_present:
+        if not isinstance(lineage_suite_raw, Sequence) or isinstance(
+            lineage_suite_raw, (str, bytes, bytearray)
+        ):
+            raise ValueError("regression evidence lineage suite binding must be an array")
+        if any(not isinstance(value, str) or not value for value in lineage_suite_raw):
+            raise ValueError("regression evidence lineage suite binding contains a non-ID")
+        lineage_suite_artifact_ids = tuple(lineage_suite_raw)
+        if len(lineage_suite_artifact_ids) > 1 or len(lineage_suite_artifact_ids) != len(
+            set(lineage_suite_artifact_ids)
+        ):
+            raise ValueError(
+                "regression evidence lineage suite binding must contain at most one exact ID"
+            )
+        semantic_suite_id = body.get("suite_artifact_id")
+        if semantic_suite_id is None and body.get("dimension") == "regression":
+            detail = body.get("detail")
+            if isinstance(detail, Mapping):
+                semantic_suite_id = detail.get("suite_artifact_id")
+        expected_lineage_suite_ids = () if semantic_suite_id is None else (semantic_suite_id,)
+        if lineage_suite_artifact_ids != expected_lineage_suite_ids:
+            raise ValueError(
+                "regression evidence lineage suite binding differs from its semantic suite"
+            )
+    auto_apply_context_raw = body.pop("auto_apply_context", None)
+    oracle_attestations_raw = body.pop("oracle_attestations", None)
+    outcome_attestations_raw = body.pop("outcome_attestations", None)
+    present = tuple(
+        value is not None
+        for value in (
+            auto_apply_context_raw,
+            oracle_attestations_raw,
+            outcome_attestations_raw,
+        )
+    )
+    if any(present) and not all(present):
+        raise ValueError(
+            "auto-apply regression evidence requires context plus both attestation sets"
+        )
+    auto_apply_context: AutoApplyEvidenceContextV1 | None = None
+    oracle_attestations: tuple[AutoApplyOracleAttestationV1, ...] = ()
+    outcome_attestations: tuple[AutoApplyOutcomeAttestationV1, ...] = ()
+    if auto_apply_context_raw is not None:
+        auto_apply_context = AutoApplyEvidenceContextV1.model_validate(auto_apply_context_raw)
+        if any(
+            not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray))
+            for raw in (oracle_attestations_raw, outcome_attestations_raw)
+        ):
+            raise ValueError("auto-apply attestation sets must be arrays")
+        oracle_attestations = tuple(
+            AutoApplyOracleAttestationV1.model_validate(value) for value in oracle_attestations_raw
+        )
+        outcome_attestations = tuple(
+            AutoApplyOutcomeAttestationV1.model_validate(value)
+            for value in outcome_attestations_raw
+        )
+        oracle_keys = tuple(
+            (item.oracle.oracle_id, item.oracle.oracle_version) for item in oracle_attestations
+        )
+        outcome_keys = tuple(
+            (
+                item.rule.resolved_policy_id,
+                item.rule.outcome_rule_id,
+                item.requirement_id,
+            )
+            for item in outcome_attestations
+        )
+        if oracle_keys != tuple(sorted(set(oracle_keys))):
+            raise ValueError("auto-apply oracle attestations must be stable-unique")
+        if outcome_keys != tuple(sorted(set(outcome_keys))):
+            raise ValueError("auto-apply outcome attestations must be stable-unique")
     suite_requirement_id: str | None = None
     if "suite_artifact_id" in body:
         body, suite_requirement_id = _split_requirement_id(body)
@@ -762,6 +1141,57 @@ def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, ob
     else:
         raise ValueError("regression evidence does not match a registered exact variant")
     parsed = model.model_validate(body)
+    if suite_coverage is not None:
+        if not isinstance(
+            parsed,
+            (
+                _RegressionSuiteEvidence,
+                _RegressionSuiteSeedEvidence,
+                _RegressionSuiteCaseSeedEvidence,
+                _RegressionSuiteFindingEvidence,
+                _RegressionSuiteFindingCaseSeedEvidence,
+                _RegressionSuiteBoundEvidence,
+                _RegressionSuiteFindingBoundEvidence,
+                _RegressionSuiteCaseSeedBoundEvidence,
+                _RegressionSuiteFindingCaseSeedBoundEvidence,
+            ),
+        ):
+            raise ValueError("suite execution coverage is attached to another dimension")
+        if parsed.status not in {"passed", "failed"}:
+            raise ValueError("suite execution coverage cannot attest an unproven result")
+        if suite_coverage.suite_artifact_id != parsed.suite_artifact_id:
+            raise ValueError("suite execution coverage names another suite")
+        if isinstance(parsed, _ValidationSeedBinding) and (
+            suite_coverage.root_seed != parsed.root_seed
+            or suite_coverage.run_kind != parsed.run_kind
+            or suite_coverage.validation_profile.profile_id != parsed.profile_id
+            or suite_coverage.validation_profile.version != parsed.profile_version
+            or suite_coverage.execution_seed != parsed.seed
+        ):
+            raise ValueError("suite execution coverage differs from outer seed authority")
+    if simulation_execution is not None:
+        if getattr(parsed, "dimension", None) != "simulation":
+            raise ValueError("simulation execution binding is attached to another dimension")
+        if isinstance(parsed, _ValidationSeedBinding):
+            outer_seed = _ValidationSeedBinding.model_validate(
+                {field: getattr(parsed, field) for field in _ValidationSeedBinding.model_fields}
+            )
+        elif isinstance(parsed, _RegressionDimensionEvidence):
+            outer_seed = _ValidationSeedBinding.model_validate(
+                {field: parsed.detail.get(field) for field in _ValidationSeedBinding.model_fields}
+            )
+        else:
+            raise ValueError("simulation execution binding has no outer seed authority")
+        if (
+            simulation_execution.seed_binding != outer_seed
+            or simulation_execution.seed_binding.case_id != getattr(parsed, "requirement_id", None)
+        ):
+            raise ValueError("simulation execution binding differs from outer seed authority")
+        if (
+            simulation_execution.constraint_snapshot_binding_status == "bound"
+            and getattr(parsed, "status", None) != "unproven"
+        ):
+            raise ValueError("bound patch simulation cannot claim a proven verdict")
     if isinstance(
         parsed,
         (
@@ -778,7 +1208,36 @@ def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, ob
             findings=parsed.findings,
             label="regression evidence",
         )
-    return _restore_requirement_id(_require_exact_model(model, body), suite_requirement_id)
+    canonical = _restore_requirement_id(_require_exact_model(model, body), suite_requirement_id)
+    if checker_profile is not None:
+        canonical["checker_profile"] = checker_profile.model_dump(mode="json")
+        canonical["checker_execution_bindings"] = [
+            _json_mapping(item.model_dump(mode="json")) for item in checker_bindings
+        ]
+        canonical["constraint_snapshot_binding_status"] = checker_constraint_status
+        if checker_constraint_id is not None:
+            canonical["constraint_snapshot_artifact_id"] = checker_constraint_id
+    if simulation_execution is not None:
+        canonical["simulation_execution_binding"] = _json_mapping(
+            simulation_execution.model_dump(mode="json", exclude_none=True)
+        )
+    if suite_coverage is not None:
+        canonical["execution_coverage_binding"] = _json_mapping(
+            suite_coverage.model_dump(mode="json", exclude_none=True)
+        )
+    if lineage_suite_present:
+        canonical["lineage_suite_artifact_ids"] = list(lineage_suite_artifact_ids)
+    if auto_apply_context is not None:
+        canonical["auto_apply_context"] = _json_mapping(auto_apply_context.model_dump(mode="json"))
+        canonical["oracle_attestations"] = [
+            item.model_dump(mode="json") for item in oracle_attestations
+        ]
+        canonical["outcome_attestations"] = [
+            item.model_dump(mode="json") for item in outcome_attestations
+        ]
+    if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
+        raise ValueError("regression evidence is not its exact canonical wire shape")
+    return canonical
 
 
 def _validate_review_report(payload: Mapping[str, object]) -> dict[str, object]:

@@ -584,6 +584,7 @@ def _validate_overall_status(evidence: EvidenceSet, target_status: str) -> None:
 def _validate_kind_binding(
     evidence: EvidenceSet,
     item: object,
+    run: RunRecord,
     payload: _ValidationPayload,
     subject_kind: str,
 ) -> None:
@@ -592,7 +593,22 @@ def _validate_kind_binding(
         validate_patch_evidence_binding(evidence, item, payload)
     elif subject_kind == "rollback_request":
         assert isinstance(payload, RollbackValidationPayloadV1)
-        validate_rollback_evidence_binding(evidence, item, payload, profile_binding=None)
+        matches = tuple(
+            binding
+            for binding in run.payload.resolved_profiles
+            if binding.field_path == "/params/rollback_profile"
+        )
+        if len(matches) != 1:
+            raise IntegrityViolation(
+                "rollback validation Run lacks one exact rollback profile binding",
+                run_id=run.run_id,
+            )
+        validate_rollback_evidence_binding(
+            evidence,
+            item,
+            payload,
+            profile_binding=matches[0],
+        )
     else:  # constraint_proposal
         assert isinstance(payload, ConstraintValidationPayloadV1)
         validate_constraint_evidence_candidate_binding(evidence, payload)
@@ -651,7 +667,7 @@ def _make_validation_completion_effect(
             )
         _validate_overall_status(evidence, target_status)
         validate_evidence_subject(evidence, item)
-        _validate_kind_binding(evidence, item, payload, subject_kind)
+        _validate_kind_binding(evidence, item, context.run, payload, subject_kind)
 
         validate_status_transition(
             current="validating", target=target_status, subject_kind=item.subject_kind
@@ -666,6 +682,13 @@ def _make_validation_completion_effect(
             raise IntegrityViolation(
                 "validation completion has no published EvidenceSet artifact id",
                 run_id=context.run.run_id,
+            )
+        regression_evidence_artifact_ids = tuple(
+            sorted(context.published_artifact_ids_by_rule.get("regression", ()))
+        )
+        if regression_evidence_artifact_ids != regression_evidence_ids_from_set(evidence):
+            raise IntegrityViolation(
+                "published regression evidence differs from the final EvidenceSet"
             )
         proof_binding: AutoApplyProofBindingV1 | None = None
         auto_apply_request: (
@@ -723,9 +746,7 @@ def _make_validation_completion_effect(
                     key=lambda artifact: artifact.artifact_id,
                 )
             )
-            regression_ids = tuple(
-                sorted(context.published_artifact_ids_by_rule.get("regression", ()))
-            )
+            regression_ids = regression_evidence_artifact_ids
             if (
                 len(proof_ids) != 1
                 or len(proof_payloads) != 1
@@ -741,10 +762,6 @@ def _make_validation_completion_effect(
                     run_id=context.run.run_id,
                 )
             proof = AutoApplyProofV1.model_validate(proof_payloads[0])
-            if regression_ids != tuple(sorted(regression_evidence_ids_from_set(evidence))):
-                raise IntegrityViolation(
-                    "auto-apply proof regression set differs from the final EvidenceSet"
-                )
             proof_binding = build_auto_apply_proof_binding(
                 proof=proof,
                 proof_artifact_id=proof_ids[0],
@@ -764,7 +781,7 @@ def _make_validation_completion_effect(
             item,
             target_status=target_status,
             evidence_set_artifact_id=evidence_artifact_id,
-            regression_evidence_artifact_ids=regression_evidence_ids_from_set(evidence),
+            regression_evidence_artifact_ids=regression_evidence_artifact_ids,
             target_binding=target_binding,
             auto_apply_proof=proof_binding,
         )

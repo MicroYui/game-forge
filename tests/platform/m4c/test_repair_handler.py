@@ -496,6 +496,23 @@ def _store(
 _DEFAULT_RUNNER = object()
 
 
+class _BytesOnlyArtifactReader:
+    """Keep legacy repair fixtures on the byte-reader branch.
+
+    ``FakeArtifactStore`` also exposes exact Artifact envelopes for Task 13
+    validation tests.  The repair fixtures intentionally use readable logical
+    ids rather than content-addressed ArtifactV2 ids, so handing that richer
+    test double directly to ``RepairSearchHandler`` would incorrectly select
+    the production envelope-size path.
+    """
+
+    def __init__(self, store: FakeArtifactStore) -> None:
+        self._store = store
+
+    def read_bytes(self, artifact_id: str) -> bytes:
+        return self._store.read_bytes(artifact_id)
+
+
 def _handler(
     store: FakeArtifactStore,
     *,
@@ -516,7 +533,7 @@ def _handler(
         _PassingRegressionRunner() if regression_runner is _DEFAULT_RUNNER else regression_runner
     )
     return RepairSearchHandler(
-        blobs=store,
+        blobs=_BytesOnlyArtifactReader(store),
         store=store,
         agent_runner=M2RepairAgentRunner(regression_runner=resolved_regression_runner),
         config_exporter=_FakeConfigExporter(),

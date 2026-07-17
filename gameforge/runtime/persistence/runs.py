@@ -17,6 +17,7 @@ from gameforge.contracts.findings import FindingRevisionV1, finding_revision_dig
 from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
     AttemptStartedDataV1,
+    MAX_COLLECTION_ITEMS,
     MAX_RUN_MANIFEST_PARENT_BINDINGS,
     RetryDecisionV1,
     RunAttempt,
@@ -53,6 +54,10 @@ from gameforge.runtime.persistence.cost import SqlCostRepository
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 _ACTIVE_RUN_STATUSES = frozenset({"leased", "running"})
 _ACTIVE_ATTEMPT_STATUSES = frozenset({"leased", "running"})
+# SQLite builds before 3.32 commonly cap one statement at 999 bound variables.
+# Leave room for LIMIT/OFFSET and future fixed predicates instead of relying on
+# the larger limit of the developer machine's bundled SQLite.
+_MAX_SQL_IN_ITEMS = 900
 
 
 @dataclass(frozen=True, slots=True)
@@ -3112,6 +3117,97 @@ class SqlRunRepository:
                 finding_revision=selected_revision,
             )
         return parsed
+
+    def list_finding_links_by_evidence_artifact_ids(
+        self,
+        evidence_artifact_ids: tuple[str, ...],
+        *,
+        max_items: int = MAX_COLLECTION_ITEMS,
+    ) -> tuple[RunFindingLinkV1, ...]:
+        """Enumerate the bounded immutable Finding-link closure for evidence.
+
+        Evidence payload shape is deliberately irrelevant: notably a
+        ``playtest-trace@1`` contains no embedded Finding array.  The atomically
+        published RunFindingLink rows are the complete producer-side authority.
+        """
+
+        if (
+            isinstance(max_items, bool)
+            or not isinstance(max_items, int)
+            or max_items < 1
+            or max_items > MAX_COLLECTION_ITEMS
+        ):
+            raise IntegrityViolation(
+                "Finding link read bound must be within the contract bound",
+                minimum=1,
+                maximum=MAX_COLLECTION_ITEMS,
+            )
+        if not isinstance(evidence_artifact_ids, tuple):
+            raise IntegrityViolation("Finding evidence selection must be an immutable tuple")
+        if len(evidence_artifact_ids) > MAX_COLLECTION_ITEMS:
+            raise IntegrityViolation(
+                "Finding evidence selection exceeds its contract bound",
+                selected_count=len(evidence_artifact_ids),
+                maximum=MAX_COLLECTION_ITEMS,
+            )
+        selected_ids = tuple(
+            sorted(
+                {
+                    _require_nonempty(item, field_name="evidence_artifact_id")
+                    for item in evidence_artifact_ids
+                }
+            )
+        )
+        if not selected_ids:
+            return ()
+        rows: list[RunFindingLinkRow] = []
+        for start in range(0, len(selected_ids), _MAX_SQL_IN_ITEMS):
+            chunk = selected_ids[start : start + _MAX_SQL_IN_ITEMS]
+            remaining = max_items + 1 - len(rows)
+            if remaining < 1:
+                break
+            rows.extend(
+                self._session.scalars(
+                    select(RunFindingLinkRow)
+                    .where(RunFindingLinkRow.evidence_artifact_id.in_(chunk))
+                    .order_by(
+                        RunFindingLinkRow.evidence_artifact_id,
+                        RunFindingLinkRow.run_id,
+                        RunFindingLinkRow.attempt_no,
+                        RunFindingLinkRow.ordinal,
+                    )
+                    .limit(remaining)
+                ).all()
+            )
+        if len(rows) > max_items:
+            raise IntegrityViolation(
+                "selected evidence Finding-link closure exceeds its bound",
+                maximum=max_items,
+            )
+        links: list[RunFindingLinkV1] = []
+        for row in rows:
+            parsed = self.get_finding_link(row.run_id, row.attempt_no, row.ordinal)
+            if parsed is None:
+                raise IntegrityViolation(
+                    "selected evidence Finding link disappeared during one read transaction"
+                )
+            if parsed.evidence_artifact_id not in selected_ids:
+                raise IntegrityViolation(
+                    "selected evidence Finding enumeration returned another Artifact"
+                )
+            links.append(parsed)
+        order_keys = tuple(
+            (
+                link.evidence_artifact_id,
+                link.run_id,
+                link.attempt_no,
+                link.ordinal,
+            )
+            for link in links
+        )
+        if order_keys != tuple(sorted(order_keys)) or len(order_keys) != len(set(order_keys)):
+            raise IntegrityViolation("selected evidence Finding links are not canonically ordered")
+        return tuple(links)
 
     def put_command(self, record: RunCommandRecordV1) -> RunCommandRecordV1:
         parsed = _revalidate(record, RunCommandRecordV1, label="Run command put")
