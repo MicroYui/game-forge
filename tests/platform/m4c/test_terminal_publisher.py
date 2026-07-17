@@ -16,7 +16,7 @@ import pytest
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
-from gameforge.contracts.findings import FindingPayloadV1, FindingRevisionV1
+from gameforge.contracts.findings import Finding, FindingPayloadV1, FindingRevisionV1
 from gameforge.contracts.identity import Permission
 from gameforge.contracts.jobs import (
     DependencyFailureV1,
@@ -394,7 +394,19 @@ def _closed_attempt_failure(
     return artifact.artifact_id
 
 
-def _checker_artifact(blobs: _Blobs) -> PreparedArtifact:
+def _checker_embedded_finding() -> Finding:
+    prepared = _checker_finding()
+    return Finding(
+        id=prepared.finding_id,
+        **prepared.payload.model_dump(mode="python", exclude={"payload_schema_version"}),
+    )
+
+
+def _checker_artifact(
+    blobs: _Blobs,
+    *,
+    findings: tuple[Finding, ...] = (),
+) -> PreparedArtifact:
     blob = canonical_json(
         {
             "payload_schema_version": "checker-report@1",
@@ -404,7 +416,7 @@ def _checker_artifact(blobs: _Blobs) -> PreparedArtifact:
             "checker_ids": ["graph"],
             "defect_classes": ["dangling_ref"],
             "constraint_application": [],
-            "findings": [],
+            "findings": [finding.model_dump(mode="json") for finding in findings],
         }
     ).encode()
     object_ref = blobs.register(blob)
@@ -427,7 +439,7 @@ def _checker_finding() -> PreparedFindingV1:
         evidence_artifact_index=0,
         payload=FindingPayloadV1(
             source="checker",
-            producer_id="checker@1",
+            producer_id="graph",
             producer_run_id="run:1",
             oracle_type="deterministic",
             defect_class="dangling_ref",
@@ -709,7 +721,7 @@ def test_success_publishes_artifact_finding_link_and_manifest():
         _Audit(),
     )
     _input_snapshot(artifacts)
-    checker = _checker_artifact(blobs)
+    checker = _checker_artifact(blobs, findings=(_checker_embedded_finding(),))
     prepared = _prepared_success(artifacts=(checker,), findings=(_checker_finding(),))
     policy = select_outcome_policy(
         definition=definition,
@@ -748,6 +760,46 @@ def test_success_publishes_artifact_finding_link_and_manifest():
     assert published.terminal_cassette_artifact_id is None
     # Audit recorded the on_success terminal hook.
     assert any(record["action"] == "publish-checker@1" for record in audit.records)
+
+
+@pytest.mark.parametrize(
+    ("embedded_findings", "prepared_findings"),
+    (
+        ((), (_checker_finding(),)),
+        ((_checker_embedded_finding(),), ()),
+    ),
+)
+def test_checker_report_and_run_finding_links_must_close_exactly(
+    embedded_findings: tuple[Finding, ...],
+    prepared_findings: tuple[PreparedFindingV1, ...],
+) -> None:
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _prepared_success(
+        artifacts=(_checker_artifact(blobs, findings=embedded_findings),),
+        findings=prepared_findings,
+    )
+    publisher = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _Ledger(),
+        _Audit(),
+    )
+
+    with pytest.raises(IntegrityViolation, match="embedded Findings differ"):
+        publisher.publish_run_result(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=_success_policy(definition),
+            occurred_at=NOW,
+            actor=WORKER,
+        )
 
 
 def test_checker_publication_rejects_forged_constraint_id_against_exact_parent_blob():
@@ -857,7 +909,21 @@ def test_workflow_effect_receives_the_final_resealed_primary_payload(monkeypatch
     attempt = _attempt()
     artifacts, blobs = _Artifacts(), _Blobs()
     _input_snapshot(artifacts)
-    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    resealed_finding = _checker_finding().model_copy(
+        update={
+            "finding_id": "finding:resealed",
+            "payload": _checker_finding().payload.model_copy(
+                update={
+                    "producer_id": "checker:graph",
+                    "message": "publisher reseal plumbing",
+                }
+            ),
+        }
+    )
+    prepared = _prepared_success(
+        artifacts=(_checker_artifact(blobs),),
+        findings=(resealed_finding,),
+    )
     policy = select_outcome_policy(
         definition=definition,
         outcome_code="checker_completed",

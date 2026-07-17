@@ -2270,11 +2270,6 @@ class WorkerCommandPublicationGateway:
         ):
             raise IntegrityViolation("rendered prompt Artifact escapes the frozen execution plan")
 
-    def publish_run_failure(self, **_: object) -> None:
-        raise IntegrityViolation(
-            "run-failure publication flows through the lifecycle terminal publisher"
-        )
-
     def _append(
         self,
         *,
@@ -2342,11 +2337,6 @@ class WorkerCommandTerminalPublicationGateway:
 
     def plan_run_failure(self, **kwargs: object) -> object:
         return self._terminal.plan_run_failure(**kwargs)  # type: ignore[attr-defined]
-
-    def publish_run_failure(self, **kwargs: object) -> object:
-        # This direct surface is deliberately fail-closed in TerminalPublisher;
-        # staged command composition calls plan -> external stage -> commit.
-        return self._terminal.publish_run_failure(**kwargs)  # type: ignore[attr-defined]
 
     def commit(self, fresh_draft: object, staged: object) -> object:
         return self._terminal.commit(fresh_draft, staged)  # type: ignore[attr-defined]

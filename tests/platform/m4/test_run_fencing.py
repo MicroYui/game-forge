@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
 from gameforge.contracts.execution_profiles import ArtifactLineagePolicyRefV1, RunKindRef
 from gameforge.contracts.jobs import (
@@ -56,6 +57,10 @@ from gameforge.platform.runs.lifecycle import (
     RunLifecycleService,
     RunResultPublication,
     StartAttemptRequest,
+)
+from gameforge.platform.terminal_staging import (
+    StagedTerminalPublication,
+    TerminalPublicationDraft,
 )
 from gameforge.runtime.clock import FrozenUtcClock
 from tests.platform.m4.test_run_create_claim import (
@@ -1475,26 +1480,38 @@ class _Publication:
         assert policy.prepared_outcome == "success"
         if self.state.fail_publication:
             raise IntegrityViolation("injected terminal publication failure")
+        result, action = self._run_result_projection(run=run, attempt=attempt)
+        self.state.publisher_actions.append(action)
+        return result
+
+    def _run_result_projection(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+    ) -> tuple[RunResultPublication, str]:
         artifact_id = f"artifact:run-result:{run.run_id}:{attempt.attempt_no}"
-        self.state.publisher_actions.append(f"result:{artifact_id}")
-        return RunResultPublication(
-            result_artifact_id=artifact_id,
-            attempt_cassette_artifact_id=(
-                f"artifact:attempt-cassette:{run.run_id}:{attempt.attempt_no}"
-                if run.payload.llm_execution_mode == "record"
-                and not self.state.omit_cassette_publication
-                else None
-            ),
-            terminal_cassette_artifact_id=(
-                f"artifact:run-cassette:{run.run_id}"
-                if run.payload.llm_execution_mode == "record"
-                and not self.state.omit_cassette_publication
-                else (
-                    run.payload.cassette_artifact_id
-                    if run.payload.llm_execution_mode == "replay"
+        return (
+            RunResultPublication(
+                result_artifact_id=artifact_id,
+                attempt_cassette_artifact_id=(
+                    f"artifact:attempt-cassette:{run.run_id}:{attempt.attempt_no}"
+                    if run.payload.llm_execution_mode == "record"
+                    and not self.state.omit_cassette_publication
                     else None
-                )
+                ),
+                terminal_cassette_artifact_id=(
+                    f"artifact:run-cassette:{run.run_id}"
+                    if run.payload.llm_execution_mode == "record"
+                    and not self.state.omit_cassette_publication
+                    else (
+                        run.payload.cassette_artifact_id
+                        if run.payload.llm_execution_mode == "replay"
+                        else None
+                    )
+                ),
             ),
+            f"result:{artifact_id}",
         )
 
     def publish_attempt_failure(
@@ -1511,16 +1528,33 @@ class _Publication:
         assert policy.publication_scope == "attempt"
         if self.state.fail_publication:
             raise IntegrityViolation("injected terminal publication failure")
-        artifact_id = f"artifact:attempt-failure:{prepared.cause_code}:{attempt.attempt_no}"
-        self.state.publisher_actions.append(f"attempt-failure:{artifact_id}")
-        return AttemptFailurePublication(
-            failure_artifact_id=artifact_id,
-            cassette_bundle_artifact_id=(
-                f"artifact:attempt-cassette:{run.run_id}:{attempt.attempt_no}"
-                if run.payload.llm_execution_mode == "record"
-                and not self.state.omit_cassette_publication
-                else None
+        result, action = self._attempt_failure_projection(
+            run=run,
+            attempt=attempt,
+            cause_code=prepared.cause_code,
+        )
+        self.state.publisher_actions.append(action)
+        return result
+
+    def _attempt_failure_projection(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        cause_code: str,
+    ) -> tuple[AttemptFailurePublication, str]:
+        artifact_id = f"artifact:attempt-failure:{cause_code}:{attempt.attempt_no}"
+        return (
+            AttemptFailurePublication(
+                failure_artifact_id=artifact_id,
+                cassette_bundle_artifact_id=(
+                    f"artifact:attempt-cassette:{run.run_id}:{attempt.attempt_no}"
+                    if run.payload.llm_execution_mode == "record"
+                    and not self.state.omit_cassette_publication
+                    else None
+                ),
             ),
+            f"attempt-failure:{artifact_id}",
         )
 
     def publish_run_failure(
@@ -1538,21 +1572,232 @@ class _Publication:
         assert policy.publication_scope == "run"
         if self.state.fail_publication:
             raise IntegrityViolation("injected terminal publication failure")
-        artifact_id = f"artifact:run-failure:{prepared.cause_code}:{run.run_id}"
-        self.state.publisher_actions.append(f"run-failure:{artifact_id}")
-        return RunFailurePublication(
-            failure_artifact_id=artifact_id,
-            terminal_cassette_artifact_id=(
-                f"artifact:run-cassette:{run.run_id}"
-                if run.payload.llm_execution_mode == "record"
-                and not self.state.omit_cassette_publication
-                else (
-                    run.payload.cassette_artifact_id
-                    if run.payload.llm_execution_mode == "replay"
-                    else None
-                )
+        result, action = self._run_failure_projection(
+            run=run,
+            cause_code=prepared.cause_code,
+        )
+        self.state.publisher_actions.append(action)
+        return result
+
+    def _run_failure_projection(
+        self,
+        *,
+        run: RunRecord,
+        cause_code: str,
+    ) -> tuple[RunFailurePublication, str]:
+        artifact_id = f"artifact:run-failure:{cause_code}:{run.run_id}"
+        return (
+            RunFailurePublication(
+                failure_artifact_id=artifact_id,
+                terminal_cassette_artifact_id=(
+                    f"artifact:run-cassette:{run.run_id}"
+                    if run.payload.llm_execution_mode == "record"
+                    and not self.state.omit_cassette_publication
+                    else (
+                        run.payload.cassette_artifact_id
+                        if run.payload.llm_execution_mode == "replay"
+                        else None
+                    )
+                ),
+            ),
+            f"run-failure:{artifact_id}",
+        )
+
+    def _terminal_draft(
+        self,
+        *,
+        publication_kind: str,
+        run: RunRecord,
+        attempt_no: int | None,
+        occurred_at: str,
+        action: str,
+        authority_projection: dict[str, object],
+        result: object,
+    ) -> TerminalPublicationDraft:
+        operation_projection = (
+            {
+                "operation": "test.publisher_action",
+                "action": action,
+                "authority": authority_projection,
+            },
+        )
+        result_projection = result.model_dump(mode="json")
+        canonical_projection = {
+            "publication_kind": publication_kind,
+            "run_id": run.run_id,
+            "attempt_no": attempt_no,
+            "occurred_at": occurred_at,
+            "materials": (),
+            "operations": operation_projection,
+            "result": result_projection,
+        }
+        return TerminalPublicationDraft(
+            publication_kind=publication_kind,
+            run_id=run.run_id,
+            attempt_no=attempt_no,
+            occurred_at=occurred_at,
+            projection_digest=canonical_sha256(canonical_projection),
+            materials=(),
+            operations=(action,),
+            operation_projection=operation_projection,
+            result_projection=result_projection,
+            result=result,
+        )
+
+    def plan_run_result(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared,
+        policy: OutcomeArtifactPolicyV1,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> TerminalPublicationDraft:
+        assert policy.prepared_outcome == "success"
+        result, action = self._run_result_projection(run=run, attempt=attempt)
+        return self._terminal_draft(
+            publication_kind="run_result",
+            run=run,
+            attempt_no=attempt.attempt_no,
+            occurred_at=occurred_at,
+            action=action,
+            authority_projection={
+                "prepared": prepared.model_dump(mode="json"),
+                "policy": policy.model_dump(mode="json"),
+                "actor": actor.model_dump(mode="json"),
+            },
+            result=result,
+        )
+
+    def plan_attempt_failure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> TerminalPublicationDraft:
+        assert policy.publication_scope == "attempt"
+        result, action = self._attempt_failure_projection(
+            run=run,
+            attempt=attempt,
+            cause_code=prepared.cause_code,
+        )
+        return self._terminal_draft(
+            publication_kind="attempt_failure",
+            run=run,
+            attempt_no=attempt.attempt_no,
+            occurred_at=occurred_at,
+            action=action,
+            authority_projection={
+                "prepared": prepared.model_dump(mode="json"),
+                "retry_decision": retry_decision.model_dump(mode="json"),
+                "policy": policy.model_dump(mode="json"),
+                "actor": actor.model_dump(mode="json"),
+            },
+            result=result,
+        )
+
+    def plan_run_failure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        attempt_failure_artifact_id: str | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> TerminalPublicationDraft:
+        assert policy.publication_scope == "run"
+        result, action = self._run_failure_projection(
+            run=run,
+            cause_code=prepared.cause_code,
+        )
+        return self._terminal_draft(
+            publication_kind="run_failure",
+            run=run,
+            attempt_no=attempt.attempt_no if attempt is not None else None,
+            occurred_at=occurred_at,
+            action=action,
+            authority_projection={
+                "prepared": prepared.model_dump(mode="json"),
+                "retry_decision": retry_decision.model_dump(mode="json"),
+                "policy": policy.model_dump(mode="json"),
+                "attempt_failure_artifact_id": attempt_failure_artifact_id,
+                "actor": actor.model_dump(mode="json"),
+            },
+            result=result,
+        )
+
+    def plan_active_failure_aggregate(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared,
+        retry_decision: RetryDecisionV1,
+        attempt_policy: OutcomeArtifactPolicyV1,
+        run_policy: OutcomeArtifactPolicyV1 | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> tuple[TerminalPublicationDraft, ...]:
+        attempt_draft = self.plan_attempt_failure(
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            retry_decision=retry_decision,
+            policy=attempt_policy,
+            occurred_at=occurred_at,
+            actor=actor,
+        )
+        if run_policy is None:
+            return (attempt_draft,)
+        attempt_result = attempt_draft.result
+        return (
+            attempt_draft,
+            self.plan_run_failure(
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                retry_decision=retry_decision,
+                policy=run_policy,
+                attempt_failure_artifact_id=attempt_result.failure_artifact_id,
+                occurred_at=occurred_at,
+                actor=actor,
             ),
         )
+
+    def commit(
+        self,
+        fresh_draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+    ) -> object:
+        if fresh_draft.projection_digest != staged.projection_digest:
+            raise IntegrityViolation("fresh terminal projection differs from staged projection")
+        if fresh_draft.materials or staged.receipts:
+            raise IntegrityViolation("in-memory terminal publisher does not stage blobs")
+        if self.state.fail_publication:
+            raise IntegrityViolation("injected terminal publication failure")
+        (action,) = fresh_draft.operations
+        self.state.publisher_actions.append(str(action))
+        return fresh_draft.result
+
+    def commit_many(
+        self,
+        publications: tuple[tuple[TerminalPublicationDraft, StagedTerminalPublication], ...],
+    ) -> tuple[object, ...]:
+        for fresh_draft, staged in publications:
+            if fresh_draft.projection_digest != staged.projection_digest:
+                raise IntegrityViolation("fresh terminal projection differs from staged projection")
+            if fresh_draft.materials or staged.receipts:
+                raise IntegrityViolation("in-memory terminal publisher does not stage blobs")
+        return tuple(self.commit(fresh, staged) for fresh, staged in publications)
 
     def record_attempt_closed(
         self,
@@ -1607,6 +1852,22 @@ class _Publication:
             raise IntegrityViolation("injected audit failure")
 
 
+class _NoBlobStager:
+    def stage(
+        self,
+        drafts: tuple[TerminalPublicationDraft, ...],
+    ) -> tuple[StagedTerminalPublication, ...]:
+        if any(draft.materials for draft in drafts):
+            raise IntegrityViolation("no-blob stager received terminal blob material")
+        return tuple(
+            StagedTerminalPublication(
+                projection_digest=draft.projection_digest,
+                receipts=(),
+            )
+            for draft in drafts
+        )
+
+
 class _Uow:
     def __init__(self, state: _State) -> None:
         self.state = state
@@ -1649,6 +1910,9 @@ class _Harness:
             unit_of_work=self.unit_of_work,
             bind_capabilities=lambda transaction: capabilities,
             clock=FrozenUtcClock(now),
+            planning_scope=self.unit_of_work.begin,
+            bind_planning_capabilities=lambda transaction: capabilities,
+            stage_publications=_NoBlobStager(),
         )
 
     def command_service_at(self, now: datetime) -> RunCommandService:
@@ -1664,6 +1928,9 @@ class _Harness:
             unit_of_work=self.unit_of_work,
             bind_capabilities=lambda transaction: capabilities,
             clock=FrozenUtcClock(now),
+            planning_scope=self.unit_of_work.begin,
+            bind_planning_capabilities=lambda transaction: capabilities,
+            stage_publications=_NoBlobStager(),
         )
 
 
@@ -1796,11 +2063,17 @@ def _harness(
             unit_of_work=unit_of_work,
             bind_capabilities=lambda transaction: lifecycle_capabilities,
             clock=FrozenUtcClock(now),
+            planning_scope=unit_of_work.begin,
+            bind_planning_capabilities=lambda transaction: lifecycle_capabilities,
+            stage_publications=_NoBlobStager(),
         ),
         commands=RunCommandService(
             unit_of_work=unit_of_work,
             bind_capabilities=lambda transaction: command_capabilities,
             clock=FrozenUtcClock(now),
+            planning_scope=unit_of_work.begin,
+            bind_planning_capabilities=lambda transaction: command_capabilities,
+            stage_publications=_NoBlobStager(),
         ),
     )
 

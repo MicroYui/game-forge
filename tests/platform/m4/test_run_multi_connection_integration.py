@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy.orm import Session
 
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import Conflict
 from gameforge.contracts.jobs import (
     OutcomeArtifactPolicyV1,
@@ -33,6 +34,10 @@ from gameforge.platform.runs.lifecycle import (
     RunLifecycleService,
     StartAttemptRequest,
 )
+from gameforge.platform.terminal_staging import (
+    StagedTerminalPublication,
+    TerminalPublicationDraft,
+)
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.engine import get_engine
@@ -41,7 +46,7 @@ from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
 from tests.platform.m4.test_run_create_claim import NOW_DT, _create_request
-from tests.platform.m4.test_run_fencing import _Registry
+from tests.platform.m4.test_run_fencing import _NoBlobStager, _Registry
 
 
 WORKER_1 = AuditActor(principal_id="service:worker:1", principal_kind="service")
@@ -119,10 +124,10 @@ class _SqlPublication:
         assert retry_decision.decision == "retry"
         assert policy.publication_scope == "attempt"
         assert actor == REAPER
-        artifact_id = f"artifact:attempt-failure:{run.run_id}:{attempt.attempt_no}"
+        result = self._attempt_failure_projection(run=run, attempt=attempt)
         self._session.add(
             ArtifactRow(
-                artifact_id=artifact_id,
+                artifact_id=result.failure_artifact_id,
                 lineage_schema_version="lineage@1",
                 kind="run_failure",
                 version_tuple={},
@@ -134,7 +139,121 @@ class _SqlPublication:
             )
         )
         self._session.flush()
-        return AttemptFailurePublication(failure_artifact_id=artifact_id)
+        return result
+
+    @staticmethod
+    def _attempt_failure_projection(
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+    ) -> AttemptFailurePublication:
+        return AttemptFailurePublication(
+            failure_artifact_id=(f"artifact:attempt-failure:{run.run_id}:{attempt.attempt_no}")
+        )
+
+    def plan_attempt_failure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> TerminalPublicationDraft:
+        assert prepared.cause_code == "lease_expired"
+        assert retry_decision.decision == "retry"
+        assert policy.publication_scope == "attempt"
+        assert actor == REAPER
+        result = self._attempt_failure_projection(run=run, attempt=attempt)
+        operation_projection = (
+            {
+                "operation": "test.insert_attempt_failure",
+                "cause_code": prepared.cause_code,
+            },
+        )
+        result_projection = result.model_dump(mode="json")
+        canonical_projection = {
+            "publication_kind": "attempt_failure",
+            "run_id": run.run_id,
+            "attempt_no": attempt.attempt_no,
+            "occurred_at": occurred_at,
+            "materials": (),
+            "operations": operation_projection,
+            "result": result_projection,
+        }
+        return TerminalPublicationDraft(
+            publication_kind="attempt_failure",
+            run_id=run.run_id,
+            attempt_no=attempt.attempt_no,
+            occurred_at=occurred_at,
+            projection_digest=canonical_sha256(canonical_projection),
+            materials=(),
+            operations=operation_projection,
+            operation_projection=operation_projection,
+            result_projection=result_projection,
+            result=result,
+        )
+
+    def plan_active_failure_aggregate(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        attempt_policy: OutcomeArtifactPolicyV1,
+        run_policy: OutcomeArtifactPolicyV1 | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> tuple[TerminalPublicationDraft, ...]:
+        assert run_policy is None
+        return (
+            self.plan_attempt_failure(
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                retry_decision=retry_decision,
+                policy=attempt_policy,
+                occurred_at=occurred_at,
+                actor=actor,
+            ),
+        )
+
+    def commit(
+        self,
+        fresh_draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+    ) -> AttemptFailurePublication:
+        assert fresh_draft.projection_digest == staged.projection_digest
+        assert not fresh_draft.materials and not staged.receipts
+        result = fresh_draft.result
+        assert isinstance(result, AttemptFailurePublication)
+        (operation,) = fresh_draft.operation_projection
+        self._session.add(
+            ArtifactRow(
+                artifact_id=result.failure_artifact_id,
+                lineage_schema_version="lineage@1",
+                kind="run_failure",
+                version_tuple={},
+                lineage=[],
+                payload_hash="f" * 64,
+                created_at=fresh_draft.occurred_at,
+                meta={"cause_code": operation["cause_code"]},
+                object_ref=None,
+            )
+        )
+        self._session.flush()
+        return result
+
+    def commit_many(
+        self,
+        publications: tuple[tuple[TerminalPublicationDraft, StagedTerminalPublication], ...],
+    ) -> tuple[AttemptFailurePublication, ...]:
+        for fresh_draft, staged in publications:
+            assert fresh_draft.projection_digest == staged.projection_digest
+        return tuple(self.commit(fresh, staged) for fresh, staged in publications)
 
     def record_attempt_closed(
         self,
@@ -233,6 +352,14 @@ def _services(
             publication=transaction.refs,
         )
 
+    @contextmanager
+    def planning_scope() -> Iterator[TransactionCapabilities]:
+        with Session(engine, autoflush=False) as session:
+            try:
+                yield _capabilities(session)
+            finally:
+                session.rollback()
+
     try:
         yield (
             RunCommandService(
@@ -244,6 +371,9 @@ def _services(
                 unit_of_work=unit_of_work,
                 bind_capabilities=bind_lifecycle,
                 clock=FrozenUtcClock(now),
+                planning_scope=planning_scope,
+                bind_planning_capabilities=bind_lifecycle,
+                stage_publications=_NoBlobStager(),
             ),
         )
     finally:

@@ -2895,16 +2895,17 @@ class TerminalPublisher:
             "simulation_findings",
             "unproven_findings",
         )
+        finding_bearing_schemas = frozenset(
+            {
+                "checker-report@1",
+                "simulation-result@1",
+                "review@1",
+                "regression-evidence@1",
+            }
+        )
         for index, payload in published.payloads_by_index.items():
-            if (
-                run.kind.kind
-                not in {
-                    "patch.validate",
-                    "constraint_proposal.validate",
-                    "rollback.validate",
-                }
-                or prepared.artifacts[index].payload_schema_id != "regression-evidence@1"
-            ):
+            payload_schema_id = prepared.artifacts[index].payload_schema_id
+            if plan.finding_policy is None or payload_schema_id not in finding_bearing_schemas:
                 continue
             actual: list[object] = []
             containers = [payload]
@@ -2963,7 +2964,14 @@ class TerminalPublisher:
                                 )
                             )
                         )
-            expected = prepared_by_index.pop(index, [])
+            expected = (
+                [
+                    json.loads(canonical_json(item.payload.model_dump(mode="json")))
+                    for item in prepared.findings
+                ]
+                if payload_schema_id == "review@1"
+                else prepared_by_index.get(index, [])
+            )
             if not has_embedded:
                 if expected:
                     raise IntegrityViolation(

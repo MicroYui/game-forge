@@ -583,19 +583,6 @@ class RunPublicationGateway(Protocol):
 
         ...
 
-    def publish_run_failure(
-        self,
-        *,
-        run: RunRecord,
-        attempt: RunAttempt | None,
-        prepared: PreparedRunFailure,
-        retry_decision: RetryDecisionV1,
-        policy: OutcomeArtifactPolicyV1,
-        attempt_failure_artifact_id: str | None,
-        occurred_at: str,
-        actor: AuditActor,
-    ) -> RunFailurePublication: ...
-
     def plan_run_failure(
         self,
         *,
@@ -1092,34 +1079,28 @@ class RunCommandService:
         request_id: str | None = None,
     ) -> RunCommandSubmissionResult:
         selected_request_id = _bounded_request_id(request_id)
-        if self._stage_publications is not None:
-            operation_now = _utc_now(self._clock)
-            draft = self._plan_inactive_cancel(
-                run_id=run_id,
-                command=command,
-                actor=actor,
-                now=operation_now,
-            )
-            staged: StagedTerminalPublication | None = None
-            if draft is not None:
-                staged_batch = self._stage_publications.stage((draft,))
-                if len(staged_batch) != 1:
-                    raise IntegrityViolation("terminal stager returned another publication count")
-                staged = staged_batch[0]
-            return self._submit_in_write_uow(
-                run_id=run_id,
-                command=command,
-                actor=actor,
-                operation_now=operation_now,
-                staged_publication=staged,
-                request_id=selected_request_id,
-            )
+        stager = self._stage_publications
+        if stager is None:
+            raise IntegrityViolation("Run command submission requires terminal staging authority")
+        operation_now = _utc_now(self._clock)
+        draft = self._plan_inactive_cancel(
+            run_id=run_id,
+            command=command,
+            actor=actor,
+            now=operation_now,
+        )
+        staged: StagedTerminalPublication | None = None
+        if draft is not None:
+            staged_batch = stager.stage((draft,))
+            if len(staged_batch) != 1:
+                raise IntegrityViolation("terminal stager returned another publication count")
+            staged = staged_batch[0]
         return self._submit_in_write_uow(
             run_id=run_id,
             command=command,
             actor=actor,
-            operation_now=None,
-            staged_publication=None,
+            operation_now=operation_now,
+            staged_publication=staged,
             request_id=selected_request_id,
         )
 
@@ -1268,7 +1249,7 @@ class RunCommandService:
         run_id: str,
         command: RunCommandV1,
         actor: AuditActor,
-        operation_now: datetime | None,
+        operation_now: datetime,
         staged_publication: StagedTerminalPublication | None,
         request_id: str | None,
     ) -> RunCommandSubmissionResult:
@@ -1333,7 +1314,7 @@ class RunCommandService:
             if command.payload_schema_id not in definition.allowed_command_schema_ids:
                 raise InvalidStateTransition("Run command is not allowed for this Run kind")
             guard_now = _utc_now(self._clock)
-            now = operation_now or guard_now
+            now = operation_now
             now_text = _utc_text(now)
             if guard_now >= _parse_utc(
                 run.overall_deadline_utc,
@@ -1505,16 +1486,17 @@ class RunCommandService:
                 "actor": actor,
             }
             if staged_publication is None:
-                run_publication = publication.publish_run_failure(**publication_kwargs)
-            else:
-                run_publication = publication.commit(
-                    publication.plan_run_failure(**publication_kwargs),
-                    staged_publication,
+                raise IntegrityViolation(
+                    "inactive cancel authority changed without a staged terminal projection"
                 )
-                if not isinstance(run_publication, RunFailurePublication):
-                    raise IntegrityViolation(
-                        "inactive cancel commit returned another result projection"
-                    )
+            run_publication = publication.commit(
+                publication.plan_run_failure(**publication_kwargs),
+                staged_publication,
+            )
+            if not isinstance(run_publication, RunFailurePublication):
+                raise IntegrityViolation(
+                    "inactive cancel commit returned another result projection"
+                )
             validate_terminal_cassette_publication(
                 run=run,
                 cassette_artifact_id=run_publication.terminal_cassette_artifact_id,

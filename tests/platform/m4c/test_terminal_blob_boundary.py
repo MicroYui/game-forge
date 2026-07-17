@@ -431,6 +431,61 @@ def _command_service(
     )
 
 
+def test_lifecycle_terminal_operation_rejects_missing_staging_authority() -> None:
+    harness = _run_harness()
+    _start(harness)
+    capabilities = RunLifecycleCapabilities(
+        runs=harness.repo,
+        registry=harness.registry,
+        accounting=harness.accounting,
+        publication=harness.publication,
+    )
+
+    service = RunLifecycleService(
+        unit_of_work=harness.unit_of_work,
+        bind_capabilities=lambda _transaction: capabilities,
+        clock=FrozenUtcClock(NOW_DT),
+    )
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match="stager is unavailable"):
+        service.publish_attempt_outcome(
+            PublishAttemptOutcomeRequest(
+                fence=_fence(harness),
+                prepared_outcome=_prepared_success(harness),
+                actor=WORKER,
+            )
+        )
+    assert harness.state == before
+
+
+def test_command_submission_rejects_missing_terminal_staging_authority() -> None:
+    harness = _run_harness()
+    _as_queued(harness)
+    capabilities = RunCommandCapabilities(
+        runs=harness.repo,
+        registry=harness.registry,
+        admission=harness.accounting,
+        publication=harness.publication,
+        accounting=harness.accounting,
+        submission_authorization=_AllowSubmissionAuthorization(),
+    )
+    service = RunCommandService(
+        unit_of_work=harness.unit_of_work,
+        bind_capabilities=lambda _transaction: capabilities,
+        clock=FrozenUtcClock(NOW_DT),
+    )
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match="requires terminal staging authority"):
+        service.submit(
+            run_id="run:1",
+            command=_cancel_command(harness),
+            actor=_HUMAN,
+        )
+    assert harness.state == before
+
+
 def test_active_success_stages_every_blob_between_read_and_write_uows() -> None:
     harness = _run_harness()
     _start(harness)

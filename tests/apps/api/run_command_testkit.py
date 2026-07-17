@@ -36,6 +36,7 @@ from gameforge.apps.api.dependencies import (
 from gameforge.apps.api.streaming import RunEventNotifier, RunEventReadScope, RunEventStreamService
 from gameforge.apps.api.workflow_command_port import WorkflowCommandAdapter
 from gameforge.contracts.auth import ApiKeyAuthRequestV1, PasswordAuthRequestV1, SessionToken
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.cost import BudgetV1, CostAmountV1
 from gameforge.contracts.errors import AuthFailed, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
@@ -73,6 +74,10 @@ from gameforge.platform.runs.admission import (
 from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
 from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
 from gameforge.platform.runs.lifecycle import RunFailurePublication
+from gameforge.platform.terminal_staging import (
+    StagedTerminalPublication,
+    TerminalPublicationDraft,
+)
 from gameforge.platform.workflow.service import WorkflowCommandService
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
@@ -286,12 +291,12 @@ class _ApiKeyAuthStub:
 
 
 class _CommandPublicationGateway:
-    """Command-scope publication: real audit hooks + a not_applicable failure publication.
+    """Command-scope audit hooks plus a staged not-applicable failure projection.
 
     Every ``record_*`` hook appends to the platform audit chain (same UoW as the Run
     mutation), so a cancel truly persists command + Run + Event + audit before the ACK.
-    ``publish_run_failure`` returns the run cancellation failure artifact id for a
-    non-LLM (``not_applicable``) Run, whose terminal cassette is None.
+    The seeded failure Artifact keeps this transport fixture focused on Run-command
+    atomicity; plan/commit still enforce the production three-phase boundary.
     """
 
     def __init__(self, *, audit: AuditGate, chain_id: str, failure_artifact_id: str) -> None:
@@ -355,7 +360,7 @@ class _CommandPublicationGateway:
         del run, attempt
         return prepared
 
-    def publish_run_failure(
+    def plan_run_failure(
         self,
         *,
         run,
@@ -366,17 +371,86 @@ class _CommandPublicationGateway:
         attempt_failure_artifact_id,
         occurred_at,
         actor,
-    ) -> RunFailurePublication:  # type: ignore[no-untyped-def]
-        return RunFailurePublication(
+    ) -> TerminalPublicationDraft:  # type: ignore[no-untyped-def]
+        result = RunFailurePublication(
             failure_artifact_id=self._failure_artifact_id,
             terminal_cassette_artifact_id=None,
         )
+        operation_projection = (
+            {
+                "operation": "test.bind_seeded_run_failure",
+                "failure_artifact_id": self._failure_artifact_id,
+                "authority": {
+                    "run": run.model_dump(mode="json"),
+                    "attempt": (attempt.model_dump(mode="json") if attempt is not None else None),
+                    "prepared": prepared.model_dump(mode="json"),
+                    "retry_decision": retry_decision.model_dump(mode="json"),
+                    "policy": policy.model_dump(mode="json"),
+                    "attempt_failure_artifact_id": attempt_failure_artifact_id,
+                    "actor": actor.model_dump(mode="json"),
+                },
+            },
+        )
+        result_projection = result.model_dump(mode="json")
+        canonical_projection = {
+            "publication_kind": "run_failure",
+            "run_id": run.run_id,
+            "attempt_no": attempt.attempt_no if attempt is not None else None,
+            "occurred_at": occurred_at,
+            "materials": (),
+            "operations": operation_projection,
+            "result": result_projection,
+        }
+        return TerminalPublicationDraft(
+            publication_kind="run_failure",
+            run_id=run.run_id,
+            attempt_no=attempt.attempt_no if attempt is not None else None,
+            occurred_at=occurred_at,
+            projection_digest=canonical_sha256(canonical_projection),
+            materials=(),
+            operations=(self._failure_artifact_id,),
+            operation_projection=operation_projection,
+            result_projection=result_projection,
+            result=result,
+        )
+
+    def commit(
+        self,
+        fresh_draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+    ) -> RunFailurePublication:
+        if fresh_draft.projection_digest != staged.projection_digest:
+            raise IntegrityViolation("fresh terminal projection differs from staged projection")
+        if fresh_draft.materials or staged.receipts:
+            raise IntegrityViolation("command test publication unexpectedly staged blobs")
+        if fresh_draft.operations != (self._failure_artifact_id,):
+            raise IntegrityViolation("command test publication selected another failure Artifact")
+        result = fresh_draft.result
+        if not isinstance(result, RunFailurePublication):
+            raise IntegrityViolation("command test publication returned another result projection")
+        return result
 
     def get_prompt_replay(self, **_: Any) -> Any:
         raise IntegrityViolation("prompt replay is not a command-scope operation")
 
     def publish_prompt_rendered(self, **_: Any) -> Any:
         raise IntegrityViolation("prompt publication is not a command-scope operation")
+
+
+class _NoBlobStager:
+    def stage(
+        self,
+        drafts: tuple[TerminalPublicationDraft, ...],
+    ) -> tuple[StagedTerminalPublication, ...]:
+        if any(draft.materials for draft in drafts):
+            raise IntegrityViolation("no-blob stager received terminal blob material")
+        return tuple(
+            StagedTerminalPublication(
+                projection_digest=draft.projection_digest,
+                receipts=(),
+            )
+            for draft in drafts
+        )
 
 
 class _Stub:
@@ -462,6 +536,9 @@ class CommandAppHarness:
             unit_of_work=self.uow,
             bind_capabilities=self._command_binder,
             clock=self.clock,
+            planning_scope=self._command_planning_scope,
+            bind_planning_capabilities=self._command_binder,
+            stage_publications=_NoBlobStager(),
         )
         self.command_authorizer = RunCommandAuthorizationService(
             read_scope=self._command_auth_scope,
@@ -558,6 +635,11 @@ class CommandAppHarness:
             accounting=accounting,
             submission_authorization=_AllowSubmissionAuthorization(),
         )
+
+    @contextmanager
+    def _command_planning_scope(self) -> Iterator[TransactionCapabilities]:
+        with sqlite_read_snapshot_session(self.engine) as session:
+            yield self._capability_factory(session)
 
     @contextmanager
     def _read_scope(self) -> Iterator[AdmissionReadPort]:
