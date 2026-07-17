@@ -163,6 +163,11 @@ from gameforge.runtime.auth.local import (
 )
 from gameforge.runtime.auth.passwords import Argon2PasswordRuntime
 from gameforge.runtime.auth.tokens import ApiKeyRuntime, SessionTokenRuntime
+from gameforge.runtime.cassette.legacy_authority_manifest import (
+    LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
+    MAX_LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_CHARS,
+    load_legacy_import_authority,
+)
 from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
@@ -214,6 +219,40 @@ WORKFLOW_APPROVAL_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_DIGEST
 
 class LocalApiConfigurationError(ValueError):
     """The trusted local API composition is incomplete or unsafe."""
+
+
+def _factory_legacy_import_authority(
+    explicit: LegacyImportAuthority | None,
+    *,
+    environment: Mapping[str, str] | None = None,
+) -> LegacyImportAuthority | None:
+    """Resolve the shared API/worker authority only at the process factory boundary."""
+
+    source = os.environ if environment is None else environment
+    if LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV not in source:
+        return explicit
+    if explicit is not None:
+        raise LocalApiConfigurationError(
+            "legacy import authority cannot be configured explicitly and by environment"
+        )
+    manifest_path = source[LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV]
+    if (
+        not isinstance(manifest_path, str)
+        or not manifest_path
+        or len(manifest_path) > MAX_LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_CHARS
+        or any(ord(character) < 32 or ord(character) == 127 for character in manifest_path)
+    ):
+        raise LocalApiConfigurationError(
+            "legacy import authority environment configuration is invalid"
+        )
+    try:
+        return load_legacy_import_authority(manifest_path)
+    except IntegrityViolation:
+        # Startup errors can otherwise expose rendered requests or source paths through
+        # a manifest validator's exception text, so this boundary is content-free.
+        raise LocalApiConfigurationError(
+            "legacy import authority environment configuration is invalid"
+        ) from None
 
 
 class _AdmissionPolicyAuthority:
@@ -1567,10 +1606,11 @@ def create_local_app(
     trusted_components: TrustedComponentMaps | None = None,
     legacy_import_authority: LegacyImportAuthority | None = None,
 ) -> FastAPI:
+    resolved_legacy_import_authority = _factory_legacy_import_authority(legacy_import_authority)
     resources = build_local_api_resources(
         config or LocalApiConfig.from_environment(),
         trusted_components=trusted_components,
-        legacy_import_authority=legacy_import_authority,
+        legacy_import_authority=resolved_legacy_import_authority,
     )
     app = create_app(resources.dependencies, lifespan=_local_lifespan(resources))
     app.state.local_resources = resources

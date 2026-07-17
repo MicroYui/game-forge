@@ -660,6 +660,8 @@ class WorkerCallCostGateway:
                     reservations=members,
                     decision=decision,
                 ),
+                observed_wall_time_ns=wall_time_ns,
+                observed_token_usage=result.token_usage,
             )
             settled = ledger.settle_unknown_group(
                 settled.reservation_group_id,
@@ -674,29 +676,43 @@ class WorkerCallCostGateway:
         decision: ModelRoutingDecision,
         wall_time_ns: int,
     ) -> None:
-        del wall_time_ns  # Unknown provider-side usage settles at the reserved upper bound.
+        if isinstance(wall_time_ns, bool) or not isinstance(wall_time_ns, int) or wall_time_ns < 0:
+            raise IntegrityViolation("failed transport wall time must be non-negative")
         token = self._token(reservation, decision=decision)
         with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
             ledger = transaction.cost
             group, members = self._load_group(ledger=ledger, token=token)
+            retained_decision = (
+                ledger.get_routing_decision(decision.decision_id)
+                if isinstance(decision, RoutingDecisionV1)
+                else ledger.get_legacy_import_routing_decision(decision.decision_id)
+            )
+            if retained_decision != decision:
+                raise IntegrityViolation("failed transport RoutingDecision authority changed")
             if group.status == "reserved":
                 group = ledger.hold_unknown_group(group.reservation_group_id)
-            if group.status == "held_unknown":
-                ledger.settle_unknown_group(
-                    group.reservation_group_id,
-                    _conservative_usage(
-                        group=group,
-                        reservations=members,
-                        decision=decision,
-                        recorded_at=_utc(self._clock),
-                        price_quote=self._usage_quote(
-                            ledger=ledger,
-                            group=group,
-                            reservations=members,
-                            decision=decision,
-                        ),
-                    ),
+            conservative = _conservative_usage(
+                group=group,
+                reservations=members,
+                decision=decision,
+                recorded_at=_utc(self._clock),
+                price_quote=self._usage_quote(
+                    ledger=ledger,
+                    group=group,
+                    reservations=members,
+                    decision=decision,
+                ),
+                observed_wall_time_ns=wall_time_ns,
+            )
+            retained_usage = ledger.get_usage(conservative.usage_id)
+            if retained_usage is not None:
+                conservative = conservative.model_copy(
+                    update={"recorded_at": retained_usage.recorded_at}
                 )
+            ledger.settle_unknown_group(
+                group.reservation_group_id,
+                conservative,
+            )
 
     def cancel_reservation(self, *, reservation: object) -> None:
         if not isinstance(reservation, CallReservationToken):
@@ -1007,18 +1023,6 @@ def _actual_usage(
             "cache_read_tokens": token_usage.cache_read_tokens,
             "cache_write_tokens": token_usage.cache_write_tokens,
         }
-        required = {
-            amount.dimension
-            for member in reservations
-            for amount in member.reserved
-            if amount.dimension
-            in {
-                "input_token",
-                "output_token",
-                "cache_read_token",
-                "cache_write_token",
-            }
-        }
         field_by_dimension = {
             "input_token": "input_tokens",
             "output_token": "output_tokens",
@@ -1026,7 +1030,7 @@ def _actual_usage(
             "cache_write_token": "cache_write_tokens",
         }
         if token_usage.status == "reported" and all(
-            fields[field_by_dimension[dimension]] is not None for dimension in required
+            fields[field] is not None for field in field_by_dimension.values()
         ):
             monetary = MonetaryObservationV1(
                 status="reported",
@@ -1071,6 +1075,8 @@ def _conservative_usage(
     decision: ModelRoutingDecision,
     recorded_at: datetime,
     price_quote: PriceQuoteV1 | None,
+    observed_wall_time_ns: int | None = None,
+    observed_token_usage: TokenUsageObservationV1 | None = None,
 ) -> UsageEntryV1:
     maxima: dict[str, CostAmountV1] = {}
     for reservation in reservations:
@@ -1078,16 +1084,28 @@ def _conservative_usage(
             retained = maxima.get(amount.dimension)
             if retained is None or amount.value > retained.value:
                 maxima[amount.dimension] = amount
-    token_values = {
-        field: int(maxima[dimension].value)
-        for field, dimension in (
-            ("input_tokens", "input_token"),
-            ("output_tokens", "output_token"),
-            ("cache_read_tokens", "cache_read_token"),
-            ("cache_write_tokens", "cache_write_token"),
-        )
-        if dimension in maxima
-    }
+    token_dimensions = (
+        ("input_tokens", "input_token"),
+        ("output_tokens", "output_token"),
+        ("cache_read_tokens", "cache_read_token"),
+        ("cache_write_tokens", "cache_write_token"),
+    )
+    observed = (
+        observed_token_usage
+        if observed_token_usage is not None and observed_token_usage.status == "reported"
+        else None
+    )
+    token_values: dict[str, int] = {}
+    for field, dimension in token_dimensions:
+        reported = None if observed is None else getattr(observed, field)
+        if reported is not None:
+            token_values[field] = reported
+        elif dimension in maxima:
+            token_values[field] = int(maxima[dimension].value)
+    if "input_tokens" in token_values and "output_tokens" in token_values:
+        token_values["total_tokens"] = token_values["input_tokens"] + token_values["output_tokens"]
+    elif observed is not None and observed.total_tokens is not None:
+        token_values["total_tokens"] = observed.total_tokens
     token_usage = (
         TokenUsageObservationV1(status="reported", **token_values)
         if token_values
@@ -1099,7 +1117,25 @@ def _conservative_usage(
     monetary = (
         MonetaryObservationV1(
             status="reported",
-            amount=monetary_amount.value,
+            amount=(
+                _quoted_amount(
+                    price_quote,
+                    input_tokens=token_values["input_tokens"],
+                    output_tokens=token_values["output_tokens"],
+                    cache_read_tokens=token_values["cache_read_tokens"],
+                    cache_write_tokens=token_values["cache_write_tokens"],
+                )
+                if all(
+                    field in token_values
+                    for field in (
+                        "input_tokens",
+                        "output_tokens",
+                        "cache_read_tokens",
+                        "cache_write_tokens",
+                    )
+                )
+                else monetary_amount.value
+            ),
             currency=monetary_amount.currency,
             price_book_version=price_quote.price_book_version,
             quote_effective_at=price_quote.effective_from,
@@ -1107,6 +1143,13 @@ def _conservative_usage(
         if monetary_amount is not None and price_quote is not None
         else MonetaryObservationV1(status="unavailable")
     )
+    reserved_wall_time_ns = int(maxima.get("wall_time_ns", _zero_wall()).value)
+    if observed_wall_time_ns is not None and (
+        isinstance(observed_wall_time_ns, bool)
+        or not isinstance(observed_wall_time_ns, int)
+        or observed_wall_time_ns < 0
+    ):
+        raise IntegrityViolation("observed wall time must be non-negative")
     return UsageEntryV1(
         usage_id=_stable_id(
             "usage",
@@ -1124,7 +1167,9 @@ def _conservative_usage(
         retry_index=(group.transport_attempt or 1) - 1,
         token_usage=token_usage,
         latency=LatencyObservationV1(status="unavailable"),
-        wall_time_ns=int(maxima.get("wall_time_ns", _zero_wall()).value),
+        wall_time_ns=(
+            reserved_wall_time_ns if observed_wall_time_ns is None else observed_wall_time_ns
+        ),
         monetary=monetary,
         routing_decision_kind=(
             "native" if isinstance(decision, RoutingDecisionV1) else "legacy_import"

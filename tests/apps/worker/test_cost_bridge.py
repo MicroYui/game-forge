@@ -30,6 +30,7 @@ from gameforge.contracts.cost import (
     CacheHitObservationV1,
     CostAmountV1,
     LatencyObservationV1,
+    PriceQuoteV1,
     ReservationGroupV1,
     TokenUsageObservationV1,
 )
@@ -626,6 +627,7 @@ def _router_result(
     source: str = "online",
     tokens: TokenUsageObservationV1 | None = None,
     transport_attempts: int = 1,
+    recorded_transport_attempts: int | None = None,
 ) -> M4RouterResultV1:
     return M4RouterResultV1(
         response_normalized="fixed",
@@ -647,6 +649,10 @@ def _router_result(
         routing_decision_id=decision.decision_id,
         transport_attempt_count=transport_attempts,
         transport_retry_count=max(0, transport_attempts - 1),
+        recorded_transport_attempt_count=recorded_transport_attempts,
+        recorded_transport_retry_count=(
+            None if recorded_transport_attempts is None else recorded_transport_attempts - 1
+        ),
     )
 
 
@@ -929,8 +935,10 @@ def test_record_publication_step_fault_leaves_no_shard_or_consumption(
         )
 
 
+@pytest.mark.parametrize("fallback_source", ["online", "full_response_cache"])
 def test_fallback_response_atomically_settles_first_route_agent_step(
     harness: _Harness,
+    fallback_source: str,
 ) -> None:
     fallback_request = harness.request.model_copy(
         update={
@@ -944,6 +952,7 @@ def test_fallback_response_atomically_settles_first_route_agent_step(
         catalog=harness.catalog,
         policy=harness.policy,
         budget_set_snapshot_id=harness.run.budget_set_snapshot_id,
+        execution_source=fallback_source,
         fallback_index=1,
     )
     harness.put_decision(fallback_decision)
@@ -1031,7 +1040,12 @@ def test_fallback_response_atomically_settles_first_route_agent_step(
         route_ordinal=2,
         gateway=call_gateway,
     )
-    result = _router_result(fallback_decision)
+    result = _router_result(
+        fallback_decision,
+        source=fallback_source,
+        transport_attempts=1 if fallback_source == "online" else 0,
+        recorded_transport_attempts=(None if fallback_source == "online" else 1),
+    )
     record = _record_from_result(
         request=fallback_request,
         decision=fallback_decision,
@@ -1157,7 +1171,137 @@ def test_actual_usage_reconciles_exact_typed_dimensions(harness: _Harness) -> No
     }
 
 
-def test_failed_transport_settles_at_reserved_upper_bound(harness: _Harness) -> None:
+def test_incomplete_usage_keeps_observed_wall_time_when_settled_conservatively(
+    harness: _Harness,
+) -> None:
+    gateway = harness.gateway()
+    reservation = harness.reserve(
+        gateway=gateway,
+        deadline=NOW + timedelta(seconds=100),
+    )
+
+    gateway.reconcile_usage(
+        reservation=reservation,
+        decision=harness.decision,
+        result=_router_result(
+            harness.decision,
+            tokens=TokenUsageObservationV1(status="unavailable"),
+        ),
+        wall_time_ns=1,
+    )
+
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        group = ledger.get_reservation_group(reservation.reservation_group_id)
+        usage = ledger.list_usage(run_id=harness.run.run_id, attempt_no=1)
+    assert group is not None and group.status == "conservatively_settled"
+    assert len(usage) == 1
+    assert usage[0].wall_time_ns == 1
+
+    retry = harness.reserve(
+        gateway=gateway,
+        transport_attempt=2,
+        deadline=NOW + timedelta(seconds=50),
+    )
+    assert retry.transport_attempt == 2
+
+
+def test_incomplete_usage_preserves_each_reported_token_dimension(
+    harness: _Harness,
+) -> None:
+    reservation = harness.reserve()
+    harness.gateway().reconcile_usage(
+        reservation=reservation,
+        decision=harness.decision,
+        result=_router_result(
+            harness.decision,
+            tokens=TokenUsageObservationV1(status="reported", input_tokens=10),
+        ),
+        wall_time_ns=1,
+    )
+
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        group = ledger.get_reservation_group(reservation.reservation_group_id)
+        usage = ledger.list_usage(run_id=harness.run.run_id, attempt_no=1)
+        members = ledger.list_budget_reservations(reservation.reservation_group_id)
+    maxima = _amounts(
+        next(item for item in members if item.budget_id == harness.budget_id).reserved
+    )
+    assert group is not None and group.status == "conservatively_settled"
+    assert len(usage) == 1
+    assert usage[0].token_usage.input_tokens == 10
+    assert usage[0].token_usage.output_tokens == int(maxima["output_token"])
+    assert usage[0].token_usage.cache_read_tokens == int(maxima["cache_read_token"])
+    assert usage[0].token_usage.cache_write_tokens == int(maxima["cache_write_token"])
+
+
+def test_monetary_only_conservative_usage_keeps_reserved_upper_bound(
+    harness: _Harness,
+) -> None:
+    from gameforge.apps.worker.cost_bridge import _conservative_usage
+
+    member = BudgetReservationV1(
+        reservation_id="reservation:monetary-only",
+        reservation_group_id="group:monetary-only",
+        budget_id="budget:monetary-only",
+        reserved=(
+            CostAmountV1(
+                dimension="monetary",
+                value=Decimal("12.34"),
+                unit="currency",
+                currency="USD",
+            ),
+        ),
+        status="reserved",
+        revision=1,
+    )
+    group = ReservationGroupV1(
+        reservation_group_id=member.reservation_group_id,
+        scope="attempt_call",
+        run_id=harness.run.run_id,
+        budget_set_snapshot_id=harness.run.budget_set_snapshot_id,
+        parent_hold_group_id=harness.run.run_budget_hold_group_id,
+        attempt_no=1,
+        request_hash=harness.decision.request_hash,
+        transport_attempt=1,
+        fencing_token=1,
+        idempotency_key=(f"model-route:{harness.decision.decision_id}:call:1:route:1:transport:1"),
+        budget_reservation_ids=(member.reservation_id,),
+        status="held_unknown",
+        revision=2,
+        created_at=NOW,
+        expires_at=NOW + timedelta(seconds=10),
+    )
+    quote = PriceQuoteV1(
+        price_book_version="prices@1",
+        provider="openai",
+        model_snapshot=harness.decision.model_snapshot,
+        effective_from=NOW,
+        currency="USD",
+        rate_unit=1_000,
+        input_rate=Decimal("1"),
+        output_rate=Decimal("2"),
+    )
+
+    usage = _conservative_usage(
+        group=group,
+        reservations=(member,),
+        decision=harness.decision,
+        recorded_at=NOW,
+        price_quote=quote,
+        observed_token_usage=TokenUsageObservationV1(
+            status="reported",
+            input_tokens=10,
+        ),
+    )
+
+    assert usage.monetary.amount == Decimal("12.34")
+
+
+def test_failed_transport_conserves_unknown_usage_but_keeps_observed_wall_time(
+    harness: _Harness,
+) -> None:
     reservation = harness.reserve()
     with Session(harness.engine) as session:
         ledger = SqlCostLedger(session, clock=harness.clock)
@@ -1180,7 +1324,78 @@ def test_failed_transport_settles_at_reserved_upper_bound(harness: _Harness) -> 
     assert len(usage) == 1
     assert usage[0].token_usage.input_tokens == int(maxima["input_token"])
     assert usage[0].token_usage.output_tokens == int(maxima["output_token"])
-    assert usage[0].wall_time_ns == int(maxima["wall_time_ns"])
+    assert usage[0].wall_time_ns == 1
+
+
+def test_failed_transport_settlement_replay_must_match_retained_usage(
+    harness: _Harness,
+) -> None:
+    gateway = harness.gateway()
+    reservation = harness.reserve(gateway=gateway)
+    gateway.settle_failed_transport(
+        reservation=reservation,
+        decision=harness.decision,
+        wall_time_ns=1,
+    )
+
+    gateway.settle_failed_transport(
+        reservation=reservation,
+        decision=harness.decision,
+        wall_time_ns=1,
+    )
+    with pytest.raises(IntegrityViolation, match="replay differs"):
+        gateway.settle_failed_transport(
+            reservation=reservation,
+            decision=harness.decision,
+            wall_time_ns=999,
+        )
+
+
+def test_known_failed_transport_wall_time_does_not_exhaust_retry_budget(
+    harness: _Harness,
+) -> None:
+    gateway = harness.gateway()
+    first = harness.reserve(
+        gateway=gateway,
+        deadline=NOW + timedelta(seconds=100),
+    )
+    gateway.settle_failed_transport(
+        reservation=first,
+        decision=harness.decision,
+        wall_time_ns=1,
+    )
+
+    second = harness.reserve(
+        gateway=gateway,
+        transport_attempt=2,
+        deadline=NOW + timedelta(seconds=50),
+    )
+
+    assert second.transport_attempt == 2
+
+
+def test_failed_transport_records_observed_wall_time_beyond_reserved_deadline(
+    harness: _Harness,
+) -> None:
+    gateway = harness.gateway()
+    reservation = harness.reserve(
+        gateway=gateway,
+        deadline=NOW + timedelta(seconds=1),
+    )
+
+    gateway.settle_failed_transport(
+        reservation=reservation,
+        decision=harness.decision,
+        wall_time_ns=2_000_000_000,
+    )
+
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        group = ledger.get_reservation_group(reservation.reservation_group_id)
+        usage = ledger.list_usage(run_id=harness.run.run_id, attempt_no=1)
+    assert group is not None and group.status == "conservatively_settled"
+    assert len(usage) == 1
+    assert usage[0].wall_time_ns == 2_000_000_000
 
 
 @pytest.mark.parametrize("terminal_status", ["reconciled", "released", "conservative"])

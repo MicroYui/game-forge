@@ -16,7 +16,7 @@ import pytest
 
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
-from gameforge.contracts.errors import Conflict, IntegrityViolation
+from gameforge.contracts.errors import Conflict, IntegrityViolation, QuotaExceeded
 from gameforge.contracts.jobs import RunLease
 from gameforge.contracts.lineage import AuditActor
 from gameforge.platform.runs.lifecycle import PermitGroupBinding, RenewLeaseResult
@@ -182,6 +182,30 @@ def test_heartbeat_stops_extending_lease_after_authoritative_cancel_observation(
     assert heartbeat.stopped_by_authority is True
     assert heartbeat.fenced is False
     assert lifecycle.renews == 0
+
+
+def test_heartbeat_stops_only_this_attempt_when_permit_renewal_hits_quota() -> None:
+    class ExhaustedLifecycle:
+        def __init__(self) -> None:
+            self.renews = 0
+
+        def renew_lease(self, request):
+            del request
+            self.renews += 1
+            raise QuotaExceeded("concurrency budget deadline was reached")
+
+    control_pool = ControlPlanePool(max_workers=1)
+    lifecycle = ExhaustedLifecycle()
+    heartbeat = _heartbeat(lifecycle, control_pool)
+
+    try:
+        asyncio.run(asyncio.wait_for(heartbeat.run(asyncio.Event()), timeout=5.0))
+    finally:
+        control_pool.close()
+
+    assert heartbeat.stopped_by_authority is True
+    assert heartbeat.fenced is False
+    assert lifecycle.renews == 1
 
 
 def test_heartbeat_propagates_integrity_corruption_instead_of_calling_it_a_fence() -> None:

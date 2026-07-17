@@ -15,6 +15,7 @@ from gameforge.apps.api.local import (
     LocalApiConfig,
     LocalApiConfigurationError,
     _typed_playtest_payload_validators,
+    build_local_api_resources,
     create_local_app,
     create_readiness_closed_local_app,
 )
@@ -71,6 +72,9 @@ from gameforge.contracts.workflow import (
 from gameforge.platform.identity.bootstrap import BootstrapAdminRequest
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.tokens import SessionSigningKey, SessionSigningKeySet
+from gameforge.runtime.cassette.legacy_authority_manifest import (
+    LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
+)
 from gameforge.runtime.cassette.legacy_import import InMemoryLegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
@@ -232,6 +236,23 @@ def _config(tmp_path, database_url: str) -> LocalApiConfig:
         root_secret=b"r" * 32,
         session_signing_keys=_signing_keys(),
         allowed_websocket_origins=frozenset({"https://console.gameforge.test"}),
+    )
+
+
+def _legacy_import_authority() -> InMemoryLegacyImportAuthority:
+    return InMemoryLegacyImportAuthority(
+        verification_policy_registry=LegacyImportVerificationPolicyRegistryV1.create(
+            registry_version=1,
+            policies=(),
+        ),
+        model_catalogs={},
+        input_bindings={},
+        profile_bindings={},
+        policy_bindings={},
+        schema_bindings={},
+        rendered_requests={},
+        frozen_version_tuples={},
+        call_tool_versions={},
     )
 
 
@@ -915,20 +936,7 @@ def test_fresh_local_composition_resolves_process_builtin_catalog_for_admission(
 def test_local_composition_wires_trusted_legacy_import_authority(tmp_path) -> None:
     database_url = f"sqlite:///{tmp_path / 'legacy-authority.db'}"
     _seed_and_bootstrap(database_url)
-    authority = InMemoryLegacyImportAuthority(
-        verification_policy_registry=LegacyImportVerificationPolicyRegistryV1.create(
-            registry_version=1,
-            policies=(),
-        ),
-        model_catalogs={},
-        input_bindings={},
-        profile_bindings={},
-        policy_bindings={},
-        schema_bindings={},
-        rendered_requests={},
-        frozen_version_tuples={},
-        call_tool_versions={},
-    )
+    authority = _legacy_import_authority()
 
     app = create_local_app(
         config=_config(tmp_path, database_url),
@@ -937,6 +945,114 @@ def test_local_composition_wires_trusted_legacy_import_authority(tmp_path) -> No
     with TestClient(app, base_url="https://gameforge.test"):
         admission = app.state.local_resources.dependencies.run_admission
         assert admission._legacy_import_authority is authority  # noqa: SLF001
+
+
+def test_uvicorn_factory_loads_shared_legacy_authority_from_environment(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database_url = f"sqlite:///{tmp_path / 'legacy-authority-environment.db'}"
+    _seed_and_bootstrap(database_url)
+    config = _config(tmp_path, database_url)
+    manifest_path = tmp_path / "legacy-authority"
+    authority = _legacy_import_authority()
+    observed: list[object] = []
+
+    def load(path: object) -> InMemoryLegacyImportAuthority:
+        observed.append(path)
+        return authority
+
+    monkeypatch.setenv(
+        LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
+        str(manifest_path),
+    )
+    monkeypatch.setattr(local_module, "load_legacy_import_authority", load)
+    monkeypatch.setattr(
+        LocalApiConfig,
+        "from_environment",
+        classmethod(lambda cls, environment=None: config),
+    )
+
+    app = create_local_app()
+    with TestClient(app, base_url="https://gameforge.test"):
+        admission = app.state.local_resources.dependencies.run_admission
+        assert admission._legacy_import_authority is authority  # noqa: SLF001
+
+    assert observed == [str(manifest_path)]
+
+
+def test_uvicorn_factory_rejects_explicit_and_environment_legacy_authorities(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    manifest_path = tmp_path / "must-not-be-loaded"
+    monkeypatch.setenv(
+        LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
+        str(manifest_path),
+    )
+    monkeypatch.setattr(
+        local_module,
+        "load_legacy_import_authority",
+        lambda path: pytest.fail(f"unexpected authority load: {path!r}"),
+    )
+
+    with pytest.raises(LocalApiConfigurationError, match="legacy import authority"):
+        create_local_app(
+            config=_config(tmp_path, f"sqlite:///{tmp_path / 'unused.db'}"),
+            legacy_import_authority=_legacy_import_authority(),
+        )
+
+
+def test_uvicorn_factory_redacts_legacy_authority_load_failures(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    manifest_path = tmp_path / "private-customer-authority.json"
+    sensitive_detail = "rendered prompt contains private customer text"
+    monkeypatch.setenv(
+        LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
+        str(manifest_path),
+    )
+
+    def reject(path: object) -> object:
+        assert path == str(manifest_path)
+        raise IntegrityViolation(sensitive_detail)
+
+    monkeypatch.setattr(local_module, "load_legacy_import_authority", reject)
+
+    with pytest.raises(LocalApiConfigurationError) as raised:
+        create_local_app(config=_config(tmp_path, f"sqlite:///{tmp_path / 'unused.db'}"))
+
+    assert sensitive_detail not in str(raised.value)
+    assert str(manifest_path) not in str(raised.value)
+
+
+def test_direct_resource_composition_does_not_read_legacy_authority_environment(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database_url = f"sqlite:///{tmp_path / 'direct-legacy-authority-di.db'}"
+    _seed_and_bootstrap(database_url)
+    monkeypatch.setenv(
+        LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
+        str(tmp_path / "environment-authority"),
+    )
+    monkeypatch.setattr(
+        local_module,
+        "load_legacy_import_authority",
+        lambda path: pytest.fail(f"unexpected authority load: {path!r}"),
+    )
+    authority = _legacy_import_authority()
+
+    resources = build_local_api_resources(
+        _config(tmp_path, database_url),
+        legacy_import_authority=authority,
+    )
+    try:
+        admission = resources.dependencies.run_admission
+        assert admission._legacy_import_authority is authority  # noqa: SLF001
+    finally:
+        resources.close()
 
 
 def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> None:

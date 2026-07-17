@@ -670,6 +670,24 @@ class CanonicalPromptRendererAuthority:
         )
 
     @property
+    def binding_plan_configuration_digests(
+        self,
+    ) -> tuple[tuple[str, str, str, str], ...]:
+        """Content fingerprints for every exact Agent request configuration."""
+
+        return tuple(
+            sorted(
+                (
+                    binding.agent_node_id,
+                    binding.prompt_version,
+                    binding.tool_schema_set_ref.tool_version,
+                    _request_configuration_digest(binding),
+                )
+                for binding in self._bindings.values()
+            )
+        )
+
+    @property
     def allowed_prefix_policy_refs(self) -> tuple[CanonicalPrefixCachePolicyRefV1, ...]:
         refs = {
             binding.prefix_cache_policy_ref

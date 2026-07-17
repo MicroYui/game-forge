@@ -410,7 +410,16 @@ class WorkerResponseConsumptionPublisher:
                 and reservation.transport_attempt != result.transport_attempt_count
             )
             or step_reservation.call_ordinal != link.call_ordinal
-            or step_reservation.execution_source != result.execution_source
+            or not (
+                step_reservation.execution_source == result.execution_source
+                or (
+                    # One logical Agent step is admitted before its first route.
+                    # A typed transport failure may then fall back to a retained
+                    # full-response cache entry without minting a second step.
+                    step_reservation.execution_source == "online"
+                    and result.execution_source == "full_response_cache"
+                )
+            )
         ):
             raise IntegrityViolation("response publisher inputs do not close one model route")
         if isinstance(decision, RoutingDecisionV1) and (

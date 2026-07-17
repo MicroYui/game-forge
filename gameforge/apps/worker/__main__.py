@@ -14,10 +14,14 @@ import signal
 
 from gameforge.apps.worker.app import (
     LocalWorkerConfig,
+    WorkerConfigurationError,
     validate_worker_readiness,
 )
 from gameforge.apps.worker.dispatch import WorkerProcess, build_worker_process
-from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
+from gameforge.apps.worker.model_authority import (
+    WorkerModelExecutionAuthorities,
+    load_local_model_execution_authorities,
+)
 
 
 def build_process(
@@ -27,13 +31,17 @@ def build_process(
     """Compose the worker process and fail closed unless readiness genuinely closes."""
 
     config = LocalWorkerConfig.from_environment()
-    process = (
-        build_worker_process(config)
-        if model_execution_authorities is None
-        else build_worker_process(
-            config,
-            model_execution_authorities=model_execution_authorities,
-        )
+    authorities = model_execution_authorities
+    if authorities is None:
+        try:
+            authorities = load_local_model_execution_authorities()
+        except Exception:
+            raise WorkerConfigurationError(
+                "worker model execution authority configuration is invalid"
+            ) from None
+    process = build_worker_process(
+        config,
+        model_execution_authorities=authorities,
     )
     try:
         validate_worker_readiness(process.runtime)

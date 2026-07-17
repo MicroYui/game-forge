@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import base64
+from dataclasses import replace
 from datetime import UTC, datetime
+import json
 from pathlib import Path
 from types import SimpleNamespace
+import traceback
 
 import httpx
 import pytest
@@ -65,6 +68,7 @@ from gameforge.platform.run_handlers.rollback_validation import RollbackValidati
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.observability.logs import StructuredLogger
+from gameforge.runtime.cassette.legacy_import import InMemoryLegacyImportAuthority
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from tests.platform.m4c.handler_support import build_envelope
@@ -237,6 +241,59 @@ def test_entrypoint_requires_real_configuration_not_a_placeholder(monkeypatch) -
         main()
 
 
+def test_environment_model_authority_reaches_worker_dispatch_composition(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from gameforge.apps.worker.model_authority import (
+        MODEL_GATEWAY_API_KEY_ENV,
+        MODEL_SNAPSHOT_MANIFEST_PATH_ENV,
+        WorkerModelExecutionAuthorities,
+    )
+    from gameforge.contracts.model_router import ModelSnapshot
+    from tests.apps.worker.test_model_authority import _manifest
+
+    snapshot = ModelSnapshot(
+        provider="openai",
+        model="gpt-5.6-sol",
+        snapshot_tag="pre-m4@1",
+    )
+    manifest_path = tmp_path / "model-snapshots.json"
+    manifest_path.write_text(json.dumps(_manifest(snapshot)), encoding="utf-8")
+    monkeypatch.setenv("GAMEFORGE_WORKER_PRINCIPAL_ID", "service:worker:1")
+    monkeypatch.setenv("GAMEFORGE_WORKER_REAPER_PRINCIPAL_ID", "system:lease-reaper")
+    monkeypatch.setenv(
+        "GAMEFORGE_LOCAL_SECRET_BASE64",
+        base64.b64encode(b"0" * 32).decode("ascii"),
+    )
+    monkeypatch.setenv(MODEL_SNAPSHOT_MANIFEST_PATH_ENV, str(manifest_path))
+    monkeypatch.setenv(MODEL_GATEWAY_API_KEY_ENV, "test-only-secret")
+
+    class Process:
+        runtime = object()
+        dispatcher = object()
+
+        def close(self) -> None:
+            raise AssertionError("successful composition stays owned by the caller")
+
+    process = Process()
+    captured: dict[str, object] = {}
+
+    def compose(config, *, model_execution_authorities):
+        captured["config"] = config
+        captured["authorities"] = model_execution_authorities
+        return process
+
+    monkeypatch.setattr(worker_main, "build_worker_process", compose)
+    monkeypatch.setattr(worker_main, "validate_worker_readiness", lambda runtime: None)
+
+    built = worker_main.build_process()
+
+    assert built is process
+    assert isinstance(captured["config"], LocalWorkerConfig)
+    assert isinstance(captured["authorities"], WorkerModelExecutionAuthorities)
+
+
 def test_build_process_closes_composed_resources_when_readiness_fails(monkeypatch) -> None:
     class Process:
         runtime = object()
@@ -253,7 +310,11 @@ def test_build_process_closes_composed_resources_when_readiness_fails(monkeypatc
         "from_environment",
         staticmethod(lambda: object()),
     )
-    monkeypatch.setattr(worker_main, "build_worker_process", lambda config: process)
+    monkeypatch.setattr(
+        worker_main,
+        "build_worker_process",
+        lambda config, *, model_execution_authorities: process,
+    )
 
     def reject(runtime) -> None:
         assert runtime is process.runtime
@@ -261,7 +322,7 @@ def test_build_process_closes_composed_resources_when_readiness_fails(monkeypatc
 
     monkeypatch.setattr(worker_main, "validate_worker_readiness", reject)
     with pytest.raises(WorkerConfigurationError, match="readiness rejected"):
-        worker_main.build_process()
+        worker_main.build_process(model_execution_authorities=object())  # type: ignore[arg-type]
     assert process.closed is True
 
 
@@ -278,7 +339,11 @@ def test_build_process_preserves_readiness_failure_when_cleanup_also_fails(monke
         "from_environment",
         staticmethod(lambda: object()),
     )
-    monkeypatch.setattr(worker_main, "build_worker_process", lambda config: process)
+    monkeypatch.setattr(
+        worker_main,
+        "build_worker_process",
+        lambda config, *, model_execution_authorities: process,
+    )
 
     def reject(runtime) -> None:
         assert runtime is process.runtime
@@ -286,8 +351,37 @@ def test_build_process_preserves_readiness_failure_when_cleanup_also_fails(monke
 
     monkeypatch.setattr(worker_main, "validate_worker_readiness", reject)
     with pytest.raises(WorkerConfigurationError, match="readiness rejected") as captured:
-        worker_main.build_process()
+        worker_main.build_process(model_execution_authorities=object())  # type: ignore[arg-type]
     assert any("cleanup" in note for note in captured.value.__notes__)
+
+
+def test_build_process_redacts_model_authority_loader_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sensitive = "private/path.json rendered prompt customer-secret"
+    monkeypatch.setattr(
+        worker_main.LocalWorkerConfig,
+        "from_environment",
+        staticmethod(lambda: object()),
+    )
+    monkeypatch.setattr(
+        worker_main,
+        "load_local_model_execution_authorities",
+        lambda: (_ for _ in ()).throw(IntegrityViolation(sensitive)),
+    )
+
+    with pytest.raises(WorkerConfigurationError) as captured:
+        worker_main.build_process()
+
+    rendered = "".join(
+        traceback.format_exception(
+            type(captured.value),
+            captured.value,
+            captured.value.__traceback__,
+        )
+    )
+    assert sensitive not in rendered
+    assert captured.value.__cause__ is None
 
 
 def test_main_preserves_worker_failure_when_shutdown_cleanup_also_fails(monkeypatch) -> None:
@@ -638,6 +732,16 @@ def test_partial_model_authority_closure_keeps_worker_not_ready(
             property(lambda _: required_prompt_keys),
         )
         monkeypatch.setattr(
+            type(authorities.prompt_renderer),
+            "binding_plan_configuration_digests",
+            property(
+                lambda _: tuple(
+                    (*key, f"test-configuration:{index}")
+                    for index, key in enumerate(required_prompt_keys)
+                )
+            ),
+        )
+        monkeypatch.setattr(
             worker_app,
             "agent_prompt_context_binding_plan_keys",
             lambda _: required_prompt_keys,
@@ -650,6 +754,49 @@ def test_partial_model_authority_closure_keeps_worker_not_ready(
         assert isinstance(process.dispatcher, RunDispatcher)
     finally:
         process.close()
+
+
+def test_prompt_readiness_rejects_right_key_with_wrong_request_configuration() -> None:
+    from gameforge.apps.worker.agent_prompt_context import (
+        build_builtin_agent_prompt_context_authority,
+    )
+    from gameforge.apps.worker.prompt_rendering import CanonicalPromptRendererAuthority
+    from gameforge.contracts.canonical import canonical_json
+
+    registry = build_builtin_registry()
+    required = tuple(
+        sorted(
+            {
+                (node.agent_node_id, node.prompt_version, node.tool_version)
+                for graph in registry.list_agent_execution_graphs()
+                if graph.status in {"active", "replay_only"}
+                for node in graph.nodes
+            }
+        )
+    )
+    exact = build_builtin_agent_prompt_context_authority(required_plan_keys=required)
+    forged_bindings = tuple(
+        replace(
+            binding,
+            request_params_canonical_json=canonical_json({"max_tokens": 1024}),
+        )
+        if binding.agent_node_id == "repair"
+        else binding
+        for binding in exact.retained_bindings
+    )
+    forged = CanonicalPromptRendererAuthority(
+        source_kind_registries=exact.retained_source_kind_registries,
+        tool_schema_sets=exact.retained_tool_schema_sets,
+        prefix_cache_policies=exact.retained_prefix_cache_policies,
+        bindings=forged_bindings,
+    )
+
+    worker_app._validate_worker_prompt_authority_closure(registry, exact)  # noqa: SLF001
+    with pytest.raises(WorkerConfigurationError, match="request configuration"):
+        worker_app._validate_worker_prompt_authority_closure(  # noqa: SLF001
+            registry,
+            forged,
+        )
 
 
 def test_legacy_replay_factory_does_not_require_or_fabricate_native_policy(
@@ -731,6 +878,177 @@ def test_legacy_replay_factory_does_not_require_or_fabricate_native_policy(
         assert before == after == 0
     finally:
         process.close()
+
+
+def test_worker_readiness_requires_authority_for_retained_nonterminal_legacy_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = _legacy_verified_fixture()
+    root_bundle = worker_app.CassetteBundleV1.model_validate(
+        json.loads(fixture.reader.blobs[fixture.root.artifact_id])
+    )
+    children = {}
+    for attempt_id in root_bundle.child_bundle_artifact_ids:
+        attempt = worker_app.CassetteBundleV1.model_validate(
+            json.loads(fixture.reader.blobs[attempt_id])
+        )
+        children[attempt_id] = attempt
+        for shard_id in attempt.child_bundle_artifact_ids:
+            children[shard_id] = worker_app.CassetteBundleV1.model_validate(
+                json.loads(fixture.reader.blobs[shard_id])
+            )
+    run = SimpleNamespace(
+        run_id="run:legacy:queued",
+        payload=fixture.replay_payload,
+    )
+    runtime = SimpleNamespace(engine=object())
+    reads: list[str] = []
+    monkeypatch.setattr(
+        worker_app,
+        "_iter_nonterminal_replay_runs",
+        lambda _: iter((run,)),
+    )
+    monkeypatch.setattr(
+        worker_app,
+        "_read_readiness_cassette_bundle",
+        lambda _, artifact_id: root_bundle,
+    )
+    monkeypatch.setattr(
+        worker_app,
+        "_read_readiness_cassette_tree",
+        lambda _, artifact_id, root=None: (
+            reads.append(artifact_id),
+            (root or root_bundle, children),
+        )[1],
+    )
+    monkeypatch.setattr(
+        worker_app,
+        "_read_only_legacy_decision_repository",
+        lambda _: fixture.decisions,
+    )
+
+    with pytest.raises(WorkerConfigurationError, match="legacy import authority"):
+        worker_app._validate_worker_legacy_replay_authority(  # noqa: SLF001
+            runtime,  # type: ignore[arg-type]
+            legacy_authority=None,
+        )
+    assert reads == []
+
+    reads.clear()
+    worker_app._validate_worker_legacy_replay_authority(  # noqa: SLF001
+        runtime,  # type: ignore[arg-type]
+        legacy_authority=fixture.authority,
+    )
+    assert reads == [fixture.root.artifact_id]
+
+    sensitive = "legacy rendered request contains customer-secret"
+    with monkeypatch.context() as redaction:
+        redaction.setattr(
+            worker_app.LegacyCassetteRuntimeImporter,
+            "read_verified",
+            lambda *args, **kwargs: (_ for _ in ()).throw(IntegrityViolation(sensitive)),
+        )
+        with pytest.raises(WorkerConfigurationError) as captured:
+            worker_app._validate_worker_legacy_replay_authority(  # noqa: SLF001
+                runtime,  # type: ignore[arg-type]
+                legacy_authority=fixture.authority,
+            )
+    rendered = "".join(
+        traceback.format_exception(
+            type(captured.value),
+            captured.value,
+            captured.value.__traceback__,
+        )
+    )
+    assert sensitive not in rendered
+    assert captured.value.__cause__ is None
+
+    source = _legacy_verified_fixture().authority
+    incomplete = InMemoryLegacyImportAuthority(
+        verification_policy_registry=source.verification_policy_registry,
+        model_catalogs=source.model_catalogs,
+        input_bindings=source.input_bindings,
+        profile_bindings=source.profile_bindings,
+        policy_bindings=source.policy_bindings,
+        schema_bindings=source.schema_bindings,
+        rendered_requests={},
+        frozen_version_tuples=source.frozen_version_tuples,
+        call_tool_versions=source.call_tool_versions,
+    )
+    with pytest.raises(WorkerConfigurationError, match="legacy import authority"):
+        worker_app._validate_worker_legacy_replay_authority(  # noqa: SLF001
+            runtime,  # type: ignore[arg-type]
+            legacy_authority=incomplete,
+        )
+
+    native_root = worker_app.CassetteBundleV1(
+        scope="run",
+        run_id="run:native:source",
+    )
+    monkeypatch.setattr(
+        worker_app,
+        "_read_readiness_cassette_bundle",
+        lambda _, artifact_id: native_root,
+    )
+    reads.clear()
+    worker_app._validate_worker_legacy_replay_authority(  # noqa: SLF001
+        runtime,  # type: ignore[arg-type]
+        legacy_authority=fixture.authority,
+    )
+    assert reads == []
+
+    attempt_root = worker_app.CassetteBundleV1(
+        scope="attempt",
+        run_id="run:native:source",
+        attempt_no=1,
+    )
+    monkeypatch.setattr(
+        worker_app,
+        "_read_readiness_cassette_bundle",
+        lambda _, artifact_id: attempt_root,
+    )
+    with pytest.raises(WorkerConfigurationError, match="not run-scoped"):
+        worker_app._validate_worker_legacy_replay_authority(  # noqa: SLF001
+            runtime,  # type: ignore[arg-type]
+            legacy_authority=fixture.authority,
+        )
+
+
+def test_worker_readiness_redacts_cassette_bundle_read_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sensitive = "private cassette original_wire customer-secret"
+
+    class RejectingReader:
+        def __init__(self, **kwargs) -> None:
+            del kwargs
+
+        def read_bytes_bounded(self, artifact_id: str, *, max_bytes: int) -> bytes:
+            del artifact_id, max_bytes
+            raise IntegrityViolation(sensitive)
+
+    monkeypatch.setattr(worker_components, "WorkerArtifactBlobReader", RejectingReader)
+    runtime = SimpleNamespace(
+        engine=object(),
+        object_store=object(),
+        config=SimpleNamespace(object_store_id="local:test", root_secret=b"x" * 32),
+    )
+
+    with pytest.raises(WorkerConfigurationError) as captured:
+        worker_app._read_readiness_cassette_bundle(  # noqa: SLF001
+            runtime,  # type: ignore[arg-type]
+            "artifact:private-cassette",
+        )
+
+    rendered = "".join(
+        traceback.format_exception(
+            type(captured.value),
+            captured.value,
+            captured.value.__traceback__,
+        )
+    )
+    assert sensitive not in rendered
+    assert captured.value.__cause__ is None
 
 
 def test_production_provider_classifier_treats_http_429_as_quota_not_breaker() -> None:
@@ -988,12 +1306,20 @@ def test_worker_runtime_close_attempts_all_resources_after_one_close_fails(
         components=TrustedComponentMaps(),
         worker_actor=object(),  # type: ignore[arg-type]
         reaper_actor=object(),  # type: ignore[arg-type]
+        model_execution_authorities=SimpleNamespace(transport=Resource("model transport")),  # type: ignore[arg-type]
     )
 
     with pytest.raises(RuntimeError, match="executor failed"):
         runtime.close()
 
-    assert closed == ["executor", "heartbeat", "control", "telemetry", "engine"]
+    assert closed == [
+        "executor",
+        "heartbeat",
+        "control",
+        "model transport",
+        "telemetry",
+        "engine",
+    ]
 
 
 def test_worker_process_partial_build_closes_runtime(tmp_path: Path, monkeypatch) -> None:
@@ -1016,6 +1342,57 @@ def test_worker_process_partial_build_closes_runtime(tmp_path: Path, monkeypatch
         build_worker_process(config)
 
     assert len(closed) == 1
+
+
+def test_worker_process_partial_build_closes_transferred_model_transport(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from gameforge.apps.worker.model_authority import (
+        MODEL_GATEWAY_API_KEY_ENV,
+        MODEL_SNAPSHOT_MANIFEST_PATH_ENV,
+        load_local_model_execution_authorities,
+    )
+    from gameforge.contracts.model_router import ModelSnapshot
+    from tests.apps.worker.test_model_authority import _manifest
+
+    snapshot = ModelSnapshot(provider="openai", model="gpt", snapshot_tag="v1")
+    manifest_path = tmp_path / "model-snapshots.json"
+    manifest_path.write_text(json.dumps(_manifest(snapshot)), encoding="utf-8")
+    loaded = load_local_model_execution_authorities(
+        environment={
+            MODEL_SNAPSHOT_MANIFEST_PATH_ENV: str(manifest_path),
+            MODEL_GATEWAY_API_KEY_ENV: "test-only-secret",
+        }
+    )
+    loaded.transport.close()  # type: ignore[attr-defined]
+
+    class Transport:
+        def __init__(self) -> None:
+            self.closed = False
+
+        def complete(self, request):
+            del request
+            raise AssertionError("transport must not run during composition")
+
+        def close(self) -> None:
+            self.closed = True
+
+    transport = Transport()
+    authorities = replace(loaded, transport=transport)
+    monkeypatch.setattr(
+        worker_dispatch,
+        "build_trusted_components",
+        lambda **kwargs: (_ for _ in ()).throw(RuntimeError("component composition failed")),
+    )
+
+    with pytest.raises(RuntimeError, match="component composition failed"):
+        build_worker_process(
+            _config(tmp_path),
+            model_execution_authorities=authorities,
+        )
+
+    assert transport.closed is True
 
 
 def test_worker_process_disposes_engine_when_runtime_preflight_rejects_components(

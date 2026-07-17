@@ -9,19 +9,23 @@ from gameforge.agents.playtest.prompts import register_playtest_prompts
 from gameforge.agents.prompts.library import register_all_prompts
 from gameforge.agents.prompts.registry import get_prompt
 from gameforge.apps.worker.prompt_rendering import (
+    CanonicalPolicyInjectedParamV1,
     CanonicalPromptBindingV1,
     CanonicalPromptRendererAuthority,
     CanonicalPromptSourceShapeV1,
     CanonicalPromptSourceSlotV1,
     CanonicalPromptSourceV1,
     CanonicalSourceMessageV1,
+    CanonicalToolSchemaSetRefV1,
     RetainedTemplateMessageV1,
     SourceRenderer,
+    build_tool_schema_set,
 )
 from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import MAX_AGENT_PROMPT_CONTEXT_BYTES, AgentPromptContextV1
 from gameforge.contracts.provenance import OriginRefV1, PromptPartV1, ProvenanceV1
+from gameforge.platform.provenance import build_source_kind_registry
 
 
 AGENT_PROMPT_CONTEXT_RENDERER_VERSION = "agent-prompt-context-renderer@1"
@@ -251,6 +255,98 @@ def bind_production_agent_prompt_context_authority(
     )
 
 
+def build_builtin_agent_prompt_context_authority(
+    *,
+    required_plan_keys: tuple[tuple[str, str, str], ...],
+) -> CanonicalPromptRendererAuthority:
+    """Build the exact prompt authority implemented by the built-in Agent nodes."""
+
+    canonical_keys = tuple(sorted(set(required_plan_keys)))
+    if canonical_keys != tuple(sorted(required_plan_keys)):
+        raise IntegrityViolation("Agent prompt plan keys must be stable-unique")
+    tool_schema_sets = {
+        tool_version: build_tool_schema_set(tool_version=tool_version, tool_schemas=())
+        for _, _, tool_version in canonical_keys
+    }
+    direct_empty_params = {"review-triage", "bench-agent-case"}
+    bindings: list[CanonicalPromptBindingV1] = []
+    for agent_node_id, prompt_version, tool_version in canonical_keys:
+        if (agent_node_id, prompt_version) not in _BUILTIN_SYSTEM_PROMPTS:
+            raise IntegrityViolation(
+                "active Agent graph has no built-in prompt authority",
+                agent_node_id=agent_node_id,
+                prompt_version=prompt_version,
+            )
+        params = (
+            {}
+            if agent_node_id in direct_empty_params
+            else {"max_tokens": 512 if agent_node_id == "playtest.memory" else 2048}
+        )
+        schema_set = tool_schema_sets[tool_version]
+        bindings.append(
+            CanonicalPromptBindingV1(
+                binding_id=f"builtin-agent-context:{agent_node_id}:{prompt_version}@1",
+                agent_node_id=agent_node_id,
+                prompt_version=prompt_version,
+                renderer_version=AGENT_PROMPT_CONTEXT_RENDERER_VERSION,
+                source_slots=(
+                    CanonicalPromptSourceSlotV1(
+                        slot_id="agent_context",
+                        min_count=1,
+                        max_count=1,
+                        max_bytes=MAX_AGENT_PROMPT_CONTEXT_BYTES,
+                        allowed_shapes=(
+                            CanonicalPromptSourceShapeV1(
+                                artifact_kind="source_raw",
+                                payload_schema_id="agent-prompt-context@1",
+                                source_kind_registry_version=1,
+                                source_kind_id="tool_output",
+                            ),
+                        ),
+                        allowed_prompt_purposes=("context", "tool_output"),
+                    ),
+                ),
+                max_source_count=1,
+                max_source_bytes=MAX_AGENT_PROMPT_CONTEXT_BYTES,
+                doc_version_source_slot_id="agent_context",
+                rendered_artifact_source_kind_registry_version=1,
+                rendered_artifact_source_kind_id="tool_output",
+                request_params_canonical_json=canonical_json(params),
+                model_request_schema_versions=("model-router@2",),
+                policy_injected_params=(
+                    ()
+                    if agent_node_id in direct_empty_params
+                    else (
+                        CanonicalPolicyInjectedParamV1(
+                            name="temperature",
+                            minimum=0,
+                            maximum=0,
+                        ),
+                    )
+                ),
+                tool_schema_set_ref=CanonicalToolSchemaSetRefV1(
+                    tool_version=tool_version,
+                    digest=schema_set.digest,
+                ),
+                prefix_cache_policy_ref=None,
+                template_messages=(),
+                source_renderer=build_agent_prompt_context_source_renderer(
+                    agent_node_id=agent_node_id,
+                    prompt_version=prompt_version,
+                ),
+            )
+        )
+    base = CanonicalPromptRendererAuthority(
+        source_kind_registries=(build_source_kind_registry(),),
+        tool_schema_sets=tuple(tool_schema_sets.values()),
+        bindings=tuple(bindings),
+    )
+    return bind_production_agent_prompt_context_authority(
+        base,
+        required_plan_keys=canonical_keys,
+    )
+
+
 def agent_prompt_context_binding_plan_keys(
     authority: CanonicalPromptRendererAuthority,
 ) -> tuple[tuple[str, str, str], ...]:
@@ -309,6 +405,7 @@ __all__ = [
     "AGENT_PROMPT_CONTEXT_RENDERER_VERSION",
     "agent_prompt_context_binding_plan_keys",
     "bind_production_agent_prompt_context_authority",
+    "build_builtin_agent_prompt_context_authority",
     "build_agent_prompt_context_source_renderer",
     "render_agent_prompt_context_sources",
 ]

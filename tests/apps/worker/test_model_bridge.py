@@ -18,7 +18,7 @@ from datetime import timedelta
 import pytest
 
 from gameforge.apps.worker.model_bridge import ModelCallRequest, WorkerModelBridge
-from gameforge.contracts.cassette import CassetteRecordV2
+from gameforge.contracts.cassette import CASSETTE_MISS, CassetteRecordV2
 from gameforge.contracts.errors import (
     Conflict,
     DependencyUnavailable,
@@ -48,7 +48,7 @@ from gameforge.platform.runs.commands import (
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from gameforge.contracts.jobs import RunIntermediateArtifactLinkV1
 from gameforge.runtime.cassette.store import CassetteRouteKey, CassetteStore
-from gameforge.runtime.model_router.cache import ExactResponseCache
+from gameforge.runtime.model_router.cache import ExactResponseCache, ResponseCacheBinding
 from gameforge.runtime.model_router.m4_router import M4ModelRouter, ProviderRouteFailure
 from gameforge.runtime.model_router.router import CassetteReplayMiss, RouterMode
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
@@ -646,6 +646,101 @@ def test_each_transport_retry_has_its_own_reserve_and_immediate_settlement(
     assert [span.attributes["transport_attempt"] for span in transport_spans] == [1, 2]
     assert [span.attributes["succeeded"] for span in transport_spans] == [False, True]
     assert all("request" not in span.attributes for span in transport_spans)
+
+
+def test_late_transport_success_settles_exact_usage_without_publishing_response(
+    tmp_path,
+) -> None:
+    order: list[str] = []
+    clock = _Clock()
+    monotonic = ManualMonotonicClock()
+    decision = _decision(_bridged_request(), source="online")
+    authority = _DecisionAuthority()
+    cost = _RecordingCost(order)
+    step_cost = _RecordingStepCost(order)
+    response_publisher = _RecordingResponsePublisher(order)
+    store = CassetteStore(tmp_path)
+    cache = ExactResponseCache()
+
+    class _LateSuccessTransport:
+        def complete_with_timeout(self, request, *, timeout_s):
+            del request
+            assert timeout_s == 10
+            clock.current += timedelta(seconds=11)
+            monotonic.advance_ns(11_000_000_000)
+            return _response()
+
+    router = M4ModelRouter(
+        transport=_LateSuccessTransport(),
+        store=store,
+        cache=cache,
+        mode=RouterMode.RECORD,
+        retry_executor=RetryExecutor(
+            policy=RetryPolicyV1(
+                policy_version="retry@late-success",
+                failure_classifier_version="classifier@retry",
+                max_attempts=1,
+                initial_backoff_ms=0,
+                max_backoff_ms=0,
+                multiplier=1,
+                jitter_ratio=0,
+            ),
+            classifier=_RetryableClassifier(),
+            utc_clock=clock,
+            monotonic_clock=monotonic,
+            sleeper=_NoopSleeper(),
+            jitter=lambda: 0,
+        ),
+        decision_authority=authority,
+    )
+    bridge = _bridge(
+        order=order,
+        publisher=_RecordingPromptPublisher(order),
+        decider=_RecordingDecider(order, authority, decision),
+        cost=cost,
+        step_cost=step_cost,
+        router=router,
+        execution_source="online",
+        response_publisher=response_publisher,
+    )
+
+    with pytest.raises(TimeoutError, match="deadline"):
+        bridge.call_model(_call_request())
+
+    assert len(cost.reconciled) == 1
+    reservation, result, wall_time_ns = cost.reconciled[0]
+    assert reservation == cost.reserved[0]
+    assert result.token_usage == _response().token_usage
+    assert wall_time_ns == 11_000_000_000
+    assert cost.failed == []
+    assert cost.cancelled == []
+    assert response_publisher.records == []
+    assert (
+        store.replay_native(
+            CassetteRouteKey(
+                run_id="run-1",
+                attempt_no=1,
+                call_ordinal=1,
+                route_ordinal=1,
+                routing_decision_id=decision.decision_id,
+            )
+        )
+        is CASSETTE_MISS
+    )
+    assert (
+        cache.get(
+            ResponseCacheBinding(
+                request_hash=request_hash(_bridged_request()),
+                model_snapshot=decision.model_snapshot,
+                catalog_version=decision.catalog_version,
+                catalog_digest=decision.catalog_digest,
+                policy_version=decision.policy_version,
+                routing_policy_digest=decision.routing_policy_digest,
+            )
+        )
+        is None
+    )
+    assert len(step_cost.standalone) == 1
 
 
 def test_record_refine_context_binds_committed_record_shard_as_cassette_source(

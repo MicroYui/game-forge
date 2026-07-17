@@ -608,6 +608,23 @@ class WorkerModelBridge:
                 ),
             )
 
+        def reconcile_late_success(
+            result: M4RouterResultV1,
+            observation: RetryAttemptResult,
+        ) -> None:
+            retained = reservations.pop(observation.attempt_no, None)
+            if retained is None:
+                raise IntegrityViolation(
+                    "late transport success has no reserve-before-use reservation",
+                    transport_attempt=observation.attempt_no,
+                )
+            self._cost.reconcile_usage(
+                reservation=retained,
+                decision=decision,
+                result=result,
+                wall_time_ns=observation.duration_ns,
+            )
+
         def cancel_transport(transport_attempt: int) -> None:
             retained = reservations.pop(transport_attempt, None)
             if retained is None:
@@ -662,6 +679,9 @@ class WorkerModelBridge:
                 ),
                 attempt_observer=(
                     observe_transport if decision.execution_source == "online" else None
+                ),
+                late_success_observer=(
+                    reconcile_late_success if decision.execution_source == "online" else None
                 ),
             )
         except DependencyUnavailable as error:

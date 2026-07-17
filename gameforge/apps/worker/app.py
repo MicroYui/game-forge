@@ -25,12 +25,13 @@ cassette-bundle suppliers). Those cross-task providers are injected into
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass, field
 import base64
 import binascii
 from hashlib import sha256
 import hmac
+import json
 import math
 import os
 from pathlib import Path
@@ -41,7 +42,7 @@ from urllib.parse import unquote
 from alembic.runtime.migration import MigrationContext
 from sqlalchemy import Engine, inspect, select
 from sqlalchemy.engine import make_url
-from sqlalchemy.exc import ArgumentError
+from sqlalchemy.exc import ArgumentError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.util import asbool
 
@@ -51,10 +52,17 @@ from gameforge.apps.worker.agent_drafts import (
 )
 from gameforge.apps.worker.agent_prompt_context import (
     agent_prompt_context_binding_plan_keys,
+    build_builtin_agent_prompt_context_authority,
 )
 from gameforge.apps.worker.executor import RunExecutor
 from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
+from gameforge.apps.worker.prompt_rendering import CanonicalPromptRendererAuthority
 from gameforge.apps.worker.pool import ControlPlanePool, ThreadedBlockingExecutorPool
+from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.cassette_import import (
+    CassetteBundleV1,
+    LegacyImportRoutingDecisionV1,
+)
 from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.jobs import RunRecord
 from gameforge.contracts.lineage import AuditActor
@@ -65,6 +73,11 @@ from gameforge.platform.registry import (
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.cassette.legacy_import import (
+    LegacyCassetteRuntimeImporter,
+    LegacyImportAuthority,
+    LegacyImportDecisionRepository,
+)
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
 from gameforge.runtime.observability.local_store import LocalTelemetryStore
@@ -73,7 +86,7 @@ from gameforge.runtime.persistence.engine import DATABASE_URL_ENV, DEFAULT_URL, 
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cost import SqlCostRepository
-from gameforge.runtime.persistence.models import ModelCatalogSnapshotRow
+from gameforge.runtime.persistence.models import ModelCatalogSnapshotRow, RunRow
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.runs import SqlRunRepository
 
@@ -100,6 +113,9 @@ WORKER_RUN_AUDIT_CHAIN_ID = "runs"
 _MAX_WORKER_THREADS = 1024
 _MAX_LEASE_DURATION_NS = 86_400_000_000_000  # one day
 _MAX_CONTROL_INTERVAL_S = 3_600.0
+_MODEL_CATALOG_READINESS_PAGE_SIZE = 256
+_RUN_REPLAY_READINESS_PAGE_SIZE = 256
+_NONTERMINAL_RUN_STATUSES = ("queued", "leased", "running", "retry_wait")
 _REQUIRED_WORKER_TABLES = frozenset(
     {
         "alembic_version",
@@ -410,13 +426,26 @@ class WorkerRuntime:
 
     def close(self) -> None:
         first_error: BaseException | None = None
-        for label, close in (
+        cleanup: list[tuple[str, Callable[[], None]]] = [
             ("executor pool", self.executor_pool.close),
             ("heartbeat pool", self.heartbeat_pool.close),
             ("control pool", self.control_pool.close),
-            ("telemetry store", self.telemetry_store.close),
-            ("business engine", self.engine.dispose),
-        ):
+        ]
+        model_transport = (
+            None
+            if self.model_execution_authorities is None
+            else self.model_execution_authorities.transport
+        )
+        model_transport_close = getattr(model_transport, "close", None)
+        if callable(model_transport_close):
+            cleanup.append(("model transport", model_transport_close))
+        cleanup.extend(
+            (
+                ("telemetry store", self.telemetry_store.close),
+                ("business engine", self.engine.dispose),
+            )
+        )
+        for label, close in cleanup:
             try:
                 close()
             except BaseException as error:
@@ -630,6 +659,351 @@ def build_executor_resolver(
     return resolve
 
 
+def _iter_nonterminal_replay_runs(engine: Engine) -> Iterator[RunRecord]:
+    """Keyset-scan exact retained replay Runs without a total history cap."""
+
+    after_run_id: str | None = None
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        while True:
+            statement = (
+                select(RunRow.run_id)
+                .where(RunRow.status.in_(_NONTERMINAL_RUN_STATUSES))
+                .order_by(RunRow.run_id)
+                .limit(_RUN_REPLAY_READINESS_PAGE_SIZE)
+            )
+            if after_run_id is not None:
+                statement = statement.where(RunRow.run_id > after_run_id)
+            try:
+                rows = tuple(session.scalars(statement).all())
+            except (
+                IntegrityViolation,
+                RecursionError,
+                SQLAlchemyError,
+                TypeError,
+                ValueError,
+            ):
+                raise WorkerConfigurationError(
+                    "worker retained nonterminal Run is unreadable"
+                ) from None
+            if not rows:
+                return
+            for run_id in rows:
+                try:
+                    run = repository.get(run_id)
+                except (
+                    IntegrityViolation,
+                    RecursionError,
+                    SQLAlchemyError,
+                    TypeError,
+                    ValueError,
+                ):
+                    raise WorkerConfigurationError(
+                        "worker retained nonterminal Run is unreadable"
+                    ) from None
+                if run is None:
+                    raise WorkerConfigurationError(
+                        "worker retained nonterminal Run disappeared during readiness"
+                    )
+                if run.status not in _NONTERMINAL_RUN_STATUSES:
+                    continue
+                if run.payload.llm_execution_mode != "replay":
+                    continue
+                if run.payload.cassette_artifact_id is None:
+                    raise WorkerConfigurationError(
+                        "worker retained REPLAY Run has no cassette authority"
+                    )
+                yield run
+            after_run_id = rows[-1]
+
+
+def _read_readiness_cassette_bundle(
+    runtime: WorkerRuntime,
+    artifact_id: str,
+) -> CassetteBundleV1:
+    """Read and verify one immutable canonical cassette bundle for readiness."""
+
+    # Kept local to avoid making the runtime dataclass retain a second blob-reader
+    # authority solely for startup validation.
+    from gameforge.apps.worker.components import WorkerArtifactBlobReader
+    from gameforge.platform.runs.replay import MAX_REPLAY_ARTIFACT_BYTES
+
+    reader = WorkerArtifactBlobReader(
+        engine=runtime.engine,
+        object_store=runtime.object_store,
+        object_store_id=runtime.config.object_store_id,
+        cursor_signing_key=_derive_key(
+            runtime.config.root_secret,
+            "worker-terminal-cursor",
+        ),
+        clock=SystemUtcClock(),
+    )
+    try:
+        blob = reader.read_bytes_bounded(
+            artifact_id,
+            max_bytes=MAX_REPLAY_ARTIFACT_BYTES,
+        )
+        decoded = json.loads(blob.decode("utf-8"))
+        bundle = CassetteBundleV1.model_validate(decoded)
+        canonical_blob = canonical_json(bundle.model_dump(mode="json")).encode("utf-8")
+    except (
+        AttributeError,
+        IntegrityViolation,
+        OSError,
+        RecursionError,
+        TypeError,
+        ValueError,
+    ):
+        raise WorkerConfigurationError(
+            "worker retained REPLAY cassette bundle is unreadable"
+        ) from None
+    if canonical_blob != blob:
+        raise WorkerConfigurationError(
+            "worker retained REPLAY cassette bundle is not canonical authority"
+        )
+    return bundle
+
+
+def _read_readiness_cassette_tree(
+    runtime: WorkerRuntime,
+    root_artifact_id: str,
+    root: CassetteBundleV1 | None = None,
+) -> tuple[CassetteBundleV1, dict[str, CassetteBundleV1]]:
+    """Read the exact bounded run/attempt/shard tree referenced by one Run."""
+
+    root = root or _read_readiness_cassette_bundle(runtime, root_artifact_id)
+    if root.scope != "run":
+        raise WorkerConfigurationError("worker retained REPLAY cassette root is not run-scoped")
+    if root.run_id is None and len(root.child_bundle_artifact_ids) != 1:
+        raise WorkerConfigurationError(
+            "worker retained legacy REPLAY cassette root has invalid attempt cardinality"
+        )
+    visited = {root_artifact_id}
+    children: dict[str, CassetteBundleV1] = {}
+    for attempt_id in root.child_bundle_artifact_ids:
+        if attempt_id in visited:
+            raise WorkerConfigurationError(
+                "worker retained REPLAY cassette tree repeats an Artifact"
+            )
+        visited.add(attempt_id)
+        attempt = _read_readiness_cassette_bundle(runtime, attempt_id)
+        if root.run_id is None and attempt.scope != "attempt":
+            raise WorkerConfigurationError(
+                "worker retained legacy REPLAY cassette attempt has invalid scope"
+            )
+        children[attempt_id] = attempt
+        for shard_id in attempt.child_bundle_artifact_ids:
+            if shard_id in visited:
+                raise WorkerConfigurationError(
+                    "worker retained REPLAY cassette tree repeats an Artifact"
+                )
+            visited.add(shard_id)
+            shard = _read_readiness_cassette_bundle(runtime, shard_id)
+            if root.run_id is None and shard.scope != "record_shard":
+                raise WorkerConfigurationError(
+                    "worker retained legacy REPLAY cassette shard has invalid scope"
+                )
+            children[shard_id] = shard
+    return root, children
+
+
+class _ReadOnlyLegacyImportDecisionRepository:
+    """Read retained import decisions without granting startup a write path."""
+
+    def __init__(self, engine: Engine) -> None:
+        self._engine = engine
+
+    def get_legacy_import_routing_decision(
+        self,
+        decision_id: str,
+    ) -> LegacyImportRoutingDecisionV1 | None:
+        with Session(self._engine) as session:
+            return SqlCostRepository(session).get_legacy_import_routing_decision(decision_id)
+
+    def put_legacy_import_routing_decision(
+        self,
+        decision: LegacyImportRoutingDecisionV1,
+    ) -> LegacyImportRoutingDecisionV1:
+        del decision
+        raise IntegrityViolation("worker readiness legacy decision authority is read-only")
+
+
+def _read_only_legacy_decision_repository(
+    engine: Engine,
+) -> LegacyImportDecisionRepository:
+    return _ReadOnlyLegacyImportDecisionRepository(engine)
+
+
+def _validate_worker_legacy_replay_authority(
+    runtime: WorkerRuntime,
+    *,
+    legacy_authority: LegacyImportAuthority | None,
+) -> None:
+    """Verify every retained executable legacy Run against its exact preimages."""
+
+    decisions: LegacyImportDecisionRepository | None = None
+    for run in _iter_nonterminal_replay_runs(runtime.engine):
+        artifact_id = run.payload.cassette_artifact_id
+        if artifact_id is None:  # closed by the iterator; defensive at the boundary
+            raise WorkerConfigurationError("worker retained REPLAY Run has no cassette authority")
+        root = _read_readiness_cassette_bundle(runtime, artifact_id)
+        if root.scope != "run":
+            raise WorkerConfigurationError("worker retained REPLAY cassette root is not run-scoped")
+        # Native M4 roots retain their source run_id. Verified legacy-import roots
+        # contractually use run_id=null and carry import identity in their manifest.
+        if root.run_id is not None:
+            continue
+        if legacy_authority is None:
+            raise WorkerConfigurationError(
+                "worker legacy import authority is required by a retained "
+                f"nonterminal REPLAY Run: {run.run_id}"
+            )
+        plan = run.payload.execution_version_plan
+        if plan is None:
+            raise WorkerConfigurationError(
+                "worker retained legacy REPLAY Run omitted its execution plan"
+            )
+        root, children = _read_readiness_cassette_tree(runtime, artifact_id, root)
+        if decisions is None:
+            decisions = _read_only_legacy_decision_repository(runtime.engine)
+        try:
+            LegacyCassetteRuntimeImporter(legacy_authority).read_verified(
+                root=root,
+                child_bundles_by_artifact_id=children,
+                model_catalog_version=plan.model_catalog_version,
+                model_catalog_digest=plan.model_catalog_digest,
+                decision_repository=decisions,
+            )
+        except (
+            AttributeError,
+            IntegrityViolation,
+            KeyError,
+            RecursionError,
+            SQLAlchemyError,
+            TypeError,
+            ValueError,
+        ):
+            raise WorkerConfigurationError(
+                "worker legacy import authority does not close retained "
+                f"nonterminal REPLAY Run: {run.run_id}"
+            ) from None
+
+
+def _validate_worker_model_authority_closure(
+    engine: Engine,
+    *,
+    snapshot_ids: tuple[str, ...],
+    breaker_ids: tuple[str, ...],
+) -> None:
+    """Close deployment preimages and online breakers over retained catalogs.
+
+    Catalog history is contractually retained for as long as an exact Run or
+    cassette can reference it, so readiness must traverse the complete history
+    without imposing a process-local total-row cap.  Each query remains bounded
+    and keyset-paged by the immutable catalog-version primary key.
+
+    Disabled-only descriptors are immutable read history and cannot enter a new
+    execution, including REPLAY.  Structured preimages and circuit breakers both
+    cover descriptors that remain ``active`` in at least one exact retained
+    catalog.  A breaker is never accepted without its structured preimage.
+    """
+
+    retained_snapshot_ids = set(snapshot_ids)
+    retained_breaker_ids = set(breaker_ids)
+    breakers_without_preimages = tuple(sorted(retained_breaker_ids - retained_snapshot_ids))
+    if breakers_without_preimages:
+        raise WorkerConfigurationError(
+            "worker dependency-scoped breaker has no structured snapshot preimage: "
+            + ", ".join(breakers_without_preimages)
+        )
+
+    executable_model_ids: set[str] = set()
+    after_catalog_version: int | None = None
+    saw_catalog = False
+    with Session(engine) as session:
+        catalogs = SqlCostRepository(session)
+        while True:
+            statement = select(ModelCatalogSnapshotRow).order_by(
+                ModelCatalogSnapshotRow.catalog_version
+            )
+            if after_catalog_version is not None:
+                statement = statement.where(
+                    ModelCatalogSnapshotRow.catalog_version > after_catalog_version
+                )
+            rows = session.scalars(statement.limit(_MODEL_CATALOG_READINESS_PAGE_SIZE)).all()
+            if not rows:
+                break
+            saw_catalog = True
+            for row in rows:
+                catalog = catalogs.get_model_catalog(row.catalog_version, row.catalog_digest)
+                if catalog is None:
+                    raise WorkerConfigurationError(
+                        "worker retained model-catalog authority is unreadable"
+                    )
+                executable_model_ids.update(
+                    item.model_snapshot for item in catalog.models if item.status == "active"
+                )
+            after_catalog_version = rows[-1].catalog_version
+
+    if not saw_catalog:
+        raise WorkerConfigurationError("worker retained model-catalog closure is empty")
+    missing_snapshot_ids = tuple(sorted(executable_model_ids - retained_snapshot_ids))
+    if missing_snapshot_ids:
+        raise WorkerConfigurationError(
+            "worker model authority misses retained catalog snapshots: "
+            + ", ".join(missing_snapshot_ids)
+        )
+    missing_breaker_ids = tuple(sorted(executable_model_ids - retained_breaker_ids))
+    if missing_breaker_ids:
+        raise WorkerConfigurationError(
+            "worker model authority misses active dependency-scoped breakers: "
+            + ", ".join(missing_breaker_ids)
+        )
+
+
+def _validate_worker_prompt_authority_closure(
+    registry: ImmutablePlatformRegistry,
+    authority: CanonicalPromptRendererAuthority,
+) -> None:
+    required_prompt_keys = {
+        (node.agent_node_id, node.prompt_version, node.tool_version)
+        for graph in registry.list_agent_execution_graphs()
+        if graph.status in {"active", "replay_only"}
+        for node in graph.nodes
+    }
+    retained_prompt_keys = set(authority.binding_plan_keys)
+    missing_prompt_keys = tuple(sorted(required_prompt_keys - retained_prompt_keys))
+    if missing_prompt_keys:
+        raise WorkerConfigurationError(
+            "worker canonical prompt authority misses frozen Agent graph bindings: "
+            + ", ".join("/".join(item) for item in missing_prompt_keys)
+        )
+    context_prompt_keys = set(agent_prompt_context_binding_plan_keys(authority))
+    missing_context_prompt_keys = tuple(sorted(required_prompt_keys - context_prompt_keys))
+    if missing_context_prompt_keys:
+        raise WorkerConfigurationError(
+            "worker canonical prompt authority has unfenced Agent context bindings: "
+            + ", ".join("/".join(item) for item in missing_context_prompt_keys)
+        )
+    expected = build_builtin_agent_prompt_context_authority(
+        required_plan_keys=tuple(sorted(required_prompt_keys))
+    )
+    expected_digests = {item[:3]: item[3] for item in expected.binding_plan_configuration_digests}
+    retained_digests = {item[:3]: item[3] for item in authority.binding_plan_configuration_digests}
+    mismatched_prompt_keys = tuple(
+        sorted(
+            key
+            for key in required_prompt_keys
+            if retained_digests.get(key) != expected_digests[key]
+        )
+    )
+    if mismatched_prompt_keys:
+        raise WorkerConfigurationError(
+            "worker canonical prompt authority differs from frozen Agent request configuration: "
+            + ", ".join("/".join(item) for item in mismatched_prompt_keys)
+        )
+
+
 def validate_worker_readiness(runtime: WorkerRuntime) -> None:
     """Fail closed unless schema, audit, storage and registry authority are ready."""
 
@@ -661,57 +1035,21 @@ def validate_worker_readiness(runtime: WorkerRuntime) -> None:
     authorities = runtime.model_execution_authorities
     if not isinstance(authorities, WorkerModelExecutionAuthorities):
         raise WorkerConfigurationError("worker model execution authority closure is not configured")
-    required_prompt_keys = {
-        (node.agent_node_id, node.prompt_version, node.tool_version)
-        for graph in runtime.registry.list_agent_execution_graphs()
-        if graph.status in {"active", "replay_only"}
-        for node in graph.nodes
-    }
-    retained_prompt_keys = set(authorities.prompt_renderer.binding_plan_keys)
-    missing_prompt_keys = tuple(sorted(required_prompt_keys - retained_prompt_keys))
-    if missing_prompt_keys:
-        raise WorkerConfigurationError(
-            "worker canonical prompt authority misses frozen Agent graph bindings: "
-            + ", ".join("/".join(item) for item in missing_prompt_keys)
-        )
-    context_prompt_keys = set(agent_prompt_context_binding_plan_keys(authorities.prompt_renderer))
-    missing_context_prompt_keys = tuple(sorted(required_prompt_keys - context_prompt_keys))
-    if missing_context_prompt_keys:
-        raise WorkerConfigurationError(
-            "worker canonical prompt authority has unfenced Agent context bindings: "
-            + ", ".join("/".join(item) for item in missing_context_prompt_keys)
-        )
+    _validate_worker_legacy_replay_authority(
+        runtime,
+        legacy_authority=authorities.legacy_imports,
+    )
+    _validate_worker_prompt_authority_closure(
+        runtime.registry,
+        authorities.prompt_renderer,
+    )
     snapshot_ids = authorities.snapshots.model_snapshot_ids
     breaker_ids = authorities.circuit_breaker_resolver.model_snapshot_ids
-    if snapshot_ids != breaker_ids:
-        raise WorkerConfigurationError(
-            "worker model snapshots and dependency-scoped breakers differ"
-        )
-    with Session(runtime.engine) as session:
-        catalog_rows = session.scalars(
-            select(ModelCatalogSnapshotRow)
-            .order_by(ModelCatalogSnapshotRow.catalog_version)
-            .limit(1025)
-        ).all()
-        if not catalog_rows or len(catalog_rows) > 1024:
-            raise WorkerConfigurationError(
-                "worker retained model-catalog closure is empty or exceeds its bound"
-            )
-        catalogs = SqlCostRepository(session)
-        catalog_model_ids: set[str] = set()
-        for row in catalog_rows:
-            catalog = catalogs.get_model_catalog(row.catalog_version, row.catalog_digest)
-            if catalog is None:
-                raise WorkerConfigurationError(
-                    "worker retained model-catalog authority is unreadable"
-                )
-            catalog_model_ids.update(item.model_snapshot for item in catalog.models)
-    missing_model_ids = tuple(sorted(catalog_model_ids - set(snapshot_ids)))
-    if missing_model_ids:
-        raise WorkerConfigurationError(
-            "worker model authority misses retained catalog snapshots: "
-            + ", ".join(missing_model_ids)
-        )
+    _validate_worker_model_authority_closure(
+        runtime.engine,
+        snapshot_ids=snapshot_ids,
+        breaker_ids=breaker_ids,
+    )
     _validate_worker_workflow_governance(runtime)
     blocked_components = tuple(
         sorted(

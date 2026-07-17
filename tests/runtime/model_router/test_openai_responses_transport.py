@@ -30,10 +30,14 @@ class _FakeClient:
     def __init__(self, payload):
         self._payload = payload
         self.calls = []
+        self.closed = False
 
     def post(self, url, *, json, headers):
         self.calls.append((url, json, headers))
         return _FakeResponse(self._payload)
+
+    def close(self):
+        self.closed = True
 
 
 def _request(**params) -> ModelRequest:
@@ -74,6 +78,19 @@ def _prefix_request() -> ModelRequestV2:
             policy_version="prefix-policy@1",
         ),
     )
+
+
+def test_responses_transport_closes_its_http_client():
+    client = _FakeClient({})
+    transport = OpenAIResponsesTransport(
+        base_url="http://localhost:4141",
+        api_key="secret",
+        client=client,
+    )
+
+    transport.close()
+
+    assert client.closed is True
 
 
 def test_responses_transport_maps_request_and_normalizes_text_and_usage():

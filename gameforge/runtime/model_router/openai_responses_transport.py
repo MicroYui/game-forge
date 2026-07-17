@@ -31,6 +31,11 @@ class OpenAIResponsesTransport:
             raise TimeoutError("transport deadline has elapsed")
         return self._complete(req, timeout_s=timeout_s)
 
+    def close(self) -> None:
+        close = getattr(self._client, "close", None)
+        if callable(close):
+            close()
+
     def _complete(self, req: ModelRequest, *, timeout_s: float | None) -> ModelResponse:
         if any(message.tool_calls for message in req.messages):
             raise ValueError("message tool_calls require explicit Responses item mapping")

@@ -16,7 +16,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 
-from gameforge.contracts.errors import Conflict, InvalidStateTransition
+from gameforge.contracts.errors import Conflict, InvalidStateTransition, QuotaExceeded
 from gameforge.contracts.lineage import AuditActor
 from gameforge.apps.worker.pool import BlockingExecutorPool
 from gameforge.platform.runs.lifecycle import RenewLeaseRequest, RunLifecycleService
@@ -103,6 +103,13 @@ class LeaseHeartbeat:
                 # The lease was reaped/stolen or the deadline was reached: a healthy
                 # worker cannot renew, so stop and let the terminal publish fence.
                 self._fenced = True
+                return
+            except QuotaExceeded:
+                # A budget may be closed or reach its deadline while this attempt
+                # is running. That is authoritative per-Run control state, not
+                # worker-process corruption: stop extending only this lease and
+                # let expiry/reaping settle it without cancelling sibling Runs.
+                self._stopped_by_authority = True
                 return
             self._lease_version = result.lease.lease_version
             self._permit_revision = result.permit.revision

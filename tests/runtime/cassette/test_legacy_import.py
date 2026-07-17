@@ -206,7 +206,13 @@ def _authority(
         model_catalogs={(catalog.catalog_version, catalog.catalog_digest): catalog},
         input_bindings={(source.binding_key, source.artifact_id): input_binding or source},
         profile_bindings={
-            (profile.field_path, profile.profile_id, profile.profile_version): profile
+            (
+                profile.field_path,
+                profile.profile_id,
+                profile.profile_version,
+                profile.catalog_version,
+                profile.catalog_digest,
+            ): profile
         },
         policy_bindings={
             (

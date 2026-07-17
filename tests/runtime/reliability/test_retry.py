@@ -251,6 +251,7 @@ def test_late_success_is_observed_but_never_returned_after_total_deadline() -> N
     reservations: list[int] = []
     cancelled: list[int] = []
     observed: list[RetryAttemptResult] = []
+    late_successes: list[tuple[str, RetryAttemptResult]] = []
 
     def operation(_: int) -> str:
         utc.advance(2)
@@ -265,6 +266,9 @@ def test_late_success_is_observed_but_never_returned_after_total_deadline() -> N
             reserve_attempt=reservations.append,
             cancel_attempt=cancelled.append,
             observe_attempt=observed.append,
+            observe_late_success=lambda result, observation: late_successes.append(
+                (result, observation)
+            ),
         )
 
     assert reservations == [1]
@@ -272,6 +276,7 @@ def test_late_success_is_observed_but_never_returned_after_total_deadline() -> N
     assert len(observed) == 1
     assert observed[0].succeeded is True
     assert observed[0].duration_ns == 2_000_000_000
+    assert late_successes == [("too late", observed[0])]
 
 
 def test_jitter_is_injected_bounded_and_retry_after_is_a_floor() -> None:

@@ -151,6 +151,9 @@ class M4ModelRouter:
         attempt_admission: Callable[[int], None] | None = None,
         attempt_cancellation: Callable[[int], None] | None = None,
         attempt_observer: Callable[[RetryAttemptResult], None] | None = None,
+        late_success_observer: (
+            Callable[[M4RouterResultV1, RetryAttemptResult], None] | None
+        ) = None,
     ) -> M4RouterResultV1:
         recorded_at = _require_utc(recorded_at, field_name="recorded_at")
         _require_utc(deadline_utc, field_name="deadline_utc")
@@ -192,11 +195,13 @@ class M4ModelRouter:
                 )
         response, attempts = self._complete_online(
             request,
+            decision=decision,
             deadline_utc=deadline_utc,
             breaker=breaker,
             attempt_admission=attempt_admission,
             attempt_cancellation=attempt_cancellation,
             attempt_observer=attempt_observer,
+            late_success_observer=late_success_observer,
         )
         if self._mode is RouterMode.RECORD:
             self._record_v2(
@@ -315,11 +320,13 @@ class M4ModelRouter:
         self,
         request: ModelRequestV2,
         *,
+        decision: RoutingDecisionV1,
         deadline_utc: datetime,
         breaker: CircuitBreaker | None,
         attempt_admission: Callable[[int], None] | None,
         attempt_cancellation: Callable[[int], None] | None,
         attempt_observer: Callable[[RetryAttemptResult], None] | None,
+        late_success_observer: (Callable[[M4RouterResultV1, RetryAttemptResult], None] | None),
     ) -> tuple[TransportResponseV2, int]:
         permits: dict[int, BreakerPermit] = {}
         attempts_started = 0
@@ -374,6 +381,21 @@ class M4ModelRouter:
             if attempt_observer is not None:
                 attempt_observer(result)
 
+        def observe_late_success(
+            response: TransportResponseV2,
+            observation: RetryAttemptResult,
+        ) -> None:
+            if late_success_observer is not None:
+                late_success_observer(
+                    _result(
+                        response,
+                        decision=decision,
+                        execution_source="online",
+                        attempts=attempts_started,
+                    ),
+                    observation,
+                )
+
         response = self._retry.run(
             complete,
             idempotent=True,
@@ -381,6 +403,7 @@ class M4ModelRouter:
             reserve_attempt=admit,
             cancel_attempt=cancel,
             observe_attempt=observe,
+            observe_late_success=observe_late_success,
             terminal_error_wrapper=ProviderRouteFailure,
         )
         return response, attempts_started

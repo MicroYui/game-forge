@@ -1307,15 +1307,31 @@ def build_worker_process(
                     label="worker runtime",
                     error=cleanup_error,
                 )
-        elif engine is not None:
-            try:
-                engine.dispose()
-            except BaseException as cleanup_error:
-                _note_cleanup_failure(
-                    original,
-                    label="business engine",
-                    error=cleanup_error,
+        else:
+            if model_execution_authorities is not None:
+                transport_close = getattr(
+                    model_execution_authorities.transport,
+                    "close",
+                    None,
                 )
+                if callable(transport_close):
+                    try:
+                        transport_close()
+                    except BaseException as cleanup_error:
+                        _note_cleanup_failure(
+                            original,
+                            label="model transport",
+                            error=cleanup_error,
+                        )
+            if engine is not None:
+                try:
+                    engine.dispose()
+                except BaseException as cleanup_error:
+                    _note_cleanup_failure(
+                        original,
+                        label="business engine",
+                        error=cleanup_error,
+                    )
         # Engine.dispose() is intentionally idempotent: build_worker_runtime also
         # cleans an injected engine after partial construction, while this outer
         # owner must still cover failures in its preflight/type-validation window.

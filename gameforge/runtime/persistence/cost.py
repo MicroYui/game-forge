@@ -1123,9 +1123,14 @@ class SqlCostRepository:
         if descriptor is None or descriptor.tier != decision.tier:
             raise IntegrityViolation("routing decision model/tier differs from exact catalog")
 
-    def _get_usage(self, usage_id: str) -> UsageEntryV1 | None:
+    def get_usage(self, usage_id: str) -> UsageEntryV1 | None:
+        if not isinstance(usage_id, str) or not usage_id:
+            raise IntegrityViolation("usage lookup identity must be non-empty")
         row = self._session.get(UsageEntryRow, usage_id)
         return None if row is None else self._parse_usage_row(row)
+
+    def _get_usage(self, usage_id: str) -> UsageEntryV1 | None:
+        return self.get_usage(usage_id)
 
     @staticmethod
     def _parse_budget_snapshot_row(row: BudgetSnapshotRow) -> BudgetSnapshotV1:

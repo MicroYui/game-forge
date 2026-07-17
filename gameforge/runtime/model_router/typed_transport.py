@@ -63,6 +63,11 @@ class LegacyTypedTransportAdapter:
         )
         return _map_legacy_response(response)
 
+    def close(self) -> None:
+        close = getattr(self._transport, "close", None)
+        if callable(close):
+            close()
+
 
 def _map_legacy_response(response: object) -> TransportResponseV2:
     if not isinstance(response, ModelResponse):

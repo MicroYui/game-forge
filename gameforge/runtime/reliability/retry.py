@@ -76,6 +76,7 @@ class RetryExecutor(Generic[T]):
         reserve_attempt: Callable[[int], None] | None = None,
         cancel_attempt: Callable[[int], None] | None = None,
         observe_attempt: Callable[[RetryAttemptResult], None] | None = None,
+        observe_late_success: Callable[[T, RetryAttemptResult], None] | None = None,
         terminal_error_wrapper: (
             Callable[[Exception, FailureClassificationV1], Exception] | None
         ) = None,
@@ -132,16 +133,17 @@ class RetryExecutor(Generic[T]):
             else:
                 ended_ns = self._monotonic_clock.now_ns()
                 completed_after_deadline = self._now_utc() >= deadline
-                observe(
-                    RetryAttemptResult(
-                        attempt_no=attempt_no,
-                        started_at=started_at,
-                        duration_ns=_duration_ns(started_ns, ended_ns),
-                        succeeded=True,
-                        classification=None,
-                    )
+                observation = RetryAttemptResult(
+                    attempt_no=attempt_no,
+                    started_at=started_at,
+                    duration_ns=_duration_ns(started_ns, ended_ns),
+                    succeeded=True,
+                    classification=None,
                 )
+                observe(observation)
                 if completed_after_deadline:
+                    if observe_late_success is not None:
+                        observe_late_success(result, observation)
                     raise TimeoutError("retry deadline elapsed during transport attempt")
                 return result
 

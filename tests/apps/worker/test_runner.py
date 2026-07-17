@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import asyncio
 import threading
+from types import SimpleNamespace
 
 import pytest
 
 from gameforge.apps.worker.executor import ExecutorContext, redacted_execution_failure
 from gameforge.apps.worker.pool import ThreadedBlockingExecutorPool
 from gameforge.apps.worker.runner import AttemptRunner
+from gameforge.apps.worker.terminal import WorkerTerminalPublisher
 from gameforge.contracts.jobs import (
     PreparedRunFailure,
     PreparedRunOutcome,
@@ -32,6 +34,7 @@ from gameforge.contracts.errors import (
     PermanentDependencyFailure,
     QuotaExceeded,
 )
+from gameforge.platform.runs.lifecycle import AttemptWriteFence
 from tests.platform.m4c.test_terminal_publisher import (
     _attempt,
     _prepared_success,
@@ -163,6 +166,43 @@ def test_missing_executor_is_fenced_failure_not_a_leaked_exception() -> None:
     _, outcome = terminal.published[0]
     assert isinstance(outcome, PreparedRunFailure)
     assert outcome.failure_class == "execution"
+
+
+def test_terminal_notify_hint_failure_cannot_reverse_committed_outcome() -> None:
+    run, attempt, lease = _context_run()
+    prepared = _prepared_success(artifacts=(_checker_artifact(_Blobs()),))
+    expected = SimpleNamespace(run=run)
+
+    class Lifecycle:
+        request = None
+
+        def publish_attempt_outcome(self, request):
+            self.request = request
+            return expected
+
+    def broken_notify(_run_id: str) -> None:
+        raise OSError("hint transport failed")
+
+    lifecycle = Lifecycle()
+    terminal = WorkerTerminalPublisher(
+        lifecycle,  # type: ignore[arg-type]
+        notify=broken_notify,
+    )
+
+    result = terminal.publish(
+        fence=AttemptWriteFence(
+            run_id=run.run_id,
+            attempt_no=attempt.attempt_no,
+            expected_run_revision=run.revision,
+            lease_id=lease.lease_id,
+            fencing_token=attempt.fencing_token,
+        ),
+        outcome=prepared,
+        actor=WORKER,
+    )
+
+    assert result is expected
+    assert lifecycle.request.prepared_outcome is prepared
 
 
 def test_redacted_failure_helper_uses_run_classifier() -> None:

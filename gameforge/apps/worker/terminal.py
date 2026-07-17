@@ -55,7 +55,14 @@ class WorkerTerminalPublisher:
             )
         )
         if self._notify is not None:
-            self._notify(result.run.run_id)
+            try:
+                self._notify(result.run.run_id)
+            except Exception:
+                # The DB terminal transaction already committed. This process-local
+                # wakeup is only a latency hint; subscribers and workers always
+                # rediscover authority from the database, so hint transport failure
+                # cannot reverse success or terminate sibling attempts.
+                pass
         return result
 
 

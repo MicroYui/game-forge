@@ -1449,6 +1449,8 @@ def _legacy_verified_fixture() -> LegacyFixture:
                 profile_binding.field_path,
                 profile_binding.profile_id,
                 profile_binding.profile_version,
+                profile_binding.catalog_version,
+                profile_binding.catalog_digest,
             ): profile_binding
         },
         policy_bindings={},

@@ -15,7 +15,9 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Literal, Protocol, TypeVar, cast
+
+from pydantic import BaseModel
 
 from gameforge.contracts.cassette import (
     CassetteObservationViewV1,
@@ -127,6 +129,8 @@ class LegacyImportAuthority(Protocol):
         field_path: str,
         profile_id: str,
         profile_version: int,
+        catalog_version: int,
+        catalog_digest: str,
     ) -> LegacyCassetteProfileBindingV1 | None: ...
 
     def resolve_policy_binding(
@@ -171,6 +175,29 @@ class LegacyImportDecisionRepository(Protocol):
     ) -> LegacyImportRoutingDecisionV1 | None: ...
 
 
+_KeyT = TypeVar("_KeyT")
+_ModelT = TypeVar("_ModelT", bound=BaseModel)
+
+
+def _defensive_model_copy(value: _ModelT) -> _ModelT:
+    """Revalidate a deep canonical copy so resolver callers never own state."""
+
+    return cast(
+        _ModelT,
+        type(value).model_validate(value.model_dump(mode="python")),
+    )
+
+
+def _defensive_optional_model_copy(value: _ModelT | None) -> _ModelT | None:
+    return None if value is None else _defensive_model_copy(value)
+
+
+def _defensive_model_mapping(
+    values: Mapping[_KeyT, _ModelT],
+) -> dict[_KeyT, _ModelT]:
+    return {key: _defensive_model_copy(value) for key, value in values.items()}
+
+
 class InMemoryLegacyImportAuthority:
     """Deterministic local authority used by tests and offline import tooling."""
 
@@ -180,21 +207,24 @@ class InMemoryLegacyImportAuthority:
         verification_policy_registry: LegacyImportVerificationPolicyRegistryV1,
         model_catalogs: Mapping[tuple[int, str], ModelCatalogSnapshotV1],
         input_bindings: Mapping[tuple[str, str], LegacyCassetteInputBindingV1],
-        profile_bindings: Mapping[tuple[str, str, int], LegacyCassetteProfileBindingV1],
+        profile_bindings: Mapping[
+            tuple[str, str, int, int, str],
+            LegacyCassetteProfileBindingV1,
+        ],
         policy_bindings: Mapping[tuple[str, str, str, int], LegacyCassettePolicyBindingV1],
         schema_bindings: Mapping[tuple[str, str], LegacyCassetteSchemaBindingV1],
         rendered_requests: Mapping[str, ModelRequestV1],
         frozen_version_tuples: Mapping[tuple[str, str], VersionTuple],
         call_tool_versions: Mapping[tuple[str, str, int], str],
     ) -> None:
-        self.verification_policy_registry = verification_policy_registry
-        self.model_catalogs = dict(model_catalogs)
-        self.input_bindings = dict(input_bindings)
-        self.profile_bindings = dict(profile_bindings)
-        self.policy_bindings = dict(policy_bindings)
-        self.schema_bindings = dict(schema_bindings)
-        self.rendered_requests = dict(rendered_requests)
-        self.frozen_version_tuples = dict(frozen_version_tuples)
+        self.verification_policy_registry = _defensive_model_copy(verification_policy_registry)
+        self.model_catalogs = _defensive_model_mapping(model_catalogs)
+        self.input_bindings = _defensive_model_mapping(input_bindings)
+        self.profile_bindings = _defensive_model_mapping(profile_bindings)
+        self.policy_bindings = _defensive_model_mapping(policy_bindings)
+        self.schema_bindings = _defensive_model_mapping(schema_bindings)
+        self.rendered_requests = _defensive_model_mapping(rendered_requests)
+        self.frozen_version_tuples = _defensive_model_mapping(frozen_version_tuples)
         self.call_tool_versions = dict(call_tool_versions)
 
     def resolve_model_catalog(
@@ -202,22 +232,36 @@ class InMemoryLegacyImportAuthority:
         catalog_version: int,
         catalog_digest: str,
     ) -> ModelCatalogSnapshotV1 | None:
-        return self.model_catalogs.get((catalog_version, catalog_digest))
+        return _defensive_optional_model_copy(
+            self.model_catalogs.get((catalog_version, catalog_digest))
+        )
 
     def resolve_input_binding(
         self,
         binding_key: str,
         artifact_id: str,
     ) -> LegacyCassetteInputBindingV1 | None:
-        return self.input_bindings.get((binding_key, artifact_id))
+        return _defensive_optional_model_copy(self.input_bindings.get((binding_key, artifact_id)))
 
     def resolve_profile_binding(
         self,
         field_path: str,
         profile_id: str,
         profile_version: int,
+        catalog_version: int,
+        catalog_digest: str,
     ) -> LegacyCassetteProfileBindingV1 | None:
-        return self.profile_bindings.get((field_path, profile_id, profile_version))
+        return _defensive_optional_model_copy(
+            self.profile_bindings.get(
+                (
+                    field_path,
+                    profile_id,
+                    profile_version,
+                    catalog_version,
+                    catalog_digest,
+                )
+            )
+        )
 
     def resolve_policy_binding(
         self,
@@ -226,24 +270,28 @@ class InMemoryLegacyImportAuthority:
         policy_id: str,
         policy_version: int,
     ) -> LegacyCassettePolicyBindingV1 | None:
-        return self.policy_bindings.get((binding_key, policy_kind, policy_id, policy_version))
+        return _defensive_optional_model_copy(
+            self.policy_bindings.get((binding_key, policy_kind, policy_id, policy_version))
+        )
 
     def resolve_schema_binding(
         self,
         binding_key: str,
         schema_id: str,
     ) -> LegacyCassetteSchemaBindingV1 | None:
-        return self.schema_bindings.get((binding_key, schema_id))
+        return _defensive_optional_model_copy(self.schema_bindings.get((binding_key, schema_id)))
 
     def resolve_rendered_request(self, artifact_id: str) -> ModelRequestV1 | None:
-        return self.rendered_requests.get(artifact_id)
+        return _defensive_optional_model_copy(self.rendered_requests.get(artifact_id))
 
     def resolve_frozen_version_tuple(
         self,
         source_suite_id: str,
         source_case_id: str,
     ) -> VersionTuple | None:
-        return self.frozen_version_tuples.get((source_suite_id, source_case_id))
+        return _defensive_optional_model_copy(
+            self.frozen_version_tuples.get((source_suite_id, source_case_id))
+        )
 
     def resolve_call_tool_version(
         self,
@@ -381,6 +429,8 @@ class LegacyCassetteRuntimeImporter:
                 item.field_path,
                 item.profile_id,
                 item.profile_version,
+                item.catalog_version,
+                item.catalog_digest,
             )
             is not None
             for item in candidate.execution_profile_bindings
@@ -800,6 +850,8 @@ class LegacyCassetteRuntimeImporter:
                 claim.field_path,
                 claim.profile_id,
                 claim.profile_version,
+                claim.catalog_version,
+                claim.catalog_digest,
             )
             complete = _compare_authority(
                 resolved,

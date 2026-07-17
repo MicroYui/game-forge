@@ -660,6 +660,26 @@ def test_legacy_transport_adapter_keeps_zero_and_empty_observations_unavailable(
     assert result.provider_prefix_cache.status == "unavailable"
 
 
+def test_legacy_transport_adapter_closes_its_owned_transport() -> None:
+    class _Legacy:
+        def __init__(self) -> None:
+            self.closed = False
+
+        def complete(self, request):
+            del request
+            return ModelResponse(response_normalized="legacy")
+
+        def close(self) -> None:
+            self.closed = True
+
+    legacy = _Legacy()
+    adapter = LegacyTypedTransportAdapter(legacy)
+
+    adapter.close()
+
+    assert legacy.closed is True
+
+
 @pytest.mark.parametrize(
     ("raw_response", "expected_hit"),
     [
