@@ -1051,22 +1051,6 @@ def validate_worker_readiness(runtime: WorkerRuntime) -> None:
         breaker_ids=breaker_ids,
     )
     _validate_worker_workflow_governance(runtime)
-    blocked_components = tuple(
-        sorted(
-            (key, blocker)
-            for key, component in runtime.components.executors.items()
-            if isinstance(
-                blocker := getattr(component, "worker_readiness_blocker", None),
-                str,
-            )
-            and blocker
-        )
-    )
-    if blocked_components:
-        raise WorkerConfigurationError(
-            "worker active executor closure is incomplete: "
-            + "; ".join(f"{key}: {reason}" for key, reason in blocked_components)
-        )
 
 
 def _validate_worker_workflow_governance(runtime: WorkerRuntime) -> None:

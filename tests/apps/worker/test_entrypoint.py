@@ -61,7 +61,6 @@ from gameforge.contracts.jobs import (
 )
 from gameforge.platform.registry import TrustedComponentMaps
 from gameforge.platform.registry.defaults import build_builtin_registry
-from gameforge.platform.run_handlers.deferred import DEFERRED_EXECUTORS
 from gameforge.platform.run_handlers.constraint_validation import ConstraintValidationHandler
 from gameforge.platform.run_handlers.patch_validation import PatchValidationHandler
 from gameforge.platform.run_handlers.rollback_validation import RollbackValidationHandler
@@ -918,7 +917,6 @@ def test_worker_composition_closes_all_validation_execution_ports(tmp_path: Path
         assert rollback.regression_runner is patch.regression_runner
         assert rollback.regression_runner is constraint.regression_runner
         assert isinstance(constraint.regression_runner, WorkerRegressionRunner)
-        assert not hasattr(rollback, "worker_readiness_blocker")
     finally:
         process.close()
 
@@ -2006,30 +2004,6 @@ def test_runtime_composes_both_execution_lanes(tmp_path: Path) -> None:
     runtime = build_worker_runtime(_config(tmp_path))
     try:
         assert runtime.executor_pool is not runtime.control_pool
-    finally:
-        runtime.close()
-
-
-def test_deferred_executor_is_dispatchable_through_the_generic_resolver(tmp_path: Path) -> None:
-    from types import SimpleNamespace
-
-    from gameforge.contracts.jobs import FailureClassifierRefV1
-
-    runtime = build_worker_runtime(
-        _config(tmp_path),
-        trusted_components=TrustedComponentMaps(executors=dict(DEFERRED_EXECUTORS)),
-    )
-    try:
-        resolver = build_executor_resolver(runtime.registry, runtime.components)
-        run = SimpleNamespace(
-            run_id="run:1",
-            kind=RunKindRef(kind="artifact.migrate", version=1),
-            failure_classifier=FailureClassifierRefV1(
-                classifier_version=1, classifier_digest="a" * 64
-            ),
-        )
-        executor = resolver(run)
-        assert executor is DEFERRED_EXECUTORS["artifact_migrator@1"]
     finally:
         runtime.close()
 

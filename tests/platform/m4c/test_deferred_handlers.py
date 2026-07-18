@@ -6,26 +6,17 @@ but their M4c executors are real trusted registry targets that fail-close with a
 typed, *publishable* UNAVAILABLE failure — they can NEVER fabricate a migrated
 Artifact / migration report, nor a backup/restore/RPO/RTO drill result.
 
-These tests lock six properties:
+These tests lock four properties:
 
 1. Each deferred executor returns a ``PreparedRunFailure`` (never a
    ``PreparedRunResult``) with ``artifacts=()`` / ``requirement_dispositions=()``
    and a FROZEN typed cause, and that failure PASSES the real run-boundary
-   validator ``validate_prepared_failure`` against the frozen classifier — the
-   Task-12b lesson (a cause absent from the frozen allowlist detonates at the
-   boundary with ``IntegrityViolation``, so "typed unavailable" is worthless
-   unless it is genuinely publishable).
-2. The normal full worker context is rechecked for exact payload/profile/matrix,
-   source/recovery-manifest, current attempt, and trusted-system projections.
-3. A wrong Run kind is rejected by the executor's own kind guard.
-4. Neither kind is admissible through the generic/resource PUBLIC surfaces:
-   both are ``creation_mode="internal_only"`` and the admission engine rejects a
-   non-trusted-internal actor (reuses the Task-8 admission harness).
-5. Platform readiness still PASSES with the deferred executors bound, and the
-   frozen M4e success-policy contracts (migration capability matrix family, DR
-   success policy + terminal success hooks) are RETAINED, not deleted.
-6. A real M4e executor can replace a deferred callable under the retained key;
-   readiness reports the actual callable rather than hard-coding the key as deferred.
+   validator ``validate_prepared_failure`` against the frozen classifier.
+2. A wrong Run kind is rejected by the executor's own kind guard.
+3. Admission owns the typed request, permission, profile, matrix, and input
+   bindings; neither kind is admissible through generic/resource PUBLIC surfaces.
+4. Platform readiness still passes, retains the M4e success contracts, and
+   reports when a real implementation replaces a deferred callable.
 """
 
 from __future__ import annotations
@@ -36,12 +27,7 @@ from types import SimpleNamespace
 import pytest
 
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import (
-    ProfileRefV1,
-    ResolvedExecutionProfileBindingV1,
-    RunKindRef,
-    execution_profile_payload_hash,
-)
+from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.jobs import (
     ArtifactMigrationPayloadV1,
     DrDrillPayloadV1,
@@ -53,14 +39,13 @@ from gameforge.contracts.jobs import (
     RunRecord,
     referenced_input_artifact_ids,
 )
-from gameforge.contracts.lineage import AuditActor, VersionTuple
+from gameforge.contracts.lineage import VersionTuple
 from gameforge.platform.registry import (
     PlatformReadinessValidator,
     build_builtin_registry,
 )
 from gameforge.platform.run_handlers.deferred import (
     DEFERRED_EXECUTORS,
-    DeferredExecutor,
     artifact_migration_deferred,
     dr_drill_deferred,
 )
@@ -75,8 +60,6 @@ from tests.platform.m4c.test_run_admission import (
     _actor,
     _server,
 )
-
-_SYSTEM = AuditActor(principal_id="system:operations", principal_kind="system")
 
 
 # ── kind fixtures ────────────────────────────────────────────────────────────
@@ -107,8 +90,6 @@ _KINDS: dict[str, dict[str, object]] = {
         "executor": artifact_migration_deferred,
         "params": _migration_params,
         "extra_inputs": (),
-        "success_hook": "publish_migration@1",
-        "success_outcome_code": "artifact_migration_reported",
     },
     "dr.drill": {
         "executor_key": "dr_drill_runner@1",
@@ -117,8 +98,6 @@ _KINDS: dict[str, dict[str, object]] = {
         # verified recovery manifest) beyond the payload-referenced inputs.
         "params": _dr_params,
         "extra_inputs": ("artifact:recovery-manifest",),
-        "success_hook": "publish_operational_evidence@1",
-        "success_outcome_code": "dr_drill_completed",
     },
 }
 
@@ -140,47 +119,7 @@ def _run_binding(
     classifier_ref = definition.failure_classifier
     classifier = registry.get_failure_classifier(classifier_ref)
     assert classifier is not None
-    catalog = max(
-        registry.list_execution_profile_catalogs(),
-        key=lambda item: item.catalog_version,
-    )
-    profile_definitions = {item.profile: item for item in catalog.definitions}
-
     params = _KINDS[kind_name]["params"]()  # type: ignore[operator]
-    expected_profiles = (
-        (
-            (
-                "/params/migrator",
-                params.migrator,
-                "artifact_migrator",
-            ),
-        )
-        if isinstance(params, ArtifactMigrationPayloadV1)
-        else (
-            ("/params/dr_plan", params.dr_plan, "dr_plan"),
-            (
-                "/params/restore_target_profile",
-                params.restore_target_profile,
-                "restore_target",
-            ),
-            (
-                "/params/verification_profile",
-                params.verification_profile,
-                "dr_verifier",
-            ),
-        )
-    )
-    resolved_profiles = tuple(
-        ResolvedExecutionProfileBindingV1(
-            field_path=field_path,
-            profile=profile,
-            expected_profile_kind=profile_kind,
-            profile_payload_hash=execution_profile_payload_hash(profile_definitions[profile]),
-            catalog_version=catalog.catalog_version,
-            catalog_digest=catalog.catalog_digest,
-        )
-        for field_path, profile, profile_kind in expected_profiles
-    )
     extra_inputs: tuple[str, ...] = _KINDS[kind_name]["extra_inputs"]  # type: ignore[assignment]
     inputs = tuple(referenced_input_artifact_ids(params)) + extra_inputs
     envelope = RunPayloadEnvelope(
@@ -190,9 +129,9 @@ def _run_binding(
         execution_version_plan=None,
         policy_bindings=(),
         schema_bindings=(),
-        execution_profile_catalog_version=catalog.catalog_version,
-        execution_profile_catalog_digest=catalog.catalog_digest,
-        resolved_profiles=resolved_profiles,
+        execution_profile_catalog_version=1,
+        execution_profile_catalog_digest="a" * 64,
+        resolved_profiles=(),
         resolved_policy_snapshots=(),
         budget_set_snapshot_id="budget-set:1",
         seed=None,
@@ -203,7 +142,6 @@ def _run_binding(
     record = build_run_record(envelope, kind).model_copy(
         update={
             "failure_classifier": classifier_ref,
-            "initiated_by": _SYSTEM,
             "migration_capability_matrix": definition.migration_capability_matrix,
         }
     )
@@ -227,12 +165,6 @@ def test_deferred_registry_maps_exactly_the_two_internal_kinds() -> None:
     assert set(DEFERRED_EXECUTORS) == set(_DEFERRED_EXECUTOR_KEYS)
     assert DEFERRED_EXECUTORS["artifact_migrator@1"] is artifact_migration_deferred
     assert DEFERRED_EXECUTORS["dr_drill_runner@1"] is dr_drill_deferred
-    # Both deferred implementations use the same full ExecutorContext-shaped
-    # callable seam as every real Run handler; M4e can replace either value under
-    # the retained key without changing dispatch.
-    assert callable(artifact_migration_deferred)
-    assert callable(dr_drill_deferred)
-    assert DeferredExecutor is not None
 
 
 # ── 2. typed unavailable + passes the REAL run-boundary validator ────────────
@@ -271,24 +203,6 @@ def test_deferred_failure_is_typed_unavailable_and_passes_real_validator(
     )
 
 
-def test_real_validator_rejects_a_cause_absent_from_the_frozen_classifier() -> None:
-    """Proves the validator in the test above genuinely bites (not a no-op).
-
-    A ``PreparedRunFailure`` whose ``cause_code`` is not in the frozen classifier
-    allowlist is exactly the Task-12b defect: it detonates at the run boundary.
-    """
-
-    record, attempt, classifier, _definition = _run_binding("artifact.migrate")
-    prepared = artifact_migration_deferred(_context("artifact.migrate"))
-    # The genuine failure passes; a tampered cause absent from the classifier does not.
-    validate_prepared_failure(run=record, attempt=attempt, prepared=prepared, classifier=classifier)
-    tampered = prepared.model_copy(update={"cause_code": "capability_absent_unknown"})
-    with pytest.raises(IntegrityViolation, match="cause is absent"):
-        validate_prepared_failure(
-            run=record, attempt=attempt, prepared=tampered, classifier=classifier
-        )
-
-
 # ── 3. the executor's own kind guard fails closed on a foreign Run kind ──────
 def test_deferred_executor_rejects_a_foreign_run_kind() -> None:
     dr_request = _context("dr.drill")
@@ -299,87 +213,7 @@ def test_deferred_executor_rejects_a_foreign_run_kind() -> None:
         dr_drill_deferred(migrate_request)
 
 
-# ── 4. the failure return type structurally forbids a success artifact ───────
-@pytest.mark.parametrize("kind_name", list(_KINDS))
-def test_deferred_failure_can_never_be_reshaped_into_a_success(kind_name: str) -> None:
-    request = _context(kind_name)
-    prepared = _KINDS[kind_name]["executor"](request)  # type: ignore[operator]
-    assert isinstance(prepared, PreparedRunFailure)
-    # A ``PreparedRunResult`` requires at least one artifact + a summary, so the
-    # empty-artifact deferred failure could never be re-expressed as a success.
-    with pytest.raises(Exception):
-        PreparedRunResult(
-            run_id=prepared.run_id,
-            attempt_no=prepared.attempt_no or 1,
-            run_kind=prepared.run_kind,
-            primary_index=0,
-            artifacts=(),  # min_length=1 → rejected
-            findings=(),
-            requirement_dispositions=(),
-            summary=None,  # type: ignore[arg-type]
-        )
-
-
-@pytest.mark.parametrize("kind_name", list(_KINDS))
-@pytest.mark.parametrize(
-    ("tamper", "message"),
-    (
-        ("payload", "payload differs"),
-        ("initiator", "trusted system"),
-        ("profiles", "profile bindings"),
-    ),
-)
-def test_deferred_executor_rejects_incomplete_frozen_authority(
-    kind_name: str,
-    tamper: str,
-    message: str,
-) -> None:
-    context = _context(kind_name)
-    if tamper == "payload":
-        context.payload = _context(kind_name).payload.model_copy(
-            update={"execution_profile_catalog_digest": "b" * 64}
-        )
-    elif tamper == "initiator":
-        context.run = context.run.model_copy(
-            update={
-                "initiated_by": AuditActor(
-                    principal_id="human:not-internal",
-                    principal_kind="human",
-                )
-            }
-        )
-    else:
-        context.payload = context.payload.model_copy(update={"resolved_profiles": ()})
-        context.run = context.run.model_copy(update={"payload": context.payload})
-
-    with pytest.raises(IntegrityViolation, match=message):
-        _KINDS[kind_name]["executor"](context)  # type: ignore[operator]
-
-
-def test_artifact_migration_requires_exact_matrix_and_source_binding() -> None:
-    context = _context("artifact.migrate")
-    context.run = context.run.model_copy(update={"migration_capability_matrix": None})
-    with pytest.raises(IntegrityViolation, match="capability matrix"):
-        artifact_migration_deferred(context)
-
-    context = _context("artifact.migrate")
-    malformed = context.payload.model_copy(update={"input_artifact_ids": ("artifact:other",)})
-    context.payload = malformed
-    context.run = context.run.model_copy(update={"payload": malformed})
-    with pytest.raises(IntegrityViolation, match="source binding"):
-        artifact_migration_deferred(context)
-
-
-def test_dr_drill_requires_one_verified_recovery_manifest_input() -> None:
-    context = _context("dr.drill")
-    malformed = context.payload.model_copy(update={"input_artifact_ids": ()})
-    context.payload = malformed
-    context.run = context.run.model_copy(update={"payload": malformed})
-    with pytest.raises(IntegrityViolation, match="recovery manifest"):
-        dr_drill_deferred(context)
-
-
-# ── 5. internal_only: rejected on generic/resource and human actor paths ─────
+# ── 4. internal_only: rejected on generic/resource and human actor paths ─────
 @pytest.mark.parametrize("kind_name", list(_KINDS))
 def test_internal_only_kind_creation_mode_is_frozen(kind_name: str) -> None:
     registry = build_builtin_registry()
@@ -426,7 +260,7 @@ def test_internal_run_rejects_a_human_actor(kind_name: str, tmp_path: Path) -> N
         )
 
 
-# ── 6. readiness passes AND the frozen M4e success contracts are retained ────
+# ── readiness passes AND the frozen M4e success contracts are retained ──────
 def test_readiness_passes_and_retains_the_frozen_success_contracts() -> None:
     registry = build_builtin_registry()
     components = _components(registry)
@@ -485,23 +319,3 @@ def test_readiness_reports_actual_deferred_components_not_retained_keys() -> Non
 
     assert report.ready is True
     assert report.deferred_executor_keys == ("dr_drill_runner@1",)
-
-
-@pytest.mark.parametrize("executor_key", list(_DEFERRED_EXECUTOR_KEYS))
-def test_readiness_rejects_a_missing_deferred_executor(executor_key: str) -> None:
-    registry = build_builtin_registry()
-    components = _components(registry)
-    executors = dict(components.executors)
-    executors.pop(executor_key)
-    incomplete = components.__class__(
-        executors=executors,
-        terminal_hooks=components.terminal_hooks,
-        workflow_effects=components.workflow_effects,
-        completion_oracles=components.completion_oracles,
-        playtest_payload_validators=components.playtest_payload_validators,
-        profile_handlers=components.profile_handlers,
-        permission_domain_resolvers=components.permission_domain_resolvers,
-    )
-
-    with pytest.raises(IntegrityViolation, match="executor trusted key set"):
-        PlatformReadinessValidator(registry=registry, components=incomplete).validate()

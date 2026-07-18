@@ -5447,6 +5447,29 @@ def test_internal_dr_drill_accepts_an_authorized_service_actor(tmp_path: Path) -
         principal_kind="service",
     )
 
+    definition = harness.registry.get_run_kind(run.kind)
+    assert definition is not None
+    classifier = harness.registry.get_failure_classifier(run.failure_classifier)
+    assert classifier is not None
+    running = run.model_copy(update={"status": "running", "current_attempt_no": 1})
+    attempt = build_attempt(run_id=run.run_id)
+    prepared = DEFERRED_EXECUTORS[definition.executor_key](
+        SimpleNamespace(
+            run=running,
+            attempt=attempt,
+            payload=running.payload,
+            deadline_utc=None,
+            model_bridge=None,
+        )
+    )
+    validate_prepared_failure(
+        run=running,
+        attempt=attempt,
+        prepared=prepared,
+        classifier=classifier,
+    )
+    assert prepared.cause_code == "execution_failed"
+
 
 def test_artifact_domain_scope_short_circuits_an_explicit_modern_scope() -> None:
     object_ref = object_ref_for_bytes(b"explicit-domain-scope")

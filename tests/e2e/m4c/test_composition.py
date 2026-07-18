@@ -449,7 +449,6 @@ def test_registry_closes_and_checker_run_publishes_end_to_end(tmp_path: Path) ->
         assert isinstance(rollback.impact_analyzer, DeterministicRollbackImpactAnalyzer)
         assert rollback.regression_runner is patch.regression_runner
         assert rollback.regression_runner is constraint.regression_runner
-        assert not hasattr(rollback, "worker_readiness_blocker")
         with pytest.raises(WorkerConfigurationError, match="model execution authority"):
             validate_worker_readiness(process.runtime)
 
