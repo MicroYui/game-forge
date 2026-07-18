@@ -11,6 +11,7 @@ def run_api(*, host: str = "127.0.0.1", port: int = 8000) -> None:
         factory=True,
         host=host,
         port=port,
+        ws_max_size=16_384,
     )
 
 

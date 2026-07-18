@@ -8,7 +8,7 @@ import re
 from typing import Generic, Protocol, TypeVar
 
 from gameforge.contracts.canonical import canonical_sha256
-from gameforge.contracts.errors import Forbidden, IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, Forbidden, IntegrityViolation
 from gameforge.contracts.identity import (
     DomainRegistryRefV1,
     DomainRegistryV1,
@@ -150,6 +150,7 @@ class ReadAuthorizationService:
         policy_repository: ReadPolicyRepository,
         role_policy_version: str,
         role_policy_digest: str,
+        missing_authority_component: str | None = None,
     ) -> None:
         self._policies = policy_repository
         self._role_policy_version = _bounded_text(
@@ -159,6 +160,11 @@ class ReadAuthorizationService:
         if not isinstance(role_policy_digest, str) or _SHA256.fullmatch(role_policy_digest) is None:
             raise ValueError("role_policy_digest must be a lowercase SHA-256 digest")
         self._role_policy_digest = role_policy_digest
+        self._missing_authority_component = (
+            None
+            if missing_authority_component is None
+            else _bounded_text(missing_authority_component, label="missing_authority_component")
+        )
 
     def require_singular(
         self,
@@ -169,10 +175,27 @@ class ReadAuthorizationService:
     ) -> ReadAuthorizationBinding:
         """Require one loaded resource's exact permission and return cursor bindings."""
 
+        return self.require_singular_derived(
+            principal=principal,
+            permission_for=lambda _registry: permission,
+            query_hash=query_hash,
+        )
+
+    def require_singular_derived(
+        self,
+        *,
+        principal: Principal,
+        permission_for: Callable[[DomainRegistryV1], Permission | None],
+        query_hash: str,
+    ) -> ReadAuthorizationBinding:
+        """Load authority once when a resource permission depends on its registry."""
+
+        if not callable(permission_for):
+            raise TypeError("permission_for must be callable")
         exact_query_hash = _query_hash(query_hash)
         exact_principal = self._principal(principal)
         role_policy, registry = self._load_exact_authority(exact_principal)
-        exact_permission = self._proved_permission(permission, registry)
+        exact_permission = self._proved_permission(permission_for(registry), registry)
         if (
             authorize(
                 principal=exact_principal,
@@ -307,6 +330,11 @@ class ReadAuthorizationService:
             self._role_policy_version,
             self._role_policy_digest,
         )
+        if policy is None and self._missing_authority_component is not None:
+            raise DependencyUnavailable(
+                "current exact role policy is unavailable",
+                component=self._missing_authority_component,
+            )
         if type(policy) is not RolePolicy:
             raise IntegrityViolation("current exact role policy is unavailable")
         if (
@@ -315,6 +343,11 @@ class ReadAuthorizationService:
         ):
             raise IntegrityViolation("role policy authority returned a different exact policy")
         registry = self._policies.get_domain_registry(policy.domain_registry_ref)
+        if registry is None and self._missing_authority_component is not None:
+            raise DependencyUnavailable(
+                "current exact domain registry is unavailable",
+                component=self._missing_authority_component,
+            )
         if type(registry) is not DomainRegistryV1:
             raise IntegrityViolation("current exact domain registry is unavailable")
         if (

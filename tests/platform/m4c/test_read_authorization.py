@@ -220,6 +220,23 @@ def test_singular_require_loads_exact_authority_and_returns_stable_bindings() ->
     assert changed_scope.authz_fingerprint != binding.authz_fingerprint
 
 
+def test_singular_permission_can_be_derived_from_the_one_loaded_registry() -> None:
+    service, policies, registry, policy = _service()
+
+    binding = service.require_singular_derived(
+        principal=_principal(),
+        permission_for=lambda loaded: _permission(
+            DomainScope(domain_ids=(loaded.definitions[0].domain_id,))
+        ),
+        query_hash=QUERY_HASH,
+    )
+
+    assert policies.role_lookups == [(policy.policy_version, policy.policy_digest)]
+    assert policies.registry_lookups == [policy.domain_registry_ref]
+    assert len(binding.authz_fingerprint) == 64
+    assert registry.definitions[0].domain_id == "gacha"
+
+
 def test_fingerprint_binds_authz_revision_and_full_active_assignments() -> None:
     service, _, _, _ = _service()
     requested = _permission(DomainScope(domain_ids=("narrative",)))

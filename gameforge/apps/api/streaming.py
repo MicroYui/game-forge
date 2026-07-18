@@ -70,9 +70,7 @@ from gameforge.contracts.errors import (
 )
 from gameforge.contracts.identity import (
     ActorContext,
-    DomainRegistryV1,
     Permission,
-    RolePolicy,
 )
 from gameforge.contracts.jobs import RunEvent, RunRecord
 from gameforge.platform.read_models.authorization import (
@@ -214,12 +212,6 @@ class RunEventStreamService:
         run = scope.runs.get_run_projection(run_id)
         if run is None:
             raise NotFound("run is unavailable", run_id=run_id)
-        _role_policy, registry = self._load_authority(scope.policies)
-        permission = Permission(
-            action="read",
-            resource_kind="run",
-            domain_scope=_resolve_run_read_domain(run, registry, scope.approvals),
-        )
         query_hash = canonical_sha256(
             {
                 "query_schema_version": "run-events-stream-query@1",
@@ -231,10 +223,15 @@ class RunEventStreamService:
             policy_repository=scope.policies,
             role_policy_version=self._role_policy_version,
             role_policy_digest=self._role_policy_digest,
+            missing_authority_component="run_event_stream_authorization",
         )
-        authorization.require_singular(
+        authorization.require_singular_derived(
             principal=actor.principal,
-            permission=permission,
+            permission_for=lambda registry: Permission(
+                action="read",
+                resource_kind="run",
+                domain_scope=_resolve_run_read_domain(run, registry, scope.approvals),
+            ),
             query_hash=query_hash,
         )
         earliest = self._earliest_retained_seq(scope.runs, run_id)
@@ -307,27 +304,6 @@ class RunEventStreamService:
             if event.run_id != run_id or event.seq != expected or event.seq > latest:
                 raise IntegrityViolation("Run event page is not a contiguous persisted sequence")
             expected += 1
-
-    def _load_authority(
-        self,
-        policies: ReadPolicyRepository,
-    ) -> tuple[RolePolicy, DomainRegistryV1]:
-        role_policy = policies.get_role_policy(
-            self._role_policy_version,
-            self._role_policy_digest,
-        )
-        if not isinstance(role_policy, RolePolicy):
-            raise DependencyUnavailable(
-                "run event stream role policy is unavailable",
-                component="run_event_stream_authorization",
-            )
-        registry = policies.get_domain_registry(role_policy.domain_registry_ref)
-        if not isinstance(registry, DomainRegistryV1):
-            raise DependencyUnavailable(
-                "run event stream domain registry is unavailable",
-                component="run_event_stream_authorization",
-            )
-        return role_policy, registry
 
     @staticmethod
     def _earliest_retained_seq(

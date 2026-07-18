@@ -800,17 +800,6 @@ class _RunCommandAuditGateway:
             request_id=request_id,
         )
 
-    @staticmethod
-    def _unsupported(*_: object, **__: object) -> object:
-        raise IntegrityViolation("API command service cannot publish worker execution data")
-
-    record_run_created = _unsupported
-    record_run_claimed = _unsupported
-    get_prompt_replay = _unsupported
-    get_agent_prompt_context_replay = _unsupported
-    publish_agent_prompt_context = _unsupported
-    publish_prompt_rendered = _unsupported
-
     def _append(
         self,
         *,

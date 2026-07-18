@@ -10,13 +10,18 @@ command carries the server-scoped idempotency key + canonical request hash + OCC
 its committed result (a stable ``status="duplicate"`` ACK) while the same key/sequence
 bound to a different request is an ``idempotency_conflict``. ``submit`` persists the
 command, its Run mutation, RunEvent(s), and audit inside one UoW BEFORE returning, so the
-ACK is durable.
+ACK is durable. The WebSocket schema accepts both command variants; only commands with a
+composed consumer reach ``submit``.
 
 The transport reauthorizes the REAL Run once per REST request and on EVERY WebSocket
 message for early rejection. ``submit`` then reloads the current Principal/roles and
 reauthorizes the admission-frozen Run domain through a transaction-bound capability
 before any replay ACK or mutation, closing the revocation race without moving RBAC into
 the deterministic repository.
+
+The ``provide_input`` wire contract remains frozen, but production has no authoritative
+Playtest interaction-request/pause point yet. The API therefore fails that command closed
+before persistence instead of ACKing work that no worker can consume.
 
 The browser NEVER receives lease/fencing tokens: the only server frames are
 ``RunCommandAckV1``/``RunCommandProblemV1`` (``RunCommandServerFrame``), which structurally
@@ -50,7 +55,10 @@ from gameforge.apps.api.dependencies import (
     require_actor,
 )
 from gameforge.apps.api.errors import _mapping, _problem
-from gameforge.apps.api.streaming import ApprovalItemReader, _resolve_run_read_domain
+from gameforge.apps.api.run_read_domain import (
+    ApprovalItemReader,
+    resolve_run_read_domain as _resolve_run_read_domain,
+)
 from gameforge.contracts.auth import (
     ApiKeyAuthRequestV1,
     ApiKeySecret,
@@ -73,10 +81,8 @@ from gameforge.contracts.errors import (
 )
 from gameforge.contracts.identity import (
     ActorContext,
-    DomainRegistryV1,
     Permission,
     Principal,
-    RolePolicy,
 )
 from gameforge.contracts.jobs import (
     Problem,
@@ -141,31 +147,19 @@ def _authorize_loaded_run_command(
             "run kind definition is unavailable for command authorization",
             component="run_command_authorization",
         )
-    role_policy = policies.get_role_policy(role_policy_version, role_policy_digest)
-    if not isinstance(role_policy, RolePolicy):
-        raise DependencyUnavailable(
-            "run command role policy is unavailable",
-            component="run_command_authorization",
-        )
-    domain_registry = policies.get_domain_registry(role_policy.domain_registry_ref)
-    if not isinstance(domain_registry, DomainRegistryV1):
-        raise DependencyUnavailable(
-            "run command domain registry is unavailable",
-            component="run_command_authorization",
-        )
     base = definition.required_permission
-    permission = Permission(
-        action=base.action,
-        resource_kind=base.resource_kind,
-        domain_scope=_resolve_run_read_domain(run, domain_registry, approvals),
-    )
     ReadAuthorizationService(
         policy_repository=policies,
         role_policy_version=role_policy_version,
         role_policy_digest=role_policy_digest,
-    ).require_singular(
+        missing_authority_component="run_command_authorization",
+    ).require_singular_derived(
         principal=principal,
-        permission=permission,
+        permission_for=lambda domain_registry: Permission(
+            action=base.action,
+            resource_kind=base.resource_kind,
+            domain_scope=_resolve_run_read_domain(run, domain_registry, approvals),
+        ),
         query_hash=canonical_sha256(
             {
                 "query_schema_version": "run-command-authorization-query@1",
@@ -289,6 +283,11 @@ def _submit_command(
     maps to a ``RunCommandProblemV1`` frame / HTTP status.
     """
 
+    if command.type == "provide_input":
+        raise DependencyUnavailable(
+            "Playtest input consumption is not composed",
+            component="playtest_input_consumer",
+        )
     authorizer, service = _authority(dependencies)
     authorizer.authorize(run_id=run_id, actor=actor)
     audit_actor = AuditActor(
@@ -376,12 +375,12 @@ _MAPPED_COMMAND_ERRORS = (
 # ── WebSocket-scope authentication ───────────────────────────────────────────
 @dataclass(frozen=True, slots=True)
 class _WebSocketCredentials:
-    """The raw handshake credential captured once, re-resolved on every message."""
+    """The redacted handshake credential captured once, re-resolved on every message."""
 
     mechanism: str  # "session" | "api_key"
-    session_token: str | None = None
-    csrf_token: str | None = None
-    api_key: str | None = None
+    session_token: SessionToken | None = None
+    csrf_token: SecretText | None = None
+    api_key: ApiKeySecret | None = None
 
 
 def _websocket_credentials(
@@ -407,27 +406,27 @@ def _websocket_credentials(
             raise AuthFailed("WebSocket session cookie is invalid")
         return _WebSocketCredentials(
             mechanism="session",
-            session_token=session_value,
+            session_token=SessionToken(session_value),
             csrf_token=_csrf_from_subprotocols(websocket, ws_config),
         )
     if authorization is not None:
         scheme, separator, secret = authorization.partition(" ")
         if scheme != "ApiKey" or not separator or not secret or len(secret) > 4096 or " " in secret:
             raise AuthFailed("WebSocket API-key authorization header is invalid")
-        return _WebSocketCredentials(mechanism="api_key", api_key=secret)
+        return _WebSocketCredentials(mechanism="api_key", api_key=ApiKeySecret(secret))
     raise AuthRequired("WebSocket credentials are required")
 
 
 def _csrf_from_subprotocols(
     websocket: WebSocket,
     ws_config: RunCommandWebSocketConfig,
-) -> str | None:
+) -> SecretText | None:
     offered = websocket.scope.get("subprotocols", ())
     for value in offered:
         if isinstance(value, str) and value.startswith(ws_config.csrf_subprotocol_prefix):
             token = value[len(ws_config.csrf_subprotocol_prefix) :]
             if token and len(token) <= 4096:
-                return token
+                return SecretText(token)
     return None
 
 
@@ -450,11 +449,11 @@ def _resolve_websocket_actor(
                 "session authentication is not configured",
                 component="run_command_ws_auth",
             )
+        if credentials.session_token is None:
+            raise IntegrityViolation("WebSocket session credential is incomplete")
         actor = session_auth.resolve(
-            SessionToken(credentials.session_token or ""),
-            csrf_token=(
-                None if credentials.csrf_token is None else SecretText(credentials.csrf_token)
-            ),
+            credentials.session_token,
+            csrf_token=credentials.csrf_token,
             request_method="POST",
             request_id=request_id,
         )
@@ -466,8 +465,10 @@ def _resolve_websocket_actor(
             "API-key authentication is not configured",
             component="run_command_ws_auth",
         )
+    if credentials.api_key is None:
+        raise IntegrityViolation("WebSocket API-key credential is incomplete")
     actor = api_key_auth.authenticate(
-        ApiKeyAuthRequestV1(api_key=ApiKeySecret(credentials.api_key or "")),
+        ApiKeyAuthRequestV1(api_key=credentials.api_key),
         request_id=request_id,
     )
     if actor.principal.kind != "service" or actor.authentication.mechanism != "api_key":

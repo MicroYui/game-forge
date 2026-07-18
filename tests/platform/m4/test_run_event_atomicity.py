@@ -148,6 +148,20 @@ def test_command_submission_computes_hash_and_persists_one_typed_accepted_event(
     assert ack.run_revision == run.revision
 
 
+def test_provide_input_skips_inactive_cancel_planning_scope() -> None:
+    harness = _command_harness()
+    _start(harness)
+
+    def unexpected_planning_scope():
+        raise AssertionError("provide_input must enter its write UoW directly")
+
+    harness.commands._planning_scope = unexpected_planning_scope  # noqa: SLF001
+
+    ack = _submit(harness, _input_command(expected_run_revision=3))
+
+    assert ack.persisted_status == "pending"
+
+
 @pytest.mark.parametrize("collision", ["command_id", "client_seq", "idempotency_key"])
 def test_command_identity_and_idempotency_are_exact(collision: str) -> None:
     harness = _command_harness()

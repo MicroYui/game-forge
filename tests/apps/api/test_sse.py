@@ -25,6 +25,7 @@ from typing import Any, Iterator
 from fastapi import Request
 from fastapi.testclient import TestClient
 import pytest
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.app import create_app
@@ -96,7 +97,7 @@ from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine, sqlite_read_snapshot_session
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
-from gameforge.runtime.persistence.models import Base
+from gameforge.runtime.persistence.models import Base, PolicySnapshotRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
@@ -868,6 +869,21 @@ def test_future_last_event_id_returns_invalid_cursor_problem(tmp_path: Path) -> 
 
     assert response.status_code == 400, response.text
     assert Problem.model_validate(response.json()).code == "invalid_cursor"
+
+
+def test_missing_stream_policy_returns_dependency_unavailable(tmp_path: Path) -> None:
+    harness = AppHarness(tmp_path)
+    run_id = harness.admit_checker_run("missing-stream-policy")
+    with Session(harness.engine) as session, session.begin():
+        session.execute(
+            delete(PolicySnapshotRow).where(PolicySnapshotRow.document_kind == "role_policy")
+        )
+
+    with TestClient(harness.app, base_url=ORIGIN) as client:
+        response = client.get(f"/api/v1/runs/{run_id}/events")
+
+    assert response.status_code == 503
+    assert Problem.model_validate(response.json()).code == "dependency_unavailable"
 
 
 def test_stream_authorization_uses_frozen_admission_domain_scope(tmp_path: Path) -> None:

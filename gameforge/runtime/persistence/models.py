@@ -698,6 +698,7 @@ class RunCommandRow(Base):
             ondelete="RESTRICT",
         ),
         Index("ix_run_commands_pending", "run_id", "status", "created_at", "command_id"),
+        Index("ix_run_commands_result_event", "run_id", "result_event_seq"),
     )
 
     run_id: Mapped[str] = mapped_column(

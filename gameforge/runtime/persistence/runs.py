@@ -10,7 +10,7 @@ from typing import Any, Literal, Protocol, Sequence, TypeVar
 from weakref import WeakKeyDictionary, WeakSet
 
 from pydantic import BaseModel, ValidationError
-from sqlalchemy import and_, bindparam, case, delete, func, or_, select, tuple_, update
+from sqlalchemy import and_, case, delete, func, or_, select, tuple_, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -71,7 +71,6 @@ _ACTIVE_ATTEMPT_STATUSES = frozenset({"leased", "running"})
 _MAX_SQL_IN_ITEMS = 900
 _RUN_FINDING_PREFLIGHT_AUTHORITY = object()
 _RUN_TERMINAL_PREFLIGHT_AUTHORITY = object()
-_TERMINAL_COMMAND_PREFLIGHT_AUTHORITY = object()
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,9 +85,7 @@ class _PreflightedRunTerminalClosureState:
     attempt_statement: object | None
     lease_statement: object | None
     event_parameters: tuple[dict[str, object], ...]
-    command_mode: Literal["retry", "terminal"]
-    command_statement: object | None
-    command_parameters: tuple[dict[str, object], ...]
+    command_statement: object
 
 
 class _PreflightedRunTerminalClosure:
@@ -122,7 +119,9 @@ _CONSUMED_RUN_TERMINAL_PREFLIGHT_SEALS: WeakSet[_PreflightedRunTerminalClosure] 
 
 
 @dataclass(frozen=True, slots=True)
-class _PreflightedTerminalCommandAcceptanceState:
+class _PreflightedTerminalCommandAcceptance:
+    """Transaction-local inactive-cancel DML plan guarded by the database CAS."""
+
     owner: SqlRunRepository
     session: Session
     transaction: object
@@ -130,36 +129,7 @@ class _PreflightedTerminalCommandAcceptanceState:
     run_statement: object
     event_parameters: tuple[dict[str, object], ...]
     command_parameters: dict[str, object]
-    rejection_statement: object | None
-    rejection_parameters: tuple[dict[str, object], ...]
-
-
-class _PreflightedTerminalCommandAcceptance:
-    __slots__ = ("__weakref__",)
-
-    def __init__(
-        self,
-        *,
-        _authority: object,
-        _state: _PreflightedTerminalCommandAcceptanceState,
-    ) -> None:
-        if _authority is not _TERMINAL_COMMAND_PREFLIGHT_AUTHORITY:
-            raise IntegrityViolation("terminal command preflight seal is not trusted")
-        with _TERMINAL_COMMAND_PREFLIGHT_LOCK:
-            _TERMINAL_COMMAND_PREFLIGHT_STATES[self] = _state
-
-    def __setattr__(self, _name: str, _value: object) -> None:
-        raise TypeError("terminal command preflight seal is immutable")
-
-
-_TERMINAL_COMMAND_PREFLIGHT_LOCK = Lock()
-_TERMINAL_COMMAND_PREFLIGHT_STATES: WeakKeyDictionary[
-    _PreflightedTerminalCommandAcceptance,
-    _PreflightedTerminalCommandAcceptanceState,
-] = WeakKeyDictionary()
-_CONSUMED_TERMINAL_COMMAND_PREFLIGHT_SEALS: WeakSet[_PreflightedTerminalCommandAcceptance] = (
-    WeakSet()
-)
+    rejection_statement: object
 
 
 @dataclass(frozen=True, slots=True)
@@ -2127,7 +2097,7 @@ class SqlRunRepository:
             {**lease.model_dump(mode="python"), "status": lease_status}
         )
         result = RunAttemptClose(updated_run, updated_attempt, updated_lease, parsed_events)
-        command_statement, command_parameters = self._preflight_terminal_commands(
+        command_statement = self._preflight_terminal_commands(
             run_id=run.run_id,
             mode="retry",
             event_seq=parsed_events[-1].seq,
@@ -2145,9 +2115,7 @@ class SqlRunRepository:
             lease_status=lease_status,
             released_at=ended_at,
             events=parsed_events,
-            command_mode="retry",
             command_statement=command_statement,
-            command_parameters=command_parameters,
         )
 
     def complete_attempt_success(
@@ -2244,7 +2212,7 @@ class SqlRunRepository:
             {**lease.model_dump(mode="python"), "status": "closed"}
         )
         result = RunTerminal(updated_run, updated_attempt, updated_lease, parsed_event)
-        command_statement, command_parameters = self._preflight_terminal_commands(
+        command_statement = self._preflight_terminal_commands(
             run_id=run.run_id,
             mode="terminal",
             event_seq=parsed_event.seq,
@@ -2262,9 +2230,7 @@ class SqlRunRepository:
             lease_status="closed",
             released_at=ended_at,
             events=(parsed_event,),
-            command_mode="terminal",
             command_statement=command_statement,
-            command_parameters=command_parameters,
         )
 
     def close_attempt_terminal(
@@ -2417,7 +2383,7 @@ class SqlRunRepository:
             {**lease.model_dump(mode="python"), "status": lease_status}
         )
         result = RunTerminal(updated_run, updated_attempt, updated_lease, parsed_terminal)
-        command_statement, command_parameters = self._preflight_terminal_commands(
+        command_statement = self._preflight_terminal_commands(
             run_id=run.run_id,
             mode="terminal",
             event_seq=parsed_terminal.seq,
@@ -2435,9 +2401,7 @@ class SqlRunRepository:
             lease_status=lease_status,
             released_at=ended_at,
             events=events,
-            command_mode="terminal",
             command_statement=command_statement,
-            command_parameters=command_parameters,
         )
 
     def terminate_inactive_run(
@@ -2526,7 +2490,7 @@ class SqlRunRepository:
             }
         )
         result = RunTerminal(updated_run, latest_attempt, None, parsed_event)
-        command_statement, command_parameters = self._preflight_terminal_commands(
+        command_statement = self._preflight_terminal_commands(
             run_id=run.run_id,
             mode="terminal",
             event_seq=parsed_event.seq,
@@ -2544,9 +2508,7 @@ class SqlRunRepository:
             lease_status=None,
             released_at=parsed_event.occurred_at,
             events=(parsed_event,),
-            command_mode="terminal",
             command_statement=command_statement,
-            command_parameters=command_parameters,
         )
 
     def get_attempt(self, run_id: str, attempt_no: int) -> RunAttempt | None:
@@ -2819,26 +2781,17 @@ class SqlRunRepository:
         )
 
     def get_run_projection(self, run_id: str) -> RunRecord | None:
-        """Load a Run for a read projection that tolerates a retention-pruned event log.
+        """Load the immutable Run row used to scope a retention-tolerant read.
 
-        Identical to :meth:`get` except it skips the ENTIRE write-side event-head check
-        (:meth:`_verify_run_heads`) — both the event-count/first/last contiguity guard
-        AND its future attempt/fencing-head guards. Event retention legitimately removes
-        the oldest events, so a resumable-read consumer (e.g. the SSE stream) must be able
-        to load the Run and derive its scope even when its earliest events have been
-        pruned. The non-event execution-state invariants are still enforced by
-        :meth:`_verify_run_state` (attempt/lease/permit consistency for the Run's status),
-        so the projection remains a coherent Run view; only the event-log head guarantee
-        is relaxed.
+        Attempt, lease, permit, and event-head checks belong to write authority. Read
+        authorization needs only the canonically parsed Run row and its frozen domain.
         """
 
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
         row = self._session.get(RunRow, selected_run_id)
         if row is None:
             return None
-        run = _parse_run_row(row, expected_run_id=selected_run_id)
-        self._verify_run_state(run)
-        return run
+        return _parse_run_row(row, expected_run_id=selected_run_id)
 
     def earliest_event_seq(self, run_id: str) -> int | None:
         """Return MIN(seq) of the Run's retained events, or None when none remain.
@@ -2900,7 +2853,7 @@ class SqlRunRepository:
 
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
         selected_before_seq = _require_positive(before_seq, field_name="before_seq")
-        run = self.get(selected_run_id)
+        run = self.get_run_projection(selected_run_id)
         if run is None:
             raise IntegrityViolation("Run event retention target does not exist")
         if run.status not in {"succeeded", "failed", "cancelled", "timed_out"}:
@@ -2926,10 +2879,6 @@ class SqlRunRepository:
                 RunEventRow.seq < protected_seq,
             )
         )
-        self._session.flush()
-        retained = self.get(selected_run_id)
-        if retained != run:
-            raise IntegrityViolation("Run event retention changed the Run projection")
         return int(result.rowcount or 0)
 
     def put_intermediate_link(
@@ -4701,7 +4650,7 @@ class SqlRunRepository:
             )
             .values(**updates)
         )
-        rejection_statement, rejection_parameters = self._preflight_terminal_commands(
+        rejection_statement = self._preflight_terminal_commands(
             run_id=run.run_id,
             mode="terminal",
             event_seq=terminal_event.seq,
@@ -4709,7 +4658,7 @@ class SqlRunRepository:
             fence=None,
         )
         result = RunCommandAcceptance(updated_run, parsed_record, parsed_events)
-        state = _PreflightedTerminalCommandAcceptanceState(
+        return _PreflightedTerminalCommandAcceptance(
             owner=self,
             session=self._session,
             transaction=transaction,
@@ -4718,34 +4667,23 @@ class SqlRunRepository:
             event_parameters=tuple(_event_values(event) for event in parsed_events),
             command_parameters=_command_values(parsed_record),
             rejection_statement=rejection_statement,
-            rejection_parameters=rejection_parameters,
-        )
-        return _PreflightedTerminalCommandAcceptance(
-            _authority=_TERMINAL_COMMAND_PREFLIGHT_AUTHORITY,
-            _state=state,
         )
 
     def apply_preflighted_terminal_command(
         self,
         seal: object,
     ) -> RunCommandAcceptance:
-        """Consume a terminal command seal using CAS/INSERT DML only."""
+        """Apply one transaction-local terminal command plan using DML only."""
 
         if not isinstance(seal, _PreflightedTerminalCommandAcceptance):
-            raise IntegrityViolation("terminal command lacks its trusted preflight seal")
-        with _TERMINAL_COMMAND_PREFLIGHT_LOCK:
-            state = _TERMINAL_COMMAND_PREFLIGHT_STATES.get(seal)
-            if state is None:
-                raise IntegrityViolation("terminal command lacks its trusted preflight seal")
-            if seal in _CONSUMED_TERMINAL_COMMAND_PREFLIGHT_SEALS:
-                raise IntegrityViolation("terminal command preflight seal was already consumed")
-            if (
-                state.owner is not self
-                or state.session is not self._session
-                or state.transaction is not self._current_transaction()
-            ):
-                raise IntegrityViolation("terminal command seal belongs to another transaction")
-            _CONSUMED_TERMINAL_COMMAND_PREFLIGHT_SEALS.add(seal)
+            raise IntegrityViolation("terminal command preflight plan is invalid")
+        state = seal
+        if (
+            state.owner is not self
+            or state.session is not self._session
+            or state.transaction is not self._current_transaction()
+        ):
+            raise IntegrityViolation("terminal command plan belongs to another transaction")
 
         connection = self._session.connection()
         run_result = connection.execute(state.run_statement)
@@ -4785,15 +4723,7 @@ class SqlRunRepository:
             ) from exc
         if command_result.rowcount != 1:
             raise IntegrityViolation("terminal command insert count differs")
-        if state.rejection_parameters:
-            if state.rejection_statement is None:
-                raise IntegrityViolation("terminal command rejection DML is incomplete")
-            rejection_result = connection.execute(
-                state.rejection_statement,
-                state.rejection_parameters,
-            )
-            if rejection_result.rowcount != len(state.rejection_parameters):
-                raise Conflict("terminal command rejection CAS did not match")
+        connection.execute(state.rejection_statement)
         self._session.expire_all()
         return state.result
 
@@ -4828,6 +4758,10 @@ class SqlRunRepository:
             terminal_cassette_artifact_id,
             field_name="terminal_cassette_artifact_id",
         )
+        if terminal_failure_artifact_id is not None:
+            raise IntegrityViolation("nonterminal command cannot publish a failure artifact")
+        if terminal_cassette_id is not None:
+            raise IntegrityViolation("nonterminal command cannot publish a cassette")
         parsed_record = _revalidate(
             record,
             RunCommandRecordV1,
@@ -4866,7 +4800,6 @@ class SqlRunRepository:
         if parsed_record.command.type == "provide_input":
             if (
                 parsed_record.status != "pending"
-                or terminal_status is not None
                 or len(parsed_events) != 1
                 or parsed_events[0].event_type != "run.command_accepted"
                 or run.status not in _ACTIVE_RUN_STATUSES
@@ -4887,25 +4820,8 @@ class SqlRunRepository:
                 != getattr(parsed_record.command.payload, "reason_code", None)
             ):
                 raise IntegrityViolation("cancel command acceptance shape is invalid")
-            if terminal_status is None:
-                if len(parsed_events) != 1 or run.status not in _ACTIVE_RUN_STATUSES:
-                    raise IntegrityViolation("active cancel acceptance shape is invalid")
-            else:
-                expected_attempt_no = (
-                    run.next_attempt_no - 1 if run.status == "retry_wait" else None
-                )
-                terminal_event = parsed_events[-1]
-                if (
-                    run.status not in {"queued", "retry_wait"}
-                    or len(parsed_events) != 2
-                    or terminal_event.event_type != "run.cancelled"
-                    or terminal_event.attempt_no is not None
-                    or getattr(terminal_event.data, "attempt_no", None) != expected_attempt_no
-                    or getattr(terminal_event.data, "failure_artifact_id", None)
-                    != terminal_failure_artifact_id
-                    or getattr(terminal_event.data, "cause_code", None) != "cancelled"
-                ):
-                    raise IntegrityViolation("inactive cancel acceptance shape is invalid")
+            if len(parsed_events) != 1 or run.status not in _ACTIVE_RUN_STATUSES:
+                raise IntegrityViolation("active cancel acceptance shape is invalid")
 
         updates: dict[str, Any] = {
             "revision": run.revision + 1,
@@ -4917,37 +4833,10 @@ class SqlRunRepository:
                 cancel_requested_at=parsed_events[0].occurred_at,
                 cancel_requested_by=parsed_record.actor.model_dump(mode="json"),
             )
-        if terminal_status is not None:
-            artifact_id = _require_nonempty(
-                terminal_failure_artifact_id,
-                field_name="terminal_failure_artifact_id",
-            )
-            _validate_cassette_publication(
-                run,
-                attempt_cassette_artifact_id=None,
-                terminal_cassette_artifact_id=terminal_cassette_id,
-                closes_attempt=False,
-                closes_run=True,
-            )
-            updates.update(
-                status=terminal_status,
-                failure_artifact_id=artifact_id,
-                terminal_cassette_artifact_id=terminal_cassette_id,
-                retry_not_before_utc=None,
-                concurrency_permit_group_id=None,
-            )
-        elif terminal_failure_artifact_id is not None:
-            raise IntegrityViolation("nonterminal command cannot publish a failure artifact")
-        elif terminal_cassette_id is not None:
-            raise IntegrityViolation("nonterminal command cannot publish a cassette")
         updated_run = RunRecord.model_validate({**run.model_dump(mode="python"), **updates})
-        run_predicates = self._run_fence_predicates(run)
-        if terminal_status is not None:
-            run_predicates = (
-                *run_predicates,
-                RunRow.terminal_cassette_artifact_id.is_(None),
-            )
-        run_result = self._session.execute(update(RunRow).where(*run_predicates).values(**updates))
+        run_result = self._session.execute(
+            update(RunRow).where(*self._run_fence_predicates(run)).values(**updates)
+        )
         if run_result.rowcount != 1:
             raise Conflict("Run command acceptance Run CAS did not match")
         for parsed_event in parsed_events:
@@ -4955,13 +4844,6 @@ class SqlRunRepository:
         self._session.flush()
         self._session.add(RunCommandRow(**_command_values(parsed_record)))
         self._session.flush()
-        if terminal_status is not None:
-            self._reject_outstanding_commands(
-                run_id=run.run_id,
-                event_seq=parsed_events[-1].seq,
-                occurred_at=parsed_events[-1].occurred_at,
-            )
-            self._session.flush()
         return RunCommandAcceptance(updated_run, parsed_record, parsed_events)
 
     def claim_command(
@@ -5376,121 +5258,56 @@ class SqlRunRepository:
         event_seq: int,
         occurred_at: str,
         fence: _AttemptWriteFence | None,
-    ) -> tuple[object | None, tuple[dict[str, object], ...]]:
-        statuses = ("claimed",) if mode == "retry" else ("pending", "claimed")
-        rows = self._session.scalars(
-            select(RunCommandRow)
+    ) -> object:
+        if mode == "retry":
+            if fence is None:
+                raise IntegrityViolation("Run retry command reset lacks an attempt fence")
+            stale = self._session.execute(
+                select(RunCommandRow.command_id)
+                .where(
+                    RunCommandRow.run_id == run_id,
+                    RunCommandRow.status == "claimed",
+                    or_(
+                        RunCommandRow.claimed_attempt_no.is_(None),
+                        RunCommandRow.claimed_attempt_no != fence.attempt_no,
+                        RunCommandRow.claimed_fencing_token.is_(None),
+                        RunCommandRow.claimed_fencing_token != fence.fencing_token,
+                    ),
+                )
+                .limit(1)
+            ).scalar_one_or_none()
+            if stale is not None:
+                raise IntegrityViolation("claimed command is bound to a stale Run attempt")
+            return (
+                update(RunCommandRow)
+                .where(
+                    RunCommandRow.run_id == run_id,
+                    RunCommandRow.status == "claimed",
+                    RunCommandRow.claimed_attempt_no == fence.attempt_no,
+                    RunCommandRow.claimed_fencing_token == fence.fencing_token,
+                )
+                .values(
+                    status="pending",
+                    revision=RunCommandRow.revision + 1,
+                    claimed_at=None,
+                    claimed_attempt_no=None,
+                    claimed_fencing_token=None,
+                )
+            )
+        return (
+            update(RunCommandRow)
             .where(
                 RunCommandRow.run_id == run_id,
-                RunCommandRow.status.in_(statuses),
+                RunCommandRow.status.in_(("pending", "claimed")),
             )
-            .order_by(RunCommandRow.created_at, RunCommandRow.command_id)
-            .limit(MAX_COLLECTION_ITEMS + 1)
-            .execution_options(populate_existing=True)
-        ).all()
-        if len(rows) > MAX_COLLECTION_ITEMS:
-            raise IntegrityViolation("Run command authority exceeds its hard cap")
-        parameters: list[dict[str, object]] = []
-        for row in rows:
-            record = _parse_command_row(
-                row,
-                expected_run_id=run_id,
-                expected_command_id=row.command_id,
+            .values(
+                status="rejected",
+                revision=RunCommandRow.revision + 1,
+                applied_at=occurred_at,
+                result_event_seq=event_seq,
+                rejection_code="run_terminal",
             )
-            if mode == "retry":
-                if fence is None or (
-                    record.claimed_attempt_no != fence.attempt_no
-                    or record.claimed_fencing_token != fence.fencing_token
-                ):
-                    raise IntegrityViolation("claimed command is bound to a stale Run attempt")
-                updated = RunCommandRecordV1.model_validate(
-                    {
-                        **record.model_dump(mode="python"),
-                        "status": "pending",
-                        "revision": record.revision + 1,
-                        "claimed_at": None,
-                        "claimed_attempt_no": None,
-                        "claimed_fencing_token": None,
-                    }
-                )
-                parameters.append(
-                    {
-                        "cas_run_id": run_id,
-                        "cas_command_id": record.command.command_id,
-                        "cas_status": "claimed",
-                        "cas_revision": record.revision,
-                        "cas_attempt_no": fence.attempt_no,
-                        "cas_fencing_token": fence.fencing_token,
-                        "new_status": "pending",
-                        "new_revision": updated.revision,
-                        "new_claimed_at": None,
-                        "new_claimed_attempt_no": None,
-                        "new_claimed_fencing_token": None,
-                    }
-                )
-            else:
-                updated = RunCommandRecordV1.model_validate(
-                    {
-                        **record.model_dump(mode="python"),
-                        "status": "rejected",
-                        "revision": record.revision + 1,
-                        "applied_at": occurred_at,
-                        "result_event_seq": event_seq,
-                        "rejection_code": "run_terminal",
-                    }
-                )
-                parameters.append(
-                    {
-                        "cas_run_id": run_id,
-                        "cas_command_id": record.command.command_id,
-                        "cas_status": record.status,
-                        "cas_revision": record.revision,
-                        "new_status": "rejected",
-                        "new_revision": updated.revision,
-                        "new_applied_at": occurred_at,
-                        "new_result_event_seq": event_seq,
-                        "new_rejection_code": "run_terminal",
-                    }
-                )
-        if not parameters:
-            return None, ()
-        if mode == "retry":
-            statement = (
-                update(RunCommandRow)
-                .where(
-                    RunCommandRow.run_id == bindparam("cas_run_id"),
-                    RunCommandRow.command_id == bindparam("cas_command_id"),
-                    RunCommandRow.status == bindparam("cas_status"),
-                    RunCommandRow.revision == bindparam("cas_revision"),
-                    RunCommandRow.claimed_attempt_no == bindparam("cas_attempt_no"),
-                    RunCommandRow.claimed_fencing_token == bindparam("cas_fencing_token"),
-                )
-                .values(
-                    status=bindparam("new_status"),
-                    revision=bindparam("new_revision"),
-                    claimed_at=bindparam("new_claimed_at"),
-                    claimed_attempt_no=bindparam("new_claimed_attempt_no"),
-                    claimed_fencing_token=bindparam("new_claimed_fencing_token"),
-                )
-            )
-        else:
-            statement = (
-                update(RunCommandRow)
-                .where(
-                    RunCommandRow.run_id == bindparam("cas_run_id"),
-                    RunCommandRow.command_id == bindparam("cas_command_id"),
-                    RunCommandRow.status == bindparam("cas_status"),
-                    RunCommandRow.revision == bindparam("cas_revision"),
-                )
-                .values(
-                    status=bindparam("new_status"),
-                    revision=bindparam("new_revision"),
-                    applied_at=bindparam("new_applied_at"),
-                    result_event_seq=bindparam("new_result_event_seq"),
-                    rejection_code=bindparam("new_rejection_code"),
-                )
-            )
-        return statement, tuple(parameters)
+        )
 
     @staticmethod
     def _validate_preflight_terminal_events(
@@ -5521,9 +5338,7 @@ class SqlRunRepository:
         lease_status: Literal["closed", "expired"] | None,
         released_at: str,
         events: tuple[RunEvent, ...],
-        command_mode: Literal["retry", "terminal"],
-        command_statement: object | None,
-        command_parameters: tuple[dict[str, object], ...],
+        command_statement: object,
     ) -> _PreflightedRunTerminalClosure:
         run_values = _run_values(updated_run)
         previous_run_values = _run_values(run)
@@ -5591,9 +5406,7 @@ class SqlRunRepository:
             attempt_statement=attempt_statement,
             lease_statement=lease_statement,
             event_parameters=tuple(_event_values(event) for event in events),
-            command_mode=command_mode,
             command_statement=command_statement,
-            command_parameters=command_parameters,
         )
         return _PreflightedRunTerminalClosure(
             _authority=_RUN_TERMINAL_PREFLIGHT_AUTHORITY,
@@ -5641,17 +5454,7 @@ class SqlRunRepository:
             )
             if event_result.rowcount != len(state.event_parameters):
                 raise IntegrityViolation("Run terminal closure Event insert count differs")
-        if state.command_parameters:
-            if state.command_statement is None:
-                raise IntegrityViolation("Run terminal closure command DML is incomplete")
-            command_result = connection.execute(
-                state.command_statement,
-                state.command_parameters,
-            )
-            if command_result.rowcount != len(state.command_parameters):
-                if state.command_mode == "retry":
-                    raise Conflict("Run retry command reset CAS did not match")
-                raise Conflict("Run terminal command rejection CAS did not match")
+        connection.execute(state.command_statement)
         self._session.expire_all()
         return state.result
 
@@ -5826,95 +5629,6 @@ class SqlRunRepository:
         )
         if lease_result.rowcount != 1:
             raise Conflict("Run attempt close Lease CAS did not match")
-
-    def _reset_claimed_commands_for_retry(self, fence: _AttemptWriteFence) -> None:
-        rows = self._session.execute(
-            select(RunCommandRow).where(
-                RunCommandRow.run_id == fence.run_id,
-                RunCommandRow.status == "claimed",
-            )
-        ).scalars()
-        for row in rows:
-            record = _parse_command_row(
-                row,
-                expected_run_id=fence.run_id,
-                expected_command_id=row.command_id,
-            )
-            if (
-                record.claimed_attempt_no != fence.attempt_no
-                or record.claimed_fencing_token != fence.fencing_token
-            ):
-                raise IntegrityViolation("claimed command is bound to a stale Run attempt")
-            result = self._session.execute(
-                update(RunCommandRow)
-                .where(
-                    RunCommandRow.run_id == fence.run_id,
-                    RunCommandRow.command_id == row.command_id,
-                    RunCommandRow.status == "claimed",
-                    RunCommandRow.revision == record.revision,
-                    RunCommandRow.claimed_attempt_no == fence.attempt_no,
-                    RunCommandRow.claimed_fencing_token == fence.fencing_token,
-                )
-                .values(
-                    status="pending",
-                    revision=record.revision + 1,
-                    claimed_at=None,
-                    claimed_attempt_no=None,
-                    claimed_fencing_token=None,
-                )
-            )
-            if result.rowcount != 1:
-                raise Conflict("Run retry command reset CAS did not match")
-
-    def _reject_outstanding_commands(
-        self,
-        *,
-        run_id: str,
-        event_seq: int,
-        occurred_at: str,
-    ) -> None:
-        rows = tuple(
-            self._session.execute(
-                select(RunCommandRow).where(
-                    RunCommandRow.run_id == run_id,
-                    RunCommandRow.status.in_(("pending", "claimed")),
-                )
-            ).scalars()
-        )
-        for row in rows:
-            record = _parse_command_row(
-                row,
-                expected_run_id=run_id,
-                expected_command_id=row.command_id,
-            )
-            updated = RunCommandRecordV1.model_validate(
-                {
-                    **record.model_dump(mode="python"),
-                    "status": "rejected",
-                    "revision": record.revision + 1,
-                    "applied_at": occurred_at,
-                    "result_event_seq": event_seq,
-                    "rejection_code": "run_terminal",
-                }
-            )
-            result = self._session.execute(
-                update(RunCommandRow)
-                .where(
-                    RunCommandRow.run_id == run_id,
-                    RunCommandRow.command_id == row.command_id,
-                    RunCommandRow.status == record.status,
-                    RunCommandRow.revision == record.revision,
-                )
-                .values(
-                    status="rejected",
-                    revision=updated.revision,
-                    applied_at=occurred_at,
-                    result_event_seq=event_seq,
-                    rejection_code="run_terminal",
-                )
-            )
-            if result.rowcount != 1:
-                raise Conflict("Run terminal command rejection CAS did not match")
 
     def _validate_initial_run(self, run: RunRecord, event: RunEvent) -> None:
         if (

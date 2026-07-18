@@ -20,9 +20,17 @@ from starlette.concurrency import run_in_threadpool as actual_run_in_threadpool
 from starlette.websockets import WebSocketDisconnect
 
 import gameforge.apps.api.commands as command_transport
+from gameforge.apps.api.dependencies import RunCommandWebSocketConfig, SessionCookieSettings
 from gameforge.contracts.api import RunCommandServerFrame
-from gameforge.contracts.jobs import RunCommandAckV1, RunCommandProblemV1
+from gameforge.contracts.jobs import (
+    PlaytestProvideInputPayloadV1,
+    RunCommandAckV1,
+    RunCommandProblemV1,
+    RunCommandV1,
+)
 from pydantic import TypeAdapter
+from sqlalchemy import delete
+from sqlalchemy.orm import Session
 from tests.apps.api.run_command_testkit import (
     API_KEY,
     ORIGIN,
@@ -32,10 +40,24 @@ from tests.apps.api.run_command_testkit import (
     build_cancel_command,
     human_actor,
 )
+from gameforge.runtime.persistence.models import PolicySnapshotRow
 
 _FRAME = TypeAdapter(RunCommandServerFrame)
 _WS_PATH = "/api/v1/runs/{run_id}/commands"
 _ORIGIN_HEADERS = {"origin": ORIGIN}
+
+
+class _Handshake:
+    def __init__(
+        self,
+        *,
+        cookies: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+        subprotocols: tuple[str, ...] = (),
+    ) -> None:
+        self.cookies = cookies or {}
+        self.headers = headers or {}
+        self.scope = {"subprotocols": subprotocols}
 
 
 def _command_frame(
@@ -61,6 +83,36 @@ def _session_client(harness: CommandAppHarness) -> TestClient:
     client = TestClient(harness.app, base_url=ORIGIN)
     client.cookies.set(SESSION_COOKIE, SESSION_TOKEN)
     return client
+
+
+@pytest.mark.parametrize(
+    ("handshake", "secret"),
+    [
+        (
+            _Handshake(
+                cookies={SESSION_COOKIE: "session-secret-that-must-not-leak"},
+                subprotocols=("gameforge.csrf.csrf-secret-that-must-not-leak",),
+            ),
+            "session-secret-that-must-not-leak",
+        ),
+        (
+            _Handshake(headers={"authorization": "ApiKey api-secret-that-must-not-leak"}),
+            "api-secret-that-must-not-leak",
+        ),
+    ],
+)
+def test_captured_websocket_credentials_redact_secrets(
+    handshake: _Handshake,
+    secret: str,
+) -> None:
+    credentials = command_transport._websocket_credentials(  # noqa: SLF001
+        handshake,  # type: ignore[arg-type]
+        cookie=SessionCookieSettings(name=SESSION_COOKIE),
+        ws_config=RunCommandWebSocketConfig(),
+    )
+
+    assert secret not in repr(credentials)
+    assert "csrf-secret-that-must-not-leak" not in repr(credentials)
 
 
 # ── handshake auth + happy cancel over the durable submit path ────────────────
@@ -142,6 +194,62 @@ def test_api_key_handshake_cancel_returns_ack_frame(tmp_path: Path) -> None:
             )
             frame = ws.receive_json()
     assert RunCommandAckV1.model_validate(frame).status == "accepted"
+
+
+def test_missing_command_policy_returns_dependency_unavailable(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run()
+    with Session(harness.engine) as session, session.begin():
+        session.execute(
+            delete(PolicySnapshotRow).where(PolicySnapshotRow.document_kind == "role_policy")
+        )
+
+    with _session_client(harness) as client:
+        with client.websocket_connect(
+            _WS_PATH.format(run_id=run_id), headers=_ORIGIN_HEADERS
+        ) as ws:
+            ws.send_text(
+                _command_frame(
+                    command_id="cmd:missing-policy",
+                    idempotency_key="k:missing-policy",
+                    expected_run_revision=1,
+                )
+            )
+            problem = RunCommandProblemV1.model_validate(ws.receive_json())
+
+    assert problem.problem.status == 503
+    assert problem.problem.code == "dependency_unavailable"
+
+
+def test_provide_input_fails_closed_without_a_production_consumer(tmp_path: Path) -> None:
+    harness = CommandAppHarness(tmp_path)
+    run_id = harness.admit_checker_run()
+    before = harness.run_record(run_id)
+    command = RunCommandV1(
+        command_id="cmd:input:no-consumer",
+        client_id="browser:a",
+        client_seq=1,
+        idempotency_key="input:no-consumer",
+        expected_run_revision=before.revision,
+        type="provide_input",
+        payload_schema_id="playtest-provide-input@1",
+        payload=PlaytestProvideInputPayloadV1(
+            interaction_id="interaction:not-active",
+            expected_state_hash="a" * 64,
+            choice_id="choice:a",
+        ),
+    )
+
+    with _session_client(harness) as client:
+        with client.websocket_connect(
+            _WS_PATH.format(run_id=run_id), headers=_ORIGIN_HEADERS
+        ) as ws:
+            ws.send_text(command.model_dump_json())
+            problem = RunCommandProblemV1.model_validate(ws.receive_json())
+
+    assert problem.problem.status == 503
+    assert problem.problem.code == "dependency_unavailable"
+    assert harness.run_record(run_id) == before
 
 
 def test_offered_subprotocols_negotiate_base_and_carry_csrf(tmp_path: Path) -> None:

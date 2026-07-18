@@ -1119,10 +1119,20 @@ class RunCommandService:
         request_id: str | None = None,
     ) -> RunCommandSubmissionResult:
         selected_request_id = _bounded_request_id(request_id)
+        operation_now = _utc_now(self._clock)
+        if command.type == "provide_input":
+            return self._submit_in_write_uow(
+                run_id=run_id,
+                command=command,
+                actor=actor,
+                operation_now=operation_now,
+                planned_publication=None,
+                staged_publication=None,
+                request_id=selected_request_id,
+            )
         stager = self._stage_publications
         if stager is None:
-            raise IntegrityViolation("Run command submission requires terminal staging authority")
-        operation_now = _utc_now(self._clock)
+            raise IntegrityViolation("Run cancel submission requires terminal staging authority")
         draft = self._plan_inactive_cancel(
             run_id=run_id,
             command=command,

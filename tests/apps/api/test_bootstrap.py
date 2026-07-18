@@ -3,6 +3,7 @@ from __future__ import annotations
 from importlib.metadata import version
 
 from fastapi import FastAPI
+from uvicorn import Config
 
 from gameforge.apps.api.app import create_app
 from gameforge.apps.api.__main__ import run_api
@@ -12,8 +13,19 @@ from gameforge.apps.api.dependencies import ApiDependencies, SessionCookieSettin
 def test_m4c_framework_versions_are_exactly_locked() -> None:
     assert version("fastapi") == "0.139.0"
     assert version("uvicorn") == "0.51.0"
+    assert version("websockets") == "16.1.1"
     assert version("argon2-cffi") == "25.1.0"
     assert version("pydantic") == "2.13.4"
+
+
+def test_uvicorn_loads_a_real_websocket_protocol() -> None:
+    async def app(scope, receive, send):  # type: ignore[no-untyped-def]
+        del scope, receive, send
+
+    config = Config(app)
+    config.load()
+
+    assert config.ws_protocol_class is not None
 
 
 def test_api_factory_has_no_implicit_worker_runtime() -> None:
@@ -72,4 +84,5 @@ def test_api_cli_invokes_uvicorn_factory_without_worker(monkeypatch) -> None:
         "factory": True,
         "host": "127.0.0.1",
         "port": 8123,
+        "ws_max_size": 16_384,
     }
