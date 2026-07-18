@@ -13,6 +13,7 @@ from gameforge.apps.worker.cost_bridge import (
 from gameforge.apps.worker.execution_identity import (
     PendingResponseConsumption,
     build_authoritative_execution_identity,
+    prepare_rendered_request_authority,
 )
 from gameforge.apps.worker.publication import WorkerArtifactPort
 from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
@@ -23,7 +24,6 @@ from gameforge.contracts.cassette_import import (
 )
 from gameforge.contracts.errors import AttemptFenceStateRejected, IntegrityViolation
 from gameforge.contracts.jobs import (
-    RunAttempt,
     RunIntermediateArtifactLinkV1,
     RunModelResponseConsumptionV1,
     RunRecord,
@@ -118,10 +118,21 @@ class WorkerResponseConsumptionPublisher:
         if record is not None:
             # Read/plan, close the complete logical-call route identity, and release
             # the DB transaction before the potentially slow ObjectStore write.
-            with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
-                retained_run = transaction.runs.get(self._run.run_id)
-                if not isinstance(retained_run, RunRecord):
+            with self._unit_of_work.begin_read() as transaction:  # type: ignore[attr-defined]
+                call_authority = transaction.runs.get_model_call_write_authority(
+                    fence,
+                    call_ordinal=link.call_ordinal,
+                    route_ordinal=link.route_ordinal,
+                )
+                if call_authority is None:
                     raise IntegrityViolation("response publication Run disappeared")
+                retained_run = call_authority.run
+                prepared_route = call_authority.route_links[-1]
+                rendered_authority = prepare_rendered_request_authority(
+                    transaction=transaction,
+                    object_store=self._object_store,
+                    route=prepared_route,
+                )
                 identity = build_authoritative_execution_identity(
                     transaction=transaction,
                     object_store=self._object_store,
@@ -129,16 +140,10 @@ class WorkerResponseConsumptionPublisher:
                     attempt_no=link.attempt_no,
                     scope="record_shard",
                     pending=pending,
+                    call_authority=call_authority,
+                    rendered_request_authority=rendered_authority,
                 )
-                record_lineage = tuple(
-                    route.prompt_artifact_id
-                    for route in transaction.runs.list_model_route_links(
-                        self._run.run_id,
-                        attempt_no=link.attempt_no,
-                    )
-                    if route.call_ordinal == link.call_ordinal
-                    and route.route_ordinal == link.route_ordinal
-                )
+                record_lineage = (prepared_route.prompt_artifact_id,)
                 if record_lineage != (link.artifact_id,) or len(identity.bindings) != 1:
                     raise IntegrityViolation("RECORD consumed prompt does not close shard identity")
         staged = self._stage_record_shard(
@@ -149,18 +154,19 @@ class WorkerResponseConsumptionPublisher:
             identity=identity,
             lineage=record_lineage,
         )
-        now = _now(self._clock)
         with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+            now = _now(self._clock)
             runs = transaction.runs
-            run = runs.get(fence.run_id)
-            attempt = runs.get_attempt(fence.run_id, fence.attempt_no)
-            lease = runs.get_current_lease(fence.run_id)
-            if (
-                not isinstance(run, RunRecord)
-                or not isinstance(attempt, RunAttempt)
-                or lease is None
-            ):
+            call_authority = runs.get_model_call_write_authority(
+                fence,
+                call_ordinal=link.call_ordinal,
+                route_ordinal=link.route_ordinal,
+            )
+            if call_authority is None:
                 raise IntegrityViolation("response publication authority disappeared")
+            run = call_authority.run
+            attempt = call_authority.attempt
+            lease = call_authority.lease
             validate_attempt_write_fence(
                 run=run,
                 attempt=attempt,
@@ -174,59 +180,24 @@ class WorkerResponseConsumptionPublisher:
                 raise AttemptFenceStateRejected(
                     "cancel-requested Run cannot consume a model response"
                 )
-            route = runs.get_model_route_link(
-                link.run_id,
-                link.attempt_no,
-                link.call_ordinal,
-                link.route_ordinal,
-            )
+            route = call_authority.route_links[-1]
             if (
-                route is None
-                or route.prompt_artifact_id != link.artifact_id
+                route.prompt_artifact_id != link.artifact_id
                 or route.request_hash != link.request_hash
                 or route.routing_decision_kind != result.routing_decision_kind
                 or route.routing_decision_id != decision.decision_id
                 or route.fencing_token != fence.fencing_token
             ):
                 raise IntegrityViolation("response differs from its committed model route")
-            first_route = runs.get_model_route_link(
-                link.run_id,
-                link.attempt_no,
-                link.call_ordinal,
-                1,
-            )
-            if (
-                first_route is None
-                or step_token.request_hash != f"sha256:{first_route.request_hash}"
-            ):
+            first_route = call_authority.route_links[0]
+            if step_token.request_hash != f"sha256:{first_route.request_hash}":
                 raise IntegrityViolation(
                     "agent-step reservation differs from the logical call's first route"
                 )
 
             if identity is not None:
-                rederived = build_authoritative_execution_identity(
-                    transaction=transaction,
-                    object_store=self._object_store,
-                    run=run,
-                    attempt_no=link.attempt_no,
-                    scope="record_shard",
-                    pending=pending,
-                )
-                if rederived != identity:
-                    raise IntegrityViolation(
-                        "RECORD logical-call identity changed between staging and publication"
-                    )
-                rederived_lineage = tuple(
-                    route.prompt_artifact_id
-                    for route in runs.list_model_route_links(
-                        run.run_id,
-                        attempt_no=link.attempt_no,
-                    )
-                    if route.call_ordinal == link.call_ordinal
-                    and route.route_ordinal == link.route_ordinal
-                )
-                if rederived_lineage != record_lineage:
-                    raise IntegrityViolation("RECORD route lineage changed during staging")
+                if call_authority.consumption is not None:
+                    raise IntegrityViolation("RECORD logical call was consumed during staging")
 
             shard_id: str | None = None
             if staged is not None:
@@ -294,6 +265,15 @@ class WorkerResponseConsumptionPublisher:
                     run_id=run.run_id,
                     trace_id=attempt.trace_id,
                 ),
+            )
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=fence,
+                actor=actor,
+                now=_now(self._clock),
+                allowed_statuses=frozenset({"running"}),
             )
             return retained_consumption
 

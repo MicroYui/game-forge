@@ -121,6 +121,59 @@ def test_write_uow_issues_begin_immediate_before_repository_sql(
     )
 
 
+def test_read_uow_uses_query_only_deferred_transaction_without_writer_lock(
+    sqlite_engine: Engine,
+) -> None:
+    statements: list[str] = []
+
+    def capture_statement(
+        connection: object,
+        cursor: object,
+        statement: str,
+        parameters: object,
+        context: object,
+        executemany: bool,
+    ) -> None:
+        del connection, cursor, parameters, context, executemany
+        statements.append(" ".join(statement.upper().split()))
+
+    event.listen(sqlite_engine, "before_cursor_execute", capture_statement)
+    try:
+        with SqliteUnitOfWork(sqlite_engine, _capability_factory).begin_read() as transaction:
+            assert transaction.refs.read("missing") is None
+            with sqlite_engine.connect() as writer:
+                writer.exec_driver_sql("BEGIN IMMEDIATE")
+                writer.execute(
+                    text("INSERT INTO uow_probe (key, value) VALUES ('parallel', 'writer')")
+                )
+                writer.commit()
+    finally:
+        event.remove(sqlite_engine, "before_cursor_execute", capture_statement)
+
+    assert "BEGIN IMMEDIATE" in statements
+    assert statements.count("BEGIN IMMEDIATE") == 1
+    assert "BEGIN" in statements
+    assert statements.index("BEGIN") < next(
+        index for index, statement in enumerate(statements) if statement.startswith("SELECT ")
+    )
+    assert _read_outside_transaction(sqlite_engine, "parallel") == "writer"
+
+
+def test_read_uow_rejects_writes_and_restores_connection_for_next_write(
+    sqlite_engine: Engine,
+) -> None:
+    unit_of_work = SqliteUnitOfWork(sqlite_engine, _capability_factory)
+
+    with pytest.raises(Exception, match="readonly"):
+        with unit_of_work.begin_read() as transaction:
+            transaction.refs.write("forbidden", "write")
+
+    assert _read_outside_transaction(sqlite_engine, "forbidden") is None
+    with unit_of_work.begin() as transaction:
+        transaction.refs.write("after-read", "write-enabled")
+    assert _read_outside_transaction(sqlite_engine, "after-read") == "write-enabled"
+
+
 def test_capabilities_share_one_session_connection_and_transaction_view(
     sqlite_engine: Engine,
 ) -> None:

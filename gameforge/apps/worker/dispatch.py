@@ -686,11 +686,6 @@ def build_worker_dispatch(
 
     def bind_commands(transaction: object) -> RunCommandCapabilities:
         accounting = _accounting(transaction)
-        prompt_source_artifact_port = WorkerArtifactPort(
-            artifacts=transaction.artifacts,  # type: ignore[attr-defined]
-            object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
-            object_store=object_store,
-        )
         command_audit = WorkerCommandPublicationGateway(
             audit_gate=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
             chain_id=run_audit_chain_id,
@@ -701,38 +696,6 @@ def build_worker_dispatch(
             idempotency=transaction.idempotency,  # type: ignore[attr-defined]
             prompt_materials=prompt_materials,
             context_materials=context_materials,
-            prompt_renderer=prompt_renderer,
-            prompt_source_authority=FencedToolPromptSourceAuthority(
-                tool_link_loader=lambda run_id, attempt_no, target_call_ordinal: (
-                    transaction.runs.get_tool_intermediate_for_call(  # type: ignore[attr-defined]
-                        run_id,
-                        attempt_no,
-                        target_call_ordinal,
-                    )
-                ),
-                artifact_loader=lambda artifact_id: transaction.artifacts.get(  # type: ignore[attr-defined]
-                    artifact_id
-                ),
-                payload_loader=lambda artifact: prompt_source_artifact_port.read_bytes(
-                    artifact.artifact_id
-                ),
-                route_link_loader=lambda run_id, attempt_no, call_ordinal, route_ordinal: (
-                    transaction.runs.get_model_route_link(  # type: ignore[attr-defined]
-                        run_id,
-                        attempt_no,
-                        call_ordinal,
-                        route_ordinal,
-                    )
-                ),
-                response_consumption_loader=lambda run_id, attempt_no, call_ordinal, route_ordinal: (
-                    transaction.runs.get_model_response_consumption(  # type: ignore[attr-defined]
-                        run_id,
-                        attempt_no,
-                        call_ordinal,
-                        route_ordinal,
-                    )
-                ),
-            ),
         )
         return RunCommandCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]
@@ -814,40 +777,29 @@ def build_worker_dispatch(
                 target_call_ordinal,
             )
 
-    def _model_route_link(
-        run_id: str,
-        attempt_no: int,
+    def _model_call_projection(
+        fence: AttemptWriteFence,
         call_ordinal: int,
         route_ordinal: int,
     ):
         with Session(engine) as session:
-            return SqlRunRepository(session).get_model_route_link(
-                run_id,
-                attempt_no,
-                call_ordinal,
-                route_ordinal,
+            authority = SqlRunRepository(session).get_model_call_write_authority(
+                fence,
+                call_ordinal=call_ordinal,
+                route_ordinal=route_ordinal,
             )
-
-    def _model_response_consumption(
-        run_id: str,
-        attempt_no: int,
-        call_ordinal: int,
-        route_ordinal: int,
-    ):
-        with Session(engine) as session:
-            return SqlRunRepository(session).get_model_response_consumption(
-                run_id,
-                attempt_no,
-                call_ordinal,
-                route_ordinal,
+            if authority is None:
+                return None
+            return (
+                authority.route_links[-1],
+                authority.consumption,
             )
 
     prompt_source_authority = FencedToolPromptSourceAuthority(
         tool_link_loader=_tool_intermediate_for_call,
         artifact_loader=_source_artifact_loader,
         payload_loader=_source_payload_loader,
-        route_link_loader=_model_route_link,
-        response_consumption_loader=_model_response_consumption,
+        call_projection_loader=_model_call_projection,
     )
 
     def _retry_executor(run: RunRecord) -> RetryExecutor:
@@ -908,10 +860,10 @@ def build_worker_dispatch(
 
     def _read_run_revision(run_id: str) -> int:
         with Session(engine) as session:
-            run = SqlRunRepository(session).get(run_id)
-            if run is None:
+            authority = SqlRunRepository(session).get_run_write_authority(run_id)
+            if authority is None:
                 raise IntegrityViolation("attempt terminal fence Run disappeared", run_id=run_id)
-            return run.revision
+            return authority[0].revision
 
     def _model_bridge_factory(
         *, run: RunRecord, attempt: RunAttempt, lease: RunLease
@@ -1101,26 +1053,6 @@ def build_worker_dispatch(
     def _heartbeat_factory(
         *, run: RunRecord, attempt: RunAttempt, lease: RunLease
     ) -> LeaseHeartbeat:
-        def _continue_lease() -> bool:
-            with Session(engine) as session:
-                repository = SqlRunRepository(session)
-                current_run = repository.get(run.run_id)
-                current_attempt = repository.get_attempt(run.run_id, attempt.attempt_no)
-                current_lease = repository.get_current_lease(run.run_id)
-                return bool(
-                    current_run is not None
-                    and current_attempt is not None
-                    and current_lease is not None
-                    and current_run.status in {"leased", "running"}
-                    and current_run.current_attempt_no == attempt.attempt_no
-                    and current_run.cancel_requested_at is None
-                    and current_attempt.status == current_run.status
-                    and current_attempt.fencing_token == attempt.fencing_token
-                    and current_lease.lease_id == lease.lease_id
-                    and current_lease.fencing_token == attempt.fencing_token
-                    and current_lease.status == "active"
-                )
-
         return LeaseHeartbeat(
             lifecycle=lifecycle,
             pool=runtime.heartbeat_pool,
@@ -1136,7 +1068,6 @@ def build_worker_dispatch(
             # elapses, so no renewal fires and the initial revision is unused.
             initial_permit_revision=1,
             worker_actor=runtime.worker_actor,
-            continue_lease=_continue_lease,
         )
 
     def _on_contention(op: str, exc: BaseException) -> None:

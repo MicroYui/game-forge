@@ -53,7 +53,7 @@ class _FakeLifecycle:
         return RenewLeaseResult(lease=lease, permit=permit)
 
 
-def _heartbeat(lifecycle, control_pool, *, continue_lease=None) -> LeaseHeartbeat:
+def _heartbeat(lifecycle, control_pool) -> LeaseHeartbeat:
     return LeaseHeartbeat(
         lifecycle=lifecycle,
         pool=control_pool,
@@ -66,7 +66,6 @@ def _heartbeat(lifecycle, control_pool, *, continue_lease=None) -> LeaseHeartbea
         initial_lease_version=1,
         initial_permit_revision=1,
         worker_actor=WORKER,
-        continue_lease=continue_lease,
     )
 
 
@@ -167,21 +166,6 @@ def test_heartbeat_marks_fenced_and_stops_when_renewal_is_conflicted() -> None:
 
     assert heartbeat.fenced is True
     assert lifecycle.renews == 2  # one success, then the conflicted renewal
-
-
-def test_heartbeat_stops_extending_lease_after_authoritative_cancel_observation() -> None:
-    control_pool = ControlPlanePool(max_workers=1)
-    lifecycle = _FakeLifecycle()
-    heartbeat = _heartbeat(lifecycle, control_pool, continue_lease=lambda: False)
-
-    try:
-        asyncio.run(asyncio.wait_for(heartbeat.run(asyncio.Event()), timeout=5.0))
-    finally:
-        control_pool.close()
-
-    assert heartbeat.stopped_by_authority is True
-    assert heartbeat.fenced is False
-    assert lifecycle.renews == 0
 
 
 def test_heartbeat_stops_only_this_attempt_when_permit_renewal_hits_quota() -> None:

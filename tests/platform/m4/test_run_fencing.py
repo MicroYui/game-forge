@@ -1522,12 +1522,15 @@ class _Publication:
     def publish_prompt_rendered(
         self,
         *,
+        run: RunRecord,
+        attempt: RunAttempt,
         link: RunIntermediateArtifactLinkV1,
         idempotency_scope: str,
         idempotency_key: str,
         request_hash: str,
         actor: AuditActor,
     ) -> RunIntermediateArtifactLinkV1:
+        assert run.run_id == attempt.run_id == link.run_id
         retained = self.get_prompt_replay(
             idempotency_scope=idempotency_scope,
             idempotency_key=idempotency_key,
@@ -2636,7 +2639,7 @@ def test_prompt_replay_rechecks_the_current_attempt_fence_and_deadline() -> None
     assert harness.state == before
 
 
-def test_prompt_publication_uses_one_authoritative_time_for_fence_and_link() -> None:
+def test_prompt_publication_rolls_back_when_generation_check_crosses_deadline() -> None:
     harness = _harness(attempt_timeout_ns=5_000_000_000)
     _start(harness)
     clock = _SequenceUtcClock(
@@ -2647,17 +2650,19 @@ def test_prompt_publication_uses_one_authoritative_time_for_fence_and_link() -> 
     )
     harness.commands._clock = clock  # type: ignore[assignment]
 
-    result = harness.commands.publish_prompt_rendered(
-        PromptRenderPublicationRequest(
-            fence=_fence(harness),
-            logical_call_ordinal=1,
-            artifact_id="artifact:prompt:deadline-edge",
-            request_hash=_HASH_A,
-            idempotency_scope="run:1/attempt:1",
-            idempotency_key="prompt-deadline-edge",
-            actor=WORKER,
+    before = deepcopy(harness.state)
+    with pytest.raises(InvalidStateTransition, match="deadline|expired"):
+        harness.commands.publish_prompt_rendered(
+            PromptRenderPublicationRequest(
+                fence=_fence(harness),
+                logical_call_ordinal=1,
+                artifact_id="artifact:prompt:deadline-edge",
+                request_hash=_HASH_A,
+                idempotency_scope="run:1/attempt:1",
+                idempotency_key="prompt-deadline-edge",
+                actor=WORKER,
+            )
         )
-    )
 
-    assert clock.calls == 1
-    assert result.link.published_at == "2026-07-14T12:00:04.999000Z"
+    assert clock.calls == 2
+    assert harness.state == before

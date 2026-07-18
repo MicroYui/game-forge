@@ -627,12 +627,15 @@ class _Publication:
     def publish_prompt_rendered(
         self,
         *,
+        run: RunRecord,
+        attempt: RunAttempt,
         link: RunIntermediateArtifactLinkV1,
         idempotency_scope: str,
         idempotency_key: str,
         request_hash: str,
         actor: AuditActor,
     ) -> RunIntermediateArtifactLinkV1:
+        assert run.run_id == attempt.run_id == link.run_id
         retained = self.get_prompt_replay(
             idempotency_scope=idempotency_scope,
             idempotency_key=idempotency_key,

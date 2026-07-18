@@ -77,7 +77,6 @@ from gameforge.contracts.lineage import (
 from gameforge.contracts.model_router import (
     ModelRequestV1,
     ModelRequestV2,
-    parse_model_request,
     request_hash as model_request_hash,
 )
 from gameforge.contracts.routing import canonical_model_snapshot_id
@@ -371,17 +370,16 @@ class FencedToolPromptSourceAuthority:
         tool_link_loader: Callable[[str, int, int], RunToolIntermediateLinkV1 | None],
         artifact_loader: Callable[[str], ArtifactV2 | None],
         payload_loader: Callable[[ArtifactV2], bytes],
-        route_link_loader: Callable[[str, int, int, int], RunModelRouteLinkV1 | None] | None = None,
-        response_consumption_loader: Callable[
-            [str, int, int, int], RunModelResponseConsumptionV1 | None
+        call_projection_loader: Callable[
+            [AttemptWriteFence, int, int],
+            tuple[RunModelRouteLinkV1, RunModelResponseConsumptionV1 | None] | None,
         ]
         | None = None,
     ) -> None:
         self._tool_link_loader = tool_link_loader
         self._artifact_loader = artifact_loader
         self._payload_loader = payload_loader
-        self._route_link_loader = route_link_loader
-        self._response_consumption_loader = response_consumption_loader
+        self._call_projection_loader = call_projection_loader
 
     def require_authorized(
         self,
@@ -614,20 +612,14 @@ class FencedToolPromptSourceAuthority:
         ):
             raise IntegrityViolation("prompt context provenance/hash/lineage/trust differs")
         if prior is not None:
-            if self._route_link_loader is None or self._response_consumption_loader is None:
+            if prior.attempt_no != fence.attempt_no or self._call_projection_loader is None:
                 raise IntegrityViolation("prompt context prior authority is unavailable")
-            route = self._route_link_loader(
-                run.run_id,
-                prior.attempt_no,
+            projection = self._call_projection_loader(
+                fence,
                 prior.call_ordinal,
                 prior.route_ordinal,
             )
-            consumption = self._response_consumption_loader(
-                run.run_id,
-                prior.attempt_no,
-                prior.call_ordinal,
-                prior.route_ordinal,
-            )
+            route, consumption = projection if projection is not None else (None, None)
             if (
                 route is None
                 or consumption is None
@@ -635,6 +627,7 @@ class FencedToolPromptSourceAuthority:
                 or route.request_hash != prior.request_hash
                 or route.routing_decision_kind != prior.routing_decision_kind
                 or route.routing_decision_id != prior.routing_decision_id
+                or consumption.route_ordinal != prior.route_ordinal
                 or consumption.execution_source != prior.execution_source
                 or consumption.reservation_group_id != prior.reservation_group_id
                 or consumption.transport_attempt != prior.transport_attempt
@@ -2961,8 +2954,6 @@ class WorkerCommandPublicationGateway:
         idempotency: object,
         prompt_materials: PromptRenderMaterialRegistry,
         context_materials: AgentPromptContextMaterialRegistry,
-        prompt_renderer: CanonicalPromptRendererAuthority,
-        prompt_source_authority: PromptSourceAuthorizationPort | None = None,
     ) -> None:
         self._audit_gate = audit_gate
         self._chain_id = chain_id
@@ -2973,14 +2964,9 @@ class WorkerCommandPublicationGateway:
             object_bindings=object_bindings,
             object_store=object_store,
         )
-        self._object_store = object_store
         self._idempotency = idempotency
         self._prompt_materials = prompt_materials
         self._context_materials = context_materials
-        self._prompt_renderer = prompt_renderer
-        self._prompt_source_authority = (
-            prompt_source_authority or FrozenRunInputPromptSourceAuthority()
-        )
 
     def record_run_created(
         self,
@@ -3104,6 +3090,8 @@ class WorkerCommandPublicationGateway:
     def publish_agent_prompt_context(
         self,
         *,
+        run: RunRecord,
+        attempt: RunAttempt,
         link: RunToolIntermediateLinkV1,
         idempotency_scope: str,
         idempotency_key: str,
@@ -3115,27 +3103,18 @@ class WorkerCommandPublicationGateway:
             idempotency_key=idempotency_key,
             payload_hash=payload_hash,
         )
-        run = self._runs.get(link.run_id)  # type: ignore[attr-defined]
-        attempt = self._runs.get_attempt(link.run_id, link.attempt_no)  # type: ignore[attr-defined]
-        if not isinstance(run, RunRecord) or not isinstance(attempt, RunAttempt):
-            raise IntegrityViolation("Agent prompt-context Run or attempt disappeared")
         if run.cancel_requested_at is not None:
             raise AttemptFenceStateRejected(
                 "cancel-requested Run cannot publish Agent prompt context"
             )
         context = material.context
-        try:
-            validate_agent_prompt_context_kind(
-                agent_node_id=context.agent_node_id,
-                context_kind=context.context_kind,
-                target_call_ordinal=context.target_call_ordinal,
-                prior_consumption=context.prior_consumption,
-            )
-        except ValueError as exc:
-            raise IntegrityViolation("Agent prompt-context kind is not authoritative") from exc
         upstream_ids = tuple(sorted(item.artifact_id for item in context.upstream_artifacts))
         if (
-            link.run_id != material.run_id
+            material.run_id != run.run_id
+            or material.attempt_no != attempt.attempt_no
+            or material.fence.expected_run_revision != run.revision
+            or material.fence.fencing_token != attempt.fencing_token
+            or link.run_id != material.run_id
             or link.attempt_no != material.attempt_no
             or link.target_call_ordinal != material.target_call_ordinal
             or link.artifact_id != material.artifact.artifact_id
@@ -3145,6 +3124,13 @@ class WorkerCommandPublicationGateway:
             or link.fencing_token != material.fence.fencing_token
             or material.source_artifact_ids != upstream_ids
             or tuple(material.artifact.lineage) != upstream_ids
+            or material.artifact.payload_hash != payload_hash
+            or material.artifact.object_ref.sha256 != payload_hash
+            or context.run_id != run.run_id
+            or context.attempt_no != attempt.attempt_no
+            or context.target_call_ordinal != link.target_call_ordinal
+            or context.agent_node_id != link.agent_node_id
+            or context.prompt_version != link.prompt_version
             or material.artifact.version_tuple
             != VersionTuple(
                 doc_version=run.payload.version_tuple.doc_version,
@@ -3152,172 +3138,6 @@ class WorkerCommandPublicationGateway:
             )
         ):
             raise IntegrityViolation("Agent prompt-context link differs from staged material")
-        frozen = frozenset(run.payload.input_artifact_ids)
-        source_binding_ids = tuple(
-            item.artifact_id
-            for item in context.upstream_artifacts
-            if item.binding_key.startswith("source:")
-        )
-        if any(source_id not in frozen for source_id in source_binding_ids):
-            raise IntegrityViolation("Agent prompt-context draft lineage escapes frozen Run inputs")
-        trusts: list[TrustLevel] = []
-        for binding in context.upstream_artifacts:
-            source = self._artifacts.get(binding.artifact_id)  # type: ignore[attr-defined]
-            if not isinstance(source, ArtifactV2) or (
-                source.artifact_id != binding.artifact_id
-                or source.kind != binding.artifact_kind
-                or source.meta.get("payload_schema_id") != binding.payload_schema_id
-                or source.payload_hash != binding.payload_hash
-                or source.object_ref.sha256 != binding.payload_hash
-            ):
-                raise IntegrityViolation("Agent prompt-context upstream binding changed")
-            raw_provenance = source.meta.get("provenance")
-            if raw_provenance is None:
-                trusts.append("untrusted_external")
-            else:
-                try:
-                    source_provenance = ProvenanceV1.model_validate(raw_provenance)
-                except (TypeError, ValueError) as exc:
-                    raise IntegrityViolation(
-                        "Agent prompt-context upstream provenance is invalid"
-                    ) from exc
-                if (
-                    source_provenance.source_hash != source.payload_hash
-                    or source_provenance.parent_source_artifact_ids != tuple(source.lineage)
-                ):
-                    raise IntegrityViolation("Agent prompt-context upstream provenance changed")
-                _require_registered_source_provenance(
-                    source_provenance,
-                    label="Agent prompt-context upstream provenance",
-                )
-                trusts.append(source_provenance.trust)
-        try:
-            provenance = ProvenanceV1.model_validate(material.artifact.meta.get("provenance"))
-        except (TypeError, ValueError) as exc:
-            raise IntegrityViolation("Agent prompt-context provenance is invalid") from exc
-        _require_registered_source_provenance(
-            provenance,
-            required_prompt_purposes=frozenset({"context", "tool_output"}),
-            label="Agent prompt-context provenance",
-        )
-        if (
-            provenance.source_kind_registry_version != 1
-            or provenance.source_kind_id != "tool_output"
-            or provenance.parent_source_artifact_ids != upstream_ids
-            or provenance.source_hash != payload_hash
-            or provenance.trust != most_conservative_trust(tuple(trusts))
-        ):
-            raise IntegrityViolation("Agent prompt-context provenance closure differs")
-        prior = context.prior_consumption
-        if prior is not None:
-            prompt = self._runs.get_intermediate_link(  # type: ignore[attr-defined]
-                run.run_id,
-                prior.attempt_no,
-                prior.call_ordinal,
-                prior.route_ordinal,
-            )
-            route = self._runs.get_model_route_link(  # type: ignore[attr-defined]
-                run.run_id,
-                prior.attempt_no,
-                prior.call_ordinal,
-                prior.route_ordinal,
-            )
-            consumption = self._runs.get_model_response_consumption(  # type: ignore[attr-defined]
-                run.run_id,
-                prior.attempt_no,
-                prior.call_ordinal,
-                prior.route_ordinal,
-            )
-            if (
-                prompt is None
-                or route is None
-                or consumption is None
-                or prompt.artifact_id != prior.prompt_artifact_id
-                or prompt.request_hash != prior.request_hash
-                or route.prompt_artifact_id != prior.prompt_artifact_id
-                or route.request_hash != prior.request_hash
-                or route.routing_decision_kind != prior.routing_decision_kind
-                or route.routing_decision_id != prior.routing_decision_id
-                or consumption.execution_source != prior.execution_source
-                or consumption.reservation_group_id != prior.reservation_group_id
-                or consumption.transport_attempt != prior.transport_attempt
-                or consumption.cassette_shard_artifact_id != prior.cassette_shard_artifact_id
-                or consumption.response_digest != prior.response_digest
-            ):
-                raise IntegrityViolation(
-                    "Agent prompt-context prior response consumption is not authoritative"
-                )
-            by_key = {item.binding_key: item for item in context.upstream_artifacts}
-            expected_prior_keys = {"prior.prompt"}
-            mode = run.payload.llm_execution_mode
-            expected_cassette_source = (
-                prior.cassette_shard_artifact_id
-                if mode == "record"
-                else run.payload.cassette_artifact_id
-                if mode == "replay"
-                else None
-            )
-            if (
-                prior.cassette_source_artifact_id != expected_cassette_source
-                or (mode == "record" and expected_cassette_source is None)
-                or (mode == "replay" and expected_cassette_source not in frozen)
-            ):
-                raise IntegrityViolation(
-                    "Agent prompt-context prior cassette source differs from Run mode"
-                )
-            if expected_cassette_source is not None:
-                expected_prior_keys.add("prior.cassette_source")
-            actual_prior_keys = {key for key in by_key if not key.startswith("source:")}
-            if (
-                actual_prior_keys != expected_prior_keys
-                or by_key["prior.prompt"].artifact_id != prior.prompt_artifact_id
-                or (
-                    expected_cassette_source is not None
-                    and (
-                        by_key["prior.cassette_source"].artifact_id != expected_cassette_source
-                        or by_key["prior.cassette_source"].artifact_kind != "cassette_bundle"
-                        or by_key["prior.cassette_source"].payload_schema_id
-                        != ("cassette-bundle@1" if mode == "replay" else "cassette-record-shard@1")
-                    )
-                )
-            ):
-                raise IntegrityViolation(
-                    "Agent prompt-context prior Artifact lineage is incomplete"
-                )
-        elif any(not item.binding_key.startswith("source:") for item in context.upstream_artifacts):
-            raise IntegrityViolation(
-                "Agent prompt-context without prior consumption has prior parents"
-            )
-        try:
-            with self._object_store.open(material.receipt.location) as stream:  # type: ignore[attr-defined]
-                staged_payload = stream.read(material.artifact.object_ref.size_bytes + 1)
-            parsed = AgentPromptContextV1.model_validate(json.loads(staged_payload))
-            validate_agent_prompt_context_kind(
-                agent_node_id=parsed.agent_node_id,
-                context_kind=parsed.context_kind,
-                target_call_ordinal=parsed.target_call_ordinal,
-                prior_consumption=parsed.prior_consumption,
-            )
-        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
-            raise IntegrityViolation("staged Agent prompt-context payload is invalid") from exc
-        canonical = canonical_json(parsed.model_dump(mode="json")).encode("utf-8")
-        if (
-            parsed != context
-            or staged_payload != canonical
-            or len(staged_payload) != material.artifact.object_ref.size_bytes
-            or sha256_lowerhex(staged_payload) != payload_hash
-        ):
-            raise IntegrityViolation("staged Agent prompt-context bytes differ")
-        validate_artifact_producer(
-            material.artifact,
-            ProducerValidationContext(
-                expected_versions={
-                    "doc_version": run.payload.version_tuple.doc_version,
-                },
-                llm_execution_mode=run.payload.llm_execution_mode,
-                tool_output=True,
-            ),
-        )
         retained_artifact = self._artifact_port.put_staged(
             material.artifact,
             material.receipt,
@@ -3412,6 +3232,8 @@ class WorkerCommandPublicationGateway:
     def publish_prompt_rendered(
         self,
         *,
+        run: RunRecord,
+        attempt: RunAttempt,
         link: RunIntermediateArtifactLinkV1,
         idempotency_scope: str,
         idempotency_key: str,
@@ -3423,22 +3245,14 @@ class WorkerCommandPublicationGateway:
             idempotency_key=idempotency_key,
             request_hash=request_hash,
         )
-        run = self._runs.get(link.run_id)  # type: ignore[attr-defined]
-        attempt = self._runs.get_attempt(link.run_id, link.attempt_no)  # type: ignore[attr-defined]
-        if not isinstance(run, RunRecord) or not isinstance(attempt, RunAttempt):
-            raise IntegrityViolation("prompt publication Run or attempt disappeared")
         if run.cancel_requested_at is not None:
             raise AttemptFenceStateRejected("cancel-requested Run cannot publish a new prompt")
-        self._prompt_source_authority.require_authorized(
-            run=run,
-            fence=material.fence,
-            source_artifact_ids=material.source_artifact_ids,
-            agent_node_id=material.model_request.agent_node_id,
-            prompt_version=material.model_request.prompt_version,
-            target_call_ordinal=material.logical_call_ordinal,
-        )
         if (
-            link.run_id != material.run_id
+            material.run_id != run.run_id
+            or material.attempt_no != attempt.attempt_no
+            or material.fence.expected_run_revision != run.revision
+            or material.fence.fencing_token != attempt.fencing_token
+            or link.run_id != material.run_id
             or link.attempt_no != material.attempt_no
             or link.call_ordinal != material.logical_call_ordinal
             or link.route_ordinal != material.route_ordinal
@@ -3449,98 +3263,7 @@ class WorkerCommandPublicationGateway:
             or material.artifact.lineage != material.source_artifact_ids
         ):
             raise IntegrityViolation("prompt link differs from staged canonical material")
-        source_artifacts: list[ArtifactV2] = []
-        for source_artifact_id in material.source_artifact_ids:
-            source_artifact = self._artifacts.get(source_artifact_id)  # type: ignore[attr-defined]
-            if not isinstance(source_artifact, ArtifactV2):
-                raise IntegrityViolation(
-                    "rendered prompt references an unavailable source parent",
-                    parent_artifact_id=source_artifact_id,
-                )
-            source_artifacts.append(source_artifact)
-        self._prompt_renderer.require_source_metadata_bounds(
-            agent_node_id=material.model_request.agent_node_id,
-            prompt_version=material.model_request.prompt_version,
-            source_artifacts=tuple(source_artifacts),
-        )
-        sources: list[tuple[ArtifactV2, bytes]] = []
-        for source_artifact in source_artifacts:
-            source_payload = self._artifact_port.read_bytes(source_artifact.artifact_id)
-            if sha256_lowerhex(source_payload) != source_artifact.payload_hash:
-                raise IntegrityViolation(
-                    "rendered prompt source bytes differ from its Artifact",
-                    parent_artifact_id=source_artifact.artifact_id,
-                )
-            sources.append((source_artifact, source_payload))
-        canonical_render = self._prompt_renderer.require_model_request(
-            model_request=material.model_request,
-            sources=tuple(sources),
-        )
-        expected_provenance = canonical_render.provenance_for_output(
-            material.artifact.payload_hash
-        ).model_dump(mode="json")
-        if (
-            material.prompt_binding_id != canonical_render.binding_id
-            or material.renderer_version != canonical_render.renderer_version
-            or material.artifact.meta.get("prompt_binding_id") != canonical_render.binding_id
-            or material.artifact.meta.get("renderer_version") != canonical_render.renderer_version
-            or material.artifact.meta.get("agent_tool_version")
-            != canonical_render.agent_tool_version
-            or material.artifact.meta.get("request_configuration_digest")
-            != canonical_render.request_configuration_digest
-            or material.artifact.meta.get("producer_run_id") != run.run_id
-            or material.artifact.meta.get("producer_attempt_no") != attempt.attempt_no
-            or material.artifact.meta.get("logical_call_ordinal") != link.call_ordinal
-            or material.artifact.meta.get("route_ordinal") != link.route_ordinal
-            or material.artifact.meta.get("provenance") != expected_provenance
-            or material.artifact.meta.get("prompt_parts")
-            != [part.model_dump(mode="json") for part in canonical_render.prompt_parts]
-        ):
-            raise IntegrityViolation("rendered prompt PromptPart provenance differs")
         self._validate_prompt_plan(run=run, material=material)
-        plan = run.payload.execution_version_plan
-        if plan is None:  # closed by _validate_prompt_plan; keep the type boundary exact
-            raise IntegrityViolation("rendered prompt Run plan disappeared")
-        node = next(
-            (
-                item
-                for item in plan.nodes
-                if item.agent_node_id == material.model_request.agent_node_id
-            ),
-            None,
-        )
-        if node is None or canonical_render.agent_tool_version != node.tool_version:
-            raise IntegrityViolation(
-                "prompt tool schema authority differs from the frozen execution plan"
-            )
-        validate_artifact_producer(
-            material.artifact,
-            ProducerValidationContext(
-                expected_versions={
-                    "doc_version": canonical_render.inherited_doc_version,
-                    "prompt_version": material.model_request.prompt_version,
-                    "agent_graph_version": plan.agent_graph_version,
-                },
-                llm_execution_mode=run.payload.llm_execution_mode,
-                rendered_prompt_evidence=True,
-            ),
-        )
-        try:
-            with self._object_store.open(material.receipt.location) as stream:  # type: ignore[attr-defined]
-                payload = stream.read()
-            decoded = json.loads(payload)
-            if not isinstance(decoded, Mapping):
-                raise ValueError("rendered request must be an object")
-            parsed = parse_model_request(decoded)
-        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
-            raise IntegrityViolation("staged rendered prompt payload is invalid") from exc
-        canonical = canonical_json(parsed.model_dump(mode="json")).encode("utf-8")
-        if (
-            parsed != material.model_request
-            or payload != canonical
-            or model_request_hash(parsed).removeprefix("sha256:") != request_hash
-        ):
-            raise IntegrityViolation("staged rendered prompt differs from its canonical request")
 
         stored_artifact = self._artifact_port.put_staged(
             material.artifact,

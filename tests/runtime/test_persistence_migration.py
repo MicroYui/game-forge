@@ -14,7 +14,7 @@ from sqlalchemy import Inspector, MetaData, Table, inspect, text
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import compute_snapshot_id
-from gameforge.contracts.cost import MonetaryObservationV1
+from gameforge.contracts.cost import CacheHitObservationV1, MonetaryObservationV1
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence import migrations_api as m
 from gameforge.runtime.persistence.engine import get_engine
@@ -1724,7 +1724,8 @@ def test_0012_round_trip_preserves_fractional_late_reconcile_balance_digest(
                 currency="USD",
                 price_book_version="price-book@1",
                 quote_effective_at=selected_budget.created_at,
-            )
+            ),
+            "provider_prefix_cache": CacheHitObservationV1(status="reported", hit=True),
         }
     )
     try:

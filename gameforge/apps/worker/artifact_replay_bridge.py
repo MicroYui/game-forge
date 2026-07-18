@@ -97,15 +97,10 @@ class WorkerReplayRoutePublisher:
         ):
             raise IntegrityViolation("replay route differs from its prompt/decision authority")
         with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
-            run = transaction.runs.get(link.run_id)
-            attempt = transaction.runs.get_attempt(link.run_id, link.attempt_no)
-            lease = transaction.runs.get_current_lease(link.run_id)
-            if (
-                not isinstance(run, RunRecord)
-                or not isinstance(attempt, RunAttempt)
-                or lease is None
-            ):
+            authority = transaction.runs.get_attempt_write_authority(self._fence)
+            if authority is None:
                 raise IntegrityViolation("replay route attempt authority disappeared")
+            run, attempt, lease = authority
             validate_attempt_write_fence(
                 run=run,
                 attempt=attempt,

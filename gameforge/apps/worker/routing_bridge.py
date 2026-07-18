@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Literal, Protocol
 
@@ -39,6 +39,7 @@ class PreparedWorkerRoute:
     catalog_digest: str
     policy_version: int
     routing_policy_digest: str
+    routing_service: RoutingPolicyService = field(repr=False, compare=False)
 
     @property
     def model_snapshot_id(self) -> str:
@@ -126,7 +127,7 @@ class WorkerRoutingDecider:
         self._domain_resolver = domain_resolver
 
     def prepare(self, model_request: ModelRequestV2) -> PreparedWorkerRoute:
-        with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+        with self._unit_of_work.begin_read() as transaction:  # type: ignore[attr-defined]
             run, attempt = self._fresh_authority(transaction)
             plan, service = self._service(transaction=transaction, run=run)
             node = next(
@@ -168,12 +169,16 @@ class WorkerRoutingDecider:
                 catalog_digest=service.catalog.catalog_digest,
                 policy_version=service.policy.policy_version,
                 routing_policy_digest=service.policy.routing_policy_digest,
+                routing_service=service,
             )
 
     def next_fallback(self, previous: PreparedWorkerRoute) -> PreparedWorkerRoute:
-        with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+        with self._unit_of_work.begin_read() as transaction:  # type: ignore[attr-defined]
             run, _ = self._fresh_authority(transaction)
-            plan, service = self._service(transaction=transaction, run=run)
+            plan = run.payload.execution_version_plan
+            if plan is None:
+                raise IntegrityViolation("fallback route lost its frozen execution plan")
+            service = previous.routing_service
             selection = service.next_fallback(previous.selection, request=previous.request)
             node = next(
                 (item for item in plan.nodes if item.agent_node_id == previous.request.task_kind),
@@ -189,6 +194,7 @@ class WorkerRoutingDecider:
                 catalog_digest=service.catalog.catalog_digest,
                 policy_version=service.policy.policy_version,
                 routing_policy_digest=service.policy.routing_policy_digest,
+                routing_service=service,
             )
 
     def decide_and_record(
@@ -207,7 +213,7 @@ class WorkerRoutingDecider:
             raise IntegrityViolation("rendered prompt link differs from prepared route")
         with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
             run, attempt = self._fresh_authority(transaction)
-            _, service = self._service(transaction=transaction, run=run)
+            service = prepared.routing_service
             decision = service.decide_and_record(
                 prepared.request,
                 model_request=model_request,
@@ -246,11 +252,10 @@ class WorkerRoutingDecider:
 
     def _fresh_authority(self, transaction: object) -> tuple[RunRecord, RunAttempt]:
         runs = transaction.runs  # type: ignore[attr-defined]
-        run = runs.get(self._run.run_id)
-        attempt = runs.get_attempt(self._run.run_id, self._attempt.attempt_no)
-        lease = runs.get_current_lease(self._run.run_id)
-        if not isinstance(run, RunRecord) or not isinstance(attempt, RunAttempt) or lease is None:
+        authority = runs.get_attempt_write_authority(self._fence)
+        if authority is None:
             raise IntegrityViolation("worker routing authority disappeared")
+        run, attempt, lease = authority
         validate_attempt_write_fence(
             run=run,
             attempt=attempt,

@@ -723,23 +723,6 @@ def test_lifecycle_terminal_operation_rejects_missing_closure_capabilities(
     assert harness.state == before
 
 
-def test_lifecycle_terminal_operation_requires_bounded_attempt_authority() -> None:
-    harness = _run_harness()
-    _start(harness)
-    harness.repo.get_attempt_write_authority = None  # type: ignore[method-assign]
-    before = deepcopy(harness.state)
-
-    with pytest.raises(IntegrityViolation, match="bounded attempt write authority"):
-        harness.lifecycle.publish_attempt_outcome(
-            PublishAttemptOutcomeRequest(
-                fence=_fence(harness),
-                prepared_outcome=_prepared_success(harness),
-                actor=WORKER,
-            )
-        )
-    assert harness.state == before
-
-
 def test_command_submission_rejects_missing_terminal_staging_authority() -> None:
     harness = _run_harness()
     _as_queued(harness)
@@ -760,21 +743,6 @@ def test_command_submission_rejects_missing_terminal_staging_authority() -> None
 
     with pytest.raises(IntegrityViolation, match="requires terminal staging authority"):
         service.submit(
-            run_id="run:1",
-            command=_cancel_command(harness),
-            actor=_HUMAN,
-        )
-    assert harness.state == before
-
-
-def test_command_submission_requires_bounded_run_authority() -> None:
-    harness = _run_harness()
-    _as_queued(harness)
-    harness.repo.get_run_write_authority = None  # type: ignore[method-assign]
-    before = deepcopy(harness.state)
-
-    with pytest.raises(IntegrityViolation, match="bounded Run write authority"):
-        harness.commands.submit(
             run_id="run:1",
             command=_cancel_command(harness),
             actor=_HUMAN,

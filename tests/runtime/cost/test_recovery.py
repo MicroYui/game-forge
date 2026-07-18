@@ -7,6 +7,7 @@ import pytest
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
+from gameforge.contracts.cost import CacheHitObservationV1
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence import migrations_api
@@ -78,6 +79,8 @@ def test_unknown_survives_restart_then_conservative_and_late_actual_are_idempote
         input_tokens=12,
         adjustment_of_usage_id=conservative.usage_id,
         recorded_at=NOW + timedelta(minutes=2),
+    ).model_copy(
+        update={"provider_prefix_cache": CacheHitObservationV1(status="reported", hit=True)}
     )
     with uow(engine).begin() as transaction:
         reconciled = transaction.cost.late_reconcile_group(late)

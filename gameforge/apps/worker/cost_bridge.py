@@ -350,17 +350,15 @@ class WorkerAgentStepCostGateway:
             raise QuotaExceeded("agent-step reservation deadline is exhausted")
 
         with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+            now = _utc(self._clock)
+            if now >= deadline:
+                raise QuotaExceeded("agent-step reservation deadline is exhausted")
             runs = transaction.runs
             ledger = transaction.cost
-            run = runs.get(self._run.run_id)
-            attempt = runs.get_attempt(self._run.run_id, self._attempt.attempt_no)
-            lease = runs.get_current_lease(self._run.run_id)
-            if (
-                not isinstance(run, RunRecord)
-                or not isinstance(attempt, RunAttempt)
-                or lease is None
-            ):
+            authority = runs.get_attempt_write_authority(self._fence)
+            if authority is None:
                 raise IntegrityViolation("agent-step reservation authority disappeared")
+            run, attempt, lease = authority
             validate_attempt_write_fence(
                 run=run,
                 attempt=attempt,
@@ -565,17 +563,15 @@ class WorkerCallCostGateway:
         if now >= deadline:
             raise QuotaExceeded("model reservation deadline is exhausted")
         with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+            now = _utc(self._clock)
+            if now >= deadline:
+                raise QuotaExceeded("model reservation deadline is exhausted")
             runs = transaction.runs
             ledger = transaction.cost
-            run = runs.get(self._run.run_id)
-            attempt = runs.get_attempt(self._run.run_id, self._attempt.attempt_no)
-            lease = runs.get_current_lease(self._run.run_id)
-            if (
-                not isinstance(run, RunRecord)
-                or not isinstance(attempt, RunAttempt)
-                or lease is None
-            ):
+            authority = runs.get_attempt_write_authority(self._fence)
+            if authority is None:
                 raise IntegrityViolation("model reservation authority disappeared")
+            run, attempt, lease = authority
             validate_attempt_write_fence(
                 run=run,
                 attempt=attempt,
@@ -782,6 +778,29 @@ class WorkerCallCostGateway:
                 decision=decision,
             ),
         )
+        if group.status in {"conservatively_settled", "late_reconciled"}:
+            conservative_id = _stable_id(
+                "usage",
+                {"group": group.reservation_group_id, "kind": "conservative"},
+            )
+            conservative = ledger.get_usage(conservative_id)
+            if conservative is None or conservative.adjustment_of_usage_id is not None:
+                raise IntegrityViolation(
+                    "late provider usage has no retained conservative settlement"
+                )
+            usage = usage.model_copy(
+                update={
+                    "usage_id": _stable_id(
+                        "usage",
+                        {"group": group.reservation_group_id, "kind": "late_actual"},
+                    ),
+                    "adjustment_of_usage_id": conservative.usage_id,
+                }
+            )
+            retained_usage = ledger.get_usage(usage.usage_id)
+            if retained_usage is not None:
+                usage = usage.model_copy(update={"recorded_at": retained_usage.recorded_at})
+            return ledger.late_reconcile_group(usage)
         settled = ledger.reconcile_group(usage)
         if settled.status == "held_unknown":
             conservative = _conservative_usage(

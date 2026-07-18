@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from gameforge.contracts.canonical import canonical_json
@@ -9,6 +11,7 @@ from gameforge.contracts.cassette_import import LegacyImportRoutingDecisionV1
 from gameforge.contracts.cost import ReservationGroupV1
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
+    RunModelResponseConsumptionV1,
     RunModelRouteLinkV1,
     RunRecord,
 )
@@ -16,6 +19,7 @@ from gameforge.contracts.lineage import (
     ArtifactV2,
     ExecutionIdentityV1,
     InvocationVersionBindingV1,
+    ObjectBinding,
     ObjectRef,
     build_execution_identity,
 )
@@ -25,9 +29,8 @@ from gameforge.contracts.model_router import (
     parse_model_request,
     request_hash,
 )
-import json
-from collections.abc import Mapping
 from gameforge.contracts.routing import RoutingDecisionV1, canonical_model_snapshot_id
+from gameforge.runtime.persistence.runs import ModelCallWriteAuthority
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,12 +43,23 @@ class PendingResponseConsumption:
     transport_attempt: int | None
 
 
-def _read_rendered_request(
+@dataclass(frozen=True, slots=True)
+class RenderedRequestAuthority:
+    """Blob-verified prompt material prepared before the write transaction."""
+
+    route: RunModelRouteLinkV1
+    artifact: ArtifactV2
+    rendered: ModelRequestV1 | ModelRequestV2
+
+
+def prepare_rendered_request_authority(
     *,
     transaction: object,
     object_store: object,
     route: RunModelRouteLinkV1,
-) -> tuple[ArtifactV2, ModelRequestV1 | ModelRequestV2]:
+) -> RenderedRequestAuthority:
+    """Read and hash one rendered prompt outside the SQLite writer boundary."""
+
     artifact = transaction.artifacts.get(route.prompt_artifact_id)  # type: ignore[attr-defined]
     if (
         not isinstance(artifact, ArtifactV2)
@@ -55,6 +69,12 @@ def _read_rendered_request(
     ):
         raise IntegrityViolation("model route prompt is not a published source_rendered")
     binding = transaction.object_bindings.resolve(artifact.object_ref)  # type: ignore[attr-defined]
+    if (
+        not isinstance(binding, ObjectBinding)
+        or binding.object_ref != artifact.object_ref
+        or binding.status != "active"
+    ):
+        raise IntegrityViolation("model route prompt has no active ObjectBinding")
     try:
         with object_store.open(binding.location) as stream:  # type: ignore[attr-defined]
             payload = stream.read()
@@ -71,7 +91,11 @@ def _read_rendered_request(
         or request_hash(rendered).removeprefix("sha256:") != route.request_hash
     ):
         raise IntegrityViolation("model route rendered request differs from its authority")
-    return artifact, rendered
+    return RenderedRequestAuthority(
+        route=route,
+        artifact=artifact,
+        rendered=rendered,
+    )
 
 
 def _route_decision(
@@ -171,6 +195,8 @@ def build_authoritative_execution_identity(
     attempt_no: int | None,
     scope: str,
     pending: PendingResponseConsumption | None = None,
+    call_authority: ModelCallWriteAuthority | None = None,
+    rendered_request_authority: RenderedRequestAuthority | None = None,
 ) -> ExecutionIdentityV1:
     """LEFT JOIN routes to consumption and rebuild every invocation binding.
 
@@ -184,37 +210,56 @@ def build_authoritative_execution_identity(
     plan = run.payload.execution_version_plan
     if plan is None or run.payload.llm_execution_mode == "not_applicable":
         raise IntegrityViolation("model execution identity requires a frozen plan")
-    routes = transaction.runs.list_model_route_links(  # type: ignore[attr-defined]
-        run.run_id,
-        attempt_no=attempt_no,
-    )
     if scope == "record_shard":
-        if attempt_no is None or pending is None:
+        if attempt_no is None or pending is None or call_authority is None:
             raise IntegrityViolation("record-shard identity requires one pending call")
-        call_routes = tuple(route for route in routes if route.call_ordinal == pending.call_ordinal)
-        if not call_routes or call_routes[-1].route_ordinal != pending.route_ordinal:
+        prompt_links = call_authority.prompt_links
+        route_links = call_authority.route_links
+        if (
+            call_authority.run != run
+            or call_authority.attempt.run_id != run.run_id
+            or call_authority.attempt.attempt_no != attempt_no
+            or call_authority.consumption is not None
+            or len(prompt_links) != pending.route_ordinal
+            or len(route_links) != pending.route_ordinal
+        ):
+            raise IntegrityViolation("record-shard logical-call authority is incomplete")
+        prompt = prompt_links[-1]
+        route = route_links[-1]
+        if (
+            prompt.call_ordinal != pending.call_ordinal
+            or prompt.route_ordinal != pending.route_ordinal
+            or route.call_ordinal != pending.call_ordinal
+            or route.route_ordinal != pending.route_ordinal
+            or route.prompt_artifact_id != prompt.artifact_id
+            or route.request_hash != prompt.request_hash
+        ):
             raise IntegrityViolation("pending response is not the final committed route")
-        routes = tuple(
-            route for route in call_routes if route.route_ordinal == pending.route_ordinal
-        )
-        if len(routes) != 1:
-            raise IntegrityViolation("pending response has no unique committed route")
-    consumptions = {
-        (item.attempt_no, item.call_ordinal, item.route_ordinal): item
-        for item in transaction.runs.list_model_response_consumptions(  # type: ignore[attr-defined]
+        routes = (route,)
+        consumptions: dict[tuple[int, int, int], RunModelResponseConsumptionV1] = {}
+        failed_transport_attempts: dict[tuple[int, str, str, int, int], int] = {}
+    else:
+        if call_authority is not None or rendered_request_authority is not None:
+            raise IntegrityViolation("aggregate identity received logical-call authority")
+        routes = transaction.runs.list_model_route_links(  # type: ignore[attr-defined]
             run.run_id,
             attempt_no=attempt_no,
         )
-    }
+        consumptions = {
+            (item.attempt_no, item.call_ordinal, item.route_ordinal): item
+            for item in transaction.runs.list_model_response_consumptions(  # type: ignore[attr-defined]
+                run.run_id,
+                attempt_no=attempt_no,
+            )
+        }
+        failed_transport_attempts = _failed_route_transport_attempts(
+            transaction=transaction,
+            routes=routes,
+        )
     if pending is not None:
         pending_key = (attempt_no, pending.call_ordinal, pending.route_ordinal)
         if pending_key in consumptions:
             raise IntegrityViolation("pending response route was already consumed")
-
-    failed_transport_attempts = _failed_route_transport_attempts(
-        transaction=transaction,
-        routes=routes,
-    )
     nodes_by_id = {node.agent_node_id: node for node in plan.nodes}
     if len(nodes_by_id) != len(plan.nodes):
         raise IntegrityViolation("frozen execution plan repeats an Agent node")
@@ -222,11 +267,18 @@ def build_authoritative_execution_identity(
     bindings: list[InvocationVersionBindingV1] = []
     pending_seen = False
     for route in routes:
-        artifact, rendered = _read_rendered_request(
-            transaction=transaction,
-            object_store=object_store,
-            route=route,
-        )
+        if rendered_request_authority is None:
+            prepared_rendered = prepare_rendered_request_authority(
+                transaction=transaction,
+                object_store=object_store,
+                route=route,
+            )
+            artifact, rendered = prepared_rendered.artifact, prepared_rendered.rendered
+        else:
+            if rendered_request_authority.route != route:
+                raise IntegrityViolation("prepared rendered request belongs to another route")
+            artifact = rendered_request_authority.artifact
+            rendered = rendered_request_authority.rendered
         node = nodes_by_id.get(rendered.agent_node_id)
         rendered_model = canonical_model_snapshot_id(rendered.model_snapshot)
         renderer_version = artifact.meta.get("renderer_version")
@@ -318,5 +370,7 @@ def build_authoritative_execution_identity(
 
 __all__ = [
     "PendingResponseConsumption",
+    "RenderedRequestAuthority",
     "build_authoritative_execution_identity",
+    "prepare_rendered_request_authority",
 ]

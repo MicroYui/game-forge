@@ -275,6 +275,11 @@ class RunRepository(Protocol):
         run_id: str,
     ) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None: ...
 
+    def get_attempt_write_authority(
+        self,
+        fence: AttemptWriteFence,
+    ) -> tuple[RunRecord, RunAttempt, RunLease] | None: ...
+
     def get_event(self, run_id: str, seq: int) -> RunEvent | None: ...
 
     def list_events(
@@ -570,6 +575,8 @@ class RunPublicationGateway(Protocol):
     def publish_prompt_rendered(
         self,
         *,
+        run: RunRecord,
+        attempt: RunAttempt,
         link: RunIntermediateArtifactLinkV1,
         idempotency_scope: str,
         idempotency_key: str,
@@ -594,6 +601,8 @@ class RunPublicationGateway(Protocol):
     def publish_agent_prompt_context(
         self,
         *,
+        run: RunRecord,
+        attempt: RunAttempt,
         link: RunToolIntermediateLinkV1,
         idempotency_scope: str,
         idempotency_key: str,
@@ -1301,10 +1310,7 @@ class RunCommandService:
                 "submission authorization",
             )
             request_hash = canonical_payload_hash(command)
-            load_write_authority = getattr(runs, "get_run_write_authority", None)
-            if not callable(load_write_authority):
-                raise IntegrityViolation("bounded Run write authority capability is required")
-            bounded_authority = load_write_authority(run_id)
+            bounded_authority = runs.get_run_write_authority(run_id)
             if bounded_authority is None:
                 raise IntegrityViolation("Run command target does not exist")
             run, authority_attempt, authority_lease = bounded_authority
@@ -1465,22 +1471,14 @@ class RunCommandService:
             )
             latest_attempt = None
             if run.status == "retry_wait":
-                latest_attempt = (
-                    authority_attempt
-                    if callable(load_write_authority)
-                    else runs.get_attempt(run.run_id, run.next_attempt_no - 1)
-                )
+                latest_attempt = authority_attempt
                 if (
                     latest_attempt is None
                     or latest_attempt.attempt_no != run.next_attempt_no - 1
                     or latest_attempt.status in {"leased", "running"}
                 ):
                     raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
-            active_lease = (
-                authority_lease
-                if callable(load_write_authority)
-                else runs.get_current_lease(run.run_id)
-            )
+            active_lease = authority_lease
             if active_lease is not None:
                 raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
             prepared = PreparedRunFailure(
@@ -1766,19 +1764,10 @@ class RunCommandService:
                 idempotency_key=request.idempotency_key,
                 payload_hash=request.payload_hash,
             )
-            run = runs.get(request.fence.run_id)
-            if run is None:
-                raise IntegrityViolation("Agent prompt-context Run does not exist")
-            _resolve_bindings(
-                run=run,
-                registry=_required(capabilities.registry, "registry"),
+            run, attempt, lease = self._load_command_fence(
+                runs=runs,
+                fence=request.fence,
             )
-            attempt = runs.get_attempt(request.fence.run_id, request.fence.attempt_no)
-            lease = runs.get_current_lease(request.fence.run_id)
-            if attempt is None:
-                raise IntegrityViolation("Agent prompt-context attempt does not exist")
-            if lease is None:
-                raise Conflict("Agent prompt-context publication has no current lease")
             validate_attempt_write_fence(
                 run=run,
                 attempt=attempt,
@@ -1857,6 +1846,8 @@ class RunCommandService:
                 published_at=_utc_text(now),
             )
             stored = publication.publish_agent_prompt_context(
+                run=run,
+                attempt=attempt,
                 link=link,
                 idempotency_scope=request.idempotency_scope,
                 idempotency_key=request.idempotency_key,
@@ -1865,22 +1856,15 @@ class RunCommandService:
             )
             if stored != link:
                 raise IntegrityViolation("Agent prompt-context gateway retained another link")
-            if (
-                runs.get_tool_intermediate_for_call(
-                    link.run_id,
-                    link.attempt_no,
-                    link.target_call_ordinal,
-                )
-                != link
-            ):
-                raise IntegrityViolation(
-                    "Agent prompt-context publication did not retain its exact link"
-                )
-            unchanged_attempt = runs.get_attempt(link.run_id, link.attempt_no)
-            if unchanged_attempt != attempt:
-                raise IntegrityViolation(
-                    "Agent prompt-context publication changed the prompt call head"
-                )
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=request.fence,
+                actor=request.actor,
+                now=_utc_now(self._clock),
+                allowed_statuses=frozenset({"running"}),
+            )
             return AgentPromptContextPublicationResult(link=link, replayed=False)
 
     def publish_prompt_rendered(
@@ -1899,37 +1883,27 @@ class RunCommandService:
             runs = _required(capabilities.runs, "runs")
             publication = _required(capabilities.publication, "publication")
             now = _utc_now(self._clock)
+            run, attempt, lease = self._load_command_fence(
+                runs=runs,
+                fence=request.fence,
+            )
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=request.fence,
+                actor=request.actor,
+                now=now,
+                allowed_statuses=frozenset({"running"}),
+            )
+            if attempt.status != "running":
+                raise InvalidStateTransition("prompt publication attempt is not running")
             replay = publication.get_prompt_replay(
                 idempotency_scope=request.idempotency_scope,
                 idempotency_key=request.idempotency_key,
                 request_hash=request.request_hash,
             )
             if replay is not None:
-                registry = _required(capabilities.registry, "registry")
-                run = runs.get(request.fence.run_id)
-                if run is None:
-                    raise IntegrityViolation("prompt replay Run does not exist")
-                _resolve_bindings(run=run, registry=registry)
-                attempt = runs.get_attempt(
-                    request.fence.run_id,
-                    request.fence.attempt_no,
-                )
-                if attempt is None:
-                    raise IntegrityViolation("prompt replay attempt does not exist")
-                lease = runs.get_current_lease(request.fence.run_id)
-                if lease is None:
-                    raise Conflict("prompt replay has no current active lease")
-                validate_attempt_write_fence(
-                    run=run,
-                    attempt=attempt,
-                    lease=lease,
-                    fence=request.fence,
-                    actor=request.actor,
-                    now=now,
-                    allowed_statuses=frozenset({"running"}),
-                )
-                if attempt.status != "running":
-                    raise InvalidStateTransition("prompt replay attempt is not running")
                 authoritative_link = runs.get_intermediate_link(
                     replay.run_id,
                     replay.attempt_no,
@@ -1945,31 +1919,6 @@ class RunCommandService:
                 )
                 return PromptRenderPublicationResult(link=replay, replayed=True)
 
-            registry = _required(capabilities.registry, "registry")
-            run = runs.get(request.fence.run_id)
-            if run is None:
-                raise IntegrityViolation("prompt publication Run does not exist")
-            _resolve_bindings(run=run, registry=registry)
-            attempt = runs.get_attempt(
-                request.fence.run_id,
-                request.fence.attempt_no,
-            )
-            if attempt is None:
-                raise IntegrityViolation("prompt publication attempt does not exist")
-            lease = runs.get_current_lease(request.fence.run_id)
-            if lease is None:
-                raise Conflict("prompt publication has no current active lease")
-            validate_attempt_write_fence(
-                run=run,
-                attempt=attempt,
-                lease=lease,
-                fence=request.fence,
-                actor=request.actor,
-                now=now,
-                allowed_statuses=frozenset({"running"}),
-            )
-            if attempt.status != "running":
-                raise InvalidStateTransition("prompt publication attempt is not running")
             call_ordinal = (
                 attempt.next_call_ordinal if request.route_ordinal == 1 else request.call_ordinal
             )
@@ -1999,6 +1948,8 @@ class RunCommandService:
                 link=link,
             )
             stored = publication.publish_prompt_rendered(
+                run=run,
+                attempt=attempt,
                 link=link,
                 idempotency_scope=request.idempotency_scope,
                 idempotency_key=request.idempotency_key,
@@ -2007,27 +1958,15 @@ class RunCommandService:
             )
             if stored != link:
                 raise IntegrityViolation("prompt publication gateway retained a different link")
-            retained = runs.get_intermediate_link(
-                link.run_id,
-                link.attempt_no,
-                link.call_ordinal,
-                link.route_ordinal,
+            validate_attempt_write_fence(
+                run=run,
+                attempt=attempt,
+                lease=lease,
+                fence=request.fence,
+                actor=request.actor,
+                now=_utc_now(self._clock),
+                allowed_statuses=frozenset({"running"}),
             )
-            advanced_attempt = runs.get_attempt(link.run_id, link.attempt_no)
-            if retained != link or advanced_attempt is None:
-                raise IntegrityViolation("prompt publication did not atomically retain its link")
-            expected_attempt = (
-                RunAttempt.model_validate(
-                    {
-                        **attempt.model_dump(mode="python"),
-                        "next_call_ordinal": attempt.next_call_ordinal + 1,
-                    }
-                )
-                if request.route_ordinal == 1
-                else attempt
-            )
-            if advanced_attempt != expected_attempt:
-                raise IntegrityViolation("prompt publication changed the wrong logical-call head")
             return PromptRenderPublicationResult(link=link, replayed=False)
 
     @staticmethod
@@ -2036,12 +1975,10 @@ class RunCommandService:
         runs: RunRepository,
         fence: AttemptWriteFence,
     ) -> tuple[RunRecord, RunAttempt, RunLease]:
-        run = runs.get(fence.run_id)
-        attempt = runs.get_attempt(fence.run_id, fence.attempt_no)
-        lease = runs.get_current_lease(fence.run_id)
-        if run is None or attempt is None or lease is None:
+        authority = runs.get_attempt_write_authority(fence)
+        if authority is None:
             raise Conflict("Run command worker fence is no longer current")
-        return run, attempt, lease
+        return authority
 
     @staticmethod
     def _validate_command_replay(

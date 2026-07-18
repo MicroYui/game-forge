@@ -9,16 +9,13 @@ from types import SimpleNamespace
 
 import pytest
 
-import gameforge.apps.worker.publication as publication_mod
-
 from gameforge.apps.worker.publication import (
     AgentPromptContextMaterialRegistry,
     FencedToolPromptSourceAuthority,
     FrozenRunInputPromptSourceAuthority,
     PromptRenderMaterialRegistry,
-    WorkerBlobStore,
     WorkerAgentPromptContextPublisher,
-    WorkerCommandPublicationGateway,
+    WorkerBlobStore,
     WorkerPromptRenderPublisher,
 )
 from gameforge.apps.worker.prompt_rendering import (
@@ -41,10 +38,13 @@ from gameforge.contracts.jobs import (
     AgentPromptArtifactBindingV1,
     AgentPromptContextDraftV1,
     AgentPromptContextV1,
+    AgentPromptPriorConsumptionV1,
     AgentPromptSourceMessageV1,
     ExecutionVersionPlanV1,
     PlannedAgentNodeVersionV1,
     RunIntermediateArtifactLinkV1,
+    RunModelResponseConsumptionV1,
+    RunModelRouteLinkV1,
     RunToolIntermediateLinkV1,
     execution_version_plan_digest,
 )
@@ -76,11 +76,7 @@ from gameforge.platform.runs.commands import (
     PromptRenderPublicationResult,
 )
 from gameforge.platform.runs.lifecycle import AttemptWriteFence
-from tests.platform.m4c.test_terminal_publisher import (
-    _attempt as _running_attempt,
-    _registry_and_definition,
-    _run_record,
-)
+from tests.platform.m4c.test_terminal_publisher import _registry_and_definition, _run_record
 
 
 _SYSTEM = "You may only propose; deterministic gates remain authoritative."
@@ -1039,6 +1035,140 @@ def test_fenced_prompt_source_authority_accepts_only_exact_current_call_context(
     )
 
 
+def test_fenced_context_rejects_route_and_consumption_from_different_fallbacks() -> None:
+    source = _source_artifact()
+    prior_prompt = _source_artifact(
+        b"prior prompt",
+        schema="source-rendered@1",
+        kind="source_rendered",
+    )
+    model_request = _request().model_copy(
+        update={"agent_node_id": "repair", "prompt_version": "repair@1"}
+    )
+    run, fence = _run_and_fence(
+        source_ids=(source.artifact_id,),
+        model_request=model_request,
+    )
+    run = run.model_copy(
+        update={
+            "payload": run.payload.model_copy(
+                update={
+                    "version_tuple": run.payload.version_tuple.model_copy(
+                        update={"doc_version": "doc@1"}
+                    )
+                }
+            )
+        }
+    )
+    prior = AgentPromptPriorConsumptionV1(
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id=prior_prompt.artifact_id,
+        request_hash="1" * 64,
+        routing_decision_kind="native",
+        routing_decision_id="decision:prior",
+        execution_source="online",
+        reservation_group_id="reservation-group:prior",
+        transport_attempt=1,
+        response_digest="2" * 64,
+    )
+    registry = AgentPromptContextMaterialRegistry()
+    store = _StageStore()
+    captured = []
+
+    def capture_material(request, link) -> None:
+        captured.append(
+            (
+                registry.resolve(
+                    idempotency_scope=request.idempotency_scope,
+                    idempotency_key=request.idempotency_key,
+                    payload_hash=request.payload_hash,
+                ),
+                link,
+            )
+        )
+
+    publisher = WorkerAgentPromptContextPublisher(
+        run=run,
+        fence=fence,
+        commands=_ContextCommands(capture_material),  # type: ignore[arg-type]
+        object_store=store,
+        registry=registry,
+        clock=_Clock(),
+        source_artifact_loader={
+            source.artifact_id: source,
+            prior_prompt.artifact_id: prior_prompt,
+        }.__getitem__,
+    )
+    publisher.publish_agent_prompt_context(
+        model_request=model_request,
+        draft=AgentPromptContextDraftV1(
+            context_kind="repair_refine",
+            messages=(
+                AgentPromptSourceMessageV1(
+                    role="user",
+                    content=model_request.messages[-1].content,
+                    purpose="context",
+                ),
+            ),
+            source_artifact_ids=(source.artifact_id,),
+            include_previous_consumption=True,
+        ),
+        target_call_ordinal=2,
+        prior_consumption=prior,
+        idempotency_scope=f"run:{run.run_id}:attempt:1",
+        idempotency_key="model:2:context",
+        actor=AuditActor(principal_id="service:worker", principal_kind="service"),
+    )
+    material, link = captured[0]
+    route = RunModelRouteLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=1,
+        prompt_artifact_id=prior.prompt_artifact_id,
+        request_hash=prior.request_hash,
+        routing_decision_kind=prior.routing_decision_kind,
+        routing_decision_id=prior.routing_decision_id,
+        fencing_token=1,
+        published_at="2026-07-17T00:00:00Z",
+    )
+    consumption = RunModelResponseConsumptionV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        call_ordinal=1,
+        route_ordinal=2,
+        execution_source=prior.execution_source,
+        reservation_group_id=prior.reservation_group_id,
+        transport_attempt=prior.transport_attempt,
+        response_digest=prior.response_digest,
+        consumed_at="2026-07-17T00:00:00Z",
+    )
+    artifacts = {
+        source.artifact_id: source,
+        prior_prompt.artifact_id: prior_prompt,
+        material.artifact.artifact_id: material.artifact,
+    }
+    payload = store.open(material.receipt.location).read()
+    authority = FencedToolPromptSourceAuthority(
+        tool_link_loader=lambda *_: link,
+        artifact_loader=artifacts.get,
+        payload_loader=lambda _: payload,
+        call_projection_loader=lambda *_: (route, consumption),
+    )
+
+    with pytest.raises(IntegrityViolation, match="prior consumption is not authoritative"):
+        authority.require_authorized(
+            run=run,
+            fence=fence,
+            source_artifact_ids=(material.artifact.artifact_id,),
+            agent_node_id="repair",
+            prompt_version="repair@1",
+            target_call_ordinal=2,
+        )
+
+
 def test_context_publisher_rejects_node_kind_substitution_before_staging() -> None:
     source = _source_artifact()
     model_request = _request()
@@ -1212,178 +1342,3 @@ def test_prompt_publisher_rejects_aggregate_size_before_any_blob_read() -> None:
             source_artifact_ids=(source.artifact_id,),
         )
     assert payload_reads == 0
-
-
-def test_prompt_write_uow_rereads_sources_instead_of_trusting_staged_objects() -> None:
-    source = _source_artifact()
-    run, fence = _run_and_fence(source_ids=(source.artifact_id,), model_request=_request())
-    registry = PromptRenderMaterialRegistry()
-    store = _StageStore()
-
-    class _Runs:
-        def get(self, run_id: str):
-            return run if run_id == run.run_id else None
-
-        def get_attempt(self, run_id: str, attempt_no: int):
-            return _running_attempt() if (run_id, attempt_no) == (run.run_id, 1) else None
-
-    class _MissingPersistentArtifacts:
-        def get(self, artifact_id: str):
-            del artifact_id
-            return None
-
-    gateway = WorkerCommandPublicationGateway(
-        audit_gate=object(),  # type: ignore[arg-type]
-        chain_id="audit:run",
-        runs=_Runs(),
-        artifacts=_MissingPersistentArtifacts(),
-        object_bindings=object(),
-        object_store=store,
-        idempotency=object(),
-        prompt_materials=registry,
-        context_materials=AgentPromptContextMaterialRegistry(),
-        prompt_renderer=_authority(),
-    )
-
-    def publish_in_fresh_uow(command_request, link) -> None:
-        gateway.publish_prompt_rendered(
-            link=link,
-            idempotency_scope=command_request.idempotency_scope,
-            idempotency_key=command_request.idempotency_key,
-            request_hash=command_request.request_hash,
-            actor=command_request.actor,
-        )
-
-    publisher = WorkerPromptRenderPublisher(
-        run=run,
-        fence=fence,
-        commands=_Commands(publish_in_fresh_uow),  # type: ignore[arg-type]
-        object_store=store,
-        registry=registry,
-        clock=_Clock(),
-        source_artifact_loader=lambda _: source,
-        source_payload_loader=lambda _: _SOURCE,
-        prompt_renderer=_authority(),
-    )
-    request = _publication_request(fence=fence, model_request=_request())
-
-    with pytest.raises(IntegrityViolation, match="unavailable source parent"):
-        publisher.publish_prompt_rendered(
-            request,
-            model_request=_request(),
-            source_artifact_ids=(source.artifact_id,),
-        )
-    with pytest.raises(IntegrityViolation, match="not staged"):
-        registry.resolve(
-            idempotency_scope=request.idempotency_scope,
-            idempotency_key=request.idempotency_key,
-            request_hash=request.request_hash,
-        )
-
-
-def test_context_write_uow_repeats_producer_validation_after_authoritative_reread(
-    monkeypatch,
-) -> None:
-    source = _source_artifact()
-    model_request = _request()
-    run, fence = _run_and_fence(
-        source_ids=(source.artifact_id,),
-        model_request=model_request,
-    )
-    run = run.model_copy(
-        update={
-            "payload": run.payload.model_copy(
-                update={
-                    "version_tuple": VersionTuple(
-                        doc_version=source.version_tuple.doc_version,
-                    )
-                }
-            )
-        }
-    )
-    context_materials = AgentPromptContextMaterialRegistry()
-    store = _StageStore()
-
-    class _Runs:
-        def get(self, run_id: str):
-            return run if run_id == run.run_id else None
-
-        def get_attempt(self, run_id: str, attempt_no: int):
-            return _running_attempt() if (run_id, attempt_no) == (run.run_id, 1) else None
-
-    class _Artifacts:
-        def get(self, artifact_id: str):
-            return source if artifact_id == source.artifact_id else None
-
-    gateway = WorkerCommandPublicationGateway(
-        audit_gate=object(),  # type: ignore[arg-type]
-        chain_id="audit:run",
-        runs=_Runs(),
-        artifacts=_Artifacts(),
-        object_bindings=object(),
-        object_store=store,
-        idempotency=object(),
-        prompt_materials=PromptRenderMaterialRegistry(),
-        context_materials=context_materials,
-        prompt_renderer=_authority(),
-    )
-
-    validation_calls = []
-
-    def track_producer_validation(artifact, context):
-        validation_calls.append((artifact, context))
-        if len(validation_calls) == 2:
-            raise IntegrityViolation("fresh producer validation rejected context")
-        return SimpleNamespace(status="valid")
-
-    monkeypatch.setattr(
-        publication_mod,
-        "validate_artifact_producer",
-        track_producer_validation,
-    )
-
-    def publish_in_fresh_uow(command_request, link) -> None:
-        gateway.publish_agent_prompt_context(
-            link=link,
-            idempotency_scope=command_request.idempotency_scope,
-            idempotency_key=command_request.idempotency_key,
-            payload_hash=command_request.payload_hash,
-            actor=command_request.actor,
-        )
-
-    publisher = WorkerAgentPromptContextPublisher(
-        run=run,
-        fence=fence,
-        commands=_ContextCommands(publish_in_fresh_uow),  # type: ignore[arg-type]
-        object_store=store,
-        registry=context_materials,
-        clock=_Clock(),
-        source_artifact_loader=lambda _: source,
-    )
-    user_message = model_request.messages[-1]
-    draft = AgentPromptContextDraftV1(
-        context_kind="generation",
-        messages=(
-            AgentPromptSourceMessageV1(
-                role="user",
-                content=user_message.content,
-                purpose="context",
-            ),
-        ),
-        source_artifact_ids=(source.artifact_id,),
-    )
-
-    with pytest.raises(IntegrityViolation, match="fresh producer validation"):
-        publisher.publish_agent_prompt_context(
-            model_request=model_request,
-            draft=draft,
-            target_call_ordinal=1,
-            prior_consumption=None,
-            idempotency_scope=f"run:{run.run_id}:attempt:1",
-            idempotency_key="model:1:context",
-            actor=AuditActor(
-                principal_id="service:worker",
-                principal_kind="service",
-            ),
-        )
-    assert len(validation_calls) == 2

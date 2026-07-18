@@ -640,10 +640,7 @@ def _load_run_write_authority(
     runs: RunLifecycleRepository,
     run_id: str,
 ) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None:
-    bounded = getattr(runs, "get_run_write_authority", None)
-    if not callable(bounded):
-        raise IntegrityViolation("bounded Run write authority capability is required")
-    return bounded(run_id)
+    return runs.get_run_write_authority(run_id)
 
 
 def validate_attempt_cassette_publication(
@@ -1099,10 +1096,11 @@ class RunLifecycleService:
             runs = _required(capabilities.runs, "runs")
             accounting = _required(capabilities.accounting, "accounting")
             now = _utc_now(self._clock)
-            run = runs.get(request.run_id)
-            attempt = runs.get_attempt(request.run_id, request.attempt_no)
-            lease = runs.get_current_lease(request.run_id)
-            if run is None or attempt is None or lease is None:
+            authority = runs.get_run_write_authority(request.run_id)
+            if authority is None:
+                raise Conflict("Run lease renewal target is no longer current")
+            run, attempt, lease = authority
+            if attempt is None or lease is None:
                 raise Conflict("Run lease renewal target is no longer current")
             fence = AttemptWriteFence(
                 run_id=request.run_id,
@@ -2951,10 +2949,7 @@ class RunLifecycleService:
         runs: RunLifecycleRepository,
         fence: AttemptWriteFence,
     ) -> tuple[RunRecord, RunAttempt, RunLease]:
-        bounded = getattr(runs, "get_attempt_write_authority", None)
-        if not callable(bounded):
-            raise IntegrityViolation("bounded attempt write authority capability is required")
-        authority = bounded(fence)
+        authority = runs.get_attempt_write_authority(fence)
         if authority is None:
             raise Conflict("Run attempt write target is no longer current")
         return authority

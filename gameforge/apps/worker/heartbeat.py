@@ -14,7 +14,6 @@ stale worker publishing a business result.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
 
 from gameforge.contracts.errors import Conflict, InvalidStateTransition, QuotaExceeded
 from gameforge.contracts.lineage import AuditActor
@@ -37,7 +36,6 @@ class LeaseHeartbeat:
         initial_lease_version: int,
         initial_permit_revision: int,
         worker_actor: AuditActor,
-        continue_lease: Callable[[], bool] | None = None,
     ) -> None:
         if interval_s <= 0:
             raise ValueError("heartbeat interval must be positive")
@@ -52,7 +50,6 @@ class LeaseHeartbeat:
         self._lease_version = initial_lease_version
         self._permit_revision = initial_permit_revision
         self._worker_actor = worker_actor
-        self._continue_lease = continue_lease
         self._fenced = False
         self._stopped_by_authority = False
         self._beats = 0
@@ -84,19 +81,6 @@ class LeaseHeartbeat:
                 return  # a stop was requested before the next interval elapsed
             except asyncio.TimeoutError:
                 pass  # the interval elapsed: renew now
-            if self._continue_lease is not None:
-                try:
-                    should_continue = await self._pool.run(self._continue_lease)
-                except (Conflict, InvalidStateTransition):
-                    self._fenced = True
-                    return
-                if not should_continue:
-                    # A committed cancel/terminal projection tells the worker to
-                    # stop extending this lease. The executor may be uninterruptible
-                    # in a thread, but no stale reserve/publication can pass its
-                    # fence and the concurrent reaper will close authority at expiry.
-                    self._stopped_by_authority = True
-                    return
             try:
                 result = await self._pool.run(self._renew)
             except (Conflict, InvalidStateTransition):

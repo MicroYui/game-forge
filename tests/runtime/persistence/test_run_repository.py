@@ -1077,7 +1077,7 @@ def test_model_route_and_response_consumption_close_exact_authorities(
         payload=RunPayloadEnvelope.model_validate(route_payload_wire),
     )
     _create(engine, queued)
-    _start_result(engine, queued)
+    started = _start_result(engine, queued)
     with Session(engine) as session:
         shard_artifact = _artifact(
             "artifact:cassette:record-shard:1",
@@ -1174,6 +1174,41 @@ def test_model_route_and_response_consumption_close_exact_authorities(
         ) == (consumption,)
         assert session.scalar(select(func.count()).select_from(RunModelRouteLinkRow)) == 1
         assert session.scalar(select(func.count()).select_from(RunModelResponseConsumptionRow)) == 1
+
+        statements: list[str] = []
+
+        def observe_call_authority(
+            _connection: object,
+            _cursor: object,
+            statement: str,
+            _parameters: object,
+            _context: object,
+            _executemany: bool,
+        ) -> None:
+            if statement.lstrip().upper().startswith("SELECT"):
+                statements.append(" ".join(statement.lower().split()))
+
+        event.listen(engine, "before_cursor_execute", observe_call_authority)
+        try:
+            authority = repository.get_model_call_write_authority(
+                _fence(started.run),
+                call_ordinal=1,
+                route_ordinal=1,
+            )
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_call_authority)
+
+        assert authority is not None
+        assert authority.route_links == (route,)
+        assert authority.consumption == consumption
+        assert len(statements) == 3
+        assert all("run_events" not in statement for statement in statements)
+        assert all(
+            aggregate not in statement
+            for statement in statements
+            for aggregate in ("count(", "min(", "max(", "sum(")
+        )
+        assert any("route_ordinal <= ?" in statement for statement in statements)
 
     noncanonical_now = NOW.replace("Z", "+00:00")
     with engine.begin() as connection:
@@ -1593,7 +1628,7 @@ def test_legacy_replay_route_and_usage_keep_exact_import_decision_without_native
         SqlRunRepository(session).get_model_route_link(queued.run_id, 1, 1, 1)
 
 
-def test_attempt_call_head_rejects_a_deleted_historical_prompt_link(
+def test_full_attempt_projection_detects_deleted_history_without_penalizing_exact_reads(
     engine: Engine,
 ) -> None:
     queued = _run()
@@ -1657,8 +1692,7 @@ def test_attempt_call_head_rejects_a_deleted_historical_prompt_link(
         repository = SqlRunRepository(session)
         with pytest.raises(IntegrityViolation, match="call-ordinal head"):
             repository.get_attempt(queued.run_id, 1)
-        with pytest.raises(IntegrityViolation, match="call-ordinal head"):
-            repository.get_intermediate_link(queued.run_id, 1, 2)
+        assert repository.get_intermediate_link(queued.run_id, 1, 2) == second
 
 
 def _artifact(

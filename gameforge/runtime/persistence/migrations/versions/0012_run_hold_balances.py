@@ -597,7 +597,6 @@ def _reconstruct(connection: object) -> list[dict[str, object]]:
         "request_hash",
         "transport_attempt",
         "execution_source",
-        "provider_prefix_cache",
         "retry_index",
         "routing_decision_kind",
         "routing_decision_id",

@@ -255,7 +255,7 @@ class WorkerModelSnapshotResolver:
         catalog_digest: str,
         model_snapshot_id: str,
     ) -> ModelSnapshot:
-        with self._unit_of_work.begin() as transaction:  # type: ignore[attr-defined]
+        with self._unit_of_work.begin_read() as transaction:  # type: ignore[attr-defined]
             resolver = ExactModelCatalogSnapshotResolver(
                 catalogs=transaction.cost,
                 snapshots=self._snapshots,

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
@@ -13,6 +15,7 @@ from gameforge.apps.worker.model_authority import (
     StaticCircuitBreakerAuthority,
     StaticStructuredModelSnapshotAuthority,
     StructuredModelSnapshotManifestV1,
+    WorkerModelSnapshotResolver,
     WorkerModelExecutionAuthorities,
     load_local_model_execution_authorities,
     parse_structured_model_snapshot_manifest,
@@ -20,7 +23,12 @@ from gameforge.apps.worker.model_authority import (
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.model_router import ModelSnapshot
-from gameforge.contracts.routing import canonical_model_snapshot_id
+from gameforge.contracts.routing import (
+    ModelCatalogSnapshotV1,
+    ModelDescriptorV1,
+    canonical_model_snapshot_id,
+    compute_model_catalog_digest,
+)
 from gameforge.contracts.reliability import CircuitBreakerConfigV1
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cassette.legacy_authority_manifest import (
@@ -48,6 +56,33 @@ def _manifest(snapshot: ModelSnapshot) -> dict[str, object]:
     return {**payload, "manifest_digest": canonical_sha256(payload)}
 
 
+def _catalog(snapshot: ModelSnapshot) -> tuple[ModelCatalogSnapshotV1, str]:
+    model_snapshot_id = canonical_model_snapshot_id(snapshot)
+    payload = {
+        "catalog_version": 1,
+        "models": (
+            ModelDescriptorV1(
+                provider=snapshot.provider,
+                model_snapshot=model_snapshot_id,
+                tier="reasoning",
+                capabilities=("reasoning",),
+                context_limit=200_000,
+                max_output_tokens=32_000,
+                prompt_cache_support=True,
+                status="active",
+            ),
+        ),
+        "created_at": datetime(2026, 7, 18, tzinfo=UTC),
+    }
+    return (
+        ModelCatalogSnapshotV1(
+            **payload,
+            catalog_digest=compute_model_catalog_digest(payload),
+        ),
+        model_snapshot_id,
+    )
+
+
 def test_content_bound_manifest_resolves_without_reverse_parsing_opaque_id() -> None:
     snapshot = ModelSnapshot(
         provider="openai",
@@ -59,6 +94,52 @@ def test_content_bound_manifest_resolves_without_reverse_parsing_opaque_id() -> 
 
     assert authority.get_model_snapshot(canonical_model_snapshot_id(snapshot)) == snapshot
     assert authority.get_model_snapshot("openai:sha256:" + "0" * 64) is None
+
+
+def test_worker_snapshot_resolution_uses_read_uow_without_sqlite_writer_scope() -> None:
+    snapshot = ModelSnapshot(provider="openai", model="gpt", snapshot_tag="v1")
+    catalog, model_snapshot_id = _catalog(snapshot)
+
+    class CatalogAuthority:
+        def get_model_catalog(self, catalog_version: int, catalog_digest: str):
+            if (
+                catalog_version == catalog.catalog_version
+                and catalog_digest == catalog.catalog_digest
+            ):
+                return catalog
+            return None
+
+    class SnapshotAuthority:
+        def get_model_snapshot(self, selected_model_snapshot_id: str):
+            return snapshot if selected_model_snapshot_id == model_snapshot_id else None
+
+    class ReadUnitOfWork:
+        def __init__(self) -> None:
+            self.read_count = 0
+
+        def begin(self):
+            raise AssertionError("snapshot resolution must not acquire a write UoW")
+
+        @contextmanager
+        def begin_read(self):
+            self.read_count += 1
+            yield SimpleNamespace(cost=CatalogAuthority())
+
+    unit_of_work = ReadUnitOfWork()
+    resolver = WorkerModelSnapshotResolver(
+        unit_of_work=unit_of_work,
+        snapshots=SnapshotAuthority(),
+    )
+
+    assert (
+        resolver.resolve_model_snapshot(
+            catalog_version=catalog.catalog_version,
+            catalog_digest=catalog.catalog_digest,
+            model_snapshot_id=model_snapshot_id,
+        )
+        == snapshot
+    )
+    assert unit_of_work.read_count == 1
 
 
 def test_snapshot_authority_does_not_retain_caller_owned_nested_models() -> None:

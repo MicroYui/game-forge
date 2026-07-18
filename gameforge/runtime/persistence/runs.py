@@ -42,6 +42,7 @@ from gameforge.contracts.jobs import (
     RunRecord,
     RunToolIntermediateLinkV1,
 )
+from gameforge.contracts.routing import MAX_ROUTING_FALLBACKS
 from gameforge.runtime.persistence.models import (
     ArtifactRow,
     FindingRevisionRow,
@@ -299,6 +300,18 @@ class _RepositoryAttemptFence:
     expected_run_revision: int
     lease_id: str
     fencing_token: int
+
+
+@dataclass(frozen=True, slots=True)
+class ModelCallWriteAuthority:
+    """Bounded mutable-head projection for one logical model call."""
+
+    run: RunRecord
+    attempt: RunAttempt
+    lease: RunLease
+    prompt_links: tuple[RunIntermediateArtifactLinkV1, ...]
+    route_links: tuple[RunModelRouteLinkV1, ...]
+    consumption: RunModelResponseConsumptionV1 | None
 
 
 def _require_nonempty(value: object, *, field_name: str) -> str:
@@ -1884,12 +1897,12 @@ class SqlRunRepository:
             expected_lease_version,
             field_name="expected_lease_version",
         )
-        run = self.get(selected_run_id)
-        attempt = self.get_attempt(selected_run_id, selected_attempt_no)
-        lease = self.get_current_lease(selected_run_id)
+        authority = self.get_run_write_authority(selected_run_id)
+        if authority is None:
+            raise Conflict("Run lease renewal compare-and-set did not match")
+        run, attempt, lease = authority
         if (
-            run is None
-            or attempt is None
+            attempt is None
             or lease is None
             or run.status not in _ACTIVE_RUN_STATUSES
             or run.current_attempt_no != selected_attempt_no
@@ -2618,6 +2631,102 @@ class SqlRunRepository:
             _parse_lease_row(lease_row, expected_lease_id=lease_id),
         )
 
+    def get_model_call_write_authority(
+        self,
+        fence: _AttemptWriteFence,
+        *,
+        call_ordinal: int,
+        route_ordinal: int,
+    ) -> ModelCallWriteAuthority | None:
+        """Read one current logical-call prefix without scanning sibling history."""
+
+        selected_call = _require_positive(call_ordinal, field_name="call_ordinal")
+        selected_route = _require_positive(route_ordinal, field_name="route_ordinal")
+        if selected_route > MAX_ROUTING_FALLBACKS + 1:
+            raise IntegrityViolation("model-call route exceeds the routing hard cap")
+        lifecycle = self.get_attempt_write_authority(fence)
+        if lifecycle is None:
+            return None
+        run, attempt, lease = lifecycle
+        if selected_call >= attempt.next_call_ordinal:
+            raise IntegrityViolation("model-call authority exceeds the Attempt call head")
+
+        rows = self._session.execute(
+            select(RunIntermediateArtifactLinkRow, RunModelRouteLinkRow)
+            .select_from(RunIntermediateArtifactLinkRow)
+            .join(
+                RunModelRouteLinkRow,
+                and_(
+                    RunModelRouteLinkRow.run_id == RunIntermediateArtifactLinkRow.run_id,
+                    RunModelRouteLinkRow.attempt_no == RunIntermediateArtifactLinkRow.attempt_no,
+                    RunModelRouteLinkRow.call_ordinal
+                    == RunIntermediateArtifactLinkRow.call_ordinal,
+                    RunModelRouteLinkRow.route_ordinal
+                    == RunIntermediateArtifactLinkRow.route_ordinal,
+                ),
+            )
+            .where(
+                RunIntermediateArtifactLinkRow.run_id == fence.run_id,
+                RunIntermediateArtifactLinkRow.attempt_no == fence.attempt_no,
+                RunIntermediateArtifactLinkRow.call_ordinal == selected_call,
+                RunIntermediateArtifactLinkRow.route_ordinal <= selected_route,
+            )
+            .order_by(RunIntermediateArtifactLinkRow.route_ordinal)
+            .limit(MAX_ROUTING_FALLBACKS + 2)
+        ).all()
+        expected_ordinals = tuple(range(1, selected_route + 1))
+        if tuple(prompt_row.route_ordinal for prompt_row, _ in rows) != expected_ordinals:
+            raise IntegrityViolation("model-call route prefix is incomplete")
+
+        prompts: list[RunIntermediateArtifactLinkV1] = []
+        routes: list[RunModelRouteLinkV1] = []
+        for prompt_row, route_row in rows:
+            prompt = _parse_intermediate_row(
+                prompt_row,
+                expected_run_id=fence.run_id,
+                expected_attempt_no=fence.attempt_no,
+                expected_call_ordinal=selected_call,
+                expected_route_ordinal=prompt_row.route_ordinal,
+            )
+            route = _parse_model_route_row(route_row)
+            if (
+                route.run_id != prompt.run_id
+                or route.attempt_no != prompt.attempt_no
+                or route.call_ordinal != prompt.call_ordinal
+                or route.route_ordinal != prompt.route_ordinal
+                or route.prompt_artifact_id != prompt.artifact_id
+                or route.request_hash != prompt.request_hash
+                or route.fencing_token != prompt.fencing_token
+                or route.published_at != prompt.published_at
+                or route.fencing_token != fence.fencing_token
+            ):
+                raise IntegrityViolation("model-call route differs from prompt authority")
+            prompts.append(prompt)
+            routes.append(route)
+
+        consumption_rows = self._session.scalars(
+            select(RunModelResponseConsumptionRow)
+            .where(
+                RunModelResponseConsumptionRow.run_id == fence.run_id,
+                RunModelResponseConsumptionRow.attempt_no == fence.attempt_no,
+                RunModelResponseConsumptionRow.call_ordinal == selected_call,
+            )
+            .limit(2)
+        ).all()
+        if len(consumption_rows) > 1:
+            raise IntegrityViolation("logical model call has multiple response consumptions")
+        consumption = (
+            None if not consumption_rows else _parse_model_consumption_row(consumption_rows[0])
+        )
+        return ModelCallWriteAuthority(
+            run=run,
+            attempt=attempt,
+            lease=lease,
+            prompt_links=tuple(prompts),
+            route_links=tuple(routes),
+            consumption=consumption,
+        )
+
     def get_run_write_authority(
         self,
         run_id: str,
@@ -2832,13 +2941,21 @@ class SqlRunRepository:
             RunIntermediateArtifactLinkV1,
             label="Run intermediate link put",
         )
-        existing = self.get_intermediate_link(
+        key = (
             parsed.run_id,
             parsed.attempt_no,
             parsed.call_ordinal,
             parsed.route_ordinal,
         )
-        if existing is not None:
+        existing_row = self._session.get(RunIntermediateArtifactLinkRow, key)
+        if existing_row is not None:
+            existing = _parse_intermediate_row(
+                existing_row,
+                expected_run_id=parsed.run_id,
+                expected_attempt_no=parsed.attempt_no,
+                expected_call_ordinal=parsed.call_ordinal,
+                expected_route_ordinal=parsed.route_ordinal,
+            )
             if _canonical_wire(existing) != _canonical_wire(parsed):
                 raise IntegrityViolation(
                     "immutable Run intermediate link differs from retained content",
@@ -2848,14 +2965,15 @@ class SqlRunRepository:
                 )
             return existing
 
-        run = self.get(parsed.run_id)
-        if run is None or run.current_attempt_no != parsed.attempt_no:
+        authority = self.get_run_write_authority(parsed.run_id)
+        if authority is None:
             raise InvalidStateTransition("intermediate link requires the current Run attempt")
-        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
-        lease = self.get_current_lease(parsed.run_id)
+        run, attempt, lease = authority
         if (
-            run.status not in _ACTIVE_RUN_STATUSES
+            run.current_attempt_no != parsed.attempt_no
+            or run.status not in _ACTIVE_RUN_STATUSES
             or attempt is None
+            or attempt.attempt_no != parsed.attempt_no
             or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
             or lease is None
             or lease.attempt_no != parsed.attempt_no
@@ -2877,13 +2995,16 @@ class SqlRunRepository:
                     call_ordinal=parsed.call_ordinal,
                     next_call_ordinal=attempt.next_call_ordinal,
                 )
-            predecessor = self.get_intermediate_link(
-                parsed.run_id,
-                parsed.attempt_no,
-                parsed.call_ordinal,
-                parsed.route_ordinal - 1,
+            predecessor_row = self._session.get(
+                RunIntermediateArtifactLinkRow,
+                (
+                    parsed.run_id,
+                    parsed.attempt_no,
+                    parsed.call_ordinal,
+                    parsed.route_ordinal - 1,
+                ),
             )
-            if predecessor is None:
+            if predecessor_row is None:
                 raise Conflict(
                     "fallback route ordinal is not contiguous",
                     call_ordinal=parsed.call_ordinal,
@@ -2953,7 +3074,19 @@ class SqlRunRepository:
             expected_call_ordinal=selected_ordinal,
             expected_route_ordinal=selected_route,
         )
-        attempt = self.get_attempt(selected_run_id, selected_attempt)
+        attempt_row = self._session.get(
+            RunAttemptRow,
+            (selected_run_id, selected_attempt),
+        )
+        attempt = (
+            None
+            if attempt_row is None
+            else _parse_attempt_row(
+                attempt_row,
+                expected_run_id=selected_run_id,
+                expected_attempt_no=selected_attempt,
+            )
+        )
         if (
             attempt is None
             or parsed.fencing_token != attempt.fencing_token
@@ -3058,12 +3191,15 @@ class SqlRunRepository:
             RunToolIntermediateLinkV1,
             label="Run tool intermediate link put",
         )
-        existing = self.get_tool_intermediate_link(
-            parsed.run_id,
-            parsed.attempt_no,
-            parsed.target_call_ordinal,
-        )
-        if existing is not None:
+        key = (parsed.run_id, parsed.attempt_no, parsed.target_call_ordinal)
+        existing_row = self._session.get(RunToolIntermediateLinkRow, key)
+        if existing_row is not None:
+            existing = _parse_tool_intermediate_row(
+                existing_row,
+                expected_run_id=parsed.run_id,
+                expected_attempt_no=parsed.attempt_no,
+                expected_target_call_ordinal=parsed.target_call_ordinal,
+            )
             if _canonical_wire(existing) != _canonical_wire(parsed):
                 raise IntegrityViolation(
                     "immutable Run tool intermediate differs from retained content",
@@ -3073,14 +3209,15 @@ class SqlRunRepository:
                 )
             return existing
 
-        run = self.get(parsed.run_id)
-        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
-        lease = self.get_current_lease(parsed.run_id)
+        authority = self.get_run_write_authority(parsed.run_id)
+        if authority is None:
+            raise InvalidStateTransition("tool intermediate requires the current fenced lease")
+        run, attempt, lease = authority
         if (
-            run is None
-            or run.current_attempt_no != parsed.attempt_no
+            run.current_attempt_no != parsed.attempt_no
             or run.status not in _ACTIVE_RUN_STATUSES
             or attempt is None
+            or attempt.attempt_no != parsed.attempt_no
             or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
             or lease is None
             or lease.attempt_no != parsed.attempt_no
@@ -3095,11 +3232,9 @@ class SqlRunRepository:
                 target_call_ordinal=parsed.target_call_ordinal,
             )
         if (
-            self.get_intermediate_link(
-                parsed.run_id,
-                parsed.attempt_no,
-                parsed.target_call_ordinal,
-                1,
+            self._session.get(
+                RunIntermediateArtifactLinkRow,
+                (parsed.run_id, parsed.attempt_no, parsed.target_call_ordinal, 1),
             )
             is not None
         ):
@@ -3150,7 +3285,19 @@ class SqlRunRepository:
             expected_attempt_no=selected_attempt,
             expected_target_call_ordinal=selected_call,
         )
-        attempt = self.get_attempt(selected_run_id, selected_attempt)
+        attempt_row = self._session.get(
+            RunAttemptRow,
+            (selected_run_id, selected_attempt),
+        )
+        attempt = (
+            None
+            if attempt_row is None
+            else _parse_attempt_row(
+                attempt_row,
+                expected_run_id=selected_run_id,
+                expected_attempt_no=selected_attempt,
+            )
+        )
         if (
             attempt is None
             or parsed.fencing_token != attempt.fencing_token
@@ -3214,13 +3361,15 @@ class SqlRunRepository:
 
     def put_model_route_link(self, link: RunModelRouteLinkV1) -> RunModelRouteLinkV1:
         parsed = _revalidate(link, RunModelRouteLinkV1, label="Run model route link put")
-        existing = self.get_model_route_link(
+        key = (
             parsed.run_id,
             parsed.attempt_no,
             parsed.call_ordinal,
             parsed.route_ordinal,
         )
-        if existing is not None:
+        existing_row = self._session.get(RunModelRouteLinkRow, key)
+        if existing_row is not None:
+            existing = _parse_model_route_row(existing_row)
             if _canonical_wire(existing) != _canonical_wire(parsed):
                 raise IntegrityViolation(
                     "immutable Run model route differs from retained content",
@@ -3231,14 +3380,15 @@ class SqlRunRepository:
                 )
             return existing
 
-        run = self.get(parsed.run_id)
-        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
-        lease = self.get_current_lease(parsed.run_id)
+        authority = self.get_run_write_authority(parsed.run_id)
+        if authority is None:
+            raise InvalidStateTransition("model route requires the current fenced lease")
+        run, attempt, lease = authority
         if (
-            run is None
-            or run.current_attempt_no != parsed.attempt_no
+            run.current_attempt_no != parsed.attempt_no
             or run.status not in _ACTIVE_RUN_STATUSES
             or attempt is None
+            or attempt.attempt_no != parsed.attempt_no
             or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
             or lease is None
             or lease.attempt_no != parsed.attempt_no
@@ -3246,11 +3396,20 @@ class SqlRunRepository:
             or attempt.fencing_token != parsed.fencing_token
         ):
             raise InvalidStateTransition("model route requires the current fenced lease")
-        prompt = self.get_intermediate_link(
-            parsed.run_id,
-            parsed.attempt_no,
-            parsed.call_ordinal,
-            parsed.route_ordinal,
+        prompt_row = self._session.get(
+            RunIntermediateArtifactLinkRow,
+            key,
+        )
+        prompt = (
+            None
+            if prompt_row is None
+            else _parse_intermediate_row(
+                prompt_row,
+                expected_run_id=parsed.run_id,
+                expected_attempt_no=parsed.attempt_no,
+                expected_call_ordinal=parsed.call_ordinal,
+                expected_route_ordinal=parsed.route_ordinal,
+            )
         )
         if (
             prompt is None
@@ -3262,14 +3421,18 @@ class SqlRunRepository:
             raise IntegrityViolation("model route differs from its exact rendered prompt")
         predecessor: RunModelRouteLinkV1 | None = None
         if parsed.route_ordinal > 1:
-            predecessor = self.get_model_route_link(
-                parsed.run_id,
-                parsed.attempt_no,
-                parsed.call_ordinal,
-                parsed.route_ordinal - 1,
+            predecessor_row = self._session.get(
+                RunModelRouteLinkRow,
+                (
+                    parsed.run_id,
+                    parsed.attempt_no,
+                    parsed.call_ordinal,
+                    parsed.route_ordinal - 1,
+                ),
             )
-            if predecessor is None:
+            if predecessor_row is None:
                 raise Conflict("fallback model route lacks its retained predecessor")
+            predecessor = _parse_model_route_row(predecessor_row)
         consumed = self._session.execute(
             select(RunModelResponseConsumptionRow.route_ordinal)
             .where(
@@ -3310,7 +3473,6 @@ class SqlRunRepository:
                 or decision.catalog_version != plan.model_catalog_version
                 or decision.catalog_digest != plan.model_catalog_digest
                 or decision.execution_source not in expected_sources
-                or decision.fallback_index + 1 != parsed.route_ordinal
             ):
                 raise IntegrityViolation("model route differs from native RoutingDecision")
             if predecessor is not None:
@@ -3321,8 +3483,7 @@ class SqlRunRepository:
                 )
                 if (
                     predecessor_decision is None
-                    or decision.fallback_index != predecessor_decision.fallback_index + 1
-                    or decision.fallback_from != predecessor_decision.model_snapshot
+                    or decision.fallback_index <= predecessor_decision.fallback_index
                     or decision.rule_id != predecessor_decision.rule_id
                 ):
                     raise IntegrityViolation(
@@ -3415,7 +3576,6 @@ class SqlRunRepository:
                 or decision.catalog_version != plan.model_catalog_version
                 or decision.catalog_digest != plan.model_catalog_digest
                 or decision.execution_source not in expected_sources
-                or decision.fallback_index + 1 != parsed.route_ordinal
             ):
                 raise IntegrityViolation("stored model route differs from RoutingDecision")
         else:
@@ -3498,8 +3658,9 @@ class SqlRunRepository:
             parsed.call_ordinal,
             parsed.route_ordinal,
         )
-        existing = self.get_model_response_consumption(*key)
-        if existing is not None:
+        existing_row = self._session.get(RunModelResponseConsumptionRow, key)
+        if existing_row is not None:
+            existing = _parse_model_consumption_row(existing_row)
             if _canonical_wire(existing) != _canonical_wire(parsed):
                 raise IntegrityViolation(
                     "immutable model response consumption differs from retained content"
@@ -3532,16 +3693,18 @@ class SqlRunRepository:
                 requested_route_ordinal=parsed.route_ordinal,
                 latest_route_ordinal=latest_route_ordinal,
             )
-        route = self.get_model_route_link(*key)
-        run = self.get(parsed.run_id)
-        attempt = self.get_attempt(parsed.run_id, parsed.attempt_no)
-        lease = self.get_current_lease(parsed.run_id)
+        route_row = self._session.get(RunModelRouteLinkRow, key)
+        route = None if route_row is None else _parse_model_route_row(route_row)
+        authority = self.get_run_write_authority(parsed.run_id)
+        if authority is None:
+            raise InvalidStateTransition("response consumption requires the current fenced route")
+        run, attempt, lease = authority
         if (
             route is None
-            or run is None
             or run.current_attempt_no != parsed.attempt_no
             or run.status not in _ACTIVE_RUN_STATUSES
             or attempt is None
+            or attempt.attempt_no != parsed.attempt_no
             or attempt.status not in _ACTIVE_ATTEMPT_STATUSES
             or lease is None
             or lease.attempt_no != parsed.attempt_no

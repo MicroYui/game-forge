@@ -245,7 +245,7 @@ def test_prompt_publication_rejects_wrong_attempt_or_fencing_without_a_hole() ->
     harness.service.create_run(_create_request())
     _claim_and_start(harness)
 
-    with pytest.raises(IntegrityViolation, match="attempt"):
+    with pytest.raises(Conflict, match="fence"):
         harness.service.publish_prompt_rendered(
             _publication_request().model_copy(
                 update={"fence": _publication_request().fence.model_copy(update={"attempt_no": 2})}

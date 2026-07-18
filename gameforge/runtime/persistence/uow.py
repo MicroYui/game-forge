@@ -29,11 +29,43 @@ class SqliteUnitOfWork:
         self._capability_factory = capability_factory
 
     def begin(self) -> TransactionHandle:
+        """Start one serialized SQLite write transaction."""
+
+        return self._begin(begin_statement="BEGIN IMMEDIATE", query_only=False)
+
+    def begin_read(self) -> TransactionHandle:
+        """Start one deferred, query-only snapshot without taking the writer lock."""
+
+        return self._begin(begin_statement="BEGIN", query_only=True)
+
+    def _begin(
+        self,
+        *,
+        begin_statement: str,
+        query_only: bool,
+    ) -> TransactionHandle:
         ensure_transaction_context_available()
         connection = self._engine.connect()
         session: Session | None = None
+        query_only_enabled = False
+
+        def restore_connection_mode() -> None:
+            nonlocal query_only_enabled
+            if not query_only_enabled:
+                return
+            try:
+                connection.exec_driver_sql("PRAGMA query_only = OFF")
+            except BaseException:
+                connection.invalidate()
+                raise
+            finally:
+                query_only_enabled = False
+
         try:
-            connection.exec_driver_sql("BEGIN IMMEDIATE")
+            if query_only:
+                connection.exec_driver_sql("PRAGMA query_only = ON")
+                query_only_enabled = True
+            connection.exec_driver_sql(begin_statement)
             session = Session(
                 bind=connection,
                 autoflush=False,
@@ -66,7 +98,12 @@ class SqliteUnitOfWork:
                     raise
                 finally:
                     session.close()
-                    connection.close()
+                    if connection.in_transaction():
+                        connection.rollback()
+                    try:
+                        restore_connection_mode()
+                    finally:
+                        connection.close()
 
             return factory.begin(
                 capabilities,
@@ -77,7 +114,10 @@ class SqliteUnitOfWork:
                 session.close()
             if connection.in_transaction():
                 connection.rollback()
-            connection.close()
+            try:
+                restore_connection_mode()
+            finally:
+                connection.close()
             raise
 
 

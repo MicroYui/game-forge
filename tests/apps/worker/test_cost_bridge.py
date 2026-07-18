@@ -35,6 +35,7 @@ from gameforge.contracts.cost import (
     TokenUsageObservationV1,
 )
 from gameforge.contracts.errors import (
+    AttemptFenceStateRejected,
     Conflict,
     IntegrityViolation,
     InvalidStateTransition,
@@ -194,6 +195,28 @@ class _Harness:
         )
 
 
+@dataclass(slots=True)
+class _MutableUtcClock:
+    current: datetime
+
+    def now_utc(self) -> datetime:
+        return self.current
+
+
+@dataclass(slots=True)
+class _AdvanceClockBeforeBegin:
+    base: SqliteUnitOfWork
+    clock: _MutableUtcClock
+    advance_to: datetime
+
+    def begin(self) -> object:
+        self.clock.current = self.advance_to
+        return self.base.begin()
+
+    def begin_read(self) -> object:
+        return self.base.begin_read()
+
+
 def _capabilities(
     session: Session,
     clock: FrozenUtcClock,
@@ -241,9 +264,22 @@ def _catalog_policy(request: ModelRequestV2) -> tuple[ModelCatalogSnapshotV1, Ro
         prompt_cache_support=True,
         status="active",
     )
+    second_fallback_snapshot = request.model_snapshot.model_copy(
+        update={"model": f"{request.model_snapshot.model}-second-fallback"}
+    )
+    second_fallback_descriptor = ModelDescriptorV1(
+        provider=second_fallback_snapshot.provider,
+        model_snapshot=canonical_model_snapshot_id(second_fallback_snapshot),
+        tier="fast",
+        capabilities=("reasoning",),
+        context_limit=4_096,
+        max_output_tokens=64,
+        prompt_cache_support=True,
+        status="active",
+    )
     catalog_body = {
         "catalog_version": 1,
-        "models": (descriptor, fallback_descriptor),
+        "models": (descriptor, fallback_descriptor, second_fallback_descriptor),
         "created_at": NOW,
     }
     catalog = ModelCatalogSnapshotV1(
@@ -255,7 +291,10 @@ def _catalog_policy(request: ModelRequestV2) -> tuple[ModelCatalogSnapshotV1, Ro
         task_kind=request.agent_node_id,
         required_capabilities=("reasoning",),
         primary_model_snapshot=descriptor.model_snapshot,
-        allowed_fallback_chain=(fallback_descriptor.model_snapshot,),
+        allowed_fallback_chain=(
+            fallback_descriptor.model_snapshot,
+            second_fallback_descriptor.model_snapshot,
+        ),
         budget_predicates=(),
     )
     policy_body = {
@@ -656,6 +695,58 @@ def _router_result(
     )
 
 
+def _prompt_route(
+    harness: _Harness,
+    request: ModelRequestV2,
+    decision: RoutingDecisionV1,
+    route_ordinal: int,
+) -> tuple[RunIntermediateArtifactLinkV1, RunModelRouteLinkV1, object, object]:
+    payload = canonical_json(request.model_dump(mode="json")).encode("utf-8")
+    stored = harness.objects.put_verified(payload)
+    prompt = build_artifact_v2(
+        kind="source_rendered",
+        version_tuple=VersionTuple(
+            prompt_version=request.prompt_version,
+            model_snapshot=None,
+            agent_graph_version=_AGENT_GRAPH_VERSION,
+            tool_version=_PROMPT_RENDERER_VERSION,
+        ),
+        lineage=(),
+        payload_hash=stored.ref.sha256,
+        object_ref=stored.ref,
+        meta={
+            "payload_schema_id": "source-rendered@1",
+            "renderer_version": _PROMPT_RENDERER_VERSION,
+            "agent_tool_version": _AGENT_TOOL_VERSION,
+        },
+        created_at=_iso(NOW),
+    )
+    link = RunIntermediateArtifactLinkV1(
+        run_id=harness.run.run_id,
+        attempt_no=harness.attempt.attempt_no,
+        call_ordinal=1,
+        route_ordinal=route_ordinal,
+        artifact_id=prompt.artifact_id,
+        role="prompt_rendered",
+        request_hash=request_hash(request).removeprefix("sha256:"),
+        fencing_token=harness.fence.fencing_token,
+        published_at=_iso(NOW),
+    )
+    route = RunModelRouteLinkV1(
+        run_id=link.run_id,
+        attempt_no=link.attempt_no,
+        call_ordinal=link.call_ordinal,
+        route_ordinal=link.route_ordinal,
+        prompt_artifact_id=link.artifact_id,
+        request_hash=link.request_hash,
+        routing_decision_kind="native",
+        routing_decision_id=decision.decision_id,
+        fencing_token=link.fencing_token,
+        published_at=link.published_at,
+    )
+    return link, route, prompt, stored
+
+
 def _attempt_groups(harness: _Harness) -> tuple[ReservationGroupV1, ...]:
     with Session(harness.engine) as session:
         return SqlCostLedger(session, clock=harness.clock).list_attempt_reservation_groups(
@@ -693,6 +784,55 @@ def test_each_transport_reserve_commits_a_distinct_group_before_use(harness: _Ha
         for dimension in ("input_token", "output_token", "request", "wall_time_ns")
     )
     assert remaining["agent_step"] == initial["agent_step"]
+
+
+@pytest.mark.parametrize("scope", ("agent_step", "attempt_call"))
+def test_reservation_resamples_deadline_after_acquiring_writer_lock(
+    harness: _Harness,
+    scope: str,
+) -> None:
+    clock = _MutableUtcClock(NOW)
+    uow = _AdvanceClockBeforeBegin(
+        base=harness.uow,
+        clock=clock,
+        advance_to=NOW + timedelta(seconds=2),
+    )
+    deadline = NOW + timedelta(seconds=1)
+
+    with pytest.raises(QuotaExceeded, match="deadline is exhausted"):
+        if scope == "agent_step":
+            WorkerAgentStepCostGateway(
+                unit_of_work=uow,
+                run=harness.run,
+                attempt=harness.attempt,
+                fence=harness.fence,
+                actor=WORKER,
+                clock=clock,
+            ).reserve_step(
+                request_hash=harness.decision.request_hash,
+                execution_source="online",
+                deadline_utc=deadline,
+                call_ordinal=1,
+                agent_node_id=harness.request.agent_node_id,
+            )
+        else:
+            WorkerCallCostGateway(
+                unit_of_work=uow,
+                run=harness.run,
+                attempt=harness.attempt,
+                fence=harness.fence,
+                actor=WORKER,
+                clock=clock,
+            ).reserve_call(
+                decision=harness.decision,
+                model_request=harness.request,
+                deadline_utc=deadline,
+                call_ordinal=1,
+                route_ordinal=1,
+                transport_attempt=1,
+            )
+
+    assert _attempt_groups(harness) == ()
 
 
 def test_agent_step_reserve_and_reconcile_are_exact_and_route_free(
@@ -789,48 +929,11 @@ def test_agent_step_fault_rolls_back_prior_call_settlement_in_shared_uow(
 def test_record_publication_step_fault_leaves_no_shard_or_consumption(
     harness: _Harness,
 ) -> None:
-    rendered_payload = canonical_json(harness.request.model_dump(mode="json")).encode("utf-8")
-    stored = harness.objects.put_verified(rendered_payload)
-    prompt = build_artifact_v2(
-        kind="source_rendered",
-        version_tuple=VersionTuple(
-            prompt_version=harness.request.prompt_version,
-            model_snapshot=None,
-            agent_graph_version=_AGENT_GRAPH_VERSION,
-            tool_version=_PROMPT_RENDERER_VERSION,
-        ),
-        lineage=(),
-        payload_hash=stored.ref.sha256,
-        object_ref=stored.ref,
-        meta={
-            "payload_schema_id": "source-rendered@1",
-            "renderer_version": _PROMPT_RENDERER_VERSION,
-            "agent_tool_version": _AGENT_TOOL_VERSION,
-        },
-        created_at=_iso(NOW),
-    )
-    link = RunIntermediateArtifactLinkV1(
-        run_id=harness.run.run_id,
-        attempt_no=harness.attempt.attempt_no,
-        call_ordinal=1,
-        route_ordinal=1,
-        artifact_id=prompt.artifact_id,
-        role="prompt_rendered",
-        request_hash=request_hash(harness.request).removeprefix("sha256:"),
-        fencing_token=harness.fence.fencing_token,
-        published_at=_iso(NOW),
-    )
-    route = RunModelRouteLinkV1(
-        run_id=link.run_id,
-        attempt_no=link.attempt_no,
-        call_ordinal=link.call_ordinal,
-        route_ordinal=link.route_ordinal,
-        prompt_artifact_id=link.artifact_id,
-        request_hash=link.request_hash,
-        routing_decision_kind="native",
-        routing_decision_id=harness.decision.decision_id,
-        fencing_token=link.fencing_token,
-        published_at=link.published_at,
+    link, route, prompt, stored = _prompt_route(
+        harness,
+        harness.request,
+        harness.decision,
+        1,
     )
     with harness.uow.begin() as transaction:
         transaction.object_bindings.bind_verified(stored.ref, stored.location, None)
@@ -935,15 +1038,116 @@ def test_record_publication_step_fault_leaves_no_shard_or_consumption(
         )
 
 
+@pytest.mark.parametrize("expiry_phase", ("before_begin", "before_commit"))
+def test_response_publication_rechecks_lease_inside_writer_transaction(
+    harness: _Harness,
+    expiry_phase: str,
+) -> None:
+    link, route, prompt, stored = _prompt_route(
+        harness,
+        harness.request,
+        harness.decision,
+        1,
+    )
+    with harness.uow.begin() as transaction:
+        transaction.object_bindings.bind_verified(stored.ref, stored.location, None)
+        transaction.artifacts.put(prompt)
+        transaction.runs.put_intermediate_link(link)
+        transaction.runs.put_model_route_link(route)
+
+    call_gateway = harness.gateway()
+    step_gateway = harness.step_gateway()
+    call_token = harness.reserve(gateway=call_gateway)
+    step_token = step_gateway.reserve_step(
+        request_hash=request_hash(harness.request),
+        execution_source="online",
+        deadline_utc=NOW + timedelta(seconds=10),
+        call_ordinal=1,
+        agent_node_id=harness.request.agent_node_id,
+    )
+    result = _router_result(harness.decision)
+    record = _record_from_result(
+        request=harness.request,
+        decision=harness.decision,
+        result=result,
+        recorded_at=NOW,
+    )
+    clock = _MutableUtcClock(NOW)
+    publication_uow = harness.uow
+    publication_step_cost = step_gateway
+    if expiry_phase == "before_begin":
+        publication_uow = _AdvanceClockBeforeBegin(
+            base=harness.uow,
+            clock=clock,
+            advance_to=NOW + timedelta(minutes=31),
+        )
+    else:
+
+        class _ExpireAfterStepSettlement:
+            def reconcile_step_in_transaction(self, *, transaction, reservation):
+                settled = step_gateway.reconcile_step_in_transaction(
+                    transaction=transaction,
+                    reservation=reservation,
+                )
+                clock.current = NOW + timedelta(minutes=31)
+                return settled
+
+        publication_step_cost = _ExpireAfterStepSettlement()  # type: ignore[assignment]
+
+    with pytest.raises(AttemptFenceStateRejected, match="lease is expired"):
+        WorkerResponseConsumptionPublisher(
+            unit_of_work=publication_uow,
+            run=harness.run,
+            cost=call_gateway,
+            object_store=harness.objects,
+            clock=clock,
+            audit_chain_id="run:run-1",
+        ).publish_response_consumption(
+            fence=harness.fence,
+            link=link,
+            decision=harness.decision,
+            result=result,
+            record=record,
+            reservation=call_token,
+            step_cost=publication_step_cost,
+            step_reservation=step_token,
+            wall_time_ns=123_456,
+            actor=WORKER,
+        )
+
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        assert ledger.list_usage(run_id=harness.run.run_id, attempt_no=1) == ()
+        assert (
+            SqlRunRepository(session).get_model_response_consumption(
+                harness.run.run_id,
+                1,
+                1,
+                1,
+            )
+            is None
+        )
+        assert (
+            tuple(session.scalars(select(ArtifactRow).where(ArtifactRow.kind == "cassette_bundle")))
+            == ()
+        )
+
+
 @pytest.mark.parametrize("fallback_source", ["online", "full_response_cache"])
+@pytest.mark.parametrize(
+    ("fallback_suffix", "fallback_index"),
+    (("fallback", 1), ("second-fallback", 2)),
+)
 def test_fallback_response_atomically_settles_first_route_agent_step(
     harness: _Harness,
     fallback_source: str,
+    fallback_suffix: str,
+    fallback_index: int,
 ) -> None:
     fallback_request = harness.request.model_copy(
         update={
             "model_snapshot": harness.request.model_snapshot.model_copy(
-                update={"model": f"{harness.request.model_snapshot.model}-fallback"}
+                update={"model": f"{harness.request.model_snapshot.model}-{fallback_suffix}"}
             )
         }
     )
@@ -953,65 +1157,15 @@ def test_fallback_response_atomically_settles_first_route_agent_step(
         policy=harness.policy,
         budget_set_snapshot_id=harness.run.budget_set_snapshot_id,
         execution_source=fallback_source,
-        fallback_index=1,
+        fallback_index=fallback_index,
     )
     harness.put_decision(fallback_decision)
 
-    def prompt_route(
-        request: ModelRequestV2,
-        decision: RoutingDecisionV1,
-        route_ordinal: int,
-    ) -> tuple[RunIntermediateArtifactLinkV1, RunModelRouteLinkV1, object, object]:
-        payload = canonical_json(request.model_dump(mode="json")).encode("utf-8")
-        stored = harness.objects.put_verified(payload)
-        prompt = build_artifact_v2(
-            kind="source_rendered",
-            version_tuple=VersionTuple(
-                prompt_version=request.prompt_version,
-                model_snapshot=None,
-                agent_graph_version=_AGENT_GRAPH_VERSION,
-                tool_version=_PROMPT_RENDERER_VERSION,
-            ),
-            lineage=(),
-            payload_hash=stored.ref.sha256,
-            object_ref=stored.ref,
-            meta={
-                "payload_schema_id": "source-rendered@1",
-                "renderer_version": _PROMPT_RENDERER_VERSION,
-                "agent_tool_version": _AGENT_TOOL_VERSION,
-            },
-            created_at=_iso(NOW),
-        )
-        link = RunIntermediateArtifactLinkV1(
-            run_id=harness.run.run_id,
-            attempt_no=harness.attempt.attempt_no,
-            call_ordinal=1,
-            route_ordinal=route_ordinal,
-            artifact_id=prompt.artifact_id,
-            role="prompt_rendered",
-            request_hash=request_hash(request).removeprefix("sha256:"),
-            fencing_token=harness.fence.fencing_token,
-            published_at=_iso(NOW),
-        )
-        route = RunModelRouteLinkV1(
-            run_id=link.run_id,
-            attempt_no=link.attempt_no,
-            call_ordinal=link.call_ordinal,
-            route_ordinal=link.route_ordinal,
-            prompt_artifact_id=link.artifact_id,
-            request_hash=link.request_hash,
-            routing_decision_kind="native",
-            routing_decision_id=decision.decision_id,
-            fencing_token=link.fencing_token,
-            published_at=link.published_at,
-        )
-        return link, route, prompt, stored
-
-    primary_link, primary_route, primary_prompt, primary_stored = prompt_route(
-        harness.request, harness.decision, 1
+    primary_link, primary_route, primary_prompt, primary_stored = _prompt_route(
+        harness, harness.request, harness.decision, 1
     )
-    fallback_link, fallback_route, fallback_prompt, fallback_stored = prompt_route(
-        fallback_request, fallback_decision, 2
+    fallback_link, fallback_route, fallback_prompt, fallback_stored = _prompt_route(
+        harness, fallback_request, fallback_decision, 2
     )
     with harness.uow.begin() as transaction:
         for prompt, stored in (
@@ -1325,6 +1479,46 @@ def test_failed_transport_conserves_unknown_usage_but_keeps_observed_wall_time(
     assert usage[0].token_usage.input_tokens == int(maxima["input_token"])
     assert usage[0].token_usage.output_tokens == int(maxima["output_token"])
     assert usage[0].wall_time_ns == 1
+
+
+def test_late_provider_usage_adjusts_conservative_settlement(
+    harness: _Harness,
+) -> None:
+    gateway = harness.gateway()
+    reservation = harness.reserve(gateway=gateway)
+    gateway.settle_failed_transport(
+        reservation=reservation,
+        decision=harness.decision,
+        wall_time_ns=1,
+    )
+
+    gateway.reconcile_usage(
+        reservation=reservation,
+        decision=harness.decision,
+        result=_router_result(harness.decision),
+        wall_time_ns=20,
+    )
+    # A duplicate late callback is an exact idempotent replay.
+    gateway.reconcile_usage(
+        reservation=reservation,
+        decision=harness.decision,
+        result=_router_result(harness.decision),
+        wall_time_ns=20,
+    )
+
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        group = ledger.get_reservation_group(reservation.reservation_group_id)
+        usage = ledger.list_usage(run_id=harness.run.run_id, attempt_no=1)
+    assert group is not None and group.status == "late_reconciled"
+    assert len(usage) == 2
+    conservative = next(item for item in usage if item.adjustment_of_usage_id is None)
+    adjustment = next(item for item in usage if item.adjustment_of_usage_id is not None)
+    assert adjustment.adjustment_of_usage_id == conservative.usage_id
+    assert adjustment.wall_time_ns == 20
+    assert (
+        adjustment.provider_prefix_cache == _router_result(harness.decision).provider_prefix_cache
+    )
 
 
 def test_failed_transport_settlement_replay_must_match_retained_usage(
