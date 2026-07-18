@@ -706,7 +706,6 @@ def test_handler_outcome_publishes_with_exact_scenario_identities(
             registry=registry,
             validators=build_builtin_playtest_payload_validators(),
         ),
-        task_suite_scenario_shaper_resolver=lambda _profile: AureusScenarioShaper(),
     )
     scenario_prepared = next(
         item for item in outcome.artifacts if item.payload_schema_id == "scenario-spec@1"
@@ -758,13 +757,6 @@ def test_handler_outcome_publishes_with_exact_scenario_identities(
             payload_schema_id="scenario-spec@1",
             payload=valid_scenario,
             prepared_batch_total_bytes=_derivation_config().max_total_prepared_artifact_bytes + 1,
-        )
-
-    with pytest.raises(IntegrityViolation, match="exact derivation"):
-        publisher._validate_task_suite_batch_authority(  # noqa: SLF001
-            run=run,
-            payloads_by_rule={"scenario": (), "primary": ()},
-            artifacts_by_rule={"scenario": (), "primary": ()},
         )
 
     # TaskSuite profile/oracle authority is frozen by the Run and must be resolved

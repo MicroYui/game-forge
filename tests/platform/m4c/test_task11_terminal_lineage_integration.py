@@ -252,7 +252,6 @@ def _publish_handler_result(
     handler_store,
     bridge,
     inputs,
-    config_exporter=None,
 ):
     from gameforge.platform.publication import publisher as publisher_module
 
@@ -323,7 +322,6 @@ def _publish_handler_result(
             findings=_Findings(),
             ledger=ledger,
             audit=_Audit(),
-            config_exporter=config_exporter,
         ),
         blobs,
     )

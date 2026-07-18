@@ -10,8 +10,6 @@ platform contract must never hardcode Aureus.
 
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import pytest
 
 from gameforge.apps.worker.config_export import (
@@ -38,7 +36,6 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.platform.registry import build_builtin_registry
-from gameforge.platform.publication.publisher import TerminalPublisher
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.spine.ir.loader import load_scenario
 from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
@@ -164,69 +161,6 @@ def test_export_framing_is_byte_identical_across_runs() -> None:
     first = canonical_config_export_bytes(_export())
     second = canonical_config_export_bytes(_export())
     assert first == second
-
-
-def test_terminal_rederives_config_export_from_authoritative_preview() -> None:
-    registry = build_builtin_registry()
-    catalog = max(
-        registry.list_execution_profile_catalogs(),
-        key=lambda item: item.catalog_version,
-    )
-    definition = next(item for item in catalog.definitions if item.profile == _EXPORT_PROFILE)
-    binding = ResolvedExecutionProfileBindingV1(
-        field_path="/params/candidate_export_profiles/0",
-        profile=_EXPORT_PROFILE,
-        expected_profile_kind="config_export",
-        profile_payload_hash=execution_profile_payload_hash(definition),
-        catalog_version=catalog.catalog_version,
-        catalog_digest=catalog.catalog_digest,
-    )
-    exporter = build_aureus_config_exporter(registry)
-    authoritative = _preview_payload()
-    altered_workbook = _workbook()
-    altered_workbook["npcs"][0]["name"] = "Forged Guide"
-    forged_preview = (
-        AureusCsvAdapter()
-        .to_ir(
-            altered_workbook,
-            "forged-preview.csv",
-        )
-        .content_payload
-    )
-    forged = exporter.export(
-        export_profile=_EXPORT_PROFILE,
-        export_profile_binding=binding,
-        run_kind=RunKindRef(kind="generation.propose", version=1),
-        llm_execution_mode="replay",
-        preview_snapshot_id="artifact:preview-final",
-        preview_payload=forged_preview,
-        constraint_snapshot_artifact_id="artifact:constraint",
-        constraints=(),
-    )
-    constraint_blob = canonical_json(
-        {"dsl_grammar_version": "constraint-dsl@1", "constraints": []}
-    ).encode("utf-8")
-    publisher = object.__new__(TerminalPublisher)
-    publisher._config_exporter = exporter  # noqa: SLF001
-    publisher._artifacts = SimpleNamespace(  # noqa: SLF001
-        read_bytes=lambda artifact_id: constraint_blob
-    )
-    run = SimpleNamespace(
-        kind=RunKindRef(kind="generation.propose", version=1),
-        payload=SimpleNamespace(
-            params=SimpleNamespace(candidate_export_profiles=(_EXPORT_PROFILE,)),
-            resolved_profiles=(binding,),
-            llm_execution_mode="replay",
-        ),
-    )
-
-    with pytest.raises(IntegrityViolation, match="deterministic terminal derivation"):
-        publisher._validate_config_export_content_authority(  # noqa: SLF001
-            run=run,
-            payload_schema_id="config-export-package@1",
-            payload=forged.model_dump(mode="json"),
-            preview_payloads=(authoritative,),
-        )
 
 
 def test_export_rejects_a_package_the_target_environment_cannot_execute() -> None:

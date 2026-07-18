@@ -121,8 +121,6 @@ from gameforge.platform.playtest_payload_schemas import (
 )
 from gameforge.platform.registry import TrustedComponentMaps
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
-from gameforge.platform.run_handlers.generation import ConfigExporter
-from gameforge.platform.run_handlers.task_suite import ScenarioShaperResolver
 from gameforge.platform.provenance import build_source_kind_registry
 from gameforge.platform.runs.admission import (
     DefaultRunBudgetPlanProvider,
@@ -507,8 +505,6 @@ def build_worker_dispatch(
     runtime: WorkerRuntime,
     registry: ImmutablePlatformRegistry,
     terminal_cursor_signing_key: bytes,
-    config_exporter: ConfigExporter,
-    task_suite_scenario_shaper_resolver: ScenarioShaperResolver,
     run_audit_chain_id: str = WORKER_RUN_AUDIT_CHAIN_ID,
     notify: Callable[[str], None] | None = None,
     model_transport: TypedLlmTransport | None = None,
@@ -626,8 +622,6 @@ def build_worker_dispatch(
                 registry=registry,
                 validators=runtime.components.playtest_payload_validators,
             ),
-            config_exporter=config_exporter,
-            task_suite_scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
             agent_drafts=build_agent_draft_workflow_port(
                 transaction=transaction,
                 object_store=object_store,
@@ -1213,8 +1207,6 @@ def build_worker_process(
             runtime=runtime,
             registry=runtime.registry,
             terminal_cursor_signing_key=terminal_cursor_key,
-            config_exporter=config_exporter,
-            task_suite_scenario_shaper_resolver=task_suite_scenario_shaper_resolver,
             notify=notify,
             model_transport=model_transport,
             model_snapshot_authority=model_snapshot_authority,

@@ -1483,7 +1483,6 @@ def build_local_api_resources(
             ),
             approvals=transaction.approvals,  # type: ignore[attr-defined]
             playtest_payload_validator=playtest_payload_validator,
-            config_exporter=config_exporter,
         )
         return RunCommandCapabilities(
             runs=transaction.runs,  # type: ignore[attr-defined]

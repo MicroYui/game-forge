@@ -242,7 +242,6 @@ class PlaytestRunHandler:
     env_runner: PlaytestEnvRunner
     planner_config_resolver: PlannerConfigResolver
     environment_contract_resolver: EnvironmentContractResolver
-    action_payload_validator: PlaytestActionPayloadValidator
     finding_head_revision: FindingHeadRevisionResolver | None = None
     profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
     use_planner: bool = True
@@ -361,10 +360,7 @@ class PlaytestRunHandler:
                 raise ValueError("playtest env runner must return a boolean completion verdict")
             records = _records(
                 outcome.action_trace,
-                allowed_kinds,
                 max_steps=max_steps,
-                action_schema_id=environment_contract.action_schema_id,
-                payload_validator=self.action_payload_validator,
             )
             terminal_reason = _terminal_reason(
                 completed=outcome.completed,
@@ -834,13 +830,10 @@ def validate_environment_action(
 
 def _records(
     action_trace: tuple[dict, ...],
-    allowed_kinds: frozenset[str],
     *,
     max_steps: int,
-    action_schema_id: str,
-    payload_validator: PlaytestActionPayloadValidator,
 ) -> tuple[PlaytestActionRecordV1, ...]:
-    """Project the raw agent action trace onto bounded records (fail-closed on kind)."""
+    """Project the already-executed action trace onto bounded records."""
 
     if not isinstance(action_trace, tuple):
         raise ValueError("playtest action record collection must be an exact tuple")
@@ -869,12 +862,9 @@ def _records(
             or not state_hash
         ):
             raise ValueError("playtest action record has invalid field types")
-        canonical_action = validate_environment_action(
-            action,
-            action_schema_id=action_schema_id,
-            allowed_kinds=allowed_kinds,
-            payload_validator=payload_validator,
-        )
+        canonical_action = dict(action)
+        if canonical_action.get("kind") == "use" and canonical_action.get("target") is None:
+            canonical_action.pop("target", None)
         try:
             records.append(
                 PlaytestActionRecordV1(

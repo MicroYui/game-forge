@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 
 from pydantic import ValidationError
 import pytest
@@ -13,6 +14,7 @@ from gameforge.contracts.config_export import (
     canonical_config_export_bytes,
     decode_config_export_bytes,
 )
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.execution_profiles import ProfileRefV1
 
 
@@ -162,6 +164,34 @@ def test_package_decoder_round_trips_and_rejects_tampering_or_trailing_bytes() -
     tampered = framed[:-1] + bytes([framed[-1] ^ 1])
     with pytest.raises((ValueError, ValidationError)):
         decode_config_export_bytes(tampered)
+
+
+def test_package_decoder_rejects_noncanonical_file_order() -> None:
+    package = _package(
+        _file("tables/economy.csv", b"economy"),
+        _file("tables/quests.csv", b"quests"),
+    )
+    framed = canonical_config_export_bytes(package)
+    header_size = len(config_export_contract._PACKAGE_MAGIC) + 8
+    manifest_size = int.from_bytes(
+        framed[len(config_export_contract._PACKAGE_MAGIC) : header_size],
+        "big",
+    )
+    manifest = json.loads(framed[header_size : header_size + manifest_size])
+    manifest["files"].reverse()
+    manifest_bytes = canonical_json(manifest).encode("utf-8")
+    file_frames = b"".join(
+        file.size_bytes.to_bytes(8, "big") + file.content_bytes for file in reversed(package.files)
+    )
+    noncanonical = (
+        config_export_contract._PACKAGE_MAGIC
+        + len(manifest_bytes).to_bytes(8, "big")
+        + manifest_bytes
+        + file_frames
+    )
+
+    with pytest.raises(ValueError, match="not canonical"):
+        decode_config_export_bytes(noncanonical)
 
 
 def test_package_decoder_maps_pathological_manifest_nesting_to_codec_failure() -> None:

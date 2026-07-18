@@ -29,8 +29,21 @@ from __future__ import annotations
 
 from gameforge.contracts.canonical import compute_snapshot_id
 from gameforge.contracts.env_types import (
-    Action, Attack, Buy, CastSkill, Choose, Equip, Interact, NavigateTo,
-    Observation, Observe, Pickup, Sell, StepResult, Use, Wait,
+    Action,
+    Attack,
+    Buy,
+    CastSkill,
+    Choose,
+    Equip,
+    Interact,
+    NavigateTo,
+    Observation,
+    Observe,
+    Pickup,
+    Sell,
+    StepResult,
+    Use,
+    Wait,
 )
 from gameforge.contracts.world import BattleEncounterSpec, WorldConfig
 from gameforge.env.base import Environment
@@ -139,7 +152,8 @@ class AureusEnv(Environment):
         """Monster ids of `encounter` not yet defeated (no combat state, or a
         state still flagged alive)."""
         return [
-            mid for mid in encounter.monsters
+            mid
+            for mid in encounter.monsters
             if not (mid in self.monster_states and not self.monster_states[mid].get("alive", False))
         ]
 
@@ -273,7 +287,8 @@ class AureusEnv(Environment):
                     self.inventory[reward_item] = self.inventory.get(reward_item, 0) + 1
                 self.logs.append(
                     f"quest {qid} completed (reward gold={gold}"
-                    + (f", item={reward_item}" if reward_item else "") + ")"
+                    + (f", item={reward_item}" if reward_item else "")
+                    + ")"
                 )
                 return
             cur = self._current_step(quest, state)
@@ -453,8 +468,11 @@ class AureusEnv(Environment):
         self.player_stats["mp"] = int(self.player_stats.get("mp", 0)) - skill.cost
 
         result = self.combat_system.resolve_skill(
-            skill, self.player_stats, target_state,
-            formulas=self.world.formulas, effects=self.world.effects,
+            skill,
+            self.player_stats,
+            target_state,
+            formulas=self.world.formulas,
+            effects=self.world.effects,
             status_effects=self.world.status_effects,
         )
         self.tick += 1
@@ -599,42 +617,50 @@ class AureusEnv(Environment):
                 "step_id": cur.step_id if cur else None,
                 "step_kind": cur.kind if cur else None,
             }
-        reachable = sorted(
-            eid for eid, p in self.world.positions.items()
-            if self.world.grid.shortest_path(self.player_pos, p) is not None
+        pending_encounters = self._pending_fight_encounters()
+        target_positions = set(self.world.positions.values())
+        target_positions.update(
+            (int(enc.pos[0]), int(enc.pos[1])) for enc in pending_encounters if enc.pos is not None
         )
+        reachable_positions = self.world.grid.reachable_positions(
+            self.player_pos,
+            target_positions,
+        )
+        reachable = {eid for eid, p in self.world.positions.items() if p in reachable_positions}
         available = sorted(
-            eid for eid in self.world.entities_at(self.player_pos)
+            eid
+            for eid in self.world.entities_at(self.player_pos)
             if eid in self.world.npc_ids or eid in self.world.interactables
         )
-        nearby = sorted(
-            eid for eid, p in self.world.positions.items()
+        nearby = {
+            eid
+            for eid, p in self.world.positions.items()
             if abs(p[0] - self.player_pos[0]) + abs(p[1] - self.player_pos[1]) <= 1
-        )
+        }
         # Pre-combat actionability (contract §4.3): surface the monsters of every
         # ACTIVE quest's CURRENT fight step whose encounter tile the player can
         # reach, so an observation-only agent can navigate to + attack them to
         # START combat — before `active_encounter` is set. Only undefeated
         # monsters of a placed, still-reachable encounter are added.
         pending_fight: set[str] = set()
-        for enc in self._pending_fight_encounters():
+        for enc in pending_encounters:
             if enc.pos is None:
                 continue
             undefeated = self._undefeated_monsters(enc)
             if not undefeated:
                 continue
             enc_pos = (int(enc.pos[0]), int(enc.pos[1]))
-            if self.world.grid.shortest_path(self.player_pos, enc_pos) is not None:
-                reachable = sorted(set(reachable) | set(undefeated))
+            if enc_pos in reachable_positions:
+                reachable.update(undefeated)
                 pending_fight.update(undefeated)
             if abs(enc_pos[0] - self.player_pos[0]) + abs(enc_pos[1] - self.player_pos[1]) <= 1:
-                nearby = sorted(set(nearby) | set(undefeated))
+                nearby.update(undefeated)
         if self.combat["active_encounter"] is not None:
             alive_monsters = sorted(
                 mid for mid, st in self.monster_states.items() if st.get("alive")
             )
-            nearby = sorted(set(nearby) | set(alive_monsters))
-            reachable = sorted(set(reachable) | set(alive_monsters))
+            nearby.update(alive_monsters)
+            reachable.update(alive_monsters)
             pending_fight.update(alive_monsters)
         return Observation(
             tick=self.tick,
@@ -648,8 +674,8 @@ class AureusEnv(Environment):
             quest_state=quest_state,
             inventory=dict(self.inventory),
             hp=int(self.player_stats.get("hp", 0)),
-            nearby_entities=nearby,
-            reachable_targets=reachable,
+            nearby_entities=sorted(nearby),
+            reachable_targets=sorted(reachable),
             available_interactions=available,
             pending_fight_targets=sorted(pending_fight),
             visible_map={

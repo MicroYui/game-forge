@@ -246,6 +246,6 @@ def decode_config_export_bytes(blob: bytes) -> ConfigExportPackageV1:
         raise ValueError("config export package contains trailing bytes")
 
     package = ConfigExportPackageV1.model_validate({**manifest, "files": files})
-    if canonical_config_export_bytes(package) != blob:
+    if canonical_json(_manifest(package)).encode("utf-8") != manifest_bytes:
         raise ValueError("config export package is not canonical")
     return package

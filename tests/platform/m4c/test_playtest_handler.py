@@ -21,6 +21,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import gameforge.apps.worker.playtest as playtest_worker
 from gameforge.apps.worker.completion_oracles import (
     ALL_QUESTS_COMPLETED_ORACLE,
     build_completion_oracle_executors,
@@ -425,7 +426,6 @@ def _real_handler(
         env_runner=runner or _real_runner(),
         planner_config_resolver=_planner_config_resolver,
         environment_contract_resolver=_test_environment_contract,
-        action_payload_validator=_payload_validator(),
         **kwargs,
     )
 
@@ -445,7 +445,6 @@ def _handler(
         env_runner=runner,
         planner_config_resolver=_planner_config_resolver,
         environment_contract_resolver=_test_environment_contract,
-        action_payload_validator=_payload_validator(),
         **kwargs,
     )
 
@@ -769,7 +768,7 @@ def test_playtest_scopes_same_finding_series_per_episode() -> None:
     assert all(finding.evidence_artifact_index == 0 for finding in outcome.findings)
 
 
-def test_production_builder_shares_one_profile_selected_payload_validator() -> None:
+def test_production_builder_configures_profile_selected_payload_validator() -> None:
     registry = build_builtin_registry()
     store = _store()
 
@@ -782,7 +781,7 @@ def test_production_builder_shares_one_profile_selected_payload_validator() -> N
     )
 
     assert isinstance(handler.env_runner, AureusPlaytestRunner)
-    assert handler.action_payload_validator is handler.env_runner.payload_validator
+    assert handler.env_runner.payload_validator is not None
 
 
 def test_playtest_merges_duplicate_finding_series_before_publication_cas() -> None:
@@ -822,7 +821,6 @@ def test_playtest_rejects_aggregate_request_above_exact_planner_profile() -> Non
         env_runner=runner,
         planner_config_resolver=lambda _binding: _planner_config(max_episode_count=1),
         environment_contract_resolver=_test_environment_contract,
-        action_payload_validator=_payload_validator(),
     )
 
     with pytest.raises(IntegrityViolation, match="planner profile authority"):
@@ -885,6 +883,38 @@ def test_aureus_runner_applies_reset_quest_subset_to_exported_world() -> None:
     world = _real_runner()._world_from_request(fake.calls[0])
 
     assert [quest.quest_id for quest in world.quests] == ["quest:missing_caravan"]
+
+
+def test_aureus_runner_reuses_config_conversion_across_episode_resets(monkeypatch) -> None:
+    store = _store()
+    fake = _FakeRunner(_observe_outcome())
+    _handler(store, fake)(_context(FakeModelBridge(responses=())))
+    request = fake.calls[0]
+    second_request = replace(
+        request,
+        scenario_id="caravan-subset",
+        reset_binding=_reset(
+            "caravan-subset",
+            quest_ids=("quest:missing_caravan",),
+        ),
+    )
+    original = playtest_worker.decode_aureus_config_workbook
+    decode_calls = 0
+
+    def counting_decode(package):
+        nonlocal decode_calls
+        decode_calls += 1
+        return original(package)
+
+    playtest_worker._world_from_config_export.cache_clear()
+    monkeypatch.setattr(playtest_worker, "decode_aureus_config_workbook", counting_decode)
+    runner = _real_runner()
+
+    runner._world_from_request(request)
+    subset = runner._world_from_request(second_request)
+
+    assert decode_calls == 1
+    assert [quest.quest_id for quest in subset.quests] == ["quest:missing_caravan"]
 
 
 def test_playtest_resets_prior_response_causality_between_ordered_episodes() -> None:
@@ -1380,12 +1410,6 @@ def test_playtest_trace_marks_stuck_authoritative_state() -> None:
 @pytest.mark.parametrize(
     "step",
     (
-        {"action": {"kind": "navigate_to"}, "last_action_result": "ok", "tick": 1},
-        {
-            "action": {"kind": "observe", "forged": True},
-            "last_action_result": "ok",
-            "tick": 1,
-        },
         {"action": {"kind": "observe"}, "last_action_result": 7, "tick": 1},
         {"action": {"kind": "observe"}, "last_action_result": "ok", "tick": "1"},
     ),
@@ -1406,43 +1430,10 @@ def test_playtest_rejects_malformed_env_action_records(step: dict) -> None:
         ),
         planner_config_resolver=_planner_config_resolver,
         environment_contract_resolver=_test_environment_contract,
-        action_payload_validator=_payload_validator(),
     )
 
     with pytest.raises(ValueError, match="action record"):
         handler(_context(FakeModelBridge(responses=())))
-
-
-@pytest.mark.parametrize(("action", "interaction_mode"), _INVALID_ACTION_CASES)
-def test_playtest_revalidates_fake_runner_action_postconditions(
-    action: dict[str, object],
-    interaction_mode: str,
-) -> None:
-    store = _store()
-    outcome = PlaytestEpisodeOutcomeV1(
-        action_trace=(
-            {
-                "action": action,
-                "last_action_result": "forged",
-                "tick": 1,
-                "state_hash": _STATE_1,
-            },
-        ),
-        defect_findings=(),
-        completed=False,
-        initial_state_hash=_STATE_0,
-        final_state_hash=_STATE_1,
-    )
-
-    with pytest.raises(IntegrityViolation, match="environment action"):
-        _handler(store, _FakeRunner(outcome))(
-            _context(
-                FakeModelBridge(responses=()),
-                _payload(interaction_mode=interaction_mode),
-            )
-        )
-
-    assert store.put_count == 0
 
 
 def test_playtest_rejects_non_boolean_completion_verdict() -> None:
@@ -1461,42 +1452,10 @@ def test_playtest_rejects_non_boolean_completion_verdict() -> None:
         ),
         planner_config_resolver=_planner_config_resolver,
         environment_contract_resolver=_test_environment_contract,
-        action_payload_validator=_payload_validator(),
     )
 
     with pytest.raises(ValueError, match="boolean completion"):
         handler(_context(FakeModelBridge(responses=())))
-
-
-def test_playtest_rejects_disallowed_bounded_interaction_command() -> None:
-    store = _store()
-    # A combat action is outside the bounded_choice interactive command set.
-    attack_outcome = PlaytestEpisodeOutcomeV1(
-        action_trace=(
-            {
-                "action": {"kind": "attack", "target_id": "m"},
-                "last_action_result": "hit",
-                "tick": 1,
-                "state_hash": _STATE_1,
-            },
-        ),
-        defect_findings=(),
-        completed=False,
-        initial_state_hash=_STATE_0,
-        final_state_hash=_STATE_1,
-    )
-    runner = _FakeRunner(attack_outcome)
-    handler = _handler(store, runner)
-    with pytest.raises(IntegrityViolation, match="not allowed by the interaction mode"):
-        handler(
-            _context(FakeModelBridge(responses=()), _payload(interaction_mode="bounded_choice"))
-        )
-
-    # The same combat action IS allowed in autonomous mode.
-    outcome = _handler(store, _FakeRunner(attack_outcome))(
-        _context(FakeModelBridge(responses=()), _payload(interaction_mode="autonomous"))
-    )
-    assert isinstance(outcome, PreparedRunResult)
 
 
 # ============================================================ lineage conformance

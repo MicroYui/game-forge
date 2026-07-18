@@ -28,6 +28,33 @@ def test_same_cell_path_is_singleton():
     assert g.shortest_path((1, 1), (1, 1)) == [(1, 1)]
 
 
+def test_reachable_positions_finds_only_requested_walkable_targets():
+    g = Grid(GridSpec(width=3, height=3, blocked=[[1, 0], [1, 1], [1, 2]]))
+
+    assert g.reachable_positions((0, 0), {(0, 0), (0, 2), (2, 0), (1, 1)}) == {
+        (0, 0),
+        (0, 2),
+    }
+    assert g.reachable_positions((0, 0), ()) == set()
+    assert g.reachable_positions((1, 1), {(0, 0)}) == set()
+
+
+def test_reachable_positions_stops_after_the_last_sparse_target(monkeypatch):
+    g = Grid(GridSpec(width=256, height=256, blocked=[]))
+    original = g.is_walkable
+    checks = 0
+
+    def counting_is_walkable(pos):
+        nonlocal checks
+        checks += 1
+        return original(pos)
+
+    monkeypatch.setattr(g, "is_walkable", counting_is_walkable)
+
+    assert g.reachable_positions((0, 0), {(1, 0)}) == {(1, 0)}
+    assert checks <= 8
+
+
 def test_nav_provider_reachable_and_pos_of():
     g = Grid(GridSpec(width=5, height=5, blocked=[]))
     nav = AureusNav(g, {"npc:a": (3, 3)})

@@ -28,8 +28,14 @@ from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.contracts.env_types import Attack, Interact, NavigateTo
 from gameforge.contracts.ir import NodeType
 from gameforge.contracts.world import (
-    BattleEncounterSpec, GridSpec, MonsterSpec, Placement, QuestSpec,
-    QuestStepSpec, ScenarioConfig, WorldConfig,
+    BattleEncounterSpec,
+    GridSpec,
+    MonsterSpec,
+    Placement,
+    QuestSpec,
+    QuestStepSpec,
+    ScenarioConfig,
+    WorldConfig,
 )
 from gameforge.game.aureus.kernel import AureusEnv
 
@@ -44,19 +50,33 @@ def _fight_world() -> WorldConfig:
         placements=[
             Placement(entity_id="npc:g", type=NodeType.NPC, pos=(1, 0), attrs={}),
             Placement(
-                entity_id="enc:1", type=NodeType.BATTLE_ENCOUNTER, pos=(3, 3),
+                entity_id="enc:1",
+                type=NodeType.BATTLE_ENCOUNTER,
+                pos=(3, 3),
                 attrs={"monsters": ["mon:1"], "reward": {"gold": 10}, "pos": [3, 3]},
             ),
         ],
-        quests=[QuestSpec(quest_id="q", giver="npc:g", reward={"gold": 50}, steps=[
-            QuestStepSpec(step_id="t", kind="talk", target="npc:g"),
-            QuestStepSpec(step_id="f", kind="fight", encounter="enc:1"),
-            QuestStepSpec(step_id="d", kind="turn_in", target="npc:g"),
-        ])],
+        quests=[
+            QuestSpec(
+                quest_id="q",
+                giver="npc:g",
+                reward={"gold": 50},
+                steps=[
+                    QuestStepSpec(step_id="t", kind="talk", target="npc:g"),
+                    QuestStepSpec(step_id="f", kind="fight", encounter="enc:1"),
+                    QuestStepSpec(step_id="d", kind="turn_in", target="npc:g"),
+                ],
+            )
+        ],
         monsters=[MonsterSpec(monster_id="mon:1", stats={"hp": 20, "atk": 3, "def": 0})],
-        encounters=[BattleEncounterSpec(
-            encounter_id="enc:1", monsters=["mon:1"], reward={"gold": 10}, pos=(3, 3),
-        )],
+        encounters=[
+            BattleEncounterSpec(
+                encounter_id="enc:1",
+                monsters=["mon:1"],
+                reward={"gold": 10},
+                pos=(3, 3),
+            )
+        ],
     )
 
 
@@ -96,6 +116,30 @@ def test_fight_step_monster_exposed_before_combat() -> None:
     assert "mon:1" not in obs.nearby_entities  # player still at start
     _navigate_until_arrived(env, "mon:1")
     assert "mon:1" in env.observe().nearby_entities
+
+
+def test_observe_uses_one_bounded_reachability_search(monkeypatch) -> None:
+    env = AureusEnv(_fight_world())
+    env.reset("fs", seed=0)
+    grid = env.world.grid
+    original = grid.reachable_positions
+    calls = 0
+
+    def reachable_positions(src, positions):
+        nonlocal calls
+        calls += 1
+        return original(src, positions)
+
+    def reject_per_target_path(*_args, **_kwargs):
+        raise AssertionError("observe must not run one BFS per target")
+
+    monkeypatch.setattr(grid, "reachable_positions", reachable_positions)
+    monkeypatch.setattr(grid, "shortest_path", reject_per_target_path)
+
+    observation = env.observe()
+
+    assert calls == 1
+    assert "npc:g" in observation.reachable_targets
 
 
 def test_navigate_to_pending_fight_monster_routes_to_encounter() -> None:
@@ -148,9 +192,9 @@ def _all_done(obs) -> bool:
 
 
 def _progress_sig(obs):
-    return tuple(sorted(
-        (qid, qs["status"], qs["current_step"]) for qid, qs in obs.quest_state.items()
-    ))
+    return tuple(
+        sorted((qid, qs["status"], qs["current_step"]) for qid, qs in obs.quest_state.items())
+    )
 
 
 def _first_pending_step_kind(obs):
@@ -281,4 +325,3 @@ def test_partial_obs_agent_completes_fight_chain() -> None:
     env = AureusEnv(world)
     assert _partial_obs_run(env, world.scenario.scenario_id, seed=0) is True
     assert env._all_quests_completed() is True
-

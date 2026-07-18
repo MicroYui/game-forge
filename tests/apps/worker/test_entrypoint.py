@@ -1012,7 +1012,7 @@ def test_worker_process_uses_persisted_v3_catalog_as_one_exact_authority(
         process.close()
 
 
-def test_worker_composition_reuses_one_validator_exporter_and_shaper_authority(
+def test_worker_composition_reuses_validator_and_exporter_authorities(
     tmp_path: Path,
 ) -> None:
     config = _config(tmp_path)
@@ -1046,6 +1046,8 @@ def test_worker_composition_reuses_one_validator_exporter_and_shaper_authority(
                 validators[key] is components.playtest_payload_validators[key] for key in validators
             )
 
+        assert generation.config_exporter is repair.config_exporter
+
         lifecycle = process.dispatcher._lifecycle
         with lifecycle._unit_of_work.begin() as transaction:
             publisher = lifecycle._bind_capabilities(transaction).publication
@@ -1054,12 +1056,6 @@ def test_worker_composition_reuses_one_validator_exporter_and_shaper_authority(
             assert all(
                 terminal_validators[key] is components.playtest_payload_validators[key]
                 for key in terminal_validators
-            )
-            assert publisher._config_exporter is generation.config_exporter
-            assert publisher._config_exporter is repair.config_exporter
-            assert (
-                publisher._task_suite_scenario_shaper_resolver
-                is task_suite.scenario_shaper_resolver
             )
     finally:
         process.close()

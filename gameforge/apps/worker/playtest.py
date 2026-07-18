@@ -24,6 +24,7 @@ imported here.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Callable, Mapping
 
 from pydantic import BaseModel
@@ -34,6 +35,7 @@ from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.apps.worker.config_export import decode_aureus_config_workbook
 from gameforge.apps.worker.completion_oracles import build_completion_oracle_executors
 from gameforge.contracts.agent_io import PlaytestInput
+from gameforge.contracts.config_export import ConfigExportPackageV1
 from gameforge.contracts.env_types import parse_action
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
@@ -83,6 +85,19 @@ _AUREUS_OBSERVATION_SCHEMA_ID = "generic-env-observation@1"
 PlaytestPlannerConfigResolver = Callable[
     [ResolvedExecutionProfileBindingV1], PlaytestPlannerProfileConfigV2
 ]
+
+
+@lru_cache(maxsize=1)
+def _world_from_config_export(
+    config_artifact_id: str,
+    package: ConfigExportPackageV1,
+):
+    workbook = decode_aureus_config_workbook(package)
+    snapshot = AureusCsvAdapter().to_ir(
+        workbook,
+        file_ref=f"config-export:{config_artifact_id}",
+    )
+    return snapshot_to_world(snapshot)
 
 
 class _StateHashRecordingEnv:
@@ -231,8 +246,12 @@ class AureusPlaytestRunner:
 
         if contract is None:
             contract = self._resolve_environment_contract(request)
-        snapshot = self._snapshot_from_config_export(request)
-        world = snapshot_to_world(snapshot)
+        package = request.config_export
+        if package.target_environment_profile != request.environment_profile:
+            raise ValueError("config export targets another playtest environment")
+        if package.format_schema_id != _AUREUS_CONFIG_FORMAT_SCHEMA_ID:
+            raise ValueError("Aureus runner does not support this config export format")
+        world = _world_from_config_export(request.config_artifact_id, package)
         if contract is not None:
             grid_cells = int(world.grid.width) * int(world.grid.height)
             if (
@@ -251,19 +270,6 @@ class AureusPlaytestRunner:
         if unknown:
             raise ValueError("playtest reset payload references unknown quest ids")
         return world.model_copy(update={"quests": [quests[quest_id] for quest_id in quest_ids]})
-
-    @staticmethod
-    def _snapshot_from_config_export(request: PlaytestEpisodeRunRequest):
-        package = request.config_export
-        if package.target_environment_profile != request.environment_profile:
-            raise ValueError("config export targets another playtest environment")
-        if package.format_schema_id != _AUREUS_CONFIG_FORMAT_SCHEMA_ID:
-            raise ValueError("Aureus runner does not support this config export format")
-        workbook = decode_aureus_config_workbook(package)
-        return AureusCsvAdapter().to_ir(
-            workbook,
-            file_ref=f"config-export:{request.config_artifact_id}",
-        )
 
     def _resolve_environment_contract(
         self,
@@ -446,7 +452,6 @@ def build_playtest_handler(
         ),
         planner_config_resolver=build_playtest_planner_config_resolver(registry),
         environment_contract_resolver=environment_contract_resolver,
-        action_payload_validator=payload_validator,
         finding_head_revision=finding_head_revision,
         profile_binding_validator=profile_binding_validator,
     )
