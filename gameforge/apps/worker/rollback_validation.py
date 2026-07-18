@@ -204,8 +204,6 @@ def _target_inspection(
     *,
     status: str,
     reason_code: str | None,
-    schema_profile_binding: ResolvedExecutionProfileBindingV1,
-    rollback_profile_binding: ResolvedExecutionProfileBindingV1,
 ) -> RollbackTargetInspectionV1:
     return RollbackTargetInspectionV1(
         status=status,  # type: ignore[arg-type]
@@ -214,8 +212,6 @@ def _target_inspection(
         target_snapshot_id=_snapshot_id(artifact),
         target_version_tuple=artifact.version_tuple,
         reason_code=reason_code,
-        schema_profile_binding=schema_profile_binding,
-        rollback_profile_binding=rollback_profile_binding,
     )
 
 
@@ -248,8 +244,6 @@ class ExactRollbackSchemaAnalyzer:
                 target,
                 status="unproven",
                 reason_code="rollback_schema_reader_unavailable",
-                schema_profile_binding=request.schema_profile_binding,
-                rollback_profile_binding=request.rollback_profile_binding,
             )
         payload = _read_verified_bytes(
             self.artifacts,
@@ -278,23 +272,17 @@ class ExactRollbackSchemaAnalyzer:
                 target,
                 status="failed",
                 reason_code="rollback_schema_payload_invalid",
-                schema_profile_binding=request.schema_profile_binding,
-                rollback_profile_binding=request.rollback_profile_binding,
             )
         if not semantic_binding_matches:
             return _target_inspection(
                 target,
                 status="failed",
                 reason_code="rollback_schema_snapshot_binding_mismatch",
-                schema_profile_binding=request.schema_profile_binding,
-                rollback_profile_binding=request.rollback_profile_binding,
             )
         return _target_inspection(
             target,
             status="passed",
             reason_code=None,
-            schema_profile_binding=request.schema_profile_binding,
-            rollback_profile_binding=request.rollback_profile_binding,
         )
 
 
@@ -461,8 +449,6 @@ class DeterministicRollbackImpactAnalyzer:
             status=status,  # type: ignore[arg-type]
             reason_code=reason_code,
             detail=detail,
-            profile_binding=request.impact_profile_binding,
-            rollback_profile_binding=request.rollback_profile_binding,
         )
 
 

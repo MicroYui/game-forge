@@ -106,8 +106,6 @@ class DimensionCheckV1:
     status: CheckStatus
     reason_code: str | None = None
     detail: Mapping[str, object] = field(default_factory=dict)
-    profile_binding: ResolvedExecutionProfileBindingV1 | None = None
-    rollback_profile_binding: ResolvedExecutionProfileBindingV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,8 +118,6 @@ class RollbackTargetInspectionV1:
     target_snapshot_id: str | None = None
     target_version_tuple: VersionTuple | None = None
     reason_code: str | None = None
-    schema_profile_binding: ResolvedExecutionProfileBindingV1 | None = None
-    rollback_profile_binding: ResolvedExecutionProfileBindingV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -295,11 +291,6 @@ class RollbackValidationHandler:
                 rollback_profile_binding=rollback_profile_binding,
             )
         )
-        inspection = self._validate_schema_execution_binding(
-            inspection,
-            schema_profile_binding=schema_profile_binding,
-            rollback_profile_binding=rollback_profile_binding,
-        )
         target_binding = self._target_binding(payload, rollback_profile_binding, inspection)
         target_tuple = inspection.target_version_tuple
         if target_tuple is None:
@@ -324,6 +315,8 @@ class RollbackValidationHandler:
                 inspection,
                 payload.target_artifact_id,
                 payload.expected_current_ref.artifact_id,
+                schema_profile_binding,
+                rollback_profile_binding,
                 lineage,
                 evidence_tuple,
             )
@@ -408,21 +401,6 @@ class RollbackValidationHandler:
             findings=prepared_findings,
         )
 
-    @staticmethod
-    def _validate_schema_execution_binding(
-        inspection: RollbackTargetInspectionV1,
-        *,
-        schema_profile_binding: ResolvedExecutionProfileBindingV1,
-        rollback_profile_binding: ResolvedExecutionProfileBindingV1,
-    ) -> RollbackTargetInspectionV1:
-        if inspection.schema_profile_binding is None or inspection.rollback_profile_binding is None:
-            raise IntegrityViolation("schema analyzer omitted exact execution profile bindings")
-        if inspection.schema_profile_binding != schema_profile_binding:
-            raise IntegrityViolation("schema analyzer used another execution profile")
-        if inspection.rollback_profile_binding != rollback_profile_binding:
-            raise IntegrityViolation("schema analyzer used another rollback profile")
-        return inspection
-
     # --------------------------------------------------------------- dimensions
     def _history_dimension(
         self,
@@ -456,10 +434,11 @@ class RollbackValidationHandler:
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
     ) -> tuple[DimensionResult, PreparedArtifact]:
-        # The target was frozen as a Run input. A read/integrity/dependency fault is
-        # therefore an execution failure (and must restore the current draft), not a
-        # deterministic business verdict that can strand the item as validation_failed.
-        require_exists(self.blobs, payload.target_artifact_id)
+        if inspection.reason_code == "rollback_schema_reader_unavailable":
+            # Unsupported/oversized targets are not read by the schema analyzer.
+            # Preserve the input-integrity boundary without rereading supported
+            # snapshots on the normal path.
+            require_exists(self.blobs, payload.target_artifact_id)
         check = DimensionCheckV1(
             status="passed",
             detail={
@@ -483,6 +462,8 @@ class RollbackValidationHandler:
         inspection: RollbackTargetInspectionV1,
         target_artifact_id: str,
         current_artifact_id: str,
+        schema_profile_binding: ResolvedExecutionProfileBindingV1,
+        rollback_profile_binding: ResolvedExecutionProfileBindingV1,
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
     ) -> tuple[DimensionResult, PreparedArtifact]:
@@ -492,16 +473,8 @@ class RollbackValidationHandler:
             detail={
                 "target_artifact_kind": inspection.target_artifact_kind,
                 "target_snapshot_id": inspection.target_snapshot_id,
-                "schema_profile_binding": (
-                    None
-                    if inspection.schema_profile_binding is None
-                    else inspection.schema_profile_binding.model_dump(mode="json")
-                ),
-                "rollback_profile_binding": (
-                    None
-                    if inspection.rollback_profile_binding is None
-                    else inspection.rollback_profile_binding.model_dump(mode="json")
-                ),
+                "schema_profile_binding": schema_profile_binding.model_dump(mode="json"),
+                "rollback_profile_binding": rollback_profile_binding.model_dump(mode="json"),
             },
         )
         return self._seal_dimension(
@@ -573,14 +546,6 @@ class RollbackValidationHandler:
                     rollback_profile_binding=rollback_profile_binding,
                 )
             )
-            if check.profile_binding is None or check.rollback_profile_binding is None:
-                raise IntegrityViolation(
-                    "impact analyzer omitted its exact execution profile bindings"
-                )
-            elif check.profile_binding != profile_binding:
-                raise IntegrityViolation("impact analyzer used another execution profile")
-            elif check.rollback_profile_binding != rollback_profile_binding:
-                raise IntegrityViolation("impact analyzer used another rollback profile")
             detail = {
                 **dict(check.detail),
                 "current_artifact_id": payload.expected_current_ref.artifact_id,

@@ -74,7 +74,7 @@ from gameforge.contracts.workflow import (
 )
 from gameforge.spine.checkers.graph import GraphChecker
 from gameforge.spine.checkers.base import CheckerExecutionBinding
-from gameforge.spine.sim.economy import SimResult
+from gameforge.spine.sim.economy import EconomyModel, SimResult
 from gameforge.platform.run_handlers.patch_validation import (
     AutoApplyEvaluationRequest,
     ExactLinkedFindingRevision,
@@ -82,6 +82,7 @@ from gameforge.platform.run_handlers.patch_validation import (
 )
 from gameforge.platform.run_handlers.readers import load_snapshot
 from gameforge.platform.run_handlers.review import ReviewSimConfig
+from gameforge.platform.run_handlers.simulation import validate_economy_simulation_work_budget
 from gameforge.platform.run_handlers.validation_common import (
     DETERMINISTIC_VALIDATION_EXECUTION_SEED,
     RegressionSuiteResultV1,
@@ -352,6 +353,20 @@ class _ExactFindingRevisionLoader:
         if finding_revision_digest(revision) != finding_digest:
             raise IntegrityViolation("bound Finding digest differs from exact revision")
         return revision
+
+    def load_many_exact(
+        self,
+        *,
+        bindings: tuple[FindingEvidenceBindingV1, ...],
+    ) -> tuple[FindingRevisionV1, ...]:
+        return tuple(
+            self.load_exact(
+                finding_id=binding.finding_id,
+                finding_revision=binding.finding_revision,
+                finding_digest=binding.finding_digest,
+            )
+            for binding in bindings
+        )
 
     def list_linked_exact(
         self,
@@ -794,6 +809,7 @@ def _handler(
     store: FakeArtifactStore,
     *,
     checker_resolver=lambda profile, constraints: _CleanChecker(),
+    sim_config_resolver=None,
     simulator=None,
     wire_finding_authority: bool = True,
     **kwargs,
@@ -804,9 +820,8 @@ def _handler(
         blobs=store,
         store=store,
         checker_resolver=checker_resolver,
-        sim_config_resolver=lambda profile: ReviewSimConfig(
-            n_agents=6, n_ticks=12, max_work_units=2_000_000
-        ),
+        sim_config_resolver=sim_config_resolver
+        or (lambda profile: ReviewSimConfig(n_agents=6, n_ticks=12, max_work_units=2_000_000)),
         simulator=simulator if simulator is not None else _CleanSimulator(),
         **kwargs,
     )
@@ -1375,14 +1390,13 @@ def test_supporting_playtest_completion_affects_validation(
     assert requirement.status == expected_status
 
 
-@pytest.mark.parametrize("forgery", ("missing_envelope", "missing_identity", "tuple_projection"))
+@pytest.mark.parametrize("forgery", ("missing_envelope", "missing_identity"))
 def test_supporting_completed_playtest_requires_exact_execution_authority(
     forgery: str,
 ) -> None:
     store = _store()
     trace = _playtest_trace(completed=True)
     preview = load_snapshot(store, PREVIEW_ID)
-    handler_kwargs: dict[str, object] = {}
     if forgery == "missing_envelope":
         artifact_id = PLAYTEST_TRACE_ID
         store.register(artifact_id, trace.model_dump(mode="json"))
@@ -1393,22 +1407,8 @@ def test_supporting_completed_playtest_requires_exact_execution_authority(
             ir_snapshot_id=preview.snapshot_id,
             omit_execution_identity=(forgery == "missing_identity"),
         )
-        if forgery == "tuple_projection":
-            authoritative = store.load_artifact(artifact_id)
-            forged = authoritative.model_copy(
-                update={
-                    "version_tuple": authoritative.version_tuple.model_copy(
-                        update={"prompt_version": "forged-prompt@1"}
-                    )
-                }
-            )
-            handler_kwargs["artifact_inspector"] = SimpleNamespace(
-                load_artifact=lambda requested_id: (
-                    forged if requested_id == artifact_id else store.load_artifact(requested_id)
-                )
-            )
 
-    outcome = _handler(store, **handler_kwargs)(
+    outcome = _handler(store)(
         _context(
             store,
             _payload(
@@ -1477,6 +1477,71 @@ def test_checker_receives_exact_resolved_constraints_and_artifacts_project_run_t
         and artifact.version_tuple.seed == 19
         for artifact in outcome.artifacts
     )
+
+
+def test_checker_run_budget_counts_every_profile_and_compiled_constraint() -> None:
+    entities = [Entity(id=f"npc:{index}", type=NodeType.NPC, attrs={}) for index in range(64)]
+    store = _store(snapshot=snapshot_bytes(entities, []))
+    constraints = [
+        Constraint(
+            id=f"C_{index}",
+            kind="structural",
+            oracle="deterministic",
+            **{"assert": "relations_resolve"},
+            severity="major",
+        )
+        for index in range(256)
+    ]
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [item.model_dump(mode="json", by_alias=True) for item in constraints],
+        },
+    )
+    profiles = (
+        ProfileRefV1(profile_id="checker-a", version=1),
+        ProfileRefV1(profile_id="checker-b", version=1),
+    )
+
+    with pytest.raises(IntegrityViolation, match="aggregate work budget"):
+        _handler(store)(
+            _context(
+                store,
+                _payload(
+                    constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                    checker_profiles=profiles,
+                ),
+                constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            )
+        )
+
+
+def test_simulation_run_budget_keeps_child_and_aggregate_limits_separate() -> None:
+    store = _store()
+    model = EconomyModel.from_snapshot(load_snapshot(store, PREVIEW_ID))
+    per_profile_work = validate_economy_simulation_work_budget(
+        model,
+        n_agents=1,
+        n_ticks=1,
+        replication_count=1,
+        max_work_units=10_000,
+    )
+    profiles = (
+        ProfileRefV1(profile_id="simulation-a", version=1),
+        ProfileRefV1(profile_id="simulation-b", version=1),
+    )
+
+    outcome = _handler(
+        store,
+        sim_config_resolver=lambda _binding: ReviewSimConfig(
+            n_agents=1,
+            n_ticks=1,
+            max_work_units=per_profile_work,
+        ),
+    )(_context(store, _payload(checker_profiles=(), simulation_profiles=profiles), seed=7))
+
+    assert outcome.summary.outcome_code == "patch_validation_passed"
 
 
 @pytest.mark.parametrize(
@@ -1671,6 +1736,82 @@ def test_historical_confirmed_finding_passes_only_after_matching_clean_oracle_re
     assert evidence.finding_bindings == (binding,)
     assert evidence_artifact_id in evidence.supporting_artifact_ids
     assert evidence_artifact_id in outcome.artifacts[outcome.primary_index].lineage
+
+
+def test_maximum_expected_finding_closure_reads_and_indexes_shared_evidence_once() -> None:
+    class CountingStore(FakeArtifactStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_counts: dict[str, int] = {}
+            self.envelope_counts: dict[str, int] = {}
+
+        def read_bytes(self, artifact_id: str) -> bytes:
+            self.read_counts[artifact_id] = self.read_counts.get(artifact_id, 0) + 1
+            return super().read_bytes(artifact_id)
+
+        def load_artifact(self, artifact_id: str):
+            self.envelope_counts[artifact_id] = self.envelope_counts.get(artifact_id, 0) + 1
+            return super().load_artifact(artifact_id)
+
+    class BatchRecordingLoader(_ExactFindingRevisionLoader):
+        def __init__(self, *revisions, **kwargs) -> None:
+            super().__init__(*revisions, **kwargs)
+            self.batch_sizes: list[int] = []
+
+        def load_many_exact(self, *, bindings):
+            self.batch_sizes.append(len(bindings))
+            return super().load_many_exact(bindings=bindings)
+
+    store = _store(store=CountingStore())
+    findings = tuple(
+        _finding(
+            status="confirmed",
+            finding_id=f"historical:{index}",
+            snapshot_id="snapshot:historical",
+        ).model_copy(
+            update={
+                "entities": [f"entity:{index}"],
+                "message": f"historical defect {index}",
+            }
+        )
+        for index in range(1024)
+    )
+    revisions = tuple(
+        _finding_revision(finding, finding_id=f"finding-series:{index}")
+        for index, finding in enumerate(findings)
+    )
+    evidence_artifact_id = _register_historical_evidence(
+        store,
+        kind="checker_run",
+        payload_schema_id="checker-report@1",
+        payload={
+            "payload_schema_version": "checker-report@1",
+            "checker_profile": _CHECKER.model_dump(mode="json"),
+            "constraint_snapshot_binding_status": "not_applicable",
+            "snapshot_id": "snapshot:historical",
+            "checker_ids": ["graph"],
+            "defect_classes": ["dangling_reference"],
+            "constraint_application": [],
+            "findings": [finding.model_dump(mode="json") for finding in findings],
+        },
+    )
+    bindings = tuple(
+        _finding_binding(revision, evidence_artifact_id=evidence_artifact_id)
+        for revision in revisions
+    )
+    loader = BatchRecordingLoader(
+        *revisions,
+        evidence_artifact_id=evidence_artifact_id,
+    )
+
+    outcome = _handler(store, finding_revision_loader=loader)(
+        _context(store, _payload(expected_findings=bindings))
+    )
+
+    assert outcome.summary.outcome_code == "patch_validation_passed"
+    assert loader.batch_sizes == [1024]
+    assert store.read_counts[evidence_artifact_id] == 1
+    assert store.envelope_counts[evidence_artifact_id] == 1
 
 
 def test_historical_patch_validation_checker_companion_reexecutes_exact_oracle() -> None:
@@ -3050,7 +3191,6 @@ def test_historical_playtest_reverification_does_not_cross_execution_authority(
         "fresh_missing_identity",
         "identity_call_count",
         "missing_scenario_lineage",
-        "tuple_projection",
     ),
 )
 def test_historical_playtest_reverification_requires_artifact_authority(
@@ -3074,23 +3214,6 @@ def test_historical_playtest_reverification_requires_artifact_authority(
         ir_snapshot_id="snapshot:historical",
         **historical_kwargs,
     )
-    handler_kwargs: dict[str, object] = {}
-    if forgery == "tuple_projection":
-        authoritative = store.load_artifact(historical_artifact_id)
-        forged = authoritative.model_copy(
-            update={
-                "version_tuple": authoritative.version_tuple.model_copy(
-                    update={"prompt_version": "forged-prompt@1"}
-                )
-            }
-        )
-        handler_kwargs["artifact_inspector"] = SimpleNamespace(
-            load_artifact=lambda artifact_id: (
-                forged
-                if artifact_id == historical_artifact_id
-                else store.load_artifact(artifact_id)
-            )
-        )
     fresh_trace = _playtest_trace(completed=True)
     preview = load_snapshot(store, PREVIEW_ID)
     fresh_artifact_id = _register_authoritative_playtest_trace(
@@ -3110,7 +3233,6 @@ def test_historical_playtest_reverification_requires_artifact_authority(
             historical,
             evidence_artifact_id=historical_artifact_id,
         ),
-        **handler_kwargs,
     )(
         _context(
             store,

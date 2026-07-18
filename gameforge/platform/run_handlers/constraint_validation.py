@@ -43,8 +43,6 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
     ProfileRefV1,
-    ResolvedExecutionProfileBindingV1,
-    RunKindRef,
 )
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.ir import NodeType
@@ -71,6 +69,7 @@ from gameforge.spine.dsl.compile import compile_all
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     FindingEvidence,
     PreparedArtifactStore,
@@ -79,12 +78,12 @@ from gameforge.platform.run_handlers.base import (
     load_json_blob,
     prepared_version_tuple,
     rebind_finding_producers,
-    resolved_profile,
+    require_exact_profile_bindings,
     scoped_finding_series_id,
     store_prepared_artifact,
     store_prepared_blob,
+    trust_typed_profile_binding,
 )
-from gameforge.platform.run_handlers.readers import ConstraintLoader, load_constraints
 from gameforge.platform.run_handlers.validation_common import (
     CONSTRAINT_COMPILE_EVIDENCE_SCHEMA_ID,
     CONSTRAINT_SNAPSHOT_KIND,
@@ -104,7 +103,6 @@ from gameforge.platform.run_handlers.validation_common import (
     evidence_requirement,
     overall_status_of,
     regression_evidence_version_tuple,
-    require_exists,
     validation_child_execution_seed,
     validate_authoritative_regression_findings,
     with_validation_child_seed_evidence,
@@ -200,26 +198,6 @@ class ConstraintDifferentialEngine(Protocol):
     def evaluate(self, request: DifferentialEvalRequest) -> DifferentialEngineResultV1: ...
 
 
-@dataclass(frozen=True, slots=True)
-class ConstraintValidationProfileAuthorityV1:
-    """Trusted adapter authorization derived from both exact catalog bindings."""
-
-    validation_binding: ResolvedExecutionProfileBindingV1
-    compiler_binding: ResolvedExecutionProfileBindingV1
-    validation_handler_key: Literal["builtin_validation_profile@1"]
-    compiler_handler_key: Literal["builtin_constraint_compiler_profile@1"]
-
-
-class ConstraintValidationProfileResolver(Protocol):
-    def resolve(
-        self,
-        *,
-        run_kind: RunKindRef,
-        validation_binding: ResolvedExecutionProfileBindingV1,
-        compiler_binding: ResolvedExecutionProfileBindingV1,
-    ) -> ConstraintValidationProfileAuthorityV1: ...
-
-
 class GoldenSuiteRunner(Protocol):
     """Replay the bound golden suite against the compiled candidate (deterministic)."""
 
@@ -307,21 +285,24 @@ class ConstraintValidationHandler:
     blobs: ArtifactBlobReader
     store: PreparedArtifactStore
     differential_engines: Mapping[tuple[str, int], ConstraintDifferentialEngine]
-    profile_resolver: ConstraintValidationProfileResolver
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
     golden_runner: GoldenSuiteRunner = field(default_factory=_UnavailableGoldenSuiteRunner)
     regression_runner: RegressionRunner = field(
         default_factory=_UnavailableConstraintRegressionRunner
     )
-    constraint_loader: ConstraintLoader = load_constraints
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, ConstraintValidationPayloadV1):
             raise TypeError("constraint_validator@1 requires a constraint-validation@1 payload")
-        self._profile_authority(context, payload)
-        if payload.base_constraint_snapshot_artifact_id is not None:
-            # re-verify the bound base snapshot exists (typed lineage parent).
-            self.constraint_loader(self.blobs, payload.base_constraint_snapshot_artifact_id)
+        require_exact_profile_bindings(
+            context,
+            expected={
+                VALIDATION_POLICY_FIELD: (payload.validation_policy, "validation"),
+                COMPILER_PROFILE_FIELD: (payload.compiler_profile, "constraint_compiler"),
+            },
+            validator=self.profile_binding_validator,
+        )
 
         proposal = load_proposal(self.blobs, payload.subject.subject_artifact_id)
         candidate = tuple(proposal.constraints)
@@ -449,53 +430,6 @@ class ConstraintValidationHandler:
             # the failed/unproven variants only.
             requirement_dispositions=(() if outcome_code == _VALIDATED_CODE else dispositions),
         )
-
-    def _profile_authority(
-        self,
-        context: ExecutorContextLike,
-        payload: ConstraintValidationPayloadV1,
-    ) -> ConstraintValidationProfileAuthorityV1:
-        exact_paths = {VALIDATION_POLICY_FIELD, COMPILER_PROFILE_FIELD}
-        bindings = tuple(context.payload.resolved_profiles)
-        if {binding.field_path for binding in bindings} != exact_paths or len(bindings) != 2:
-            raise IntegrityViolation(
-                "constraint validation Run lacks its exact profile binding set"
-            )
-        validation_binding = resolved_profile(context.payload, VALIDATION_POLICY_FIELD)
-        compiler_binding = resolved_profile(context.payload, COMPILER_PROFILE_FIELD)
-        if validation_binding is None or compiler_binding is None:  # pragma: no cover
-            raise IntegrityViolation("constraint validation profile binding is unavailable")
-        expected = (
-            (validation_binding, payload.validation_policy, "validation"),
-            (compiler_binding, payload.compiler_profile, "constraint_compiler"),
-        )
-        for binding, profile, profile_kind in expected:
-            if (
-                binding.profile != profile
-                or binding.expected_profile_kind != profile_kind
-                or binding.catalog_version != context.payload.execution_profile_catalog_version
-                or binding.catalog_digest != context.payload.execution_profile_catalog_digest
-            ):
-                raise IntegrityViolation(
-                    "constraint validation profile differs from its exact Run authority",
-                    field_path=binding.field_path,
-                )
-        authority = self.profile_resolver.resolve(
-            run_kind=context.run.kind,
-            validation_binding=validation_binding,
-            compiler_binding=compiler_binding,
-        )
-        if (
-            type(authority) is not ConstraintValidationProfileAuthorityV1
-            or authority.validation_binding != validation_binding
-            or authority.compiler_binding != compiler_binding
-            or authority.validation_handler_key != "builtin_validation_profile@1"
-            or authority.compiler_handler_key != "builtin_constraint_compiler_profile@1"
-        ):
-            raise IntegrityViolation(
-                "constraint validation resolver returned another execution authority"
-            )
-        return authority
 
     # ------------------------------------------------------------------ pipeline
     def _run_pipeline(
@@ -717,7 +651,6 @@ class ConstraintValidationHandler:
             return self._stage("golden", "golden", "not_applicable", "golden_suite_absent")
         if not run:
             return self._stage("golden", "golden", "unproven", _SHORT_CIRCUIT)
-        require_exists(self.blobs, payload.golden_suite_artifact_id)
         result = self.golden_runner.run(
             golden_suite_artifact_id=payload.golden_suite_artifact_id, constraints=candidate
         )
@@ -846,25 +779,28 @@ class ConstraintValidationHandler:
         root_seed = context.payload.seed
         run_kind = context.run.kind
         remaining_work_units = MAX_REPAIR_REGRESSION_WORK_UNITS_V1
+        candidate_digest = candidate.candidate_digest
+        target_tuple = _target_version_tuple(
+            context,
+            target_snapshot_id=candidate_snapshot_id,
+            tool_version=EVIDENCE_TOOL_VERSION,
+        )
+        expected_source_snapshot_id = target_tuple.ir_snapshot_id
+        if not expected_source_snapshot_id:
+            raise IntegrityViolation("constraint regression source IR identity is unavailable")
         for suite_id in payload.regression_suite_artifact_ids:
-            require_exists(self.blobs, suite_id)
             execution_seed = validation_child_execution_seed(
                 root_seed=root_seed,
                 run_kind=run_kind,
                 profile=payload.validation_policy,
                 case_id=suite_id,
             )
-            execution_candidate = ConstraintRegressionCandidateV1(
-                candidate_snapshot_id=candidate.candidate_snapshot_id,
-                dsl_grammar_version=candidate.dsl_grammar_version,
-                constraints=candidate.constraints,
-            )
             outcome = self.regression_runner.run(
                 RegressionRunRequest(
                     suite_artifact_id=suite_id,
                     snapshot_id=candidate_snapshot_id,
                     seed=execution_seed,
-                    constraint_candidate=execution_candidate,
+                    constraint_candidate=candidate,
                     root_seed=root_seed,
                     run_kind=run_kind,
                     profile=payload.validation_policy,
@@ -883,16 +819,9 @@ class ConstraintValidationHandler:
                 raise IntegrityViolation(
                     "executed constraint regression omitted its exact candidate binding"
                 )
-            expected_source_snapshot_id = _target_version_tuple(
-                context,
-                target_snapshot_id=candidate_snapshot_id,
-                tool_version=EVIDENCE_TOOL_VERSION,
-            ).ir_snapshot_id
-            if not expected_source_snapshot_id:
-                raise IntegrityViolation("constraint regression source IR identity is unavailable")
             if has_candidate_binding and candidate_binding != (
                 candidate_snapshot_id,
-                candidate.candidate_digest,
+                candidate_digest,
                 expected_source_snapshot_id,
             ):
                 raise IntegrityViolation(
@@ -973,11 +902,7 @@ class ConstraintValidationHandler:
             if status == "unproven" and reason is None:
                 reason = "regression_not_executed"
             regression_tuple = regression_evidence_version_tuple(
-                _target_version_tuple(
-                    context,
-                    target_snapshot_id=candidate_snapshot_id,
-                    tool_version=EVIDENCE_TOOL_VERSION,
-                ),
+                target_tuple,
                 outcome,
             )
             artifact = store_prepared_artifact(
@@ -1103,9 +1028,7 @@ class ConstraintValidationHandler:
         evidence_set = EvidenceSet(
             subject_artifact_id=payload.subject.subject_artifact_id,
             subject_digest=payload.subject.subject_digest,
-            policy_version=_profile_key(
-                resolved_profile(context.payload, VALIDATION_POLICY_FIELD).profile
-            ),
+            policy_version=_profile_key(payload.validation_policy),
             validation_run_id=context.run.run_id,
             target_binding=target_binding,
             supporting_artifact_ids=supporting,
@@ -1231,8 +1154,6 @@ __all__ = [
     "COMPILER_PROFILE_FIELD",
     "VALIDATION_POLICY_FIELD",
     "ConstraintDifferentialEngine",
-    "ConstraintValidationProfileAuthorityV1",
-    "ConstraintValidationProfileResolver",
     "ConstraintValidationHandler",
     "DifferentialEngineResultV1",
     "DifferentialEvalRequest",

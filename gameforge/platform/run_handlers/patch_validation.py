@@ -33,7 +33,7 @@ revalidates the outcome code it picks.
 
 from __future__ import annotations
 
-import hmac
+from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from typing import Protocol
@@ -44,6 +44,7 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     MAX_CHECKER_WORK_UNITS_V1,
     MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
+    MAX_SIMULATION_WORK_UNITS_V1,
     ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
@@ -269,25 +270,17 @@ class AutoApplyEvaluator(Protocol):
 class ExactFindingRevisionLoader(Protocol):
     """Load one immutable Finding revision by its complete admitted identity."""
 
-    def load_exact(
+    def load_many_exact(
         self,
         *,
-        finding_id: str,
-        finding_revision: int,
-        finding_digest: str,
-    ) -> FindingRevisionV1: ...
+        bindings: tuple[FindingEvidenceBindingV1, ...],
+    ) -> tuple[FindingRevisionV1, ...]: ...
 
     def list_linked_exact(
         self,
         *,
         evidence_artifact_ids: tuple[str, ...],
     ) -> tuple[ExactLinkedFindingRevision, ...]: ...
-
-
-class ExactArtifactInspector(Protocol):
-    """Load the immutable Artifact envelope paired with ``ArtifactBlobReader``."""
-
-    def load_artifact(self, artifact_id: str) -> ArtifactV2: ...
 
 
 class PatchCheckerResolver(Protocol):
@@ -316,18 +309,16 @@ class _NeverAutoApply:
 class _UnavailableFindingRevisionLoader:
     """Fail closed when a validation request binds Findings without authority."""
 
-    def load_exact(
+    def load_many_exact(
         self,
         *,
-        finding_id: str,
-        finding_revision: int,
-        finding_digest: str,
-    ) -> FindingRevisionV1:
-        del finding_digest
+        bindings: tuple[FindingEvidenceBindingV1, ...],
+    ) -> tuple[FindingRevisionV1, ...]:
+        if not bindings:
+            return ()
         raise IntegrityViolation(
             "patch_validator@1 requires exact Finding revision authority",
-            finding_id=finding_id,
-            finding_revision=finding_revision,
+            finding_ids=tuple(binding.finding_id for binding in bindings),
         )
 
     def list_linked_exact(
@@ -356,6 +347,50 @@ class _DimensionArtifact:
     outcome_attestations: tuple[AutoApplyOutcomeAttestationV1, ...] = ()
 
 
+_FindingBindingKey = tuple[str, str, int, str]
+_DefectKey = tuple[str, tuple[str, ...], tuple[str, ...], str | None, str | None]
+
+
+@dataclass(frozen=True, slots=True)
+class _HistoricalEvidenceIndex:
+    artifact: ArtifactV2
+    schema_id: str
+    payload: Mapping[str, object]
+    finding_payload_counts: Mapping[str, int]
+
+
+@dataclass(frozen=True, slots=True)
+class _ReverificationIndex:
+    requirement_order: tuple[str, ...]
+    requirement_ids_by_coverage: Mapping[str, frozenset[str]]
+    findings_by_exact_key: Mapping[tuple[str, _DefectKey], tuple[Finding, ...]]
+    findings_by_broad_key: Mapping[tuple[str, _DefectKey], tuple[Finding, ...]]
+
+    def match(
+        self,
+        *,
+        required_coverage: frozenset[str],
+        expected: Finding,
+    ) -> tuple[tuple[str, ...], tuple[Finding, ...]]:
+        covered = frozenset(
+            requirement_id
+            for marker in required_coverage
+            for requirement_id in self.requirement_ids_by_coverage.get(marker, ())
+        )
+        requirement_ids = tuple(
+            requirement_id for requirement_id in self.requirement_order if requirement_id in covered
+        )
+        exact_episode = _finding_episode_id(expected) is not None
+        key = _defect_key(expected, include_episode=exact_episode)
+        index = self.findings_by_exact_key if exact_episode else self.findings_by_broad_key
+        findings = tuple(
+            finding
+            for requirement_id in requirement_ids
+            for finding in index.get((requirement_id, key), ())
+        )
+        return requirement_ids, findings
+
+
 @dataclass(frozen=True, slots=True)
 class PatchValidationHandler:
     """A ``RunExecutor`` for ``patch_validator@1`` (deterministic, no LLM)."""
@@ -368,7 +403,6 @@ class PatchValidationHandler:
     finding_revision_loader: ExactFindingRevisionLoader = field(
         default_factory=_UnavailableFindingRevisionLoader
     )
-    artifact_inspector: ExactArtifactInspector | None = None
     regression_runner: RegressionRunner = DEFAULT_REGRESSION_RUNNER
     simulator: EconomySimulatorPort = field(default_factory=EconomySimulator)
     snapshot_loader: SnapshotLoader = load_snapshot
@@ -392,13 +426,31 @@ class PatchValidationHandler:
         evidence_tuple = self._evidence_tuple(context, preview)
         constraints = self._constraints(context, payload)
         self._reverify_supporting(payload)
-        self._verify_target_finding_closure(payload)
-        checker_work_units = max(
-            1,
-            len(preview.entities) * len(preview.entities)
-            + len(preview.entities)
-            + len(preview.relations),
-        ) * len(payload.checker_profiles)
+        target_revisions = self._verify_target_finding_closure(payload)
+        expected_revisions = self.finding_revision_loader.load_many_exact(
+            bindings=payload.expected_findings
+        )
+        exact_findings = {
+            _finding_binding_key(binding): _finding_from_revision(revision)
+            for binding, revision in (
+                *zip(payload.expected_findings, expected_revisions),
+                *zip(payload.findings, target_revisions),
+            )
+        }
+        historical_evidence = self._historical_evidence_indices(payload.expected_findings)
+        deterministic_constraint_count = sum(
+            not constraint.has_llm_predicate() for constraint in constraints
+        )
+        checker_work_units = (
+            max(
+                1,
+                len(preview.entities) * len(preview.entities)
+                + len(preview.entities)
+                + len(preview.relations),
+            )
+            * (1 + deterministic_constraint_count)
+            * len(payload.checker_profiles)
+        )
         if checker_work_units > MAX_CHECKER_WORK_UNITS_V1:
             raise IntegrityViolation(
                 "patch validation checker profiles exceed the aggregate work budget"
@@ -486,6 +538,8 @@ class PatchValidationHandler:
                 core_dimensions,
                 auto_apply_context,
                 qualification,
+                exact_findings,
+                historical_evidence,
             ),
         )
         if not dimensions:
@@ -701,7 +755,6 @@ class PatchValidationHandler:
         dims: list[_DimensionArtifact] = []
         resolved_configs: list[tuple[ProfileRefV1, ReviewSimConfig]] = []
         total_work_units = 0
-        aggregate_limit: int | None = None
         for index, profile in enumerate(payload.simulation_profiles):
             binding = profile_bindings[f"/params/simulation_profiles/{index}"]
             config = self.sim_config_resolver(binding)
@@ -712,12 +765,7 @@ class PatchValidationHandler:
                 replication_count=1,
                 max_work_units=config.max_work_units,
             )
-            aggregate_limit = (
-                config.max_work_units
-                if aggregate_limit is None
-                else min(aggregate_limit, config.max_work_units)
-            )
-            if total_work_units > aggregate_limit:
+            if total_work_units > MAX_SIMULATION_WORK_UNITS_V1:
                 raise IntegrityViolation(
                     "patch validation simulations exceed the aggregate work budget"
                 )
@@ -1122,6 +1170,8 @@ class PatchValidationHandler:
         executed_dimensions: tuple[_DimensionArtifact, ...],
         auto_apply_context: AutoApplyEvidenceContextV1 | None,
         qualification: AutoApplyQualificationPlan | None,
+        exact_findings: Mapping[_FindingBindingKey, Finding],
+        historical_evidence: Mapping[str, _HistoricalEvidenceIndex | None],
     ) -> tuple[_DimensionArtifact, ...]:
         """Turn exact target/supporting evidence into required dispositions.
 
@@ -1134,7 +1184,7 @@ class PatchValidationHandler:
         target_findings_by_evidence: dict[str, list[Finding]] = {}
         for binding in payload.findings:
             target_findings_by_evidence.setdefault(binding.evidence_artifact_id, []).append(
-                self._load_exact_finding(binding)
+                exact_findings[_finding_binding_key(binding)]
             )
 
         playtest_dimensions: list[_DimensionArtifact] = []
@@ -1191,11 +1241,16 @@ class PatchValidationHandler:
                 )
             )
 
+        reverification_index = _index_reverification_dimensions(
+            (*executed_dimensions, *playtest_dimensions)
+        )
         dimensions: list[_DimensionArtifact] = []
         for binding in payload.expected_findings:
             status, reason_code, detail = self._expected_finding_status(
                 binding,
-                (*executed_dimensions, *playtest_dimensions),
+                reverification_index,
+                exact_findings[_finding_binding_key(binding)],
+                historical_evidence.get(binding.evidence_artifact_id),
             )
             dimensions.append(
                 self._status_dimension(
@@ -1215,7 +1270,11 @@ class PatchValidationHandler:
                 )
             )
         for binding in payload.findings:
-            status, reason_code, detail = self._finding_binding_status(binding, preview)
+            status, reason_code, detail = self._finding_binding_status(
+                binding,
+                preview,
+                exact_findings[_finding_binding_key(binding)],
+            )
             dimensions.append(
                 self._status_dimension(
                     lineage=lineage,
@@ -1254,7 +1313,9 @@ class PatchValidationHandler:
     def _expected_finding_status(
         self,
         binding: FindingEvidenceBindingV1,
-        executed_dimensions: tuple[_DimensionArtifact, ...],
+        executed: _ReverificationIndex,
+        expected: Finding,
+        historical_evidence: _HistoricalEvidenceIndex | None,
     ) -> tuple[DimensionStatus, str | None, dict[str, object]]:
         """Decide whether the historical defect's exact oracle was re-executed.
 
@@ -1272,7 +1333,6 @@ class PatchValidationHandler:
             "finding_digest": binding.finding_digest,
             "source_artifact_id": binding.evidence_artifact_id,
         }
-        expected = self._load_exact_finding(binding)
         detail.update(
             {
                 "historical_status": expected.status,
@@ -1281,24 +1341,17 @@ class PatchValidationHandler:
                 "source": expected.source,
             }
         )
-        required_coverage = self._historical_expected_finding_coverage(binding, expected)
-        covered_dimensions = tuple(
-            item
-            for item in executed_dimensions
-            if item.result.status != "unproven"
-            and required_coverage.intersection(item.oracle_coverage)
+        required_coverage = self._historical_expected_finding_coverage(
+            expected,
+            historical_evidence,
         )
-        if not required_coverage or not covered_dimensions:
+        covered_requirement_ids, reproduced = executed.match(
+            required_coverage=required_coverage,
+            expected=expected,
+        )
+        if not required_coverage or not covered_requirement_ids:
             return "unproven", "expected_finding_oracle_not_reexecuted", detail
-        reproduced = tuple(
-            finding
-            for dimension in covered_dimensions
-            for finding in dimension.findings
-            if _same_defect(expected, finding)
-        )
-        detail["covered_requirement_ids"] = [
-            item.result.requirement_id for item in covered_dimensions
-        ]
+        detail["covered_requirement_ids"] = list(covered_requirement_ids)
         detail["reproduced_count"] = len(reproduced)
         status = _supporting_finding_status(reproduced)
         if status == "failed":
@@ -1311,6 +1364,7 @@ class PatchValidationHandler:
         self,
         binding: FindingEvidenceBindingV1,
         preview: Snapshot,
+        finding: Finding,
     ) -> tuple[DimensionStatus, str | None, dict[str, object]]:
         detail: dict[str, object] = {
             "finding_id": binding.finding_id,
@@ -1318,7 +1372,6 @@ class PatchValidationHandler:
             "finding_digest": binding.finding_digest,
             "source_artifact_id": binding.evidence_artifact_id,
         }
-        finding = self._load_exact_finding(binding)
         detail["finding_status"] = finding.status
         detail["oracle_type"] = finding.oracle_type
         if finding.snapshot_id != preview.snapshot_id:
@@ -1326,56 +1379,10 @@ class PatchValidationHandler:
         status = _supporting_finding_status((finding,))
         return status, _finding_reason(status, source="finding"), detail
 
-    def _load_exact_finding(self, binding: FindingEvidenceBindingV1) -> Finding:
-        """Recheck the loader result before projecting its semantic payload.
-
-        The evidence Artifact remains a required lineage/supporting input, but it is
-        not Finding-series authority: playtest traces do not embed a ``findings``
-        array and producer-local IDs need not equal the scoped persisted series ID.
-        """
-
-        revision = self.finding_revision_loader.load_exact(
-            finding_id=binding.finding_id,
-            finding_revision=binding.finding_revision,
-            finding_digest=binding.finding_digest,
-        )
-        revision = self._validate_exact_finding_revision(binding, revision)
-        semantic_payload = revision.payload.model_dump(
-            mode="python", exclude={"payload_schema_version"}
-        )
-        return Finding.model_validate({"id": revision.finding_id, **semantic_payload})
-
-    @staticmethod
-    def _validate_exact_finding_revision(
-        binding: FindingEvidenceBindingV1,
-        revision: FindingRevisionV1,
-    ) -> FindingRevisionV1:
-        if not isinstance(revision, FindingRevisionV1):
-            raise IntegrityViolation("exact Finding loader returned another wire type")
-        if (
-            revision.finding_id != binding.finding_id
-            or revision.revision != binding.finding_revision
-        ):
-            raise IntegrityViolation(
-                "exact Finding loader returned another revision",
-                expected_finding_id=binding.finding_id,
-                expected_finding_revision=binding.finding_revision,
-                actual_finding_id=revision.finding_id,
-                actual_finding_revision=revision.revision,
-            )
-        actual_digest = finding_revision_digest(revision)
-        if not hmac.compare_digest(actual_digest, binding.finding_digest):
-            raise IntegrityViolation(
-                "exact Finding loader returned content with another digest",
-                finding_id=binding.finding_id,
-                finding_revision=binding.finding_revision,
-            )
-        return revision
-
     def _historical_expected_finding_coverage(
         self,
-        binding: FindingEvidenceBindingV1,
         finding: Finding,
+        evidence: _HistoricalEvidenceIndex | None,
     ) -> frozenset[str]:
         """Resolve the historical oracle only from its immutable evidence bytes.
 
@@ -1387,44 +1394,75 @@ class PatchValidationHandler:
         pair, never from a profile string self-reported by the Finding.
         """
 
-        try:
-            artifact_id = binding.evidence_artifact_id
-            blob = self.blobs.read_bytes(artifact_id)
-            artifact = self._load_exact_artifact_envelope(artifact_id, blob=blob)
-            if artifact is None:
-                return frozenset()
-            schema_id = artifact.meta.get("payload_schema_id")
-            expected_kind = {
-                "checker-report@1": "checker_run",
-                "simulation-result@1": "simulation_run",
-                "regression-evidence@1": "regression_evidence",
-                "playtest-trace@1": "playtest_trace",
-            }.get(schema_id)
-            if expected_kind is None or artifact.kind != expected_kind:
-                return frozenset()
-            payload = decode_and_validate_artifact_payload(
-                payload_schema_id=schema_id,
-                blob=blob,
-            )
-            if schema_id == "checker-report@1":
-                return _historical_checker_coverage(payload, finding)
-            if schema_id == "simulation-result@1":
-                return _historical_simulation_coverage(payload, finding)
-            if schema_id == "regression-evidence@1":
-                return _historical_regression_coverage(
-                    payload,
-                    finding,
-                    artifact=artifact,
-                )
-            if schema_id == "playtest-trace@1":
-                return _historical_playtest_coverage(
-                    payload,
-                    finding,
-                    artifact=artifact,
-                )
-        except (IntegrityViolation, KeyError, TypeError, ValueError):
+        if evidence is None:
             return frozenset()
+        if evidence.schema_id == "checker-report@1":
+            return _historical_checker_coverage(
+                evidence.payload,
+                finding,
+                finding_payload_counts=evidence.finding_payload_counts,
+            )
+        if evidence.schema_id == "simulation-result@1":
+            return _historical_simulation_coverage(evidence.payload, finding)
+        if evidence.schema_id == "regression-evidence@1":
+            return _historical_regression_coverage(
+                evidence.payload,
+                finding,
+                artifact=evidence.artifact,
+                finding_payload_counts=evidence.finding_payload_counts,
+            )
+        if evidence.schema_id == "playtest-trace@1":
+            return _historical_playtest_coverage(
+                evidence.payload,
+                finding,
+                artifact=evidence.artifact,
+            )
         return frozenset()
+
+    def _historical_evidence_indices(
+        self,
+        bindings: tuple[FindingEvidenceBindingV1, ...],
+    ) -> dict[str, _HistoricalEvidenceIndex | None]:
+        indices: dict[str, _HistoricalEvidenceIndex | None] = {}
+        for artifact_id in dict.fromkeys(binding.evidence_artifact_id for binding in bindings):
+            try:
+                blob = self.blobs.read_bytes(artifact_id)
+                artifact = self._load_exact_artifact_envelope(artifact_id, blob=blob)
+                if artifact is None:
+                    indices[artifact_id] = None
+                    continue
+                schema_id = artifact.meta.get("payload_schema_id")
+                expected_kind = {
+                    "checker-report@1": "checker_run",
+                    "simulation-result@1": "simulation_run",
+                    "regression-evidence@1": "regression_evidence",
+                    "playtest-trace@1": "playtest_trace",
+                }.get(schema_id)
+                if not isinstance(schema_id, str) or artifact.kind != expected_kind:
+                    indices[artifact_id] = None
+                    continue
+                payload = decode_and_validate_artifact_payload(
+                    payload_schema_id=schema_id,
+                    blob=blob,
+                )
+                if not isinstance(payload, Mapping):
+                    indices[artifact_id] = None
+                    continue
+                embedded = (
+                    _embedded_regression_findings(payload)
+                    if schema_id == "regression-evidence@1"
+                    else _embedded_findings(payload)
+                )
+                counts = Counter(_finding_payload_key(finding) for finding in embedded)
+                indices[artifact_id] = _HistoricalEvidenceIndex(
+                    artifact=artifact,
+                    schema_id=schema_id,
+                    payload=payload,
+                    finding_payload_counts=dict(counts),
+                )
+            except (IntegrityViolation, KeyError, TypeError, ValueError):
+                indices[artifact_id] = None
+        return indices
 
     def _load_exact_artifact_envelope(
         self,
@@ -1434,12 +1472,7 @@ class PatchValidationHandler:
     ) -> ArtifactV2 | None:
         """Load one content-addressed envelope without trusting payload identity."""
 
-        inspector = self.artifact_inspector
-        load_artifact = (
-            inspector.load_artifact
-            if inspector is not None
-            else getattr(self.blobs, "load_artifact", None)
-        )
+        load_artifact = getattr(self.blobs, "load_artifact", None)
         if not callable(load_artifact):
             return None
         try:
@@ -1447,14 +1480,6 @@ class PatchValidationHandler:
         except (IntegrityViolation, KeyError, TypeError, ValueError):
             return None
         if not isinstance(artifact, ArtifactV2):
-            return None
-        try:
-            # Re-parse the returned model instead of trusting an implementation
-            # that may have used ``model_construct``/unchecked ``model_copy``.
-            # This rechecks Artifact ID, ObjectRef, reserved identity metadata and
-            # VersionTuple↔ExecutionIdentity projection equality.
-            artifact = ArtifactV2.model_validate(artifact.model_dump(mode="python"))
-        except ValueError:
             return None
         if (
             artifact.artifact_id != artifact_id
@@ -1465,7 +1490,9 @@ class PatchValidationHandler:
             return None
         return artifact
 
-    def _verify_target_finding_closure(self, payload: PatchValidationPayloadV1) -> None:
+    def _verify_target_finding_closure(
+        self, payload: PatchValidationPayloadV1
+    ) -> tuple[FindingRevisionV1, ...]:
         """Require target bindings to exactly cover selected evidence links.
 
         Review payloads may repeat Findings, while PlaytestTrace intentionally does
@@ -1485,20 +1512,14 @@ class PatchValidationHandler:
             )
         )
         if not evidence_artifact_ids:
-            return
+            return ()
         linked = self.finding_revision_loader.list_linked_exact(
             evidence_artifact_ids=evidence_artifact_ids
         )
         linked_bindings: list[FindingEvidenceBindingV1] = []
+        revisions_by_binding: dict[_FindingBindingKey, FindingRevisionV1] = {}
         seen: set[tuple[str, int]] = set()
         for item in linked:
-            if not isinstance(item, ExactLinkedFindingRevision):
-                raise IntegrityViolation("Finding link loader returned another wire type")
-            if item.evidence_artifact_id not in evidence_artifact_ids:
-                raise IntegrityViolation(
-                    "Finding link loader returned an unrequested evidence Artifact",
-                    evidence_artifact_id=item.evidence_artifact_id,
-                )
             revision = item.revision
             identity = (revision.finding_id, revision.revision)
             if identity in seen:
@@ -1514,8 +1535,8 @@ class PatchValidationHandler:
                 evidence_artifact_id=item.evidence_artifact_id,
                 finding_digest=finding_revision_digest(revision),
             )
-            self._validate_exact_finding_revision(binding, revision)
             linked_bindings.append(binding)
+            revisions_by_binding[_finding_binding_key(binding)] = revision
 
         provided_keys = tuple(sorted(_finding_binding_key(item) for item in payload.findings))
         linked_keys = tuple(sorted(_finding_binding_key(item) for item in linked_bindings))
@@ -1531,6 +1552,9 @@ class PatchValidationHandler:
                     f"{item[1]}@{item[2]}" for item in sorted(provided_set - linked_set)
                 ),
             )
+        return tuple(
+            revisions_by_binding[_finding_binding_key(binding)] for binding in payload.findings
+        )
 
     def _review_status(
         self,
@@ -1852,19 +1876,19 @@ class PatchValidationHandler:
         return tuple(sorted(constraints, key=lambda item: item.id))
 
     def _reverify_supporting(self, payload: PatchValidationPayloadV1) -> None:
-        for artifact_id in (
-            *(
-                (payload.constraint_snapshot_artifact_id,)
-                if payload.constraint_snapshot_artifact_id
-                else ()
-            ),
-            *payload.candidate_config_export_artifact_ids,
+        consumed_later = {
             *payload.review_artifact_ids,
             *payload.playtest_trace_artifact_ids,
             *(binding.evidence_artifact_id for binding in payload.expected_findings),
-            *(binding.evidence_artifact_id for binding in payload.findings),
+        }
+        for artifact_id in dict.fromkeys(
+            (
+                *payload.candidate_config_export_artifact_ids,
+                *(binding.evidence_artifact_id for binding in payload.findings),
+            )
         ):
-            require_exists(self.blobs, artifact_id)
+            if artifact_id not in consumed_later:
+                require_exists(self.blobs, artifact_id)
 
     def _target_binding(
         self, payload: PatchValidationPayloadV1, preview: Snapshot
@@ -2044,12 +2068,60 @@ def _profile_key(profile: ProfileRefV1) -> str:
 
 def _finding_binding_key(
     binding: FindingEvidenceBindingV1,
-) -> tuple[str, str, int, str]:
+) -> _FindingBindingKey:
     return (
         binding.evidence_artifact_id,
         binding.finding_id,
         binding.finding_revision,
         binding.finding_digest,
+    )
+
+
+def _finding_from_revision(revision: FindingRevisionV1) -> Finding:
+    semantic_payload = revision.payload.model_dump(
+        mode="python", exclude={"payload_schema_version"}
+    )
+    return Finding.model_validate({"id": revision.finding_id, **semantic_payload})
+
+
+def _defect_key(finding: Finding, *, include_episode: bool) -> _DefectKey:
+    return (
+        finding.defect_class,
+        tuple(sorted(finding.entities)),
+        tuple(sorted(finding.relations)),
+        finding.constraint_id,
+        _finding_episode_id(finding) if include_episode else None,
+    )
+
+
+def _index_reverification_dimensions(
+    dimensions: tuple[_DimensionArtifact, ...],
+) -> _ReverificationIndex:
+    requirement_order: list[str] = []
+    by_coverage: dict[str, set[str]] = {}
+    exact: dict[tuple[str, _DefectKey], list[Finding]] = {}
+    broad: dict[tuple[str, _DefectKey], list[Finding]] = {}
+    for dimension in dimensions:
+        if dimension.result.status == "unproven":
+            continue
+        requirement_id = dimension.result.requirement_id
+        requirement_order.append(requirement_id)
+        for marker in dimension.oracle_coverage:
+            by_coverage.setdefault(marker, set()).add(requirement_id)
+        for finding in dimension.findings:
+            exact.setdefault(
+                (requirement_id, _defect_key(finding, include_episode=True)), []
+            ).append(finding)
+            broad.setdefault(
+                (requirement_id, _defect_key(finding, include_episode=False)), []
+            ).append(finding)
+    return _ReverificationIndex(
+        requirement_order=tuple(requirement_order),
+        requirement_ids_by_coverage={
+            marker: frozenset(requirements) for marker, requirements in by_coverage.items()
+        },
+        findings_by_exact_key={key: tuple(value) for key, value in exact.items()},
+        findings_by_broad_key={key: tuple(value) for key, value in broad.items()},
     )
 
 
@@ -2346,30 +2418,25 @@ def _embedded_findings(payload: Mapping[str, object]) -> tuple[Finding, ...]:
     return tuple(Finding.model_validate(value) for value in raw)
 
 
-def _historical_evidence_contains(
-    expected: Finding,
-    embedded: tuple[Finding, ...],
-) -> bool:
+def _finding_payload_key(finding: Finding) -> str:
     semantic_fields = set(FindingPayloadV1.model_fields) - {"payload_schema_version"}
-
-    def payload(finding: Finding) -> FindingPayloadV1:
-        return FindingPayloadV1.model_validate(
-            finding.model_dump(mode="python", include=semantic_fields)
-        )
-
-    expected_payload = payload(expected)
-    return sum(payload(actual) == expected_payload for actual in embedded) == 1
+    payload = FindingPayloadV1.model_validate(
+        finding.model_dump(mode="python", include=semantic_fields)
+    )
+    return canonical_sha256(payload.model_dump(mode="json"))
 
 
 def _historical_checker_coverage(
     payload: Mapping[str, object],
     finding: Finding,
+    *,
+    finding_payload_counts: Mapping[str, int],
 ) -> frozenset[str]:
     if (
         finding.source != "checker"
         or finding.oracle_type != "deterministic"
         or payload.get("snapshot_id") != finding.snapshot_id
-        or not _historical_evidence_contains(finding, _embedded_findings(payload))
+        or finding_payload_counts.get(_finding_payload_key(finding)) != 1
     ):
         return frozenset()
     profile = ProfileRefV1.model_validate(payload.get("checker_profile"))
@@ -2451,9 +2518,9 @@ def _historical_regression_coverage(
     finding: Finding,
     *,
     artifact: ArtifactV2,
+    finding_payload_counts: Mapping[str, int],
 ) -> frozenset[str]:
-    embedded = _embedded_regression_findings(payload)
-    if not _historical_evidence_contains(finding, embedded):
+    if finding_payload_counts.get(_finding_payload_key(finding)) != 1:
         return frozenset()
     snapshot_id = _regression_snapshot_id(payload)
     if snapshot_id != finding.snapshot_id:
@@ -2461,8 +2528,9 @@ def _historical_regression_coverage(
     dimension = payload.get("dimension")
     if dimension == "checker":
         return _historical_checker_coverage(
-            {**dict(payload), "snapshot_id": snapshot_id, "findings": list(embedded)},
+            {**dict(payload), "snapshot_id": snapshot_id},
             finding,
+            finding_payload_counts=finding_payload_counts,
         )
     if dimension == "simulation":
         return _historical_regression_simulation_coverage(
@@ -2823,18 +2891,6 @@ def _playtest_execution_binding(
                 "cassette_bound": cassette_bound,
             },
         }
-    )
-
-
-def _same_defect(expected: Finding, actual: Finding) -> bool:
-    expected_episode_id = _finding_episode_id(expected)
-    actual_episode_id = _finding_episode_id(actual)
-    return (
-        expected.defect_class == actual.defect_class
-        and tuple(sorted(expected.entities)) == tuple(sorted(actual.entities))
-        and tuple(sorted(expected.relations)) == tuple(sorted(actual.relations))
-        and expected.constraint_id == actual.constraint_id
-        and (expected_episode_id is None or expected_episode_id == actual_episode_id)
     )
 
 

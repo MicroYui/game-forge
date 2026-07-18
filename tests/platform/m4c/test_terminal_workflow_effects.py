@@ -153,12 +153,63 @@ class _Approvals:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _PreparedDraft:
+    approval_item: ApprovalItem
+    expected_subject_head: SubjectHead | None
+    result: object
+
+    def model_dump(self, *, mode: str) -> dict[str, object]:
+        assert mode == "json"
+        return {
+            "approval_item": self.approval_item.model_dump(mode="json"),
+            "expected_subject_head": (
+                None
+                if self.expected_subject_head is None
+                else self.expected_subject_head.model_dump(mode="json")
+            ),
+        }
+
+
 @dataclass
 class _DraftPort:
     calls: list[AgentDraftWorkflowRequest]
 
     def publish_agent_draft(self, request: AgentDraftWorkflowRequest) -> object:
         self.calls.append(request)
+        return self._result(request)
+
+    def prepare_agent_draft(self, request: AgentDraftWorkflowRequest) -> _PreparedDraft:
+        self.calls.append(request)
+        result = self._result(request)
+        return _PreparedDraft(
+            approval_item=result.approval_item,
+            expected_subject_head=request.expected_current_subject_head,
+            result=result,
+        )
+
+    def preflight_prepared_agent_draft(
+        self,
+        *,
+        prepared: _PreparedDraft,
+        request: AgentDraftWorkflowRequest,
+        merge_audit_into_terminal_batch: bool = False,
+    ) -> _PreparedDraft:
+        assert request == self.calls[-1]
+        assert merge_audit_into_terminal_batch is False
+        return prepared
+
+    def apply_preflighted_agent_draft(
+        self,
+        *,
+        preflighted: _PreparedDraft,
+        request: AgentDraftWorkflowRequest,
+    ) -> object:
+        assert request == self.calls[-1]
+        return preflighted.result
+
+    @staticmethod
+    def _result(request: AgentDraftWorkflowRequest) -> object:
         params = request.run.payload.params
         primary = request.artifacts_by_rule["primary"][0]
         payload = request.payloads_by_rule["primary"][0]
@@ -475,7 +526,7 @@ def test_agent_draft_effects_delegate_exact_final_authority(effect_key, factory)
 )
 def test_agent_draft_effects_fail_closed_without_transaction_port(effect_key, factory) -> None:
     run, policy, artifacts, payloads, approvals = factory()
-    with pytest.raises(IntegrityViolation, match="transaction-bound authority port"):
+    with pytest.raises(IntegrityViolation, match="authority port"):
         apply_workflow_effect(
             effect_key,
             _context(
@@ -549,8 +600,16 @@ def test_repair_effect_rejects_authority_result_that_does_not_inherit_domain() -
     run, policy, artifacts, payloads, approvals = _repair_case()
 
     class _ForgedDomainPort(_DraftPort):
-        def publish_agent_draft(self, request: AgentDraftWorkflowRequest) -> object:
-            result = super().publish_agent_draft(request)
+        def apply_preflighted_agent_draft(
+            self,
+            *,
+            preflighted: _PreparedDraft,
+            request: AgentDraftWorkflowRequest,
+        ) -> object:
+            result = super().apply_preflighted_agent_draft(
+                preflighted=preflighted,
+                request=request,
+            )
             return result.model_copy(
                 update={
                     "approval_item": result.approval_item.model_copy(
@@ -560,7 +619,7 @@ def test_repair_effect_rejects_authority_result_that_does_not_inherit_domain() -
             )
 
     port = _ForgedDomainPort([])
-    with pytest.raises(IntegrityViolation, match="another draft/head projection"):
+    with pytest.raises(IntegrityViolation, match="committed another projection"):
         apply_workflow_effect(
             "supersede_patch_head_create_draft@1",
             _context(

@@ -2195,6 +2195,31 @@ def test_finding_links_can_be_enumerated_by_exact_evidence_artifact(
         )
 
 
+def test_finding_link_enumeration_rejects_an_orphaned_revision(engine: Engine) -> None:
+    expected = _persist_exact_finding_link(engine)
+    raw = engine.raw_connection()
+    try:
+        raw.execute("PRAGMA foreign_keys=OFF")
+        raw.execute(
+            "DELETE FROM finding_revisions WHERE finding_id = ? AND revision = ?",
+            (expected.finding_id, expected.finding_revision),
+        )
+        raw.commit()
+    finally:
+        raw.close()
+
+    with (
+        Session(engine) as session,
+        pytest.raises(
+            IntegrityViolation,
+            match="linked Finding revision",
+        ),
+    ):
+        SqlRunRepository(session).list_finding_links_by_evidence_artifact_ids(
+            (expected.evidence_artifact_id,),
+        )
+
+
 def test_finding_link_enumeration_chunks_the_maximum_selection_below_sqlite_bind_limit(
     engine: Engine,
 ) -> None:
@@ -2229,6 +2254,89 @@ def test_finding_link_enumeration_chunks_the_maximum_selection_below_sqlite_bind
 
     assert len(selected_statement_parameter_counts) >= 2
     assert max(selected_statement_parameter_counts) < 999
+
+
+def test_finding_link_enumeration_batches_maximum_revision_closure(
+    engine: Engine,
+) -> None:
+    run, _ = _claim(engine)
+    evidence_artifact_id = "artifact:evidence:batch"
+    revisions = tuple(
+        FindingRevisionV1(
+            finding_id=f"finding:batch:{index:04d}",
+            revision=1,
+            created_at=NOW,
+            payload=FindingPayloadV1(
+                source="checker",
+                producer_id="graph-checker@1",
+                producer_run_id=run.run_id,
+                oracle_type="deterministic",
+                defect_class="dangling_reference",
+                severity="major",
+                snapshot_id="snapshot:1",
+                entities=[f"quest:{index:04d}"],
+                relations=[],
+                evidence={"missing_entity_id": f"item:{index:04d}"},
+                minimal_repro={"entity_id": f"quest:{index:04d}"},
+                status="confirmed",
+                confidence=1.0,
+                message=f"missing item {index}",
+            ),
+        )
+        for index in range(MAX_COLLECTION_ITEMS)
+    )
+    with Session(engine) as session:
+        session.add(_artifact(evidence_artifact_id, payload_hash=HASH_B))
+        session.add_all(
+            FindingRevisionRow(
+                finding_id=revision.finding_id,
+                revision=revision.revision,
+                revision_schema_version=revision.revision_schema_version,
+                supersedes_revision=revision.supersedes_revision,
+                finding_digest=finding_revision_digest(revision),
+                created_at=revision.created_at,
+                payload=revision.payload.model_dump(mode="json"),
+            )
+            for revision in revisions
+        )
+        session.flush()
+        session.add_all(
+            RunFindingLinkRow(
+                run_id=run.run_id,
+                attempt_no=1,
+                ordinal=index,
+                link_schema_version="run-finding-link@1",
+                finding_id=revision.finding_id,
+                finding_revision=revision.revision,
+                finding_digest=finding_revision_digest(revision),
+                evidence_artifact_id=evidence_artifact_id,
+            )
+            for index, revision in enumerate(revisions, start=1)
+        )
+        session.commit()
+
+    statements: list[tuple[str, int]] = []
+
+    def observe(_connection, _cursor, statement, parameters, _context, _executemany):
+        normalized = " ".join(statement.lower().split())
+        if normalized.startswith("select") and (
+            "from run_finding_links" in normalized or "from finding_revisions" in normalized
+        ):
+            statements.append((normalized, len(parameters)))
+
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        with Session(engine) as session:
+            links = SqlRunRepository(session).list_finding_links_by_evidence_artifact_ids(
+                (evidence_artifact_id,),
+                max_items=MAX_COLLECTION_ITEMS,
+            )
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+
+    assert len(links) == MAX_COLLECTION_ITEMS
+    assert len(statements) == 1
+    assert max(parameter_count for _, parameter_count in statements) <= 900
 
 
 def test_finding_link_enumeration_rejects_a_bound_above_the_contract_ceiling(

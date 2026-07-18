@@ -6,7 +6,7 @@ import uuid
 from datetime import timedelta, timezone
 
 from pydantic import ValidationError
-from sqlalchemy import func, select, update
+from sqlalchemy import select, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -169,30 +169,6 @@ class SqlRefStore:
 
         if target_revision > current.revision:
             return None
-        history_count, first_revision, last_revision = self._session.execute(
-            select(
-                func.count(RefHistoryRow.seq),
-                func.min(RefHistoryRow.seq),
-                func.max(RefHistoryRow.seq),
-            ).where(
-                RefHistoryRow.name == ref_name,
-                RefHistoryRow.seq >= 1,
-                RefHistoryRow.seq <= current.revision,
-            )
-        ).one()
-        if (
-            history_count != current.revision
-            or first_revision != 1
-            or last_revision != current.revision
-        ):
-            raise IntegrityViolation(
-                "retained ref history entry is missing or noncontiguous",
-                ref_name=ref_name,
-                retained_count=history_count,
-                first_revision=first_revision,
-                last_revision=last_revision,
-                current_revision=current.revision,
-            )
         target_row = self._session.scalar(
             select(RefHistoryRow).where(
                 RefHistoryRow.name == ref_name,

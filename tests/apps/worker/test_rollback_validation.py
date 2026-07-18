@@ -112,7 +112,7 @@ def _bindings():
     )
 
 
-def test_exact_schema_port_proves_current_ir_reader_and_echoes_authority() -> None:
+def test_exact_schema_port_proves_current_ir_reader() -> None:
     registry, rollback, schema, _ = _bindings()
     target_snapshot = Snapshot({}, {})
     target, payload = _artifact(target_snapshot)
@@ -131,8 +131,26 @@ def test_exact_schema_port_proves_current_ir_reader_and_echoes_authority() -> No
     assert result.target_digest == target.payload_hash
     assert result.target_snapshot_id == target_snapshot.snapshot_id
     assert result.target_version_tuple == target.version_tuple
-    assert result.schema_profile_binding == schema
-    assert result.rollback_profile_binding == rollback
+
+
+def test_exact_schema_port_rejects_bytes_that_differ_from_object_ref() -> None:
+    registry, rollback, schema, _ = _bindings()
+    target_snapshot = Snapshot({}, {})
+    target, _ = _artifact(target_snapshot)
+    reader = _ArtifactReader(
+        {target.artifact_id: target},
+        {target.artifact_id: b"{}"},
+    )
+
+    with pytest.raises(IntegrityViolation, match="immutable ObjectRef"):
+        ExactRollbackSchemaAnalyzer(artifacts=reader, registry=registry).analyze(
+            RollbackSchemaRequest(
+                target_artifact_id=target.artifact_id,
+                ref_name="ref:main",
+                schema_profile_binding=schema,
+                rollback_profile_binding=rollback,
+            )
+        )
 
 
 def test_schema_port_cannot_pass_an_unregistered_payload_schema() -> None:
@@ -247,8 +265,6 @@ def test_impact_port_diffs_exact_current_and_target_snapshots_deterministically(
 
     assert first == second
     assert first.status == "passed"
-    assert first.profile_binding == impact
-    assert first.rollback_profile_binding == rollback
     assert first.detail["current_snapshot_id"] == current_snapshot.snapshot_id
     assert first.detail["target_snapshot_id"] == target_snapshot.snapshot_id
     assert first.detail["entry_count"] == 1

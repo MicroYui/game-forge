@@ -680,7 +680,7 @@ def test_playtest_closure_fields_publish_dedicated_capacities() -> None:
     assert (
         PreparedRunResult.model_json_schema()["properties"]["artifacts"]["maxItems"]
         == MAX_PREPARED_DOMAIN_ARTIFACTS
-        == _MAX_ITEMS + 1
+        == _MAX_ITEMS + 3
     )
     assert (
         AgentPromptContextDraftV1.model_json_schema()["properties"]["source_artifact_ids"][

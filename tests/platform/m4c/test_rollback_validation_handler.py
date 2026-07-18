@@ -131,8 +131,6 @@ class _FakeSchema:
                 tool_version="fixture@1",
             ),
             reason_code=self.reason,
-            schema_profile_binding=request.schema_profile_binding,
-            rollback_profile_binding=request.rollback_profile_binding,
         )
 
 
@@ -144,8 +142,6 @@ class _FakeImpact:
         return DimensionCheckV1(
             status=self.status,
             reason_code=self.reason,
-            profile_binding=request.impact_profile_binding,
-            rollback_profile_binding=request.rollback_profile_binding,
         )
 
 
@@ -223,13 +219,6 @@ def _store() -> FakeArtifactStore:
     return store
 
 
-class _IntegrityFaultStore(FakeArtifactStore):
-    def read_bytes(self, artifact_id: str) -> bytes:
-        if artifact_id == TARGET_ID:
-            raise IntegrityViolation("target object binding is corrupt")
-        return super().read_bytes(artifact_id)
-
-
 def _handler(
     store: FakeArtifactStore,
     *,
@@ -275,13 +264,44 @@ def _evidence_set(store: FakeArtifactStore, outcome: PreparedRunResult) -> Evide
     return EvidenceSet.model_validate(json.loads(store.read_prepared(primary.object_ref)))
 
 
-def test_target_read_integrity_fault_propagates_as_execution_failure() -> None:
-    store = _IntegrityFaultStore()
+def test_artifact_dimension_reuses_schema_inspection_without_rereading_target() -> None:
+    class ReadTrackingStore(FakeArtifactStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_ids: list[str] = []
+
+        def read_bytes(self, artifact_id: str) -> bytes:
+            self.read_ids.append(artifact_id)
+            return super().read_bytes(artifact_id)
+
+    store = ReadTrackingStore()
+    store.register(SUBJECT_ID, _rollback_request().model_dump(mode="json"))
+    store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
+
+    _handler(store)(_context(store, _payload()))
+
+    assert TARGET_ID not in store.read_ids
+
+
+def test_unread_schema_target_still_checks_object_integrity() -> None:
+    class IntegrityFaultStore(FakeArtifactStore):
+        def read_bytes(self, artifact_id: str) -> bytes:
+            if artifact_id == TARGET_ID:
+                raise IntegrityViolation("target object binding is corrupt")
+            return super().read_bytes(artifact_id)
+
+    store = IntegrityFaultStore()
     store.register(SUBJECT_ID, _rollback_request().model_dump(mode="json"))
     store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
 
     with pytest.raises(IntegrityViolation, match="object binding is corrupt"):
-        _handler(store)(_context(store, _payload()))
+        _handler(
+            store,
+            schema=_FakeSchema(
+                status="unproven",
+                reason="rollback_schema_reader_unavailable",
+            ),
+        )(_context(store, _payload()))
 
 
 def test_unreadable_ir_target_during_regression_is_an_integrity_failure() -> None:
@@ -587,51 +607,6 @@ def test_schema_and_impact_ports_receive_exact_resolved_profile_bindings() -> No
     assert impact.current_ref_revision == _EXPECTED_REF.revision
     assert impact.impact_profile_binding == _IMPACT_BINDING
     assert impact.rollback_profile_binding == _ROLLBACK_BINDING
-
-
-def test_missing_schema_execution_binding_is_an_integrity_failure() -> None:
-    store = _store()
-
-    class MissingBinding(_FakeSchema):
-        def analyze(self, request) -> RollbackTargetInspectionV1:
-            return RollbackTargetInspectionV1(
-                status="passed",
-                target_artifact_kind="ir_snapshot",
-                target_digest=_HEX,
-                target_snapshot_id=_TARGET_SNAPSHOT.snapshot_id,
-                target_version_tuple=VersionTuple(
-                    ir_snapshot_id=_TARGET_SNAPSHOT.snapshot_id,
-                    tool_version="fixture@1",
-                ),
-            )
-
-    with pytest.raises(IntegrityViolation, match="omitted exact execution profile bindings"):
-        _handler(store, schema=MissingBinding())(_context(store, _payload()))
-
-
-def test_missing_impact_execution_binding_is_an_integrity_failure() -> None:
-    class MissingBinding(_FakeImpact):
-        def analyze(self, request) -> DimensionCheckV1:
-            return DimensionCheckV1(status="unproven", reason_code="impact_undecidable")
-
-    store = _store()
-    with pytest.raises(IntegrityViolation, match="omitted its exact execution profile bindings"):
-        _handler(store, impact=MissingBinding())(_context(store, _payload()))
-
-
-def test_mismatched_impact_execution_binding_is_an_integrity_violation() -> None:
-    store = _store()
-
-    class WrongBinding(_FakeImpact):
-        def analyze(self, request) -> DimensionCheckV1:
-            return DimensionCheckV1(
-                status="passed",
-                profile_binding=_SCHEMA_BINDING,
-                rollback_profile_binding=request.rollback_profile_binding,
-            )
-
-    with pytest.raises(IntegrityViolation, match="impact analyzer used another execution profile"):
-        _handler(store, impact=WrongBinding())(_context(store, _payload()))
 
 
 def test_regression_request_closes_target_snapshot_seed_profile_and_budget() -> None:

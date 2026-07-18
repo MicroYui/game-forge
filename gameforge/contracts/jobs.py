@@ -77,8 +77,9 @@ RunCommandClientSequence = Annotated[
     int,
     Field(ge=1, le=MAX_RUN_COMMAND_CLIENT_SEQ),
 ]
-# TaskSuite derives one primary suite plus up to 1,024 ScenarioSpec siblings.
-MAX_PREPARED_DOMAIN_ARTIFACTS = MAX_COLLECTION_ITEMS + 1
+# Constraint validation may publish one EvidenceSet, one candidate snapshot, one
+# compile-evidence Artifact, and up to 1,024 regression-evidence siblings.
+MAX_PREPARED_DOMAIN_ARTIFACTS = MAX_COLLECTION_ITEMS + 3
 # A maximum-size Playtest binds one ConfigExport, one ConstraintSnapshot, one
 # TaskSuite, and every selected ScenarioSpec.  REPLAY adds exactly one cassette
 # root to the Run envelope; it is not prompt source content.

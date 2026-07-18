@@ -29,11 +29,6 @@ import z3
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.execution_profiles import (
-    ResolvedExecutionProfileBindingV1,
-    RunKindRef,
-    ValidationProfileDetailsV1,
-)
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.spine.checkers.asp import ASPChecker
@@ -62,102 +57,9 @@ from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.platform.run_handlers.constraint_validation import (
     BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
     ConstraintDifferentialEngine,
-    ConstraintValidationProfileAuthorityV1,
     DifferentialEngineResultV1,
     DifferentialEvalRequest,
 )
-from gameforge.platform.registry import ImmutablePlatformRegistry
-
-
-@dataclass(frozen=True, slots=True)
-class RegistryConstraintValidationProfileResolver:
-    """Authorize compiler/differential adapters from exact retained bindings."""
-
-    registry: ImmutablePlatformRegistry
-
-    def resolve(
-        self,
-        *,
-        run_kind: RunKindRef,
-        validation_binding: ResolvedExecutionProfileBindingV1,
-        compiler_binding: ResolvedExecutionProfileBindingV1,
-    ) -> ConstraintValidationProfileAuthorityV1:
-        if (
-            validation_binding.catalog_version != compiler_binding.catalog_version
-            or validation_binding.catalog_digest != compiler_binding.catalog_digest
-        ):
-            raise IntegrityViolation(
-                "constraint validation profiles come from different exact catalogs"
-            )
-        expected = (
-            (
-                validation_binding,
-                "validation",
-                "builtin_validation_profile@1",
-                "validation-profile-config@1",
-                {
-                    "constraint-validation@1",
-                    "patch-validation@1",
-                },
-                {"auto-apply-proof@1", "evidence-set@1"},
-            ),
-            (
-                compiler_binding,
-                "constraint_compiler",
-                "builtin_constraint_compiler_profile@1",
-                "constraint_compiler-profile-config@1",
-                {"constraint-validation@1"},
-                {"constraint-compile-evidence@1", "constraint-snapshot@1"},
-            ),
-        )
-        for (
-            binding,
-            profile_kind,
-            handler_key,
-            config_schema_id,
-            input_schema_ids,
-            output_schema_ids,
-        ) in expected:
-            definition, lifecycle = self.registry.resolve_execution_profile_binding(binding)
-            expected_run_kinds = (
-                {
-                    RunKindRef(kind="constraint_proposal.validate", version=1),
-                    RunKindRef(kind="patch.validate", version=1),
-                }
-                if profile_kind == "validation"
-                else {RunKindRef(kind="constraint_proposal.validate", version=1)}
-            )
-            if (
-                lifecycle.state != "active"
-                or definition.profile != binding.profile
-                or definition.profile_kind != profile_kind
-                or run_kind not in definition.compatible_run_kinds
-                or set(definition.compatible_run_kinds) != expected_run_kinds
-                or set(definition.input_schema_ids) != input_schema_ids
-                or set(definition.output_schema_ids) != output_schema_ids
-                or definition.handler_key != handler_key
-                or definition.config_schema_id != config_schema_id
-                or definition.config != {}
-                or definition.stochastic
-                or definition.required_capabilities
-                or (
-                    profile_kind == "validation"
-                    and (
-                        not isinstance(definition.details, ValidationProfileDetailsV1)
-                        or set(definition.details.subject_kinds)
-                        != {"patch", "constraint_proposal", "rollback_request"}
-                    )
-                )
-            ):
-                raise IntegrityViolation(
-                    "constraint validation profile does not authorize the built-in adapter"
-                )
-        return ConstraintValidationProfileAuthorityV1(
-            validation_binding=validation_binding,
-            compiler_binding=compiler_binding,
-            validation_handler_key="builtin_validation_profile@1",
-            compiler_handler_key="builtin_constraint_compiler_profile@1",
-        )
 
 
 _Z3_TIMEOUT_MS = 5000
@@ -1099,7 +1001,6 @@ __all__ = [
     "ClingoDifferentialEngine",
     "GraphReferenceDifferentialEngine",
     "NumericReferenceDifferentialEngine",
-    "RegistryConstraintValidationProfileResolver",
     "Z3DifferentialEngine",
     "build_differential_engines",
 ]

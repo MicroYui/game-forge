@@ -23,8 +23,6 @@ from gameforge.apps.worker.validation import (
 from gameforge.contracts.dsl import Constraint, Predicate, Selector
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
-    AutoApplyPolicyRefV1,
-    AutoApplyPolicyRegistryRefV1,
     MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
     ProfileRefV1,
     RunKindRef,
@@ -32,6 +30,8 @@ from gameforge.contracts.execution_profiles import (
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
+    MAX_COLLECTION_ITEMS,
+    MAX_PREPARED_DOMAIN_ARTIFACTS,
     ConstraintValidationPayloadV1,
     PreparedRunResult,
     RefReadBindingV1,
@@ -52,7 +52,6 @@ from gameforge.contracts.workflow import (
 )
 from gameforge.platform.run_handlers.constraint_validation import (
     BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
-    ConstraintValidationProfileAuthorityV1,
     ConstraintValidationHandler,
     DifferentialEngineResultV1,
     DifferentialEvalRequest,
@@ -345,31 +344,12 @@ def _store(constraints: tuple[Constraint, ...]) -> FakeArtifactStore:
     return store
 
 
-class _TestProfileResolver:
-    def resolve(
-        self,
-        *,
-        run_kind,
-        validation_binding,
-        compiler_binding,
-    ) -> ConstraintValidationProfileAuthorityV1:
-        assert run_kind == CONSTRAINT_VALIDATE_KIND
-        return ConstraintValidationProfileAuthorityV1(
-            validation_binding=validation_binding,
-            compiler_binding=compiler_binding,
-            validation_handler_key="builtin_validation_profile@1",
-            compiler_handler_key="builtin_constraint_compiler_profile@1",
-        )
-
-
 def _handler(store: FakeArtifactStore, **kwargs) -> ConstraintValidationHandler:
     engines = kwargs.pop("differential_engines", build_differential_engines())
-    profile_resolver = kwargs.pop("profile_resolver", _TestProfileResolver())
     return ConstraintValidationHandler(
         blobs=store,
         store=store,
         differential_engines=engines,
-        profile_resolver=profile_resolver,
         **kwargs,
     )
 
@@ -503,35 +483,6 @@ def test_invalid_structural_selector_fails_typecheck_without_candidate() -> None
     assert typecheck.reason_code == "selector_node_type_invalid"
 
 
-def _production_profile_bindings(registry, *, catalog_version: int | None = None):
-    catalogs = registry.list_execution_profile_catalogs()
-    catalog = next(
-        item
-        for item in catalogs
-        if item.catalog_version
-        == (
-            catalog_version
-            if catalog_version is not None
-            else max(c.catalog_version for c in catalogs)
-        )
-    )
-    validation = registry.resolve_execution_profile(
-        catalog_version=catalog.catalog_version,
-        catalog_digest=catalog.catalog_digest,
-        field_path="/params/validation_policy",
-        profile=ProfileRefV1(profile_id="builtin.validation", version=1),
-        expected_profile_kind="validation",
-    )
-    compiler = registry.resolve_execution_profile(
-        catalog_version=catalog.catalog_version,
-        catalog_digest=catalog.catalog_digest,
-        field_path="/params/compiler_profile",
-        profile=ProfileRefV1(profile_id="builtin.constraint_compiler", version=1),
-        expected_profile_kind="constraint_compiler",
-    )
-    return validation, compiler
-
-
 def _compile_evidence(
     store: FakeArtifactStore, outcome: PreparedRunResult
 ) -> ConstraintCompileEvidenceV1:
@@ -594,139 +545,21 @@ def test_mixed_candidate_validated_when_both_independent_pairs_decide() -> None:
     assert compile_requirement.kind == "constraint_compile"
 
 
-def test_production_profile_resolver_authorizes_only_one_exact_catalog() -> None:
-    registry = build_builtin_registry()
-    resolver = worker_validation.RegistryConstraintValidationProfileResolver(registry)
-    validation, compiler = _production_profile_bindings(registry)
+def test_max_regression_suite_request_fits_exact_prepared_artifact_bound() -> None:
+    suite_ids = tuple(
+        f"artifact:regression-suite:{index:04d}" for index in range(MAX_COLLECTION_ITEMS)
+    )
+    store = _store((_constraint("C_cap", "reward_gold <= 80"),))
 
-    authority = resolver.resolve(
-        run_kind=CONSTRAINT_VALIDATE_KIND,
-        validation_binding=validation,
-        compiler_binding=compiler,
+    outcome = _handler(store, regression_runner=_PassingRegressionRunner())(
+        _context(store, _payload(regression=suite_ids))
     )
 
-    assert authority.validation_binding == validation
-    assert authority.compiler_binding == compiler
-
-    old_validation, _old_compiler = _production_profile_bindings(registry, catalog_version=1)
-    with pytest.raises(IntegrityViolation, match="different exact catalogs"):
-        resolver.resolve(
-            run_kind=CONSTRAINT_VALIDATE_KIND,
-            validation_binding=old_validation,
-            compiler_binding=compiler,
-        )
-
-    with pytest.raises(IntegrityViolation, match="payload hash"):
-        resolver.resolve(
-            run_kind=CONSTRAINT_VALIDATE_KIND,
-            validation_binding=validation,
-            compiler_binding=compiler.model_copy(update={"profile_payload_hash": "b" * 64}),
-        )
-
-
-def test_production_profile_resolver_accepts_configured_patch_auto_apply_policy() -> None:
-    """A shared validation profile may configure patch-only auto-apply authority.
-
-    Constraint validation consumes the same exact profile for its subject-kind and
-    execution closure, but must neither require nor reject the optional patch-only
-    policy reference.
-    """
-
-    registry = build_builtin_registry()
-    validation, compiler = _production_profile_bindings(registry)
-    policy_ref = AutoApplyPolicyRefV1(
-        registry=AutoApplyPolicyRegistryRefV1(
-            registry_version="auto-apply@1",
-            registry_digest="a" * 64,
-        ),
-        policy_id="builtin.patch-low-risk",
-        policy_version="1",
-        policy_digest="b" * 64,
+    assert len(outcome.artifacts) == MAX_PREPARED_DOMAIN_ARTIFACTS
+    assert (
+        sum(artifact.payload_schema_id == "regression-evidence@1" for artifact in outcome.artifacts)
+        == MAX_COLLECTION_ITEMS
     )
-
-    class _ConfiguredRegistry:
-        def resolve_execution_profile_binding(self, binding):
-            definition, lifecycle = registry.resolve_execution_profile_binding(binding)
-            if definition.profile_kind == "validation":
-                definition = definition.model_copy(
-                    update={
-                        "details": definition.details.model_copy(
-                            update={"auto_apply_policy": policy_ref}
-                        )
-                    }
-                )
-            return definition, lifecycle
-
-    authority = worker_validation.RegistryConstraintValidationProfileResolver(
-        _ConfiguredRegistry()
-    ).resolve(
-        run_kind=CONSTRAINT_VALIDATE_KIND,
-        validation_binding=validation,
-        compiler_binding=compiler,
-    )
-
-    assert authority.validation_binding == validation
-    assert authority.compiler_binding == compiler
-
-
-@pytest.mark.parametrize(
-    ("target_kind", "definition_update", "disable"),
-    (
-        ("constraint_compiler", {"handler_key": "forged@1"}, False),
-        ("constraint_compiler", {"config_schema_id": "forged-config@1"}, False),
-        ("constraint_compiler", {"config": {"forged": True}}, False),
-        ("constraint_compiler", {"input_schema_ids": ("patch-validation@1",)}, False),
-        ("constraint_compiler", {"output_schema_ids": ("evidence-set@1",)}, False),
-        (
-            "constraint_compiler",
-            {
-                "compatible_run_kinds": (
-                    CONSTRAINT_VALIDATE_KIND,
-                    RunKindRef(kind="patch.validate", version=1),
-                )
-            },
-            False,
-        ),
-        ("validation", {"handler_key": "forged@1"}, False),
-        (
-            "validation",
-            {"compatible_run_kinds": (CONSTRAINT_VALIDATE_KIND,)},
-            False,
-        ),
-        ("validation", {"__subject_kinds__": ("constraint_proposal",)}, False),
-        ("validation", {}, True),
-    ),
-)
-def test_production_profile_resolver_rejects_forged_handler_config_and_lifecycle(
-    target_kind: str,
-    definition_update: dict[str, object],
-    disable: bool,
-) -> None:
-    registry = build_builtin_registry()
-    validation, compiler = _production_profile_bindings(registry)
-
-    class _ForgedRegistry:
-        def resolve_execution_profile_binding(self, binding):
-            definition, lifecycle = registry.resolve_execution_profile_binding(binding)
-            if definition.profile_kind == target_kind:
-                updates = dict(definition_update)
-                subject_kinds = updates.pop("__subject_kinds__", None)
-                if subject_kinds is not None:
-                    updates["details"] = definition.details.model_copy(
-                        update={"subject_kinds": subject_kinds}
-                    )
-                definition = definition.model_copy(update=updates)
-                if disable:
-                    lifecycle = lifecycle.model_copy(update={"state": "disabled"})
-            return definition, lifecycle
-
-    resolver = worker_validation.RegistryConstraintValidationProfileResolver(_ForgedRegistry())
-    with pytest.raises(IntegrityViolation, match="does not authorize"):
-        resolver.resolve(
-            run_kind=CONSTRAINT_VALIDATE_KIND,
-            validation_binding=validation,
-            compiler_binding=compiler,
-        )
 
 
 @pytest.mark.parametrize("mutation", ("extra_path", "wrong_profile", "wrong_catalog"))
@@ -749,7 +582,7 @@ def test_handler_rejects_forged_exact_profile_binding_set(mutation: str) -> None
         run=context.run.model_copy(update={"payload": envelope}),
     )
 
-    with pytest.raises(IntegrityViolation, match="exact profile|Run authority"):
+    with pytest.raises(IntegrityViolation, match="execution profile|Run bindings"):
         _handler(store)(forged_context)
 
 

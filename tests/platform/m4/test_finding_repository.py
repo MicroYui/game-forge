@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from threading import Barrier
 
 import pytest
-from sqlalchemy import Engine, delete, event
+from sqlalchemy import Engine, delete, event, update
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.errors import (
@@ -771,6 +771,55 @@ def test_absent_series_current_get_and_revision_page_are_empty(engine: Engine) -
 
     assert page.items == ()
     assert page.next_cursor is None
+
+
+def test_exact_revision_batch_uses_chunked_set_reads_at_contract_scale(
+    engine: Engine,
+) -> None:
+    revisions = tuple(_finding(1, finding_id=f"finding-batch-{index:04d}") for index in range(1024))
+    with _unit_of_work(engine).begin() as transaction:
+        transaction.lineage.put_many(tuple((revision, None) for revision in revisions))
+
+    statements: list[tuple[str, int]] = []
+
+    def observe(_connection, _cursor, statement, parameters, _context, _executemany):
+        normalized = " ".join(statement.lower().split())
+        if normalized.startswith("select") and "from finding_revisions" in normalized:
+            statements.append((normalized, len(parameters)))
+
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        with Session(engine) as session:
+            retained = _repository(session).get_many_exact(
+                tuple((revision.finding_id, revision.revision) for revision in revisions)
+            )
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+
+    assert tuple(retained) == tuple(
+        (revision.finding_id, revision.revision) for revision in revisions
+    )
+    assert tuple(retained.values()) == revisions
+    assert len(statements) == 3
+    assert max(parameter_count for _, parameter_count in statements) <= 900
+    assert all("finding_heads" not in statement for statement, _ in statements)
+
+
+def test_exact_revision_batch_rejects_one_corrupt_retained_digest(engine: Engine) -> None:
+    revision = _finding(1, finding_id="finding-batch-corrupt")
+    _put(engine, revision, None)
+    with engine.begin() as connection:
+        connection.execute(
+            update(FindingRevisionRow)
+            .where(
+                FindingRevisionRow.finding_id == revision.finding_id,
+                FindingRevisionRow.revision == revision.revision,
+            )
+            .values(finding_digest="0" * 64)
+        )
+
+    with Session(engine) as session, pytest.raises(IntegrityViolation, match="digest"):
+        _repository(session).get_many_exact(((revision.finding_id, revision.revision),))
 
 
 def test_uow_rollback_removes_revision_and_head_together(engine: Engine) -> None:

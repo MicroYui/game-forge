@@ -50,6 +50,7 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.findings import Finding, FindingRevisionV1, finding_revision_digest
 from gameforge.contracts.jobs import (
+    FindingEvidenceBindingV1,
     MAX_COLLECTION_ITEMS,
     MAX_PREPARED_ARTIFACT_BYTES,
     GenerationProposePayloadV1,
@@ -139,10 +140,7 @@ from gameforge.apps.worker.task_suite import (
     build_task_suite_handler,
 )
 from gameforge.platform.run_handlers.task_suite import ScenarioShaperResolver
-from gameforge.apps.worker.validation import (
-    RegistryConstraintValidationProfileResolver,
-    build_differential_engines,
-)
+from gameforge.apps.worker.validation import build_differential_engines
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.game.aureus.kernel import AureusEnv
 from gameforge.spine.checkers.graph import GraphChecker
@@ -231,19 +229,43 @@ class WorkerExactFindingRevisionLoader:
             )
         return retained
 
+    def load_many_exact(
+        self,
+        *,
+        bindings: tuple[FindingEvidenceBindingV1, ...],
+    ) -> tuple[FindingRevisionV1, ...]:
+        """Load one admitted Finding closure without opening a Session per item."""
+
+        identities = tuple((binding.finding_id, binding.finding_revision) for binding in bindings)
+        with Session(self._engine) as session:
+            retained = self._repository(session).get_many_exact(identities)
+        revisions: list[FindingRevisionV1] = []
+        for binding in bindings:
+            revision = retained.get((binding.finding_id, binding.finding_revision))
+            if revision is None:
+                raise IntegrityViolation(
+                    "bound Finding revision is unavailable at execution",
+                    finding_id=binding.finding_id,
+                    finding_revision=binding.finding_revision,
+                )
+            digest = finding_revision_digest(revision)
+            if not hmac.compare_digest(digest, binding.finding_digest):
+                raise IntegrityViolation(
+                    "bound Finding digest differs from the retained revision",
+                    finding_id=binding.finding_id,
+                    finding_revision=binding.finding_revision,
+                )
+            revisions.append(revision)
+        return tuple(revisions)
+
     def __call__(
         self,
         blobs: ArtifactBlobReader,
         payload: GenerationProposePayloadV1 | PatchRepairPayloadV1,
     ) -> tuple[Finding, ...]:
         del blobs
-        revisions = tuple(
-            self.load_exact(
-                finding_id=binding.finding_id,
-                finding_revision=binding.finding_revision,
-                finding_digest=binding.finding_digest,
-            )
-            for binding in payload.findings
+        revisions = self.load_many_exact(
+            bindings=payload.findings,
         )
         return tuple(_materialise_finding(revision) for revision in revisions)
 
@@ -260,9 +282,12 @@ class WorkerExactFindingRevisionLoader:
                 max_items=MAX_COLLECTION_ITEMS,
             )
             repository = self._repository(session)
+            retained = repository.get_many_exact(
+                tuple((link.finding_id, link.finding_revision) for link in links)
+            )
             linked: list[ExactLinkedFindingRevision] = []
             for link in links:
-                revision = repository.get(link.finding_id, link.finding_revision)
+                revision = retained.get((link.finding_id, link.finding_revision))
                 if revision is None:
                     raise IntegrityViolation(
                         "evidence-linked Finding revision is unavailable at execution",
@@ -583,6 +608,13 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         "config_export-profile-config@1",
         frozenset(("generation-propose@1", "patch-repair@1")),
         frozenset(("config-export-package@1",)),
+        frozenset((False,)),
+    ),
+    "constraint_compiler": (
+        "builtin_constraint_compiler_profile@1",
+        "constraint_compiler-profile-config@1",
+        frozenset(("constraint-validation@1",)),
+        frozenset(("constraint-compile-evidence@1", "constraint-snapshot@1")),
         frozenset((False,)),
     ),
     "constraint_extraction": (
@@ -1141,72 +1173,17 @@ def _build_review_sim_config_resolver(registry: ImmutablePlatformRegistry):
     return resolve
 
 
-def _resolve_patch_executor_definition(
-    registry: ImmutablePlatformRegistry,
-    binding: ResolvedExecutionProfileBindingV1,
-    *,
-    expected_kind: str,
-) -> ExecutionProfileDefinitionV1:
-    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
-    contracts = {
-        "checker": (
-            "builtin_checker_profile@1",
-            "checker-profile-config@1",
-            {"checker-run@1", "patch-repair@1", "patch-validation@1", "review-run@1"},
-            {"checker-report@1", "regression-evidence@1"},
-            {
-                RunKindRef(kind="checker.run", version=1),
-                RunKindRef(kind="patch.repair", version=1),
-                RunKindRef(kind="patch.validate", version=1),
-                RunKindRef(kind="review.run", version=1),
-            },
-            False,
-        ),
-        "simulation": (
-            "builtin_simulation_profile@1",
-            "simulation-profile-config@1",
-            {"patch-repair@1", "patch-validation@1", "review-run@1", "simulation-run@1"},
-            {"regression-evidence@1", "simulation-result@1"},
-            {
-                RunKindRef(kind="patch.repair", version=1),
-                RunKindRef(kind="patch.validate", version=1),
-                RunKindRef(kind="review.run", version=1),
-                RunKindRef(kind="simulation.run", version=1),
-            },
-            True,
-        ),
-    }
-    handler_key, config_schema_id, inputs, outputs, compatible_kinds, stochastic = contracts[
-        expected_kind
-    ]
-    if (
-        lifecycle.state != "active"
-        or definition.profile != binding.profile
-        or definition.profile_kind != expected_kind
-        or set(definition.compatible_run_kinds) != compatible_kinds
-        or definition.handler_key != handler_key
-        or definition.config_schema_id != config_schema_id
-        or set(definition.input_schema_ids) != inputs
-        or set(definition.output_schema_ids) != outputs
-        or definition.stochastic is not stochastic
-        or definition.required_capabilities
-    ):
-        raise IntegrityViolation(
-            "patch validation executor profile does not authorize the built-in adapter",
-            field_path=binding.field_path,
-        )
-    return definition
-
-
 def _build_patch_checker_resolver(registry: ImmutablePlatformRegistry):
     def resolve(
         binding: ResolvedExecutionProfileBindingV1,
         constraints: list[Constraint],
     ) -> Checker:
-        definition = _resolve_patch_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="checker",
+            handler_key="builtin_checker_profile@1",
+            config_schema_id="checker-profile-config@1",
         )
         config = CheckerProfileConfigV1.model_validate(definition.config)
         if len(constraints) > config.max_constraint_count:
@@ -1232,10 +1209,12 @@ def _build_patch_checker_resolver(registry: ImmutablePlatformRegistry):
 
 def _build_patch_sim_config_resolver(registry: ImmutablePlatformRegistry):
     def resolve(binding: ResolvedExecutionProfileBindingV1) -> ReviewSimConfig:
-        definition = _resolve_patch_executor_definition(
+        definition = _resolve_handler_executor_definition(
             registry,
             binding,
             expected_kind="simulation",
+            handler_key="builtin_simulation_profile@1",
+            config_schema_id="simulation-profile-config@1",
         )
         config = SimulationProfileConfigV1.model_validate(definition.config)
         return ReviewSimConfig(
@@ -1538,8 +1517,8 @@ def _build_executor_handlers(
             blobs=blobs,
             store=store,
             differential_engines=build_differential_engines(),
-            profile_resolver=RegistryConstraintValidationProfileResolver(registry),
             regression_runner=regression_runner,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "rollback_validator@1": RollbackValidationHandler(
             blobs=blobs,

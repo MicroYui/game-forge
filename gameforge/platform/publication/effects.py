@@ -30,13 +30,11 @@ transaction-bound authority port fails the enclosing terminal UoW closed.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field, fields, is_dataclass
-from threading import Lock
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Literal, Protocol
-from weakref import WeakKeyDictionary, WeakSet
 
-from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
+from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.jobs import (
@@ -461,80 +459,34 @@ _PreparedWorkflowPayload = (
     | _PreparedValidationRevertMutation
     | _PreparedSupersededValidationNoop
 )
-_PREPARED_WORKFLOW_SEAL = object()
 
 
 @dataclass(frozen=True, slots=True)
-class _PreparedWorkflowState:
+class PreparedWorkflowEffect:
+    """Read-phase workflow plan bound into the terminal draft projection.
+
+    The payload is deep-frozen once while planning.  The enclosing terminal draft
+    already seals this canonical projection, so the write phase only needs the
+    retained immutable plan plus fresh database authority checks.
+    """
+
     effect_key: str
     run_id: str
-    context_digest: str
     context_selector: Mapping[str, object]
-    preparation_digest: str
     payload: _PreparedWorkflowPayload
     projection: Mapping[str, object]
 
-
-class PreparedWorkflowEffect:
-    """Opaque, immutable read-phase workflow plan.
-
-    Construction is restricted to :func:`prepare_workflow_effect`; the module
-    seal is intentionally absent from canonical data, while the complete context
-    and payload projections are digest-bound. Copy operations deliberately return
-    an unregistered data-free handle; terminal staging keeps the original handle
-    only through its private operation-seal path.
-    """
-
-    __slots__ = ("__weakref__",)
-
-    def __init__(
-        self,
-        *,
-        effect_key: str,
-        run_id: str,
-        context_digest: str,
-        context_selector: Mapping[str, object],
-        payload: _PreparedWorkflowPayload,
-        projection: Mapping[str, object],
-        preparation_digest: str,
-        _seal: object,
-    ) -> None:
-        if _seal is not _PREPARED_WORKFLOW_SEAL:
-            raise TypeError("PreparedWorkflowEffect is issued only by the trusted planner")
-        if not effect_key or not run_id:
-            raise ValueError("prepared workflow identity must be complete")
-        if len(preparation_digest) != 64 or any(
-            character not in "0123456789abcdef" for character in preparation_digest
-        ):
-            raise ValueError("prepared workflow digest is not canonical")
-        state = _PreparedWorkflowState(
-            effect_key=effect_key,
-            run_id=run_id,
-            context_digest=context_digest,
-            context_selector=context_selector,
-            preparation_digest=preparation_digest,
-            payload=payload,
-            projection=projection,
-        )
-        with _PREPARED_WORKFLOW_LOCK:
-            _PREPARED_WORKFLOW_STATES[self] = state
-
-    def __setattr__(self, _name: str, _value: object) -> None:
-        raise TypeError("prepared workflow effect is immutable")
-
-    def __delattr__(self, _name: str) -> None:
-        raise TypeError("prepared workflow effect is immutable")
-
     @classmethod
-    def _issue(
+    def build(
         cls,
         *,
         effect_key: str,
-        context_digest: str,
         context_selector: Mapping[str, object],
         run_id: str,
         payload: _PreparedWorkflowPayload,
     ) -> PreparedWorkflowEffect:
+        if not effect_key or not run_id:
+            raise ValueError("prepared workflow identity must be complete")
         frozen_payload = _freeze_prepared_payload(payload)
         frozen_selector = deep_freeze_value(context_selector)
         if not isinstance(frozen_selector, Mapping):  # pragma: no cover - fixed projection
@@ -544,7 +496,6 @@ class PreparedWorkflowEffect:
                 "prepared_schema_version": "prepared-workflow-effect@1",
                 "effect_key": effect_key,
                 "run_id": run_id,
-                "context_digest": context_digest,
                 "context_selector": frozen_selector,
                 "payload": _prepared_payload_projection(frozen_payload),
             }
@@ -554,79 +505,13 @@ class PreparedWorkflowEffect:
         return cls(
             effect_key=effect_key,
             run_id=run_id,
-            context_digest=context_digest,
             context_selector=frozen_selector,
             payload=frozen_payload,
             projection=projection,
-            preparation_digest=canonical_sha256(projection),
-            _seal=_PREPARED_WORKFLOW_SEAL,
         )
 
-    def require_trusted(self, *, verify_projection: bool = False) -> None:
-        state = self._state()
-        if state is None:
-            raise IntegrityViolation("prepared workflow effect has no trusted planner seal")
-        if verify_projection and state.preparation_digest != canonical_sha256(state.projection):
-            raise IntegrityViolation("prepared workflow effect projection changed")
-
     def canonical_projection(self) -> Mapping[str, object]:
-        self.require_trusted(verify_projection=True)
-        state = self._require_state()
-        projection = deep_freeze_value(state.projection)
-        if not isinstance(projection, Mapping):  # pragma: no cover - fixed projection
-            raise IntegrityViolation("prepared workflow projection changed type")
-        return projection
-
-    @property
-    def effect_key(self) -> str:
-        return self._require_state().effect_key
-
-    @property
-    def run_id(self) -> str:
-        return self._require_state().run_id
-
-    @property
-    def context_digest(self) -> str:
-        return self._require_state().context_digest
-
-    @property
-    def context_selector(self) -> Mapping[str, object]:
-        selector = deep_freeze_value(self._require_state().context_selector)
-        if not isinstance(selector, Mapping):  # pragma: no cover - fixed projection
-            raise IntegrityViolation("prepared workflow selector changed type")
-        return selector
-
-    @property
-    def preparation_digest(self) -> str:
-        return self._require_state().preparation_digest
-
-    def detached_payload(self) -> _PreparedWorkflowPayload:
-        """Return an isolated payload projection for transaction preflight."""
-
-        return _freeze_prepared_payload(self._require_state().payload)
-
-    def _state(self) -> _PreparedWorkflowState | None:
-        with _PREPARED_WORKFLOW_LOCK:
-            return _PREPARED_WORKFLOW_STATES.get(self)
-
-    def _require_state(self) -> _PreparedWorkflowState:
-        state = self._state()
-        if state is None:
-            raise IntegrityViolation("prepared workflow effect has no trusted planner seal")
-        return state
-
-    def __copy__(self) -> PreparedWorkflowEffect:
-        return object.__new__(type(self))
-
-    def __deepcopy__(self, _memo: dict[int, object]) -> PreparedWorkflowEffect:
-        return object.__new__(type(self))
-
-
-_PREPARED_WORKFLOW_LOCK = Lock()
-_PREPARED_WORKFLOW_STATES: WeakKeyDictionary[
-    PreparedWorkflowEffect,
-    _PreparedWorkflowState,
-] = WeakKeyDictionary()
+        return self.projection
 
 
 def _frozen_model[T](value: T) -> T:
@@ -813,22 +698,6 @@ def _prepared_payload_projection(payload: _PreparedWorkflowPayload) -> Mapping[s
     raise IntegrityViolation("unknown prepared workflow payload")
 
 
-def _workflow_context_projection(context: WorkflowEffectContext) -> Mapping[str, object]:
-    return {
-        "run": context.run.model_dump(mode="json"),
-        "policy": context.policy.model_dump(mode="json"),
-        "scope": context.scope,
-        "published_primary_artifact_id": context.published_primary_artifact_id,
-        "published_output_artifact_ids": context.published_output_artifact_ids,
-        "actor": context.actor.model_dump(mode="json"),
-        "occurred_at": context.occurred_at,
-        "published_primary_payload": _project_value(context.published_primary_payload),
-        "published_artifact_ids_by_rule": _project_value(context.published_artifact_ids_by_rule),
-        "published_payloads_by_rule": _project_value(context.published_payloads_by_rule),
-        "published_artifacts_by_rule": _project_value(context.published_artifacts_by_rule),
-    }
-
-
 def _workflow_context_selector(context: WorkflowEffectContext) -> Mapping[str, object]:
     """Compact write-phase identity; immutable bulk data stays projection-bound."""
 
@@ -847,12 +716,6 @@ def _workflow_context_selector(context: WorkflowEffectContext) -> Mapping[str, o
 
 
 WorkflowEffect = Callable[[WorkflowEffectContext], None]
-
-
-def _no_workflow_mutation(context: WorkflowEffectContext) -> None:
-    """A genuine no-op: this outcome never advances SubjectHead/ApprovalItem."""
-
-    return None
 
 
 def _validation_payload(run: RunRecord) -> _ValidationPayload:
@@ -900,218 +763,6 @@ _AGENT_DRAFT_SELECTORS: Mapping[AgentDraftEffectKey, tuple[str, type[object], st
         }
     )
 )
-
-
-def _agent_draft_effect(effect_key: AgentDraftEffectKey) -> WorkflowEffect:
-    """Delegate one exact asynchronous draft mutation to the Task-7 authority.
-
-    The generic publisher owns Artifact identity and the terminal UoW; the port
-    owns ApprovalItem construction/governance and SubjectHead mutation.  Keeping
-    that split explicit prevents either side from fabricating the other's facts.
-    """
-
-    def _effect(context: WorkflowEffectContext) -> None:
-        expected_kind, expected_payload_type, expected_subject_kind = _AGENT_DRAFT_SELECTORS[
-            effect_key
-        ]
-        if (
-            context.scope != "run"
-            or context.policy.prepared_outcome != "success"
-            or context.policy.workflow_effect_key != effect_key
-            or context.run.kind.kind != expected_kind
-            or context.run.kind.version != 1
-            or not isinstance(context.run.payload.params, expected_payload_type)
-            or context.actor.principal_kind not in {"service", "system"}
-        ):
-            raise IntegrityViolation(
-                "agent draft workflow effect differs from its exact Run/policy selector",
-                workflow_effect_key=effect_key,
-                run_id=context.run.run_id,
-            )
-        port = context.agent_drafts
-        if port is None:
-            raise IntegrityViolation(
-                "agent draft workflow effect has no transaction-bound authority port",
-                workflow_effect_key=effect_key,
-                run_id=context.run.run_id,
-            )
-        rule_ids = tuple(rule.rule_id for rule in context.policy.artifact_rules)
-        if (
-            set(context.published_artifact_ids_by_rule) != set(rule_ids)
-            or set(context.published_payloads_by_rule) != set(rule_ids)
-            or set(context.published_artifacts_by_rule) != set(rule_ids)
-        ):
-            raise IntegrityViolation(
-                "agent draft workflow effect lacks the exact publication rule closure",
-                workflow_effect_key=effect_key,
-            )
-        for rule_id in rule_ids:
-            artifacts = context.published_artifacts_by_rule[rule_id]
-            ids = context.published_artifact_ids_by_rule[rule_id]
-            payloads = context.published_payloads_by_rule[rule_id]
-            if tuple(artifact.artifact_id for artifact in artifacts) != ids or len(payloads) != len(
-                artifacts
-            ):
-                raise IntegrityViolation(
-                    "agent draft final Artifact/payload mapping differs",
-                    workflow_effect_key=effect_key,
-                    outcome_rule_id=rule_id,
-                )
-        primary_ids = context.published_artifact_ids_by_rule.get("primary", ())
-        primary_payloads = context.published_payloads_by_rule.get("primary", ())
-        if (
-            len(primary_ids) != 1
-            or len(primary_payloads) != 1
-            or context.published_primary_artifact_id != primary_ids[0]
-            or context.published_primary_payload != primary_payloads[0]
-        ):
-            raise IntegrityViolation(
-                "agent draft workflow effect lacks one exact published subject",
-                workflow_effect_key=effect_key,
-            )
-        params = context.run.payload.params
-        if expected_subject_kind == "patch":
-            subject = PatchV2.model_validate(primary_payloads[0])
-        else:
-            subject = ConstraintProposalV1.model_validate(primary_payloads[0])
-        current_item: ApprovalItem | None = None
-        current_head: SubjectHead | None = None
-        if isinstance(params, PatchRepairPayloadV1):
-            approvals = _require_approvals(context)
-            old_approval_id = f"approval:patch:{params.subject_patch_artifact_id}"
-            current_item = approvals.get(old_approval_id)
-            if current_item is None:
-                raise IntegrityViolation(
-                    "repair workflow current ApprovalItem is missing",
-                    approval_id=old_approval_id,
-                )
-            current_head = approvals.get_subject_head(current_item.subject_series_id)
-            current_target = current_item.target_binding
-            if (
-                current_head is None
-                or current_item.subject_kind != "patch"
-                or current_item.subject_artifact_id != params.subject_patch_artifact_id
-                or current_item.status != "validation_failed"
-                or current_item.workflow_revision != params.expected_workflow_revision
-                or current_item.last_validation_failure_artifact_id is not None
-                or current_item.evidence_set_artifact_id != params.validation_evidence_artifact_id
-                or current_head.current_approval_id != current_item.approval_id
-                or current_head.current_subject_artifact_id != current_item.subject_artifact_id
-                or current_head.revision != params.expected_subject_head_revision
-                or current_head.revision != current_item.subject_revision
-                or subject.revision != current_item.subject_revision + 1
-                or subject.supersedes_artifact_id != current_item.subject_artifact_id
-                or not isinstance(current_target, PatchTargetBindingV1)
-                or current_target.target_artifact_id != params.preview_snapshot_artifact_id
-                or current_target.ref_name != params.target.ref_name
-                or current_target.expected_ref != params.target.expected_ref
-                or params.target.expected_ref is None
-                or params.target.expected_ref.artifact_id != params.base_snapshot_artifact_id
-            ):
-                raise IntegrityViolation(
-                    "repair workflow differs from current ApprovalItem/SubjectHead CAS",
-                    run_id=context.run.run_id,
-                )
-
-        request = AgentDraftWorkflowRequest(
-            effect_key=effect_key,
-            run=context.run,
-            policy=context.policy,
-            initiated_by=context.run.initiated_by,
-            executed_by=context.actor,
-            subject_artifact_id=primary_ids[0],
-            artifacts_by_rule=MappingProxyType(
-                {key: tuple(values) for key, values in context.published_artifacts_by_rule.items()}
-            ),
-            artifact_ids_by_rule=MappingProxyType(
-                {
-                    key: tuple(values)
-                    for key, values in context.published_artifact_ids_by_rule.items()
-                }
-            ),
-            payloads_by_rule=MappingProxyType(
-                {
-                    key: tuple(dict(payload) for payload in values)
-                    for key, values in context.published_payloads_by_rule.items()
-                }
-            ),
-            expected_subject_head_revision=(
-                context.run.payload.params.expected_subject_head_revision
-                if isinstance(context.run.payload.params, PatchRepairPayloadV1)
-                else None
-            ),
-            expected_workflow_revision=(
-                context.run.payload.params.expected_workflow_revision
-                if isinstance(context.run.payload.params, PatchRepairPayloadV1)
-                else None
-            ),
-            expected_current_approval=current_item,
-            expected_current_subject_head=current_head,
-            occurred_at=context.occurred_at,
-        )
-        result = port.publish_agent_draft(request)
-        item = result.approval_item
-        head = result.subject_head
-        expected_head_revision = (
-            params.expected_subject_head_revision + 1
-            if isinstance(params, PatchRepairPayloadV1)
-            else 1
-        )
-        expected_series_id = (
-            current_item.subject_series_id
-            if current_item is not None
-            else f"series:{expected_subject_kind}:{primary_ids[0]}"
-        )
-        expected_supersedes = (
-            f"approval:patch:{params.subject_patch_artifact_id}"
-            if isinstance(params, PatchRepairPayloadV1)
-            else None
-        )
-        expected_domain_scope = (
-            current_item.domain_scope if current_item is not None else params.domain_scope
-        )
-        target_ok = item.target_binding is None
-        if expected_subject_kind == "patch":
-            preview_ids = context.published_artifact_ids_by_rule.get("preview", ())
-            preview_artifacts = context.published_artifacts_by_rule.get("preview", ())
-            target = item.target_binding
-            target_ok = (
-                len(preview_ids) == 1
-                and len(preview_artifacts) == 1
-                and isinstance(target, PatchTargetBindingV1)
-                and preview_artifacts[0].artifact_id == preview_ids[0]
-                and preview_artifacts[0].kind == "ir_snapshot"
-                and target.target_artifact_id == preview_ids[0]
-                and target.target_snapshot_id == subject.target_snapshot_id
-                and target.target_digest == preview_artifacts[0].payload_hash
-                and target.ref_name == params.target.ref_name
-                and target.expected_ref == params.target.expected_ref
-            )
-        if (
-            item.subject_kind != expected_subject_kind
-            or item.subject_artifact_id != primary_ids[0]
-            or item.approval_id != f"approval:{expected_subject_kind}:{primary_ids[0]}"
-            or item.subject_series_id != expected_series_id
-            or item.subject_revision != subject.revision
-            or item.supersedes_approval_id != expected_supersedes
-            or not target_ok
-            or item.proposer != context.run.initiated_by
-            or item.domain_scope != expected_domain_scope
-            or item.status != "draft"
-            or item.workflow_revision != 1
-            or item.created_at != context.occurred_at
-            or head.subject_series_id != item.subject_series_id
-            or head.current_subject_artifact_id != primary_ids[0]
-            or head.current_approval_id != item.approval_id
-            or head.revision != expected_head_revision
-        ):
-            raise IntegrityViolation(
-                "agent draft workflow authority returned another draft/head projection",
-                workflow_effect_key=effect_key,
-                run_id=context.run.run_id,
-            )
-
-    return _effect
 
 
 def _load_published_evidence(context: WorkflowEffectContext) -> EvidenceSet:
@@ -1169,254 +820,6 @@ def _validate_kind_binding(
     else:  # constraint_proposal
         assert isinstance(payload, ConstraintValidationPayloadV1)
         validate_constraint_evidence_candidate_binding(evidence, payload)
-
-
-def _make_validation_completion_effect(
-    *,
-    subject_kind: str,
-    target_status: str,
-    require_auto_apply_proof: bool = False,
-) -> WorkflowEffect:
-    """Build a ``validated``/``validation_failed`` completion effect.
-
-    The effect runs inside the publisher's terminal UoW: it reads the just-published
-    EvidenceSet + the frozen validation payload, reuses the shared completion core to
-    re-verify the subject/current-binding/evidence, then CASes the ApprovalItem. It
-    NEVER re-publishes artifacts, re-books the Run terminal, or writes a second audit
-    record (the publisher already did those).  Subject supersede must have been
-    converted into a typed terminal failure by the publisher preflight before any
-    EvidenceSet was published; observing it here is an atomicity invariant breach.
-    """
-
-    def _effect(context: WorkflowEffectContext) -> None:
-        payload = _validation_payload(context.run)
-        if payload_subject_kind(payload) != subject_kind:
-            raise IntegrityViolation(
-                "validation effect key does not match the Run payload subject kind",
-                run_id=context.run.run_id,
-            )
-        approvals = _require_approvals(context)
-        subject = payload.subject
-        item = approvals.get(subject.approval_id)
-        if item is None:
-            raise IntegrityViolation(
-                "validation completion ApprovalItem is missing",
-                approval_id=subject.approval_id,
-            )
-        head = approvals.get_subject_head(item.subject_series_id)
-        if head is None:
-            raise IntegrityViolation("validation subject series has no SubjectHead")
-        if head.current_approval_id != item.approval_id:
-            raise IntegrityViolation(
-                "validation success reached its workflow effect after subject supersede",
-                approval_id=item.approval_id,
-                run_id=context.run.run_id,
-            )
-
-        validate_immutable_subject_binding(item, subject, subject_kind)
-        validate_current_subject_binding(item, head, subject, context.run.run_id)
-
-        evidence = _load_published_evidence(context)
-        if evidence.validation_run_id != context.run.run_id:
-            raise IntegrityViolation(
-                "published EvidenceSet validation_run_id differs from the Run",
-                run_id=context.run.run_id,
-            )
-        _validate_overall_status(evidence, target_status)
-        validate_evidence_subject(evidence, item)
-        _validate_kind_binding(evidence, item, context.run, payload, subject_kind)
-
-        validate_status_transition(
-            current="validating", target=target_status, subject_kind=item.subject_kind
-        )
-        target_binding = (
-            evidence.target_binding
-            if subject_kind == "constraint_proposal"
-            else item.target_binding
-        )
-        evidence_artifact_id = context.published_primary_artifact_id
-        if evidence_artifact_id is None:
-            raise IntegrityViolation(
-                "validation completion has no published EvidenceSet artifact id",
-                run_id=context.run.run_id,
-            )
-        regression_evidence_artifact_ids = tuple(
-            sorted(context.published_artifact_ids_by_rule.get("regression", ()))
-        )
-        if regression_evidence_artifact_ids != regression_evidence_ids_from_set(evidence):
-            raise IntegrityViolation(
-                "published regression evidence differs from the final EvidenceSet"
-            )
-        proof_binding: AutoApplyProofBindingV1 | None = None
-        auto_apply_request: (
-            tuple[
-                AutoApplyValidationPort,
-                AutoApplyProofV1,
-                ArtifactV2,
-                ArtifactV2,
-                tuple[ArtifactV2, ...],
-                tuple[str, ...],
-            ]
-            | None
-        ) = None
-        if require_auto_apply_proof:
-            if (
-                subject_kind != "patch"
-                or target_status != "validated"
-                or context.policy.workflow_effect_key != "set_patch_validated_with_auto_proof@1"
-            ):
-                raise IntegrityViolation("auto-apply proof effect selector is inconsistent")
-            auto_apply = context.auto_apply
-            if auto_apply is None:
-                raise IntegrityViolation(
-                    "auto-apply validation has no transaction-bound deterministic guard",
-                    run_id=context.run.run_id,
-                )
-            rule_ids = {rule.rule_id for rule in context.policy.artifact_rules}
-            if (
-                set(context.published_artifact_ids_by_rule) != rule_ids
-                or set(context.published_payloads_by_rule) != rule_ids
-                or set(context.published_artifacts_by_rule) != rule_ids
-            ):
-                raise IntegrityViolation(
-                    "auto-eligible validation lacks exact final rule closure",
-                    run_id=context.run.run_id,
-                )
-            primary_ids = context.published_artifact_ids_by_rule.get("primary", ())
-            primary_artifacts = context.published_artifacts_by_rule.get("primary", ())
-            if (
-                primary_ids != (evidence_artifact_id,)
-                or len(primary_artifacts) != 1
-                or primary_artifacts[0].artifact_id != evidence_artifact_id
-                or primary_artifacts[0].kind != "validation_evidence"
-                or primary_artifacts[0].meta.get("payload_schema_id") != "evidence-set@1"
-            ):
-                raise IntegrityViolation(
-                    "auto-eligible validation primary Artifact differs from EvidenceSet"
-                )
-            proof_ids = context.published_artifact_ids_by_rule.get("auto-apply-proof", ())
-            proof_payloads = context.published_payloads_by_rule.get("auto-apply-proof", ())
-            proof_artifacts = context.published_artifacts_by_rule.get("auto-apply-proof", ())
-            regression_artifacts = tuple(
-                sorted(
-                    context.published_artifacts_by_rule.get("regression", ()),
-                    key=lambda artifact: artifact.artifact_id,
-                )
-            )
-            regression_ids = regression_evidence_artifact_ids
-            if (
-                len(proof_ids) != 1
-                or len(proof_payloads) != 1
-                or len(proof_artifacts) != 1
-                or proof_artifacts[0].artifact_id != proof_ids[0]
-                or proof_artifacts[0].kind != "validation_evidence"
-                or proof_artifacts[0].meta.get("payload_schema_id") != "auto-apply-proof@1"
-                or tuple(sorted(artifact.artifact_id for artifact in regression_artifacts))
-                != regression_ids
-            ):
-                raise IntegrityViolation(
-                    "auto-eligible validation lacks one exact final proof Artifact",
-                    run_id=context.run.run_id,
-                )
-            proof = AutoApplyProofV1.model_validate(proof_payloads[0])
-            proof_binding = build_auto_apply_proof_binding(
-                proof=proof,
-                proof_artifact_id=proof_ids[0],
-                evidence_artifact_id=evidence_artifact_id,
-                regression_artifact_ids=regression_ids,
-                item=item,
-            )
-            auto_apply_request = (
-                auto_apply,
-                proof,
-                primary_artifacts[0],
-                proof_artifacts[0],
-                regression_artifacts,
-                regression_ids,
-            )
-        replacement = build_validation_completion_replacement(
-            item,
-            target_status=target_status,
-            evidence_set_artifact_id=evidence_artifact_id,
-            regression_evidence_artifact_ids=regression_evidence_artifact_ids,
-            target_binding=target_binding,
-            auto_apply_proof=proof_binding,
-        )
-        if auto_apply_request is not None:
-            (
-                auto_apply,
-                proof,
-                evidence_artifact,
-                proof_artifact,
-                regression_artifacts,
-                regression_ids,
-            ) = auto_apply_request
-            auto_apply.validate_completion(
-                AutoApplyValidationRequest(
-                    run=context.run,
-                    policy=context.policy,
-                    current_item=item,
-                    projected_item=replacement,
-                    evidence=evidence,
-                    evidence_artifact=evidence_artifact,
-                    evidence_artifact_id=evidence_artifact_id,
-                    proof=proof,
-                    proof_artifact=proof_artifact,
-                    proof_artifact_id=proof_artifact.artifact_id,
-                    regression_artifacts=regression_artifacts,
-                    regression_artifact_ids=regression_ids,
-                    occurred_at=context.occurred_at,
-                )
-            )
-        approvals.compare_and_set_validation_completion(
-            item.approval_id, item.workflow_revision, replacement
-        )
-
-    return _effect
-
-
-def _restore_current_draft(context: WorkflowEffectContext) -> None:
-    """Revert ``validating→draft`` after a validation run-final failure.
-
-    Only a strictly proven supersede is an allowed no-op. Every other drift fails
-    closed so a stale/already-reverted/re-validating item cannot be hidden behind a
-    successfully published terminal manifest.
-    """
-
-    payload = _validation_payload(context.run)
-    approvals = _require_approvals(context)
-    subject = payload.subject
-    item = approvals.get(subject.approval_id)
-    if item is None:
-        raise IntegrityViolation(
-            "validation revert ApprovalItem is missing",
-            approval_id=subject.approval_id,
-        )
-    validate_immutable_subject_binding(item, subject, payload_subject_kind(payload))
-    head = approvals.get_subject_head(item.subject_series_id)
-    if head is None:
-        raise IntegrityViolation("validation revert subject series has no SubjectHead")
-    if head.current_approval_id != item.approval_id:
-        validate_strict_superseded_subject_binding(item, head, subject)
-        return
-    validate_current_subject_binding(item, head, subject, context.run.run_id)
-
-    reset_reason = _REVERT_RESET_REASON.get(context.policy.outcome_code)
-    if reset_reason is None:
-        raise IntegrityViolation(
-            "validation revert has no reset reason for the terminal outcome",
-            outcome_code=context.policy.outcome_code,
-        )
-    validate_status_transition(
-        current="validating",
-        target="draft",
-        subject_kind=item.subject_kind,
-        validation_reset_reason=reset_reason,
-    )
-    replacement = build_validation_revert_replacement(
-        item, failure_artifact_id=context.published_primary_artifact_id
-    )
-    approvals.compare_and_set(item.approval_id, item.workflow_revision, replacement)
 
 
 _NO_MUTATION_EFFECT_KEYS = frozenset(
@@ -1812,7 +1215,6 @@ def prepare_workflow_effect(
             "workflow effect key differs from exact outcome policy",
             workflow_effect_key=key,
         )
-    context_digest = canonical_sha256(_workflow_context_projection(context))
     payload: _PreparedWorkflowPayload
     if key in _NO_MUTATION_EFFECT_KEYS:
         payload = _PreparedNoWorkflowMutation()
@@ -1843,9 +1245,8 @@ def prepare_workflow_effect(
         payload = _prepare_validation_revert(context)
     else:
         raise IntegrityViolation("workflow effect key is not registered", workflow_effect_key=key)
-    return PreparedWorkflowEffect._issue(
+    return PreparedWorkflowEffect.build(
         effect_key=key,
-        context_digest=context_digest,
         context_selector=_workflow_context_selector(context),
         run_id=context.run.run_id,
         payload=payload,
@@ -1886,216 +1287,39 @@ _PreflightedWorkflowPayload = (
     | _PreflightedValidationCompletionCas
     | _PreflightedValidationRevertCas
 )
-_PREFLIGHTED_WORKFLOW_SEAL = object()
 
 
 @dataclass(frozen=True, slots=True)
-class _PreflightedWorkflowState:
+class PreflightedWorkflowEffect:
+    """Fresh SELECT authority retained for the immediately following DML phase."""
+
     payload: _PreflightedWorkflowPayload
     context_selector: Mapping[str, object]
-    transaction_capabilities: tuple[object | None, object | None, object | None]
-    transaction_identity: tuple[object, object] | None
 
-
-def _workflow_transaction_identity(
-    context: WorkflowEffectContext,
-) -> tuple[object, object] | None:
-    """Resolve one optional SQL transaction from raw workflow capabilities."""
-
-    queue = [context.approvals, context.agent_drafts, context.auto_apply]
-    seen: set[int] = set()
-    retained: tuple[object, object] | None = None
-    while queue:
-        capability = queue.pop()
-        if capability is None or id(capability) in seen:
-            continue
-        seen.add(id(capability))
-        try:
-            session = object.__getattribute__(capability, "_session")
-        except AttributeError:
-            session = None
-        if session is not None:
-            get_nested = getattr(session, "get_nested_transaction", None)
-            get_transaction = getattr(session, "get_transaction", None)
-            transaction = (get_nested() if callable(get_nested) else None) or (
-                get_transaction() if callable(get_transaction) else None
-            )
-            if transaction is None or not getattr(transaction, "is_active", False):
-                raise IntegrityViolation("workflow preflight requires an active transaction")
-            identity = (session, transaction)
-            if retained is None:
-                retained = identity
-            elif retained[0] is not session or retained[1] is not transaction:
-                raise IntegrityViolation("workflow capabilities belong to different transactions")
-        for attribute in ("capabilities", "_capabilities"):
-            try:
-                nested = object.__getattribute__(capability, attribute)
-            except AttributeError:
-                continue
-            if is_dataclass(nested) and not isinstance(nested, type):
-                queue.extend(getattr(nested, item.name) for item in fields(nested))
-    return retained
-
-
-def _detach_preflighted_workflow_payload(
-    payload: _PreflightedWorkflowPayload,
-) -> _PreflightedWorkflowPayload:
-    if isinstance(payload, _PreflightedNoWorkflowMutation):
-        return _PreflightedNoWorkflowMutation()
-    if isinstance(payload, _PreflightedAgentDraftMutation):
-        return _PreflightedAgentDraftMutation(
-            port=payload.port,
-            request=_freeze_agent_request(payload.request),
-            draft=payload.draft.model_copy(deep=True),
-            authority=payload.authority,
-            audit_intents=(
-                None
-                if payload.audit_intents is None
-                else TerminalDraftAuditIntents(
-                    chain_id=payload.audit_intents.chain_id,
-                    intents=tuple(payload.audit_intents.intents),
-                )
-            ),
-        )
-    if isinstance(payload, _PreflightedValidationCompletionCas):
-        return _PreflightedValidationCompletionCas(
-            approvals=payload.approvals,
-            current=payload.current.model_copy(deep=True),
-            replacement=payload.replacement.model_copy(deep=True),
-        )
-    if isinstance(payload, _PreflightedValidationRevertCas):
-        return _PreflightedValidationRevertCas(
-            approvals=payload.approvals,
-            current=payload.current.model_copy(deep=True),
-            replacement=payload.replacement.model_copy(deep=True),
-        )
-    raise IntegrityViolation("workflow preflight payload has an unknown type")
-
-
-class PreflightedWorkflowEffect:
-    """Opaque transaction-bound one-shot token; it contains no heavy authority."""
-
-    __slots__ = ("__weakref__",)
-
-    def __init__(
-        self,
+    @classmethod
+    def build(
+        cls,
         payload: _PreflightedWorkflowPayload,
         *,
         context: WorkflowEffectContext,
-        _seal: object,
-    ) -> None:
-        if _seal is not _PREFLIGHTED_WORKFLOW_SEAL:
-            raise TypeError("workflow preflight token is authority-issued only")
+    ) -> PreflightedWorkflowEffect:
         selector = deep_freeze_value(_workflow_context_selector(context))
         if not isinstance(selector, Mapping):  # pragma: no cover - fixed projection
             raise IntegrityViolation("workflow preflight selector is not canonical")
-        state = _PreflightedWorkflowState(
-            payload=_detach_preflighted_workflow_payload(payload),
-            context_selector=selector,
-            transaction_capabilities=(
-                context.approvals,
-                context.agent_drafts,
-                context.auto_apply,
-            ),
-            transaction_identity=_workflow_transaction_identity(context),
-        )
-        with _PREFLIGHTED_WORKFLOW_LOCK:
-            _PREFLIGHTED_WORKFLOW_STATES[self] = state
+        return cls(payload=payload, context_selector=selector)
 
-    def __setattr__(self, _name: str, _value: object) -> None:
-        raise TypeError("workflow preflight token is immutable")
-
-    def consume(self, context: WorkflowEffectContext) -> _PreflightedWorkflowPayload:
-        current_transaction_identity = _workflow_transaction_identity(context)
-        with _PREFLIGHTED_WORKFLOW_LOCK:
-            state = _PREFLIGHTED_WORKFLOW_STATES.get(self)
-            if state is None or self in _CONSUMED_PREFLIGHTED_WORKFLOWS:
-                raise IntegrityViolation("workflow preflight token is invalid or reused")
-        if state.context_selector != _workflow_context_selector(context):
-            raise IntegrityViolation("workflow preflight token selector changed before apply")
-        fresh_capabilities = (
-            context.approvals,
-            context.agent_drafts,
-            context.auto_apply,
-        )
-        if any(
-            retained is not fresh
-            for retained, fresh in zip(
-                state.transaction_capabilities,
-                fresh_capabilities,
-                strict=True,
-            )
-        ):
-            raise IntegrityViolation(
-                "workflow preflight token belongs to another transaction capability set"
-            )
-        if (state.transaction_identity is None) != (current_transaction_identity is None) or (
-            state.transaction_identity is not None
-            and current_transaction_identity is not None
-            and any(
-                retained is not current
-                for retained, current in zip(
-                    state.transaction_identity,
-                    current_transaction_identity,
-                    strict=True,
-                )
-            )
-        ):
-            raise IntegrityViolation("workflow preflight token belongs to another transaction")
-        with _PREFLIGHTED_WORKFLOW_LOCK:
-            if (
-                _PREFLIGHTED_WORKFLOW_STATES.get(self) is not state
-                or self in _CONSUMED_PREFLIGHTED_WORKFLOWS
-            ):
-                raise IntegrityViolation("workflow preflight token is invalid or reused")
-            # Consume before the first effect can issue DML. A later failure rolls
-            # back the surrounding transaction and cannot authorize a retry.
-            _CONSUMED_PREFLIGHTED_WORKFLOWS.add(self)
-        return state.payload
+    def payload_for(self, context: WorkflowEffectContext) -> _PreflightedWorkflowPayload:
+        if self.context_selector != _workflow_context_selector(context):
+            raise IntegrityViolation("workflow preflight selector changed before apply")
+        return self.payload
 
     def audit_intents_for_terminal_merge(
         self,
         context: WorkflowEffectContext,
     ) -> TerminalDraftAuditIntents | None:
-        """Return same-transaction workflow audit intents without consuming DML authority."""
+        """Return the already-preflighted Agent-draft audit intents, when any."""
 
-        current_transaction_identity = _workflow_transaction_identity(context)
-        with _PREFLIGHTED_WORKFLOW_LOCK:
-            state = _PREFLIGHTED_WORKFLOW_STATES.get(self)
-            if state is None or self in _CONSUMED_PREFLIGHTED_WORKFLOWS:
-                raise IntegrityViolation("workflow preflight token is invalid or reused")
-        if state.context_selector != _workflow_context_selector(context):
-            raise IntegrityViolation("workflow preflight token selector changed before Audit merge")
-        fresh_capabilities = (
-            context.approvals,
-            context.agent_drafts,
-            context.auto_apply,
-        )
-        if any(
-            retained is not fresh
-            for retained, fresh in zip(
-                state.transaction_capabilities,
-                fresh_capabilities,
-                strict=True,
-            )
-        ):
-            raise IntegrityViolation(
-                "workflow Audit intents belong to another transaction capability set"
-            )
-        if (state.transaction_identity is None) != (current_transaction_identity is None) or (
-            state.transaction_identity is not None
-            and current_transaction_identity is not None
-            and any(
-                retained is not current
-                for retained, current in zip(
-                    state.transaction_identity,
-                    current_transaction_identity,
-                    strict=True,
-                )
-            )
-        ):
-            raise IntegrityViolation("workflow Audit intents belong to another transaction")
-        payload = state.payload
+        payload = self.payload_for(context)
         if not isinstance(payload, _PreflightedAgentDraftMutation):
             return None
         if payload.audit_intents is None:
@@ -2106,14 +1330,6 @@ class PreflightedWorkflowEffect:
         )
 
 
-_PREFLIGHTED_WORKFLOW_LOCK = Lock()
-_PREFLIGHTED_WORKFLOW_STATES: WeakKeyDictionary[
-    PreflightedWorkflowEffect,
-    _PreflightedWorkflowState,
-] = WeakKeyDictionary()
-_CONSUMED_PREFLIGHTED_WORKFLOWS: WeakSet[PreflightedWorkflowEffect] = WeakSet()
-
-
 def preflight_prepared_workflow_effect(
     prepared: PreparedWorkflowEffect,
     context: WorkflowEffectContext,
@@ -2122,14 +1338,13 @@ def preflight_prepared_workflow_effect(
 ) -> PreflightedWorkflowEffect:
     """SELECT-only fresh authority pass, required before any terminal DML."""
 
-    prepared.require_trusted()
     if (
         prepared.effect_key != context.policy.workflow_effect_key
         or prepared.run_id != context.run.run_id
         or prepared.context_selector != _workflow_context_selector(context)
     ):
         raise IntegrityViolation("prepared workflow selector differs at preflight")
-    payload = prepared.detached_payload()
+    payload = prepared.payload
     authority: _PreflightedWorkflowPayload
     if isinstance(payload, _PreparedNoWorkflowMutation):
         authority = _PreflightedNoWorkflowMutation()
@@ -2200,11 +1415,7 @@ def preflight_prepared_workflow_effect(
             authority = _PreflightedNoWorkflowMutation()
         else:
             raise IntegrityViolation("prepared workflow effect has an unknown payload")
-    return PreflightedWorkflowEffect(
-        authority,
-        context=context,
-        _seal=_PREFLIGHTED_WORKFLOW_SEAL,
-    )
+    return PreflightedWorkflowEffect.build(authority, context=context)
 
 
 def apply_preflighted_workflow_effect(
@@ -2213,7 +1424,7 @@ def apply_preflighted_workflow_effect(
 ) -> None:
     """DML-only application; all SELECTs and immutable work already completed."""
 
-    payload = preflighted.consume(context)
+    payload = preflighted.payload_for(context)
     if isinstance(payload, _PreflightedNoWorkflowMutation):
         return
     if isinstance(payload, _PreflightedAgentDraftMutation):
@@ -2263,59 +1474,31 @@ def commit_prepared_workflow_effect(
     )
 
 
-# The composition-root registry.  Adding a draft-mutating key here is the only
-# sanctioned way to enable it; nothing outside this module may inject a handler.
+def _coordinated_workflow_effect(key: str) -> WorkflowEffect:
+    """Expose one compatibility callable backed by the production three phases."""
+
+    def _effect(context: WorkflowEffectContext) -> None:
+        commit_prepared_workflow_effect(
+            prepare_workflow_effect(key, context),
+            context,
+        )
+
+    return _effect
+
+
+# Keep the exact allowlisted callable surface while deriving it from the same
+# selectors the production coordinator executes.  There is no parallel direct
+# implementation to drift from prepare/preflight/apply.
+_WORKFLOW_EFFECT_KEYS = frozenset(
+    (
+        *_NO_MUTATION_EFFECT_KEYS,
+        *_AGENT_DRAFT_SELECTORS,
+        *_VALIDATION_EFFECT_SELECTORS,
+        "restore_current_draft@1",
+    )
+)
 WORKFLOW_EFFECTS: Mapping[str, WorkflowEffect] = MappingProxyType(
-    {
-        "no_workflow_change@1": _no_workflow_mutation,
-        "no_workflow_subject@1": _no_workflow_mutation,
-        "terminal_only@1": _no_workflow_mutation,
-        "close_attempt_for_terminal@1": _no_workflow_mutation,
-        "close_attempt_for_retry@1": _no_workflow_mutation,
-        "leave_patch_head_unchanged@1": _no_workflow_mutation,
-        # ── asynchronous draft publication ───────────────────────────────────
-        "create_patch_subject_head_and_draft@1": _agent_draft_effect(
-            "create_patch_subject_head_and_draft@1"
-        ),
-        "supersede_patch_head_create_draft@1": _agent_draft_effect(
-            "supersede_patch_head_create_draft@1"
-        ),
-        "create_constraint_subject_head_and_draft@1": _agent_draft_effect(
-            "create_constraint_subject_head_and_draft@1"
-        ),
-        # ── validation completion (Task 17b) ──────────────────────────────────
-        "set_patch_validated@1": _make_validation_completion_effect(
-            subject_kind="patch", target_status="validated"
-        ),
-        # Completion retains the exact proof binding on ``validated``.  The later
-        # submit command reruns eligibility and performs validated ->
-        # auto_apply_eligible; absence of either the proof or deterministic guard
-        # fails this terminal UoW closed instead of silently downgrading.
-        "set_patch_validated_with_auto_proof@1": _make_validation_completion_effect(
-            subject_kind="patch",
-            target_status="validated",
-            require_auto_apply_proof=True,
-        ),
-        "set_patch_validation_failed@1": _make_validation_completion_effect(
-            subject_kind="patch", target_status="validation_failed"
-        ),
-        "set_rollback_validated@1": _make_validation_completion_effect(
-            subject_kind="rollback_request", target_status="validated"
-        ),
-        "set_rollback_validation_failed@1": _make_validation_completion_effect(
-            subject_kind="rollback_request", target_status="validation_failed"
-        ),
-        "set_exact_binding_and_validated@1": _make_validation_completion_effect(
-            subject_kind="constraint_proposal", target_status="validated"
-        ),
-        "set_exact_binding_and_validation_failed@1": _make_validation_completion_effect(
-            subject_kind="constraint_proposal", target_status="validation_failed"
-        ),
-        "leave_binding_null_and_validation_failed@1": _make_validation_completion_effect(
-            subject_kind="constraint_proposal", target_status="validation_failed"
-        ),
-        "restore_current_draft@1": _restore_current_draft,
-    }
+    {key: _coordinated_workflow_effect(key) for key in sorted(_WORKFLOW_EFFECT_KEYS)}
 )
 
 

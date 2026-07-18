@@ -4470,15 +4470,22 @@ class SqlRunRepository:
         )
         if not selected_ids:
             return ()
-        rows: list[RunFindingLinkRow] = []
+        rows = []
         for start in range(0, len(selected_ids), _MAX_SQL_IN_ITEMS):
             chunk = selected_ids[start : start + _MAX_SQL_IN_ITEMS]
             remaining = max_items + 1 - len(rows)
             if remaining < 1:
                 break
             rows.extend(
-                self._session.scalars(
-                    select(RunFindingLinkRow)
+                self._session.execute(
+                    select(RunFindingLinkRow, FindingRevisionRow)
+                    .outerjoin(
+                        FindingRevisionRow,
+                        and_(
+                            FindingRevisionRow.finding_id == RunFindingLinkRow.finding_id,
+                            FindingRevisionRow.revision == RunFindingLinkRow.finding_revision,
+                        ),
+                    )
                     .where(RunFindingLinkRow.evidence_artifact_id.in_(chunk))
                     .order_by(
                         RunFindingLinkRow.evidence_artifact_id,
@@ -4495,17 +4502,25 @@ class SqlRunRepository:
                 maximum=max_items,
             )
         links: list[RunFindingLinkV1] = []
-        for row in rows:
-            parsed = self.get_finding_link(row.run_id, row.attempt_no, row.ordinal)
-            if parsed is None:
+        for link_row, revision_row in rows:
+            link = _parse_finding_link_row(
+                link_row,
+                expected_run_id=link_row.run_id,
+                expected_attempt_no=link_row.attempt_no,
+                expected_ordinal=link_row.ordinal,
+            )
+            if revision_row is None:
+                raise IntegrityViolation("selected evidence link has no linked Finding revision")
+            revision = _parse_linked_finding(revision_row)
+            if finding_revision_digest(revision) != link.finding_digest:
                 raise IntegrityViolation(
-                    "selected evidence Finding link disappeared during one read transaction"
+                    "selected evidence Finding link disagrees with its Finding revision"
                 )
-            if parsed.evidence_artifact_id not in selected_ids:
+            if link.evidence_artifact_id not in selected_ids:
                 raise IntegrityViolation(
                     "selected evidence Finding enumeration returned another Artifact"
                 )
-            links.append(parsed)
+            links.append(link)
         order_keys = tuple(
             (
                 link.evidence_artifact_id,

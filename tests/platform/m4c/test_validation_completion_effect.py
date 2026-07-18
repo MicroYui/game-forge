@@ -10,7 +10,6 @@ fail-closed invariant if a validation-success effect somehow observes supersede.
 
 from __future__ import annotations
 
-from copy import copy, deepcopy
 from pathlib import Path
 
 from sqlalchemy import event
@@ -50,6 +49,10 @@ from gameforge.contracts.workflow import (
     EvidenceSet,
     PatchTargetBindingV1,
     SubjectHead,
+)
+from gameforge.platform.approvals.auto_apply_runtime import (
+    ExactAutoApplyEligibilityRequest,
+    PreparedAutoApplyEligibility,
 )
 from gameforge.platform.publication.effects import (
     AutoApplyValidationRequest,
@@ -475,101 +478,7 @@ def test_validation_effect_prepares_outside_writer_and_commits_db_only(
     assert item is not None and item.status == "validated"
 
 
-def test_workflow_preflight_seal_is_transaction_bound_and_one_shot_before_dml(
-    tmp_path: Path,
-) -> None:
-    fix = _Fixture(tmp_path)
-    policy = _policy("patch_validation_passed", "set_patch_validated@1")
-    evidence = _evidence(fix, overall="passed")
-    with fix.session() as session, session.begin():
-        _seed_validating(fix, SqlApprovalRepository(session))
-    with fix.session() as session:
-        prepared = prepare_workflow_effect(
-            "set_patch_validated@1",
-            _context(
-                fix,
-                approvals=SqlApprovalRepository(session),
-                evidence=evidence,
-                primary_id=fix.evidence_artifact.artifact_id,
-                policy=policy,
-            ),
-        )
-
-    dml: list[str] = []
-
-    def capture(_conn, _cursor, statement, _parameters, _context, _executemany):
-        operation = statement.lstrip().upper().split(maxsplit=1)[0]
-        if operation in {"INSERT", "UPDATE", "DELETE"}:
-            dml.append(statement)
-
-    engine = get_engine(fix.database_url)
-    event.listen(engine, "before_cursor_execute", capture)
-    try:
-        with fix.session() as owner_session, owner_session.begin():
-            owner_context = _context(
-                fix,
-                approvals=SqlApprovalRepository(owner_session),
-                evidence=evidence,
-                primary_id=fix.evidence_artifact.artifact_id,
-                policy=policy,
-            )
-            seal = preflight_prepared_workflow_effect(prepared, owner_context)
-            with pytest.raises((AttributeError, TypeError)):
-                object.__setattr__(seal, "_payload", object())
-            with pytest.raises(IntegrityViolation, match="invalid"):
-                apply_preflighted_workflow_effect(copy(seal), owner_context)
-            assert dml == []
-            with fix.session() as other_session, other_session.begin():
-                other_context = _context(
-                    fix,
-                    approvals=SqlApprovalRepository(other_session),
-                    evidence=evidence,
-                    primary_id=fix.evidence_artifact.artifact_id,
-                    policy=policy,
-                )
-                with pytest.raises(IntegrityViolation, match="another transaction"):
-                    apply_preflighted_workflow_effect(seal, other_context)
-                assert dml == []
-
-            apply_preflighted_workflow_effect(seal, owner_context)
-            dml.clear()
-            with pytest.raises(IntegrityViolation, match="reused"):
-                apply_preflighted_workflow_effect(seal, owner_context)
-            assert dml == []
-    finally:
-        event.remove(engine, "before_cursor_execute", capture)
-
-
-def test_workflow_preflight_rejects_one_repository_reused_in_a_later_transaction(
-    tmp_path: Path,
-) -> None:
-    fix = _Fixture(tmp_path)
-    policy = _policy("patch_validation_passed", "set_patch_validated@1")
-    evidence = _evidence(fix, overall="passed")
-    with fix.session() as session, session.begin():
-        _seed_validating(fix, SqlApprovalRepository(session))
-    with fix.session() as session:
-        repository = SqlApprovalRepository(session)
-        with session.begin():
-            context = _context(
-                fix,
-                approvals=repository,
-                evidence=evidence,
-                primary_id=fix.evidence_artifact.artifact_id,
-                policy=policy,
-            )
-            prepared = prepare_workflow_effect("set_patch_validated@1", context)
-            seal = preflight_prepared_workflow_effect(prepared, context)
-        with session.begin():
-            with pytest.raises(IntegrityViolation, match="another transaction"):
-                apply_preflighted_workflow_effect(seal, context)
-
-    with fix.session() as session:
-        item = SqlApprovalRepository(session).get(APPROVAL_ID)
-    assert item is not None and item.status == "validating"
-
-
-def test_prepared_workflow_projection_is_immutable_and_not_rehashed_in_write_phase(
+def test_prepared_workflow_bulk_payload_is_not_refrozen_in_write_phase(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -583,27 +492,14 @@ def test_prepared_workflow_projection_is_immutable_and_not_rehashed_in_write_pha
         policy=policy,
     )
     prepared = prepare_workflow_effect("no_workflow_change@1", context)
-    projection = prepared.canonical_projection()  # complete seal check stays lock-out
+    projection = prepared.canonical_projection()
+    assert projection["effect_key"] == "no_workflow_change@1"
+    assert projection["payload"]["effect_kind"] == "no_workflow_mutation"  # type: ignore[index]
 
-    with pytest.raises((AttributeError, TypeError)):
-        object.__setattr__(prepared, "_payload", object())
-    with pytest.raises(IntegrityViolation, match="trusted planner seal"):
-        copy(prepared).canonical_projection()
-    with pytest.raises(IntegrityViolation, match="trusted planner seal"):
-        deepcopy(prepared).canonical_projection()
-    with pytest.raises(TypeError, match="immutable"):
-        prepared.context_selector["scope"] = "attempt"  # type: ignore[index]
-    with pytest.raises(TypeError, match="immutable"):
-        prepared.context_selector = {}  # type: ignore[misc]
-    with pytest.raises(TypeError, match="immutable"):
-        projection["payload"]["effect_kind"] = "changed"  # type: ignore[index]
-    dict.__setitem__(projection, "effect_key", "changed-through-base-dict")
-    assert prepared.canonical_projection()["effect_key"] == "no_workflow_change@1"
+    def unexpected_bulk_refreeze(_value: object) -> object:
+        raise AssertionError("write-phase workflow preflight refroze the prepared payload")
 
-    def unexpected_full_projection_hash(_value: object) -> str:
-        raise AssertionError("write-phase workflow preflight rehashed the full projection")
-
-    monkeypatch.setattr(workflow_effects, "canonical_sha256", unexpected_full_projection_hash)
+    monkeypatch.setattr(workflow_effects, "_freeze_prepared_payload", unexpected_bulk_refreeze)
     seal = preflight_prepared_workflow_effect(prepared, context)
     apply_preflighted_workflow_effect(seal, context)
 
@@ -658,11 +554,38 @@ class _AutoApplyGuard:
         self.calls: list[AutoApplyValidationRequest] = []
 
     def validate_completion(self, request: AutoApplyValidationRequest) -> None:
+        prepared = self.prepare_completion(request)
+        self.commit_prepared_completion(prepared=prepared, request=request)
+
+    def prepare_completion(
+        self, request: AutoApplyValidationRequest
+    ) -> PreparedAutoApplyEligibility:
         self.calls.append(request)
         assert request.projected_item.status == "validated"
         assert request.projected_item.auto_apply_proof is not None
         if self.fail:
             raise IntegrityViolation("auto-apply authority rejected proof")
+        target = request.projected_item.target_binding
+        assert isinstance(target, PatchTargetBindingV1)
+        return PreparedAutoApplyEligibility.seal(
+            request=ExactAutoApplyEligibilityRequest(
+                run=request.run,
+                item=request.current_item,
+                outcome_code=request.policy.outcome_code,
+                proof_artifact_id=request.proof_artifact_id,
+                evidence_set_artifact_id=request.evidence_artifact_id,
+            ),
+            ref_name=target.ref_name,
+            expected_ref=target.expected_ref,
+        )
+
+    def commit_prepared_completion(
+        self,
+        *,
+        prepared: PreparedAutoApplyEligibility,
+        request: AutoApplyValidationRequest,
+    ) -> None:
+        assert prepared.run_id == request.run.run_id
 
 
 def _auto_effect_fixture(fix: _Fixture):

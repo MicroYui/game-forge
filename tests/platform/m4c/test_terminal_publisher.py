@@ -3191,7 +3191,6 @@ def test_patch_regression_playtest_finding_reaches_real_terminal(monkeypatch):
 def test_constraint_failed_with_candidate_playtest_finding_reaches_real_terminal(
     monkeypatch,
 ):
-    from gameforge.apps.worker import validation as worker_validation
     from tests.platform.m4c import test_constraint_validation_handler as constraint_mod
 
     registry = build_builtin_registry()
@@ -3290,7 +3289,6 @@ def test_constraint_failed_with_candidate_playtest_finding_reaches_real_terminal
     )
     outcome = constraint_mod._handler(
         store,
-        profile_resolver=worker_validation.RegistryConstraintValidationProfileResolver(registry),
         golden_runner=constraint_mod._PassingGoldenRunner(),
         regression_runner=constraint_mod._FailingRegressionRunner(),
     )(context)
@@ -3534,7 +3532,6 @@ def test_constraint_failed_with_candidate_playtest_finding_reaches_real_terminal
     )
     invalid_outcome = constraint_mod._handler(
         store,
-        profile_resolver=worker_validation.RegistryConstraintValidationProfileResolver(registry),
     )(invalid_context)
     assert invalid_outcome.summary.outcome_code == (
         "constraint_validation_failed_without_candidate"

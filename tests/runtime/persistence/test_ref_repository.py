@@ -370,7 +370,7 @@ def test_get_history_entry_fails_closed_when_retained_revision_is_missing(
             _repository(session).get_history_entry("head", 1)
 
 
-def test_get_history_entry_fails_closed_when_intermediate_revision_is_missing(
+def test_get_history_entry_does_not_scan_unrelated_intermediate_revisions(
     engine: Engine,
 ) -> None:
     with Session(engine) as session, session.begin():
@@ -388,8 +388,40 @@ def test_get_history_entry_fails_closed_when_intermediate_revision_is_missing(
         )
 
     with Session(engine) as session:
-        with pytest.raises(IntegrityViolation, match="noncontiguous"):
-            _repository(session).get_history_entry("head", 1)
+        assert _repository(session).get_history_entry("head", 1) == first
+
+
+def test_get_history_entry_uses_no_history_wide_aggregate(engine: Engine) -> None:
+    with Session(engine) as session, session.begin():
+        repository = _repository(session)
+        first = repository.compare_and_set("head", None, "artifact-a")
+        repository.compare_and_set("head", first, "artifact-b")
+
+    statements: list[str] = []
+
+    def capture(
+        connection: object,
+        cursor: object,
+        statement: str,
+        parameters: object,
+        context: object,
+        executemany: bool,
+    ) -> None:
+        del connection, cursor, parameters, context, executemany
+        statements.append(" ".join(statement.upper().split()))
+
+    event.listen(engine, "before_cursor_execute", capture)
+    try:
+        with Session(engine) as session:
+            assert _repository(session).get_history_entry("head", 1) == first
+    finally:
+        event.remove(engine, "before_cursor_execute", capture)
+
+    assert not any(
+        aggregate in statement
+        for statement in statements
+        for aggregate in ("COUNT(", "MIN(", "MAX(")
+    )
 
 
 @pytest.mark.parametrize(("name", "revision"), [("", 1), ("head", 0), ("head", True)])

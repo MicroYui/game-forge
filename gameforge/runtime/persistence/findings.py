@@ -1071,6 +1071,37 @@ FROM requested
             )
         return stored
 
+    def get_many_exact(
+        self,
+        identities: Sequence[tuple[str, int]],
+    ) -> dict[tuple[str, int], FindingRevisionV1]:
+        """Load exact immutable revisions in bounded set-based queries."""
+        selected = tuple(
+            dict.fromkeys(
+                (
+                    _require_nonempty_string(finding_id, field_name="finding id"),
+                    _require_revision(revision, field_name="finding revision"),
+                )
+                for finding_id, revision in identities
+            )
+        )
+        retained: dict[tuple[str, int], FindingRevisionV1] = {}
+        for start in range(0, len(selected), _SERIES_BOUNDARY_CHUNK_SIZE):
+            chunk = selected[start : start + _SERIES_BOUNDARY_CHUNK_SIZE]
+            rows = self._session.scalars(
+                select(FindingRevisionRow).where(
+                    tuple_(FindingRevisionRow.finding_id, FindingRevisionRow.revision).in_(chunk)
+                )
+            ).all()
+            for row in rows:
+                identity = (row.finding_id, row.revision)
+                retained[identity] = _parse_revision_row(
+                    row,
+                    expected_finding_id=row.finding_id,
+                    expected_revision=row.revision,
+                )
+        return retained
+
     def current(self, finding_id: str) -> FindingRevisionV1 | None:
         series_id = _require_nonempty_string(finding_id, field_name="finding id")
         head = self._load_and_verify_head(series_id)
