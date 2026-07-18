@@ -290,6 +290,18 @@ class ValidationCompletionApprovalRepository(Protocol):
         replacement: ApprovalItem,
     ) -> ApprovalItem: ...
 
+    def apply_preflighted_compare_and_set(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem: ...
+
+    def apply_preflighted_validation_completion(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem: ...
+
 
 class ValidationProfileResolver(Protocol):
     def resolve(self, execution: ValidationRunBinding) -> ResolvedValidationProfiles: ...

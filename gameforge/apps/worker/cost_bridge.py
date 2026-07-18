@@ -161,6 +161,141 @@ class WorkerConservativeAttemptUsageProvider:
             price_quote=quote,
         )
 
+    def conservative_usage_many(
+        self,
+        *,
+        groups: tuple[
+            tuple[ReservationGroupV1, tuple[BudgetReservationV1, ...]],
+            ...,
+        ],
+        recorded_at: datetime,
+    ) -> tuple[UsageEntryV1, ...]:
+        """Build stranded usage from bounded set authority reads.
+
+        Terminal closure may contain thousands of call reservations.  Resolve
+        native routes, legacy routes, and exact catalogs once per bounded set so
+        the SQLite write lock never carries a per-group decision/catalog lookup.
+        """
+
+        call_groups = tuple(item for item in groups if item[0].scope == "attempt_call")
+        decision_ids = tuple(
+            dict.fromkeys(_decision_id_from_group(group) for group, _ in call_groups)
+        )
+        get_native = getattr(self._ledger, "get_routing_decisions_many", None)
+        get_legacy = getattr(self._ledger, "get_legacy_import_routing_decisions_many", None)
+        if decision_ids and (not callable(get_native) or not callable(get_legacy)):
+            raise IntegrityViolation("terminal cost authority lacks routing batch reads")
+        native = {} if not decision_ids else get_native(decision_ids)
+        unresolved = tuple(
+            decision_id for decision_id in decision_ids if native.get(decision_id) is None
+        )
+        legacy = {} if not unresolved else get_legacy(unresolved)
+        decisions: dict[str, ModelRoutingDecision] = {}
+        for decision_id in decision_ids:
+            decision = native.get(decision_id) or legacy.get(decision_id)
+            if not isinstance(decision, (RoutingDecisionV1, LegacyImportRoutingDecisionV1)):
+                raise IntegrityViolation("stranded call has no exact RoutingDecision authority")
+            decisions[decision_id] = decision
+
+        catalog_refs = tuple(
+            dict.fromkeys(
+                (
+                    decision.catalog_version,
+                    decision.catalog_digest,
+                )
+                if isinstance(decision, RoutingDecisionV1)
+                else (
+                    decision.model_catalog_version,
+                    decision.model_catalog_digest,
+                )
+                for group, reservations in call_groups
+                if any(
+                    amount.dimension == "monetary"
+                    for reservation in reservations
+                    for amount in reservation.reserved
+                )
+                for decision in (decisions[_decision_id_from_group(group)],)
+            )
+        )
+        get_catalogs = getattr(self._ledger, "get_model_catalogs_many", None)
+        if catalog_refs and not callable(get_catalogs):
+            raise IntegrityViolation("terminal cost authority lacks catalog batch reads")
+        catalogs = {} if not catalog_refs else get_catalogs(catalog_refs)
+        descriptors = {
+            (exact_ref, descriptor.model_snapshot): descriptor
+            for exact_ref, catalog in catalogs.items()
+            if catalog is not None
+            for descriptor in catalog.models
+        }
+
+        usages: list[UsageEntryV1] = []
+        for group, reservations in groups:
+            if group.scope == "agent_step":
+                usages.append(
+                    _agent_step_usage(
+                        group=group,
+                        reservations=reservations,
+                        execution_source=_step_execution_source(group),
+                        recorded_at=recorded_at,
+                        kind="conservative",
+                    )
+                )
+                continue
+            if group.scope != "attempt_call":
+                raise IntegrityViolation("stranded cost group has an unsupported scope")
+            decision = decisions[_decision_id_from_group(group)]
+            if decision.request_hash != group.request_hash or (
+                isinstance(decision, RoutingDecisionV1)
+                and (decision.run_id != group.run_id or decision.attempt_no != group.attempt_no)
+            ):
+                raise IntegrityViolation("stranded call differs from its RoutingDecision")
+            quote = None
+            if any(
+                amount.dimension == "monetary"
+                for reservation in reservations
+                for amount in reservation.reserved
+            ):
+                exact_ref = (
+                    (decision.catalog_version, decision.catalog_digest)
+                    if isinstance(decision, RoutingDecisionV1)
+                    else (
+                        decision.model_catalog_version,
+                        decision.model_catalog_digest,
+                    )
+                )
+                catalog = catalogs.get(exact_ref)
+                if catalog is None:
+                    raise IntegrityViolation("model reservation exact catalog is unavailable")
+                descriptor = descriptors.get((exact_ref, decision.model_snapshot))
+                if descriptor is None or descriptor.status != "active":
+                    raise IntegrityViolation("model reservation descriptor is unavailable")
+                selected = self._price_book.lookup(
+                    descriptor.provider,
+                    decision.model_snapshot,
+                    group.created_at,
+                )
+                if not isinstance(selected, PriceQuoteV1):
+                    raise IntegrityViolation(
+                        "monetary reservation lost its exact retained price quote"
+                    )
+                _validate_price_quote(
+                    selected,
+                    provider=descriptor.provider,
+                    model_snapshot=decision.model_snapshot,
+                    observed_at=group.created_at,
+                )
+                quote = selected
+            usages.append(
+                _conservative_usage(
+                    group=group,
+                    reservations=reservations,
+                    decision=decision,
+                    recorded_at=recorded_at,
+                    price_quote=quote,
+                )
+            )
+        return tuple(usages)
+
 
 class WorkerAgentStepCostGateway:
     """Reserve and settle one discrete Agent node step before its first route.

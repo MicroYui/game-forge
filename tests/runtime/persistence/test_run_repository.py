@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from copy import copy, deepcopy
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 
@@ -9,7 +11,12 @@ from pydantic import ValidationError
 from sqlalchemy import Engine, delete, event, func, select, update
 from sqlalchemy.orm import Session
 
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import (
+    Conflict,
+    IdempotencyConflict,
+    IntegrityViolation,
+    InvalidStateTransition,
+)
 from gameforge.contracts.cassette_import import (
     LegacyImportRoutingDecisionV1,
     LegacyImportVerificationPolicyRefV1,
@@ -297,6 +304,43 @@ def test_create_queued_persists_immutable_run_and_initial_event_without_fake_att
         RunRecord.model_validate(
             {**_run("run:all-scope").model_dump(mode="python"), "resource_domain_scope": "all"}
         )
+
+
+def test_terminal_authority_projection_uses_constant_set_query_count(
+    engine: Engine,
+) -> None:
+    queued = _run()
+    _create(engine, queued)
+
+    def read_projection() -> tuple[int, int]:
+        statements: list[str] = []
+
+        def observe(
+            _connection,
+            _cursor,
+            statement,
+            _parameters,
+            _context,
+            _executemany,
+        ) -> None:
+            if statement.lstrip().upper().startswith("SELECT"):
+                statements.append(statement)
+
+        event.listen(engine, "before_cursor_execute", observe)
+        try:
+            with Session(engine) as session:
+                projection = SqlRunRepository(session).terminal_authority_projection(queued.run_id)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe)
+        return len(statements), len(projection.attempts)
+
+    queued_query_count, queued_attempt_count = read_projection()
+    _start_result(engine, queued)
+    started_query_count, started_attempt_count = read_projection()
+
+    assert queued_attempt_count == 0
+    assert started_attempt_count == 1
+    assert queued_query_count == started_query_count == 6
 
 
 @pytest.mark.parametrize(
@@ -1700,6 +1744,37 @@ def _fence(run: RunRecord, *, lease_id: str | None = None) -> AttemptWriteFence:
     )
 
 
+def _pending_command(
+    run: RunRecord,
+    *,
+    suffix: str,
+    client_seq: int,
+) -> RunCommandRecordV1:
+    command = RunCommandV1(
+        command_id=f"command:{suffix}",
+        client_id=f"browser:{suffix}",
+        client_seq=client_seq,
+        idempotency_key=f"input:{suffix}",
+        expected_run_revision=run.revision,
+        type="provide_input",
+        payload_schema_id="playtest-provide-input@1",
+        payload=PlaytestProvideInputPayloadV1(
+            interaction_id=f"interaction:{suffix}",
+            expected_state_hash=HASH_A,
+            choice_id="choice:a",
+        ),
+    )
+    return RunCommandRecordV1(
+        run_id=run.run_id,
+        command=command,
+        request_hash=canonical_payload_hash(command),
+        actor=AuditActor(principal_id="human:a", principal_kind="human"),
+        status="pending",
+        revision=1,
+        created_at=PROGRESSED,
+    )
+
+
 @pytest.mark.parametrize("authority", ("run", "attempt", "lease", "event"))
 def test_lifecycle_readers_reject_noncanonical_persisted_utc(
     engine: Engine,
@@ -2185,6 +2260,509 @@ def test_finding_link_semantic_revision_cannot_be_duplicated_at_another_ordinal(
         )
 
 
+def test_put_finding_links_many_preloads_authority_and_flushes_once(
+    engine: Engine,
+) -> None:
+    run, _ = _claim(engine)
+
+    def prepare(prefix: str, count: int) -> tuple[RunFindingLinkV1, ...]:
+        links: list[RunFindingLinkV1] = []
+        revisions: list[FindingRevisionRow] = []
+        heads: list[FindingHeadRow] = []
+        artifacts: list[ArtifactRow] = []
+        ordinal_base = {
+            "single": 0,
+            "batch": 100,
+            "chunked": 1_000,
+        }[prefix]
+        for ordinal in range(1, count + 1):
+            finding = FindingRevisionV1(
+                finding_id=f"finding:{prefix}:{ordinal}",
+                revision=1,
+                created_at=NOW,
+                payload=FindingPayloadV1(
+                    source="checker",
+                    producer_id="graph-checker@1",
+                    producer_run_id=run.run_id,
+                    oracle_type="deterministic",
+                    defect_class="dangling_reference",
+                    severity="major",
+                    snapshot_id="snapshot:1",
+                    entities=[f"quest:{ordinal}"],
+                    relations=[],
+                    evidence={"missing_entity_id": f"item:{ordinal}"},
+                    minimal_repro={"entity_id": f"quest:{ordinal}"},
+                    status="confirmed",
+                    confidence=1.0,
+                    message=f"missing item {ordinal}",
+                ),
+            )
+            digest = finding_revision_digest(finding)
+            evidence_id = f"artifact:evidence:{prefix}:{ordinal}"
+            artifacts.append(_artifact(evidence_id, payload_hash=HASH_B))
+            revisions.append(
+                FindingRevisionRow(
+                    finding_id=finding.finding_id,
+                    revision=1,
+                    revision_schema_version=finding.revision_schema_version,
+                    supersedes_revision=None,
+                    created_at=finding.created_at,
+                    payload=finding.payload.model_dump(mode="json"),
+                    finding_digest=digest,
+                )
+            )
+            heads.append(
+                FindingHeadRow(
+                    finding_id=finding.finding_id,
+                    current_revision=1,
+                    current_digest=digest,
+                    row_revision=1,
+                    updated_at=NOW,
+                )
+            )
+            links.append(
+                RunFindingLinkV1(
+                    run_id=run.run_id,
+                    attempt_no=1,
+                    ordinal=ordinal_base + ordinal,
+                    finding_id=finding.finding_id,
+                    finding_revision=1,
+                    finding_digest=digest,
+                    evidence_artifact_id=evidence_id,
+                )
+            )
+        with Session(engine, autoflush=False, expire_on_commit=False) as session:
+            with session.begin():
+                session.add_all((*artifacts, *revisions))
+                session.flush()
+                session.add_all(heads)
+        return tuple(links)
+
+    def exercise(
+        prefix: str,
+        count: int,
+    ) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
+        links = prepare(prefix, count)
+        selects: list[str] = []
+        writes_seen: list[str] = []
+        flushes = 0
+
+        def observe_statement(
+            _connection: object,
+            _cursor: object,
+            statement: str,
+            _parameters: object,
+            _context: object,
+            _executemany: bool,
+        ) -> None:
+            operation = statement.lstrip().upper().split(maxsplit=1)[0]
+            if operation == "SELECT":
+                selects.append(statement)
+            elif operation in {"INSERT", "UPDATE", "DELETE"}:
+                writes_seen.append(statement)
+
+        def observe_flush(
+            _session: Session,
+            _flush_context: object,
+            _instances: object,
+        ) -> None:
+            nonlocal flushes
+            flushes += 1
+
+        with Session(engine, autoflush=False, expire_on_commit=False) as session:
+            event.listen(engine, "before_cursor_execute", observe_statement)
+            event.listen(session, "before_flush", observe_flush)
+            try:
+                with session.begin():
+                    repository = SqlRunRepository(session)
+                    seal = repository.preflight_finding_links_many(links)
+                    preflight_counts = (len(selects), len(writes_seen), flushes)
+                    selects.clear()
+                    writes_seen.clear()
+                    assert repository.put_preflighted_finding_links_many(seal) == links
+                    write_counts = (len(selects), len(writes_seen), flushes)
+            finally:
+                event.remove(session, "before_flush", observe_flush)
+                event.remove(engine, "before_cursor_execute", observe_statement)
+        return preflight_counts, write_counts
+
+    expected = ((6, 0, 0), (0, 1, 0))
+    assert exercise("single", 1) == expected
+    assert exercise("batch", 8) == expected
+    assert exercise("chunked", 301) == ((8, 0, 0), (0, 1, 0))
+
+
+def test_finding_link_preflight_seal_rejects_cross_transaction_and_reuse_before_dml(
+    engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    run, _ = _claim(engine)
+    finding = FindingRevisionV1(
+        finding_id="finding:sealed-link",
+        revision=1,
+        created_at=NOW,
+        payload=FindingPayloadV1(
+            source="checker",
+            producer_id="graph-checker@1",
+            producer_run_id=run.run_id,
+            oracle_type="deterministic",
+            defect_class="dangling_reference",
+            severity="major",
+            snapshot_id="snapshot:1",
+            entities=["quest:sealed-link"],
+            relations=[],
+            evidence={"missing_entity_id": "item:sealed-link"},
+            minimal_repro={"entity_id": "quest:sealed-link"},
+            status="confirmed",
+            confidence=1.0,
+            message="sealed missing item",
+        ),
+    )
+    digest = finding_revision_digest(finding)
+    evidence_id = "artifact:evidence:sealed-link"
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        session.add(_artifact(evidence_id, payload_hash=HASH_B))
+        session.add(
+            FindingRevisionRow(
+                finding_id=finding.finding_id,
+                revision=finding.revision,
+                revision_schema_version=finding.revision_schema_version,
+                supersedes_revision=None,
+                created_at=finding.created_at,
+                payload=finding.payload.model_dump(mode="json"),
+                finding_digest=digest,
+            )
+        )
+        session.flush()
+        session.add(
+            FindingHeadRow(
+                finding_id=finding.finding_id,
+                current_revision=1,
+                current_digest=digest,
+                row_revision=1,
+                updated_at=NOW,
+            )
+        )
+    link = RunFindingLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        ordinal=1,
+        finding_id=finding.finding_id,
+        finding_revision=1,
+        finding_digest=digest,
+        evidence_artifact_id=evidence_id,
+    )
+    dml: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().split(maxsplit=1)[0] in {
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+        }:
+            dml.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe_statement)
+    try:
+        with Session(engine, autoflush=False, expire_on_commit=False) as owner, owner.begin():
+            repository = SqlRunRepository(owner)
+            seal = repository.preflight_finding_links_many((link,))
+            with pytest.raises(TypeError):
+                replace(seal)
+            with pytest.raises((AttributeError, TypeError)):
+                object.__setattr__(seal, "_row_parameters", ({"run_id": "forged"},))
+            try:
+                clone = copy(seal)
+            except TypeError:
+                pass
+            else:
+                with pytest.raises(IntegrityViolation, match="current transaction"):
+                    repository.put_preflighted_finding_links_many(clone)
+            assert dml == []
+
+            with Session(engine, autoflush=False, expire_on_commit=False) as other, other.begin():
+                with pytest.raises(IntegrityViolation, match="current transaction"):
+                    SqlRunRepository(other).put_preflighted_finding_links_many(seal)
+                assert dml == []
+
+            def fail_model_dump(*_args: object, **_kwargs: object) -> object:
+                raise AssertionError("apply must use precomputed row parameters")
+
+            monkeypatch.setattr(RunFindingLinkV1, "model_dump", fail_model_dump)
+            assert repository.put_preflighted_finding_links_many(seal) == (link,)
+            dml.clear()
+            with pytest.raises(IntegrityViolation, match="already been consumed"):
+                repository.put_preflighted_finding_links_many(seal)
+            assert dml == []
+    finally:
+        event.remove(engine, "before_cursor_execute", observe_statement)
+
+
+def test_put_finding_links_many_rejects_in_batch_semantic_duplicate_without_writes(
+    engine: Engine,
+) -> None:
+    retained = _persist_exact_finding_link(engine)
+    duplicate = retained.model_copy(update={"ordinal": 2})
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        with pytest.raises(IntegrityViolation, match="another ordinal"):
+            SqlRunRepository(session).put_finding_links_many((retained, duplicate))
+
+    with Session(engine) as session:
+        rows = session.scalars(
+            select(RunFindingLinkRow).where(
+                RunFindingLinkRow.run_id == retained.run_id,
+                RunFindingLinkRow.finding_id == retained.finding_id,
+                RunFindingLinkRow.finding_revision == retained.finding_revision,
+            )
+        ).all()
+        assert len(rows) == 1
+
+
+def test_finding_link_preflight_detects_retained_drift_before_the_first_dml(
+    engine: Engine,
+) -> None:
+    retained = _persist_exact_finding_link(engine)
+    duplicate = retained.model_copy(update={"ordinal": retained.ordinal + 1})
+    dml: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().split(maxsplit=1)[0] in {
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+        }:
+            dml.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe_statement)
+    try:
+        with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+            with pytest.raises(IntegrityViolation, match="another ordinal"):
+                SqlRunRepository(session).preflight_finding_links_many((duplicate,))
+    finally:
+        event.remove(engine, "before_cursor_execute", observe_statement)
+
+    assert dml == []
+
+
+def test_finding_link_preflight_accepts_exact_planned_finding_and_evidence_overlay(
+    engine: Engine,
+) -> None:
+    run, _ = _claim(engine)
+    finding = FindingRevisionV1(
+        finding_id="finding:planned",
+        revision=1,
+        created_at=NOW,
+        payload=FindingPayloadV1(
+            source="checker",
+            producer_id="graph-checker@1",
+            producer_run_id=run.run_id,
+            oracle_type="deterministic",
+            defect_class="dangling_reference",
+            severity="major",
+            snapshot_id="snapshot:1",
+            entities=["quest:planned"],
+            relations=[],
+            evidence={"missing_entity_id": "item:planned"},
+            minimal_repro={"entity_id": "quest:planned"},
+            status="confirmed",
+            confidence=1.0,
+            message="planned missing item",
+        ),
+    )
+    digest = finding_revision_digest(finding)
+    evidence_id = "artifact:evidence:planned"
+    link = RunFindingLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        ordinal=1,
+        finding_id=finding.finding_id,
+        finding_revision=finding.revision,
+        finding_digest=digest,
+        evidence_artifact_id=evidence_id,
+    )
+    dml: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().split(maxsplit=1)[0] in {
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+        }:
+            dml.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe_statement)
+    try:
+        with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+            repository = SqlRunRepository(session)
+            seal = repository.preflight_finding_links_many(
+                (link,),
+                planned_findings=(finding,),
+                planned_artifact_ids=(evidence_id,),
+            )
+            assert dml == []
+            assert session.get(FindingRevisionRow, (finding.finding_id, 1)) is None
+            assert session.get(ArtifactRow, evidence_id) is None
+            session.add(_artifact(evidence_id, payload_hash=HASH_B))
+            session.add(
+                FindingRevisionRow(
+                    finding_id=finding.finding_id,
+                    revision=finding.revision,
+                    revision_schema_version=finding.revision_schema_version,
+                    supersedes_revision=finding.supersedes_revision,
+                    created_at=finding.created_at,
+                    payload=finding.payload.model_dump(mode="json"),
+                    finding_digest=digest,
+                )
+            )
+            session.flush()
+            session.add(
+                FindingHeadRow(
+                    finding_id=finding.finding_id,
+                    current_revision=1,
+                    current_digest=digest,
+                    row_revision=1,
+                    updated_at=NOW,
+                )
+            )
+            session.flush()
+            assert repository.put_preflighted_finding_links_many(seal) == (link,)
+    finally:
+        event.remove(engine, "before_cursor_execute", observe_statement)
+
+    with Session(engine) as session:
+        assert SqlRunRepository(session).get_finding_link(run.run_id, 1, 1) == link
+
+
+@pytest.mark.parametrize(
+    ("link_update", "planned_artifact_ids", "message"),
+    [
+        ({"finding_digest": HASH_A}, ("artifact:evidence:planned",), "digest differs"),
+        (
+            {"evidence_artifact_id": "artifact:evidence:wrong"},
+            ("artifact:evidence:planned",),
+            "evidence artifact",
+        ),
+        ({"finding_id": "finding:wrong"}, ("artifact:evidence:planned",), "Finding revision"),
+    ],
+)
+def test_finding_link_preflight_rejects_inexact_planned_overlay(
+    engine: Engine,
+    link_update: dict[str, str],
+    planned_artifact_ids: tuple[str, ...],
+    message: str,
+) -> None:
+    run, _ = _claim(engine)
+    finding = FindingRevisionV1(
+        finding_id="finding:planned",
+        revision=1,
+        created_at=NOW,
+        payload=FindingPayloadV1(
+            source="checker",
+            producer_id="graph-checker@1",
+            producer_run_id=run.run_id,
+            oracle_type="deterministic",
+            defect_class="dangling_reference",
+            severity="major",
+            snapshot_id="snapshot:1",
+            entities=["quest:planned"],
+            relations=[],
+            evidence={"missing_entity_id": "item:planned"},
+            minimal_repro={"entity_id": "quest:planned"},
+            status="confirmed",
+            confidence=1.0,
+            message="planned missing item",
+        ),
+    )
+    link = RunFindingLinkV1(
+        run_id=run.run_id,
+        attempt_no=1,
+        ordinal=1,
+        finding_id=finding.finding_id,
+        finding_revision=1,
+        finding_digest=finding_revision_digest(finding),
+        evidence_artifact_id="artifact:evidence:planned",
+    ).model_copy(update=link_update)
+    dml: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().split(maxsplit=1)[0] in {
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+        }:
+            dml.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe_statement)
+    try:
+        with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+            with pytest.raises(IntegrityViolation, match=message):
+                SqlRunRepository(session).preflight_finding_links_many(
+                    (link,),
+                    planned_findings=(finding,),
+                    planned_artifact_ids=planned_artifact_ids,
+                )
+    finally:
+        event.remove(engine, "before_cursor_execute", observe_statement)
+
+    assert dml == []
+
+
+def test_put_finding_links_many_is_idempotent_for_exact_duplicate_input(
+    engine: Engine,
+) -> None:
+    retained = _persist_exact_finding_link(engine)
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = SqlRunRepository(session)
+        assert repository.put_finding_links_many((retained, retained)) == (
+            retained,
+            retained,
+        )
+
+    with Session(engine) as session:
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(RunFindingLinkRow)
+                .where(
+                    RunFindingLinkRow.run_id == retained.run_id,
+                    RunFindingLinkRow.finding_id == retained.finding_id,
+                    RunFindingLinkRow.finding_revision == retained.finding_revision,
+                )
+            )
+            == 1
+        )
+
+
 def test_attempt_start_renew_and_progress_use_exact_cas_and_roll_back_together(
     engine: Engine,
 ) -> None:
@@ -2461,6 +3039,7 @@ def test_command_id_is_globally_unique_across_runs(engine: Engine) -> None:
 
 def test_inactive_cancel_command_persists_terminal_cassette_atomically(
     engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     queued = _run(
         "run:command-cancel",
@@ -2535,6 +3114,13 @@ def test_inactive_cancel_command_persists_terminal_cassette_atomically(
         "terminal_failure_artifact_id": "artifact:command-cancel-failure",
         "terminal_cassette_artifact_id": "artifact:command-cancel-cassette",
     }
+    outstanding = _pending_command(
+        queued,
+        suffix="command-cancel-outstanding",
+        client_seq=2,
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.put_command(outstanding)
 
     mismatched_events = (
         (
@@ -2601,8 +3187,68 @@ def test_inactive_cancel_command_persists_terminal_cassette_atomically(
         assert repository.get_command(queued.run_id, command.command_id) is None
         assert repository.list_events(queued.run_id) == (_queued_event(queued),)
 
-    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
-        accepted = transaction.runs.accept_command(**accept_args)
+    statements: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        statements.append(statement.lstrip().upper().split(maxsplit=1)[0])
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = SqlRunRepository(session)
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            seal = repository.preflight_accept_terminal_command(**accept_args)
+            assert statements and set(statements) <= {"SELECT", "WITH"}
+            preflight_count = len(statements)
+            with pytest.raises((AttributeError, TypeError)):
+                object.__setattr__(seal, "forged_authority", object())
+            for clone_operation in (copy, deepcopy):
+                try:
+                    clone = clone_operation(seal)
+                except TypeError:
+                    continue
+                with pytest.raises(IntegrityViolation, match="trusted preflight seal"):
+                    repository.apply_preflighted_terminal_command(clone)
+            forged = object.__new__(type(seal))
+            with pytest.raises(IntegrityViolation, match="trusted preflight seal"):
+                repository.apply_preflighted_terminal_command(forged)
+            with pytest.raises(IntegrityViolation, match="another transaction"):
+                SqlRunRepository(session).apply_preflighted_terminal_command(seal)
+            with Session(engine, autoflush=False, expire_on_commit=False) as other:
+                with (
+                    other.begin(),
+                    pytest.raises(
+                        IntegrityViolation,
+                        match="another transaction",
+                    ),
+                ):
+                    SqlRunRepository(other).apply_preflighted_terminal_command(seal)
+            assert len(statements) == preflight_count
+
+            with monkeypatch.context() as patch:
+
+                def fail_model_dump(*_args: object, **_kwargs: object) -> object:
+                    raise AssertionError("terminal command apply must use precomputed values")
+
+                patch.setattr(RunRecord, "model_dump", fail_model_dump)
+                patch.setattr(RunEvent, "model_dump", fail_model_dump)
+                patch.setattr(RunCommandRecordV1, "model_dump", fail_model_dump)
+                accepted = repository.apply_preflighted_terminal_command(seal)
+            assert not any(
+                operation in {"SELECT", "WITH"} for operation in statements[preflight_count:]
+            )
+            statements.clear()
+            with pytest.raises(IntegrityViolation, match="already consumed"):
+                repository.apply_preflighted_terminal_command(seal)
+            assert statements == []
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
     assert accepted.run.status == "cancelled"
     assert accepted.run.failure_artifact_id == "artifact:command-cancel-failure"
     assert accepted.run.terminal_cassette_artifact_id == "artifact:command-cancel-cassette"
@@ -2610,6 +3256,10 @@ def test_inactive_cancel_command_persists_terminal_cassette_atomically(
         repository = SqlRunRepository(session)
         assert repository.get(queued.run_id) == accepted.run
         assert repository.get_command(queued.run_id, command.command_id) == record
+        rejected = repository.get_command(queued.run_id, outstanding.command.command_id)
+        assert rejected is not None
+        assert rejected.status == "rejected"
+        assert rejected.result_event_seq == terminal_event.seq
         assert repository.list_events(queued.run_id) == (
             _queued_event(queued),
             cancel_event,
@@ -2624,6 +3274,141 @@ def test_inactive_cancel_command_persists_terminal_cassette_atomically(
         assert repository.get(queued.run_id) == accepted.run
         assert repository.get_command(queued.run_id, command.command_id) == record
         assert repository.list_events(queued.run_id) == (cancel_event, terminal_event)
+
+
+@pytest.mark.parametrize("race", ("run_cas", "command_unique", "outstanding_cas"))
+def test_terminal_command_apply_races_roll_back_every_prior_dml(
+    engine: Engine,
+    race: str,
+) -> None:
+    queued = _run(
+        f"run:terminal-command-race:{race}",
+        idempotency_key=f"request:terminal-command-race:{race}",
+    )
+    _create(engine, queued)
+    with Session(engine) as session:
+        session.add(
+            _artifact(
+                f"artifact:terminal-command-race:{race}",
+                payload_hash=HASH_B,
+                kind="run_failure",
+            )
+        )
+        session.commit()
+    outstanding = _pending_command(
+        queued,
+        suffix=f"terminal-command-race:{race}:outstanding",
+        client_seq=2,
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.runs.put_command(outstanding)
+
+    command = RunCommandV1(
+        command_id=f"command:terminal-command-race:{race}",
+        client_id=f"browser:terminal-command-race:{race}",
+        client_seq=1,
+        idempotency_key=f"cancel:terminal-command-race:{race}",
+        expected_run_revision=queued.revision,
+        type="cancel",
+        payload_schema_id="run-cancel@1",
+        payload=CancelRunPayloadV1(reason_code="user_requested"),
+    )
+    cancel_event = RunEvent(
+        run_id=queued.run_id,
+        seq=queued.next_event_seq,
+        event_type="run.cancel_requested",
+        occurred_at=STARTED,
+        data_schema_version="cancel-requested@1",
+        data=CancelRequestedDataV1(
+            command_id=command.command_id,
+            reason_code="user_requested",
+        ),
+    )
+    terminal_event = RunEvent(
+        run_id=queued.run_id,
+        seq=cancel_event.seq + 1,
+        event_type="run.cancelled",
+        occurred_at=STARTED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            failure_artifact_id=f"artifact:terminal-command-race:{race}",
+            cause_code="cancelled",
+        ),
+    )
+    record = RunCommandRecordV1(
+        run_id=queued.run_id,
+        command=command,
+        request_hash=canonical_payload_hash(command),
+        actor=AuditActor(principal_id="human:a", principal_kind="human"),
+        status="applied",
+        revision=1,
+        created_at=STARTED,
+        applied_at=STARTED,
+        result_event_seq=cancel_event.seq,
+    )
+    preflight_args = {
+        "expected_run_revision": queued.revision,
+        "record": record,
+        "events": (cancel_event, terminal_event),
+        "terminal_status": "cancelled",
+        "terminal_failure_artifact_id": f"artifact:terminal-command-race:{race}",
+        "terminal_cassette_artifact_id": None,
+    }
+    expected_error = IdempotencyConflict if race == "command_unique" else Conflict
+
+    with pytest.raises(expected_error) as exc_info:
+        with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+            repository = SqlRunRepository(session)
+            seal = repository.preflight_accept_terminal_command(**preflight_args)
+            if race == "run_cas":
+                session.execute(
+                    update(RunRow)
+                    .where(RunRow.run_id == queued.run_id)
+                    .values(revision=queued.revision + 1)
+                )
+            elif race == "command_unique":
+                repository.put_command(
+                    _pending_command(
+                        queued,
+                        suffix=f"terminal-command-race:{race}",
+                        client_seq=command.client_seq,
+                    )
+                )
+            else:
+                session.execute(
+                    update(RunCommandRow)
+                    .where(
+                        RunCommandRow.run_id == queued.run_id,
+                        RunCommandRow.command_id == outstanding.command.command_id,
+                    )
+                    .values(revision=outstanding.revision + 1)
+                )
+            repository.apply_preflighted_terminal_command(seal)
+
+    if race == "command_unique":
+        assert exc_info.value.detail == (
+            "terminal Run command identity became bound after preflight"
+        )
+        assert exc_info.value.context == {
+            "run_id": queued.run_id,
+            "command_id": command.command_id,
+            "client_id": command.client_id,
+            "client_seq": command.client_seq,
+            "idempotency_key": command.idempotency_key,
+        }
+
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == queued
+        assert repository.get_command(queued.run_id, command.command_id) is None
+        assert (
+            repository.get_command(
+                queued.run_id,
+                outstanding.command.command_id,
+            )
+            == outstanding
+        )
+        assert repository.list_events(queued.run_id) == (_queued_event(queued),)
 
 
 def test_retry_close_releases_fence_without_preallocating_and_is_rollback_safe(
@@ -3097,6 +3882,452 @@ def test_active_success_and_failure_terminal_paths_close_attempt_and_lease(
     assert cancelled.lease is not None and cancelled.lease.status == "expired"
 
 
+def test_success_terminal_closure_preflights_all_reads_then_applies_dml_only(
+    engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queued = _run(
+        "run:success-seal",
+        idempotency_key="request:success-seal",
+        payload=_record_payload(),
+    )
+    _create(engine, queued)
+    started = _start_result(engine, queued)
+    with Session(engine) as session:
+        session.add_all(
+            (
+                _artifact("artifact:sealed-result", payload_hash=HASH_A),
+                _artifact(
+                    "artifact:sealed-attempt-cassette",
+                    payload_hash=HASH_B,
+                    kind="cassette_bundle",
+                ),
+                _artifact(
+                    "artifact:sealed-run-cassette",
+                    payload_hash=HASH_C,
+                    kind="cassette_bundle",
+                ),
+            )
+        )
+        session.commit()
+    succeeded_event = RunEvent(
+        run_id=queued.run_id,
+        seq=started.run.next_event_seq,
+        event_type="run.succeeded",
+        attempt_no=started.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="run-succeeded@1",
+        data=RunSucceededDataV1(
+            attempt_no=started.attempt.attempt_no,
+            result_artifact_id="artifact:sealed-result",
+        ),
+    )
+    statements: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        statements.append(statement.lstrip().upper().split(maxsplit=1)[0])
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = SqlRunRepository(session)
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            seal = repository.preflight_complete_attempt_success(
+                fence=_fence(started.run),
+                ended_at=ENDED,
+                result_artifact_id="artifact:sealed-result",
+                attempt_cassette_artifact_id="artifact:sealed-attempt-cassette",
+                terminal_cassette_artifact_id="artifact:sealed-run-cassette",
+                event=succeeded_event,
+            )
+            assert statements and set(statements) == {"SELECT"}
+            preflight_count = len(statements)
+
+            with pytest.raises((AttributeError, TypeError)):
+                object.__setattr__(seal, "forged_authority", object())
+            try:
+                cloned = copy(seal)
+            except TypeError:
+                pass
+            else:
+                with pytest.raises(IntegrityViolation, match="trusted preflight seal"):
+                    repository.apply_preflighted_terminal_closure(cloned)
+            with pytest.raises(IntegrityViolation, match="another transaction"):
+                SqlRunRepository(session).apply_preflighted_terminal_closure(seal)
+            with Session(engine, autoflush=False, expire_on_commit=False) as other:
+                with (
+                    other.begin(),
+                    pytest.raises(
+                        IntegrityViolation,
+                        match="another transaction",
+                    ),
+                ):
+                    SqlRunRepository(other).apply_preflighted_terminal_closure(seal)
+            assert len(statements) == preflight_count
+
+            def fail_model_dump(*_args: object, **_kwargs: object) -> object:
+                raise AssertionError("terminal apply must use precomputed row parameters")
+
+            monkeypatch.setattr(RunRecord, "model_dump", fail_model_dump)
+            monkeypatch.setattr(RunEvent, "model_dump", fail_model_dump)
+            terminal = repository.apply_preflighted_terminal_closure(seal)
+            apply_statements = statements[preflight_count:]
+            assert apply_statements
+            assert "SELECT" not in apply_statements
+            assert terminal.run.status == "succeeded"
+            assert terminal.event == succeeded_event
+
+            statements.clear()
+            with pytest.raises(IntegrityViolation, match="already been consumed"):
+                repository.apply_preflighted_terminal_closure(seal)
+            assert statements == []
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+
+def test_terminal_preflight_never_scans_immutable_history_at_zero_one_or_many_attempts(
+    engine: Engine,
+) -> None:
+    queued = _run(
+        "run:terminal-head:queued",
+        idempotency_key="request:terminal-head:queued",
+    )
+    _create(engine, queued)
+
+    active_run = _run(
+        "run:terminal-head:active",
+        idempotency_key="request:terminal-head:active",
+    )
+    _create(engine, active_run)
+    active = _start_result(engine, active_run)
+
+    history_run = _run(
+        "run:terminal-head:history",
+        idempotency_key="request:terminal-head:history",
+    )
+    _create(engine, history_run)
+    first = _start_result(engine, history_run)
+    with Session(engine) as session:
+        session.add_all(
+            (
+                _artifact("artifact:history-failure:1", payload_hash=HASH_A),
+                _artifact("artifact:history-failure:2", payload_hash=HASH_B),
+            )
+        )
+        session.commit()
+
+    first_decision = _retry_decision(first.run)
+    first_retry_event = RunEvent(
+        run_id=first.run.run_id,
+        seq=first.run.next_event_seq,
+        event_type="attempt.retry_scheduled",
+        attempt_no=first.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="retry-scheduled@1",
+        data=RetryScheduledDataV1(
+            attempt_no=first.attempt.attempt_no,
+            failure_artifact_id="artifact:history-failure:1",
+            cause_code=first_decision.cause_code,
+            failure_class=first_decision.failure_class,
+            retry_decision=first_decision,
+            retry_not_before_utc=first_decision.retry_not_before_utc or "",
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        first_closed = transaction.runs.close_attempt_for_retry(
+            fence=_fence(first.run),
+            ended_at=ENDED,
+            attempt_status="failed",
+            lease_status="closed",
+            failure_class=first_decision.failure_class,
+            failure_artifact_id="artifact:history-failure:1",
+            attempt_cassette_artifact_id=None,
+            retry_decision=first_decision,
+            events=(first_retry_event,),
+        )
+
+    second_acquired = first_decision.retry_not_before_utc or ""
+    second_started_at = "2026-07-14T09:00:00.600000Z"
+    second_ended_at = "2026-07-14T09:00:00.700000Z"
+    second_retry_at = "2026-07-14T09:00:00.800000Z"
+    second_lease_id = "lease:run:terminal-head:history:2"
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        second_claim = transaction.runs.claim(
+            run_id=first_closed.run.run_id,
+            expected_revision=first_closed.run.revision,
+            worker_principal_id="service:worker:history:2",
+            lease_id=second_lease_id,
+            acquired_at=second_acquired,
+            expires_at="2026-07-14T09:00:02Z",
+            permit_group_id="permit:run:terminal-head:history:2",
+        )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        second = transaction.runs.start_attempt(
+            run_id=second_claim.run.run_id,
+            attempt_no=second_claim.attempt.attempt_no,
+            expected_run_revision=second_claim.run.revision,
+            lease_id=second_lease_id,
+            fencing_token=second_claim.attempt.fencing_token,
+            started_at=second_started_at,
+            attempt_deadline_utc="2026-07-14T09:00:01.600000Z",
+        )
+    second_decision = _retry_decision(second.run).model_copy(
+        update={
+            "retry_not_before_utc": second_retry_at,
+            "evaluated_at_utc": second_ended_at,
+        }
+    )
+    second_retry_event = RunEvent(
+        run_id=second.run.run_id,
+        seq=second.run.next_event_seq,
+        event_type="attempt.retry_scheduled",
+        attempt_no=second.attempt.attempt_no,
+        occurred_at=second_ended_at,
+        data_schema_version="retry-scheduled@1",
+        data=RetryScheduledDataV1(
+            attempt_no=second.attempt.attempt_no,
+            failure_artifact_id="artifact:history-failure:2",
+            cause_code=second_decision.cause_code,
+            failure_class=second_decision.failure_class,
+            retry_decision=second_decision,
+            retry_not_before_utc=second_retry_at,
+        ),
+    )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        many_history = transaction.runs.close_attempt_for_retry(
+            fence=AttemptWriteFence(
+                run_id=second.run.run_id,
+                attempt_no=second.attempt.attempt_no,
+                expected_run_revision=second.run.revision,
+                lease_id=second_lease_id,
+                fencing_token=second.attempt.fencing_token,
+            ),
+            ended_at=second_ended_at,
+            attempt_status="failed",
+            lease_status="closed",
+            failure_class=second_decision.failure_class,
+            failure_artifact_id="artifact:history-failure:2",
+            attempt_cassette_artifact_id=None,
+            retry_decision=second_decision,
+            events=(second_retry_event,),
+        )
+
+    terminal_decision = RetryDecisionV1(
+        cause_code="cancelled",
+        failure_class="cancelled",
+        intrinsic_retry_eligible=False,
+        decision="terminal",
+        reason_code="not_retry_eligible",
+        classifier=queued.failure_classifier,
+        retry_policy=queued.retry_policy,
+        evaluated_at_utc=ENDED,
+    )
+
+    def capture(preflight) -> tuple[str, ...]:
+        statements: list[str] = []
+
+        def observe(
+            _connection: object,
+            _cursor: object,
+            statement: str,
+            _parameters: object,
+            _context: object,
+            _executemany: bool,
+        ) -> None:
+            if statement.lstrip().upper().startswith("SELECT"):
+                statements.append(" ".join(statement.lower().split()))
+
+        event.listen(engine, "before_cursor_execute", observe)
+        try:
+            with Session(engine, autoflush=False, expire_on_commit=False) as session:
+                with session.begin():
+                    preflight(SqlRunRepository(session))
+        finally:
+            event.remove(engine, "before_cursor_execute", observe)
+        return tuple(statements)
+
+    queued_event = RunEvent(
+        run_id=queued.run_id,
+        seq=queued.next_event_seq,
+        event_type="run.cancelled",
+        occurred_at=ENDED,
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            failure_artifact_id="artifact:terminal-head:queued",
+            cause_code="cancelled",
+        ),
+    )
+    active_event = RunEvent(
+        run_id=active.run.run_id,
+        seq=active.run.next_event_seq,
+        event_type="run.succeeded",
+        attempt_no=active.attempt.attempt_no,
+        occurred_at=ENDED,
+        data_schema_version="run-succeeded@1",
+        data=RunSucceededDataV1(
+            attempt_no=active.attempt.attempt_no,
+            result_artifact_id="artifact:terminal-head:active",
+        ),
+    )
+    history_event = RunEvent(
+        run_id=many_history.run.run_id,
+        seq=many_history.run.next_event_seq,
+        event_type="run.cancelled",
+        occurred_at="2026-07-14T09:00:00.900000Z",
+        data_schema_version="run-terminated@1",
+        data=RunTerminatedDataV1(
+            attempt_no=many_history.attempt.attempt_no,
+            failure_artifact_id="artifact:terminal-head:history",
+            cause_code="cancelled",
+        ),
+    )
+    projections = (
+        (
+            0,
+            capture(
+                lambda repository: repository.preflight_terminate_inactive_run(
+                    run_id=queued.run_id,
+                    expected_run_revision=queued.revision,
+                    run_status="cancelled",
+                    failure_artifact_id="artifact:terminal-head:queued",
+                    terminal_cassette_artifact_id=None,
+                    retry_decision=terminal_decision,
+                    event=queued_event,
+                )
+            ),
+        ),
+        (
+            1,
+            capture(
+                lambda repository: repository.preflight_complete_attempt_success(
+                    fence=_fence(active.run),
+                    ended_at=ENDED,
+                    result_artifact_id="artifact:terminal-head:active",
+                    attempt_cassette_artifact_id=None,
+                    terminal_cassette_artifact_id=None,
+                    event=active_event,
+                )
+            ),
+        ),
+        (
+            2,
+            capture(
+                lambda repository: repository.preflight_terminate_inactive_run(
+                    run_id=many_history.run.run_id,
+                    expected_run_revision=many_history.run.revision,
+                    run_status="cancelled",
+                    failure_artifact_id="artifact:terminal-head:history",
+                    terminal_cassette_artifact_id=None,
+                    retry_decision=terminal_decision.model_copy(
+                        update={
+                            "classifier": many_history.run.failure_classifier,
+                            "retry_policy": many_history.run.retry_policy,
+                            "evaluated_at_utc": history_event.occurred_at,
+                        }
+                    ),
+                    event=history_event,
+                )
+            ),
+        ),
+    )
+
+    for attempt_history_count, statements in projections:
+        assert len(statements) == 2, attempt_history_count
+        assert all("run_events" not in statement for statement in statements)
+        assert all("run_intermediate_artifact_links" not in statement for statement in statements)
+        assert all(
+            aggregate not in statement
+            for statement in statements
+            for aggregate in ("count(", "min(", "max(", "sum(")
+        )
+        attempt_reads = tuple(statement for statement in statements if "run_attempts" in statement)
+        assert len(attempt_reads) == 1
+        assert "run_attempts.attempt_no" in attempt_reads[0]
+
+    queued_run_head_sql = capture(
+        lambda repository: repository.get_run_write_authority(queued.run_id)
+    )
+    active_run_head_sql = capture(
+        lambda repository: repository.get_run_write_authority(active.run.run_id)
+    )
+    history_run_head_sql = capture(
+        lambda repository: repository.get_run_write_authority(many_history.run.run_id)
+    )
+    assert queued_run_head_sql == active_run_head_sql == history_run_head_sql
+    assert len(queued_run_head_sql) == 1
+    assert "run_events" not in queued_run_head_sql[0]
+    assert all(
+        aggregate not in queued_run_head_sql[0] for aggregate in ("count(", "min(", "max(", "sum(")
+    )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        third_claim = transaction.runs.claim(
+            run_id=many_history.run.run_id,
+            expected_revision=many_history.run.revision,
+            worker_principal_id="service:worker:history:3",
+            lease_id="lease:run:terminal-head:history:3",
+            acquired_at=second_retry_at,
+            expires_at="2026-07-14T09:00:02.500000Z",
+            permit_group_id="permit:run:terminal-head:history:3",
+        )
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        third = transaction.runs.start_attempt(
+            run_id=third_claim.run.run_id,
+            attempt_no=third_claim.attempt.attempt_no,
+            expected_run_revision=third_claim.run.revision,
+            lease_id=third_claim.lease.lease_id,
+            fencing_token=third_claim.attempt.fencing_token,
+            started_at="2026-07-14T09:00:00.900000Z",
+            attempt_deadline_utc="2026-07-14T09:00:01.900000Z",
+        )
+
+    first_attempt_projection_sql = capture(
+        lambda repository: repository.terminal_attempt_authority_projection(active.run.run_id)
+    )
+    third_attempt_projection_sql = capture(
+        lambda repository: repository.terminal_attempt_authority_projection(third.run.run_id)
+    )
+    assert first_attempt_projection_sql == third_attempt_projection_sql
+    assert len(first_attempt_projection_sql) == 6
+    assert all("run_events" not in statement for statement in first_attempt_projection_sql)
+    for statement in first_attempt_projection_sql:
+        if any(
+            table in statement
+            for table in (
+                "run_intermediate_artifact_links",
+                "run_tool_intermediate_links",
+                "run_model_route_links",
+                "run_model_response_consumptions",
+            )
+        ):
+            assert ".attempt_no = ?" in statement
+
+    first_head_sql = capture(
+        lambda repository: repository.get_attempt_write_authority(_fence(active.run))
+    )
+    third_head_sql = capture(
+        lambda repository: repository.get_attempt_write_authority(
+            AttemptWriteFence(
+                run_id=third.run.run_id,
+                attempt_no=third.attempt.attempt_no,
+                expected_run_revision=third.run.revision,
+                lease_id=third_claim.lease.lease_id,
+                fencing_token=third.attempt.fencing_token,
+            )
+        )
+    )
+    assert first_head_sql == third_head_sql
+    assert len(first_head_sql) == 1
+    assert "run_events" not in first_head_sql[0]
+    assert "count(" not in first_head_sql[0]
+
+
 def test_cancelled_attempt_may_close_after_its_deadline_with_deadline_decision(
     engine: Engine,
 ) -> None:
@@ -3194,9 +4425,9 @@ def test_terminal_attempt_cassette_cas_failure_rolls_back_run_and_event(
         )
         session.commit()
 
-    original_close = SqlRunRepository._close_active_attempt
+    original_apply = SqlRunRepository.apply_preflighted_terminal_closure
 
-    def race_attempt_cassette(self: SqlRunRepository, **kwargs: object) -> None:
+    def race_attempt_cassette(self: SqlRunRepository, seal: object) -> object:
         self._session.execute(
             update(RunAttemptRow)
             .where(
@@ -3205,11 +4436,11 @@ def test_terminal_attempt_cassette_cas_failure_rolls_back_run_and_event(
             )
             .values(cassette_bundle_artifact_id="artifact:existing-attempt-cassette")
         )
-        original_close(self, **kwargs)
+        return original_apply(self, seal)
 
     monkeypatch.setattr(
         SqlRunRepository,
-        "_close_active_attempt",
+        "apply_preflighted_terminal_closure",
         race_attempt_cassette,
     )
 

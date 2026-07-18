@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.cassette_import import LegacyImportRoutingDecisionV1
+from gameforge.contracts.cost import ReservationGroupV1
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.jobs import (
     RunModelRouteLinkV1,
@@ -96,28 +97,70 @@ def _route_decision(
     return decision
 
 
-def _failed_route_transport_attempt(
+def _reservation_route_key(
+    group: ReservationGroupV1,
+) -> tuple[tuple[int, str, str, int, int], int] | None:
+    """Parse the frozen attempt-call idempotency authority exactly once."""
+
+    if group.scope != "attempt_call" or group.status == "released":
+        return None
+    if group.attempt_no is None or group.request_hash is None or group.transport_attempt is None:
+        raise IntegrityViolation("attempt-call reservation omits its route authority")
+    prefix = "model-route:"
+    marker = ":call:"
+    if not group.idempotency_key.startswith(prefix) or marker not in group.idempotency_key:
+        raise IntegrityViolation("attempt-call reservation idempotency is malformed")
+    decision_id, suffix = group.idempotency_key[len(prefix) :].split(marker, 1)
+    parts = suffix.split(":")
+    if not decision_id or len(parts) != 5 or parts[1] != "route" or parts[3] != "transport":
+        raise IntegrityViolation("attempt-call reservation idempotency is malformed")
+    try:
+        call_ordinal = int(parts[0])
+        route_ordinal = int(parts[2])
+        transport_attempt = int(parts[4])
+    except ValueError as exc:
+        raise IntegrityViolation("attempt-call reservation idempotency is malformed") from exc
+    if (
+        call_ordinal < 1
+        or route_ordinal < 1
+        or transport_attempt < 1
+        or transport_attempt != group.transport_attempt
+    ):
+        raise IntegrityViolation("attempt-call reservation idempotency is inconsistent")
+    return (
+        (
+            group.attempt_no,
+            group.request_hash,
+            decision_id,
+            call_ordinal,
+            route_ordinal,
+        ),
+        transport_attempt,
+    )
+
+
+def _failed_route_transport_attempts(
     *,
     transaction: object,
-    route: RunModelRouteLinkV1,
-) -> int | None:
-    attempts = tuple(
-        group.transport_attempt
-        for group in transaction.cost.list_attempt_reservation_groups(  # type: ignore[attr-defined]
-            run_id=route.run_id,
-            attempt_no=route.attempt_no,
+    routes: tuple[RunModelRouteLinkV1, ...],
+) -> dict[tuple[int, str, str, int, int], int]:
+    """Index reservation evidence once instead of rescanning it for every route."""
+
+    attempts_by_route: dict[tuple[int, str, str, int, int], int] = {}
+    for attempt_no in dict.fromkeys(route.attempt_no for route in routes):
+        groups = transaction.cost.list_attempt_reservation_groups(  # type: ignore[attr-defined]
+            run_id=routes[0].run_id,
+            attempt_no=attempt_no,
         )
-        if group.scope == "attempt_call"
-        and group.request_hash == f"sha256:{route.request_hash}"
-        and f"model-route:{route.routing_decision_id}:call:{route.call_ordinal}:"
-        in (group.idempotency_key)
-        and f":route:{route.route_ordinal}:" in group.idempotency_key
-        and group.transport_attempt is not None
-        and group.status != "released"
-    )
-    # A route is immutable immediately before reserve-before-use. If admission
-    # itself rejects, no transport happened and the exact value is null.
-    return max(attempts, default=None)
+        for group in groups:
+            if not isinstance(group, ReservationGroupV1):
+                raise IntegrityViolation("attempt reservation authority is invalid")
+            parsed = _reservation_route_key(group)
+            if parsed is None:
+                continue
+            key, transport_attempt = parsed
+            attempts_by_route[key] = max(attempts_by_route.get(key, 0), transport_attempt)
+    return attempts_by_route
 
 
 def build_authoritative_execution_identity(
@@ -168,6 +211,14 @@ def build_authoritative_execution_identity(
         if pending_key in consumptions:
             raise IntegrityViolation("pending response route was already consumed")
 
+    failed_transport_attempts = _failed_route_transport_attempts(
+        transaction=transaction,
+        routes=routes,
+    )
+    nodes_by_id = {node.agent_node_id: node for node in plan.nodes}
+    if len(nodes_by_id) != len(plan.nodes):
+        raise IntegrityViolation("frozen execution plan repeats an Agent node")
+
     bindings: list[InvocationVersionBindingV1] = []
     pending_seen = False
     for route in routes:
@@ -176,10 +227,7 @@ def build_authoritative_execution_identity(
             object_store=object_store,
             route=route,
         )
-        node = next(
-            (item for item in plan.nodes if item.agent_node_id == rendered.agent_node_id),
-            None,
-        )
+        node = nodes_by_id.get(rendered.agent_node_id)
         rendered_model = canonical_model_snapshot_id(rendered.model_snapshot)
         renderer_version = artifact.meta.get("renderer_version")
         agent_tool_version = artifact.meta.get("agent_tool_version")
@@ -228,7 +276,15 @@ def build_authoritative_execution_identity(
         else:
             execution_source = decision.execution_source
             transport_attempt = (
-                _failed_route_transport_attempt(transaction=transaction, route=route)
+                failed_transport_attempts.get(
+                    (
+                        route.attempt_no,
+                        f"sha256:{route.request_hash}",
+                        route.routing_decision_id,
+                        route.call_ordinal,
+                        route.route_ordinal,
+                    )
+                )
                 if execution_source == "online"
                 else None
             )

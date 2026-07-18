@@ -310,11 +310,7 @@ class SqlApprovalRepository:
 
     def insert_draft(self, item: ApprovalItem) -> ApprovalItem:
         candidate = _revalidate_contract(item, ApprovalItem, label="approval draft")
-        if (
-            candidate.status != "draft"
-            or candidate.workflow_revision != 1
-            or candidate.decisions
-        ):
+        if candidate.status != "draft" or candidate.workflow_revision != 1 or candidate.decisions:
             raise IntegrityViolation(
                 "approval draft must have status=draft, workflow_revision=1, and no decisions",
                 approval_id=candidate.approval_id,
@@ -372,6 +368,27 @@ class SqlApprovalRepository:
                 approval_id=candidate.approval_id,
             )
         return candidate
+
+    def apply_preflighted_insert_draft(self, item: ApprovalItem) -> ApprovalItem:
+        """Insert one planning-validated draft without any diagnostic SELECT."""
+
+        try:
+            result = self._session.execute(
+                sqlite_insert(ApprovalItemRow)
+                .values(**_approval_values(item))
+                .on_conflict_do_nothing()
+            )
+        except IntegrityError as exc:
+            raise IntegrityViolation(
+                "preflighted approval draft violates persisted workflow references",
+                approval_id=item.approval_id,
+            ) from exc
+        if result.rowcount != 1:
+            raise Conflict(
+                "preflighted approval draft insert conflicted",
+                approval_id=item.approval_id,
+            )
+        return item
 
     def get(self, approval_id: str) -> ApprovalItem | None:
         identifier = _require_nonempty(approval_id, field_name="approval_id")
@@ -476,6 +493,40 @@ class SqlApprovalRepository:
         self._write_replacement(identifier, expected, candidate)
         return candidate
 
+    def apply_preflighted_compare_and_set(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        """DML-only CAS after the same transaction preflighted exact ``current``."""
+
+        self._verify_replacement(
+            current,
+            replacement,
+            allow_new_decision=None,
+            validation_completion=False,
+            verify_subject_artifact=False,
+        )
+        self._write_preflighted_replacement(current, replacement)
+        return replacement
+
+    def apply_preflighted_validation_completion(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        """DML-only validation CAS paired with the workflow preflight token."""
+
+        self._verify_replacement(
+            current,
+            replacement,
+            allow_new_decision=None,
+            validation_completion=True,
+            verify_subject_artifact=False,
+        )
+        self._write_preflighted_replacement(current, replacement)
+        return replacement
+
     def append_decision_and_compare_and_set(
         self,
         approval_id: str,
@@ -572,9 +623,7 @@ class SqlApprovalRepository:
                 actual_row,
                 expected_decision_id=decision_candidate.decision_id,
             )
-            if actual_row.approval_id != identifier or not _same_wire(
-                actual, decision_candidate
-            ):
+            if actual_row.approval_id != identifier or not _same_wire(actual, decision_candidate):
                 raise Conflict(
                     "decision id is already bound to different content",
                     decision_id=decision_candidate.decision_id,
@@ -735,6 +784,63 @@ class SqlApprovalRepository:
         self._session.expire_all()
         return candidate
 
+    def apply_preflighted_subject_head(
+        self,
+        *,
+        expected: SubjectHead | None,
+        expected_item: ApprovalItem | None,
+        replacement: SubjectHead,
+        replacement_item: ApprovalItem,
+    ) -> SubjectHead:
+        """Publish one same-transaction preflighted SubjectHead using DML only."""
+
+        values = {
+            "subject_series_id": replacement.subject_series_id,
+            "current_subject_artifact_id": replacement.current_subject_artifact_id,
+            "current_subject_revision": replacement_item.subject_revision,
+            "current_subject_digest": replacement_item.subject_digest,
+            "current_approval_id": replacement.current_approval_id,
+            "revision": replacement.revision,
+        }
+        if expected is None:
+            if expected_item is not None:
+                raise IntegrityViolation("new preflighted SubjectHead has an old item")
+            try:
+                result = self._session.execute(
+                    sqlite_insert(SubjectHeadRow)
+                    .values(**values)
+                    .on_conflict_do_nothing(index_elements=[SubjectHeadRow.subject_series_id])
+                )
+            except IntegrityError as exc:
+                raise IntegrityViolation(
+                    "preflighted SubjectHead violates persisted workflow references",
+                    subject_series_id=replacement.subject_series_id,
+                ) from exc
+        else:
+            if expected_item is None:
+                raise IntegrityViolation("superseding SubjectHead lacks its old item")
+            result = self._session.execute(
+                update(SubjectHeadRow)
+                .where(
+                    SubjectHeadRow.subject_series_id == expected.subject_series_id,
+                    SubjectHeadRow.current_subject_artifact_id
+                    == expected.current_subject_artifact_id,
+                    SubjectHeadRow.current_subject_revision == expected_item.subject_revision,
+                    SubjectHeadRow.current_subject_digest == expected_item.subject_digest,
+                    SubjectHeadRow.current_approval_id == expected.current_approval_id,
+                    SubjectHeadRow.revision == expected.revision,
+                )
+                .values(**values)
+                .execution_options(synchronize_session=False)
+            )
+        if result.rowcount != 1:
+            raise Conflict(
+                "preflighted SubjectHead CAS failed",
+                subject_series_id=replacement.subject_series_id,
+            )
+        self._session.expire_all()
+        return replacement
+
     def current(
         self,
         subject_series_id: str,
@@ -800,6 +906,7 @@ class SqlApprovalRepository:
         *,
         allow_new_decision: ApprovalDecision | None,
         validation_completion: bool,
+        verify_subject_artifact: bool = True,
     ) -> None:
         current_wire = current.model_dump(mode="python")
         replacement_wire = replacement.model_dump(mode="python")
@@ -816,8 +923,7 @@ class SqlApprovalRepository:
         if current.target_binding != replacement.target_binding:
             can_bind_constraint_once = (
                 validation_completion
-                and
-                current.subject_kind == "constraint_proposal"
+                and current.subject_kind == "constraint_proposal"
                 and current.target_binding is None
                 and replacement.target_binding is not None
             )
@@ -864,7 +970,8 @@ class SqlApprovalRepository:
                 "approval replacement decisions do not match append-only decision history",
                 approval_id=current.approval_id,
             )
-        self._verify_subject_artifact(replacement)
+        if verify_subject_artifact:
+            self._verify_subject_artifact(replacement)
 
     def _write_replacement(
         self,
@@ -899,6 +1006,38 @@ class SqlApprovalRepository:
                 actual_workflow_revision=(
                     None if actual_row is None else actual_row.workflow_revision
                 ),
+            )
+        self._session.expire_all()
+
+    def _write_preflighted_replacement(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> None:
+        """Execute one CAS UPDATE and never issue a diagnostic SELECT."""
+
+        values = _approval_values(replacement)
+        del values["approval_id"]
+        try:
+            result = self._session.execute(
+                update(ApprovalItemRow)
+                .where(
+                    ApprovalItemRow.approval_id == current.approval_id,
+                    ApprovalItemRow.workflow_revision == current.workflow_revision,
+                )
+                .values(**values)
+                .execution_options(synchronize_session=False)
+            )
+        except IntegrityError as exc:
+            raise IntegrityViolation(
+                "preflighted approval replacement violates persisted workflow references",
+                approval_id=current.approval_id,
+            ) from exc
+        if result.rowcount != 1:
+            raise Conflict(
+                "preflighted ApprovalItem CAS failed",
+                approval_id=current.approval_id,
+                expected_workflow_revision=current.workflow_revision,
             )
         self._session.expire_all()
 

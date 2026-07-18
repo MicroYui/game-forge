@@ -11,7 +11,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.auto_apply_ownership import auto_apply_ir_classifier_binding
-from gameforge.contracts.canonical import sha256_lowerhex
+from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileDefinitionV1,
@@ -56,6 +56,7 @@ from gameforge.platform.approvals.auto_apply_runtime import (
     ExactAutoApplyAuthority,
     ExactAutoApplyEligibilityRequest,
     ExactAutoApplyEligibilityService,
+    PreparedAutoApplyEligibility,
 )
 from gameforge.platform.publication.effects import (
     AutoApplyValidationRequest,
@@ -919,6 +920,40 @@ class GuardedAutoApplyValidationPort(AutoApplyValidationPort):
     eligibility: ExactAutoApplyEligibilityService
 
     def validate_completion(self, request: AutoApplyValidationRequest) -> None:
+        """Compatibility path; terminal publication uses prepare/commit below."""
+
+        prepared = self.prepare_completion(request)
+        self.commit_prepared_completion(prepared=prepared, request=request)
+
+    def prepare_completion(
+        self, request: AutoApplyValidationRequest
+    ) -> PreparedAutoApplyEligibility:
+        self._validate_request(request)
+        planned = _planned_auto_apply_records(request)
+        overlay = _PlannedOverlayAutoApplyAuthority(
+            retained=self.eligibility.authority,
+            planned=planned,
+        )
+        planning_service = ExactAutoApplyEligibilityService(
+            authority=overlay,
+            change_assessor=self.eligibility.change_assessor,
+        )
+        return planning_service.prepare_eligibility(self._eligibility_request(request))
+
+    def commit_prepared_completion(
+        self,
+        *,
+        prepared: PreparedAutoApplyEligibility,
+        request: AutoApplyValidationRequest,
+    ) -> None:
+        self._validate_request(request)
+        self.eligibility.commit_prepared_eligibility(
+            prepared=prepared,
+            request=self._eligibility_request(request),
+        )
+
+    @staticmethod
+    def _validate_request(request: AutoApplyValidationRequest) -> None:
         if (
             request.proof_artifact_id != request.proof_artifact.artifact_id
             or request.evidence_artifact_id != request.evidence_artifact.artifact_id
@@ -931,15 +966,92 @@ class GuardedAutoApplyValidationPort(AutoApplyValidationPort):
             raise IntegrityViolation(
                 "terminal auto-apply request differs from final publication authority"
             )
-        self.eligibility.validate_eligibility(
-            ExactAutoApplyEligibilityRequest(
-                run=request.run,
-                item=request.projected_item,
-                outcome_code=request.policy.outcome_code,
-                proof_artifact_id=request.proof_artifact_id,
-                evidence_set_artifact_id=request.evidence_artifact_id,
-            )
+
+    @staticmethod
+    def _eligibility_request(
+        request: AutoApplyValidationRequest,
+    ) -> ExactAutoApplyEligibilityRequest:
+        return ExactAutoApplyEligibilityRequest(
+            run=request.run,
+            item=request.projected_item,
+            outcome_code=request.policy.outcome_code,
+            proof_artifact_id=request.proof_artifact_id,
+            evidence_set_artifact_id=request.evidence_artifact_id,
         )
+
+
+@dataclass(frozen=True, slots=True)
+class _PlannedOverlayAutoApplyAuthority(ExactAutoApplyAuthority):
+    retained: ExactAutoApplyAuthority
+    planned: dict[str, ResolvedArtifactPayload]
+
+    def load_artifact(self, artifact_id: str) -> ResolvedArtifactPayload:
+        planned = self.planned.get(artifact_id)
+        return planned if planned is not None else self.retained.load_artifact(artifact_id)
+
+    def get_domain_registry(self, ref: DomainRegistryRefV1):
+        return self.retained.get_domain_registry(ref)
+
+    def get_auto_apply_policy_registry(self, ref: AutoApplyPolicyRegistryRefV1):
+        return self.retained.get_auto_apply_policy_registry(ref)
+
+    def get_deterministic_oracle_registry(self, ref: DeterministicOracleRegistryRefV1):
+        return self.retained.get_deterministic_oracle_registry(ref)
+
+    def resolve_execution_profile(self, binding: ResolvedExecutionProfileBindingV1):
+        return self.retained.resolve_execution_profile(binding)
+
+    def get_ref(self, ref_name: str):
+        return self.retained.get_ref(ref_name)
+
+
+def _planned_auto_apply_records(
+    request: AutoApplyValidationRequest,
+) -> dict[str, ResolvedArtifactPayload]:
+    if len(request.regression_artifacts) != len(request.regression_payloads):
+        raise IntegrityViolation("planned auto-apply regression closure is partial")
+    pairs: tuple[tuple[ArtifactV2, object], ...] = (
+        (request.evidence_artifact, request.evidence),
+        (request.proof_artifact, request.proof),
+        *tuple(
+            zip(
+                request.regression_artifacts,
+                request.regression_payloads,
+                strict=True,
+            )
+        ),
+    )
+    records: dict[str, ResolvedArtifactPayload] = {}
+    for artifact, payload in pairs:
+        schema = artifact.meta.get("payload_schema_id")
+        if not isinstance(schema, str) or not schema:
+            raise IntegrityViolation(
+                "planned auto-apply Artifact lacks payload schema",
+                artifact_id=artifact.artifact_id,
+            )
+        model_dump = getattr(payload, "model_dump", None)
+        value = model_dump(mode="json") if callable(model_dump) else payload
+        if not isinstance(value, dict):
+            raise IntegrityViolation("planned auto-apply payload is not an object")
+        payload_bytes = canonical_json(value).encode("utf-8")
+        if (
+            sha256_lowerhex(payload_bytes) != artifact.payload_hash
+            or artifact.object_ref.sha256 != artifact.payload_hash
+            or artifact.object_ref.size_bytes != len(payload_bytes)
+        ):
+            raise IntegrityViolation(
+                "planned auto-apply payload differs from its Artifact",
+                artifact_id=artifact.artifact_id,
+            )
+        record = ResolvedArtifactPayload(
+            artifact=artifact,
+            payload_schema_id=schema,
+            payload_bytes=payload_bytes,
+        )
+        existing = records.setdefault(artifact.artifact_id, record)
+        if existing != record:
+            raise IntegrityViolation("planned auto-apply Artifact ID is ambiguous")
+    return records
 
 
 def build_transaction_auto_apply_validation_port(

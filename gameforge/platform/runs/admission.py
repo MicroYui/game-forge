@@ -517,6 +517,17 @@ class ConservativeAttemptUsageProvider:
     def conservative_usage(self, *, group: Any, reservations: Any, recorded_at: datetime) -> Any:
         raise IntegrityViolation("attempt settlement is not an admission-scope operation")
 
+    def conservative_usage_many(
+        self,
+        *,
+        groups: Any,
+        recorded_at: datetime,
+    ) -> Any:
+        del recorded_at
+        if groups:
+            raise IntegrityViolation("attempt settlement is not an admission-scope operation")
+        return ()
+
 
 class AdmissionRunPublicationGateway:
     """Create-scope audit gateway (terminal publication is Task 9)."""

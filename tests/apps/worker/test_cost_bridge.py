@@ -1499,6 +1499,31 @@ def test_unknown_settlement_provider_uses_exact_persisted_route_and_upper_bound(
     assert usage.wall_time_ns == int(maxima["wall_time_ns"])
 
 
+def test_terminal_conservative_provider_uses_batch_path_without_scalar_fallback(
+    harness: _Harness,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reservation = harness.reserve()
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        group = ledger.get_reservation_group(reservation.reservation_group_id)
+        assert group is not None
+        members = ledger.list_budget_reservations(group.reservation_group_id)
+        provider = WorkerConservativeAttemptUsageProvider(ledger=ledger)
+
+        def reject_scalar(**_kwargs: object) -> None:
+            raise AssertionError("terminal closure must not use scalar settlement")
+
+        monkeypatch.setattr(provider, "conservative_usage", reject_scalar)
+        usages = provider.conservative_usage_many(
+            groups=tuple((group, members) for _ in range(8)),
+            recorded_at=NOW + timedelta(seconds=1),
+        )
+
+    assert len(usages) == 8
+    assert {item.routing_decision_id for item in usages} == {harness.decision.decision_id}
+
+
 def test_full_response_cache_reconciles_zero_token_usage_without_conservative_charge(
     harness: _Harness,
 ) -> None:

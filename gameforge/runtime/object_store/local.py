@@ -67,6 +67,7 @@ class _VerifiedGeneration:
     ref: ObjectRef
     location: ObjectLocation
     directory: Path
+    generation_verification_token: str
 
     def stored_object(self) -> StoredObject:
         return StoredObject(ref=self.ref, location=self.location)
@@ -76,6 +77,7 @@ class _VerifiedGeneration:
             ref=self.ref,
             location=self.location,
             verified_at=self.metadata.verified_at,
+            generation_verification_token=self.generation_verification_token,
         )
 
 
@@ -161,7 +163,13 @@ class LocalObjectStore:
             resource_kind="object_versions",
             filters={"store_id": store_id},
             stable_sort=("key:asc", "backend_generation:asc"),
-            page_projection=("ref", "location", "verified_at", "retention_until"),
+            page_projection=(
+                "ref",
+                "location",
+                "verified_at",
+                "retention_until",
+                "generation_verification_token",
+            ),
         )
         self._authz_fingerprint = canonical_sha256(
             {"scope": "local-object-store-internal", "store_id": store_id}
@@ -352,6 +360,42 @@ class LocalObjectStore:
 
     def stat(self, location: ObjectLocation) -> ObjectStat:
         return self._verified_for_location(location).object_stat()
+
+    def require_preverified_generation(self, stat: ObjectStat) -> ObjectStat:
+        """Recheck an immutable local generation without rehashing its data file.
+
+        The staged stat was produced by a full verification.  The backend generation
+        directory is immutable; this boundary revalidates canonical metadata,
+        identity, file type and exact size so a concurrent GC deletion fails before
+        its database binding can commit.
+        """
+
+        if not isinstance(stat, ObjectStat):
+            raise TypeError("preverified generation recheck requires an ObjectStat")
+        location = stat.location
+        if location.store_id != self._store_id:
+            raise FileNotFoundError("object location belongs to another store")
+        if stat.generation_verification_token is None:
+            current = self.stat(location)
+        else:
+            self._validate_key(location.key)
+            self._validate_generation(location.backend_generation)
+            key_directory = self._key_directory(location.key)
+            if not self._validate_directory_chain(key_directory, missing_ok=True):
+                raise FileNotFoundError("object key does not exist")
+            current = self._verify_object_directory(
+                key_directory / location.backend_generation,
+                expected_key=location.key,
+                expected_generation=location.backend_generation,
+                verify_payload=False,
+            ).object_stat()
+        if current != stat:
+            raise IntegrityViolation(
+                "preverified object generation identity changed",
+                key=location.key,
+                backend_generation=location.backend_generation,
+            )
+        return current
 
     def list_versions(self, cursor: PageCursorV1 | None = None) -> PageV1[ObjectStat]:
         if cursor is None:
@@ -592,6 +636,7 @@ class LocalObjectStore:
         *,
         expected_key: str,
         expected_generation: str,
+        verify_payload: bool = True,
     ) -> _VerifiedGeneration:
         self._validate_key(expected_key)
         self._validate_generation(expected_generation)
@@ -683,25 +728,29 @@ class LocalObjectStore:
                 backend_generation=expected_generation,
             )
 
-        digest = hashlib.sha256()
-        size_bytes = 0
-        try:
-            with data_path.open("rb") as data_file:
-                while True:
-                    chunk = data_file.read(_CHUNK_SIZE)
-                    if chunk == b"":
-                        break
-                    digest.update(chunk)
-                    size_bytes += len(chunk)
-        except FileNotFoundError:
-            raise
-        except OSError as exc:
-            raise IntegrityViolation(
-                "published object data cannot be verified",
-                key=expected_key,
-                backend_generation=expected_generation,
-            ) from exc
-        digest_hex = digest.hexdigest()
+        if verify_payload:
+            digest = hashlib.sha256()
+            size_bytes = 0
+            try:
+                with data_path.open("rb") as data_file:
+                    while True:
+                        chunk = data_file.read(_CHUNK_SIZE)
+                        if chunk == b"":
+                            break
+                        digest.update(chunk)
+                        size_bytes += len(chunk)
+            except FileNotFoundError:
+                raise
+            except OSError as exc:
+                raise IntegrityViolation(
+                    "published object data cannot be verified",
+                    key=expected_key,
+                    backend_generation=expected_generation,
+                ) from exc
+            digest_hex = digest.hexdigest()
+        else:
+            digest_hex = metadata.sha256
+            size_bytes = data_stat.st_size
         if (
             digest_hex != digest_from_key
             or metadata.sha256 != digest_hex
@@ -725,6 +774,11 @@ class LocalObjectStore:
             ref=ref,
             location=location,
             directory=directory,
+            generation_verification_token=(
+                "local-stat-v1:"
+                f"{data_stat.st_dev:x}:{data_stat.st_ino:x}:{data_stat.st_size:x}:"
+                f"{data_stat.st_mtime_ns:x}:{data_stat.st_ctime_ns:x}"
+            ),
         )
 
     def _initialize_coordination_files(self) -> None:

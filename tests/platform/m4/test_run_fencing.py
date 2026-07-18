@@ -510,6 +510,29 @@ class _Repo:
             None,
         )
 
+    def get_attempt_write_authority(
+        self,
+        fence: AttemptWriteFence,
+    ) -> tuple[RunRecord, RunAttempt, RunLease] | None:
+        run = self.get(fence.run_id)
+        attempt = self.get_attempt(fence.run_id, fence.attempt_no)
+        lease = self.state.leases.get(fence.lease_id)
+        if run is None or attempt is None or lease is None:
+            return None
+        return run, attempt, lease
+
+    def get_run_write_authority(
+        self,
+        run_id: str,
+    ) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None:
+        run = self.get(run_id)
+        if run is None:
+            return None
+        latest_attempt = (
+            self.get_attempt(run_id, run.next_attempt_no - 1) if run.next_attempt_no > 1 else None
+        )
+        return run, latest_attempt, self.get_current_lease(run_id)
+
     def get_event(self, run_id: str, seq: int) -> RunEvent | None:
         return self.state.events.get((run_id, seq))
 
@@ -1041,6 +1064,15 @@ class _Repo:
         self.state.commands[identity] = record
         return record
 
+    def preflight_accept_terminal_command(self, **kwargs: object) -> dict[str, object]:
+        return dict(kwargs)
+
+    def apply_preflighted_terminal_command(
+        self,
+        seal: dict[str, object],
+    ) -> _PersistedAcceptance:
+        return self.accept_command(**seal)  # type: ignore[arg-type]
+
     def accept_command(
         self,
         *,
@@ -1352,6 +1384,32 @@ class _Accounting:
     def retry_budget_available(self, *, run: RunRecord) -> bool:
         return True
 
+    def preflight_terminal_closure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        lease: RunLease | None,
+        retry_decision: RetryDecisionV1 | None,
+        terminal_status: str | None,
+    ) -> tuple[RunRecord, RunAttempt | None, RunLease | None, str | None]:
+        del retry_decision
+        if self.state.fail_accounting:
+            raise IntegrityViolation("injected accounting failure")
+        return run, attempt, lease, terminal_status
+
+    def apply_preflighted_terminal_closure(
+        self,
+        closure: tuple[RunRecord, RunAttempt | None, RunLease | None, str | None],
+    ) -> None:
+        run, attempt, lease, terminal_status = closure
+        if attempt is not None and lease is not None:
+            self.state.accounting_actions.append(
+                f"release:{run.run_id}:{attempt.attempt_no}:{lease.lease_id}"
+            )
+        if terminal_status is not None:
+            self.state.accounting_actions.append(f"close:{run.run_id}:{terminal_status}")
+
     def release_attempt(
         self,
         *,
@@ -1389,6 +1447,26 @@ class _Publication:
     ) -> PreparedRunOutcome:
         assert attempt is None or run.run_id == attempt.run_id
         return self.state.forced_preflight_outcome or prepared
+
+    @staticmethod
+    def _terminal_closure(operation: str, kwargs: dict[str, object]) -> object:
+        return operation, kwargs
+
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object:
+        return self._terminal_closure("complete_attempt_success", kwargs)
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object:
+        return self._terminal_closure("close_attempt_for_retry", kwargs)
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object:
+        return self._terminal_closure("close_attempt_terminal", kwargs)
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object:
+        return self._terminal_closure("terminate_inactive_run", kwargs)
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object:
+        operation, kwargs = seal
+        return getattr(self.repo, operation)(**kwargs)
 
     def record_attempt_started(
         self,
@@ -1798,6 +1876,24 @@ class _Publication:
             if fresh_draft.materials or staged.receipts:
                 raise IntegrityViolation("in-memory terminal publisher does not stage blobs")
         return tuple(self.commit(fresh, staged) for fresh, staged in publications)
+
+    def commit_planned_run_result(self, draft, staged, **kwargs):
+        del kwargs
+        if draft.publication_kind != "run_result":
+            raise IntegrityViolation("staged terminal selector differs")
+        return self.commit(draft, staged)
+
+    def commit_planned_active_failure_aggregate(self, drafts, staged, **kwargs):
+        expected_count = 1 if kwargs["retry_decision"].decision == "retry" else 2
+        if len(drafts) != expected_count:
+            raise IntegrityViolation("staged terminal aggregate differs")
+        return self.commit_many(tuple(zip(drafts, staged, strict=True)))
+
+    def commit_planned_run_failure(self, draft, staged, **kwargs):
+        del kwargs
+        if draft.publication_kind != "run_failure":
+            raise IntegrityViolation("staged terminal selector differs")
+        return self.commit(draft, staged)
 
     def record_attempt_closed(
         self,

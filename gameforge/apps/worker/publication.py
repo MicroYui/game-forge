@@ -29,18 +29,21 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 import json
 import threading
+from copy import deepcopy
 from types import SimpleNamespace
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from typing import Protocol
+from weakref import WeakKeyDictionary, WeakSet
 
 from gameforge.apps.worker.execution_identity import build_authoritative_execution_identity
 from gameforge.apps.worker.prompt_rendering import CanonicalPromptRendererAuthority
-from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
+from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
 from gameforge.contracts.errors import (
     AttemptFenceStateRejected,
     Conflict,
     IntegrityViolation,
 )
+from gameforge.contracts.findings import FindingRevisionV1
 from gameforge.contracts.jobs import (
     AgentPromptArtifactBindingV1,
     AgentPromptContextDraftV1,
@@ -65,6 +68,7 @@ from gameforge.contracts.lineage import (
     AuditCorrelation,
     AuditSubject,
     ExecutionIdentityV1,
+    ObjectBinding,
     ObjectLocation,
     ObjectRef,
     VersionTuple,
@@ -77,7 +81,7 @@ from gameforge.contracts.model_router import (
     request_hash as model_request_hash,
 )
 from gameforge.contracts.routing import canonical_model_snapshot_id
-from gameforge.contracts.storage import UtcClock
+from gameforge.contracts.storage import ObjectStat, UtcClock
 from gameforge.contracts.routing import RoutingDecisionV1
 from gameforge.contracts.provenance import (
     OriginRefV1,
@@ -86,7 +90,11 @@ from gameforge.contracts.provenance import (
     TrustLevel,
     most_conservative_trust,
 )
-from gameforge.platform.audit.gate import AuditGate
+from gameforge.platform.audit.gate import (
+    AuditAppendIntent,
+    AuditGate,
+    PreflightedAuditBatch,
+)
 from gameforge.platform.lineage.validation import (
     ProducerValidationContext,
     validate_artifact_producer,
@@ -98,18 +106,160 @@ from gameforge.platform.runs.commands import (
     PromptRenderPublicationResult,
     RunCommandService,
 )
-from gameforge.platform.runs.lifecycle import AttemptWriteFence
+from gameforge.platform.runs.lifecycle import AttemptWriteFence, TerminalAuthorityDrift
 from gameforge.platform.provenance.registry import build_source_kind_registry
 from gameforge.platform.terminal_staging import (
+    PreverifiedAbsentArtifactBinding,
+    PreverifiedArtifactBinding,
     StagedReceipt,
     StagedTerminalPublication,
     TerminalPublicationDraft,
 )
+from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
+from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 
 
 _PROMPT_RENDER_OPERATION = "worker.prompt-rendered@1"
 _AGENT_PROMPT_CONTEXT_OPERATION = "worker.agent-prompt-context@1"
 _AGENT_PROMPT_CONTEXT_TOOL_VERSION = "agent-prompt-context@1"
+
+
+@dataclass(frozen=True, slots=True)
+class _ArtifactBatchState:
+    """Complete immutable worker batch retained outside its opaque handle."""
+
+    writes: tuple[
+        tuple[
+            ArtifactV2,
+            StagedReceipt,
+            PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding,
+        ],
+        ...,
+    ]
+    owner: "WorkerArtifactPort"
+    artifact_repository: object
+    binding_repository: object
+    repository_binding_preflight: object | None
+    repository_artifact_preflight: object | None
+    transaction_identity: tuple[object, object] | None
+
+
+_ARTIFACT_BATCH_STATE_LOCK = threading.Lock()
+_ARTIFACT_BATCH_STATES: WeakKeyDictionary[object, _ArtifactBatchState] = WeakKeyDictionary()
+_CONSUMED_ARTIFACT_BATCHES: WeakSet[object] = WeakSet()
+
+
+@dataclass(frozen=True, slots=True, eq=False, weakref_slot=True)
+class _PreflightedArtifactBatch:
+    """Opaque one-shot handle with no instance authority fields."""
+
+    def consume(
+        self,
+        owner: "WorkerArtifactPort",
+    ) -> tuple[
+        tuple[
+            tuple[
+                ArtifactV2,
+                StagedReceipt,
+                PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding,
+            ],
+            ...,
+        ],
+        object | None,
+        object | None,
+    ]:
+        with _ARTIFACT_BATCH_STATE_LOCK:
+            state = _ARTIFACT_BATCH_STATES.get(self)
+            if state is None:
+                raise IntegrityViolation("terminal Artifact batch lacks its trusted preflight seal")
+            if self in _CONSUMED_ARTIFACT_BATCHES:
+                raise IntegrityViolation(
+                    "terminal Artifact batch preflight seal was already consumed"
+                )
+            if state.owner is not owner:
+                raise IntegrityViolation(
+                    "terminal Artifact batch belongs to another transaction-bound port"
+                )
+            if (
+                owner._artifacts is not state.artifact_repository
+                or owner._object_bindings is not state.binding_repository
+            ):
+                raise IntegrityViolation(
+                    "terminal Artifact batch repository capabilities changed after preflight"
+                )
+            current_transaction_identity = owner._current_transaction_identity()
+            retained_transaction_identity = state.transaction_identity
+            if (retained_transaction_identity is None) != (
+                current_transaction_identity is None
+            ) or (
+                retained_transaction_identity is not None
+                and current_transaction_identity is not None
+                and any(
+                    retained is not current
+                    for retained, current in zip(
+                        retained_transaction_identity,
+                        current_transaction_identity,
+                        strict=True,
+                    )
+                )
+            ):
+                raise IntegrityViolation(
+                    "terminal Artifact batch belongs to another transaction instance"
+                )
+            repository_preflights = (
+                state.repository_binding_preflight,
+                state.repository_artifact_preflight,
+            )
+            if (repository_preflights[0] is None) != (repository_preflights[1] is None):
+                raise IntegrityViolation(
+                    "terminal Artifact batch carries a partial repository preflight"
+                )
+            if repository_preflights[0] is not None and (
+                not callable(
+                    getattr(state.binding_repository, "apply_terminal_preverified_many", None)
+                )
+                or not callable(getattr(state.artifact_repository, "put_preflighted_many", None))
+            ):
+                raise IntegrityViolation(
+                    "terminal Artifact repository lost its sealed apply capability"
+                )
+            _CONSUMED_ARTIFACT_BATCHES.add(self)
+        # Consume before the first possible DML.  A later exception rolls the
+        # surrounding transaction back and the authority token remains unusable.
+        return (
+            state.writes,
+            state.repository_binding_preflight,
+            state.repository_artifact_preflight,
+        )
+
+
+def _issue_artifact_batch(state: _ArtifactBatchState) -> _PreflightedArtifactBatch:
+    handle = _PreflightedArtifactBatch()
+    with _ARTIFACT_BATCH_STATE_LOCK:
+        _ARTIFACT_BATCH_STATES[handle] = state
+    return handle
+
+
+def _same_immutable_artifact(stored: object, expected: ArtifactV2) -> bool:
+    return isinstance(stored, ArtifactV2) and (
+        stored.artifact_id,
+        stored.lineage_schema_version,
+        stored.kind,
+        stored.version_tuple,
+        stored.lineage,
+        stored.payload_hash,
+        stored.object_ref,
+        stored.meta,
+    ) == (
+        expected.artifact_id,
+        expected.lineage_schema_version,
+        expected.kind,
+        expected.version_tuple,
+        expected.lineage,
+        expected.payload_hash,
+        expected.object_ref,
+        expected.meta,
+    )
 
 
 def _require_registered_source_provenance(
@@ -839,9 +989,9 @@ class WorkerAgentPromptContextPublisher:
         )
         payload = canonical_json(context.model_dump(mode="json")).encode("utf-8")
         stored = self._object_store.put_verified(payload)  # type: ignore[attr-defined]
-        stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
-        if stat.ref != stored.ref or stat.location != stored.location:
-            raise IntegrityViolation("staged Agent prompt-context failed exact stat")
+        staged_stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
+        if staged_stat.ref != stored.ref or staged_stat.location != stored.location:
+            raise IntegrityViolation("agent prompt context staging returned another generation")
         input_hash = sha256_lowerhex(
             canonical_json(
                 {
@@ -944,6 +1094,8 @@ class WorkerAgentPromptContextPublisher:
                 slot=f"agent-prompt-context:{self._fence.attempt_no}:{target_call_ordinal}",
                 ref=stored.ref,
                 location=stored.location,
+                verified_at=staged_stat.verified_at,
+                generation_verification_token=(staged_stat.generation_verification_token),
             ),
         )
         self._registry.record(material)
@@ -1070,9 +1222,9 @@ class WorkerPromptRenderPublisher:
         if request.request_hash != expected_hash:
             raise IntegrityViolation("prompt publication request hash differs from its payload")
         stored = self._object_store.put_verified(payload)  # type: ignore[attr-defined]
-        stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
-        if stat.ref != stored.ref or stat.location != stored.location:
-            raise IntegrityViolation("staged rendered prompt failed exact ObjectStore stat")
+        staged_stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
+        if staged_stat.ref != stored.ref or staged_stat.location != stored.location:
+            raise IntegrityViolation("rendered prompt staging returned another generation")
         artifact = build_artifact_v2(
             kind="source_rendered",
             version_tuple=VersionTuple(
@@ -1140,6 +1292,8 @@ class WorkerPromptRenderPublisher:
                 slot=f"prompt:{self._fence.attempt_no}:{request.idempotency_key}",
                 ref=stored.ref,
                 location=stored.location,
+                verified_at=staged_stat.verified_at,
+                generation_verification_token=(staged_stat.generation_verification_token),
             ),
         )
         self._registry.record(material)
@@ -1157,6 +1311,39 @@ class WorkerPromptRenderPublisher:
         return result
 
 
+def _read_bounded_stream(
+    stream: object,
+    *,
+    max_bytes: int,
+    label: str,
+    object_key: str,
+) -> bytes:
+    """Read through legal binary short reads without crossing one hard byte cap."""
+
+    read = getattr(stream, "read", None)
+    if not callable(read):
+        raise IntegrityViolation(f"{label} stream is not readable", object_key=object_key)
+    payload = bytearray()
+    remaining = max_bytes
+    while remaining > 0:
+        chunk = read(remaining)
+        if chunk == b"":
+            break
+        if not isinstance(chunk, bytes):
+            raise IntegrityViolation(
+                f"{label} stream returned a non-byte chunk",
+                object_key=object_key,
+            )
+        if len(chunk) > remaining:
+            raise IntegrityViolation(
+                f"{label} stream exceeded its requested read bound",
+                object_key=object_key,
+            )
+        payload.extend(chunk)
+        remaining -= len(chunk)
+    return bytes(payload)
+
+
 class WorkerBlobStore:
     """Read and verify the exact prepared ObjectStore generation carried by outcome."""
 
@@ -1171,7 +1358,18 @@ class WorkerBlobStore:
                 object_key=object_ref.key,
             )
         with self._object_store.open(location) as stream:  # type: ignore[attr-defined]
-            return stream.read()
+            payload = _read_bounded_stream(
+                stream,
+                max_bytes=object_ref.size_bytes + 1,
+                label="prepared blob",
+                object_key=object_ref.key,
+            )
+        if len(payload) != object_ref.size_bytes:
+            raise IntegrityViolation(
+                "prepared blob stream size differs from its exact ObjectRef",
+                object_key=object_ref.key,
+            )
+        return payload
 
 
 class WorkerBlobStager:
@@ -1189,6 +1387,10 @@ class WorkerBlobStager:
         self, drafts: tuple[TerminalPublicationDraft, ...]
     ) -> tuple[StagedTerminalPublication, ...]:
         staged: list[StagedTerminalPublication] = []
+        staged_by_ref: dict[
+            tuple[str, str, int],
+            tuple[ObjectRef, ObjectLocation, ObjectStat],
+        ] = {}
         for draft in drafts:
             slots: set[str] = set()
             receipts: list[StagedReceipt] = []
@@ -1199,23 +1401,35 @@ class WorkerBlobStager:
                         slot=material.slot,
                     )
                 slots.add(material.slot)
-                stored = self._object_store.put_verified(material.payload)  # type: ignore[attr-defined]
-                if stored.ref != material.expected_ref:
-                    raise IntegrityViolation(
-                        "ObjectStore staged a different content-addressed ref",
-                        slot=material.slot,
-                    )
-                stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
-                if stat.ref != stored.ref or stat.location != stored.location:
-                    raise IntegrityViolation(
-                        "ObjectStore stat differs from the staged generation",
-                        slot=material.slot,
-                    )
+                ref_key = (
+                    material.expected_ref.key,
+                    material.expected_ref.sha256,
+                    material.expected_ref.size_bytes,
+                )
+                retained = staged_by_ref.get(ref_key)
+                if retained is None:
+                    stored = self._object_store.put_verified(material.payload)  # type: ignore[attr-defined]
+                    if stored.ref != material.expected_ref:
+                        raise IntegrityViolation(
+                            "ObjectStore staged a different content-addressed ref",
+                            slot=material.slot,
+                        )
+                    stat = self._object_store.stat(stored.location)  # type: ignore[attr-defined]
+                    if stat.ref != stored.ref or stat.location != stored.location:
+                        raise IntegrityViolation(
+                            "ObjectStore stat differs from the staged generation",
+                            slot=material.slot,
+                        )
+                    retained = (stored.ref, stored.location, stat)
+                    staged_by_ref[ref_key] = retained
+                stored_ref, stored_location, stat = retained
                 receipts.append(
                     StagedReceipt(
                         slot=material.slot,
-                        ref=stored.ref,
-                        location=stored.location,
+                        ref=stored_ref,
+                        location=stored_location,
+                        verified_at=stat.verified_at,
+                        generation_verification_token=(stat.generation_verification_token),
                     )
                 )
             staged.append(
@@ -1233,8 +1447,9 @@ class WorkerArtifactPort:
     ``SqlArtifactRepository.put`` requires an active ``ObjectBinding`` for an
     ``ArtifactV2``'s ``object_ref``. ``put_staged`` consumes the explicit receipt
     produced outside the UoW; it never guesses a new output generation from the
-    process-local prepared-blob registry. Existing immutable Artifacts keep their
-    retained active binding and leave a newly staged duplicate generation to GC.
+    process-local prepared-blob registry. An already-active binding is retained only
+    when it names that exact staged generation; another generation is never silently
+    remapped. A retired generation may be reactivated only by exact revision CAS.
     """
 
     def __init__(
@@ -1243,36 +1458,121 @@ class WorkerArtifactPort:
         artifacts: object,
         object_bindings: object,
         object_store: object,
+        allow_legacy_test_repositories: bool = False,
     ) -> None:
         self._artifacts = artifacts
         self._object_bindings = object_bindings
         self._object_store = object_store
+        self._allow_legacy_test_repositories = allow_legacy_test_repositories
+        self._preflight_bindings: dict[
+            str, PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding
+        ] = {}
 
     def get(self, artifact_id: str) -> object | None:
         return self._artifacts.get(artifact_id)  # type: ignore[attr-defined]
 
+    def _current_transaction_identity(self) -> tuple[object, object] | None:
+        """Return the shared SQL session/transaction capability when available."""
+
+        retained: tuple[object, object] | None = None
+        for repository in (self._artifacts, self._object_bindings):
+            if not isinstance(
+                repository,
+                (SqlArtifactRepository, SqlObjectBindingRepository),
+            ):
+                # Production UnitOfWork capabilities are opaque lifecycle-bound
+                # wrappers.  The WorkerArtifactPort instance itself is created per
+                # transaction and is the owner identity; never pierce the wrapper
+                # to read a non-callable private session.
+                continue
+            session = repository._session
+            get_nested = getattr(session, "get_nested_transaction", None)
+            get_transaction = getattr(session, "get_transaction", None)
+            transaction = (get_nested() if callable(get_nested) else None) or (
+                get_transaction() if callable(get_transaction) else None
+            )
+            if transaction is None:
+                raise IntegrityViolation(
+                    "terminal Artifact batch requires an active repository transaction"
+                )
+            identity = (session, transaction)
+            if retained is None:
+                retained = identity
+            elif retained[0] is not session or retained[1] is not transaction:
+                raise IntegrityViolation(
+                    "Artifact and ObjectBinding repositories use different transactions"
+                )
+        return retained
+
+    def preflight_binding(
+        self, artifact: ArtifactV2
+    ) -> PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding:
+        """Fully verify a retained active generation outside the write UoW."""
+
+        if artifact.object_ref.key in self._preflight_bindings:
+            return self._preflight_bindings[artifact.object_ref.key]
+        try:
+            binding = self._object_bindings.resolve(  # type: ignore[attr-defined]
+                artifact.object_ref,
+            )
+        except FileNotFoundError:
+            absent = PreverifiedAbsentArtifactBinding(object_ref=artifact.object_ref)
+            self._preflight_bindings[artifact.object_ref.key] = absent
+            return absent
+        stat = self._object_store.stat(binding.location)  # type: ignore[attr-defined]
+        if (
+            binding.object_ref != artifact.object_ref
+            or binding.status != "active"
+            or stat.ref != artifact.object_ref
+            or stat.location != binding.location
+        ):
+            raise IntegrityViolation(
+                "retained Artifact binding failed read-phase verification",
+                artifact_id=artifact.artifact_id,
+            )
+        retained = PreverifiedArtifactBinding(binding=binding, stat=stat)
+        self._preflight_bindings[artifact.object_ref.key] = retained
+        return retained
+
     def _resolve_or_bind_receipt(self, receipt: StagedReceipt) -> object:
-        """Retain an active same-store binding or CAS-reactivate a retired row.
+        """Bind a new generation or retain the exact already-active generation.
 
         ``ObjectBindingRepository.resolve`` deliberately hides retired rows.  Its
         frozen contract exposes the retained revision through the conflict raised by
-        ``bind_verified(..., expected_revision=None)``; use that revision exactly
-        once to reactivate the staged generation.  An active row won by a concurrent
-        publisher is resolved and retained instead of being remapped.
+        ``bind_preverified(..., expected_revision=None)``; use that revision exactly
+        once to reactivate the staged generation.  ``bind_preverified``
+        performs a lightweight exact-generation recheck under the DB writer boundary,
+        closing the staging/GC race without rehashing payload bytes.
         """
 
+        if receipt.verified_at is None:
+            raise IntegrityViolation(
+                "staged receipt lacks its preverified ObjectStore timestamp",
+                slot=receipt.slot,
+            )
+        staged_stat = ObjectStat(
+            ref=receipt.ref,
+            location=receipt.location,
+            verified_at=receipt.verified_at,
+            generation_verification_token=receipt.generation_verification_token,
+        )
         try:
-            return self._object_bindings.resolve(  # type: ignore[attr-defined]
+            active = self._object_bindings.resolve(  # type: ignore[attr-defined]
                 receipt.ref,
                 store_id=receipt.location.store_id,
             )
         except FileNotFoundError:
             pass
+        else:
+            return self._retain_exact_staged_binding(
+                active,
+                staged_stat=staged_stat,
+                slot=receipt.slot,
+            )
 
         try:
-            binding = self._object_bindings.bind_verified(  # type: ignore[attr-defined]
-                receipt.ref,
-                receipt.location,
+            binding = self._object_bindings.bind_preverified(  # type: ignore[attr-defined]
+                staged_stat,
                 None,
             )
         except Conflict as conflict:
@@ -1295,20 +1595,29 @@ class WorkerArtifactPort:
                 ) from conflict
             if actual_status == "active":
                 try:
-                    return self._object_bindings.resolve(  # type: ignore[attr-defined]
+                    active = self._object_bindings.resolve(  # type: ignore[attr-defined]
                         receipt.ref,
                         store_id=receipt.location.store_id,
                     )
                 except FileNotFoundError as exc:
-                    raise Conflict(
-                        "active ObjectBinding changed before it could be retained",
+                    raise TerminalAuthorityDrift(
+                        "an active ObjectBinding won then disappeared during staging",
                         object_key=receipt.ref.key,
                         store_id=receipt.location.store_id,
-                        expected_revision=actual_revision,
                     ) from exc
-            binding = self._object_bindings.bind_verified(  # type: ignore[attr-defined]
-                receipt.ref,
-                receipt.location,
+                if active.revision != actual_revision:
+                    raise TerminalAuthorityDrift(
+                        "the active ObjectBinding changed during terminal staging",
+                        object_key=receipt.ref.key,
+                        store_id=receipt.location.store_id,
+                    ) from conflict
+                return self._retain_exact_staged_binding(
+                    active,
+                    staged_stat=staged_stat,
+                    slot=receipt.slot,
+                )
+            binding = self._object_bindings.bind_preverified(  # type: ignore[attr-defined]
+                staged_stat,
                 actual_revision,
             )
         if binding.location != receipt.location:
@@ -1319,24 +1628,438 @@ class WorkerArtifactPort:
             )
         return binding
 
-    def put_staged(self, artifact: ArtifactV2, receipt: StagedReceipt) -> ArtifactV2:
+    def _bind_planned_absent_receipt(self, receipt: StagedReceipt) -> object:
+        """Bind only if the planning-phase absence proof is still current."""
+
+        try:
+            self._object_bindings.resolve(  # type: ignore[attr-defined]
+                receipt.ref,
+                store_id=receipt.location.store_id,
+            )
+        except FileNotFoundError:
+            pass
+        else:
+            raise TerminalAuthorityDrift(
+                "an active ObjectBinding appeared after terminal planning",
+                object_key=receipt.ref.key,
+                store_id=receipt.location.store_id,
+            )
+        return self._resolve_or_bind_receipt(receipt)
+
+    def _retain_exact_staged_binding(
+        self,
+        active: object,
+        *,
+        staged_stat: ObjectStat,
+        slot: str,
+    ) -> object:
+        """Accept idempotency only for the receipt's exact active generation."""
+
+        if (
+            getattr(active, "status", None) != "active"
+            or getattr(active, "object_ref", None) != staged_stat.ref
+        ):
+            raise IntegrityViolation(
+                "resolved ObjectBinding is not active and exact",
+                slot=slot,
+                object_key=staged_stat.ref.key,
+            )
+        if getattr(active, "location", None) != staged_stat.location:
+            raise TerminalAuthorityDrift(
+                "an active ObjectBinding points at another staged generation",
+                object_key=staged_stat.ref.key,
+                store_id=staged_stat.location.store_id,
+            )
+        revision = getattr(active, "revision", None)
+        if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+            raise IntegrityViolation(
+                "resolved ObjectBinding has no canonical revision",
+                slot=slot,
+                object_key=staged_stat.ref.key,
+            )
+        verified = self._object_bindings.bind_preverified(  # type: ignore[attr-defined]
+            staged_stat,
+            revision,
+        )
+        if verified != active:
+            raise IntegrityViolation(
+                "exact staged ObjectBinding verification changed its authority",
+                slot=slot,
+                object_key=staged_stat.ref.key,
+            )
+        return verified
+
+    def _retain_preverified_binding(
+        self,
+        retained: PreverifiedArtifactBinding,
+        *,
+        artifact_id: str,
+    ) -> object:
+        try:
+            current = self._object_bindings.resolve(  # type: ignore[attr-defined]
+                retained.binding.object_ref,
+                store_id=retained.binding.location.store_id,
+            )
+        except FileNotFoundError as exc:
+            raise TerminalAuthorityDrift(
+                "retained ObjectBinding disappeared after terminal planning",
+                artifact_id=artifact_id,
+            ) from exc
+        if current != retained.binding:
+            raise TerminalAuthorityDrift(
+                "retained ObjectBinding changed after terminal planning",
+                artifact_id=artifact_id,
+            )
+        verified = self._object_bindings.bind_preverified(  # type: ignore[attr-defined]
+            retained.stat,
+            retained.binding.revision,
+        )
+        if verified != retained.binding:
+            raise IntegrityViolation(
+                "retained ObjectBinding verification changed its authority",
+                artifact_id=artifact_id,
+            )
+        return verified
+
+    @staticmethod
+    def _receipt_stat(receipt: StagedReceipt) -> ObjectStat:
+        if receipt.verified_at is None:
+            raise IntegrityViolation(
+                "staged receipt lacks its preverified ObjectStore timestamp",
+                slot=receipt.slot,
+            )
+        return ObjectStat(
+            ref=receipt.ref,
+            location=receipt.location,
+            verified_at=receipt.verified_at,
+            generation_verification_token=receipt.generation_verification_token,
+        )
+
+    def preflight_staged_many(
+        self,
+        writes: Sequence[
+            tuple[
+                ArtifactV2,
+                StagedReceipt,
+                PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding,
+            ]
+        ],
+    ) -> _PreflightedArtifactBatch:
+        """Check every binding/Artifact identity before the first write.
+
+        This method is called after ``BEGIN IMMEDIATE`` but performs no mutation.
+        SQLite therefore pins the checked rows for the following batch write while
+        ObjectGc is excluded by the same writer boundary. The binding repository
+        verifies every generation for the batch before issuing its first DML.
+        """
+
+        normalized = tuple(writes)
+        refs: dict[str, ObjectRef] = {}
+        artifacts_by_id: dict[str, ArtifactV2] = {}
+        for artifact, receipt, planned in normalized:
+            planned_ref = (
+                planned.binding.object_ref
+                if isinstance(planned, PreverifiedArtifactBinding)
+                else planned.object_ref
+            )
+            if (
+                not isinstance(artifact, ArtifactV2)
+                or receipt.ref != artifact.object_ref
+                or planned_ref != artifact.object_ref
+            ):
+                raise IntegrityViolation(
+                    "terminal Artifact batch differs from its sealed receipt/binding plan",
+                    artifact_id=getattr(artifact, "artifact_id", None),
+                    slot=receipt.slot,
+                )
+            retained_ref = refs.setdefault(artifact.object_ref.key, artifact.object_ref)
+            if retained_ref != artifact.object_ref:
+                raise IntegrityViolation(
+                    "terminal Artifact batch repeats an object key with another ref",
+                    object_key=artifact.object_ref.key,
+                )
+            retained_artifact = artifacts_by_id.get(artifact.artifact_id)
+            if retained_artifact is None:
+                artifacts_by_id[artifact.artifact_id] = artifact
+            elif retained_artifact is not artifact and not _same_immutable_artifact(
+                retained_artifact,
+                artifact,
+            ):
+                raise IntegrityViolation(
+                    "terminal Artifact batch repeats an id with different content",
+                    artifact_id=artifact.artifact_id,
+                )
+
+        preflight_repository_bindings = getattr(
+            self._object_bindings,
+            "preflight_terminal_preverified_many",
+            None,
+        )
+        apply_repository_bindings = getattr(
+            self._object_bindings,
+            "apply_terminal_preverified_many",
+            None,
+        )
+        preflight_repository_artifacts = getattr(
+            self._artifacts,
+            "preflight_put_many",
+            None,
+        )
+        apply_repository_artifacts = getattr(
+            self._artifacts,
+            "put_preflighted_many",
+            None,
+        )
+        repository_capabilities = (
+            callable(preflight_repository_bindings),
+            callable(apply_repository_bindings),
+            callable(preflight_repository_artifacts),
+            callable(apply_repository_artifacts),
+        )
+        if any(repository_capabilities) and not all(repository_capabilities):
+            raise IntegrityViolation("terminal Artifact repository preflight capability is partial")
+        if not all(repository_capabilities) and not self._allow_legacy_test_repositories:
+            raise IntegrityViolation(
+                "terminal Artifact repository preflight/apply capability is required"
+            )
+
+        repository_binding_preflight = None
+        repository_artifact_preflight = None
+        if all(repository_capabilities):
+            unique_binding_writes: dict[str, tuple[ObjectStat, ObjectBinding | None]] = {}
+            for artifact, receipt, planned in normalized:
+                request = (
+                    (planned.stat, planned.binding)
+                    if isinstance(planned, PreverifiedArtifactBinding)
+                    else (self._receipt_stat(receipt), None)
+                )
+                retained = unique_binding_writes.setdefault(
+                    artifact.object_ref.key,
+                    request,
+                )
+                if retained != request:
+                    raise IntegrityViolation(
+                        "terminal Artifact batch carries conflicting binding proofs",
+                        object_key=artifact.object_ref.key,
+                    )
+            try:
+                repository_binding_preflight = preflight_repository_bindings(  # type: ignore[operator]
+                    tuple(unique_binding_writes.values())
+                )
+            except Conflict as exc:
+                raise TerminalAuthorityDrift(
+                    "terminal ObjectBinding authority changed during preflight"
+                ) from exc
+            repository_artifact_preflight = preflight_repository_artifacts(  # type: ignore[operator]
+                tuple(artifact for artifact, _receipt, _planned in normalized),
+                binding_preflight=repository_binding_preflight,
+            )
+        else:
+            resolve_many = getattr(self._object_bindings, "resolve_many", None)
+            if callable(resolve_many):
+                active_by_key = resolve_many(tuple(refs.values()))
+            else:
+                active_by_key = {}
+                for ref in refs.values():
+                    try:
+                        active_by_key[ref.key] = self._object_bindings.resolve(ref)
+                    except FileNotFoundError:
+                        active_by_key[ref.key] = None
+
+            get_many = getattr(self._artifacts, "get_many", None)
+            if callable(get_many):
+                existing_by_id = get_many(tuple(artifacts_by_id))
+            else:
+                existing_by_id = {
+                    artifact_id: self._artifacts.get(artifact_id) for artifact_id in artifacts_by_id
+                }
+
+            for artifact, receipt, planned in normalized:
+                active = active_by_key.get(artifact.object_ref.key)
+                if isinstance(planned, PreverifiedArtifactBinding):
+                    if active != planned.binding:
+                        raise TerminalAuthorityDrift(
+                            "retained ObjectBinding changed after terminal planning",
+                            artifact_id=artifact.artifact_id,
+                        )
+                else:
+                    if active is not None:
+                        raise TerminalAuthorityDrift(
+                            "an active ObjectBinding appeared after terminal planning",
+                            object_key=artifact.object_ref.key,
+                        )
+                    self._receipt_stat(receipt)
+
+                existing = existing_by_id.get(artifact.artifact_id)
+                if existing is not None and not _same_immutable_artifact(existing, artifact):
+                    raise IntegrityViolation(
+                        "Artifact id is already bound to different immutable content",
+                        artifact_id=artifact.artifact_id,
+                    )
+                if existing is not None and isinstance(
+                    planned,
+                    PreverifiedAbsentArtifactBinding,
+                ):
+                    raise IntegrityViolation(
+                        "retained Artifact has no read-phase active ObjectBinding",
+                        artifact_id=artifact.artifact_id,
+                        object_key=artifact.object_ref.key,
+                    )
+
+        return _issue_artifact_batch(
+            _ArtifactBatchState(
+                writes=deepcopy(normalized),
+                owner=self,
+                artifact_repository=self._artifacts,
+                binding_repository=self._object_bindings,
+                repository_binding_preflight=repository_binding_preflight,
+                repository_artifact_preflight=repository_artifact_preflight,
+                transaction_identity=self._current_transaction_identity(),
+            )
+        )
+
+    def put_preflighted_many(
+        self,
+        batch: _PreflightedArtifactBatch,
+    ) -> tuple[ArtifactV2, ...]:
+        """Apply one preflighted Artifact aggregate with one repository flush."""
+
+        if not isinstance(batch, _PreflightedArtifactBatch):
+            raise IntegrityViolation("terminal Artifact batch lacks its trusted preflight seal")
+        (
+            writes,
+            repository_binding_preflight,
+            repository_artifact_preflight,
+        ) = batch.consume(self)
+        if (repository_binding_preflight is None) != (repository_artifact_preflight is None):
+            raise IntegrityViolation(
+                "terminal Artifact batch carries a partial repository preflight"
+            )
+        if repository_binding_preflight is not None:
+            apply_bindings = getattr(
+                self._object_bindings,
+                "apply_terminal_preverified_many",
+                None,
+            )
+            apply_artifacts = getattr(
+                self._artifacts,
+                "put_preflighted_many",
+                None,
+            )
+            if not callable(apply_bindings) or not callable(apply_artifacts):
+                raise IntegrityViolation(
+                    "terminal Artifact repository lost its sealed apply capability"
+                )
+            try:
+                apply_bindings(repository_binding_preflight)
+            except Conflict as exc:
+                raise TerminalAuthorityDrift(
+                    "terminal ObjectBinding authority changed after preflight"
+                ) from exc
+            stored = tuple(apply_artifacts(repository_artifact_preflight))
+            if len(stored) != len(writes):
+                raise IntegrityViolation("Artifact repository returned another batch cardinality")
+            return stored
+
+        if not self._allow_legacy_test_repositories:
+            raise IntegrityViolation(
+                "terminal Artifact batch lacks its required repository preflight"
+            )
+
+        unique_binding_writes: dict[
+            str, tuple[ObjectStat, ObjectBinding | None, str, StagedReceipt]
+        ] = {}
+        for artifact, receipt, planned in writes:
+            if isinstance(planned, PreverifiedArtifactBinding):
+                request = (
+                    planned.stat,
+                    planned.binding,
+                    artifact.artifact_id,
+                    receipt,
+                )
+            else:
+                request = (
+                    self._receipt_stat(receipt),
+                    None,
+                    artifact.artifact_id,
+                    receipt,
+                )
+            retained = unique_binding_writes.setdefault(artifact.object_ref.key, request)
+            if retained[:2] != request[:2]:
+                raise IntegrityViolation(
+                    "terminal Artifact batch carries conflicting binding proofs",
+                    object_key=artifact.object_ref.key,
+                )
+
+        bind_many = getattr(self._object_bindings, "bind_terminal_preverified_many", None)
+        if callable(bind_many):
+            try:
+                bindings = tuple(
+                    bind_many(
+                        tuple(
+                            (stat, expected)
+                            for stat, expected, _artifact_id, _receipt in (
+                                unique_binding_writes.values()
+                            )
+                        )
+                    )
+                )
+            except Conflict as exc:
+                raise TerminalAuthorityDrift(
+                    "terminal ObjectBinding authority changed after preflight"
+                ) from exc
+            if len(bindings) != len(unique_binding_writes):
+                raise IntegrityViolation(
+                    "ObjectBinding repository returned another batch cardinality"
+                )
+        else:
+            for stat, expected, artifact_id, receipt in unique_binding_writes.values():
+                if expected is None:
+                    self._bind_planned_absent_receipt(receipt)
+                else:
+                    self._retain_preverified_binding(
+                        PreverifiedArtifactBinding(binding=expected, stat=stat),
+                        artifact_id=artifact_id,
+                    )
+
+        put_many = getattr(self._artifacts, "put_many", None)
+        if callable(put_many):
+            stored = tuple(put_many(tuple(item[0] for item in writes)))
+        else:
+            stored = tuple(self._artifacts.put(item[0]) for item in writes)
+        if len(stored) != len(writes):
+            raise IntegrityViolation("Artifact repository returned another batch cardinality")
+        for retained, (expected, _receipt, _planned) in zip(
+            stored,
+            writes,
+            strict=True,
+        ):
+            if not _same_immutable_artifact(retained, expected):
+                raise IntegrityViolation(
+                    "Artifact store returned a different immutable Artifact",
+                    expected_artifact_id=expected.artifact_id,
+                )
+        return stored
+
+    def put_staged(
+        self,
+        artifact: ArtifactV2,
+        receipt: StagedReceipt,
+        retained_binding: (
+            PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding | None
+        ) = None,
+    ) -> ArtifactV2:
         """Bind one explicit verified receipt, then persist its immutable Artifact.
 
-        The receipt location is never recovered from the process-local key registry.
-        ``stat`` is repeated inside the fresh write UoW so a substituted/deleted
-        generation fails before either ObjectBinding or Artifact authority is written.
+        The receipt location is never recovered from process-local key lookup. Its
+        exact stat was produced by the immediately preceding staging phase; the DB
+        UoW performs a generation-identity recheck plus binding/revision CAS but does
+        not reopen or hash ObjectStore payload bytes.
         """
 
         if receipt.ref != artifact.object_ref:
             raise IntegrityViolation(
                 "staged receipt ObjectRef differs from the Artifact",
-                slot=receipt.slot,
-                artifact_id=artifact.artifact_id,
-            )
-        stat = self._object_store.stat(receipt.location)  # type: ignore[attr-defined]
-        if stat.ref != receipt.ref or stat.location != receipt.location:
-            raise IntegrityViolation(
-                "staged receipt stat differs from its exact ref/generation",
                 slot=receipt.slot,
                 artifact_id=artifact.artifact_id,
             )
@@ -1349,30 +2072,36 @@ class WorkerArtifactPort:
                     "Artifact id is already bound to different immutable content",
                     artifact_id=artifact.artifact_id,
                 )
-            binding = self._resolve_or_bind_receipt(receipt)
-            retained_stat = self._object_store.stat(binding.location)  # type: ignore[attr-defined]
-            if (
-                binding.status != "active"
-                or binding.object_ref != artifact.object_ref
-                or retained_stat.ref != artifact.object_ref
-                or retained_stat.location != binding.location
-            ):
+            binding = (
+                self._resolve_or_bind_receipt(receipt)
+                if retained_binding is None
+                else self._bind_planned_absent_receipt(receipt)
+                if isinstance(retained_binding, PreverifiedAbsentArtifactBinding)
+                else self._retain_preverified_binding(
+                    retained_binding,
+                    artifact_id=artifact.artifact_id,
+                )
+            )
+            if binding.status != "active" or binding.object_ref != artifact.object_ref:
                 raise IntegrityViolation(
-                    "retained Artifact ObjectBinding is not readable and exact",
+                    "retained Artifact ObjectBinding is not active and exact",
                     artifact_id=artifact.artifact_id,
                 )
             # The newly staged location is a safe GC-eligible orphan.  Idempotent
             # publication must not remap an already-published immutable Artifact.
             return existing_artifact
 
-        binding = self._resolve_or_bind_receipt(receipt)
-        retained_stat = self._object_store.stat(binding.location)  # type: ignore[attr-defined]
-        if (
-            binding.object_ref != receipt.ref
-            or binding.status != "active"
-            or retained_stat.ref != receipt.ref
-            or retained_stat.location != binding.location
-        ):
+        binding = (
+            self._resolve_or_bind_receipt(receipt)
+            if retained_binding is None
+            else self._bind_planned_absent_receipt(receipt)
+            if isinstance(retained_binding, PreverifiedAbsentArtifactBinding)
+            else self._retain_preverified_binding(
+                retained_binding,
+                artifact_id=artifact.artifact_id,
+            )
+        )
+        if binding.object_ref != receipt.ref or binding.status != "active":
             raise IntegrityViolation(
                 "ObjectBinding repository returned another active binding",
                 slot=receipt.slot,
@@ -1390,7 +2119,12 @@ class WorkerArtifactPort:
             )
         binding = self._object_bindings.resolve(object_ref)  # type: ignore[attr-defined]
         with self._object_store.open(binding.location) as stream:  # type: ignore[attr-defined]
-            payload = stream.read(object_ref.size_bytes + 1)
+            payload = _read_bounded_stream(
+                stream,
+                max_bytes=object_ref.size_bytes + 1,
+                label="runtime Artifact",
+                object_key=object_ref.key,
+            )
         if len(payload) != object_ref.size_bytes or sha256_lowerhex(payload) != object_ref.sha256:
             raise IntegrityViolation(
                 "runtime Artifact bytes differ from immutable ObjectRef",
@@ -1421,40 +2155,397 @@ class WorkerManifestLedger:
         self._artifacts = artifacts
         self._object_bindings = object_bindings
         self._object_store = object_store
+        self._terminal_authority_digests: dict[str, str] = {}
+        self._terminal_attempt_authority_digests: dict[str, str] = {}
+        self._runs_by_id: dict[str, RunRecord] = {}
+        self._attempts_by_key: dict[tuple[str, int], RunAttempt | None] = {}
+        self._prompt_links_by_run: dict[str, tuple[RunIntermediateArtifactLinkV1, ...]] = {}
+        self._tool_links_by_run: dict[str, tuple[RunToolIntermediateLinkV1, ...]] = {}
+        self._routes_by_run: dict[str, tuple[RunModelRouteLinkV1, ...]] = {}
+        self._consumptions_by_run: dict[str, tuple[RunModelResponseConsumptionV1, ...]] = {}
+        self._routes_by_key: dict[tuple[str, int, int, int], RunModelRouteLinkV1] = {}
+        self._consumptions_by_key: dict[
+            tuple[str, int, int, int], RunModelResponseConsumptionV1
+        ] = {}
+        self._closed_by_run: dict[str, tuple[tuple[int, str], ...]] = {}
+        self._native_decisions: dict[str, RoutingDecisionV1 | None] = {}
+        self._legacy_decisions: dict[str, object] = {}
+        self._reservation_groups_by_attempt: dict[tuple[str, int], tuple[object, ...]] = {}
+
+    @staticmethod
+    def _project_authority_value(value: object) -> object:
+        model_dump = getattr(value, "model_dump", None)
+        if callable(model_dump):
+            return model_dump(mode="json")
+        if isinstance(value, Mapping):
+            return {
+                str(key): WorkerManifestLedger._project_authority_value(item)
+                for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+            }
+        if isinstance(value, (tuple, list)):
+            return tuple(WorkerManifestLedger._project_authority_value(item) for item in value)
+        return value
+
+    def _resolve_projection_dependencies(
+        self,
+        *,
+        run_id: str,
+        attempts: tuple[RunAttempt, ...],
+        routes: tuple[RunModelRouteLinkV1, ...],
+    ) -> tuple[
+        tuple[str, ...],
+        tuple[str, ...],
+        Mapping[str, object],
+        Mapping[str, object],
+        tuple[tuple[int, tuple[object, ...]], ...],
+    ]:
+        native_ids = tuple(
+            dict.fromkeys(
+                route.routing_decision_id
+                for route in routes
+                if route.routing_decision_kind == "native"
+            )
+        )
+        legacy_ids = tuple(
+            dict.fromkeys(
+                route.routing_decision_id
+                for route in routes
+                if route.routing_decision_kind == "legacy_import"
+            )
+        )
+        get_native = getattr(self._routing, "get_routing_decisions_many", None)
+        get_legacy = getattr(self._routing, "get_legacy_import_routing_decisions_many", None)
+        if native_ids and not callable(get_native):
+            raise IntegrityViolation("terminal authority lacks native decision batch reads")
+        if legacy_ids and not callable(get_legacy):
+            raise IntegrityViolation("terminal authority lacks legacy decision batch reads")
+        native = {} if not native_ids else get_native(native_ids)
+        legacy = {} if not legacy_ids else get_legacy(legacy_ids)
+        if any(native.get(decision_id) is None for decision_id in native_ids) or any(
+            legacy.get(decision_id) is None for decision_id in legacy_ids
+        ):
+            raise IntegrityViolation("terminal runtime authority lost a routing decision")
+        project_groups = getattr(self._routing, "terminal_attempt_reservation_groups", None)
+        if attempts and not callable(project_groups):
+            raise IntegrityViolation("terminal authority lacks attempt reservation projections")
+        reservation_groups = (
+            ()
+            if not attempts
+            else project_groups(
+                run_id=run_id,
+                attempt_nos=tuple(attempt.attempt_no for attempt in attempts),
+                limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
+            )
+        )
+        return native_ids, legacy_ids, native, legacy, tuple(reservation_groups)
+
+    @classmethod
+    def _projection_digest(
+        cls,
+        *,
+        projection: object,
+        native_ids: tuple[str, ...],
+        legacy_ids: tuple[str, ...],
+        native: Mapping[str, object],
+        legacy: Mapping[str, object],
+        reservation_groups: tuple[tuple[int, tuple[object, ...]], ...],
+    ) -> str:
+        project_value = cls._project_authority_value
+        return canonical_sha256(
+            {
+                "run": project_value(projection.run),  # type: ignore[attr-defined]
+                "attempts": project_value(projection.attempts),  # type: ignore[attr-defined]
+                "prompt_links": project_value(projection.prompt_links),  # type: ignore[attr-defined]
+                "tool_links": project_value(projection.tool_links),  # type: ignore[attr-defined]
+                "model_routes": project_value(projection.model_routes),  # type: ignore[attr-defined]
+                "model_consumptions": project_value(  # type: ignore[attr-defined]
+                    projection.model_consumptions
+                ),
+                "closed_attempt_failures": projection.closed_attempt_failures,  # type: ignore[attr-defined]
+                "native_decisions": tuple(
+                    (decision_id, project_value(native[decision_id])) for decision_id in native_ids
+                ),
+                "legacy_decisions": tuple(
+                    (decision_id, project_value(legacy[decision_id])) for decision_id in legacy_ids
+                ),
+                "attempt_reservation_groups": project_value(reservation_groups),
+            }
+        )
+
+    def terminal_authority_digest(self, run_id: str) -> str:
+        """Hash one bounded, DB-only terminal authority snapshot.
+
+        Immutable Artifact bytes are fully verified while the read-phase plan is
+        built.  The fresh ``BEGIN IMMEDIATE`` snapshot only needs to prove that the
+        mutable rows which selected runtime parents/execution identity did not
+        change.  This deliberately performs no ObjectStore access or payload
+        decoding while the SQLite writer is held.
+        """
+
+        retained = self._terminal_authority_digests.get(run_id)
+        if retained is not None:
+            return retained
+        project = getattr(self._runs, "terminal_authority_projection", None)
+        if not callable(project):
+            raise IntegrityViolation("terminal authority lacks bounded Run projection")
+        projection = project(
+            run_id,
+            limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
+        )
+        run = projection.run
+        attempts = projection.attempts
+        prompt_links = projection.prompt_links
+        tool_links = projection.tool_links
+        routes = projection.model_routes
+        consumptions = projection.model_consumptions
+        closed = projection.closed_attempt_failures
+
+        native_ids, legacy_ids, native, legacy, reservation_groups = (
+            self._resolve_projection_dependencies(
+                run_id=run_id,
+                attempts=attempts,
+                routes=routes,
+            )
+        )
+        digest = self._projection_digest(
+            projection=projection,
+            native_ids=native_ids,
+            legacy_ids=legacy_ids,
+            native=native,
+            legacy=legacy,
+            reservation_groups=reservation_groups,
+        )
+        self._runs_by_id[run_id] = run
+        self._attempts_by_key.update(
+            {(run_id, attempt.attempt_no): attempt for attempt in attempts}
+        )
+        self._prompt_links_by_run[run_id] = prompt_links
+        self._tool_links_by_run[run_id] = tool_links
+        self._routes_by_run[run_id] = routes
+        self._routes_by_key.update(
+            {
+                (run_id, route.attempt_no, route.call_ordinal, route.route_ordinal): route
+                for route in routes
+            }
+        )
+        self._consumptions_by_run[run_id] = consumptions
+        self._consumptions_by_key.update(
+            {
+                (run_id, item.attempt_no, item.call_ordinal, item.route_ordinal): item
+                for item in consumptions
+            }
+        )
+        self._closed_by_run[run_id] = closed
+        self._native_decisions.update(native)
+        self._legacy_decisions.update(legacy)
+        self._reservation_groups_by_attempt.update(
+            {(run_id, attempt_no): groups for attempt_no, groups in reservation_groups}
+        )
+        self._terminal_authority_digests[run_id] = digest
+        return digest
+
+    def terminal_attempt_authority_digest(self, run_id: str) -> str:
+        """Bind a retry draft to current-attempt mutable authority only."""
+
+        return self._attempt_authority_digest(run_id, retain=True)
+
+    def fresh_terminal_attempt_authority_digest(self, run_id: str) -> str:
+        """Re-read current-attempt authority inside the terminal write UoW."""
+
+        return self._attempt_authority_digest(run_id, retain=False)
+
+    def _attempt_authority_digest(self, run_id: str, *, retain: bool) -> str:
+        if retain:
+            retained = self._terminal_attempt_authority_digests.get(run_id)
+            if retained is not None:
+                return retained
+        project = getattr(self._runs, "terminal_attempt_authority_projection", None)
+        if callable(project):
+            projection = project(
+                run_id,
+                limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
+            )
+        else:
+            full_project = getattr(self._runs, "terminal_authority_projection", None)
+            if not callable(full_project):
+                raise IntegrityViolation("terminal authority lacks bounded Run projection")
+            full = full_project(
+                run_id,
+                limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
+            )
+            attempt_no = full.run.current_attempt_no
+            projection = SimpleNamespace(
+                run=full.run,
+                attempts=tuple(
+                    attempt for attempt in full.attempts if attempt.attempt_no == attempt_no
+                ),
+                prompt_links=tuple(
+                    link for link in full.prompt_links if link.attempt_no == attempt_no
+                ),
+                tool_links=tuple(link for link in full.tool_links if link.attempt_no == attempt_no),
+                model_routes=tuple(
+                    route for route in full.model_routes if route.attempt_no == attempt_no
+                ),
+                model_consumptions=tuple(
+                    item for item in full.model_consumptions if item.attempt_no == attempt_no
+                ),
+                closed_attempt_failures=(),
+            )
+        attempts = tuple(projection.attempts)
+        routes = tuple(projection.model_routes)
+        native_ids, legacy_ids, native, legacy, reservation_groups = (
+            self._resolve_projection_dependencies(
+                run_id=run_id,
+                attempts=attempts,
+                routes=routes,
+            )
+        )
+        digest = self._projection_digest(
+            projection=projection,
+            native_ids=native_ids,
+            legacy_ids=legacy_ids,
+            native=native,
+            legacy=legacy,
+            reservation_groups=reservation_groups,
+        )
+        if retain:
+            self._runs_by_id[run_id] = projection.run
+            self._attempts_by_key.update(
+                {(run_id, attempt.attempt_no): attempt for attempt in attempts}
+            )
+            self._prompt_links_by_run[run_id] = tuple(projection.prompt_links)
+            self._tool_links_by_run[run_id] = tuple(projection.tool_links)
+            self._routes_by_run[run_id] = routes
+            self._routes_by_key.update(
+                {
+                    (run_id, route.attempt_no, route.call_ordinal, route.route_ordinal): route
+                    for route in routes
+                }
+            )
+            consumptions = tuple(projection.model_consumptions)
+            self._consumptions_by_run[run_id] = consumptions
+            self._consumptions_by_key.update(
+                {
+                    (run_id, item.attempt_no, item.call_ordinal, item.route_ordinal): item
+                    for item in consumptions
+                }
+            )
+            self._native_decisions.update(native)
+            self._legacy_decisions.update(legacy)
+            self._reservation_groups_by_attempt.update(
+                {(run_id, attempt_no): groups for attempt_no, groups in reservation_groups}
+            )
+            self._terminal_attempt_authority_digests[run_id] = digest
+        return digest
 
     def prompt_links(
         self, run_id: str, *, attempt_no: int | None
     ) -> tuple[RunIntermediateArtifactLinkV1, ...]:
-        return self._runs.list_prompt_render_links(  # type: ignore[attr-defined,no-any-return]
+        cached = self._prompt_links_by_run.get(run_id)
+        if cached is not None:
+            return (
+                cached
+                if attempt_no is None
+                else tuple(link for link in cached if link.attempt_no == attempt_no)
+            )
+        result = self._runs.list_prompt_render_links(  # type: ignore[attr-defined]
             run_id,
             attempt_no=attempt_no,
             limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
         )
+        if attempt_no is None:
+            self._prompt_links_by_run[run_id] = result
+        return result  # type: ignore[no-any-return]
+
+    def preflight_finding_links_many(
+        self,
+        links: Sequence[RunFindingLinkV1],
+        *,
+        planned_findings: Sequence[FindingRevisionV1] = (),
+        planned_artifact_ids: Sequence[str] = (),
+    ) -> object:
+        preflight = getattr(self._runs, "preflight_finding_links_many", None)
+        if not callable(preflight):
+            raise IntegrityViolation("Run ledger lacks Finding-link batch preflight")
+        return preflight(
+            links,
+            planned_findings=planned_findings,
+            planned_artifact_ids=planned_artifact_ids,
+        )
+
+    def put_preflighted_finding_links_many(self, seal: object) -> tuple[RunFindingLinkV1, ...]:
+        publish = getattr(self._runs, "put_preflighted_finding_links_many", None)
+        if not callable(publish):
+            raise IntegrityViolation("Run ledger lacks preflighted Finding-link publication")
+        return tuple(publish(seal))
+
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object:
+        return self._preflight_run_terminal("preflight_complete_attempt_success", kwargs)
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object:
+        return self._preflight_run_terminal("preflight_close_attempt_for_retry", kwargs)
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object:
+        return self._preflight_run_terminal("preflight_close_attempt_terminal", kwargs)
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object:
+        return self._preflight_run_terminal("preflight_terminate_inactive_run", kwargs)
+
+    def _preflight_run_terminal(
+        self,
+        operation: str,
+        kwargs: Mapping[str, object],
+    ) -> object:
+        preflight = getattr(self._runs, operation, None)
+        if not callable(preflight):
+            raise IntegrityViolation("Run ledger lacks terminal closure preflight")
+        return preflight(**kwargs)
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object:
+        apply = getattr(self._runs, "apply_preflighted_terminal_closure", None)
+        if not callable(apply):
+            raise IntegrityViolation("Run ledger lacks terminal closure apply")
+        return apply(seal)
 
     def tool_intermediate_links(
         self, run_id: str, *, attempt_no: int | None
     ) -> tuple[RunToolIntermediateLinkV1, ...]:
-        return self._runs.list_tool_intermediate_links(  # type: ignore[attr-defined,no-any-return]
+        cached = self._tool_links_by_run.get(run_id)
+        if cached is not None:
+            return (
+                cached
+                if attempt_no is None
+                else tuple(link for link in cached if link.attempt_no == attempt_no)
+            )
+        result = self._runs.list_tool_intermediate_links(  # type: ignore[attr-defined]
             run_id,
             attempt_no=attempt_no,
             limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
         )
+        if attempt_no is None:
+            self._tool_links_by_run[run_id] = result
+        return result  # type: ignore[no-any-return]
 
     def closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]:
-        return self._runs.list_closed_attempt_failures(run_id)  # type: ignore[attr-defined]
+        cached = self._closed_by_run.get(run_id)
+        if cached is not None:
+            return cached
+        result = self._runs.list_closed_attempt_failures(run_id)  # type: ignore[attr-defined]
+        self._closed_by_run[run_id] = result
+        return result  # type: ignore[no-any-return]
 
     def put_finding_link(self, link: RunFindingLinkV1) -> RunFindingLinkV1:
         return self._runs.put_finding_link(link)  # type: ignore[attr-defined,no-any-return]
 
     def execution_identity(self, run_id: str, *, attempt_no: int | None) -> ExecutionIdentityV1:
-        run = self._runs.get(run_id)  # type: ignore[attr-defined]
+        run = self._runs_by_id.get(run_id) or self._runs.get(run_id)  # type: ignore[attr-defined]
         if not isinstance(run, RunRecord):
             raise IntegrityViolation("terminal execution identity Run is unavailable")
         if self._artifacts is None or self._object_bindings is None or self._object_store is None:
             raise IntegrityViolation("terminal execution identity blob authority is unavailable")
         transaction = SimpleNamespace(
-            runs=self._runs,
-            cost=self._routing,
+            runs=self,
+            cost=self,
             artifacts=self._artifacts,
             object_bindings=self._object_bindings,
         )
@@ -1467,10 +2558,38 @@ class WorkerManifestLedger:
         )
 
     def get_attempt(self, run_id: str, attempt_no: int) -> RunAttempt | None:
-        return self._runs.get_attempt(run_id, attempt_no)  # type: ignore[attr-defined,no-any-return]
+        key = (run_id, attempt_no)
+        if key in self._attempts_by_key:
+            return self._attempts_by_key[key]
+        attempt = self._runs.get_attempt(run_id, attempt_no)  # type: ignore[attr-defined]
+        self._attempts_by_key[key] = attempt
+        return attempt  # type: ignore[no-any-return]
 
     def get_routing_decision(self, decision_id: str) -> RoutingDecisionV1 | None:
+        if decision_id in self._native_decisions:
+            return self._native_decisions[decision_id]
         return self._routing.get_routing_decision(decision_id)  # type: ignore[attr-defined,no-any-return]
+
+    def get_legacy_import_routing_decision(self, decision_id: str) -> object | None:
+        if decision_id in self._legacy_decisions:
+            return self._legacy_decisions[decision_id]
+        return self._routing.get_legacy_import_routing_decision(  # type: ignore[attr-defined,no-any-return]
+            decision_id
+        )
+
+    def list_attempt_reservation_groups(
+        self,
+        *,
+        run_id: str,
+        attempt_no: int,
+    ) -> tuple[object, ...]:
+        cached = self._reservation_groups_by_attempt.get((run_id, attempt_no))
+        if cached is not None:
+            return cached
+        return self._routing.list_attempt_reservation_groups(  # type: ignore[attr-defined,no-any-return]
+            run_id=run_id,
+            attempt_no=attempt_no,
+        )
 
     def get_model_route_link(
         self,
@@ -1479,6 +2598,9 @@ class WorkerManifestLedger:
         call_ordinal: int,
         route_ordinal: int,
     ) -> RunModelRouteLinkV1 | None:
+        cached = self._routes_by_run.get(run_id)
+        if cached is not None:
+            return self._routes_by_key.get((run_id, attempt_no, call_ordinal, route_ordinal))
         return self._runs.get_model_route_link(  # type: ignore[attr-defined,no-any-return]
             run_id,
             attempt_no,
@@ -1493,6 +2615,9 @@ class WorkerManifestLedger:
         call_ordinal: int,
         route_ordinal: int,
     ) -> RunModelResponseConsumptionV1 | None:
+        cached = self._consumptions_by_run.get(run_id)
+        if cached is not None:
+            return self._consumptions_by_key.get((run_id, attempt_no, call_ordinal, route_ordinal))
         return self._runs.get_model_response_consumption(  # type: ignore[attr-defined,no-any-return]
             run_id,
             attempt_no,
@@ -1506,11 +2631,35 @@ class WorkerManifestLedger:
         *,
         attempt_no: int | None,
     ) -> tuple[RunModelRouteLinkV1, ...]:
-        return self._runs.list_model_route_links(  # type: ignore[attr-defined,no-any-return]
+        cached = self._routes_by_run.get(run_id)
+        if cached is not None:
+            return (
+                cached
+                if attempt_no is None
+                else tuple(route for route in cached if route.attempt_no == attempt_no)
+            )
+        result = self._runs.list_model_route_links(  # type: ignore[attr-defined]
             run_id,
             attempt_no=attempt_no,
             limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
         )
+        if attempt_no is None:
+            self._routes_by_run[run_id] = result
+            self._routes_by_key.update(
+                {
+                    (run_id, route.attempt_no, route.call_ordinal, route.route_ordinal): route
+                    for route in result
+                }
+            )
+        return result  # type: ignore[no-any-return]
+
+    def list_model_route_links(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+    ) -> tuple[RunModelRouteLinkV1, ...]:
+        return self.model_route_links(run_id, attempt_no=attempt_no)
 
     def model_response_consumptions(
         self,
@@ -1518,11 +2667,35 @@ class WorkerManifestLedger:
         *,
         attempt_no: int | None,
     ) -> tuple[RunModelResponseConsumptionV1, ...]:
-        return self._runs.list_model_response_consumptions(  # type: ignore[attr-defined,no-any-return]
+        cached = self._consumptions_by_run.get(run_id)
+        if cached is not None:
+            return (
+                cached
+                if attempt_no is None
+                else tuple(item for item in cached if item.attempt_no == attempt_no)
+            )
+        result = self._runs.list_model_response_consumptions(  # type: ignore[attr-defined]
             run_id,
             attempt_no=attempt_no,
             limit=MAX_RUN_MANIFEST_PARENT_BINDINGS,
         )
+        if attempt_no is None:
+            self._consumptions_by_run[run_id] = result
+            self._consumptions_by_key.update(
+                {
+                    (run_id, item.attempt_no, item.call_ordinal, item.route_ordinal): item
+                    for item in result
+                }
+            )
+        return result  # type: ignore[no-any-return]
+
+    def list_model_response_consumptions(
+        self,
+        run_id: str,
+        *,
+        attempt_no: int | None,
+    ) -> tuple[RunModelResponseConsumptionV1, ...]:
+        return self.model_response_consumptions(run_id, attempt_no=attempt_no)
 
     def record_shard_links(
         self, run_id: str, *, attempt_no: int | None
@@ -1549,7 +2722,7 @@ class WorkerManifestLedger:
         return None if attempt is None else attempt.cassette_bundle_artifact_id
 
     def run_cassette_bundle(self, run_id: str) -> str | None:
-        run = self._runs.get(run_id)  # type: ignore[attr-defined]
+        run = self._runs_by_id.get(run_id) or self._runs.get(run_id)  # type: ignore[attr-defined]
         if run is None:
             return None
         if not isinstance(run, RunRecord):
@@ -1557,7 +2730,7 @@ class WorkerManifestLedger:
         return run.terminal_cassette_artifact_id
 
     def replay_input_cassette(self, run_id: str) -> str | None:
-        run = self._runs.get(run_id)  # type: ignore[attr-defined]
+        run = self._runs_by_id.get(run_id) or self._runs.get(run_id)  # type: ignore[attr-defined]
         if run is None:
             return None
         if not isinstance(run, RunRecord):
@@ -1571,6 +2744,22 @@ class WorkerAuditPort:
     def __init__(self, *, audit_gate: AuditGate, chain_id: str) -> None:
         self._audit_gate = audit_gate
         self._chain_id = chain_id
+        self._terminal_batch: PreflightedAuditBatch | None = None
+        self._terminal_batch_applied = False
+        self._deferred_records: tuple[
+            tuple[
+                str,
+                str,
+                AuditActor,
+                str | None,
+                AuditActor,
+                str,
+                str | None,
+                str | None,
+            ],
+            ...,
+        ] = ()
+        self._deferred_index = 0
 
     def record(
         self,
@@ -1580,7 +2769,36 @@ class WorkerAuditPort:
         artifact_id: str | None,
         actor: AuditActor,
         occurred_at: str,
+        request_id: str | None = None,
+        trace_id: str | None = None,
     ) -> None:
+        if self._terminal_batch is not None:
+            if not self._terminal_batch_applied:
+                raise IntegrityViolation(
+                    "terminal lifecycle Audit was consumed before its batch was applied"
+                )
+            if self._deferred_index >= len(self._deferred_records):
+                raise IntegrityViolation(
+                    "terminal lifecycle Audit is unexpected or was already consumed"
+                )
+            expected = self._deferred_records[self._deferred_index]
+            actual = (
+                action,
+                run.run_id,
+                run.initiated_by,
+                artifact_id,
+                actor,
+                occurred_at,
+                request_id,
+                trace_id,
+            )
+            if actual != expected:
+                raise IntegrityViolation(
+                    "terminal lifecycle Audit differs from its preflighted record"
+                )
+            self._deferred_index += 1
+            return
+
         del occurred_at  # AuditGate stamps the authoritative ts from its own clock.
         self._audit_gate.append(
             chain_id=self._chain_id,
@@ -1592,8 +2810,140 @@ class WorkerAuditPort:
                 resource_id=run.run_id,
                 artifact_id=artifact_id,
             ),
-            correlation=AuditCorrelation(request_id=None, run_id=run.run_id, trace_id=None),
+            correlation=AuditCorrelation(
+                request_id=request_id,
+                run_id=run.run_id,
+                trace_id=trace_id,
+            ),
         )
+
+    def preflight_records(self, records: Sequence[object]) -> PreflightedAuditBatch:
+        """Lock the chain head once and freeze all terminal records in input order."""
+
+        if self._terminal_batch is not None:
+            raise IntegrityViolation("terminal Audit batch was already preflighted")
+        intents: list[AuditAppendIntent] = []
+        deferred_records: list[
+            tuple[
+                str,
+                str,
+                AuditActor,
+                str | None,
+                AuditActor,
+                str,
+                str | None,
+                str | None,
+            ]
+        ] = []
+        saw_deferred = False
+        for record in records:
+            action = getattr(record, "action", None)
+            run = getattr(record, "run", None)
+            artifact_id = getattr(record, "artifact_id", None)
+            actor = getattr(record, "actor", None)
+            occurred_at = getattr(record, "occurred_at", None)
+            deferred = getattr(record, "deferred", None)
+            request_id = getattr(record, "request_id", None)
+            trace_id = getattr(record, "trace_id", None)
+            chain_id = getattr(record, "chain_id", None)
+            append_intent = getattr(record, "append_intent", None)
+            if (
+                not isinstance(action, str)
+                or not isinstance(run, RunRecord)
+                or artifact_id is not None
+                and not isinstance(artifact_id, str)
+                or not isinstance(actor, AuditActor)
+                or not isinstance(occurred_at, str)
+                or not isinstance(deferred, bool)
+                or request_id is not None
+                and not isinstance(request_id, str)
+                or trace_id is not None
+                and not isinstance(trace_id, str)
+                or chain_id is not None
+                and not isinstance(chain_id, str)
+                or append_intent is not None
+                and not isinstance(append_intent, AuditAppendIntent)
+            ):
+                raise IntegrityViolation("terminal Audit intent is invalid")
+            if saw_deferred and not deferred:
+                raise IntegrityViolation("terminal publication Audit cannot follow lifecycle Audit")
+            saw_deferred = saw_deferred or deferred
+            if append_intent is None:
+                intents.append(
+                    AuditAppendIntent(
+                        actor=actor,
+                        initiated_by=run.initiated_by,
+                        action=action,
+                        subject=AuditSubject(
+                            resource_kind="run",
+                            resource_id=run.run_id,
+                            artifact_id=artifact_id,
+                        ),
+                        correlation=AuditCorrelation(
+                            request_id=request_id,
+                            run_id=run.run_id,
+                            trace_id=trace_id,
+                        ),
+                    )
+                )
+            else:
+                if (
+                    deferred
+                    or chain_id != self._chain_id
+                    or append_intent.action != action
+                    or append_intent.actor != actor
+                    or append_intent.initiated_by != run.initiated_by
+                    or append_intent.subject.artifact_id != artifact_id
+                    or append_intent.correlation
+                    != AuditCorrelation(
+                        request_id=request_id,
+                        run_id=run.run_id,
+                        trace_id=trace_id,
+                    )
+                ):
+                    raise IntegrityViolation(
+                        "merged workflow Audit intent differs from terminal authority"
+                    )
+                intents.append(append_intent)
+            if deferred:
+                deferred_records.append(
+                    (
+                        action,
+                        run.run_id,
+                        run.initiated_by,
+                        artifact_id,
+                        actor,
+                        occurred_at,
+                        request_id,
+                        trace_id,
+                    )
+                )
+        prepared = self._audit_gate.prepare_batch(
+            chain_id=self._chain_id,
+            intents=tuple(intents),
+            require_batch=True,
+        )
+        self._terminal_batch = prepared
+        self._deferred_records = tuple(deferred_records)
+
+        def require_complete_terminal_audit() -> None:
+            if not self._terminal_batch_applied:
+                raise IntegrityViolation("terminal Audit batch was not applied before commit")
+            if self._deferred_index != len(self._deferred_records):
+                raise IntegrityViolation(
+                    "terminal lifecycle Audit records were not completely consumed"
+                )
+
+        self._audit_gate.register_before_commit_guard(require_complete_terminal_audit)
+        return prepared
+
+    def apply_preflighted_records(self, prepared: object) -> None:
+        if not isinstance(prepared, PreflightedAuditBatch):
+            raise IntegrityViolation("terminal Audit batch was not authority-issued")
+        if prepared is not self._terminal_batch or self._terminal_batch_applied:
+            raise IntegrityViolation("terminal Audit batch is foreign or already applied")
+        self._audit_gate.apply_prepared_batch(prepared)
+        self._terminal_batch_applied = True
 
 
 class WorkerCommandPublicationGateway:
@@ -2304,6 +3654,7 @@ class WorkerCommandTerminalPublicationGateway:
     def __init__(self, *, commands: WorkerCommandPublicationGateway, terminal: object) -> None:
         self._commands = commands
         self._terminal = terminal
+        self._terminal_command_correlation: AuditCorrelation | None = None
 
     def record_run_created(self, **kwargs: object) -> None:
         self._commands.record_run_created(**kwargs)  # type: ignore[arg-type]
@@ -2312,13 +3663,33 @@ class WorkerCommandTerminalPublicationGateway:
         self._commands.record_run_claimed(**kwargs)  # type: ignore[arg-type]
 
     def record_command_submitted(self, **kwargs: object) -> None:
-        self._commands.record_command_submitted(**kwargs)  # type: ignore[arg-type]
+        events = kwargs.get("events")
+        event = events[-1] if isinstance(events, tuple) and events else None
+        correlation = self._terminal_command_correlation
+        self._terminal.record_command_submitted(  # type: ignore[attr-defined]
+            **kwargs,
+            trace_id=(
+                correlation.trace_id
+                if correlation is not None
+                else getattr(event, "trace_id", None)
+            ),
+        )
 
     def record_command_completed(self, **kwargs: object) -> None:
         self._commands.record_command_completed(**kwargs)  # type: ignore[arg-type]
 
     def record_run_terminal(self, **kwargs: object) -> None:
-        self._commands.record_run_terminal(**kwargs)  # type: ignore[arg-type]
+        event = kwargs.get("event")
+        correlation = self._terminal_command_correlation
+        self._terminal.record_run_terminal(  # type: ignore[attr-defined]
+            **kwargs,
+            trace_id=(
+                correlation.trace_id
+                if correlation is not None
+                else getattr(event, "trace_id", None)
+            ),
+        )
+        self._terminal_command_correlation = None
 
     def get_prompt_replay(self, **kwargs: object) -> object:
         return self._commands.get_prompt_replay(**kwargs)
@@ -2335,14 +3706,47 @@ class WorkerCommandTerminalPublicationGateway:
     def preflight_outcome(self, **kwargs: object) -> object:
         return self._terminal.preflight_outcome(**kwargs)  # type: ignore[attr-defined]
 
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object:
+        return self._terminal.preflight_complete_attempt_success(  # type: ignore[attr-defined]
+            **kwargs
+        )
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object:
+        return self._terminal.preflight_close_attempt_for_retry(  # type: ignore[attr-defined]
+            **kwargs
+        )
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object:
+        return self._terminal.preflight_close_attempt_terminal(  # type: ignore[attr-defined]
+            **kwargs
+        )
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object:
+        return self._terminal.preflight_terminate_inactive_run(  # type: ignore[attr-defined]
+            **kwargs
+        )
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object:
+        return self._terminal.apply_preflighted_terminal_closure(  # type: ignore[attr-defined]
+            seal
+        )
+
     def plan_run_failure(self, **kwargs: object) -> object:
         return self._terminal.plan_run_failure(**kwargs)  # type: ignore[attr-defined]
 
-    def commit(self, fresh_draft: object, staged: object) -> object:
-        return self._terminal.commit(fresh_draft, staged)  # type: ignore[attr-defined]
-
-    def commit_many(self, publications: object) -> object:
-        return self._terminal.commit_many(publications)  # type: ignore[attr-defined]
+    def commit_planned_run_failure(self, draft: object, staged: object, **kwargs: object) -> object:
+        correlation = kwargs.get("command_audit_correlation")
+        if correlation is not None and not isinstance(correlation, AuditCorrelation):
+            raise IntegrityViolation("terminal command Audit correlation is invalid")
+        if correlation is not None and self._terminal_command_correlation is not None:
+            raise IntegrityViolation("terminal command Audit correlation is already active")
+        result = self._terminal.commit_planned_run_failure(  # type: ignore[attr-defined]
+            draft,
+            staged,
+            **kwargs,
+        )
+        self._terminal_command_correlation = correlation
+        return result
 
 
 __all__ = [

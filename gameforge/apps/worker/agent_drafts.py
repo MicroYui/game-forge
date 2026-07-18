@@ -43,8 +43,10 @@ from gameforge.platform.approvals import build_approval_requirements
 from gameforge.platform.approvals.commands import (
     ApprovalCommandCapabilities,
     ApprovalCommandService,
+    DraftSubjectFacts,
     PreparedDraft,
     PreparedObjectBinding,
+    PreparedTerminalDraft,
     PreparedValidationStart,
 )
 from gameforge.platform.audit.gate import AuditGate
@@ -165,8 +167,61 @@ class WorkerAgentDraftPreparedAssembler:
     governance: WorkflowGovernanceProvider
 
     def prepare(self, request: AgentDraftWorkflowRequest) -> PreparedDraft:
-        subject, payload = self._subject(request)
-        companions = self._companions(request)
+        subject, companions, _facts, item, expected_head, expected_workflow_revision = (
+            self._prepare_projection(request, require_published=True)
+        )
+        return PreparedDraft(
+            subject_artifact=subject,
+            companion_artifacts=companions,
+            object_bindings=self._retained_bindings((subject, *companions)),
+            approval_item=item,
+            expected_subject_head=expected_head,
+            expected_previous_workflow_revision=expected_workflow_revision,
+        )
+
+    def prepare_terminal(self, request: AgentDraftWorkflowRequest) -> PreparedTerminalDraft:
+        """Prepare new terminal Artifacts before they exist in ArtifactRepository.
+
+        The generic terminal planner has already validated every planned Artifact
+        and payload.  This method validates the workflow-specific subject/preview
+        closure plus immutable retained lineage using the read snapshot; it never
+        requires an active binding for the newly staged outputs.
+        """
+
+        subject, companions, facts, item, expected_head, expected_workflow_revision = (
+            self._prepare_projection(request, require_published=False)
+        )
+        retained_parent_ids = self._retained_parent_ids((subject, *companions))
+        WorkerAgentDraftLineageVerifier().validate_terminal_draft_publication(
+            subject_artifact=subject,
+            companion_artifacts=companions,
+            retained_parent_ids=retained_parent_ids,
+        )
+        return PreparedTerminalDraft.seal(
+            subject_artifact=subject,
+            companion_artifacts=companions,
+            subject_facts=facts,
+            retained_parent_ids=retained_parent_ids,
+            approval_item=item,
+            expected_subject_head=expected_head,
+            expected_previous_workflow_revision=expected_workflow_revision,
+        )
+
+    def _prepare_projection(
+        self,
+        request: AgentDraftWorkflowRequest,
+        *,
+        require_published: bool,
+    ) -> tuple[
+        ArtifactV2,
+        tuple[ArtifactV2, ...],
+        DraftSubjectFacts,
+        ApprovalItem,
+        SubjectHead | None,
+        int | None,
+    ]:
+        subject, payload = self._subject(request, require_published=require_published)
+        companions = self._companions(request, require_published=require_published)
         scope = self._domain_scope(request)
         governance = self.governance.current()
 
@@ -180,6 +235,15 @@ class WorkerAgentDraftPreparedAssembler:
             supersedes_approval_id = None
             expected_head = None
             expected_workflow_revision = None
+            facts = DraftSubjectFacts(
+                subject_kind="constraint_proposal",
+                subject_revision=proposal.revision,
+                produced_by=proposal.produced_by,
+                producer_run_id=proposal.producer_run_id,
+                supersedes_artifact_id=proposal.supersedes_artifact_id,
+                target_artifact_id=None,
+                target_snapshot_id=None,
+            )
         else:
             patch = PatchV2.model_validate(payload)
             preview = self._validate_patch(
@@ -212,6 +276,15 @@ class WorkerAgentDraftPreparedAssembler:
                 supersedes_approval_id = None
                 expected_head = None
                 expected_workflow_revision = None
+            facts = DraftSubjectFacts(
+                subject_kind="patch",
+                subject_revision=patch.revision,
+                produced_by=patch.produced_by,
+                producer_run_id=patch.producer_run_id,
+                supersedes_artifact_id=patch.supersedes_artifact_id,
+                target_artifact_id=None,
+                target_snapshot_id=patch.target_snapshot_id,
+            )
 
         requirements = build_approval_requirements(
             registry=governance.registry,
@@ -242,16 +315,21 @@ class WorkerAgentDraftPreparedAssembler:
             target_binding=target_binding,
             created_at=request.occurred_at,
         )
-        return PreparedDraft(
-            subject_artifact=subject,
-            companion_artifacts=companions,
-            object_bindings=self._retained_bindings((subject, *companions)),
-            approval_item=item,
-            expected_subject_head=expected_head,
-            expected_previous_workflow_revision=expected_workflow_revision,
+        return (
+            subject,
+            companions,
+            facts,
+            item,
+            expected_head,
+            expected_workflow_revision,
         )
 
-    def _subject(self, request: AgentDraftWorkflowRequest) -> tuple[ArtifactV2, dict[str, object]]:
+    def _subject(
+        self,
+        request: AgentDraftWorkflowRequest,
+        *,
+        require_published: bool,
+    ) -> tuple[ArtifactV2, dict[str, object]]:
         artifacts = request.artifacts_by_rule.get("primary", ())
         payloads = request.payloads_by_rule.get("primary", ())
         if (
@@ -264,10 +342,16 @@ class WorkerAgentDraftPreparedAssembler:
         payload = dict(payloads[0])
         if sha256_lowerhex(canonical_json(payload).encode("utf-8")) != artifact.payload_hash:
             raise IntegrityViolation("Agent draft primary payload differs from its Artifact")
-        self._require_retained_artifact(artifact)
+        if require_published:
+            self._require_retained_artifact(artifact)
         return artifact, payload
 
-    def _companions(self, request: AgentDraftWorkflowRequest) -> tuple[ArtifactV2, ...]:
+    def _companions(
+        self,
+        request: AgentDraftWorkflowRequest,
+        *,
+        require_published: bool,
+    ) -> tuple[ArtifactV2, ...]:
         companions = tuple(
             sorted(
                 (
@@ -277,8 +361,9 @@ class WorkerAgentDraftPreparedAssembler:
                 key=lambda artifact: artifact.artifact_id,
             )
         )
-        for artifact in companions:
-            self._require_retained_artifact(artifact)
+        if require_published:
+            for artifact in companions:
+                self._require_retained_artifact(artifact)
         return companions
 
     def _require_retained_artifact(self, artifact: ArtifactV2) -> None:
@@ -398,6 +483,47 @@ class WorkerAgentDraftPreparedAssembler:
             raise IntegrityViolation("repair draft lacks the exact current workflow CAS")
         return item, head
 
+    def _retained_parent_ids(self, artifacts: tuple[ArtifactV2, ...]) -> tuple[str, ...]:
+        prepared_ids = {artifact.artifact_id for artifact in artifacts}
+        retained_ids = tuple(
+            sorted(
+                {
+                    parent_id
+                    for artifact in artifacts
+                    for parent_id in artifact.lineage
+                    if parent_id not in prepared_ids
+                }
+            )
+        )
+        retained: dict[str, ArtifactV2] = {}
+        for artifact_id in retained_ids:
+            artifact = self.artifacts.get(artifact_id)  # type: ignore[attr-defined]
+            if not isinstance(artifact, ArtifactV2):
+                raise IntegrityViolation(
+                    "Agent draft retained lineage parent is unavailable",
+                    parent_artifact_id=artifact_id,
+                )
+            retained[artifact_id] = artifact
+        for config in (artifact for artifact in artifacts if artifact.kind == "config_export"):
+            sibling_parent_ids = set(config.lineage).intersection(prepared_ids)
+            constraint_parent_ids = set(config.lineage) - sibling_parent_ids
+            if len(sibling_parent_ids) != 1 or len(constraint_parent_ids) != 1:
+                raise IntegrityViolation(
+                    "Agent config export must bind one preview and one constraint parent"
+                )
+            constraint = retained.get(next(iter(constraint_parent_ids)))
+            if (
+                constraint is None
+                or constraint.kind != "constraint_snapshot"
+                or constraint.version_tuple.constraint_snapshot_id is None
+                or config.version_tuple.constraint_snapshot_id
+                != constraint.version_tuple.constraint_snapshot_id
+            ):
+                raise IntegrityViolation(
+                    "Agent config export constraint lineage/VersionTuple differs"
+                )
+        return retained_ids
+
     def _retained_bindings(
         self, artifacts: tuple[ArtifactV2, ...]
     ) -> tuple[PreparedObjectBinding, ...]:
@@ -437,23 +563,47 @@ class WorkerAgentDraftLineageVerifier:
         prepared: PreparedDraft,
         retained_parent_ids: tuple[str, ...],
     ) -> None:
-        subject = prepared.subject_artifact
+        self.validate_terminal_draft_publication(
+            subject_artifact=prepared.subject_artifact,
+            companion_artifacts=prepared.companion_artifacts,
+            retained_parent_ids=retained_parent_ids,
+        )
+
+    def validate_terminal_draft_publication(
+        self,
+        *,
+        subject_artifact: ArtifactV2,
+        companion_artifacts: tuple[ArtifactV2, ...],
+        retained_parent_ids: tuple[str, ...],
+    ) -> None:
+        subject = subject_artifact
+        artifacts = (subject, *companion_artifacts)
         if subject.kind != "patch":
-            self._shared.validate_draft_publication(
-                prepared=prepared,
+            for artifact in artifacts:
+                self._shared._validate(artifact)
+            if subject.kind == "constraint_proposal":
+                if companion_artifacts:
+                    raise IntegrityViolation("Agent constraint proposal draft carries companions")
+            elif subject.kind == "rollback_request":
+                if len(subject.lineage) != 2 or companion_artifacts:
+                    raise IntegrityViolation(
+                        "Agent RollbackRequest must bind current and target Artifacts"
+                    )
+            else:
+                raise IntegrityViolation("unsupported Agent draft subject kind")
+            self._require_retained_projection(
+                artifacts=artifacts,
                 retained_parent_ids=retained_parent_ids,
             )
             return
 
-        for artifact in prepared.artifacts:
+        for artifact in artifacts:
             self._shared._validate(artifact)
         previews = tuple(
-            artifact for artifact in prepared.companion_artifacts if artifact.kind == "ir_snapshot"
+            artifact for artifact in companion_artifacts if artifact.kind == "ir_snapshot"
         )
         configs = tuple(
-            artifact
-            for artifact in prepared.companion_artifacts
-            if artifact.kind == "config_export"
+            artifact for artifact in companion_artifacts if artifact.kind == "config_export"
         )
         if len(previews) != 1:
             raise IntegrityViolation("Agent Patch draft requires one exact preview")
@@ -496,12 +646,23 @@ class WorkerAgentDraftLineageVerifier:
                 raise IntegrityViolation("Agent Patch has duplicate config-export profiles")
             profiles.add(profile)
 
-        prepared_ids = {artifact.artifact_id for artifact in prepared.artifacts}
+        self._require_retained_projection(
+            artifacts=artifacts,
+            retained_parent_ids=retained_parent_ids,
+        )
+
+    @staticmethod
+    def _require_retained_projection(
+        *,
+        artifacts: tuple[ArtifactV2, ...],
+        retained_parent_ids: tuple[str, ...],
+    ) -> None:
+        prepared_ids = {artifact.artifact_id for artifact in artifacts}
         expected_retained = tuple(
             sorted(
                 {
                     parent_id
-                    for artifact in prepared.artifacts
+                    for artifact in artifacts
                     for parent_id in artifact.lineage
                     if parent_id not in prepared_ids
                 }
@@ -549,6 +710,29 @@ class WorkerAgentDraftRunGateway:
             or facts.producer_run_id != run.run_id
         ):
             raise IntegrityViolation("Agent draft subject is not a producer Run output")
+
+    def verify_prepared_terminal_producer_authority(
+        self,
+        *,
+        run_id: str,
+        initiated_by: AuditActor,
+    ) -> None:
+        """Fresh DB-only producer check after planning validated subject bytes."""
+
+        run = self.runs.get(run_id)  # type: ignore[attr-defined]
+        if (
+            not isinstance(run, RunRecord)
+            or run.status != "running"
+            or run.initiated_by != initiated_by
+            or run.kind.version != 1
+            or run.kind.kind
+            not in {
+                "generation.propose",
+                "patch.repair",
+                "constraint_proposal.propose",
+            }
+        ):
+            raise IntegrityViolation("prepared Agent draft producer Run authority changed")
 
     def start_validation(
         self,

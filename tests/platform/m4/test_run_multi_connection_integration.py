@@ -59,6 +59,7 @@ class _SqlPublication:
 
     def __init__(self, session: Session) -> None:
         self._session = session
+        self._runs = SqlRunRepository(session)
 
     def record_run_created(
         self,
@@ -108,6 +109,21 @@ class _SqlPublication:
     ) -> PreparedRunOutcome:
         assert attempt is None or run.run_id == attempt.run_id
         return prepared
+
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object:
+        return self._runs.preflight_complete_attempt_success(**kwargs)
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object:
+        return self._runs.preflight_close_attempt_for_retry(**kwargs)
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object:
+        return self._runs.preflight_close_attempt_terminal(**kwargs)
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object:
+        return self._runs.preflight_terminate_inactive_run(**kwargs)
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object:
+        return self._runs.apply_preflighted_terminal_closure(seal)
 
     def publish_attempt_failure(
         self,
@@ -255,6 +271,10 @@ class _SqlPublication:
             assert fresh_draft.projection_digest == staged.projection_digest
         return tuple(self.commit(fresh, staged) for fresh, staged in publications)
 
+    def commit_planned_active_failure_aggregate(self, drafts, staged, **kwargs):
+        assert kwargs["retry_decision"].decision == "retry"
+        return self.commit_many(tuple(zip(drafts, staged, strict=True)))
+
     def record_attempt_closed(
         self,
         *,
@@ -300,6 +320,33 @@ class _Accounting:
     def retry_budget_available(self, *, run: RunRecord) -> bool:
         assert run.run_budget_hold_group_id
         return True
+
+    def preflight_terminal_closure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        lease: RunLease | None,
+        retry_decision: RetryDecisionV1 | None,
+        terminal_status: str | None,
+    ) -> tuple[RunRecord, RunAttempt | None, RunLease | None, RetryDecisionV1 | None, str | None]:
+        return run, attempt, lease, retry_decision, terminal_status
+
+    def apply_preflighted_terminal_closure(
+        self,
+        closure: tuple[
+            RunRecord,
+            RunAttempt | None,
+            RunLease | None,
+            RetryDecisionV1 | None,
+            str | None,
+        ],
+    ) -> None:
+        run, attempt, lease, retry_decision, terminal_status = closure
+        assert terminal_status is None
+        assert attempt is not None and lease is not None
+        assert run.run_id == attempt.run_id == lease.run_id
+        assert retry_decision is not None and retry_decision.decision == "retry"
 
     def release_attempt(
         self,

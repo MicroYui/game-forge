@@ -6,7 +6,7 @@ import json
 
 from fastapi.testclient import TestClient
 import pytest
-from sqlalchemy import inspect, select
+from sqlalchemy import event, inspect, select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import (
@@ -625,6 +625,18 @@ def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp
         payload=CancelRunPayloadV1(reason_code="user_requested"),
     )
 
+    terminal_sql: list[str] = []
+
+    def capture_terminal_statement(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        terminal_sql.append(statement)
+
     with TestClient(app, base_url="https://gameforge.test") as client:
         login = client.post(
             "/api/v1/auth/login",
@@ -638,17 +650,44 @@ def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp
         )
         assert admitted.status_code == 202, admitted.text
         run_id = admitted.json()["run_id"]
-        cancelled = client.post(
-            f"/api/v1/runs/{run_id}:cancel",
-            json=command.model_dump(mode="json"),
-            headers={"X-CSRF-Token": csrf},
+        event.listen(
+            app.state.local_resources.engine,
+            "before_cursor_execute",
+            capture_terminal_statement,
         )
+        try:
+            cancelled = client.post(
+                f"/api/v1/runs/{run_id}:cancel",
+                json=command.model_dump(mode="json"),
+                headers={"X-CSRF-Token": csrf},
+            )
+        finally:
+            event.remove(
+                app.state.local_resources.engine,
+                "before_cursor_execute",
+                capture_terminal_statement,
+            )
 
     assert cancelled.status_code == 200, cancelled.text
     request_id = cancelled.headers["X-Request-ID"]
     first_ack = RunCommandAckV1.model_validate(cancelled.json())
     assert first_ack.status == "accepted"
     assert first_ack.persisted_status == "applied"
+    operations = tuple(statement.lstrip().split(None, 1)[0].upper() for statement in terminal_sql)
+    first_dml = next(
+        index
+        for index, operation in enumerate(operations)
+        if operation in {"INSERT", "UPDATE", "DELETE", "REPLACE"}
+    )
+    audit_reads = tuple(
+        index
+        for index, (operation, statement) in enumerate(zip(operations, terminal_sql, strict=True))
+        if operation in {"SELECT", "WITH"}
+        and ("audit_heads" in statement.lower() or "from audit" in statement.lower())
+    )
+    assert len(audit_reads) == 2
+    assert max(audit_reads) < first_dml
+    assert not any(operation in {"SELECT", "WITH"} for operation in operations[first_dml + 1 :])
 
     restarted = create_local_app(config=config)
     restarted_dependencies = restarted.state.local_resources.dependencies
@@ -685,20 +724,23 @@ def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp
             "run.cancel_requested",
             "run.cancelled",
         )
-        command_audits = session.scalars(
+        terminal_audits = session.scalars(
             select(AuditRow)
             .where(
-                AuditRow.action.in_(("run.command_submitted", "run.terminal")),
+                AuditRow.action.in_(("run.failure", "run.command_submitted", "run.terminal")),
                 AuditRow.chain_id == "identity",
             )
             .order_by(AuditRow.seq)
         ).all()
-        assert len(command_audits) == 2
-        assert {
-            row.correlation.get("request_id")
-            for row in command_audits
-            if isinstance(row.correlation, dict)
-        } == {request_id}
+        assert tuple(row.action for row in terminal_audits) == (
+            "run.failure",
+            "run.command_submitted",
+            "run.terminal",
+        )
+        assert tuple(
+            row.correlation.get("request_id") if isinstance(row.correlation, dict) else None
+            for row in terminal_audits
+        ) == (request_id, request_id, request_id)
         assert SqlAuditSink(session).verify_chain("identity") is True
     engine.dispose()
 

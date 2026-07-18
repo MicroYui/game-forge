@@ -299,7 +299,22 @@ def _publish_handler_result(
         failure_class=None,
         retry_disposition=None,
     )
-    monkeypatch.setattr(publisher_module, "apply_workflow_effect", lambda *_a, **_kw: None)
+
+    class _SkippedPreparedWorkflow:
+        @staticmethod
+        def canonical_projection():
+            return {"prepared_schema_version": "test-skipped-workflow@1"}
+
+    monkeypatch.setattr(
+        publisher_module,
+        "prepare_workflow_effect",
+        lambda *_args, **_kwargs: _SkippedPreparedWorkflow(),
+    )
+    monkeypatch.setattr(
+        publisher_module,
+        "commit_prepared_workflow_effect",
+        lambda *_args, **_kwargs: None,
+    )
     terminal = _DirectPublisherHarness(
         TerminalPublisher(
             registry=registry,

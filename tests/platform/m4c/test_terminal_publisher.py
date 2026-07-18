@@ -9,10 +9,13 @@ mirror the production write pattern (Artifact rows / findings / links / audit).
 from __future__ import annotations
 
 import json
+from copy import copy
 from dataclasses import dataclass, field, replace
+from types import SimpleNamespace
 
 import pytest
 
+import gameforge.platform.publication.publisher as publisher_module
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
@@ -43,6 +46,7 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.lineage import (
     ArtifactV1,
     AuditActor,
+    AuditCorrelation,
     ObjectLocation,
     VersionTuple,
     build_artifact_v2,
@@ -50,6 +54,7 @@ from gameforge.contracts.lineage import (
 )
 from gameforge.platform.publication import TerminalPublisher
 from gameforge.platform.terminal_staging import (
+    PreverifiedAbsentArtifactBinding,
     StagedReceipt,
     StagedTerminalPublication,
 )
@@ -70,6 +75,7 @@ from gameforge.platform.runs.admission import RunAdmissionEngine
 from gameforge.platform.runs.lifecycle import (
     AttemptFailurePublication,
     RunFailurePublication,
+    TerminalAuthorityDrift,
     select_outcome_policy,
 )
 from gameforge.platform.run_handlers.validation_common import content_addressed_artifact_id
@@ -129,7 +135,8 @@ class _Artifacts:
         self.put_order.append(artifact.artifact_id)
         return artifact
 
-    def put_staged(self, artifact, receipt):
+    def put_staged(self, artifact, receipt, retained_binding=None):
+        del retained_binding
         assert receipt.ref == artifact.object_ref
         return self.put(artifact)
 
@@ -156,6 +163,37 @@ class _ReplacingArtifacts(_Artifacts):
                 meta={"payload_schema_id": "checker-report@1"},
             )
         return super().put(artifact)
+
+
+class _BatchArtifacts(_Artifacts):
+    def __init__(self) -> None:
+        super().__init__()
+        self.batch_events: list[str] = []
+
+    @staticmethod
+    def preflight_binding(artifact):
+        return PreverifiedAbsentArtifactBinding(object_ref=artifact.object_ref)
+
+    def preflight_staged_many(self, writes):
+        self.batch_events.append("preflight")
+        return tuple(writes)
+
+    def put_preflighted_many(self, writes):
+        self.batch_events.append("write")
+        return tuple(self.put(artifact) for artifact, _receipt, _binding in writes)
+
+    def put_staged(self, artifact, receipt, retained_binding=None):  # pragma: no cover
+        del artifact, receipt, retained_binding
+        raise AssertionError("planned production commit used scalar Artifact publication")
+
+
+class _MismatchingBatchArtifacts(_BatchArtifacts):
+    def put_preflighted_many(self, writes):
+        self.batch_events.append("write")
+        return tuple(
+            artifact.model_copy(update={"meta": {"tampered": True}})
+            for artifact, _receipt, _binding in writes
+        )
 
 
 class _Findings:
@@ -191,7 +229,72 @@ class _Ledger:
         return link
 
 
+class _PersistentLedger(_Ledger):
+    def terminal_authority_digest(self, run_id):
+        assert run_id == "run:1"
+        return "d" * 64
+
+    def terminal_attempt_authority_digest(self, run_id):
+        assert run_id == "run:1"
+        return "d" * 64
+
+
+class _ScopedAuthorityLedger(_Ledger):
+    def __init__(self) -> None:
+        super().__init__()
+        self.full_calls = 0
+        self.attempt_calls = 0
+        self.fresh_attempt_calls = 0
+
+    def terminal_authority_digest(self, run_id):
+        assert run_id == "run:1"
+        self.full_calls += 1
+        return "f" * 64
+
+    def terminal_attempt_authority_digest(self, run_id):
+        assert run_id == "run:1"
+        self.attempt_calls += 1
+        return "a" * 64
+
+    def fresh_terminal_attempt_authority_digest(self, run_id):
+        assert run_id == "run:1"
+        self.fresh_attempt_calls += 1
+        return "a" * 64
+
+
 class _Audit:
+    def __init__(self, *, fail_preflight: bool = False) -> None:
+        self.records: list[dict] = []
+        self.batch_events: list[str] = []
+        self.preflighted: list[tuple[object, ...]] = []
+        self._fail_preflight = fail_preflight
+
+    def record(self, **kwargs) -> None:
+        self.records.append(kwargs)
+
+    def preflight_records(self, records):
+        self.batch_events.append("preflight")
+        if self._fail_preflight:
+            raise IntegrityViolation("audit authority unavailable")
+        retained = tuple(records)
+        self.preflighted.append(retained)
+        return retained
+
+    def apply_preflighted_records(self, prepared) -> None:
+        self.batch_events.append("write")
+        self.records.extend(
+            {
+                "action": record.action,
+                "run": record.run,
+                "artifact_id": record.artifact_id,
+                "actor": record.actor,
+                "occurred_at": record.occurred_at,
+            }
+            for record in prepared
+        )
+
+
+class _ScalarOnlyAudit:
     def __init__(self) -> None:
         self.records: list[dict] = []
 
@@ -624,10 +727,25 @@ def _publish_validation_handler_outcome(
         failure_class=None,
         retry_disposition=None,
     )
+
     # These tests target the real Terminal Artifact/Finding path. Workflow CAS is
     # independently exercised with real repositories in
     # test_validation_completion_effect.py.
-    monkeypatch.setattr(publisher_module, "apply_workflow_effect", lambda *_args, **_kw: None)
+    class _SkippedPreparedWorkflow:
+        @staticmethod
+        def canonical_projection():
+            return {"prepared_schema_version": "test-skipped-workflow@1"}
+
+    monkeypatch.setattr(
+        publisher_module,
+        "prepare_workflow_effect",
+        lambda *_args, **_kw: _SkippedPreparedWorkflow(),
+    )
+    monkeypatch.setattr(
+        publisher_module,
+        "commit_prepared_workflow_effect",
+        lambda *_args, **_kw: None,
+    )
     published = _publisher(registry, artifacts, blobs, findings, ledger, audit).publish_run_result(
         run=run,
         attempt=context.attempt,
@@ -707,6 +825,36 @@ def test_non_validation_outcome_preflight_is_identity():
         )
         is prepared
     )
+
+
+def test_publication_collector_resolves_blob_slots_without_rescanning_materials() -> None:
+    """Artifact attachment is O(1) after the blob slot has been allocated."""
+
+    from gameforge.platform.publication import publisher as publisher_module
+
+    class _NoIterationList(list):
+        def __iter__(self):
+            raise AssertionError("add_artifact must not rescan every prior blob material")
+
+    collector = publisher_module._PublicationCollector(  # noqa: SLF001
+        publication_kind="run_result",
+        run_id="run:collector",
+        attempt_no=1,
+        occurred_at=NOW,
+    )
+    object_ref = collector.add_blob(b"collector payload")
+    collector.materials = _NoIterationList(collector.materials)
+    artifact = build_artifact_v2(
+        kind="checker_run",
+        version_tuple=VersionTuple(tool_version="checker@1"),
+        lineage=(),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={"payload_schema_id": "checker-report@1"},
+        created_at=NOW,
+    )
+
+    assert collector.add_artifact(artifact) == artifact
 
 
 def test_success_publishes_artifact_finding_link_and_manifest():
@@ -967,8 +1115,8 @@ def test_workflow_effect_receives_the_final_resealed_primary_payload(monkeypatch
     )
     monkeypatch.setattr(
         publisher_module,
-        "apply_workflow_effect",
-        lambda _key, context: effect_payloads.append(context.published_primary_payload),
+        "commit_prepared_workflow_effect",
+        lambda _prepared, context: effect_payloads.append(context.published_primary_payload),
     )
 
     published = _publisher(
@@ -1413,7 +1561,366 @@ def test_two_scope_failure_is_planned_and_committed_as_one_blob_first_aggregate(
     assert run_result.failure_artifact_id in artifacts.by_id
 
 
-def test_commit_rejects_nested_operation_mutation_after_draft_digest():
+def test_planned_failure_aggregate_preflights_audits_once_in_publication_order():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _execution_failure(definition)
+    decision = _terminal_decision(definition)
+    attempt_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    run_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code="execution_failed",
+        prepared_outcome="failure",
+        publication_scope="run",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class="execution",
+        retry_disposition="terminal",
+    )
+    audit = _Audit()
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        audit,
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit aggregate boundary
+    drafts = publisher.plan_active_failure_aggregate(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        retry_decision=decision,
+        attempt_policy=attempt_policy,
+        run_policy=run_policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = tuple(harness._stage(draft) for draft in drafts)  # noqa: SLF001
+    sealed = tuple(
+        draft.seal_for_commit(staged_publication)
+        for draft, staged_publication in zip(drafts, staged, strict=True)
+    )
+
+    publisher.commit_planned_active_failure_aggregate(
+        sealed,
+        staged,
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        retry_decision=decision,
+        attempt_policy=attempt_policy,
+        run_policy=run_policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    assert audit.batch_events == ["preflight", "write"]
+    assert len(audit.preflighted) == 1
+    assert tuple(record.action for record in audit.preflighted[0]) == (
+        "run.attempt_failure",
+        "run.failure",
+        "run.attempt_closed",
+        "run.terminal",
+    )
+
+
+def test_retry_uses_attempt_digest_while_final_aggregate_shares_one_full_fresh_digest():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    retry_prepared = PreparedRunFailure(
+        run_id=run.run_id,
+        attempt_no=attempt.attempt_no,
+        run_kind=run.kind,
+        artifacts=(),
+        requirement_dispositions=(),
+        cause_code="dependency_unavailable",
+        failure_class="transient_dependency",
+        intrinsic_retry_eligible=True,
+        classifier=definition.failure_classifier,
+        dependency=DependencyFailureV1(
+            dependency_kind="database",
+            dependency_id="db:primary",
+            operation_code="read",
+            classifier_code="dependency_unavailable",
+        ),
+        redacted_message="dependency unavailable",
+    )
+    retry_decision = RetryDecisionV1(
+        cause_code=retry_prepared.cause_code,
+        failure_class=retry_prepared.failure_class,
+        intrinsic_retry_eligible=True,
+        decision="retry",
+        reason_code="transient_eligible",
+        retry_not_before_utc="2026-07-14T12:00:01Z",
+        classifier=definition.failure_classifier,
+        retry_policy=definition.retry_policy,
+        evaluated_at_utc=NOW,
+    )
+    retry_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=retry_prepared.cause_code,
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="retry_wait",
+        attempt_status="failed",
+        failure_class=retry_prepared.failure_class,
+        retry_disposition="retry",
+    )
+    retry_artifacts, retry_blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(retry_artifacts)
+    retry_ledger = _ScopedAuthorityLedger()
+    retry_harness = _publisher(
+        registry,
+        retry_artifacts,
+        retry_blobs,
+        _Findings(),
+        retry_ledger,
+        _Audit(),
+    )
+    retry_publisher = retry_harness._publisher  # noqa: SLF001
+    retry_drafts = retry_publisher.plan_active_failure_aggregate(
+        run=run,
+        attempt=attempt,
+        prepared=retry_prepared,
+        retry_decision=retry_decision,
+        attempt_policy=retry_policy,
+        run_policy=None,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    assert (retry_ledger.attempt_calls, retry_ledger.fresh_attempt_calls) == (1, 0)
+    assert retry_ledger.full_calls == 0
+    retry_staged = tuple(retry_harness._stage(draft) for draft in retry_drafts)  # noqa: SLF001
+    retry_sealed = tuple(
+        draft.seal_for_commit(staged)
+        for draft, staged in zip(retry_drafts, retry_staged, strict=True)
+    )
+    retry_publisher.commit_planned_active_failure_aggregate(
+        retry_sealed,
+        retry_staged,
+        run=run,
+        attempt=attempt,
+        prepared=retry_prepared,
+        retry_decision=retry_decision,
+        attempt_policy=retry_policy,
+        run_policy=None,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    assert (retry_ledger.attempt_calls, retry_ledger.fresh_attempt_calls) == (1, 1)
+    assert retry_ledger.full_calls == 0
+
+    final_prepared = _execution_failure(definition)
+    final_decision = _terminal_decision(definition)
+    final_attempt_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=final_prepared.cause_code,
+        prepared_outcome="failure",
+        publication_scope="attempt",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class=final_prepared.failure_class,
+        retry_disposition="terminal",
+    )
+    final_run_policy = select_outcome_policy(
+        definition=definition,
+        outcome_code=final_prepared.cause_code,
+        prepared_outcome="failure",
+        publication_scope="run",
+        run_status="failed",
+        attempt_status="failed",
+        failure_class=final_prepared.failure_class,
+        retry_disposition="terminal",
+    )
+    final_artifacts, final_blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(final_artifacts)
+    final_ledger = _ScopedAuthorityLedger()
+    final_harness = _publisher(
+        registry,
+        final_artifacts,
+        final_blobs,
+        _Findings(),
+        final_ledger,
+        _Audit(),
+    )
+    final_publisher = final_harness._publisher  # noqa: SLF001
+    final_drafts = final_publisher.plan_active_failure_aggregate(
+        run=run,
+        attempt=attempt,
+        prepared=final_prepared,
+        retry_decision=final_decision,
+        attempt_policy=final_attempt_policy,
+        run_policy=final_run_policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    assert final_ledger.attempt_calls == final_ledger.fresh_attempt_calls == 0
+    assert final_ledger.full_calls == 2
+    final_staged = tuple(final_harness._stage(draft) for draft in final_drafts)  # noqa: SLF001
+    final_sealed = tuple(
+        draft.seal_for_commit(staged)
+        for draft, staged in zip(final_drafts, final_staged, strict=True)
+    )
+    final_publisher.commit_planned_active_failure_aggregate(
+        final_sealed,
+        final_staged,
+        run=run,
+        attempt=attempt,
+        prepared=final_prepared,
+        retry_decision=final_decision,
+        attempt_policy=final_attempt_policy,
+        run_policy=final_run_policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    assert final_ledger.attempt_calls == final_ledger.fresh_attempt_calls == 0
+    assert final_ledger.full_calls == 3
+
+
+@pytest.mark.parametrize(
+    ("publication_kinds", "expected_actions"),
+    [
+        (("run_result",), ("run.terminal",)),
+        (("attempt_failure",), ("run.attempt_closed",)),
+        (
+            ("attempt_failure", "run_failure"),
+            ("run.attempt_closed", "run.terminal"),
+        ),
+        (("run_failure",), ("run.terminal",)),
+    ],
+)
+def test_terminal_lifecycle_audit_projection_covers_every_closure_branch(
+    publication_kinds: tuple[str, ...],
+    expected_actions: tuple[str, ...],
+) -> None:
+    assert (
+        publisher_module._terminal_lifecycle_audit_actions(publication_kinds)  # noqa: SLF001
+        == expected_actions
+    )
+
+
+def test_terminal_lifecycle_audit_projection_rejects_unknown_aggregate() -> None:
+    with pytest.raises(IntegrityViolation, match="no lifecycle Audit projection"):
+        publisher_module._terminal_lifecycle_audit_actions(("unknown",))  # noqa: SLF001
+
+
+def test_inactive_command_audits_join_publication_and_lifecycle_in_one_batch() -> None:
+    _registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    publication = publisher_module._AuditWrite(  # noqa: SLF001
+        action="run.failure",
+        run=run,
+        artifact_id="artifact:failure",
+        actor=HUMAN,
+        occurred_at=NOW,
+    )
+    correlation = AuditCorrelation(
+        request_id="request:cancel",
+        run_id=run.run_id,
+        trace_id="trace:cancel",
+    )
+
+    intents = publisher_module._terminal_audit_intents(  # noqa: SLF001
+        publication_kinds=("run_failure",),
+        audit_operations_by_publication=((publication,),),
+        command_audit_correlation=correlation,
+    )
+
+    assert tuple(intent.action for intent in intents) == (
+        "run.failure",
+        "run.command_submitted",
+        "run.terminal",
+    )
+    assert tuple(intent.deferred for intent in intents) == (False, True, True)
+    assert tuple((intent.request_id, intent.trace_id) for intent in intents) == (
+        ("request:cancel", "trace:cancel"),
+        ("request:cancel", "trace:cancel"),
+        ("request:cancel", "trace:cancel"),
+    )
+
+
+def test_command_audit_correlation_is_rejected_outside_single_run_failure() -> None:
+    _registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    publication = publisher_module._AuditWrite(  # noqa: SLF001
+        action="publish-checker@1",
+        run=run,
+        artifact_id="artifact:result",
+        actor=HUMAN,
+        occurred_at=NOW,
+    )
+    correlation = AuditCorrelation(request_id=None, run_id=run.run_id, trace_id=None)
+
+    with pytest.raises(IntegrityViolation, match="single inactive Run failure"):
+        publisher_module._terminal_audit_intents(  # noqa: SLF001
+            publication_kinds=("run_result",),
+            audit_operations_by_publication=((publication,),),
+            command_audit_correlation=correlation,
+        )
+
+
+def test_terminal_audit_preflight_and_consume_preserve_non_null_trace() -> None:
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt().model_copy(update={"trace_id": "trace:attempt"})
+    publication = publisher_module._AuditWrite(  # noqa: SLF001
+        action="publish-checker@1",
+        run=run,
+        artifact_id="artifact:result",
+        actor=WORKER,
+        occurred_at=NOW,
+        trace_id=attempt.trace_id,
+    )
+    intents = publisher_module._terminal_audit_intents(  # noqa: SLF001
+        publication_kinds=("run_result",),
+        audit_operations_by_publication=((publication,),),
+    )
+    assert tuple(intent.trace_id for intent in intents) == (
+        "trace:attempt",
+        "trace:attempt",
+    )
+
+    audit = _Audit()
+    publisher = _publisher(
+        registry,
+        _Artifacts(),
+        _Blobs(),
+        _Findings(),
+        _Ledger(),
+        audit,
+    )._publisher  # noqa: SLF001 - exact terminal Audit adapter boundary
+    publisher.record_run_terminal(
+        run=run,
+        attempt=attempt,
+        event=SimpleNamespace(occurred_at=NOW, trace_id=None),
+        actor=WORKER,
+    )
+    assert audit.records[-1]["trace_id"] == "trace:attempt"
+    publisher.record_run_terminal(
+        run=run,
+        attempt=attempt,
+        event=SimpleNamespace(occurred_at=NOW, trace_id="trace:event"),
+        actor=WORKER,
+    )
+    assert audit.records[-1]["trace_id"] == "trace:event"
+
+
+def test_draft_getter_does_not_expose_nested_operation_state():
     registry, definition = _registry_and_definition()
     run = _run_record(definition)
     attempt = _attempt()
@@ -1436,12 +1943,462 @@ def test_commit_rejects_nested_operation_mutation_after_draft_digest():
         if getattr(operation, "context", None) is not None
     )
     assert isinstance(workflow.context.published_primary_payload, dict)
-    workflow.context.published_primary_payload["snapshot_id"] = "snapshot:mutated"
+    with pytest.raises(TypeError, match="immutable"):
+        workflow.context.published_primary_payload["snapshot_id"] = "snapshot:mutated"
 
-    with pytest.raises(IntegrityViolation, match="mutated after projection"):
-        publisher.commit(draft, staged)
+    committed = publisher.commit(draft, staged)
 
+    assert committed.result_artifact_id in artifacts.by_id
+
+
+def test_planned_commit_seal_uses_alias_free_nested_state():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    harness = _publisher(registry, artifacts, blobs, _Findings(), _Ledger(), _Audit())
+    draft = harness.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=_prepared_success(artifacts=(_checker_artifact(blobs),)),
+        policy=_success_policy(definition),
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    workflow = next(
+        operation
+        for operation in draft.operations
+        if getattr(operation, "context", None) is not None
+    )
+    with pytest.raises(TypeError, match="immutable"):
+        workflow.context.published_primary_payload["snapshot_id"] = "snapshot:mutated"
+
+    sealed = draft.seal_for_commit(staged)
+
+    assert sealed.is_commit_sealed()
+    with pytest.raises(IntegrityViolation, match="already consumed"):
+        draft.seal_for_commit(staged)
     assert set(artifacts.by_id) == {"artifact:input"}
+
+
+def test_planned_commit_requires_artifact_batch_preflight_and_apply() -> None:
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        _Audit(),
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit production-capability test
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+
+    with pytest.raises(IntegrityViolation, match="Artifact batch preflight/apply"):
+        publisher.commit_planned_run_result(
+            draft.seal_for_commit(staged),
+            staged,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+
+def test_planned_commit_does_not_reproject_large_operations_under_write_lock(
+    monkeypatch,
+):
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        _Audit(),
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    sealed = draft.seal_for_commit(staged)
+    assert type(sealed).__slots__ == ("__weakref__",)
+    with pytest.raises(AttributeError):
+        object.__setattr__(sealed, "operations", ())
+    exposed_material = sealed.materials[0]
+    object.__setattr__(exposed_material, "slot", "blob:tampered")
+    assert all(material.slot != "blob:tampered" for material in sealed.materials)
+    exposed_operation = next(
+        operation for operation in sealed.operations if hasattr(operation, "slot")
+    )
+    object.__setattr__(exposed_operation, "slot", "blob:tampered")
+    assert all(
+        getattr(operation, "slot", None) != "blob:tampered" for operation in sealed.operations
+    )
+    exposed_result = sealed.result
+    object.__setattr__(exposed_result, "result_artifact_id", "artifact:tampered")
+    assert sealed.result.result_artifact_id != "artifact:tampered"
+    exposed_projection = sealed.canonical_projection()
+    dict.__setitem__(exposed_projection["operations"][0], "operation", "tampered")
+    dict.__setitem__(exposed_projection["result"], "result_artifact_id", "artifact:tampered")
+    fresh_projection = sealed.canonical_projection()
+    assert fresh_projection["operations"][0]["operation"] != "tampered"
+    assert fresh_projection["result"]["result_artifact_id"] != "artifact:tampered"
+    for unregistered in (replace(sealed), copy(sealed)):
+        with pytest.raises(TerminalAuthorityDrift, match="immutable plan"):
+            publisher.commit_planned_run_result(
+                unregistered,
+                staged,
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                policy=policy,
+                occurred_at=NOW,
+                actor=WORKER,
+            )
+    assert set(artifacts.by_id) == {"artifact:input"}
+    sealed_workflow = next(
+        operation
+        for operation in sealed.operations
+        if getattr(operation, "context", None) is not None
+    )
+    with pytest.raises(TypeError, match="immutable"):
+        sealed_workflow.context.published_primary_payload["snapshot_id"] = "snapshot:mutated"
+    with pytest.raises(TypeError, match="immutable"):
+        sealed_workflow.context.published_primary_payload |= {
+            "snapshot_id": "snapshot:mutated-by-ior"
+        }
+
+    def fail_if_reprojected(_operation):
+        raise AssertionError("planned write-lock commit reprojected a sealed operation")
+
+    monkeypatch.setattr(
+        "gameforge.platform.publication.publisher._operation_projection",
+        fail_if_reprojected,
+    )
+    committed = publisher.commit_planned_run_result(
+        sealed,
+        staged,
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    assert committed == sealed.result
+    assert committed.result_artifact_id in artifacts.by_id
+    published_ids = set(artifacts.by_id)
+    with pytest.raises(TerminalAuthorityDrift, match="immutable plan"):
+        publisher.commit_planned_run_result(
+            sealed,
+            staged,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+    assert set(artifacts.by_id) == published_ids
+
+
+def test_planning_subject_digest_never_serializes_prepared_collection_payloads(
+    monkeypatch,
+):
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _Artifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+
+    def fail_full_prepared_projection(*_args, **_kwargs):
+        raise AssertionError("terminal selector serialized the full prepared outcome")
+
+    monkeypatch.setattr(type(prepared), "model_dump", fail_full_prepared_projection)
+    digest = publisher_module._planning_subject_digest(  # noqa: SLF001
+        "run_result",
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        retry_decision=None,
+        attempt_failure_artifact_id=None,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    assert len(digest) == 64
+
+
+def test_planned_commit_preflights_workflow_before_first_artifact_write(monkeypatch):
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        _Audit(),
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    sealed = draft.seal_for_commit(staged)
+
+    def drift_before_first_write(*_args, **_kwargs):
+        raise TerminalAuthorityDrift("workflow changed after staging")
+
+    monkeypatch.setattr(
+        publisher_module,
+        "preflight_prepared_workflow_effect",
+        drift_before_first_write,
+    )
+    with pytest.raises(TerminalAuthorityDrift, match="workflow changed"):
+        publisher.commit_planned_run_result(
+            sealed,
+            staged,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+    assert artifacts.batch_events == ["preflight"]
+    assert set(artifacts.by_id) == {"artifact:input"}
+
+
+def test_planned_commit_uses_batch_artifact_publication():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    audit = _Audit()
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        audit,
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    sealed = draft.seal_for_commit(staged)
+
+    result = publisher.commit_planned_run_result(
+        sealed,
+        staged,
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+
+    assert result == sealed.result
+    assert artifacts.batch_events == ["preflight", "write"]
+    assert audit.batch_events == ["preflight", "write"]
+    assert len(audit.preflighted) == 1
+    assert tuple(record.action for record in audit.preflighted[0]) == (
+        "publish-checker@1",
+        "run.terminal",
+    )
+
+
+def test_planned_commit_preflights_audit_authority_before_first_artifact_write():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    audit = _Audit(fail_preflight=True)
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        audit,
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    sealed = draft.seal_for_commit(staged)
+
+    with pytest.raises(IntegrityViolation, match="audit authority unavailable"):
+        publisher.commit_planned_run_result(
+            sealed,
+            staged,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+    assert artifacts.batch_events == ["preflight"]
+    assert audit.batch_events == ["preflight"]
+    assert set(artifacts.by_id) == {"artifact:input"}
+
+
+def test_planned_commit_rejects_scalar_only_audit_before_first_artifact_write():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _BatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    audit = _ScalarOnlyAudit()
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        audit,
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit production boundary
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    sealed = draft.seal_for_commit(staged)
+
+    with pytest.raises(IntegrityViolation, match="Audit batch preflight capability"):
+        publisher.commit_planned_run_result(
+            sealed,
+            staged,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+    assert artifacts.batch_events == ["preflight"]
+    assert audit.records == []
+    assert set(artifacts.by_id) == {"artifact:input"}
+
+
+def test_planned_commit_rejects_batch_artifact_content_mismatch():
+    registry, definition = _registry_and_definition()
+    run = _run_record(definition)
+    attempt = _attempt()
+    artifacts, blobs = _MismatchingBatchArtifacts(), _Blobs()
+    _input_snapshot(artifacts)
+    harness = _publisher(
+        registry,
+        artifacts,
+        blobs,
+        _Findings(),
+        _PersistentLedger(),
+        _Audit(),
+    )
+    publisher = harness._publisher  # noqa: SLF001 - explicit three-phase test
+    prepared = _prepared_success(artifacts=(_checker_artifact(blobs),))
+    policy = _success_policy(definition)
+    draft = publisher.plan_run_result(
+        run=run,
+        attempt=attempt,
+        prepared=prepared,
+        policy=policy,
+        occurred_at=NOW,
+        actor=WORKER,
+    )
+    staged = harness._stage(draft)  # noqa: SLF001
+    sealed = draft.seal_for_commit(staged)
+
+    with pytest.raises(IntegrityViolation, match="another immutable Artifact"):
+        publisher.commit_planned_run_result(
+            sealed,
+            staged,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            policy=policy,
+            occurred_at=NOW,
+            actor=WORKER,
+        )
+
+    assert artifacts.batch_events == ["preflight", "write"]
 
 
 def test_retry_wait_timeout_uses_closed_attempt_only_for_manifest_projection():

@@ -183,6 +183,43 @@ class SqlCostRepository:
         )
         return parsed
 
+    def get_budgets_many(self, budget_ids: Sequence[str]) -> dict[str, BudgetV1 | None]:
+        """Read exact current Budget heads with bounded set statements."""
+
+        selected = tuple(dict.fromkeys(budget_ids))
+        if any(not isinstance(budget_id, str) or not budget_id for budget_id in selected):
+            raise ValueError("budget ids must be non-empty strings")
+        retained: dict[str, BudgetV1 | None] = dict.fromkeys(selected)
+        for offset in range(0, len(selected), 900):
+            rows = self._session.scalars(
+                select(BudgetRow).where(BudgetRow.budget_id.in_(selected[offset : offset + 900]))
+            ).all()
+            for row in rows:
+                parsed = _parse_payload(
+                    row.payload,
+                    BudgetV1,
+                    label="budget",
+                    identity=row.budget_id,
+                )
+                _require_projection(
+                    row,
+                    parsed,
+                    (
+                        "budget_id",
+                        "scope_kind",
+                        "scope_id",
+                        "policy_version",
+                        "status",
+                        "revision",
+                        "deadline_utc",
+                        "created_at",
+                    ),
+                    label="budget",
+                    identity=row.budget_id,
+                )
+                retained[row.budget_id] = parsed
+        return retained
+
     def list_budgets_by_scope_identity(
         self,
         *,
@@ -330,16 +367,7 @@ class SqlCostRepository:
         group: ReservationGroupV1,
         reservations: Sequence[BudgetReservationV1],
     ) -> ReservationGroupV1:
-        canonical = _canonical_model(group, ReservationGroupV1, label="reservation group")
-        members = tuple(
-            sorted(
-                (
-                    _canonical_model(item, BudgetReservationV1, label="budget reservation")
-                    for item in reservations
-                ),
-                key=lambda item: item.reservation_id,
-            )
-        )
+        canonical, members = self._canonical_reservation_group_write(group, reservations)
         existing = self.get_reservation_group(canonical.reservation_group_id)
         if existing is not None:
             retained_members = self.list_budget_reservations(canonical.reservation_group_id)
@@ -401,6 +429,34 @@ class SqlCostRepository:
                     "budget reservation does not match its group",
                     reservation_id=member.reservation_id,
                 )
+        return self._insert_reservation_group_rows(canonical, members)
+
+    @staticmethod
+    def _canonical_reservation_group_write(
+        group: ReservationGroupV1,
+        reservations: Sequence[BudgetReservationV1],
+    ) -> tuple[ReservationGroupV1, tuple[BudgetReservationV1, ...]]:
+        """Clone one reservation aggregate into exact canonical contracts."""
+
+        canonical = _canonical_model(group, ReservationGroupV1, label="reservation group")
+        members = tuple(
+            sorted(
+                (
+                    _canonical_model(item, BudgetReservationV1, label="budget reservation")
+                    for item in reservations
+                ),
+                key=lambda item: item.reservation_id,
+            )
+        )
+        return canonical, members
+
+    def _insert_reservation_group_rows(
+        self,
+        canonical: ReservationGroupV1,
+        members: tuple[BudgetReservationV1, ...],
+    ) -> ReservationGroupV1:
+        """Insert an aggregate whose immutable authority was already preflighted."""
+
         wire = canonical.model_dump(mode="json")
         self._session.add(
             ReservationGroupRow(
@@ -446,34 +502,7 @@ class SqlCostRepository:
         row = self._session.get(ReservationGroupRow, reservation_group_id)
         if row is None:
             return None
-        parsed = _parse_payload(
-            row.payload,
-            ReservationGroupV1,
-            label="reservation group",
-            identity=reservation_group_id,
-        )
-        _require_projection(
-            row,
-            parsed,
-            (
-                "reservation_group_id",
-                "scope",
-                "run_id",
-                "budget_set_snapshot_id",
-                "parent_hold_group_id",
-                "attempt_no",
-                "request_hash",
-                "transport_attempt",
-                "fencing_token",
-                "idempotency_key",
-                "status",
-                "revision",
-                "created_at",
-                "expires_at",
-            ),
-            label="reservation group",
-            identity=reservation_group_id,
-        )
+        parsed = self._parse_reservation_group_row(row)
         ids = tuple(
             self._session.scalars(
                 select(BudgetReservationRow.reservation_id)
@@ -488,6 +517,103 @@ class SqlCostRepository:
             )
         return parsed
 
+    def get_reservation_group_with_members(
+        self,
+        reservation_group_id: str,
+    ) -> tuple[ReservationGroupV1, tuple[BudgetReservationV1, ...]] | None:
+        """Read and close one reservation aggregate in two indexed statements."""
+
+        row = self._session.get(ReservationGroupRow, reservation_group_id)
+        if row is None:
+            return None
+        parsed = self._parse_reservation_group_row(row)
+        member_rows = self._session.scalars(
+            select(BudgetReservationRow).where(
+                BudgetReservationRow.reservation_group_id == reservation_group_id
+            )
+        ).all()
+        members = tuple(
+            sorted(
+                (self._parse_budget_reservation_row(member) for member in member_rows),
+                key=lambda member: member.reservation_id,
+            )
+        )
+        if tuple(member.reservation_id for member in members) != parsed.budget_reservation_ids:
+            raise IntegrityViolation(
+                "reservation member rows differ from the group payload",
+                reservation_group_id=reservation_group_id,
+            )
+        return parsed, members
+
+    def get_reservation_groups_many(
+        self,
+        reservation_group_ids: Sequence[str],
+    ) -> dict[str, ReservationGroupV1 | None]:
+        """Read exact reservation groups and member closures in bounded statements."""
+
+        selected = tuple(dict.fromkeys(reservation_group_ids))
+        if any(not isinstance(group_id, str) or not group_id for group_id in selected):
+            raise ValueError("reservation group ids must be non-empty strings")
+        retained: dict[str, ReservationGroupV1 | None] = dict.fromkeys(selected)
+        rows_by_id: dict[str, ReservationGroupRow] = {}
+        member_ids: dict[str, list[str]] = {group_id: [] for group_id in selected}
+        for offset in range(0, len(selected), 900):
+            chunk = selected[offset : offset + 900]
+            for row in self._session.scalars(
+                select(ReservationGroupRow).where(
+                    ReservationGroupRow.reservation_group_id.in_(chunk)
+                )
+            ).all():
+                rows_by_id[row.reservation_group_id] = row
+            for group_id, reservation_id in self._session.execute(
+                select(
+                    BudgetReservationRow.reservation_group_id,
+                    BudgetReservationRow.reservation_id,
+                )
+                .where(BudgetReservationRow.reservation_group_id.in_(chunk))
+                .order_by(
+                    BudgetReservationRow.reservation_group_id,
+                    BudgetReservationRow.reservation_id,
+                )
+            ).all():
+                member_ids[str(group_id)].append(str(reservation_id))
+        for group_id, row in rows_by_id.items():
+            parsed = _parse_payload(
+                row.payload,
+                ReservationGroupV1,
+                label="reservation group",
+                identity=group_id,
+            )
+            _require_projection(
+                row,
+                parsed,
+                (
+                    "reservation_group_id",
+                    "scope",
+                    "run_id",
+                    "budget_set_snapshot_id",
+                    "parent_hold_group_id",
+                    "attempt_no",
+                    "request_hash",
+                    "transport_attempt",
+                    "fencing_token",
+                    "idempotency_key",
+                    "status",
+                    "revision",
+                    "created_at",
+                    "expires_at",
+                ),
+                label="reservation group",
+                identity=group_id,
+            )
+            if tuple(member_ids[group_id]) != parsed.budget_reservation_ids:
+                raise IntegrityViolation(
+                    "reservation member rows differ from the group payload",
+                    reservation_group_id=group_id,
+                )
+            retained[group_id] = parsed
+        return retained
+
     def list_budget_reservations(
         self,
         reservation_group_id: str,
@@ -498,6 +624,61 @@ class SqlCostRepository:
             .order_by(BudgetReservationRow.reservation_id)
         ).all()
         return tuple(self._parse_budget_reservation_row(row) for row in rows)
+
+    def get_budget_reservations_many(
+        self,
+        reservation_group_ids: Sequence[str],
+    ) -> dict[str, tuple[BudgetReservationV1, ...]]:
+        """Read reservation member payloads for a bounded group set."""
+
+        selected = tuple(dict.fromkeys(reservation_group_ids))
+        if any(not isinstance(group_id, str) or not group_id for group_id in selected):
+            raise ValueError("reservation group ids must be non-empty strings")
+        retained: dict[str, list[BudgetReservationV1]] = {group_id: [] for group_id in selected}
+        for offset in range(0, len(selected), 900):
+            rows = self._session.scalars(
+                select(BudgetReservationRow)
+                .where(
+                    BudgetReservationRow.reservation_group_id.in_(selected[offset : offset + 900])
+                )
+                .order_by(
+                    BudgetReservationRow.reservation_group_id,
+                    BudgetReservationRow.reservation_id,
+                )
+            ).all()
+            for row in rows:
+                retained[row.reservation_group_id].append(self._parse_budget_reservation_row(row))
+        return {group_id: tuple(values) for group_id, values in retained.items()}
+
+    def get_usage_by_reservation_groups_many(
+        self,
+        reservation_group_ids: Sequence[str],
+    ) -> dict[str, tuple[UsageEntryV1, ...]]:
+        """Read complete usage history for a bounded reservation-group set."""
+
+        selected = tuple(dict.fromkeys(reservation_group_ids))
+        if any(not isinstance(group_id, str) or not group_id for group_id in selected):
+            raise ValueError("reservation group ids must be non-empty strings")
+        retained: dict[str, list[UsageEntryV1]] = {group_id: [] for group_id in selected}
+        for offset in range(0, len(selected), 900):
+            chunk = selected[offset : offset + 900]
+            rows = self._session.scalars(
+                select(UsageEntryRow)
+                .where(UsageEntryRow.reservation_group_id.in_(chunk))
+                .order_by(
+                    UsageEntryRow.reservation_group_id,
+                    UsageEntryRow.recorded_at,
+                    UsageEntryRow.usage_id,
+                )
+                .limit(len(chunk) * 2 + 1)
+            ).all()
+            if len(rows) > len(chunk) * 2:
+                raise IntegrityViolation("reservation usage authority exceeds its hard cap")
+            for row in rows:
+                retained[row.reservation_group_id].append(self._parse_usage_row(row))
+        if any(len(values) > 2 for values in retained.values()):
+            raise IntegrityViolation("reservation group has excess usage authority")
+        return {group_id: tuple(values) for group_id, values in retained.items()}
 
     def put_usage(self, usage: UsageEntryV1) -> UsageEntryV1:
         canonical = _canonical_model(usage, UsageEntryV1, label="usage entry")
@@ -811,6 +992,67 @@ class SqlCostRepository:
             identity=str(catalog_version),
         )
         return parsed
+
+    def get_model_catalogs_many(
+        self,
+        exact_refs: Sequence[tuple[int, str]],
+    ) -> dict[tuple[int, str], ModelCatalogSnapshotV1 | None]:
+        """Read exact model-catalog refs with bounded set statements.
+
+        Catalog versions are the storage primary key while the digest is part of
+        the immutable exact ref.  Returning a mapping keyed by both fields lets a
+        terminal cost preflight reject a same-version/different-digest drift
+        without issuing one lookup per stranded model call.
+        """
+
+        selected = tuple(dict.fromkeys(exact_refs))
+        if any(
+            isinstance(version, bool)
+            or not isinstance(version, int)
+            or version < 1
+            or not isinstance(digest, str)
+            or not digest
+            for version, digest in selected
+        ):
+            raise ValueError("model catalog exact refs are invalid")
+        retained: dict[tuple[int, str], ModelCatalogSnapshotV1 | None] = dict.fromkeys(selected)
+        expected_by_version: dict[int, str] = {}
+        for version, digest in selected:
+            previous = expected_by_version.setdefault(version, digest)
+            if previous != digest:
+                raise IntegrityViolation(
+                    "model catalog version is requested with conflicting digests",
+                    catalog_version=version,
+                )
+        versions = tuple(expected_by_version)
+        for offset in range(0, len(versions), 900):
+            rows = self._session.scalars(
+                select(ModelCatalogSnapshotRow).where(
+                    ModelCatalogSnapshotRow.catalog_version.in_(versions[offset : offset + 900])
+                )
+            ).all()
+            for row in rows:
+                digest = expected_by_version[row.catalog_version]
+                if row.catalog_digest != digest:
+                    raise IntegrityViolation(
+                        "retained model catalog digest differs from requested exact ref",
+                        catalog_version=row.catalog_version,
+                    )
+                parsed = _parse_payload(
+                    row.payload,
+                    ModelCatalogSnapshotV1,
+                    label="model catalog snapshot",
+                    identity=str(row.catalog_version),
+                )
+                _require_projection(
+                    row,
+                    parsed,
+                    ("catalog_version", "catalog_digest", "created_at"),
+                    label="model catalog snapshot",
+                    identity=str(row.catalog_version),
+                )
+                retained[(row.catalog_version, row.catalog_digest)] = parsed
+        return retained
 
     def put_routing_policy(self, policy: RoutingPolicyV1) -> RoutingPolicyV1:
         canonical = _canonical_model(policy, RoutingPolicyV1, label="routing policy")
@@ -1223,6 +1465,12 @@ class SqlCostRepository:
         return self.get_usage(usage_id)
 
     @staticmethod
+    def usage_identity(usage: UsageEntryV1) -> str:
+        """Return the authoritative idempotency identity for one usage row."""
+
+        return _usage_identity(usage)
+
+    @staticmethod
     def _parse_budget_snapshot_row(row: BudgetSnapshotRow) -> BudgetSnapshotV1:
         parsed = _parse_payload(
             row.payload,
@@ -1242,6 +1490,38 @@ class SqlCostRepository:
             ),
             label="budget snapshot",
             identity=row.snapshot_id,
+        )
+        return parsed
+
+    @staticmethod
+    def _parse_reservation_group_row(row: ReservationGroupRow) -> ReservationGroupV1:
+        parsed = _parse_payload(
+            row.payload,
+            ReservationGroupV1,
+            label="reservation group",
+            identity=row.reservation_group_id,
+        )
+        _require_projection(
+            row,
+            parsed,
+            (
+                "reservation_group_id",
+                "scope",
+                "run_id",
+                "budget_set_snapshot_id",
+                "parent_hold_group_id",
+                "attempt_no",
+                "request_hash",
+                "transport_attempt",
+                "fencing_token",
+                "idempotency_key",
+                "status",
+                "revision",
+                "created_at",
+                "expires_at",
+            ),
+            label="reservation group",
+            identity=row.reservation_group_id,
         )
         return parsed
 

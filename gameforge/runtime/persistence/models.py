@@ -1128,6 +1128,39 @@ class BudgetReservationRow(Base):
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
 
 
+class RunHoldBalanceRow(Base):
+    """Durable per-budget projection of one Run hold's current authority."""
+
+    __tablename__ = "run_hold_balances"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["hold_group_id", "budget_id"],
+            [
+                "budget_reservations.reservation_group_id",
+                "budget_reservations.budget_id",
+            ],
+            ondelete="CASCADE",
+        ),
+        CheckConstraint(
+            "status IN ('reserved', 'released')",
+            name="ck_run_hold_balance_status",
+        ),
+        CheckConstraint("revision >= 1", name="ck_run_hold_balance_revision"),
+        CheckConstraint(
+            "active_child_count >= 0",
+            name="ck_run_hold_balance_active_child_count",
+        ),
+    )
+
+    hold_group_id: Mapped[str] = mapped_column(String, primary_key=True)
+    budget_id: Mapped[str] = mapped_column(String, primary_key=True)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    active_child_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    balance_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
 class ModelCatalogSnapshotRow(Base):
     """Immutable content-addressed model catalog history."""
 

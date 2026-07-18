@@ -21,6 +21,8 @@ import math
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
+from enum import Enum
 from hashlib import sha256
 from types import MappingProxyType
 from typing import Annotated, Literal, cast
@@ -37,7 +39,7 @@ from pydantic import (
 )
 
 from gameforge.contracts.benchmark import BenchmarkDatasetV1, BenchmarkSpecV1
-from gameforge.contracts.canonical import canonical_json, typed_canonical_json
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.config_export import (
     ConfigExportPackageV1,
     canonical_config_export_bytes,
@@ -51,7 +53,6 @@ from gameforge.contracts.jobs import (
     AgentPromptContextV1,
     MAX_AGENT_PROMPT_CONTEXT_BYTES,
     MAX_PREPARED_ARTIFACT_BYTES,
-    MAX_RUN_MANIFEST_PARENT_BINDINGS,
     RunFailureV1,
     RunResultV1,
 )
@@ -390,6 +391,25 @@ class _SimulationFullPayload(_SimulationBudgetPayload):
             raise ValueError("simulation invariant names must be unique")
         return value
 
+    @field_validator("sensitivity", mode="before")
+    @classmethod
+    def _finite_numeric_sensitivity(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        decoded = dict(value)
+        for key in ("source_total", "sink_total", "sink_source_ratio"):
+            if key not in decoded:
+                continue
+            numeric = _decode_canonical_float(decoded[key])
+            if (
+                isinstance(numeric, bool)
+                or not isinstance(numeric, (int, float))
+                or not math.isfinite(float(numeric))
+            ):
+                raise ValueError("simulation sensitivity numeric field must be finite")
+            decoded[key] = float(numeric)
+        return decoded
+
     @field_validator("sensitivity")
     @classmethod
     def _exact_execution_binding(cls, value: dict[str, JsonValue]) -> dict[str, JsonValue]:
@@ -405,7 +425,7 @@ class _SimulationFullPayload(_SimulationBudgetPayload):
         )
         parsed = binding_model.model_validate(execution)
         canonical = _json_mapping(parsed.model_dump(mode="json", exclude_none=True))
-        if typed_canonical_json(canonical) != typed_canonical_json(dict(execution)):
+        if not _same_exact_json(canonical, execution):
             raise ValueError("simulation execution binding is not its exact canonical wire shape")
         return value
 
@@ -695,10 +715,55 @@ class PayloadSchemaValidator:
 
 
 def _json_mapping(value: object) -> dict[str, object]:
-    decoded = json.loads(canonical_json(value))
-    if not isinstance(decoded, dict):  # pragma: no cover - guarded by callers
+    projected = _canonical_wire_projection(value)
+    if not isinstance(projected, dict):  # pragma: no cover - guarded by callers
         raise TypeError("canonical payload is not an object")
-    return cast(dict[str, object], decoded)
+    return cast(dict[str, object], projected)
+
+
+def _canonical_wire_projection(value: object) -> object:
+    """Project a parsed model to the frozen canonical-JSON wire without text copies."""
+
+    if isinstance(value, Mapping):
+        return {
+            key: _canonical_wire_projection(item) for key, item in value.items() if item is not None
+        }
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return [_canonical_wire_projection(item) for item in value]
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, Enum):
+        return _canonical_wire_projection(value.value)
+    if isinstance(value, float):
+        return "f:" + format(Decimal(str(value)).normalize(), "f")
+    return value
+
+
+def _same_exact_json(left: object, right: object) -> bool:
+    """Compare JSON trees without collapsing bool/int, float tags, or signed zero."""
+
+    if isinstance(left, Mapping):
+        if not isinstance(right, Mapping) or set(left) != set(right):
+            return False
+        return all(_same_exact_json(value, right[key]) for key, value in left.items())
+    if isinstance(left, Sequence) and not isinstance(left, (str, bytes, bytearray)):
+        if not isinstance(right, Sequence) or isinstance(right, (str, bytes, bytearray)):
+            return False
+        return len(left) == len(right) and all(
+            _same_exact_json(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    if isinstance(left, bool):
+        return isinstance(right, bool) and left == right
+    if isinstance(left, int):
+        return isinstance(right, int) and not isinstance(right, bool) and left == right
+    if isinstance(left, float):  # pragma: no cover - projections tag every float above
+        return isinstance(right, float) and left.hex() == right.hex()
+    if isinstance(left, str):
+        return isinstance(right, str) and left == right
+    if left is None:
+        return right is None
+    return type(left) is type(right) and left == right
 
 
 def _decode_canonical_float(value: object) -> object:
@@ -716,10 +781,13 @@ def _decode_finding_confidences(value: object) -> object:
     decoded: list[object] = []
     for item in value:
         if isinstance(item, Mapping) and "confidence" in item:
+            confidence = _decode_canonical_float(item["confidence"])
+            if isinstance(confidence, float) and not math.isfinite(confidence):
+                raise ValueError("finding confidence must be finite in published Artifacts")
             decoded.append(
                 {
                     **dict(item),
-                    "confidence": _decode_canonical_float(item["confidence"]),
+                    "confidence": confidence,
                 }
             )
         else:
@@ -727,33 +795,16 @@ def _decode_finding_confidences(value: object) -> object:
     return decoded
 
 
-def _reject_nonfinite_canonical_numbers(value: object) -> None:
-    """Reject tagged non-finite floats anywhere in simulation evidence."""
-
-    stack = [value]
-    while stack:
-        item = stack.pop()
-        if isinstance(item, str) and item.startswith("f:"):
-            try:
-                numeric = float(item[2:])
-            except ValueError:
-                continue
-            if not math.isfinite(numeric):
-                raise ValueError("simulation result contains a non-finite canonical number")
-        elif isinstance(item, Mapping):
-            stack.extend(item.values())
-        elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
-            stack.extend(item)
-
-
 def _require_exact_model(
     model: type[BaseModel], payload: Mapping[str, object]
 ) -> dict[str, object]:
     parsed = model.model_validate(payload)
-    canonical = _json_mapping(parsed.model_dump(mode="json"))
-    if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
+    projected = _canonical_wire_projection(parsed.model_dump(mode="json"))
+    if not isinstance(projected, dict):  # pragma: no cover - every registered model is an object
+        raise TypeError("canonical payload is not an object")
+    if not _same_exact_json(projected, payload):
         raise ValueError("payload is not the exact canonical model wire shape")
-    return canonical
+    return cast(dict[str, object], projected)
 
 
 def _validate_ir_snapshot(payload: Mapping[str, object]) -> dict[str, object]:
@@ -761,7 +812,7 @@ def _validate_ir_snapshot(payload: Mapping[str, object]) -> dict[str, object]:
         raise ValueError("IR snapshot uses an unsupported meta schema")
     snapshot = snapshot_from_canonical_view(payload)
     canonical = _json_mapping(snapshot.content_payload)
-    if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
+    if not _same_exact_json(canonical, payload):
         raise ValueError("IR snapshot is not its exact canonical wire shape")
     return canonical
 
@@ -788,7 +839,7 @@ def _validate_constraint_snapshot(payload: Mapping[str, object]) -> dict[str, ob
             "constraints": [item.model_dump(mode="json", by_alias=True) for item in constraints],
         }
     )
-    if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
+    if not _same_exact_json(canonical, payload):
         raise ValueError("constraint snapshot is not its exact canonical wire shape")
     return canonical
 
@@ -910,7 +961,6 @@ def _validate_checker_report(payload: Mapping[str, object]) -> dict[str, object]
 
 
 def _validate_simulation_result(payload: Mapping[str, object]) -> dict[str, object]:
-    _reject_nonfinite_canonical_numbers(payload)
     body, requirement_id = _split_requirement_id(payload)
     fields = set(body)
     base = {"payload_schema_version", "snapshot_id", "findings"}
@@ -1235,7 +1285,7 @@ def _validate_regression_evidence(payload: Mapping[str, object]) -> dict[str, ob
         canonical["outcome_attestations"] = [
             item.model_dump(mode="json") for item in outcome_attestations
         ]
-    if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
+    if not _same_exact_json(canonical, payload):
         raise ValueError("regression evidence is not its exact canonical wire shape")
     return canonical
 
@@ -1260,7 +1310,7 @@ def _validate_review_report(payload: Mapping[str, object]) -> dict[str, object]:
     parsed = ReviewReport.model_validate(validation_payload)
     canonical = _json_mapping(parsed.model_dump(mode="json"))
     canonical = _restore_requirement_id(canonical, requirement_id)
-    if typed_canonical_json(canonical) != typed_canonical_json(dict(payload)):
+    if not _same_exact_json(canonical, payload):
         raise ValueError("review report is not the exact canonical wire shape")
     buckets = {
         "deterministic": parsed.deterministic_findings,
@@ -1495,52 +1545,37 @@ UNAVAILABLE_ARTIFACT_PAYLOAD_SCHEMAS: Mapping[str, str] = MappingProxyType(
 )
 
 
-_RUN_MANIFEST_LARGE_ARRAY_PATHS = frozenset(
-    {
-        ("run-result@1", ("produced_artifact_ids",)),
-        ("run-result@1", ("version_projection", "parents")),
-        ("run-failure@1", ("evidence_artifact_ids",)),
-        ("run-failure@1", ("version_projection", "parents")),
-    }
-)
-
-
 def _validate_json_bounds(
     payload: Mapping[str, object],
     *,
     payload_schema_id: str,
+    canonical_size_bytes: int | None = None,
 ) -> None:
-    stack: list[tuple[object, int, tuple[str, ...]]] = [(payload, 1, ())]
+    stack: list[tuple[object, int]] = [(payload, 1)]
     while stack:
-        item, depth, path = stack.pop()
+        item, depth = stack.pop()
         if depth > MAX_PAYLOAD_JSON_DEPTH:
             raise IntegrityViolation("artifact payload exceeds the publication depth bound")
         if isinstance(item, str):
             if len(item) > MAX_PAYLOAD_STRING_LENGTH:
                 raise IntegrityViolation("artifact payload contains an oversized string")
         elif isinstance(item, Mapping):
-            if len(item) > MAX_PAYLOAD_COLLECTION_ITEMS:
-                raise IntegrityViolation("artifact payload contains an oversized object")
             for key, child in item.items():
                 if not isinstance(key, str):
                     raise IntegrityViolation("artifact payload object key is not a string")
                 if len(key) > 4096:
                     raise IntegrityViolation("artifact payload contains an oversized object key")
-                stack.append((child, depth + 1, (*path, key)))
+                stack.append((child, depth + 1))
         elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
-            collection_limit = (
-                MAX_RUN_MANIFEST_PARENT_BINDINGS
-                if (payload_schema_id, path) in _RUN_MANIFEST_LARGE_ARRAY_PATHS
-                else MAX_PAYLOAD_COLLECTION_ITEMS
-            )
-            if len(item) > collection_limit:
-                raise IntegrityViolation("artifact payload contains an oversized array")
-            stack.extend((child, depth + 1, (*path, "[]")) for child in item)
+            stack.extend((child, depth + 1) for child in item)
 
-    try:
-        encoded_size = len(canonical_json(dict(payload)).encode("utf-8"))
-    except (RecursionError, TypeError, ValueError, UnicodeError) as exc:
-        raise IntegrityViolation("artifact payload is not canonical JSON data") from exc
+    if canonical_size_bytes is None:
+        try:
+            encoded_size = len(canonical_json(dict(payload)).encode("utf-8"))
+        except (RecursionError, TypeError, ValueError, UnicodeError) as exc:
+            raise IntegrityViolation("artifact payload is not canonical JSON data") from exc
+    else:
+        encoded_size = canonical_size_bytes
     byte_limit = _payload_json_byte_limit(payload_schema_id)
     if encoded_size > byte_limit:
         raise IntegrityViolation(
@@ -1549,16 +1584,12 @@ def _validate_json_bounds(
         )
 
 
-def validate_artifact_payload(
-    *, payload_schema_id: str, payload: Mapping[str, object]
+def _validate_artifact_payload(
+    *,
+    payload_schema_id: str,
+    payload: Mapping[str, object],
+    canonical_size_bytes: int | None,
 ) -> dict[str, object]:
-    """Return the canonical parsed mapping for one exact Artifact payload schema.
-
-    Unknown schemas, explicit unavailable entries, missing/wrong discriminators,
-    non-canonical/coercive model inputs, and any malformed nested payload fail
-    closed as :class:`IntegrityViolation`.
-    """
-
     validator = ARTIFACT_PAYLOAD_VALIDATORS.get(payload_schema_id)
     if validator is None:
         raise IntegrityViolation(
@@ -1567,7 +1598,11 @@ def validate_artifact_payload(
         )
     if not isinstance(payload, Mapping):
         raise IntegrityViolation("artifact payload must be a JSON object")
-    _validate_json_bounds(payload, payload_schema_id=payload_schema_id)
+    _validate_json_bounds(
+        payload,
+        payload_schema_id=payload_schema_id,
+        canonical_size_bytes=canonical_size_bytes,
+    )
     if validator.parser is None:
         raise IntegrityViolation(
             "artifact payload schema is not valid on the terminal domain publication path",
@@ -1600,6 +1635,23 @@ def validate_artifact_payload(
             "artifact payload violates its exact registered schema",
             payload_schema_id=payload_schema_id,
         ) from exc
+
+
+def validate_artifact_payload(
+    *, payload_schema_id: str, payload: Mapping[str, object]
+) -> dict[str, object]:
+    """Return the canonical parsed mapping for one exact Artifact payload schema.
+
+    Unknown schemas, explicit unavailable entries, missing/wrong discriminators,
+    non-canonical/coercive model inputs, and any malformed nested payload fail
+    closed as :class:`IntegrityViolation`.
+    """
+
+    return _validate_artifact_payload(
+        payload_schema_id=payload_schema_id,
+        payload=payload,
+        canonical_size_bytes=None,
+    )
 
 
 def decode_and_validate_artifact_payload(
@@ -1699,9 +1751,10 @@ def decode_and_validate_artifact_payload(
             "prepared artifact JSON bytes are not canonical",
             payload_schema_id=payload_schema_id,
         )
-    return validate_artifact_payload(
+    return _validate_artifact_payload(
         payload_schema_id=payload_schema_id,
         payload=cast(dict[str, object], decoded),
+        canonical_size_bytes=len(blob),
     )
 
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import pytest
 from pydantic import ValidationError
 
@@ -224,6 +226,32 @@ def test_finding_revision_digest_rejects_nonfinite_values_instead_of_null(
     assert len(finding_revision_digest(null_value)) == 64
     with pytest.raises(ValueError, match="finite floats"):
         finding_revision_digest(invalid)
+
+
+@pytest.mark.parametrize("confidence", [-0.1, 1.1])
+def test_finding_v1_readers_do_not_retrofit_probability_bounds(
+    confidence: float,
+) -> None:
+    legacy_wire = _legacy_finding().model_dump(mode="python")
+    legacy_wire["confidence"] = confidence
+    payload_wire = _payload().model_dump(mode="python")
+    payload_wire["confidence"] = confidence
+
+    assert Finding.model_validate(legacy_wire).confidence == confidence
+    assert FindingPayloadV1.model_validate(payload_wire).confidence == confidence
+
+
+@pytest.mark.parametrize("confidence", [float("inf"), float("-inf"), float("nan")])
+def test_legacy_finding_reader_keeps_nonfinite_history_readable(confidence: float) -> None:
+    wire = _legacy_finding().model_dump(mode="python")
+    wire["confidence"] = confidence
+
+    retained = Finding.model_validate(wire).confidence
+    assert retained is not None
+    if math.isnan(confidence):
+        assert math.isnan(retained)
+    else:
+        assert retained == confidence
 
 
 def test_finding_revision_is_strict_frozen_and_uses_its_own_discriminator() -> None:

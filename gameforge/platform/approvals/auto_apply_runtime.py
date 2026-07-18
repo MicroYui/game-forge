@@ -12,13 +12,15 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from gameforge.contracts.auto_apply_ownership import (
     AutoApplyIrOwnershipV1,
     auto_apply_ir_classifier_binding,
 )
-from gameforge.contracts.canonical import canonical_json, sha256_lowerhex
+from gameforge.contracts.canonical import canonical_json, canonical_sha256, sha256_lowerhex
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     CheckerProfileConfigV1,
@@ -44,6 +46,7 @@ from gameforge.contracts.workflow import (
     DeterministicOracleRegistryRefV1,
     DeterministicOracleRegistryV1,
     EvidenceSet,
+    PatchTargetBindingV1,
 )
 from gameforge.platform.approvals.auto_apply import (
     AUTO_APPLY_OUTCOME_CODE,
@@ -107,6 +110,79 @@ class ExactAutoApplyEligibilityRequest:
     outcome_code: str
     proof_artifact_id: str
     evidence_set_artifact_id: str
+
+
+class PreparedAutoApplyEligibility(BaseModel):
+    """Read-phase proof that the full deterministic auto-apply guard passed.
+
+    The complete expensive closure (ObjectStore reads, JSON/Patch replay, canonical
+    diff, policy/oracle/profile resolution, and evidence decoding) is evaluated
+    before the terminal writer lock.  The write phase accepts this exact typed
+    projection and checks only the mutable Ref CAS authority.  No boolean
+    ``validated``/``skip_validation`` escape hatch exists.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, validate_default=True)
+
+    prepared_schema_version: Literal["prepared-auto-apply-eligibility@1"] = (
+        "prepared-auto-apply-eligibility@1"
+    )
+    run_id: str
+    approval_id: str
+    workflow_revision: int = Field(gt=0)
+    subject_artifact_id: str
+    subject_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    outcome_code: str
+    proof_artifact_id: str
+    evidence_set_artifact_id: str
+    ref_name: str
+    expected_ref: RefValue | None
+    preparation_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _canonical_digest(self) -> PreparedAutoApplyEligibility:
+        if not all(
+            isinstance(value, str) and value
+            for value in (
+                self.run_id,
+                self.approval_id,
+                self.subject_artifact_id,
+                self.outcome_code,
+                self.proof_artifact_id,
+                self.evidence_set_artifact_id,
+                self.ref_name,
+            )
+        ):
+            raise ValueError("prepared auto-apply identity must be complete")
+        expected = canonical_sha256(self.model_dump(mode="json", exclude={"preparation_digest"}))
+        if self.preparation_digest != expected:
+            raise ValueError("prepared auto-apply digest is not canonical")
+        return self
+
+    @classmethod
+    def seal(
+        cls,
+        *,
+        request: ExactAutoApplyEligibilityRequest,
+        ref_name: str,
+        expected_ref: RefValue | None,
+    ) -> PreparedAutoApplyEligibility:
+        payload: dict[str, object] = {
+            "prepared_schema_version": "prepared-auto-apply-eligibility@1",
+            "run_id": request.run.run_id,
+            "approval_id": request.item.approval_id,
+            "workflow_revision": request.item.workflow_revision,
+            "subject_artifact_id": request.item.subject_artifact_id,
+            "subject_digest": request.item.subject_digest,
+            "outcome_code": request.outcome_code,
+            "proof_artifact_id": request.proof_artifact_id,
+            "evidence_set_artifact_id": request.evidence_set_artifact_id,
+            "ref_name": ref_name,
+            "expected_ref": (
+                None if expected_ref is None else expected_ref.model_dump(mode="json")
+            ),
+        }
+        return cls.model_validate({**payload, "preparation_digest": canonical_sha256(payload)})
 
 
 @dataclass(frozen=True, slots=True)
@@ -493,6 +569,53 @@ class ExactAutoApplyEligibilityService:
             oracle_evidence_decoder=decoders.decode_oracle,
             outcome_evidence_decoder=decoders.decode_outcome,
         )
+
+    def prepare_eligibility(
+        self,
+        request: ExactAutoApplyEligibilityRequest,
+    ) -> PreparedAutoApplyEligibility:
+        """Run the complete guard in the read phase and seal its mutable CAS."""
+
+        self.validate_eligibility(request)
+        target = request.item.target_binding
+        if not isinstance(target, PatchTargetBindingV1):
+            raise IntegrityViolation("auto-apply preparation lacks a Patch target binding")
+        return PreparedAutoApplyEligibility.seal(
+            request=request,
+            ref_name=target.ref_name,
+            expected_ref=target.expected_ref,
+        )
+
+    def commit_prepared_eligibility(
+        self,
+        *,
+        prepared: PreparedAutoApplyEligibility,
+        request: ExactAutoApplyEligibilityRequest,
+    ) -> None:
+        """Fresh-check only mutable Ref authority inside the write UoW."""
+
+        prepared = PreparedAutoApplyEligibility.model_validate(prepared.model_dump(mode="python"))
+        item = request.item
+        target = item.target_binding
+        if (
+            not isinstance(target, PatchTargetBindingV1)
+            or prepared.run_id != request.run.run_id
+            or prepared.approval_id != item.approval_id
+            or prepared.workflow_revision != item.workflow_revision
+            or prepared.subject_artifact_id != item.subject_artifact_id
+            or prepared.subject_digest != item.subject_digest
+            or prepared.outcome_code != request.outcome_code
+            or prepared.proof_artifact_id != request.proof_artifact_id
+            or prepared.evidence_set_artifact_id != request.evidence_set_artifact_id
+            or prepared.ref_name != target.ref_name
+            or prepared.expected_ref != target.expected_ref
+        ):
+            raise IntegrityViolation("prepared auto-apply projection differs from terminal request")
+        current_ref = self.authority.get_ref(prepared.ref_name)
+        if current_ref != prepared.expected_ref:
+            raise IntegrityViolation(
+                "auto-apply Ref authority changed after read-phase preparation"
+            )
 
     def resolve_terminal_outcome(self, run: RunRecord, *, item: ApprovalItem) -> str:
         """Read the immutable RunResult; never infer a post-commit outcome."""
@@ -1234,5 +1357,6 @@ __all__ = [
     "ExactAutoApplyApprovalGateway",
     "ExactAutoApplyEligibilityRequest",
     "ExactAutoApplyEligibilityService",
+    "PreparedAutoApplyEligibility",
     "TransactionBoundAutoApplyAuthority",
 ]

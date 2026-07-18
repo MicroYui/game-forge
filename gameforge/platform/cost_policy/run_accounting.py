@@ -20,7 +20,7 @@ from gameforge.contracts.jobs import RetryDecisionV1, RunAttempt, RunLease, RunR
 from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.storage import UtcClock
 from gameforge.platform.runs.lifecycle import PermitGroupBinding
-from gameforge.runtime.cost.ledger import SqlCostLedger
+from gameforge.runtime.cost.ledger import PreflightedTerminalCostClosure, SqlCostLedger
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +53,16 @@ class AttemptConservativeUsageProvider(Protocol):
         reservations: tuple[BudgetReservationV1, ...],
         recorded_at: datetime,
     ) -> UsageEntryV1: ...
+
+    def conservative_usage_many(
+        self,
+        *,
+        groups: tuple[
+            tuple[ReservationGroupV1, tuple[BudgetReservationV1, ...]],
+            ...,
+        ],
+        recorded_at: datetime,
+    ) -> tuple[UsageEntryV1, ...]: ...
 
 
 def _utc(value: str, *, field: str) -> datetime:
@@ -236,49 +246,14 @@ class SqlRunCostAccounting:
         lease: RunLease,
         retry_decision: RetryDecisionV1 | None,
     ) -> None:
-        del retry_decision
-        self._validate_run_cost_binding(run)
-        if run.concurrency_permit_group_id is None:
-            raise IntegrityViolation("active Run has no permit group to release")
-        for retained_group in self._ledger.list_attempt_reservation_groups(
-            run_id=run.run_id,
-            attempt_no=attempt.attempt_no,
-        ):
-            group = retained_group
-            if group.status == "reserved":
-                group = self._ledger.hold_unknown_group(group.reservation_group_id)
-            if group.status == "held_unknown":
-                reservations = self._ledger.list_budget_reservations(group.reservation_group_id)
-                conservative = self._settlement_provider.conservative_usage(
-                    group=group,
-                    reservations=reservations,
-                    recorded_at=self._clock.now_utc(),
-                )
-                self._ledger.settle_unknown_group(
-                    group.reservation_group_id,
-                    conservative,
-                )
-        current = self._ledger.get_permit_group(run.concurrency_permit_group_id)
-        if (
-            current is None
-            or current.run_id != run.run_id
-            or current.lease_id != lease.lease_id
-            or current.fencing_token != attempt.fencing_token
-            or lease.fencing_token != attempt.fencing_token
-            or lease.attempt_no != attempt.attempt_no
-        ):
-            raise IntegrityViolation("attempt release differs from its PermitGroup")
-        now = self._clock.now_utc()
-        if lease.status == "expired" or now >= current.expires_at:
-            desired = current.model_copy(
-                update={"status": "expired", "revision": current.revision + 1}
-            )
-            self._ledger.expire_permit_group(desired)
-        else:
-            desired = current.model_copy(
-                update={"status": "released", "revision": current.revision + 1}
-            )
-            self._ledger.release_permit_group(desired)
+        closure = self.preflight_terminal_closure(
+            run=run,
+            attempt=attempt,
+            lease=lease,
+            retry_decision=retry_decision,
+            terminal_status=None,
+        )
+        self.apply_preflighted_terminal_closure(closure)
 
     def close_run(
         self,
@@ -286,13 +261,76 @@ class SqlRunCostAccounting:
         run: RunRecord,
         terminal_status: Literal["succeeded", "failed", "cancelled", "timed_out"],
     ) -> None:
-        del terminal_status
-        self._validate_run_cost_binding(run)
-        self._ledger.close_hold_group(run.run_budget_hold_group_id)
+        closure = self.preflight_terminal_closure(
+            run=run,
+            attempt=None,
+            lease=None,
+            retry_decision=None,
+            terminal_status=terminal_status,
+        )
+        self.apply_preflighted_terminal_closure(closure)
+
+    def preflight_terminal_closure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        lease: RunLease | None,
+        retry_decision: RetryDecisionV1 | None,
+        terminal_status: Literal["succeeded", "failed", "cancelled", "timed_out"] | None,
+    ) -> PreflightedTerminalCostClosure:
+        """Preflight attempt release plus optional Run closure as one write plan."""
+
+        del retry_decision
+        self._validate_run_cost_binding_shape(run)
+        if (attempt is None) != (lease is None):
+            raise IntegrityViolation("terminal attempt cost identity is incomplete")
+        if attempt is None and terminal_status is None:
+            raise IntegrityViolation("terminal cost closure has no requested transition")
+        if attempt is not None and lease is not None:
+            if (
+                run.concurrency_permit_group_id is None
+                or getattr(attempt, "run_id", run.run_id) != run.run_id
+                or getattr(lease, "run_id", run.run_id) != run.run_id
+                or lease.fencing_token != attempt.fencing_token
+                or lease.attempt_no != attempt.attempt_no
+            ):
+                raise IntegrityViolation("attempt release differs from its Run/lease authority")
+
+        def conservative_usage_factory(
+            groups: tuple[
+                tuple[ReservationGroupV1, tuple[BudgetReservationV1, ...]],
+                ...,
+            ],
+            recorded_at: datetime,
+        ) -> tuple[UsageEntryV1, ...]:
+            return self._settlement_provider.conservative_usage_many(
+                groups=groups,
+                recorded_at=recorded_at,
+            )
+
+        return self._ledger.preflight_terminal_closure(
+            run_id=run.run_id,
+            budget_set_snapshot_id=run.budget_set_snapshot_id,
+            hold_group_id=run.run_budget_hold_group_id,
+            attempt_no=None if attempt is None else attempt.attempt_no,
+            permit_group_id=(None if attempt is None else run.concurrency_permit_group_id),
+            lease_id=None if lease is None else lease.lease_id,
+            fencing_token=None if attempt is None else attempt.fencing_token,
+            lease_status=None if lease is None else lease.status,
+            close_hold=terminal_status is not None,
+            recorded_at=self._clock.now_utc(),
+            conservative_usage_factory=conservative_usage_factory,
+        )
+
+    def apply_preflighted_terminal_closure(
+        self,
+        closure: PreflightedTerminalCostClosure,
+    ) -> None:
+        self._ledger.apply_preflighted_terminal_closure(closure)
 
     def _validate_run_cost_binding(self, run: RunRecord) -> None:
-        if run.payload.budget_set_snapshot_id != run.budget_set_snapshot_id:
-            raise IntegrityViolation("Run payload and record budget-set bindings differ")
+        self._validate_run_cost_binding_shape(run)
         budget_set = self._ledger.get_budget_set(run.budget_set_snapshot_id)
         hold = self._ledger.get_reservation_group(run.run_budget_hold_group_id)
         if (
@@ -303,6 +341,11 @@ class SqlRunCostAccounting:
             or hold.budget_set_snapshot_id != run.budget_set_snapshot_id
         ):
             raise IntegrityViolation("Run and CostLedger budget bindings differ")
+
+    @staticmethod
+    def _validate_run_cost_binding_shape(run: RunRecord) -> None:
+        if run.payload.budget_set_snapshot_id != run.budget_set_snapshot_id:
+            raise IntegrityViolation("Run payload and record budget-set bindings differ")
 
 
 __all__ = [

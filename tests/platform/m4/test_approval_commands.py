@@ -80,6 +80,7 @@ from gameforge.platform.approvals.commands import (
     EvidenceStateProjection,
     PreparedDraft,
     PreparedObjectBinding,
+    PreparedTerminalDraft,
     PreparedValidationStart,
     ValidationStartResult,
 )
@@ -329,6 +330,43 @@ class _ApprovalRepo:
             return None
         return head, self.state.approvals[head.current_approval_id]
 
+    def apply_preflighted_insert_draft(self, item: ApprovalItem) -> ApprovalItem:
+        if item.approval_id in self.state.approvals:
+            raise Conflict("preflighted approval insert")
+        self.state.approvals[item.approval_id] = item
+        return item
+
+    def apply_preflighted_compare_and_set(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        if self.state.approvals.get(current.approval_id) != current:
+            raise Conflict("preflighted approval CAS")
+        self.state.approvals[current.approval_id] = replacement
+        return replacement
+
+    def apply_preflighted_validation_completion(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem:
+        return self.apply_preflighted_compare_and_set(current, replacement)
+
+    def apply_preflighted_subject_head(
+        self,
+        *,
+        expected: SubjectHead | None,
+        expected_item: ApprovalItem | None,
+        replacement: SubjectHead,
+        replacement_item: ApprovalItem,
+    ) -> SubjectHead:
+        del expected_item, replacement_item
+        if self.state.heads.get(replacement.subject_series_id) != expected:
+            raise Conflict("preflighted SubjectHead CAS")
+        self.state.heads[replacement.subject_series_id] = replacement
+        return replacement
+
 
 class _Refs:
     def __init__(self, state: _State) -> None:
@@ -455,6 +493,32 @@ class _Idempotency:
         )
         return copy.deepcopy(response)
 
+    def put_preflighted_result(
+        self,
+        *,
+        scope: str,
+        operation: str,
+        key: str,
+        request_hash: str,
+        resource_kind: str,
+        resource_id: str,
+        response: dict[str, Any],
+    ) -> dict[str, Any]:
+        del resource_kind, resource_id
+        identity = (scope, operation, key)
+        if identity in self.state.idempotency:
+            raise Conflict("preflighted idempotency insert")
+        self.state.idempotency[identity] = (
+            request_hash,
+            copy.deepcopy(response),
+        )
+        return copy.deepcopy(response)
+
+
+@dataclass(frozen=True)
+class _PreparedAuditBatch:
+    intents: tuple[Any, ...]
+
 
 class _Audit:
     def __init__(self, state: _State) -> None:
@@ -476,6 +540,20 @@ class _Audit:
         self.state.audit.append((action, subject))
         return object()
 
+    def prepare_batch(
+        self,
+        *,
+        chain_id: str,
+        intents: tuple[Any, ...],
+    ) -> _PreparedAuditBatch:
+        del chain_id
+        return _PreparedAuditBatch(intents=intents)
+
+    def apply_prepared_batch(self, prepared: _PreparedAuditBatch) -> None:
+        if self.fail:
+            raise IntegrityViolation("audit unavailable")
+        self.state.audit.extend((intent.action, intent.subject) for intent in prepared.intents)
+
 
 class _Runs:
     def __init__(self, state: _State) -> None:
@@ -492,6 +570,18 @@ class _Runs:
         identity = (run_id, artifact_id, initiated_by.principal_id)
         if identity not in self.produced:
             raise IntegrityViolation("producer membership is unavailable")
+
+    def verify_prepared_terminal_producer_authority(
+        self,
+        *,
+        run_id: str,
+        initiated_by: AuditActor,
+    ) -> None:
+        if (run_id, initiated_by.principal_id) not in {
+            (produced_run_id, principal_id)
+            for produced_run_id, _artifact_id, principal_id in self.produced
+        }:
+            raise IntegrityViolation("prepared producer authority is unavailable")
 
     def start_validation(
         self,
@@ -992,6 +1082,135 @@ def test_publish_draft_atomically_publishes_bindings_artifacts_item_head_and_aud
         )
 
 
+def test_prepared_terminal_agent_draft_apply_is_read_free(monkeypatch) -> None:
+    harness = _harness()
+    legacy = _draft(harness)
+    run_id = "run:agent-draft:1"
+    facts = DraftSubjectFacts(
+        subject_kind="patch",
+        subject_revision=legacy.approval_item.subject_revision,
+        produced_by="agent",
+        producer_run_id=run_id,
+        supersedes_artifact_id=None,
+        target_artifact_id=None,
+        target_snapshot_id="snapshot:preview",
+    )
+    prepared = PreparedTerminalDraft.seal(
+        subject_artifact=legacy.subject_artifact,
+        companion_artifacts=legacy.companion_artifacts,
+        subject_facts=facts,
+        retained_parent_ids=(),
+        approval_item=legacy.approval_item,
+        expected_subject_head=None,
+        expected_previous_workflow_revision=None,
+    )
+    context = ApprovalCommandContext(
+        actor=AuditActor(principal_id="service:worker:1", principal_kind="service"),
+        initiated_by=legacy.approval_item.proposer,
+        request_id="terminal-workflow:run:agent-draft:1",
+        run_id=run_id,
+        idempotency_scope=f"run:{run_id}",
+        idempotency_key="create_patch_subject_head_and_draft@1:request",
+        request_hash="7" * 64,
+    )
+    harness.runs.produced.add(
+        (
+            run_id,
+            legacy.subject_artifact.artifact_id,
+            legacy.approval_item.proposer.principal_id,
+        )
+    )
+    before = copy.deepcopy(harness.state)
+
+    preflighted = harness.service.preflight_prepared_terminal_draft_in_transaction(
+        prepared=prepared,
+        context=context,
+        capabilities=harness.capabilities,
+        merge_audit_into_terminal_batch=True,
+    )
+
+    assert harness.state == before
+    merged_audit = preflighted.audit_intents_for_terminal_merge(
+        context=context,
+        capabilities=harness.capabilities,
+    )
+    assert merged_audit.chain_id == "authority"
+    assert len(merged_audit.intents) == 1
+    assert merged_audit.intents[0].action == "approval.draft_published"
+    assert merged_audit.intents[0].subject.resource_kind == "approval"
+    assert merged_audit.intents[0].subject.resource_id == legacy.approval_item.approval_id
+    assert merged_audit.intents[0].subject.artifact_id == legacy.subject_artifact.artifact_id
+    expected_item = prepared.approval_item
+    with pytest.raises((AttributeError, TypeError)):
+        object.__setattr__(preflighted, "prepared", prepared)
+    with pytest.raises(IntegrityViolation, match="invalid"):
+        harness.service.apply_preflighted_terminal_draft_in_transaction(
+            preflighted=copy.copy(preflighted),
+            context=context,
+            capabilities=harness.capabilities,
+        )
+    retained_approvals = harness.capabilities.approvals
+    harness.capabilities.approvals = None
+    with pytest.raises(IntegrityViolation, match="invalid"):
+        harness.service.apply_preflighted_terminal_draft_in_transaction(
+            preflighted=preflighted,
+            context=context,
+            capabilities=harness.capabilities,
+        )
+    harness.capabilities.approvals = retained_approvals
+    object.__setattr__(
+        prepared,
+        "approval_item",
+        prepared.approval_item.model_copy(update={"approval_id": "approval:changed"}),
+    )
+
+    def _unexpected_read(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("prepared terminal apply issued a read")
+
+    approvals = harness.capabilities.approvals
+    policies = harness.capabilities.policies
+    idempotency = harness.capabilities.idempotency
+    refs = harness.capabilities.refs
+    assert approvals is not None
+    assert policies is not None
+    assert idempotency is not None
+    assert refs is not None
+    for target, method_names in (
+        (approvals, ("get", "current", "get_subject_head")),
+        (
+            policies,
+            (
+                "get_domain_registry",
+                "get_domain_route_policy",
+                "get_role_policy",
+                "get_approval_policy",
+            ),
+        ),
+        (idempotency, ("get_result",)),
+        (refs, ("get", "get_history_entry")),
+        (harness.runs, ("verify_prepared_terminal_producer_authority",)),
+        (harness.audit, ("prepare_batch",)),
+    ):
+        for method_name in method_names:
+            monkeypatch.setattr(target, method_name, _unexpected_read)
+
+    result = harness.service.apply_preflighted_terminal_draft_in_transaction(
+        preflighted=preflighted,
+        context=context,
+        capabilities=harness.capabilities,
+    )
+
+    assert result.approval_item == expected_item
+    assert result.subject_head == harness.state.heads["patch-series:1"]
+    assert harness.state.audit == []
+    with pytest.raises(IntegrityViolation, match="reused"):
+        harness.service.apply_preflighted_terminal_draft_in_transaction(
+            preflighted=preflighted,
+            context=context,
+            capabilities=harness.capabilities,
+        )
+
+
 def test_publish_patch_draft_requires_ref_authority() -> None:
     harness = _harness()
     harness.capabilities.refs = None
@@ -1317,7 +1536,7 @@ def test_agent_patch_publish_requires_exact_producer_membership(
     assert result.subject_head.current_subject_artifact_id == subject_id
 
 
-def test_terminal_agent_draft_adapter_reuses_shared_core_in_callers_uow() -> None:
+def test_terminal_agent_draft_direct_commit_keeps_its_own_single_audit_batch() -> None:
     """Task 9's adapter delegates to the real Task-7 authority without nesting."""
 
     harness = _harness()
@@ -1401,13 +1620,32 @@ def test_terminal_agent_draft_adapter_reuses_shared_core_in_callers_uow() -> Non
             assert actual is request
             return prepared
 
+        def prepare_terminal(
+            self,
+            actual: AgentDraftWorkflowRequest,
+        ) -> PreparedTerminalDraft:
+            assert actual is request
+            return PreparedTerminalDraft.seal(
+                subject_artifact=prepared.subject_artifact,
+                companion_artifacts=prepared.companion_artifacts,
+                subject_facts=harness.subjects.facts[subject_id],
+                retained_parent_ids=(),
+                approval_item=prepared.approval_item,
+                expected_subject_head=prepared.expected_subject_head,
+                expected_previous_workflow_revision=(prepared.expected_previous_workflow_revision),
+            )
+
     port = ApprovalCommandAgentDraftWorkflowPort(
         commands=harness.service,
         capabilities=harness.capabilities,
         assembler=_Assembler(),
     )
     with harness.uow.begin():
-        result = port.publish_agent_draft(request)
+        terminal_prepared = port.prepare_agent_draft(request)
+        result = port.commit_prepared_agent_draft(
+            prepared=terminal_prepared,
+            request=request,
+        )
 
     assert result.approval_item == prepared.approval_item
     assert harness.uow.begins == 1  # only the caller-owned terminal UoW

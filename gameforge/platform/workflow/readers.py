@@ -17,7 +17,7 @@ from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.findings import PatchV2
-from gameforge.contracts.lineage import ArtifactV2
+from gameforge.contracts.lineage import ArtifactV2, ExecutionIdentityV1
 from gameforge.contracts.storage import ObjectStore
 from gameforge.contracts.workflow import (
     ConstraintProposalV1,
@@ -34,6 +34,7 @@ from gameforge.platform.approvals.commands import (
 )
 from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
 from gameforge.platform.lineage.validation import (
+    PRODUCER_RULES,
     ProducerValidationContext,
     validate_artifact_producer,
 )
@@ -41,16 +42,41 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 
 def _producer_context(artifact: ArtifactV2) -> ProducerValidationContext:
-    expected: dict[str, object] = {}
-    if artifact.version_tuple.doc_version is not None:
-        expected["doc_version"] = artifact.version_tuple.doc_version
-    if artifact.version_tuple.ir_snapshot_id is not None:
-        expected["ir_snapshot_id"] = artifact.version_tuple.ir_snapshot_id
-    if artifact.version_tuple.constraint_snapshot_id is not None:
-        expected["constraint_snapshot_id"] = artifact.version_tuple.constraint_snapshot_id
-    if artifact.version_tuple.env_contract_version is not None:
-        expected["env_contract_version"] = artifact.version_tuple.env_contract_version
-    return ProducerValidationContext(expected_versions=expected)
+    """Reconstruct the matrix facts already sealed into one draft Artifact.
+
+    The terminal publisher validated parent-derived projections before creating the
+    Artifact.  The workflow boundary must still validate the complete LLM/cassette
+    projection instead of silently treating an Agent artifact as
+    ``not_applicable`` merely because it is reading the immutable result later.
+    """
+
+    rule = PRODUCER_RULES[artifact.kind]
+    expected = {
+        field: value
+        for field in rule.projected_fields
+        if (value := getattr(artifact.version_tuple, field)) is not None
+    }
+    identity = artifact.meta.get("execution_identity")
+    has_llm_invocations = isinstance(identity, ExecutionIdentityV1) and bool(identity.bindings)
+    replayability = artifact.meta.get("replayability")
+    if replayability == "online_only":
+        mode = "live"
+    elif replayability == "cassette_replay":
+        mode = (
+            "replay"
+            if has_llm_invocations
+            and all(binding.execution_source == "cassette_replay" for binding in identity.bindings)
+            else "record"
+        )
+    else:
+        mode = "not_applicable"
+    return ProducerValidationContext(
+        expected_versions=expected,
+        llm_execution_mode=mode,
+        has_llm_invocations=has_llm_invocations,
+        produced_by_agent=has_llm_invocations,
+        operational_observation=(replayability == "operational_observation"),
+    )
 
 
 class ObjectBindingReader:

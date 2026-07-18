@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from bisect import bisect_right
 from collections import defaultdict
 from collections.abc import Sequence
 from datetime import UTC, datetime
@@ -48,6 +49,10 @@ class StaticPriceBook:
                     )
             frozen[identity] = ordered
         self._quotes = frozen
+        self._effective_from = {
+            identity: tuple(quote.effective_from for quote in values)
+            for identity, values in frozen.items()
+        }
 
     def lookup(
         self,
@@ -56,10 +61,12 @@ class StaticPriceBook:
         observed_at_utc: datetime,
     ) -> PriceQuoteV1 | PriceUnavailableV1:
         observed_at = _require_utc(observed_at_utc)
-        for quote in self._quotes.get((provider, model_snapshot), ()):
-            if quote.effective_from <= observed_at and (
-                quote.effective_to is None or observed_at < quote.effective_to
-            ):
+        identity = (provider, model_snapshot)
+        quotes = self._quotes.get(identity, ())
+        index = bisect_right(self._effective_from.get(identity, ()), observed_at) - 1
+        if index >= 0:
+            quote = quotes[index]
+            if quote.effective_to is None or observed_at < quote.effective_to:
                 return quote
         return PriceUnavailableV1(reason_code="no_exact_price_quote")
 

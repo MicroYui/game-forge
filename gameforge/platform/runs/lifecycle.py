@@ -6,7 +6,7 @@ from collections.abc import Callable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol, TypeVar
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -57,8 +57,8 @@ _TerminalResult = TypeVar("_TerminalResult")
 _MAX_TERMINAL_STAGE_ATTEMPTS = 3
 
 
-class _TerminalProjectionDrift(IntegrityViolation):
-    """Fresh terminal authority no longer matches the blob-staged projection."""
+class TerminalAuthorityDrift(IntegrityViolation):
+    """Fresh terminal authority no longer matches the blob-staged immutable plan."""
 
 
 class _FrozenModel(BaseModel):
@@ -278,6 +278,20 @@ class RunLifecycleRepository(Protocol):
 
     def get_current_lease(self, run_id: str) -> RunLease | None: ...
 
+    def get_attempt_write_authority(
+        self,
+        fence: AttemptWriteFence,
+    ) -> tuple[RunRecord, RunAttempt, RunLease] | None:
+        """Read only the exact mutable Run/Attempt/Lease head for one fence."""
+        ...
+
+    def get_run_write_authority(
+        self,
+        run_id: str,
+    ) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None:
+        """Read one Run plus its latest Attempt and active Lease in one bounded join."""
+        ...
+
     def get_event(self, run_id: str, seq: int) -> RunEvent | None: ...
 
     def start_attempt(
@@ -389,6 +403,18 @@ class RunLifecycleAccountingGateway(Protocol):
 
     def retry_budget_available(self, *, run: RunRecord) -> bool: ...
 
+    def preflight_terminal_closure(
+        self,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        lease: RunLease | None,
+        retry_decision: RetryDecisionV1 | None,
+        terminal_status: Literal["succeeded", "failed", "cancelled", "timed_out"] | None,
+    ) -> object: ...
+
+    def apply_preflighted_terminal_closure(self, closure: object) -> None: ...
+
     def release_attempt(
         self,
         *,
@@ -484,16 +510,58 @@ class RunLifecyclePublicationGateway(Protocol):
         actor: AuditActor,
     ) -> tuple[TerminalPublicationDraft, ...]: ...
 
-    def commit(
+    def commit_planned_run_result(
         self,
-        fresh_draft: TerminalPublicationDraft,
+        draft: TerminalPublicationDraft,
         staged: StagedTerminalPublication,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared: PreparedRunResult,
+        policy: OutcomeArtifactPolicyV1,
+        occurred_at: str,
+        actor: AuditActor,
     ) -> object: ...
 
-    def commit_many(
+    def commit_planned_active_failure_aggregate(
         self,
-        publications: tuple[tuple[TerminalPublicationDraft, StagedTerminalPublication], ...],
+        drafts: tuple[TerminalPublicationDraft, ...],
+        staged: tuple[StagedTerminalPublication, ...],
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        attempt_policy: OutcomeArtifactPolicyV1,
+        run_policy: OutcomeArtifactPolicyV1 | None,
+        occurred_at: str,
+        actor: AuditActor,
     ) -> tuple[object, ...]: ...
+
+    def commit_planned_run_failure(
+        self,
+        draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        attempt_failure_artifact_id: str | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> object: ...
+
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object: ...
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object: ...
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object: ...
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object: ...
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object: ...
 
     def record_attempt_closed(
         self,
@@ -534,6 +602,48 @@ def _required[T](value: T | None, name: str) -> T:
     if value is None:
         raise IntegrityViolation(f"{name} Run lifecycle capability is unavailable")
     return value
+
+
+@dataclass(frozen=True, slots=True)
+class _PreflightedRunClosure:
+    apply: Callable[[object], object]
+    seal: object
+
+
+def _preflight_run_closure(
+    publication: RunLifecyclePublicationGateway,
+    operation: str,
+    **kwargs: object,
+) -> _PreflightedRunClosure:
+    """Require one paired preflight/apply capability before any terminal write."""
+
+    preflight = getattr(publication, operation, None)
+    apply = getattr(publication, "apply_preflighted_terminal_closure", None)
+    if callable(preflight) != callable(apply):
+        raise IntegrityViolation("terminal lifecycle preflight capability is partial")
+    if not callable(preflight) or not callable(apply):
+        raise IntegrityViolation("terminal lifecycle preflight capability is required")
+    return _PreflightedRunClosure(
+        apply=apply,
+        seal=preflight(**kwargs),
+    )
+
+
+def _apply_run_closure(
+    *,
+    closure: _PreflightedRunClosure,
+) -> PersistedAttemptClose | PersistedRunTerminal:
+    return closure.apply(closure.seal)  # type: ignore[no-any-return]
+
+
+def _load_run_write_authority(
+    runs: RunLifecycleRepository,
+    run_id: str,
+) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None:
+    bounded = getattr(runs, "get_run_write_authority", None)
+    if not callable(bounded):
+        raise IntegrityViolation("bounded Run write authority capability is required")
+    return bounded(run_id)
 
 
 def validate_attempt_cassette_publication(
@@ -838,23 +948,6 @@ def _run_terminal_status(
     return "failed"
 
 
-def _require_exact_staged_projection(
-    *,
-    fresh_drafts: tuple[TerminalPublicationDraft, ...],
-    staged_publications: tuple[StagedTerminalPublication, ...],
-) -> None:
-    """Reject stage/write drift before any terminal authority is mutated."""
-
-    fresh_digests = tuple(draft.projection_digest for draft in fresh_drafts)
-    staged_digests = tuple(item.projection_digest for item in staged_publications)
-    if fresh_digests != staged_digests:
-        raise _TerminalProjectionDrift(
-            "fresh terminal authority differs from the staged projection",
-            fresh_publication_count=len(fresh_digests),
-            staged_publication_count=len(staged_digests),
-        )
-
-
 class RunLifecycleService:
     def __init__(
         self,
@@ -888,14 +981,21 @@ class RunLifecycleService:
         self,
         *,
         plan: Callable[[datetime], tuple[TerminalPublicationDraft, ...]],
-        publish: Callable[[datetime, tuple[StagedTerminalPublication, ...]], _TerminalResult],
+        publish: Callable[
+            [
+                datetime,
+                tuple[TerminalPublicationDraft, ...],
+                tuple[StagedTerminalPublication, ...],
+            ],
+            _TerminalResult,
+        ],
     ) -> _TerminalResult:
         """Bound the read -> blob stage -> fresh write-authority convergence loop.
 
         Blob staging deliberately happens outside the database UoW.  Authority can
         therefore change after a valid draft was staged.  A fresh write snapshot
         detects that drift before the first repository/effect/accounting write and
-        aborts its UoW with ``_TerminalProjectionDrift``.  Replanning and restaging
+        aborts its UoW with ``TerminalAuthorityDrift``.  Replanning and restaging
         from a new read snapshot makes a stable supersede/cancel/deadline decision
         publish through its exact typed terminal policy.  Persistent churn remains
         fail-closed after a small fixed number of attempts; staged blobs are only
@@ -905,7 +1005,7 @@ class RunLifecycleService:
         stager = self._stage_publications
         if stager is None:
             raise IntegrityViolation("terminal publication stager is unavailable")
-        last_drift: _TerminalProjectionDrift | None = None
+        last_drift: TerminalAuthorityDrift | None = None
         for stage_attempt in range(1, _MAX_TERMINAL_STAGE_ATTEMPTS + 1):
             operation_now = _utc_now(self._clock)
             drafts = plan(operation_now)
@@ -913,8 +1013,17 @@ class RunLifecycleService:
             if len(staged) != len(drafts):
                 raise IntegrityViolation("terminal stager returned another publication count")
             try:
-                return publish(operation_now, staged)
-            except _TerminalProjectionDrift as exc:
+                sealed = tuple(
+                    draft.seal_for_commit(staged_publication)
+                    for draft, staged_publication in zip(drafts, staged, strict=True)
+                )
+            except ValueError as exc:
+                raise IntegrityViolation(
+                    "terminal draft changed before its write-UoW seal"
+                ) from exc
+            try:
+                return publish(operation_now, sealed, staged)
+            except TerminalAuthorityDrift as exc:
                 last_drift = exc
                 if stage_attempt == _MAX_TERMINAL_STAGE_ATTEMPTS:
                     break
@@ -1129,10 +1238,13 @@ class RunLifecycleService:
                 request=request,
                 now=operation_now,
             ),
-            publish=lambda operation_now, staged: self._publish_attempt_outcome_in_write_uow(
-                request=request,
-                operation_now=operation_now,
-                staged_publications=staged,
+            publish=lambda operation_now, planned, staged: (
+                self._publish_attempt_outcome_in_write_uow(
+                    request=request,
+                    operation_now=operation_now,
+                    planned_publications=planned,
+                    staged_publications=staged,
+                )
             ),
         )
 
@@ -1141,6 +1253,7 @@ class RunLifecycleService:
         *,
         request: PublishAttemptOutcomeRequest,
         operation_now: datetime,
+        planned_publications: tuple[TerminalPublicationDraft, ...],
         staged_publications: tuple[StagedTerminalPublication, ...],
     ) -> AttemptOutcomePublicationResult:
         with self._unit_of_work.begin() as transaction:
@@ -1220,32 +1333,21 @@ class RunLifecycleService:
                     "occurred_at": _utc_text(now),
                     "actor": request.actor,
                 }
-                fresh_draft = publication.plan_run_result(**publication_kwargs)
-                _require_exact_staged_projection(
-                    fresh_drafts=(fresh_draft,),
-                    staged_publications=staged_publications,
-                )
-                published_result = publication.commit(
-                    fresh_draft,
-                    staged_publications[0],
-                )
-                if not isinstance(published_result, RunResultPublication):
+                if len(planned_publications) != 1 or len(staged_publications) != 1:
+                    raise TerminalAuthorityDrift(
+                        "fresh success selector differs from the staged aggregate"
+                    )
+                planned_result = planned_publications[0].result
+                if not isinstance(planned_result, RunResultPublication):
                     raise IntegrityViolation(
-                        "success terminal commit returned another result projection"
+                        "staged success terminal has another result projection"
                     )
                 validate_cassette_scope_pair(
                     run=run,
-                    attempt_cassette_artifact_id=(published_result.attempt_cassette_artifact_id),
-                    terminal_cassette_artifact_id=(published_result.terminal_cassette_artifact_id),
+                    attempt_cassette_artifact_id=(planned_result.attempt_cassette_artifact_id),
+                    terminal_cassette_artifact_id=(planned_result.terminal_cassette_artifact_id),
                 )
-                result_artifact_id = published_result.result_artifact_id
-                accounting.release_attempt(
-                    run=run,
-                    attempt=attempt,
-                    lease=lease,
-                    retry_decision=None,
-                )
-                accounting.close_run(run=run, terminal_status="succeeded")
+                result_artifact_id = planned_result.result_artifact_id
                 event = RunEvent(
                     run_id=run.run_id,
                     seq=run.next_event_seq,
@@ -1259,13 +1361,42 @@ class RunLifecycleService:
                     ),
                     trace_id=attempt.trace_id,
                 )
-                persisted = runs.complete_attempt_success(
-                    fence=request.fence,
-                    ended_at=_utc_text(now),
-                    result_artifact_id=result_artifact_id,
-                    attempt_cassette_artifact_id=(published_result.attempt_cassette_artifact_id),
-                    terminal_cassette_artifact_id=(published_result.terminal_cassette_artifact_id),
-                    event=event,
+                closure_kwargs: dict[str, object] = {
+                    "fence": request.fence,
+                    "ended_at": _utc_text(now),
+                    "result_artifact_id": result_artifact_id,
+                    "attempt_cassette_artifact_id": (planned_result.attempt_cassette_artifact_id),
+                    "terminal_cassette_artifact_id": (planned_result.terminal_cassette_artifact_id),
+                    "event": event,
+                }
+                run_closure = _preflight_run_closure(
+                    publication,
+                    "preflight_complete_attempt_success",
+                    **closure_kwargs,
+                )
+                cost_closure = accounting.preflight_terminal_closure(
+                    run=run,
+                    attempt=attempt,
+                    lease=lease,
+                    retry_decision=None,
+                    terminal_status="succeeded",
+                )
+                published_result = publication.commit_planned_run_result(
+                    planned_publications[0],
+                    staged_publications[0],
+                    **publication_kwargs,
+                )
+                if not isinstance(published_result, RunResultPublication):
+                    raise IntegrityViolation(
+                        "success terminal commit returned another result projection"
+                    )
+                if published_result != planned_result:
+                    raise IntegrityViolation(
+                        "success terminal commit returned another immutable projection"
+                    )
+                accounting.apply_preflighted_terminal_closure(cost_closure)
+                persisted = _apply_run_closure(
+                    closure=run_closure,
                 )
                 self._validate_success_close(
                     previous=run,
@@ -1321,6 +1452,7 @@ class RunLifecycleService:
                 actor=request.actor,
                 now=now,
                 lease_expiry_event=False,
+                planned_publications=planned_publications,
                 staged_publications=staged_publications,
             )
 
@@ -1442,9 +1574,10 @@ class RunLifecycleService:
                 request=request,
                 now=operation_now,
             ),
-            publish=lambda operation_now, staged: self._reap_expired_lease_in_write_uow(
+            publish=lambda operation_now, planned, staged: self._reap_expired_lease_in_write_uow(
                 request=request,
                 operation_now=operation_now,
+                planned_publications=planned,
                 staged_publications=staged,
             ),
         )
@@ -1454,6 +1587,7 @@ class RunLifecycleService:
         *,
         request: ReapExpiredLeaseRequest,
         operation_now: datetime,
+        planned_publications: tuple[TerminalPublicationDraft, ...],
         staged_publications: tuple[StagedTerminalPublication, ...],
     ) -> AttemptOutcomePublicationResult:
         with self._unit_of_work.begin() as transaction:
@@ -1464,19 +1598,20 @@ class RunLifecycleService:
             publication = _required(capabilities.publication, "publication")
             guard_now = _utc_now(self._clock)
             now = operation_now
-            run = runs.get(request.run_id)
-            if run is None:
+            authority = _load_run_write_authority(runs, request.run_id)
+            if authority is None:
                 raise IntegrityViolation("lease reaper Run does not exist")
+            run, attempt, lease = authority
             if run.revision != request.expected_run_revision:
                 raise Conflict("lease reaper Run revision differs")
             if run.status not in {"leased", "running"} or run.current_attempt_no is None:
                 raise InvalidStateTransition("lease reaper requires an active Run attempt")
-            attempt = runs.get_attempt(run.run_id, run.current_attempt_no)
-            lease = runs.get_current_lease(run.run_id)
             if attempt is None or lease is None:
                 raise IntegrityViolation("active Run is missing its attempt or lease")
             if (
-                lease.run_id != run.run_id
+                attempt.attempt_no != run.current_attempt_no
+                or attempt.status != run.status
+                or lease.run_id != run.run_id
                 or lease.attempt_no != attempt.attempt_no
                 or lease.fencing_token != attempt.fencing_token
                 or lease.status != "active"
@@ -1550,6 +1685,7 @@ class RunLifecycleService:
                 actor=request.actor,
                 now=now,
                 lease_expiry_event=True,
+                planned_publications=planned_publications,
                 staged_publications=staged_publications,
             )
 
@@ -1650,9 +1786,10 @@ class RunLifecycleService:
                 request=request,
                 now=operation_now,
             ),
-            publish=lambda operation_now, staged: self._sweep_timeout_in_write_uow(
+            publish=lambda operation_now, planned, staged: self._sweep_timeout_in_write_uow(
                 request=request,
                 operation_now=operation_now,
+                planned_publications=planned,
                 staged_publications=staged,
             ),
         )
@@ -1662,6 +1799,7 @@ class RunLifecycleService:
         *,
         request: SweepRunTimeoutRequest,
         operation_now: datetime,
+        planned_publications: tuple[TerminalPublicationDraft, ...],
         staged_publications: tuple[StagedTerminalPublication, ...],
     ) -> AttemptOutcomePublicationResult:
         with self._unit_of_work.begin() as transaction:
@@ -1672,9 +1810,10 @@ class RunLifecycleService:
             publication = _required(capabilities.publication, "publication")
             guard_now = _utc_now(self._clock)
             now = operation_now
-            run = runs.get(request.run_id)
-            if run is None:
+            authority = _load_run_write_authority(runs, request.run_id)
+            if authority is None:
                 raise IntegrityViolation("timeout sweeper Run does not exist")
+            run, authority_attempt, authority_lease = authority
             if run.revision != request.expected_run_revision:
                 raise Conflict("timeout sweeper Run revision differs")
             definition, retry_policy, classifier = resolve_lifecycle_bindings(
@@ -1682,7 +1821,7 @@ class RunLifecycleService:
                 registry=registry,
             )
             if run.status in {"queued", "retry_wait"}:
-                if runs.get_current_lease(run.run_id) is not None:
+                if authority_lease is not None:
                     raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
                 if run.status == "queued":
                     deadline = _parse_utc(
@@ -1691,6 +1830,8 @@ class RunLifecycleService:
                     )
                     reason = "queue_deadline_exhausted"
                     cause_code = "queue_timed_out"
+                    if authority_attempt is not None:
+                        raise IntegrityViolation("queued Run unexpectedly retains an Attempt")
                     attempt = None
                 else:
                     deadline = _parse_utc(
@@ -1700,8 +1841,12 @@ class RunLifecycleService:
                     reason = "overall_deadline_exhausted"
                     cause_code = "timed_out"
                     latest_no = run.next_attempt_no - 1
-                    attempt = runs.get_attempt(run.run_id, latest_no)
-                    if attempt is None or attempt.status in {"leased", "running"}:
+                    attempt = authority_attempt
+                    if (
+                        attempt is None
+                        or attempt.attempt_no != latest_no
+                        or attempt.status in {"leased", "running"}
+                    ):
                         raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
                 if guard_now < deadline:
                     raise InvalidStateTransition("Run timeout deadline has not elapsed")
@@ -1747,15 +1892,25 @@ class RunLifecycleService:
                     retry_decision=decision,
                     actor=request.actor,
                     now=now,
+                    planned_publications=planned_publications,
                     staged_publications=staged_publications,
                 )
 
             if run.status not in {"leased", "running"} or run.current_attempt_no is None:
                 raise InvalidStateTransition("Run is not eligible for timeout sweeping")
-            attempt = runs.get_attempt(run.run_id, run.current_attempt_no)
-            lease = runs.get_current_lease(run.run_id)
+            attempt = authority_attempt
+            lease = authority_lease
             if attempt is None or lease is None:
                 raise IntegrityViolation("active Run is missing its attempt or lease")
+            if (
+                attempt.attempt_no != run.current_attempt_no
+                or attempt.status != run.status
+                or lease.run_id != run.run_id
+                or lease.attempt_no != attempt.attempt_no
+                or lease.fencing_token != attempt.fencing_token
+                or lease.status != "active"
+            ):
+                raise IntegrityViolation("active Run lease projection is inconsistent")
             overall = _parse_utc(
                 run.overall_deadline_utc,
                 field_name="run.overall_deadline_utc",
@@ -1831,6 +1986,7 @@ class RunLifecycleService:
                 actor=request.actor,
                 now=now,
                 lease_expiry_event=False,
+                planned_publications=planned_publications,
                 staged_publications=staged_publications,
             )
 
@@ -2203,6 +2359,7 @@ class RunLifecycleService:
         actor: AuditActor,
         now: datetime,
         lease_expiry_event: bool,
+        planned_publications: tuple[TerminalPublicationDraft, ...],
         staged_publications: tuple[StagedTerminalPublication, ...],
     ) -> AttemptOutcomePublicationResult:
         attempt_status = _attempt_terminal_status(
@@ -2244,46 +2401,24 @@ class RunLifecycleService:
         )
         occurred_at = _utc_text(now)
         expected_count = 1 if retrying else 2
-        fresh_drafts = publication.plan_active_failure_aggregate(
-            run=run,
-            attempt=attempt,
-            prepared=prepared,
-            retry_decision=retry_decision,
-            attempt_policy=attempt_policy,
-            run_policy=run_policy,
-            occurred_at=occurred_at,
-            actor=actor,
-        )
-        if len(fresh_drafts) != expected_count:
-            raise IntegrityViolation("fresh active failure aggregate has another draft count")
-        _require_exact_staged_projection(
-            fresh_drafts=fresh_drafts,
-            staged_publications=staged_publications,
-        )
-        committed = publication.commit_many(
-            tuple(zip(fresh_drafts, staged_publications, strict=True))
-        )
-        if len(committed) != expected_count:
-            raise IntegrityViolation(
-                "active failure aggregate commit returned another result count"
-            )
-        attempt_publication = committed[0]
+        if (
+            len(planned_publications) != expected_count
+            or len(staged_publications) != expected_count
+        ):
+            raise TerminalAuthorityDrift("fresh failure selector differs from the staged aggregate")
+
+        attempt_publication = planned_publications[0].result
         if not isinstance(attempt_publication, AttemptFailurePublication):
-            raise IntegrityViolation("attempt failure commit returned another result projection")
-        run_publication = committed[1] if not retrying else None
-        if not retrying and not isinstance(run_publication, RunFailurePublication):
-            raise IntegrityViolation("run failure commit returned another result projection")
+            raise IntegrityViolation("staged attempt failure has another result projection")
         validate_attempt_cassette_publication(
             run=run,
             cassette_artifact_id=attempt_publication.cassette_bundle_artifact_id,
         )
         attempt_failure_id = attempt_publication.failure_artifact_id
-        accounting.release_attempt(
-            run=run,
-            attempt=attempt,
-            lease=lease,
-            retry_decision=retry_decision,
-        )
+
+        run_publication = planned_publications[1].result if not retrying else None
+        if not retrying and not isinstance(run_publication, RunFailurePublication):
+            raise IntegrityViolation("staged run failure has another result projection")
 
         leading_events: tuple[RunEvent, ...] = ()
         next_seq = run.next_event_seq
@@ -2306,6 +2441,9 @@ class RunLifecycleService:
             )
             next_seq += 1
 
+        closure_operation: str
+        closure_kwargs: dict[str, object]
+        terminal_event: RunEvent | None = None
         if retrying:
             retry_at = retry_decision.retry_not_before_utc
             if retry_at is None:
@@ -2328,17 +2466,117 @@ class RunLifecycleService:
                 trace_id=attempt.trace_id,
             )
             events = (*leading_events, retry_event)
-            persisted = runs.close_attempt_for_retry(
-                fence=fence,
-                ended_at=occurred_at,
-                attempt_status=attempt_status,
-                lease_status="expired" if lease_expiry_event else "closed",
-                failure_class=prepared.failure_class,
-                failure_artifact_id=attempt_failure_id,
-                attempt_cassette_artifact_id=(attempt_publication.cassette_bundle_artifact_id),
-                retry_decision=retry_decision,
-                events=events,
+            closure_operation = "preflight_close_attempt_for_retry"
+            closure_kwargs = {
+                "fence": fence,
+                "ended_at": occurred_at,
+                "attempt_status": attempt_status,
+                "lease_status": "expired" if lease_expiry_event else "closed",
+                "failure_class": prepared.failure_class,
+                "failure_artifact_id": attempt_failure_id,
+                "attempt_cassette_artifact_id": (attempt_publication.cassette_bundle_artifact_id),
+                "retry_decision": retry_decision,
+                "events": events,
+            }
+        else:
+            if run_policy is None:  # pragma: no cover - selector invariant
+                raise IntegrityViolation("terminal failure omitted its run policy")
+            if not isinstance(run_publication, RunFailurePublication):
+                raise IntegrityViolation("terminal failure aggregate omitted run result")
+            validate_terminal_cassette_publication(
+                run=run,
+                cassette_artifact_id=run_publication.terminal_cassette_artifact_id,
             )
+            if (
+                attempt_publication.cassette_bundle_artifact_id is not None
+                and attempt_publication.cassette_bundle_artifact_id
+                == run_publication.terminal_cassette_artifact_id
+            ):
+                raise IntegrityViolation("attempt and run cassette bundles must be distinct")
+            run_failure_id = run_publication.failure_artifact_id
+            if run_failure_id == attempt_failure_id:
+                raise IntegrityViolation("run and attempt failure manifests must be distinct")
+            terminal_event = RunEvent(
+                run_id=run.run_id,
+                seq=next_seq,
+                event_type=f"run.{run_status}",
+                attempt_no=attempt.attempt_no,
+                occurred_at=occurred_at,
+                data_schema_version="run-terminated@1",
+                data=RunTerminatedDataV1(
+                    attempt_no=attempt.attempt_no,
+                    failure_artifact_id=run_failure_id,
+                    cause_code=prepared.cause_code,
+                ),
+                trace_id=attempt.trace_id,
+            )
+            closure_operation = "preflight_close_attempt_terminal"
+            closure_kwargs = {
+                "fence": fence,
+                "ended_at": occurred_at,
+                "attempt_status": attempt_status,
+                "lease_status": "expired" if lease_expiry_event else "closed",
+                "run_status": run_status,
+                "failure_class": prepared.failure_class,
+                "attempt_failure_artifact_id": attempt_failure_id,
+                "run_failure_artifact_id": run_failure_id,
+                "attempt_cassette_artifact_id": (attempt_publication.cassette_bundle_artifact_id),
+                "terminal_cassette_artifact_id": (run_publication.terminal_cassette_artifact_id),
+                "retry_decision": retry_decision,
+                "leading_events": leading_events,
+                "terminal_event": terminal_event,
+            }
+
+        run_closure = _preflight_run_closure(
+            publication,
+            closure_operation,
+            **closure_kwargs,
+        )
+        terminal_cost_status: Literal["failed", "cancelled", "timed_out"] | None = (
+            None if retrying else run_status  # type: ignore[assignment]
+        )
+        cost_closure = accounting.preflight_terminal_closure(
+            run=run,
+            attempt=attempt,
+            lease=lease,
+            retry_decision=retry_decision,
+            terminal_status=terminal_cost_status,
+        )
+        committed = publication.commit_planned_active_failure_aggregate(
+            planned_publications,
+            staged_publications,
+            run=run,
+            attempt=attempt,
+            prepared=prepared,
+            retry_decision=retry_decision,
+            attempt_policy=attempt_policy,
+            run_policy=run_policy,
+            occurred_at=occurred_at,
+            actor=actor,
+        )
+        if len(committed) != expected_count:
+            raise IntegrityViolation(
+                "active failure aggregate commit returned another result count"
+            )
+        committed_attempt_publication = committed[0]
+        if not isinstance(committed_attempt_publication, AttemptFailurePublication):
+            raise IntegrityViolation("attempt failure commit returned another result projection")
+        committed_run_publication = committed[1] if not retrying else None
+        if not retrying and not isinstance(committed_run_publication, RunFailurePublication):
+            raise IntegrityViolation("run failure commit returned another result projection")
+        if committed_attempt_publication != attempt_publication or (
+            not retrying and committed_run_publication != run_publication
+        ):
+            raise IntegrityViolation(
+                "active failure aggregate commit returned another immutable projection"
+            )
+        accounting.apply_preflighted_terminal_closure(cost_closure)
+        persisted_closure = _apply_run_closure(
+            closure=run_closure,
+        )
+
+        if retrying:
+            persisted = cast(PersistedAttemptClose, persisted_closure)
             RunLifecycleService._validate_retry_close(
                 previous=run,
                 previous_attempt=attempt,
@@ -2368,53 +2606,12 @@ class RunLifecycleService:
                 attempt_failure_artifact_id=attempt_failure_id,
             )
 
-        if run_policy is None:  # pragma: no cover - retry path returned above
-            raise IntegrityViolation("terminal failure omitted its run policy")
-        if run_publication is None:  # pragma: no cover - checked after commit_many
+        persisted_terminal = cast(PersistedRunTerminal, persisted_closure)
+        if not isinstance(run_publication, RunFailurePublication):  # pragma: no cover
             raise IntegrityViolation("terminal failure aggregate omitted run result")
-        validate_terminal_cassette_publication(
-            run=run,
-            cassette_artifact_id=run_publication.terminal_cassette_artifact_id,
-        )
-        if (
-            attempt_publication.cassette_bundle_artifact_id is not None
-            and attempt_publication.cassette_bundle_artifact_id
-            == run_publication.terminal_cassette_artifact_id
-        ):
-            raise IntegrityViolation("attempt and run cassette bundles must be distinct")
+        if terminal_event is None:  # pragma: no cover - selector invariant
+            raise IntegrityViolation("terminal failure omitted its terminal event")
         run_failure_id = run_publication.failure_artifact_id
-        if run_failure_id == attempt_failure_id:
-            raise IntegrityViolation("run and attempt failure manifests must be distinct")
-        accounting.close_run(run=run, terminal_status=run_status)
-        terminal_event = RunEvent(
-            run_id=run.run_id,
-            seq=next_seq,
-            event_type=f"run.{run_status}",
-            attempt_no=attempt.attempt_no,
-            occurred_at=occurred_at,
-            data_schema_version="run-terminated@1",
-            data=RunTerminatedDataV1(
-                attempt_no=attempt.attempt_no,
-                failure_artifact_id=run_failure_id,
-                cause_code=prepared.cause_code,
-            ),
-            trace_id=attempt.trace_id,
-        )
-        persisted_terminal = runs.close_attempt_terminal(
-            fence=fence,
-            ended_at=occurred_at,
-            attempt_status=attempt_status,
-            lease_status="expired" if lease_expiry_event else "closed",
-            run_status=run_status,
-            failure_class=prepared.failure_class,
-            attempt_failure_artifact_id=attempt_failure_id,
-            run_failure_artifact_id=run_failure_id,
-            attempt_cassette_artifact_id=(attempt_publication.cassette_bundle_artifact_id),
-            terminal_cassette_artifact_id=(run_publication.terminal_cassette_artifact_id),
-            retry_decision=retry_decision,
-            leading_events=leading_events,
-            terminal_event=terminal_event,
-        )
         RunLifecycleService._validate_terminal_close(
             previous=run,
             previous_attempt=attempt,
@@ -2466,6 +2663,7 @@ class RunLifecycleService:
         retry_decision: RetryDecisionV1,
         actor: AuditActor,
         now: datetime,
+        planned_publications: tuple[TerminalPublicationDraft, ...],
         staged_publications: tuple[StagedTerminalPublication, ...],
     ) -> AttemptOutcomePublicationResult:
         run_status = _run_terminal_status(
@@ -2493,23 +2691,18 @@ class RunLifecycleService:
             "occurred_at": occurred_at,
             "actor": actor,
         }
-        fresh_draft = publication.plan_run_failure(**publication_kwargs)
-        _require_exact_staged_projection(
-            fresh_drafts=(fresh_draft,),
-            staged_publications=staged_publications,
-        )
-        run_publication = publication.commit(
-            fresh_draft,
-            staged_publications[0],
-        )
-        if not isinstance(run_publication, RunFailurePublication):
-            raise IntegrityViolation("inactive failure commit returned another result projection")
+        if len(planned_publications) != 1 or len(staged_publications) != 1:
+            raise TerminalAuthorityDrift(
+                "fresh inactive failure selector differs from the staged aggregate"
+            )
+        planned_run_publication = planned_publications[0].result
+        if not isinstance(planned_run_publication, RunFailurePublication):
+            raise IntegrityViolation("staged inactive failure has another result projection")
         validate_terminal_cassette_publication(
             run=run,
-            cassette_artifact_id=run_publication.terminal_cassette_artifact_id,
+            cassette_artifact_id=planned_run_publication.terminal_cassette_artifact_id,
         )
-        run_failure_id = run_publication.failure_artifact_id
-        accounting.close_run(run=run, terminal_status=run_status)
+        run_failure_id = planned_run_publication.failure_artifact_id
         event = RunEvent(
             run_id=run.run_id,
             seq=run.next_event_seq,
@@ -2524,15 +2717,45 @@ class RunLifecycleService:
             ),
             trace_id=None,
         )
-        persisted = runs.terminate_inactive_run(
-            run_id=run.run_id,
-            expected_run_revision=run.revision,
-            run_status=run_status,
-            failure_artifact_id=run_failure_id,
-            terminal_cassette_artifact_id=(run_publication.terminal_cassette_artifact_id),
-            retry_decision=retry_decision,
-            event=event,
+        closure_kwargs: dict[str, object] = {
+            "run_id": run.run_id,
+            "expected_run_revision": run.revision,
+            "run_status": run_status,
+            "failure_artifact_id": run_failure_id,
+            "terminal_cassette_artifact_id": (
+                planned_run_publication.terminal_cassette_artifact_id
+            ),
+            "retry_decision": retry_decision,
+            "event": event,
+        }
+        run_closure = _preflight_run_closure(
+            publication,
+            "preflight_terminate_inactive_run",
+            **closure_kwargs,
         )
+        cost_closure = accounting.preflight_terminal_closure(
+            run=run,
+            attempt=None,
+            lease=None,
+            retry_decision=retry_decision,
+            terminal_status=run_status,
+        )
+        run_publication = publication.commit_planned_run_failure(
+            planned_publications[0],
+            staged_publications[0],
+            **publication_kwargs,
+        )
+        if not isinstance(run_publication, RunFailurePublication):
+            raise IntegrityViolation("inactive failure commit returned another result projection")
+        if run_publication != planned_run_publication:
+            raise IntegrityViolation(
+                "inactive failure commit returned another immutable projection"
+            )
+        accounting.apply_preflighted_terminal_closure(cost_closure)
+        persisted = _apply_run_closure(
+            closure=run_closure,
+        )
+        persisted = cast(PersistedRunTerminal, persisted)
         RunLifecycleService._validate_inactive_terminal(
             previous=run,
             persisted=persisted,
@@ -2728,12 +2951,13 @@ class RunLifecycleService:
         runs: RunLifecycleRepository,
         fence: AttemptWriteFence,
     ) -> tuple[RunRecord, RunAttempt, RunLease]:
-        run = runs.get(fence.run_id)
-        attempt = runs.get_attempt(fence.run_id, fence.attempt_no)
-        lease = runs.get_current_lease(fence.run_id)
-        if run is None or attempt is None or lease is None:
+        bounded = getattr(runs, "get_attempt_write_authority", None)
+        if not callable(bounded):
+            raise IntegrityViolation("bounded attempt write authority capability is required")
+        authority = bounded(fence)
+        if authority is None:
             raise Conflict("Run attempt write target is no longer current")
-        return run, attempt, lease
+        return authority
 
     @staticmethod
     def _validate_start_result(

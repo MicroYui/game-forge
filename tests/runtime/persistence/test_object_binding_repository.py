@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
-from dataclasses import dataclass
+from copy import copy
+from dataclasses import dataclass, replace
 from threading import Barrier, Thread
 
 import pytest
-from sqlalchemy import Engine, func, select, update
+from sqlalchemy import Engine, event, func, select, update
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.errors import Conflict, IntegrityViolation
@@ -173,6 +174,308 @@ def test_bind_rejects_missing_object_location_as_integrity_failure(
                 expected_revision=None,
             )
         assert session.scalar(select(func.count()).select_from(ObjectBindingRow)) == 0
+
+
+def test_terminal_binding_batch_preflights_setwise_and_flushes_once(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    stats = tuple(
+        object_store.register(
+            (ref := object_ref_for_bytes(f"payload:{index}".encode())),
+            _location(ref, f"generation:{index}"),
+        )
+        for index in range(8)
+    )
+    selects: list[str] = []
+    flushes = 0
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        if statement.lstrip().upper().startswith("SELECT"):
+            selects.append(statement)
+
+    def observe_flush(*_args: object) -> None:
+        nonlocal flushes
+        flushes += 1
+
+    event.listen(engine, "before_cursor_execute", observe_sql)
+    event.listen(Session, "before_flush", observe_flush)
+    try:
+        with Session(engine) as session:
+            stored = _repository(session, object_store).bind_terminal_preverified_many(
+                tuple((stat, None) for stat in stats)
+            )
+            session.commit()
+    finally:
+        event.remove(engine, "before_cursor_execute", observe_sql)
+        event.remove(Session, "before_flush", observe_flush)
+
+    assert tuple(binding.object_ref for binding in stored) == tuple(stat.ref for stat in stats)
+    assert len(selects) == 1
+    assert flushes == 1
+
+
+def test_terminal_binding_batch_chunks_901_keys_and_still_flushes_once(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    stats = tuple(
+        object_store.register(
+            (ref := object_ref_for_bytes(f"chunked-payload:{index}".encode())),
+            _location(ref, f"chunked-generation:{index}"),
+        )
+        for index in range(901)
+    )
+    selects: list[str] = []
+    flushes = 0
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        if statement.lstrip().upper().startswith("SELECT"):
+            selects.append(statement)
+
+    def observe_flush(*_args: object) -> None:
+        nonlocal flushes
+        flushes += 1
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        event.listen(engine, "before_cursor_execute", observe_sql)
+        event.listen(session, "before_flush", observe_flush)
+        try:
+            with session.begin():
+                stored = _repository(
+                    session,
+                    object_store,
+                ).bind_terminal_preverified_many(tuple((stat, None) for stat in stats))
+        finally:
+            event.remove(session, "before_flush", observe_flush)
+            event.remove(engine, "before_cursor_execute", observe_sql)
+
+    assert tuple(binding.object_ref for binding in stored) == tuple(stat.ref for stat in stats)
+    assert len(selects) == 2
+    assert flushes == 1
+
+
+def test_terminal_binding_preflight_seal_applies_without_another_select_and_is_one_shot(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    stats = tuple(
+        object_store.register(
+            (ref := object_ref_for_bytes(f"sealed-payload:{index}".encode())),
+            _location(ref, f"sealed-generation:{index}"),
+        )
+        for index in range(8)
+    )
+    statements: list[str] = []
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        statements.append(statement.lstrip().upper())
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        repository = _repository(session, object_store)
+        event.listen(engine, "before_cursor_execute", observe_sql)
+        try:
+            with session.begin():
+                seal = repository.preflight_terminal_preverified_many(
+                    tuple((stat, None) for stat in stats)
+                )
+                preflight_statement_count = len(statements)
+                stored = repository.apply_terminal_preverified_many(seal)
+                apply_statements = statements[preflight_statement_count:]
+                assert not any(statement.startswith("SELECT") for statement in apply_statements)
+                assert tuple(binding.object_ref for binding in stored) == tuple(
+                    stat.ref for stat in stats
+                )
+                with pytest.raises(IntegrityViolation, match="already consumed"):
+                    repository.apply_terminal_preverified_many(seal)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_sql)
+
+
+def test_terminal_binding_preflight_seal_rejects_another_repository_and_transaction(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    ref = object_ref_for_bytes(b"transaction-bound-binding")
+    stat = object_store.register(ref, _location(ref, "transaction-bound-generation"))
+    dml: list[str] = []
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        if statement.lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+            dml.append(statement)
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        first_transaction = session.begin()
+        owner = _repository(session, object_store)
+        seal = owner.preflight_terminal_preverified_many(((stat, None),))
+        another_repository = _repository(session, object_store)
+        with pytest.raises(IntegrityViolation, match="another repository"):
+            another_repository.apply_terminal_preverified_many(seal)
+        first_transaction.rollback()
+
+        event.listen(engine, "before_cursor_execute", observe_sql)
+        try:
+            with session.begin():
+                with pytest.raises(IntegrityViolation, match="another transaction"):
+                    owner.apply_terminal_preverified_many(seal)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_sql)
+
+    assert dml == []
+
+
+def test_terminal_binding_preflight_seal_rejects_projection_tampering_before_dml(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    ref = object_ref_for_bytes(b"immutable-binding-preflight")
+    stat = object_store.register(ref, _location(ref, "immutable-binding-generation"))
+    dml: list[str] = []
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        if statement.lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+            dml.append(statement)
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = _repository(session, object_store)
+        seal = repository.preflight_terminal_preverified_many(((stat, None),))
+        event.listen(engine, "before_cursor_execute", observe_sql)
+        try:
+            assert type(seal).__slots__ == ("__weakref__",)
+            with pytest.raises(AttributeError):
+                object.__setattr__(seal, "_mutations", ())
+            assert not hasattr(seal, "_mutations")
+            for unregistered in (replace(seal), copy(seal)):
+                with pytest.raises(IntegrityViolation, match="trusted preflight seal"):
+                    repository.apply_terminal_preverified_many(unregistered)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_sql)
+
+    assert dml == []
+
+
+def test_terminal_binding_seal_batch_reactivates_retired_rows_with_one_executemany(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    stats = tuple(
+        object_store.register(
+            (ref := object_ref_for_bytes(f"retired-payload:{index}".encode())),
+            _location(ref, f"retired-generation:{index}"),
+        )
+        for index in range(8)
+    )
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = _repository(session, object_store)
+        for stat in stats:
+            active = repository.bind_preverified(stat, None)
+            repository.retire(active, active.revision)
+
+    updates: list[tuple[str, bool]] = []
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        executemany,
+    ) -> None:
+        if statement.lstrip().upper().startswith("UPDATE"):
+            updates.append((statement, executemany))
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = _repository(session, object_store)
+        seal = repository.preflight_terminal_preverified_many(tuple((stat, None) for stat in stats))
+        event.listen(engine, "before_cursor_execute", observe_sql)
+        try:
+            stored = repository.apply_terminal_preverified_many(seal)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_sql)
+
+    assert len(updates) == 1
+    assert updates[0][1] is True
+    assert tuple(binding.status for binding in stored) == ("active",) * len(stats)
+    assert tuple(binding.revision for binding in stored) == (3,) * len(stats)
+
+
+def test_terminal_binding_batch_detects_any_active_drift_before_first_dml(
+    engine: Engine,
+    object_store: _FakeObjectStore,
+) -> None:
+    first_ref = object_ref_for_bytes(b"already-active")
+    first_stat = object_store.register(
+        first_ref,
+        _location(first_ref, "generation:active"),
+    )
+    second_ref = object_ref_for_bytes(b"would-be-created")
+    second_stat = object_store.register(
+        second_ref,
+        _location(second_ref, "generation:new"),
+    )
+    with Session(engine) as session:
+        _repository(session, object_store).bind_preverified(first_stat, None)
+        session.commit()
+
+    dml: list[str] = []
+
+    def observe_sql(
+        _connection,
+        _cursor,
+        statement,
+        _parameters,
+        _context,
+        _executemany,
+    ) -> None:
+        if statement.lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+            dml.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe_sql)
+    try:
+        with Session(engine) as session:
+            with pytest.raises(Conflict, match="absent-binding proof"):
+                _repository(session, object_store).bind_terminal_preverified_many(
+                    ((second_stat, None), (first_stat, None))
+                )
+    finally:
+        event.remove(engine, "before_cursor_execute", observe_sql)
+
+    assert dml == []
 
 
 def test_remap_and_retire_use_revision_cas_and_do_not_silently_rebind(

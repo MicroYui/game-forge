@@ -852,6 +852,25 @@ def test_record_outcome_without_required_cassette_rolls_back() -> None:
     assert harness.state == before
 
 
+def test_cost_preflight_failure_prevents_the_first_terminal_publication_write() -> None:
+    harness = _run_harness()
+    _start(harness)
+    harness.state.fail_accounting = True
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match="accounting"):
+        harness.service_at(NOW_DT + timedelta(seconds=1)).publish_attempt_outcome(
+            PublishAttemptOutcomeRequest(
+                fence=_fence(harness),
+                prepared_outcome=_prepared_success(harness),
+                actor=WORKER,
+            )
+        )
+
+    assert harness.state == before
+    assert harness.state.publisher_actions == before.publisher_actions
+
+
 def test_terminal_publisher_failure_rolls_back_and_attempt_and_run_manifests_are_distinct() -> None:
     harness = _run_harness()
     _start(harness)

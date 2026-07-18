@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from copy import copy, deepcopy
 from datetime import datetime, timezone
 from threading import Barrier
 from typing import Any
 
 import pytest
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, event, func, select, update
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
+import gameforge.contracts.lineage as lineage_module
+import gameforge.runtime.persistence.audit as audit_persistence
 from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.lineage import (
     AuditActor,
@@ -19,7 +22,7 @@ from gameforge.contracts.lineage import (
     build_audit_record_v2,
 )
 from gameforge.contracts.storage import AuditSink
-from gameforge.platform.audit.gate import AuditGate, AuditGateStore
+from gameforge.platform.audit.gate import AuditAppendIntent, AuditGate, AuditGateStore
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.engine import get_engine
@@ -139,6 +142,21 @@ def test_gate_maps_a_malformed_adapter_head_to_typed_integrity_failure() -> None
         _append(_gate(_InvalidHeadSink()))
 
 
+def test_batch_preflight_maps_a_malformed_adapter_head_before_any_append() -> None:
+    intent = AuditAppendIntent(
+        actor=AuditActor(principal_id="worker:1", principal_kind="service"),
+        initiated_by=None,
+        action="artifact.publish",
+        subject=AuditSubject(resource_kind="artifact", resource_id="artifact:1"),
+        correlation=AuditCorrelation(request_id="request:1"),
+    )
+    with pytest.raises(IntegrityViolation, match="invalid locked head"):
+        _gate(_InvalidHeadSink()).prepare_batch(
+            chain_id="platform-authority",
+            intents=(intent,),
+        )
+
+
 def test_gate_builds_and_round_trips_every_audit_v2_semantic_field(
     audit_engine: Engine,
 ) -> None:
@@ -168,6 +186,266 @@ def test_gate_builds_and_round_trips_every_audit_v2_semantic_field(
         run_id="run:1",
         trace_id="trace:1",
     )
+
+
+def test_prepared_audit_batch_is_data_free_transaction_bound_and_one_shot(
+    audit_engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    hash_calls = 0
+    original_hash = lineage_module.audit_content_hash_v2
+
+    def counted_hash(**kwargs: object) -> str:
+        nonlocal hash_calls
+        hash_calls += 1
+        return original_hash(**kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(lineage_module, "audit_content_hash_v2", counted_hash)
+    intent = AuditAppendIntent(
+        actor=AuditActor(principal_id="worker:1", principal_kind="service"),
+        initiated_by=None,
+        action="artifact.publish",
+        subject=AuditSubject(resource_kind="artifact", resource_id="artifact:1"),
+        correlation=AuditCorrelation(request_id="request:1"),
+    )
+    with _uow(audit_engine).begin() as transaction:
+        gate = _gate(transaction.audit)
+        prepared = gate.prepare_batch(
+            chain_id="platform-authority",
+            intents=(intent,),
+        )
+        # build_audit_record_v2 computes once and AuditRecordV2 validates once;
+        # retaining the preflight state must not serialize/hash it a third time.
+        assert hash_calls == 2
+        with pytest.raises((AttributeError, TypeError)):
+            object.__setattr__(prepared, "_records", ())
+        with pytest.raises(IntegrityViolation, match="invalid"):
+            gate.apply_prepared_batch(copy(prepared))
+        with pytest.raises(IntegrityViolation, match="invalid"):
+            gate.apply_prepared_batch(deepcopy(prepared))
+        forged = object.__new__(type(prepared))
+        with pytest.raises(IntegrityViolation, match="invalid"):
+            gate.apply_prepared_batch(forged)
+        object.__setattr__(intent.actor, "principal_id", "worker:changed-after-prepare")
+        gate.apply_prepared_batch(prepared)
+        assert hash_calls == 2
+        with pytest.raises(IntegrityViolation, match="reused"):
+            gate.apply_prepared_batch(prepared)
+
+    with Session(audit_engine) as session:
+        assert session.scalar(select(func.count()).select_from(AuditHeadRow)) == 1
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(AuditRow)
+                .where(AuditRow.audit_schema_version == "audit@2")
+            )
+            == 1
+        )
+        retained = session.scalar(
+            select(AuditRow).where(AuditRow.audit_schema_version == "audit@2")
+        )
+        assert retained is not None
+        assert retained.actor_v2["principal_id"] == "worker:1"
+
+
+def test_prepared_audit_batch_builds_one_contiguous_chain_and_apply_is_dml_only(
+    audit_engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    hash_calls = 0
+    original_hash = lineage_module.audit_content_hash_v2
+
+    def counted_hash(**kwargs: object) -> str:
+        nonlocal hash_calls
+        hash_calls += 1
+        return original_hash(**kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(lineage_module, "audit_content_hash_v2", counted_hash)
+    intents = tuple(
+        AuditAppendIntent(
+            actor=AuditActor(principal_id="worker:1", principal_kind="service"),
+            initiated_by=None,
+            action=f"terminal.publish.{ordinal}",
+            subject=AuditSubject(
+                resource_kind="run",
+                resource_id=f"run:{ordinal}",
+            ),
+            correlation=AuditCorrelation(run_id=f"run:{ordinal}"),
+        )
+        for ordinal in (1, 2)
+    )
+    capture_apply = False
+    apply_statements: list[str] = []
+
+    def capture_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if capture_apply:
+            apply_statements.append(statement)
+
+    event.listen(audit_engine, "before_cursor_execute", capture_statement)
+    try:
+        with _uow(audit_engine).begin() as transaction:
+            gate = _gate(transaction.audit)
+            prepared = gate.prepare_batch(
+                chain_id="platform-authority",
+                intents=intents,
+            )
+            hashes_after_preflight = hash_calls
+            capture_apply = True
+            gate.apply_prepared_batch(prepared)
+            capture_apply = False
+            assert hash_calls == hashes_after_preflight
+    finally:
+        event.remove(audit_engine, "before_cursor_execute", capture_statement)
+
+    assert apply_statements
+    assert all(
+        not statement.lstrip().upper().startswith("SELECT") for statement in apply_statements
+    )
+    with _uow(audit_engine).begin() as transaction:
+        first = transaction.audit.get("platform-authority", 1)
+        second = transaction.audit.get("platform-authority", 2)
+        assert first is not None and second is not None
+        assert (first.action, second.action) == (
+            "terminal.publish.1",
+            "terminal.publish.2",
+        )
+        assert second.prev_hash == first.content_hash
+        assert transaction.audit.verify_chain("platform-authority") is True
+
+
+def test_sql_audit_batch_cost_is_linear_before_apply_and_constant_during_apply(
+    audit_engine: Engine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    batch_size = 128
+    hash_calls = 0
+    flush_calls = 0
+    original_hash = lineage_module.audit_content_hash_v2
+
+    def counted_hash(**kwargs: object) -> str:
+        nonlocal hash_calls
+        hash_calls += 1
+        return original_hash(**kwargs)  # type: ignore[arg-type]
+
+    def counted_flush(*_args: object, **_kwargs: object) -> None:
+        nonlocal flush_calls
+        if capture_apply:
+            flush_calls += 1
+
+    monkeypatch.setattr(lineage_module, "audit_content_hash_v2", counted_hash)
+    intents = tuple(
+        AuditAppendIntent(
+            actor=AuditActor(principal_id="worker:1", principal_kind="service"),
+            initiated_by=None,
+            action=f"terminal.publish.{ordinal}",
+            subject=AuditSubject(resource_kind="run", resource_id=f"run:{ordinal}"),
+            correlation=AuditCorrelation(run_id=f"run:{ordinal}"),
+        )
+        for ordinal in range(batch_size)
+    )
+    apply_statements: list[tuple[str, bool]] = []
+    capture_apply = False
+
+    def capture_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        executemany: bool,
+    ) -> None:
+        if capture_apply:
+            apply_statements.append((statement, executemany))
+
+    event.listen(audit_engine, "before_cursor_execute", capture_statement)
+    event.listen(Session, "before_flush", counted_flush)
+    try:
+        with _uow(audit_engine).begin() as transaction:
+            gate = _gate(transaction.audit)
+            prepared = gate.prepare_batch(
+                chain_id="platform-authority",
+                intents=intents,
+                require_batch=True,
+            )
+            # Building and validating each immutable record hashes it exactly twice;
+            # increasing the batch does not rescan any already-built chain prefix.
+            assert hash_calls == batch_size * 2
+
+            def forbidden_late_projection(*_args: object, **_kwargs: object) -> None:
+                raise AssertionError("Audit row projection escaped its preflight phase")
+
+            monkeypatch.setattr(
+                audit_persistence,
+                "_audit_insert_parameters",
+                forbidden_late_projection,
+            )
+            monkeypatch.setattr(audit_persistence, "_sqlite_json", forbidden_late_projection)
+
+            capture_apply = True
+            gate.apply_prepared_batch(prepared)
+            capture_apply = False
+            assert hash_calls == batch_size * 2
+            assert flush_calls == 0
+    finally:
+        event.remove(audit_engine, "before_cursor_execute", capture_statement)
+        event.remove(Session, "before_flush", counted_flush)
+
+    assert len(apply_statements) == 2
+    assert apply_statements[0][0].lstrip().upper().startswith("INSERT INTO AUDIT_HEADS")
+    assert apply_statements[1][0].lstrip().upper().startswith("INSERT INTO AUDIT")
+    assert apply_statements[1][1] is True
+
+    with Session(audit_engine) as session:
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(AuditRow)
+                .where(AuditRow.audit_schema_version == "audit@2")
+            )
+            == batch_size
+        )
+
+
+def test_prepared_audit_batch_rejects_reuse_of_one_sink_in_a_later_transaction(
+    audit_engine: Engine,
+) -> None:
+    intent = AuditAppendIntent(
+        actor=AuditActor(principal_id="worker:1", principal_kind="service"),
+        initiated_by=None,
+        action="artifact.publish",
+        subject=AuditSubject(resource_kind="artifact", resource_id="artifact:1"),
+        correlation=AuditCorrelation(request_id="request:1"),
+    )
+    with Session(audit_engine) as session:
+        sink = SqlAuditSink(session)
+        gate = _gate(sink)
+        with session.begin():
+            prepared = gate.prepare_batch(
+                chain_id="platform-authority",
+                intents=(intent,),
+            )
+        with session.begin():
+            with pytest.raises(IntegrityViolation, match="cross-transaction"):
+                gate.apply_prepared_batch(prepared)
+
+    with Session(audit_engine) as session:
+        assert session.scalar(select(func.count()).select_from(AuditHeadRow)) == 0
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(AuditRow)
+                .where(AuditRow.audit_schema_version == "audit@2")
+            )
+            == 0
+        )
 
 
 def test_audit_v2_chain_sequence_is_not_the_shared_physical_row_sequence(

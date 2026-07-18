@@ -5,7 +5,10 @@ from dataclasses import dataclass, replace
 
 import pytest
 
-from gameforge.apps.worker.auto_apply import RegistryResolvedAutoApplyEvaluator
+from gameforge.apps.worker.auto_apply import (
+    GuardedAutoApplyValidationPort,
+    RegistryResolvedAutoApplyEvaluator,
+)
 from gameforge.contracts.auto_apply_ownership import auto_apply_ir_classifier_binding
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import IntegrityViolation
@@ -62,6 +65,7 @@ from gameforge.platform.approvals.auto_apply_runtime import (
     ExactAutoApplyEligibilityService,
     _attested_executor_is_frozen,
 )
+from gameforge.platform.publication.effects import AutoApplyValidationRequest
 from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.run_handlers.validation_common import (
     VALIDATION_SEED_DERIVATION_VERSION,
@@ -976,6 +980,105 @@ def test_exact_runtime_guard_accepts_evaluator_produced_authority_closure() -> N
     case = _runtime_case()
 
     case.service.validate_eligibility(case.request)
+
+
+def test_prepared_runtime_guard_commit_reads_only_fresh_ref_authority() -> None:
+    case = _runtime_case()
+
+    class _CountingAuthority:
+        def __init__(self, base: _RuntimeAuthority) -> None:
+            self.base = base
+            self.forbid_immutable_reads = False
+            self.ref_reads = 0
+            self.current_ref = base.current_ref
+
+        def _immutable(self, method: str, *args):
+            if self.forbid_immutable_reads:
+                raise AssertionError(f"write phase called immutable authority: {method}")
+            return getattr(self.base, method)(*args)
+
+        def load_artifact(self, artifact_id: str):
+            return self._immutable("load_artifact", artifact_id)
+
+        def get_domain_registry(self, ref):
+            return self._immutable("get_domain_registry", ref)
+
+        def get_auto_apply_policy_registry(self, ref):
+            return self._immutable("get_auto_apply_policy_registry", ref)
+
+        def get_deterministic_oracle_registry(self, ref):
+            return self._immutable("get_deterministic_oracle_registry", ref)
+
+        def resolve_execution_profile(self, binding):
+            return self._immutable("resolve_execution_profile", binding)
+
+        def get_ref(self, ref_name: str):
+            self.ref_reads += 1
+            return self.current_ref if ref_name == "content/head" else None
+
+    authority = _CountingAuthority(case.authority)
+    service = ExactAutoApplyEligibilityService(authority=authority)  # type: ignore[arg-type]
+    prepared = service.prepare_eligibility(case.request)
+    planning_ref_reads = authority.ref_reads
+
+    authority.forbid_immutable_reads = True
+    service.commit_prepared_eligibility(prepared=prepared, request=case.request)
+
+    assert authority.ref_reads == planning_ref_reads + 1
+
+
+def test_worker_planning_guard_reads_new_terminal_outputs_from_overlay() -> None:
+    case = _runtime_case()
+    proof_id = case.request.proof_artifact_id
+    evidence_id = case.request.evidence_set_artifact_id
+    regression_ids = case.item.regression_evidence_artifact_ids
+    planned_ids = {proof_id, evidence_id, *regression_ids}
+    retained_authority = replace(
+        case.authority,
+        records={
+            artifact_id: record
+            for artifact_id, record in case.authority.records.items()
+            if artifact_id not in planned_ids
+        },
+    )
+    proof_record = case.authority.records[proof_id]
+    evidence_record = case.authority.records[evidence_id]
+    regression_records = tuple(case.authority.records[item] for item in regression_ids)
+    proof = AutoApplyProofV1.model_validate(json.loads(proof_record.payload_bytes))
+    evidence = EvidenceSet.model_validate(json.loads(evidence_record.payload_bytes))
+    definition = build_builtin_registry().get_run_kind(case.request.run.kind)
+    assert definition is not None
+    policy = next(
+        item
+        for item in definition.outcome_policies
+        if item.outcome_code == case.request.outcome_code and item.publication_scope == "run"
+    )
+    request = AutoApplyValidationRequest(
+        run=case.request.run,
+        policy=policy,
+        current_item=case.item,
+        projected_item=case.item,
+        evidence=evidence,
+        evidence_artifact=evidence_record.artifact,
+        evidence_artifact_id=evidence_id,
+        proof=proof,
+        proof_artifact=proof_record.artifact,
+        proof_artifact_id=proof_id,
+        regression_artifacts=tuple(record.artifact for record in regression_records),
+        regression_artifact_ids=regression_ids,
+        occurred_at="2026-07-17T00:00:00Z",
+        regression_payloads=tuple(
+            json.loads(record.payload_bytes) for record in regression_records
+        ),
+    )
+    port = GuardedAutoApplyValidationPort(
+        ExactAutoApplyEligibilityService(authority=retained_authority)
+    )
+
+    prepared = port.prepare_completion(request)
+
+    assert prepared.proof_artifact_id == proof_id
+    assert prepared.evidence_set_artifact_id == evidence_id
 
 
 def _with_run_profile_bindings(

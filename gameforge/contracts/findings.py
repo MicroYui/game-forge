@@ -49,8 +49,13 @@ class Finding(BaseModel):
 
 
 TypedOpKind = Literal[
-    "add_entity", "delete_entity", "set_entity_attr",
-    "add_relation", "delete_relation", "set_relation_attr", "replace_subgraph",
+    "add_entity",
+    "delete_entity",
+    "set_entity_attr",
+    "add_relation",
+    "delete_relation",
+    "set_relation_attr",
+    "replace_subgraph",
 ]
 
 

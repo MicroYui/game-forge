@@ -282,6 +282,8 @@ def test_open_and_stat_require_the_exact_store_key_and_generation(tmp_path: Path
     assert object_stat.ref == stored.ref
     assert object_stat.location == stored.location
     assert object_stat.verified_at == "2026-07-13T12:00:00Z"
+    assert object_stat.generation_verification_token is not None
+    assert store.require_preverified_generation(object_stat) == object_stat
 
     wrong_locations = (
         stored.location.model_copy(update={"store_id": "local:other"}),
@@ -293,6 +295,20 @@ def test_open_and_stat_require_the_exact_store_key_and_generation(tmp_path: Path
             store.open(wrong)
         with pytest.raises(FileNotFoundError):
             store.stat(wrong)
+
+
+def test_preverified_generation_token_rejects_same_size_payload_mutation(
+    tmp_path: Path,
+) -> None:
+    store = _store(tmp_path)
+    stored = store.put_verified(b"original")
+    staged_stat = store.stat(stored.location)
+    data_path = _generation_directory(tmp_path, stored) / "data"
+
+    data_path.write_bytes(b"tampered")
+
+    with pytest.raises(IntegrityViolation, match="identity changed"):
+        store.require_preverified_generation(staged_stat)
 
 
 def _all_versions(store: LocalObjectStore) -> tuple[ObjectStat, ...]:

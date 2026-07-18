@@ -2,18 +2,33 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 import sqlite3
+from decimal import Decimal
 
 import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from sqlalchemy import Inspector, MetaData, Table, inspect, text
+from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import compute_snapshot_id
+from gameforge.contracts.cost import MonetaryObservationV1
+from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence import migrations_api as m
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.models import Base
+from tests.runtime.cost.ledger_testkit import (
+    amount,
+    budget,
+    budget_set,
+    hold,
+    seed_current_attempt,
+    step_group,
+    uow,
+    usage,
+)
 
 
 _LEGACY_TABLES = {"artifacts", "refs", "ref_history", "audit"}
@@ -60,6 +75,7 @@ _COST_ROUTING_TABLES = {
     "routing_decisions",
     "legacy_import_routing_decisions",
 }
+_HOLD_BALANCE_TABLES = {"run_hold_balances"}
 _SLO_ALERT_TABLES = {
     "workload_profiles",
     "slo_definitions",
@@ -86,6 +102,7 @@ _M4_TABLES = (
     | _AUTH_TABLES
     | _MODEL_CALL_TABLES
     | _TOOL_CONTEXT_TABLES
+    | _HOLD_BALANCE_TABLES
 )
 
 
@@ -1069,6 +1086,19 @@ def test_linear_m4_revisions_own_only_their_schema_slice(tmp_path) -> None:
     m.upgrade(url, "0011")
     assert _current_revision(url) == "0011"
     assert ("command_id",) in _unique_keys(url, "run_commands")
+    m.upgrade(url, "0012")
+    assert _current_revision(url) == "0012"
+    assert _primary_key(url, "run_hold_balances") == (
+        "hold_group_id",
+        "budget_id",
+    )
+    assert (
+        ("hold_group_id", "budget_id"),
+        "budget_reservations",
+        ("reservation_group_id", "budget_id"),
+    ) in _foreign_keys(url, "run_hold_balances")
+    m.downgrade(url, "0011")
+    assert "run_hold_balances" not in _table_names(url)
     m.downgrade(url, "0010")
     assert ("command_id",) not in _unique_keys(url, "run_commands")
     m.downgrade(url, "0009")
@@ -1108,7 +1138,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0011"
+    assert _current_revision(url) == "0012"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -1128,7 +1158,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0011"
+    assert _current_revision(url) == "0012"
     assert _legacy_projection(url) == expected
 
 
@@ -1348,7 +1378,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0011"
+    assert _current_revision(url) == "0012"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")
@@ -1416,6 +1446,1002 @@ def test_0005_downgrade_refuses_to_discard_retained_conflict_authority(
         url,
         "SELECT conflict_set_id FROM conflict_sets",
     ) == ("current-conflict-set",)
+
+
+def _seed_overage_hold_then_downgrade_to_0011(url: str) -> str:
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    selected_budget = budget("run", "run:migration-balance").model_copy(
+        update={"limits": (amount("input_token", 200), amount("agent_step", 20))}
+    )
+    selected_set = budget_set("run:migration-balance", (selected_budget,))
+    parent, parent_members = hold(selected_set)
+    child, child_members = step_group(selected_set, parent, suffix="1", input_tokens=30)
+    observed = usage(child, usage_id="usage:migration:overage", input_tokens=110)
+    try:
+        with uow(engine).begin() as transaction:
+            transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+        with Session(engine) as session, session.begin():
+            seed_current_attempt(session, selected_set=selected_set, parent=parent)
+        with uow(engine).begin() as transaction:
+            transaction.cost.reserve_many(child, child_members)
+            transaction.cost.reconcile_group(observed)
+    finally:
+        engine.dispose()
+    m.downgrade(url, "0011")
+    return parent.reservation_group_id
+
+
+def test_0012_backfills_capped_impact_and_replays_after_downgrade(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-backfill.db'}"
+    hold_group_id = _seed_overage_hold_then_downgrade_to_0011(url)
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0012"
+    raw = _fetch_one(
+        url,
+        f"SELECT payload FROM run_hold_balances WHERE hold_group_id = '{hold_group_id}'",
+    )[0]
+    payload = json.loads(raw) if isinstance(raw, str) else raw
+    assert isinstance(payload, dict)
+    assert payload["active_child_count"] == 0
+    assert {item["dimension"]: item["value"] for item in payload["settled_impact"]} == {
+        "agent_step": "1",
+        "input_token": "30",
+    }
+
+    engine = get_engine(url)
+    try:
+        with Session(engine) as session:
+            SqlCostLedger(session).audit_hold_balance(hold_group_id)
+    finally:
+        engine.dispose()
+
+    m.downgrade(url, "0011")
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0012"
+
+
+def test_0012_round_trip_preserves_reused_active_plus_settled_overage(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-reused-overage.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    selected_budget = budget("run", "run:migration-reuse").model_copy(
+        update={"limits": (amount("input_token", 300), amount("agent_step", 30))}
+    )
+    selected_set = budget_set("run:migration-reuse", (selected_budget,))
+    parent, parent_members = hold(selected_set)
+    first, first_members = step_group(selected_set, parent, suffix="a1", input_tokens=30)
+    active, active_members = step_group(selected_set, parent, suffix="b2", input_tokens=70)
+    conservative = usage(first, usage_id="usage:migration:conservative", input_tokens=10)
+    actual = usage(
+        first,
+        usage_id="usage:migration:actual",
+        input_tokens=50,
+        adjustment_of_usage_id=conservative.usage_id,
+    )
+    try:
+        with uow(engine).begin() as transaction:
+            transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+        with Session(engine) as session, session.begin():
+            seed_current_attempt(session, selected_set=selected_set, parent=parent)
+        with uow(engine).begin() as transaction:
+            transaction.cost.reserve_many(first, first_members)
+            transaction.cost.hold_unknown_group(first.reservation_group_id)
+            transaction.cost.settle_unknown_group(first.reservation_group_id, conservative)
+            transaction.cost.reserve_many(active, active_members)
+            transaction.cost.late_reconcile_group(actual)
+        with engine.connect() as connection:
+            balance_before = connection.execute(
+                text("SELECT payload FROM run_hold_balances WHERE hold_group_id = :hold_group_id"),
+                {"hold_group_id": parent.reservation_group_id},
+            ).scalar_one()
+            budget_before = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                {"budget_id": selected_budget.budget_id},
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    balance = json.loads(balance_before) if isinstance(balance_before, str) else balance_before
+    assert balance["active_child_count"] == 1
+    active_values = {item["dimension"]: int(item["value"]) for item in balance["active_allocated"]}
+    settled_values = {item["dimension"]: int(item["value"]) for item in balance["settled_impact"]}
+    assert active_values["input_token"] == 70
+    assert settled_values["input_token"] == 30
+    assert active_values["input_token"] + settled_values["input_token"] > 80
+
+    m.downgrade(url, "0011")
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    try:
+        with engine.connect() as connection:
+            balance_after = connection.execute(
+                text("SELECT payload FROM run_hold_balances WHERE hold_group_id = :hold_group_id"),
+                {"hold_group_id": parent.reservation_group_id},
+            ).scalar_one()
+            budget_after = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                {"budget_id": selected_budget.budget_id},
+            ).scalar_one()
+        assert balance_after == balance_before
+        assert budget_after == budget_before
+        with Session(engine) as session:
+            SqlCostLedger(session).audit_hold_balance(parent.reservation_group_id)
+    finally:
+        engine.dispose()
+
+
+def test_0012_round_trip_preserves_zero_allocation_active_child_count(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-zero-active.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    selected_budget = budget("run", "run:migration-zero")
+    selected_set = budget_set("run:migration-zero", (selected_budget,))
+    parent, parent_members = hold(selected_set)
+    child, raw_members = step_group(selected_set, parent, suffix="0")
+    child_members = tuple(
+        member.model_copy(
+            update={
+                "reserved": tuple(
+                    item.model_copy(update={"value": Decimal(0)}) for item in member.reserved
+                )
+            }
+        )
+        for member in raw_members
+    )
+    try:
+        with uow(engine).begin() as transaction:
+            transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+        with Session(engine) as session, session.begin():
+            seed_current_attempt(session, selected_set=selected_set, parent=parent)
+        with uow(engine).begin() as transaction:
+            transaction.cost.reserve_many(child, child_members)
+        with engine.connect() as connection:
+            before = connection.execute(
+                text("SELECT payload FROM run_hold_balances WHERE hold_group_id = :hold_group_id"),
+                {"hold_group_id": parent.reservation_group_id},
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    parsed = json.loads(before) if isinstance(before, str) else before
+    assert parsed["active_child_count"] == 1
+    assert all(item["value"] == "0" for item in parsed["active_allocated"])
+
+    m.downgrade(url, "0011")
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    try:
+        with engine.connect() as connection:
+            after = connection.execute(
+                text("SELECT payload FROM run_hold_balances WHERE hold_group_id = :hold_group_id"),
+                {"hold_group_id": parent.reservation_group_id},
+            ).scalar_one()
+        assert after == before
+        with Session(engine) as session:
+            SqlCostLedger(session).audit_hold_balance(parent.reservation_group_id)
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.parametrize(
+    (
+        "limit_value",
+        "parent_value",
+        "child_value",
+        "conservative_value",
+        "actual_value",
+        "expected_actual_wire",
+        "expected_budget_reserved_wire",
+        "expected_budget_consumed_wire",
+    ),
+    (
+        pytest.param(
+            Decimal("100.00"),
+            Decimal("80.00"),
+            Decimal("30.00"),
+            Decimal("0.10"),
+            Decimal("0.2"),
+            "0.2",
+            "79.80",
+            "0.20",
+            id="fractional-trailing-zero-canonicalization",
+        ),
+        pytest.param(
+            Decimal("700000000000000000000000.00000000"),
+            Decimal("600000000000000000000000.00000000"),
+            Decimal("500000000000000000000000.00000000"),
+            Decimal("398309499403506836990859.91625105"),
+            Decimal("398309499403506836990459.91621105"),
+            "398309499403506836990459.91621105",
+            "201690500596493163009540.08378895",
+            "398309499403506836990459.91621105",
+            id="beyond-default-decimal-context",
+        ),
+    ),
+)
+def test_0012_round_trip_preserves_fractional_late_reconcile_balance_digest(
+    tmp_path,
+    limit_value: Decimal,
+    parent_value: Decimal,
+    child_value: Decimal,
+    conservative_value: Decimal,
+    actual_value: Decimal,
+    expected_actual_wire: str,
+    expected_budget_reserved_wire: str,
+    expected_budget_consumed_wire: str,
+) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-fractional-late.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    selected_budget = budget("run", "run:migration-fractional").model_copy(
+        update={
+            "limits": (amount("monetary", limit_value),),
+            "reserved": (),
+            "consumed": (),
+        }
+    )
+    selected_set = budget_set("run:migration-fractional", (selected_budget,))
+    parent, raw_parent_members = hold(selected_set)
+    parent_members = tuple(
+        member.model_copy(update={"reserved": (amount("monetary", parent_value),)})
+        for member in raw_parent_members
+    )
+    child, raw_child_members = step_group(selected_set, parent, suffix="1")
+    child_members = tuple(
+        member.model_copy(update={"reserved": (amount("monetary", child_value),)})
+        for member in raw_child_members
+    )
+    conservative = usage(
+        child,
+        usage_id="usage:migration:fractional-conservative",
+        input_tokens=None,
+    ).model_copy(
+        update={
+            "monetary": MonetaryObservationV1(
+                status="reported",
+                amount=conservative_value,
+                currency="USD",
+                price_book_version="price-book@1",
+                quote_effective_at=selected_budget.created_at,
+            )
+        }
+    )
+    actual = usage(
+        child,
+        usage_id="usage:migration:fractional-actual",
+        input_tokens=None,
+        adjustment_of_usage_id=conservative.usage_id,
+    ).model_copy(
+        update={
+            "monetary": MonetaryObservationV1(
+                status="reported",
+                amount=actual_value,
+                currency="USD",
+                price_book_version="price-book@1",
+                quote_effective_at=selected_budget.created_at,
+            )
+        }
+    )
+    try:
+        with uow(engine).begin() as transaction:
+            transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+        with Session(engine) as session, session.begin():
+            seed_current_attempt(session, selected_set=selected_set, parent=parent)
+        with uow(engine).begin() as transaction:
+            transaction.cost.reserve_many(child, child_members)
+            transaction.cost.hold_unknown_group(child.reservation_group_id)
+            transaction.cost.settle_unknown_group(
+                child.reservation_group_id,
+                conservative,
+            )
+            transaction.cost.late_reconcile_group(actual)
+        with engine.connect() as connection:
+            before = connection.execute(
+                text(
+                    "SELECT payload, balance_digest FROM run_hold_balances "
+                    "WHERE hold_group_id = :hold_group_id"
+                ),
+                {"hold_group_id": parent.reservation_group_id},
+            ).one()
+            before_budget = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                {"budget_id": selected_budget.budget_id},
+            ).scalar_one()
+    finally:
+        engine.dispose()
+
+    m.downgrade(url, "0011")
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    try:
+        with engine.connect() as connection:
+            after = connection.execute(
+                text(
+                    "SELECT payload, balance_digest FROM run_hold_balances "
+                    "WHERE hold_group_id = :hold_group_id"
+                ),
+                {"hold_group_id": parent.reservation_group_id},
+            ).one()
+            after_budget = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                {"budget_id": selected_budget.budget_id},
+            ).scalar_one()
+        assert after == before
+        assert after_budget == before_budget
+        payload = json.loads(after.payload) if isinstance(after.payload, str) else after.payload
+        assert {item["dimension"]: item["value"] for item in payload["active_allocated"]} == {
+            "monetary": "0"
+        }
+        assert {item["dimension"]: item["value"] for item in payload["settled_impact"]} == {
+            "monetary": expected_actual_wire
+        }
+        budget_payload = json.loads(after_budget) if isinstance(after_budget, str) else after_budget
+        assert {item["dimension"]: item["value"] for item in budget_payload["reserved"]} == {
+            "monetary": expected_budget_reserved_wire
+        }
+        assert {item["dimension"]: item["value"] for item in budget_payload["consumed"]} == {
+            "monetary": expected_budget_consumed_wire
+        }
+        with Session(engine) as session:
+            SqlCostLedger(session).audit_hold_balance(parent.reservation_group_id)
+    finally:
+        engine.dispose()
+
+
+def test_0012_exact_decimal_span_bound_is_frozen_and_fail_closed() -> None:
+    migration = importlib.import_module(
+        "gameforge.runtime.persistence.migrations.versions.0012_run_hold_balances"
+    )
+
+    assert migration._MAX_EXACT_COST_DECIMAL_DIGITS == 4096
+    with pytest.raises(
+        RuntimeError,
+        match="0012 exact arithmetic exceeds its 4096-decimal-digit operational bound",
+    ):
+        migration._exact_decimal_add(Decimal(0), Decimal("1E+1000000000"))
+
+
+def test_0012_replay_is_independent_of_high_precision_child_transition_order(
+    tmp_path,
+) -> None:
+    def execute(
+        database_name: str,
+        transition_order: tuple[str, ...],
+    ) -> tuple[tuple[object, ...], object]:
+        url = f"sqlite:///{tmp_path / database_name}"
+        m.upgrade(url, "head")
+        engine = get_engine(url)
+        selected_budget = budget("run", "run:migration-order").model_copy(
+            update={
+                "limits": (amount("monetary", Decimal("40000000000000000000000000000")),),
+                "reserved": (),
+                "consumed": (),
+            }
+        )
+        selected_set = budget_set("run:migration-order", (selected_budget,))
+        parent, raw_parent_members = hold(selected_set)
+        parent_members = tuple(
+            member.model_copy(
+                update={"reserved": (amount("monetary", Decimal("30000000000000000000000000000")),)}
+            )
+            for member in raw_parent_members
+        )
+        observed_values = {
+            "a": Decimal("10000000000000000000000000000"),
+            "b": Decimal(6),
+            "c": Decimal(6),
+        }
+        children = {}
+        for suffix, observed_value in observed_values.items():
+            child, raw_child_members = step_group(selected_set, parent, suffix=suffix)
+            child_members = tuple(
+                member.model_copy(update={"reserved": (amount("monetary", observed_value),)})
+                for member in raw_child_members
+            )
+            observed_usage = usage(
+                child,
+                usage_id=f"usage:migration:order:{suffix}",
+                input_tokens=None,
+            ).model_copy(
+                update={
+                    "monetary": MonetaryObservationV1(
+                        status="reported",
+                        amount=observed_value,
+                        currency="USD",
+                        price_book_version="price-book@1",
+                        quote_effective_at=selected_budget.created_at,
+                    )
+                }
+            )
+            children[suffix] = (child, child_members, observed_usage)
+        try:
+            with uow(engine).begin() as transaction:
+                transaction.cost.put_budget(selected_budget)
+                transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+            with Session(engine) as session, session.begin():
+                seed_current_attempt(session, selected_set=selected_set, parent=parent)
+            for suffix in transition_order:
+                child, child_members, observed_usage = children[suffix]
+                with uow(engine).begin() as transaction:
+                    transaction.cost.reserve_many(child, child_members)
+                    transaction.cost.reconcile_group(observed_usage)
+            with engine.connect() as connection:
+                before_balance = connection.execute(
+                    text(
+                        "SELECT payload, balance_digest FROM run_hold_balances "
+                        "WHERE hold_group_id = :hold_group_id"
+                    ),
+                    {"hold_group_id": parent.reservation_group_id},
+                ).one()
+                before_budget = connection.execute(
+                    text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                    {"budget_id": selected_budget.budget_id},
+                ).scalar_one()
+        finally:
+            engine.dispose()
+
+        m.downgrade(url, "0011")
+        m.upgrade(url, "head")
+        engine = get_engine(url)
+        try:
+            with engine.connect() as connection:
+                after_balance = connection.execute(
+                    text(
+                        "SELECT payload, balance_digest FROM run_hold_balances "
+                        "WHERE hold_group_id = :hold_group_id"
+                    ),
+                    {"hold_group_id": parent.reservation_group_id},
+                ).one()
+                after_budget = connection.execute(
+                    text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                    {"budget_id": selected_budget.budget_id},
+                ).scalar_one()
+            assert after_balance == before_balance
+            assert after_budget == before_budget
+            return tuple(after_balance), after_budget
+        finally:
+            engine.dispose()
+
+    large_first = execute("hold-balance-large-first.db", ("a", "b", "c"))
+    small_first = execute("hold-balance-small-first.db", ("b", "c", "a"))
+
+    assert small_first == large_first
+
+
+def test_0012_rejects_active_balance_above_parent_even_if_budget_matches(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-active-over-parent.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    selected_budget = budget("run", "run:migration-active")
+    selected_set = budget_set("run:migration-active", (selected_budget,))
+    parent, parent_members = hold(selected_set)
+    children = (
+        step_group(selected_set, parent, suffix="1", input_tokens=30),
+        step_group(selected_set, parent, suffix="2", input_tokens=30),
+    )
+    try:
+        with uow(engine).begin() as transaction:
+            transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+        with Session(engine) as session, session.begin():
+            seed_current_attempt(session, selected_set=selected_set, parent=parent)
+        with uow(engine).begin() as transaction:
+            for child, child_members in children:
+                transaction.cost.reserve_many(child, child_members)
+    finally:
+        engine.dispose()
+    m.downgrade(url, "0011")
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            for child, _child_members in children:
+                member_raw = connection.execute(
+                    text(
+                        "SELECT payload FROM budget_reservations "
+                        "WHERE reservation_group_id = :group_id"
+                    ),
+                    {"group_id": child.reservation_group_id},
+                ).scalar_one()
+                member_payload = (
+                    json.loads(member_raw) if isinstance(member_raw, str) else dict(member_raw)
+                )
+                for item in member_payload["reserved"]:
+                    if item["dimension"] == "input_token":
+                        item["value"] = "50"
+                connection.execute(
+                    text(
+                        "UPDATE budget_reservations SET payload = :payload "
+                        "WHERE reservation_group_id = :group_id"
+                    ),
+                    {
+                        "group_id": child.reservation_group_id,
+                        "payload": json.dumps(member_payload, separators=(",", ":")),
+                    },
+                )
+            budget_raw = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = :budget_id"),
+                {"budget_id": selected_budget.budget_id},
+            ).scalar_one()
+            budget_payload = (
+                json.loads(budget_raw) if isinstance(budget_raw, str) else dict(budget_raw)
+            )
+            for item in budget_payload["reserved"]:
+                if item["dimension"] == "input_token":
+                    item["value"] = "100"
+            connection.execute(
+                text("UPDATE budgets SET payload = :payload WHERE budget_id = :budget_id"),
+                {
+                    "budget_id": selected_budget.budget_id,
+                    "payload": json.dumps(budget_payload, separators=(",", ":")),
+                },
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="active Run hold balance exceeds parent"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+
+def test_0012_rejects_parent_hold_above_budget_limit_even_if_reserve_matches(
+    tmp_path,
+) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-above-budget-limit.db'}"
+    hold_group_id = _seed_overage_hold_then_downgrade_to_0011(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            member_raw = connection.execute(
+                text(
+                    "SELECT payload FROM budget_reservations WHERE reservation_group_id = :group_id"
+                ),
+                {"group_id": hold_group_id},
+            ).scalar_one()
+            member_payload = (
+                json.loads(member_raw) if isinstance(member_raw, str) else dict(member_raw)
+            )
+            for item in member_payload["reserved"]:
+                if item["dimension"] == "input_token":
+                    item["value"] = "201"
+            connection.execute(
+                text(
+                    "UPDATE budget_reservations SET payload = :payload "
+                    "WHERE reservation_group_id = :group_id"
+                ),
+                {
+                    "group_id": hold_group_id,
+                    "payload": json.dumps(member_payload, separators=(",", ":")),
+                },
+            )
+            budget_raw = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = 'budget:run'")
+            ).scalar_one()
+            budget_payload = (
+                json.loads(budget_raw) if isinstance(budget_raw, str) else dict(budget_raw)
+            )
+            for item in budget_payload["reserved"]:
+                if item["dimension"] == "input_token":
+                    item["value"] = "171"
+            connection.execute(
+                text("UPDATE budgets SET payload = :payload WHERE budget_id = 'budget:run'"),
+                {"payload": json.dumps(budget_payload, separators=(",", ":"))},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="Run hold amount exceeds budget authority"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+
+def test_0012_rejects_child_allocation_above_parent_even_after_settlement(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'child-above-parent-hold.db'}"
+    _seed_overage_hold_then_downgrade_to_0011(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            member_raw = connection.execute(
+                text(
+                    "SELECT payload FROM budget_reservations "
+                    "WHERE reservation_group_id = 'step:run:migration-balance:1'"
+                )
+            ).scalar_one()
+            member_payload = (
+                json.loads(member_raw) if isinstance(member_raw, str) else dict(member_raw)
+            )
+            for item in member_payload["reserved"]:
+                if item["dimension"] == "input_token":
+                    item["value"] = "81"
+            connection.execute(
+                text(
+                    "UPDATE budget_reservations SET payload = :payload "
+                    "WHERE reservation_group_id = 'step:run:migration-balance:1'"
+                ),
+                {"payload": json.dumps(member_payload, separators=(",", ":"))},
+            )
+            budget_raw = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = 'budget:run'")
+            ).scalar_one()
+            budget_payload = (
+                json.loads(budget_raw) if isinstance(budget_raw, str) else dict(budget_raw)
+            )
+            budget_payload["reserved"] = [
+                item for item in budget_payload["reserved"] if item["dimension"] != "input_token"
+            ]
+            connection.execute(
+                text("UPDATE budgets SET payload = :payload WHERE budget_id = 'budget:run'"),
+                {"payload": json.dumps(budget_payload, separators=(",", ":"))},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="child allocation exceeds parent authority"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+
+def test_0012_rejects_monetary_usage_currency_differing_from_hold(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'usage-currency-mismatch.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    selected_budget = budget("run", "run:migration-money").model_copy(
+        update={
+            "limits": (amount("monetary", 100),),
+            "reserved": (),
+            "consumed": (),
+        }
+    )
+    selected_set = budget_set("run:migration-money", (selected_budget,))
+    parent, raw_parent_members = hold(selected_set)
+    parent_members = tuple(
+        member.model_copy(update={"reserved": (amount("monetary", 80),)})
+        for member in raw_parent_members
+    )
+    child, raw_child_members = step_group(selected_set, parent, suffix="1")
+    child_members = tuple(
+        member.model_copy(update={"reserved": (amount("monetary", 30),)})
+        for member in raw_child_members
+    )
+    observed = usage(child, usage_id="usage:migration:money", input_tokens=None).model_copy(
+        update={
+            "monetary": MonetaryObservationV1(
+                status="reported",
+                amount=Decimal(10),
+                currency="USD",
+                price_book_version="price-book@1",
+                quote_effective_at=selected_budget.created_at,
+            )
+        }
+    )
+    try:
+        with uow(engine).begin() as transaction:
+            transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+        with Session(engine) as session, session.begin():
+            seed_current_attempt(session, selected_set=selected_set, parent=parent)
+        with uow(engine).begin() as transaction:
+            transaction.cost.reserve_many(child, child_members)
+            transaction.cost.reconcile_group(observed)
+    finally:
+        engine.dispose()
+    m.downgrade(url, "0011")
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            raw = connection.execute(
+                text("SELECT payload FROM usage_entries WHERE usage_id = :usage_id"),
+                {"usage_id": observed.usage_id},
+            ).scalar_one()
+            payload = json.loads(raw) if isinstance(raw, str) else dict(raw)
+            payload["monetary"]["currency"] = "EUR"
+            connection.execute(
+                text("UPDATE usage_entries SET payload = :payload WHERE usage_id = :usage_id"),
+                {
+                    "usage_id": observed.usage_id,
+                    "payload": json.dumps(payload, separators=(",", ":")),
+                },
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(
+        RuntimeError,
+        match="settled usage amount identity differs from reservation",
+    ):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+
+def test_0012_rejects_partial_hold_that_omits_a_budget_set_scope(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'partial-hold-scope.db'}"
+    m.upgrade(url, "head")
+    engine = get_engine(url)
+    budgets = (
+        budget("run", "run:migration-partial"),
+        budget("principal", "principal:migration-partial"),
+    )
+    selected_set = budget_set("run:migration-partial", budgets)
+    parent, parent_members = hold(selected_set)
+    try:
+        with uow(engine).begin() as transaction:
+            for selected_budget in budgets:
+                transaction.cost.put_budget(selected_budget)
+            transaction.cost.freeze_budget_set(selected_set, parent, parent_members)
+    finally:
+        engine.dispose()
+    m.downgrade(url, "0011")
+
+    omitted = next(item for item in parent_members if item.budget_id == "budget:principal")
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text("DELETE FROM budget_reservations WHERE reservation_id = :reservation_id"),
+                {"reservation_id": omitted.reservation_id},
+            )
+            raw_group = connection.execute(
+                text(
+                    "SELECT payload FROM reservation_groups WHERE reservation_group_id = :group_id"
+                ),
+                {"group_id": parent.reservation_group_id},
+            ).scalar_one()
+            group_payload = json.loads(raw_group) if isinstance(raw_group, str) else dict(raw_group)
+            group_payload["budget_reservation_ids"] = [
+                value
+                for value in group_payload["budget_reservation_ids"]
+                if value != omitted.reservation_id
+            ]
+            connection.execute(
+                text(
+                    "UPDATE reservation_groups SET payload = :payload "
+                    "WHERE reservation_group_id = :group_id"
+                ),
+                {
+                    "group_id": parent.reservation_group_id,
+                    "payload": json.dumps(group_payload, separators=(",", ":")),
+                },
+            )
+            raw_budget = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = 'budget:principal'")
+            ).scalar_one()
+            budget_payload = (
+                json.loads(raw_budget) if isinstance(raw_budget, str) else dict(raw_budget)
+            )
+            budget_payload["reserved"] = []
+            connection.execute(
+                text("UPDATE budgets SET payload = :payload WHERE budget_id = 'budget:principal'"),
+                {"payload": json.dumps(budget_payload, separators=(",", ":"))},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="members differ from budget-set authority"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+
+def test_0012_fails_when_budget_reserve_disagrees_with_reconstructed_holds(
+    tmp_path,
+) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-corrupt-reserve.db'}"
+    _seed_overage_hold_then_downgrade_to_0011(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            raw = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = 'budget:run'")
+            ).scalar_one()
+            payload = json.loads(raw) if isinstance(raw, str) else dict(raw)
+            for item in payload["reserved"]:
+                if item["dimension"] == "input_token":
+                    item["value"] = "49"
+            connection.execute(
+                text("UPDATE budgets SET payload = :payload WHERE budget_id = 'budget:run'"),
+                {"payload": json.dumps(payload, separators=(",", ":"))},
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "budget reserve differs from reconstructed open Run holds; "
+            "pre-0012 transition ordering cannot recover context-rounded authority losslessly"
+        ),
+    ):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            raw = connection.execute(
+                text("SELECT payload FROM budgets WHERE budget_id = 'budget:run'")
+            ).scalar_one()
+            payload = json.loads(raw) if isinstance(raw, str) else dict(raw)
+            for item in payload["reserved"]:
+                if item["dimension"] == "input_token":
+                    item["value"] = "50"
+            connection.execute(
+                text("UPDATE budgets SET payload = :payload WHERE budget_id = 'budget:run'"),
+                {"payload": json.dumps(payload, separators=(",", ":"))},
+            )
+    finally:
+        engine.dispose()
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0012"
+
+
+def test_0012_rejects_noncanonical_group_source_before_ddl_and_can_retry(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-corrupt-group.db'}"
+    hold_group_id = _seed_overage_hold_then_downgrade_to_0011(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            row = connection.execute(
+                text(
+                    "SELECT revision, payload FROM reservation_groups "
+                    "WHERE reservation_group_id = :group_id"
+                ),
+                {"group_id": hold_group_id},
+            ).one()
+            payload = json.loads(row.payload) if isinstance(row.payload, str) else dict(row.payload)
+            payload["revision"] = 999
+            connection.execute(
+                text(
+                    "UPDATE reservation_groups SET payload = :payload "
+                    "WHERE reservation_group_id = :group_id"
+                ),
+                {
+                    "group_id": hold_group_id,
+                    "payload": json.dumps(payload, separators=(",", ":")),
+                },
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="reservation group payload/projection mismatch"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            raw = connection.execute(
+                text(
+                    "SELECT payload FROM reservation_groups WHERE reservation_group_id = :group_id"
+                ),
+                {"group_id": hold_group_id},
+            ).scalar_one()
+            payload = json.loads(raw) if isinstance(raw, str) else dict(raw)
+            payload["revision"] = int(row.revision)
+            connection.execute(
+                text(
+                    "UPDATE reservation_groups SET payload = :payload "
+                    "WHERE reservation_group_id = :group_id"
+                ),
+                {
+                    "group_id": hold_group_id,
+                    "payload": json.dumps(payload, separators=(",", ":")),
+                },
+            )
+    finally:
+        engine.dispose()
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0012"
+
+
+def test_0012_rejects_budget_snapshot_member_drift_before_ddl_and_can_retry(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'hold-balance-corrupt-budget-snapshot.db'}"
+    _seed_overage_hold_then_downgrade_to_0011(url)
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            row = connection.execute(
+                text("SELECT snapshot_id, scope_id, payload FROM budget_snapshots LIMIT 1")
+            ).one()
+            payload = json.loads(row.payload) if isinstance(row.payload, str) else dict(row.payload)
+            payload["scope_id"] = "run:tampered"
+            connection.execute(
+                text(
+                    "UPDATE budget_snapshots SET scope_id = :scope_id, payload = :payload "
+                    "WHERE snapshot_id = :snapshot_id"
+                ),
+                {
+                    "snapshot_id": row.snapshot_id,
+                    "scope_id": "run:tampered",
+                    "payload": json.dumps(payload, separators=(",", ":")),
+                },
+            )
+    finally:
+        engine.dispose()
+
+    with pytest.raises(RuntimeError, match="budget snapshot members differ"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            raw = connection.execute(
+                text("SELECT payload FROM budget_snapshots WHERE snapshot_id = :snapshot_id"),
+                {"snapshot_id": row.snapshot_id},
+            ).scalar_one()
+            payload = json.loads(raw) if isinstance(raw, str) else dict(raw)
+            payload["scope_id"] = row.scope_id
+            connection.execute(
+                text(
+                    "UPDATE budget_snapshots SET scope_id = :scope_id, payload = :payload "
+                    "WHERE snapshot_id = :snapshot_id"
+                ),
+                {
+                    "snapshot_id": row.snapshot_id,
+                    "scope_id": row.scope_id,
+                    "payload": json.dumps(payload, separators=(",", ":")),
+                },
+            )
+    finally:
+        engine.dispose()
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0012"
+
+
+def test_0012_rejects_orphan_budget_reservation_before_ddl_and_can_retry(tmp_path) -> None:
+    database_path = tmp_path / "hold-balance-orphan-reservation.db"
+    url = f"sqlite:///{database_path}"
+    _seed_overage_hold_then_downgrade_to_0011(url)
+    with sqlite3.connect(database_path) as connection:
+        row = connection.execute(
+            "SELECT budget_id, status, revision, payload FROM budget_reservations LIMIT 1"
+        ).fetchone()
+        assert row is not None
+        budget_id, status, revision, raw = row
+        payload = json.loads(raw)
+        payload["reservation_id"] = "reservation:orphan"
+        payload["reservation_group_id"] = "group:missing"
+        connection.execute(
+            """
+            INSERT INTO budget_reservations (
+                reservation_id, reservation_group_id, budget_id, status, revision, payload
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                payload["reservation_id"],
+                payload["reservation_group_id"],
+                budget_id,
+                status,
+                revision,
+                json.dumps(payload, separators=(",", ":")),
+            ),
+        )
+
+    with pytest.raises(RuntimeError, match="budget reservation without its group"):
+        m.upgrade(url, "head")
+    assert _current_revision(url) == "0011"
+    assert "run_hold_balances" not in _table_names(url)
+
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            "DELETE FROM budget_reservations WHERE reservation_id = 'reservation:orphan'"
+        )
+    m.upgrade(url, "head")
+    assert _current_revision(url) == "0012"
 
 
 def test_0006_downgrade_refuses_to_discard_retained_cost_authority(tmp_path) -> None:

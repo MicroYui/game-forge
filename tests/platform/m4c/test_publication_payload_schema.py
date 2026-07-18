@@ -168,6 +168,84 @@ def test_payload_depth_is_rejected_before_canonical_serialization(monkeypatch) -
         validate_artifact_payload(payload_schema_id="checker-report@1", payload=payload)
 
 
+def test_ir_snapshot_uses_its_schema_contract_instead_of_a_global_object_count() -> None:
+    entities = {
+        f"item:{index}": Entity(id=f"item:{index}", type=NodeType.ITEM)
+        for index in range(payload_schema_mod.MAX_PAYLOAD_COLLECTION_ITEMS + 1)
+    }
+    payload = _wire(Snapshot(entities=entities, relations={}).content_payload)
+    assert len(canonical_json(payload).encode("utf-8")) < payload_schema_mod.MAX_PAYLOAD_JSON_BYTES
+
+    assert validate_artifact_payload(payload_schema_id="ir-core@1", payload=payload) == payload
+
+
+def test_decode_reuses_the_verified_canonical_size_for_bounds(monkeypatch) -> None:
+    payload = {
+        "payload_schema_version": "checker-report@1",
+        "snapshot_id": "snapshot:1",
+        "findings": [],
+    }
+    blob = canonical_json(payload).encode("utf-8")
+    real_canonical_json = payload_schema_mod.canonical_json
+    calls = 0
+
+    def counted_canonical_json(value: object) -> str:
+        nonlocal calls
+        calls += 1
+        return real_canonical_json(value)
+
+    monkeypatch.setattr(payload_schema_mod, "canonical_json", counted_canonical_json)
+
+    assert (
+        decode_and_validate_artifact_payload(
+            payload_schema_id="checker-report@1",
+            blob=blob,
+        )
+        == payload
+    )
+    # The byte comparison is the only canonical serialization needed here. The
+    # schema parser compares and copies the already-decoded exact wire in memory,
+    # while bounds reuse the known byte size.
+    assert calls == 1
+
+
+def test_decode_ir_schema_compares_the_canonical_tree_without_reencoding(monkeypatch) -> None:
+    payload = _wire(
+        Snapshot(
+            entities={"item:1": Entity(id="item:1", type=NodeType.ITEM)},
+            relations={},
+        ).content_payload
+    )
+    blob = canonical_json(payload).encode("utf-8")
+    real_canonical_json = payload_schema_mod.canonical_json
+    calls = 0
+
+    def counted_canonical_json(value: object) -> str:
+        nonlocal calls
+        calls += 1
+        return real_canonical_json(value)
+
+    monkeypatch.setattr(payload_schema_mod, "canonical_json", counted_canonical_json)
+
+    assert decode_and_validate_artifact_payload(payload_schema_id="ir-core@1", blob=blob) == payload
+    assert calls == 1
+
+
+def test_in_memory_exact_wire_comparison_still_rejects_bool_integer_coercion() -> None:
+    payload = {
+        "payload_schema_version": "checker-report@1",
+        "checker_profile": {"profile_id": "checker", "version": True},
+        "snapshot_id": "snapshot:1",
+        "checker_ids": [],
+        "defect_classes": [],
+        "constraint_application": [],
+        "findings": [],
+    }
+
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(payload_schema_id="checker-report@1", payload=payload)
+
+
 def test_unknown_and_non_terminal_schemas_fail_closed() -> None:
     with pytest.raises(IntegrityViolation, match="not registered"):
         validate_artifact_payload(payload_schema_id="checker-report@future", payload={})
@@ -296,6 +374,57 @@ def test_simulation_execution_binding_is_an_exact_closed_wire_shape() -> None:
     execution = sensitivity["execution_binding"]
     assert isinstance(execution, dict)
     execution["worker_claim"] = "trusted"
+    with pytest.raises(IntegrityViolation, match="exact registered schema"):
+        validate_artifact_payload(payload_schema_id="simulation-result@1", payload=payload)
+
+
+def test_simulation_text_may_use_a_float_tag_prefix_without_becoming_numeric() -> None:
+    payload = {
+        "payload_schema_version": "simulation-result@1",
+        "snapshot_id": "snapshot:1",
+        "seed": 7,
+        "replication_count": 1,
+        "horizon_steps": 1,
+        "invariants": [],
+        "sensitivity": {"operator_note": "f:Infinity"},
+        "findings": [],
+    }
+
+    assert (
+        validate_artifact_payload(payload_schema_id="simulation-result@1", payload=payload)
+        == payload
+    )
+
+
+@pytest.mark.parametrize(
+    ("location", "value"),
+    [
+        ("sensitivity", "f:Infinity"),
+        ("sensitivity", float("inf")),
+        ("confidence", "f:Infinity"),
+        ("confidence", float("inf")),
+    ],
+)
+def test_simulation_numeric_fields_reject_nonfinite_canonical_values(
+    location: str,
+    value: object,
+) -> None:
+    finding = _finding().model_dump(mode="json", exclude_none=True)
+    if location == "confidence":
+        finding["confidence"] = value
+    payload = {
+        "payload_schema_version": "simulation-result@1",
+        "snapshot_id": "snapshot:1",
+        "seed": 7,
+        "replication_count": 1,
+        "horizon_steps": 1,
+        "invariants": [],
+        "sensitivity": (
+            {"source_total": value, "sink_total": "f:0"} if location == "sensitivity" else {}
+        ),
+        "findings": [finding] if location == "confidence" else [],
+    }
+
     with pytest.raises(IntegrityViolation, match="exact registered schema"):
         validate_artifact_payload(payload_schema_id="simulation-result@1", payload=payload)
 

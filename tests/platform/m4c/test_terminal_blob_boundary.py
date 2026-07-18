@@ -8,16 +8,20 @@ inside another UoW, but every ``put_verified`` must occur between those phases.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from copy import deepcopy
+from copy import copy, deepcopy
+from dataclasses import replace
 from datetime import datetime, timedelta
+from io import BytesIO
 from typing import Callable
 
 import pytest
+from pydantic import BaseModel
 
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.apps.worker.publication import (
     WorkerArtifactPort,
+    WorkerBlobStore,
     WorkerBlobStager,
 )
 from gameforge.contracts.lineage import (
@@ -31,9 +35,13 @@ from gameforge.contracts.lineage import (
 from gameforge.contracts.storage import ObjectStat, StoredObject
 from gameforge.platform.terminal_staging import (
     BlobMaterial,
+    FrozenList,
+    PreverifiedAbsentArtifactBinding,
+    PreverifiedArtifactBinding,
     StagedReceipt,
     StagedTerminalPublication,
     TerminalPublicationDraft,
+    deep_freeze_value,
 )
 from gameforge.platform.runs.commands import (
     RunCommandCapabilities,
@@ -48,12 +56,16 @@ from gameforge.platform.runs.lifecycle import (
     RunLifecycleService,
     RunResultPublication,
     SweepRunTimeoutRequest,
+    TerminalAuthorityDrift,
 )
 from gameforge.runtime.clock import FrozenUtcClock
+from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
+from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from tests.platform.m4.test_run_fencing import (
     NOW_DT,
     WORKER,
     _AllowSubmissionAuthorization,
+    _NoBlobStager,
     _Publication,
     _fence,
     _start,
@@ -69,6 +81,143 @@ from tests.platform.m4.test_run_retry_cancel_timeout import (
 
 
 _HUMAN = AuditActor(principal_id="human:a", principal_kind="human")
+
+
+def test_deep_freeze_preserves_list_serialization_and_closes_all_mutators() -> None:
+    class ListEnvelope(BaseModel):
+        values: list[dict[str, int]]
+
+    sealed = deep_freeze_value(ListEnvelope(values=[{"value": 1}]))
+    assert isinstance(sealed, ListEnvelope)
+    assert isinstance(sealed.values, FrozenList)
+    assert isinstance(sealed.values, list)
+    assert sealed.model_dump(mode="json", warnings="error") == {"values": [{"value": 1}]}
+    values = sealed.values
+    with pytest.raises(TypeError, match="immutable"):
+        values[0]["value"] = 2
+    mutators = (
+        lambda: values.__setitem__(0, {"value": 2}),
+        lambda: values.__delitem__(0),
+        lambda: values.append({"value": 2}),
+        lambda: values.clear(),
+        lambda: values.extend(({"value": 2},)),
+        lambda: values.insert(0, {"value": 2}),
+        lambda: values.pop(),
+        lambda: values.remove(values[0]),
+        lambda: values.reverse(),
+        lambda: values.sort(key=str),
+        lambda: values.__iadd__([{"value": 2}]),
+        lambda: values.__imul__(2),
+        lambda: values.__ior__([{"value": 2}]),
+    )
+    for mutate in mutators:
+        with pytest.raises(TypeError, match="immutable"):
+            mutate()
+
+    frozen_tuple = deep_freeze_value(([1],))
+    assert isinstance(frozen_tuple, tuple)
+    assert isinstance(frozen_tuple[0], FrozenList)
+
+
+def test_worker_blob_store_bounds_the_exact_prepared_generation_read() -> None:
+    declared = b"prepared"
+    object_ref = object_ref_for_bytes(declared)
+    location = ObjectLocation(
+        store_id="prepared-test",
+        key=object_ref.key,
+        backend_generation="generation:1",
+    )
+    read_sizes: list[int] = []
+
+    class TrackingStream(BytesIO):
+        def read(self, size: int = -1) -> bytes:
+            read_sizes.append(size)
+            return super().read(size)
+
+    class OversizedGenerationStore:
+        @staticmethod
+        def stat(selected: ObjectLocation) -> ObjectStat:
+            assert selected == location
+            return ObjectStat(
+                ref=object_ref,
+                location=location,
+                verified_at="2026-07-16T12:00:00Z",
+            )
+
+        @staticmethod
+        def open(selected: ObjectLocation) -> TrackingStream:
+            assert selected == location
+            return TrackingStream(declared + b"!")
+
+    with pytest.raises(IntegrityViolation, match="stream size"):
+        WorkerBlobStore(OversizedGenerationStore()).read(object_ref, location)
+
+    assert read_sizes == [object_ref.size_bytes + 1]
+
+
+def test_worker_blob_store_accepts_bounded_binary_short_reads() -> None:
+    declared = b"prepared"
+    object_ref = object_ref_for_bytes(declared)
+    location = ObjectLocation(
+        store_id="prepared-test",
+        key=object_ref.key,
+        backend_generation="generation:short-read",
+    )
+
+    class ShortReadStream(BytesIO):
+        def read(self, size: int = -1) -> bytes:
+            return super().read(min(size, 2))
+
+    class ShortReadStore:
+        @staticmethod
+        def stat(selected: ObjectLocation) -> ObjectStat:
+            assert selected == location
+            return ObjectStat(
+                ref=object_ref,
+                location=location,
+                verified_at="2026-07-16T12:00:00Z",
+            )
+
+        @staticmethod
+        def open(selected: ObjectLocation) -> ShortReadStream:
+            assert selected == location
+            return ShortReadStream(declared)
+
+    assert WorkerBlobStore(ShortReadStore()).read(object_ref, location) == declared
+
+
+def _staging_draft(*, run_id: str, slot: str, payload: bytes) -> TerminalPublicationDraft:
+    material = BlobMaterial(
+        slot=slot,
+        payload=payload,
+        expected_ref=object_ref_for_bytes(payload),
+    )
+    projection = {
+        "publication_kind": "run_result",
+        "run_id": run_id,
+        "attempt_no": 1,
+        "occurred_at": "2026-07-16T12:00:00Z",
+        "materials": (
+            {
+                "slot": material.slot,
+                "expected_ref": material.expected_ref.model_dump(mode="json"),
+            },
+        ),
+        "operations": (),
+        "result": {},
+    }
+    return TerminalPublicationDraft(
+        publication_kind="run_result",
+        run_id=run_id,
+        attempt_no=1,
+        occurred_at="2026-07-16T12:00:00Z",
+        projection_digest=canonical_sha256(projection),
+        materials=(material,),
+        operations=(),
+        operation_projection=(),
+        result_projection={},
+        result={},
+    )
 
 
 class _TrackingUow:
@@ -152,6 +301,26 @@ class _PutVerifiedSpy:
         return self._stats[location]
 
 
+def test_worker_blob_stager_deduplicates_one_ref_across_terminal_drafts() -> None:
+    uow = _TrackingUow(object())
+    reads = _ReadScopeTracker()
+    objects = _PutVerifiedSpy(uow, reads)
+    payload = b"shared-terminal-payload"
+
+    staged = WorkerBlobStager(objects).stage(
+        (
+            _staging_draft(run_id="run:one", slot="output:one", payload=payload),
+            _staging_draft(run_id="run:two", slot="output:two", payload=payload),
+        )
+    )
+
+    assert objects.calls == [payload]
+    assert staged[0].receipts[0].slot == "output:one"
+    assert staged[1].receipts[0].slot == "output:two"
+    assert staged[0].receipts[0].ref == staged[1].receipts[0].ref
+    assert staged[0].receipts[0].location == staged[1].receipts[0].location
+
+
 class _BlobStager:
     """Production stager with an optional test-only after-stage race hook."""
 
@@ -228,11 +397,27 @@ class _ThreePhasePublication(_Publication):
             },
         )
         result_projection = result.model_dump(mode="json")  # type: ignore[attr-defined]
+        planning_subject_digest = canonical_sha256(
+            {
+                "publication_kind": publication_kind,
+                "run_id": run.run_id,  # type: ignore[attr-defined]
+                "attempt_no": attempt_no,
+                "occurred_at": occurred_at,
+            }
+        )
+        runtime_authority_digest = canonical_sha256(
+            {
+                "projection_epoch": self.projection_epoch
+                + self.projection_epoch_by_kind.get(publication_kind, 0)
+            }
+        )
         canonical_projection = {
             "publication_kind": publication_kind,
             "run_id": run.run_id,  # type: ignore[attr-defined]
             "attempt_no": attempt_no,
             "occurred_at": occurred_at,
+            "planning_subject_digest": planning_subject_digest,
+            "runtime_authority_digest": runtime_authority_digest,
             "materials": tuple(
                 {
                     "slot": material.slot,
@@ -248,6 +433,8 @@ class _ThreePhasePublication(_Publication):
             run_id=run.run_id,  # type: ignore[attr-defined]
             attempt_no=attempt_no,
             occurred_at=occurred_at,
+            planning_subject_digest=planning_subject_digest,
+            runtime_authority_digest=runtime_authority_digest,
             projection_digest=canonical_sha256(canonical_projection),
             materials=materials,
             operations=(("commit", publication_kind),),
@@ -342,6 +529,42 @@ class _ThreePhasePublication(_Publication):
                 actor=actor,
             ),
         )
+
+    def _require_current_authority(
+        self,
+        drafts: tuple[TerminalPublicationDraft, ...],
+        expected_kinds: tuple[str, ...],
+    ) -> None:
+        if tuple(draft.publication_kind for draft in drafts) != expected_kinds:
+            raise TerminalAuthorityDrift("fresh terminal selector differs")
+        for draft in drafts:
+            current = canonical_sha256(
+                {
+                    "projection_epoch": self.projection_epoch
+                    + self.projection_epoch_by_kind.get(draft.publication_kind, 0)
+                }
+            )
+            if draft.runtime_authority_digest != current:
+                raise TerminalAuthorityDrift("fresh terminal authority differs")
+
+    def commit_planned_run_result(self, draft, staged, **kwargs):
+        del kwargs
+        self._require_current_authority((draft,), ("run_result",))
+        return self.commit(draft, staged)
+
+    def commit_planned_active_failure_aggregate(self, drafts, staged, **kwargs):
+        expected = (
+            ("attempt_failure",)
+            if kwargs["retry_decision"].decision == "retry"
+            else ("attempt_failure", "run_failure")
+        )
+        self._require_current_authority(drafts, expected)
+        return self.commit_many(tuple(zip(drafts, staged, strict=True)))
+
+    def commit_planned_run_failure(self, draft, staged, **kwargs):
+        del kwargs
+        self._require_current_authority((draft,), ("run_failure",))
+        return self.commit(draft, staged)
 
     def commit_many(self, publications):
         for fresh_draft, staged in publications:
@@ -459,6 +682,64 @@ def test_lifecycle_terminal_operation_rejects_missing_staging_authority() -> Non
     assert harness.state == before
 
 
+@pytest.mark.parametrize(
+    ("remove_apply", "message"),
+    ((False, "capability is partial"), (True, "capability is required")),
+)
+def test_lifecycle_terminal_operation_rejects_missing_closure_capabilities(
+    remove_apply: bool,
+    message: str,
+) -> None:
+    harness = _run_harness()
+    _start(harness)
+    publication = harness.publication
+    publication.preflight_complete_attempt_success = None  # type: ignore[method-assign]
+    if remove_apply:
+        publication.apply_preflighted_terminal_closure = None  # type: ignore[method-assign]
+    capabilities = RunLifecycleCapabilities(
+        runs=harness.repo,
+        registry=harness.registry,
+        accounting=harness.accounting,
+        publication=publication,
+    )
+    service = RunLifecycleService(
+        unit_of_work=harness.unit_of_work,
+        bind_capabilities=lambda _transaction: capabilities,
+        clock=FrozenUtcClock(NOW_DT + timedelta(seconds=1)),
+        planning_scope=harness.unit_of_work.begin,
+        bind_planning_capabilities=lambda _transaction: capabilities,
+        stage_publications=_NoBlobStager(),
+    )
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match=message):
+        service.publish_attempt_outcome(
+            PublishAttemptOutcomeRequest(
+                fence=_fence(harness),
+                prepared_outcome=_prepared_success(harness),
+                actor=WORKER,
+            )
+        )
+    assert harness.state == before
+
+
+def test_lifecycle_terminal_operation_requires_bounded_attempt_authority() -> None:
+    harness = _run_harness()
+    _start(harness)
+    harness.repo.get_attempt_write_authority = None  # type: ignore[method-assign]
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match="bounded attempt write authority"):
+        harness.lifecycle.publish_attempt_outcome(
+            PublishAttemptOutcomeRequest(
+                fence=_fence(harness),
+                prepared_outcome=_prepared_success(harness),
+                actor=WORKER,
+            )
+        )
+    assert harness.state == before
+
+
 def test_command_submission_rejects_missing_terminal_staging_authority() -> None:
     harness = _run_harness()
     _as_queued(harness)
@@ -486,6 +767,21 @@ def test_command_submission_rejects_missing_terminal_staging_authority() -> None
     assert harness.state == before
 
 
+def test_command_submission_requires_bounded_run_authority() -> None:
+    harness = _run_harness()
+    _as_queued(harness)
+    harness.repo.get_run_write_authority = None  # type: ignore[method-assign]
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match="bounded Run write authority"):
+        harness.commands.submit(
+            run_id="run:1",
+            command=_cancel_command(harness),
+            actor=_HUMAN,
+        )
+    assert harness.state == before
+
+
 def test_active_success_stages_every_blob_between_read_and_write_uows() -> None:
     harness = _run_harness()
     _start(harness)
@@ -505,7 +801,7 @@ def test_active_success_stages_every_blob_between_read_and_write_uows() -> None:
     )
 
     assert result.run.status == "succeeded"
-    assert publication.plan_calls == ["run_result", "run_result"]
+    assert publication.plan_calls == ["run_result"]
     assert publication.commit_calls == 1
     assert stager.calls == 1
     assert len(objects.calls) == 2
@@ -558,10 +854,6 @@ def test_success_superseded_after_stage_restages_typed_terminal_without_success_
     ]
     assert publication.plan_calls == [
         "run_result",
-        "attempt_failure",
-        "run_failure",
-        "attempt_failure",
-        "run_failure",
         "attempt_failure",
         "run_failure",
     ]
@@ -645,10 +937,6 @@ def test_terminal_aggregate_restages_run_drift_before_committing_attempt() -> No
 
     assert result.run.status == "failed"
     assert publication.plan_calls == [
-        "attempt_failure",
-        "run_failure",
-        "attempt_failure",
-        "run_failure",
         "attempt_failure",
         "run_failure",
         "attempt_failure",
@@ -845,7 +1133,7 @@ def test_inactive_cancel_stages_manifest_outside_write_uow(initial_status: str) 
 
     assert result.status == "accepted"
     assert harness.state.runs["run:1"].status == "cancelled"
-    assert publication.plan_calls == ["run_failure", "run_failure"]
+    assert publication.plan_calls == ["run_failure"]
     assert publication.commit_calls == 1
     assert stager.calls == 1
     assert len(objects.calls) == 1
@@ -909,7 +1197,7 @@ def test_persistent_projection_drift_exhausts_bound_with_zero_authority_writes()
         )
 
     assert harness.state == before
-    assert publication.plan_calls == ["run_result"] * 6
+    assert publication.plan_calls == ["run_result"] * 3
     assert publication.commit_calls == 0
     assert len(objects.calls) == 6
     assert stager.calls == 3
@@ -946,6 +1234,7 @@ class _ReceiptBindings:
         self._events = events
         self.calls = 0
         self.resolve_store_ids: list[str | None] = []
+        self.expected_revisions: list[int | None] = []
 
     def resolve(self, ref, store_id=None):
         self._events.append("resolve")
@@ -954,10 +1243,23 @@ class _ReceiptBindings:
             return self._resolved
         raise FileNotFoundError(ref.key)
 
-    def bind_verified(self, ref, location, expected_revision):
+    def bind_preverified(self, stat, expected_revision):
         self.calls += 1
         self._events.append("bind")
-        assert expected_revision is None
+        self.expected_revisions.append(expected_revision)
+        assert stat.ref == self._binding.object_ref
+        if expected_revision is not None:
+            assert self._resolved is not None
+            assert expected_revision == self._resolved.revision
+            if stat.location == self._resolved.location:
+                return self._resolved
+            return self._binding.model_copy(
+                update={
+                    "location": stat.location,
+                    "revision": expected_revision + 1,
+                    "verified_at": stat.verified_at,
+                }
+            )
         return self._binding
 
 
@@ -973,14 +1275,14 @@ class _RetiredReceiptBindings:
         self.resolve_store_ids.append(store_id)
         raise FileNotFoundError(ref.key)
 
-    def bind_verified(self, ref, location, expected_revision):
+    def bind_preverified(self, stat, expected_revision):
         self._events.append("bind")
         self.expected_revisions.append(expected_revision)
         if expected_revision is None:
             raise Conflict(
                 "ObjectBinding revision or state changed",
-                object_key=ref.key,
-                store_id=location.store_id,
+                object_key=stat.ref.key,
+                store_id=stat.location.store_id,
                 expected_revision=None,
                 actual_revision=3,
                 actual_status="retired",
@@ -1038,7 +1340,12 @@ def _receipt_fixture(
         meta={"payload_schema_id": "checker-report@1"},
         created_at="2026-07-16T12:00:00Z",
     )
-    receipt = StagedReceipt(slot="domain:0", ref=ref, location=receipt_location)
+    receipt = StagedReceipt(
+        slot="domain:0",
+        ref=ref,
+        location=receipt_location,
+        verified_at="2026-07-16T12:00:00Z",
+    )
     stat = ObjectStat(
         ref=ref,
         location=stat_location,
@@ -1054,8 +1361,9 @@ def _receipt_fixture(
     return artifact, receipt, stat, binding
 
 
-def test_staged_receipt_stat_mismatch_fails_before_binding_or_artifact_write() -> None:
-    artifact, receipt, stat, binding = _receipt_fixture(stat_generation="substituted")
+def test_staged_receipt_without_preverified_stat_fails_before_database_write() -> None:
+    artifact, receipt, stat, binding = _receipt_fixture()
+    receipt = StagedReceipt(slot=receipt.slot, ref=receipt.ref, location=receipt.location)
     events: list[str] = []
     bindings = _ReceiptBindings(binding, events)
     artifacts = _ReceiptArtifacts(events)
@@ -1065,10 +1373,10 @@ def test_staged_receipt_stat_mismatch_fails_before_binding_or_artifact_write() -
         object_store=_ReceiptObjectStore(stat, events),
     )
 
-    with pytest.raises(IntegrityViolation, match="stat differs"):
+    with pytest.raises(IntegrityViolation, match="lacks its preverified"):
         port.put_staged(artifact, receipt)
 
-    assert events == ["stat"]
+    assert events == []
     assert bindings.calls == 0
     assert artifacts.calls == 0
 
@@ -1087,12 +1395,12 @@ def test_staged_receipt_binding_substitution_fails_before_artifact_write() -> No
     with pytest.raises(IntegrityViolation, match="another staged generation"):
         port.put_staged(artifact, receipt)
 
-    assert events == ["stat", "resolve", "bind"]
+    assert events == ["resolve", "bind"]
     assert bindings.calls == 1
     assert artifacts.calls == 0
 
 
-def test_existing_artifact_keeps_its_active_binding_when_new_generation_is_staged() -> None:
+def test_existing_artifact_retains_its_preverified_active_generation() -> None:
     artifact, receipt, receipt_stat, binding = _receipt_fixture(
         receipt_generation="g2",
         binding_generation="g1",
@@ -1117,16 +1425,21 @@ def test_existing_artifact_keeps_its_active_binding_when_new_generation_is_stage
         ),
     )
 
-    retained = port.put_staged(artifact, receipt)
+    retained = port.put_staged(
+        artifact,
+        receipt,
+        PreverifiedArtifactBinding(binding=binding, stat=retained_stat),
+    )
 
     assert retained == artifact
-    assert events == ["stat", "resolve", "stat"]
+    assert events == ["resolve", "bind"]
     assert bindings.resolve_store_ids == [receipt.location.store_id]
-    assert bindings.calls == 0
+    assert bindings.expected_revisions == [binding.revision]
+    assert bindings.calls == 1
     assert artifacts.calls == 0
 
 
-def test_new_artifact_reuses_existing_active_binding_for_same_object_ref() -> None:
+def test_new_artifact_reuses_its_preverified_active_generation() -> None:
     artifact, receipt, receipt_stat, binding = _receipt_fixture(
         receipt_generation="g2",
         binding_generation="g1",
@@ -1163,13 +1476,209 @@ def test_new_artifact_reuses_existing_active_binding_for_same_object_ref() -> No
         ),
     )
 
-    retained = port.put_staged(shared, receipt)
+    retained = port.put_staged(
+        shared,
+        receipt,
+        PreverifiedArtifactBinding(binding=binding, stat=retained_stat),
+    )
 
     assert retained == shared
-    assert events == ["stat", "resolve", "stat", "artifact"]
+    assert events == ["resolve", "bind", "artifact"]
     assert bindings.resolve_store_ids == [receipt.location.store_id]
-    assert bindings.calls == 0
+    assert bindings.expected_revisions == [binding.revision]
+    assert bindings.calls == 1
     assert artifacts.calls == 1
+
+
+def test_new_artifact_accepts_the_exact_already_active_staged_generation() -> None:
+    artifact, receipt, stat, binding = _receipt_fixture()
+    events: list[str] = []
+    bindings = _ReceiptBindings(binding, events, resolved=binding)
+    artifacts = _ReceiptArtifacts(events)
+    port = WorkerArtifactPort(
+        artifacts=artifacts,
+        object_bindings=bindings,
+        object_store=_ReceiptObjectStore(stat, events),
+    )
+
+    retained = port.put_staged(artifact, receipt)
+
+    assert retained == artifact
+    assert events == ["resolve", "bind", "artifact"]
+    assert bindings.resolve_store_ids == [receipt.location.store_id]
+    assert bindings.expected_revisions == [binding.revision]
+    assert artifacts.calls == 1
+
+
+def test_new_artifact_never_remaps_an_unplanned_active_generation() -> None:
+    artifact, receipt, stat, binding = _receipt_fixture(
+        receipt_generation="g2",
+        binding_generation="g1",
+    )
+    events: list[str] = []
+    bindings = _ReceiptBindings(binding, events, resolved=binding)
+    artifacts = _ReceiptArtifacts(events)
+    port = WorkerArtifactPort(
+        artifacts=artifacts,
+        object_bindings=bindings,
+        object_store=_ReceiptObjectStore(stat, events),
+    )
+
+    with pytest.raises(TerminalAuthorityDrift, match="active ObjectBinding"):
+        port.put_staged(artifact, receipt)
+
+    assert events == ["resolve"]
+    assert bindings.calls == 0
+    assert artifacts.calls == 0
+
+
+def test_worker_artifact_port_accepts_bounded_binary_short_reads() -> None:
+    artifact, _receipt, _stat, binding = _receipt_fixture()
+    payload = b"terminal-resealed-artifact"
+    read_sizes: list[int] = []
+
+    class ShortReadStream(BytesIO):
+        def read(self, size: int = -1) -> bytes:
+            read_sizes.append(size)
+            return super().read(min(size, 3))
+
+    class ReadStore:
+        @staticmethod
+        def open(location: ObjectLocation) -> ShortReadStream:
+            assert location == binding.location
+            return ShortReadStream(payload)
+
+    port = WorkerArtifactPort(
+        artifacts=_ReceiptArtifacts([], existing=artifact),
+        object_bindings=_ReceiptBindings(binding, [], resolved=binding),
+        object_store=ReadStore(),
+    )
+
+    assert port.read_bytes(artifact.artifact_id) == payload
+    assert read_sizes[0] == artifact.object_ref.size_bytes + 1
+    assert all(size <= artifact.object_ref.size_bytes + 1 for size in read_sizes)
+
+
+def test_worker_artifact_port_short_reads_still_enforce_the_hard_byte_cap() -> None:
+    artifact, _receipt, _stat, binding = _receipt_fixture()
+    payload = b"terminal-resealed-artifact"
+    returned_sizes: list[int] = []
+
+    class OversizedShortReadStream(BytesIO):
+        def read(self, size: int = -1) -> bytes:
+            chunk = super().read(min(size, 3))
+            returned_sizes.append(len(chunk))
+            return chunk
+
+    class ReadStore:
+        @staticmethod
+        def open(location: ObjectLocation) -> OversizedShortReadStream:
+            assert location == binding.location
+            return OversizedShortReadStream(payload + b"!")
+
+    port = WorkerArtifactPort(
+        artifacts=_ReceiptArtifacts([], existing=artifact),
+        object_bindings=_ReceiptBindings(binding, [], resolved=binding),
+        object_store=ReadStore(),
+    )
+
+    with pytest.raises(IntegrityViolation, match="bytes differ"):
+        port.read_bytes(artifact.artifact_id)
+
+    assert sum(returned_sizes) == artifact.object_ref.size_bytes + 1
+
+
+class _SharedGenerationBindings:
+    def __init__(self) -> None:
+        self.active: ObjectBinding | None = None
+        self.expected_revisions: list[int | None] = []
+
+    def resolve(self, ref, store_id=None):
+        if (
+            self.active is None
+            or self.active.object_ref != ref
+            or self.active.location.store_id != store_id
+        ):
+            raise FileNotFoundError(ref.key)
+        return self.active
+
+    def bind_preverified(self, stat, expected_revision):
+        self.expected_revisions.append(expected_revision)
+        if self.active is None:
+            assert expected_revision is None
+            self.active = ObjectBinding(
+                object_ref=stat.ref,
+                location=stat.location,
+                status="active",
+                revision=1,
+                verified_at=stat.verified_at,
+            )
+            return self.active
+        assert expected_revision == self.active.revision
+        assert stat.ref == self.active.object_ref
+        assert stat.location == self.active.location
+        return self.active
+
+
+class _SharedGenerationArtifacts:
+    def __init__(self) -> None:
+        self.items: dict[str, object] = {}
+
+    def get(self, artifact_id: str):
+        return self.items.get(artifact_id)
+
+    def put(self, artifact):
+        self.items[artifact.artifact_id] = artifact
+        return artifact
+
+
+def test_exact_shared_generation_supports_terminal_prompt_context_and_record_shard() -> None:
+    payload = b"one-content-addressed-generation"
+    ref = object_ref_for_bytes(payload)
+    location = ObjectLocation(
+        store_id="stage-test",
+        key=ref.key,
+        backend_generation="shared-generation",
+    )
+    bindings = _SharedGenerationBindings()
+    artifacts = _SharedGenerationArtifacts()
+    port = WorkerArtifactPort(
+        artifacts=artifacts,
+        object_bindings=bindings,
+        object_store=object(),
+    )
+    kinds_and_schemas = (
+        ("checker_run", "checker-report@1"),
+        ("source_rendered", "source-rendered@1"),
+        ("source_raw", "agent-prompt-context@1"),
+        ("cassette_bundle", "cassette-record-shard@1"),
+    )
+
+    for index, (kind, payload_schema_id) in enumerate(kinds_and_schemas, start=1):
+        artifact = build_artifact_v2(
+            kind=kind,
+            version_tuple=VersionTuple(tool_version=f"producer@{index}"),
+            lineage=(),
+            payload_hash=ref.sha256,
+            object_ref=ref,
+            meta={"payload_schema_id": payload_schema_id},
+            created_at="2026-07-16T12:00:00Z",
+        )
+        retained = port.put_staged(
+            artifact,
+            StagedReceipt(
+                slot=f"shared:{index}",
+                ref=ref,
+                location=location,
+                verified_at="2026-07-16T12:00:00Z",
+            ),
+        )
+        assert retained == artifact
+
+    assert bindings.active is not None
+    assert bindings.active.location == location
+    assert bindings.expected_revisions == [None, 1, 1, 1]
+    assert len(artifacts.items) == len(kinds_and_schemas)
 
 
 def test_retired_same_store_binding_is_reactivated_with_exact_revision_cas() -> None:
@@ -1187,7 +1696,184 @@ def test_retired_same_store_binding_is_reactivated_with_exact_revision_cas() -> 
     published = port.put_staged(artifact, receipt)
 
     assert published == artifact
-    assert events == ["stat", "resolve", "bind", "bind", "stat", "artifact"]
+    assert events == ["resolve", "bind", "bind", "artifact"]
     assert bindings.resolve_store_ids == [receipt.location.store_id]
     assert bindings.expected_revisions == [None, 3]
     assert artifacts.calls == 1
+
+
+class _BatchSealBindings:
+    def __init__(self) -> None:
+        self.write_calls = 0
+
+    @staticmethod
+    def resolve_many(refs):
+        return {ref.key: None for ref in refs}
+
+    def bind_terminal_preverified_many(self, writes):
+        self.write_calls += 1
+        return tuple(
+            ObjectBinding(
+                object_ref=stat.ref,
+                location=stat.location,
+                status="active",
+                revision=1,
+                verified_at=stat.verified_at,
+            )
+            for stat, _expected in writes
+        )
+
+
+class _BatchSealArtifacts:
+    def __init__(self) -> None:
+        self.write_calls = 0
+
+    @staticmethod
+    def get_many(artifact_ids):
+        return dict.fromkeys(artifact_ids)
+
+    def put_many(self, artifacts):
+        self.write_calls += 1
+        return tuple(artifacts)
+
+
+def test_artifact_batch_rejects_legacy_repositories_without_explicit_test_opt_in() -> None:
+    artifact, receipt, _stat, _binding = _receipt_fixture()
+    port = WorkerArtifactPort(
+        artifacts=_BatchSealArtifacts(),
+        object_bindings=_BatchSealBindings(),
+        object_store=object(),
+    )
+
+    with pytest.raises(IntegrityViolation, match="preflight/apply capability is required"):
+        port.preflight_staged_many(
+            (
+                (
+                    artifact,
+                    receipt,
+                    PreverifiedAbsentArtifactBinding(object_ref=artifact.object_ref),
+                ),
+            )
+        )
+
+
+def test_artifact_batch_preflight_is_port_bound_and_one_shot_before_writes() -> None:
+    artifact, receipt, _stat, _binding = _receipt_fixture()
+    bindings = _BatchSealBindings()
+    artifacts = _BatchSealArtifacts()
+    owner = WorkerArtifactPort(
+        artifacts=artifacts,
+        object_bindings=bindings,
+        object_store=object(),
+        allow_legacy_test_repositories=True,
+    )
+    another_port = WorkerArtifactPort(
+        artifacts=artifacts,
+        object_bindings=bindings,
+        object_store=object(),
+        allow_legacy_test_repositories=True,
+    )
+    seal = owner.preflight_staged_many(
+        (
+            (
+                artifact,
+                receipt,
+                PreverifiedAbsentArtifactBinding(object_ref=artifact.object_ref),
+            ),
+        )
+    )
+
+    assert type(seal).__slots__ == ("__weakref__",)
+    for field_name in ("_writes", "_owner", "_transaction_identity", "_consumed"):
+        with pytest.raises(AttributeError):
+            object.__setattr__(seal, field_name, object())
+        assert not hasattr(seal, field_name)
+    for unregistered in (replace(seal), copy(seal)):
+        with pytest.raises(IntegrityViolation, match="trusted preflight seal"):
+            owner.put_preflighted_many(unregistered)
+    assert bindings.write_calls == 0
+    assert artifacts.write_calls == 0
+
+    with pytest.raises(IntegrityViolation, match="another transaction-bound port"):
+        another_port.put_preflighted_many(seal)
+    assert bindings.write_calls == 0
+    assert artifacts.write_calls == 0
+
+    assert owner.put_preflighted_many(seal) == (artifact,)
+    assert bindings.write_calls == 1
+    assert artifacts.write_calls == 1
+    with pytest.raises(IntegrityViolation, match="already consumed"):
+        owner.put_preflighted_many(seal)
+    assert bindings.write_calls == 1
+    assert artifacts.write_calls == 1
+
+
+def test_artifact_batch_preflight_rejects_a_new_transaction_on_the_same_port() -> None:
+    class TransactionSession:
+        def __init__(self) -> None:
+            self.current = object()
+
+        @staticmethod
+        def get_nested_transaction():
+            return None
+
+        def get_transaction(self):
+            return self.current
+
+    class DirectBindings(SqlObjectBindingRepository):
+        def __init__(self, session: TransactionSession) -> None:
+            self._session = session
+            self.write_calls = 0
+
+        @staticmethod
+        def resolve_many(refs):
+            return {ref.key: None for ref in refs}
+
+        def bind_terminal_preverified_many(self, writes):
+            self.write_calls += 1
+            return tuple(writes)
+
+        preflight_terminal_preverified_many = None
+        apply_terminal_preverified_many = None
+
+    class DirectArtifacts(SqlArtifactRepository):
+        def __init__(self, session: TransactionSession) -> None:
+            self._session = session
+            self.write_calls = 0
+
+        @staticmethod
+        def get_many(artifact_ids):
+            return dict.fromkeys(artifact_ids)
+
+        def put_many(self, artifacts):
+            self.write_calls += 1
+            return tuple(artifacts)
+
+        preflight_put_many = None
+        put_preflighted_many = None
+
+    artifact, receipt, _stat, _binding = _receipt_fixture()
+    session = TransactionSession()
+    bindings = DirectBindings(session)
+    artifacts = DirectArtifacts(session)
+    port = WorkerArtifactPort(
+        artifacts=artifacts,
+        object_bindings=bindings,
+        object_store=object(),
+        allow_legacy_test_repositories=True,
+    )
+    seal = port.preflight_staged_many(
+        (
+            (
+                artifact,
+                receipt,
+                PreverifiedAbsentArtifactBinding(object_ref=artifact.object_ref),
+            ),
+        )
+    )
+    session.current = object()
+
+    with pytest.raises(IntegrityViolation, match="another transaction instance"):
+        port.put_preflighted_many(seal)
+    assert bindings.write_calls == 0
+    assert artifacts.write_calls == 0

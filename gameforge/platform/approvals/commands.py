@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from contextlib import AbstractContextManager
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, replace
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from typing import Annotated, Any, Literal, Protocol
 from uuid import uuid4
+from weakref import WeakKeyDictionary, WeakSet
 
 from pydantic import (
     BaseModel,
@@ -26,6 +28,7 @@ from gameforge.contracts.errors import (
     InvalidStateTransition,
 )
 from gameforge.contracts.api import compute_resource_etag
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.findings import PatchV2, PatchView
 from gameforge.contracts.identity import (
     DomainRegistryRefV1,
@@ -64,6 +67,7 @@ from gameforge.platform.approvals.state import (
     next_workflow_revision,
     validate_status_transition,
 )
+from gameforge.platform.audit.gate import AuditAppendIntent, PreflightedAuditBatch
 
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
@@ -245,6 +249,148 @@ class PreparedDraft(_FrozenModel):
         return (self.subject_artifact, *self.companion_artifacts)
 
 
+class PreparedTerminalDraft(_FrozenModel):
+    """Fully validated Agent draft prepared before the terminal write UoW.
+
+    Unlike :class:`PreparedDraft`, this type deliberately has no
+    ``PreparedObjectBinding`` collection.  The generic terminal publisher owns
+    blob staging and Artifact/ObjectBinding publication.  The read/planning phase
+    validates the exact subject bytes, companion closure, retained lineage, and
+    governance and seals those facts here; the write phase may therefore perform
+    only mutable authority checks and Approval/SubjectHead/idempotency/audit
+    writes.
+
+    ``preparation_digest`` is mandatory and covers every canonical field.  There
+    is no ``skip_validation`` switch: callers can obtain a valid instance only by
+    supplying the complete typed projection and its exact digest (normally via
+    :meth:`seal`).
+    """
+
+    prepared_schema_version: Literal["prepared-terminal-draft@1"] = "prepared-terminal-draft@1"
+    subject_artifact: ArtifactV2
+    companion_artifacts: tuple[ArtifactV2, ...]
+    subject_facts: DraftSubjectFacts
+    retained_parent_ids: tuple[NonEmptyStr, ...]
+    approval_item: ApprovalItem
+    expected_subject_head: SubjectHead | None
+    expected_previous_workflow_revision: PositiveInt | None = None
+    preparation_digest: LowerHexSha256
+
+    @field_validator("companion_artifacts")
+    @classmethod
+    def _canonical_companions(cls, value: tuple[ArtifactV2, ...]) -> tuple[ArtifactV2, ...]:
+        ids = tuple(artifact.artifact_id for artifact in value)
+        if len(ids) != len(set(ids)):
+            raise ValueError("prepared terminal companion Artifact IDs must be unique")
+        return tuple(sorted(value, key=lambda artifact: artifact.artifact_id))
+
+    @field_validator("retained_parent_ids")
+    @classmethod
+    def _canonical_retained_parents(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        canonical = tuple(sorted(set(value)))
+        if canonical != value:
+            raise ValueError("prepared terminal retained parents must be canonical unique")
+        return canonical
+
+    @model_validator(mode="after")
+    def _complete_projection(self) -> PreparedTerminalDraft:
+        item = self.approval_item
+        expected_kind = {
+            "patch": "patch",
+            "constraint_proposal": "constraint_proposal",
+            "rollback_request": "rollback_request",
+        }[item.subject_kind]
+        if (
+            self.subject_artifact.kind != expected_kind
+            or item.subject_artifact_id != self.subject_artifact.artifact_id
+            or item.subject_digest != self.subject_artifact.payload_hash
+            or self.subject_facts.subject_kind != item.subject_kind
+            or (
+                self.subject_facts.subject_revision is not None
+                and self.subject_facts.subject_revision != item.subject_revision
+            )
+        ):
+            raise ValueError("prepared terminal subject projection is inconsistent")
+        if any(
+            artifact.artifact_id == self.subject_artifact.artifact_id
+            for artifact in self.companion_artifacts
+        ):
+            raise ValueError("terminal subject Artifact cannot also be a companion")
+        allowed_companions = {
+            "patch": {"ir_snapshot", "config_export"},
+            "constraint_proposal": set(),
+            "rollback_request": set(),
+        }[item.subject_kind]
+        if any(artifact.kind not in allowed_companions for artifact in self.companion_artifacts):
+            raise ValueError("prepared terminal draft has an unsupported companion")
+        if (
+            item.subject_kind == "patch"
+            and sum(artifact.kind == "ir_snapshot" for artifact in self.companion_artifacts) != 1
+        ):
+            raise ValueError("prepared terminal Patch requires exactly one preview")
+        prepared_ids = {artifact.artifact_id for artifact in self.artifacts}
+        projected_retained = tuple(
+            sorted(
+                {
+                    parent_id
+                    for artifact in self.artifacts
+                    for parent_id in artifact.lineage
+                    if parent_id not in prepared_ids
+                }
+            )
+        )
+        if projected_retained != self.retained_parent_ids:
+            raise ValueError("prepared terminal retained lineage projection is incomplete")
+        expected_digest = canonical_sha256(
+            self.model_dump(mode="json", exclude={"preparation_digest"})
+        )
+        if self.preparation_digest != expected_digest:
+            raise ValueError("prepared terminal draft digest is not canonical")
+        return self
+
+    @classmethod
+    def seal(
+        cls,
+        *,
+        subject_artifact: ArtifactV2,
+        companion_artifacts: tuple[ArtifactV2, ...],
+        subject_facts: DraftSubjectFacts,
+        retained_parent_ids: tuple[str, ...],
+        approval_item: ApprovalItem,
+        expected_subject_head: SubjectHead | None,
+        expected_previous_workflow_revision: int | None,
+    ) -> PreparedTerminalDraft:
+        payload: dict[str, object] = {
+            "prepared_schema_version": "prepared-terminal-draft@1",
+            "subject_artifact": subject_artifact.model_dump(mode="json"),
+            "companion_artifacts": [
+                artifact.model_dump(mode="json")
+                for artifact in sorted(
+                    companion_artifacts, key=lambda artifact: artifact.artifact_id
+                )
+            ],
+            "subject_facts": subject_facts.model_dump(mode="json"),
+            "retained_parent_ids": list(tuple(sorted(set(retained_parent_ids)))),
+            "approval_item": approval_item.model_dump(mode="json"),
+            "expected_subject_head": (
+                None
+                if expected_subject_head is None
+                else expected_subject_head.model_dump(mode="json")
+            ),
+            "expected_previous_workflow_revision": expected_previous_workflow_revision,
+        }
+        return cls.model_validate(
+            {
+                **payload,
+                "preparation_digest": canonical_sha256(payload),
+            }
+        )
+
+    @property
+    def artifacts(self) -> tuple[ArtifactV2, ...]:
+        return (self.subject_artifact, *self.companion_artifacts)
+
+
 class PreparedValidationStart(_FrozenModel):
     run_id: NonEmptyStr
     approval_id: NonEmptyStr
@@ -296,6 +442,29 @@ class ApprovalRepository(Protocol):
 
     def current(self, subject_series_id: str) -> tuple[SubjectHead, ApprovalItem] | None: ...
 
+    def apply_preflighted_insert_draft(self, item: ApprovalItem) -> ApprovalItem: ...
+
+    def apply_preflighted_compare_and_set(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem: ...
+
+    def apply_preflighted_validation_completion(
+        self,
+        current: ApprovalItem,
+        replacement: ApprovalItem,
+    ) -> ApprovalItem: ...
+
+    def apply_preflighted_subject_head(
+        self,
+        *,
+        expected: SubjectHead | None,
+        expected_item: ApprovalItem | None,
+        replacement: SubjectHead,
+        replacement_item: ApprovalItem,
+    ) -> SubjectHead: ...
+
 
 class GovernancePolicyRepository(Protocol):
     def get_domain_registry(self, ref: DomainRegistryRefV1) -> DomainRegistryV1 | None: ...
@@ -345,6 +514,18 @@ class IdempotencyRepository(Protocol):
         response: Mapping[str, Any],
     ) -> dict[str, Any]: ...
 
+    def put_preflighted_result(
+        self,
+        *,
+        scope: str,
+        operation: str,
+        key: str,
+        request_hash: str,
+        resource_kind: str,
+        resource_id: str,
+        response: Mapping[str, Any],
+    ) -> dict[str, Any]: ...
+
 
 class RefReader(Protocol):
     def get(self, name: str) -> RefValue | None: ...
@@ -364,6 +545,15 @@ class ApprovalAuditWriter(Protocol):
         correlation: AuditCorrelation,
     ) -> object: ...
 
+    def prepare_batch(
+        self,
+        *,
+        chain_id: str,
+        intents: tuple[AuditAppendIntent, ...],
+    ) -> PreflightedAuditBatch: ...
+
+    def apply_prepared_batch(self, prepared: PreflightedAuditBatch) -> None: ...
+
 
 class ApprovalRunGateway(Protocol):
     def verify_producer_membership(
@@ -373,6 +563,16 @@ class ApprovalRunGateway(Protocol):
         artifact_id: str,
         initiated_by: AuditActor,
     ) -> None: ...
+
+    def verify_prepared_terminal_producer_authority(
+        self,
+        *,
+        run_id: str,
+        initiated_by: AuditActor,
+    ) -> None:
+        """Fresh DB-only check for a planning-validated terminal subject."""
+
+        ...
 
     def start_validation(
         self,
@@ -448,6 +648,207 @@ class ApprovalUnitOfWork(Protocol):
 
 
 CapabilityBinder = Callable[[Any], ApprovalCommandCapabilities]
+
+
+_TERMINAL_DRAFT_PREFLIGHT_SEAL = object()
+
+
+@dataclass(frozen=True, slots=True)
+class TerminalDraftAuditIntents:
+    """Approval audit intents delegated to one enclosing terminal batch."""
+
+    chain_id: str
+    intents: tuple[AuditAppendIntent, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _TerminalDraftPreflightState:
+    prepared: PreparedTerminalDraft
+    context: ApprovalCommandContext
+    expected_head: SubjectHead
+    old_item: ApprovalItem | None
+    old_replacement: ApprovalItem | None
+    idempotent_result: DraftPublicationResult | None
+    audit_batch: PreflightedAuditBatch | None
+    merged_audit_intents: "TerminalDraftAuditIntents | None"
+    capabilities_owner: ApprovalCommandCapabilities
+    capabilities: ApprovalCommandCapabilities
+    transaction_identity: tuple[object, object] | None
+
+
+def _approval_transaction_identity(
+    capabilities: ApprovalCommandCapabilities,
+) -> tuple[object, object] | None:
+    """Resolve one optional SQL transaction shared by raw repository capabilities."""
+
+    retained: tuple[object, object] | None = None
+    for item in fields(ApprovalCommandCapabilities):
+        capability = getattr(capabilities, item.name)
+        if capability is None:
+            continue
+        try:
+            session = object.__getattribute__(capability, "_session")
+        except AttributeError:
+            continue
+        get_nested = getattr(session, "get_nested_transaction", None)
+        get_transaction = getattr(session, "get_transaction", None)
+        transaction = (get_nested() if callable(get_nested) else None) or (
+            get_transaction() if callable(get_transaction) else None
+        )
+        if transaction is None or not getattr(transaction, "is_active", False):
+            raise IntegrityViolation("terminal draft preflight requires an active transaction")
+        identity = (session, transaction)
+        if retained is None:
+            retained = identity
+        elif retained[0] is not session or retained[1] is not transaction:
+            raise IntegrityViolation("terminal draft capabilities belong to different transactions")
+    return retained
+
+
+class PreflightedTerminalDraft:
+    """Opaque one-shot authority token bound to one active DB transaction."""
+
+    __slots__ = ("__weakref__",)
+
+    def __init__(
+        self,
+        *,
+        prepared: PreparedTerminalDraft,
+        context: ApprovalCommandContext,
+        expected_head: SubjectHead,
+        old_item: ApprovalItem | None,
+        old_replacement: ApprovalItem | None,
+        idempotent_result: DraftPublicationResult | None,
+        audit_batch: PreflightedAuditBatch | None,
+        merged_audit_intents: "TerminalDraftAuditIntents | None",
+        capabilities: ApprovalCommandCapabilities,
+        _seal: object,
+    ) -> None:
+        if _seal is not _TERMINAL_DRAFT_PREFLIGHT_SEAL:
+            raise TypeError("PreflightedTerminalDraft is issued only by the authority service")
+        state = _TerminalDraftPreflightState(
+            prepared=prepared.model_copy(deep=True),
+            context=context.model_copy(deep=True),
+            expected_head=expected_head.model_copy(deep=True),
+            old_item=None if old_item is None else old_item.model_copy(deep=True),
+            old_replacement=(
+                None if old_replacement is None else old_replacement.model_copy(deep=True)
+            ),
+            idempotent_result=(
+                None if idempotent_result is None else idempotent_result.model_copy(deep=True)
+            ),
+            audit_batch=audit_batch,
+            merged_audit_intents=merged_audit_intents,
+            capabilities_owner=capabilities,
+            capabilities=replace(capabilities),
+            transaction_identity=_approval_transaction_identity(capabilities),
+        )
+        with _TERMINAL_DRAFT_PREFLIGHT_LOCK:
+            _TERMINAL_DRAFT_PREFLIGHT_STATES[self] = state
+
+    def __setattr__(self, _name: str, _value: object) -> None:
+        raise TypeError("terminal draft preflight token is immutable")
+
+    def consume(
+        self,
+        *,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+    ) -> _TerminalDraftPreflightState:
+        current_transaction_identity = _approval_transaction_identity(capabilities)
+        with _TERMINAL_DRAFT_PREFLIGHT_LOCK:
+            state = _TERMINAL_DRAFT_PREFLIGHT_STATES.get(self)
+            capabilities_match = state is not None and all(
+                getattr(state.capabilities, item.name) is getattr(capabilities, item.name)
+                for item in fields(ApprovalCommandCapabilities)
+            )
+            if (
+                state is None
+                or self in _CONSUMED_TERMINAL_DRAFT_PREFLIGHTS
+                or state.context != context
+                or state.capabilities_owner is not capabilities
+                or not capabilities_match
+                or (state.transaction_identity is None) != (current_transaction_identity is None)
+                or (
+                    state.transaction_identity is not None
+                    and current_transaction_identity is not None
+                    and any(
+                        retained is not current
+                        for retained, current in zip(
+                            state.transaction_identity,
+                            current_transaction_identity,
+                            strict=True,
+                        )
+                    )
+                )
+            ):
+                raise IntegrityViolation(
+                    "terminal draft preflight token is invalid, stale, cross-transaction, or reused"
+                )
+            _CONSUMED_TERMINAL_DRAFT_PREFLIGHTS.add(self)
+        return state
+
+    def audit_intents_for_terminal_merge(
+        self,
+        *,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+    ) -> "TerminalDraftAuditIntents":
+        """Expose only the audit intents reserved for the enclosing terminal batch.
+
+        This is a non-consuming transaction/identity check.  The enclosing terminal
+        publisher must include the returned intents in its one AuditGate preflight;
+        the later workflow apply consumes this token but deliberately performs no
+        independent audit-head CAS.
+        """
+
+        current_transaction_identity = _approval_transaction_identity(capabilities)
+        with _TERMINAL_DRAFT_PREFLIGHT_LOCK:
+            state = _TERMINAL_DRAFT_PREFLIGHT_STATES.get(self)
+            capabilities_match = state is not None and all(
+                getattr(state.capabilities, item.name) is getattr(capabilities, item.name)
+                for item in fields(ApprovalCommandCapabilities)
+            )
+            if (
+                state is None
+                or self in _CONSUMED_TERMINAL_DRAFT_PREFLIGHTS
+                or state.context != context
+                or state.capabilities_owner is not capabilities
+                or not capabilities_match
+                or (state.transaction_identity is None) != (current_transaction_identity is None)
+                or (
+                    state.transaction_identity is not None
+                    and current_transaction_identity is not None
+                    and any(
+                        retained is not current
+                        for retained, current in zip(
+                            state.transaction_identity,
+                            current_transaction_identity,
+                            strict=True,
+                        )
+                    )
+                )
+            ):
+                raise IntegrityViolation(
+                    "terminal draft audit intents are invalid, stale, or cross-transaction"
+                )
+            merged = state.merged_audit_intents
+            if merged is None or state.audit_batch is not None:
+                raise IntegrityViolation(
+                    "terminal draft was not preflighted for a merged Audit batch"
+                )
+            return TerminalDraftAuditIntents(
+                chain_id=merged.chain_id,
+                intents=tuple(merged.intents),
+            )
+
+
+_TERMINAL_DRAFT_PREFLIGHT_LOCK = Lock()
+_TERMINAL_DRAFT_PREFLIGHT_STATES: WeakKeyDictionary[
+    PreflightedTerminalDraft,
+    _TerminalDraftPreflightState,
+] = WeakKeyDictionary()
+_CONSUMED_TERMINAL_DRAFT_PREFLIGHTS: WeakSet[PreflightedTerminalDraft] = WeakSet()
 
 
 def _utc_text(clock: UtcClock) -> str:
@@ -533,6 +934,231 @@ class ApprovalCommandService:
             capabilities=capabilities,
             operation="approval.publish_draft",
         )
+
+    def commit_prepared_terminal_draft_in_transaction(
+        self,
+        *,
+        prepared: PreparedTerminalDraft,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+    ) -> DraftPublicationResult:
+        """Compatibility wrapper over explicit SELECT-only preflight + DML apply."""
+
+        preflighted = self.preflight_prepared_terminal_draft_in_transaction(
+            prepared=prepared,
+            context=context,
+            capabilities=capabilities,
+        )
+        return self.apply_preflighted_terminal_draft_in_transaction(
+            preflighted=preflighted,
+            context=context,
+            capabilities=capabilities,
+        )
+
+    def preflight_prepared_terminal_draft_in_transaction(
+        self,
+        *,
+        prepared: PreparedTerminalDraft,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+        merge_audit_into_terminal_batch: bool = False,
+    ) -> PreflightedTerminalDraft:
+        """Perform every mutable authority SELECT before the first terminal DML."""
+
+        approvals = _required(capabilities.approvals, "approvals")
+        policies = _required(capabilities.policies, "policies")
+        idempotency = _required(capabilities.idempotency, "idempotency")
+        audit = _required(capabilities.audit, "audit")
+        runs = _required(capabilities.runs, "runs")
+        item = prepared.approval_item
+        facts = prepared.subject_facts
+        self._validate_new_draft(item, context)
+        registry, route, role, approval_policy = self._resolve_policies(
+            item=item,
+            policies=policies,
+        )
+        validate_approval_policy_bindings(
+            item=item,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval_policy,
+        )
+        if facts.subject_kind != item.subject_kind:
+            raise IntegrityViolation("terminal subject payload kind differs from ApprovalItem")
+        self._require_subject_revision_binding(item, facts)
+        if (
+            facts.produced_by != "agent"
+            or context.actor.principal_kind not in {"service", "system"}
+            or context.initiated_by is None
+            or context.run_id != facts.producer_run_id
+        ):
+            raise IntegrityViolation("prepared terminal draft lacks exact Agent producer authority")
+        runs.verify_prepared_terminal_producer_authority(
+            run_id=facts.producer_run_id,
+            initiated_by=item.proposer,
+        )
+
+        expected_head = self._next_head(prepared)
+        replay = self._get_idempotent(
+            idempotency,
+            context,
+            operation="approval.publish_draft",
+        )
+        if replay is not None:
+            result = self._draft_publication_response(replay)
+            normalized = item.model_copy(update={"created_at": result.approval_item.created_at})
+            if result.approval_item != normalized or result.subject_head != expected_head:
+                raise IntegrityViolation(
+                    "terminal draft idempotency result differs from its preparation"
+                )
+            return PreflightedTerminalDraft(
+                prepared=prepared,
+                context=context,
+                expected_head=expected_head,
+                old_item=None,
+                old_replacement=None,
+                idempotent_result=result,
+                audit_batch=None,
+                merged_audit_intents=(
+                    TerminalDraftAuditIntents(
+                        chain_id=self._audit_chain_id,
+                        intents=(),
+                    )
+                    if merge_audit_into_terminal_batch
+                    else None
+                ),
+                capabilities=capabilities,
+                _seal=_TERMINAL_DRAFT_PREFLIGHT_SEAL,
+            )
+
+        if isinstance(item.target_binding, (PatchTargetBindingV1, RollbackTargetBindingV1)):
+            self._verify_fresh_draft_ref_authority(
+                prepared=prepared,
+                facts=facts,
+                refs=_required(capabilities.refs, "refs"),
+            )
+
+        current = approvals.current(item.subject_series_id)
+        old_item: ApprovalItem | None = None
+        if prepared.expected_subject_head is None:
+            if current is not None:
+                raise Conflict("terminal draft expected no current SubjectHead")
+            if (
+                item.subject_revision != 1
+                or item.supersedes_approval_id is not None
+                or facts.supersedes_artifact_id is not None
+            ):
+                raise IntegrityViolation(
+                    "initial terminal draft must be revision 1 without supersedes bindings"
+                )
+        else:
+            if current is None or current[0] != prepared.expected_subject_head:
+                raise Conflict("terminal draft SubjectHead precondition did not match")
+            old_item = current[1]
+            self._require_if_match(
+                context,
+                resource_kind=old_item.subject_kind,
+                resource_id=old_item.subject_artifact_id,
+                revision=old_item.workflow_revision,
+            )
+            self._validate_superseding_draft(prepared, facts, old_item)
+            if old_item.active_validation_run_id is not None:
+                raise IntegrityViolation(
+                    "prepared repair draft cannot supersede an active validation Run"
+                )
+
+        audit_items = (() if old_item is None else (("approval.superseded", old_item),)) + (
+            ("approval.draft_published", item),
+        )
+        audit_intents = tuple(
+            self._audit_intent(context, action=action, item=audit_item)
+            for action, audit_item in audit_items
+        )
+        audit_batch = (
+            None
+            if merge_audit_into_terminal_batch
+            else audit.prepare_batch(
+                chain_id=self._audit_chain_id,
+                intents=audit_intents,
+            )
+        )
+        merged_audit_intents = (
+            TerminalDraftAuditIntents(
+                chain_id=self._audit_chain_id,
+                intents=audit_intents,
+            )
+            if merge_audit_into_terminal_batch
+            else None
+        )
+
+        return PreflightedTerminalDraft(
+            prepared=prepared,
+            context=context,
+            expected_head=expected_head,
+            old_item=old_item,
+            old_replacement=(None if old_item is None else self._superseded_item(old_item)),
+            idempotent_result=None,
+            audit_batch=audit_batch,
+            merged_audit_intents=merged_audit_intents,
+            capabilities=capabilities,
+            _seal=_TERMINAL_DRAFT_PREFLIGHT_SEAL,
+        )
+
+    def apply_preflighted_terminal_draft_in_transaction(
+        self,
+        *,
+        preflighted: PreflightedTerminalDraft,
+        context: ApprovalCommandContext,
+        capabilities: ApprovalCommandCapabilities,
+    ) -> DraftPublicationResult:
+        """Apply a same-transaction preflight token without any SELECT/recompute."""
+
+        state = preflighted.consume(context=context, capabilities=capabilities)
+        retained_capabilities = state.capabilities
+        retained_context = state.context
+        if state.idempotent_result is not None:
+            return state.idempotent_result
+        approvals = _required(retained_capabilities.approvals, "approvals")
+        idempotency = _required(retained_capabilities.idempotency, "idempotency")
+        audit = _required(retained_capabilities.audit, "audit")
+        prepared = state.prepared
+        item = prepared.approval_item
+        old_item = state.old_item
+
+        if old_item is not None:
+            old_replacement = state.old_replacement
+            if old_replacement is None:
+                raise IntegrityViolation("terminal draft preflight lost supersede replacement")
+            approvals.apply_preflighted_compare_and_set(
+                old_item,
+                old_replacement,
+            )
+        approvals.apply_preflighted_insert_draft(item)
+        approvals.apply_preflighted_subject_head(
+            expected=prepared.expected_subject_head,
+            expected_item=old_item,
+            replacement=state.expected_head,
+            replacement_item=item,
+        )
+        if state.merged_audit_intents is None:
+            if state.audit_batch is None:
+                raise IntegrityViolation("terminal draft preflight lacks its audit batch")
+            audit.apply_prepared_batch(state.audit_batch)
+        elif state.audit_batch is not None:
+            raise IntegrityViolation("terminal draft preflight has two Audit authorities")
+        result = DraftPublicationResult(
+            approval_item=item,
+            subject_head=state.expected_head,
+        )
+        self._put_preflighted_idempotent(
+            idempotency,
+            retained_context,
+            operation="approval.publish_draft",
+            item=item,
+            response=result.model_dump(mode="json"),
+        )
+        return result
 
     def publish_rebased_draft(
         self,
@@ -732,7 +1358,7 @@ class ApprovalCommandService:
     @staticmethod
     def _verify_fresh_draft_ref_authority(
         *,
-        prepared: PreparedDraft,
+        prepared: PreparedDraft | PreparedTerminalDraft,
         facts: DraftSubjectFacts,
         refs: RefReader,
     ) -> None:
@@ -1422,7 +2048,7 @@ class ApprovalCommandService:
             raise IntegrityViolation("rollback payload and target Artifact differ")
 
     @staticmethod
-    def _next_head(prepared: PreparedDraft) -> SubjectHead:
+    def _next_head(prepared: PreparedDraft | PreparedTerminalDraft) -> SubjectHead:
         item = prepared.approval_item
         expected = prepared.expected_subject_head
         return SubjectHead(
@@ -1434,7 +2060,7 @@ class ApprovalCommandService:
 
     @staticmethod
     def _validate_superseding_draft(
-        prepared: PreparedDraft,
+        prepared: PreparedDraft | PreparedTerminalDraft,
         facts: DraftSubjectFacts,
         old_item: ApprovalItem,
     ) -> None:
@@ -1664,6 +2290,27 @@ class ApprovalCommandService:
             raise IntegrityViolation("idempotency repository stored another response")
 
     @staticmethod
+    def _put_preflighted_idempotent(
+        repository: IdempotencyRepository,
+        context: ApprovalCommandContext,
+        *,
+        operation: str,
+        item: ApprovalItem,
+        response: Mapping[str, Any],
+    ) -> None:
+        stored = repository.put_preflighted_result(
+            scope=context.idempotency_scope,
+            operation=operation,
+            key=context.idempotency_key,
+            request_hash=context.request_hash,
+            resource_kind="approval",
+            resource_id=item.approval_id,
+            response=response,
+        )
+        if dict(stored) != dict(response):
+            raise IntegrityViolation("idempotency repository stored another response")
+
+    @staticmethod
     def _draft_publication_response(
         response: Mapping[str, Any],
     ) -> DraftPublicationResult:
@@ -1867,6 +2514,29 @@ class ApprovalCommandService:
             ),
         )
 
+    @staticmethod
+    def _audit_intent(
+        context: ApprovalCommandContext,
+        *,
+        action: str,
+        item: ApprovalItem,
+    ) -> AuditAppendIntent:
+        return AuditAppendIntent(
+            actor=context.actor,
+            initiated_by=context.initiated_by,
+            action=action,
+            subject=AuditSubject(
+                resource_kind="approval",
+                resource_id=item.approval_id,
+                artifact_id=item.subject_artifact_id,
+            ),
+            correlation=AuditCorrelation(
+                request_id=context.request_id,
+                run_id=context.run_id,
+                trace_id=context.trace_id,
+            ),
+        )
+
 
 __all__ = [
     "ApprovalCommandCapabilities",
@@ -1882,6 +2552,9 @@ __all__ = [
     "EvidenceStateProjection",
     "PreparedDraft",
     "PreparedObjectBinding",
+    "PreparedTerminalDraft",
+    "PreflightedTerminalDraft",
+    "TerminalDraftAuditIntents",
     "PreparedValidationStart",
     "RefReader",
     "SubjectPayloadGateway",

@@ -3,13 +3,19 @@
 from __future__ import annotations
 
 import hmac
+import json
 import re
 import uuid
+from collections.abc import Mapping
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import timedelta, timezone
+from threading import Lock
+from typing import Sequence
+from weakref import WeakKeyDictionary, WeakSet
 
 from pydantic import ValidationError
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select, tuple_, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
@@ -46,6 +52,41 @@ _AUTHZ_FINGERPRINT = canonical_sha256(
     {"scope": "finding-repository-internal", "resource_kind": _RESOURCE_KIND}
 )
 _LOWER_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+_MAX_SQL_IN_ITEMS = 900
+_SERIES_BOUNDARY_CHUNK_SIZE = _MAX_SQL_IN_ITEMS // 2
+_FINDING_PREFLIGHT_AUTHORITY = object()
+_INSERT_FINDING_REVISION_SQL = """
+INSERT INTO finding_revisions (
+    finding_id,
+    revision,
+    revision_schema_version,
+    supersedes_revision,
+    finding_digest,
+    created_at,
+    payload
+) VALUES (?, ?, ?, ?, ?, ?, ?)
+"""
+_INSERT_FINDING_HEAD_SQL = """
+INSERT INTO finding_heads (
+    finding_id,
+    current_revision,
+    current_digest,
+    row_revision,
+    updated_at
+) VALUES (?, ?, ?, ?, ?)
+ON CONFLICT(finding_id) DO NOTHING
+"""
+_UPDATE_FINDING_HEAD_SQL = """
+UPDATE finding_heads
+SET current_revision = ?,
+    current_digest = ?,
+    row_revision = ?,
+    updated_at = ?
+WHERE finding_id = ?
+  AND current_revision = ?
+  AND current_digest = ?
+  AND row_revision = ?
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,6 +95,113 @@ class _FindingHead:
     current_revision: int
     current_digest: str
     row_revision: int
+
+
+@dataclass(frozen=True, slots=True)
+class _PreflightedFindingWriteState:
+    """Opaque, transaction-bound authority for one already-validated batch."""
+
+    owner: SqlFindingRepository
+    session: Session
+    transaction: object | None
+    results: tuple[FindingRevisionV1, ...]
+    revision_parameters: tuple[tuple[object, ...], ...]
+    new_head_parameters: tuple[tuple[object, ...], ...]
+    existing_head_parameters: tuple[tuple[object, ...], ...]
+
+
+class _PreflightedFindingWrites:
+    """Unforgeable weak key for externally retained preflight authority."""
+
+    __slots__ = ("__weakref__",)
+
+    def __init__(
+        self,
+        *,
+        _authority: object,
+        _owner: SqlFindingRepository,
+        _session: Session,
+        _transaction: object | None,
+        _results: tuple[FindingRevisionV1, ...],
+        _revision_parameters: tuple[tuple[object, ...], ...],
+        _new_head_parameters: tuple[tuple[object, ...], ...],
+        _existing_head_parameters: tuple[tuple[object, ...], ...],
+    ) -> None:
+        if _authority is not _FINDING_PREFLIGHT_AUTHORITY:
+            raise IntegrityViolation("Finding batch lacks a trusted preflight seal")
+        state = _PreflightedFindingWriteState(
+            owner=_owner,
+            session=_session,
+            transaction=_transaction,
+            results=_results,
+            revision_parameters=_revision_parameters,
+            new_head_parameters=_new_head_parameters,
+            existing_head_parameters=_existing_head_parameters,
+        )
+        with _FINDING_PREFLIGHT_LOCK:
+            _FINDING_PREFLIGHT_STATES[self] = state
+
+    def __setattr__(self, _name: str, _value: object) -> None:
+        raise TypeError("Finding preflight seal is immutable")
+
+
+_FINDING_PREFLIGHT_LOCK = Lock()
+_FINDING_PREFLIGHT_STATES: WeakKeyDictionary[
+    _PreflightedFindingWrites,
+    _PreflightedFindingWriteState,
+] = WeakKeyDictionary()
+_CONSUMED_FINDING_PREFLIGHT_SEALS: WeakSet[_PreflightedFindingWrites] = WeakSet()
+
+
+class _FrozenJsonDict(dict[str, object]):
+    """Serializer-compatible JSON object with every mutator closed."""
+
+    @staticmethod
+    def _immutable(*_args: object, **_kwargs: object) -> None:
+        raise TypeError("sealed Finding projection is immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    clear = _immutable
+    pop = _immutable
+    popitem = _immutable
+    setdefault = _immutable
+    update = _immutable
+    __ior__ = _immutable
+
+    def __copy__(self) -> _FrozenJsonDict:
+        return self
+
+    def __deepcopy__(self, _memo: dict[int, object]) -> _FrozenJsonDict:
+        return self
+
+
+class _FrozenJsonList(list[object]):
+    """Serializer-compatible JSON array with every mutator closed."""
+
+    @staticmethod
+    def _immutable(*_args: object, **_kwargs: object) -> None:
+        raise TypeError("sealed Finding projection is immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    append = _immutable
+    clear = _immutable
+    extend = _immutable
+    insert = _immutable
+    pop = _immutable
+    remove = _immutable
+    reverse = _immutable
+    sort = _immutable
+    __iadd__ = _immutable
+    __imul__ = _immutable
+    __ior__ = _immutable
+
+    def __copy__(self) -> _FrozenJsonList:
+        return self
+
+    def __deepcopy__(self, _memo: dict[int, object]) -> _FrozenJsonList:
+        return self
 
 
 def _query_hash(finding_id: str) -> str:
@@ -90,6 +238,68 @@ def _utc_text(clock: UtcClock) -> str:
     if now.tzinfo is None or now.utcoffset() != timedelta(0):
         raise IntegrityViolation("finding repository clock must return UTC")
     return now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _deep_freeze_value(value: object) -> object:
+    """Clone one validated Finding graph into serializer-compatible immutables."""
+
+    model_copy = getattr(value, "model_copy", None)
+    if callable(model_copy):
+        cloned = model_copy(deep=True)
+        model_fields = getattr(type(cloned), "model_fields", {})
+        for field_name in model_fields:
+            object.__setattr__(
+                cloned,
+                field_name,
+                _deep_freeze_value(getattr(cloned, field_name)),
+            )
+        return cloned
+    if isinstance(value, Mapping):
+        return _FrozenJsonDict({str(key): _deep_freeze_value(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return _FrozenJsonList(_deep_freeze_value(item) for item in value)
+    if isinstance(value, tuple):
+        return tuple(_deep_freeze_value(item) for item in value)
+    return deepcopy(value)
+
+
+def _freeze_revision(item: FindingRevisionV1) -> FindingRevisionV1:
+    frozen = _deep_freeze_value(item)
+    if not isinstance(frozen, FindingRevisionV1):  # pragma: no cover - helper invariant
+        raise IntegrityViolation("sealed Finding result changed contract type")
+    return frozen
+
+
+def _revision_insert_parameters(
+    item: FindingRevisionV1,
+    *,
+    digest: str,
+) -> tuple[object, ...]:
+    """Project the exact SQLite row once, before the sealed apply boundary."""
+
+    try:
+        payload_json = json.dumps(
+            item.payload.model_dump(mode="json"),
+            ensure_ascii=False,
+            allow_nan=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+    except (TypeError, ValueError) as exc:
+        raise IntegrityViolation(
+            "finding revision payload cannot be serialized for storage",
+            finding_id=item.finding_id,
+            revision=item.revision,
+        ) from exc
+    return (
+        item.finding_id,
+        item.revision,
+        item.revision_schema_version,
+        item.supersedes_revision,
+        digest,
+        item.created_at,
+        payload_json,
+    )
 
 
 def _revalidate_for_put(item: FindingRevisionV1) -> FindingRevisionV1:
@@ -364,6 +574,484 @@ class SqlFindingRepository:
                 actual_current_revision=(None if actual is None else actual.current_revision),
             )
         return parsed
+
+    def put_many(
+        self,
+        writes: Sequence[tuple[FindingRevisionV1, int | None]],
+    ) -> tuple[FindingRevisionV1, ...]:
+        """Preflight and publish one Finding aggregate in the current transaction."""
+
+        return self.put_preflighted_many(self.preflight_put_many(writes))
+
+    def preflight_put_many(
+        self,
+        writes: Sequence[tuple[FindingRevisionV1, int | None]],
+    ) -> _PreflightedFindingWrites:
+        """Publish an ordered Finding-revision aggregate with set-based preflight.
+
+        Each pair is ``(revision, expected_current_revision)`` and has exactly the
+        same immutable/idempotency/CAS meaning as :meth:`put`.  Multiple successive
+        revisions of one series are allowed and are evaluated in input order.  All
+        retained heads/revisions are verified and exact row parameters are sealed
+        before apply issues any raw DML.
+        """
+
+        parsed_writes: list[tuple[FindingRevisionV1, int | None]] = []
+        for write in writes:
+            if not isinstance(write, tuple) or len(write) != 2:
+                raise IntegrityViolation(
+                    "finding batch writes must be (revision, expected revision) pairs"
+                )
+            item, expected_current_revision = write
+            parsed_writes.append(
+                (
+                    _revalidate_for_put(item),
+                    self._validate_expected_revision(expected_current_revision),
+                )
+            )
+        if not parsed_writes:
+            return _PreflightedFindingWrites(
+                _authority=_FINDING_PREFLIGHT_AUTHORITY,
+                _owner=self,
+                _session=self._session,
+                _transaction=self._current_transaction(),
+                _results=(),
+                _revision_parameters=(),
+                _new_head_parameters=(),
+                _existing_head_parameters=(),
+            )
+
+        finding_ids = tuple(dict.fromkeys(item.finding_id for item, _ in parsed_writes))
+        with self._session.no_autoflush:
+            _head_rows, stored_heads, stored_revisions, digests = self._preload_batch_series(
+                finding_ids,
+                tuple(item for item, _ in parsed_writes),
+            )
+        state_by_id = dict(stored_heads)
+        pending_by_key: dict[tuple[str, int], FindingRevisionV1] = {}
+        pending_parameters_by_key: dict[tuple[str, int], tuple[object, ...]] = {}
+        pending_digest_keys: dict[str, tuple[str, int]] = {}
+        results: list[FindingRevisionV1] = []
+
+        for parsed, expected in parsed_writes:
+            key = (parsed.finding_id, parsed.revision)
+            retained = stored_revisions.get(key)
+            if retained is None:
+                retained = pending_by_key.get(key)
+            head = state_by_id[parsed.finding_id]
+            if retained is not None:
+                if typed_canonical_json(retained.model_dump(mode="python")) != typed_canonical_json(
+                    parsed.model_dump(mode="python")
+                ):
+                    if (
+                        head is not None
+                        and parsed.revision > 1
+                        and head.current_revision >= parsed.revision
+                        and expected == parsed.revision - 1
+                        and parsed.supersedes_revision == expected
+                    ):
+                        raise Conflict(
+                            "finding put lost the head revision compare-and-set",
+                            finding_id=parsed.finding_id,
+                            expected_current_revision=expected,
+                            actual_current_revision=head.current_revision,
+                        )
+                    raise IntegrityViolation(
+                        "finding revision key is already bound to different immutable content",
+                        finding_id=parsed.finding_id,
+                        revision=parsed.revision,
+                    )
+                original_expected = None if parsed.revision == 1 else parsed.supersedes_revision
+                if expected != original_expected:
+                    raise Conflict(
+                        "finding idempotent retry uses a different expected current revision",
+                        finding_id=parsed.finding_id,
+                        revision=parsed.revision,
+                        original_expected_current_revision=original_expected,
+                        actual_expected_current_revision=expected,
+                    )
+                if head is None:
+                    raise IntegrityViolation(
+                        "finding revision exists without a head",
+                        finding_id=parsed.finding_id,
+                    )
+                if head.current_revision < parsed.revision:
+                    raise IntegrityViolation(
+                        "finding revision is newer than its series head",
+                        finding_id=parsed.finding_id,
+                        revision=parsed.revision,
+                        head_revision=head.current_revision,
+                    )
+                results.append(retained)
+                continue
+
+            if head is None:
+                if expected is not None:
+                    raise Conflict(
+                        "finding series expected current revision but does not exist",
+                        finding_id=parsed.finding_id,
+                        expected_current_revision=expected,
+                    )
+                if parsed.revision != 1 or parsed.supersedes_revision is not None:
+                    raise Conflict(
+                        "new finding series must begin at revision 1 without a predecessor",
+                        finding_id=parsed.finding_id,
+                        revision=parsed.revision,
+                        supersedes_revision=parsed.supersedes_revision,
+                    )
+                next_row_revision = 1
+            else:
+                if expected != head.current_revision:
+                    raise Conflict(
+                        "finding put expected current revision does not match the series head",
+                        finding_id=parsed.finding_id,
+                        expected_current_revision=expected,
+                        actual_current_revision=head.current_revision,
+                    )
+                if parsed.revision != head.current_revision + 1:
+                    raise Conflict(
+                        "finding put must publish exactly the next revision",
+                        finding_id=parsed.finding_id,
+                        expected_revision=head.current_revision + 1,
+                        actual_revision=parsed.revision,
+                    )
+                if parsed.supersedes_revision != head.current_revision:
+                    raise Conflict(
+                        "finding put must supersede current revision",
+                        finding_id=parsed.finding_id,
+                        expected_supersedes_revision=head.current_revision,
+                        actual_supersedes_revision=parsed.supersedes_revision,
+                    )
+                next_row_revision = head.row_revision + 1
+
+            digest = finding_revision_digest(parsed)
+            digest_key = digests.get(digest)
+            if digest_key is not None and digest_key != key:
+                raise IntegrityViolation(
+                    "finding revision digest is already bound to another immutable revision",
+                    finding_id=parsed.finding_id,
+                    revision=parsed.revision,
+                    finding_digest=digest,
+                )
+            pending_digest_key = pending_digest_keys.setdefault(digest, key)
+            if pending_digest_key != key:
+                raise IntegrityViolation(
+                    "finding batch contains a digest collision",
+                    finding_digest=digest,
+                )
+            pending_by_key[key] = parsed
+            pending_parameters_by_key[key] = _revision_insert_parameters(
+                parsed,
+                digest=digest,
+            )
+            state_by_id[parsed.finding_id] = _FindingHead(
+                finding_id=parsed.finding_id,
+                current_revision=parsed.revision,
+                current_digest=digest,
+                row_revision=next_row_revision,
+            )
+            results.append(parsed)
+
+        pending = tuple(pending_by_key.values())
+        updated_at = _utc_text(self._clock) if pending else ""
+        new_head_parameters: list[tuple[object, ...]] = []
+        existing_head_parameters: list[tuple[object, ...]] = []
+        changed_ids = tuple(dict.fromkeys(key[0] for key in pending_by_key))
+        for finding_id in changed_ids:
+            final = state_by_id[finding_id]
+            if final is None:  # pragma: no cover - every pending revision advances a head
+                raise IntegrityViolation("finding batch lost its planned series head")
+            original = stored_heads[finding_id]
+            if original is None:
+                new_head_parameters.append(
+                    (
+                        finding_id,
+                        final.current_revision,
+                        final.current_digest,
+                        final.row_revision,
+                        updated_at,
+                    )
+                )
+            else:
+                existing_head_parameters.append(
+                    (
+                        final.current_revision,
+                        final.current_digest,
+                        final.row_revision,
+                        updated_at,
+                        finding_id,
+                        original.current_revision,
+                        original.current_digest,
+                        original.row_revision,
+                    )
+                )
+        return _PreflightedFindingWrites(
+            _authority=_FINDING_PREFLIGHT_AUTHORITY,
+            _owner=self,
+            _session=self._session,
+            _transaction=self._current_transaction(),
+            _results=tuple(_freeze_revision(item) for item in results),
+            _revision_parameters=tuple(pending_parameters_by_key.values()),
+            _new_head_parameters=tuple(new_head_parameters),
+            _existing_head_parameters=tuple(existing_head_parameters),
+        )
+
+    def put_preflighted_many(
+        self,
+        seal: _PreflightedFindingWrites,
+    ) -> tuple[FindingRevisionV1, ...]:
+        """Consume one opaque seal using only its precomputed SQLite parameters."""
+
+        state = None
+        consumed = False
+        if type(seal) is _PreflightedFindingWrites:
+            with _FINDING_PREFLIGHT_LOCK:
+                state = _FINDING_PREFLIGHT_STATES.get(seal)
+                consumed = seal in _CONSUMED_FINDING_PREFLIGHT_SEALS
+        if state is None:
+            raise IntegrityViolation("Finding batch lacks a trusted preflight seal")
+        if consumed:
+            raise IntegrityViolation("Finding preflight seal has already been consumed")
+        if (
+            state.session is not self._session
+            or state.transaction is not self._current_transaction()
+        ):
+            raise IntegrityViolation(
+                "Finding preflight seal does not belong to the current transaction"
+            )
+        if state.owner is not self:
+            raise IntegrityViolation("Finding preflight seal belongs to another repository")
+        with _FINDING_PREFLIGHT_LOCK:
+            if (
+                _FINDING_PREFLIGHT_STATES.get(seal) is not state
+                or seal in _CONSUMED_FINDING_PREFLIGHT_SEALS
+            ):
+                raise IntegrityViolation("Finding preflight seal has already been consumed")
+            _CONSUMED_FINDING_PREFLIGHT_SEALS.add(seal)
+
+        if not state.revision_parameters:
+            return state.results
+        connection = self._session.connection()
+        result = connection.exec_driver_sql(
+            _INSERT_FINDING_REVISION_SQL,
+            list(state.revision_parameters),
+        )
+        if result.rowcount != len(state.revision_parameters):
+            raise IntegrityViolation("Finding batch did not insert every sealed revision")
+
+        if state.new_head_parameters:
+            result = connection.exec_driver_sql(
+                _INSERT_FINDING_HEAD_SQL,
+                list(state.new_head_parameters),
+            )
+            if result.rowcount != len(state.new_head_parameters):
+                raise Conflict("finding batch create expected absent series heads")
+        if state.existing_head_parameters:
+            result = connection.exec_driver_sql(
+                _UPDATE_FINDING_HEAD_SQL,
+                list(state.existing_head_parameters),
+            )
+            if result.rowcount != len(state.existing_head_parameters):
+                raise Conflict("finding batch head compare-and-set precondition did not match")
+        self._session.expire_all()
+        return state.results
+
+    def _current_transaction(self) -> object | None:
+        return self._session.get_nested_transaction() or self._session.get_transaction()
+
+    def _preload_batch_series(
+        self,
+        finding_ids: tuple[str, ...],
+        items: tuple[FindingRevisionV1, ...],
+    ) -> tuple[
+        dict[str, FindingHeadRow],
+        dict[str, _FindingHead | None],
+        dict[tuple[str, int], FindingRevisionV1],
+        dict[str, tuple[str, int]],
+    ]:
+        head_rows: dict[str, FindingHeadRow] = {}
+        for offset in range(0, len(finding_ids), _MAX_SQL_IN_ITEMS):
+            chunk = finding_ids[offset : offset + _MAX_SQL_IN_ITEMS]
+            for row in self._session.scalars(
+                select(FindingHeadRow).where(FindingHeadRow.finding_id.in_(chunk))
+            ).all():
+                head_rows[row.finding_id] = row
+
+        # Preserve fail-closed aggregate-boundary detection without walking each
+        # series' retained history.  Both correlated scalar subqueries seek the
+        # composite ``(finding_id, revision)`` primary key and stop at the first
+        # matching row: the first orphan for a headless series, or the first row
+        # strictly beyond a retained head.  The VALUES relation keeps this
+        # set-based and bounded by the terminal payload rather than history size.
+        authority_pairs = tuple(
+            (
+                finding_id,
+                None if (head := head_rows.get(finding_id)) is None else head.current_revision,
+            )
+            for finding_id in finding_ids
+        )
+        for offset in range(0, len(authority_pairs), _SERIES_BOUNDARY_CHUNK_SIZE):
+            chunk = authority_pairs[offset : offset + _SERIES_BOUNDARY_CHUNK_SIZE]
+            values_sql = ", ".join("(?, ?)" for _item in chunk)
+            statement = f"""
+WITH requested(finding_id, current_revision) AS (
+    VALUES {values_sql}
+)
+SELECT
+    requested.finding_id,
+    requested.current_revision,
+    CASE
+        WHEN requested.current_revision IS NULL THEN (
+            SELECT candidate.revision
+            FROM finding_revisions AS candidate
+            WHERE candidate.finding_id = requested.finding_id
+            ORDER BY candidate.revision
+            LIMIT 1
+        )
+        ELSE (
+            SELECT candidate.revision
+            FROM finding_revisions AS candidate
+            WHERE candidate.finding_id = requested.finding_id
+              AND candidate.revision > requested.current_revision
+            ORDER BY candidate.revision
+            LIMIT 1
+        )
+    END AS violating_revision
+FROM requested
+"""
+            parameters = tuple(value for pair in chunk for value in pair)
+            rows = self._session.connection().exec_driver_sql(statement, parameters).all()
+            for finding_id, current_revision, violating_revision in rows:
+                if violating_revision is None:
+                    continue
+                if current_revision is None:
+                    raise IntegrityViolation(
+                        "finding revisions exist without a head",
+                        finding_id=finding_id,
+                    )
+                raise IntegrityViolation(
+                    "finding series contains a revision newer than its head",
+                    finding_id=finding_id,
+                    head_revision=current_revision,
+                    future_revision=violating_revision,
+                )
+
+        revision_keys = {(item.finding_id, item.revision) for item in items}
+        for finding_id, row in head_rows.items():
+            revision_keys.add((finding_id, row.current_revision))
+            if row.current_revision > 1:
+                revision_keys.add((finding_id, row.current_revision - 1))
+        revision_rows: dict[tuple[str, int], FindingRevisionV1] = {}
+        ordered_keys = tuple(sorted(revision_keys))
+        key_chunk_size = _MAX_SQL_IN_ITEMS // 2
+        for offset in range(0, len(ordered_keys), key_chunk_size):
+            chunk = ordered_keys[offset : offset + key_chunk_size]
+            rows = self._session.scalars(
+                select(FindingRevisionRow).where(
+                    tuple_(
+                        FindingRevisionRow.finding_id,
+                        FindingRevisionRow.revision,
+                    ).in_(chunk)
+                )
+            ).all()
+            for row in rows:
+                key = (row.finding_id, row.revision)
+                revision_rows[key] = _parse_revision_row(
+                    row,
+                    expected_finding_id=row.finding_id,
+                    expected_revision=row.revision,
+                )
+
+        requested_digests = tuple(dict.fromkeys(finding_revision_digest(item) for item in items))
+        digest_keys: dict[str, tuple[str, int]] = {}
+        for offset in range(0, len(requested_digests), _MAX_SQL_IN_ITEMS):
+            rows = self._session.scalars(
+                select(FindingRevisionRow).where(
+                    FindingRevisionRow.finding_digest.in_(
+                        requested_digests[offset : offset + _MAX_SQL_IN_ITEMS]
+                    )
+                )
+            ).all()
+            for row in rows:
+                parsed = _parse_revision_row(
+                    row,
+                    expected_finding_id=row.finding_id,
+                    expected_revision=row.revision,
+                )
+                revision_rows[(row.finding_id, row.revision)] = parsed
+                retained_key = digest_keys.setdefault(
+                    row.finding_digest,
+                    (row.finding_id, row.revision),
+                )
+                if retained_key != (row.finding_id, row.revision):
+                    raise IntegrityViolation(
+                        "stored finding digest is bound to multiple revisions",
+                        finding_digest=row.finding_digest,
+                    )
+
+        stored_heads: dict[str, _FindingHead | None] = {}
+        for finding_id in finding_ids:
+            row = head_rows.get(finding_id)
+            if row is None:
+                stored_heads[finding_id] = None
+                continue
+            try:
+                current_revision = _require_revision(
+                    row.current_revision,
+                    field_name="finding head current revision",
+                )
+                row_revision = _require_revision(
+                    row.row_revision,
+                    field_name="finding head row revision",
+                )
+                if row_revision != current_revision:
+                    raise ValueError("finding head row revision is not monotonic with content")
+                if not isinstance(row.current_digest, str) or not _LOWER_SHA256.fullmatch(
+                    row.current_digest
+                ):
+                    raise ValueError("finding head digest is not lower-hex SHA-256")
+                if not isinstance(row.updated_at, str) or not row.updated_at:
+                    raise ValueError("finding head update time is invalid")
+            except (TypeError, ValueError, IntegrityViolation) as exc:
+                raise IntegrityViolation(
+                    "stored finding head is invalid",
+                    finding_id=finding_id,
+                ) from exc
+            current = revision_rows.get((finding_id, current_revision))
+            if current is None:
+                raise IntegrityViolation(
+                    "finding head points to a missing revision",
+                    finding_id=finding_id,
+                    revision=current_revision,
+                )
+            if (
+                current_revision > 1
+                and (
+                    finding_id,
+                    current_revision - 1,
+                )
+                not in revision_rows
+            ):
+                raise IntegrityViolation(
+                    "finding head current revision has no direct predecessor",
+                    finding_id=finding_id,
+                    revision=current_revision,
+                    expected_predecessor_revision=current_revision - 1,
+                )
+            digest = finding_revision_digest(current)
+            if not hmac.compare_digest(row.current_digest, digest):
+                raise IntegrityViolation(
+                    "finding head digest disagrees with its current revision",
+                    finding_id=finding_id,
+                    revision=current_revision,
+                )
+            stored_heads[finding_id] = _FindingHead(
+                finding_id=finding_id,
+                current_revision=current_revision,
+                current_digest=row.current_digest,
+                row_revision=row_revision,
+            )
+        return head_rows, stored_heads, revision_rows, digest_keys
 
     def get(self, finding_id: str, revision: int) -> FindingRevisionV1 | None:
         series_id = _require_nonempty_string(finding_id, field_name="finding id")

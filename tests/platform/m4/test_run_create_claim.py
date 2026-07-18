@@ -46,6 +46,7 @@ from gameforge.platform.runs.commands import (
     RunCreateRequest,
 )
 from gameforge.platform.runs.lifecycle import (
+    AttemptWriteFence,
     RunLifecycleCapabilities,
     RunLifecycleService,
 )
@@ -407,6 +408,23 @@ class _Repo:
             ),
             None,
         )
+
+    def get_attempt_write_authority(
+        self,
+        fence: AttemptWriteFence,
+    ) -> tuple[RunRecord, RunAttempt, RunLease] | None:
+        run = self.get(fence.run_id)
+        attempt = self.get_attempt(fence.run_id, fence.attempt_no)
+        lease = self.state.leases.get(fence.lease_id)
+        if (
+            run is None
+            or attempt is None
+            or lease is None
+            or lease.run_id != fence.run_id
+            or lease.attempt_no != fence.attempt_no
+        ):
+            return None
+        return run, attempt, lease
 
     def get_event(self, run_id: str, seq: int) -> RunEvent | None:
         return self.state.events.get((run_id, seq))

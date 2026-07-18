@@ -430,6 +430,10 @@ class _CommandPublicationGateway:
             raise IntegrityViolation("command test publication returned another result projection")
         return result
 
+    def commit_planned_run_failure(self, draft, staged, **kwargs):  # type: ignore[no-untyped-def]
+        del kwargs
+        return self.commit(draft, staged)
+
     def get_prompt_replay(self, **_: Any) -> Any:
         raise IntegrityViolation("prompt replay is not a command-scope operation")
 

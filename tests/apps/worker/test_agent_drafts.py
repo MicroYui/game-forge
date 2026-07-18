@@ -41,6 +41,10 @@ from gameforge.contracts.workflow import (
 )
 from gameforge.platform.approvals.commands import DraftPublicationResult
 from gameforge.platform.publication.effects import AgentDraftWorkflowRequest
+from gameforge.platform.publication.effects import (
+    WorkflowEffectContext,
+    prepare_workflow_effect,
+)
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.platform.workflow.service import WorkflowGovernance
 from gameforge.runtime.clock import FrozenUtcClock
@@ -328,6 +332,112 @@ def test_port_assembles_exact_published_generation_artifacts_and_run_scope() -> 
     assert prepared.approval_item.target_binding.target_artifact_id == artifacts[1].artifact_id  # type: ignore[attr-defined,union-attr]
     assert {binding.expected_revision for binding in prepared.object_bindings} == {3}  # type: ignore[attr-defined]
     assert result.approval_item == prepared.approval_item  # type: ignore[attr-defined]
+
+
+def test_terminal_prepare_does_not_require_new_artifacts_or_bindings() -> None:
+    original, _, _ = _generation_material()
+    patch = PatchV2.model_validate(original.payloads_by_rule["primary"][0])
+    base, _ = _artifact(
+        kind="ir_snapshot",
+        payload={"snapshot": "base"},
+        version_tuple=VersionTuple(
+            ir_snapshot_id=patch.base_snapshot_id,
+            tool_version="ir-core@1",
+        ),
+        lineage=(),
+        schema_id="ir-core@1",
+    )
+    goal, _ = _artifact(
+        kind="source_raw",
+        payload={"goal": "author request"},
+        version_tuple=VersionTuple(doc_version="goal@1"),
+        lineage=(),
+        schema_id="source-raw@1",
+    )
+    subject, _ = _artifact(
+        kind="patch",
+        payload=patch.model_dump(mode="json"),
+        version_tuple=VersionTuple(
+            ir_snapshot_id=patch.base_snapshot_id,
+            tool_version="generation@1",
+        ),
+        lineage=(base.artifact_id, goal.artifact_id),
+        schema_id="patch@2",
+    )
+    preview, _ = _artifact(
+        kind="ir_snapshot",
+        payload={"snapshot": "preview"},
+        version_tuple=VersionTuple(
+            ir_snapshot_id=patch.target_snapshot_id,
+            tool_version="generation@1",
+        ),
+        lineage=(base.artifact_id, subject.artifact_id),
+        schema_id="ir-core@1",
+    )
+    request = _request(
+        effect_key="create_patch_subject_head_and_draft@1",
+        run=original.run,
+        policy=original.policy,
+        subject=subject,
+        subject_payload=patch.model_dump(mode="json"),
+        preview=preview,
+    )
+    governance = _governance()
+    retained_only = _Artifacts((base, goal))
+
+    class _NoNewBindingReads:
+        def resolve(self, _object_ref):
+            raise AssertionError("terminal planning read a new Artifact binding")
+
+    transaction = SimpleNamespace(
+        artifacts=retained_only,
+        object_bindings=_NoNewBindingReads(),
+        policies=_Policies(governance),
+        approvals=object(),
+        idempotency=object(),
+        audit=object(),
+        runs=object(),
+        refs=object(),
+    )
+    port = build_agent_draft_workflow_port(
+        transaction=transaction,
+        object_store=object(),
+        clock=_CLOCK,
+        commands=_FakeCommands(),  # type: ignore[arg-type]
+        governance_refs=_governance_refs(governance),
+    )
+
+    prepared = port.prepare_agent_draft(request)
+
+    assert retained_only.get(subject.artifact_id) is None
+    assert retained_only.get(preview.artifact_id) is None
+    assert prepared.subject_artifact == subject
+    assert prepared.companion_artifacts == (preview,)
+    assert prepared.retained_parent_ids == tuple(sorted((base.artifact_id, goal.artifact_id)))
+
+    effect = prepare_workflow_effect(
+        request.effect_key,
+        WorkflowEffectContext(
+            run=request.run,
+            policy=request.policy,
+            scope="run",
+            published_primary_artifact_id=request.subject_artifact_id,
+            published_output_artifact_ids=tuple(
+                artifact_id
+                for values in request.artifact_ids_by_rule.values()
+                for artifact_id in values
+            ),
+            approvals=None,
+            actor=request.executed_by,
+            occurred_at=request.occurred_at,
+            published_primary_payload=request.payloads_by_rule["primary"][0],
+            published_artifact_ids_by_rule=request.artifact_ids_by_rule,
+            published_payloads_by_rule=request.payloads_by_rule,
+            published_artifacts_by_rule=request.artifacts_by_rule,
+            agent_drafts=port,
+        ),
+    )
+    assert effect.canonical_projection()["payload"]["effect_kind"] == "agent_draft"  # type: ignore[index]
 
 
 def test_assembler_rejects_payload_or_run_domain_substitution() -> None:

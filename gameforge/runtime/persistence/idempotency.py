@@ -200,6 +200,53 @@ class SqlIdempotencyRepository:
             )
         return replay
 
+    def put_preflighted_result(
+        self,
+        *,
+        scope: str,
+        operation: str,
+        key: str,
+        request_hash: str,
+        resource_kind: str,
+        resource_id: str,
+        response: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Insert after same-transaction absence preflight; never re-SELECT."""
+
+        identity = self._identity(scope=scope, operation=operation, key=key)
+        expected_hash = _require_request_hash(request_hash)
+        canonical_response = _copy_response(response, stored=False)
+        now = _utc_text(self._clock)
+        result = self._session.execute(
+            sqlite_insert(IdempotencyRecordRow)
+            .values(
+                scope=identity[0],
+                operation=identity[1],
+                key=identity[2],
+                request_hash=expected_hash,
+                resource_kind=_require_identifier(resource_kind, field_name="resource_kind"),
+                resource_id=_require_identifier(resource_id, field_name="resource_id"),
+                created_at=now,
+                updated_at=now,
+                response=canonical_response,
+            )
+            .on_conflict_do_nothing(
+                index_elements=[
+                    IdempotencyRecordRow.scope,
+                    IdempotencyRecordRow.operation,
+                    IdempotencyRecordRow.key,
+                ]
+            )
+        )
+        if result.rowcount != 1:
+            raise IdempotencyConflict(
+                "preflighted idempotency result insert conflicted",
+                scope=identity[0],
+                operation=identity[1],
+                key=identity[2],
+            )
+        return _copy_response(canonical_response, stored=True)
+
     @staticmethod
     def _identity(*, scope: str, operation: str, key: str) -> tuple[str, str, str]:
         return (

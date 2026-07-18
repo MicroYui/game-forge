@@ -376,6 +376,8 @@ class WorkerResponseConsumptionPublisher:
                 slot=(f"record-shard:{link.attempt_no}:{link.call_ordinal}:{link.route_ordinal}"),
                 ref=stored.ref,
                 location=stored.location,
+                verified_at=stat.verified_at,
+                generation_verification_token=stat.generation_verification_token,
             ),
         )
 

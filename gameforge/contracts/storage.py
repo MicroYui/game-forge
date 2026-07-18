@@ -222,6 +222,7 @@ class ObjectStat(FrozenModel):
     location: ObjectLocation
     verified_at: NonEmptyStr
     retention_until: NonEmptyStr | None = None
+    generation_verification_token: NonEmptyStr | None = None
 
     @model_validator(mode="after")
     def _same_key(self) -> "ObjectStat":
@@ -355,6 +356,14 @@ class ObjectBindingRepository(Protocol):
         expected_revision: int | None,
     ) -> ObjectBinding: ...
 
+    def bind_preverified(
+        self,
+        stat: ObjectStat,
+        expected_revision: int | None,
+    ) -> ObjectBinding:
+        """Bind a stat produced by the immediately preceding blob-stage phase."""
+        ...
+
     def retire(self, binding: ObjectBinding, expected_revision: int) -> ObjectBinding: ...
 
 
@@ -369,6 +378,19 @@ class ObjectStore(Protocol):
     def list_versions(self, cursor: PageCursorV1 | None = None) -> PageV1[ObjectStat]: ...
 
     def delete_if_generation(self, location: ObjectLocation) -> bool: ...
+
+
+@runtime_checkable
+class PreverifiedGenerationStore(Protocol):
+    """O(1)-in-payload recheck for an immutable generation verified earlier.
+
+    The caller holds the same database writer boundary used by ObjectGc.  Backends
+    must prove that the exact version/generation still exists and still identifies
+    ``stat.ref``; they may rely on an immutable version id/etag instead of reading
+    the payload bytes again.
+    """
+
+    def require_preverified_generation(self, stat: ObjectStat) -> ObjectStat: ...
 
 
 @runtime_checkable

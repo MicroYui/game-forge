@@ -5,22 +5,25 @@
 lifecycle service selects the unique policy per scope and owns cost/event closure.
 This engine first produces a pure, complete ``TerminalPublicationDraft`` from a
 short authority snapshot.  A separate stager writes every content-addressed blob
-after that snapshot closes.  The single write UoW then reprojects from fresh
-authority and :meth:`TerminalPublisher.commit` consumes only exact staged receipts
-to publish Artifact/Finding/workflow/manifest/audit authority atomically.
+after that snapshot closes.  The single write UoW then rechecks fresh authority
+only through compact lifecycle/runtime selectors; it does not rebuild or hash the
+complete outcome.  The planned commit surface set-preflights exact staged
+receipts and affected rows before publishing Artifact/Finding/workflow/manifest/
+audit authority atomically with bounded batch writes.
 
 The commit surface has no ObjectStore write capability. Active final failure is one
 aggregate projection: the run manifest validates the planned attempt manifest via
-an exact in-memory overlay, both are staged together, and ``commit_many`` validates
-both fresh digests before the first DB write.
+an exact in-memory overlay, both are staged and sealed together, and the planned
+aggregate commit validates both compact authority digests before the first DB write.
 """
 
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
-from typing import Protocol
+from collections import ChainMap, deque
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, replace
+from typing import Literal, Protocol
 
 from gameforge.contracts.canonical import (
     canonical_json,
@@ -80,6 +83,7 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.lineage import (
     ArtifactV2,
     AuditActor,
+    AuditCorrelation,
     ExecutionIdentityV1,
     InvocationVersionBindingV1,
     ObjectRef,
@@ -114,9 +118,15 @@ from gameforge.contracts.provenance import ProvenanceV1, most_conservative_trust
 from gameforge.platform.publication.effects import (
     AgentDraftWorkflowPort,
     AutoApplyValidationPort,
+    PreflightedWorkflowEffect,
+    PreparedWorkflowEffect,
     WorkflowEffectContext,
-    apply_workflow_effect,
+    apply_preflighted_workflow_effect,
+    commit_prepared_workflow_effect,
+    preflight_prepared_workflow_effect,
+    prepare_workflow_effect,
 )
+from gameforge.platform.audit.gate import AuditAppendIntent
 from gameforge.platform.approvals.validation import (
     ValidationCompletionApprovalRepository,
     payload_subject_kind,
@@ -159,9 +169,15 @@ from gameforge.platform.publication.producer import (
 )
 from gameforge.platform.terminal_staging import (
     BlobMaterial,
+    PreverifiedAbsentArtifactBinding,
+    PreverifiedArtifactBinding,
     StagedReceipt,
     StagedTerminalPublication,
     TerminalPublicationDraft,
+    _TerminalPublicationState,
+    _terminal_publication_state,
+    consume_terminal_publications,
+    deep_freeze_value,
 )
 from gameforge.platform.lineage.validation import (
     ProducerValidationContext,
@@ -187,6 +203,7 @@ from gameforge.platform.runs.lifecycle import (
     AttemptFailurePublication,
     RunFailurePublication,
     RunResultPublication,
+    TerminalAuthorityDrift,
     validate_prepared_failure,
 )
 
@@ -197,12 +214,42 @@ _CASSETTE_TOOL_VERSION = "cassette@1"
 class ArtifactPort(Protocol):
     def get(self, artifact_id: str) -> object | None: ...
 
-    def put_staged(self, artifact: ArtifactV2, receipt: StagedReceipt) -> ArtifactV2:
+    def preflight_binding(
+        self, artifact: ArtifactV2
+    ) -> PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding:
+        """Fully verify an existing active binding outside the write UoW."""
+        ...
+
+    def put_staged(
+        self,
+        artifact: ArtifactV2,
+        receipt: StagedReceipt,
+        retained_binding: (
+            PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding | None
+        ) = None,
+    ) -> ArtifactV2:
         """Bind the explicit staged generation and persist the Artifact atomically."""
         ...
 
     def read_bytes(self, artifact_id: str) -> bytes:
         """Read the exact bytes of one already-published Artifact."""
+        ...
+
+    def preflight_staged_many(
+        self,
+        writes: Sequence[
+            tuple[
+                ArtifactV2,
+                StagedReceipt,
+                PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding,
+            ]
+        ],
+    ) -> object:
+        """Validate an entire staged aggregate without issuing a DB write."""
+        ...
+
+    def put_preflighted_many(self, batch: object) -> tuple[ArtifactV2, ...]:
+        """Persist only a trusted batch returned by ``preflight_staged_many``."""
         ...
 
 
@@ -215,8 +262,19 @@ class FindingStore(Protocol):
         self, revision: FindingRevisionV1, *, expected_current_revision: int | None
     ) -> FindingRevisionV1: ...
 
+    def preflight_put_many(
+        self,
+        writes: Sequence[tuple[FindingRevisionV1, int | None]],
+    ) -> object: ...
+
+    def put_preflighted_many(self, seal: object) -> tuple[FindingRevisionV1, ...]: ...
+
 
 class ManifestLedger(Protocol):
+    def terminal_authority_digest(self, run_id: str) -> str:
+        """Digest every mutable runtime row that can affect a terminal plan."""
+        ...
+
     def prompt_links(
         self, run_id: str, *, attempt_no: int | None
     ) -> tuple[RunIntermediateArtifactLinkV1, ...]: ...
@@ -228,6 +286,19 @@ class ManifestLedger(Protocol):
     def closed_attempt_failures(self, run_id: str) -> tuple[tuple[int, str], ...]: ...
 
     def put_finding_link(self, link: RunFindingLinkV1) -> RunFindingLinkV1: ...
+
+    def preflight_finding_links_many(
+        self,
+        links: Sequence[RunFindingLinkV1],
+        *,
+        planned_findings: Sequence[FindingRevisionV1] = (),
+        planned_artifact_ids: Sequence[str] = (),
+    ) -> object: ...
+
+    def put_preflighted_finding_links_many(
+        self,
+        seal: object,
+    ) -> tuple[RunFindingLinkV1, ...]: ...
 
     def execution_identity(self, run_id: str, *, attempt_no: int | None) -> ExecutionIdentityV1:
         """Authoritative identity for one attempt, or the whole Run when null."""
@@ -290,6 +361,42 @@ class ManifestLedger(Protocol):
         """The REPLAY input ``cassette_bundle`` artifact id (== payload cassette)."""
         ...
 
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object:
+        """Seal the success lifecycle closure before terminal publication writes."""
+        ...
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object:
+        """Seal a retry lifecycle closure before terminal publication writes."""
+        ...
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object:
+        """Seal an active terminal lifecycle closure before publication writes."""
+        ...
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object:
+        """Seal an inactive terminal lifecycle closure before publication writes."""
+        ...
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object:
+        """Consume a lifecycle seal using DML only."""
+        ...
+
+
+@dataclass(frozen=True, slots=True)
+class AuditPublicationIntent:
+    """Immutable terminal-audit intent handed to a transaction-bound adapter."""
+
+    action: str
+    run: RunRecord
+    artifact_id: str | None
+    actor: AuditActor
+    occurred_at: str
+    deferred: bool = False
+    request_id: str | None = None
+    trace_id: str | None = None
+    chain_id: str | None = None
+    append_intent: AuditAppendIntent | None = None
+
 
 class AuditPort(Protocol):
     def record(
@@ -300,7 +407,16 @@ class AuditPort(Protocol):
         artifact_id: str | None,
         actor: AuditActor,
         occurred_at: str,
+        request_id: str | None = None,
+        trace_id: str | None = None,
     ) -> None: ...
+
+    def preflight_records(
+        self,
+        records: Sequence[AuditPublicationIntent],
+    ) -> object: ...
+
+    def apply_preflighted_records(self, prepared: object) -> None: ...
 
 
 def _require_registered_source_provenance(
@@ -607,6 +723,18 @@ class _TerminalRuntimeProjection:
 
 
 @dataclass(frozen=True, slots=True)
+class _TaskSuiteTerminalAuthority:
+    """Run-frozen TaskSuite authorities shared by every child in one draft."""
+
+    run_id: str
+    run_payload_hash: str
+    environment_details: EnvironmentProfileDetailsV1
+    derivation_config: TaskSuiteDerivationProfileConfigV2
+    oracle_registry: CompletionOracleRegistryV1
+    validator: PlaytestPayloadValidationService
+
+
+@dataclass(frozen=True, slots=True)
 class _CassetteNode:
     artifact: ArtifactV2
     payload: CassetteBundleV1
@@ -620,26 +748,103 @@ def _same_immutable_artifact(stored: object, expected: ArtifactV2) -> bool:
     pre-existing row with its original timestamp, but no other field may differ.
     """
 
-    return isinstance(stored, ArtifactV2) and canonical_json(
-        stored.model_dump(mode="json", exclude={"created_at"})
-    ) == canonical_json(expected.model_dump(mode="json", exclude={"created_at"}))
+    return isinstance(stored, ArtifactV2) and (
+        stored.artifact_id,
+        stored.lineage_schema_version,
+        stored.kind,
+        stored.version_tuple,
+        stored.lineage,
+        stored.payload_hash,
+        stored.object_ref,
+        stored.meta,
+    ) == (
+        expected.artifact_id,
+        expected.lineage_schema_version,
+        expected.kind,
+        expected.version_tuple,
+        expected.lineage,
+        expected.payload_hash,
+        expected.object_ref,
+        expected.meta,
+    )
 
 
 @dataclass(frozen=True, slots=True)
 class _ArtifactWrite:
     slot: str
     artifact: ArtifactV2
+    retained_binding: PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding | None = None
+
+    def terminal_seal(self) -> "_ArtifactWrite":
+        retained = self.retained_binding
+        return _ArtifactWrite(
+            slot=self.slot,
+            artifact=deep_freeze_value(self.artifact),  # type: ignore[arg-type]
+            retained_binding=(
+                None
+                if retained is None
+                else PreverifiedArtifactBinding(
+                    binding=deep_freeze_value(retained.binding),  # type: ignore[arg-type]
+                    stat=deep_freeze_value(retained.stat),  # type: ignore[arg-type]
+                )
+                if isinstance(retained, PreverifiedArtifactBinding)
+                else PreverifiedAbsentArtifactBinding(
+                    object_ref=ObjectRef.model_validate(retained.object_ref.model_dump(mode="json"))
+                )
+            ),
+        )
+
+    def terminal_projection(self) -> Mapping[str, object]:
+        return _operation_projection(self)
 
 
 @dataclass(frozen=True, slots=True)
 class _FindingWrite:
     planned: PlannedFindingWrite
 
+    def terminal_seal(self) -> "_FindingWrite":
+        return _FindingWrite(
+            planned=PlannedFindingWrite(
+                revision=deep_freeze_value(self.planned.revision),  # type: ignore[arg-type]
+                expected_current_revision=self.planned.expected_current_revision,
+                link=deep_freeze_value(self.planned.link),  # type: ignore[arg-type]
+            )
+        )
+
+    def terminal_projection(self) -> Mapping[str, object]:
+        return _operation_projection(self)
+
 
 @dataclass(frozen=True, slots=True)
 class _WorkflowWrite:
     effect_key: str
     context: WorkflowEffectContext
+    prepared: PreparedWorkflowEffect
+
+    def terminal_seal(self) -> "_WorkflowWrite":
+        context = self.context
+        return _WorkflowWrite(
+            effect_key=self.effect_key,
+            context=replace(
+                context,
+                run=deep_freeze_value(context.run),  # type: ignore[arg-type]
+                policy=deep_freeze_value(context.policy),  # type: ignore[arg-type]
+                approvals=None,
+                actor=deep_freeze_value(context.actor),  # type: ignore[arg-type]
+                published_primary_payload=deep_freeze_value(context.published_primary_payload),
+                published_artifact_ids_by_rule=deep_freeze_value(
+                    context.published_artifact_ids_by_rule
+                ),
+                published_payloads_by_rule=deep_freeze_value(context.published_payloads_by_rule),
+                published_artifacts_by_rule=deep_freeze_value(context.published_artifacts_by_rule),
+                agent_drafts=None,
+                auto_apply=None,
+            ),
+            prepared=self.prepared,
+        )
+
+    def terminal_projection(self) -> Mapping[str, object]:
+        return _operation_projection(self)
 
 
 @dataclass(frozen=True, slots=True)
@@ -649,6 +854,172 @@ class _AuditWrite:
     artifact_id: str | None
     actor: AuditActor
     occurred_at: str
+    request_id: str | None = None
+    trace_id: str | None = None
+
+    def terminal_seal(self) -> "_AuditWrite":
+        return _AuditWrite(
+            action=self.action,
+            run=deep_freeze_value(self.run),  # type: ignore[arg-type]
+            artifact_id=self.artifact_id,
+            actor=deep_freeze_value(self.actor),  # type: ignore[arg-type]
+            occurred_at=self.occurred_at,
+            request_id=self.request_id,
+            trace_id=self.trace_id,
+        )
+
+    def terminal_projection(self) -> Mapping[str, object]:
+        return _operation_projection(self)
+
+    def publication_intent(self) -> AuditPublicationIntent:
+        return AuditPublicationIntent(
+            action=self.action,
+            run=self.run,
+            artifact_id=self.artifact_id,
+            actor=self.actor,
+            occurred_at=self.occurred_at,
+            request_id=self.request_id,
+            trace_id=self.trace_id,
+        )
+
+
+def _terminal_lifecycle_audit_actions(
+    publication_kinds: tuple[str, ...],
+) -> tuple[str, ...]:
+    actions_by_publication = {
+        ("run_result",): ("run.terminal",),
+        ("attempt_failure",): ("run.attempt_closed",),
+        ("attempt_failure", "run_failure"): (
+            "run.attempt_closed",
+            "run.terminal",
+        ),
+        ("run_failure",): ("run.terminal",),
+    }
+    actions = actions_by_publication.get(publication_kinds)
+    if actions is None:
+        raise IntegrityViolation(
+            "terminal publication aggregate has no lifecycle Audit projection",
+            publication_kinds=publication_kinds,
+        )
+    return actions
+
+
+def _terminal_audit_intents(
+    *,
+    publication_kinds: tuple[str, ...],
+    audit_operations_by_publication: tuple[tuple[_AuditWrite, ...], ...],
+    command_audit_correlation: AuditCorrelation | None = None,
+) -> tuple[AuditPublicationIntent, ...]:
+    if len(publication_kinds) != len(audit_operations_by_publication) or any(
+        len(operations) != 1 for operations in audit_operations_by_publication
+    ):
+        raise IntegrityViolation(
+            "each terminal publication requires exactly one publication Audit intent"
+        )
+    operations = tuple(operations[0] for operations in audit_operations_by_publication)
+    anchor = operations[0]
+    if any(
+        operation.run.run_id != anchor.run.run_id
+        or operation.run.initiated_by != anchor.run.initiated_by
+        or operation.actor != anchor.actor
+        or operation.occurred_at != anchor.occurred_at
+        or operation.request_id != anchor.request_id
+        or operation.trace_id != anchor.trace_id
+        for operation in operations[1:]
+    ):
+        raise IntegrityViolation("terminal publication aggregate Audit identities are inconsistent")
+    immediate = tuple(operation.publication_intent() for operation in operations)
+    command_deferred: tuple[AuditPublicationIntent, ...] = ()
+    lifecycle_request_id = anchor.request_id
+    lifecycle_trace_id = anchor.trace_id
+    if command_audit_correlation is not None:
+        if publication_kinds != ("run_failure",):
+            raise IntegrityViolation(
+                "command Audit correlation requires one single inactive Run failure"
+            )
+        if command_audit_correlation.run_id != anchor.run.run_id:
+            raise IntegrityViolation("command Audit correlation differs from the terminal Run")
+        lifecycle_request_id = command_audit_correlation.request_id
+        lifecycle_trace_id = command_audit_correlation.trace_id
+        immediate = tuple(
+            replace(
+                intent,
+                request_id=lifecycle_request_id,
+                trace_id=lifecycle_trace_id,
+            )
+            for intent in immediate
+        )
+        command_deferred = (
+            AuditPublicationIntent(
+                action="run.command_submitted",
+                run=anchor.run,
+                artifact_id=None,
+                actor=anchor.actor,
+                occurred_at=anchor.occurred_at,
+                deferred=True,
+                request_id=lifecycle_request_id,
+                trace_id=lifecycle_trace_id,
+            ),
+        )
+    deferred = tuple(
+        AuditPublicationIntent(
+            action=action,
+            run=anchor.run,
+            artifact_id=None,
+            actor=anchor.actor,
+            occurred_at=anchor.occurred_at,
+            deferred=True,
+            request_id=lifecycle_request_id,
+            trace_id=lifecycle_trace_id,
+        )
+        for action in _terminal_lifecycle_audit_actions(publication_kinds)
+    )
+    return (*immediate, *command_deferred, *deferred)
+
+
+def _workflow_audit_intents(
+    *,
+    workflow_seals: Sequence[PreflightedWorkflowEffect],
+    workflow_operations: Sequence["_WorkflowWrite"],
+) -> tuple[AuditPublicationIntent, ...]:
+    """Project approval/workflow audit into the terminal's single chain batch."""
+
+    if len(workflow_seals) != len(workflow_operations):
+        raise IntegrityViolation("workflow Audit preflight cardinality differs")
+    projected: list[AuditPublicationIntent] = []
+    retained_chain_id: str | None = None
+    for seal, operation in zip(workflow_seals, workflow_operations, strict=True):
+        audit_batch = seal.audit_intents_for_terminal_merge(operation.context)
+        if audit_batch is None:
+            continue
+        if retained_chain_id is None:
+            retained_chain_id = audit_batch.chain_id
+        elif audit_batch.chain_id != retained_chain_id:
+            raise IntegrityViolation("terminal workflow Audit spans multiple chains")
+        context = operation.context
+        for intent in audit_batch.intents:
+            if (
+                intent.actor != context.actor
+                or intent.initiated_by != context.run.initiated_by
+                or intent.correlation.run_id != context.run.run_id
+            ):
+                raise IntegrityViolation(
+                    "workflow Audit intent differs from terminal Run authority"
+                )
+            projected.append(
+                AuditPublicationIntent(
+                    action=intent.action,
+                    run=context.run,
+                    artifact_id=intent.subject.artifact_id,
+                    actor=intent.actor,
+                    occurred_at=context.occurred_at,
+                    request_id=intent.correlation.request_id,
+                    trace_id=intent.correlation.trace_id,
+                    chain_id=audit_batch.chain_id,
+                    append_intent=intent,
+                )
+            )
+    return tuple(projected)
 
 
 def _model_projection(value: object) -> object:
@@ -669,12 +1040,104 @@ def _model_projection(value: object) -> object:
     )
 
 
+def _planning_subject_digest(
+    publication_kind: str,
+    *,
+    run: RunRecord,
+    attempt: RunAttempt | None,
+    prepared: PreparedRunResult | PreparedRunFailure,
+    policy: OutcomeArtifactPolicyV1,
+    retry_decision: RetryDecisionV1 | None,
+    attempt_failure_artifact_id: str | None,
+    occurred_at: str,
+    actor: AuditActor,
+) -> str:
+    """Bind a draft to the compact lifecycle selector used again at commit.
+
+    The complete prepared outcome and policy closure are already sealed into the
+    operation/result projection before staging.  Re-serializing up to 10,000
+    Findings and 1,025 prepared Artifacts while SQLite holds ``BEGIN IMMEDIATE``
+    would add no authority: mutable Run/Attempt/runtime rows are independently
+    covered by ``runtime_authority_digest``.  Keep this second digest deliberately
+    compact and bind only the caller-visible selector, identity, timestamp and
+    actor needed to prove the write phase is committing the same terminal branch.
+    """
+
+    if isinstance(prepared, PreparedRunResult):
+        prepared_selector: Mapping[str, object] = {
+            "prepared_schema_version": prepared.prepared_schema_version,
+            "run_id": prepared.run_id,
+            "attempt_no": prepared.attempt_no,
+            "run_kind": prepared.run_kind.model_dump(mode="json"),
+            "outcome_code": prepared.summary.outcome_code,
+            "primary_artifact_kind": prepared.summary.primary_artifact_kind,
+            "prepared_domain_artifact_count": (prepared.summary.prepared_domain_artifact_count),
+            "prepared_finding_count": prepared.summary.prepared_finding_count,
+        }
+    else:
+        prepared_selector = {
+            "prepared_schema_version": prepared.prepared_schema_version,
+            "run_id": prepared.run_id,
+            "attempt_no": prepared.attempt_no,
+            "run_kind": prepared.run_kind.model_dump(mode="json"),
+            "cause_code": prepared.cause_code,
+            "failure_class": prepared.failure_class,
+            "intrinsic_retry_eligible": prepared.intrinsic_retry_eligible,
+            "classifier": prepared.classifier.model_dump(mode="json"),
+        }
+
+    policy_selector = {
+        "policy_schema_version": policy.policy_schema_version,
+        "policy_id": policy.policy_id,
+        "policy_version": policy.policy_version,
+        "outcome_code": policy.outcome_code,
+        "prepared_outcome": policy.prepared_outcome,
+        "publication_scope": policy.publication_scope,
+        "attempt_terminal_status": policy.attempt_terminal_status,
+        "run_status_after_publication": policy.run_status_after_publication,
+        "failure_class": policy.failure_class,
+        "retry_disposition": policy.retry_disposition,
+        "workflow_effect_key": policy.workflow_effect_key,
+        "version_transition_policy_ref": (
+            policy.version_transition_policy_ref.model_dump(mode="json")
+        ),
+    }
+
+    return canonical_sha256(
+        {
+            "publication_kind": publication_kind,
+            "run_id": run.run_id,
+            "run_kind": run.kind.model_dump(mode="json"),
+            "attempt_no": None if attempt is None else attempt.attempt_no,
+            "prepared_selector": prepared_selector,
+            "policy_selector": policy_selector,
+            "retry_decision": _model_projection(retry_decision),
+            "attempt_failure_artifact_id": attempt_failure_artifact_id,
+            "occurred_at": occurred_at,
+            "actor": _model_projection(actor),
+        }
+    )
+
+
 def _operation_projection(operation: object) -> Mapping[str, object]:
     if isinstance(operation, _ArtifactWrite):
         return {
             "operation": "artifact.put_staged",
             "slot": operation.slot,
             "artifact": operation.artifact.model_dump(mode="json"),
+            "retained_binding": (
+                None
+                if operation.retained_binding is None
+                else {
+                    "binding": operation.retained_binding.binding.model_dump(mode="json"),
+                    "stat": operation.retained_binding.stat.model_dump(mode="json"),
+                }
+                if isinstance(operation.retained_binding, PreverifiedArtifactBinding)
+                else {
+                    "absent": True,
+                    "object_ref": operation.retained_binding.object_ref.model_dump(mode="json"),
+                }
+            ),
         }
     if isinstance(operation, _FindingWrite):
         return {
@@ -701,6 +1164,7 @@ def _operation_projection(operation: object) -> Mapping[str, object]:
             ),
             "published_payloads_by_rule": _model_projection(context.published_payloads_by_rule),
             "published_artifacts_by_rule": _model_projection(context.published_artifacts_by_rule),
+            "prepared_workflow": operation.prepared.canonical_projection(),
         }
     if isinstance(operation, _AuditWrite):
         return {
@@ -710,6 +1174,8 @@ def _operation_projection(operation: object) -> Mapping[str, object]:
             "artifact_id": operation.artifact_id,
             "actor": operation.actor.model_dump(mode="json"),
             "occurred_at": operation.occurred_at,
+            "request_id": operation.request_id,
+            "trace_id": operation.trace_id,
         }
     raise IntegrityViolation(
         "terminal publication contains an unknown commit operation",
@@ -727,45 +1193,72 @@ class _PublicationCollector:
         run_id: str,
         attempt_no: int | None,
         occurred_at: str,
+        planning_subject_digest: str | None = None,
+        runtime_authority_digest: str | None = None,
+        artifact_preflight: Callable[
+            [ArtifactV2], PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding
+        ]
+        | None = None,
     ) -> None:
         self.publication_kind = publication_kind
         self.run_id = run_id
         self.attempt_no = attempt_no
         self.occurred_at = occurred_at
+        self.planning_subject_digest = planning_subject_digest
+        self.runtime_authority_digest = runtime_authority_digest
+        self._artifact_preflight = artifact_preflight
         self.materials: list[BlobMaterial] = []
         self.operations: list[object] = []
-        self._pending_slots_by_ref: dict[str, list[str]] = {}
+        self._pending_slots_by_ref: dict[str, deque[str]] = {}
+        self._materials_by_slot: dict[str, BlobMaterial] = {}
 
     def add_blob(self, payload: bytes) -> ObjectRef:
         expected_ref = object_ref_for_bytes(payload)
         slot = f"blob:{len(self.materials) + 1:04d}"
-        self.materials.append(BlobMaterial(slot=slot, payload=payload, expected_ref=expected_ref))
-        self._pending_slots_by_ref.setdefault(expected_ref.key, []).append(slot)
+        material = BlobMaterial(slot=slot, payload=payload, expected_ref=expected_ref)
+        self.materials.append(material)
+        self._materials_by_slot[slot] = material
+        self._pending_slots_by_ref.setdefault(expected_ref.key, deque()).append(slot)
         return expected_ref
 
     def add_artifact(self, artifact: ArtifactV2) -> ArtifactV2:
-        pending = self._pending_slots_by_ref.get(artifact.object_ref.key, [])
+        pending = self._pending_slots_by_ref.get(artifact.object_ref.key)
         if not pending:
             raise IntegrityViolation(
                 "planned Artifact has no exact blob material",
                 artifact_id=artifact.artifact_id,
             )
-        slot = pending.pop(0)
-        material = next(item for item in self.materials if item.slot == slot)
-        if material.expected_ref != artifact.object_ref:
+        slot = pending.popleft()
+        material = self._materials_by_slot.get(slot)
+        if material is None or material.expected_ref != artifact.object_ref:
             raise IntegrityViolation(
                 "planned Artifact differs from its blob material",
                 artifact_id=artifact.artifact_id,
                 slot=slot,
             )
-        self.operations.append(_ArtifactWrite(slot=slot, artifact=artifact))
+        retained_binding = (
+            None if self._artifact_preflight is None else self._artifact_preflight(artifact)
+        )
+        self.operations.append(
+            _ArtifactWrite(
+                slot=slot,
+                artifact=artifact,
+                retained_binding=retained_binding,
+            )
+        )
         return artifact
 
     def add_finding(self, planned: PlannedFindingWrite) -> None:
         self.operations.append(_FindingWrite(planned=planned))
 
     def add_workflow(self, effect_key: str, context: WorkflowEffectContext) -> None:
-        self.operations.append(_WorkflowWrite(effect_key=effect_key, context=context))
+        self.operations.append(
+            _WorkflowWrite(
+                effect_key=effect_key,
+                context=context,
+                prepared=prepare_workflow_effect(effect_key, context),
+            )
+        )
 
     def add_audit(
         self,
@@ -775,6 +1268,8 @@ class _PublicationCollector:
         artifact_id: str | None,
         actor: AuditActor,
         occurred_at: str,
+        request_id: str | None = None,
+        trace_id: str | None = None,
     ) -> None:
         self.operations.append(
             _AuditWrite(
@@ -783,6 +1278,8 @@ class _PublicationCollector:
                 artifact_id=artifact_id,
                 actor=actor,
                 occurred_at=occurred_at,
+                request_id=request_id,
+                trace_id=trace_id,
             )
         )
 
@@ -798,7 +1295,7 @@ class _PublicationCollector:
         result_projection_value = _model_projection(result)
         if not isinstance(result_projection_value, Mapping):
             raise IntegrityViolation("terminal publication result is not a canonical model")
-        base = {
+        base: dict[str, object] = {
             "publication_kind": self.publication_kind,
             "run_id": self.run_id,
             "attempt_no": self.attempt_no,
@@ -813,11 +1310,16 @@ class _PublicationCollector:
             "operations": operation_projection,
             "result": result_projection_value,
         }
+        if self.planning_subject_digest is not None:
+            base["planning_subject_digest"] = self.planning_subject_digest
+            base["runtime_authority_digest"] = self.runtime_authority_digest
         return TerminalPublicationDraft(
             publication_kind=self.publication_kind,
             run_id=self.run_id,
             attempt_no=self.attempt_no,
             occurred_at=self.occurred_at,
+            planning_subject_digest=self.planning_subject_digest,
+            runtime_authority_digest=self.runtime_authority_digest,
             projection_digest=canonical_sha256(base),
             materials=tuple(self.materials),
             operations=operations,
@@ -869,15 +1371,144 @@ class TerminalPublisher:
         self._auto_apply = auto_apply
         self._collector: _PublicationCollector | None = None
         self._planned_artifact_overlay: dict[str, tuple[ArtifactV2, bytes]] = {}
+        self._artifact_cache: dict[str, ArtifactV2] = {}
+        self._published_blob_cache: dict[str, bytes] = {}
+        self._runtime_parent_cache: dict[str, ParentInfo] = {}
+        self._attempt_cache: dict[tuple[str, int], RunAttempt | None] = {}
+
+    def _attempt_authority(self, run_id: str, attempt_no: int) -> RunAttempt | None:
+        key = (run_id, attempt_no)
+        if key not in self._attempt_cache:
+            self._attempt_cache[key] = self._ledger.get_attempt(run_id, attempt_no)
+        return self._attempt_cache[key]
+
+    def _initial_runtime_authority_digest(
+        self,
+        run_id: str,
+        *,
+        publication_kind: str,
+    ) -> str | None:
+        resolver = (
+            getattr(self._ledger, "terminal_attempt_authority_digest", None)
+            if publication_kind == "attempt_failure"
+            else None
+        )
+        if not callable(resolver):
+            resolver = getattr(self._ledger, "terminal_authority_digest", None)
+        if not callable(resolver):
+            # Direct plan/stage/commit unit ports intentionally have no persistent
+            # runtime authority.  Lifecycle production commits use the required
+            # prepared-commit surface below and fail closed when it is absent.
+            return None
+        digest = resolver(run_id)
+        if (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            raise IntegrityViolation("terminal runtime authority digest is not canonical")
+        return digest
+
+    def _fresh_runtime_authority_digest(
+        self,
+        run_id: str,
+        *,
+        publication_kind: str,
+    ) -> str:
+        resolver = (
+            getattr(self._ledger, "fresh_terminal_attempt_authority_digest", None)
+            if publication_kind == "attempt_failure"
+            else None
+        )
+        if publication_kind == "attempt_failure" and not callable(resolver):
+            resolver = getattr(self._ledger, "terminal_attempt_authority_digest", None)
+        if not callable(resolver):
+            resolver = getattr(self._ledger, "terminal_authority_digest", None)
+        digest = None if not callable(resolver) else resolver(run_id)
+        if digest is not None and (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            raise IntegrityViolation("terminal runtime authority digest is not canonical")
+        if digest is None:
+            raise IntegrityViolation(
+                "terminal publication lacks fresh runtime authority projection",
+                run_id=run_id,
+            )
+        return digest
+
+    def _rebind_operations_for_commit(
+        self,
+        draft: TerminalPublicationDraft,
+        *,
+        expected_kind: str,
+        expected_run_id: str,
+        expected_attempt_no: int | None,
+        expected_subject_digest: str,
+        fresh_runtime_authority_digest: str,
+    ) -> tuple[object, ...]:
+        """Rebind only transaction capabilities after exact fresh-facts checks.
+
+        Immutable blobs, schema/exporter/shaper validation and the complete
+        operation projection were already produced in the read snapshot and bound
+        to the staged receipts.  The write UoW compares the exact lifecycle subject
+        plus the bounded runtime-authority digest, then replaces only opaque
+        workflow ports with this transaction's capabilities.  Those ports are
+        intentionally absent from the canonical operation projection.
+        """
+
+        try:
+            state = _terminal_publication_state(draft, expected_phase="sealed")
+        except IntegrityViolation as exc:
+            raise TerminalAuthorityDrift(
+                "fresh terminal authority differs from the staged immutable plan",
+                publication_kind=expected_kind,
+                run_id=expected_run_id,
+            ) from exc
+        if (
+            state.publication_kind != expected_kind
+            or state.run_id != expected_run_id
+            or state.attempt_no != expected_attempt_no
+            or state.planning_subject_digest != expected_subject_digest
+            or state.runtime_authority_digest != fresh_runtime_authority_digest
+        ):
+            raise TerminalAuthorityDrift(
+                "fresh terminal authority differs from the staged immutable plan",
+                publication_kind=expected_kind,
+                run_id=expected_run_id,
+            )
+        rebound_operations = tuple(
+            replace(
+                operation,
+                context=replace(
+                    operation.context,
+                    approvals=self._approvals,
+                    agent_drafts=self._agent_drafts,
+                    auto_apply=self._auto_apply,
+                ),
+            )
+            if isinstance(operation, _WorkflowWrite)
+            else operation
+            for operation in state.operations
+        )
+        # Only three opaque transaction capabilities are replaced above.  They are
+        # deliberately excluded from ``_operation_projection``; every canonical
+        # field remains the exact read-phase object.  Do not reconstruct the draft
+        # here: ``TerminalPublicationDraft.__post_init__`` would rehash the complete
+        # operation projection and every blob while SQLite's writer lock is held.
+        return rebound_operations
 
     # ---------------------------------------------------------- three phases
     def _collect_draft(
         self,
         *,
         publication_kind: str,
+        runtime_authority_scope: Literal["attempt", "run"] = "run",
         run_id: str,
         attempt_no: int | None,
         occurred_at: str,
+        planning_subject_digest: str,
         publish: object,
     ) -> TerminalPublicationDraft:
         if self._collector is not None:
@@ -887,6 +1518,18 @@ class TerminalPublisher:
             run_id=run_id,
             attempt_no=attempt_no,
             occurred_at=occurred_at,
+            planning_subject_digest=planning_subject_digest,
+            runtime_authority_digest=self._initial_runtime_authority_digest(
+                run_id,
+                publication_kind=(
+                    "attempt_failure"
+                    if runtime_authority_scope == "attempt"
+                    else publication_kind
+                    if publication_kind != "attempt_failure"
+                    else "run_failure"
+                ),
+            ),
+            artifact_preflight=getattr(self._artifacts, "preflight_binding", None),
         )
         self._collector = collector
         previous_overlay = self._planned_artifact_overlay
@@ -917,6 +1560,17 @@ class TerminalPublisher:
             run_id=run.run_id,
             attempt_no=attempt.attempt_no,
             occurred_at=occurred_at,
+            planning_subject_digest=_planning_subject_digest(
+                "run_result",
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                policy=policy,
+                retry_decision=None,
+                attempt_failure_artifact_id=None,
+                occurred_at=occurred_at,
+                actor=actor,
+            ),
             publish=lambda: self.publish_run_result(
                 run=run,
                 attempt=attempt,
@@ -940,9 +1594,21 @@ class TerminalPublisher:
     ) -> TerminalPublicationDraft:
         return self._collect_draft(
             publication_kind="attempt_failure",
+            runtime_authority_scope=("attempt" if retry_decision.decision == "retry" else "run"),
             run_id=run.run_id,
             attempt_no=attempt.attempt_no,
             occurred_at=occurred_at,
+            planning_subject_digest=_planning_subject_digest(
+                "attempt_failure",
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                policy=policy,
+                retry_decision=retry_decision,
+                attempt_failure_artifact_id=None,
+                occurred_at=occurred_at,
+                actor=actor,
+            ),
             publish=lambda: self.publish_attempt_failure(
                 run=run,
                 attempt=attempt,
@@ -971,6 +1637,17 @@ class TerminalPublisher:
             run_id=run.run_id,
             attempt_no=attempt.attempt_no if attempt is not None else None,
             occurred_at=occurred_at,
+            planning_subject_digest=_planning_subject_digest(
+                "run_failure",
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                policy=policy,
+                retry_decision=retry_decision,
+                attempt_failure_artifact_id=attempt_failure_artifact_id,
+                occurred_at=occurred_at,
+                actor=actor,
+            ),
             publish=lambda: self.publish_run_failure(
                 run=run,
                 attempt=attempt,
@@ -1049,16 +1726,424 @@ class TerminalPublisher:
             self._planned_artifact_overlay = previous_overlay
         return (attempt_draft, run_draft)
 
+    def preflight_complete_attempt_success(self, **kwargs: object) -> object:
+        return self._ledger.preflight_complete_attempt_success(**kwargs)
+
+    def preflight_close_attempt_for_retry(self, **kwargs: object) -> object:
+        return self._ledger.preflight_close_attempt_for_retry(**kwargs)
+
+    def preflight_close_attempt_terminal(self, **kwargs: object) -> object:
+        return self._ledger.preflight_close_attempt_terminal(**kwargs)
+
+    def preflight_terminate_inactive_run(self, **kwargs: object) -> object:
+        return self._ledger.preflight_terminate_inactive_run(**kwargs)
+
+    def apply_preflighted_terminal_closure(self, seal: object) -> object:
+        return self._ledger.apply_preflighted_terminal_closure(seal)
+
+    def commit_planned_run_result(
+        self,
+        draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared: PreparedRunResult,
+        policy: OutcomeArtifactPolicyV1,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> object:
+        fresh_runtime = self._fresh_runtime_authority_digest(
+            run.run_id,
+            publication_kind="run_result",
+        )
+        rebound_operations = self._rebind_operations_for_commit(
+            draft,
+            expected_kind="run_result",
+            expected_run_id=run.run_id,
+            expected_attempt_no=attempt.attempt_no,
+            expected_subject_digest=_planning_subject_digest(
+                "run_result",
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                policy=policy,
+                retry_decision=None,
+                attempt_failure_artifact_id=None,
+                occurred_at=occurred_at,
+                actor=actor,
+            ),
+            fresh_runtime_authority_digest=fresh_runtime,
+        )
+        return self._commit_planned_many(((draft, staged, rebound_operations),))[0]
+
+    def commit_planned_active_failure_aggregate(
+        self,
+        drafts: tuple[TerminalPublicationDraft, ...],
+        staged: tuple[StagedTerminalPublication, ...],
+        *,
+        run: RunRecord,
+        attempt: RunAttempt,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        attempt_policy: OutcomeArtifactPolicyV1,
+        run_policy: OutcomeArtifactPolicyV1 | None,
+        occurred_at: str,
+        actor: AuditActor,
+    ) -> tuple[object, ...]:
+        expected_count = 1 if retry_decision.decision == "retry" else 2
+        if len(drafts) != expected_count or len(staged) != expected_count:
+            raise TerminalAuthorityDrift(
+                "fresh failure selector differs from the staged aggregate",
+                run_id=run.run_id,
+                expected_count=expected_count,
+                staged_count=len(staged),
+            )
+        if (run_policy is None) != (expected_count == 1):
+            raise IntegrityViolation("active failure aggregate policy count is inconsistent")
+        aggregate_fresh_runtime = self._fresh_runtime_authority_digest(
+            run.run_id,
+            publication_kind=("attempt_failure" if expected_count == 1 else "run_failure"),
+        )
+        rebound_operations: list[tuple[object, ...]] = []
+        rebound_operations.append(
+            self._rebind_operations_for_commit(
+                drafts[0],
+                expected_kind="attempt_failure",
+                expected_run_id=run.run_id,
+                expected_attempt_no=attempt.attempt_no,
+                expected_subject_digest=_planning_subject_digest(
+                    "attempt_failure",
+                    run=run,
+                    attempt=attempt,
+                    prepared=prepared,
+                    policy=attempt_policy,
+                    retry_decision=retry_decision,
+                    attempt_failure_artifact_id=None,
+                    occurred_at=occurred_at,
+                    actor=actor,
+                ),
+                fresh_runtime_authority_digest=aggregate_fresh_runtime,
+            )
+        )
+        if expected_count == 2:
+            attempt_result = drafts[0].result
+            if not isinstance(attempt_result, AttemptFailurePublication) or run_policy is None:
+                raise IntegrityViolation("staged attempt failure has another result projection")
+            rebound_operations.append(
+                self._rebind_operations_for_commit(
+                    drafts[1],
+                    expected_kind="run_failure",
+                    expected_run_id=run.run_id,
+                    expected_attempt_no=attempt.attempt_no,
+                    expected_subject_digest=_planning_subject_digest(
+                        "run_failure",
+                        run=run,
+                        attempt=attempt,
+                        prepared=prepared,
+                        policy=run_policy,
+                        retry_decision=retry_decision,
+                        attempt_failure_artifact_id=attempt_result.failure_artifact_id,
+                        occurred_at=occurred_at,
+                        actor=actor,
+                    ),
+                    fresh_runtime_authority_digest=aggregate_fresh_runtime,
+                )
+            )
+        return self._commit_planned_many(
+            tuple(
+                (draft, staged_publication, operations)
+                for draft, staged_publication, operations in zip(
+                    drafts,
+                    staged,
+                    rebound_operations,
+                    strict=True,
+                )
+            )
+        )
+
+    def commit_planned_run_failure(
+        self,
+        draft: TerminalPublicationDraft,
+        staged: StagedTerminalPublication,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        attempt_failure_artifact_id: str | None,
+        occurred_at: str,
+        actor: AuditActor,
+        command_audit_correlation: AuditCorrelation | None = None,
+    ) -> object:
+        fresh_runtime = self._fresh_runtime_authority_digest(
+            run.run_id,
+            publication_kind="run_failure",
+        )
+        rebound_operations = self._rebind_operations_for_commit(
+            draft,
+            expected_kind="run_failure",
+            expected_run_id=run.run_id,
+            expected_attempt_no=attempt.attempt_no if attempt is not None else None,
+            expected_subject_digest=_planning_subject_digest(
+                "run_failure",
+                run=run,
+                attempt=attempt,
+                prepared=prepared,
+                policy=policy,
+                retry_decision=retry_decision,
+                attempt_failure_artifact_id=attempt_failure_artifact_id,
+                occurred_at=occurred_at,
+                actor=actor,
+            ),
+            fresh_runtime_authority_digest=fresh_runtime,
+        )
+        return self._commit_planned_many(
+            ((draft, staged, rebound_operations),),
+            command_audit_correlation=command_audit_correlation,
+        )[0]
+
+    def _commit_planned_many(
+        self,
+        publications: tuple[
+            tuple[TerminalPublicationDraft, StagedTerminalPublication, tuple[object, ...]],
+            ...,
+        ],
+        *,
+        command_audit_correlation: AuditCorrelation | None = None,
+    ) -> tuple[object, ...]:
+        """Commit already sealed plans without re-reading or rehashing blob payloads.
+
+        The lifecycle-only ``commit_planned_*`` surface receives drafts created by
+        the trusted read-phase planner and receipts created by the trusted stager.
+        Fresh lifecycle and runtime digests were compared immediately before this
+        call.  Validate the compact digest/slot/ref closure for the whole aggregate
+        before its first write, then execute the retained operations.  The general
+        ``commit`` surface below keeps its deeper mutation checks for direct callers.
+        """
+
+        validated: list[tuple[tuple[object, ...], Mapping[str, StagedReceipt]]] = []
+        publication_kinds: list[str] = []
+        results: list[object] = []
+        for draft, staged, operations in publications:
+            state = _terminal_publication_state(draft, expected_phase="sealed")
+            if staged.projection_digest != state.projection_digest:
+                raise IntegrityViolation(
+                    "staged terminal projection differs from its sealed plan",
+                    run_id=state.run_id,
+                )
+            receipts = {receipt.slot: receipt for receipt in staged.receipts}
+            materials = {material.slot: material for material in state.materials}
+            if len(receipts) != len(staged.receipts) or set(receipts) != set(materials):
+                raise IntegrityViolation(
+                    "staged receipt slots do not exactly close the sealed plan",
+                    run_id=state.run_id,
+                )
+            artifact_slots = tuple(
+                operation.slot for operation in operations if isinstance(operation, _ArtifactWrite)
+            )
+            if len(artifact_slots) != len(set(artifact_slots)) or set(artifact_slots) != set(
+                materials
+            ):
+                raise IntegrityViolation(
+                    "sealed plan blob slots do not map one-to-one onto Artifact writes",
+                    run_id=state.run_id,
+                )
+            for slot, material in materials.items():
+                if receipts[slot].ref != material.expected_ref:
+                    raise IntegrityViolation(
+                        "staged receipt ref differs from the sealed plan material",
+                        slot=slot,
+                    )
+            validated.append((operations, receipts))
+            publication_kinds.append(state.publication_kind)
+            results.append(deep_freeze_value(state.result))
+
+        preflight_artifacts = getattr(self._artifacts, "preflight_staged_many", None)
+        put_preflighted_artifacts = getattr(self._artifacts, "put_preflighted_many", None)
+        if callable(preflight_artifacts) != callable(put_preflighted_artifacts):
+            raise IntegrityViolation("Artifact batch preflight capability is partial")
+        if not callable(preflight_artifacts) or not callable(put_preflighted_artifacts):
+            raise IntegrityViolation(
+                "planned terminal publication requires Artifact batch preflight/apply"
+            )
+        if callable(preflight_artifacts):
+            artifact_writes: list[
+                tuple[
+                    ArtifactV2,
+                    StagedReceipt,
+                    PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding,
+                ]
+            ] = []
+            for operations, receipts in validated:
+                for operation in operations:
+                    if not isinstance(operation, _ArtifactWrite):
+                        continue
+                    receipt = receipts[operation.slot]
+                    planned_binding = operation.retained_binding
+                    if not isinstance(
+                        planned_binding,
+                        (PreverifiedArtifactBinding, PreverifiedAbsentArtifactBinding),
+                    ):
+                        raise IntegrityViolation(
+                            "production terminal Artifact lacks a read-phase binding proof",
+                            artifact_id=operation.artifact.artifact_id,
+                        )
+                    artifact_writes.append((operation.artifact, receipt, planned_binding))
+            artifact_batch = preflight_artifacts(tuple(artifact_writes))
+
+            finding_operations = tuple(
+                operation
+                for operations, _receipts in validated
+                for operation in operations
+                if isinstance(operation, _FindingWrite)
+            )
+            preflight_findings = getattr(self._findings, "preflight_put_many", None)
+            put_preflighted_findings = getattr(self._findings, "put_preflighted_many", None)
+            preflight_links = getattr(self._ledger, "preflight_finding_links_many", None)
+            put_preflighted_links = getattr(
+                self._ledger,
+                "put_preflighted_finding_links_many",
+                None,
+            )
+            finding_capabilities = (
+                callable(preflight_findings),
+                callable(put_preflighted_findings),
+                callable(preflight_links),
+                callable(put_preflighted_links),
+            )
+            if finding_operations and not all(finding_capabilities):
+                raise IntegrityViolation("Finding batch preflight capability is incomplete")
+            if any(finding_capabilities) and not all(finding_capabilities):
+                raise IntegrityViolation("Finding batch preflight capability is partial")
+            finding_seal = None
+            link_seal = None
+            if finding_operations:
+                finding_seal = preflight_findings(  # type: ignore[operator]
+                    tuple(
+                        (
+                            operation.planned.revision,
+                            operation.planned.expected_current_revision,
+                        )
+                        for operation in finding_operations
+                    )
+                )
+                link_seal = preflight_links(  # type: ignore[operator]
+                    tuple(operation.planned.link for operation in finding_operations),
+                    planned_findings=tuple(
+                        operation.planned.revision for operation in finding_operations
+                    ),
+                    planned_artifact_ids=tuple(
+                        dict.fromkeys(
+                            operation.artifact.artifact_id
+                            for operations, _receipts in validated
+                            for operation in operations
+                            if isinstance(operation, _ArtifactWrite)
+                        )
+                    ),
+                )
+
+            workflow_operations = tuple(
+                operation
+                for operations, _receipts in validated
+                for operation in operations
+                if isinstance(operation, _WorkflowWrite)
+            )
+            workflow_seals = tuple(
+                preflight_prepared_workflow_effect(
+                    operation.prepared,
+                    operation.context,
+                    merge_audit_into_terminal_batch=True,
+                )
+                for operation in workflow_operations
+            )
+
+            audit_operations_by_publication = tuple(
+                tuple(operation for operation in operations if isinstance(operation, _AuditWrite))
+                for operations, _receipts in validated
+            )
+            preflight_audits = getattr(self._audit, "preflight_records", None)
+            apply_preflighted_audits = getattr(
+                self._audit,
+                "apply_preflighted_records",
+                None,
+            )
+            if not callable(preflight_audits) or not callable(apply_preflighted_audits):
+                raise IntegrityViolation(
+                    "production terminal Audit batch preflight capability is required"
+                )
+            workflow_audit_intents = _workflow_audit_intents(
+                workflow_seals=workflow_seals,
+                workflow_operations=workflow_operations,
+            )
+            audit_batch = preflight_audits(
+                (
+                    *workflow_audit_intents,
+                    *_terminal_audit_intents(
+                        publication_kinds=tuple(publication_kinds),
+                        audit_operations_by_publication=audit_operations_by_publication,
+                        command_audit_correlation=command_audit_correlation,
+                    ),
+                )
+            )
+
+            consume_terminal_publications(
+                tuple(draft for draft, _staged, _operations in publications),
+                expected_phase="sealed",
+            )
+            stored_artifacts = put_preflighted_artifacts(artifact_batch)
+            if len(stored_artifacts) != len(artifact_writes):
+                raise IntegrityViolation("Artifact batch publisher returned another cardinality")
+            for stored, (expected, _receipt, _binding) in zip(
+                stored_artifacts,
+                artifact_writes,
+                strict=True,
+            ):
+                if not _same_immutable_artifact(stored, expected):
+                    raise IntegrityViolation(
+                        "Artifact batch publisher returned another immutable Artifact",
+                        artifact_id=expected.artifact_id,
+                    )
+            if finding_seal is not None and link_seal is not None:
+                stored_findings = put_preflighted_findings(finding_seal)  # type: ignore[operator]
+                expected_findings = tuple(
+                    operation.planned.revision for operation in finding_operations
+                )
+                if stored_findings != expected_findings:
+                    raise IntegrityViolation(
+                        "Finding batch publisher returned another immutable revision"
+                    )
+                stored_links = put_preflighted_links(link_seal)  # type: ignore[operator]
+                expected_links = tuple(operation.planned.link for operation in finding_operations)
+                if stored_links != expected_links:
+                    raise IntegrityViolation(
+                        "Finding-link batch publisher returned another immutable link"
+                    )
+            for workflow_seal, workflow_operation in zip(
+                workflow_seals,
+                workflow_operations,
+                strict=True,
+            ):
+                apply_preflighted_workflow_effect(
+                    workflow_seal,
+                    workflow_operation.context,
+                )
+            apply_preflighted_audits(audit_batch)
+        return tuple(results)
+
     def commit(
         self,
         fresh_draft: TerminalPublicationDraft,
         staged: StagedTerminalPublication,
     ) -> object:
-        """Commit one freshly reprojected draft without any ObjectStore write.
+        """Commit one compatibility/test draft without any ObjectStore write.
 
-        The caller must build ``fresh_draft`` from the current write-UoW snapshot.
-        This method checks the complete canonical digest and exact slot/ref closure,
-        then performs only transaction-bound repository/effect/audit operations.
+        Production lifecycle drafts carry ``runtime_authority_digest`` and are
+        rejected by this surface; they must use ``commit_planned_*`` so complete
+        outcome projection work stays outside the SQLite writer lock. Direct test
+        callers without persistent runtime authority retain the deeper mutation
+        checks here.
         """
 
         return self.commit_many(((fresh_draft, staged),))[0]
@@ -1067,59 +2152,45 @@ class TerminalPublisher:
         self,
         publications: tuple[tuple[TerminalPublicationDraft, StagedTerminalPublication], ...],
     ) -> tuple[object, ...]:
-        """Validate a complete aggregate before executing its first DB write."""
+        """Validate a compatibility/test aggregate before its first DB write."""
 
-        validated: list[tuple[TerminalPublicationDraft, Mapping[str, StagedReceipt]]] = []
-        for fresh_draft, staged in publications:
-            current_operation_projection = tuple(
-                _operation_projection(operation) for operation in fresh_draft.operations
+        source_states = tuple(
+            _terminal_publication_state(draft, expected_phase="draft")
+            for draft, _staged in publications
+        )
+        if any(state.runtime_authority_digest is not None for state in source_states):
+            raise IntegrityViolation(
+                "authority-bound terminal drafts require the planned commit surface"
             )
-            current_result_projection = _model_projection(fresh_draft.result)
+        validated: list[tuple[_TerminalPublicationState, Mapping[str, StagedReceipt]]] = []
+        for state, (_fresh_draft, staged) in zip(source_states, publications, strict=True):
+            current_operation_projection = tuple(
+                _operation_projection(operation) for operation in state.operations
+            )
+            current_result_projection = _model_projection(state.result)
             if (
-                current_operation_projection != fresh_draft.operation_projection
-                or current_result_projection != fresh_draft.result_projection
+                current_operation_projection != state.operation_projection
+                or current_result_projection != state.result_projection
             ):
                 raise IntegrityViolation(
                     "terminal draft operations/result mutated after projection",
-                    run_id=fresh_draft.run_id,
+                    run_id=state.run_id,
                 )
-            # Rebuild every material so payload/ref validation cannot be bypassed by
-            # mutating a nested object after the read phase.
-            materials_tuple = tuple(
-                BlobMaterial(
-                    slot=material.slot,
-                    payload=bytes(material.payload),
-                    expected_ref=material.expected_ref,
-                )
-                for material in fresh_draft.materials
-            )
-            checked = TerminalPublicationDraft(
-                publication_kind=fresh_draft.publication_kind,
-                run_id=fresh_draft.run_id,
-                attempt_no=fresh_draft.attempt_no,
-                occurred_at=fresh_draft.occurred_at,
-                projection_digest=fresh_draft.projection_digest,
-                materials=materials_tuple,
-                operations=fresh_draft.operations,
-                operation_projection=current_operation_projection,
-                result_projection=current_result_projection,  # type: ignore[arg-type]
-                result=fresh_draft.result,
-            )
-            if staged.projection_digest != checked.projection_digest:
+            if staged.projection_digest != state.projection_digest:
                 raise IntegrityViolation(
                     "fresh terminal projection differs from the staged projection",
-                    run_id=checked.run_id,
+                    run_id=state.run_id,
                 )
             receipts = {receipt.slot: receipt for receipt in staged.receipts}
-            materials = {material.slot: material for material in checked.materials}
+            materials = {material.slot: material for material in state.materials}
             if set(receipts) != set(materials):
                 raise IntegrityViolation(
                     "staged receipt slots do not exactly close the fresh draft",
-                    run_id=checked.run_id,
+                    run_id=state.run_id,
                 )
             artifact_slots = tuple(
                 operation.slot
-                for operation in checked.operations
+                for operation in state.operations
                 if isinstance(operation, _ArtifactWrite)
             )
             if len(artifact_slots) != len(set(artifact_slots)) or set(artifact_slots) != set(
@@ -1127,7 +2198,7 @@ class TerminalPublisher:
             ):
                 raise IntegrityViolation(
                     "fresh draft blob slots do not map one-to-one onto Artifact writes",
-                    run_id=checked.run_id,
+                    run_id=state.run_id,
                 )
             for slot, material in materials.items():
                 receipt = receipts[slot]
@@ -1136,11 +2207,15 @@ class TerminalPublisher:
                         "staged receipt ref differs from the fresh draft material",
                         slot=slot,
                     )
-            validated.append((checked, receipts))
+            validated.append((state, receipts))
 
-        for checked, receipts in validated:
-            self._commit_operations(checked.operations, receipts=receipts)
-        return tuple(checked.result for checked, _ in validated)
+        consume_terminal_publications(
+            tuple(fresh_draft for fresh_draft, _staged in publications),
+            expected_phase="draft",
+        )
+        for state, receipts in validated:
+            self._commit_operations(state.operations, receipts=receipts)
+        return tuple(deep_freeze_value(state.result) for state, _ in validated)
 
     def _commit_operations(
         self,
@@ -1156,7 +2231,11 @@ class TerminalPublisher:
                         "Artifact write has no exact staged receipt",
                         slot=operation.slot,
                     )
-                stored = self._artifacts.put_staged(operation.artifact, receipt)
+                stored = self._artifacts.put_staged(
+                    operation.artifact,
+                    receipt,
+                    operation.retained_binding,
+                )
                 if not _same_immutable_artifact(stored, operation.artifact):
                     raise IntegrityViolation(
                         "Artifact store returned a different immutable Artifact",
@@ -1180,7 +2259,10 @@ class TerminalPublisher:
                     )
                 continue
             if isinstance(operation, _WorkflowWrite):
-                apply_workflow_effect(operation.effect_key, operation.context)
+                commit_prepared_workflow_effect(
+                    operation.prepared,
+                    operation.context,
+                )
                 continue
             if isinstance(operation, _AuditWrite):
                 self._audit.record(
@@ -1281,6 +2363,9 @@ class TerminalPublisher:
     def record_attempt_closed(self, **kwargs: object) -> None:
         self._record_event("run.attempt_closed", kwargs)
 
+    def record_command_submitted(self, **kwargs: object) -> None:
+        self._record_event("run.command_submitted", kwargs)
+
     def record_run_terminal(self, **kwargs: object) -> None:
         self._record_event("run.terminal", kwargs)
 
@@ -1288,7 +2373,23 @@ class TerminalPublisher:
         run = kwargs.get("run")
         actor = kwargs.get("actor")
         event = kwargs.get("event")
+        events = kwargs.get("events")
+        if event is None and isinstance(events, tuple) and events:
+            event = events[-1]
+        attempt = kwargs.get("attempt")
         occurred_at = getattr(event, "occurred_at", None) if event is not None else None
+        request_id = kwargs.get("request_id")
+        trace_id = kwargs.get("trace_id")
+        if request_id is not None and not isinstance(request_id, str):
+            raise IntegrityViolation("terminal Audit request correlation is invalid")
+        if trace_id is not None and not isinstance(trace_id, str):
+            raise IntegrityViolation("terminal Audit trace correlation is invalid")
+        if trace_id is None:
+            event_trace_id = getattr(event, "trace_id", None)
+            attempt_trace_id = getattr(attempt, "trace_id", None)
+            trace_id = event_trace_id if event_trace_id is not None else attempt_trace_id
+            if trace_id is not None and not isinstance(trace_id, str):
+                raise IntegrityViolation("terminal Audit trace authority is invalid")
         if isinstance(run, RunRecord) and isinstance(actor, AuditActor):
             self._audit.record(
                 action=action,
@@ -1296,6 +2397,8 @@ class TerminalPublisher:
                 artifact_id=None,
                 actor=actor,
                 occurred_at=occurred_at or run.updated_at,
+                request_id=request_id,
+                trace_id=trace_id,
             )
 
     # ----------------------------------------------------------------- success
@@ -1451,6 +2554,7 @@ class TerminalPublisher:
             artifact_id=manifest_id,
             actor=actor,
             occurred_at=occurred_at,
+            trace_id=attempt.trace_id,
         )
         return RunResultPublication(
             result_artifact_id=manifest_id,
@@ -1557,6 +2661,7 @@ class TerminalPublisher:
             artifact_id=manifest_id,
             actor=actor,
             occurred_at=occurred_at,
+            trace_id=attempt.trace_id,
         )
         return AttemptFailurePublication(
             failure_artifact_id=manifest_id,
@@ -1703,6 +2808,7 @@ class TerminalPublisher:
             artifact_id=manifest_id,
             actor=actor,
             occurred_at=occurred_at,
+            trace_id=attempt.trace_id if attempt is not None else None,
         )
         return RunFailurePublication(
             failure_artifact_id=manifest_id,
@@ -1919,7 +3025,13 @@ class TerminalPublisher:
             )
         run_inputs = self._input_parents(run.payload.input_artifact_ids)
         run_intermediates = self._intermediate_parents(run.run_id)
+        authorized_run_parents = _merge_parent_sources(run_inputs, run_intermediates)
         siblings: dict[str, dict[str, ParentInfo]] = {}
+        sibling_candidates: dict[str, ParentInfo] = {}
+        available_references: Mapping[str, ParentInfo] = ChainMap(
+            sibling_candidates,
+            authorized_run_parents,
+        )
         ids_by_rule: dict[str, list[str]] = {}
         prepared_to_final_ids_by_rule: dict[str, dict[str, str]] = {}
         final_sibling_facts_by_id: dict[str, FinalSiblingFact] = {}
@@ -1939,6 +3051,11 @@ class TerminalPublisher:
             if isinstance(run.payload.params, TaskSuiteDerivePayloadV1)
             else None
         )
+        task_suite_authority = (
+            self._task_suite_terminal_authority(run)
+            if isinstance(run.payload.params, TaskSuiteDerivePayloadV1)
+            else None
+        )
         authoritative_parent_payload_cache: dict[str, Mapping[str, object]] = {}
 
         for allocation in _topological_rule_order(allocations, plan):
@@ -1948,30 +3065,34 @@ class TerminalPublisher:
             payloads_by_rule.setdefault(rule.rule_id, [])
             artifacts_by_rule.setdefault(rule.rule_id, [])
             prepared_to_final_ids_by_rule.setdefault(rule.rule_id, {})
+            child_payload_references = any(
+                parent.source == "child_payload_reference" for parent in lineage_policy.parent_rules
+            )
+            prepared_source_rule_ids = tuple(
+                dict.fromkeys(
+                    parent.source_rule_id
+                    for parent in lineage_policy.parent_rules
+                    if parent.source == "prepared_rule" and parent.source_rule_id is not None
+                )
+            )
+            prepared_sibling_sources = {
+                source_rule_id: siblings.get(source_rule_id, {})
+                for source_rule_id in prepared_source_rule_ids
+            }
             for index in allocation.artifact_indexes:
                 view = by_index[index]
                 payload = dict(view.payload)
                 object_ref = view.object_ref
                 payload_hash = view.payload_hash
-                sibling_candidates = {
-                    artifact_id: info
-                    for by_id in siblings.values()
-                    for artifact_id, info in by_id.items()
-                }
-                available_references = _merge_parent_sources(
-                    run_inputs,
-                    run_intermediates,
-                    sibling_candidates,
-                )
                 child_references, referenced_ids = resolve_child_payload_references(
                     policy=lineage_policy,
                     child_payload=payload,
-                    available_parents=available_references,
+                    available_parents=(available_references if child_payload_references else {}),
                 )
                 sources = LineageParentSources(
                     run_inputs=run_inputs,
                     run_intermediates=run_intermediates,
-                    prepared_siblings={key: dict(value) for key, value in siblings.items()},
+                    prepared_siblings=prepared_sibling_sources,
                     child_payload_references=child_references,
                 )
                 # Inject the content-addressed sibling ids the handler could not
@@ -2073,6 +3194,7 @@ class TerminalPublisher:
                     payload_schema_id=view.payload_schema_id,
                     payload=payload,
                     prepared_batch_total_bytes=task_suite_prepared_total_bytes,
+                    authority=task_suite_authority,
                 )
                 self._validate_playtest_profile_authority(
                     run=run,
@@ -2226,17 +3348,32 @@ class TerminalPublisher:
                             prepared_artifact_id=prepared_alias,
                         )
                     prepared_to_final_ids_by_rule[rule.rule_id][prepared_alias] = stored.artifact_id
-                siblings.setdefault(rule.rule_id, {})[stored.artifact_id] = ParentInfo(
+                sibling = ParentInfo(
                     artifact_id=stored.artifact_id,
                     kind=view.kind,
                     payload_schema_id=view.payload_schema_id,
                     version_tuple=expected_tuple,
                     payload_hash=stored.payload_hash,
                 )
+                retained_parent = authorized_run_parents.get(stored.artifact_id)
+                retained_sibling = sibling_candidates.get(stored.artifact_id)
+                if (
+                    retained_parent is not None
+                    and retained_parent != sibling
+                    or retained_sibling is not None
+                    and retained_sibling != sibling
+                ):
+                    raise IntegrityViolation(
+                        "authorized lineage sources disagree about one parent",
+                        artifact_id=stored.artifact_id,
+                    )
+                siblings.setdefault(rule.rule_id, {})[stored.artifact_id] = sibling
+                sibling_candidates[stored.artifact_id] = sibling
         self._validate_task_suite_batch_authority(
             run=run,
             payloads_by_rule=payloads_by_rule,
             artifacts_by_rule=artifacts_by_rule,
+            authority=task_suite_authority,
         )
         return _PublishedArtifacts(
             ids_by_rule={key: tuple(value) for key, value in ids_by_rule.items()},
@@ -2466,12 +3603,7 @@ class TerminalPublisher:
     def _task_suite_terminal_authority(
         self,
         run: RunRecord,
-    ) -> tuple[
-        EnvironmentProfileDetailsV1,
-        TaskSuiteDerivationProfileConfigV2,
-        CompletionOracleRegistryV1,
-        PlaytestPayloadValidationService,
-    ]:
+    ) -> _TaskSuiteTerminalAuthority:
         params = run.payload.params
         if not isinstance(params, TaskSuiteDerivePayloadV1):
             raise IntegrityViolation("TaskSuite payload is bound to another Run kind")
@@ -2547,11 +3679,13 @@ class TerminalPublisher:
         )
         if oracle_registry is None:
             raise IntegrityViolation("TaskSuite completion-oracle registry is unavailable")
-        return (
-            environment_definition.details,
-            derivation_config,
-            oracle_registry,
-            validator,
+        return _TaskSuiteTerminalAuthority(
+            run_id=run.run_id,
+            run_payload_hash=run.payload_hash,
+            environment_details=environment_definition.details,
+            derivation_config=derivation_config,
+            oracle_registry=oracle_registry,
+            validator=validator,
         )
 
     def _validate_task_suite_payload_authority(
@@ -2561,6 +3695,7 @@ class TerminalPublisher:
         payload_schema_id: str,
         payload: Mapping[str, object],
         prepared_batch_total_bytes: int | None,
+        authority: _TaskSuiteTerminalAuthority | None = None,
     ) -> None:
         """Re-run exact reset/oracle schemas at the Prepared→Artifact boundary."""
 
@@ -2568,12 +3703,13 @@ class TerminalPublisher:
             return
         params = run.payload.params
         assert isinstance(params, TaskSuiteDerivePayloadV1)
-        (
-            environment_details,
-            derivation_config,
-            oracle_registry,
-            validator,
-        ) = self._task_suite_terminal_authority(run)
+        resolved = authority or self._task_suite_terminal_authority(run)
+        if resolved.run_id != run.run_id or resolved.run_payload_hash != run.payload_hash:
+            raise IntegrityViolation("TaskSuite authority cache belongs to another Run payload")
+        environment_details = resolved.environment_details
+        derivation_config = resolved.derivation_config
+        oracle_registry = resolved.oracle_registry
+        validator = resolved.validator
         if (
             prepared_batch_total_bytes is None
             or prepared_batch_total_bytes < 1
@@ -2642,6 +3778,7 @@ class TerminalPublisher:
         run: RunRecord,
         payloads_by_rule: Mapping[str, Sequence[Mapping[str, object]]],
         artifacts_by_rule: Mapping[str, Sequence[ArtifactV2]],
+        authority: _TaskSuiteTerminalAuthority | None = None,
     ) -> None:
         """Re-run the exact shaper and compare the complete terminal sibling batch."""
 
@@ -2651,12 +3788,13 @@ class TerminalPublisher:
         resolver = self._task_suite_scenario_shaper_resolver
         if resolver is None:
             raise IntegrityViolation("TaskSuite publication lacks scenario-shaper authority")
-        (
-            environment_details,
-            derivation_config,
-            oracle_registry,
-            validator,
-        ) = self._task_suite_terminal_authority(run)
+        resolved = authority or self._task_suite_terminal_authority(run)
+        if resolved.run_id != run.run_id or resolved.run_payload_hash != run.payload_hash:
+            raise IntegrityViolation("TaskSuite authority cache belongs to another Run payload")
+        environment_details = resolved.environment_details
+        derivation_config = resolved.derivation_config
+        oracle_registry = resolved.oracle_registry
+        validator = resolved.validator
         preview_wire = self._artifacts.get(params.source_preview_artifact_id)
         try:
             preview_artifact = (
@@ -3304,21 +4442,18 @@ class TerminalPublisher:
         """Close runtime links, identity, cassette tree and transition inputs."""
 
         mode = run.payload.llm_execution_mode
-        current_links = (
-            self._ledger.prompt_links(run.run_id, attempt_no=current_attempt_no)
-            if current_attempt_no is not None
-            else ()
-        )
         all_links = self._ledger.prompt_links(run.run_id, attempt_no=None)
-        current_tool_links = (
-            self._ledger.tool_intermediate_links(
-                run.run_id,
-                attempt_no=current_attempt_no,
-            )
+        current_links = (
+            tuple(link for link in all_links if link.attempt_no == current_attempt_no)
             if current_attempt_no is not None
             else ()
         )
         all_tool_links = self._ledger.tool_intermediate_links(run.run_id, attempt_no=None)
+        current_tool_links = (
+            tuple(link for link in all_tool_links if link.attempt_no == current_attempt_no)
+            if current_attempt_no is not None
+            else ()
+        )
         committed = {
             ("prompt_rendered", "current_attempt"): len(current_links),
             ("prompt_rendered", "all_attempts"): len(all_links),
@@ -3399,7 +4534,7 @@ class TerminalPublisher:
                     attempt_no=attempt_no,
                 )
                 if authoritative_id is None:
-                    retained_attempt = self._ledger.get_attempt(run.run_id, attempt_no)
+                    retained_attempt = self._attempt_authority(run.run_id, attempt_no)
                     may_be_planned_now = (
                         attempt_no == current_attempt_no
                         and isinstance(retained_attempt, RunAttempt)
@@ -3721,6 +4856,9 @@ class TerminalPublisher:
             if run.payload.llm_execution_mode == "replay"
             else {"online", "full_response_cache"}
         )
+        attempts_by_no: dict[int, RunAttempt | None] = {}
+        prompt_artifacts: dict[str, ArtifactV2] = {}
+        routing_decisions: dict[str, RoutingDecisionV1 | None] = {}
         for binding in identity.bindings:
             if manifest_scope == "attempt" and binding.attempt_no != current_attempt_no:
                 raise IntegrityViolation(
@@ -3743,7 +4881,12 @@ class TerminalPublisher:
                     attempt_no=binding.attempt_no,
                     call_ordinal=binding.call_ordinal,
                 )
-            retained_attempt = self._ledger.get_attempt(run.run_id, binding.attempt_no)
+            if binding.attempt_no not in attempts_by_no:
+                attempts_by_no[binding.attempt_no] = self._attempt_authority(
+                    run.run_id,
+                    binding.attempt_no,
+                )
+            retained_attempt = attempts_by_no[binding.attempt_no]
             if (
                 not isinstance(retained_attempt, RunAttempt)
                 or retained_attempt.run_id != run.run_id
@@ -3755,16 +4898,8 @@ class TerminalPublisher:
                     "rendered-prompt link differs from fenced RunAttempt authority"
                 )
             key = (binding.attempt_no, binding.call_ordinal, binding.route_ordinal)
-            listed_route = routes_by_key[key]
-            route = self._ledger.get_model_route_link(run.run_id, *key)
-            if route != listed_route:
-                raise IntegrityViolation("listed model-route authority changed during projection")
-            listed_consumption = consumptions_by_key.get(key)
-            consumption = self._ledger.get_model_response_consumption(run.run_id, *key)
-            if consumption != listed_consumption:
-                raise IntegrityViolation(
-                    "listed response-consumption authority changed during projection"
-                )
+            route = routes_by_key[key]
+            consumption = consumptions_by_key.get(key)
             if (
                 not isinstance(route, RunModelRouteLinkV1)
                 or route.run_id != run.run_id
@@ -3821,7 +4956,10 @@ class TerminalPublisher:
                     "LIVE/RECORD identity cannot use a legacy import routing decision"
                 )
             prompt_info = artifact_info[link.artifact_id]
-            prompt_artifact = self._artifact_v2(link.artifact_id)
+            prompt_artifact = prompt_artifacts.get(link.artifact_id)
+            if prompt_artifact is None:
+                prompt_artifact = self._artifact_v2(link.artifact_id)
+                prompt_artifacts[link.artifact_id] = prompt_artifact
             renderer_version = prompt_artifact.meta.get("renderer_version")
             if (
                 prompt_info.version_tuple.prompt_version != binding.prompt_version
@@ -3835,7 +4973,11 @@ class TerminalPublisher:
                     artifact_id=link.artifact_id,
                 )
             if binding.routing_decision_kind == "native":
-                decision = self._ledger.get_routing_decision(binding.routing_decision_id)
+                if binding.routing_decision_id not in routing_decisions:
+                    routing_decisions[binding.routing_decision_id] = (
+                        self._ledger.get_routing_decision(binding.routing_decision_id)
+                    )
+                decision = routing_decisions[binding.routing_decision_id]
                 if (
                     type(decision) is not RoutingDecisionV1
                     or decision.decision_id != binding.routing_decision_id
@@ -3942,7 +5084,7 @@ class TerminalPublisher:
                 attempt_no=attempt_no,
                 ordinal=None,
             )
-            retained_attempt = self._ledger.get_attempt(run.run_id, attempt_no)
+            retained_attempt = self._attempt_authority(run.run_id, attempt_no)
             if (
                 attempt_no == current_attempt_no
                 and isinstance(retained_attempt, RunAttempt)
@@ -4115,7 +5257,7 @@ class TerminalPublisher:
         link = links[0]
         if link.run_id != run.run_id:
             raise IntegrityViolation("native RECORD prompt link belongs to another Run")
-        retained_attempt = self._ledger.get_attempt(run.run_id, attempt_no)
+        retained_attempt = self._attempt_authority(run.run_id, attempt_no)
         if (
             not isinstance(retained_attempt, RunAttempt)
             or retained_attempt.run_id != run.run_id
@@ -4781,6 +5923,9 @@ class TerminalPublisher:
             )
 
     def _runtime_parent_info(self, artifact_id: str) -> ParentInfo:
+        cached = self._runtime_parent_cache.get(artifact_id)
+        if cached is not None:
+            return cached
         artifact = self._artifact_v2(artifact_id)
         schema = artifact.meta.get("payload_schema_id")
         if not isinstance(schema, str):
@@ -4788,13 +5933,15 @@ class TerminalPublisher:
                 "runtime parent Artifact has no exact payload schema",
                 artifact_id=artifact_id,
             )
-        return ParentInfo(
+        info = ParentInfo(
             artifact_id=artifact.artifact_id,
             kind=artifact.kind,
             payload_schema_id=schema,
             version_tuple=artifact.version_tuple,
             payload_hash=artifact.payload_hash,
         )
+        self._runtime_parent_cache[artifact_id] = info
+        return info
 
     def _validate_tool_context_parent(
         self,
@@ -4804,7 +5951,7 @@ class TerminalPublisher:
     ) -> None:
         """Re-read the complete typed context closure before manifest projection."""
 
-        attempt = self._ledger.get_attempt(run.run_id, link.attempt_no)
+        attempt = self._attempt_authority(run.run_id, link.attempt_no)
         plan = run.payload.execution_version_plan
         node = (
             None
@@ -5019,6 +6166,9 @@ class TerminalPublisher:
         planned = self._planned_artifact_overlay.get(artifact_id)
         if planned is not None:
             return planned[0]
+        cached = self._artifact_cache.get(artifact_id)
+        if cached is not None:
+            return cached
         wire = self._artifacts.get(artifact_id)
         if wire is None:
             raise IntegrityViolation(
@@ -5037,6 +6187,7 @@ class TerminalPublisher:
                 "runtime parent must be an exact lineage@2 Artifact",
                 artifact_id=artifact_id,
             )
+        self._artifact_cache[artifact_id] = parsed
         return parsed
 
     def _read_published_artifact_bytes(self, artifact: ArtifactV2) -> bytes:
@@ -5049,6 +6200,9 @@ class TerminalPublisher:
                 )
             blob = planned[1]
         else:
+            cached = self._published_blob_cache.get(artifact.artifact_id)
+            if cached is not None:
+                return cached
             try:
                 blob = self._artifacts.read_bytes(artifact.artifact_id)
             except (AttributeError, KeyError, OSError) as exc:
@@ -5064,6 +6218,8 @@ class TerminalPublisher:
                 "published runtime Artifact bytes differ from its ObjectRef",
                 artifact_id=artifact.artifact_id,
             )
+        if planned is None:
+            self._published_blob_cache[artifact.artifact_id] = blob
         return blob
 
     def _read_authoritative_parent_payload(

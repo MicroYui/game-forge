@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from copy import copy
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import event, func, select
 from sqlalchemy.orm import Session
+
+import gameforge.runtime.persistence.artifacts as artifact_repository_module
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import CursorInvalid, IntegrityViolation
@@ -13,12 +17,13 @@ from gameforge.contracts.lineage import (
     Artifact,
     ArtifactV1,
     ArtifactV2,
+    ObjectLocation,
     ObjectRef,
     VersionTuple,
     build_artifact_v2,
     object_ref_for_bytes,
 )
-from gameforge.contracts.storage import MAX_PAGE_ITEMS, ReadSnapshotV1
+from gameforge.contracts.storage import MAX_PAGE_ITEMS, ObjectStat, ReadSnapshotV1
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
@@ -27,8 +32,10 @@ from gameforge.runtime.persistence.models import (
     ArtifactRow,
     Base,
     MaterializedReadItemRow,
+    ObjectBindingRow,
     ReadSnapshotRow,
 )
+from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 
 
 NOW = datetime(2026, 7, 13, 12, 0, tzinfo=timezone.utc)
@@ -119,6 +126,391 @@ def test_put_is_transaction_bound_and_rollback_removes_the_insert(tmp_path) -> N
 
     with Session(engine) as verification:
         assert verification.get(ArtifactRow, "legacy-1") is None
+
+
+def test_put_many_preloads_existing_rows_and_flushes_once_for_the_batch(tmp_path) -> None:
+    engine = _engine(tmp_path)
+
+    def exercise(prefix: str, count: int) -> tuple[int, int]:
+        selects: list[str] = []
+        flushes = 0
+
+        def observe_statement(
+            _connection: object,
+            _cursor: object,
+            statement: str,
+            _parameters: object,
+            _context: object,
+            _executemany: bool,
+        ) -> None:
+            if statement.lstrip().upper().startswith("SELECT"):
+                selects.append(statement)
+
+        def observe_flush(
+            _session: Session,
+            _flush_context: object,
+            _instances: object,
+        ) -> None:
+            nonlocal flushes
+            flushes += 1
+
+        items = tuple(_legacy(f"{prefix}-{ordinal}") for ordinal in range(count))
+        with Session(engine, autoflush=False, expire_on_commit=False) as session:
+            event.listen(engine, "before_cursor_execute", observe_statement)
+            event.listen(session, "before_flush", observe_flush)
+            try:
+                with session.begin():
+                    assert _repository(session).put_many(items) == items
+            finally:
+                event.remove(session, "before_flush", observe_flush)
+                event.remove(engine, "before_cursor_execute", observe_statement)
+        return len(selects), flushes
+
+    assert exercise("single", 1) == (1, 1)
+    assert exercise("batch", 8) == (1, 1)
+
+
+def test_put_many_chunks_901_artifact_ids_and_still_flushes_once(tmp_path) -> None:
+    engine = _engine(tmp_path)
+    items = tuple(_legacy(f"chunked-{ordinal}") for ordinal in range(901))
+    selects: list[str] = []
+    flushes = 0
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().startswith("SELECT"):
+            selects.append(statement)
+
+    def observe_flush(
+        _session: Session,
+        _flush_context: object,
+        _instances: object,
+    ) -> None:
+        nonlocal flushes
+        flushes += 1
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        event.listen(session, "before_flush", observe_flush)
+        try:
+            with session.begin():
+                assert _repository(session).put_many(items) == items
+        finally:
+            event.remove(session, "before_flush", observe_flush)
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+    assert len(selects) == 2
+    assert flushes == 1
+
+
+def test_artifact_preflight_seal_applies_without_reselect_or_reparse(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    engine = _engine(tmp_path)
+    items = tuple(_legacy(f"sealed-{ordinal}") for ordinal in range(8))
+    statements: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        statements.append(statement.lstrip().upper())
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        repository = _repository(session)
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            with session.begin():
+                seal = repository.preflight_put_many(items)
+                preflight_statement_count = len(statements)
+
+                def fail_reparse(_item: object) -> object:
+                    raise AssertionError("Artifact was reparsed after its preflight seal")
+
+                def fail_canonical(*_args: object, **_kwargs: object) -> object:
+                    raise AssertionError("Artifact canonicalization ran during sealed apply")
+
+                monkeypatch.setattr(
+                    artifact_repository_module,
+                    "_revalidate_for_put",
+                    fail_reparse,
+                )
+                monkeypatch.setattr(
+                    artifact_repository_module,
+                    "parse_artifact",
+                    fail_canonical,
+                )
+                monkeypatch.setattr(
+                    artifact_repository_module,
+                    "canonical_json",
+                    fail_canonical,
+                )
+                assert repository.put_preflighted_many(seal) == items
+                apply_statements = statements[preflight_statement_count:]
+                assert not any(statement.startswith("SELECT") for statement in apply_statements)
+                with pytest.raises(IntegrityViolation, match="already consumed"):
+                    repository.put_preflighted_many(seal)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+
+def test_artifact_preflight_seal_rejects_another_repository_and_transaction(tmp_path) -> None:
+    engine = _engine(tmp_path)
+    item = _legacy("transaction-bound-artifact")
+    dml: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+            dml.append(statement)
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        first_transaction = session.begin()
+        owner = _repository(session)
+        seal = owner.preflight_put_many((item,))
+        another_repository = _repository(session)
+        with pytest.raises(IntegrityViolation, match="another repository"):
+            another_repository.put_preflighted_many(seal)
+        first_transaction.rollback()
+
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            with session.begin():
+                with pytest.raises(IntegrityViolation, match="another transaction"):
+                    owner.put_preflighted_many(seal)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+    assert dml == []
+
+
+def test_artifact_preflight_seal_rejects_field_and_nested_row_tampering_before_dml(
+    tmp_path,
+) -> None:
+    engine = _engine(tmp_path)
+    item = _current(b"immutable-artifact-preflight")
+    dml: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        if statement.lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+            dml.append(statement)
+
+    class ExactObjectStore:
+        def __init__(self, stat: ObjectStat) -> None:
+            self._stat = stat
+
+        def stat(self, location: ObjectLocation) -> ObjectStat:
+            if location != self._stat.location:
+                raise FileNotFoundError(location.backend_generation)
+            return self._stat
+
+    location = ObjectLocation(
+        store_id="local",
+        key=item.object_ref.key,
+        backend_generation="immutable-artifact-generation",
+    )
+    stat = ObjectStat(
+        ref=item.object_ref,
+        location=location,
+        verified_at="2026-07-13T12:00:00Z",
+    )
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        bindings = SqlObjectBindingRepository(
+            session,
+            object_store=ExactObjectStore(stat),  # type: ignore[arg-type]
+            default_store_id="local",
+        )
+        artifacts = _repository(session, bindings)  # type: ignore[arg-type]
+        binding_seal = bindings.preflight_terminal_preverified_many(((stat, None),))
+        seal = artifacts.preflight_put_many((item,), binding_preflight=binding_seal)
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            assert type(seal).__slots__ == ("__weakref__",)
+            with pytest.raises(AttributeError):
+                object.__setattr__(seal, "_rows", ())
+            assert not hasattr(seal, "_rows")
+            for unregistered in (replace(seal), copy(seal)):
+                with pytest.raises(IntegrityViolation, match="trusted preflight seal"):
+                    artifacts.put_preflighted_many(unregistered)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+    assert dml == []
+
+
+def test_v2_artifact_preflight_consumes_the_same_binding_seal_without_reselect(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class ExactObjectStore:
+        def __init__(self, stat: ObjectStat) -> None:
+            self._stat = stat
+
+        def stat(self, location: ObjectLocation) -> ObjectStat:
+            if location != self._stat.location:
+                raise FileNotFoundError(location.backend_generation)
+            return self._stat
+
+    engine = _engine(tmp_path)
+    artifact = _current(b"sealed-v2-artifact")
+    location = ObjectLocation(
+        store_id="local",
+        key=artifact.object_ref.key,
+        backend_generation="sealed-v2-generation",
+    )
+    stat = ObjectStat(
+        ref=artifact.object_ref,
+        location=location,
+        verified_at="2026-07-13T12:00:00Z",
+    )
+    statements: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        statements.append(statement.lstrip().upper())
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        bindings = SqlObjectBindingRepository(
+            session,
+            object_store=ExactObjectStore(stat),  # type: ignore[arg-type]
+            default_store_id="local",
+        )
+        artifacts = _repository(session, bindings)  # type: ignore[arg-type]
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            with session.begin():
+                binding_seal = bindings.preflight_terminal_preverified_many(((stat, None),))
+                artifact_seal = artifacts.preflight_put_many(
+                    (artifact,),
+                    binding_preflight=binding_seal,
+                )
+                assert sum(statement.startswith("SELECT") for statement in statements) == 2
+                preflight_statement_count = len(statements)
+
+                def fail_reparse(_item: object) -> object:
+                    raise AssertionError("Artifact was reparsed after its preflight seal")
+
+                monkeypatch.setattr(
+                    artifact_repository_module,
+                    "_revalidate_for_put",
+                    fail_reparse,
+                )
+                bindings.apply_terminal_preverified_many(binding_seal)
+                stored = artifacts.put_preflighted_many(artifact_seal)
+                assert stored == (artifact,)
+                with pytest.raises(TypeError, match="immutable"):
+                    stored[0].meta["tampered"] = True
+                with pytest.raises(ValidationError, match="frozen"):
+                    stored[0].version_tuple.seed = 99
+                apply_statements = statements[preflight_statement_count:]
+                assert not any(statement.startswith("SELECT") for statement in apply_statements)
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+
+def test_put_many_preserves_input_order_and_rejects_an_in_batch_immutable_conflict(
+    tmp_path,
+) -> None:
+    engine = _engine(tmp_path)
+    first = _legacy("same-id", meta={"value": 1})
+    retry_with_later_time = first.model_copy(update={"created_at": "2026-07-13T12:01:00Z"})
+    changed = _legacy("same-id", meta={"value": 2})
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        repository = _repository(session)
+        assert repository.put_many((first, retry_with_later_time)) == (first, first)
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session, session.begin():
+        with pytest.raises(IntegrityViolation, match="immutable content"):
+            _repository(session).put_many((first, changed))
+
+    with Session(engine) as session:
+        assert _repository(session).get(first.artifact_id) == first
+
+
+def test_put_many_v2_accepts_an_active_binding_in_any_store_with_one_set_read(
+    tmp_path,
+) -> None:
+    engine = _engine(tmp_path)
+    artifacts = (_current(b"first"), _current(b"second"))
+    with Session(engine) as session, session.begin():
+        session.add_all(
+            ObjectBindingRow(
+                object_key=artifact.object_ref.key,
+                store_id="archive",
+                binding_schema_version="object-binding@1",
+                object_ref_schema_version=artifact.object_ref.object_ref_schema_version,
+                location_schema_version="object-location@1",
+                object_sha256=artifact.object_ref.sha256,
+                object_size_bytes=artifact.object_ref.size_bytes,
+                backend_generation=f"generation-{ordinal}",
+                etag=None,
+                storage_class=None,
+                status="active",
+                revision=1,
+                verified_at="2026-07-13T12:00:00Z",
+            )
+            for ordinal, artifact in enumerate(artifacts, start=1)
+        )
+
+    binding_selects: list[str] = []
+
+    def observe_statement(
+        _connection: object,
+        _cursor: object,
+        statement: str,
+        _parameters: object,
+        _context: object,
+        _executemany: bool,
+    ) -> None:
+        normalized = " ".join(statement.upper().split())
+        if normalized.startswith("SELECT") and "FROM OBJECT_BINDINGS" in normalized:
+            binding_selects.append(statement)
+
+    with Session(engine, autoflush=False, expire_on_commit=False) as session:
+        bindings = SqlObjectBindingRepository(
+            session,
+            object_store=object(),  # type: ignore[arg-type]
+            default_store_id="primary",
+        )
+        event.listen(engine, "before_cursor_execute", observe_statement)
+        try:
+            with session.begin():
+                assert _repository(session, bindings).put_many(artifacts) == artifacts  # type: ignore[arg-type]
+        finally:
+            event.remove(engine, "before_cursor_execute", observe_statement)
+
+    assert len(binding_selects) == 1
 
 
 def test_v1_and_v2_round_trip_without_fabricating_a_legacy_object_ref(tmp_path) -> None:

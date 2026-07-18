@@ -183,6 +183,7 @@ class _DeleteGateObjectStore:
         self._delegate = delegate
         self._delete_entered = delete_entered
         self._allow_delete = allow_delete
+        self.preverified_checks = 0
 
     def put_verified(self, source: bytes | BinaryIO) -> StoredObject:
         return self._delegate.put_verified(source)
@@ -192,6 +193,10 @@ class _DeleteGateObjectStore:
 
     def stat(self, location: ObjectLocation) -> ObjectStat:
         return self._delegate.stat(location)
+
+    def require_preverified_generation(self, stat: ObjectStat) -> ObjectStat:
+        self.preverified_checks += 1
+        return self._delegate.require_preverified_generation(stat)
 
     def list_versions(
         self,
@@ -426,7 +431,7 @@ def test_explicit_no_recovery_pins_policy_never_pins() -> None:
     assert NoRecoveryPins().is_pinned(stat.ref, stat.location) is False
 
 
-def test_collect_serializes_real_sqlite_binding_with_generation_delete(tmp_path) -> None:
+def test_collect_serializes_preverified_sqlite_binding_with_generation_delete(tmp_path) -> None:
     database_url = f"sqlite:///{tmp_path / 'gc-race.db'}"
     gc_engine = get_engine(database_url)
     binding_engine = get_engine(database_url)
@@ -514,9 +519,8 @@ def test_collect_serializes_real_sqlite_binding_with_generation_delete(tmp_path)
     def bind_candidate() -> None:
         try:
             with binding_uow.begin() as transaction:
-                transaction.object_bindings.bind_verified(
-                    stored.ref,
-                    stored.location,
+                transaction.object_bindings.bind_preverified(
+                    stat,
                     expected_revision=None,
                 )
         except BaseException as exc:
@@ -534,9 +538,8 @@ def test_collect_serializes_real_sqlite_binding_with_generation_delete(tmp_path)
             return
         try:
             with binding_uow.begin() as transaction:
-                transaction.object_bindings.bind_verified(
-                    stored.ref,
-                    stored.location,
+                transaction.object_bindings.bind_preverified(
+                    stat,
                     expected_revision=None,
                 )
         except BaseException as exc:
@@ -583,6 +586,7 @@ def test_collect_serializes_real_sqlite_binding_with_generation_delete(tmp_path)
     assert len(retry_binding_outcome) == 1
     assert isinstance(retry_binding_outcome[0], IntegrityViolation)
     assert "not available" in str(retry_binding_outcome[0])
+    assert gated_store.preverified_checks == 1
 
     with Session(gc_engine) as session:
         assert (

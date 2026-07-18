@@ -201,11 +201,15 @@ def test_late_run_cas_failure_rolls_back_every_terminal_authority_and_duplicate_
 ) -> None:
     harness = _Harness(tmp_path)
     resources, process, run_id, approval_id = _seed_and_admit_validation(harness)
-    original_complete = SqlRunRepository.complete_attempt_success
+    original_apply = SqlRunRepository.apply_preflighted_terminal_closure
     late_write_reached = Event()
 
-    def fail_after_run_cas(self, *args, **kwargs):  # type: ignore[no-untyped-def]
-        original_complete(self, *args, **kwargs)
+    def fail_after_run_cas(self, seal):  # type: ignore[no-untyped-def]
+        # The sealed terminal path executes its real Run CAS inside this apply.
+        # Returning from the production implementation proves rowcount == 1; inject
+        # only afterwards so the surrounding UoW must undo that late authority write
+        # together with every earlier publication write.
+        original_apply(self, seal)
         late_write_reached.set()
         raise _InjectedLateAuthorityFailure("fail after the terminal Run CAS")
 
@@ -232,7 +236,11 @@ def test_late_run_cas_failure_rolls_back_every_terminal_authority_and_duplicate_
             for row in _rows(before, "permit_groups")
         )
 
-        monkeypatch.setattr(SqlRunRepository, "complete_attempt_success", fail_after_run_cas)
+        monkeypatch.setattr(
+            SqlRunRepository,
+            "apply_preflighted_terminal_closure",
+            fail_after_run_cas,
+        )
         deadline = datetime.fromisoformat(
             started.attempt.attempt_deadline_utc.replace("Z", "+00:00")
         )
@@ -254,8 +262,8 @@ def test_late_run_cas_failure_rolls_back_every_terminal_authority_and_duplicate_
             # publishable: all of Artifact/Finding/link/workflow/audit/cost/Run commit once.
             monkeypatch.setattr(
                 SqlRunRepository,
-                "complete_attempt_success",
-                original_complete,
+                "apply_preflighted_terminal_closure",
+                original_apply,
             )
             committed = await process.dispatcher._runner.run_attempt(
                 run=started.run,

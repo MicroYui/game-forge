@@ -59,7 +59,7 @@ from gameforge.contracts.jobs import (
     outcome_policy_set_digest,
     run_kind_definition_digest,
 )
-from gameforge.contracts.lineage import AuditActor
+from gameforge.contracts.lineage import AuditActor, AuditCorrelation
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.storage import UtcClock
 from gameforge.platform.runs.state import (
@@ -270,6 +270,11 @@ class RunRepository(Protocol):
 
     def get_current_lease(self, run_id: str) -> RunLease | None: ...
 
+    def get_run_write_authority(
+        self,
+        run_id: str,
+    ) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None: ...
+
     def get_event(self, run_id: str, seq: int) -> RunEvent | None: ...
 
     def list_events(
@@ -413,6 +418,22 @@ class RunRepository(Protocol):
         terminal_status: Literal["cancelled"] | None = None,
         terminal_failure_artifact_id: str | None = None,
         terminal_cassette_artifact_id: str | None = None,
+    ) -> PersistedCommandAcceptance: ...
+
+    def preflight_accept_terminal_command(
+        self,
+        *,
+        expected_run_revision: int,
+        record: RunCommandRecordV1,
+        events: tuple[RunEvent, ...],
+        terminal_status: Literal["cancelled"],
+        terminal_failure_artifact_id: str,
+        terminal_cassette_artifact_id: str | None,
+    ) -> object: ...
+
+    def apply_preflighted_terminal_command(
+        self,
+        seal: object,
     ) -> PersistedCommandAcceptance: ...
 
     def claim_command(
@@ -596,10 +617,20 @@ class RunPublicationGateway(Protocol):
         actor: AuditActor,
     ) -> TerminalPublicationDraft: ...
 
-    def commit(
+    def commit_planned_run_failure(
         self,
-        fresh_draft: TerminalPublicationDraft,
+        draft: TerminalPublicationDraft,
         staged: StagedTerminalPublication,
+        *,
+        run: RunRecord,
+        attempt: RunAttempt | None,
+        prepared: PreparedRunFailure,
+        retry_decision: RetryDecisionV1,
+        policy: OutcomeArtifactPolicyV1,
+        attempt_failure_artifact_id: str | None,
+        occurred_at: str,
+        actor: AuditActor,
+        command_audit_correlation: AuditCorrelation | None = None,
     ) -> object: ...
 
     def record_command_submitted(
@@ -1095,11 +1126,18 @@ class RunCommandService:
             if len(staged_batch) != 1:
                 raise IntegrityViolation("terminal stager returned another publication count")
             staged = staged_batch[0]
+            try:
+                draft = draft.seal_for_commit(staged)
+            except ValueError as exc:
+                raise IntegrityViolation(
+                    "terminal command draft changed before its write-UoW seal"
+                ) from exc
         return self._submit_in_write_uow(
             run_id=run_id,
             command=command,
             actor=actor,
             operation_now=operation_now,
+            planned_publication=draft,
             staged_publication=staged,
             request_id=selected_request_id,
         )
@@ -1250,6 +1288,7 @@ class RunCommandService:
         command: RunCommandV1,
         actor: AuditActor,
         operation_now: datetime,
+        planned_publication: TerminalPublicationDraft | None,
         staged_publication: StagedTerminalPublication | None,
         request_id: str | None,
     ) -> RunCommandSubmissionResult:
@@ -1262,9 +1301,13 @@ class RunCommandService:
                 "submission authorization",
             )
             request_hash = canonical_payload_hash(command)
-            run = runs.get(run_id)
-            if run is None:
+            load_write_authority = getattr(runs, "get_run_write_authority", None)
+            if not callable(load_write_authority):
+                raise IntegrityViolation("bounded Run write authority capability is required")
+            bounded_authority = load_write_authority(run_id)
+            if bounded_authority is None:
                 raise IntegrityViolation("Run command target does not exist")
+            run, authority_attempt, authority_lease = bounded_authority
             authorization.authorize_submission(run=run, actor=actor)
             retained = runs.get_command_by_id(command.command_id)
             if retained is not None:
@@ -1422,10 +1465,23 @@ class RunCommandService:
             )
             latest_attempt = None
             if run.status == "retry_wait":
-                latest_attempt = runs.get_attempt(run.run_id, run.next_attempt_no - 1)
-                if latest_attempt is None or latest_attempt.status in {"leased", "running"}:
+                latest_attempt = (
+                    authority_attempt
+                    if callable(load_write_authority)
+                    else runs.get_attempt(run.run_id, run.next_attempt_no - 1)
+                )
+                if (
+                    latest_attempt is None
+                    or latest_attempt.attempt_no != run.next_attempt_no - 1
+                    or latest_attempt.status in {"leased", "running"}
+                ):
                     raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
-            if runs.get_current_lease(run.run_id) is not None:
+            active_lease = (
+                authority_lease
+                if callable(load_write_authority)
+                else runs.get_current_lease(run.run_id)
+            )
+            if active_lease is not None:
                 raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
             prepared = PreparedRunFailure(
                 run_id=run.run_id,
@@ -1485,24 +1541,18 @@ class RunCommandService:
                 "occurred_at": now_text,
                 "actor": actor,
             }
-            if staged_publication is None:
+            if planned_publication is None or staged_publication is None:
                 raise IntegrityViolation(
                     "inactive cancel authority changed without a staged terminal projection"
                 )
-            run_publication = publication.commit(
-                publication.plan_run_failure(**publication_kwargs),
-                staged_publication,
-            )
-            if not isinstance(run_publication, RunFailurePublication):
-                raise IntegrityViolation(
-                    "inactive cancel commit returned another result projection"
-                )
+            planned_run_publication = planned_publication.result
+            if not isinstance(planned_run_publication, RunFailurePublication):
+                raise IntegrityViolation("staged inactive cancel has another result projection")
             validate_terminal_cassette_publication(
                 run=run,
-                cassette_artifact_id=run_publication.terminal_cassette_artifact_id,
+                cassette_artifact_id=(planned_run_publication.terminal_cassette_artifact_id),
             )
-            failure_artifact_id = run_publication.failure_artifact_id
-            accounting.close_run(run=run, terminal_status="cancelled")
+            failure_artifact_id = planned_run_publication.failure_artifact_id
             terminal_event = RunEvent(
                 run_id=run.run_id,
                 seq=run.next_event_seq + 1,
@@ -1515,14 +1565,62 @@ class RunCommandService:
                     cause_code=prepared.cause_code,
                 ),
             )
-            persisted = runs.accept_command(
-                expected_run_revision=run.revision,
-                record=record,
-                events=(cancel_event, terminal_event),
-                terminal_status="cancelled",
-                terminal_failure_artifact_id=failure_artifact_id,
-                terminal_cassette_artifact_id=(run_publication.terminal_cassette_artifact_id),
+            command_closure_kwargs: dict[str, object] = {
+                "expected_run_revision": run.revision,
+                "record": record,
+                "events": (cancel_event, terminal_event),
+                "terminal_status": "cancelled",
+                "terminal_failure_artifact_id": failure_artifact_id,
+                "terminal_cassette_artifact_id": (
+                    planned_run_publication.terminal_cassette_artifact_id
+                ),
+            }
+            preflight_terminal_command = getattr(
+                runs,
+                "preflight_accept_terminal_command",
+                None,
             )
+            apply_terminal_command = getattr(
+                runs,
+                "apply_preflighted_terminal_command",
+                None,
+            )
+            if not callable(preflight_terminal_command) or not callable(apply_terminal_command):
+                raise IntegrityViolation(
+                    "staged terminal command requires preflight/apply capabilities"
+                )
+            command_closure = preflight_terminal_command(**command_closure_kwargs)
+            cost_closure = accounting.preflight_terminal_closure(
+                run=run,
+                attempt=None,
+                lease=None,
+                retry_decision=decision,
+                terminal_status="cancelled",
+            )
+            run_publication = publication.commit_planned_run_failure(
+                planned_publication,
+                staged_publication,
+                **publication_kwargs,
+                command_audit_correlation=AuditCorrelation(
+                    request_id=request_id,
+                    run_id=run.run_id,
+                    trace_id=(
+                        terminal_event.trace_id
+                        or cancel_event.trace_id
+                        or (latest_attempt.trace_id if latest_attempt is not None else None)
+                    ),
+                ),
+            )
+            if not isinstance(run_publication, RunFailurePublication):
+                raise IntegrityViolation(
+                    "inactive cancel commit returned another result projection"
+                )
+            if run_publication != planned_run_publication:
+                raise IntegrityViolation(
+                    "inactive cancel commit returned another immutable projection"
+                )
+            accounting.apply_preflighted_terminal_closure(cost_closure)
+            persisted = apply_terminal_command(command_closure)
             publication.record_command_submitted(
                 run=persisted.run,
                 record=persisted.record,

@@ -2,17 +2,26 @@
 
 from __future__ import annotations
 
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from typing import Any, Literal, Protocol, Sequence, TypeVar
+from weakref import WeakKeyDictionary, WeakSet
 
 from pydantic import BaseModel, ValidationError
-from sqlalchemy import and_, case, delete, func, or_, select, update
+from sqlalchemy import and_, bindparam, case, delete, func, or_, select, tuple_, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import typed_canonical_json
-from gameforge.contracts.errors import Conflict, IntegrityViolation, InvalidStateTransition
+from gameforge.contracts.errors import (
+    Conflict,
+    IdempotencyConflict,
+    IntegrityViolation,
+    InvalidStateTransition,
+)
 from gameforge.contracts.findings import FindingRevisionV1, finding_revision_digest
 from gameforge.contracts.jobs import (
     AttemptLeasedDataV1,
@@ -59,6 +68,149 @@ _ACTIVE_ATTEMPT_STATUSES = frozenset({"leased", "running"})
 # Leave room for LIMIT/OFFSET and future fixed predicates instead of relying on
 # the larger limit of the developer machine's bundled SQLite.
 _MAX_SQL_IN_ITEMS = 900
+_RUN_FINDING_PREFLIGHT_AUTHORITY = object()
+_RUN_TERMINAL_PREFLIGHT_AUTHORITY = object()
+_TERMINAL_COMMAND_PREFLIGHT_AUTHORITY = object()
+
+
+@dataclass(frozen=True, slots=True)
+class _PreflightedRunTerminalClosureState:
+    """Complete DML projection retained outside its opaque one-shot handle."""
+
+    owner: SqlRunRepository
+    session: Session
+    transaction: object
+    result: RunAttemptClose | RunTerminal
+    run_statement: object
+    attempt_statement: object | None
+    lease_statement: object | None
+    event_parameters: tuple[dict[str, object], ...]
+    command_mode: Literal["retry", "terminal"]
+    command_statement: object | None
+    command_parameters: tuple[dict[str, object], ...]
+
+
+class _PreflightedRunTerminalClosure:
+    """Unforgeable weak key for a transaction-bound lifecycle closure."""
+
+    __slots__ = ("__weakref__",)
+
+    def __init__(
+        self,
+        *,
+        _authority: object,
+        _state: _PreflightedRunTerminalClosureState,
+    ) -> None:
+        if _authority is not _RUN_TERMINAL_PREFLIGHT_AUTHORITY:
+            raise IntegrityViolation(
+                "Run terminal closure preflight seal does not belong to this repository"
+            )
+        with _RUN_TERMINAL_PREFLIGHT_LOCK:
+            _RUN_TERMINAL_PREFLIGHT_STATES[self] = _state
+
+    def __setattr__(self, _name: str, _value: object) -> None:
+        raise TypeError("Run terminal closure preflight seal is immutable")
+
+
+_RUN_TERMINAL_PREFLIGHT_LOCK = Lock()
+_RUN_TERMINAL_PREFLIGHT_STATES: WeakKeyDictionary[
+    _PreflightedRunTerminalClosure,
+    _PreflightedRunTerminalClosureState,
+] = WeakKeyDictionary()
+_CONSUMED_RUN_TERMINAL_PREFLIGHT_SEALS: WeakSet[_PreflightedRunTerminalClosure] = WeakSet()
+
+
+@dataclass(frozen=True, slots=True)
+class _PreflightedTerminalCommandAcceptanceState:
+    owner: SqlRunRepository
+    session: Session
+    transaction: object
+    result: RunCommandAcceptance
+    run_statement: object
+    event_parameters: tuple[dict[str, object], ...]
+    command_parameters: dict[str, object]
+    rejection_statement: object | None
+    rejection_parameters: tuple[dict[str, object], ...]
+
+
+class _PreflightedTerminalCommandAcceptance:
+    __slots__ = ("__weakref__",)
+
+    def __init__(
+        self,
+        *,
+        _authority: object,
+        _state: _PreflightedTerminalCommandAcceptanceState,
+    ) -> None:
+        if _authority is not _TERMINAL_COMMAND_PREFLIGHT_AUTHORITY:
+            raise IntegrityViolation("terminal command preflight seal is not trusted")
+        with _TERMINAL_COMMAND_PREFLIGHT_LOCK:
+            _TERMINAL_COMMAND_PREFLIGHT_STATES[self] = _state
+
+    def __setattr__(self, _name: str, _value: object) -> None:
+        raise TypeError("terminal command preflight seal is immutable")
+
+
+_TERMINAL_COMMAND_PREFLIGHT_LOCK = Lock()
+_TERMINAL_COMMAND_PREFLIGHT_STATES: WeakKeyDictionary[
+    _PreflightedTerminalCommandAcceptance,
+    _PreflightedTerminalCommandAcceptanceState,
+] = WeakKeyDictionary()
+_CONSUMED_TERMINAL_COMMAND_PREFLIGHT_SEALS: WeakSet[_PreflightedTerminalCommandAcceptance] = (
+    WeakSet()
+)
+
+
+@dataclass(frozen=True, slots=True)
+class _PreflightedRunFindingLinkState:
+    """Opaque, transaction-bound authority for one Finding-link batch."""
+
+    owner: SqlRunRepository
+    session: Session
+    transaction: object | None
+    results: tuple[RunFindingLinkV1, ...]
+    row_parameters: tuple[dict[str, object], ...]
+
+
+class _PreflightedRunFindingLinks:
+    """Unforgeable weak key for externally retained Finding-link authority."""
+
+    __slots__ = ("__weakref__",)
+
+    def __init__(
+        self,
+        *,
+        _authority: object,
+        _owner: SqlRunRepository,
+        _session: Session,
+        _transaction: object | None,
+        _results: tuple[RunFindingLinkV1, ...],
+        _row_parameters: tuple[dict[str, object], ...],
+    ) -> None:
+        if _authority is not _RUN_FINDING_PREFLIGHT_AUTHORITY:
+            raise IntegrityViolation(
+                "Run Finding-link preflight seal does not belong to the current transaction"
+            )
+        state = _PreflightedRunFindingLinkState(
+            owner=_owner,
+            session=_session,
+            transaction=_transaction,
+            results=_results,
+            row_parameters=_row_parameters,
+        )
+        with _RUN_FINDING_PREFLIGHT_LOCK:
+            _RUN_FINDING_PREFLIGHT_STATES[self] = state
+
+    def __setattr__(self, _name: str, _value: object) -> None:
+        raise TypeError("Run Finding-link preflight seal is immutable")
+
+
+_RUN_FINDING_PREFLIGHT_LOCK = Lock()
+_RUN_FINDING_PREFLIGHT_STATES: WeakKeyDictionary[
+    _PreflightedRunFindingLinks,
+    _PreflightedRunFindingLinkState,
+] = WeakKeyDictionary()
+_CONSUMED_RUN_FINDING_PREFLIGHT_SEALS: WeakSet[_PreflightedRunFindingLinks] = WeakSet()
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +230,19 @@ class ReplayRunAuthorityProjection:
     prompt_links: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1 | None]
     model_route_links: dict[tuple[str, int, int, int], RunModelRouteLinkV1 | None]
     model_consumptions: dict[tuple[str, int, int, int], RunModelResponseConsumptionV1 | None]
+
+
+@dataclass(frozen=True, slots=True)
+class TerminalRunAuthorityProjection:
+    """Bounded raw rows used only to detect terminal-plan drift under write lock."""
+
+    run: RunRecord
+    attempts: tuple[RunAttempt, ...]
+    prompt_links: tuple[RunIntermediateArtifactLinkV1, ...]
+    tool_links: tuple[RunToolIntermediateLinkV1, ...]
+    model_routes: tuple[RunModelRouteLinkV1, ...]
+    model_consumptions: tuple[RunModelResponseConsumptionV1, ...]
+    closed_attempt_failures: tuple[tuple[int, str], ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -880,6 +1045,225 @@ class SqlRunRepository:
             },
         )
 
+    def terminal_authority_projection(
+        self,
+        run_id: str,
+        *,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
+    ) -> TerminalRunAuthorityProjection:
+        """Read terminal drift facts in bounded set queries without recursive closure.
+
+        The read-phase publisher already performed the expensive Artifact/cost/blob
+        validation.  Under ``BEGIN IMMEDIATE`` this method only reproduces the exact
+        mutable rows whose change would invalidate that immutable plan.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        if (
+            isinstance(limit, bool)
+            or not isinstance(limit, int)
+            or not 1 <= limit <= MAX_RUN_MANIFEST_PARENT_BINDINGS
+        ):
+            raise IntegrityViolation("terminal authority limit exceeds the runtime hard cap")
+        run_row = self._session.get(RunRow, selected_run_id)
+        if run_row is None:
+            raise IntegrityViolation("terminal authority Run is unavailable", run_id=run_id)
+        run = _parse_run_row(run_row, expected_run_id=selected_run_id)
+
+        def bounded_rows(model: type[Any], *order: Any) -> list[Any]:
+            rows = self._session.scalars(
+                select(model)
+                .where(model.run_id == selected_run_id)
+                .order_by(*order)
+                .limit(limit + 1)
+            ).all()
+            if len(rows) > limit:
+                raise IntegrityViolation(
+                    "terminal runtime authority exceeds its hard cap",
+                    run_id=selected_run_id,
+                    authority=model.__tablename__,
+                )
+            return list(rows)
+
+        attempt_rows = bounded_rows(RunAttemptRow, RunAttemptRow.attempt_no)
+        prompt_rows = bounded_rows(
+            RunIntermediateArtifactLinkRow,
+            RunIntermediateArtifactLinkRow.attempt_no,
+            RunIntermediateArtifactLinkRow.call_ordinal,
+            RunIntermediateArtifactLinkRow.route_ordinal,
+        )
+        tool_rows = bounded_rows(
+            RunToolIntermediateLinkRow,
+            RunToolIntermediateLinkRow.attempt_no,
+            RunToolIntermediateLinkRow.target_call_ordinal,
+        )
+        route_rows = bounded_rows(
+            RunModelRouteLinkRow,
+            RunModelRouteLinkRow.attempt_no,
+            RunModelRouteLinkRow.call_ordinal,
+            RunModelRouteLinkRow.route_ordinal,
+        )
+        consumption_rows = bounded_rows(
+            RunModelResponseConsumptionRow,
+            RunModelResponseConsumptionRow.attempt_no,
+            RunModelResponseConsumptionRow.call_ordinal,
+            RunModelResponseConsumptionRow.route_ordinal,
+        )
+        attempts = tuple(
+            _parse_attempt_row(
+                row,
+                expected_run_id=selected_run_id,
+                expected_attempt_no=row.attempt_no,
+            )
+            for row in attempt_rows
+        )
+        return TerminalRunAuthorityProjection(
+            run=run,
+            attempts=attempts,
+            prompt_links=tuple(
+                _parse_intermediate_row(
+                    row,
+                    expected_run_id=selected_run_id,
+                    expected_attempt_no=row.attempt_no,
+                    expected_call_ordinal=row.call_ordinal,
+                    expected_route_ordinal=row.route_ordinal,
+                )
+                for row in prompt_rows
+            ),
+            tool_links=tuple(
+                _parse_tool_intermediate_row(
+                    row,
+                    expected_run_id=selected_run_id,
+                    expected_attempt_no=row.attempt_no,
+                    expected_target_call_ordinal=row.target_call_ordinal,
+                )
+                for row in tool_rows
+            ),
+            model_routes=tuple(_parse_model_route_row(row) for row in route_rows),
+            model_consumptions=tuple(_parse_model_consumption_row(row) for row in consumption_rows),
+            closed_attempt_failures=tuple(
+                (attempt.attempt_no, attempt.failure_artifact_id)
+                for attempt in attempts
+                if attempt.failure_artifact_id is not None
+            ),
+        )
+
+    def terminal_attempt_authority_projection(
+        self,
+        run_id: str,
+        *,
+        limit: int = MAX_RUN_MANIFEST_PARENT_BINDINGS,
+    ) -> TerminalRunAuthorityProjection:
+        """Project only authority mutable for the current retry attempt.
+
+        Closed Attempts and their runtime links are immutable publication inputs.
+        Re-reading them for every retry makes total writer-lock work quadratic in
+        retry history.  The Run head fences attempt allocation; this projection
+        therefore covers the current Attempt plus every current-attempt link whose
+        append does not necessarily advance that head (fallback routes, tool links,
+        model-route bindings, and response consumptions).
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        if (
+            isinstance(limit, bool)
+            or not isinstance(limit, int)
+            or not 1 <= limit <= MAX_RUN_MANIFEST_PARENT_BINDINGS
+        ):
+            raise IntegrityViolation("terminal authority limit exceeds the runtime hard cap")
+        run_row = self._session.get(RunRow, selected_run_id)
+        if run_row is None:
+            raise IntegrityViolation("terminal authority Run is unavailable", run_id=run_id)
+        run = _parse_run_row(run_row, expected_run_id=selected_run_id)
+        attempt_no = run.current_attempt_no
+        if attempt_no is None:
+            return TerminalRunAuthorityProjection(
+                run=run,
+                attempts=(),
+                prompt_links=(),
+                tool_links=(),
+                model_routes=(),
+                model_consumptions=(),
+                closed_attempt_failures=(),
+            )
+        attempt_row = self._session.get(RunAttemptRow, (selected_run_id, attempt_no))
+        if attempt_row is None:
+            raise IntegrityViolation(
+                "terminal authority current Attempt is unavailable",
+                run_id=run_id,
+                attempt_no=attempt_no,
+            )
+        attempt = _parse_attempt_row(
+            attempt_row,
+            expected_run_id=selected_run_id,
+            expected_attempt_no=attempt_no,
+        )
+
+        def bounded_current_rows(model: type[Any], *order: Any) -> list[Any]:
+            rows = self._session.scalars(
+                select(model)
+                .where(
+                    model.run_id == selected_run_id,
+                    model.attempt_no == attempt_no,
+                )
+                .order_by(*order)
+                .limit(limit + 1)
+            ).all()
+            if len(rows) > limit:
+                raise IntegrityViolation(
+                    "terminal current-attempt authority exceeds its hard cap",
+                    run_id=selected_run_id,
+                    attempt_no=attempt_no,
+                    authority=model.__tablename__,
+                )
+            return list(rows)
+
+        prompt_rows = bounded_current_rows(
+            RunIntermediateArtifactLinkRow,
+            RunIntermediateArtifactLinkRow.call_ordinal,
+            RunIntermediateArtifactLinkRow.route_ordinal,
+        )
+        tool_rows = bounded_current_rows(
+            RunToolIntermediateLinkRow,
+            RunToolIntermediateLinkRow.target_call_ordinal,
+        )
+        route_rows = bounded_current_rows(
+            RunModelRouteLinkRow,
+            RunModelRouteLinkRow.call_ordinal,
+            RunModelRouteLinkRow.route_ordinal,
+        )
+        consumption_rows = bounded_current_rows(
+            RunModelResponseConsumptionRow,
+            RunModelResponseConsumptionRow.call_ordinal,
+            RunModelResponseConsumptionRow.route_ordinal,
+        )
+        return TerminalRunAuthorityProjection(
+            run=run,
+            attempts=(attempt,),
+            prompt_links=tuple(
+                _parse_intermediate_row(
+                    row,
+                    expected_run_id=selected_run_id,
+                    expected_attempt_no=attempt_no,
+                    expected_call_ordinal=row.call_ordinal,
+                    expected_route_ordinal=row.route_ordinal,
+                )
+                for row in prompt_rows
+            ),
+            tool_links=tuple(
+                _parse_tool_intermediate_row(
+                    row,
+                    expected_run_id=selected_run_id,
+                    expected_attempt_no=attempt_no,
+                    expected_target_call_ordinal=row.target_call_ordinal,
+                )
+                for row in tool_rows
+            ),
+            model_routes=tuple(_parse_model_route_row(row) for row in route_rows),
+            model_consumptions=tuple(_parse_model_consumption_row(row) for row in consumption_rows),
+            closed_attempt_failures=(),
+        )
+
     def get_by_idempotency(self, *, scope: str, key: str) -> RunRecord | None:
         selected_scope = _require_nonempty(scope, field_name="idempotency scope")
         selected_key = _require_nonempty(key, field_name="idempotency key")
@@ -1614,6 +1998,37 @@ class SqlRunRepository:
         retry_decision: RetryDecisionV1,
         events: tuple[RunEvent, ...],
     ) -> RunAttemptClose:
+        result = self.apply_preflighted_terminal_closure(
+            self.preflight_close_attempt_for_retry(
+                fence=fence,
+                ended_at=ended_at,
+                attempt_status=attempt_status,
+                lease_status=lease_status,
+                failure_class=failure_class,
+                failure_artifact_id=failure_artifact_id,
+                attempt_cassette_artifact_id=attempt_cassette_artifact_id,
+                retry_decision=retry_decision,
+                events=events,
+            )
+        )
+        if not isinstance(result, RunAttemptClose):  # pragma: no cover - sealed internally
+            raise IntegrityViolation("Run retry closure returned another result type")
+        return result
+
+    def preflight_close_attempt_for_retry(
+        self,
+        *,
+        fence: _AttemptWriteFence,
+        ended_at: str,
+        attempt_status: Literal["failed", "lease_expired"],
+        lease_status: Literal["closed", "expired"],
+        failure_class: str,
+        failure_artifact_id: str,
+        attempt_cassette_artifact_id: str | None,
+        retry_decision: RetryDecisionV1,
+        events: tuple[RunEvent, ...],
+    ) -> object:
+        transaction = self._require_terminal_transaction()
         ended = _require_canonical_utc(ended_at, field_name="ended_at")
         attempt_cassette_id = _require_optional_nonempty(
             attempt_cassette_artifact_id,
@@ -1639,7 +2054,7 @@ class SqlRunRepository:
         parsed_events = tuple(
             _revalidate(event, RunEvent, label="Run retry event") for event in events
         )
-        run, attempt, lease = self._load_fenced_attempt(
+        run, attempt, lease = self._load_terminal_active_authority(
             fence,
             allowed_statuses=_ACTIVE_RUN_STATUSES,
             occurred_at=ended_at,
@@ -1658,7 +2073,7 @@ class SqlRunRepository:
             field_name="lease.expires_at",
         ):
             raise IntegrityViolation("lease cannot be marked expired before its expiry")
-        self._validate_event_sequence(run, parsed_events)
+        self._validate_preflight_terminal_events(run, parsed_events)
         if (
             not parsed_events
             or parsed_events[-1].event_type != "attempt.retry_scheduled"
@@ -1698,21 +2113,29 @@ class SqlRunRepository:
         updated_lease = RunLease.model_validate(
             {**lease.model_dump(mode="python"), "status": lease_status}
         )
-        self._close_active_attempt(
+        result = RunAttemptClose(updated_run, updated_attempt, updated_lease, parsed_events)
+        command_statement, command_parameters = self._preflight_terminal_commands(
+            run_id=run.run_id,
+            mode="retry",
+            event_seq=parsed_events[-1].seq,
+            occurred_at=ended_at,
+            fence=fence,
+        )
+        return self._issue_terminal_closure(
+            transaction=transaction,
+            result=result,
             run=run,
-            attempt=attempt,
-            lease=lease,
             updated_run=updated_run,
+            attempt=attempt,
             updated_attempt=updated_attempt,
+            lease=lease,
             lease_status=lease_status,
             released_at=ended_at,
+            events=parsed_events,
+            command_mode="retry",
+            command_statement=command_statement,
+            command_parameters=command_parameters,
         )
-        for event in parsed_events:
-            self._session.add(RunEventRow(**_event_values(event)))
-        self._session.flush()
-        self._reset_claimed_commands_for_retry(fence)
-        self._session.flush()
-        return RunAttemptClose(updated_run, updated_attempt, updated_lease, parsed_events)
 
     def complete_attempt_success(
         self,
@@ -1724,6 +2147,31 @@ class SqlRunRepository:
         terminal_cassette_artifact_id: str | None,
         event: RunEvent,
     ) -> RunTerminal:
+        result = self.apply_preflighted_terminal_closure(
+            self.preflight_complete_attempt_success(
+                fence=fence,
+                ended_at=ended_at,
+                result_artifact_id=result_artifact_id,
+                attempt_cassette_artifact_id=attempt_cassette_artifact_id,
+                terminal_cassette_artifact_id=terminal_cassette_artifact_id,
+                event=event,
+            )
+        )
+        if not isinstance(result, RunTerminal):  # pragma: no cover - sealed internally
+            raise IntegrityViolation("Run success closure returned another result type")
+        return result
+
+    def preflight_complete_attempt_success(
+        self,
+        *,
+        fence: _AttemptWriteFence,
+        ended_at: str,
+        result_artifact_id: str,
+        attempt_cassette_artifact_id: str | None,
+        terminal_cassette_artifact_id: str | None,
+        event: RunEvent,
+    ) -> object:
+        transaction = self._require_terminal_transaction()
         _require_canonical_utc(ended_at, field_name="ended_at")
         artifact_id = _require_nonempty(
             result_artifact_id,
@@ -1738,7 +2186,7 @@ class SqlRunRepository:
             field_name="terminal_cassette_artifact_id",
         )
         parsed_event = _revalidate(event, RunEvent, label="Run success event")
-        run, attempt, lease = self._load_fenced_attempt(
+        run, attempt, lease = self._load_terminal_active_authority(
             fence,
             allowed_statuses=frozenset({"running"}),
             occurred_at=ended_at,
@@ -1750,7 +2198,7 @@ class SqlRunRepository:
             closes_attempt=True,
             closes_run=True,
         )
-        self._validate_event_sequence(run, (parsed_event,))
+        self._validate_preflight_terminal_events(run, (parsed_event,))
         if (
             parsed_event.event_type != "run.succeeded"
             or parsed_event.attempt_no != attempt.attempt_no
@@ -1782,24 +2230,29 @@ class SqlRunRepository:
         updated_lease = RunLease.model_validate(
             {**lease.model_dump(mode="python"), "status": "closed"}
         )
-        self._close_active_attempt(
-            run=run,
-            attempt=attempt,
-            lease=lease,
-            updated_run=updated_run,
-            updated_attempt=updated_attempt,
-            lease_status="closed",
-            released_at=ended_at,
-        )
-        self._session.add(RunEventRow(**_event_values(parsed_event)))
-        self._session.flush()
-        self._reject_outstanding_commands(
+        result = RunTerminal(updated_run, updated_attempt, updated_lease, parsed_event)
+        command_statement, command_parameters = self._preflight_terminal_commands(
             run_id=run.run_id,
+            mode="terminal",
             event_seq=parsed_event.seq,
             occurred_at=ended_at,
+            fence=fence,
         )
-        self._session.flush()
-        return RunTerminal(updated_run, updated_attempt, updated_lease, parsed_event)
+        return self._issue_terminal_closure(
+            transaction=transaction,
+            result=result,
+            run=run,
+            updated_run=updated_run,
+            attempt=attempt,
+            updated_attempt=updated_attempt,
+            lease=lease,
+            lease_status="closed",
+            released_at=ended_at,
+            events=(parsed_event,),
+            command_mode="terminal",
+            command_statement=command_statement,
+            command_parameters=command_parameters,
+        )
 
     def close_attempt_terminal(
         self,
@@ -1818,6 +2271,45 @@ class SqlRunRepository:
         leading_events: tuple[RunEvent, ...],
         terminal_event: RunEvent,
     ) -> RunTerminal:
+        result = self.apply_preflighted_terminal_closure(
+            self.preflight_close_attempt_terminal(
+                fence=fence,
+                ended_at=ended_at,
+                attempt_status=attempt_status,
+                lease_status=lease_status,
+                run_status=run_status,
+                failure_class=failure_class,
+                attempt_failure_artifact_id=attempt_failure_artifact_id,
+                run_failure_artifact_id=run_failure_artifact_id,
+                attempt_cassette_artifact_id=attempt_cassette_artifact_id,
+                terminal_cassette_artifact_id=terminal_cassette_artifact_id,
+                retry_decision=retry_decision,
+                leading_events=leading_events,
+                terminal_event=terminal_event,
+            )
+        )
+        if not isinstance(result, RunTerminal):  # pragma: no cover - sealed internally
+            raise IntegrityViolation("Run terminal closure returned another result type")
+        return result
+
+    def preflight_close_attempt_terminal(
+        self,
+        *,
+        fence: _AttemptWriteFence,
+        ended_at: str,
+        attempt_status: Literal["failed", "cancelled", "timed_out", "lease_expired"],
+        lease_status: Literal["closed", "expired"],
+        run_status: Literal["failed", "cancelled", "timed_out"],
+        failure_class: str,
+        attempt_failure_artifact_id: str,
+        run_failure_artifact_id: str,
+        attempt_cassette_artifact_id: str | None,
+        terminal_cassette_artifact_id: str | None,
+        retry_decision: RetryDecisionV1,
+        leading_events: tuple[RunEvent, ...],
+        terminal_event: RunEvent,
+    ) -> object:
+        transaction = self._require_terminal_transaction()
         _require_canonical_utc(ended_at, field_name="ended_at")
         attempt_cassette_id = _require_optional_nonempty(
             attempt_cassette_artifact_id,
@@ -1842,7 +2334,7 @@ class SqlRunRepository:
             _revalidate(event, RunEvent, label="Run terminal leading event")
             for event in leading_events
         ) + (_revalidate(terminal_event, RunEvent, label="Run terminal event"),)
-        run, attempt, lease = self._load_fenced_attempt(
+        run, attempt, lease = self._load_terminal_active_authority(
             fence,
             allowed_statuses=_ACTIVE_RUN_STATUSES,
             occurred_at=ended_at,
@@ -1866,7 +2358,7 @@ class SqlRunRepository:
             field_name="ended_at",
         ) < _parse_utc(lease.expires_at, field_name="lease.expires_at"):
             raise IntegrityViolation("lease cannot be marked expired before its expiry")
-        self._validate_event_sequence(run, events)
+        self._validate_preflight_terminal_events(run, events)
         parsed_terminal = events[-1]
         if (
             parsed_terminal.event_type != f"run.{run_status}"
@@ -1911,25 +2403,29 @@ class SqlRunRepository:
         updated_lease = RunLease.model_validate(
             {**lease.model_dump(mode="python"), "status": lease_status}
         )
-        self._close_active_attempt(
-            run=run,
-            attempt=attempt,
-            lease=lease,
-            updated_run=updated_run,
-            updated_attempt=updated_attempt,
-            lease_status=lease_status,
-            released_at=ended_at,
-        )
-        for selected_event in events:
-            self._session.add(RunEventRow(**_event_values(selected_event)))
-        self._session.flush()
-        self._reject_outstanding_commands(
+        result = RunTerminal(updated_run, updated_attempt, updated_lease, parsed_terminal)
+        command_statement, command_parameters = self._preflight_terminal_commands(
             run_id=run.run_id,
+            mode="terminal",
             event_seq=parsed_terminal.seq,
             occurred_at=ended_at,
+            fence=fence,
         )
-        self._session.flush()
-        return RunTerminal(updated_run, updated_attempt, updated_lease, parsed_terminal)
+        return self._issue_terminal_closure(
+            transaction=transaction,
+            result=result,
+            run=run,
+            updated_run=updated_run,
+            attempt=attempt,
+            updated_attempt=updated_attempt,
+            lease=lease,
+            lease_status=lease_status,
+            released_at=ended_at,
+            events=events,
+            command_mode="terminal",
+            command_statement=command_statement,
+            command_parameters=command_parameters,
+        )
 
     def terminate_inactive_run(
         self,
@@ -1942,11 +2438,34 @@ class SqlRunRepository:
         retry_decision: RetryDecisionV1,
         event: RunEvent,
     ) -> RunTerminal:
-        selected_run_id = _require_nonempty(run_id, field_name="run_id")
-        expected_revision = _require_positive(
-            expected_run_revision,
-            field_name="expected_run_revision",
+        result = self.apply_preflighted_terminal_closure(
+            self.preflight_terminate_inactive_run(
+                run_id=run_id,
+                expected_run_revision=expected_run_revision,
+                run_status=run_status,
+                failure_artifact_id=failure_artifact_id,
+                terminal_cassette_artifact_id=terminal_cassette_artifact_id,
+                retry_decision=retry_decision,
+                event=event,
+            )
         )
+        if not isinstance(result, RunTerminal):  # pragma: no cover - sealed internally
+            raise IntegrityViolation("inactive Run closure returned another result type")
+        return result
+
+    def preflight_terminate_inactive_run(
+        self,
+        *,
+        run_id: str,
+        expected_run_revision: int,
+        run_status: Literal["failed", "cancelled", "timed_out"],
+        failure_artifact_id: str,
+        terminal_cassette_artifact_id: str | None,
+        retry_decision: RetryDecisionV1,
+        event: RunEvent,
+    ) -> object:
+        transaction = self._require_terminal_transaction()
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
         terminal_cassette_id = _require_optional_nonempty(
             terminal_cassette_artifact_id,
             field_name="terminal_cassette_artifact_id",
@@ -1958,16 +2477,11 @@ class SqlRunRepository:
         )
         parsed_event = _revalidate(event, RunEvent, label="Run inactive terminal event")
         _require_canonical_utc(parsed_event.occurred_at, field_name="event.occurred_at")
-        run = self.get(selected_run_id)
-        if (
-            run is None
-            or run.revision != expected_revision
-            or run.status not in {"queued", "retry_wait"}
-            or run.current_attempt_no is not None
-            or run.concurrency_permit_group_id is not None
-            or self.get_current_lease(selected_run_id) is not None
-            or decision.decision != "terminal"
-        ):
+        run, latest_attempt = self._load_terminal_inactive_authority(
+            run_id=selected_run_id,
+            expected_run_revision=expected_run_revision,
+        )
+        if decision.decision != "terminal":
             raise Conflict("inactive Run terminal compare-and-set did not match")
         _validate_cassette_publication(
             run,
@@ -1976,7 +2490,7 @@ class SqlRunRepository:
             closes_attempt=False,
             closes_run=True,
         )
-        self._validate_event_sequence(run, (parsed_event,))
+        self._validate_preflight_terminal_events(run, (parsed_event,))
         if (
             parsed_event.event_type != f"run.{run_status}"
             or getattr(parsed_event.data, "failure_artifact_id", None) != failure_artifact_id
@@ -1998,38 +2512,29 @@ class SqlRunRepository:
                 "updated_at": parsed_event.occurred_at,
             }
         )
-        result = self._session.execute(
-            update(RunRow)
-            .where(
-                *self._run_fence_predicates(run),
-                RunRow.terminal_cassette_artifact_id.is_(None),
-            )
-            .values(
-                status=run_status,
-                revision=updated_run.revision,
-                next_event_seq=updated_run.next_event_seq,
-                retry_not_before_utc=None,
-                failure_artifact_id=artifact_id,
-                terminal_cassette_artifact_id=terminal_cassette_id,
-                updated_at=parsed_event.occurred_at,
-            )
-        )
-        if result.rowcount != 1:
-            raise Conflict("inactive Run terminal CAS did not match")
-        self._session.add(RunEventRow(**_event_values(parsed_event)))
-        self._session.flush()
-        self._reject_outstanding_commands(
+        result = RunTerminal(updated_run, latest_attempt, None, parsed_event)
+        command_statement, command_parameters = self._preflight_terminal_commands(
             run_id=run.run_id,
+            mode="terminal",
             event_seq=parsed_event.seq,
             occurred_at=parsed_event.occurred_at,
+            fence=None,
         )
-        self._session.flush()
-        latest_attempt = (
-            self.get_attempt(run.run_id, run.next_attempt_no - 1)
-            if run.next_attempt_no > 1
-            else None
+        return self._issue_terminal_closure(
+            transaction=transaction,
+            result=result,
+            run=run,
+            updated_run=updated_run,
+            attempt=None,
+            updated_attempt=None,
+            lease=None,
+            lease_status=None,
+            released_at=parsed_event.occurred_at,
+            events=(parsed_event,),
+            command_mode="terminal",
+            command_statement=command_statement,
+            command_parameters=command_parameters,
         )
-        return RunTerminal(updated_run, latest_attempt, None, parsed_event)
 
     def get_attempt(self, run_id: str, attempt_no: int) -> RunAttempt | None:
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
@@ -2064,6 +2569,105 @@ class SqlRunRepository:
         if not rows:
             return None
         return _parse_lease_row(rows[0], expected_lease_id=rows[0].lease_id)
+
+    def get_attempt_write_authority(
+        self,
+        fence: _AttemptWriteFence,
+    ) -> tuple[RunRecord, RunAttempt, RunLease] | None:
+        """Read one exact mutable lifecycle head without historical verification.
+
+        Ordinary ``get`` readers deliberately validate the complete retained Event,
+        Attempt, and prompt-link history.  A fenced writer instead relies on the
+        Run/Attempt CAS heads and uniqueness constraints, so repeating those range
+        aggregates while ``BEGIN IMMEDIATE`` is held adds latency but no authority.
+        """
+
+        run_id = _require_nonempty(fence.run_id, field_name="fence.run_id")
+        attempt_no = _require_positive(fence.attempt_no, field_name="fence.attempt_no")
+        lease_id = _require_nonempty(fence.lease_id, field_name="fence.lease_id")
+        rows = self._session.execute(
+            select(RunRow, RunAttemptRow, RunLeaseRow)
+            .join(
+                RunAttemptRow,
+                and_(
+                    RunAttemptRow.run_id == RunRow.run_id,
+                    RunAttemptRow.attempt_no == attempt_no,
+                ),
+            )
+            .join(
+                RunLeaseRow,
+                and_(
+                    RunLeaseRow.run_id == RunRow.run_id,
+                    RunLeaseRow.attempt_no == attempt_no,
+                    RunLeaseRow.lease_id == lease_id,
+                ),
+            )
+            .where(RunRow.run_id == run_id)
+            .execution_options(populate_existing=True)
+        ).all()
+        if len(rows) != 1:
+            return None
+        run_row, attempt_row, lease_row = rows[0]
+        return (
+            _parse_run_row(run_row, expected_run_id=run_id),
+            _parse_attempt_row(
+                attempt_row,
+                expected_run_id=run_id,
+                expected_attempt_no=attempt_no,
+            ),
+            _parse_lease_row(lease_row, expected_lease_id=lease_id),
+        )
+
+    def get_run_write_authority(
+        self,
+        run_id: str,
+    ) -> tuple[RunRecord, RunAttempt | None, RunLease | None] | None:
+        """Read a Run's bounded latest mutable head without historical scans."""
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        rows = self._session.execute(
+            select(RunRow, RunAttemptRow, RunLeaseRow)
+            .outerjoin(
+                RunAttemptRow,
+                and_(
+                    RunAttemptRow.run_id == RunRow.run_id,
+                    RunAttemptRow.attempt_no == RunRow.next_attempt_no - 1,
+                ),
+            )
+            .outerjoin(
+                RunLeaseRow,
+                and_(
+                    RunLeaseRow.run_id == RunRow.run_id,
+                    RunLeaseRow.status == "active",
+                ),
+            )
+            .where(RunRow.run_id == selected_run_id)
+            .execution_options(populate_existing=True)
+        ).all()
+        if not rows:
+            return None
+        if len(rows) != 1:
+            raise IntegrityViolation(
+                "Run write authority has more than one active head",
+                run_id=selected_run_id,
+            )
+        run_row, attempt_row, lease_row = rows[0]
+        run = _parse_run_row(run_row, expected_run_id=selected_run_id)
+        attempt = (
+            None
+            if attempt_row is None
+            else _parse_attempt_row(
+                attempt_row,
+                expected_run_id=selected_run_id,
+                expected_attempt_no=attempt_row.attempt_no,
+            )
+        )
+        lease = (
+            None
+            if lease_row is None
+            else _parse_lease_row(lease_row, expected_lease_id=lease_row.lease_id)
+        )
+        return run, attempt, lease
 
     def get_event(self, run_id: str, seq: int) -> RunEvent | None:
         selected_run_id = _require_nonempty(run_id, field_name="run_id")
@@ -3197,6 +3801,388 @@ class SqlRunRepository:
         self._session.flush()
         return parsed
 
+    def put_finding_links_many(
+        self,
+        links: Sequence[RunFindingLinkV1],
+    ) -> tuple[RunFindingLinkV1, ...]:
+        """Preflight and publish one Finding-link aggregate in this transaction."""
+
+        return self.put_preflighted_finding_links_many(self.preflight_finding_links_many(links))
+
+    def preflight_finding_links_many(
+        self,
+        links: Sequence[RunFindingLinkV1],
+        *,
+        planned_findings: Sequence[FindingRevisionV1] = (),
+        planned_artifact_ids: Sequence[str] = (),
+    ) -> _PreflightedRunFindingLinks:
+        """Validate all link authority without adding, flushing, or writing rows."""
+
+        parsed_links = tuple(
+            _revalidate(link, RunFindingLinkV1, label="Run finding link put") for link in links
+        )
+        planned_findings_by_key = self._validate_planned_finding_overlay(planned_findings)
+        planned_artifact_id_set = self._validate_planned_artifact_overlay(planned_artifact_ids)
+        if not parsed_links:
+            return _PreflightedRunFindingLinks(
+                _authority=_RUN_FINDING_PREFLIGHT_AUTHORITY,
+                _owner=self,
+                _session=self._session,
+                _transaction=self._current_transaction(),
+                _results=(),
+                _row_parameters=(),
+            )
+        with self._session.no_autoflush:
+            return self._preflight_finding_links_many(
+                parsed_links,
+                planned_findings_by_key=planned_findings_by_key,
+                planned_artifact_ids=planned_artifact_id_set,
+            )
+
+    def _preflight_finding_links_many(
+        self,
+        parsed_links: tuple[RunFindingLinkV1, ...],
+        *,
+        planned_findings_by_key: dict[tuple[str, int], FindingRevisionV1],
+        planned_artifact_ids: frozenset[str],
+    ) -> _PreflightedRunFindingLinks:
+
+        requested_by_primary: dict[tuple[str, int, int], RunFindingLinkV1] = {}
+        primary_by_semantic: dict[tuple[str, str, int], tuple[str, int, int]] = {}
+        for parsed in parsed_links:
+            primary = (parsed.run_id, parsed.attempt_no, parsed.ordinal)
+            retained = requested_by_primary.setdefault(primary, parsed)
+            if _canonical_wire(retained) != _canonical_wire(parsed):
+                raise IntegrityViolation(
+                    "immutable Run finding link differs within one batch",
+                    run_id=parsed.run_id,
+                    attempt_no=parsed.attempt_no,
+                    ordinal=parsed.ordinal,
+                )
+            semantic = (parsed.run_id, parsed.finding_id, parsed.finding_revision)
+            retained_primary = primary_by_semantic.setdefault(semantic, primary)
+            if retained_primary != primary:
+                raise IntegrityViolation(
+                    "Finding revision is already linked at another ordinal",
+                    finding_id=parsed.finding_id,
+                    finding_revision=parsed.finding_revision,
+                )
+
+        existing_by_primary: dict[tuple[str, int, int], RunFindingLinkV1] = {}
+        primary_keys = tuple(requested_by_primary)
+        primary_chunk_size = _MAX_SQL_IN_ITEMS // 3
+        for offset in range(0, len(primary_keys), primary_chunk_size):
+            rows = self._session.scalars(
+                select(RunFindingLinkRow).where(
+                    tuple_(
+                        RunFindingLinkRow.run_id,
+                        RunFindingLinkRow.attempt_no,
+                        RunFindingLinkRow.ordinal,
+                    ).in_(primary_keys[offset : offset + primary_chunk_size])
+                )
+            ).all()
+            for row in rows:
+                key = (row.run_id, row.attempt_no, row.ordinal)
+                existing_by_primary[key] = _parse_finding_link_row(
+                    row,
+                    expected_run_id=row.run_id,
+                    expected_attempt_no=row.attempt_no,
+                    expected_ordinal=row.ordinal,
+                )
+
+        existing_by_semantic: dict[tuple[str, str, int], tuple[str, int, int]] = {}
+        semantic_keys = tuple(primary_by_semantic)
+        for offset in range(0, len(semantic_keys), primary_chunk_size):
+            rows = self._session.scalars(
+                select(RunFindingLinkRow).where(
+                    tuple_(
+                        RunFindingLinkRow.run_id,
+                        RunFindingLinkRow.finding_id,
+                        RunFindingLinkRow.finding_revision,
+                    ).in_(semantic_keys[offset : offset + primary_chunk_size])
+                )
+            ).all()
+            for row in rows:
+                semantic = (row.run_id, row.finding_id, row.finding_revision)
+                primary = (row.run_id, row.attempt_no, row.ordinal)
+                retained_primary = existing_by_semantic.setdefault(semantic, primary)
+                if retained_primary != primary:
+                    raise IntegrityViolation(
+                        "stored Run finding links duplicate an immutable Finding revision",
+                        run_id=row.run_id,
+                        finding_id=row.finding_id,
+                        finding_revision=row.finding_revision,
+                    )
+
+        pending_by_primary: dict[tuple[str, int, int], RunFindingLinkV1] = {}
+        results: list[RunFindingLinkV1] = []
+        for parsed in parsed_links:
+            primary = (parsed.run_id, parsed.attempt_no, parsed.ordinal)
+            retained = existing_by_primary.get(primary)
+            if retained is None:
+                retained = pending_by_primary.get(primary)
+            if retained is not None:
+                if _canonical_wire(retained) != _canonical_wire(parsed):
+                    raise IntegrityViolation(
+                        "immutable Run finding link differs from retained content",
+                        run_id=parsed.run_id,
+                        attempt_no=parsed.attempt_no,
+                        ordinal=parsed.ordinal,
+                    )
+                results.append(retained)
+                continue
+            semantic = (parsed.run_id, parsed.finding_id, parsed.finding_revision)
+            duplicate_primary = existing_by_semantic.get(semantic)
+            if duplicate_primary is not None and duplicate_primary != primary:
+                raise IntegrityViolation(
+                    "Finding revision is already linked at another ordinal",
+                    finding_id=parsed.finding_id,
+                    finding_revision=parsed.finding_revision,
+                )
+            pending_by_primary[primary] = parsed
+            results.append(parsed)
+
+        pending_links = tuple(pending_by_primary.values())
+        attempt_keys = tuple(
+            dict.fromkeys((link.run_id, link.attempt_no) for link in pending_links)
+        )
+        attempt_rows: dict[tuple[str, int], RunAttempt] = {}
+        pair_chunk_size = _MAX_SQL_IN_ITEMS // 2
+        for offset in range(0, len(attempt_keys), pair_chunk_size):
+            rows = self._session.scalars(
+                select(RunAttemptRow).where(
+                    tuple_(RunAttemptRow.run_id, RunAttemptRow.attempt_no).in_(
+                        attempt_keys[offset : offset + pair_chunk_size]
+                    )
+                )
+            ).all()
+            for row in rows:
+                attempt_rows[(row.run_id, row.attempt_no)] = _parse_attempt_row(
+                    row,
+                    expected_run_id=row.run_id,
+                    expected_attempt_no=row.attempt_no,
+                )
+        missing_attempt = next(
+            (key for key in attempt_keys if key not in attempt_rows),
+            None,
+        )
+        if missing_attempt is not None:
+            raise IntegrityViolation(
+                "finding link Attempt does not exist",
+                run_id=missing_attempt[0],
+                attempt_no=missing_attempt[1],
+            )
+
+        prompt_routes: dict[tuple[str, int], dict[int, list[int]]] = {
+            key: {} for key in attempt_keys
+        }
+        for offset in range(0, len(attempt_keys), pair_chunk_size):
+            rows = self._session.execute(
+                select(
+                    RunIntermediateArtifactLinkRow.run_id,
+                    RunIntermediateArtifactLinkRow.attempt_no,
+                    RunIntermediateArtifactLinkRow.call_ordinal,
+                    RunIntermediateArtifactLinkRow.route_ordinal,
+                )
+                .where(
+                    tuple_(
+                        RunIntermediateArtifactLinkRow.run_id,
+                        RunIntermediateArtifactLinkRow.attempt_no,
+                    ).in_(attempt_keys[offset : offset + pair_chunk_size])
+                )
+                .order_by(
+                    RunIntermediateArtifactLinkRow.run_id,
+                    RunIntermediateArtifactLinkRow.attempt_no,
+                    RunIntermediateArtifactLinkRow.call_ordinal,
+                    RunIntermediateArtifactLinkRow.route_ordinal,
+                )
+            ).all()
+            for run_id, attempt_no, call_ordinal, route_ordinal in rows:
+                prompt_routes[(run_id, attempt_no)].setdefault(call_ordinal, []).append(
+                    route_ordinal
+                )
+        for key, attempt in attempt_rows.items():
+            routes_by_call = prompt_routes[key]
+            expected_calls = list(range(1, attempt.next_call_ordinal))
+            if list(routes_by_call) != expected_calls or any(
+                routes != list(range(1, len(routes) + 1)) for routes in routes_by_call.values()
+            ):
+                raise IntegrityViolation(
+                    "Attempt call-ordinal head and route chains are not closed over prompt links",
+                    run_id=attempt.run_id,
+                    attempt_no=attempt.attempt_no,
+                )
+
+        finding_keys = tuple(
+            dict.fromkeys(
+                (
+                    *((link.finding_id, link.finding_revision) for link in parsed_links),
+                    *planned_findings_by_key,
+                )
+            )
+        )
+        findings: dict[tuple[str, int], FindingRevisionV1] = {}
+        for offset in range(0, len(finding_keys), pair_chunk_size):
+            rows = self._session.scalars(
+                select(FindingRevisionRow).where(
+                    tuple_(
+                        FindingRevisionRow.finding_id,
+                        FindingRevisionRow.revision,
+                    ).in_(finding_keys[offset : offset + pair_chunk_size])
+                )
+            ).all()
+            for row in rows:
+                key = (row.finding_id, row.revision)
+                retained = _parse_linked_finding(row)
+                planned = planned_findings_by_key.get(key)
+                if planned is not None and _canonical_wire(retained) != _canonical_wire(planned):
+                    raise IntegrityViolation(
+                        "planned Finding overlay conflicts with retained immutable content",
+                        finding_id=row.finding_id,
+                        finding_revision=row.revision,
+                    )
+                findings[key] = retained
+        for parsed in parsed_links:
+            key = (parsed.finding_id, parsed.finding_revision)
+            retained_finding = findings.get(key) or planned_findings_by_key.get(key)
+            if retained_finding is None:
+                raise IntegrityViolation(
+                    "finding link does not match the retained Finding revision",
+                    finding_id=parsed.finding_id,
+                    finding_revision=parsed.finding_revision,
+                )
+            if finding_revision_digest(retained_finding) != parsed.finding_digest:
+                raise IntegrityViolation(
+                    "finding link digest differs from the retained Finding revision",
+                    finding_id=parsed.finding_id,
+                    finding_revision=parsed.finding_revision,
+                )
+
+        evidence_ids = tuple(dict.fromkeys(link.evidence_artifact_id for link in pending_links))
+        retained_evidence_ids: set[str] = set()
+        for offset in range(0, len(evidence_ids), _MAX_SQL_IN_ITEMS):
+            retained_evidence_ids.update(
+                self._session.scalars(
+                    select(ArtifactRow.artifact_id).where(
+                        ArtifactRow.artifact_id.in_(
+                            evidence_ids[offset : offset + _MAX_SQL_IN_ITEMS]
+                        )
+                    )
+                ).all()
+            )
+        missing_evidence = next(
+            (
+                artifact_id
+                for artifact_id in evidence_ids
+                if artifact_id not in retained_evidence_ids
+                and artifact_id not in planned_artifact_ids
+            ),
+            None,
+        )
+        if missing_evidence is not None:
+            raise IntegrityViolation(
+                "finding link evidence artifact does not exist",
+                evidence_artifact_id=missing_evidence,
+            )
+
+        return _PreflightedRunFindingLinks(
+            _authority=_RUN_FINDING_PREFLIGHT_AUTHORITY,
+            _owner=self,
+            _session=self._session,
+            _transaction=self._current_transaction(),
+            _results=tuple(results),
+            _row_parameters=tuple(link.model_dump(mode="json") for link in pending_links),
+        )
+
+    def put_preflighted_finding_links_many(
+        self,
+        seal: _PreflightedRunFindingLinks,
+    ) -> tuple[RunFindingLinkV1, ...]:
+        """Consume one opaque preflight seal using DML-only row parameters."""
+
+        state = None
+        consumed = False
+        if type(seal) is _PreflightedRunFindingLinks:
+            with _RUN_FINDING_PREFLIGHT_LOCK:
+                state = _RUN_FINDING_PREFLIGHT_STATES.get(seal)
+                consumed = seal in _CONSUMED_RUN_FINDING_PREFLIGHT_SEALS
+        if (
+            state is None
+            or state.owner is not self
+            or state.session is not self._session
+            or state.transaction is not self._current_transaction()
+        ):
+            raise IntegrityViolation(
+                "Run Finding-link preflight seal does not belong to the current transaction"
+            )
+        if consumed:
+            raise IntegrityViolation("Run Finding-link preflight seal has already been consumed")
+        with _RUN_FINDING_PREFLIGHT_LOCK:
+            if (
+                _RUN_FINDING_PREFLIGHT_STATES.get(seal) is not state
+                or seal in _CONSUMED_RUN_FINDING_PREFLIGHT_SEALS
+            ):
+                raise IntegrityViolation(
+                    "Run Finding-link preflight seal has already been consumed"
+                )
+            _CONSUMED_RUN_FINDING_PREFLIGHT_SEALS.add(seal)
+
+        if state.row_parameters:
+            result = self._session.connection().execute(
+                RunFindingLinkRow.__table__.insert(),
+                state.row_parameters,
+            )
+            if result.rowcount != len(state.row_parameters):
+                raise IntegrityViolation("Run Finding-link batch insert count differs")
+            self._session.expire_all()
+        return state.results
+
+    def _current_transaction(self) -> object | None:
+        return self._session.get_nested_transaction() or self._session.get_transaction()
+
+    @staticmethod
+    def _validate_planned_finding_overlay(
+        findings: Sequence[FindingRevisionV1],
+    ) -> dict[tuple[str, int], FindingRevisionV1]:
+        retained: dict[tuple[str, int], FindingRevisionV1] = {}
+        digest_keys: dict[str, tuple[str, int]] = {}
+        for finding in findings:
+            parsed = _revalidate(
+                finding,
+                FindingRevisionV1,
+                label="planned Finding overlay",
+            )
+            key = (parsed.finding_id, parsed.revision)
+            if key in retained:
+                raise IntegrityViolation(
+                    "planned Finding overlay contains a duplicate revision identity",
+                    finding_id=parsed.finding_id,
+                    finding_revision=parsed.revision,
+                )
+            digest = finding_revision_digest(parsed)
+            digest_key = digest_keys.setdefault(digest, key)
+            if digest_key != key:
+                raise IntegrityViolation(
+                    "planned Finding overlay contains a digest collision",
+                    finding_digest=digest,
+                )
+            retained[key] = parsed
+        return retained
+
+    @staticmethod
+    def _validate_planned_artifact_overlay(
+        artifact_ids: Sequence[str],
+    ) -> frozenset[str]:
+        if isinstance(artifact_ids, (str, bytes)):
+            raise IntegrityViolation("planned Artifact overlay must be a sequence of ids")
+        selected = tuple(
+            _require_nonempty(artifact_id, field_name="planned_artifact_id")
+            for artifact_id in artifact_ids
+        )
+        if len(selected) != len(set(selected)):
+            raise IntegrityViolation("planned Artifact overlay contains a duplicate id")
+        return frozenset(selected)
+
     def get_finding_link(
         self,
         run_id: str,
@@ -3413,6 +4399,226 @@ class SqlRunRepository:
         self._session.flush()
         return parsed
 
+    def preflight_accept_terminal_command(
+        self,
+        *,
+        expected_run_revision: int,
+        record: RunCommandRecordV1,
+        events: tuple[RunEvent, ...],
+        terminal_status: Literal["cancelled"],
+        terminal_failure_artifact_id: str,
+        terminal_cassette_artifact_id: str | None,
+    ) -> object:
+        """Seal an inactive cancel command before any terminal participant writes."""
+
+        transaction = self._require_terminal_transaction()
+        expected_revision = _require_positive(
+            expected_run_revision,
+            field_name="expected_run_revision",
+        )
+        terminal_cassette_id = _require_optional_nonempty(
+            terminal_cassette_artifact_id,
+            field_name="terminal_cassette_artifact_id",
+        )
+        parsed_record = _revalidate(
+            record,
+            RunCommandRecordV1,
+            label="terminal Run command acceptance",
+        )
+        parsed_events = tuple(
+            _revalidate(event, RunEvent, label="terminal Run command event") for event in events
+        )
+        authority = self.get_run_write_authority(parsed_record.run_id)
+        if authority is None:
+            raise Conflict("Run command acceptance revision did not match")
+        run, latest_attempt, active_lease = authority
+        if run.revision != expected_revision:
+            raise Conflict("Run command acceptance revision did not match")
+        if parsed_record.command.expected_run_revision != expected_revision:
+            raise IntegrityViolation("Run command embeds a different expected Run revision")
+        if self.get_command_by_id(parsed_record.command.command_id) is not None:
+            raise Conflict("Run command identity is already retained")
+        if (
+            self.get_command_by_idempotency(
+                run_id=parsed_record.run_id,
+                idempotency_key=parsed_record.command.idempotency_key,
+            )
+            is not None
+        ):
+            raise Conflict("Run command idempotency key is already retained")
+        if (
+            self.get_command_by_client_sequence(
+                run_id=parsed_record.run_id,
+                client_id=parsed_record.command.client_id,
+                client_seq=parsed_record.command.client_seq,
+            )
+            is not None
+        ):
+            raise Conflict("Run command client sequence is already retained")
+        self._validate_event_sequence(run, parsed_events)
+        expected_attempt_no = run.next_attempt_no - 1 if run.status == "retry_wait" else None
+        terminal_event = parsed_events[-1] if parsed_events else None
+        if (
+            terminal_status != "cancelled"
+            or run.status not in {"queued", "retry_wait"}
+            or run.current_attempt_no is not None
+            or run.concurrency_permit_group_id is not None
+            or active_lease is not None
+            or (run.status == "queued" and latest_attempt is not None)
+            or (
+                run.status == "retry_wait"
+                and (
+                    latest_attempt is None
+                    or latest_attempt.attempt_no != expected_attempt_no
+                    or latest_attempt.status in _ACTIVE_ATTEMPT_STATUSES
+                )
+            )
+            or parsed_record.command.type != "cancel"
+            or parsed_record.status != "applied"
+            or len(parsed_events) != 2
+            or parsed_record.result_event_seq != parsed_events[0].seq
+            or parsed_events[0].event_type != "run.cancel_requested"
+            or getattr(parsed_events[0].data, "command_id", None)
+            != parsed_record.command.command_id
+            or getattr(parsed_events[0].data, "reason_code", None)
+            != getattr(parsed_record.command.payload, "reason_code", None)
+            or terminal_event is None
+            or terminal_event.event_type != "run.cancelled"
+            or terminal_event.attempt_no is not None
+            or getattr(terminal_event.data, "attempt_no", None) != expected_attempt_no
+            or getattr(terminal_event.data, "failure_artifact_id", None)
+            != terminal_failure_artifact_id
+            or getattr(terminal_event.data, "cause_code", None) != "cancelled"
+        ):
+            raise IntegrityViolation("inactive cancel acceptance shape is invalid")
+        artifact_id = _require_nonempty(
+            terminal_failure_artifact_id,
+            field_name="terminal_failure_artifact_id",
+        )
+        _validate_cassette_publication(
+            run,
+            attempt_cassette_artifact_id=None,
+            terminal_cassette_artifact_id=terminal_cassette_id,
+            closes_attempt=False,
+            closes_run=True,
+        )
+        updates: dict[str, Any] = {
+            "revision": run.revision + 1,
+            "next_event_seq": run.next_event_seq + len(parsed_events),
+            "updated_at": terminal_event.occurred_at,
+            "cancel_requested_at": parsed_events[0].occurred_at,
+            "cancel_requested_by": parsed_record.actor.model_dump(mode="json"),
+            "status": terminal_status,
+            "failure_artifact_id": artifact_id,
+            "terminal_cassette_artifact_id": terminal_cassette_id,
+            "retry_not_before_utc": None,
+            "concurrency_permit_group_id": None,
+        }
+        updated_run = RunRecord.model_validate({**run.model_dump(mode="python"), **updates})
+        run_statement = (
+            update(RunRow)
+            .where(
+                *self._run_fence_predicates(run),
+                RunRow.terminal_cassette_artifact_id.is_(None),
+            )
+            .values(**updates)
+        )
+        rejection_statement, rejection_parameters = self._preflight_terminal_commands(
+            run_id=run.run_id,
+            mode="terminal",
+            event_seq=terminal_event.seq,
+            occurred_at=terminal_event.occurred_at,
+            fence=None,
+        )
+        result = RunCommandAcceptance(updated_run, parsed_record, parsed_events)
+        state = _PreflightedTerminalCommandAcceptanceState(
+            owner=self,
+            session=self._session,
+            transaction=transaction,
+            result=result,
+            run_statement=run_statement,
+            event_parameters=tuple(_event_values(event) for event in parsed_events),
+            command_parameters=_command_values(parsed_record),
+            rejection_statement=rejection_statement,
+            rejection_parameters=rejection_parameters,
+        )
+        return _PreflightedTerminalCommandAcceptance(
+            _authority=_TERMINAL_COMMAND_PREFLIGHT_AUTHORITY,
+            _state=state,
+        )
+
+    def apply_preflighted_terminal_command(
+        self,
+        seal: object,
+    ) -> RunCommandAcceptance:
+        """Consume a terminal command seal using CAS/INSERT DML only."""
+
+        if not isinstance(seal, _PreflightedTerminalCommandAcceptance):
+            raise IntegrityViolation("terminal command lacks its trusted preflight seal")
+        with _TERMINAL_COMMAND_PREFLIGHT_LOCK:
+            state = _TERMINAL_COMMAND_PREFLIGHT_STATES.get(seal)
+            if state is None:
+                raise IntegrityViolation("terminal command lacks its trusted preflight seal")
+            if seal in _CONSUMED_TERMINAL_COMMAND_PREFLIGHT_SEALS:
+                raise IntegrityViolation("terminal command preflight seal was already consumed")
+            if (
+                state.owner is not self
+                or state.session is not self._session
+                or state.transaction is not self._current_transaction()
+            ):
+                raise IntegrityViolation("terminal command seal belongs to another transaction")
+            _CONSUMED_TERMINAL_COMMAND_PREFLIGHT_SEALS.add(seal)
+
+        connection = self._session.connection()
+        run_result = connection.execute(state.run_statement)
+        if run_result.rowcount != 1:
+            raise Conflict("Run command acceptance Run CAS did not match")
+        event_result = connection.execute(
+            RunEventRow.__table__.insert(),
+            state.event_parameters,
+        )
+        if event_result.rowcount != len(state.event_parameters):
+            raise IntegrityViolation("terminal command Event insert count differs")
+        try:
+            command_result = connection.execute(
+                RunCommandRow.__table__.insert(),
+                state.command_parameters,
+            )
+        except IntegrityError as exc:
+            record = state.result.record
+            context = {
+                "run_id": record.run_id,
+                "command_id": record.command.command_id,
+                "client_id": record.command.client_id,
+                "client_seq": record.command.client_seq,
+                "idempotency_key": record.command.idempotency_key,
+            }
+            if getattr(exc.orig, "sqlite_errorcode", None) in {
+                sqlite3.SQLITE_CONSTRAINT_PRIMARYKEY,
+                sqlite3.SQLITE_CONSTRAINT_UNIQUE,
+            }:
+                raise IdempotencyConflict(
+                    "terminal Run command identity became bound after preflight",
+                    **context,
+                ) from exc
+            raise IntegrityViolation(
+                "terminal Run command insert violated persistence integrity",
+                **context,
+            ) from exc
+        if command_result.rowcount != 1:
+            raise IntegrityViolation("terminal command insert count differs")
+        if state.rejection_parameters:
+            if state.rejection_statement is None:
+                raise IntegrityViolation("terminal command rejection DML is incomplete")
+            rejection_result = connection.execute(
+                state.rejection_statement,
+                state.rejection_parameters,
+            )
+            if rejection_result.rowcount != len(state.rejection_parameters):
+                raise Conflict("terminal command rejection CAS did not match")
+        self._session.expire_all()
+        return state.result
+
     def accept_command(
         self,
         *,
@@ -3423,6 +4629,19 @@ class SqlRunRepository:
         terminal_failure_artifact_id: str | None = None,
         terminal_cassette_artifact_id: str | None = None,
     ) -> RunCommandAcceptance:
+        if terminal_status is not None:
+            if terminal_failure_artifact_id is None:
+                raise IntegrityViolation("terminal command omitted its failure Artifact")
+            return self.apply_preflighted_terminal_command(
+                self.preflight_accept_terminal_command(
+                    expected_run_revision=expected_run_revision,
+                    record=record,
+                    events=events,
+                    terminal_status=terminal_status,
+                    terminal_failure_artifact_id=terminal_failure_artifact_id,
+                    terminal_cassette_artifact_id=terminal_cassette_artifact_id,
+                )
+            )
         expected_revision = _require_positive(
             expected_run_revision,
             field_name="expected_run_revision",
@@ -3795,6 +5014,468 @@ class SqlRunRepository:
             expected_run_id=selected_run_id,
             expected_command_id=row.command_id,
         )
+
+    def _require_terminal_transaction(self) -> object:
+        transaction = self._current_transaction()
+        if transaction is None:
+            # ``SqliteUnitOfWork`` starts ``BEGIN IMMEDIATE`` on the bound
+            # Connection before constructing the Session.  Joining that already
+            # active transaction creates the SessionTransaction identity without
+            # issuing a statement.
+            self._session.connection()
+            transaction = self._current_transaction()
+        if transaction is None:
+            raise IntegrityViolation(
+                "Run terminal closure preflight requires an active transaction"
+            )
+        return transaction
+
+    def _load_terminal_active_authority(
+        self,
+        fence: _AttemptWriteFence,
+        *,
+        occurred_at: str,
+        allowed_statuses: frozenset[str],
+        allow_expired_lease: bool = False,
+        allow_deadline_exceeded: bool = False,
+    ) -> tuple[RunRecord, RunAttempt, RunLease]:
+        """Load the bounded mutable active head without scanning immutable history.
+
+        ``RunRow.next_*`` is the persisted head authority.  The terminal Run CAS
+        fences all three counters, the Attempt CAS fences ``next_call_ordinal``,
+        and Event/Attempt uniqueness rejects a conflicting insert.  Recounting all
+        preceding Events, Attempts, or prompt links here would turn retry-heavy
+        terminal work into cumulative quadratic time without adding write authority.
+        """
+
+        run_id = _require_nonempty(fence.run_id, field_name="fence.run_id")
+        attempt_no = _require_positive(fence.attempt_no, field_name="fence.attempt_no")
+        expected_revision = _require_positive(
+            fence.expected_run_revision,
+            field_name="fence.expected_run_revision",
+        )
+        lease_id = _require_nonempty(fence.lease_id, field_name="fence.lease_id")
+        fencing_token = _require_positive(
+            fence.fencing_token,
+            field_name="fence.fencing_token",
+        )
+        occurred = _require_canonical_utc(occurred_at, field_name="occurred_at")
+        rows = self._session.execute(
+            select(RunRow, RunAttemptRow, RunLeaseRow)
+            .join(
+                RunAttemptRow,
+                and_(
+                    RunAttemptRow.run_id == RunRow.run_id,
+                    RunAttemptRow.attempt_no == attempt_no,
+                ),
+            )
+            .join(
+                RunLeaseRow,
+                and_(
+                    RunLeaseRow.run_id == RunRow.run_id,
+                    RunLeaseRow.attempt_no == attempt_no,
+                    RunLeaseRow.lease_id == lease_id,
+                ),
+            )
+            .where(RunRow.run_id == run_id)
+            .execution_options(populate_existing=True)
+        ).all()
+        if len(rows) != 1:
+            raise Conflict("Run attempt write fence did not match")
+        run_row, attempt_row, lease_row = rows[0]
+        run = _parse_run_row(run_row, expected_run_id=run_id)
+        attempt = _parse_attempt_row(
+            attempt_row,
+            expected_run_id=run_id,
+            expected_attempt_no=attempt_no,
+        )
+        lease = _parse_lease_row(lease_row, expected_lease_id=lease_id)
+        if (
+            run.revision != expected_revision
+            or run.status not in allowed_statuses
+            or run.current_attempt_no != attempt_no
+            or run.concurrency_permit_group_id is None
+            or run.next_attempt_no != attempt_no + 1
+            or run.next_fencing_token != fencing_token + 1
+            or attempt.status != run.status
+            or attempt.fencing_token != fencing_token
+            or lease.run_id != run_id
+            or lease.attempt_no != attempt_no
+            or lease.fencing_token != fencing_token
+            or lease.owner_principal_id != attempt.worker_principal_id
+            or lease.status != "active"
+        ):
+            raise Conflict("Run attempt write fence did not match")
+        if not allow_expired_lease and occurred >= _parse_utc(
+            lease.expires_at,
+            field_name="lease.expires_at",
+        ):
+            raise Conflict("Run attempt lease is expired")
+        if not allow_deadline_exceeded:
+            if occurred >= _parse_utc(
+                run.overall_deadline_utc,
+                field_name="run.overall_deadline_utc",
+            ):
+                raise Conflict("Run attempt overall deadline is exhausted")
+            if attempt.attempt_deadline_utc is not None and occurred >= _parse_utc(
+                attempt.attempt_deadline_utc,
+                field_name="attempt.attempt_deadline_utc",
+            ):
+                raise Conflict("Run attempt deadline is exhausted")
+        return run, attempt, lease
+
+    def _load_terminal_inactive_authority(
+        self,
+        *,
+        run_id: str,
+        expected_run_revision: int,
+    ) -> tuple[RunRecord, RunAttempt | None]:
+        """Load the bounded inactive head and prove there is no active lease.
+
+        The outer Attempt join is the one PK-addressed latest head
+        (``next_attempt_no - 1``), never the complete attempt history.
+        """
+
+        selected_run_id = _require_nonempty(run_id, field_name="run_id")
+        expected_revision = _require_positive(
+            expected_run_revision,
+            field_name="expected_run_revision",
+        )
+        rows = self._session.execute(
+            select(RunRow, RunAttemptRow, RunLeaseRow)
+            .outerjoin(
+                RunAttemptRow,
+                and_(
+                    RunAttemptRow.run_id == RunRow.run_id,
+                    RunAttemptRow.attempt_no == RunRow.next_attempt_no - 1,
+                ),
+            )
+            .outerjoin(
+                RunLeaseRow,
+                and_(
+                    RunLeaseRow.run_id == RunRow.run_id,
+                    RunLeaseRow.status == "active",
+                ),
+            )
+            .where(RunRow.run_id == selected_run_id)
+            .execution_options(populate_existing=True)
+        ).all()
+        if len(rows) != 1:
+            raise Conflict("inactive Run terminal compare-and-set did not match")
+        run_row, attempt_row, active_lease_row = rows[0]
+        run = _parse_run_row(run_row, expected_run_id=selected_run_id)
+        latest_attempt = (
+            None
+            if attempt_row is None
+            else _parse_attempt_row(
+                attempt_row,
+                expected_run_id=selected_run_id,
+                expected_attempt_no=attempt_row.attempt_no,
+            )
+        )
+        if (
+            run.revision != expected_revision
+            or run.status not in {"queued", "retry_wait"}
+            or run.current_attempt_no is not None
+            or run.concurrency_permit_group_id is not None
+            or active_lease_row is not None
+            or (run.next_attempt_no == 1) != (latest_attempt is None)
+        ):
+            raise Conflict("inactive Run terminal compare-and-set did not match")
+        if latest_attempt is not None and (
+            latest_attempt.attempt_no != run.next_attempt_no - 1
+            or latest_attempt.fencing_token != run.next_fencing_token - 1
+            or latest_attempt.status in _ACTIVE_ATTEMPT_STATUSES
+        ):
+            raise IntegrityViolation("inactive Run attempt head is inconsistent")
+        return run, latest_attempt
+
+    def _preflight_terminal_commands(
+        self,
+        *,
+        run_id: str,
+        mode: Literal["retry", "terminal"],
+        event_seq: int,
+        occurred_at: str,
+        fence: _AttemptWriteFence | None,
+    ) -> tuple[object | None, tuple[dict[str, object], ...]]:
+        statuses = ("claimed",) if mode == "retry" else ("pending", "claimed")
+        rows = self._session.scalars(
+            select(RunCommandRow)
+            .where(
+                RunCommandRow.run_id == run_id,
+                RunCommandRow.status.in_(statuses),
+            )
+            .order_by(RunCommandRow.created_at, RunCommandRow.command_id)
+            .limit(MAX_COLLECTION_ITEMS + 1)
+            .execution_options(populate_existing=True)
+        ).all()
+        if len(rows) > MAX_COLLECTION_ITEMS:
+            raise IntegrityViolation("Run command authority exceeds its hard cap")
+        parameters: list[dict[str, object]] = []
+        for row in rows:
+            record = _parse_command_row(
+                row,
+                expected_run_id=run_id,
+                expected_command_id=row.command_id,
+            )
+            if mode == "retry":
+                if fence is None or (
+                    record.claimed_attempt_no != fence.attempt_no
+                    or record.claimed_fencing_token != fence.fencing_token
+                ):
+                    raise IntegrityViolation("claimed command is bound to a stale Run attempt")
+                updated = RunCommandRecordV1.model_validate(
+                    {
+                        **record.model_dump(mode="python"),
+                        "status": "pending",
+                        "revision": record.revision + 1,
+                        "claimed_at": None,
+                        "claimed_attempt_no": None,
+                        "claimed_fencing_token": None,
+                    }
+                )
+                parameters.append(
+                    {
+                        "cas_run_id": run_id,
+                        "cas_command_id": record.command.command_id,
+                        "cas_status": "claimed",
+                        "cas_revision": record.revision,
+                        "cas_attempt_no": fence.attempt_no,
+                        "cas_fencing_token": fence.fencing_token,
+                        "new_status": "pending",
+                        "new_revision": updated.revision,
+                        "new_claimed_at": None,
+                        "new_claimed_attempt_no": None,
+                        "new_claimed_fencing_token": None,
+                    }
+                )
+            else:
+                updated = RunCommandRecordV1.model_validate(
+                    {
+                        **record.model_dump(mode="python"),
+                        "status": "rejected",
+                        "revision": record.revision + 1,
+                        "applied_at": occurred_at,
+                        "result_event_seq": event_seq,
+                        "rejection_code": "run_terminal",
+                    }
+                )
+                parameters.append(
+                    {
+                        "cas_run_id": run_id,
+                        "cas_command_id": record.command.command_id,
+                        "cas_status": record.status,
+                        "cas_revision": record.revision,
+                        "new_status": "rejected",
+                        "new_revision": updated.revision,
+                        "new_applied_at": occurred_at,
+                        "new_result_event_seq": event_seq,
+                        "new_rejection_code": "run_terminal",
+                    }
+                )
+        if not parameters:
+            return None, ()
+        if mode == "retry":
+            statement = (
+                update(RunCommandRow)
+                .where(
+                    RunCommandRow.run_id == bindparam("cas_run_id"),
+                    RunCommandRow.command_id == bindparam("cas_command_id"),
+                    RunCommandRow.status == bindparam("cas_status"),
+                    RunCommandRow.revision == bindparam("cas_revision"),
+                    RunCommandRow.claimed_attempt_no == bindparam("cas_attempt_no"),
+                    RunCommandRow.claimed_fencing_token == bindparam("cas_fencing_token"),
+                )
+                .values(
+                    status=bindparam("new_status"),
+                    revision=bindparam("new_revision"),
+                    claimed_at=bindparam("new_claimed_at"),
+                    claimed_attempt_no=bindparam("new_claimed_attempt_no"),
+                    claimed_fencing_token=bindparam("new_claimed_fencing_token"),
+                )
+            )
+        else:
+            statement = (
+                update(RunCommandRow)
+                .where(
+                    RunCommandRow.run_id == bindparam("cas_run_id"),
+                    RunCommandRow.command_id == bindparam("cas_command_id"),
+                    RunCommandRow.status == bindparam("cas_status"),
+                    RunCommandRow.revision == bindparam("cas_revision"),
+                )
+                .values(
+                    status=bindparam("new_status"),
+                    revision=bindparam("new_revision"),
+                    applied_at=bindparam("new_applied_at"),
+                    result_event_seq=bindparam("new_result_event_seq"),
+                    rejection_code=bindparam("new_rejection_code"),
+                )
+            )
+        return statement, tuple(parameters)
+
+    @staticmethod
+    def _validate_preflight_terminal_events(
+        run: RunRecord,
+        events: tuple[RunEvent, ...],
+    ) -> None:
+        if tuple(event.seq for event in events) != tuple(
+            range(run.next_event_seq, run.next_event_seq + len(events))
+        ):
+            raise Conflict("Run event sequence does not match its persisted head")
+        for event in events:
+            _require_canonical_utc(event.occurred_at, field_name="event.occurred_at")
+            if event.run_id != run.run_id:
+                raise IntegrityViolation("Run event belongs to a different Run")
+            if event.attempt_no not in {None, run.current_attempt_no}:
+                raise IntegrityViolation("Run event belongs to a noncurrent attempt")
+
+    def _issue_terminal_closure(
+        self,
+        *,
+        transaction: object,
+        result: RunAttemptClose | RunTerminal,
+        run: RunRecord,
+        updated_run: RunRecord,
+        attempt: RunAttempt | None,
+        updated_attempt: RunAttempt | None,
+        lease: RunLease | None,
+        lease_status: Literal["closed", "expired"] | None,
+        released_at: str,
+        events: tuple[RunEvent, ...],
+        command_mode: Literal["retry", "terminal"],
+        command_statement: object | None,
+        command_parameters: tuple[dict[str, object], ...],
+    ) -> _PreflightedRunTerminalClosure:
+        run_values = _run_values(updated_run)
+        previous_run_values = _run_values(run)
+        run_statement = (
+            update(RunRow)
+            .where(
+                *self._run_fence_predicates(run),
+                RunRow.terminal_cassette_artifact_id.is_(None),
+            )
+            .values(
+                **{
+                    key: value
+                    for key, value in run_values.items()
+                    if previous_run_values[key] != value
+                }
+            )
+        )
+        attempt_statement: object | None = None
+        lease_statement: object | None = None
+        if attempt is not None:
+            if updated_attempt is None or lease is None or lease_status is None:
+                raise IntegrityViolation("active terminal closure omitted attempt authority")
+            attempt_values = _attempt_values(updated_attempt)
+            previous_attempt_values = _attempt_values(attempt)
+            attempt_statement = (
+                update(RunAttemptRow)
+                .where(
+                    RunAttemptRow.run_id == run.run_id,
+                    RunAttemptRow.attempt_no == attempt.attempt_no,
+                    RunAttemptRow.status == attempt.status,
+                    RunAttemptRow.fencing_token == attempt.fencing_token,
+                    RunAttemptRow.next_call_ordinal == attempt.next_call_ordinal,
+                    RunAttemptRow.ended_at.is_(None),
+                    RunAttemptRow.failure_class.is_(None),
+                    RunAttemptRow.retryable.is_(None),
+                    RunAttemptRow.failure_artifact_id.is_(None),
+                    RunAttemptRow.cassette_bundle_artifact_id.is_(None),
+                )
+                .values(
+                    **{
+                        key: value
+                        for key, value in attempt_values.items()
+                        if previous_attempt_values[key] != value
+                    }
+                )
+            )
+            lease_statement = (
+                update(RunLeaseRow)
+                .where(
+                    RunLeaseRow.lease_id == lease.lease_id,
+                    RunLeaseRow.run_id == run.run_id,
+                    RunLeaseRow.attempt_no == attempt.attempt_no,
+                    RunLeaseRow.fencing_token == attempt.fencing_token,
+                    RunLeaseRow.status == "active",
+                    RunLeaseRow.released_at.is_(None),
+                )
+                .values(status=lease_status, released_at=released_at)
+            )
+        state = _PreflightedRunTerminalClosureState(
+            owner=self,
+            session=self._session,
+            transaction=transaction,
+            result=result,
+            run_statement=run_statement,
+            attempt_statement=attempt_statement,
+            lease_statement=lease_statement,
+            event_parameters=tuple(_event_values(event) for event in events),
+            command_mode=command_mode,
+            command_statement=command_statement,
+            command_parameters=command_parameters,
+        )
+        return _PreflightedRunTerminalClosure(
+            _authority=_RUN_TERMINAL_PREFLIGHT_AUTHORITY,
+            _state=state,
+        )
+
+    def apply_preflighted_terminal_closure(
+        self,
+        seal: object,
+    ) -> RunAttemptClose | RunTerminal:
+        """Consume one trusted closure using CAS/INSERT DML only."""
+
+        if not isinstance(seal, _PreflightedRunTerminalClosure):
+            raise IntegrityViolation("Run terminal closure lacks its trusted preflight seal")
+        with _RUN_TERMINAL_PREFLIGHT_LOCK:
+            state = _RUN_TERMINAL_PREFLIGHT_STATES.get(seal)
+            if state is None:
+                raise IntegrityViolation("Run terminal closure lacks its trusted preflight seal")
+            if seal in _CONSUMED_RUN_TERMINAL_PREFLIGHT_SEALS:
+                raise IntegrityViolation("Run terminal closure seal has already been consumed")
+            if (
+                state.owner is not self
+                or state.session is not self._session
+                or state.transaction is not self._current_transaction()
+            ):
+                raise IntegrityViolation("Run terminal closure seal belongs to another transaction")
+            _CONSUMED_RUN_TERMINAL_PREFLIGHT_SEALS.add(seal)
+
+        connection = self._session.connection()
+        run_result = connection.execute(state.run_statement)
+        if run_result.rowcount != 1:
+            raise Conflict("Run terminal closure Run CAS did not match")
+        if state.attempt_statement is not None:
+            attempt_result = connection.execute(state.attempt_statement)
+            if attempt_result.rowcount != 1:
+                raise Conflict("Run terminal closure Attempt CAS did not match")
+        if state.lease_statement is not None:
+            lease_result = connection.execute(state.lease_statement)
+            if lease_result.rowcount != 1:
+                raise Conflict("Run terminal closure Lease CAS did not match")
+        if state.event_parameters:
+            event_result = connection.execute(
+                RunEventRow.__table__.insert(),
+                state.event_parameters,
+            )
+            if event_result.rowcount != len(state.event_parameters):
+                raise IntegrityViolation("Run terminal closure Event insert count differs")
+        if state.command_parameters:
+            if state.command_statement is None:
+                raise IntegrityViolation("Run terminal closure command DML is incomplete")
+            command_result = connection.execute(
+                state.command_statement,
+                state.command_parameters,
+            )
+            if command_result.rowcount != len(state.command_parameters):
+                if state.command_mode == "retry":
+                    raise Conflict("Run retry command reset CAS did not match")
+                raise Conflict("Run terminal command rejection CAS did not match")
+        self._session.expire_all()
+        return state.result
 
     def _load_fenced_attempt(
         self,

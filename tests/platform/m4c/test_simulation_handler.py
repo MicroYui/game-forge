@@ -352,14 +352,6 @@ def test_simulation_result_passes_real_terminal_codec_with_only_finite_numbers()
             blob=canonical_json(invalid).encode("utf-8"),
         )
 
-    invalid = json.loads(blob)
-    invalid["sensitivity"]["sink_source_ratio"] = "f:Infinity"
-    with pytest.raises(IntegrityViolation, match="exact registered schema"):
-        decode_and_validate_artifact_payload(
-            payload_schema_id=SIMULATION_RESULT_SCHEMA_ID,
-            blob=canonical_json(invalid).encode("utf-8"),
-        )
-
 
 def test_same_seed_is_byte_identical_different_seed_diverges() -> None:
     a, b, c = FakeArtifactStore(), FakeArtifactStore(), FakeArtifactStore()

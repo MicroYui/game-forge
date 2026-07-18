@@ -535,7 +535,9 @@ def test_derive_is_byte_deterministic() -> None:
     assert [a.payload_hash for a in out_a.artifacts] == [a.payload_hash for a in out_b.artifacts]
 
 
-def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
+def test_handler_outcome_publishes_with_exact_scenario_identities(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Exercise handler → generic publisher, including final meta-derived IDs."""
 
     from gameforge.contracts.jobs import (
@@ -581,6 +583,20 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
     outcome = outcome.model_copy(update={"artifacts": tuple(prepared_artifacts)})
 
     registry = build_builtin_registry()
+
+    class _CountingRegistry:
+        def __init__(self, delegate) -> None:
+            self._delegate = delegate
+            self.execution_profile_catalog_reads = 0
+
+        def __getattr__(self, name):
+            return getattr(self._delegate, name)
+
+        def get_execution_profile_catalog(self, *args, **kwargs):
+            self.execution_profile_catalog_reads += 1
+            return self._delegate.get_execution_profile_catalog(*args, **kwargs)
+
+    counting_registry = _CountingRegistry(registry)
     definition = registry.get_run_kind(TASK_SUITE_KIND)
     assert definition is not None
     retry = registry.get_retry_policy(definition.retry_policy)
@@ -680,7 +696,7 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
     )
 
     publisher = _publisher(
-        registry,
+        counting_registry,
         artifacts,
         blobs,
         _Findings(),
@@ -751,6 +767,22 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
             artifacts_by_rule={"scenario": (), "primary": ()},
         )
 
+    # TaskSuite profile/oracle authority is frozen by the Run and must be resolved
+    # once per draft, not once per scenario. Scenario rules also have no child-
+    # payload references, so walking every already-published sibling is needless;
+    # only the primary rule's exact prepared_rule pool is required.
+    from gameforge.platform.publication import publisher as publisher_module
+
+    original_merge = publisher_module._merge_parent_sources  # noqa: SLF001
+    parent_source_merge_calls = 0
+
+    def counting_merge(*sources):
+        nonlocal parent_source_merge_calls
+        parent_source_merge_calls += 1
+        return original_merge(*sources)
+
+    monkeypatch.setattr(publisher_module, "_merge_parent_sources", counting_merge)
+    counting_registry.execution_profile_catalog_reads = 0
     published = publisher.publish_run_result(
         run=run,
         attempt=context.attempt,
@@ -762,6 +794,8 @@ def test_handler_outcome_publishes_with_exact_scenario_identities() -> None:
             principal_kind="service",
         ),
     )
+    assert counting_registry.execution_profile_catalog_reads == 1
+    assert parent_source_merge_calls == 1
 
     manifest = artifacts.by_id[published.result_artifact_id]
     result = json.loads(blobs.read(manifest.object_ref))

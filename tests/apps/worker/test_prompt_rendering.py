@@ -67,6 +67,7 @@ from gameforge.contracts.model_router import (
 )
 from gameforge.contracts.provenance import OriginRefV1, PromptPartV1, ProvenanceV1
 from gameforge.contracts.routing import canonical_model_snapshot_id
+from gameforge.contracts.storage import ObjectStat
 from gameforge.platform.provenance import build_source_kind_registry
 from gameforge.platform.runs.commands import (
     AgentPromptContextPublicationRequest,
@@ -673,7 +674,12 @@ class _StageStore:
         return stored
 
     def stat(self, location: ObjectLocation):
-        return self._stored[location]
+        stored = self._stored[location]
+        return ObjectStat(
+            ref=stored.ref,
+            location=stored.location,
+            verified_at="2026-07-16T00:00:00Z",
+        )
 
     def open(self, location: ObjectLocation):
         return BytesIO(self._payloads[location])
