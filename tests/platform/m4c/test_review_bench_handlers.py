@@ -35,6 +35,7 @@ from gameforge.spine.checkers.graph import GraphChecker
 from gameforge.spine.checkers.base import CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
 from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.sim.economy import EconomySimulator
 from gameforge.platform.run_handlers.bench import (
     BENCH_REPORT_SCHEMA_ID,
     BENCH_SEED_DERIVATION_VERSION,
@@ -855,7 +856,22 @@ def test_review_two_profiles_same_checker_id_emit_distinct_finding_ids() -> None
             ),
         ),
     )
-    outcome = _review_handler(store)(context)
+    handler = ReviewRunHandler(
+        blobs=store,
+        store=store,
+        checker_resolver=_checker_resolver,
+        sim_config_resolver=_sim_config_resolver,
+        checker_execution_policy_resolver=lambda _profile: CheckerExecutionPolicy(
+            allowed_checker_ids=("graph",),
+            allowed_defect_classes=("dangling_reference",),
+            max_direct_checker_count=1,
+            max_constraint_count=0,
+            # One profile consumes 8 units; only the review profile owns the
+            # aggregate authority that permits both profile executions.
+            max_work_units=8,
+        ),
+    )
+    outcome = handler(context)
 
     checker_findings = [f for f in outcome.findings if f.payload.oracle_type == "deterministic"]
     assert checker_findings, "the dangling reference must surface a deterministic finding"
@@ -904,14 +920,20 @@ def test_review_checker_budget_rejects_before_profile_backend_execution() -> Non
     assert calls == 0
 
 
-def test_review_simulation_profiles_share_one_run_level_work_budget() -> None:
-    class NeverCalledSimulator:
+@pytest.mark.parametrize(
+    ("review_work_limit", "expected_calls"),
+    ((10_000, 0), (2_000_000, 2)),
+)
+def test_review_simulation_profiles_use_the_review_run_work_budget(
+    review_work_limit: int,
+    expected_calls: int,
+) -> None:
+    class CountingSimulator:
         calls = 0
 
         def run(self, model, seed, n_agents, n_ticks):
-            del model, seed, n_agents, n_ticks
             self.calls += 1
-            raise AssertionError("simulator must not run")
+            return EconomySimulator().run(model, seed, n_agents, n_ticks)
 
     store = FakeArtifactStore()
     store.register(SNAPSHOT_ID, _combined_snapshot())
@@ -922,7 +944,7 @@ def test_review_simulation_profiles_share_one_run_level_work_budget() -> None:
     payload = _review_payload(triage=False).model_copy(
         update={"checker_profiles": (), "simulation_profiles": simulation_profiles}
     )
-    simulator = NeverCalledSimulator()
+    simulator = CountingSimulator()
     handler = ReviewRunHandler(
         blobs=store,
         store=store,
@@ -930,8 +952,12 @@ def test_review_simulation_profiles_share_one_run_level_work_budget() -> None:
         sim_config_resolver=lambda _profile: ReviewSimConfig(
             n_agents=12,
             n_ticks=40,
-            # Each profile's ~6.7k work is legal; their sum is not.
+            # Each profile's ~6.7k work is legal. Only the review profile owns
+            # the independent aggregate budget across both executions.
             max_work_units=10_000,
+        ),
+        execution_config_resolver=lambda _profile: ReviewExecutionConfig(
+            max_total_simulation_work_units=review_work_limit
         ),
         simulator=simulator,
     )
@@ -955,10 +981,14 @@ def test_review_simulation_profiles_share_one_run_level_work_budget() -> None:
         ),
     )
 
-    with pytest.raises(IntegrityViolation, match="aggregate exact work budget"):
-        handler(context)
+    if expected_calls:
+        outcome = handler(context)
+        assert outcome.summary.outcome_code == "review_completed"
+    else:
+        with pytest.raises(IntegrityViolation, match="aggregate exact work budget"):
+            handler(context)
 
-    assert simulator.calls == 0
+    assert simulator.calls == expected_calls
 
 
 def test_review_aggregate_output_budget_rejects_before_any_object_write() -> None:

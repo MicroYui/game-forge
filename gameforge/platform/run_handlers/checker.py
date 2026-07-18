@@ -589,12 +589,8 @@ def navigation_unproven_findings(
         if not isinstance(item, str) or not item:
             continue
         source_relations = sorted(
-            (
-                relation
-                for relation in graph.all_relations()
-                if relation.type in {EdgeType.GRANTS, EdgeType.DROPS_FROM}
-                and relation.dst_id == item
-            ),
+            graph.neighbors(item, EdgeType.GRANTS, direction="in")
+            + graph.neighbors(item, EdgeType.DROPS_FROM, direction="in"),
             key=lambda relation: relation.id,
         )
         if not source_relations:

@@ -450,7 +450,7 @@ class FindingEvidence:
     finding_id: str | None = None
 
 
-FindingHeadRevisionResolver = Callable[[str], int | None]
+FindingHeadRevisionResolver = Callable[[tuple[str, ...]], Mapping[str, int | None]]
 
 
 def build_prepared_findings(
@@ -463,15 +463,19 @@ def build_prepared_findings(
 
     if len(evidence) > MAX_PREPARED_FINDINGS:
         raise ValueError("prepared finding count exceeds the frozen output bound")
+    finding_ids = tuple(item.finding_id or item.finding.id for item in evidence)
+    unique_finding_ids = tuple(dict.fromkeys(finding_ids))
+    head_revisions = (
+        {}
+        if head_revision_resolver is None or not unique_finding_ids
+        else head_revision_resolver(unique_finding_ids)
+    )
     prepared: list[PreparedFindingV1] = []
-    for item in evidence:
-        finding_id = item.finding_id or item.finding.id
+    for item, finding_id in zip(evidence, finding_ids, strict=True):
         prepared.append(
             PreparedFindingV1(
                 finding_id=finding_id,
-                expected_previous_revision=(
-                    None if head_revision_resolver is None else head_revision_resolver(finding_id)
-                ),
+                expected_previous_revision=head_revisions.get(finding_id),
                 evidence_artifact_index=item.evidence_artifact_index,
                 payload=finding_to_payload(item.finding, producer_run_id=run_id),
             )
@@ -552,6 +556,25 @@ def require_exact_profile_binding(
     """
 
     binding = resolved_profile(context.payload, field_path, required=False)
+    return _validate_exact_profile_binding(
+        context,
+        binding,
+        field_path=field_path,
+        profile=profile,
+        profile_kind=profile_kind,
+        validator=validator,
+    )
+
+
+def _validate_exact_profile_binding(
+    context: ExecutorContextLike,
+    binding: ResolvedExecutionProfileBindingV1 | None,
+    *,
+    field_path: str,
+    profile: ProfileRefV1,
+    profile_kind: ExecutionProfileKindV1,
+    validator: ExactProfileBindingValidator,
+) -> ResolvedExecutionProfileBindingV1:
     if (
         binding is None
         or binding.profile != profile
@@ -586,6 +609,7 @@ def require_exact_profile_bindings(
     production, re-resolved through the retained catalog authority by ``validator``.
     """
 
+    actual_bindings = {binding.field_path: binding for binding in context.payload.resolved_profiles}
     actual_paths = tuple(binding.field_path for binding in context.payload.resolved_profiles)
     expected_paths = tuple(expected)
     if len(actual_paths) != len(expected_paths) or set(actual_paths) != set(expected_paths):
@@ -595,8 +619,9 @@ def require_exact_profile_bindings(
             actual_field_paths=tuple(sorted(actual_paths)),
         )
     return {
-        field_path: require_exact_profile_binding(
+        field_path: _validate_exact_profile_binding(
             context,
+            actual_bindings[field_path],
             field_path=field_path,
             profile=profile,
             profile_kind=profile_kind,

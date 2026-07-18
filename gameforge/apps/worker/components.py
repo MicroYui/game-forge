@@ -28,7 +28,7 @@ from __future__ import annotations
 import hmac
 from collections.abc import Mapping, Sequence
 
-from sqlalchemy import Engine
+from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import sha256_lowerhex
@@ -112,6 +112,7 @@ from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.findings import SqlFindingRepository
+from gameforge.runtime.persistence.models import FindingHeadRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.apps.worker.agent_runners import (
@@ -292,22 +293,23 @@ class WorkerExactFindingRevisionLoader:
 
 
 class WorkerFindingHeadRevisionResolver:
-    """Resolve the exact current Finding-series head used by terminal CAS."""
+    """Read current Finding revisions in one bounded projection for terminal CAS."""
 
-    def __init__(self, *, engine: Engine, cursor_signing_key: bytes, clock: UtcClock) -> None:
+    def __init__(self, *, engine: Engine) -> None:
         self._engine = engine
-        self._cursor_signing_key = cursor_signing_key
-        self._clock = clock
 
-    def __call__(self, finding_id: str) -> int | None:
+    def __call__(self, finding_ids: tuple[str, ...]) -> dict[str, int | None]:
+        revisions = dict.fromkeys(finding_ids)
         with Session(self._engine) as session:
-            repository = SqlFindingRepository(
-                session,
-                cursor_signer=CursorSigner(signing_key=self._cursor_signing_key, clock=self._clock),
-                clock=self._clock,
-            )
-            current = repository.current(finding_id)
-        return None if current is None else current.revision
+            for offset in range(0, len(finding_ids), 900):
+                chunk = finding_ids[offset : offset + 900]
+                rows = session.execute(
+                    select(FindingHeadRow.finding_id, FindingHeadRow.current_revision).where(
+                        FindingHeadRow.finding_id.in_(chunk)
+                    )
+                ).all()
+                revisions.update(rows)
+        return revisions
 
 
 def _materialise_finding(revision: FindingRevisionV1) -> Finding:
@@ -348,8 +350,6 @@ class WorkerArtifactBlobReader:
         )
         self.finding_head_revision = WorkerFindingHeadRevisionResolver(
             engine=engine,
-            cursor_signing_key=cursor_signing_key,
-            clock=clock,
         )
 
     def read_bytes(self, artifact_id: str) -> bytes:

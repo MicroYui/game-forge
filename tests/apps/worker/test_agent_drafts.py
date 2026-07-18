@@ -10,6 +10,7 @@ import gameforge.apps.worker.app as worker_app
 from gameforge.apps.worker.agent_drafts import (
     WorkerAgentDraftGovernanceRefs,
     WorkerAgentDraftPreparedAssembler,
+    WorkerAgentDraftRunGateway,
     build_agent_draft_workflow_port,
 )
 from gameforge.apps.worker.app import LocalWorkerConfig, WorkerConfigurationError
@@ -332,6 +333,43 @@ def test_port_assembles_exact_published_generation_artifacts_and_run_scope() -> 
     assert prepared.approval_item.target_binding.target_artifact_id == artifacts[1].artifact_id  # type: ignore[attr-defined,union-attr]
     assert {binding.expected_revision for binding in prepared.object_bindings} == {3}  # type: ignore[attr-defined]
     assert result.approval_item == prepared.approval_item  # type: ignore[attr-defined]
+
+
+def test_terminal_producer_check_uses_bounded_run_authority() -> None:
+    request, _, _ = _generation_material()
+
+    class _Runs:
+        def get(self, _run_id):
+            raise AssertionError("producer check must not load Run event history")
+
+        def get_run_write_authority(self, run_id):
+            assert run_id == request.run.run_id
+            attempt = SimpleNamespace(
+                run_id=run_id,
+                attempt_no=request.run.current_attempt_no,
+                status="running",
+                fencing_token=request.run.next_fencing_token - 1,
+                worker_principal_id="worker:test",
+            )
+            lease = SimpleNamespace(
+                run_id=run_id,
+                attempt_no=attempt.attempt_no,
+                status="active",
+                fencing_token=attempt.fencing_token,
+                owner_principal_id=attempt.worker_principal_id,
+            )
+            return request.run, attempt, lease
+
+    gateway = WorkerAgentDraftRunGateway(
+        runs=_Runs(),
+        artifacts=object(),
+        readers=object(),  # type: ignore[arg-type]
+    )
+
+    gateway.verify_prepared_terminal_producer_authority(
+        run_id=request.run.run_id,
+        initiated_by=request.run.initiated_by,
+    )
 
 
 def test_terminal_prepare_does_not_require_new_artifacts_or_bindings() -> None:

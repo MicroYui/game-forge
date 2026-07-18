@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field, replace
-from typing import Callable, Protocol
+from typing import Callable
 
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
@@ -56,7 +56,6 @@ from gameforge.platform.run_handlers.base import (
     build_success_result,
     prepared_version_tuple,
     rebind_finding_producers,
-    resolved_profile,
     scoped_finding_series_id,
     store_prepared_artifact,
     trust_typed_profile_binding,
@@ -144,14 +143,6 @@ def trust_typed_triage_profile(_binding: ResolvedExecutionProfileBindingV1) -> N
     """Unit/default seam; production validates the built-in triage adapter contract."""
 
 
-class _CheckerResolverProto(Protocol):
-    def __call__(
-        self,
-        binding: ResolvedExecutionProfileBindingV1,
-        constraints: list[Constraint],
-    ) -> Checker: ...
-
-
 @dataclass(frozen=True, slots=True)
 class ReviewRunHandler:
     """A ``RunExecutor`` producing the review report + gate checker/sim + findings."""
@@ -231,7 +222,7 @@ class ReviewRunHandler:
         snapshot = self.snapshot_loader(self.blobs, payload.snapshot_artifact_id)
         constraints = self._constraints(payload)
         self._validate_checker_budgets(
-            context,
+            profile_bindings,
             payload,
             snapshot,
             constraints,
@@ -240,14 +231,15 @@ class ReviewRunHandler:
         nav = self.nav_loader(self.blobs, payload.snapshot_artifact_id)
         lineage = _snapshot_lineage(payload)
 
-        checker_findings, checker_artifacts, _checkers, checker_evidence = self._run_checkers(
-            context, payload, snapshot, constraints, nav, lineage
+        checker_findings, checker_artifacts, checker_evidence = self._run_checkers(
+            context, profile_bindings, payload, snapshot, constraints, nav, lineage
         )
         sim_findings, sim_artifacts, sim_evidence = self._run_simulations(
             payload,
             snapshot,
             constraints,
             context,
+            profile_bindings,
             lineage,
             execution_config,
             existing_finding_count=len(checker_findings),
@@ -336,21 +328,15 @@ class ReviewRunHandler:
 
     def _validate_checker_budgets(
         self,
-        context: ExecutorContextLike,
+        profile_bindings: dict[str, ResolvedExecutionProfileBindingV1],
         payload: ReviewRunPayloadV1,
         snapshot: Snapshot,
         constraints: list[Constraint],
         execution_config: ReviewExecutionConfig,
     ) -> None:
         total_work = 0
-        aggregate_limit = execution_config.max_total_checker_work_units
         for index, profile in enumerate(payload.checker_profiles):
-            binding = _require_exact_profile_binding(
-                context,
-                field_path=f"/params/checker_profiles/{index}",
-                profile=profile,
-                profile_kind="checker",
-            )
+            binding = profile_bindings[f"/params/checker_profiles/{index}"]
             policy = self.checker_execution_policy_resolver(binding)
             total_work += validate_checker_execution_policy(
                 checker_ids=("graph",),
@@ -359,8 +345,7 @@ class ReviewRunHandler:
                 snapshot=snapshot,
                 policy=policy,
             )
-            aggregate_limit = min(aggregate_limit, policy.max_work_units)
-        if total_work > aggregate_limit:
+        if total_work > execution_config.max_total_checker_work_units:
             raise IntegrityViolation(
                 "review checker profiles exceed the aggregate exact work budget"
             )
@@ -368,28 +353,20 @@ class ReviewRunHandler:
     def _run_checkers(
         self,
         context: ExecutorContextLike,
+        profile_bindings: dict[str, ResolvedExecutionProfileBindingV1],
         payload: ReviewRunPayloadV1,
         snapshot: Snapshot,
         constraints: list[Constraint],
         nav: NavProvider | None,
         lineage: tuple[str, ...],
-    ) -> tuple[
-        list[Finding], tuple[PreparedArtifact, ...], list[Checker], tuple[FindingEvidence, ...]
-    ]:
+    ) -> tuple[list[Finding], tuple[PreparedArtifact, ...], tuple[FindingEvidence, ...]]:
         findings: list[Finding] = []
         artifacts: list[PreparedArtifact] = []
-        checkers: list[Checker] = []
         evidence: list[FindingEvidence] = []
         for index, profile in enumerate(payload.checker_profiles):
-            binding = _require_exact_profile_binding(
-                context,
-                field_path=f"/params/checker_profiles/{index}",
-                profile=profile,
-                profile_kind="checker",
-            )
+            binding = profile_bindings[f"/params/checker_profiles/{index}"]
             checker = self.checker_resolver(binding, constraints)
             execution_bindings = _trusted_checker_execution_bindings(checker, constraints)
-            checkers.append(checker)
             profile_findings = checker.check(snapshot, nav=nav)
             profile_findings.extend(navigation_unproven_findings(snapshot, nav))
             if len(findings) + len(profile_findings) > MAX_PREPARED_FINDINGS:
@@ -442,7 +419,7 @@ class ReviewRunHandler:
                     ),
                 )
             )
-        return findings, tuple(artifacts), checkers, tuple(evidence)
+        return findings, tuple(artifacts), tuple(evidence)
 
     def _run_simulations(
         self,
@@ -450,6 +427,7 @@ class ReviewRunHandler:
         snapshot: Snapshot,
         constraints: list[Constraint],
         context: ExecutorContextLike,
+        profile_bindings: dict[str, ResolvedExecutionProfileBindingV1],
         lineage: tuple[str, ...],
         execution_config: ReviewExecutionConfig,
         *,
@@ -469,14 +447,8 @@ class ReviewRunHandler:
         evidence: list[FindingEvidence] = []
         resolved_configs: list[tuple[ProfileRefV1, ReviewSimConfig]] = []
         total_work_units = 0
-        aggregate_limit = execution_config.max_total_simulation_work_units
         for index, profile in enumerate(payload.simulation_profiles):
-            binding = _require_exact_profile_binding(
-                context,
-                field_path=f"/params/simulation_profiles/{index}",
-                profile=profile,
-                profile_kind="simulation",
-            )
+            binding = profile_bindings[f"/params/simulation_profiles/{index}"]
             config = self.sim_config_resolver(binding)
             total_work_units += validate_economy_simulation_work_budget(
                 model,
@@ -485,8 +457,7 @@ class ReviewRunHandler:
                 replication_count=1,
                 max_work_units=config.max_work_units,
             )
-            aggregate_limit = min(aggregate_limit, config.max_work_units)
-            if total_work_units > aggregate_limit:
+            if total_work_units > execution_config.max_total_simulation_work_units:
                 raise IntegrityViolation(
                     "review simulation profiles exceed the aggregate exact work budget"
                 )
@@ -629,31 +600,6 @@ def _snapshot_lineage(payload: ReviewRunPayloadV1) -> tuple[str, ...]:
     if payload.constraint_snapshot_artifact_id is not None:
         lineage.append(payload.constraint_snapshot_artifact_id)
     return tuple(lineage)
-
-
-def _require_exact_profile_binding(
-    context: ExecutorContextLike,
-    *,
-    field_path: str,
-    profile: ProfileRefV1,
-    profile_kind: str,
-) -> ResolvedExecutionProfileBindingV1:
-    """Bind execution to the exact catalog member frozen on this Run."""
-
-    binding = resolved_profile(context.payload, field_path)
-    if binding is None:  # pragma: no cover - ``required=True`` above
-        raise IntegrityViolation("review execution profile binding is unavailable")
-    if (
-        binding.profile != profile
-        or binding.expected_profile_kind != profile_kind
-        or binding.catalog_version != context.payload.execution_profile_catalog_version
-        or binding.catalog_digest != context.payload.execution_profile_catalog_digest
-    ):
-        raise IntegrityViolation(
-            "review execution profile differs from its exact Run binding",
-            field_path=field_path,
-        )
-    return binding
 
 
 def _trusted_checker_execution_bindings(

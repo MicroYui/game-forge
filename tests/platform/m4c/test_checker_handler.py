@@ -29,8 +29,11 @@ from gameforge.platform.run_handlers.checker import (
     CheckerExecutionPolicy,
     CheckerRunHandler,
     DefaultCheckerFactory,
+    navigation_unproven_findings,
 )
 from gameforge.spine.checkers.graph import GraphChecker
+from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.ir.store import IRGraph
 from tests.platform.m4c.handler_support import (
     FakeArtifactStore,
     build_context,
@@ -956,4 +959,35 @@ def test_missing_navigation_ground_truth_is_explicitly_unproven() -> None:
     outcome = _handler(store)(context)
     assert [(item.payload.defect_class, item.payload.status) for item in outcome.findings] == [
         ("unreachable_target", "unproven")
+    ]
+
+
+def test_missing_navigation_collect_lookup_uses_incoming_relation_index(monkeypatch) -> None:
+    step = Entity(
+        id="step:collect",
+        type=NodeType.QUEST_STEP,
+        attrs={"kind": "collect", "item": "item:ore"},
+    )
+    item = Entity(id="item:ore", type=NodeType.ITEM, attrs={})
+    source = Entity(id="monster:golem", type=NodeType.MONSTER, attrs={})
+    relation = Relation(
+        id="drop:ore",
+        type=EdgeType.DROPS_FROM,
+        src_id=source.id,
+        dst_id=item.id,
+    )
+    snapshot = Snapshot(
+        entities={entity.id: entity for entity in (step, item, source)},
+        relations={relation.id: relation},
+    )
+
+    def reject_full_relation_scan(_graph: IRGraph):
+        raise AssertionError("collect navigation proof must use the incoming relation index")
+
+    monkeypatch.setattr(IRGraph, "all_relations", reject_full_relation_scan)
+
+    findings = navigation_unproven_findings(snapshot, None)
+
+    assert [(finding.defect_class, finding.status) for finding in findings] == [
+        ("missing_drop_source", "unproven")
     ]

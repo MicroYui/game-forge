@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
-from sqlalchemy import Engine
+from sqlalchemy import Engine, event
 from sqlalchemy.orm import Session
 
 from gameforge.apps.worker.components import (
@@ -196,18 +196,30 @@ def test_exact_loader_enumerates_evidence_linked_revisions(
 def test_head_resolver_returns_the_verified_current_revision(engine: Engine) -> None:
     resolver = WorkerFindingHeadRevisionResolver(
         engine=engine,
-        cursor_signing_key=SIGNING_KEY,
-        clock=FrozenUtcClock(NOW),
     )
-    assert resolver("finding:absent") is None
+    assert resolver(("finding:absent",)) == {"finding:absent": None}
 
     first = _revision(1)
     _put(engine, first)
-    assert resolver(first.finding_id) == 1
+    assert resolver((first.finding_id,)) == {first.finding_id: 1}
 
     second = _revision(2, supersedes_revision=1)
     _put(engine, second)
-    assert resolver(first.finding_id) == 2
+    statements: list[str] = []
+
+    def observe(_connection, _cursor, statement, _parameters, _context, _executemany):
+        statements.append(" ".join(statement.lower().split()))
+
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        revisions = resolver(("finding:absent", first.finding_id))
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+
+    assert revisions == {"finding:absent": None, first.finding_id: 2}
+    assert len(statements) == 1
+    assert "finding_heads" in statements[0]
+    assert "finding_revisions" not in statements[0]
 
 
 def test_worker_composition_injects_one_sql_finding_authority_into_all_consumers(

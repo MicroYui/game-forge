@@ -680,6 +680,34 @@ class WorkerAgentDraftRunGateway:
     artifacts: object
     readers: WorkflowTypedReaders
 
+    def _running_producer_run(
+        self,
+        *,
+        run_id: str,
+        initiated_by: AuditActor,
+    ) -> RunRecord | None:
+        authority = self.runs.get_run_write_authority(run_id)  # type: ignore[attr-defined]
+        if authority is None:
+            return None
+        run, attempt, lease = authority
+        if (
+            not isinstance(run, RunRecord)
+            or run.status != "running"
+            or run.initiated_by != initiated_by
+            or attempt is None
+            or attempt.run_id != run_id
+            or attempt.attempt_no != run.current_attempt_no
+            or attempt.status != "running"
+            or lease is None
+            or lease.run_id != run_id
+            or lease.attempt_no != attempt.attempt_no
+            or lease.fencing_token != attempt.fencing_token
+            or lease.owner_principal_id != attempt.worker_principal_id
+            or lease.status != "active"
+        ):
+            return None
+        return run
+
     def verify_producer_membership(
         self,
         *,
@@ -687,14 +715,9 @@ class WorkerAgentDraftRunGateway:
         artifact_id: str,
         initiated_by: AuditActor,
     ) -> None:
-        run = self.runs.get(run_id)  # type: ignore[attr-defined]
+        run = self._running_producer_run(run_id=run_id, initiated_by=initiated_by)
         artifact = self.artifacts.get(artifact_id)  # type: ignore[attr-defined]
-        if (
-            not isinstance(run, RunRecord)
-            or run.status != "running"
-            or run.initiated_by != initiated_by
-            or not isinstance(artifact, ArtifactV2)
-        ):
+        if run is None or not isinstance(artifact, ArtifactV2):
             raise IntegrityViolation("Agent draft producer Run membership is unavailable")
         facts = self.readers.inspect_draft_subject(artifact)
         expected_subject_kind = {
@@ -719,11 +742,9 @@ class WorkerAgentDraftRunGateway:
     ) -> None:
         """Fresh DB-only producer check after planning validated subject bytes."""
 
-        run = self.runs.get(run_id)  # type: ignore[attr-defined]
+        run = self._running_producer_run(run_id=run_id, initiated_by=initiated_by)
         if (
-            not isinstance(run, RunRecord)
-            or run.status != "running"
-            or run.initiated_by != initiated_by
+            run is None
             or run.kind.version != 1
             or run.kind.kind
             not in {

@@ -734,7 +734,7 @@ def test_playtest_finding_uses_the_exact_current_series_head() -> None:
     runner = _FakeRunner(_observe_outcome(completed=True, findings=(_unreachable_finding(),)))
     handler = replace(
         _handler(store, runner),
-        finding_head_revision=lambda _finding_id: 7,
+        finding_head_revision=lambda finding_ids: dict.fromkeys(finding_ids, 7),
     )
 
     outcome = handler(_context(FakeModelBridge(responses=())))
