@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Response
+from pydantic import Field
 
 from gameforge.apps.api.dependencies import require_actor
-from gameforge.apps.api.pagination import OpaquePageCursorCodec, to_opaque_page
+from gameforge.apps.api.pagination import (
+    OpaquePageCursorCodec,
+    OpaquePageCursorParameter,
+    PageLimitParameter,
+    to_opaque_page,
+)
 from gameforge.contracts.api import (
     ApprovalViewV1,
+    BoundedId,
     OpaquePageV1,
     RunViewV1,
     compute_resource_etag,
@@ -21,6 +28,9 @@ from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.jobs import RunCommandViewV1, RunStatus
 from gameforge.contracts.storage import PageCursorV1
 from gameforge.platform.read_models.workflows import WorkflowReadService
+
+
+_PositiveInt64 = Annotated[int, Field(ge=1, le=(1 << 63) - 1)]
 
 
 def _cursor(token: str | None, codec: OpaquePageCursorCodec) -> PageCursorV1 | None:
@@ -72,8 +82,8 @@ def workflow_read_router(
     def approvals(
         response: Response,
         assignee: Literal["me"] | None = None,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[ApprovalViewV1]:
         page = service.list_approvals(
@@ -88,7 +98,7 @@ def workflow_read_router(
 
     @router.get("/approvals/{approval_id}", response_model=ApprovalViewV1)
     def approval(
-        approval_id: str,
+        approval_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ApprovalViewV1:
@@ -105,8 +115,8 @@ def workflow_read_router(
     def runs(
         response: Response,
         status: RunStatus | None = None,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[RunViewV1]:
         page = service.list_runs(
@@ -121,7 +131,7 @@ def workflow_read_router(
 
     @router.get("/runs/{run_id}", response_model=RunViewV1)
     def run(
-        run_id: str,
+        run_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> RunViewV1:
@@ -139,10 +149,10 @@ def workflow_read_router(
         response_model=OpaquePageV1[FindingRevisionV1],
     )
     def run_findings(
-        run_id: str,
+        run_id: BoundedId,
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[FindingRevisionV1]:
         page = service.list_run_findings(
@@ -160,10 +170,10 @@ def workflow_read_router(
         response_model=OpaquePageV1[RunCommandViewV1],
     )
     def run_commands(
-        run_id: str,
+        run_id: BoundedId,
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[RunCommandViewV1]:
         page = service.list_run_commands(
@@ -179,8 +189,8 @@ def workflow_read_router(
     @router.get("/findings", response_model=OpaquePageV1[FindingRevisionV1])
     def findings(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[FindingRevisionV1]:
         page = service.list_findings(
@@ -197,8 +207,8 @@ def workflow_read_router(
         response_model=FindingRevisionV1,
     )
     def exact_finding(
-        finding_id: str,
-        revision: int,
+        finding_id: BoundedId,
+        revision: _PositiveInt64,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> FindingRevisionV1:
@@ -213,7 +223,7 @@ def workflow_read_router(
 
     @router.get("/findings/{finding_id}", response_model=FindingRevisionV1)
     def latest_finding(
-        finding_id: str,
+        finding_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> FindingRevisionV1:
@@ -231,10 +241,10 @@ def workflow_read_router(
         response_model=OpaquePageV1[MergeConflict],
     )
     def conflicts(
-        conflict_set_id: str,
+        conflict_set_id: BoundedId,
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[MergeConflict]:
         page = service.list_conflicts(

@@ -20,6 +20,7 @@ from gameforge.apps.api.dependencies import (
     require_actor,
 )
 from gameforge.contracts.api import (
+    BoundedId,
     ConstraintProposeRequestV1,
     GenerationProposeRequestV1,
     PatchRepairRequestV1,
@@ -201,7 +202,7 @@ def run_admission_router() -> APIRouter:
         status_code=status.HTTP_202_ACCEPTED,
     )
     def repair_patch(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: PatchRepairRequestV1,
         request: Request,
         response: Response,

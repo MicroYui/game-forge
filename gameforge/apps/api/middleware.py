@@ -18,12 +18,14 @@ from gameforge.contracts.errors import (
     CsrfFailed,
     DependencyUnavailable,
     IntegrityViolation,
+    PayloadTooLarge,
 )
 
 
 _HEALTH_PATHS = frozenset({"/livez", "/readyz"})
 _LOGIN_PATH = "/api/v1/auth/login"
 _LOGOUT_PATH = "/api/v1/auth/logout"
+MAX_HTTP_REQUEST_BODY_BYTES = 8 * 1024 * 1024
 
 
 def _state(scope: Scope) -> MutableMapping[str, Any]:
@@ -99,6 +101,45 @@ class ProblemMiddleware:
         except Exception as error:
             response = problem_response(scope, error)
             await response(scope, receive, send)
+
+
+class _RequestBodyLimitExceeded(BaseException):
+    """Escape Starlette's body-parser ``except Exception`` and translate immediately."""
+
+
+class RequestBodyLimitMiddleware:
+    def __init__(self, app: ASGIApp, *, max_body_bytes: int) -> None:
+        self._app = app
+        self._max_body_bytes = max_body_bytes
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self._app(scope, receive, send)
+            return
+
+        declared = Headers(scope=scope).get("content-length")
+        if declared is not None:
+            try:
+                if int(declared, 10) > self._max_body_bytes:
+                    raise PayloadTooLarge("HTTP request body exceeds its wire-size bound")
+            except ValueError:
+                pass
+
+        received = 0
+
+        async def limited_receive() -> Message:
+            nonlocal received
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > self._max_body_bytes:
+                    raise _RequestBodyLimitExceeded
+            return message
+
+        try:
+            await self._app(scope, limited_receive, send)
+        except _RequestBodyLimitExceeded:
+            raise PayloadTooLarge("HTTP request body exceeds its wire-size bound") from None
 
 
 class AuthenticationMiddleware:
@@ -208,6 +249,8 @@ def _parse_cookies(value: str | None) -> dict[str, str]:
 
 __all__ = [
     "AuthenticationMiddleware",
+    "MAX_HTTP_REQUEST_BODY_BYTES",
     "ProblemMiddleware",
+    "RequestBodyLimitMiddleware",
     "RequestContextMiddleware",
 ]

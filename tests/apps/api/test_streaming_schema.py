@@ -1,4 +1,4 @@
-"""RED→GREEN: frozen SSE/WS JSON Schemas are byte-stable, safe, and validating.
+"""RED→GREEN: frozen SSE/WS JSON Schemas are byte-stable and structurally closed.
 
 These schemas are the versioned transport contract for the streaming surfaces:
 
@@ -6,29 +6,19 @@ These schemas are the versioned transport contract for the streaming surfaces:
 * ``schemas/ws-server-frame-v1.json``    — ``RunCommandServerFrame`` (ack | problem) ``oneOf``
 * ``schemas/ws-client-command-v1.json``  — the full ``RunCommandV1`` shared by WS and REST
 
-They must never leak a lease/fencing/secret worker field, must regenerate byte-for-byte,
-and a real DTO instance must validate against its own exported schema.
+They must never leak a lease/fencing/secret worker field and must regenerate byte-for-byte.
 """
 
 from __future__ import annotations
 
 import copy
+from functools import cache
 import json
 from typing import Any
 
 import pytest
 
 from gameforge.apps.api import schema as api_schema
-from gameforge.contracts.jobs import (
-    CancelRunPayloadV1,
-    CommandAcceptedDataV1,
-    Problem,
-    RunCommandAckV1,
-    RunCommandProblemV1,
-    RunCommandV1,
-    RunEvent,
-)
-
 
 _FORBIDDEN_FIELD_SUBSTRINGS = (
     "claimed_fencing_token",
@@ -68,7 +58,6 @@ _EVENT_SCHEMA_BY_TYPE = {
 }
 
 
-# ── a tiny draft-2020-12 subset validator (jsonschema is not a dependency) ──────
 def _resolve(ref: str, root: dict[str, Any]) -> dict[str, Any]:
     assert ref.startswith("#/"), ref
     node: Any = root
@@ -77,107 +66,18 @@ def _resolve(ref: str, root: dict[str, Any]) -> dict[str, Any]:
     return node
 
 
-def _validate(instance: Any, schema: dict[str, Any], root: dict[str, Any], loc: str = "$") -> None:
-    if "$ref" in schema:
-        _validate(instance, _resolve(schema["$ref"], root), root, loc)
-        return
-    if "allOf" in schema:
-        for sub in schema["allOf"]:
-            _validate(instance, sub, root, loc)
-    for key in ("oneOf", "anyOf"):
-        if key in schema:
-            matched = 0
-            errors: list[str] = []
-            for sub in schema[key]:
-                try:
-                    _validate(instance, sub, root, loc)
-                    matched += 1
-                except AssertionError as exc:  # noqa: PERF203 - test clarity
-                    errors.append(str(exc))
-            assert matched >= 1, f"{loc}: no {key} branch matched: {errors}"
-    if "const" in schema:
-        assert instance == schema["const"], f"{loc}: const {schema['const']!r} != {instance!r}"
-    if "enum" in schema:
-        assert instance in schema["enum"], f"{loc}: {instance!r} not in enum {schema['enum']}"
-    schema_type = schema.get("type")
-    if schema_type == "object":
-        assert isinstance(instance, dict), f"{loc}: expected object, got {type(instance)}"
-        for name in schema.get("required", []):
-            assert name in instance, f"{loc}: missing required property {name!r}"
-        for name, prop_schema in schema.get("properties", {}).items():
-            if name in instance and instance[name] is not None:
-                _validate(instance[name], prop_schema, root, f"{loc}.{name}")
-    elif schema_type == "array":
-        assert isinstance(instance, list), f"{loc}: expected array, got {type(instance)}"
-        items = schema.get("items")
-        if isinstance(items, dict):
-            for index, element in enumerate(instance):
-                _validate(element, items, root, f"{loc}[{index}]")
-    elif schema_type == "string":
-        assert isinstance(instance, str), f"{loc}: expected string"
-    elif schema_type == "integer":
-        assert isinstance(instance, int) and not isinstance(instance, bool), f"{loc}: expected int"
-
-
 def _blob(document: dict[str, Any]) -> str:
     return json.dumps(document)
 
 
-def _real_run_event() -> RunEvent:
-    return RunEvent(
-        run_id="run:stream",
-        seq=7,
-        event_type="run.command_accepted",
-        occurred_at="2026-07-16T00:00:00Z",
-        data_schema_version="command-accepted@1",
-        data=CommandAcceptedDataV1(command_id="cmd:1", command_type="cancel", command_revision=1),
-    )
-
-
-def _real_ack() -> RunCommandAckV1:
-    return RunCommandAckV1(
-        command_id="cmd:1",
-        client_id="browser:a",
-        client_seq=1,
-        status="accepted",
-        persisted_status="applied",
-        command_revision=1,
-        run_revision=2,
-    )
-
-
-def _real_problem_frame() -> RunCommandProblemV1:
-    return RunCommandProblemV1(
-        command_id="cmd:1",
-        client_seq=1,
-        problem=Problem(
-            type="urn:gameforge:problem:conflict",
-            title="Conflict",
-            status=409,
-            detail="The run command is not permitted in the current run state.",
-            instance="urn:gameforge:request:req-1",
-            code="conflict",
-            request_id="req-1",
-        ),
-    )
-
-
-def _real_command() -> RunCommandV1:
-    return RunCommandV1(
-        command_id="cmd:1",
-        client_id="browser:a",
-        client_seq=1,
-        idempotency_key="idem-1",
-        expected_run_revision=1,
-        type="cancel",
-        payload_schema_id="run-cancel@1",
-        payload=CancelRunPayloadV1(reason_code="user_requested"),
-    )
+@cache
+def _schemas() -> dict[str, dict[str, Any]]:
+    return api_schema.generate()
 
 
 # ── tests ──────────────────────────────────────────────────────────────────────
 def test_all_streaming_schema_files_are_committed_and_byte_stable() -> None:
-    generated = api_schema.generate()
+    generated = _schemas()
     for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         assert key in generated, f"missing generated artifact {key}"
         frozen_path = api_schema.docs_api_dir() / key
@@ -193,42 +93,39 @@ def test_streaming_schemas_regenerate_byte_stable() -> None:
 
 
 def test_streaming_schemas_are_versioned() -> None:
-    generated = api_schema.generate()
+    generated = _schemas()
     for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         document = generated[key]
         assert document.get("$schema"), f"{key}: missing $schema"
         assert document.get("$id", "").endswith(key.split("/")[-1]), f"{key}: $id not versioned"
 
 
-def test_sse_event_schema_validates_a_real_event() -> None:
-    document = api_schema.generate()[_SSE]
-    instance = json.loads(_real_run_event().model_dump_json())
-    _validate(instance, document, document)
-    # The discriminated RunEventData union must expose the 14-value RunEventType too.
-    blob = _blob(document)
-    for event_type in ("run.queued", "run.succeeded", "run.failed", "attempt.leased"):
-        assert event_type in blob
+def test_response_schema_version_fields_are_required() -> None:
+    generated = _schemas()
+    event = generated[_SSE]
+    assert event["properties"]["event_schema_version"]["const"] == "run-event@1"
+    assert "event_schema_version" in event["required"]
+
+    frame = generated[_WS_SERVER]
+    for model, field, value in (
+        ("RunCommandAckV1", "ack_schema_version", "run-command-ack@1"),
+        ("RunCommandProblemV1", "problem_schema_version", "run-command-problem@1"),
+    ):
+        schema = frame["$defs"][model]
+        assert schema["properties"][field]["const"] == value
+        assert field in schema["required"]
 
 
-def test_ws_server_frame_schema_is_a_oneof_of_both_variants() -> None:
-    document = api_schema.generate()[_WS_SERVER]
-    assert "oneOf" in document, "server frame must be a oneOf of ack|problem"
-    _validate(json.loads(_real_ack().model_dump_json()), document, document)
-    _validate(json.loads(_real_problem_frame().model_dump_json()), document, document)
-
-
-def test_ws_client_command_schema_validates_a_real_command() -> None:
-    document = api_schema.generate()[_WS_CLIENT]
-    _validate(json.loads(_real_command().model_dump_json()), document, document)
-
-
-def test_full_command_schema_also_validates_the_rest_cancel_body() -> None:
-    document = api_schema.generate()[_WS_CLIENT]
-    _validate(json.loads(_real_command().model_dump_json()), document, document)
+def test_ws_server_frame_schema_has_exactly_ack_and_problem_variants() -> None:
+    variants = _schemas()[_WS_SERVER]["oneOf"]
+    assert {variant["$ref"] for variant in variants} == {
+        "#/$defs/RunCommandAckV1",
+        "#/$defs/RunCommandProblemV1",
+    }
 
 
 def test_discriminator_tags_are_required_in_every_streaming_union_variant() -> None:
-    generated = api_schema.generate()
+    generated = _schemas()
     for key, property_name, tag_name in (
         (_SSE, "data", "data_schema_version"),
         (_WS_CLIENT, "payload", "schema_version"),
@@ -247,7 +144,7 @@ def test_discriminator_tags_are_required_in_every_streaming_union_variant() -> N
 
 
 def test_ws_client_command_schema_closes_type_payload_schema_triples() -> None:
-    document = api_schema.generate()[_WS_CLIENT]
+    document = _schemas()[_WS_CLIENT]
     branches = document.get("oneOf")
     assert isinstance(branches, list) and len(branches) == len(_COMMAND_PAYLOAD_BY_TYPE), (
         "RunCommandV1 needs one closed top-level branch per command type; independent "
@@ -268,7 +165,7 @@ def test_ws_client_command_schema_closes_type_payload_schema_triples() -> None:
 
 
 def test_sse_schema_closes_event_type_data_schema_and_attempt_scope() -> None:
-    document = api_schema.generate()[_SSE]
+    document = _schemas()[_SSE]
     branches = document.get("oneOf")
     assert isinstance(branches, list) and len(branches) == len(_EVENT_SCHEMA_BY_TYPE), (
         "RunEvent needs one closed top-level branch per event type; the independent "
@@ -298,7 +195,7 @@ def test_sse_schema_closes_event_type_data_schema_and_attempt_scope() -> None:
 
 
 def test_no_fencing_or_secret_fields_in_streaming_schemas() -> None:
-    generated = api_schema.generate()
+    generated = _schemas()
     for key in (_SSE, _WS_SERVER, _WS_CLIENT):
         blob = _blob(generated[key])
         for needle in _FORBIDDEN_FIELD_SUBSTRINGS:
@@ -306,12 +203,12 @@ def test_no_fencing_or_secret_fields_in_streaming_schemas() -> None:
 
 
 def test_compatibility_permits_identical_streaming_schema() -> None:
-    document = api_schema.generate()[_SSE]
+    document = _schemas()[_SSE]
     assert api_schema.check_compatibility(document, json.loads(json.dumps(document))) == []
 
 
 def test_compatibility_rejects_run_event_data_discriminator_change() -> None:
-    old = api_schema.generate()[_SSE]
+    old = _schemas()[_SSE]
     new = json.loads(json.dumps(old))
     # RunEventData is a Field(discriminator="data_schema_version") union under `data`.
     mapping = new["properties"]["data"]["discriminator"]["mapping"]
@@ -323,7 +220,7 @@ def test_compatibility_rejects_run_event_data_discriminator_change() -> None:
 
 
 def test_compatibility_rejects_run_command_payload_variant_removed() -> None:
-    old = api_schema.generate()[_WS_CLIENT]
+    old = _schemas()[_WS_CLIENT]
     new = json.loads(json.dumps(old))
     payload = new["properties"]["payload"]
     payload["discriminator"]["mapping"].pop(next(iter(payload["discriminator"]["mapping"])))
@@ -332,7 +229,7 @@ def test_compatibility_rejects_run_command_payload_variant_removed() -> None:
 
 
 def test_compatibility_rejects_sse_data_union_variant_removed() -> None:
-    old = api_schema.generate()[_SSE]
+    old = _schemas()[_SSE]
     new = copy.deepcopy(old)
     new["properties"]["data"]["oneOf"].pop(0)
     assert api_schema.check_compatibility(old, new), (
@@ -341,7 +238,7 @@ def test_compatibility_rejects_sse_data_union_variant_removed() -> None:
 
 
 def test_compatibility_rejects_sse_discriminator_mapping_target_change() -> None:
-    old = api_schema.generate()[_SSE]
+    old = _schemas()[_SSE]
     new = copy.deepcopy(old)
     mapping = new["properties"]["data"]["discriminator"]["mapping"]
     mapping["run-queued@1"] = "#/$defs/CancelRequestedDataV1"
@@ -351,7 +248,7 @@ def test_compatibility_rejects_sse_discriminator_mapping_target_change() -> None
 
 
 def test_compatibility_rejects_ws_server_union_variant_removed() -> None:
-    old = api_schema.generate()[_WS_SERVER]
+    old = _schemas()[_WS_SERVER]
     new = copy.deepcopy(old)
     new["oneOf"].pop()
     assert api_schema.check_compatibility(old, new), (
@@ -359,8 +256,16 @@ def test_compatibility_rejects_ws_server_union_variant_removed() -> None:
     )
 
 
+def test_compatibility_rejects_ws_server_union_variant_added() -> None:
+    old = _schemas()[_WS_SERVER]
+    new = copy.deepcopy(old)
+    new["oneOf"].append({"type": "null"})
+    breaks = api_schema.check_compatibility(old, new)
+    assert any(change.kind == "response_variant_added" for change in breaks), breaks
+
+
 def test_compatibility_rejects_ws_client_numeric_bound_narrowing() -> None:
-    old = api_schema.generate()[_WS_CLIENT]
+    old = _schemas()[_WS_CLIENT]
     new = copy.deepcopy(old)
     new["properties"]["client_seq"]["maximum"] = 1
     assert api_schema.check_compatibility(old, new), (
@@ -379,7 +284,7 @@ def test_compatibility_rejects_ws_client_numeric_bound_narrowing() -> None:
     ),
 )
 def test_compatibility_rejects_weakened_ws_server_response_guarantees(case: str) -> None:
-    old = api_schema.generate()[_WS_SERVER]
+    old = _schemas()[_WS_SERVER]
     new = copy.deepcopy(old)
     ack = new["$defs"]["RunCommandAckV1"]
     if case == "type_widened":

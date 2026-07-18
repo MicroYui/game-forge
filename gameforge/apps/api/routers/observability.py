@@ -4,24 +4,31 @@ from __future__ import annotations
 
 from datetime import datetime
 import json
-from typing import Annotated, TypeVar
+from typing import Annotated, Literal, TypeVar
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, StringConstraints, ValidationError, WithJsonSchema
 
 from gameforge.apps.api.dependencies import require_actor
-from gameforge.contracts.cost import RunCostViewV1
+from gameforge.contracts.cost import MAX_COST_USAGE_PAGE_SIZE, RunCostViewV1
 from gameforge.contracts.errors import QueryTooBroad, RequestSchemaInvalid
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.observability import (
     MAX_QUERY_DESCRIPTOR_REFS,
     MAX_QUERY_FILTER_ITEMS,
+    MAX_QUERY_PAGE_SIZE,
+    MAX_QUERY_POINTS,
+    MAX_QUERY_RESOLUTION_S,
+    MAX_QUERY_SERIES,
     LogPageV1,
     MetricDescriptorRefV1,
     MetricDescriptorRegistryV1,
     MetricLabelMatcherV1,
     MetricPageV1,
     SpanPageV1,
+    SpanId,
+    NonEmptyStr,
+    TraceId,
     TraceSummaryPageV1,
     TraceSummaryV1,
 )
@@ -31,6 +38,51 @@ from gameforge.platform.read_models.observability import (
 
 
 _MAX_STRUCTURED_QUERY_BYTES = 32 * 1024
+
+
+def _bounded_string_schema(maximum: int) -> WithJsonSchema:
+    return WithJsonSchema({"type": "string", "minLength": 1, "maxLength": maximum})
+
+
+def _bounded_integer_schema(maximum: int) -> WithJsonSchema:
+    return WithJsonSchema({"type": "integer", "minimum": 1, "maximum": maximum})
+
+
+def _optional_array_schema(items: dict[str, object], maximum: int) -> WithJsonSchema:
+    return WithJsonSchema(
+        {"anyOf": [{"type": "array", "items": items, "maxItems": maximum}, {"type": "null"}]}
+    )
+
+
+_BoundedCursor = Annotated[str, _bounded_string_schema(4096)]
+_TraceId = Annotated[
+    TraceId,
+    StringConstraints(min_length=32, max_length=32, pattern=r"^[0-9a-f]{32}$"),
+]
+_SpanId = Annotated[
+    SpanId,
+    StringConstraints(min_length=16, max_length=16, pattern=r"^[0-9a-f]{16}$"),
+]
+_PageLimit = Annotated[int, _bounded_integer_schema(MAX_QUERY_PAGE_SIZE)]
+_CostPageLimit = Annotated[int, _bounded_integer_schema(MAX_COST_USAGE_PAGE_SIZE)]
+_StructuredQuery = Annotated[str, _bounded_string_schema(_MAX_STRUCTURED_QUERY_BYTES)]
+_LogFilters = Annotated[
+    list[NonEmptyStr] | None,
+    Query(),
+    _optional_array_schema(
+        {"type": "string", "minLength": 1, "maxLength": 512}, MAX_QUERY_FILTER_ITEMS
+    ),
+]
+_LogLevels = Annotated[
+    list[Literal["debug", "info", "warning", "error", "critical"]] | None,
+    Query(),
+    _optional_array_schema(
+        {"type": "string", "enum": ["debug", "info", "warning", "error", "critical"]}, 5
+    ),
+]
+_MetricResolution = Annotated[int, _bounded_integer_schema(MAX_QUERY_RESOLUTION_S)]
+_MetricPointLimit = Annotated[int, _bounded_integer_schema(MAX_QUERY_POINTS)]
+_MetricSeriesLimit = Annotated[int, _bounded_integer_schema(MAX_QUERY_SERIES)]
 T = TypeVar("T", bound=BaseModel)
 
 
@@ -71,16 +123,16 @@ def observability_router(service: ObservabilityReadService) -> APIRouter:
 
     @router.get("/traces/{trace_id}", response_model=TraceSummaryV1)
     def get_trace(
-        trace_id: str,
+        trace_id: _TraceId,
         actor: ActorContext = Depends(require_actor),
     ) -> TraceSummaryV1:
         return service.get_trace(principal=actor.principal, trace_id=trace_id)
 
     @router.get("/traces/{trace_id}/spans", response_model=SpanPageV1)
     def get_trace_spans(
-        trace_id: str,
-        cursor: str | None = None,
-        limit: int = 100,
+        trace_id: _TraceId,
+        cursor: _BoundedCursor | None = None,
+        limit: _PageLimit = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> SpanPageV1:
         return service.get_trace_spans(
@@ -92,9 +144,9 @@ def observability_router(service: ObservabilityReadService) -> APIRouter:
 
     @router.get("/runs/{run_id}/traces", response_model=TraceSummaryPageV1)
     def list_run_traces(
-        run_id: str,
-        cursor: str | None = None,
-        limit: int = 100,
+        run_id: NonEmptyStr,
+        cursor: _BoundedCursor | None = None,
+        limit: _PageLimit = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> TraceSummaryPageV1:
         return service.list_run_traces(
@@ -108,15 +160,15 @@ def observability_router(service: ObservabilityReadService) -> APIRouter:
     def query_logs(
         start_utc: datetime,
         end_utc: datetime,
-        services: Annotated[list[str] | None, Query()] = None,
-        levels: Annotated[list[str] | None, Query()] = None,
-        event_names: Annotated[list[str] | None, Query()] = None,
-        run_id: str | None = None,
-        trace_id: str | None = None,
-        span_id: str | None = None,
-        producer_run_id: str | None = None,
-        cursor: str | None = None,
-        limit: int = 100,
+        services: _LogFilters = None,
+        levels: _LogLevels = None,
+        event_names: _LogFilters = None,
+        run_id: NonEmptyStr | None = None,
+        trace_id: _TraceId | None = None,
+        span_id: _SpanId | None = None,
+        producer_run_id: NonEmptyStr | None = None,
+        cursor: _BoundedCursor | None = None,
+        limit: _PageLimit = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> LogPageV1:
         return service.query_logs(
@@ -145,14 +197,14 @@ def observability_router(service: ObservabilityReadService) -> APIRouter:
 
     @router.get("/metrics/query", response_model=MetricPageV1)
     def query_metrics(
-        descriptor_refs: str,
+        descriptor_refs: _StructuredQuery,
         start_utc: datetime,
         end_utc: datetime,
-        resolution_s: int,
-        max_points: int,
-        series_limit: int,
-        label_matchers: str = "[]",
-        cursor: str | None = None,
+        resolution_s: _MetricResolution,
+        max_points: _MetricPointLimit,
+        series_limit: _MetricSeriesLimit,
+        label_matchers: _StructuredQuery = "[]",
+        cursor: _BoundedCursor | None = None,
         actor: ActorContext = Depends(require_actor),
     ) -> MetricPageV1:
         exact_refs = _structured_models(
@@ -182,9 +234,9 @@ def observability_router(service: ObservabilityReadService) -> APIRouter:
 
     @router.get("/cost/{run_id}", response_model=RunCostViewV1)
     def get_run_cost(
-        run_id: str,
-        cursor: str | None = None,
-        limit: int = 100,
+        run_id: NonEmptyStr,
+        cursor: _BoundedCursor | None = None,
+        limit: _CostPageLimit = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> RunCostViewV1:
         return service.get_run_cost(

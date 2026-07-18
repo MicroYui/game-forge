@@ -57,7 +57,7 @@ from gameforge.apps.api.run_read_domain import (
     resolve_run_read_domain as _resolve_run_read_domain,
 )
 from gameforge.contracts.auth import ApiKeyAuthRequestV1, ApiKeySecret, SessionToken
-from gameforge.contracts.api import encode_sse_event
+from gameforge.contracts.api import BoundedId, encode_sse_event
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import (
     AuthError,
@@ -587,7 +587,7 @@ def run_events_router() -> APIRouter:
 
     @router.get("/runs/{run_id}/events")
     def stream_run_events(
-        run_id: str,
+        run_id: BoundedId,
         request: Request,
         actor: ActorContext = Depends(require_actor),
         dependencies: ApiDependencies = Depends(api_dependencies),

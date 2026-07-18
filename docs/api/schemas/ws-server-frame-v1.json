@@ -213,7 +213,8 @@
         "status",
         "persisted_status",
         "command_revision",
-        "run_revision"
+        "run_revision",
+        "ack_schema_version"
       ],
       "title": "RunCommandAckV1",
       "type": "object"
@@ -260,7 +261,8 @@
         }
       },
       "required": [
-        "problem"
+        "problem",
+        "problem_schema_version"
       ],
       "title": "RunCommandProblemV1",
       "type": "object"

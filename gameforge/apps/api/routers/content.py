@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Query, Response
-from pydantic import ValidationError
+from fastapi import APIRouter, Depends, Response
+from pydantic import Field, ValidationError
 
 from gameforge.apps.api.dependencies import require_actor
-from gameforge.apps.api.pagination import OpaquePageCursorCodec, to_opaque_page
+from gameforge.apps.api.pagination import (
+    OpaquePageCursorCodec,
+    OpaquePageCursorParameter,
+    PageLimitParameter,
+    to_opaque_page,
+)
 from gameforge.bench.report_contracts import BenchReport
 from gameforge.contracts.api import (
     ArtifactPayloadViewV1,
+    BoundedId,
     ConstraintProposalReadViewV1,
     ConstraintSnapshotViewV1,
     GraphItemV1,
@@ -37,6 +43,9 @@ from gameforge.contracts.execution_profiles import (
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.storage import PageCursorV1, PageV1
 from gameforge.platform.read_models.content import ContentReadService
+
+
+_PositiveInt64 = Annotated[int, Field(ge=1, le=(1 << 63) - 1)]
 
 
 def _cursor(token: str | None, codec: OpaquePageCursorCodec) -> PageCursorV1 | None:
@@ -86,7 +95,7 @@ def content_read_router(
 
     @router.get("/artifacts/{artifact_id}", response_model=ArtifactPayloadViewV1)
     def artifact(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ArtifactPayloadViewV1:
@@ -102,8 +111,8 @@ def content_read_router(
     @router.get("/specs", response_model=OpaquePageV1[SpecViewV1])
     def specs(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[SpecViewV1]:
         page = service.list_specs(
@@ -117,10 +126,10 @@ def content_read_router(
 
     @router.get("/specs/{artifact_id}/graph", response_model=OpaquePageV1[GraphItemV1])
     def graph(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[GraphItemV1]:
         page = service.list_graph(
@@ -135,7 +144,7 @@ def content_read_router(
 
     @router.get("/specs/{artifact_id}", response_model=SpecViewV1)
     def spec(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> SpecViewV1:
@@ -153,7 +162,7 @@ def content_read_router(
         response_model=SchemaRegistryDocumentV1,
     )
     def schema_registry(
-        version: str,
+        version: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> SchemaRegistryDocumentV1:
@@ -172,8 +181,8 @@ def content_read_router(
     )
     def constraints(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[ConstraintSnapshotViewV1]:
         page = service.list_constraints(
@@ -187,7 +196,7 @@ def content_read_router(
 
     @router.get("/constraints/{artifact_id}", response_model=ConstraintSnapshotViewV1)
     def constraint(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ConstraintSnapshotViewV1:
@@ -206,8 +215,8 @@ def content_read_router(
     )
     def constraint_proposals(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[ConstraintProposalReadViewV1]:
         page = service.list_constraint_proposals(
@@ -224,7 +233,7 @@ def content_read_router(
         response_model=ConstraintProposalReadViewV1,
     )
     def constraint_proposal(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ConstraintProposalReadViewV1:
@@ -240,8 +249,8 @@ def content_read_router(
     @router.get("/patches", response_model=OpaquePageV1[PatchArtifactReadViewV1])
     def patches(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[PatchArtifactReadViewV1]:
         page = service.list_patches(
@@ -255,7 +264,7 @@ def content_read_router(
 
     @router.get("/patches/{artifact_id}", response_model=PatchArtifactReadViewV1)
     def patch(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> PatchArtifactReadViewV1:
@@ -274,8 +283,8 @@ def content_read_router(
     )
     def rollback_requests(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[RollbackRequestReadViewV1]:
         page = service.list_rollback_requests(
@@ -292,7 +301,7 @@ def content_read_router(
         response_model=RollbackRequestReadViewV1,
     )
     def rollback_request(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> RollbackRequestReadViewV1:
@@ -308,8 +317,8 @@ def content_read_router(
     @router.get("/reviews", response_model=OpaquePageV1[ReviewArtifactViewV1])
     def reviews(
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[ReviewArtifactViewV1]:
         page = service.list_reviews(
@@ -323,7 +332,7 @@ def content_read_router(
 
     @router.get("/reviews/{artifact_id}", response_model=ReviewArtifactViewV1)
     def review(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ReviewArtifactViewV1:
@@ -339,12 +348,12 @@ def content_read_router(
     @router.get("/task-suites", response_model=OpaquePageV1[TaskSuiteArtifactViewV1])
     def task_suites(
         response: Response,
-        config_artifact_id: str | None = None,
-        constraint_artifact_id: str | None = None,
-        environment_profile_id: str | None = None,
-        environment_profile_version: int | None = None,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        config_artifact_id: BoundedId | None = None,
+        constraint_artifact_id: BoundedId | None = None,
+        environment_profile_id: BoundedId | None = None,
+        environment_profile_version: _PositiveInt64 | None = None,
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[TaskSuiteArtifactViewV1]:
         if (environment_profile_id is None) != (environment_profile_version is None):
@@ -368,7 +377,7 @@ def content_read_router(
 
     @router.get("/task-suites/{artifact_id}", response_model=TaskSuiteArtifactViewV1)
     def task_suite(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> TaskSuiteArtifactViewV1:
@@ -383,7 +392,7 @@ def content_read_router(
 
     @router.get("/playtest/{run_id}/result", response_model=ArtifactPayloadViewV1)
     def playtest_result(
-        run_id: str,
+        run_id: BoundedId,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ArtifactPayloadViewV1:
@@ -399,10 +408,10 @@ def content_read_router(
     @router.get("/diff", response_model=SnapshotDiffHttpPageV1)
     def diff(
         response: Response,
-        base: str,
-        target: str,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        base: BoundedId,
+        target: BoundedId,
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> SnapshotDiffHttpPageV1:
         metadata, page = service.diff(
@@ -421,10 +430,10 @@ def content_read_router(
         response_model=OpaquePageV1[LineageEntryV1],
     )
     def lineage(
-        artifact_id: str,
+        artifact_id: BoundedId,
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[LineageEntryV1]:
         page = service.lineage(
@@ -442,10 +451,10 @@ def content_read_router(
         response_model=OpaquePageV1[RefHistoryEntryV1],
     )
     def ref_history(
-        ref_name: str,
+        ref_name: BoundedId,
         response: Response,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[RefHistoryEntryV1]:
         page = service.ref_history(
@@ -485,12 +494,12 @@ def content_read_router(
     def execution_profiles(
         response: Response,
         profile_kind: ExecutionProfileKindV1 | None = None,
-        run_kind: str | None = None,
-        run_kind_version: int | None = None,
-        domain_id: str | None = None,
+        run_kind: BoundedId | None = None,
+        run_kind_version: _PositiveInt64 | None = None,
+        domain_id: BoundedId | None = None,
         status: Literal["active", "replay_only", "disabled"] | None = None,
-        cursor: str | None = None,
-        limit: int = Query(default=100),
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[ExecutionProfileViewV1]:
         if (run_kind is None) != (run_kind_version is None):
@@ -527,8 +536,8 @@ def content_read_router(
         response_model=ExecutionProfileViewV1,
     )
     def execution_profile(
-        profile_id: str,
-        version: int,
+        profile_id: BoundedId,
+        version: _PositiveInt64,
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> ExecutionProfileViewV1:

@@ -13,6 +13,7 @@ changed discriminators.
 from __future__ import annotations
 
 import copy
+from functools import cache
 import json
 from pathlib import Path
 from typing import Any
@@ -112,6 +113,7 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
 _PROBLEM_MEDIA = "application/problem+json"
 
 
+@cache
 def _openapi() -> dict[str, Any]:
     return api_schema.generate()[api_schema.OPENAPI_KEY]
 
@@ -195,6 +197,22 @@ def test_problem_responses_present_on_error_statuses() -> None:
     for status in ("409", "413", "422"):
         assert status in validate, f"patch:validate missing {status}"
         assert _PROBLEM_MEDIA in validate[status]["content"]
+
+
+def test_only_request_body_operations_document_wire_size_rejection() -> None:
+    for path, path_item in _openapi()["paths"].items():
+        for method, operation in path_item.items():
+            if method not in api_schema._HTTP_METHODS:
+                continue
+            response = operation["responses"].get("413")
+            assert (response is not None) is ("requestBody" in operation), (
+                f"{method.upper()} {path} has a drifted HTTP body-limit contract"
+            )
+            if response is None:
+                continue
+            assert response["content"][_PROBLEM_MEDIA]["schema"] == {
+                "$ref": "#/components/schemas/Problem"
+            }
 
 
 def test_write_ops_document_idempotency_etag_and_if_match() -> None:
@@ -300,6 +318,12 @@ def test_large_integer_bounds_remain_exact_in_openapi() -> None:
         assert type(integer["maximum"]) is int and integer["maximum"] == expected_seed
 
 
+def test_run_command_ack_version_is_a_response_guarantee() -> None:
+    schema = _openapi()["components"]["schemas"]["RunCommandAckV1"]
+    assert schema["properties"]["ack_schema_version"]["const"] == "run-command-ack@1"
+    assert "ack_schema_version" in schema["required"]
+
+
 def test_no_internal_secret_or_fencing_fields_anywhere() -> None:
     blob = json.dumps(_openapi())
     for needle in _FORBIDDEN_FIELD_SUBSTRINGS:
@@ -318,6 +342,52 @@ def test_bounded_strings_and_arrays_stay_bounded() -> None:
     # A concrete bounded id field carries maxLength.
     run_accepted = _openapi()["components"]["schemas"]["RunAcceptedV1"]
     assert run_accepted["properties"]["run_id"]["maxLength"] == 512
+
+
+def test_every_path_and_query_parameter_is_bounded() -> None:
+    document = _openapi()
+    for path, path_item in document["paths"].items():
+        for method, operation in path_item.items():
+            if method not in api_schema._HTTP_METHODS:
+                continue
+            for parameter in operation.get("parameters", []):
+                if parameter.get("in") not in {"path", "query"}:
+                    continue
+                _assert_parameter_schema_bounded(
+                    parameter["schema"],
+                    document,
+                    location=f"{method.upper()} {path} {parameter['name']}",
+                )
+
+
+def _assert_parameter_schema_bounded(
+    schema: dict[str, Any],
+    document: dict[str, Any],
+    *,
+    location: str,
+) -> None:
+    ref = schema.get("$ref")
+    if isinstance(ref, str):
+        node: Any = document
+        for part in ref.removeprefix("#/").split("/"):
+            node = node[part.replace("~1", "/").replace("~0", "~")]
+        _assert_parameter_schema_bounded(node, document, location=location)
+        return
+    for keyword in ("anyOf", "oneOf"):
+        for branch in schema.get(keyword, []):
+            _assert_parameter_schema_bounded(branch, document, location=location)
+
+    schema_type = schema.get("type")
+    if schema_type == "string" and schema.get("format") != "date-time":
+        assert "maxLength" in schema or "enum" in schema or "const" in schema, (
+            f"{location} has an unbounded string"
+        )
+    elif schema_type == "array":
+        assert "maxItems" in schema, f"{location} has an unbounded array"
+        _assert_parameter_schema_bounded(schema["items"], document, location=location)
+    elif schema_type in {"integer", "number"}:
+        assert {"minimum", "exclusiveMinimum"} & schema.keys(), f"{location} has no lower bound"
+        assert {"maximum", "exclusiveMaximum"} & schema.keys(), f"{location} has no upper bound"
 
 
 def test_check_rejects_unexpected_frozen_json_artifacts(tmp_path: Path) -> None:
@@ -371,6 +441,14 @@ def test_compatibility_respects_request_and_response_required_direction() -> Non
     weakened_response["components"]["schemas"]["RunViewV1"]["required"].remove("run_id")
     breaks = api_schema.check_compatibility(old, weakened_response)
     assert any(change.kind == "response_required_removed" for change in breaks)
+
+
+def test_compatibility_permits_stronger_response_bound() -> None:
+    old = _openapi()
+    new = copy.deepcopy(old)
+    new["components"]["schemas"]["RunAcceptedV1"]["properties"]["run_id"]["maxLength"] = 256
+
+    assert api_schema.check_compatibility(old, new) == []
 
 
 def test_compatibility_rejects_removed_path() -> None:
@@ -528,6 +606,10 @@ def test_compatibility_rejects_breaking_operation_contract_changes(case: str) ->
         "inline_union_variant_removed",
         "discriminator_mapping_target_changed",
         "max_length_tightened",
+        "property_name_bound_tightened",
+        "response_pattern_value_widened",
+        "write_only_removed",
+        "unique_items_added",
         "referenced_component_removed",
         "enum_introduced",
         "additional_properties_schema_narrowed",
@@ -550,7 +632,19 @@ def test_compatibility_rejects_breaking_schema_contract_changes(case: str) -> No
         variant = next(iter(mapping))
         mapping[variant] = "#/components/schemas/Problem"
     elif case == "max_length_tightened":
-        schemas["RunAcceptedV1"]["properties"]["run_id"]["maxLength"] = 10
+        schemas["HumanSpecUploadRequestV1"]["properties"]["ref_name"]["maxLength"] = 10
+    elif case == "property_name_bound_tightened":
+        content = schemas["HumanSpecUploadRequestV1"]["properties"]["content_payload"]
+        content["propertyNames"]["maxLength"] = 1
+    elif case == "response_pattern_value_widened":
+        labels = schemas["MetricSeriesV1"]["properties"]["labels"]
+        pattern = next(iter(labels["patternProperties"]))
+        labels["patternProperties"][pattern] = {}
+    elif case == "write_only_removed":
+        del schemas["PasswordAuthRequestV1"]["properties"]["password"]["writeOnly"]
+    elif case == "unique_items_added":
+        field = schemas["HumanPatchDraftRequestV1"]["properties"]["expected_to_fix"]
+        field["uniqueItems"] = True
     elif case == "referenced_component_removed":
         del schemas["Problem"]
     elif case == "enum_introduced":

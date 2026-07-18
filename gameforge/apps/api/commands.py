@@ -59,6 +59,7 @@ from gameforge.apps.api.run_read_domain import (
     ApprovalItemReader,
     resolve_run_read_domain as _resolve_run_read_domain,
 )
+from gameforge.contracts.api import BoundedId
 from gameforge.contracts.auth import (
     ApiKeyAuthRequestV1,
     ApiKeySecret,
@@ -490,7 +491,7 @@ def run_commands_router() -> APIRouter:
         status_code=status.HTTP_200_OK,
     )
     def cancel_run(
-        run_id: str,
+        run_id: BoundedId,
         command: RunCommandV1,
         request: Request,
         response: Response,
@@ -518,7 +519,7 @@ def run_commands_router() -> APIRouter:
         return ack
 
     @router.websocket("/runs/{run_id}/commands")
-    async def run_commands_ws(websocket: WebSocket, run_id: str) -> None:
+    async def run_commands_ws(websocket: WebSocket, run_id: BoundedId) -> None:
         # Origin is validated by AuthenticationMiddleware before the route runs; it does
         # NOT resolve a WS actor, so the handshake is authenticated here. Dependencies are
         # read from app state (a WebSocket has no HTTP ``Request`` for ``api_dependencies``).

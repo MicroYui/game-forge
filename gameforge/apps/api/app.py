@@ -14,7 +14,9 @@ from gameforge.apps.api.errors import install_error_handlers
 from gameforge.apps.api.health import health_router
 from gameforge.apps.api.middleware import (
     AuthenticationMiddleware,
+    MAX_HTTP_REQUEST_BODY_BYTES,
     ProblemMiddleware,
+    RequestBodyLimitMiddleware,
     RequestContextMiddleware,
 )
 from gameforge.apps.api.routers.auth import auth_router
@@ -61,6 +63,10 @@ def create_app(
         middleware=[
             Middleware(RequestContextMiddleware, dependencies=selected),
             Middleware(ProblemMiddleware),
+            Middleware(
+                RequestBodyLimitMiddleware,
+                max_body_bytes=MAX_HTTP_REQUEST_BODY_BYTES,
+            ),
             Middleware(AuthenticationMiddleware, dependencies=selected),
         ],
     )

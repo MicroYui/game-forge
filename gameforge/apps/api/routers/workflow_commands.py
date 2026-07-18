@@ -23,6 +23,7 @@ from gameforge.apps.api.dependencies import (
 from gameforge.contracts.api import (
     ApprovalDecisionRequestV1,
     ApprovalViewV1,
+    BoundedId,
     ConstraintProposalReadViewV1,
     ConstraintValidationAdmissionRequestV1,
     HumanConstraintDraftRequestV1,
@@ -278,7 +279,7 @@ def workflow_command_router() -> APIRouter:
         status_code=status.HTTP_201_CREATED,
     )
     def revise_constraint(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: HumanConstraintRevisionRequestV1,
         request: Request,
         response: Response,
@@ -302,7 +303,7 @@ def workflow_command_router() -> APIRouter:
         status_code=status.HTTP_202_ACCEPTED,
     )
     def validate_patch(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: PatchValidationAdmissionRequestV1,
         request: Request,
         response: Response,
@@ -326,7 +327,7 @@ def workflow_command_router() -> APIRouter:
         status_code=status.HTTP_202_ACCEPTED,
     )
     def validate_constraint(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: ConstraintValidationAdmissionRequestV1,
         request: Request,
         response: Response,
@@ -350,7 +351,7 @@ def workflow_command_router() -> APIRouter:
         status_code=status.HTTP_202_ACCEPTED,
     )
     def validate_rollback(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: RollbackValidationAdmissionRequestV1,
         request: Request,
         response: Response,
@@ -372,7 +373,7 @@ def workflow_command_router() -> APIRouter:
         *,
         operation: WorkflowCommandOperation,
         resource_kind: str,
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: SubmitForApprovalRequestV1,
         request: Request,
         response: Response,
@@ -392,7 +393,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/patches/{artifact_id}:submit-for-approval", response_model=ApprovalViewV1)
     def submit_patch(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: SubmitForApprovalRequestV1,
         request: Request,
         response: Response,
@@ -415,7 +416,7 @@ def workflow_command_router() -> APIRouter:
         response_model=ApprovalViewV1,
     )
     def submit_constraint(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: SubmitForApprovalRequestV1,
         request: Request,
         response: Response,
@@ -438,7 +439,7 @@ def workflow_command_router() -> APIRouter:
         response_model=ApprovalViewV1,
     )
     def submit_rollback(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: SubmitForApprovalRequestV1,
         request: Request,
         response: Response,
@@ -460,7 +461,7 @@ def workflow_command_router() -> APIRouter:
         *,
         operation: WorkflowCommandOperation,
         expected_decision: str,
-        approval_id: str,
+        approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
         request: Request,
         response: Response,
@@ -482,7 +483,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/approvals/{approval_id}:approve", response_model=ApprovalViewV1)
     def approve(
-        approval_id: str,
+        approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
         request: Request,
         response: Response,
@@ -502,7 +503,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/approvals/{approval_id}:reject", response_model=ApprovalViewV1)
     def reject(
-        approval_id: str,
+        approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
         request: Request,
         response: Response,
@@ -522,7 +523,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/approvals/{approval_id}:request_changes", response_model=ApprovalViewV1)
     def request_changes(
-        approval_id: str,
+        approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
         request: Request,
         response: Response,
@@ -544,7 +545,7 @@ def workflow_command_router() -> APIRouter:
         *,
         operation: WorkflowCommandOperation,
         resource_kind: str,
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: WorkflowApplyRequestV1,
         request: Request,
         response: Response,
@@ -564,7 +565,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/patches/{artifact_id}:apply", response_model=WorkflowApplyResultV1)
     def apply_patch(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: WorkflowApplyRequestV1,
         request: Request,
         response: Response,
@@ -587,7 +588,7 @@ def workflow_command_router() -> APIRouter:
         response_model=WorkflowApplyResultV1,
     )
     def publish_constraint(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: WorkflowApplyRequestV1,
         request: Request,
         response: Response,
@@ -610,7 +611,7 @@ def workflow_command_router() -> APIRouter:
         response_model=WorkflowApplyResultV1,
     )
     def apply_rollback(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: WorkflowApplyRequestV1,
         request: Request,
         response: Response,
@@ -630,7 +631,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/patches/{artifact_id}:rebase", response_model=RebaseResult)
     def rebase_patch(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: PatchRebaseRequestV1,
         request: Request,
         response: Response,
@@ -650,7 +651,7 @@ def workflow_command_router() -> APIRouter:
 
     @router.post("/patches/{artifact_id}:resolve-conflicts", response_model=RebaseResult)
     def resolve_patch_conflicts(
-        artifact_id: str,
+        artifact_id: BoundedId,
         payload: ResolveConflictsRequestV1,
         request: Request,
         response: Response,
@@ -674,7 +675,7 @@ def workflow_command_router() -> APIRouter:
         status_code=status.HTTP_201_CREATED,
     )
     def draft_rollback(
-        ref_name: str,
+        ref_name: BoundedId,
         payload: RollbackDraftRequestV1,
         request: Request,
         response: Response,

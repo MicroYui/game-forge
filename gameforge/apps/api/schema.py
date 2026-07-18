@@ -105,7 +105,7 @@ _PUBLIC: list[dict[str, list[str]]] = []
 # ── error status contract (§5.3 stable mapping) ─────────────────────────────
 _BASE_ERROR_STATUSES: tuple[str, ...] = ("401", "403", "422", "429", "500", "503")
 _ERROR_STATUSES: dict[str, tuple[str, ...]] = {
-    "auth_login": ("400", "401", "403", "422", "429", "500", "503"),
+    "auth_login": ("400", "401", "403", "413", "422", "429", "500", "503"),
     "auth_logout": ("401", "403", "422", "429", "500", "503"),
     "auth_me": ("401", "403", "429", "500", "503"),
     "read_item": _BASE_ERROR_STATUSES + ("404",),
@@ -416,6 +416,16 @@ def _resolve_document_ref(document: Mapping[str, Any], ref: str) -> dict[str, An
     return node
 
 
+def _require_const_field(schema: dict[str, Any], name: str, expected: str) -> None:
+    properties = schema.get("properties")
+    field = properties.get(name) if isinstance(properties, Mapping) else None
+    if not isinstance(field, Mapping) or field.get("const") != expected:
+        raise RuntimeError(f"{name} const schema is unavailable")
+    required = schema.setdefault("required", [])
+    if name not in required:
+        required.append(name)
+
+
 def _require_discriminator_tags(
     document: dict[str, Any], union: Mapping[str, Any], *, tag_name: str
 ) -> None:
@@ -545,6 +555,10 @@ def build_openapi() -> dict[str, Any]:
     if not isinstance(command_schema, dict):
         raise RuntimeError("OpenAPI is missing RunCommandV1")
     _close_run_command_schema(document, command_schema)
+    ack_schema = schemas.get("RunCommandAckV1")
+    if not isinstance(ack_schema, dict):
+        raise RuntimeError("OpenAPI is missing RunCommandAckV1")
+    _require_const_field(ack_schema, "ack_schema_version", "run-command-ack@1")
     _restore_exact_large_integer_bounds(document)
 
     for path, path_item in document.get("paths", {}).items():
@@ -588,7 +602,7 @@ def _server_frame_document() -> dict[str, Any]:
             {"$ref": "#/$defs/RunCommandAckV1"},
             {"$ref": "#/$defs/RunCommandProblemV1"},
         ]
-    return {
+    document = {
         "$schema": _JSON_SCHEMA_DIALECT,
         "$id": _schema_id("ws-server-frame-v1.json"),
         "title": "RunCommandServerFrame",
@@ -601,6 +615,14 @@ def _server_frame_document() -> dict[str, Any]:
         "oneOf": copy.deepcopy(variants),
         "$defs": raw.get("$defs", {}),
     }
+    definitions = document["$defs"]
+    _require_const_field(definitions["RunCommandAckV1"], "ack_schema_version", "run-command-ack@1")
+    _require_const_field(
+        definitions["RunCommandProblemV1"],
+        "problem_schema_version",
+        "run-command-problem@1",
+    )
+    return document
 
 
 def build_streaming_schemas() -> dict[str, dict[str, Any]]:
@@ -616,6 +638,7 @@ def build_streaming_schemas() -> dict[str, dict[str, Any]]:
             "event:{type}\\ndata:{canonical_json}\\n\\n`."
         ),
     )
+    _require_const_field(event, "event_schema_version", "run-event@1")
     _close_run_event_schema(event)
     command = _model_schema_document(
         RunCommandV1,
@@ -736,9 +759,9 @@ def check_compatibility(old: Mapping[str, Any], new: Mapping[str, Any]) -> list[
     """Return the breaking changes going OLD → NEW (empty list ⇒ backward compatible).
 
     PERMITS additive changes (new path/method/operation, new optional field, new enum
-    value, new union variant). REJECTS removed paths/methods/response-statuses, narrowed
-    enums/literals/bounds, newly-required request fields, weakened response guarantees,
-    changed discriminators, and incompatible request/response transport schemas.
+    value, new request-union variant). REJECTS removed paths/methods/response-statuses,
+    narrowed enums/literals/bounds, newly-required request fields, weakened response
+    guarantees, changed discriminators, and incompatible request/response transport schemas.
     """
 
     changes: list[BreakingChange] = []
@@ -1143,7 +1166,7 @@ def _resolve_ref(ref: str, root: Mapping[str, Any]) -> Mapping[str, Any] | None:
     return node if isinstance(node, Mapping) else None
 
 
-SchemaMode = Literal["request", "response", "neutral"]
+SchemaMode = Literal["request", "response"]
 
 
 def _diff_schema(
@@ -1231,6 +1254,11 @@ def _diff_schema(
     _diff_discriminator(old_schema, new_schema, location, changes)
     _diff_type(old_schema, new_schema, location, changes, mode)
     _diff_constraints(old_schema, new_schema, location, changes, mode)
+    _diff_object_key_schemas(
+        old_schema, new_schema, old_root, new_root, location, changes, seen, mode
+    )
+    if old_schema.get("writeOnly") is True and new_schema.get("writeOnly") is not True:
+        changes.append(BreakingChange("write_only_removed", f"{location}.writeOnly"))
     _diff_required_and_properties(
         old_schema, new_schema, old_root, new_root, location, changes, seen, mode
     )
@@ -1382,8 +1410,8 @@ def _diff_constraints(
         old_value = old_schema.get(key)
         new_value = new_schema.get(key)
         if mode == "response":
-            incompatible = old_value != new_value and (
-                isinstance(old_value, (int, float)) or isinstance(new_value, (int, float))
+            incompatible = isinstance(old_value, (int, float)) and (
+                not isinstance(new_value, (int, float)) or new_value > old_value
             )
         else:
             incompatible = isinstance(new_value, (int, float)) and (
@@ -1397,8 +1425,8 @@ def _diff_constraints(
         old_value = old_schema.get(key)
         new_value = new_schema.get(key)
         if mode == "response":
-            incompatible = old_value != new_value and (
-                isinstance(old_value, (int, float)) or isinstance(new_value, (int, float))
+            incompatible = isinstance(old_value, (int, float)) and (
+                not isinstance(new_value, (int, float)) or new_value < old_value
             )
         else:
             incompatible = isinstance(new_value, (int, float)) and (
@@ -1423,18 +1451,12 @@ def _diff_constraints(
                     f"{old_schema.get(key)!r}->{new_schema.get(key)!r}",
                 )
             )
-    old_unique = old_schema.get("uniqueItems", False)
-    new_unique = new_schema.get("uniqueItems", False)
-    if (mode == "response" and old_unique != new_unique) or (
-        mode != "response" and not old_unique and new_unique
+    old_unique = old_schema.get("uniqueItems") is True
+    new_unique = new_schema.get("uniqueItems") is True
+    if (mode == "request" and new_unique and not old_unique) or (
+        mode == "response" and old_unique and not new_unique
     ):
-        changes.append(
-            BreakingChange(
-                "unique_items_changed",
-                f"{location}.uniqueItems",
-                f"{old_unique!r}->{new_unique!r}",
-            )
-        )
+        changes.append(BreakingChange("unique_items_weakened", f"{location}.uniqueItems"))
     old_additional = old_schema.get("additionalProperties", True)
     new_additional = new_schema.get("additionalProperties", True)
     if mode == "response":
@@ -1442,6 +1464,67 @@ def _diff_constraints(
             changes.append(BreakingChange("response_additional_properties_opened", location))
     elif old_additional is not False and new_additional is False:
         changes.append(BreakingChange("additional_properties_closed", location))
+
+
+def _diff_object_key_schemas(
+    old_schema: Mapping[str, Any],
+    new_schema: Mapping[str, Any],
+    old_root: Mapping[str, Any],
+    new_root: Mapping[str, Any],
+    location: str,
+    changes: list[BreakingChange],
+    seen: set[tuple[str, str, SchemaMode]],
+    mode: SchemaMode,
+) -> None:
+    old_names = old_schema.get("propertyNames")
+    new_names = new_schema.get("propertyNames")
+    changed = (mode == "request" and old_names is None and new_names is not None) or (
+        mode == "response" and old_names is not None and new_names is None
+    )
+    if changed:
+        changes.append(BreakingChange("property_names_changed", f"{location}.propertyNames"))
+    elif old_names is not None and new_names is not None:
+        _diff_schema(
+            old_names,
+            new_names,
+            old_root,
+            new_root,
+            f"{location}.propertyNames",
+            changes,
+            seen,
+            mode,
+        )
+    old_patterns = old_schema.get("patternProperties") or {}
+    new_patterns = new_schema.get("patternProperties") or {}
+    if not isinstance(old_patterns, Mapping) or not isinstance(new_patterns, Mapping):
+        changes.append(BreakingChange("pattern_properties_changed", location))
+        return
+    old_keys = set(old_patterns)
+    new_keys = set(new_patterns)
+    fail_closed = old_keys != new_keys and (
+        old_schema.get("additionalProperties") is False
+        or new_schema.get("additionalProperties") is False
+    )
+    directional = new_keys - old_keys if mode == "request" else old_keys - new_keys
+    if fail_closed or directional:
+        changes.append(
+            BreakingChange(
+                "pattern_properties_changed",
+                f"{location}.patternProperties",
+                repr(sorted(old_keys ^ new_keys)),
+            )
+        )
+    for pattern in sorted(old_keys & new_keys):
+        _diff_schema(
+            old_patterns[pattern],
+            new_patterns[pattern],
+            old_root,
+            new_root,
+            f"{location}.patternProperties[{pattern}]",
+            changes,
+            seen,
+            mode,
+        )
 
 
 def _diff_required_and_properties(
@@ -1456,10 +1539,10 @@ def _diff_required_and_properties(
 ) -> None:
     old_required = set(old_schema.get("required", []) or [])
     new_required = set(new_schema.get("required", []) or [])
-    if mode in ("request", "neutral"):
+    if mode == "request":
         for name in sorted(new_required - old_required):
             changes.append(BreakingChange("required_added", f"{location}.required", name))
-    if mode in ("response", "neutral"):
+    if mode == "response":
         for name in sorted(old_required - new_required):
             changes.append(
                 BreakingChange("response_required_removed", f"{location}.required", name)
@@ -1507,16 +1590,12 @@ def _diff_additional_properties(
         )
         return
     if isinstance(old_additional, Mapping):
-        incompatible = (
-            mode == "neutral"
-            or (mode == "request" and new_additional is False)
-            or (mode == "response" and new_additional is not False)
+        incompatible = (mode == "request" and new_additional is False) or (
+            mode == "response" and new_additional is not False
         )
     elif isinstance(new_additional, Mapping):
-        incompatible = (
-            mode == "neutral"
-            or (mode == "request" and old_additional is not False)
-            or (mode == "response" and old_additional is False)
+        incompatible = (mode == "request" and old_additional is not False) or (
+            mode == "response" and old_additional is False
         )
     else:
         return
@@ -1596,6 +1675,11 @@ def _diff_unions(
         new_by_key = {_branch_key(entry): entry for entry in new_list}
         for key in sorted(set(old_by_key) - set(new_by_key)):
             changes.append(BreakingChange("variant_removed", f"{location}.{keyword}.{key}"))
+        if mode == "response":
+            for key in sorted(set(new_by_key) - set(old_by_key)):
+                changes.append(
+                    BreakingChange("response_variant_added", f"{location}.{keyword}.{key}")
+                )
         for key in sorted(set(old_by_key) & set(new_by_key)):
             _diff_schema(
                 old_by_key[key],

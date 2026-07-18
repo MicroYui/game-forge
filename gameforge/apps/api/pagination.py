@@ -6,20 +6,28 @@ import base64
 import binascii
 import json
 import re
-from typing import TypeVar
+from typing import Annotated, TypeVar
 
-from pydantic import ValidationError
+from pydantic import ValidationError, WithJsonSchema
 
 from gameforge.contracts.api import OpaquePageV1
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import CursorInvalid, IntegrityViolation
-from gameforge.contracts.storage import PageCursorV1, PageV1
+from gameforge.contracts.storage import MAX_PAGE_ITEMS, PageCursorV1, PageV1
 from gameforge.platform.read_models.authorization import principal_identity_binding
 
 
 MAX_OPAQUE_PAGE_CURSOR_CHARS = 4096
 _MAX_DECODED_CURSOR_BYTES = 3072
 _BASE64URL = re.compile(r"^[A-Za-z0-9_-]+$")
+OpaquePageCursorParameter = Annotated[
+    str,
+    WithJsonSchema({"type": "string", "minLength": 1, "maxLength": MAX_OPAQUE_PAGE_CURSOR_CHARS}),
+]
+PageLimitParameter = Annotated[
+    int,
+    WithJsonSchema({"type": "integer", "minimum": 1, "maximum": MAX_PAGE_ITEMS}),
+]
 T = TypeVar("T")
 
 
@@ -111,6 +119,8 @@ def to_opaque_page(
 __all__ = [
     "MAX_OPAQUE_PAGE_CURSOR_CHARS",
     "OpaquePageCursorCodec",
+    "OpaquePageCursorParameter",
+    "PageLimitParameter",
     "principal_binding",
     "to_opaque_page",
 ]

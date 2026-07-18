@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Iterator
+import json
 
 from fastapi import Depends, Request
 from fastapi.testclient import TestClient
+import pytest
 
+from gameforge.apps.api import middleware as api_middleware
 from gameforge.apps.api.app import create_app
 from gameforge.apps.api.dependencies import ApiDependencies
 from gameforge.apps.api.health import ReadinessChecks, ReadinessService
@@ -223,6 +227,119 @@ def test_http_middleware_contains_no_cost_governor() -> None:
     assert middleware_names == (
         "RequestContextMiddleware",
         "ProblemMiddleware",
+        "RequestBodyLimitMiddleware",
         "AuthenticationMiddleware",
     )
     assert all("cost" not in name.lower() for name in middleware_names)
+
+
+def test_declared_oversized_body_is_rejected_before_downstream() -> None:
+    entered = False
+
+    async def endpoint(scope: object, receive: object, send: object) -> None:
+        nonlocal entered
+        entered = True
+
+    async def receive() -> dict[str, object]:
+        raise AssertionError("declared oversized body must fail before receive")
+
+    sent: list[dict[str, object]] = []
+
+    async def send(message: dict[str, object]) -> None:
+        sent.append(message)
+
+    app = api_middleware.ProblemMiddleware(
+        api_middleware.RequestBodyLimitMiddleware(endpoint, max_body_bytes=8)
+    )
+    scope = _http_scope(headers=[(b"content-length", b"9")])
+    asyncio.run(app(scope, receive, send))
+
+    assert entered is False
+    _assert_payload_too_large(sent)
+
+
+@pytest.mark.parametrize("headers", ([], [(b"content-length", b"1")]))
+def test_streamed_body_limit_cannot_be_bypassed(
+    headers: list[tuple[bytes, bytes]],
+) -> None:
+    completed = False
+    messages = [
+        {"type": "http.request", "body": b"12345", "more_body": True},
+        {"type": "http.request", "body": b"6789", "more_body": False},
+    ]
+
+    async def endpoint(scope: object, receive: object, send: object) -> None:
+        nonlocal completed
+        while True:
+            message = await receive()  # type: ignore[operator]
+            if not message.get("more_body", False):
+                break
+        completed = True
+
+    async def receive() -> dict[str, object]:
+        return messages.pop(0)
+
+    sent: list[dict[str, object]] = []
+
+    async def send(message: dict[str, object]) -> None:
+        sent.append(message)
+
+    app = api_middleware.ProblemMiddleware(
+        api_middleware.RequestBodyLimitMiddleware(endpoint, max_body_bytes=8)
+    )
+    asyncio.run(app(_http_scope(headers=headers), receive, send))
+
+    assert completed is False
+    _assert_payload_too_large(sent)
+
+
+@pytest.mark.parametrize("declared_length", (None, "1"))
+def test_composed_body_limit_keeps_streamed_overflow_as_413(
+    declared_length: str | None,
+) -> None:
+    app = create_app(ApiDependencies(request_id_factory=lambda: "request:body-limit"))
+    headers = {"Content-Type": "application/json"}
+    if declared_length is not None:
+        headers["Content-Length"] = declared_length
+
+    def oversized_body() -> Iterator[bytes]:
+        yield b'{"password":"'
+        yield b"x" * (api_middleware.MAX_HTTP_REQUEST_BODY_BYTES + 1)
+        yield b'"}'
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        response = client.post(
+            "/api/v1/auth/login",
+            content=oversized_body(),
+            headers=headers,
+        )
+
+    assert response.status_code == 413
+    assert response.json()["code"] == "payload_too_large"
+    assert response.headers["X-Request-ID"] == "request:body-limit"
+
+
+def _http_scope(*, headers: list[tuple[bytes, bytes]]) -> dict[str, object]:
+    return {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "https",
+        "path": "/api/v1/test",
+        "raw_path": b"/api/v1/test",
+        "query_string": b"",
+        "headers": headers,
+        "client": ("127.0.0.1", 1),
+        "server": ("gameforge.test", 443),
+        "state": {"request_id": "request:body-limit"},
+    }
+
+
+def _assert_payload_too_large(sent: list[dict[str, object]]) -> None:
+    start = next(message for message in sent if message["type"] == "http.response.start")
+    body = next(message for message in sent if message["type"] == "http.response.body")
+    assert start["status"] == 413
+    payload = json.loads(body["body"])
+    assert payload["code"] == "payload_too_large"
+    assert payload["request_id"] == "request:body-limit"

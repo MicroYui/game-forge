@@ -8244,7 +8244,8 @@
           "status",
           "persisted_status",
           "command_revision",
-          "run_revision"
+          "run_revision",
+          "ack_schema_version"
         ],
         "title": "RunCommandAckV1",
         "type": "object"
@@ -10473,6 +10474,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -10488,6 +10491,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -10632,6 +10637,8 @@
             "name": "approval_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Approval Id",
               "type": "string"
             }
@@ -10772,6 +10779,8 @@
             "name": "approval_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Approval Id",
               "type": "string"
             }
@@ -10994,6 +11003,8 @@
             "name": "approval_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Approval Id",
               "type": "string"
             }
@@ -11216,6 +11227,8 @@
             "name": "approval_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Approval Id",
               "type": "string"
             }
@@ -11438,6 +11451,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -11578,6 +11593,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -11589,6 +11606,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -11604,6 +11623,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -11815,6 +11836,16 @@
               }
             },
             "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
           },
           "422": {
             "content": {
@@ -12235,6 +12266,8 @@
             "name": "conflict_set_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Conflict Set Id",
               "type": "string"
             }
@@ -12246,6 +12279,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -12261,6 +12296,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -12417,6 +12454,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -12432,6 +12471,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -12787,6 +12828,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -12927,6 +12970,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -13149,6 +13194,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -13371,6 +13418,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -13593,6 +13642,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -13993,6 +14044,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -14008,6 +14061,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -14152,6 +14207,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -14292,6 +14349,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -14303,6 +14362,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -14318,6 +14379,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -14458,6 +14521,8 @@
             "name": "base",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Base",
               "type": "string"
             }
@@ -14467,6 +14532,8 @@
             "name": "target",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Target",
               "type": "string"
             }
@@ -14478,6 +14545,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -14493,6 +14562,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -14689,6 +14760,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -14705,6 +14778,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maximum": 9223372036854775807,
+                  "minimum": 1,
                   "type": "integer"
                 },
                 {
@@ -14721,6 +14796,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -14758,6 +14835,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -14773,6 +14852,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -14917,6 +14998,8 @@
             "name": "profile_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Profile Id",
               "type": "string"
             }
@@ -14926,6 +15009,8 @@
             "name": "version",
             "required": true,
             "schema": {
+              "maximum": 9223372036854775807,
+              "minimum": 1,
               "title": "Version",
               "type": "integer"
             }
@@ -15068,6 +15153,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -15083,6 +15170,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -15227,6 +15316,8 @@
             "name": "finding_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Finding Id",
               "type": "string"
             }
@@ -15367,6 +15458,8 @@
             "name": "finding_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Finding Id",
               "type": "string"
             }
@@ -15376,6 +15469,8 @@
             "name": "revision",
             "required": true,
             "schema": {
+              "maximum": 9223372036854775807,
+              "minimum": 1,
               "title": "Revision",
               "type": "integer"
             }
@@ -15715,8 +15810,11 @@
               "anyOf": [
                 {
                   "items": {
+                    "maxLength": 512,
+                    "minLength": 1,
                     "type": "string"
                   },
+                  "maxItems": 64,
                   "type": "array"
                 },
                 {
@@ -15734,8 +15832,16 @@
               "anyOf": [
                 {
                   "items": {
+                    "enum": [
+                      "debug",
+                      "info",
+                      "warning",
+                      "error",
+                      "critical"
+                    ],
                     "type": "string"
                   },
+                  "maxItems": 5,
                   "type": "array"
                 },
                 {
@@ -15753,8 +15859,11 @@
               "anyOf": [
                 {
                   "items": {
+                    "maxLength": 512,
+                    "minLength": 1,
                     "type": "string"
                   },
+                  "maxItems": 64,
                   "type": "array"
                 },
                 {
@@ -15771,6 +15880,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -15787,6 +15898,9 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 32,
+                  "minLength": 32,
+                  "pattern": "^[0-9a-f]{32}$",
                   "type": "string"
                 },
                 {
@@ -15803,6 +15917,9 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 16,
+                  "minLength": 16,
+                  "pattern": "^[0-9a-f]{16}$",
                   "type": "string"
                 },
                 {
@@ -15819,6 +15936,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -15835,6 +15954,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -15850,6 +15971,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -16119,6 +16242,8 @@
             "name": "descriptor_refs",
             "required": true,
             "schema": {
+              "maxLength": 32768,
+              "minLength": 1,
               "title": "Descriptor Refs",
               "type": "string"
             }
@@ -16148,6 +16273,8 @@
             "name": "resolution_s",
             "required": true,
             "schema": {
+              "maximum": 86400,
+              "minimum": 1,
               "title": "Resolution S",
               "type": "integer"
             }
@@ -16157,6 +16284,8 @@
             "name": "max_points",
             "required": true,
             "schema": {
+              "maximum": 10000,
+              "minimum": 1,
               "title": "Max Points",
               "type": "integer"
             }
@@ -16166,6 +16295,8 @@
             "name": "series_limit",
             "required": true,
             "schema": {
+              "maximum": 500,
+              "minimum": 1,
               "title": "Series Limit",
               "type": "integer"
             }
@@ -16176,6 +16307,8 @@
             "required": false,
             "schema": {
               "default": "[]",
+              "maxLength": 32768,
+              "minLength": 1,
               "title": "Label Matchers",
               "type": "string"
             }
@@ -16187,6 +16320,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -16334,6 +16469,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -16349,6 +16486,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -16704,6 +16843,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -16844,6 +16985,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -17066,6 +17209,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -17288,6 +17433,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -17473,6 +17620,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -17695,6 +17844,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -17917,6 +18068,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -18139,6 +18292,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -18455,6 +18610,8 @@
             "name": "ref_name",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Ref Name",
               "type": "string"
             }
@@ -18466,6 +18623,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -18481,6 +18640,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -18635,6 +18796,8 @@
             "name": "ref_name",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Ref Name",
               "type": "string"
             }
@@ -18859,6 +19022,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -18874,6 +19039,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -19018,6 +19185,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -19160,6 +19329,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -19175,6 +19346,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -19319,6 +19492,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -19459,6 +19634,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -19681,6 +19858,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -19903,6 +20082,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -20153,6 +20334,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -20168,6 +20351,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -20486,6 +20671,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -20626,6 +20813,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -20637,6 +20826,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -20652,6 +20843,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -20806,6 +20999,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -20967,6 +21162,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -20978,6 +21175,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -20993,6 +21192,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -21147,6 +21348,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -21158,6 +21361,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -21173,6 +21378,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -21313,6 +21520,8 @@
             "name": "run_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Run Id",
               "type": "string"
             }
@@ -21504,6 +21713,8 @@
             "name": "version",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Version",
               "type": "string"
             }
@@ -21646,6 +21857,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -21661,6 +21874,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -22016,6 +22231,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -22156,6 +22373,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -22167,6 +22386,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -22182,6 +22403,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -22338,6 +22561,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -22354,6 +22579,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -22370,6 +22597,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 512,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -22386,6 +22615,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maximum": 9223372036854775807,
+                  "minimum": 1,
                   "type": "integer"
                 },
                 {
@@ -22402,6 +22633,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -22417,6 +22650,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -22561,6 +22796,8 @@
             "name": "artifact_id",
             "required": true,
             "schema": {
+              "maxLength": 512,
+              "minLength": 1,
               "title": "Artifact Id",
               "type": "string"
             }
@@ -22877,6 +23114,9 @@
             "name": "trace_id",
             "required": true,
             "schema": {
+              "maxLength": 32,
+              "minLength": 32,
+              "pattern": "^[0-9a-f]{32}$",
               "title": "Trace Id",
               "type": "string"
             }
@@ -23017,6 +23257,9 @@
             "name": "trace_id",
             "required": true,
             "schema": {
+              "maxLength": 32,
+              "minLength": 32,
+              "pattern": "^[0-9a-f]{32}$",
               "title": "Trace Id",
               "type": "string"
             }
@@ -23028,6 +23271,8 @@
             "schema": {
               "anyOf": [
                 {
+                  "maxLength": 4096,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -23043,6 +23288,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
