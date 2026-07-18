@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import timedelta, timezone
-from typing import Any
+from typing import Any, Sequence
 
 from pydantic import ValidationError
 from sqlalchemy import BigInteger, func, literal_column, select
@@ -31,6 +31,7 @@ from gameforge.runtime.persistence.object_bindings import SqlObjectBindingReposi
 
 
 ArtifactWire = ArtifactV1 | ArtifactV2
+_MAX_SQL_IN_ITEMS = 900
 _ARTIFACT_QUERY_HASH = compute_page_query_hash(
     api_version="storage@1",
     resource_kind="artifacts",
@@ -240,6 +241,37 @@ class SqlArtifactRepository:
                 artifact_id=identifier,
             ) from exc
         return _parse_stored_wire(wire, artifact_id=identifier, source="stored artifact row")
+
+    def get_many(self, identifiers: Sequence[str]) -> dict[str, ArtifactWire | None]:
+        """Read an exact Artifact set with bounded SQL statements."""
+
+        selected = tuple(dict.fromkeys(identifiers))
+        if any(not isinstance(identifier, str) or not identifier for identifier in selected):
+            raise ValueError("artifact identifiers must be non-empty strings")
+        retained: dict[str, ArtifactWire | None] = dict.fromkeys(selected)
+        for offset in range(0, len(selected), _MAX_SQL_IN_ITEMS):
+            rows = self._session.scalars(
+                select(ArtifactRow).where(
+                    ArtifactRow.artifact_id.in_(selected[offset : offset + _MAX_SQL_IN_ITEMS])
+                )
+            ).all()
+            for row in rows:
+                identifier = row.artifact_id
+                try:
+                    wire = _row_wire(row)
+                    retained[identifier] = _parse_stored_wire(
+                        wire,
+                        artifact_id=identifier,
+                        source="stored artifact row",
+                    )
+                except IntegrityViolation:
+                    raise
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation(
+                        "stored artifact row is invalid",
+                        artifact_id=identifier,
+                    ) from exc
+        return retained
 
     def put(self, item: ArtifactWire) -> ArtifactWire:
         parsed = _revalidate_for_put(item)

@@ -342,6 +342,12 @@ class AuditSink(Protocol):
 class ObjectBindingRepository(Protocol):
     def resolve(self, ref: ObjectRef, store_id: str | None = None) -> ObjectBinding: ...
 
+    def resolve_many(
+        self,
+        refs: Sequence[ObjectRef],
+        store_id: str | None = None,
+    ) -> Mapping[str, ObjectBinding | None]: ...
+
     def bind_verified(
         self,
         ref: ObjectRef,

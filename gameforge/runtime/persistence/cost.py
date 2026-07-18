@@ -964,6 +964,55 @@ class SqlCostRepository:
         )
         return parsed
 
+    def get_routing_decisions_many(
+        self,
+        decision_ids: Sequence[str],
+    ) -> dict[str, RoutingDecisionV1 | None]:
+        """Read an exact native routing-decision set with bounded statements."""
+
+        selected = tuple(dict.fromkeys(decision_ids))
+        if any(not isinstance(decision_id, str) or not decision_id for decision_id in selected):
+            raise ValueError("routing decision ids must be non-empty strings")
+        retained: dict[str, RoutingDecisionV1 | None] = dict.fromkeys(selected)
+        for offset in range(0, len(selected), 900):
+            rows = self._session.scalars(
+                select(RoutingDecisionRow).where(
+                    RoutingDecisionRow.decision_id.in_(selected[offset : offset + 900])
+                )
+            ).all()
+            for row in rows:
+                parsed = _parse_payload(
+                    row.payload,
+                    RoutingDecisionV1,
+                    label="routing decision",
+                    identity=row.decision_id,
+                )
+                _require_projection(
+                    row,
+                    parsed,
+                    (
+                        "decision_id",
+                        "run_id",
+                        "attempt_no",
+                        "request_hash",
+                        "rule_id",
+                        "model_snapshot",
+                        "tier",
+                        "budget_set_snapshot_id",
+                        "fallback_index",
+                        "policy_version",
+                        "routing_policy_digest",
+                        "catalog_version",
+                        "catalog_digest",
+                        "execution_source",
+                        "decided_at",
+                    ),
+                    label="routing decision",
+                    identity=row.decision_id,
+                )
+                retained[row.decision_id] = parsed
+        return retained
+
     def put_legacy_import_routing_decision(
         self,
         decision: LegacyImportRoutingDecisionV1,
@@ -1035,6 +1084,47 @@ class SqlCostRepository:
                     field=field_name,
                 )
         return parsed
+
+    def get_legacy_import_routing_decisions_many(
+        self,
+        decision_ids: Sequence[str],
+    ) -> dict[str, LegacyImportRoutingDecisionV1 | None]:
+        """Read an exact legacy routing-decision set with bounded statements."""
+
+        selected = tuple(dict.fromkeys(decision_ids))
+        if any(not isinstance(decision_id, str) or not decision_id for decision_id in selected):
+            raise ValueError("legacy routing decision ids must be non-empty strings")
+        retained: dict[str, LegacyImportRoutingDecisionV1 | None] = dict.fromkeys(selected)
+        for offset in range(0, len(selected), 900):
+            rows = self._session.scalars(
+                select(LegacyImportRoutingDecisionRow).where(
+                    LegacyImportRoutingDecisionRow.decision_id.in_(selected[offset : offset + 900])
+                )
+            ).all()
+            for row in rows:
+                parsed = _parse_payload(
+                    row.payload,
+                    LegacyImportRoutingDecisionV1,
+                    label="legacy import routing decision",
+                    identity=row.decision_id,
+                )
+                projections = {
+                    "decision_id": parsed.decision_id,
+                    "source_wire_sha256": parsed.source_wire_sha256,
+                    "request_hash": parsed.request_hash,
+                    "model_snapshot": parsed.model_snapshot,
+                    "catalog_version": parsed.model_catalog_version,
+                    "catalog_digest": parsed.model_catalog_digest,
+                }
+                for field_name, expected in projections.items():
+                    if getattr(row, field_name) != expected:
+                        raise IntegrityViolation(
+                            "stored legacy route projection differs from its payload",
+                            decision_id=row.decision_id,
+                            field=field_name,
+                        )
+                retained[row.decision_id] = parsed
+        return retained
 
     def list_routing_decisions(
         self,

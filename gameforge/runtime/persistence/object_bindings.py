@@ -121,6 +121,43 @@ class SqlObjectBindingRepository:
             )
         return binding
 
+    def resolve_many(
+        self,
+        refs: Sequence[ObjectRef],
+        store_id: str | None = None,
+    ) -> dict[str, ObjectBinding | None]:
+        """Resolve an exact ObjectRef set without one query per replay dependency."""
+
+        selected_store = (
+            self._default_store_id
+            if store_id is None
+            else _require_store_id(store_id, field_name="store_id")
+        )
+        by_key: dict[str, ObjectRef] = {}
+        for ref in refs:
+            retained = by_key.setdefault(ref.key, ref)
+            if retained != ref:
+                raise IntegrityViolation(
+                    "one object key is bound to conflicting ObjectRefs",
+                    object_key=ref.key,
+                )
+        result: dict[str, ObjectBinding | None] = dict.fromkeys(by_key)
+        keys = tuple(by_key)
+        max_keys = min(MAX_PAGE_ITEMS, 900)
+        for offset in range(0, len(keys), max_keys):
+            rows = self._session.scalars(
+                select(ObjectBindingRow).where(
+                    ObjectBindingRow.store_id == selected_store,
+                    ObjectBindingRow.object_key.in_(keys[offset : offset + max_keys]),
+                )
+            ).all()
+            for row in rows:
+                binding = _binding_from_row(row)
+                _require_same_ref(binding.object_ref, by_key[row.object_key])
+                if binding.status == "active":
+                    result[row.object_key] = binding
+        return result
+
     def bind_verified(
         self,
         ref: ObjectRef,

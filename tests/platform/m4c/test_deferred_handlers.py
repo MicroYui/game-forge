@@ -379,7 +379,7 @@ def test_dr_drill_requires_one_verified_recovery_manifest_input() -> None:
         dr_drill_deferred(context)
 
 
-# ── 5. internal_only: rejected on the generic and non-trusted actor paths ────
+# ── 5. internal_only: rejected on generic/resource and human actor paths ─────
 @pytest.mark.parametrize("kind_name", list(_KINDS))
 def test_internal_only_kind_creation_mode_is_frozen(kind_name: str) -> None:
     registry = build_builtin_registry()
@@ -415,17 +415,14 @@ def test_resource_endpoint_rejects_internal_only_kind(kind_name: str, tmp_path: 
         )
 
 
-@pytest.mark.parametrize("actor_kind", ["human", "service"])
 @pytest.mark.parametrize("kind_name", list(_KINDS))
-def test_internal_run_requires_a_trusted_system_actor(
-    kind_name: str, actor_kind: str, tmp_path: Path
-) -> None:
+def test_internal_run_rejects_a_human_actor(kind_name: str, tmp_path: Path) -> None:
     harness = Harness(tmp_path)
-    with pytest.raises(IntegrityViolation, match="trusted system actor"):
+    with pytest.raises(IntegrityViolation, match="trusted service or system actor"):
         harness.engine_admission.admit_internal_run(
             params=_params_for(kind_name),
-            actor=_actor(actor_kind),
-            server=_server(f"{kind_name}:{actor_kind}"),
+            actor=_actor("human"),
+            server=_server(f"{kind_name}:human"),
         )
 
 

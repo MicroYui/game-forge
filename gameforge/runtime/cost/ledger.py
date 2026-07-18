@@ -125,6 +125,26 @@ def _require_complete_child_projection(
             )
 
 
+def _run_hold_budget_dimensions(
+    budget_set: BudgetSetSnapshotV1,
+) -> dict[str, set[str]]:
+    """Return exactly the budgets/dimensions governed by the durable Run hold.
+
+    ``concurrent_run`` belongs only to lease-scoped permits. A budget containing
+    no other dimension remains an immutable member of the BudgetSetSnapshot but
+    deliberately has no BudgetReservation in the run-level hold.
+    """
+
+    result: dict[str, set[str]] = {}
+    for snapshot in budget_set.snapshots:
+        dimensions = {
+            amount.dimension for amount in snapshot.limits if amount.dimension != "concurrent_run"
+        }
+        if dimensions:
+            result[snapshot.budget_id] = dimensions
+    return result
+
+
 def _without_mutable_reservation_fields(value: ReservationGroupV1) -> dict[str, object]:
     payload = value.model_dump(mode="json")
     payload.pop("status")
@@ -291,8 +311,12 @@ class SqlCostLedger(SqlCostRepository):
             return replay
 
         members = {item.budget_id: item for item in reservations}
-        if set(members) != {item.budget_id for item in budget_set.snapshots}:
-            raise IntegrityViolation("run hold must reserve every budget-set member")
+        hold_dimensions = _run_hold_budget_dimensions(budget_set)
+        if set(members) != set(hold_dimensions):
+            raise IntegrityViolation(
+                "run hold must reserve every budget-set member with hold dimensions "
+                "and exclude permit-only members"
+            )
         current: list[tuple[BudgetSnapshotV1, BudgetV1, BudgetReservationV1]] = []
         now = _now_utc(self._clock)
         for snapshot in budget_set.snapshots:
@@ -304,7 +328,14 @@ class SqlCostLedger(SqlCostRepository):
                 raise QuotaExceeded("budget is not active", budget_id=budget.budget_id)
             if budget.deadline_utc is not None and now >= budget.deadline_utc:
                 raise QuotaExceeded("budget deadline has expired", budget_id=budget.budget_id)
-            member = members[budget.budget_id]
+            member = members.get(budget.budget_id)
+            if member is None:
+                continue
+            if {item.dimension for item in member.reserved} != hold_dimensions[budget.budget_id]:
+                raise IntegrityViolation(
+                    "run hold reservation dimensions differ from its budget snapshot",
+                    budget_id=budget.budget_id,
+                )
             self._validate_reservation_capacity(budget, member.reserved)
             current.append((snapshot, budget, member))
 
@@ -411,12 +442,20 @@ class SqlCostLedger(SqlCostRepository):
             item.budget_id: item
             for item in self.list_budget_reservations(hold.reservation_group_id)
         }
-        if set(members) != {item.budget_id for item in budget_set.snapshots}:
-            raise IntegrityViolation("retry budget hold members differ from budget set")
+        if set(members) != set(_run_hold_budget_dimensions(budget_set)):
+            raise IntegrityViolation(
+                "retry budget hold members differ from hold-bearing budget-set members"
+            )
         now = _now_utc(self._clock)
-        for budget_id in sorted(members):
-            budget = self.get_budget(budget_id)
-            if budget is None or budget.status != "active":
+        for snapshot in budget_set.snapshots:
+            budget = self.get_budget(snapshot.budget_id)
+            if budget is None:
+                raise IntegrityViolation(
+                    "retry budget-set member disappeared",
+                    budget_id=snapshot.budget_id,
+                )
+            self._validate_retained_snapshot_identity(snapshot, budget)
+            if budget.status != "active":
                 return False
             if budget.deadline_utc is not None and now >= budget.deadline_utc:
                 return False
@@ -746,6 +785,24 @@ class SqlCostLedger(SqlCostRepository):
             raise Conflict(
                 "budget snapshot does not match the current budget head",
                 budget_id=budget.budget_id,
+            )
+
+    @staticmethod
+    def _validate_retained_snapshot_identity(
+        snapshot: BudgetSnapshotV1,
+        budget: BudgetV1,
+    ) -> None:
+        if (
+            snapshot.budget_id != budget.budget_id
+            or snapshot.scope_kind != budget.scope_kind
+            or snapshot.scope_id != budget.scope_id
+            or snapshot.policy_version != budget.policy_version
+            or snapshot.limits != budget.limits
+            or budget.revision < snapshot.budget_revision_at_freeze
+        ):
+            raise IntegrityViolation(
+                "current budget no longer descends from its frozen snapshot identity",
+                budget_id=snapshot.budget_id,
             )
 
     @staticmethod

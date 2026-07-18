@@ -179,6 +179,22 @@ class _BundleTree:
         return sum(len(attempt.shards) for attempt in self.attempts)
 
 
+@dataclass(frozen=True, slots=True)
+class ReplayAdmissionPreparation:
+    """Admission-scoped immutable cassette parse shared by catalog and proof checks.
+
+    The token is intentionally process-local and never persisted.  It prevents one
+    admission from reopening and canonical-parsing the same content-addressed tree
+    merely because the historical profile catalog must be selected before the final
+    :class:`RunPayloadEnvelope` can be constructed.
+    """
+
+    kind: RunKindRef
+    cassette_artifact_id: str
+    execution_profile_authority: ReplayExecutionProfileAuthority
+    _token: object
+
+
 class ReplayAdmissionValidator:
     """Validate one prospective REPLAY payload against retained authority."""
 
@@ -192,20 +208,37 @@ class ReplayAdmissionValidator:
         self._reader = reader
         self._legacy_authority = legacy_authority
         self._legacy_decisions = legacy_decisions
+        self._prepared_trees: dict[object, _BundleTree] = {}
 
     def validate(
         self,
         *,
         kind: RunKindRef,
         payload: RunPayloadEnvelope,
+        preparation: ReplayAdmissionPreparation | None = None,
     ) -> ReplayAdmissionProof:
+        prepared_tree = (
+            None if preparation is None else self._prepared_trees.pop(preparation._token, None)
+        )
         expected_kinds = FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA.get(
             payload.payload_schema_version
         )
         if expected_kinds is None or (kind.kind, kind.version) not in expected_kinds:
             raise IntegrityViolation("replay Run kind differs from its typed payload schema")
         cassette_artifact_id = self._require_replay_payload(payload)
-        tree = self._load_tree(cassette_artifact_id)
+        if preparation is None:
+            tree = self._load_tree(cassette_artifact_id)
+        else:
+            tree = prepared_tree
+            if (
+                tree is None
+                or preparation.kind != kind
+                or preparation.cassette_artifact_id != cassette_artifact_id
+                or tree.root.artifact.artifact_id != cassette_artifact_id
+            ):
+                raise IntegrityViolation(
+                    "replay preparation differs from the exact request or issuing validator"
+                )
         if payload.version_tuple.cassette_id != f"sha256:{tree.root.artifact.payload_hash}":
             raise IntegrityViolation("replay VersionTuple does not bind the exact cassette")
         root = tree.root.payload
@@ -245,6 +278,33 @@ class ReplayAdmissionValidator:
         """Return both the exact historical catalog and its replay source branch."""
 
         tree = self._load_tree(cassette_artifact_id)
+        return self._execution_profile_authority_from_tree(kind=kind, tree=tree)
+
+    def prepare(
+        self,
+        *,
+        kind: RunKindRef,
+        cassette_artifact_id: str,
+    ) -> ReplayAdmissionPreparation:
+        """Parse a cassette tree once and derive its historical profile authority."""
+
+        tree = self._load_tree(cassette_artifact_id)
+        authority = self._execution_profile_authority_from_tree(kind=kind, tree=tree)
+        token = object()
+        self._prepared_trees[token] = tree
+        return ReplayAdmissionPreparation(
+            kind=kind,
+            cassette_artifact_id=cassette_artifact_id,
+            execution_profile_authority=authority,
+            _token=token,
+        )
+
+    def _execution_profile_authority_from_tree(
+        self,
+        *,
+        kind: RunKindRef,
+        tree: _BundleTree,
+    ) -> ReplayExecutionProfileAuthority:
         if tree.root.payload.run_id is not None:
             source = self._require_native_source(kind=kind, tree=tree)
             return ReplayExecutionProfileAuthority(
@@ -1261,6 +1321,7 @@ __all__ = [
     "MAX_REPLAY_ARTIFACT_BYTES",
     "MAX_REPLAY_TREE_BYTES",
     "MAX_REPLAY_TREE_NODES",
+    "ReplayAdmissionPreparation",
     "ReplayAdmissionProof",
     "ReplayAdmissionReader",
     "ReplayAdmissionValidator",

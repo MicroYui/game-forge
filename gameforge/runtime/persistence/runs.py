@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Literal, Protocol, TypeVar
+from typing import Any, Literal, Protocol, Sequence, TypeVar
 
 from pydantic import BaseModel, ValidationError
 from sqlalchemy import and_, case, delete, func, or_, select, update
@@ -67,6 +67,17 @@ class RunClaim:
     attempt: RunAttempt
     lease: RunLease
     event: RunEvent
+
+
+@dataclass(frozen=True, slots=True)
+class ReplayRunAuthorityProjection:
+    """Set-based current rows for one replay admission's prevalidated dependencies."""
+
+    runs: dict[str, RunRecord | None]
+    attempts: dict[tuple[str, int], RunAttempt | None]
+    prompt_links: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1 | None]
+    model_route_links: dict[tuple[str, int, int, int], RunModelRouteLinkV1 | None]
+    model_consumptions: dict[tuple[str, int, int, int], RunModelResponseConsumptionV1 | None]
 
 
 @dataclass(frozen=True, slots=True)
@@ -771,6 +782,103 @@ class SqlRunRepository:
         self._verify_run_heads(run)
         self._verify_run_state(run)
         return run
+
+    def replay_authority_projection(
+        self,
+        *,
+        run_ids: Sequence[str],
+        attempt_keys: Sequence[tuple[str, int]],
+        prompt_link_keys: Sequence[tuple[str, int, int, int]],
+        model_route_keys: Sequence[tuple[str, int, int, int]],
+        model_consumption_keys: Sequence[tuple[str, int, int, int]],
+    ) -> ReplayRunAuthorityProjection:
+        """Read prevalidated replay rows in five set-based statements.
+
+        Full semantic validation happens before the write transaction. This projection
+        only detects a row change while the SQLite writer is held, so it deliberately
+        avoids recursively reopening each link's already-proved authority closure.
+        """
+
+        selected_run_ids = tuple(
+            dict.fromkeys(
+                (
+                    *run_ids,
+                    *(key[0] for key in attempt_keys),
+                    *(key[0] for key in prompt_link_keys),
+                    *(key[0] for key in model_route_keys),
+                    *(key[0] for key in model_consumption_keys),
+                )
+            )
+        )
+        if any(not isinstance(run_id, str) or not run_id for run_id in selected_run_ids):
+            raise ValueError("replay authority run ids must be non-empty strings")
+        attempt_key_set = set(attempt_keys)
+        prompt_key_set = set(prompt_link_keys)
+        route_key_set = set(model_route_keys)
+        consumption_key_set = set(model_consumption_keys)
+
+        run_values: dict[str, RunRecord] = {}
+        attempt_values: dict[tuple[str, int], RunAttempt] = {}
+        prompt_values: dict[tuple[str, int, int, int], RunIntermediateArtifactLinkV1] = {}
+        route_values: dict[tuple[str, int, int, int], RunModelRouteLinkV1] = {}
+        consumption_values: dict[tuple[str, int, int, int], RunModelResponseConsumptionV1] = {}
+        if selected_run_ids:
+            for row in self._session.scalars(
+                select(RunRow).where(RunRow.run_id.in_(selected_run_ids))
+            ).all():
+                run_values[row.run_id] = _parse_run_row(row, expected_run_id=row.run_id)
+            for row in self._session.scalars(
+                select(RunAttemptRow).where(RunAttemptRow.run_id.in_(selected_run_ids))
+            ).all():
+                key = (row.run_id, row.attempt_no)
+                if key in attempt_key_set:
+                    attempt_values[key] = _parse_attempt_row(
+                        row,
+                        expected_run_id=row.run_id,
+                        expected_attempt_no=row.attempt_no,
+                    )
+            for row in self._session.scalars(
+                select(RunIntermediateArtifactLinkRow).where(
+                    RunIntermediateArtifactLinkRow.run_id.in_(selected_run_ids)
+                )
+            ).all():
+                key = (row.run_id, row.attempt_no, row.call_ordinal, row.route_ordinal)
+                if key in prompt_key_set:
+                    prompt_values[key] = _parse_intermediate_row(
+                        row,
+                        expected_run_id=row.run_id,
+                        expected_attempt_no=row.attempt_no,
+                        expected_call_ordinal=row.call_ordinal,
+                        expected_route_ordinal=row.route_ordinal,
+                    )
+            for row in self._session.scalars(
+                select(RunModelRouteLinkRow).where(
+                    RunModelRouteLinkRow.run_id.in_(selected_run_ids)
+                )
+            ).all():
+                key = (row.run_id, row.attempt_no, row.call_ordinal, row.route_ordinal)
+                if key in route_key_set:
+                    route_values[key] = _parse_model_route_row(row)
+            for row in self._session.scalars(
+                select(RunModelResponseConsumptionRow).where(
+                    RunModelResponseConsumptionRow.run_id.in_(selected_run_ids)
+                )
+            ).all():
+                key = (row.run_id, row.attempt_no, row.call_ordinal, row.route_ordinal)
+                if key in consumption_key_set:
+                    consumption_values[key] = _parse_model_consumption_row(row)
+
+        return ReplayRunAuthorityProjection(
+            runs={run_id: run_values.get(run_id) for run_id in dict.fromkeys(run_ids)},
+            attempts={key: attempt_values.get(key) for key in dict.fromkeys(attempt_keys)},
+            prompt_links={key: prompt_values.get(key) for key in dict.fromkeys(prompt_link_keys)},
+            model_route_links={
+                key: route_values.get(key) for key in dict.fromkeys(model_route_keys)
+            },
+            model_consumptions={
+                key: consumption_values.get(key) for key in dict.fromkeys(model_consumption_keys)
+            },
+        )
 
     def get_by_idempotency(self, *, scope: str, key: str) -> RunRecord | None:
         selected_scope = _require_nonempty(scope, field_name="idempotency scope")

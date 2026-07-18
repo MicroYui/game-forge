@@ -157,6 +157,7 @@ from gameforge.contracts.observability import TraceContextV1
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.workflow import (
     ApprovalItem,
+    ConstraintProposalV1,
     EvidenceRequirement,
     EvidenceSet,
     FindingEvidenceBindingV1,
@@ -190,7 +191,11 @@ from gameforge.platform.runs.admission import (
     _SourceWriteCapabilities,
     build_admission_capability_binder,
 )
-from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
+from gameforge.platform.runs.commands import (
+    RunClaimRequest,
+    RunCommandCapabilities,
+    RunCommandService,
+)
 from gameforge.platform.runs.lifecycle import validate_prepared_failure
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
@@ -360,6 +365,18 @@ def _system_operator_actor(*, domainless: bool = False) -> ActorContext:
             scope=None if domainless else "all",
             assignment_id="assign:system-operations",
             principal_id="system:actor",
+        ),
+    )
+
+
+def _service_operator_actor(*, domainless: bool = False) -> ActorContext:
+    return _actor(
+        "service",
+        _assignment(
+            role="tooling",
+            scope=None if domainless else "all",
+            assignment_id="assign:service-operations",
+            principal_id="service:actor",
         ),
     )
 
@@ -549,6 +566,13 @@ class _NullApprovals:
         return None
 
     def get_subject_head(self, subject_series_id: str) -> None:
+        return None
+
+
+class _ClaimOnlyPublication:
+    """Keep the budget-focused claim test on the real Run/ledger transaction."""
+
+    def record_run_claimed(self, **_: Any) -> None:
         return None
 
 
@@ -1280,6 +1304,39 @@ class Harness:
             return SqlCostLedger(session, clock=self.clock).list_budget_reservations(
                 f"hold:{run_id}"
             )
+
+    def concurrency_permits(self, permit_group_id: str) -> Any:
+        from sqlalchemy.orm import Session
+
+        with Session(self.engine) as session:
+            return SqlCostLedger(session, clock=self.clock).list_concurrency_permits(
+                permit_group_id
+            )
+
+    def claim_next(self, request: RunClaimRequest) -> Any:
+        def bind(transaction: Any) -> RunCommandCapabilities:
+            accounting = SqlRunCostAccounting(
+                ledger=transaction.cost,
+                plan_provider=DefaultRunBudgetPlanProvider(
+                    ledger=transaction.cost,
+                    clock=self.clock,
+                ),
+                settlement_provider=ConservativeAttemptUsageProvider(),
+                clock=self.clock,
+            )
+            return RunCommandCapabilities(
+                runs=transaction.runs,
+                registry=self.registry,
+                admission=accounting,
+                publication=_ClaimOnlyPublication(),
+                accounting=None,
+            )
+
+        return RunCommandService(
+            unit_of_work=self.uow,
+            bind_capabilities=bind,
+            clock=self.clock,
+        ).claim_next(request)
 
     def seed_ref(self, name: str, artifact_id: str) -> RefValue:
         from sqlalchemy.orm import Session
@@ -2553,30 +2610,31 @@ def test_budget_scope_enumeration_overflow_fails_closed_without_truncation(
     assert harness.budget(f"budget:run:{run_id}") is None
 
 
-def test_missing_shared_budget_fails_closed_without_partial_run_hold(tmp_path: Path) -> None:
+def test_missing_shared_budgets_are_not_applicable_and_run_budget_remains_required(
+    tmp_path: Path,
+) -> None:
     harness = Harness(tmp_path, provision_shared_budgets=False)
     snapshot = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
     server = _server("checker:missing-shared-budget")
 
-    with pytest.raises(DependencyUnavailable, match="shared budget"):
-        harness.engine_admission.admit_generic_run(
-            params=_checker_params(snapshot),
-            actor=_tooling_actor(),
-            server=server,
-        )
-
-    run_id = harness.engine_admission._derive_run_id(
-        scope="principal:human:actor",
-        key=server.idempotency_key,
-        request_hash=server.request_hash,
+    accepted = harness.engine_admission.admit_generic_run(
+        params=_checker_params(snapshot),
+        actor=_tooling_actor(),
+        server=server,
     )
-    assert harness.run_record(run_id) is None
-    assert harness.budget_set(run_id) is None
-    assert harness.reservation_group(run_id) is None
-    assert harness.budget(f"budget:run:{run_id}") is None
+
+    budget_set = harness.budget_set(accepted.run_id)
+    assert budget_set is not None
+    assert tuple(item.scope_kind for item in budget_set.snapshots) == ("run",)
+    assert tuple(item.budget_id for item in budget_set.snapshots) == (
+        f"budget:run:{accepted.run_id}",
+    )
+    assert harness.run_record(accepted.run_id) is not None
+    assert harness.reservation_group(accepted.run_id) is not None
+    assert harness.budget(f"budget:run:{accepted.run_id}") is not None
 
 
-def test_permit_only_shared_budget_is_not_silently_omitted_from_run_hold(
+def test_permit_only_shared_budget_is_snapshotted_without_hold_and_claim_gets_permit(
     tmp_path: Path,
 ) -> None:
     harness = Harness(tmp_path, provision_shared_budgets=False)
@@ -2603,22 +2661,36 @@ def test_permit_only_shared_budget_is_not_silently_omitted_from_run_hold(
     snapshot = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
     server = _server("checker:permit-only-shared-budget")
 
-    with pytest.raises(IntegrityViolation, match="run-hold cost dimension"):
-        harness.engine_admission.admit_generic_run(
-            params=_checker_params(snapshot),
-            actor=_tooling_actor(),
-            server=server,
-        )
-
-    run_id = harness.engine_admission._derive_run_id(
-        scope="principal:human:actor",
-        key=server.idempotency_key,
-        request_hash=server.request_hash,
+    accepted = harness.engine_admission.admit_generic_run(
+        params=_checker_params(snapshot),
+        actor=_tooling_actor(),
+        server=server,
     )
-    assert harness.run_record(run_id) is None
-    assert harness.budget_set(run_id) is None
-    assert harness.reservation_group(run_id) is None
-    assert harness.budget(f"budget:run:{run_id}") is None
+    budget_set = harness.budget_set(accepted.run_id)
+    assert budget_set is not None
+    assert principal.budget_id in {item.budget_id for item in budget_set.snapshots}
+    assert principal.budget_id not in {
+        item.budget_id for item in harness.budget_reservations(accepted.run_id)
+    }
+    assert harness.budget(principal.budget_id) == principal
+
+    claimed = harness.claim_next(
+        RunClaimRequest(
+            worker=AuditActor(
+                principal_id="service:worker:budget-test",
+                principal_kind="service",
+            ),
+            lease_id="lease:permit-only-shared-budget",
+            lease_duration_ns=30_000_000_000,
+        )
+    )
+
+    assert claimed is not None
+    assert claimed.run.run_id == accepted.run_id
+    permit_group_id = claimed.run.concurrency_permit_group_id
+    assert permit_group_id is not None
+    permits = harness.concurrency_permits(permit_group_id)
+    assert principal.budget_id in {item.budget_id for item in permits}
 
 
 def test_retained_run_budget_identity_cannot_redirect_admission_scope(tmp_path: Path) -> None:
@@ -5341,34 +5413,63 @@ def test_internal_dr_drill_admits_typed_run_for_the_deferred_executor(
     )
 
 
-def test_artifact_domain_scope_handles_a_deep_valid_lineage_iteratively() -> None:
-    object_ref = object_ref_for_bytes(b"deep-domain-lineage")
-    artifacts: dict[str, ArtifactV2] = {}
-    lineage: tuple[str, ...] = ()
-    for index in range(1_100):
-        artifact = build_artifact_v2(
-            kind="ir_snapshot",
-            version_tuple=VersionTuple(
-                ir_snapshot_id=f"snapshot:deep:{index}",
-                tool_version="test@1",
-            ),
-            lineage=lineage,
-            payload_hash=object_ref.sha256,
-            object_ref=object_ref,
-            meta={
-                "payload_schema_id": "ir-core@1",
-                "domain_scope": {"domain_ids": ["builtin"]},
-            },
-            created_at=NOW,
+def test_internal_dr_drill_accepts_an_authorized_service_actor(tmp_path: Path) -> None:
+    recovery_authority = _RecoveryManifestAuthority()
+    harness = Harness(
+        tmp_path,
+        dr_recovery_manifest_authority=recovery_authority,
+    )
+    recovery_authority.manifest = harness.seed_payload_artifact(
+        kind="operational_evidence",
+        payload={"manifest_schema_version": "backup-object-manifest@1"},
+        version_tuple=VersionTuple(tool_version="backup-manifest@1"),
+        payload_schema_id="backup-object-manifest@1",
+    )
+    harness.seed_budget(
+        _shared_budget(
+            budget_id="budget:principal:service:actor",
+            scope_kind="principal",
+            scope_id="service:actor",
         )
-        artifacts[artifact.artifact_id] = artifact
-        lineage = (artifact.artifact_id,)
+    )
 
+    accepted = harness.engine_admission.admit_internal_run(
+        params=_dr_drill_params(),
+        actor=_service_operator_actor(domainless=True),
+        server=_server("dr:authorized-service"),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None
+    assert run.status == "queued"
+    assert run.initiated_by == AuditActor(
+        principal_id="service:actor",
+        principal_kind="service",
+    )
+
+
+def test_artifact_domain_scope_short_circuits_an_explicit_modern_scope() -> None:
+    object_ref = object_ref_for_bytes(b"explicit-domain-scope")
+    artifact = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:explicit-domain",
+            tool_version="test@1",
+        ),
+        lineage=("artifact:unavailable-legacy-parent",),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={
+            "payload_schema_id": "ir-core@1",
+            "domain_scope": {"domain_ids": ["builtin"]},
+        },
+        created_at=NOW,
+    )
     engine = object.__new__(RunAdmissionEngine)
     read = AdmissionReadPort(
         policies=None,
         approvals=None,
-        artifacts=artifacts,
+        artifacts={},
         refs=None,
     )
 
@@ -5379,6 +5480,299 @@ def test_artifact_domain_scope_handles_a_deep_valid_lineage_iteratively() -> Non
         memo={},
         visiting=set(),
     ) == DomainScope(domain_ids=("builtin",))
+
+
+def test_artifact_domain_scope_short_circuits_a_typed_modern_scope(tmp_path: Path) -> None:
+    harness = Harness(tmp_path)
+    proposal = ConstraintProposalV1(
+        revision=1,
+        dsl_grammar_version="constraint-dsl@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+        constraints=(),
+        source_bindings=(),
+        produced_by="human",
+        rationale="typed domain authority",
+    )
+    artifact = harness.seed_payload_artifact(
+        kind="constraint_proposal",
+        payload=proposal.model_dump(mode="json"),
+        version_tuple=VersionTuple(tool_version="constraint-authoring@1"),
+        lineage=("artifact:unavailable-legacy-parent",),
+        payload_schema_id="constraint-proposal@1",
+    )
+
+    with harness._read_scope() as read:  # noqa: SLF001
+        assert harness.engine_admission._artifact_domain_scope(  # noqa: SLF001
+            artifact,
+            read=read,
+            registry=_domain_registry(),
+            memo={},
+            visiting=set(),
+        ) == DomainScope(domain_ids=("builtin",))
+
+
+def _legacy_domain_lineage(
+    legacy_node_count: int,
+    *,
+    label: str = "single",
+) -> tuple[ArtifactV2, dict[str, ArtifactV2]]:
+    assert legacy_node_count >= 1
+    object_ref = object_ref_for_bytes(f"legacy-domain-lineage:{label}".encode())
+    artifacts: dict[str, ArtifactV2] = {}
+    terminal = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id=f"snapshot:legacy-terminal:{label}",
+            tool_version="test@1",
+        ),
+        lineage=(),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={
+            "payload_schema_id": "ir-core@1",
+            "domain_scope": {"domain_ids": ["builtin"]},
+        },
+        created_at=NOW,
+    )
+    artifacts[terminal.artifact_id] = terminal
+    artifact = terminal
+    for index in range(legacy_node_count):
+        artifact = build_artifact_v2(
+            kind="ir_snapshot",
+            version_tuple=VersionTuple(
+                ir_snapshot_id=f"snapshot:legacy:{label}:{index}",
+                tool_version="test@1",
+            ),
+            lineage=(artifact.artifact_id,),
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta={"payload_schema_id": "ir-core@1"},
+            created_at=NOW,
+        )
+        artifacts[artifact.artifact_id] = artifact
+    return artifact, artifacts
+
+
+@pytest.mark.parametrize(("node_count", "allowed"), ((1_000, True), (1_001, False)))
+def test_legacy_artifact_domain_lineage_has_a_closed_node_bound(
+    node_count: int,
+    allowed: bool,
+) -> None:
+    artifact, artifacts = _legacy_domain_lineage(node_count)
+
+    engine = object.__new__(RunAdmissionEngine)
+    read = AdmissionReadPort(
+        policies=None,
+        approvals=None,
+        artifacts=artifacts,
+        refs=None,
+    )
+
+    if allowed:
+        assert engine._artifact_domain_scope(  # noqa: SLF001
+            artifact,
+            read=read,
+            registry=_domain_registry(),
+            memo={},
+            visiting=set(),
+        ) == DomainScope(domain_ids=("builtin",))
+    else:
+        with pytest.raises(IntegrityViolation, match="node limit"):
+            engine._artifact_domain_scope(  # noqa: SLF001
+                artifact,
+                read=read,
+                registry=_domain_registry(),
+                memo={},
+                visiting=set(),
+            )
+
+
+def _review_resource_domain_params(
+    snapshot_artifact_id: str,
+    constraint_snapshot_artifact_id: str,
+) -> ReviewRunPayloadV1:
+    return ReviewRunPayloadV1(
+        snapshot_artifact_id=snapshot_artifact_id,
+        constraint_snapshot_artifact_id=constraint_snapshot_artifact_id,
+        selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
+        review_profile=REVIEW_PROFILE,
+        checker_profiles=(),
+        simulation_profiles=(),
+        llm_triage_policy=LLM_TRIAGE_PROFILE,
+    )
+
+
+def test_resource_domain_shared_memo_cannot_segment_the_legacy_node_limit() -> None:
+    first, first_artifacts = _legacy_domain_lineage(1_000, label="segment-a")
+    second, second_artifacts = _legacy_domain_lineage(1_000, label="segment-b")
+    artifacts = {**first_artifacts, **second_artifacts}
+    engine = object.__new__(RunAdmissionEngine)
+    read = AdmissionReadPort(
+        policies=None,
+        approvals=None,
+        artifacts=artifacts,
+        refs=None,
+    )
+
+    with pytest.raises(IntegrityViolation, match="node limit"):
+        engine._resolve_resource_domain(  # noqa: SLF001
+            base=Permission(action="run", resource_kind="review", domain_scope="all"),
+            params=_review_resource_domain_params(first.artifact_id, second.artifact_id),
+            artifacts=artifacts,
+            read=read,
+            registry=_domain_registry(),
+            validation_item=None,
+            verified_suite_scope=None,
+        )
+
+
+def _wide_legacy_domain_roots(
+    edge_count: int,
+) -> tuple[ArtifactV2, ArtifactV2, dict[str, ArtifactV2]]:
+    object_ref = object_ref_for_bytes(b"legacy-domain-shared-edge-budget")
+    artifacts: dict[str, ArtifactV2] = {}
+    leaves: list[str] = []
+    for index in range(edge_count):
+        leaf = build_artifact_v2(
+            kind="ir_snapshot",
+            version_tuple=VersionTuple(
+                ir_snapshot_id=f"snapshot:legacy-edge-leaf:{index}",
+                tool_version="test@1",
+            ),
+            lineage=(),
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta={
+                "payload_schema_id": "ir-core@1",
+                "domain_scope": {"domain_ids": ["builtin"]},
+            },
+            created_at=NOW,
+        )
+        artifacts[leaf.artifact_id] = leaf
+        leaves.append(leaf.artifact_id)
+
+    def root(label: str) -> ArtifactV2:
+        artifact = build_artifact_v2(
+            kind="ir_snapshot",
+            version_tuple=VersionTuple(
+                ir_snapshot_id=f"snapshot:legacy-edge-root:{label}",
+                tool_version="test@1",
+            ),
+            lineage=tuple(leaves),
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
+            meta={"payload_schema_id": "ir-core@1"},
+            created_at=NOW,
+        )
+        artifacts[artifact.artifact_id] = artifact
+        return artifact
+
+    return root("a"), root("b"), artifacts
+
+
+def test_resource_domain_shared_memo_cannot_segment_the_legacy_edge_limit() -> None:
+    first, second, artifacts = _wide_legacy_domain_roots(6_000)
+    engine = object.__new__(RunAdmissionEngine)
+    read = AdmissionReadPort(
+        policies=None,
+        approvals=None,
+        artifacts=artifacts,
+        refs=None,
+    )
+
+    with pytest.raises(IntegrityViolation, match="edge limit"):
+        engine._resolve_resource_domain(  # noqa: SLF001
+            base=Permission(action="run", resource_kind="review", domain_scope="all"),
+            params=_review_resource_domain_params(first.artifact_id, second.artifact_id),
+            artifacts=artifacts,
+            read=read,
+            registry=_domain_registry(),
+            validation_item=None,
+            verified_suite_scope=None,
+        )
+
+
+def test_legacy_artifact_domain_lineage_has_a_closed_edge_bound() -> None:
+    object_ref = object_ref_for_bytes(b"legacy-domain-edge-bound")
+    artifact = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:legacy-edge-bound",
+            tool_version="test@1",
+        ),
+        lineage=tuple(f"artifact:legacy-parent:{index}" for index in range(10_001)),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={"payload_schema_id": "ir-core@1"},
+        created_at=NOW,
+    )
+    engine = object.__new__(RunAdmissionEngine)
+    read = AdmissionReadPort(
+        policies=None,
+        approvals=None,
+        artifacts={},
+        refs=None,
+    )
+
+    with pytest.raises(IntegrityViolation, match="edge limit"):
+        engine._artifact_domain_scope(  # noqa: SLF001
+            artifact,
+            read=read,
+            registry=_domain_registry(),
+            memo={},
+            visiting=set(),
+        )
+
+
+def test_legacy_artifact_domain_lineage_still_rejects_a_cycle() -> None:
+    object_ref = object_ref_for_bytes(b"legacy-domain-cycle")
+    first = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:legacy-cycle:first",
+            tool_version="test@1",
+        ),
+        lineage=(),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={"payload_schema_id": "ir-core@1"},
+        created_at=NOW,
+    )
+    second = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id="snapshot:legacy-cycle:second",
+            tool_version="test@1",
+        ),
+        lineage=(first.artifact_id,),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={"payload_schema_id": "ir-core@1"},
+        created_at=NOW,
+    )
+    # A retained repository cycle is necessarily an integrity-corrupted projection:
+    # Artifact ids are content-addressed, so construct that corrupt read explicitly.
+    cyclic_first = first.model_copy(update={"lineage": (second.artifact_id,)})
+    artifacts = {
+        cyclic_first.artifact_id: cyclic_first,
+        second.artifact_id: second,
+    }
+    engine = object.__new__(RunAdmissionEngine)
+    read = AdmissionReadPort(
+        policies=None,
+        approvals=None,
+        artifacts=artifacts,
+        refs=None,
+    )
+
+    with pytest.raises(IntegrityViolation, match="cycle"):
+        engine._artifact_domain_scope(  # noqa: SLF001
+            cyclic_first,
+            read=read,
+            registry=_domain_registry(),
+            memo={},
+            visiting=set(),
+        )
 
 
 def test_generic_endpoint_rejects_resource_only_kind(tmp_path: Path) -> None:
@@ -5415,6 +5809,71 @@ def _checker_params(snapshot: str) -> CheckerRunPayloadV1:
         checker_ids=(),
         defect_classes=(),
     )
+
+
+def test_fresh_uow_principal_allows_non_security_projection_changes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    harness = Harness(tmp_path)
+    snapshot = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
+    actor = _tooling_actor()
+    current = Principal.model_validate(
+        {
+            **actor.principal.model_dump(mode="json"),
+            "display_name": "Renamed operator",
+            "revision": actor.principal.revision + 1,
+            "authz_revision": actor.principal.authz_revision + 1,
+            "roles": [
+                *(assignment.model_dump(mode="json") for assignment in actor.principal.roles),
+                _assignment(
+                    role="content_designer",
+                    scope=DomainScope(domain_ids=("economy",)),
+                    assignment_id="assign:new-content-role",
+                ).model_dump(mode="json"),
+            ],
+        }
+    )
+    monkeypatch.setattr(
+        harness.engine_admission,
+        "_current_principal",
+        lambda _transaction, _actor: current,
+    )
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=_checker_params(snapshot),
+        actor=actor,
+        server=_server("checker:fresh-principal-non-security-change"),
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+def test_fresh_uow_principal_rejects_a_credential_epoch_change(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    harness = Harness(tmp_path)
+    snapshot = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
+    actor = _tooling_actor()
+    current = actor.principal.model_copy(
+        update={"credential_epoch": actor.principal.credential_epoch + 1}
+    )
+    monkeypatch.setattr(
+        harness.engine_admission,
+        "_current_principal",
+        lambda _transaction, _actor: current,
+    )
+    key = "checker:fresh-principal-credential-change"
+
+    with pytest.raises(Forbidden, match="principal changed"):
+        harness.engine_admission.admit_generic_run(
+            params=_checker_params(snapshot),
+            actor=actor,
+            server=_server(key),
+        )
+
+    _assert_no_admission_side_effects(harness, key=key)
 
 
 def test_generic_run_rejects_roleless_actor_with_no_run_or_hold(tmp_path: Path) -> None:
@@ -6033,7 +6492,21 @@ def _seed_review_with_runtime_prompt(
     preview: ArtifactV2,
     constraint: ArtifactV2,
     retain_producer: bool,
+    prompt_meta_updates: Mapping[str, Any] | None = None,
 ) -> ArtifactV2:
+    producer_run_id = "run:review-producer:" + canonical_sha256(
+        {
+            "preview_artifact_id": preview.artifact_id,
+            "constraint_artifact_id": constraint.artifact_id,
+        }
+    )
+    prompt_meta = {
+        "producer_run_id": producer_run_id,
+        "producer_attempt_no": 1,
+        "logical_call_ordinal": 1,
+        "route_ordinal": 1,
+        **dict(prompt_meta_updates or {}),
+    }
     prompt = harness.seed_payload_artifact(
         kind="source_rendered",
         payload={"messages": [{"role": "user", "content": "review candidate"}]},
@@ -6044,6 +6517,7 @@ def _seed_review_with_runtime_prompt(
             tool_version="prompt-renderer@1",
         ),
         payload_schema_id="source-rendered@1",
+        meta_extra=prompt_meta,
     )
     review = harness.seed_payload_artifact(
         kind="review_report",
@@ -6063,7 +6537,6 @@ def _seed_review_with_runtime_prompt(
 
     from tests.platform.m4c.handler_support import build_envelope, build_run_record
 
-    producer_run_id = f"run:review-producer:{review.artifact_id}"
     producer_params = ReviewRunPayloadV1(
         snapshot_artifact_id=preview.artifact_id,
         constraint_snapshot_artifact_id=constraint.artifact_id,
@@ -6250,7 +6723,24 @@ def _seed_playtest_trace_with_runtime_prompt(
     scenario: ArtifactV2,
     episode: TaskEpisodeV1,
     producer_config_artifact_id: str | None = None,
+    prompt_meta_updates: Mapping[str, Any] | None = None,
 ) -> ArtifactV2:
+    producer_run_id = "run:playtest-producer:" + canonical_sha256(
+        {
+            "config_artifact_id": config.artifact_id,
+            "constraint_artifact_id": constraint.artifact_id,
+            "task_suite_artifact_id": suite.artifact_id,
+            "scenario_artifact_id": scenario.artifact_id,
+            "episode_id": episode.episode_id,
+        }
+    )
+    prompt_meta = {
+        "producer_run_id": producer_run_id,
+        "producer_attempt_no": 1,
+        "logical_call_ordinal": 1,
+        "route_ordinal": 1,
+        **dict(prompt_meta_updates or {}),
+    }
     prompt = harness.seed_payload_artifact(
         kind="source_rendered",
         payload={"messages": [{"role": "user", "content": "plan next action"}]},
@@ -6261,6 +6751,7 @@ def _seed_playtest_trace_with_runtime_prompt(
             tool_version="prompt-renderer@1",
         ),
         payload_schema_id="source-rendered@1",
+        meta_extra=prompt_meta,
     )
     trace_payload = _playtest_trace_payload(
         config=config,
@@ -6293,7 +6784,6 @@ def _seed_playtest_trace_with_runtime_prompt(
     )
     from tests.platform.m4c.handler_support import build_envelope, build_run_record
 
-    producer_run_id = f"run:playtest-producer:{trace.artifact_id}"
     producer_params = PlaytestRunPayloadV1(
         config_artifact_id=producer_config_artifact_id or config.artifact_id,
         constraint_snapshot_artifact_id=constraint.artifact_id,
@@ -7373,6 +7863,97 @@ def test_patch_validation_rejects_forged_review_runtime_prompt_parent(
     )
 
 
+def test_patch_validation_uses_immutable_prompt_meta_for_exact_link_lookup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="exact-prompt-meta-base")
+    constraint = _seed_constraint(harness)
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="exact-prompt-meta-preview",
+        base=base,
+        constraint=constraint,
+    )
+    review = _seed_review_with_runtime_prompt(
+        harness,
+        preview=preview,
+        constraint=constraint,
+        retain_producer=True,
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(review.artifact_id,),
+        trace_ids=(),
+    )
+
+    def forbid_reverse_lookup(*_args: Any, **_kwargs: Any) -> Any:
+        raise AssertionError("supporting prompt verification must not reverse-scan links")
+
+    monkeypatch.setattr(
+        _RunReadAuthority,
+        "list_prompt_render_links_by_artifact_id",
+        forbid_reverse_lookup,
+    )
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:exact-prompt-meta"),
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+def test_patch_validation_rejects_prompt_meta_without_its_exact_link(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="wrong-prompt-meta-base")
+    constraint = _seed_constraint(harness)
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="wrong-prompt-meta-preview",
+        base=base,
+        constraint=constraint,
+    )
+    review = _seed_review_with_runtime_prompt(
+        harness,
+        preview=preview,
+        constraint=constraint,
+        retain_producer=True,
+        prompt_meta_updates={"route_ordinal": 2},
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(review.artifact_id,),
+        trace_ids=(),
+    )
+    key = "patch-validation:wrong-prompt-meta"
+
+    with pytest.raises(Conflict, match="exact prompt link"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=_server(key),
+        )
+
+    _assert_no_admission_side_effects(harness, key=key)
+
+
 def test_patch_validation_rejects_llm_review_with_stripped_prompt_lineage(
     tmp_path: Path,
 ) -> None:
@@ -7986,6 +8567,7 @@ def test_exact_playtest_replay_accepts_replay_only_artifact_profiles_only_in_rep
 @pytest.mark.parametrize("current_state", ["replay_only", "disabled"])
 def test_native_replay_honors_current_lifecycle_while_freezing_source_catalog(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
     current_state: str,
 ) -> None:
     harness = Harness(tmp_path)
@@ -8176,6 +8758,21 @@ def test_native_replay_honors_current_lifecycle_while_freezing_source_catalog(
         retained=(old_catalog, current_catalog),
     )
 
+    from gameforge.platform.runs import admission as admission_module
+
+    replay_blob_reads: dict[str, int] = {}
+    original_read = admission_module._AdmissionReplayReader.read_artifact_bytes
+
+    def count_replay_blob_read(reader: Any, artifact_id: str) -> bytes:
+        replay_blob_reads[artifact_id] = replay_blob_reads.get(artifact_id, 0) + 1
+        return original_read(reader, artifact_id)
+
+    monkeypatch.setattr(
+        admission_module._AdmissionReplayReader,
+        "read_artifact_bytes",
+        count_replay_blob_read,
+    )
+
     if current_state == "disabled":
         with pytest.raises(Conflict, match="currently disabled"):
             harness.engine_admission.admit_generic_run(
@@ -8186,6 +8783,7 @@ def test_native_replay_honors_current_lifecycle_while_freezing_source_catalog(
                 execution_version_plan=plan,
                 cassette_artifact_id=root.artifact_id,
             )
+        assert replay_blob_reads == {root.artifact_id: 1, attempt.artifact_id: 1}
         return
 
     replay = harness.engine_admission.admit_generic_run(
@@ -8204,6 +8802,46 @@ def test_native_replay_honors_current_lifecycle_while_freezing_source_catalog(
         (binding.catalog_version, binding.catalog_digest)
         for binding in replay_run.payload.resolved_profiles
     } == {(old_catalog.catalog_version, old_catalog.catalog_digest)}
+    assert replay_blob_reads[root.artifact_id] == 1
+    assert replay_blob_reads[attempt.artifact_id] == 1
+    assert set(replay_blob_reads.values()) == {1}
+
+    original_resolve_many = SqlObjectBindingRepository.resolve_many
+    binding_batch_reads = 0
+
+    def change_attempt_binding_after_preflight(
+        repository: SqlObjectBindingRepository,
+        object_refs: Any,
+        store_id: str | None = None,
+    ) -> Any:
+        nonlocal binding_batch_reads
+        retained = original_resolve_many(repository, object_refs, store_id)
+        binding = retained.get(attempt.object_ref.key)
+        if binding is None:
+            return retained
+        binding_batch_reads += 1
+        return {
+            **retained,
+            attempt.object_ref.key: binding.model_copy(update={"revision": binding.revision + 1}),
+        }
+
+    monkeypatch.setattr(
+        SqlObjectBindingRepository,
+        "resolve_many",
+        change_attempt_binding_after_preflight,
+    )
+    stale_key = "review:replay-after-child-binding-change"
+    with pytest.raises(Conflict, match="replay dependency ObjectBinding changed"):
+        harness.engine_admission.admit_generic_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server(stale_key),
+            llm_execution_mode="replay",
+            execution_version_plan=plan,
+            cassette_artifact_id=root.artifact_id,
+        )
+    assert binding_batch_reads == 1
+    _assert_no_admission_side_effects(harness, key=stale_key)
 
     with pytest.raises(Conflict, match="lifecycle"):
         harness.engine_admission.admit_generic_run(

@@ -139,6 +139,7 @@ def hold(
             revision=1,
         )
         for snapshot in selected_set.snapshots
+        if any(item.dimension != "concurrent_run" for item in snapshot.limits)
     )
     group = ReservationGroupV1(
         reservation_group_id=group_id,

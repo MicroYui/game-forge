@@ -137,6 +137,7 @@ from gameforge.contracts.jobs import (
     RollbackValidationPayloadV1,
     RunDispatchTraceCarrierV1,
     RunFindingLinkV1,
+    RunIntermediateArtifactLinkV1,
     RunKindDefinition,
     RunKindPayload,
     RunPayloadEnvelope,
@@ -217,6 +218,7 @@ from gameforge.platform.runs.execution_plan import (
 )
 from gameforge.platform.runs.replay import (
     MAX_REPLAY_ARTIFACT_BYTES,
+    ReplayAdmissionPreparation,
     ReplayAdmissionReader,
     ReplayAdmissionValidator,
 )
@@ -414,16 +416,14 @@ class DefaultRunBudgetPlanProvider:
                     max_applicable_budgets=_MAX_APPLICABLE_BUDGETS_PER_SCOPE,
                 )
             if not matches:
-                raise DependencyUnavailable(
-                    (
-                        "required shared budget scope is not provisioned"
-                        if scope_kind in {"principal", "system"}
-                        else "required run budget scope is not provisioned"
-                    ),
-                    scope_kind=scope_kind,
-                    scope_id=scope_id,
-                    selection_policy_version=self._selection_policy_version,
-                )
+                if scope_kind == "run":
+                    raise DependencyUnavailable(
+                        "required run budget scope is not provisioned",
+                        scope_kind=scope_kind,
+                        scope_id=scope_id,
+                        selection_policy_version=self._selection_policy_version,
+                    )
+                continue
             if scope_kind == "run" and budget not in matches:
                 raise IntegrityViolation(
                     "versioned admission run budget is absent from applicable selection",
@@ -458,10 +458,7 @@ class DefaultRunBudgetPlanProvider:
         for snapshot in budget_set.snapshots:
             governed = tuple(item for item in snapshot.limits if item.dimension != "concurrent_run")
             if not governed:
-                raise IntegrityViolation(
-                    "applicable budget has no run-hold cost dimension",
-                    budget_id=snapshot.budget_id,
-                )
+                continue
             missing = tuple(item.dimension for item in governed if item.dimension not in forecast)
             if missing:
                 raise IntegrityViolation(
@@ -591,16 +588,49 @@ class _AdmissionReplayReader(ReplayAdmissionReader):
     def __init__(self, *, read: AdmissionReadPort, objects: ObjectStore) -> None:
         self._read = read
         self._objects = objects
+        self._artifacts: dict[str, ArtifactV2 | None] = {}
+        self._bindings: dict[str, Any] = {}
+        self._runs: dict[str, RunRecord | None] = {}
+        self._attempts: dict[tuple[str, int], Any] = {}
+        self._prompt_links: dict[tuple[str, int, int, int], Any] = {}
+        self._routing_decisions: dict[str, Any] = {}
+        self._model_route_links: dict[tuple[str, int, int, int], Any] = {}
+        self._model_consumptions: dict[tuple[str, int, int, int], Any] = {}
+
+    @staticmethod
+    def _record_exact(
+        retained: dict[Any, Any],
+        key: Any,
+        value: Any,
+        *,
+        label: str,
+    ) -> Any:
+        if key in retained and retained[key] != value:
+            raise Conflict(f"{label} changed during replay admission proof")
+        retained[key] = value
+        return value
 
     def get_artifact(self, artifact_id: str) -> ArtifactV2 | None:
         artifact = self._read.artifacts.get(artifact_id)
-        return artifact if isinstance(artifact, ArtifactV2) else None
+        parsed = artifact if isinstance(artifact, ArtifactV2) else None
+        return self._record_exact(
+            self._artifacts,
+            artifact_id,
+            parsed,
+            label="replay dependency Artifact",
+        )
 
     def read_artifact_bytes(self, artifact_id: str) -> bytes:
         artifact = self.get_artifact(artifact_id)
         if artifact is None or self._read.object_bindings is None:
             raise FileNotFoundError(artifact_id)
         binding = self._read.object_bindings.resolve(artifact.object_ref)
+        self._record_exact(
+            self._bindings,
+            artifact_id,
+            binding,
+            label="replay dependency ObjectBinding",
+        )
         with self._objects.open(binding.location) as handle:
             payload = handle.read(MAX_REPLAY_ARTIFACT_BYTES + 1)
         if len(payload) > MAX_REPLAY_ARTIFACT_BYTES:
@@ -609,14 +639,25 @@ class _AdmissionReplayReader(ReplayAdmissionReader):
 
     def get_run(self, run_id: str) -> RunRecord | None:
         if self._read.runs is None:
-            return None
-        run = self._read.runs.get(run_id)
-        return run if isinstance(run, RunRecord) else None
+            parsed = None
+        else:
+            run = self._read.runs.get(run_id)
+            parsed = run if isinstance(run, RunRecord) else None
+        return self._record_exact(
+            self._runs,
+            run_id,
+            parsed,
+            label="replay dependency Run",
+        )
 
     def get_attempt(self, run_id: str, attempt_no: int) -> Any:
-        if self._read.runs is None:
-            return None
-        return self._read.runs.get_attempt(run_id, attempt_no)
+        value = None if self._read.runs is None else self._read.runs.get_attempt(run_id, attempt_no)
+        return self._record_exact(
+            self._attempts,
+            (run_id, attempt_no),
+            value,
+            label="replay dependency RunAttempt",
+        )
 
     def get_prompt_link(
         self,
@@ -625,19 +666,35 @@ class _AdmissionReplayReader(ReplayAdmissionReader):
         call_ordinal: int,
         route_ordinal: int,
     ) -> Any:
-        if self._read.runs is None:
-            return None
-        return self._read.runs.get_intermediate_link(
-            run_id,
-            attempt_no,
-            call_ordinal,
-            route_ordinal,
+        value = (
+            None
+            if self._read.runs is None
+            else self._read.runs.get_intermediate_link(
+                run_id,
+                attempt_no,
+                call_ordinal,
+                route_ordinal,
+            )
+        )
+        return self._record_exact(
+            self._prompt_links,
+            (run_id, attempt_no, call_ordinal, route_ordinal),
+            value,
+            label="replay dependency prompt link",
         )
 
     def get_routing_decision(self, decision_id: str) -> Any:
-        if self._read.routing is None:
-            return None
-        return self._read.routing.get_routing_decision(decision_id)
+        value = (
+            None
+            if self._read.routing is None
+            else self._read.routing.get_routing_decision(decision_id)
+        )
+        return self._record_exact(
+            self._routing_decisions,
+            decision_id,
+            value,
+            label="replay dependency routing decision",
+        )
 
     def get_model_route_link(
         self,
@@ -646,13 +703,21 @@ class _AdmissionReplayReader(ReplayAdmissionReader):
         call_ordinal: int,
         route_ordinal: int,
     ) -> Any:
-        if self._read.runs is None:
-            return None
-        return self._read.runs.get_model_route_link(
-            run_id,
-            attempt_no,
-            call_ordinal,
-            route_ordinal,
+        value = (
+            None
+            if self._read.runs is None
+            else self._read.runs.get_model_route_link(
+                run_id,
+                attempt_no,
+                call_ordinal,
+                route_ordinal,
+            )
+        )
+        return self._record_exact(
+            self._model_route_links,
+            (run_id, attempt_no, call_ordinal, route_ordinal),
+            value,
+            label="replay dependency model route link",
         )
 
     def get_model_response_consumption(
@@ -662,14 +727,224 @@ class _AdmissionReplayReader(ReplayAdmissionReader):
         call_ordinal: int,
         route_ordinal: int,
     ) -> Any:
-        if self._read.runs is None:
-            return None
-        return self._read.runs.get_model_response_consumption(
-            run_id,
-            attempt_no,
-            call_ordinal,
-            route_ordinal,
+        value = (
+            None
+            if self._read.runs is None
+            else self._read.runs.get_model_response_consumption(
+                run_id,
+                attempt_no,
+                call_ordinal,
+                route_ordinal,
+            )
         )
+        return self._record_exact(
+            self._model_consumptions,
+            (run_id, attempt_no, call_ordinal, route_ordinal),
+            value,
+            label="replay dependency model consumption",
+        )
+
+    def revalidate(
+        self,
+        transaction: Any,
+        *,
+        already_checked_artifact_ids: set[str],
+    ) -> None:
+        """Set-compare recorded rows without reopening blobs or issuing N+1 reads."""
+
+        artifacts = getattr(transaction, "artifacts", None)
+        bindings = getattr(transaction, "object_bindings", None)
+        runs = getattr(transaction, "runs", None)
+        routing = getattr(transaction, "cost", None)
+        if artifacts is None or bindings is None or runs is None or routing is None:
+            raise IntegrityViolation("replay admission UoW lacks retained authorities")
+        get_artifacts = getattr(artifacts, "get_many", None)
+        resolve_bindings = getattr(bindings, "resolve_many", None)
+        project_runs = getattr(runs, "replay_authority_projection", None)
+        get_routing = getattr(routing, "get_routing_decisions_many", None)
+        if not all(
+            callable(item) for item in (get_artifacts, resolve_bindings, project_runs, get_routing)
+        ):
+            raise IntegrityViolation("replay admission UoW lacks batch authority reads")
+
+        remaining_artifacts = {
+            artifact_id: artifact
+            for artifact_id, artifact in self._artifacts.items()
+            if artifact_id not in already_checked_artifact_ids
+        }
+        remaining_bindings = {
+            artifact_id: binding
+            for artifact_id, binding in self._bindings.items()
+            if artifact_id not in already_checked_artifact_ids
+        }
+        current_artifacts = get_artifacts(tuple(remaining_artifacts))
+        for artifact_id, expected in remaining_artifacts.items():
+            if current_artifacts.get(artifact_id) != expected:
+                raise Conflict(
+                    "replay dependency Artifact changed before atomic admission",
+                    artifact_id=artifact_id,
+                )
+        binding_artifacts: dict[str, ArtifactV2] = {}
+        for artifact_id in remaining_bindings:
+            artifact = self._artifacts.get(artifact_id)
+            if not isinstance(artifact, ArtifactV2):
+                raise IntegrityViolation("replay binding snapshot lacks its exact Artifact")
+            binding_artifacts[artifact_id] = artifact
+        current_bindings = resolve_bindings(
+            tuple(artifact.object_ref for artifact in binding_artifacts.values())
+        )
+        for artifact_id, artifact in binding_artifacts.items():
+            if current_bindings.get(artifact.object_ref.key) != remaining_bindings[artifact_id]:
+                raise Conflict(
+                    "replay dependency ObjectBinding changed before atomic admission",
+                    artifact_id=artifact_id,
+                )
+
+        projection = project_runs(
+            run_ids=tuple(self._runs),
+            attempt_keys=tuple(self._attempts),
+            prompt_link_keys=tuple(self._prompt_links),
+            model_route_keys=tuple(self._model_route_links),
+            model_consumption_keys=tuple(self._model_consumptions),
+        )
+        for run_id, expected in self._runs.items():
+            if projection.runs.get(run_id) != expected:
+                raise Conflict(
+                    "replay dependency Run changed before atomic admission",
+                    run_id=run_id,
+                )
+        for (run_id, attempt_no), expected in self._attempts.items():
+            if projection.attempts.get((run_id, attempt_no)) != expected:
+                raise Conflict(
+                    "replay dependency RunAttempt changed before atomic admission",
+                    run_id=run_id,
+                    attempt_no=attempt_no,
+                )
+        for key, expected in self._prompt_links.items():
+            if projection.prompt_links.get(key) != expected:
+                raise Conflict("replay dependency prompt link changed before atomic admission")
+        current_routing = get_routing(tuple(self._routing_decisions))
+        for decision_id, expected in self._routing_decisions.items():
+            if current_routing.get(decision_id) != expected:
+                raise Conflict(
+                    "replay dependency routing decision changed before atomic admission",
+                    decision_id=decision_id,
+                )
+        for key, expected in self._model_route_links.items():
+            if projection.model_route_links.get(key) != expected:
+                raise Conflict("replay dependency model route link changed before atomic admission")
+        for key, expected in self._model_consumptions.items():
+            if projection.model_consumptions.get(key) != expected:
+                raise Conflict(
+                    "replay dependency model consumption changed before atomic admission"
+                )
+
+
+class _RecordingLegacyImportAuthority:
+    """Record legacy authority reads so the create UoW can recheck exact values."""
+
+    def __init__(self, delegate: LegacyImportAuthority) -> None:
+        self._delegate = delegate
+        self._calls: dict[tuple[str, tuple[Any, ...]], Any] = {}
+
+    def _call(self, method: str, *args: Any) -> Any:
+        value = getattr(self._delegate, method)(*args)
+        _AdmissionReplayReader._record_exact(
+            self._calls,
+            (method, args),
+            value,
+            label="legacy replay authority",
+        )
+        return value
+
+    @property
+    def verification_policy_registry(self) -> Any:
+        value = self._delegate.verification_policy_registry
+        _AdmissionReplayReader._record_exact(
+            self._calls,
+            ("verification_policy_registry", ()),
+            value,
+            label="legacy replay authority",
+        )
+        return value
+
+    def resolve_model_catalog(self, *args: Any) -> Any:
+        return self._call("resolve_model_catalog", *args)
+
+    def resolve_input_binding(self, *args: Any) -> Any:
+        return self._call("resolve_input_binding", *args)
+
+    def resolve_profile_binding(self, *args: Any) -> Any:
+        return self._call("resolve_profile_binding", *args)
+
+    def resolve_policy_binding(self, *args: Any) -> Any:
+        return self._call("resolve_policy_binding", *args)
+
+    def resolve_schema_binding(self, *args: Any) -> Any:
+        return self._call("resolve_schema_binding", *args)
+
+    def resolve_rendered_request(self, *args: Any) -> Any:
+        return self._call("resolve_rendered_request", *args)
+
+    def resolve_frozen_version_tuple(self, *args: Any) -> Any:
+        return self._call("resolve_frozen_version_tuple", *args)
+
+    def resolve_call_tool_version(self, *args: Any) -> Any:
+        return self._call("resolve_call_tool_version", *args)
+
+    def revalidate(self) -> None:
+        for (method, args), expected in self._calls.items():
+            current = (
+                self._delegate.verification_policy_registry
+                if method == "verification_policy_registry"
+                else getattr(self._delegate, method)(*args)
+            )
+            if current != expected:
+                raise Conflict("legacy replay authority changed before atomic admission")
+
+
+class _RecordingLegacyDecisionRepository:
+    """Read-only recorder for retained legacy routing decisions."""
+
+    def __init__(self, delegate: LegacyImportDecisionRepository) -> None:
+        self._delegate = delegate
+        self._decisions: dict[str, Any] = {}
+
+    def put_legacy_import_routing_decision(self, decision: Any) -> Any:
+        del decision
+        raise IntegrityViolation("replay admission cannot mutate legacy routing decisions")
+
+    def get_legacy_import_routing_decision(self, decision_id: str) -> Any:
+        value = self._delegate.get_legacy_import_routing_decision(decision_id)
+        return _AdmissionReplayReader._record_exact(
+            self._decisions,
+            decision_id,
+            value,
+            label="legacy replay routing decision",
+        )
+
+    def revalidate(
+        self,
+        repository: LegacyImportDecisionRepository,
+        *,
+        require_batch: bool,
+    ) -> None:
+        get_many = getattr(repository, "get_legacy_import_routing_decisions_many", None)
+        if callable(get_many):
+            current = get_many(tuple(self._decisions))
+        elif require_batch:
+            raise IntegrityViolation("replay admission UoW lacks batch legacy decision reads")
+        else:
+            current = {
+                decision_id: repository.get_legacy_import_routing_decision(decision_id)
+                for decision_id in self._decisions
+            }
+        for decision_id, expected in self._decisions.items():
+            if current.get(decision_id) != expected:
+                raise Conflict(
+                    "legacy replay routing decision changed before atomic admission",
+                    decision_id=decision_id,
+                )
 
 
 @dataclass(frozen=True, slots=True)
@@ -698,6 +973,34 @@ class _AuthorizationBinding:
     domain_registry: DomainRegistryV1
     resource_domain: DomainScopeValue
     permissions: tuple[Permission, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _ReplayAdmissionContext:
+    """One immutable cassette parse reused throughout a single admission."""
+
+    reader: _AdmissionReplayReader
+    validator: ReplayAdmissionValidator
+    preparation: ReplayAdmissionPreparation
+    legacy_authority: _RecordingLegacyImportAuthority | None
+    legacy_decisions: _RecordingLegacyDecisionRepository | None
+
+    def revalidate(
+        self,
+        transaction: Any,
+        *,
+        explicit_legacy_decisions: LegacyImportDecisionRepository | None,
+        already_checked_artifact_ids: set[str],
+    ) -> None:
+        self.reader.revalidate(
+            transaction,
+            already_checked_artifact_ids=already_checked_artifact_ids,
+        )
+        if self.legacy_decisions is not None and explicit_legacy_decisions is None:
+            repository = getattr(transaction, "cost", None)
+            if repository is None:
+                raise IntegrityViolation("replay admission UoW lacks legacy decision authority")
+            self.legacy_decisions.revalidate(repository, require_batch=True)
 
 
 # The producer ``tool_version`` the run's PRIMARY output Artifact carries. The terminal
@@ -833,9 +1136,36 @@ _BENCH_CASE_RESULT_KINDS: tuple[ArtifactKind, ...] = (
 _MAX_ADMISSION_BLOB_BYTES = (
     MAX_CONFIG_EXPORT_PACKAGE_BYTES + MAX_CONFIG_EXPORT_MANIFEST_BYTES + 16 * 1024 * 1024
 )
-_MAX_PROMPT_PARENT_PRODUCER_LINKS = 1024
 _MAX_FINDING_EVIDENCE_ANCESTRY_NODES = 4096
 _MAX_FINDING_EVIDENCE_ANCESTRY_DEPTH = 64
+_MAX_LEGACY_DOMAIN_LINEAGE_NODES = 1_000
+_MAX_LEGACY_DOMAIN_LINEAGE_EDGES = 10_000
+
+
+@dataclass(slots=True)
+class _LegacyDomainTraversalContext:
+    """One admission-wide budget for legacy domain-lineage fallback."""
+
+    visited_nodes: int = 0
+    visited_edges: int = 0
+
+    def charge_node(self, *, root_artifact_id: str) -> None:
+        self.visited_nodes += 1
+        if self.visited_nodes > _MAX_LEGACY_DOMAIN_LINEAGE_NODES:
+            raise IntegrityViolation(
+                "Artifact legacy domain lineage exceeds the node limit",
+                artifact_id=root_artifact_id,
+                max_nodes=_MAX_LEGACY_DOMAIN_LINEAGE_NODES,
+            )
+
+    def charge_edges(self, count: int, *, root_artifact_id: str) -> None:
+        self.visited_edges += count
+        if self.visited_edges > _MAX_LEGACY_DOMAIN_LINEAGE_EDGES:
+            raise IntegrityViolation(
+                "Artifact legacy domain lineage exceeds the edge limit",
+                artifact_id=root_artifact_id,
+                max_edges=_MAX_LEGACY_DOMAIN_LINEAGE_EDGES,
+            )
 
 
 # ── source-write instruction produced before Run creation ────────────────────
@@ -1218,8 +1548,10 @@ class RunAdmissionEngine:
     ) -> RunAcceptedV1:
         """Admit an ``internal_only`` Run (migrate/DR) via a trusted internal actor."""
 
-        if actor.principal.kind != "system":
-            raise IntegrityViolation("internal-only Run admission requires a trusted system actor")
+        if actor.principal.kind not in {"service", "system"}:
+            raise IntegrityViolation(
+                "internal-only Run admission requires a trusted service or system actor"
+            )
         if not isinstance(params, (ArtifactMigrationPayloadV1, DrDrillPayloadV1)):
             raise IntegrityViolation("internal admission accepts only internal-only Run kinds")
         kind = self._kind_for_params(params)
@@ -1525,7 +1857,7 @@ class RunAdmissionEngine:
         companion_write: Callable[[Any], None] | None = None,
     ) -> RunAcceptedV1:
         definition = self._resolve_definition(kind, creation_mode)
-        catalog, replay_source_kind = self._execution_profile_catalog_for_request(
+        catalog, replay_context = self._execution_profile_catalog_for_request(
             kind=kind,
             llm_execution_mode=llm_execution_mode,
             cassette_artifact_id=cassette_artifact_id,
@@ -1617,7 +1949,11 @@ class RunAdmissionEngine:
                 resolved_profiles=resolved_profiles,
                 catalog=catalog,
             )
-            if replay_source_kind == "legacy_import":
+            if (
+                replay_context is not None
+                and replay_context.preparation.execution_profile_authority.source_kind
+                == "legacy_import"
+            ):
                 LegacyExecutionVersionPlanAuthorityValidator(read.routing).validate(
                     execution_version_plan,
                     expected_graph=execution_graph,
@@ -1723,8 +2059,8 @@ class RunAdmissionEngine:
             kind=kind,
             payload=payload,
             authorization=authorization,
-            read=read,
             actor=actor,
+            replay_context=replay_context,
         )
 
         carrier = dispatch_trace_carrier
@@ -1769,11 +2105,10 @@ class RunAdmissionEngine:
                 actor=actor,
                 authorization=authorization,
                 artifacts=artifacts,
-                kind=kind,
-                payload=payload,
                 params=params,
                 subject_item=permission_item,
                 source_writes=source_writes,
+                replay_context=replay_context,
             ),
         )
         run_id = result.run.run_id
@@ -2343,89 +2678,145 @@ class RunAdmissionEngine:
         if not runtime_parent_ids:
             return
         runs = read.runs
-        reverse = getattr(runs, "list_prompt_render_links_by_artifact_id", None)
         list_for_run = getattr(runs, "list_prompt_render_links", None)
         get_link = getattr(runs, "get_intermediate_link", None)
-        if runs is None or not all(callable(item) for item in (reverse, list_for_run, get_link)):
+        if runs is None or not all(callable(item) for item in (list_for_run, get_link)):
             raise DependencyUnavailable(
                 "supporting evidence prompt-link authority is unavailable",
                 component="supporting_evidence_prompt_lineage",
             )
 
-        candidate_run_ids: set[str] | None = None
+        producer_run_ids: set[str] = set()
+        exact_links: list[RunIntermediateArtifactLinkV1] = []
         for prompt_id in sorted(runtime_parent_ids):
-            links = reverse(prompt_id, limit=_MAX_PROMPT_PARENT_PRODUCER_LINKS)
-            if not links:
-                raise Conflict("supporting evidence has an unretained prompt parent")
-            linked_runs: set[str] = set()
-            for link in links:
-                if (
-                    link.artifact_id != prompt_id
-                    or link.role != "prompt_rendered"
-                    or get_link(
-                        link.run_id,
-                        link.attempt_no,
-                        link.call_ordinal,
-                        link.route_ordinal,
-                    )
-                    != link
-                ):
-                    raise IntegrityViolation(
-                        "prompt reverse lookup differs from its exact intermediate link"
-                    )
-                linked_runs.add(link.run_id)
-            candidate_run_ids = (
-                linked_runs
-                if candidate_run_ids is None
-                else candidate_run_ids.intersection(linked_runs)
-            )
-        if not candidate_run_ids:
-            raise Conflict("supporting evidence prompt parents do not share one producer Run")
-
-        for run_id in sorted(candidate_run_ids):
-            run = runs.get(run_id)
+            prompt = read.artifacts.get(prompt_id)
+            if not isinstance(prompt, ArtifactV2) or prompt.kind != "source_rendered":
+                raise IntegrityViolation(
+                    "supporting prompt Artifact disappeared after lineage validation",
+                    prompt_artifact_id=prompt_id,
+                )
+            producer_run_id = prompt.meta.get("producer_run_id")
+            producer_attempt_no = prompt.meta.get("producer_attempt_no")
+            logical_call_ordinal = prompt.meta.get("logical_call_ordinal")
+            route_ordinal = prompt.meta.get("route_ordinal")
+            ordinals = (producer_attempt_no, logical_call_ordinal, route_ordinal)
             if (
-                not isinstance(run, RunRecord)
-                or run.status != "succeeded"
-                or run.kind != expected_kind
-                or run.result_artifact_id is None
-                or not params_match(run.payload.params)
-                or (run_match is not None and not run_match(run))
-            ):
-                continue
-            producer_links = tuple(list_for_run(run_id, attempt_no=None))
-            if {link.artifact_id for link in producer_links} != runtime_parent_ids:
-                continue
-            if any(
-                get_link(link.run_id, link.attempt_no, link.call_ordinal) != link
-                for link in producer_links
+                not isinstance(producer_run_id, str)
+                or not producer_run_id
+                or any(
+                    isinstance(value, bool) or not isinstance(value, int) or value < 1
+                    for value in ordinals
+                )
             ):
                 raise IntegrityViolation(
-                    "producer Run prompt projection differs from retained links"
+                    "source_rendered producer identity metadata is invalid",
+                    prompt_artifact_id=prompt_id,
                 )
-            result_artifact = read.artifacts.get(run.result_artifact_id)
-            if not isinstance(result_artifact, ArtifactV2) or result_artifact.kind != "run_result":
-                raise IntegrityViolation("supporting evidence producer has no exact RunResult")
-            result = self._load_json_artifact(
-                result_artifact,
-                read=read,
-                payload_schema_id="run-result@1",
-                model=RunResultV1,
+            assert isinstance(producer_attempt_no, int)
+            assert isinstance(logical_call_ordinal, int)
+            assert isinstance(route_ordinal, int)
+            link = get_link(
+                producer_run_id,
+                producer_attempt_no,
+                logical_call_ordinal,
+                route_ordinal,
             )
             if (
-                isinstance(result, RunResultV1)
-                and result.run_id == run.run_id
-                and result.run_kind == run.kind
-                and result.attempt_no == run.current_attempt_no
-                and result.primary_artifact_id == artifact.artifact_id
-                and artifact.artifact_id in result.produced_artifact_ids
-                and artifact.artifact_id in result_artifact.lineage
-                and result.version_projection.run_payload_hash == run.payload_hash
-                and result.version_projection.terminal_version_tuple == artifact.version_tuple
-                and result_artifact.version_tuple == artifact.version_tuple
+                not isinstance(link, RunIntermediateArtifactLinkV1)
+                or link.run_id != producer_run_id
+                or link.attempt_no != producer_attempt_no
+                or link.call_ordinal != logical_call_ordinal
+                or link.route_ordinal != route_ordinal
+                or link.artifact_id != prompt_id
+                or link.role != "prompt_rendered"
             ):
-                return
-        raise Conflict("supporting evidence prompt lineage has no exact producer Run")
+                raise Conflict(
+                    "supporting evidence has an unretained prompt parent; "
+                    "source_rendered producer identity has no exact prompt link",
+                    prompt_artifact_id=prompt_id,
+                )
+            producer_run_ids.add(producer_run_id)
+            exact_links.append(link)
+        if len(producer_run_ids) != 1:
+            raise Conflict("supporting evidence prompt parents do not share one producer Run")
+
+        run_id = next(iter(producer_run_ids))
+        run = runs.get(run_id)
+        if (
+            not isinstance(run, RunRecord)
+            or run.status != "succeeded"
+            or run.kind != expected_kind
+            or run.result_artifact_id is None
+            or not params_match(run.payload.params)
+            or (run_match is not None and not run_match(run))
+        ):
+            raise Conflict("supporting evidence prompt lineage has no exact producer Run")
+
+        producer_links = tuple(list_for_run(run_id, attempt_no=None))
+        if not all(isinstance(link, RunIntermediateArtifactLinkV1) for link in producer_links):
+            raise IntegrityViolation("producer Run prompt projection contains an invalid link")
+        expected_link_projection = {
+            (link.run_id, link.attempt_no, link.call_ordinal, link.route_ordinal, link.artifact_id)
+            for link in exact_links
+        }
+        retained_link_projection = {
+            (link.run_id, link.attempt_no, link.call_ordinal, link.route_ordinal, link.artifact_id)
+            for link in producer_links
+        }
+        if retained_link_projection != expected_link_projection:
+            raise Conflict("supporting evidence omits or adds producer Run prompt lineage")
+        if any(
+            get_link(
+                link.run_id,
+                link.attempt_no,
+                link.call_ordinal,
+                link.route_ordinal,
+            )
+            != link
+            for link in producer_links
+        ):
+            raise IntegrityViolation("producer Run prompt projection differs from retained links")
+
+        result_artifact = read.artifacts.get(run.result_artifact_id)
+        if not isinstance(result_artifact, ArtifactV2) or result_artifact.kind != "run_result":
+            raise IntegrityViolation("supporting evidence producer has no exact RunResult")
+        result = self._load_json_artifact(
+            result_artifact,
+            read=read,
+            payload_schema_id="run-result@1",
+            model=RunResultV1,
+        )
+        if not isinstance(result, RunResultV1):
+            raise IntegrityViolation("supporting evidence producer RunResult is invalid")
+        projection = result.version_projection
+        projected_parent_ids = {parent.artifact_id for parent in projection.parents}
+        prompt_parent_ids = {
+            parent.artifact_id for parent in projection.parents if parent.role == "intermediate"
+        }
+        output_parent_ids = {
+            parent.artifact_id for parent in projection.parents if parent.role == "output"
+        }
+        # The payload hash/frozen tuple close params, resolved policies, tool/model
+        # plan, and replay cassette authority; the terminal tuple plus exact parent
+        # projection close the supporting Artifact version and complete lineage.
+        if (
+            result.run_id != run.run_id
+            or result.run_kind != run.kind
+            or result.attempt_no != run.current_attempt_no
+            or result.primary_artifact_id != artifact.artifact_id
+            or artifact.artifact_id not in result.produced_artifact_ids
+            or projection.manifest_scope != "run"
+            or projection.attempt_no != run.current_attempt_no
+            or projection.run_kind != run.kind
+            or not compare_digest(projection.run_payload_hash, run.payload_hash)
+            or projection.frozen_input_version_tuple != run.payload.version_tuple
+            or projection.terminal_version_tuple != artifact.version_tuple
+            or result_artifact.version_tuple != projection.terminal_version_tuple
+            or projected_parent_ids != set(result_artifact.lineage)
+            or not runtime_parent_ids.issubset(prompt_parent_ids)
+            or artifact.artifact_id not in output_parent_ids
+        ):
+            raise Conflict("supporting evidence prompt lineage has no exact producer Run")
 
     def _load_repair_subject(
         self,
@@ -2767,7 +3158,7 @@ class RunAdmissionEngine:
         read: AdmissionReadPort,
     ) -> tuple[
         ExecutionProfileCatalogSnapshotV1,
-        Literal["native", "legacy_import"] | None,
+        _ReplayAdmissionContext | None,
     ]:
         """Select current authority, except when REPLAY freezes historical authority.
 
@@ -2790,14 +3181,28 @@ class RunAdmissionEngine:
                 "replay admission retained authorities are unavailable",
                 component="replay_admission",
             )
-        replay_authority = ReplayAdmissionValidator(
-            _AdmissionReplayReader(read=read, objects=self._objects),
-            legacy_authority=self._legacy_import_authority,
-            legacy_decisions=self._legacy_import_decisions or read.routing,
-        ).resolve_execution_profile_authority(
+        replay_reader = _AdmissionReplayReader(read=read, objects=self._objects)
+        legacy_authority = (
+            None
+            if self._legacy_import_authority is None
+            else _RecordingLegacyImportAuthority(self._legacy_import_authority)
+        )
+        legacy_decision_delegate = self._legacy_import_decisions or read.routing
+        legacy_decisions = (
+            None
+            if legacy_decision_delegate is None
+            else _RecordingLegacyDecisionRepository(legacy_decision_delegate)
+        )
+        validator = ReplayAdmissionValidator(
+            replay_reader,
+            legacy_authority=legacy_authority,
+            legacy_decisions=legacy_decisions,
+        )
+        preparation = validator.prepare(
             kind=kind,
             cassette_artifact_id=cassette_artifact_id,
         )
+        replay_authority = preparation.execution_profile_authority
         catalog = read.policies.get_execution_profile_catalog(
             catalog_version=replay_authority.catalog_version,
             catalog_digest=replay_authority.catalog_digest,
@@ -2807,7 +3212,13 @@ class RunAdmissionEngine:
                 "replay execution-profile catalog history is unavailable",
                 catalog_version=replay_authority.catalog_version,
             )
-        return catalog, replay_authority.source_kind
+        return catalog, _ReplayAdmissionContext(
+            reader=replay_reader,
+            validator=validator,
+            preparation=preparation,
+            legacy_authority=legacy_authority,
+            legacy_decisions=legacy_decisions,
+        )
 
     def _resolve_profiles(
         self,
@@ -3386,21 +3797,31 @@ class RunAdmissionEngine:
         kind: RunKindRef,
         payload: RunPayloadEnvelope,
         authorization: _AuthorizationBinding,
-        read: AdmissionReadPort,
         actor: ActorContext,
+        replay_context: _ReplayAdmissionContext | None,
     ) -> _AuthorizationBinding:
         if payload.llm_execution_mode != "replay":
             return authorization
-        if read.runs is None or read.object_bindings is None:
-            raise DependencyUnavailable(
-                "replay admission retained authorities are unavailable",
-                component="replay_admission",
+        if replay_context is None:
+            raise IntegrityViolation("replay admission lacks its exact prepared cassette authority")
+        proof = replay_context.validator.validate(
+            kind=kind,
+            payload=payload,
+            preparation=replay_context.preparation,
+        )
+        # Injected legacy facades are immutable/content-bound process authorities,
+        # not transaction rows. Recheck them here so the SQLite writer is never held
+        # while defensive-copying an arbitrarily large imported authority set.
+        if replay_context.legacy_authority is not None:
+            replay_context.legacy_authority.revalidate()
+        if (
+            replay_context.legacy_decisions is not None
+            and self._legacy_import_decisions is not None
+        ):
+            replay_context.legacy_decisions.revalidate(
+                self._legacy_import_decisions,
+                require_batch=False,
             )
-        proof = ReplayAdmissionValidator(
-            _AdmissionReplayReader(read=read, objects=self._objects),
-            legacy_authority=self._legacy_import_authority,
-            legacy_decisions=self._legacy_import_decisions or read.routing,
-        ).validate(kind=kind, payload=payload)
         replay_permission = proof.required_permission(authorization.resource_domain)
         if (
             authorize(
@@ -3464,6 +3885,7 @@ class RunAdmissionEngine:
         if base.domain_scope != "all":
             return base.domain_scope
         memo: dict[str, DomainScope] = {}
+        traversal = _LegacyDomainTraversalContext()
 
         def scope_for(artifact_id: str) -> DomainScope:
             return self._artifact_domain_scope(
@@ -3472,6 +3894,7 @@ class RunAdmissionEngine:
                 registry=registry,
                 memo=memo,
                 visiting=set(),
+                traversal=traversal,
             )
 
         if isinstance(
@@ -3497,6 +3920,7 @@ class RunAdmissionEngine:
                     registry=registry,
                     memo=memo,
                     visiting=set(),
+                    traversal=traversal,
                 )
                 self._require_scope_subset(
                     actual_scope,
@@ -3574,6 +3998,7 @@ class RunAdmissionEngine:
                         registry=registry,
                         memo=memo,
                         visiting=set(),
+                        traversal=traversal,
                     )
                     for artifact_id in (
                         params.source_preview_artifact_id,
@@ -3606,6 +4031,7 @@ class RunAdmissionEngine:
                 registry=registry,
                 memo=memo,
                 visiting=set(),
+                traversal=traversal,
             )
             for artifact_id in (
                 params.benchmark_spec_artifact_id,
@@ -3617,6 +4043,7 @@ class RunAdmissionEngine:
                     registry=registry,
                     memo=memo,
                     visiting=set(),
+                    traversal=traversal,
                 )
                 self._require_scope_subset(scope, dataset_scope, label="bench input")
             return dataset_scope
@@ -3628,6 +4055,7 @@ class RunAdmissionEngine:
                 registry=registry,
                 memo=memo,
                 visiting=set(),
+                traversal=traversal,
             )
         raise IntegrityViolation("Run kind has no resource-domain resolver implementation")
 
@@ -3639,7 +4067,9 @@ class RunAdmissionEngine:
         registry: DomainRegistryV1,
         memo: dict[str, DomainScope],
         visiting: set[str],
+        traversal: _LegacyDomainTraversalContext | None = None,
     ) -> DomainScope:
+        traversal = traversal or _LegacyDomainTraversalContext()
         root_id = artifact.artifact_id
         retained = memo.get(root_id)
         if retained is not None:
@@ -3661,10 +4091,25 @@ class RunAdmissionEngine:
                     if current_id in visiting:
                         raise IntegrityViolation("Artifact domain lineage contains a cycle")
                     visiting.add(current_id)
-                    declared_scopes[current_id] = self._declared_artifact_domain_scope(
+                    declared = self._declared_artifact_domain_scope(
                         current,
                         read=read,
                         registry=registry,
+                    )
+                    declared_scopes[current_id] = declared
+                    # Modern publishers bind the authoritative scope on the Artifact
+                    # itself (either canonical metadata or a typed payload). Lineage
+                    # is provenance, not an authorization delegation chain, so only
+                    # legacy unscoped Artifacts need ancestry fallback.
+                    if declared is not None:
+                        memo[current_id] = declared
+                        visiting.remove(current_id)
+                        continue
+
+                    traversal.charge_node(root_artifact_id=root_id)
+                    traversal.charge_edges(
+                        len(current.lineage),
+                        root_artifact_id=root_id,
                     )
                     parents: list[ArtifactV2] = []
                     for parent_id in current.lineage:
@@ -3699,19 +4144,17 @@ class RunAdmissionEngine:
                 parent_scopes = tuple(memo[parent.artifact_id] for parent in parents)
                 lineage_scope = self._union_domain_scopes(parent_scopes) if parent_scopes else None
                 resolved = declared_scopes[current_id]
-                if resolved is None:
-                    if lineage_scope is None:
-                        raise IntegrityViolation(
-                            "Artifact has no authoritative resource-domain binding",
-                            artifact_id=current_id,
-                        )
-                    resolved = lineage_scope
-                elif lineage_scope is not None:
-                    self._require_scope_subset(
-                        resolved,
-                        lineage_scope,
-                        label="Artifact lineage authority",
+                if resolved is not None:  # modern scoped leaves never reach expansion
+                    raise IntegrityViolation(
+                        "Artifact domain lineage traversal expanded a scoped leaf",
+                        artifact_id=current_id,
                     )
+                if lineage_scope is None:
+                    raise IntegrityViolation(
+                        "Artifact has no authoritative resource-domain binding",
+                        artifact_id=current_id,
+                    )
+                resolved = lineage_scope
                 memo[current_id] = resolved
                 visiting.remove(current_id)
         finally:
@@ -3828,19 +4271,35 @@ class RunAdmissionEngine:
         actor: ActorContext,
         authorization: _AuthorizationBinding,
         artifacts: dict[str, ArtifactV2],
-        kind: RunKindRef,
-        payload: RunPayloadEnvelope,
         params: RunKindPayload,
         subject_item: ApprovalItem | None,
         source_writes: tuple[_SourceWrite, ...],
+        replay_context: _ReplayAdmissionContext | None,
     ) -> Callable[[Any], None]:
         expected = self._expected_refs(params)
         pending_ids = {write.minted.artifact.artifact_id for write in source_writes}
 
         def guard(transaction: Any) -> None:
             current_principal = self._current_principal(transaction, actor)
-            if current_principal is None or current_principal != actor.principal:
+            expected_security_projection = (
+                actor.principal.id,
+                actor.principal.kind,
+                actor.principal.credential_epoch,
+                actor.principal.status == "active",
+            )
+            current_security_projection = (
+                None
+                if not isinstance(current_principal, Principal)
+                else (
+                    current_principal.id,
+                    current_principal.kind,
+                    current_principal.credential_epoch,
+                    current_principal.status == "active",
+                )
+            )
+            if current_security_projection != expected_security_projection:
                 raise Forbidden("authenticated principal changed before atomic Run admission")
+            assert isinstance(current_principal, Principal)
             policies = getattr(transaction, "policies", None)
             if policies is None:
                 raise IntegrityViolation("Run admission UoW has no policy authority")
@@ -3873,25 +4332,41 @@ class RunAdmissionEngine:
             object_bindings = getattr(transaction, "object_bindings", None)
             if artifact_repository is None or object_bindings is None:
                 raise IntegrityViolation("Run admission UoW lacks Artifact authorities")
-            for artifact_id, artifact in artifacts.items():
-                if artifact_id in pending_ids:
-                    continue
-                if artifact_repository.get(artifact_id) != artifact:
+            get_artifacts = getattr(artifact_repository, "get_many", None)
+            resolve_bindings = getattr(object_bindings, "resolve_many", None)
+            if not callable(get_artifacts) or not callable(resolve_bindings):
+                raise IntegrityViolation("Run admission UoW lacks batch Artifact authorities")
+            checked_artifacts = {
+                artifact_id: artifact
+                for artifact_id, artifact in artifacts.items()
+                if artifact_id not in pending_ids
+            }
+            current_artifacts = get_artifacts(tuple(checked_artifacts))
+            current_bindings = resolve_bindings(
+                tuple(artifact.object_ref for artifact in checked_artifacts.values())
+            )
+            for artifact_id, artifact in checked_artifacts.items():
+                if current_artifacts.get(artifact_id) != artifact:
                     raise Conflict(
                         "Run input Artifact changed before atomic admission",
                         artifact_id=artifact_id,
                     )
-                try:
-                    binding = object_bindings.resolve(artifact.object_ref)
-                except FileNotFoundError as exc:
+                binding = current_bindings.get(artifact.object_ref.key)
+                if binding is None:
                     raise Conflict(
                         "Run input Artifact lost its active ObjectBinding",
                         artifact_id=artifact_id,
-                    ) from exc
+                    )
                 if binding.object_ref != artifact.object_ref or binding.status != "active":
                     raise IntegrityViolation(
                         "Run input ObjectBinding differs from the exact Artifact"
                     )
+            if replay_context is not None:
+                replay_context.revalidate(
+                    transaction,
+                    explicit_legacy_decisions=self._legacy_import_decisions,
+                    already_checked_artifact_ids=set(checked_artifacts),
+                )
             if expected:
                 refs = getattr(transaction, "refs", None)
                 if refs is None:
@@ -3938,29 +4413,6 @@ class RunAdmissionEngine:
                     )
                 ):
                     raise Conflict("workflow subject changed during atomic admission")
-            if payload.llm_execution_mode == "replay":
-                runs = getattr(transaction, "runs", None)
-                routing = getattr(transaction, "cost", None)
-                if runs is None or routing is None:
-                    raise IntegrityViolation(
-                        "replay admission UoW lacks retained execution authorities"
-                    )
-                ReplayAdmissionValidator(
-                    _AdmissionReplayReader(
-                        read=AdmissionReadPort(
-                            policies=policies,
-                            approvals=getattr(transaction, "approvals", None),
-                            artifacts=artifact_repository,
-                            refs=getattr(transaction, "refs", None),
-                            object_bindings=object_bindings,
-                            runs=runs,
-                            routing=routing,
-                        ),
-                        objects=self._objects,
-                    ),
-                    legacy_authority=self._legacy_import_authority,
-                    legacy_decisions=self._legacy_import_decisions or routing,
-                ).validate(kind=kind, payload=payload)
             if source_writes:
                 capabilities = self._source_capabilities(transaction)
                 for write in source_writes:

@@ -117,11 +117,13 @@ class MemoryReplayReader:
     model_consumptions: dict[tuple[str, int, int, int], RunModelResponseConsumptionV1] = field(
         default_factory=dict
     )
+    blob_read_counts: dict[str, int] = field(default_factory=dict)
 
     def get_artifact(self, artifact_id: str) -> ArtifactV2 | None:
         return self.artifacts.get(artifact_id)
 
     def read_artifact_bytes(self, artifact_id: str) -> bytes:
+        self.blob_read_counts[artifact_id] = self.blob_read_counts.get(artifact_id, 0) + 1
         return self.blobs[artifact_id]
 
     def get_run(self, run_id: str) -> RunRecord | None:
@@ -1518,6 +1520,72 @@ def test_native_replay_closes_terminal_source_and_returns_permission_hook() -> N
     assert permission.action == "replay"
     assert permission.resource_kind == "run"
     assert permission.domain_scope == DomainScope(domain_ids=("economy",))
+
+
+def test_replay_preparation_reuses_the_exact_tree_for_full_validation() -> None:
+    fixture = _native_fixture()
+
+    preparation = fixture.validator.prepare(
+        kind=fixture.source.kind,
+        cassette_artifact_id=fixture.root.artifact_id,
+    )
+    assert fixture.reader.blob_read_counts[fixture.root.artifact_id] == 1
+    assert fixture.reader.blob_read_counts[fixture.attempt.artifact_id] == 1
+
+    proof = fixture.validator.validate(
+        kind=fixture.source.kind,
+        payload=fixture.replay_payload,
+        preparation=preparation,
+    )
+
+    assert proof.source_run_id == fixture.source.run_id
+    assert fixture.reader.blob_read_counts[fixture.root.artifact_id] == 1
+    assert fixture.reader.blob_read_counts[fixture.attempt.artifact_id] == 1
+
+
+def test_replay_preparation_is_opaque_and_bound_to_its_issuing_validator() -> None:
+    fixture = _native_fixture()
+    preparation = fixture.validator.prepare(
+        kind=fixture.source.kind,
+        cassette_artifact_id=fixture.root.artifact_id,
+    )
+
+    with pytest.raises(IntegrityViolation, match="issuing validator"):
+        ReplayAdmissionValidator(fixture.reader).validate(
+            kind=fixture.source.kind,
+            payload=fixture.replay_payload,
+            preparation=preparation,
+        )
+
+
+def test_replay_preparation_registry_is_one_shot_and_convenience_reads_do_not_retain() -> None:
+    fixture = _native_fixture()
+
+    for _ in range(3):
+        fixture.validator.resolve_execution_profile_authority(
+            kind=fixture.source.kind,
+            cassette_artifact_id=fixture.root.artifact_id,
+        )
+    assert fixture.validator._prepared_trees == {}  # noqa: SLF001 - leak regression
+
+    preparation = fixture.validator.prepare(
+        kind=fixture.source.kind,
+        cassette_artifact_id=fixture.root.artifact_id,
+    )
+    assert len(fixture.validator._prepared_trees) == 1  # noqa: SLF001
+    fixture.validator.validate(
+        kind=fixture.source.kind,
+        payload=fixture.replay_payload,
+        preparation=preparation,
+    )
+    assert fixture.validator._prepared_trees == {}  # noqa: SLF001
+
+    with pytest.raises(IntegrityViolation, match="issuing validator"):
+        fixture.validator.validate(
+            kind=fixture.source.kind,
+            payload=fixture.replay_payload,
+            preparation=preparation,
+        )
 
 
 @pytest.mark.parametrize("status", ["failed", "cancelled", "timed_out"])
