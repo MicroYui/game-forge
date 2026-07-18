@@ -62,7 +62,7 @@ from gameforge.contracts.jobs import (
     PreparedRunOutcome,
     RunRecord,
 )
-from gameforge.contracts.lineage import ArtifactV2, VersionTuple
+from gameforge.contracts.lineage import ArtifactV2, ExecutionIdentityV1, VersionTuple
 from gameforge.contracts.playtest import PlaytestEpisodeTraceV1, PlaytestTraceV1
 from gameforge.contracts.review import ReviewReport
 from gameforge.contracts.workflow import (
@@ -84,6 +84,7 @@ from gameforge.spine.sim.economy import EconomyModel, EconomySimulator, to_findi
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     FindingEvidence,
     PreparedArtifactStore,
@@ -93,8 +94,10 @@ from gameforge.platform.run_handlers.base import (
     prepared_version_tuple,
     rebind_embedded_finding_payload,
     rebind_finding_producers,
+    require_exact_profile_bindings,
     resolved_profile,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.readers import (
     ConstraintLoader,
@@ -162,6 +165,8 @@ _AUTO_ELIGIBLE_CODE = "patch_validation_auto_eligible"
 def _exact_patch_validation_profile_bindings(
     context: ExecutorContextLike,
     payload: PatchValidationPayloadV1,
+    *,
+    validator: ExactProfileBindingValidator,
 ) -> dict[str, ResolvedExecutionProfileBindingV1]:
     expected = {
         VALIDATION_POLICY_FIELD: (payload.validation_policy, "validation"),
@@ -174,22 +179,11 @@ def _exact_patch_validation_profile_bindings(
             for index, profile in enumerate(payload.simulation_profiles)
         },
     }
-    actual = {binding.field_path: binding for binding in context.payload.resolved_profiles}
-    if len(actual) != len(context.payload.resolved_profiles) or set(actual) != set(expected):
-        raise IntegrityViolation(
-            "patch validation lacks its complete exact execution profile closure"
-        )
-    catalogs = {(binding.catalog_version, binding.catalog_digest) for binding in actual.values()}
-    if len(catalogs) != 1:
-        raise IntegrityViolation("patch validation profiles come from different exact catalogs")
-    for field_path, (profile, expected_kind) in expected.items():
-        binding = actual[field_path]
-        if binding.profile != profile or binding.expected_profile_kind != expected_kind:
-            raise IntegrityViolation(
-                "patch validation profile binding differs from its admitted params",
-                field_path=field_path,
-            )
-    return actual
+    return require_exact_profile_bindings(
+        context,
+        expected=expected,
+        validator=validator,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -380,12 +374,17 @@ class PatchValidationHandler:
     snapshot_loader: SnapshotLoader = load_snapshot
     constraint_loader: ConstraintLoader = load_constraints
     nav_loader: NavLoader = load_nav
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, PatchValidationPayloadV1):
             raise TypeError("patch_validator@1 requires a patch-validation@1 payload")
-        profile_bindings = _exact_patch_validation_profile_bindings(context, payload)
+        profile_bindings = _exact_patch_validation_profile_bindings(
+            context,
+            payload,
+            validator=self.profile_binding_validator,
+        )
 
         preview = self.snapshot_loader(self.blobs, payload.preview_snapshot_artifact_id)
         nav = self.nav_loader(self.blobs, payload.preview_snapshot_artifact_id)
@@ -1391,20 +1390,8 @@ class PatchValidationHandler:
         try:
             artifact_id = binding.evidence_artifact_id
             blob = self.blobs.read_bytes(artifact_id)
-            inspector = self.artifact_inspector
-            load_artifact = (
-                inspector.load_artifact
-                if inspector is not None
-                else getattr(self.blobs, "load_artifact", None)
-            )
-            if not callable(load_artifact):
-                return frozenset()
-            artifact = load_artifact(artifact_id)
-            if (
-                not isinstance(artifact, ArtifactV2)
-                or artifact.artifact_id != artifact_id
-                or artifact.payload_hash != sha256_lowerhex(blob)
-            ):
+            artifact = self._load_exact_artifact_envelope(artifact_id, blob=blob)
+            if artifact is None:
                 return frozenset()
             schema_id = artifact.meta.get("payload_schema_id")
             expected_kind = {
@@ -1430,10 +1417,53 @@ class PatchValidationHandler:
                     artifact=artifact,
                 )
             if schema_id == "playtest-trace@1":
-                return _historical_playtest_coverage(payload, finding)
+                return _historical_playtest_coverage(
+                    payload,
+                    finding,
+                    artifact=artifact,
+                )
         except (IntegrityViolation, KeyError, TypeError, ValueError):
             return frozenset()
         return frozenset()
+
+    def _load_exact_artifact_envelope(
+        self,
+        artifact_id: str,
+        *,
+        blob: bytes,
+    ) -> ArtifactV2 | None:
+        """Load one content-addressed envelope without trusting payload identity."""
+
+        inspector = self.artifact_inspector
+        load_artifact = (
+            inspector.load_artifact
+            if inspector is not None
+            else getattr(self.blobs, "load_artifact", None)
+        )
+        if not callable(load_artifact):
+            return None
+        try:
+            artifact = load_artifact(artifact_id)
+        except (IntegrityViolation, KeyError, TypeError, ValueError):
+            return None
+        if not isinstance(artifact, ArtifactV2):
+            return None
+        try:
+            # Re-parse the returned model instead of trusting an implementation
+            # that may have used ``model_construct``/unchecked ``model_copy``.
+            # This rechecks Artifact ID, ObjectRef, reserved identity metadata and
+            # VersionTuple↔ExecutionIdentity projection equality.
+            artifact = ArtifactV2.model_validate(artifact.model_dump(mode="python"))
+        except ValueError:
+            return None
+        if (
+            artifact.artifact_id != artifact_id
+            or artifact.payload_hash != sha256_lowerhex(blob)
+            or artifact.object_ref.sha256 != artifact.payload_hash
+            or artifact.object_ref.size_bytes != len(blob)
+        ):
+            return None
+        return artifact
 
     def _verify_target_finding_closure(self, payload: PatchValidationPayloadV1) -> None:
         """Require target bindings to exactly cover selected evidence links.
@@ -1541,10 +1571,11 @@ class PatchValidationHandler:
     ]:
         detail: dict[str, object] = {"source_artifact_id": artifact_id}
         try:
+            blob = self.blobs.read_bytes(artifact_id)
             trace = PlaytestTraceV1.model_validate(
                 decode_and_validate_artifact_payload(
                     payload_schema_id="playtest-trace@1",
-                    blob=self.blobs.read_bytes(artifact_id),
+                    blob=blob,
                 )
             )
         except (IntegrityViolation, KeyError, TypeError, ValueError):
@@ -1570,12 +1601,26 @@ class PatchValidationHandler:
             and trace.env_contract_version != evidence_tuple.env_contract_version
         ):
             return "unproven", "playtest_environment_binding_mismatch", detail, ()
-        coverage = tuple(
-            sorted(
-                f"playtest:binding:{_playtest_execution_binding(trace, episode)}"
-                for episode in trace.episodes
+        artifact = self._load_exact_artifact_envelope(artifact_id, blob=blob)
+        if (
+            artifact is None
+            or artifact.kind != "playtest_trace"
+            or artifact.meta.get("payload_schema_id") != "playtest-trace@1"
+        ):
+            return "unproven", "playtest_execution_authority_unavailable", detail, ()
+        bindings = tuple(
+            _playtest_execution_binding(
+                trace,
+                episode,
+                artifact=artifact,
+                expected_ir_snapshot_id=evidence_tuple.ir_snapshot_id,
+                expected_constraint_snapshot_id=evidence_tuple.constraint_snapshot_id,
             )
+            for episode in trace.episodes
         )
+        if any(binding is None for binding in bindings):
+            return "unproven", "playtest_execution_authority_unavailable", detail, ()
+        coverage = tuple(sorted(f"playtest:binding:{binding}" for binding in bindings))
         if len(completed) != len(trace.episodes):
             return "failed", "playtest_completion_oracle_failed", detail, coverage
         return "passed", None, detail, coverage
@@ -2562,6 +2607,8 @@ def _regression_snapshot_id(payload: Mapping[str, object]) -> str | None:
 def _historical_playtest_coverage(
     payload: Mapping[str, object],
     finding: Finding,
+    *,
+    artifact: ArtifactV2,
 ) -> frozenset[str]:
     if finding.source != "playtest" or finding.oracle_type != "deterministic":
         return frozenset()
@@ -2580,32 +2627,160 @@ def _historical_playtest_coverage(
     )
     if episode is None:
         return frozenset()
-    return frozenset((f"playtest:binding:{_playtest_execution_binding(trace, episode)}",))
+    binding = _playtest_execution_binding(
+        trace,
+        episode,
+        artifact=artifact,
+        expected_ir_snapshot_id=finding.snapshot_id,
+    )
+    if binding is None:
+        return frozenset()
+    return frozenset((f"playtest:binding:{binding}",))
 
 
 def _playtest_execution_binding(
     trace: PlaytestTraceV1,
     episode: PlaytestEpisodeTraceV1,
-) -> str:
-    """Fingerprint replay authority while excluding expected result changes."""
+    *,
+    artifact: ArtifactV2,
+    expected_ir_snapshot_id: str | None = None,
+    expected_constraint_snapshot_id: str | None = None,
+) -> str | None:
+    """Fingerprint one stable expected-Finding execution variant.
+
+    Candidate config, TaskSuite and ScenarioSpec IDs are content-addressed and
+    therefore *must* change after a real repair.  The suite-derived case ID and
+    child seed change with them too.  Those candidate-local identities are
+    validated against the trace Artifact lineage, but deliberately excluded from
+    the cross-candidate fingerprint.  Producer/profile/oracle/root-seed/bounds and
+    normalized model execution authority remain exact.
+    """
 
     envelope = trace.execution_envelope
+    version_tuple = artifact.version_tuple
+    identity = artifact.meta.get("execution_identity")
+    replayability = artifact.meta.get("replayability")
+    required_lineage = {
+        trace.config_artifact_id,
+        trace.constraint_snapshot_artifact_id,
+        trace.task_suite_artifact_id,
+        *(item.scenario_spec_artifact_id for item in trace.episodes),
+    }
+    if (
+        artifact.kind != "playtest_trace"
+        or artifact.meta.get("payload_schema_id") != "playtest-trace@1"
+        or not required_lineage.issubset(artifact.lineage)
+        or version_tuple.tool_version != PLAYTEST_TOOL_VERSION
+        or version_tuple.ir_snapshot_id is None
+        or version_tuple.constraint_snapshot_id is None
+        or version_tuple.env_contract_version != trace.env_contract_version
+        or version_tuple.seed != trace.seed
+        or (
+            expected_ir_snapshot_id is not None
+            and version_tuple.ir_snapshot_id != expected_ir_snapshot_id
+        )
+        or (
+            expected_constraint_snapshot_id is not None
+            and version_tuple.constraint_snapshot_id != expected_constraint_snapshot_id
+        )
+        or not isinstance(identity, ExecutionIdentityV1)
+        or identity.scope != "artifact"
+        or not identity.bindings
+        or not isinstance(identity.agent_graph_version, str)
+        or not identity.agent_graph_version
+        or version_tuple.prompt_version != identity.prompt_projection.tuple_value
+        or version_tuple.model_snapshot != identity.model_projection.tuple_value
+        or version_tuple.agent_graph_version != identity.agent_graph_version
+        or any(not binding.response_consumed for binding in identity.bindings)
+        or replayability not in {"online_only", "cassette_replay"}
+    ):
+        return None
+
+    logical_call_count = len(
+        {(binding.attempt_no, binding.call_ordinal) for binding in identity.bindings}
+    )
+    if logical_call_count != envelope.actual_model_calls:
+        return None
+
+    execution_sources = tuple(sorted({binding.execution_source for binding in identity.bindings}))
+    routing_decision_kinds = tuple(
+        sorted({binding.routing_decision_kind for binding in identity.bindings})
+    )
+    has_replay_source = "cassette_replay" in execution_sources
+    has_non_replay_source = any(source != "cassette_replay" for source in execution_sources)
+    cassette_id = version_tuple.cassette_id
+    cassette_bound = cassette_id is not None
+    if has_replay_source and has_non_replay_source:
+        return None
+    if replayability == "online_only":
+        if cassette_bound or has_replay_source:
+            return None
+        execution_mode = "live"
+    else:
+        if (
+            not cassette_bound
+            or not isinstance(cassette_id, str)
+            or not cassette_id.startswith("sha256:")
+            or len(cassette_id) != 71
+            or any(character not in "0123456789abcdef" for character in cassette_id[7:])
+        ):
+            return None
+        execution_mode = "replay" if has_replay_source else "record"
+    if execution_mode != "replay" and "legacy_import" in routing_decision_kinds:
+        return None
+
+    prompt_members = tuple(sorted({binding.prompt_version for binding in identity.bindings}))
+    model_members = tuple(sorted({binding.model_snapshot for binding in identity.bindings}))
+    invocation_variants = tuple(
+        {
+            "agent_node_id": agent_node_id,
+            "prompt_version": prompt_version,
+            "model_snapshot": model_snapshot,
+            "tool_version": tool_version,
+            "routing_decision_kind": routing_kind,
+            "execution_source": execution_source,
+        }
+        for (
+            agent_node_id,
+            prompt_version,
+            model_snapshot,
+            tool_version,
+            routing_kind,
+            execution_source,
+        ) in sorted(
+            {
+                (
+                    binding.agent_node_id,
+                    binding.prompt_version,
+                    binding.model_snapshot,
+                    binding.tool_version,
+                    binding.routing_decision_kind,
+                    binding.execution_source,
+                )
+                for binding in identity.bindings
+            }
+        )
+    )
     return canonical_sha256(
         {
-            "binding_schema_version": "playtest-expected-finding-binding@1",
-            "task_suite_artifact_id": trace.task_suite_artifact_id,
+            "binding_schema_version": "playtest-expected-finding-binding@2",
+            "producer_tool_version": version_tuple.tool_version,
+            "producer_env_contract_version": version_tuple.env_contract_version,
+            "producer_constraint_snapshot_id": version_tuple.constraint_snapshot_id,
             "constraint_snapshot_artifact_id": trace.constraint_snapshot_artifact_id,
             "episode_id": episode.episode_id,
-            "scenario_spec_artifact_id": episode.scenario_spec_artifact_id,
             "environment_profile": trace.environment_profile.model_dump(mode="json"),
-            "env_contract_version": trace.env_contract_version,
             "planner_policy": trace.planner_policy.model_dump(mode="json"),
             "planner_profile_payload_hash": envelope.planner_profile_payload_hash,
             "interaction_mode": trace.interaction_mode,
             "planner_memory_mode": trace.planner_memory_mode,
             "root_seed": trace.seed,
-            "episode_seed": episode.seed,
-            "episode_seed_binding": episode.seed_binding.model_dump(mode="json"),
+            "seed_derivation": {
+                "seed_derivation_version": episode.seed_binding.seed_derivation_version,
+                "run_kind": episode.seed_binding.run_kind.model_dump(mode="json"),
+                "profile": episode.seed_binding.profile.model_dump(mode="json"),
+                "replication_index": episode.seed_binding.replication_index,
+            },
             "completion_oracle": episode.completion_oracle.model_dump(mode="json"),
             "requested_max_steps_per_episode": trace.requested_max_steps_per_episode,
             "episode_step_budget": episode.step_budget,
@@ -2614,6 +2789,39 @@ def _playtest_execution_binding(
             "total_step_limit": envelope.total_step_limit,
             "model_call_upper_bound": envelope.model_call_upper_bound,
             "total_trace_byte_upper_bound": envelope.total_trace_byte_upper_bound,
+            "execution_authority": {
+                "identity_schema_version": identity.identity_schema_version,
+                "identity_scope": identity.scope,
+                "agent_graph_version": identity.agent_graph_version,
+                "prompt_projection": {
+                    "mode": (
+                        "not_applicable"
+                        if not prompt_members
+                        else "single"
+                        if len(prompt_members) == 1
+                        else "set"
+                    ),
+                    "members": list(prompt_members),
+                },
+                "model_projection": {
+                    "mode": (
+                        "not_applicable"
+                        if not model_members
+                        else "single"
+                        if len(model_members) == 1
+                        else "set"
+                    ),
+                    "members": list(model_members),
+                },
+                "invocation_variants": list(invocation_variants),
+                "routing_decision_kinds": list(routing_decision_kinds),
+                "execution_sources": list(execution_sources),
+                "execution_mode": execution_mode,
+                "replayability": replayability,
+                # The cassette's content address changes with repaired candidate
+                # requests/responses.  Bind only the required cassette semantics.
+                "cassette_bound": cassette_bound,
+            },
         }
     )
 

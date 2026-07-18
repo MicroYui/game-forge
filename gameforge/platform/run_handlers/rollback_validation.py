@@ -15,9 +15,11 @@ outcome code: ``rollback_validation_passed`` / ``rollback_validation_failed`` /
 The subject's ``RollbackRequestV1`` is parsed off the artifact through the injected
 :class:`RollbackSubjectInspector`; the ``RollbackTargetBindingV1`` is built from the
 payload plus the injected schema analyzer's target inspection (kind / snapshot /
-digest). The verdict is DETERMINISTIC — no LLM (``llm_modes=NA``). A missing
-execution (an unavailable analyzer / unreadable target) is ``unproven`` or
-``failed``, NEVER a pass.
+digest). The verdict is DETERMINISTIC — no LLM (``llm_modes=NA``). An analyzer may
+return an explicit deterministic ``unproven`` result (for example unsupported or
+undecidable input), but dependency, integrity, and implementation faults propagate
+to the worker classifier as execution failures; they are never converted into a
+business verdict.
 """
 
 from __future__ import annotations
@@ -27,11 +29,10 @@ from typing import Literal, Mapping, Protocol
 
 from gameforge.contracts.execution_profiles import (
     MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
-    ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
     RunKindRef,
 )
-from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.jobs import (
     PreparedArtifact,
@@ -49,15 +50,17 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
+    ExactProfileBindingValidator,
     ExecutorContextLike,
     FindingEvidence,
     PreparedArtifactStore,
     build_prepared_findings,
     build_success_result,
     load_json_blob,
-    resolved_profile,
     rebind_finding_producers,
+    require_exact_profile_bindings,
     store_prepared_artifact,
+    trust_typed_profile_binding,
 )
 from gameforge.platform.run_handlers.validation_common import (
     EVIDENCE_SET_SCHEMA_ID,
@@ -240,47 +243,40 @@ class RollbackValidationHandler:
     impact_analyzer: RollbackImpactAnalyzer
     subject_inspector: RollbackSubjectInspector | None = None
     regression_runner: RegressionRunner = UNAVAILABLE_REGRESSION_RUNNER
+    profile_binding_validator: ExactProfileBindingValidator = trust_typed_profile_binding
 
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, RollbackValidationPayloadV1):
             raise TypeError("rollback_validator@1 requires a rollback-validation@1 payload")
 
+        expected_profiles = {
+            ROLLBACK_PROFILE_FIELD: (payload.rollback_profile, "rollback"),
+            SCHEMA_PROFILE_FIELD: (
+                payload.schema_compatibility_policy,
+                "schema_compatibility",
+            ),
+            **{
+                f"{IMPACT_PROFILE_FIELD}/{index}": (profile, "impact_analysis")
+                for index, profile in enumerate(payload.impact_profiles)
+            },
+        }
+        profile_bindings = require_exact_profile_bindings(
+            context,
+            expected=expected_profiles,
+            validator=self.profile_binding_validator,
+        )
+        rollback_profile_binding = profile_bindings[ROLLBACK_PROFILE_FIELD]
+        schema_profile_binding = profile_bindings[SCHEMA_PROFILE_FIELD]
+        impact_profile_bindings = tuple(
+            profile_bindings[f"{IMPACT_PROFILE_FIELD}/{index}"]
+            for index in range(len(payload.impact_profiles))
+        )
+
+        # Exact profile/catalog/lifecycle authority is closed before the subject
+        # blob or any analyzer is allowed to observe the request.
         inspector = self.subject_inspector or _DefaultSubjectInspector(self.blobs)
         request = inspector.inspect(payload.subject.subject_artifact_id)
-        rollback_profile_binding = self._exact_profile_binding(
-            context,
-            field_path=ROLLBACK_PROFILE_FIELD,
-            profile=payload.rollback_profile,
-            expected_kind="rollback",
-        )
-        schema_profile_binding = self._exact_profile_binding(
-            context,
-            field_path=SCHEMA_PROFILE_FIELD,
-            profile=payload.schema_compatibility_policy,
-            expected_kind="schema_compatibility",
-        )
-        impact_profile_bindings = tuple(
-            self._exact_profile_binding(
-                context,
-                field_path=f"{IMPACT_PROFILE_FIELD}/{index}",
-                profile=profile,
-                expected_kind="impact_analysis",
-            )
-            for index, profile in enumerate(payload.impact_profiles)
-        )
-        expected_profile_paths = {
-            ROLLBACK_PROFILE_FIELD,
-            SCHEMA_PROFILE_FIELD,
-            *(f"{IMPACT_PROFILE_FIELD}/{index}" for index in range(len(payload.impact_profiles))),
-        }
-        actual_profile_paths = {item.field_path for item in context.payload.resolved_profiles}
-        if actual_profile_paths != expected_profile_paths:
-            raise IntegrityViolation(
-                "rollback validation resolved profile closure is not exact",
-                expected_paths=tuple(sorted(expected_profile_paths)),
-                actual_paths=tuple(sorted(actual_profile_paths)),
-            )
         root_seed = context.payload.seed
         # Every rollback verdict depends on the subject request, the observed
         # current head, and the selected historical target. Keep that complete
@@ -413,35 +409,6 @@ class RollbackValidationHandler:
         )
 
     @staticmethod
-    def _exact_profile_binding(
-        context: ExecutorContextLike,
-        *,
-        field_path: str,
-        profile: ProfileRefV1,
-        expected_kind: str,
-    ) -> ResolvedExecutionProfileBindingV1:
-        try:
-            binding = resolved_profile(context.payload, field_path)
-        except ValueError as exc:
-            raise IntegrityViolation(
-                "rollback validation execution profile binding is missing",
-                field_path=field_path,
-            ) from exc
-        assert binding is not None
-        if (
-            binding.field_path != field_path
-            or binding.profile != profile
-            or binding.expected_profile_kind != expected_kind
-        ):
-            raise IntegrityViolation(
-                "rollback validation execution profile binding is not exact",
-                field_path=field_path,
-                expected_profile=profile.model_dump(mode="json"),
-                expected_kind=expected_kind,
-            )
-        return binding
-
-    @staticmethod
     def _validate_schema_execution_binding(
         inspection: RollbackTargetInspectionV1,
         *,
@@ -449,13 +416,7 @@ class RollbackValidationHandler:
         rollback_profile_binding: ResolvedExecutionProfileBindingV1,
     ) -> RollbackTargetInspectionV1:
         if inspection.schema_profile_binding is None or inspection.rollback_profile_binding is None:
-            return replace(
-                inspection,
-                status="unproven",
-                reason_code="rollback_schema_execution_unavailable",
-                schema_profile_binding=schema_profile_binding,
-                rollback_profile_binding=rollback_profile_binding,
-            )
+            raise IntegrityViolation("schema analyzer omitted exact execution profile bindings")
         if inspection.schema_profile_binding != schema_profile_binding:
             raise IntegrityViolation("schema analyzer used another execution profile")
         if inspection.rollback_profile_binding != rollback_profile_binding:
@@ -602,31 +563,19 @@ class RollbackValidationHandler:
         for profile, profile_binding in zip(
             payload.impact_profiles, impact_profile_bindings, strict=True
         ):
-            try:
-                check = self.impact_analyzer.analyze(
-                    RollbackImpactRequest(
-                        current_artifact_id=payload.expected_current_ref.artifact_id,
-                        current_ref_revision=payload.expected_current_ref.revision,
-                        target_artifact_id=payload.target_artifact_id,
-                        ref_name=payload.ref_name,
-                        impact_profile_binding=profile_binding,
-                        rollback_profile_binding=rollback_profile_binding,
-                    )
-                )
-            except (DependencyUnavailable, NotImplementedError):
-                check = DimensionCheckV1(
-                    status="unproven",
-                    reason_code="rollback_impact_execution_unavailable",
-                    profile_binding=profile_binding,
+            check = self.impact_analyzer.analyze(
+                RollbackImpactRequest(
+                    current_artifact_id=payload.expected_current_ref.artifact_id,
+                    current_ref_revision=payload.expected_current_ref.revision,
+                    target_artifact_id=payload.target_artifact_id,
+                    ref_name=payload.ref_name,
+                    impact_profile_binding=profile_binding,
                     rollback_profile_binding=rollback_profile_binding,
                 )
+            )
             if check.profile_binding is None or check.rollback_profile_binding is None:
-                check = replace(
-                    check,
-                    status="unproven",
-                    reason_code="rollback_impact_execution_unavailable",
-                    profile_binding=profile_binding,
-                    rollback_profile_binding=rollback_profile_binding,
+                raise IntegrityViolation(
+                    "impact analyzer omitted its exact execution profile bindings"
                 )
             elif check.profile_binding != profile_binding:
                 raise IntegrityViolation("impact analyzer used another execution profile")
@@ -817,8 +766,10 @@ class RollbackValidationHandler:
             return None
         try:
             snapshot = load_snapshot(self.blobs, target_artifact_id)
-        except (IntegrityViolation, KeyError, TypeError, ValueError):
-            return None
+        except IntegrityViolation:
+            raise
+        except (KeyError, TypeError, ValueError) as exc:
+            raise IntegrityViolation("rollback target snapshot is unreadable") from exc
         if inspection.target_snapshot_id is None:
             raise IntegrityViolation("IR rollback target inspection omitted snapshot id")
         if snapshot.snapshot_id != inspection.target_snapshot_id:

@@ -1,4 +1,4 @@
-"""Production regression runner executes exact suites; unavailable authority never passes."""
+"""Production regression runner keeps business verdicts separate from worker failures."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.contracts.canonical import canonical_json, canonical_sha256
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.env_types import Observation, StepResult
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
     ProfileRefV1,
@@ -449,7 +449,7 @@ def test_constraint_candidate_cannot_mutate_after_request_binding() -> None:
         runner.run(request)
 
 
-def test_constraint_compiler_failure_preserves_known_adapter_failure(
+def test_constraint_compiler_failure_does_not_fabricate_known_adapter_failure_evidence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _artifacts, _suite, runner, snapshot_request = _fixture(expected_result="arrived")
@@ -463,23 +463,11 @@ def test_constraint_compiler_failure_preserves_known_adapter_failure(
 
     monkeypatch.setattr(worker_regression, "compile_all", unavailable_compiler)
 
-    result = runner.run(request)
-
-    assert result.status == "failed"
-    assert result.reason_code is None
-    assert result.action_work_units == 2
-    assert "case_seed_manifest" in result.payload
-    findings = result.payload["findings"]
-    assert isinstance(findings, list) and len(findings) == 1
-    assert findings[0]["status"] == "confirmed"
-    assert findings[0]["evidence"]["constraint_regression_binding"] == {
-        "candidate_snapshot_id": request.constraint_candidate.candidate_snapshot_id,
-        "candidate_digest": request.constraint_candidate.candidate_digest,
-        "source_snapshot_id": result.constraint_source_snapshot_id,
-    }
+    with pytest.raises(RuntimeError, match="compiler unavailable"):
+        runner.run(request)
 
 
-def test_constraint_compiler_failure_is_unproven_without_a_known_failure(
+def test_constraint_compiler_internal_failure_is_not_business_unproven(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _artifacts, _suite, runner, snapshot_request = _fixture()
@@ -493,11 +481,35 @@ def test_constraint_compiler_failure_is_unproven_without_a_known_failure(
         lambda _constraints: (_ for _ in ()).throw(RuntimeError("compiler unavailable")),
     )
 
-    result = runner.run(request)
+    with pytest.raises(RuntimeError, match="compiler unavailable"):
+        runner.run(request)
 
-    assert result.status == "unproven"
-    assert result.reason_code == "constraint_candidate_execution_unavailable"
-    assert "findings" not in result.payload
+
+def test_constraint_compiler_dependency_failure_reaches_worker_classifier(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _artifacts, _suite, runner, snapshot_request = _fixture()
+    request = _constraint_candidate_request(
+        snapshot_request,
+        (_structural_constraint("C_acyclic", "acyclic(quest_steps)"),),
+    )
+    failure = DependencyUnavailable(
+        "solver executor unavailable",
+        dependency_kind="solver_executor",
+        dependency_id="constraint-compiler@1",
+        operation_code="compile_constraint_candidate",
+        classifier_code="solver_executor_unavailable",
+    )
+    monkeypatch.setattr(
+        worker_regression,
+        "compile_all",
+        lambda _constraints: (_ for _ in ()).throw(failure),
+    )
+
+    with pytest.raises(DependencyUnavailable) as raised:
+        runner.run(request)
+
+    assert raised.value is failure
 
 
 def test_repeated_candidate_execution_reuses_exact_parsed_suite_authority(monkeypatch) -> None:
@@ -642,7 +654,7 @@ def test_builtin_navigation_debits_exact_candidate_bfs_upper_bound() -> None:
     assert result.action_work_units == 60
 
 
-def test_builtin_grid_bound_rejects_before_environment_or_bfs() -> None:
+def test_builtin_grid_contract_violation_reaches_worker_failure_without_environment() -> None:
     candidate = Snapshot.from_entities_relations(
         [
             Entity(
@@ -665,11 +677,8 @@ def test_builtin_grid_bound_rejects_before_environment_or_bfs() -> None:
         expected_completed=False,
     )
 
-    result = runner.run(request)
-
-    assert result.status == "unproven"
-    assert result.reason_code == "regression_authority_unavailable"
-    assert result.action_work_units is None
+    with pytest.raises(IntegrityViolation, match="environment handler rejected"):
+        runner.run(request)
 
 
 def test_case_seed_manifest_is_strict_recomputable_terminal_evidence() -> None:
@@ -741,64 +750,217 @@ def test_failed_assertion_preserves_suite_bound_target_predicate_identity() -> N
     assert finding["evidence"]["target"] == "npc:blocked"
 
 
-def test_unknown_adapter_and_missing_candidate_are_unproven_never_passed() -> None:
+def test_missing_candidate_is_explicitly_unproven_without_invoking_an_adapter() -> None:
     _artifacts, _suite, runner, request = _fixture(
         adapter=RegressionSuiteAdapterRefV1(adapter_id="missing", version=1)
     )
-    unknown = runner.run(request)
     missing = runner.run(replace(request, snapshot=None))
 
-    assert (unknown.status, unknown.reason_code) == (
-        "unproven",
-        "regression_adapter_unavailable",
-    )
     assert (missing.status, missing.reason_code) == (
         "unproven",
         "candidate_snapshot_unavailable",
     )
-
-    wrong_seed = runner.run(replace(request, seed=request.seed + 1))
-    assert (wrong_seed.status, wrong_seed.reason_code) == (
-        "unproven",
-        "regression_seed_binding_mismatch",
-    )
-    assert unknown.env_contract_version == "generic-agent-env@1"
     assert missing.env_contract_version == "generic-agent-env@1"
-    assert wrong_seed.env_contract_version == "generic-agent-env@1"
 
 
-def test_wrong_environment_contract_or_nonfinite_output_is_unproven() -> None:
+def test_missing_retained_adapter_implementation_reaches_worker_classifier() -> None:
+    _artifacts, _suite, runner, request = _fixture(
+        adapter=RegressionSuiteAdapterRefV1(adapter_id="missing", version=1)
+    )
+
+    with pytest.raises(DependencyUnavailable) as raised:
+        runner.run(request)
+
+    assert raised.value.context == {
+        "dependency_kind": "game_environment",
+        "dependency_id": "missing@1",
+        "operation_code": "run_regression_suite",
+        "classifier_code": "regression_adapter_unavailable",
+    }
+
+
+def test_explicit_adapter_unproven_result_remains_a_business_verdict() -> None:
+    _artifacts, _suite, runner, request = _fixture()
+    delegate = next(iter(runner.adapters.values()))
+
+    class UndecidableAdapter:
+        adapter_ref = delegate.adapter_ref
+
+        def run(self, adapter_request):
+            executed = delegate.run(adapter_request)
+            payload = {
+                **dict(executed.payload),
+                "status": "unproven",
+                "reason_code": "adapter_reported_undecidable",
+            }
+            return replace(
+                executed,
+                status="unproven",
+                reason_code="adapter_reported_undecidable",
+                payload=payload,
+            )
+
+    runner = replace(
+        runner,
+        adapters={
+            (UndecidableAdapter.adapter_ref.adapter_id, UndecidableAdapter.adapter_ref.version): (
+                UndecidableAdapter()
+            )
+        },
+    )
+
+    result = runner.run(request)
+
+    assert result.status == "unproven"
+    assert result.reason_code == "adapter_reported_undecidable"
+
+
+def test_adapter_not_executed_cannot_be_relabelled_as_business_unproven() -> None:
+    _artifacts, _suite, runner, request = _fixture()
+    delegate = next(iter(runner.adapters.values()))
+
+    class NonExecutingAdapter:
+        adapter_ref = delegate.adapter_ref
+
+        def run(self, adapter_request):
+            executed = delegate.run(adapter_request)
+            payload = {
+                **dict(executed.payload),
+                "status": "not_executed",
+                "reason_code": "adapter_did_not_execute",
+            }
+            return replace(
+                executed,
+                status="not_executed",
+                reason_code="adapter_did_not_execute",
+                payload=payload,
+            )
+
+    runner = replace(
+        runner,
+        adapters={
+            (
+                NonExecutingAdapter.adapter_ref.adapter_id,
+                NonExecutingAdapter.adapter_ref.version,
+            ): NonExecutingAdapter()
+        },
+    )
+
+    with pytest.raises(IntegrityViolation, match="must execute or report unproven"):
+        runner.run(request)
+
+
+def test_adapter_internal_failure_reaches_worker_classifier_without_business_result() -> None:
+    _artifacts, _suite, runner, request = _fixture()
+    delegate = next(iter(runner.adapters.values()))
+
+    class BrokenAdapter:
+        adapter_ref = delegate.adapter_ref
+
+        def run(self, _request):
+            raise RuntimeError("adapter implementation crashed")
+
+    runner = replace(
+        runner,
+        adapters={
+            (BrokenAdapter.adapter_ref.adapter_id, BrokenAdapter.adapter_ref.version): (
+                BrokenAdapter()
+            )
+        },
+    )
+
+    with pytest.raises(RuntimeError, match="adapter implementation crashed"):
+        runner.run(request)
+
+
+def test_authority_dependency_failure_reaches_worker_classifier_without_business_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    artifacts, _suite, runner, request = _fixture()
+    failure = DependencyUnavailable(
+        "object store unavailable",
+        dependency_kind="object_store",
+        dependency_id="local:default",
+        operation_code="read_regression_suite",
+        classifier_code="object_store_unavailable",
+    )
+
+    def unavailable_read(_artifact_id: str, *, max_bytes: int) -> bytes:
+        del max_bytes
+        raise failure
+
+    monkeypatch.setattr(artifacts, "read_bytes_bounded", unavailable_read)
+
+    with pytest.raises(DependencyUnavailable) as raised:
+        runner.run(request)
+
+    assert raised.value is failure
+
+
+@pytest.mark.parametrize(
+    "updates",
+    [
+        {"seed": True},
+        {"seed": -1},
+        {"root_seed": None},
+        {"root_seed": True},
+        {"root_seed": -1},
+        {"run_kind": None},
+        {"run_kind": "patch.repair@1"},
+        {"profile": None},
+        {"profile": "builtin.patch_repair@1"},
+        {"max_action_work_units": None},
+        {"max_action_work_units": True},
+        {"max_action_work_units": -1},
+    ],
+)
+def test_missing_or_invalid_frozen_execution_binding_is_integrity_failure(
+    updates: dict[str, object],
+) -> None:
+    _artifacts, _suite, runner, request = _fixture()
+
+    with pytest.raises(IntegrityViolation, match="frozen execution binding"):
+        runner.run(replace(request, **updates))
+
+
+def test_seed_or_candidate_snapshot_binding_drift_is_integrity_failure() -> None:
+    _artifacts, _suite, runner, request = _fixture()
+
+    with pytest.raises(IntegrityViolation, match="seed binding"):
+        runner.run(replace(request, seed=request.seed + 1))
+    with pytest.raises(IntegrityViolation, match="candidate snapshot binding"):
+        runner.run(replace(request, snapshot_id="snapshot:other"))
+
+
+def test_environment_contract_or_output_violation_is_integrity_failure() -> None:
     _artifacts, _suite, wrong_contract_runner, request = _fixture(
         environment_builder=lambda _snapshot, _definition: _environment_plan(
             lambda: _Env(env_contract_version="env@1")
         )
     )
-    wrong_contract = wrong_contract_runner.run(request)
+    with pytest.raises(IntegrityViolation, match="environment instance contract"):
+        wrong_contract_runner.run(request)
     _artifacts, _suite, nonfinite_runner, nonfinite_request = _fixture(
         environment_builder=lambda _snapshot, _definition: _environment_plan(
             lambda: _NonFiniteRewardEnv()
         )
     )
-    nonfinite = nonfinite_runner.run(nonfinite_request)
+    with pytest.raises(IntegrityViolation, match="step contract"):
+        nonfinite_runner.run(nonfinite_request)
     _artifacts, _suite, oversized_runner, oversized_request = _fixture(
         environment_builder=lambda _snapshot, _definition: _environment_plan(
             lambda: _OversizedObservationEnv()
         )
     )
-    oversized = oversized_runner.run(oversized_request)
-
-    assert wrong_contract.status == "unproven"
-    assert nonfinite.status == "unproven"
-    assert oversized.status == "unproven"
+    with pytest.raises(IntegrityViolation, match="observation"):
+        oversized_runner.run(oversized_request)
 
 
-def test_action_resource_budget_is_fail_closed() -> None:
+def test_invalid_retained_action_resource_bound_is_integrity_failure() -> None:
     _artifacts, _suite, runner, request = _fixture(wait_ticks=1_000_001)
 
-    result = runner.run(request)
-
-    assert result.status == "unproven"
-    assert result.reason_code == "regression_authority_unavailable"
+    with pytest.raises(IntegrityViolation, match="action resource bound"):
+        runner.run(request)
 
 
 def test_total_action_work_budget_is_checked_before_environment_compilation() -> None:
@@ -820,7 +982,7 @@ def test_total_action_work_budget_is_checked_before_environment_compilation() ->
     result = runner.run(replace(request, max_action_work_units=run_budget))
 
     assert result.status == "unproven"
-    assert result.reason_code == "regression_authority_unavailable"
+    assert result.reason_code == "regression_work_budget_exceeded"
     assert compiled == 0
 
 
@@ -840,12 +1002,38 @@ def test_run_ledger_remaining_is_checked_before_environment_compilation() -> Non
     result = runner.run(replace(request, max_action_work_units=1))
 
     assert result.status == "unproven"
-    assert result.reason_code == "regression_authority_unavailable"
+    assert result.reason_code == "regression_work_budget_exceeded"
     assert result.action_work_units is None
     assert compiled == 0
 
 
-def test_tampered_direct_lineage_is_unproven() -> None:
+def test_static_environment_work_budget_exceeded_is_explicitly_unproven() -> None:
+    instantiated = 0
+
+    def builder(_snapshot, _definition):
+        def create():
+            nonlocal instantiated
+            instantiated += 1
+            return _Env()
+
+        return RegressionEnvironmentPlanV1(
+            factory=create,
+            reset_work_units=1,
+            step_observation_work_units=1,
+            navigation_work_units=1,
+        )
+
+    _artifacts, _suite, runner, request = _fixture(environment_builder=builder)
+
+    result = runner.run(replace(request, max_action_work_units=1))
+
+    assert result.status == "unproven"
+    assert result.reason_code == "regression_work_budget_exceeded"
+    assert result.action_work_units is None
+    assert instantiated == 0
+
+
+def test_tampered_direct_lineage_is_integrity_failure() -> None:
     artifacts, suite, runner, request = _fixture()
     wrong_parent = artifacts.put(
         kind="constraint_snapshot",
@@ -871,10 +1059,8 @@ def test_tampered_direct_lineage_is_unproven() -> None:
         case_id=bad_suite.artifact_id,
         replication_index=0,
     )
-    result = runner.run(replace(request, suite_artifact_id=bad_suite.artifact_id, seed=bad_seed))
-
-    assert result.status == "unproven"
-    assert result.reason_code == "regression_authority_unavailable"
+    with pytest.raises(IntegrityViolation, match="source snapshot lineage"):
+        runner.run(replace(request, suite_artifact_id=bad_suite.artifact_id, seed=bad_seed))
 
     hidden_parent_suite = build_artifact_v2(
         kind=suite.kind,
@@ -893,14 +1079,14 @@ def test_tampered_direct_lineage_is_unproven() -> None:
         case_id=hidden_parent_suite.artifact_id,
         replication_index=0,
     )
-    hidden = runner.run(
-        replace(
-            request,
-            suite_artifact_id=hidden_parent_suite.artifact_id,
-            seed=hidden_seed,
+    with pytest.raises(IntegrityViolation, match="one exact source parent"):
+        runner.run(
+            replace(
+                request,
+                suite_artifact_id=hidden_parent_suite.artifact_id,
+                seed=hidden_seed,
+            )
         )
-    )
-    assert hidden.status == "unproven"
 
 
 def test_typed_artifact_integrity_failure_is_not_downgraded_to_unproven(
@@ -925,10 +1111,8 @@ def test_mutated_candidate_payload_cannot_reuse_its_old_snapshot_id() -> None:
         type=NodeType.REGION,
     )
 
-    result = runner.run(request)
-
-    assert result.status == "unproven"
-    assert result.reason_code == "candidate_snapshot_mismatch"
+    with pytest.raises(IntegrityViolation, match="candidate snapshot binding changed"):
+        runner.run(request)
 
 
 def test_worker_composition_injects_real_repair_regression_runner(tmp_path) -> None:

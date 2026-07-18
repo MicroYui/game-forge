@@ -10,10 +10,11 @@ inspector; the ``RollbackTargetBindingV1`` is built from the payload + analyzer.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 import pytest
 
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     MAX_REPAIR_REGRESSION_WORK_UNITS_V1,
     ProfileRefV1,
@@ -236,10 +237,13 @@ def _handler(
     schema=None,
     impact=None,
     regression_runner=None,
+    profile_binding_validator=None,
 ) -> RollbackValidationHandler:
     kwargs = {}
     if regression_runner is not None:
         kwargs["regression_runner"] = regression_runner
+    if profile_binding_validator is not None:
+        kwargs["profile_binding_validator"] = profile_binding_validator
     return RollbackValidationHandler(
         blobs=store,
         store=store,
@@ -278,6 +282,124 @@ def test_target_read_integrity_fault_propagates_as_execution_failure() -> None:
 
     with pytest.raises(IntegrityViolation, match="object binding is corrupt"):
         _handler(store)(_context(store, _payload()))
+
+
+def test_unreadable_ir_target_during_regression_is_an_integrity_failure() -> None:
+    store = _store()
+    store.register(TARGET_ID, {"not": "a canonical IR snapshot"})
+
+    with pytest.raises(IntegrityViolation):
+        _handler(store, regression_runner=_PassingRegressionRunner())(
+            _context(store, _payload(regression=(REGRESSION_SUITE_ID,)))
+        )
+
+
+@pytest.mark.parametrize("forgery", ("missing", "extra", "duplicate", "catalog"))
+def test_rollback_validation_rejects_non_exact_profile_sets_before_any_input_or_analyzer(
+    forgery: str,
+) -> None:
+    class ReadTrackingStore(FakeArtifactStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_count = 0
+
+        def read_bytes(self, artifact_id: str) -> bytes:
+            self.read_count += 1
+            return super().read_bytes(artifact_id)
+
+    class ForbiddenAnalyzer:
+        def analyze(self, request):
+            raise AssertionError("invalid profiles must fail before analyzer execution")
+
+    store = ReadTrackingStore()
+    store.register(SUBJECT_ID, _rollback_request().model_dump(mode="json"))
+    store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
+    payload = _payload()
+    context = _context(store, payload)
+    profiles = list(context.payload.resolved_profiles)
+    if forgery == "missing":
+        profiles.pop()
+    elif forgery == "extra":
+        profiles.append(
+            resolved_binding(
+                "/params/injected_profile",
+                profile_id="injected",
+                version=1,
+                kind="impact_analysis",
+            )
+        )
+    elif forgery == "duplicate":
+        profiles.append(profiles[-1])
+    else:
+        profiles[-1] = profiles[-1].model_copy(update={"catalog_digest": "b" * 64})
+    forged_payload = context.payload.model_copy(update={"resolved_profiles": tuple(profiles)})
+    forged_context = replace(context, payload=forged_payload)
+
+    with pytest.raises(IntegrityViolation, match="execution profile"):
+        _handler(store, schema=ForbiddenAnalyzer(), impact=ForbiddenAnalyzer())(forged_context)
+
+    assert store.read_count == 0
+    assert store.put_count == 0
+
+
+@pytest.mark.parametrize("authority_failure", ("payload_hash", "lifecycle"))
+def test_rollback_validation_resolves_profile_authority_before_subject_or_analyzers(
+    authority_failure: str,
+) -> None:
+    class ReadTrackingStore(FakeArtifactStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_count = 0
+
+        def read_bytes(self, artifact_id: str) -> bytes:
+            self.read_count += 1
+            return super().read_bytes(artifact_id)
+
+    class ForbiddenAnalyzer:
+        def analyze(self, request):
+            raise AssertionError("invalid profile authority must fail before analyzer execution")
+
+    store = ReadTrackingStore()
+    store.register(SUBJECT_ID, _rollback_request().model_dump(mode="json"))
+    store.register(TARGET_ID, _TARGET_SNAPSHOT.content_payload)
+    context = _context(store, _payload())
+    if authority_failure == "payload_hash":
+        profiles = tuple(
+            binding.model_copy(update={"profile_payload_hash": "0" * 64})
+            if binding.field_path == "/params/impact_profiles/0"
+            else binding
+            for binding in context.payload.resolved_profiles
+        )
+        context = replace(
+            context,
+            payload=context.payload.model_copy(update={"resolved_profiles": profiles}),
+        )
+    seen: list[str] = []
+
+    def reject_authority(binding, *, llm_execution_mode, run_kind) -> None:
+        seen.append(binding.field_path)
+        assert llm_execution_mode == "not_applicable"
+        assert run_kind == ROLLBACK_VALIDATE_KIND
+        if binding.field_path == "/params/impact_profiles/0":
+            if authority_failure == "payload_hash":
+                assert binding.profile_payload_hash == "0" * 64
+            raise IntegrityViolation(f"execution profile {authority_failure} is invalid")
+
+    with pytest.raises(IntegrityViolation, match=authority_failure):
+        _handler(
+            store,
+            schema=ForbiddenAnalyzer(),
+            impact=ForbiddenAnalyzer(),
+            profile_binding_validator=reject_authority,
+        )(context)
+
+    assert seen == [
+        "/params/rollback_profile",
+        "/params/schema_compatibility_policy",
+        "/params/impact_profiles/0",
+    ]
+    assert store.read_count == 0
+    assert store.put_count == 0
 
 
 def test_all_dimensions_pass_is_a_successful_business_result() -> None:
@@ -340,6 +462,25 @@ def test_impact_unproven_is_unproven_business_result() -> None:
     impact_req = next(req for req in evidence.requirements if req.kind == "impact")
     assert impact_req.status == "unproven"
     assert impact_req.reason_code == "impact_budget_exhausted"
+
+
+@pytest.mark.parametrize(
+    "error",
+    (
+        DependencyUnavailable("impact backend unavailable"),
+        IntegrityViolation("impact evidence is corrupt"),
+        RuntimeError("impact implementation crashed"),
+        NotImplementedError("impact adapter is not implemented"),
+    ),
+)
+def test_impact_operational_and_internal_errors_propagate(error: BaseException) -> None:
+    class FailingImpact:
+        def analyze(self, request):
+            raise error
+
+    store = _store()
+    with pytest.raises(type(error), match=str(error)):
+        _handler(store, impact=FailingImpact())(_context(store, _payload()))
 
 
 def test_subject_payload_mismatch_fails_profile_dimension() -> None:
@@ -448,7 +589,7 @@ def test_schema_and_impact_ports_receive_exact_resolved_profile_bindings() -> No
     assert impact.rollback_profile_binding == _ROLLBACK_BINDING
 
 
-def test_missing_schema_execution_binding_is_unproven_not_passed() -> None:
+def test_missing_schema_execution_binding_is_an_integrity_failure() -> None:
     store = _store()
 
     class MissingBinding(_FakeSchema):
@@ -464,13 +605,18 @@ def test_missing_schema_execution_binding_is_unproven_not_passed() -> None:
                 ),
             )
 
-    outcome = _handler(store, schema=MissingBinding())(_context(store, _payload()))
+    with pytest.raises(IntegrityViolation, match="omitted exact execution profile bindings"):
+        _handler(store, schema=MissingBinding())(_context(store, _payload()))
 
-    assert outcome.summary.outcome_code == "rollback_validation_unproven"
-    evidence = _evidence_set(store, outcome)
-    schema = next(item for item in evidence.requirements if item.kind == "schema")
-    assert schema.status == "unproven"
-    assert schema.reason_code == "rollback_schema_execution_unavailable"
+
+def test_missing_impact_execution_binding_is_an_integrity_failure() -> None:
+    class MissingBinding(_FakeImpact):
+        def analyze(self, request) -> DimensionCheckV1:
+            return DimensionCheckV1(status="unproven", reason_code="impact_undecidable")
+
+    store = _store()
+    with pytest.raises(IntegrityViolation, match="omitted its exact execution profile bindings"):
+        _handler(store, impact=MissingBinding())(_context(store, _payload()))
 
 
 def test_mismatched_impact_execution_binding_is_an_integrity_violation() -> None:

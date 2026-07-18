@@ -251,6 +251,93 @@ def test_exact_profile_validator_closes_task12_adapter_contracts(
 
 
 @pytest.mark.parametrize(
+    ("profile_id", "profile_kind", "field_path", "run_kind"),
+    (
+        (
+            "builtin.validation",
+            "validation",
+            "/params/validation_policy",
+            RunKindRef(kind="patch.validate", version=1),
+        ),
+        (
+            "builtin.rollback",
+            "rollback",
+            "/params/rollback_profile",
+            RunKindRef(kind="rollback.validate", version=1),
+        ),
+        (
+            "builtin.schema_compatibility",
+            "schema_compatibility",
+            "/params/schema_compatibility_policy",
+            RunKindRef(kind="rollback.validate", version=1),
+        ),
+        (
+            "builtin.impact_analysis",
+            "impact_analysis",
+            "/params/impact_profiles/0",
+            RunKindRef(kind="rollback.validate", version=1),
+        ),
+    ),
+)
+def test_exact_profile_validator_closes_task13_validation_adapter_contracts(
+    profile_id: str,
+    profile_kind: str,
+    field_path: str,
+    run_kind: RunKindRef,
+) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id=profile_id,
+        profile_kind=profile_kind,
+        field_path=field_path,
+    )
+
+    worker_components._build_exact_profile_binding_validator(registry)(
+        binding,
+        llm_execution_mode="not_applicable",
+        run_kind=run_kind,
+    )
+
+
+def test_exact_profile_validator_rejects_task13_catalog_hash_and_lifecycle_tampering() -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.rollback",
+        profile_kind="rollback",
+        field_path="/params/rollback_profile",
+    )
+    validator = worker_components._build_exact_profile_binding_validator(registry)
+    with pytest.raises(IntegrityViolation, match="catalog"):
+        validator(
+            binding.model_copy(update={"catalog_digest": "0" * 64}),
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="rollback.validate", version=1),
+        )
+    with pytest.raises(IntegrityViolation, match="payload hash"):
+        validator(
+            binding.model_copy(update={"profile_payload_hash": "0" * 64}),
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="rollback.validate", version=1),
+        )
+
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class DisabledRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition, lifecycle.model_copy(update={"state": "disabled"})
+
+    with pytest.raises(IntegrityViolation, match="lifecycle"):
+        worker_components._build_exact_profile_binding_validator(DisabledRegistry())(
+            binding,
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="rollback.validate", version=1),
+        )
+
+
+@pytest.mark.parametrize(
     ("profile_id", "version", "profile_kind", "field_path", "definition_update"),
     (
         (
@@ -938,11 +1025,15 @@ def test_worker_composition_reuses_one_validator_exporter_and_shaper_authority(
         generation = components.executors["generation_proposer@1"]
         repair = components.executors["repair_search@1"]
         checker = components.executors["checker_runner@1"]
+        patch_validation = components.executors["patch_validator@1"]
+        rollback_validation = components.executors["rollback_validator@1"]
 
         assert (
             task_suite.profile_binding_validator
             is playtest.profile_binding_validator
             is checker.profile_binding_validator
+            is patch_validation.profile_binding_validator
+            is rollback_validation.profile_binding_validator
         )
 
         validator_maps = (

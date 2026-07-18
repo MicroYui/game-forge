@@ -3,8 +3,10 @@
 The platform owns only the :class:`RegressionRunner` port.  This composition-layer
 implementation verifies the exact committed suite Artifact, resolves its historical
 environment profile, dispatches to one versioned trusted adapter, and executes the
-ephemeral repair candidate bytes supplied in ``RegressionRunRequest``.  Unknown or
-unavailable authority is always ``unproven``; no default path fabricates a pass.
+ephemeral repair candidate bytes supplied in ``RegressionRunRequest``.  Only an
+explicit deterministic unsupported/undecidable result is ``unproven``. Operational,
+integrity, and implementation failures escape to the worker's typed failure
+classifier instead of being rewritten as business evidence.
 """
 
 from __future__ import annotations
@@ -20,7 +22,7 @@ from typing import Protocol
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.env_types import Observation, StepResult, parse_action
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     EnvironmentProfileDetailsV1,
     ExecutionProfileDefinitionV1,
@@ -67,6 +69,10 @@ AGENT_ENV_REPLAY_ADAPTER = RegressionSuiteAdapterRefV1(
 MAX_REGRESSION_SUITE_WIRE_BYTES = MAX_REPAIR_REGRESSION_SUITE_BYTES_V1
 MAX_REGRESSION_ENV_OUTPUT_BYTES = 1024 * 1024
 MAX_REGRESSION_AUTHORITY_CACHE_BYTES = 64 * 1024 * 1024
+
+
+class _RegressionWorkBudgetExceeded(Exception):
+    """A deterministic adapter preflight proved the frozen work limit insufficient."""
 
 
 class RegressionArtifactReader(ArtifactBlobReader, Protocol):
@@ -243,10 +249,15 @@ class AgentEnvActionReplayAdapter:
         raw_payload = request.dispatch.adapter_payload
         payload = self._payload_cache.get(request.suite_artifact_id)
         if payload is None:
-            payload = AgentEnvRegressionPayloadV1.model_validate(raw_payload)
+            try:
+                payload = AgentEnvRegressionPayloadV1.model_validate(raw_payload)
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation(
+                    "regression adapter payload violates its retained contract"
+                ) from exc
             canonical_wire = canonical_json(payload.model_dump(mode="json"))
             if canonical_wire != canonical_json(raw_payload):
-                raise ValueError("regression adapter payload is not its exact wire shape")
+                raise IntegrityViolation("regression adapter payload is not its exact wire shape")
             self._payload_cache.put(
                 request.suite_artifact_id,
                 payload,
@@ -261,13 +272,21 @@ class AgentEnvActionReplayAdapter:
             payload.completion_oracle_registry_ref
         )
         if oracle_registry is None:
-            raise ValueError("regression completion-oracle registry is unavailable")
+            raise IntegrityViolation(
+                "regression completion-oracle registry authority is unavailable"
+            )
         builder = self.environment_builders.get(request.environment_definition.handler_key)
         if builder is None:
-            raise ValueError("regression environment factory is unavailable")
+            raise DependencyUnavailable(
+                "regression environment implementation is unavailable",
+                dependency_kind="game_environment",
+                dependency_id=request.environment_definition.handler_key,
+                operation_code="build_regression_environment",
+                classifier_code="environment_handler_unavailable",
+            )
         details = request.environment_definition.details
         if not isinstance(details, EnvironmentProfileDetailsV1):
-            raise ValueError("regression environment profile has no exact contract")
+            raise IntegrityViolation("regression environment profile has no exact contract")
         contract = details.contract
         if (
             contract.env_contract_version != request.dispatch.env_contract_version
@@ -275,8 +294,17 @@ class AgentEnvActionReplayAdapter:
             or contract.action_schema_id != "generic-env-action@1"
             or contract.observation_schema_id != "generic-env-observation@1"
         ):
-            raise ValueError("regression adapter does not implement the bound environment schema")
-        environment_plan = builder(request.snapshot, request.environment_definition)
+            raise IntegrityViolation(
+                "regression adapter does not implement the bound environment schema"
+            )
+        try:
+            environment_plan = builder(request.snapshot, request.environment_definition)
+        except (DependencyUnavailable, IntegrityViolation):
+            raise
+        except ValueError as exc:
+            raise IntegrityViolation(
+                "regression environment handler rejected its frozen candidate contract"
+            ) from exc
         _validate_environment_plan(environment_plan, details=details)
         action_work_units = action_work_plan.total(
             environment_plan,
@@ -313,10 +341,12 @@ class AgentEnvActionReplayAdapter:
         for case in payload.cases:
             env = environment_factory()
             if any(env is existing for existing in environment_instances):
-                raise ValueError("regression environment factory reused mutable case state")
+                raise IntegrityViolation("regression environment factory reused mutable case state")
             environment_instances.append(env)
             if getattr(env, "env_contract_version", None) != request.dispatch.env_contract_version:
-                raise ValueError("regression environment instance has another contract version")
+                raise IntegrityViolation(
+                    "regression environment instance contract differs from its profile"
+                )
             case_seed = seeds_by_case[case.case_id]
             initial_observation = env.reset(case.scenario_id, case_seed)
             _validate_observation(initial_observation)
@@ -340,9 +370,14 @@ class AgentEnvActionReplayAdapter:
 
             case_failed = False
             for step_index, step in enumerate(case.steps):
-                action = parse_action(step.action)
+                try:
+                    action = parse_action(step.action)
+                except (TypeError, ValueError) as exc:
+                    raise IntegrityViolation(
+                        "regression retained action violates its exact schema"
+                    ) from exc
                 if canonical_json(action.model_dump(mode="json")) != canonical_json(step.action):
-                    raise ValueError("regression action is not its exact atomic wire shape")
+                    raise IntegrityViolation("regression action is not its exact atomic wire shape")
                 _validate_action_resource_bounds(action.model_dump(mode="json"))
                 result = env.step(action)
                 if (
@@ -352,7 +387,7 @@ class AgentEnvActionReplayAdapter:
                     or type(result.reward) is not float
                     or not math.isfinite(result.reward)
                 ):
-                    raise ValueError("regression step returned another Agent-Env contract")
+                    raise IntegrityViolation("regression environment step contract is invalid")
                 _validate_observation(result.observation)
                 _validate_bounded_json(
                     result.info,
@@ -361,7 +396,9 @@ class AgentEnvActionReplayAdapter:
                 )
                 state_hash = _bounded_state_hash(env.state_hash())
                 if len(result.observation.last_action_result) > 4_096:
-                    raise ValueError("regression environment result exceeds its string bound")
+                    raise IntegrityViolation(
+                        "regression environment result exceeds its string bound"
+                    )
                 assertions = (
                     (
                         "last_action_result",
@@ -423,15 +460,23 @@ class AgentEnvActionReplayAdapter:
                 definition is None
                 or definition.params_schema_id != case.completion_oracle.params_schema_id
             ):
-                raise ValueError("regression completion oracle does not resolve exactly")
+                raise IntegrityViolation("regression completion oracle does not resolve exactly")
             executor = self.oracle_executors.get(definition.executor_key)
             if executor is None:
-                raise ValueError("regression completion-oracle executor is unavailable")
+                raise DependencyUnavailable(
+                    "regression completion-oracle implementation is unavailable",
+                    dependency_kind="game_environment",
+                    dependency_id=definition.executor_key,
+                    operation_code="evaluate_regression_completion_oracle",
+                    classifier_code="completion_oracle_unavailable",
+                )
             if not isinstance(case.completion_oracle.params, Mapping):
-                raise ValueError("regression completion-oracle params must be an object")
+                raise IntegrityViolation("regression completion-oracle params must be an object")
             completed = executor.evaluate(env, case.completion_oracle.params)
             if type(completed) is not bool:
-                raise ValueError("regression completion oracle returned a non-boolean verdict")
+                raise IntegrityViolation(
+                    "regression completion oracle returned a non-boolean verdict"
+                )
             if completed != case.expected_completed:
                 findings.append(
                     _mismatch_finding(
@@ -480,27 +525,20 @@ class WorkerRegressionRunner(RegressionRunner):
     )
 
     def run(self, request: RegressionRunRequest) -> RegressionSuiteResultV1:
-        try:
-            return self._run_exact(request)
-        except IntegrityViolation:
-            # Corrupt/tampered retained authority is an operator-visible terminal
-            # integrity failure, never an ordinary oracle ``unproven`` result.
-            raise
-        except Exception:  # noqa: BLE001 - absence/unknown execution proves nothing
-            return _unproven(request, reason_code="regression_authority_unavailable")
+        return self._run_exact(request)
 
     def _run_exact(self, request: RegressionRunRequest) -> RegressionSuiteResultV1:
         if isinstance(request.seed, bool) or not isinstance(request.seed, int):
-            raise ValueError("regression seed must be an unsigned integer")
+            raise IntegrityViolation("regression frozen execution binding has an invalid seed")
         if not 0 <= request.seed <= (1 << 64) - 1:
-            raise ValueError("regression seed is outside uint64")
+            raise IntegrityViolation(
+                "regression frozen execution binding has a seed outside uint64"
+            )
 
-        # Resolve the suite before any ordinary ``unproven`` exit.  The suite is
-        # the terminal authority for the per-evidence environment VersionTuple,
-        # so even a missing candidate/budget/seed binding must retain its exact
-        # environment contract instead of silently falling back to the Run-wide
-        # tuple.  Corrupt authority still escapes through ``run``'s integrity
-        # boundary and can never be published as a business verdict.
+        # Resolve the suite before the one ordinary missing-candidate ``unproven``
+        # exit. The suite is the terminal authority for the per-evidence
+        # environment VersionTuple. Frozen execution bindings are mandatory;
+        # missing or drifting values are integrity failures, not business verdicts.
         authority = self._load_suite_authority(request.suite_artifact_id)
         dispatch = authority.dispatch
         definition = authority.environment_definition
@@ -542,25 +580,19 @@ class WorkerRegressionRunner(RegressionRunner):
             or request.profile is None
             or isinstance(request.root_seed, bool)
             or not isinstance(request.root_seed, int)
+            or not isinstance(request.run_kind, RunKindRef)
+            or not isinstance(request.profile, ProfileRefV1)
             or not 0 <= request.root_seed <= (1 << 64) - 1
         ):
-            return _unproven(
-                request,
-                reason_code="regression_seed_binding_unavailable",
-                env_contract_version=env_contract_version,
-                **constraint_binding,
-            )
+            raise IntegrityViolation("regression frozen execution binding is incomplete or invalid")
         if (
             request.max_action_work_units is None
             or isinstance(request.max_action_work_units, bool)
             or not isinstance(request.max_action_work_units, int)
             or request.max_action_work_units < 0
         ):
-            return _unproven(
-                request,
-                reason_code="regression_work_budget_unavailable",
-                env_contract_version=env_contract_version,
-                **constraint_binding,
+            raise IntegrityViolation(
+                "regression frozen execution binding has invalid work authority"
             )
         expected_suite_seed = derive_validation_subseed(
             root_seed=request.root_seed,
@@ -570,11 +602,8 @@ class WorkerRegressionRunner(RegressionRunner):
             replication_index=0,
         )
         if request.seed != expected_suite_seed:
-            return _unproven(
-                request,
-                reason_code="regression_seed_binding_mismatch",
-                env_contract_version=env_contract_version,
-                **constraint_binding,
+            raise IntegrityViolation(
+                "regression seed binding differs from its frozen subseed derivation"
             )
         if request.snapshot is None and constraint_candidate is None:
             return _unproven(
@@ -583,18 +612,17 @@ class WorkerRegressionRunner(RegressionRunner):
                 env_contract_version=env_contract_version,
             )
         if request.snapshot is not None and request.snapshot.snapshot_id != request.snapshot_id:
-            return _unproven(
-                request,
-                reason_code="candidate_snapshot_mismatch",
-                env_contract_version=env_contract_version,
+            raise IntegrityViolation(
+                "regression candidate snapshot binding differs from its frozen request"
             )
         adapter = self.adapters.get((dispatch.adapter.adapter_id, dispatch.adapter.version))
         if adapter is None or adapter.adapter_ref != dispatch.adapter:
-            return _unproven(
-                request,
-                reason_code="regression_adapter_unavailable",
-                env_contract_version=dispatch.env_contract_version,
-                **constraint_binding,
+            raise DependencyUnavailable(
+                "retained regression adapter implementation is unavailable",
+                dependency_kind="game_environment",
+                dependency_id=f"{dispatch.adapter.adapter_id}@{dispatch.adapter.version}",
+                operation_code="run_regression_suite",
+                classifier_code="regression_adapter_unavailable",
             )
         compiler_work_units = 0
         adapter_work_limit = request.max_action_work_units
@@ -618,24 +646,30 @@ class WorkerRegressionRunner(RegressionRunner):
             assert request.snapshot is not None
             candidate = _freeze_snapshot(request.snapshot)
             if candidate.snapshot_id != request.snapshot_id:
-                return _unproven(
-                    request,
-                    reason_code="candidate_snapshot_mismatch",
-                    env_contract_version=env_contract_version,
+                raise IntegrityViolation(
+                    "regression candidate snapshot binding changed during execution"
                 )
-        result = adapter.run(
-            RegressionAdapterRequestV1(
-                suite_artifact_id=request.suite_artifact_id,
-                dispatch=dispatch,
-                snapshot=candidate,
-                seed=request.seed,
-                root_seed=request.root_seed,
-                run_kind=request.run_kind,
-                profile=request.profile,
-                max_action_work_units=adapter_work_limit,
-                environment_definition=definition,
+        try:
+            result = adapter.run(
+                RegressionAdapterRequestV1(
+                    suite_artifact_id=request.suite_artifact_id,
+                    dispatch=dispatch,
+                    snapshot=candidate,
+                    seed=request.seed,
+                    root_seed=request.root_seed,
+                    run_kind=request.run_kind,
+                    profile=request.profile,
+                    max_action_work_units=adapter_work_limit,
+                    environment_definition=definition,
+                )
             )
-        )
+        except _RegressionWorkBudgetExceeded:
+            return _unproven(
+                request,
+                reason_code="regression_work_budget_exceeded",
+                env_contract_version=env_contract_version,
+                **constraint_binding,
+            )
         if _freeze_snapshot(candidate).snapshot_id != candidate.snapshot_id:
             raise IntegrityViolation("regression adapter mutated its exact source snapshot")
         adapter_contract = RegressionRunRequest(
@@ -679,7 +713,7 @@ class WorkerRegressionRunner(RegressionRunner):
             or artifact.version_tuple.env_contract_version is None
             or artifact.version_tuple.tool_version is None
         ):
-            raise ValueError("regression suite Artifact authority is incomplete")
+            raise IntegrityViolation("regression suite Artifact authority is incomplete")
         blob = self.artifacts.read_bytes_bounded(
             suite_artifact_id,
             max_bytes=MAX_REGRESSION_SUITE_WIRE_BYTES,
@@ -688,15 +722,25 @@ class WorkerRegressionRunner(RegressionRunner):
             len(blob) != artifact.object_ref.size_bytes
             or sha256(blob).hexdigest() != artifact.payload_hash
         ):
-            raise ValueError("regression suite bytes differ from its ObjectRef")
-        raw = json.loads(blob.decode("utf-8"))
+            raise IntegrityViolation("regression suite bytes differ from its ObjectRef")
+        try:
+            raw = json.loads(blob.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise IntegrityViolation("regression suite payload is not valid JSON") from exc
         if not isinstance(raw, dict):
-            raise ValueError("regression suite payload must be an object")
-        dispatch = RegressionSuiteDispatchV1.model_validate(raw)
+            raise IntegrityViolation("regression suite payload must be an object")
+        try:
+            dispatch = RegressionSuiteDispatchV1.model_validate(raw)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "regression suite payload violates its retained schema"
+            ) from exc
         if canonical_json(dispatch.model_dump(mode="json")).encode("utf-8") != blob:
-            raise ValueError("regression suite payload is not canonical")
+            raise IntegrityViolation("regression suite payload is not canonical")
         if artifact.version_tuple.env_contract_version != dispatch.env_contract_version:
-            raise ValueError("regression suite environment version differs from its Artifact")
+            raise IntegrityViolation(
+                "regression suite environment version differs from its Artifact"
+            )
 
         source_artifact = self._validate_direct_lineage(artifact)
         definition = self._resolve_environment_definition(dispatch)
@@ -711,7 +755,7 @@ class WorkerRegressionRunner(RegressionRunner):
 
     def _validate_direct_lineage(self, suite: ArtifactV2) -> ArtifactV2:
         if len(suite.lineage) != 1:
-            raise ValueError("Agent-Env regression suite requires one exact source parent")
+            raise IntegrityViolation("Agent-Env regression suite requires one exact source parent")
         parent = self.artifacts.load_artifact(suite.lineage[0])
         if (
             parent.artifact_id != suite.lineage[0]
@@ -722,13 +766,13 @@ class WorkerRegressionRunner(RegressionRunner):
             or parent.version_tuple.constraint_snapshot_id
             != suite.version_tuple.constraint_snapshot_id
         ):
-            raise ValueError("regression suite source snapshot lineage is not exact")
+            raise IntegrityViolation("regression suite source snapshot lineage is not exact")
         return parent
 
     def _load_source_snapshot(self, authority: _CachedSuiteAuthority) -> Snapshot:
         artifact = authority.source_artifact
         if artifact.object_ref.size_bytes > MAX_PREPARED_ARTIFACT_BYTES:
-            raise ValueError("regression suite source snapshot exceeds its byte bound")
+            raise IntegrityViolation("regression suite source snapshot exceeds its byte bound")
         blob = self.artifacts.read_bytes_bounded(
             artifact.artifact_id,
             max_bytes=MAX_PREPARED_ARTIFACT_BYTES,
@@ -738,14 +782,16 @@ class WorkerRegressionRunner(RegressionRunner):
             or sha256(blob).hexdigest() != artifact.payload_hash
             or artifact.object_ref.sha256 != artifact.payload_hash
         ):
-            raise ValueError("regression suite source bytes differ from their ObjectRef")
+            raise IntegrityViolation("regression suite source bytes differ from their ObjectRef")
         payload = decode_and_validate_artifact_payload(
             payload_schema_id="ir-core@1",
             blob=blob,
         )
         snapshot = snapshot_from_canonical_view(payload)
         if snapshot.snapshot_id != artifact.version_tuple.ir_snapshot_id:
-            raise ValueError("regression suite source payload has another snapshot identity")
+            raise IntegrityViolation(
+                "regression suite source payload has another snapshot identity"
+            )
         return snapshot
 
     def _resolve_environment_definition(
@@ -757,7 +803,9 @@ class WorkerRegressionRunner(RegressionRunner):
             binding.catalog_digest,
         )
         if catalog is None:
-            raise ValueError("regression environment profile catalog is unavailable")
+            raise IntegrityViolation(
+                "regression environment profile catalog authority is unavailable"
+            )
         definition = next(
             (item for item in catalog.definitions if item.profile == binding.profile),
             None,
@@ -775,7 +823,7 @@ class WorkerRegressionRunner(RegressionRunner):
             or not isinstance(definition.details, EnvironmentProfileDetailsV1)
             or definition.details.contract.env_contract_version != dispatch.env_contract_version
         ):
-            raise ValueError("regression environment profile binding is unavailable")
+            raise IntegrityViolation("regression environment profile binding is unavailable")
         return definition
 
 
@@ -860,7 +908,7 @@ def _freeze_snapshot(snapshot: Snapshot) -> Snapshot:
 
 def _bounded_state_hash(value: object) -> str:
     if not isinstance(value, str) or not 1 <= len(value) <= 512:
-        raise ValueError("regression environment state hash is outside its wire bound")
+        raise IntegrityViolation("regression environment state hash is outside its wire bound")
     return value
 
 
@@ -870,7 +918,7 @@ def _validate_observation(value: object) -> None:
         or type(value.tick) is not int
         or not 0 <= value.tick <= (1 << 64) - 1
     ):
-        raise ValueError("regression environment returned another observation contract")
+        raise IntegrityViolation("regression environment observation contract is invalid")
     _validate_bounded_json(
         value.model_dump(mode="json"),
         label="regression environment observation",
@@ -882,42 +930,42 @@ def _validate_bounded_json(value: object, *, label: str, max_bytes: int) -> None
     try:
         encoded = canonical_json(value).encode("utf-8")
     except (TypeError, ValueError, OverflowError) as exc:
-        raise ValueError(f"{label} is not canonical JSON") from exc
+        raise IntegrityViolation(f"{label} is not canonical JSON") from exc
     if len(encoded) > max_bytes:
-        raise ValueError(f"{label} exceeds its byte limit")
+        raise IntegrityViolation(f"{label} exceeds its byte limit")
     stack: list[tuple[object, int]] = [(value, 1)]
     while stack:
         item, depth = stack.pop()
         if depth > 32:
-            raise ValueError(f"{label} exceeds its depth limit")
+            raise IntegrityViolation(f"{label} exceeds its depth limit")
         if item is None or type(item) is bool:
             continue
         if type(item) is int:
             if not -(1 << 63) <= item <= (1 << 64) - 1:
-                raise ValueError(f"{label} contains an out-of-range integer")
+                raise IntegrityViolation(f"{label} contains an out-of-range integer")
             continue
         if type(item) is float:
             if not math.isfinite(item):
-                raise ValueError(f"{label} contains a non-finite float")
+                raise IntegrityViolation(f"{label} contains a non-finite float")
             continue
         if isinstance(item, str):
             if len(item) > 4_096:
-                raise ValueError(f"{label} contains an oversized string")
+                raise IntegrityViolation(f"{label} contains an oversized string")
             continue
         if isinstance(item, Mapping):
             if len(item) > 4_096:
-                raise ValueError(f"{label} contains an oversized object")
+                raise IntegrityViolation(f"{label} contains an oversized object")
             for key, child in item.items():
                 if not isinstance(key, str) or len(key) > 4_096:
-                    raise ValueError(f"{label} contains an invalid object key")
+                    raise IntegrityViolation(f"{label} contains an invalid object key")
                 stack.append((child, depth + 1))
             continue
         if isinstance(item, (tuple, list)):
             if len(item) > 4_096:
-                raise ValueError(f"{label} contains an oversized array")
+                raise IntegrityViolation(f"{label} contains an oversized array")
             stack.extend((child, depth + 1) for child in item)
             continue
-        raise ValueError(f"{label} contains a non-JSON value")
+        raise IntegrityViolation(f"{label} contains a non-JSON value")
 
 
 def _validate_action_resource_bounds(action: Mapping[str, object]) -> None:
@@ -925,11 +973,11 @@ def _validate_action_resource_bounds(action: Mapping[str, object]) -> None:
     if kind == "wait":
         ticks = action.get("ticks")
         if isinstance(ticks, bool) or not isinstance(ticks, int) or not 0 <= ticks <= 1_000_000:
-            raise ValueError("regression wait ticks exceed the execution bound")
+            raise IntegrityViolation("regression action resource bound rejects wait ticks")
     elif kind in {"buy", "sell"}:
         count = action.get("count")
         if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= 1_000_000:
-            raise ValueError("regression economy count exceeds the execution bound")
+            raise IntegrityViolation("regression action resource bound rejects economy count")
 
 
 @dataclass(frozen=True, slots=True)
@@ -953,7 +1001,7 @@ class _RegressionActionWorkPlan:
             + self.navigation_count * environment.navigation_work_units
         )
         if total > effective_limit:
-            raise ValueError("regression suite exceeds its total action-work budget")
+            raise _RegressionWorkBudgetExceeded
         return total
 
 
@@ -969,7 +1017,7 @@ def _plan_total_action_work(
         or not isinstance(max_action_work_units, int)
         or max_action_work_units < 0
     ):
-        raise ValueError("regression action-work authority is invalid")
+        raise IntegrityViolation("regression action-work authority is invalid")
     effective_limit = max_action_work_units
     base_total = 0
     step_count = 0
@@ -977,10 +1025,15 @@ def _plan_total_action_work(
     for case in payload.cases:
         for step in case.steps:
             step_count += 1
-            action = parse_action(step.action)
+            try:
+                action = parse_action(step.action)
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation(
+                    "regression retained action violates its exact schema"
+                ) from exc
             wire = action.model_dump(mode="json")
             if canonical_json(wire) != canonical_json(step.action):
-                raise ValueError("regression action is not its exact atomic wire shape")
+                raise IntegrityViolation("regression action is not its exact atomic wire shape")
             _validate_action_resource_bounds(wire)
             kind = wire.get("kind")
             if kind == "navigate_to":
@@ -992,20 +1045,20 @@ def _plan_total_action_work(
             elif kind == "wait":
                 value = wire.get("ticks")
                 if isinstance(value, bool) or not isinstance(value, int):
-                    raise ValueError("regression wait work is not an integer")
+                    raise IntegrityViolation("regression wait work is not an integer")
                 work = max(1, value)
             elif kind in {"buy", "sell"}:
                 value = wire.get("count")
                 if isinstance(value, bool) or not isinstance(value, int):
-                    raise ValueError("regression economy work is not an integer")
+                    raise IntegrityViolation("regression economy work is not an integer")
                 work = value
             else:
                 work = 1
             if base_total > effective_limit - work:
-                raise ValueError("regression suite exceeds its total action-work budget")
+                raise _RegressionWorkBudgetExceeded
             base_total += work
             if base_total > effective_limit - navigation_count:
-                raise ValueError("regression suite exceeds its total action-work budget")
+                raise _RegressionWorkBudgetExceeded
     return _RegressionActionWorkPlan(
         base_action_work_units=base_total,
         case_count=len(payload.cases),
@@ -1088,39 +1141,37 @@ def _merge_constraint_candidate_result(
         if finding.status in {"confirmed", "unproven"}
     )
     compiled_findings: list[Finding] = []
-    compiler_unavailable = False
-    try:
-        compiled = compile_all(list(candidate.constraints))
-        if len(compiled) != len(candidate.constraints):
-            raise ValueError("constraint compiler returned another candidate cardinality")
-        for constraint, checker in zip(candidate.constraints, compiled, strict=True):
-            raw = checker.check(source_snapshot, nav=None)
-            if not isinstance(raw, list):
-                raise ValueError("compiled constraint checker returned another result contract")
-            for finding in raw:
-                if not isinstance(finding, Finding):
-                    raise ValueError("compiled constraint checker returned another Finding type")
-                if finding.snapshot_id != source_snapshot.snapshot_id:
-                    raise ValueError("compiled constraint Finding escaped its source snapshot")
-                if finding.constraint_id != constraint.id:
-                    raise ValueError("compiled constraint Finding escaped its candidate binding")
-                if finding.status not in {"confirmed", "unproven"}:
-                    continue
-                compiled_findings.append(
-                    finding.model_copy(
-                        update={
-                            "id": scoped_finding_series_id(
-                                namespace="constraint",
-                                scope_id=constraint.id,
-                                finding_id=finding.id,
-                            )
-                        }
-                    )
+    compiled = compile_all(list(candidate.constraints))
+    if len(compiled) != len(candidate.constraints):
+        raise IntegrityViolation("constraint compiler returned another candidate cardinality")
+    for constraint, checker in zip(candidate.constraints, compiled, strict=True):
+        raw = checker.check(source_snapshot, nav=None)
+        if not isinstance(raw, list):
+            raise IntegrityViolation("compiled constraint checker returned another result contract")
+        for finding in raw:
+            if not isinstance(finding, Finding):
+                raise IntegrityViolation(
+                    "compiled constraint checker returned another Finding type"
                 )
-    except IntegrityViolation:
-        raise
-    except Exception:  # noqa: BLE001 - a compiler failure proves no candidate verdict
-        compiler_unavailable = True
+            if finding.snapshot_id != source_snapshot.snapshot_id:
+                raise IntegrityViolation("compiled constraint Finding escaped its source snapshot")
+            if finding.constraint_id != constraint.id:
+                raise IntegrityViolation(
+                    "compiled constraint Finding escaped its candidate binding"
+                )
+            if finding.status not in {"confirmed", "unproven"}:
+                continue
+            compiled_findings.append(
+                finding.model_copy(
+                    update={
+                        "id": scoped_finding_series_id(
+                            namespace="constraint",
+                            scope_id=constraint.id,
+                            finding_id=finding.id,
+                        )
+                    }
+                )
+            )
 
     merged = tuple(
         _constraint_binding_finding(
@@ -1135,21 +1186,13 @@ def _merge_constraint_candidate_result(
     finding_status = deterministic_finding_status(merged)
     if finding_status == "failed" or adapter_result.status == "failed":
         status = "failed"
-    elif (
-        compiler_unavailable
-        or finding_status == "unproven"
-        or adapter_result.status in {"unproven", "not_executed"}
-    ):
+    elif finding_status == "unproven" or adapter_result.status == "unproven":
         status = "unproven"
     else:
         status = "passed"
     reason_code = None
     if status == "unproven":
-        reason_code = adapter_result.reason_code or (
-            "constraint_candidate_execution_unavailable"
-            if compiler_unavailable
-            else "constraint_candidate_reported_unproven"
-        )
+        reason_code = adapter_result.reason_code or "constraint_candidate_reported_unproven"
     wire = {
         **dict(adapter_result.payload),
         "snapshot_id": source_snapshot.snapshot_id,
@@ -1194,15 +1237,23 @@ def _validate_adapter_result(
         "findings",
     }
     if set(payload) - allowed_fields or "case_seed_manifest" not in payload:
-        raise ValueError("regression adapter result has another wire shape")
-    manifest = RegressionCaseSeedManifestV1.model_validate(payload["case_seed_manifest"])
+        raise IntegrityViolation("regression adapter result has another wire shape")
+    try:
+        manifest = RegressionCaseSeedManifestV1.model_validate(payload["case_seed_manifest"])
+    except (TypeError, ValueError) as exc:
+        raise IntegrityViolation("regression adapter result has an invalid seed manifest") from exc
     findings_raw = payload.get("findings", ())
     if not isinstance(findings_raw, (tuple, list)):
-        raise ValueError("regression adapter findings are not a collection")
-    findings = tuple(Finding.model_validate(item) for item in findings_raw)
-    unavailable = result.status in {"unproven", "not_executed"}
+        raise IntegrityViolation("regression adapter findings are not a collection")
+    try:
+        findings = tuple(Finding.model_validate(item) for item in findings_raw)
+    except (TypeError, ValueError) as exc:
+        raise IntegrityViolation("regression adapter result contains an invalid Finding") from exc
+    if result.status == "not_executed":
+        raise IntegrityViolation("production regression adapter must execute or report unproven")
+    unavailable = result.status == "unproven"
     if (
-        result.status not in {"passed", "failed", "unproven", "not_executed"}
+        result.status not in {"passed", "failed", "unproven"}
         or result.suite_artifact_id != request.suite_artifact_id
         or payload.get("payload_schema_version") != REGRESSION_EVIDENCE_SCHEMA_ID
         or payload.get("suite_artifact_id") != request.suite_artifact_id
@@ -1228,7 +1279,7 @@ def _validate_adapter_result(
         or (findings and result.status != deterministic_finding_status(findings))
         or any(finding.snapshot_id != request.snapshot_id for finding in findings)
     ):
-        raise ValueError("regression adapter result escaped its exact execution binding")
+        raise IntegrityViolation("regression adapter result escaped its exact execution binding")
     return result
 
 

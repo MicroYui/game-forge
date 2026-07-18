@@ -615,6 +615,13 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         ),
         frozenset((False,)),
     ),
+    "impact_analysis": (
+        "builtin_impact_analysis_profile@1",
+        "impact_analysis-profile-config@1",
+        frozenset(("rollback-validation@1",)),
+        frozenset(("regression-evidence@1",)),
+        frozenset((False,)),
+    ),
     "llm_triage": (
         "builtin_llm_triage_profile@1",
         "llm_triage-profile-config@1",
@@ -652,6 +659,20 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         frozenset(("review@1",)),
         frozenset((False,)),
     ),
+    "rollback": (
+        "builtin_rollback_profile@1",
+        "rollback-profile-config@1",
+        frozenset(("rollback-validation@1",)),
+        frozenset(("evidence-set@1", "regression-evidence@1")),
+        frozenset((False,)),
+    ),
+    "schema_compatibility": (
+        "builtin_schema_compatibility_profile@1",
+        "schema_compatibility-profile-config@1",
+        frozenset(("rollback-validation@1",)),
+        frozenset(("regression-evidence@1",)),
+        frozenset((False,)),
+    ),
     "simulation": (
         "builtin_simulation_profile@1",
         "simulation-profile-config@1",
@@ -664,6 +685,13 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         "task_suite_derivation-profile-config@2",
         frozenset(("task-suite-derive@1",)),
         frozenset(("scenario-spec@1", "task-suite@1")),
+        frozenset((False,)),
+    ),
+    "validation": (
+        "builtin_validation_profile@1",
+        "validation-profile-config@1",
+        frozenset(("constraint-validation@1", "patch-validation@1")),
+        frozenset(("auto-apply-proof@1", "evidence-set@1")),
         frozenset((False,)),
     ),
     "workload": (
@@ -1504,6 +1532,7 @@ def _build_executor_handlers(
             auto_apply_evaluator=auto_apply_evaluator,
             finding_revision_loader=finding_revision_loader,
             regression_runner=regression_runner,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
         "constraint_validator@1": ConstraintValidationHandler(
             blobs=blobs,
@@ -1519,6 +1548,7 @@ def _build_executor_handlers(
             schema_analyzer=schema_analyzer,
             impact_analyzer=impact_analyzer,
             regression_runner=regression_runner,
+            profile_binding_validator=exact_profile_binding_validator,
         ),
     }
     handlers.update(DEFERRED_EXECUTORS)

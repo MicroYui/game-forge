@@ -10,6 +10,7 @@ eligible policy.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
@@ -43,8 +44,12 @@ from gameforge.contracts.jobs import (
     RefReadBindingV1,
     ValidationSubjectBindingV1,
 )
-from gameforge.contracts.lineage import artifact_id_v2_for
-from gameforge.contracts.lineage import VersionTuple
+from gameforge.contracts.lineage import (
+    InvocationVersionBindingV1,
+    VersionTuple,
+    artifact_id_v2_for,
+    build_execution_identity,
+)
 from gameforge.contracts.playtest import (
     MAX_PLAYTEST_ACTION_RECORD_CANONICAL_BYTES,
     MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES,
@@ -266,6 +271,7 @@ def _playtest_finding(
     status: str,
     snapshot_id: str,
     episode_id: str = "episode:1",
+    scenario_spec_artifact_id: str = "artifact:scenario",
 ) -> Finding:
     return Finding(
         id="playtest-incomplete:agent_stopped",
@@ -278,12 +284,12 @@ def _playtest_finding(
         snapshot_id=snapshot_id,
         evidence={
             "episode_id": episode_id,
-            "scenario_spec_artifact_id": "artifact:scenario",
+            "scenario_spec_artifact_id": scenario_spec_artifact_id,
             "terminal_reason": "agent_stopped",
         },
         minimal_repro={
             "episode_id": episode_id,
-            "scenario_spec_artifact_id": "artifact:scenario",
+            "scenario_spec_artifact_id": scenario_spec_artifact_id,
         },
         status=status,
         message="completion oracle was not satisfied",
@@ -368,11 +374,16 @@ def _playtest_trace(
     completed: bool,
     root_seed: int = 11,
     environment_profile: ProfileRefV1 = _ENVIRONMENT,
+    planner_policy: ProfileRefV1 = ProfileRefV1(profile_id="planner", version=1),
+    planner_profile_payload_hash: str = _HEX,
     completion_oracle_id: str = "all-quests",
     config_artifact_id: str = CONFIG_ID,
+    task_suite_artifact_id: str = "artifact:task-suite",
+    scenario_spec_artifact_id: str = "artifact:scenario",
+    episode_id: str = "episode:1",
+    actual_model_calls: int = 1,
 ) -> PlaytestTraceV1:
-    task_suite_id = "artifact:task-suite"
-    episode_id = "episode:1"
+    task_suite_id = task_suite_artifact_id
     run_kind = RunKindRef(kind="playtest.run", version=1)
     execution_seed = derive_validation_subseed(
         root_seed=root_seed,
@@ -394,14 +405,14 @@ def _playtest_trace(
         "constraint_snapshot_artifact_id": "artifact:constraint",
         "task_suite_artifact_id": task_suite_id,
         "environment_profile": environment_profile.model_dump(mode="json"),
-        "planner_policy": {"profile_id": "planner", "version": 1},
+        "planner_policy": planner_policy.model_dump(mode="json"),
         "env_contract_version": "env@1",
         "interaction_mode": "autonomous",
         "seed": root_seed,
         "requested_max_steps_per_episode": requested_steps,
         "planner_memory_mode": "off",
         "execution_envelope": {
-            "planner_profile_payload_hash": _HEX,
+            "planner_profile_payload_hash": planner_profile_payload_hash,
             "selected_episode_count": 1,
             "total_step_limit": requested_steps,
             "model_call_upper_bound": (requested_steps * PLAYTEST_MODEL_CALLS_PER_STEP_OFF),
@@ -410,7 +421,7 @@ def _playtest_trace(
                 + per_episode_upper_bound
                 + MAX_PLAYTEST_EPISODE_METADATA_CANONICAL_BYTES
             ),
-            "actual_model_calls": 0,
+            "actual_model_calls": actual_model_calls,
             "total_action_count": 0,
             "total_action_trace_bytes": 2,
             "actual_trace_bytes": 1,
@@ -418,7 +429,7 @@ def _playtest_trace(
         "episodes": [
             {
                 "episode_id": episode_id,
-                "scenario_spec_artifact_id": "artifact:scenario",
+                "scenario_spec_artifact_id": scenario_spec_artifact_id,
                 "seed": execution_seed,
                 "seed_binding": {
                     "seed_derivation_version": "subseed@1",
@@ -616,8 +627,13 @@ class _MeasuredWorkRegressionRunner:
         )
 
 
-def _store(*, snapshot: bytes | None = None) -> FakeArtifactStore:
-    store = FakeArtifactStore()
+def _store(
+    *,
+    snapshot: bytes | None = None,
+    store: FakeArtifactStore | None = None,
+) -> FakeArtifactStore:
+    if store is None:
+        store = FakeArtifactStore()
     store.register(BASE_ID, _clean_snapshot())
     store.register(PREVIEW_ID, snapshot if snapshot is not None else _clean_snapshot())
     preview = load_snapshot(store, PREVIEW_ID)
@@ -653,6 +669,7 @@ def _register_historical_evidence(
     payload: object,
     version_tuple: VersionTuple | None = None,
     lineage: tuple[str, ...] = (),
+    meta: dict[str, object] | None = None,
 ) -> str:
     return store.register_exact_artifact(
         kind=kind,
@@ -660,7 +677,117 @@ def _register_historical_evidence(
         payload=payload,
         version_tuple=version_tuple,
         lineage=lineage,
+        meta=meta,
     ).artifact_id
+
+
+def _playtest_execution_identity(
+    *,
+    prompt_version: str = "playtest-prompt@1",
+    model_snapshot: str = "provider/playtest/model@1",
+    agent_graph_version: str = "playtest-graph@1",
+    execution_source: str = "cassette_replay",
+    routing_decision_kind: str = "native",
+    consumed_call_count: int = 1,
+):
+    bindings = tuple(
+        InvocationVersionBindingV1(
+            attempt_no=1,
+            call_ordinal=ordinal,
+            route_ordinal=1,
+            transport_attempt=(1 if execution_source == "online" else None),
+            routing_decision_kind=routing_decision_kind,
+            routing_decision_id=f"route:{routing_decision_kind}:{ordinal}",
+            agent_node_id="playtest.executor",
+            prompt_version=prompt_version,
+            model_snapshot=model_snapshot,
+            tool_version="playtest-agent-node@1",
+            execution_source=execution_source,
+            response_consumed=True,
+        )
+        for ordinal in range(1, consumed_call_count + 1)
+    )
+    return build_execution_identity(
+        scope="artifact",
+        bindings=bindings,
+        agent_graph_version=agent_graph_version,
+    )
+
+
+def _register_authoritative_playtest_trace(
+    store: FakeArtifactStore,
+    *,
+    trace: PlaytestTraceV1,
+    ir_snapshot_id: str,
+    prompt_version: str = "playtest-prompt@1",
+    model_snapshot: str = "provider/playtest/model@1",
+    agent_graph_version: str = "playtest-graph@1",
+    execution_mode: str = "replay",
+    routing_decision_kind: str = "native",
+    cassette_id: str = f"sha256:{'1' * 64}",
+    # Mirrors the real Playtest producer projection: playtest traces do not
+    # project a document version into their VersionTuple.
+    doc_version: str | None = None,
+    artifact_constraint_snapshot_id: str = CONSTRAINT_SNAPSHOT_ID,
+    producer_tool_version: str = "playtest@1",
+    artifact_env_contract_version: str | None = None,
+    consumed_call_count: int = 1,
+    omit_execution_identity: bool = False,
+    omit_lineage_ids: tuple[str, ...] = (),
+) -> str:
+    source_by_mode = {
+        "live": "online",
+        "record": "online",
+        "replay": "cassette_replay",
+    }
+    identity = _playtest_execution_identity(
+        prompt_version=prompt_version,
+        model_snapshot=model_snapshot,
+        agent_graph_version=agent_graph_version,
+        execution_source=source_by_mode[execution_mode],
+        routing_decision_kind=routing_decision_kind,
+        consumed_call_count=consumed_call_count,
+    )
+    cassette_bound = execution_mode in {"record", "replay"}
+    version_tuple = VersionTuple(
+        doc_version=doc_version,
+        ir_snapshot_id=ir_snapshot_id,
+        constraint_snapshot_id=artifact_constraint_snapshot_id,
+        prompt_version=(
+            None if omit_execution_identity else identity.prompt_projection.tuple_value
+        ),
+        model_snapshot=(None if omit_execution_identity else identity.model_projection.tuple_value),
+        agent_graph_version=(None if omit_execution_identity else identity.agent_graph_version),
+        tool_version=producer_tool_version,
+        env_contract_version=(
+            trace.env_contract_version
+            if artifact_env_contract_version is None
+            else artifact_env_contract_version
+        ),
+        seed=trace.seed,
+        cassette_id=(cassette_id if cassette_bound else None),
+    )
+    required_lineage = {
+        trace.config_artifact_id,
+        trace.constraint_snapshot_artifact_id,
+        trace.task_suite_artifact_id,
+        *(episode.scenario_spec_artifact_id for episode in trace.episodes),
+    }
+    lineage = tuple(sorted(required_lineage.difference(omit_lineage_ids)))
+    meta: dict[str, object] = {
+        "replayability": "online_only" if execution_mode == "live" else "cassette_replay"
+    }
+    if not omit_execution_identity:
+        meta["execution_identity"] = identity
+    return _register_historical_evidence(
+        store,
+        kind="playtest_trace",
+        payload_schema_id="playtest-trace@1",
+        payload=trace.model_dump(mode="json"),
+        version_tuple=version_tuple,
+        lineage=lineage,
+        meta=meta,
+    )
 
 
 def _handler(
@@ -777,7 +904,7 @@ def test_patch_validation_rejects_incomplete_exact_executor_profile_closure() ->
         ),
     )
 
-    with pytest.raises(IntegrityViolation, match="profile closure"):
+    with pytest.raises(IntegrityViolation, match="execution profile"):
         _handler(store)(
             _context(
                 store,
@@ -785,6 +912,96 @@ def test_patch_validation_rejects_incomplete_exact_executor_profile_closure() ->
                 resolved_profiles_override=validation_only,
             )
         )
+
+
+@pytest.mark.parametrize("forgery", ("missing", "extra", "duplicate", "catalog"))
+def test_patch_validation_rejects_non_exact_profile_sets_before_input_reads(
+    forgery: str,
+) -> None:
+    class ReadTrackingStore(FakeArtifactStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_count = 0
+
+        def read_bytes(self, artifact_id: str) -> bytes:
+            self.read_count += 1
+            return super().read_bytes(artifact_id)
+
+    store = _store(store=ReadTrackingStore())
+    payload = _payload()
+    context = _context(store, payload)
+    profiles = list(context.payload.resolved_profiles)
+    if forgery == "missing":
+        profiles.pop()
+    elif forgery == "extra":
+        profiles.append(
+            resolved_binding(
+                "/params/injected_profile",
+                profile_id="injected",
+                version=1,
+                kind="checker",
+            )
+        )
+    elif forgery == "duplicate":
+        profiles.append(profiles[-1])
+    else:
+        profiles[-1] = profiles[-1].model_copy(update={"catalog_digest": "b" * 64})
+    forged_payload = context.payload.model_copy(update={"resolved_profiles": tuple(profiles)})
+    forged_context = replace(context, payload=forged_payload)
+    store.read_count = 0
+
+    with pytest.raises(IntegrityViolation, match="execution profile"):
+        _handler(store)(forged_context)
+
+    assert store.read_count == 0
+    assert store.put_count == 0
+
+
+@pytest.mark.parametrize("authority_failure", ("payload_hash", "lifecycle"))
+def test_patch_validation_resolves_profile_authority_before_input_reads(
+    authority_failure: str,
+) -> None:
+    class ReadTrackingStore(FakeArtifactStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_count = 0
+
+        def read_bytes(self, artifact_id: str) -> bytes:
+            self.read_count += 1
+            return super().read_bytes(artifact_id)
+
+    store = _store(store=ReadTrackingStore())
+    payload = _payload()
+    context = _context(store, payload)
+    if authority_failure == "payload_hash":
+        profiles = tuple(
+            binding.model_copy(update={"profile_payload_hash": "0" * 64})
+            if binding.field_path == "/params/checker_profiles/0"
+            else binding
+            for binding in context.payload.resolved_profiles
+        )
+        context = replace(
+            context,
+            payload=context.payload.model_copy(update={"resolved_profiles": profiles}),
+        )
+    seen: list[str] = []
+
+    def reject_authority(binding, *, llm_execution_mode, run_kind) -> None:
+        seen.append(binding.field_path)
+        assert llm_execution_mode == "not_applicable"
+        assert run_kind == PATCH_VALIDATE_KIND
+        if binding.field_path == "/params/checker_profiles/0":
+            if authority_failure == "payload_hash":
+                assert binding.profile_payload_hash == "0" * 64
+            raise IntegrityViolation(f"execution profile {authority_failure} is invalid")
+
+    store.read_count = 0
+    with pytest.raises(IntegrityViolation, match=authority_failure):
+        _handler(store, profile_binding_validator=reject_authority)(context)
+
+    assert seen == ["/params/validation_policy", "/params/checker_profiles/0"]
+    assert store.read_count == 0
+    assert store.put_count == 0
 
 
 def test_production_patch_sim_config_resolves_only_the_exact_catalog_binding() -> None:
@@ -1127,9 +1344,12 @@ def test_supporting_playtest_completion_affects_validation(
     expected_status: str,
 ) -> None:
     store = _store()
-    store.register(
-        PLAYTEST_TRACE_ID,
-        _playtest_trace(completed=completed).model_dump(mode="json"),
+    trace = _playtest_trace(completed=completed)
+    preview = load_snapshot(store, PREVIEW_ID)
+    playtest_trace_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=trace,
+        ir_snapshot_id=preview.snapshot_id,
     )
     outcome = _handler(store)(
         _context(
@@ -1138,7 +1358,7 @@ def test_supporting_playtest_completion_affects_validation(
                 constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
                 candidate_config_export_artifact_ids=(CONFIG_ID,),
                 checker_profiles=(),
-                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+                playtest_trace_artifact_ids=(playtest_trace_artifact_id,),
             ),
             constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
             env_contract_version="env@1",
@@ -1149,10 +1369,67 @@ def test_supporting_playtest_completion_affects_validation(
     requirement = next(
         item
         for item in evidence.requirements
-        if item.requirement_id == f"playtest:{PLAYTEST_TRACE_ID}"
+        if item.requirement_id == f"playtest:{playtest_trace_artifact_id}"
     )
     assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
     assert requirement.status == expected_status
+
+
+@pytest.mark.parametrize("forgery", ("missing_envelope", "missing_identity", "tuple_projection"))
+def test_supporting_completed_playtest_requires_exact_execution_authority(
+    forgery: str,
+) -> None:
+    store = _store()
+    trace = _playtest_trace(completed=True)
+    preview = load_snapshot(store, PREVIEW_ID)
+    handler_kwargs: dict[str, object] = {}
+    if forgery == "missing_envelope":
+        artifact_id = PLAYTEST_TRACE_ID
+        store.register(artifact_id, trace.model_dump(mode="json"))
+    else:
+        artifact_id = _register_authoritative_playtest_trace(
+            store,
+            trace=trace,
+            ir_snapshot_id=preview.snapshot_id,
+            omit_execution_identity=(forgery == "missing_identity"),
+        )
+        if forgery == "tuple_projection":
+            authoritative = store.load_artifact(artifact_id)
+            forged = authoritative.model_copy(
+                update={
+                    "version_tuple": authoritative.version_tuple.model_copy(
+                        update={"prompt_version": "forged-prompt@1"}
+                    )
+                }
+            )
+            handler_kwargs["artifact_inspector"] = SimpleNamespace(
+                load_artifact=lambda requested_id: (
+                    forged if requested_id == artifact_id else store.load_artifact(requested_id)
+                )
+            )
+
+    outcome = _handler(store, **handler_kwargs)(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                playtest_trace_artifact_ids=(artifact_id,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == f"playtest:{artifact_id}"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "playtest_execution_authority_unavailable"
 
 
 def test_checker_receives_exact_resolved_constraints_and_artifacts_project_run_tuple() -> None:
@@ -1281,20 +1558,28 @@ def test_llm_constraint_remains_unproven_without_entering_deterministic_checker_
             "catalog_digest": catalog.catalog_digest,
         }
     )
+    context = _context(
+        store,
+        _payload(
+            constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+            checker_profiles=(checker_profile,),
+        ),
+        constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        resolved_profiles_override=(validation_binding, checker_binding),
+    )
+    context = replace(
+        context,
+        payload=context.payload.model_copy(
+            update={
+                "execution_profile_catalog_version": catalog.catalog_version,
+                "execution_profile_catalog_digest": catalog.catalog_digest,
+            }
+        ),
+    )
     outcome = _handler(
         store,
         checker_resolver=worker_components._build_patch_checker_resolver(registry),
-    )(
-        _context(
-            store,
-            _payload(
-                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
-                checker_profiles=(checker_profile,),
-            ),
-            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
-            resolved_profiles_override=(validation_binding, checker_binding),
-        )
-    )
+    )(context)
 
     companion = next(
         artifact
@@ -2446,14 +2731,19 @@ def test_direct_checker_coverage_does_not_cross_into_constraint_scoped_execution
 
 def test_historical_playtest_finding_passes_when_exact_episode_rerun_does_not_reproduce() -> None:
     store = _store()
-    historical_trace = _playtest_trace(completed=False).model_dump(mode="json")
-    evidence_artifact_id = _register_historical_evidence(
+    historical_trace = _playtest_trace(completed=False)
+    evidence_artifact_id = _register_authoritative_playtest_trace(
         store,
-        kind="playtest_trace",
-        payload_schema_id="playtest-trace@1",
-        payload=historical_trace,
+        trace=historical_trace,
+        ir_snapshot_id="snapshot:historical",
     )
-    store.register(PLAYTEST_TRACE_ID, _playtest_trace(completed=True).model_dump(mode="json"))
+    preview = load_snapshot(store, PREVIEW_ID)
+    fresh_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=_playtest_trace(completed=True),
+        ir_snapshot_id=preview.snapshot_id,
+        cassette_id=f"sha256:{'2' * 64}",
+    )
     historical = _finding_revision(
         _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
         finding_id="finding-series:playtest:episode-1:incomplete",
@@ -2474,7 +2764,7 @@ def test_historical_playtest_finding_passes_when_exact_episode_rerun_does_not_re
                 candidate_config_export_artifact_ids=(CONFIG_ID,),
                 checker_profiles=(),
                 expected_findings=(expected,),
-                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+                playtest_trace_artifact_ids=(fresh_artifact_id,),
             ),
             constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
             env_contract_version="env@1",
@@ -2582,25 +2872,49 @@ def test_historical_playtest_requires_exact_execution_binding(
     assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
 
 
-def test_historical_playtest_allows_the_candidate_config_to_change() -> None:
+def test_historical_playtest_reverification_allows_rederived_candidate_artifact_ids() -> None:
     store = _store()
+    old_config_id = "artifact:candidate-config:old"
     new_config_id = "artifact:candidate-config:new"
+    old_suite_id = "artifact:task-suite:old"
+    new_suite_id = "artifact:task-suite:new"
+    old_scenario_id = "artifact:scenario:old"
+    new_scenario_id = "artifact:scenario:new"
+    store.register(old_config_id, {"config": "old candidate"})
     store.register(new_config_id, {"config": "new candidate"})
-    evidence_artifact_id = _register_historical_evidence(
-        store,
-        kind="playtest_trace",
-        payload_schema_id="playtest-trace@1",
-        payload=_playtest_trace(completed=False).model_dump(mode="json"),
+    historical_trace = _playtest_trace(
+        completed=False,
+        config_artifact_id=old_config_id,
+        task_suite_artifact_id=old_suite_id,
+        scenario_spec_artifact_id=old_scenario_id,
     )
-    store.register(
-        PLAYTEST_TRACE_ID,
-        _playtest_trace(
-            completed=True,
-            config_artifact_id=new_config_id,
-        ).model_dump(mode="json"),
+    evidence_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=historical_trace,
+        ir_snapshot_id="snapshot:historical",
+        cassette_id=f"sha256:{'1' * 64}",
+    )
+    fresh_trace = _playtest_trace(
+        completed=True,
+        config_artifact_id=new_config_id,
+        task_suite_artifact_id=new_suite_id,
+        scenario_spec_artifact_id=new_scenario_id,
+    )
+    preview = load_snapshot(store, PREVIEW_ID)
+    fresh_trace_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=fresh_trace,
+        ir_snapshot_id=preview.snapshot_id,
+        # Candidate-specific replay bytes produce a different cassette Artifact,
+        # but the same replay execution variant remains comparable.
+        cassette_id=f"sha256:{'2' * 64}",
     )
     historical = _finding_revision(
-        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        _playtest_finding(
+            status="confirmed",
+            snapshot_id="snapshot:historical",
+            scenario_spec_artifact_id=old_scenario_id,
+        ),
         finding_id="finding-series:playtest:new-config",
     )
 
@@ -2623,7 +2937,7 @@ def test_historical_playtest_allows_the_candidate_config_to_change() -> None:
                         evidence_artifact_id=evidence_artifact_id,
                     ),
                 ),
-                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+                playtest_trace_artifact_ids=(fresh_trace_artifact_id,),
             ),
             constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
             env_contract_version="env@1",
@@ -2640,21 +2954,212 @@ def test_historical_playtest_allows_the_candidate_config_to_change() -> None:
     assert requirement.status == "passed"
 
 
+@pytest.mark.parametrize(
+    "changed_authority",
+    (
+        "prompt",
+        "model",
+        "agent_graph",
+        "execution_mode_live",
+        "execution_mode_record",
+        "routing_identity_kind",
+        "producer_tool",
+        "artifact_environment",
+    ),
+)
+def test_historical_playtest_reverification_does_not_cross_execution_authority(
+    changed_authority: str,
+) -> None:
+    store = _store()
+    historical_trace = _playtest_trace(completed=False)
+    historical_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=historical_trace,
+        ir_snapshot_id="snapshot:historical",
+    )
+    fresh_trace = _playtest_trace(completed=True)
+    fresh_kwargs: dict[str, object] = {}
+    if changed_authority == "prompt":
+        fresh_kwargs["prompt_version"] = "playtest-prompt@2"
+    elif changed_authority == "model":
+        fresh_kwargs["model_snapshot"] = "provider/playtest/model@2"
+    elif changed_authority == "agent_graph":
+        fresh_kwargs["agent_graph_version"] = "playtest-graph@2"
+    elif changed_authority == "execution_mode_live":
+        fresh_kwargs["execution_mode"] = "live"
+    elif changed_authority == "execution_mode_record":
+        fresh_kwargs["execution_mode"] = "record"
+    elif changed_authority == "routing_identity_kind":
+        fresh_kwargs["routing_decision_kind"] = "legacy_import"
+    elif changed_authority == "producer_tool":
+        fresh_kwargs["producer_tool_version"] = "playtest@2"
+    else:
+        fresh_kwargs["artifact_env_contract_version"] = "env@2"
+    preview = load_snapshot(store, PREVIEW_ID)
+    fresh_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=fresh_trace,
+        ir_snapshot_id=preview.snapshot_id,
+        **fresh_kwargs,
+    )
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id=f"finding-series:playtest:authority:{changed_authority}",
+    )
+    binding = _finding_binding(
+        historical,
+        evidence_artifact_id=historical_artifact_id,
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            historical,
+            evidence_artifact_id=historical_artifact_id,
+        ),
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                expected_findings=(binding,),
+                playtest_trace_artifact_ids=(fresh_artifact_id,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id
+        == f"expected-finding:finding-series:playtest:authority:{changed_authority}@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
+@pytest.mark.parametrize(
+    "forgery",
+    (
+        "missing_identity",
+        "fresh_missing_identity",
+        "identity_call_count",
+        "missing_scenario_lineage",
+        "tuple_projection",
+    ),
+)
+def test_historical_playtest_reverification_requires_artifact_authority(
+    forgery: str,
+) -> None:
+    store = _store()
+    historical_trace = _playtest_trace(completed=False)
+    historical_kwargs: dict[str, object] = {}
+    fresh_kwargs: dict[str, object] = {}
+    if forgery == "missing_identity":
+        historical_kwargs["omit_execution_identity"] = True
+    elif forgery == "fresh_missing_identity":
+        fresh_kwargs["omit_execution_identity"] = True
+    elif forgery == "identity_call_count":
+        historical_kwargs["consumed_call_count"] = 2
+    elif forgery == "missing_scenario_lineage":
+        historical_kwargs["omit_lineage_ids"] = ("artifact:scenario",)
+    historical_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=historical_trace,
+        ir_snapshot_id="snapshot:historical",
+        **historical_kwargs,
+    )
+    handler_kwargs: dict[str, object] = {}
+    if forgery == "tuple_projection":
+        authoritative = store.load_artifact(historical_artifact_id)
+        forged = authoritative.model_copy(
+            update={
+                "version_tuple": authoritative.version_tuple.model_copy(
+                    update={"prompt_version": "forged-prompt@1"}
+                )
+            }
+        )
+        handler_kwargs["artifact_inspector"] = SimpleNamespace(
+            load_artifact=lambda artifact_id: (
+                forged
+                if artifact_id == historical_artifact_id
+                else store.load_artifact(artifact_id)
+            )
+        )
+    fresh_trace = _playtest_trace(completed=True)
+    preview = load_snapshot(store, PREVIEW_ID)
+    fresh_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=fresh_trace,
+        ir_snapshot_id=preview.snapshot_id,
+        **fresh_kwargs,
+    )
+    historical = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
+        finding_id=f"finding-series:playtest:forgery:{forgery}",
+    )
+
+    outcome = _handler(
+        store,
+        finding_revision_loader=_ExactFindingRevisionLoader(
+            historical,
+            evidence_artifact_id=historical_artifact_id,
+        ),
+        **handler_kwargs,
+    )(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                candidate_config_export_artifact_ids=(CONFIG_ID,),
+                checker_profiles=(),
+                expected_findings=(
+                    _finding_binding(
+                        historical,
+                        evidence_artifact_id=historical_artifact_id,
+                    ),
+                ),
+                playtest_trace_artifact_ids=(fresh_artifact_id,),
+            ),
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+            env_contract_version="env@1",
+        )
+    )
+
+    requirement = next(
+        item
+        for item in _read_evidence_set(store, outcome).requirements
+        if item.requirement_id == f"expected-finding:finding-series:playtest:forgery:{forgery}@1"
+    )
+    assert outcome.summary.outcome_code == "patch_validation_unproven"
+    assert requirement.status == "unproven"
+    assert requirement.reason_code == "expected_finding_oracle_not_reexecuted"
+
+
 def test_historical_playtest_finding_fails_when_exact_episode_rerun_reproduces() -> None:
     store = _store()
-    trace = _playtest_trace(completed=False).model_dump(mode="json")
-    evidence_artifact_id = _register_historical_evidence(
+    trace = _playtest_trace(completed=False)
+    evidence_artifact_id = _register_authoritative_playtest_trace(
         store,
-        kind="playtest_trace",
-        payload_schema_id="playtest-trace@1",
-        payload=trace,
+        trace=trace,
+        ir_snapshot_id="snapshot:historical",
     )
-    store.register(PLAYTEST_TRACE_ID, trace)
     historical = _finding_revision(
         _playtest_finding(status="confirmed", snapshot_id="snapshot:historical"),
         finding_id="finding-series:playtest:episode-1:incomplete:old",
     )
     preview = load_snapshot(store, PREVIEW_ID)
+    fresh_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=trace,
+        ir_snapshot_id=preview.snapshot_id,
+        cassette_id=f"sha256:{'2' * 64}",
+    )
     reproduced = _finding_revision(
         _playtest_finding(status="confirmed", snapshot_id=preview.snapshot_id),
         finding_id="finding-series:playtest:episode-1:incomplete:new",
@@ -2662,14 +3167,14 @@ def test_historical_playtest_finding_fails_when_exact_episode_rerun_reproduces()
     expected = _finding_binding(historical, evidence_artifact_id=evidence_artifact_id)
     target = _finding_binding(
         reproduced,
-        evidence_artifact_id=PLAYTEST_TRACE_ID,
+        evidence_artifact_id=fresh_artifact_id,
     )
     loader = _ExactFindingRevisionLoader(
         historical,
         reproduced,
         linked_evidence_by_finding={
             (historical.finding_id, historical.revision): evidence_artifact_id,
-            (reproduced.finding_id, reproduced.revision): PLAYTEST_TRACE_ID,
+            (reproduced.finding_id, reproduced.revision): fresh_artifact_id,
         },
     )
 
@@ -2682,7 +3187,7 @@ def test_historical_playtest_finding_fails_when_exact_episode_rerun_reproduces()
                 checker_profiles=(),
                 expected_findings=(expected,),
                 findings=(target,),
-                playtest_trace_artifact_ids=(PLAYTEST_TRACE_ID,),
+                playtest_trace_artifact_ids=(fresh_artifact_id,),
             ),
             constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
             env_contract_version="env@1",

@@ -609,26 +609,26 @@ class ConstraintValidationHandler:
         stages_list: list[ConstraintCompileStageV1] = []
         coverage_by_constraint: dict[str, set[tuple[str, int]]] = {}
         candidate_ids = {constraint.id for constraint in candidate}
+        resolved_engines: list[tuple[SolverEngineRefV1, ConstraintDifferentialEngine]] = []
         for engine_ref in payload.differential_engines:
             engine = self.differential_engines.get((engine_ref.engine_id, engine_ref.version))
             if engine is None:
-                # a missing engine is a MISSING execution -> unproven, never a pass.
-                stages_list.append(
-                    self._differential_stage(engine_ref, "unproven", "engine_unavailable")
+                raise IntegrityViolation(
+                    "constraint differential engine is not registered",
+                    engine_id=engine_ref.engine_id,
+                    engine_version=engine_ref.version,
                 )
-                continue
             if (
                 engine.engine_id != engine_ref.engine_id
                 or engine.engine_version != engine_ref.version
             ):
-                stages_list.append(
-                    self._differential_stage(
-                        engine_ref,
-                        "unproven",
-                        "engine_identity_mismatch",
-                    )
+                raise IntegrityViolation(
+                    "constraint differential engine identity differs from its registry key",
+                    engine_id=engine_ref.engine_id,
+                    engine_version=engine_ref.version,
                 )
-                continue
+            resolved_engines.append((engine_ref, engine))
+        for engine_ref, engine in resolved_engines:
             # Engines express bounded undecidable/unavailable outcomes in their
             # result contract. Exceptions are execution/integrity faults, not
             # authoritative evidence that a candidate is merely unproven.

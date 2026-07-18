@@ -1289,23 +1289,16 @@ def test_numeric_differential_uses_real_not_integer_feasibility() -> None:
     assert by_engine["numeric-reference"].status == "passed"
 
 
-def test_unknown_engine_version_is_unproven_and_never_relabels_v1() -> None:
+def test_unknown_engine_version_is_an_execution_failure_and_never_relabels_v1() -> None:
     requested = (
         SolverEngineRefV1(engine_id="clingo", version=1),
         SolverEngineRefV1(engine_id="z3", version=999),
     )
     store = _store((_constraint("C_cap", "reward_gold <= 80"),))
-    outcome = _handler(store)(_context(store, _payload(engines=requested)))
+    with pytest.raises(IntegrityViolation, match="engine is not registered"):
+        _handler(store)(_context(store, _payload(engines=requested)))
 
-    z3_stage = next(
-        stage
-        for stage in _compile_evidence(store, outcome).stages
-        if stage.stage == "differential" and stage.engine_id == "z3"
-    )
-    assert z3_stage.engine_version == "999"
-    assert z3_stage.status == "unproven"
-    assert z3_stage.reason_code == "engine_unavailable"
-    assert _evidence_set(store, outcome).overall_status == "unproven"
+    assert store.put_count == 0
 
 
 def test_registry_key_cannot_relabel_an_implementation_with_another_version() -> None:
@@ -1317,18 +1310,11 @@ def test_registry_key_cannot_relabel_an_implementation_with_another_version() ->
     mislabeled = _MislabeledEngine()
     registry[("z3", 999)] = mislabeled
     store = _store((_constraint("C_cap", "reward_gold <= 80"),))
-    outcome = _handler(store, differential_engines=registry)(
-        _context(store, _payload(engines=requested))
-    )
+    with pytest.raises(IntegrityViolation, match="engine identity"):
+        _handler(store, differential_engines=registry)(_context(store, _payload(engines=requested)))
 
-    z3_stage = next(
-        stage
-        for stage in _compile_evidence(store, outcome).stages
-        if stage.stage == "differential" and stage.engine_id == "z3"
-    )
-    assert z3_stage.status == "unproven"
-    assert z3_stage.reason_code == "engine_identity_mismatch"
     assert mislabeled.calls == 0
+    assert store.put_count == 0
 
 
 def test_engine_cannot_claim_pass_without_positive_candidate_coverage() -> None:
