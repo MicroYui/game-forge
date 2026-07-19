@@ -495,7 +495,7 @@ def _compute_invariants(
     checks.append(
         InvariantCheck(
             name="drop_source_existence_and_yield_rate",
-            ok=(not missing) and yield_rate >= _DEFAULT_MIN_YIELD_RATE,
+            ok=(not currency_ids) or ((not missing) and yield_rate >= _DEFAULT_MIN_YIELD_RATE),
             observed=yield_rate,
             threshold=_DEFAULT_MIN_YIELD_RATE,
             evidence={

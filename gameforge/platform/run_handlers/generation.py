@@ -40,6 +40,7 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.findings import Finding, PatchV2, TypedOp
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
     GenerationProposePayloadV1,
     PreparedArtifact,
     PreparedRunFailure,
@@ -334,6 +335,15 @@ class GenerationProposalHandler:
             )
         )
         self._validate_preview_replay(snapshot, outcome)
+        if context.progress_publisher is not None:
+            context.progress_publisher(
+                AttemptProgressDataV1(
+                    attempt_no=context.attempt.attempt_no,
+                    phase_code="generation.preliminary_gate",
+                    completed_units=1,
+                    total_units=1,
+                )
+            )
 
         run_id = context.run.run_id
         batch = PreparedArtifactBatchStore(

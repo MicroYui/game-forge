@@ -181,6 +181,7 @@ from gameforge.contracts.workflow import (
     RollbackTargetBindingV1,
 )
 from gameforge.platform.audit.gate import AuditGate
+from gameforge.platform.approvals.commands import require_human_constraint_revision
 from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
 from gameforge.platform.cost_policy.run_accounting import (
     AttemptConservativeUsageProvider,
@@ -1598,7 +1599,11 @@ class RunAdmissionEngine:
         execution_version_plan: ExecutionVersionPlanV1 | None = None,
         cassette_artifact_id: str | None = None,
     ) -> RunAcceptedV1:
-        source = self._mint_goal_source(actor=actor, text=objective_goal_text)
+        source = self._mint_goal_source(
+            actor=actor,
+            text=objective_goal_text,
+            domain_scope=domain_scope,
+        )
         params = GenerationProposePayloadV1(
             base_snapshot_artifact_id=base_snapshot_artifact_id,
             constraint_snapshot_artifact_id=constraint_snapshot_artifact_id,
@@ -1642,7 +1647,11 @@ class RunAdmissionEngine:
         execution_version_plan: ExecutionVersionPlanV1 | None = None,
         cassette_artifact_id: str | None = None,
     ) -> RunAcceptedV1:
-        source = self._mint_goal_source(actor=actor, text=authoring_goal_text)
+        source = self._mint_goal_source(
+            actor=actor,
+            text=authoring_goal_text,
+            domain_scope=domain_scope,
+        )
         params = ConstraintProposalProposePayloadV1(
             source_artifact_ids=source_artifact_ids,
             base_constraint_snapshot_artifact_id=base_constraint_snapshot_artifact_id,
@@ -2202,11 +2211,16 @@ class RunAdmissionEngine:
             )
             if not isinstance(proposal, ConstraintProposalV1):
                 raise IntegrityViolation("constraint subject payload is invalid")
+            require_human_constraint_revision(
+                item,
+                subject_kind="constraint_proposal",
+                subject_revision=proposal.revision,
+                produced_by=proposal.produced_by,
+                producer_run_id=proposal.producer_run_id,
+                supersedes_artifact_id=proposal.supersedes_artifact_id,
+            )
             if (
-                proposal.produced_by != "human"
-                or proposal.producer_run_id is not None
-                or proposal.revision != item.subject_revision
-                or proposal.dsl_grammar_version != params.dsl_grammar_version
+                proposal.dsl_grammar_version != params.dsl_grammar_version
                 or proposal.domain_scope != item.domain_scope
                 or item.target_binding is not None
             ):
@@ -2374,7 +2388,7 @@ class RunAdmissionEngine:
         base: ArtifactV2,
         preview: ArtifactV2,
         constraint_snapshot_artifact_id: str | None,
-        expected_findings: tuple[FindingEvidenceBindingV1, ...],
+        expected_findings: tuple[FindingEvidenceBindingV1, ...] | None,
         read: AdmissionReadPort,
     ) -> PatchV2:
         patch = self._load_json_artifact(
@@ -2385,7 +2399,11 @@ class RunAdmissionEngine:
         )
         if not isinstance(patch, PatchV2):
             raise IntegrityViolation("Patch subject payload is invalid")
-        expected_finding_ids = tuple(sorted(item.finding_id for item in expected_findings))
+        expected_finding_ids = (
+            None
+            if expected_findings is None
+            else tuple(sorted(item.finding_id for item in expected_findings))
+        )
         constraint = (
             None
             if constraint_snapshot_artifact_id is None
@@ -2411,7 +2429,10 @@ class RunAdmissionEngine:
             or patch.target_snapshot_id != preview.version_tuple.ir_snapshot_id
             or subject.version_tuple.ir_snapshot_id != base.version_tuple.ir_snapshot_id
             or set(preview.lineage) != {base.artifact_id, subject.artifact_id}
-            or tuple(sorted(set(patch.expected_to_fix))) != expected_finding_ids
+            or (
+                expected_finding_ids is not None
+                and tuple(sorted(set(patch.expected_to_fix))) != expected_finding_ids
+            )
             or len(patch.expected_to_fix) != len(set(patch.expected_to_fix))
             or constraint_parent_ids != expected_constraint_parent_ids
             or subject.version_tuple.constraint_snapshot_id != semantic_constraint_id
@@ -2873,7 +2894,10 @@ class RunAdmissionEngine:
             base=base,
             preview=preview,
             constraint_snapshot_artifact_id=params.constraint_snapshot_artifact_id,
-            expected_findings=params.findings,
+            # Repair targets the exact failed EvidenceSet Findings below. Those
+            # emergent validation defects are not the Patch's historical
+            # ``expected_to_fix`` declaration.
+            expected_findings=None,
             read=read,
         )
         evidence_artifact = artifacts[params.validation_evidence_artifact_id]
@@ -6256,11 +6280,18 @@ class RunAdmissionEngine:
         return f"run:{digest}"
 
     # ── source_raw minting for goal text ─────────────────────────────────────
-    def _mint_goal_source(self, *, actor: ActorContext, text: str) -> _SourceWrite:
+    def _mint_goal_source(
+        self,
+        *,
+        actor: ActorContext,
+        text: str,
+        domain_scope: DomainScope,
+    ) -> _SourceWrite:
         minted = self._goal_writer.mint(
             object_store=self._objects,
             actor=actor,
             text=text,
+            domain_scope=domain_scope,
             created_at=_utc_text(_utc_now(self._clock)),
         )
         return _SourceWrite(minted=minted)

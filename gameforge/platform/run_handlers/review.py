@@ -194,10 +194,6 @@ class ReviewRunHandler:
             raise IntegrityViolation(
                 "review.run requires at least one deterministic checker or simulation profile"
             )
-        if payload.constraint_snapshot_artifact_id is not None and not payload.checker_profiles:
-            raise IntegrityViolation(
-                "review constraints require a checker profile that executes canonical DSL routing"
-            )
         if payload.simulation_profiles and payload.selection.mode != "full":
             raise IntegrityViolation("review simulation profiles require full graph selection")
         review_binding = profile_bindings["/params/review_profile"]
@@ -221,6 +217,10 @@ class ReviewRunHandler:
 
         snapshot = self.snapshot_loader(self.blobs, payload.snapshot_artifact_id)
         constraints = self._constraints(payload)
+        if constraints and not payload.checker_profiles:
+            raise IntegrityViolation(
+                "review constraints require a checker profile that executes canonical DSL routing"
+            )
         self._validate_checker_budgets(
             profile_bindings,
             payload,
@@ -876,7 +876,7 @@ def _store_review_report(
         version_tuple=prepared_version_tuple(
             context,
             tool_version=REVIEW_TOOL_VERSION,
-            projected_fields=("constraint_snapshot_id",),
+            projected_fields=("doc_version", "constraint_snapshot_id", "seed"),
             overrides={"ir_snapshot_id": snapshot.snapshot_id},
         ),
         lineage=lineage,

@@ -838,6 +838,30 @@ def test_plan_requires_one_primary_for_success_and_evidence_only_for_failure():
         for policy in definition.outcome_policies
         if policy.prepared_outcome == "failure" and policy.publication_scope == "run"
     )
+    zero_output_failure = failure.model_copy(
+        update={
+            "policy_id": success.policy_id,
+            "artifact_rules": (
+                primary.model_copy(update={"role": "output", "min_count": 0, "max_count": 0}),
+            ),
+        }
+    )
+    zero_output_definition = definition.model_copy(
+        update={
+            "outcome_policies": tuple(
+                zero_output_failure if policy == success else policy
+                for policy in definition.outcome_policies
+            )
+        }
+    )
+    with pytest.raises(IntegrityViolation):
+        build_publication_plan(
+            registry=registry,
+            definition=zero_output_definition,
+            policy=zero_output_failure,
+            scope="run",
+        )
+
     output_failure = failure.model_copy(
         update={
             "artifact_rules": (

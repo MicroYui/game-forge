@@ -25,6 +25,7 @@ from gameforge.apps.worker.executor import (
 )
 from gameforge.apps.worker.pool import BlockingExecutorPool
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
     FailureClassifierV1,
     PreparedRunOutcome,
     RunAttempt,
@@ -58,6 +59,18 @@ class TerminalSink(Protocol):
     ) -> object: ...
 
 
+class ProgressSink(Protocol):
+    """Publish one typed progress event under the current attempt fence."""
+
+    def publish_progress(
+        self,
+        *,
+        fence: AttemptWriteFence,
+        data: AttemptProgressDataV1,
+        actor: AuditActor,
+    ) -> object: ...
+
+
 ModelBridgeFactory = Callable[..., WorkerModelBridgePort]
 RunRevisionReader = Callable[[str], int]
 FailureClassifierResolver = Callable[[RunRecord], FailureClassifierV1]
@@ -72,6 +85,7 @@ class AttemptRunner:
         resolve_executor: ExecutorResolver,
         model_bridge_factory: ModelBridgeFactory,
         terminal: TerminalSink,
+        progress: ProgressSink | None = None,
         read_run_revision: RunRevisionReader,
         resolve_failure_classifier: FailureClassifierResolver,
         worker_actor: AuditActor,
@@ -84,6 +98,7 @@ class AttemptRunner:
         self._resolve_executor = resolve_executor
         self._model_bridge_factory = model_bridge_factory
         self._terminal = terminal
+        self._progress = progress
         self._read_run_revision = read_run_revision
         self._resolve_failure_classifier = resolve_failure_classifier
         self._worker_actor = worker_actor
@@ -134,12 +149,31 @@ class AttemptRunner:
                 # Bridge composition may load exact DB/ObjectStore replay authority;
                 # keep it on the same bounded blocking lane as the executor.
                 bridge = self._model_bridge_factory(run=run, attempt=attempt, lease=lease)
+
+                def publish_progress(data: AttemptProgressDataV1) -> object:
+                    if self._progress is None:
+                        raise IntegrityViolation("worker progress authority is unavailable")
+                    current_revision = self._read_run_revision(run.run_id)
+                    fence = AttemptWriteFence(
+                        run_id=run.run_id,
+                        attempt_no=attempt.attempt_no,
+                        expected_run_revision=current_revision,
+                        lease_id=lease.lease_id,
+                        fencing_token=attempt.fencing_token,
+                    )
+                    return self._progress.publish_progress(
+                        fence=fence,
+                        data=data,
+                        actor=self._worker_actor,
+                    )
+
                 context = ExecutorContext(
                     run=run,
                     attempt=attempt,
                     payload=run.payload,
                     deadline_utc=deadline_utc,
                     model_bridge=bridge,
+                    progress_publisher=(publish_progress if self._progress is not None else None),
                 )
                 executor = self._resolve_executor(run)
                 return executor(context)
@@ -174,6 +208,7 @@ __all__ = [
     "ExecutorResolver",
     "FailureClassifierResolver",
     "ModelBridgeFactory",
+    "ProgressSink",
     "RunRevisionReader",
     "TerminalSink",
 ]

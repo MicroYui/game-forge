@@ -16,6 +16,7 @@ from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.workflow import ApprovalDecision, ApprovalItem, SubjectHead
 from gameforge.runtime.persistence.models import (
     ApprovalDecisionRow,
+    ApprovalEvidenceBindingRow,
     ApprovalItemRow,
     ArtifactRow,
     SubjectHeadRow,
@@ -491,6 +492,7 @@ class SqlApprovalRepository:
             validation_completion=True,
         )
         self._write_replacement(identifier, expected, candidate)
+        self._insert_evidence_bindings(candidate)
         return candidate
 
     def apply_preflighted_compare_and_set(
@@ -525,6 +527,7 @@ class SqlApprovalRepository:
             verify_subject_artifact=False,
         )
         self._write_preflighted_replacement(current, replacement)
+        self._insert_evidence_bindings(replacement)
         return replacement
 
     def append_decision_and_compare_and_set(
@@ -1008,6 +1011,35 @@ class SqlApprovalRepository:
                 ),
             )
         self._session.expire_all()
+
+    def _insert_evidence_bindings(self, item: ApprovalItem) -> None:
+        rows = (
+            {
+                "artifact_id": item.evidence_set_artifact_id,
+                "approval_id": item.approval_id,
+                "binding_kind": "validation",
+            },
+            *(
+                {
+                    "artifact_id": artifact_id,
+                    "approval_id": item.approval_id,
+                    "binding_kind": "regression",
+                }
+                for artifact_id in item.regression_evidence_artifact_ids
+            ),
+        )
+        if rows[0]["artifact_id"] is None:
+            raise IntegrityViolation("validation completion has no EvidenceSet binding")
+        result = self._session.execute(
+            sqlite_insert(ApprovalEvidenceBindingRow)
+            .values(rows)
+            .on_conflict_do_nothing(index_elements=["artifact_id"])
+        )
+        if result.rowcount != len(rows):
+            raise IntegrityViolation(
+                "approval Evidence Artifact is already bound to another ApprovalItem",
+                approval_id=item.approval_id,
+            )
 
     def _write_preflighted_replacement(
         self,

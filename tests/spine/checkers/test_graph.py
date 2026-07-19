@@ -9,6 +9,7 @@ from __future__ import annotations
 from gameforge.contracts.ir import Entity, NodeType, EdgeType, Relation
 from gameforge.spine.checkers.graph import GraphChecker, find_cycles
 from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.ir.store import IRGraph
 
 
 def _snap(entities, relations):
@@ -17,7 +18,8 @@ def _snap(entities, relations):
 
 def _findings(entities, relations, defect_class, nav=None):
     return [
-        f for f in GraphChecker().check(_snap(entities, relations), nav=nav)
+        f
+        for f in GraphChecker().check(_snap(entities, relations), nav=nav)
         if f.defect_class == defect_class
     ]
 
@@ -35,13 +37,19 @@ class _FakeNav:
     def reachable(self, src_pos, dst_pos) -> bool:
         return (src_pos, dst_pos) in self._reachable_pairs
 
+    def reachable_positions(self, src_pos, positions):
+        return {dst_pos for dst_pos in positions if (src_pos, dst_pos) in self._reachable_pairs}
+
 
 # --- 1. dangling_reference ---
+
 
 def test_dangling_reference_detected_and_clean_is_silent():
     ents = [Entity(id="q", type=NodeType.QUEST)]
     rels = [Relation(id="r1", type=EdgeType.HAS_STEP, src_id="q", dst_id="missing")]
-    fs = [f for f in GraphChecker().check(_snap(ents, rels)) if f.defect_class == "dangling_reference"]
+    fs = [
+        f for f in GraphChecker().check(_snap(ents, rels)) if f.defect_class == "dangling_reference"
+    ]
     assert len(fs) == 1 and "missing" in fs[0].evidence["missing"]
     assert fs[0].oracle_type == "deterministic"
     assert fs[0].status == "confirmed"
@@ -54,9 +62,11 @@ def test_dangling_reference_detected_and_clean_is_silent():
 
 # --- 2. missing_drop_source ---
 
+
 def test_missing_drop_source_detected_and_clean_is_silent():
-    step = Entity(id="step:collect", type=NodeType.QUEST_STEP,
-                  attrs={"kind": "collect", "item": "item:x"})
+    step = Entity(
+        id="step:collect", type=NodeType.QUEST_STEP, attrs={"kind": "collect", "item": "item:x"}
+    )
     item = Entity(id="item:x", type=NodeType.ITEM)
     dirty = _findings([step, item], [], "missing_drop_source")
     assert len(dirty) == 1
@@ -71,12 +81,14 @@ def test_missing_drop_source_detected_and_clean_is_silent():
 
 # --- 3. unreachable_target ---
 
+
 def test_unreachable_target_detected_with_nav_and_clean_is_silent():
     quest = Entity(id="quest:q1", type=NodeType.QUEST)
     giver = Entity(id="npc:giver", type=NodeType.NPC)
     other = Entity(id="npc:other", type=NodeType.NPC)
-    step = Entity(id="step:talk", type=NodeType.QUEST_STEP,
-                  attrs={"kind": "talk", "target": "npc:other"})
+    step = Entity(
+        id="step:talk", type=NodeType.QUEST_STEP, attrs={"kind": "talk", "target": "npc:other"}
+    )
     rels = [
         Relation(id="r_start", type=EdgeType.STARTS_AT, src_id="quest:q1", dst_id="npc:giver"),
         Relation(id="r_hasstep", type=EdgeType.HAS_STEP, src_id="quest:q1", dst_id="step:talk"),
@@ -105,17 +117,28 @@ def test_unreachable_target_detected_with_nav_and_clean_is_silent():
 
 # --- 4. cyclic_dependency ---
 
+
 def test_cycle_detected_with_path_evidence():
     ents = [Entity(id=f"s{i}", type=NodeType.QUEST_STEP) for i in (1, 2, 3)]
-    rels = [Relation(id="a", type=EdgeType.PRECEDES, src_id="s1", dst_id="s2"),
-            Relation(id="b", type=EdgeType.PRECEDES, src_id="s2", dst_id="s3"),
-            Relation(id="c", type=EdgeType.PRECEDES, src_id="s3", dst_id="s1")]
-    fs = [f for f in GraphChecker().check(_snap(ents, rels)) if f.defect_class == "cyclic_dependency"]
+    rels = [
+        Relation(id="a", type=EdgeType.PRECEDES, src_id="s1", dst_id="s2"),
+        Relation(id="b", type=EdgeType.PRECEDES, src_id="s2", dst_id="s3"),
+        Relation(id="c", type=EdgeType.PRECEDES, src_id="s3", dst_id="s1"),
+    ]
+    fs = [
+        f for f in GraphChecker().check(_snap(ents, rels)) if f.defect_class == "cyclic_dependency"
+    ]
     assert len(fs) == 1 and set(fs[0].evidence["cycle_path"]) == {"s1", "s2", "s3"}
 
-    clean_rels = [Relation(id="a", type=EdgeType.PRECEDES, src_id="s1", dst_id="s2"),
-                  Relation(id="b", type=EdgeType.PRECEDES, src_id="s2", dst_id="s3")]
-    clean = [f for f in GraphChecker().check(_snap(ents, clean_rels)) if f.defect_class == "cyclic_dependency"]
+    clean_rels = [
+        Relation(id="a", type=EdgeType.PRECEDES, src_id="s1", dst_id="s2"),
+        Relation(id="b", type=EdgeType.PRECEDES, src_id="s2", dst_id="s3"),
+    ]
+    clean = [
+        f
+        for f in GraphChecker().check(_snap(ents, clean_rels))
+        if f.defect_class == "cyclic_dependency"
+    ]
     assert clean == []
 
 
@@ -214,14 +237,18 @@ def test_gated_destination_requires_prior_access_or_quest_unlock():
             src_id=quest.id,
             dst_id=gate.id,
         )
-        assert _findings(
-            entities,
-            [*relations, proof],
-            "unreachable_target",
-        ) == []
+        assert (
+            _findings(
+                entities,
+                [*relations, proof],
+                "unreachable_target",
+            )
+            == []
+        )
 
 
 # --- 5. dead_quest ---
+
 
 def test_dead_quest_detected_and_clean_is_silent():
     quest = Entity(id="quest:q1", type=NodeType.QUEST)
@@ -234,12 +261,15 @@ def test_dead_quest_detected_and_clean_is_silent():
     assert dirty[0].evidence["has_steps"] is True
 
     giver = Entity(id="npc:giver", type=NodeType.NPC)
-    clean_rels = rels + [Relation(id="r2", type=EdgeType.STARTS_AT, src_id="quest:q1", dst_id="npc:giver")]
+    clean_rels = rels + [
+        Relation(id="r2", type=EdgeType.STARTS_AT, src_id="quest:q1", dst_id="npc:giver")
+    ]
     clean = _findings([quest, step, giver], clean_rels, "dead_quest")
     assert clean == []
 
 
 # --- 6. unsatisfiable_completion ---
+
 
 def test_unsatisfiable_completion_detected_and_clean_is_silent():
     quest = Entity(id="quest:q1", type=NodeType.QUEST)
@@ -264,7 +294,271 @@ def test_unsatisfiable_completion_detected_and_clean_is_silent():
     assert clean == []
 
 
+def test_relation_scans_do_not_grow_with_collect_steps_or_quests(monkeypatch):
+    """The checker builds relation indexes once instead of rescanning per node."""
+
+    entities = []
+    relations = []
+    for index in range(40):
+        quest_id = f"quest:{index}"
+        collect_id = f"step:collect:{index}"
+        turn_in_id = f"step:turn-in:{index}"
+        item_id = f"item:{index}"
+        source_id = f"source:{index}"
+        giver_id = f"npc:{index}"
+        entities.extend(
+            (
+                Entity(id=quest_id, type=NodeType.QUEST),
+                Entity(
+                    id=collect_id,
+                    type=NodeType.QUEST_STEP,
+                    attrs={"kind": "collect", "item": item_id},
+                ),
+                Entity(
+                    id=turn_in_id,
+                    type=NodeType.QUEST_STEP,
+                    attrs={"kind": "turn_in"},
+                ),
+                Entity(id=item_id, type=NodeType.ITEM),
+                Entity(id=source_id, type=NodeType.INTERACTABLE),
+                Entity(id=giver_id, type=NodeType.NPC),
+            )
+        )
+        relations.extend(
+            (
+                Relation(
+                    id=f"starts:{index}",
+                    type=EdgeType.STARTS_AT,
+                    src_id=quest_id,
+                    dst_id=giver_id,
+                ),
+                Relation(
+                    id=f"collect-member:{index}",
+                    type=EdgeType.HAS_STEP,
+                    src_id=quest_id,
+                    dst_id=collect_id,
+                ),
+                Relation(
+                    id=f"turn-in-member:{index}",
+                    type=EdgeType.HAS_STEP,
+                    src_id=quest_id,
+                    dst_id=turn_in_id,
+                ),
+                Relation(
+                    id=f"precedes:{index}",
+                    type=EdgeType.PRECEDES,
+                    src_id=collect_id,
+                    dst_id=turn_in_id,
+                ),
+                Relation(
+                    id=f"grants:{index}",
+                    type=EdgeType.GRANTS,
+                    src_id=source_id,
+                    dst_id=item_id,
+                ),
+            )
+        )
+
+    snapshot = _snap(entities, relations)
+    relation_scans = 0
+    original = IRGraph.all_relations
+
+    def counted(graph):
+        nonlocal relation_scans
+        relation_scans += 1
+        return original(graph)
+
+    monkeypatch.setattr(IRGraph, "all_relations", counted)
+
+    findings = GraphChecker().check(snapshot)
+
+    assert findings == []
+    assert relation_scans == 1
+
+
+def test_collect_source_navigation_batches_all_unique_sources() -> None:
+    entities = [
+        Entity(
+            id=f"step:collect:{index}",
+            type=NodeType.QUEST_STEP,
+            attrs={"kind": "collect", "item": f"item:{index}"},
+        )
+        for index in range(40)
+    ]
+    entities.extend(Entity(id=f"item:{index}", type=NodeType.ITEM) for index in range(40))
+    entities.extend(Entity(id=f"source:{index}", type=NodeType.INTERACTABLE) for index in range(40))
+    relations = [
+        Relation(
+            id=f"grants:{index}",
+            type=EdgeType.GRANTS,
+            src_id=f"source:{index}",
+            dst_id=f"item:{index}",
+        )
+        for index in range(40)
+    ]
+
+    class CountingNav:
+        def __init__(self) -> None:
+            self.position_calls: list[str] = []
+            self.reachable_calls = 0
+            self.batch_calls = 0
+
+        def pos_of(self, entity_id: str):
+            self.position_calls.append(entity_id)
+            if entity_id == "__player_start__":
+                return (0, 0)
+            if entity_id.startswith("source:"):
+                return (int(entity_id.removeprefix("source:")) + 1, 0)
+            return None
+
+        def reachable(self, src_pos, dst_pos) -> bool:
+            self.reachable_calls += 1
+            return src_pos == (0, 0) and dst_pos[1] == 0
+
+        def reachable_positions(self, src_pos, positions):
+            self.batch_calls += 1
+            return {position for position in positions if position[1] == 0}
+
+    nav = CountingNav()
+
+    findings = GraphChecker().check(_snap(entities, relations), nav=nav)
+
+    assert not [finding for finding in findings if finding.defect_class == "missing_drop_source"]
+    assert all(nav.position_calls.count(f"source:{index}") == 1 for index in range(40))
+    assert nav.batch_calls == 1
+    assert nav.reachable_calls == 0
+
+
+def test_quest_target_navigation_batches_targets_from_the_same_giver() -> None:
+    giver = Entity(id="npc:giver", type=NodeType.NPC)
+    quests = [Entity(id=f"quest:{index}", type=NodeType.QUEST) for index in range(30)]
+    targets = [Entity(id=f"npc:target:{index}", type=NodeType.NPC) for index in range(30)]
+    steps = [
+        Entity(
+            id=f"step:talk:{index}",
+            type=NodeType.QUEST_STEP,
+            attrs={"kind": "talk", "target": targets[index].id},
+        )
+        for index in range(30)
+    ]
+    relations = [
+        relation
+        for index in range(30)
+        for relation in (
+            Relation(
+                id=f"starts:{index}",
+                type=EdgeType.STARTS_AT,
+                src_id=quests[index].id,
+                dst_id=giver.id,
+            ),
+            Relation(
+                id=f"step:{index}",
+                type=EdgeType.HAS_STEP,
+                src_id=quests[index].id,
+                dst_id=steps[index].id,
+            ),
+        )
+    ]
+
+    class CountingNav:
+        batch_calls = 0
+        reachable_calls = 0
+
+        def pos_of(self, entity_id: str):
+            if entity_id == giver.id:
+                return (0, 0)
+            if entity_id.startswith("npc:target:"):
+                return (int(entity_id.rsplit(":", 1)[1]) + 1, 0)
+            return None
+
+        def reachable(self, src_pos, dst_pos) -> bool:
+            self.reachable_calls += 1
+            return True
+
+        def reachable_positions(self, src_pos, positions):
+            self.batch_calls += 1
+            return set(positions)
+
+    nav = CountingNav()
+
+    findings = GraphChecker().check(
+        _snap([giver, *quests, *targets, *steps], relations),
+        nav=nav,
+    )
+
+    assert not [finding for finding in findings if finding.defect_class == "unreachable_target"]
+    assert nav.batch_calls == 1
+    assert nav.reachable_calls == 0
+
+
+def test_quest_completion_reachability_is_traversed_once_per_quest(monkeypatch) -> None:
+    from collections import deque as real_deque
+
+    step_ids = ["step:entry", *(f"step:turn-in:{index}" for index in range(40))]
+    entities = [
+        Entity(id="quest:shared", type=NodeType.QUEST),
+        Entity(id="npc:giver", type=NodeType.NPC),
+        Entity(id="step:entry", type=NodeType.QUEST_STEP, attrs={"kind": "talk"}),
+        *(
+            Entity(id=step_id, type=NodeType.QUEST_STEP, attrs={"kind": "turn_in"})
+            for step_id in step_ids[1:]
+        ),
+    ]
+    relations = [
+        Relation(
+            id="starts:shared",
+            type=EdgeType.STARTS_AT,
+            src_id="quest:shared",
+            dst_id="npc:giver",
+        ),
+        *(
+            Relation(
+                id=f"member:{step_id}",
+                type=EdgeType.HAS_STEP,
+                src_id="quest:shared",
+                dst_id=step_id,
+            )
+            for step_id in step_ids
+        ),
+        *(
+            Relation(
+                id=f"precedes:{source}:{destination}",
+                type=EdgeType.PRECEDES,
+                src_id=source,
+                dst_id=destination,
+            )
+            for source, destination in zip(step_ids, step_ids[1:])
+        ),
+    ]
+    popleft_calls = 0
+
+    class CountingDeque:
+        def __init__(self, values=()) -> None:
+            self._values = real_deque(values)
+
+        def __bool__(self) -> bool:
+            return bool(self._values)
+
+        def append(self, value) -> None:
+            self._values.append(value)
+
+        def popleft(self):
+            nonlocal popleft_calls
+            popleft_calls += 1
+            return self._values.popleft()
+
+    monkeypatch.setattr("gameforge.spine.checkers.graph.deque", CountingDeque)
+
+    findings = GraphChecker().check(_snap(entities, relations))
+
+    assert not [
+        finding for finding in findings if finding.defect_class == "unsatisfiable_completion"
+    ]
+    assert popleft_calls <= len(step_ids)
+
+
 # --- 7. isolated_node ---
+
 
 def test_isolated_node_detected_and_clean_is_silent():
     lone_item = Entity(id="item:lonely", type=NodeType.ITEM)

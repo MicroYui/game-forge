@@ -19,7 +19,7 @@ from gameforge.platform.runs.commands import RunClaimRequest
 from gameforge.platform.runs.lifecycle import AttemptWriteFence, StartAttemptRequest
 from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.engine import get_engine
-from gameforge.runtime.persistence.models import RunLeaseRow
+from gameforge.runtime.persistence.models import RunLeaseRow, RunRow
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from tests.platform.m4.test_run_create_claim import (
     NOW_DT,
@@ -239,5 +239,45 @@ def test_scan_surfaces_queued_and_retry_wait_deadlines_across_restart(tmp_path: 
                 queued.run.run_id,
                 retry_claim.run.run_id,
             }
+    finally:
+        engine.dispose()
+
+
+def test_scan_surfaces_cancel_requested_queued_run_before_deadline(tmp_path: Path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'inactive-cancel.db'}"
+    migrations_api.upgrade(database_url, "head")
+    registry = _Registry()
+
+    with _services(database_url, registry, NOW_DT) as (commands, _):
+        created = commands.create_run(
+            _create_request(run_id="run:queued-cancel").model_copy(
+                update={"idempotency_key": "request:queued-cancel"}
+            )
+        )
+
+    engine = get_engine(database_url)
+    try:
+        with Session(engine) as session:
+            session.execute(
+                update(RunRow)
+                .where(RunRow.run_id == created.run.run_id)
+                .values(
+                    cancel_requested_at="2026-07-14T12:00:01Z",
+                    cancel_requested_by=REAPER.model_dump(mode="json"),
+                )
+            )
+            session.commit()
+        with Session(engine) as session:
+            repository = SqlRunRepository(session)
+            candidates = repository.list_inactive_timeout_candidates(
+                now_utc="2026-07-14T12:00:02Z",
+                limit=10,
+            )
+            assert tuple(run.run_id for run in candidates) == (created.run.run_id,)
+            production_candidates = repository.list_timeout_candidates(
+                now_utc="2026-07-14T12:00:02Z",
+                limit=10,
+            )
+            assert tuple(run.run_id for run in production_candidates) == (created.run.run_id,)
     finally:
         engine.dispose()

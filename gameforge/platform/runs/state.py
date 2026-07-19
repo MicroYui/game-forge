@@ -15,9 +15,11 @@ from gameforge.contracts.jobs import (
     RunLease,
     RunQueuedDataV1,
     RunRecord,
+    RunResultV1,
     outcome_policy_set_digest,
     run_kind_definition_digest,
 )
+from gameforge.contracts.lineage import ArtifactV2
 
 
 _IMMUTABLE_RUN_FIELDS = (
@@ -106,6 +108,71 @@ def validate_run_immutable_bindings(*, previous: RunRecord, current: RunRecord) 
                 field_name=field_name,
                 run_id=previous.run_id,
             )
+
+
+def validate_run_result_binding(
+    *,
+    run: RunRecord,
+    manifest: ArtifactV2,
+    result: RunResultV1,
+    expected_outcome_code: str,
+    expected_primary_kind: str,
+) -> None:
+    """Re-prove one retained success manifest against its immutable Run."""
+
+    parents = result.version_projection.parents
+    parent_ids = tuple(sorted(parent.artifact_id for parent in parents))
+    input_parents = tuple(
+        parent for parent in parents if parent.role == "input" and parent.publication == "existing"
+    )
+    expected_input_ids = tuple(sorted(run.payload.input_artifact_ids))
+    published_ids = tuple(
+        sorted(
+            parent.artifact_id
+            for parent in parents
+            if parent.publication == "run_published" and parent.role != "input"
+        )
+    )
+    primary_parents = tuple(
+        parent for parent in parents if parent.artifact_id == result.primary_artifact_id
+    )
+    cassette_id = run.payload.cassette_artifact_id
+    if (
+        run.status != "succeeded"
+        or run.result_artifact_id != manifest.artifact_id
+        or manifest.kind != "run_result"
+        or manifest.meta.get("payload_schema_id") != "run-result@1"
+        or manifest.version_tuple != result.version_projection.terminal_version_tuple
+        or tuple(manifest.lineage) != parent_ids
+        or len(parent_ids) != len(set(parent_ids))
+        or result.run_id != run.run_id
+        or result.run_kind != run.kind
+        or result.attempt_no != run.current_attempt_no
+        or result.outcome_code != expected_outcome_code
+        or result.summary.outcome_code != expected_outcome_code
+        or result.summary.primary_artifact_kind != expected_primary_kind
+        or result.version_projection.run_payload_hash != run.payload_hash
+        or result.version_projection.frozen_input_version_tuple != run.payload.version_tuple
+        or tuple(sorted(parent.artifact_id for parent in input_parents)) != expected_input_ids
+        or len(input_parents) != len(expected_input_ids)
+        or any(
+            parent.attempt_no is not None
+            or parent.ordinal is not None
+            or parent.cassette_scope
+            != ("replay_input" if parent.artifact_id == cassette_id else None)
+            for parent in input_parents
+        )
+        or (cassette_id is not None and run.payload.llm_execution_mode != "replay")
+        or result.produced_artifact_ids != published_ids
+        or set(parent_ids) != set(expected_input_ids) | set(published_ids)
+        or len(primary_parents) != 1
+        or primary_parents[0].role != "output"
+        or primary_parents[0].publication != "run_published"
+        or primary_parents[0].attempt_no is not None
+        or primary_parents[0].ordinal is not None
+        or primary_parents[0].cassette_scope is not None
+    ):
+        raise IntegrityViolation("Run result manifest differs from its immutable Run")
 
 
 def validate_queued_creation(*, run: RunRecord, initial_event: RunEvent) -> None:
@@ -309,4 +376,5 @@ __all__ = [
     "validate_queued_creation",
     "validate_run_immutable_bindings",
     "validate_run_kind_binding",
+    "validate_run_result_binding",
 ]

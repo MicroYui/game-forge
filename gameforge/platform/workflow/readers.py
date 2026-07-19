@@ -17,6 +17,7 @@ from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.findings import PatchV2
+from gameforge.contracts.jobs import RunResultV1
 from gameforge.contracts.lineage import ArtifactV2, ExecutionIdentityV1
 from gameforge.contracts.storage import ObjectStore
 from gameforge.contracts.workflow import (
@@ -210,6 +211,14 @@ class WorkflowTypedReaders:
 
     def load_rollback_request(self, artifact: ArtifactV2) -> RollbackRequestV1:
         return RollbackRequestV1.model_validate(self._json(artifact))
+
+    def load_run_result(self, artifact: ArtifactV2) -> RunResultV1:
+        if (
+            artifact.kind != "run_result"
+            or artifact.meta.get("payload_schema_id") != "run-result@1"
+        ):
+            raise IntegrityViolation("run result reader received another Artifact kind/schema")
+        return RunResultV1.model_validate(self._json(artifact))
 
     def load_snapshot(self, artifact: ArtifactV2) -> Snapshot:
         payload = self._json(artifact)

@@ -31,7 +31,7 @@ from collections import deque
 from typing import Any, Callable
 
 from gameforge.contracts.findings import Finding
-from gameforge.contracts.ir import EdgeType, NodeType
+from gameforge.contracts.ir import EdgeType, NodeType, Relation
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import IRGraph, NavProvider
 
@@ -47,6 +47,7 @@ EmitFn = Callable[..., None]
 # Pure, independently-testable graph algorithms (contract §3 differential
 # anchor + §12A.1 property-test line). `adj` is a plain dict[node, list[node]].
 # --------------------------------------------------------------------------
+
 
 def reachable_set(adj: dict, src: Any) -> set:
     """BFS forward-reachable set from `src` (src included)."""
@@ -144,12 +145,66 @@ def topo_order(adj: dict) -> list[Any] | None:
     return order if len(order) == len(nodes) else None
 
 
-def _dependency_adj(g: IRGraph) -> dict[str, list[str]]:
-    adj: dict[str, list[str]] = {}
-    for r in g.all_relations():
-        if r.type in _DEPENDENCY_EDGES and (r.attrs or {}).get("repeatability") != "once":
-            adj.setdefault(r.src_id, []).append(r.dst_id)
-    return adj
+def _reachable_positions(
+    nav: NavProvider,
+    src_pos: tuple[int, int],
+    positions: set[tuple[int, int]],
+) -> set[tuple[int, int]]:
+    """Use the batch navigation contract while retaining legacy duck types."""
+    if not positions:
+        return set()
+    batch = getattr(nav, "reachable_positions", None)
+    if batch is None:
+        return {position for position in positions if nav.reachable(src_pos, position)}
+    return positions.intersection(batch(src_pos, positions))
+
+
+def _quest_precedes_projection(
+    g: IRGraph,
+    relations: tuple[Relation, ...],
+) -> tuple[
+    dict[str, set[str]],
+    dict[str, dict[str, list[str]]],
+    dict[str, dict[str, int]],
+]:
+    """Project PRECEDES edges into each quest once, including shared steps."""
+    quest_steps = {quest.id: set() for quest in g.nodes_of_type(NodeType.QUEST)}
+    precedes: list[Relation] = []
+    for relation in relations:
+        if relation.type is EdgeType.HAS_STEP and relation.src_id in quest_steps:
+            if g.get_node(relation.dst_id) is not None:
+                quest_steps[relation.src_id].add(relation.dst_id)
+        elif relation.type is EdgeType.PRECEDES:
+            precedes.append(relation)
+
+    quests_by_step: dict[str, set[str]] = {}
+    for quest_id, steps in quest_steps.items():
+        for step_id in steps:
+            quests_by_step.setdefault(step_id, set()).add(quest_id)
+
+    adjacency_by_quest: dict[str, dict[str, list[str]]] = {}
+    indegree_by_quest: dict[str, dict[str, int]] = {}
+    for relation in precedes:
+        source_quests = quests_by_step.get(relation.src_id)
+        destination_quests = quests_by_step.get(relation.dst_id)
+        if not source_quests or not destination_quests:
+            continue
+        smaller, larger = (
+            (source_quests, destination_quests)
+            if len(source_quests) <= len(destination_quests)
+            else (destination_quests, source_quests)
+        )
+        for quest_id in smaller:
+            if quest_id not in larger:
+                continue
+            adjacency_by_quest.setdefault(quest_id, {}).setdefault(
+                relation.src_id,
+                [],
+            ).append(relation.dst_id)
+            indegree = indegree_by_quest.setdefault(quest_id, {})
+            indegree[relation.dst_id] = indegree.get(relation.dst_id, 0) + 1
+
+    return quest_steps, adjacency_by_quest, indegree_by_quest
 
 
 class GraphChecker:
@@ -157,6 +212,18 @@ class GraphChecker:
 
     def check(self, snapshot: Snapshot, nav: NavProvider | None = None) -> list[Finding]:
         g = snapshot.to_graph()
+        relations = tuple(g.all_relations())
+        sources_by_item: dict[str, list[str]] = {}
+        dependency_adj: dict[str, list[str]] = {}
+        for relation in relations:
+            if relation.type in _SOURCE_EDGES:
+                sources_by_item.setdefault(relation.dst_id, []).append(relation.src_id)
+            if (
+                relation.type in _DEPENDENCY_EDGES
+                and (relation.attrs or {}).get("repeatability") != "once"
+            ):
+                dependency_adj.setdefault(relation.src_id, []).append(relation.dst_id)
+        quest_steps, quest_precedes, quest_indegrees = _quest_precedes_projection(g, relations)
         run_id = f"graph@{snapshot.snapshot_id[:23]}"
         findings: list[Finding] = []
         n = 0
@@ -164,64 +231,117 @@ class GraphChecker:
         def emit(defect_class, severity, entities, evidence, repro, message):
             nonlocal n
             f = Finding(
-                id=f"{run_id}#{n}", source="checker", producer_id=self.id,
-                producer_run_id=run_id, oracle_type="deterministic",
-                defect_class=defect_class, severity=severity,
-                snapshot_id=snapshot.snapshot_id, entities=entities,
-                evidence=evidence, minimal_repro=repro, status="confirmed",
+                id=f"{run_id}#{n}",
+                source="checker",
+                producer_id=self.id,
+                producer_run_id=run_id,
+                oracle_type="deterministic",
+                defect_class=defect_class,
+                severity=severity,
+                snapshot_id=snapshot.snapshot_id,
+                entities=entities,
+                evidence=evidence,
+                minimal_repro=repro,
+                status="confirmed",
                 message=message,
             )
             n += 1
             findings.append(f)
 
-        self._dangling_reference(g, emit)
-        self._missing_drop_source(g, nav, emit)
+        self._dangling_reference(g, relations, emit)
+        self._missing_drop_source(g, sources_by_item, nav, emit)
         self._unreachable_target(g, nav, emit)
         self._gated_destination(g, emit)
-        self._cyclic_dependency(g, emit)
+        self._cyclic_dependency(dependency_adj, emit)
         self._dead_quest(g, emit)
-        self._unsatisfiable_completion(g, emit)
+        self._unsatisfiable_completion(
+            g,
+            quest_steps,
+            quest_precedes,
+            quest_indegrees,
+            emit,
+        )
         self._isolated_node(g, emit)
         return findings
 
     # --- 1. dangling_reference ---
-    def _dangling_reference(self, g: IRGraph, emit: EmitFn) -> None:
-        for r in list(g.all_relations()):
+    def _dangling_reference(
+        self,
+        g: IRGraph,
+        relations: tuple[Relation, ...],
+        emit: EmitFn,
+    ) -> None:
+        for r in relations:
             missing = [ep for ep in (r.src_id, r.dst_id) if g.get_node(ep) is None]
             if missing:
                 emit(
-                    "dangling_reference", "critical", [r.src_id, r.dst_id],
+                    "dangling_reference",
+                    "critical",
+                    [r.src_id, r.dst_id],
                     {"relation": r.id, "edge_type": r.type.value, "missing": missing},
-                    {"relation": r.id,
-                     "source_ref": r.source_ref.model_dump() if r.source_ref else None},
+                    {
+                        "relation": r.id,
+                        "source_ref": r.source_ref.model_dump() if r.source_ref else None,
+                    },
                     f"Relation {r.id} ({r.type.value}) points at missing entities {missing}",
                 )
 
     # --- 2. missing_drop_source ---
-    def _missing_drop_source(self, g: IRGraph, nav: NavProvider | None, emit: EmitFn) -> None:
+    def _missing_drop_source(
+        self,
+        g: IRGraph,
+        sources_by_item: dict[str, list[str]],
+        nav: NavProvider | None,
+        emit: EmitFn,
+    ) -> None:
+        collect_steps: list[tuple[Any, Any, list[str]]] = []
         for step in g.nodes_of_type(NodeType.QUEST_STEP):
             if step.attrs.get("kind") != "collect":
                 continue
             item = step.attrs.get("item")
             if item is None:
                 continue
-            sources = [
-                r.src_id for r in g.all_relations()
-                if r.type in _SOURCE_EDGES and r.dst_id == item
-            ]
+            sources = sources_by_item.get(item, []) if isinstance(item, str) else []
+            collect_steps.append((step, item, sources))
+
+        reachable_source_ids: set[str] | None = None
+        if nav is not None:
+            source_ids = sorted(
+                {source_id for _step, _item, sources in collect_steps for source_id in sources}
+            )
+            positions_by_source = {
+                source_id: source_position
+                for source_id in source_ids
+                if (source_position := nav.pos_of(source_id)) is not None
+            }
+            reachable_source_ids = set()
+            if positions_by_source:
+                start = nav.pos_of("__player_start__")
+                reachable_positions = (
+                    set(positions_by_source.values())
+                    if start is None
+                    else _reachable_positions(nav, start, set(positions_by_source.values()))
+                )
+                reachable_source_ids.update(
+                    source_id
+                    for source_id, position in positions_by_source.items()
+                    if position in reachable_positions
+                )
+
+        for step, item, sources in collect_steps:
             reachable_sources = sources
-            if nav is not None and sources:
-                reachable_sources = [
-                    sid for sid in sources
-                    if (sp := nav.pos_of(sid)) is not None and _nav_start_reachable(nav, sp)
-                ]
+            if reachable_source_ids is not None and sources:
+                reachable_sources = [sid for sid in sources if sid in reachable_source_ids]
             if not reachable_sources:
                 emit(
-                    "missing_drop_source", "critical", [step.id, item],
-                    {"item": item, "known_sources": sources,
-                     "reachable": bool(reachable_sources)},
-                    {"entity": step.id,
-                     "source_ref": step.source_ref.model_dump() if step.source_ref else None},
+                    "missing_drop_source",
+                    "critical",
+                    [step.id, item],
+                    {"item": item, "known_sources": sources, "reachable": bool(reachable_sources)},
+                    {
+                        "entity": step.id,
+                        "source_ref": step.source_ref.model_dump() if step.source_ref else None,
+                    },
                     f"collect step {step.id!r} needs item {item!r} but has no "
                     f"{'reachable ' if sources else ''}source",
                 )
@@ -230,6 +350,8 @@ class GraphChecker:
     def _unreachable_target(self, g: IRGraph, nav: NavProvider | None, emit: EmitFn) -> None:
         if nav is None:
             return  # cannot prove unreachability without spatial ground truth
+        checks: list[tuple[Any, Any, Any, str, tuple[int, int], tuple[int, int]]] = []
+        targets_by_start: dict[tuple[int, int], set[tuple[int, int]]] = {}
         for quest in g.nodes_of_type(NodeType.QUEST):
             giver_rels = g.neighbors(quest.id, EdgeType.STARTS_AT, direction="out")
             if not giver_rels:
@@ -248,16 +370,34 @@ class GraphChecker:
                 target_pos = nav.pos_of(target)
                 if target_pos is None:
                     continue
-                if not nav.reachable(start_pos, target_pos):
-                    emit(
-                        "unreachable_target", "critical", [quest.id, step.id, target],
-                        {"quest": quest.id, "step": step.id, "giver": giver,
-                         "target": target, "unreachable_pair": [giver, target]},
-                        {"entity": step.id,
-                         "source_ref": step.source_ref.model_dump() if step.source_ref else None},
-                        f"Quest {quest.id} step {step.id} target {target!r} "
-                        f"unreachable from giver {giver!r}",
-                    )
+                checks.append((quest, step, target, giver, start_pos, target_pos))
+                targets_by_start.setdefault(start_pos, set()).add(target_pos)
+
+        reachable_by_start = {
+            start_pos: _reachable_positions(nav, start_pos, target_positions)
+            for start_pos, target_positions in targets_by_start.items()
+        }
+        for quest, step, target, giver, start_pos, target_pos in checks:
+            if target_pos in reachable_by_start[start_pos]:
+                continue
+            emit(
+                "unreachable_target",
+                "critical",
+                [quest.id, step.id, target],
+                {
+                    "quest": quest.id,
+                    "step": step.id,
+                    "giver": giver,
+                    "target": target,
+                    "unreachable_pair": [giver, target],
+                },
+                {
+                    "entity": step.id,
+                    "source_ref": step.source_ref.model_dump() if step.source_ref else None,
+                },
+                f"Quest {quest.id} step {step.id} target {target!r} "
+                f"unreachable from giver {giver!r}",
+            )
 
     def _gated_destination(self, g: IRGraph, emit: EmitFn) -> None:
         for quest in g.nodes_of_type(NodeType.QUEST):
@@ -314,11 +454,12 @@ class GraphChecker:
                         )
 
     # --- 4. cyclic_dependency ---
-    def _cyclic_dependency(self, g: IRGraph, emit: EmitFn) -> None:
-        adj = _dependency_adj(g)
-        for cycle in find_cycles(adj):
+    def _cyclic_dependency(self, adjacency: dict[str, list[str]], emit: EmitFn) -> None:
+        for cycle in find_cycles(adjacency):
             emit(
-                "cyclic_dependency", "critical", cycle,
+                "cyclic_dependency",
+                "critical",
+                cycle,
                 {"cycle_path": cycle},
                 {"entity": cycle[0], "cycle": cycle},
                 f"Quest step dependency cycle among: {', '.join(cycle)}",
@@ -331,63 +472,84 @@ class GraphChecker:
             step_rels = g.neighbors(quest.id, EdgeType.HAS_STEP, direction="out")
             if not giver_rels or not step_rels:
                 emit(
-                    "dead_quest", "critical", [quest.id],
-                    {"quest": quest.id, "has_giver": bool(giver_rels),
-                     "has_steps": bool(step_rels)},
-                    {"entity": quest.id,
-                     "source_ref": quest.source_ref.model_dump() if quest.source_ref else None},
+                    "dead_quest",
+                    "critical",
+                    [quest.id],
+                    {
+                        "quest": quest.id,
+                        "has_giver": bool(giver_rels),
+                        "has_steps": bool(step_rels),
+                    },
+                    {
+                        "entity": quest.id,
+                        "source_ref": quest.source_ref.model_dump() if quest.source_ref else None,
+                    },
                     f"Quest {quest.id} can never be started "
                     f"(has_giver={bool(giver_rels)}, has_steps={bool(step_rels)})",
                 )
 
     # --- 6. unsatisfiable_completion ---
-    def _unsatisfiable_completion(self, g: IRGraph, emit: EmitFn) -> None:
+    def _unsatisfiable_completion(
+        self,
+        g: IRGraph,
+        quest_steps: dict[str, set[str]],
+        adjacency_by_quest: dict[str, dict[str, list[str]]],
+        indegree_by_quest: dict[str, dict[str, int]],
+        emit: EmitFn,
+    ) -> None:
         # Assumes PRECEDES encodes prerequisite ordering: a turn_in that is
         # itself a PRECEDES-entry among multiple steps is treated as unsatisfiable.
         for quest in g.nodes_of_type(NodeType.QUEST):
-            step_ids = [
-                r.dst_id for r in g.neighbors(quest.id, EdgeType.HAS_STEP, direction="out")
-                if g.get_node(r.dst_id) is not None
-            ]
-            steps = set(step_ids)
+            steps = tuple(sorted(quest_steps.get(quest.id, ())))
             if not steps:
                 continue
-            turn_ins = [
-                sid for sid in steps
+            turn_ins = sorted(
+                sid
+                for sid in steps
                 if (s := g.get_node(sid)) is not None and s.attrs.get("kind") == "turn_in"
-            ]
+            )
             if not turn_ins:
                 continue
 
-            adj: dict[str, list[str]] = {sid: [] for sid in steps}
-            indeg: dict[str, int] = {sid: 0 for sid in steps}
-            for r in g.all_relations():
-                if r.type is EdgeType.PRECEDES and r.src_id in steps and r.dst_id in steps:
-                    adj[r.src_id].append(r.dst_id)
-                    indeg[r.dst_id] += 1
-            entries = [sid for sid in steps if indeg[sid] == 0]
+            adjacency = adjacency_by_quest.get(quest.id, {})
+            indegrees = indegree_by_quest.get(quest.id, {})
+            entries = [sid for sid in steps if indegrees.get(sid, 0) == 0]
+            entry_ids = set(entries)
+            reachable_from_entries = set(entry_ids)
+            queue = deque(entries)
+            while queue:
+                current = queue.popleft()
+                for destination in adjacency.get(current, ()):
+                    if destination not in reachable_from_entries:
+                        reachable_from_entries.add(destination)
+                        queue.append(destination)
 
             for turn_in in turn_ins:
-                if turn_in in entries:
+                if turn_in in entry_ids:
                     if len(steps) == 1:
                         continue  # single-step (turn_in only) quest: trivially completable
                     reachable: set[str] = set()
                 else:
-                    others = [e for e in entries if e != turn_in]
-                    reachable = set()
-                    for e in others:
-                        reachable |= reachable_set(adj, e)
+                    reachable = reachable_from_entries
                     if turn_in in reachable:
                         continue
                 turn_in_step = g.get_node(turn_in)
                 emit(
-                    "unsatisfiable_completion", "critical", [quest.id, turn_in],
-                    {"quest": quest.id, "turn_in_step": turn_in,
-                     "entries": sorted(e for e in entries if e != turn_in),
-                     "reachable_from_entries": sorted(reachable)},
-                    {"entity": turn_in,
-                     "source_ref": turn_in_step.source_ref.model_dump()
-                     if turn_in_step and turn_in_step.source_ref else None},
+                    "unsatisfiable_completion",
+                    "critical",
+                    [quest.id, turn_in],
+                    {
+                        "quest": quest.id,
+                        "turn_in_step": turn_in,
+                        "entries": sorted(e for e in entries if e != turn_in),
+                        "reachable_from_entries": sorted(reachable),
+                    },
+                    {
+                        "entity": turn_in,
+                        "source_ref": turn_in_step.source_ref.model_dump()
+                        if turn_in_step and turn_in_step.source_ref
+                        else None,
+                    },
                     f"Quest {quest.id} completion step {turn_in} is unreachable "
                     f"from its other step(s): completion condition can never fire",
                 )
@@ -401,16 +563,13 @@ class GraphChecker:
             in_rels = g.neighbors(e.id, direction="in")
             if not out_rels and not in_rels:
                 emit(
-                    "isolated_node", "minor", [e.id],
+                    "isolated_node",
+                    "minor",
+                    [e.id],
                     {"entity": e.id, "type": e.type.value},
-                    {"entity": e.id,
-                     "source_ref": e.source_ref.model_dump() if e.source_ref else None},
+                    {
+                        "entity": e.id,
+                        "source_ref": e.source_ref.model_dump() if e.source_ref else None,
+                    },
                     f"{e.type.value} {e.id!r} has no relations (isolated)",
                 )
-
-
-def _nav_start_reachable(nav: NavProvider, dst_pos) -> bool:
-    start = nav.pos_of("__player_start__")
-    if start is None:
-        return True  # no start anchor known -> existence is sufficient
-    return nav.reachable(start, dst_pos)

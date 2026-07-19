@@ -47,6 +47,7 @@ from gameforge.contracts.jobs import (
 from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.model_router import (
     ModelBridgeCallRequestV1,
+    ModelRequestV1,
     ModelRequestV2,
     ModelSnapshot,
     request_hash,
@@ -74,6 +75,13 @@ ExecutionSource = Literal["online", "full_response_cache", "cassette_replay"]
 
 class PromptRenderPublisher(Protocol):
     """Fenced ``source_rendered`` publication (``RunCommandService`` surface)."""
+
+    def require_replay_source_semantics(
+        self,
+        *,
+        handler_request: ModelRequestV1 | ModelRequestV2,
+        source_request: ModelRequestV1 | ModelRequestV2,
+    ) -> None: ...
 
     def publish_prompt_rendered(
         self,

@@ -64,6 +64,7 @@ from gameforge.runtime.persistence.cost import SqlCostRepository
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 _ACTIVE_RUN_STATUSES = frozenset({"leased", "running"})
+_CANCEL_REQUESTABLE_RUN_STATUSES = frozenset({"queued", "retry_wait", *_ACTIVE_RUN_STATUSES})
 _ACTIVE_ATTEMPT_STATUSES = frozenset({"leased", "running"})
 # SQLite builds before 3.32 commonly cap one statement at 999 bound variables.
 # Leave room for LIMIT/OFFSET and future fixed predicates instead of relying on
@@ -1401,13 +1402,12 @@ class SqlRunRepository:
         now_utc: str,
         limit: int,
     ) -> tuple[RunRecord, ...]:
-        """Discover queued/retry-wait Runs whose authoritative deadline elapsed.
+        """Discover queued/retry-wait Runs needing a control terminalization.
 
-        Claim discovery deliberately excludes these rows. Without a complementary
-        persisted scan, a lost process hint or worker restart leaves them stranded
-        forever in a non-terminal state. The caller feeds each retained revision to
-        ``RunLifecycleService.sweep_timeout``; its write UoW rechecks the deadline,
-        lack of an active lease, and the revision before publishing authority.
+        This includes expired Runs and cancel-requested inactive Runs, which claim
+        discovery deliberately excludes. The caller feeds each retained revision
+        to ``RunLifecycleService.sweep_timeout``; its write UoW rechecks the cancel
+        or deadline authority, lack of an active lease, and revision.
         """
 
         _require_canonical_utc(now_utc, field_name="now_utc")
@@ -1423,6 +1423,10 @@ class SqlRunRepository:
                 .where(
                     or_(
                         and_(
+                            RunRow.status.in_(("queued", "retry_wait")),
+                            RunRow.cancel_requested_at.is_not(None),
+                        ),
+                        and_(
                             RunRow.status == "queued",
                             _utc_sql_key(RunRow.queue_deadline_utc) <= _utc_sql_key(now_utc),
                         ),
@@ -1433,6 +1437,7 @@ class SqlRunRepository:
                     )
                 )
                 .order_by(
+                    case((RunRow.cancel_requested_at.is_not(None), 0), else_=1),
                     _utc_sql_key(effective_deadline),
                     _utc_sql_key(RunRow.created_at),
                     RunRow.run_id,
@@ -1455,13 +1460,14 @@ class SqlRunRepository:
         now_utc: str,
         limit: int,
     ) -> tuple[RunRecord, ...]:
-        """Discover every non-terminal Run whose applicable deadline elapsed.
+        """Discover every non-terminal Run needing timeout/cancel control.
 
         Active attempt deadlines are deliberately discovered separately from
         lease expiry. A healthy heartbeat may keep a lease live until the frozen
         attempt deadline; routing that row through the lease reaper would classify
         the attempt as ``lease_expired`` and could retry it instead of publishing
-        the required ``timed_out`` outcome.
+        the required ``timed_out`` outcome. Cancel-requested inactive Runs are also
+        selected immediately because claim discovery deliberately excludes them.
         """
 
         _require_canonical_utc(now_utc, field_name="now_utc")
@@ -1477,6 +1483,7 @@ class SqlRunRepository:
             else_=RunRow.overall_deadline_utc,
         )
         effective_deadline = case(
+            (RunRow.cancel_requested_at.is_not(None), RunRow.cancel_requested_at),
             (RunRow.status == "queued", RunRow.queue_deadline_utc),
             (RunRow.status == "retry_wait", RunRow.overall_deadline_utc),
             else_=active_effective_deadline,
@@ -1493,6 +1500,10 @@ class SqlRunRepository:
                 )
                 .where(
                     or_(
+                        and_(
+                            RunRow.status.in_(("queued", "retry_wait")),
+                            RunRow.cancel_requested_at.is_not(None),
+                        ),
                         and_(
                             RunRow.status == "queued",
                             _utc_sql_key(RunRow.queue_deadline_utc) <= _utc_sql_key(now_utc),
@@ -4820,8 +4831,8 @@ class SqlRunRepository:
                 != getattr(parsed_record.command.payload, "reason_code", None)
             ):
                 raise IntegrityViolation("cancel command acceptance shape is invalid")
-            if len(parsed_events) != 1 or run.status not in _ACTIVE_RUN_STATUSES:
-                raise IntegrityViolation("active cancel acceptance shape is invalid")
+            if len(parsed_events) != 1 or run.status not in _CANCEL_REQUESTABLE_RUN_STATUSES:
+                raise IntegrityViolation("cancel request acceptance shape is invalid")
 
         updates: dict[str, Any] = {
             "revision": run.revision + 1,

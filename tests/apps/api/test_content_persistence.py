@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import Engine
+from sqlalchemy import Engine, event
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import canonical_json, canonical_sha256
@@ -636,7 +636,7 @@ def test_sql_approval_content_authority_uses_current_subject_head(engine: Engine
     )
 
 
-def test_sql_approval_content_authority_uses_unique_evidence_set_domain(
+def test_sql_approval_content_authority_uses_indexed_validation_owner(
     engine: Engine,
 ) -> None:
     subject = _artifact("patch:evidence-domain", kind="patch", payload_hash="c" * 64)
@@ -654,49 +654,66 @@ def test_sql_approval_content_authority_uses_unique_evidence_set_domain(
             evidence=evidence,
             series_id="series:evidence-domain",
         )
-
-        permission = _approval_authority(
+        authority = _approval_authority(
             session,
             approvals=approvals,
             artifacts=_artifacts(session),
-        ).for_artifact(evidence, resource_kind="artifact")
+        )
+        statements: list[str] = []
+
+        def capture_statement(
+            connection,
+            cursor,
+            statement,
+            parameters,
+            context,
+            executemany,
+        ) -> None:
+            del connection, cursor, parameters, context, executemany
+            statements.append(statement)
+
+        event.listen(engine, "before_cursor_execute", capture_statement)
+        try:
+            permission = authority.for_artifact(evidence, resource_kind="artifact")
+        finally:
+            event.remove(engine, "before_cursor_execute", capture_statement)
 
     assert permission == Permission(
         action="read",
         resource_kind="artifact",
         domain_scope=item.domain_scope,
     )
+    assert any("approval_evidence_bindings" in statement for statement in statements)
+    assert not any("json_each" in statement.lower() for statement in statements)
 
 
-def test_sql_approval_content_authority_rejects_duplicate_evidence_set_domains(
-    engine: Engine,
-) -> None:
+def test_approval_evidence_index_rejects_a_second_owner(engine: Engine) -> None:
     evidence = _artifact(
         "validation-evidence:shared",
         kind="validation_evidence",
         payload_hash="e" * 64,
     )
     with Session(engine) as session, session.begin():
-        approvals = SqlApprovalRepository(session)
-        for suffix, digest in (("one", "1" * 64), ("two", "2" * 64)):
-            _publish_validated_patch(
-                session,
-                approvals=approvals,
-                subject=_artifact(f"patch:{suffix}", kind="patch", payload_hash=digest),
-                evidence=evidence,
-                series_id=f"series:{suffix}",
-            )
-        authority = _approval_authority(
+        _publish_validated_patch(
             session,
-            approvals=approvals,
-            artifacts=_artifacts(session),
+            approvals=SqlApprovalRepository(session),
+            subject=_artifact("patch:one", kind="patch", payload_hash="1" * 64),
+            evidence=evidence,
+            series_id="series:one",
         )
 
-        with pytest.raises(IntegrityViolation, match="multiple ApprovalItems"):
-            authority.for_artifact(evidence, resource_kind="artifact")
+    with pytest.raises(IntegrityViolation, match="already bound"):
+        with Session(engine) as session, session.begin():
+            _publish_validated_patch(
+                session,
+                approvals=SqlApprovalRepository(session),
+                subject=_artifact("patch:two", kind="patch", payload_hash="2" * 64),
+                evidence=evidence,
+                series_id="series:two",
+            )
 
 
-def test_sql_approval_content_authority_binds_regression_evidence_domain(
+def test_sql_approval_content_authority_uses_indexed_regression_owner(
     engine: Engine,
 ) -> None:
     subject = _artifact("patch:regression-owner", kind="patch", payload_hash="1" * 64)
@@ -727,49 +744,32 @@ def test_sql_approval_content_authority_binds_regression_evidence_domain(
             approvals=approvals,
             artifacts=artifacts,
         )
+        statements: list[str] = []
 
-        permission = authority.for_artifact(regression, resource_kind="artifact")
+        def capture_statement(
+            connection,
+            cursor,
+            statement,
+            parameters,
+            context,
+            executemany,
+        ) -> None:
+            del connection, cursor, parameters, context, executemany
+            statements.append(statement)
 
-    assert permission.domain_scope == item.domain_scope
+        event.listen(engine, "before_cursor_execute", capture_statement)
+        try:
+            permission = authority.for_artifact(regression, resource_kind="artifact")
+        finally:
+            event.remove(engine, "before_cursor_execute", capture_statement)
 
-
-def test_sql_approval_content_authority_rejects_duplicate_regression_owners(
-    engine: Engine,
-) -> None:
-    regression = _artifact(
-        "regression:duplicate-owner",
-        kind="regression_evidence",
-        payload_hash="4" * 64,
+    assert permission == Permission(
+        action="read",
+        resource_kind="artifact",
+        domain_scope=item.domain_scope,
     )
-    with Session(engine) as session, session.begin():
-        artifacts = _artifacts(session)
-        artifacts.put(regression)
-        approvals = SqlApprovalRepository(session)
-        for index in (1, 2):
-            _publish_validated_patch(
-                session,
-                approvals=approvals,
-                subject=_artifact(
-                    f"patch:regression-owner:{index}",
-                    kind="patch",
-                    payload_hash=str(index + 4) * 64,
-                ),
-                evidence=_artifact(
-                    f"evidence:regression-owner:{index}",
-                    kind="validation_evidence",
-                    payload_hash=str(index + 6) * 64,
-                ),
-                series_id=f"series:regression-owner:{index}",
-                regression_evidence_artifact_ids=(regression.artifact_id,),
-            )
-        authority = _approval_authority(
-            session,
-            approvals=approvals,
-            artifacts=artifacts,
-        )
-
-        with pytest.raises(IntegrityViolation, match="multiple ApprovalItems"):
-            authority.for_artifact(regression, resource_kind="artifact")
+    assert any("approval_evidence_bindings" in statement for statement in statements)
+    assert not any("json_each" in statement.lower() for statement in statements)
 
 
 def test_sql_approval_content_authority_retains_superseded_patch_projection(
@@ -1053,9 +1053,21 @@ def test_approval_payload_binding_uses_subject_kind_without_client_schema(
     assert binding.payload_schema_id == "patch@2"
 
 
-def test_payload_binding_rejects_unbound_self_declared_artifact_schema(
+@pytest.mark.parametrize(
+    ("artifact_kind", "payload_schema_id", "accepted"),
+    (
+        ("regression_evidence", "regression-evidence@1", True),
+        ("regression_evidence", "evidence-set@1", False),
+        ("validation_evidence", "evidence-set@1", True),
+        ("validation_evidence", "regression-evidence@1", False),
+    ),
+)
+def test_payload_binding_uses_canonical_kind_schema_allowlist(
     engine: Engine,
     tmp_path,
+    artifact_kind: str,
+    payload_schema_id: str,
+    accepted: bool,
 ) -> None:
     store = LocalObjectStore(
         tmp_path / "unbound-objects",
@@ -1063,15 +1075,15 @@ def test_payload_binding_rejects_unbound_self_declared_artifact_schema(
         clock=_clock(),
         cursor_signing_key=SIGNING_KEY,
     )
-    payload = canonical_json({"payload_schema_version": "regression-evidence@1"}).encode("utf-8")
+    payload = canonical_json({"payload_schema_version": payload_schema_id}).encode("utf-8")
     stored = store.put_verified(payload)
     artifact = build_artifact_v2(
-        kind="regression_evidence",
+        kind=artifact_kind,
         version_tuple=VersionTuple(tool_version="content-read-test@1"),
         lineage=(),
         payload_hash=stored.ref.sha256,
         object_ref=stored.ref,
-        meta={"payload_schema_id": "regression-evidence@1"},
+        meta={"payload_schema_id": payload_schema_id},
     )
 
     with Session(engine) as session, session.begin():
@@ -1085,13 +1097,41 @@ def test_payload_binding_rejects_unbound_self_declared_artifact_schema(
         )
         artifacts.put(artifact)
         approvals = SqlApprovalRepository(session)
-        binding = SqlApprovalPayloadBindingProvider(
-            session,
-            approvals=approvals,
-            artifacts=artifacts,
-        ).resolve(artifact.artifact_id)
+        provider = SqlApprovalPayloadBindingProvider(
+            session, approvals=approvals, artifacts=artifacts
+        )
+        statements: list[str] = []
 
-    assert binding is None
+        def capture_statement(
+            connection,
+            cursor,
+            statement,
+            parameters,
+            context,
+            executemany,
+        ) -> None:
+            del connection, cursor, parameters, context, executemany
+            statements.append(statement)
+
+        event.listen(engine, "before_cursor_execute", capture_statement)
+        try:
+            if accepted:
+                binding = provider.resolve(artifact.artifact_id)
+            else:
+                with pytest.raises(IntegrityViolation, match="canonical kind registry"):
+                    provider.resolve(artifact.artifact_id)
+                binding = None
+        finally:
+            event.remove(engine, "before_cursor_execute", capture_statement)
+
+    assert not any("approval_items" in statement.lower() for statement in statements)
+    if not accepted:
+        return
+
+    assert binding is not None
+    assert binding.artifact_id == artifact.artifact_id
+    assert binding.artifact_kind == artifact_kind
+    assert binding.payload_schema_id == payload_schema_id
 
 
 @pytest.mark.parametrize(

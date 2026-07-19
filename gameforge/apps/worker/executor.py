@@ -22,9 +22,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from collections.abc import Callable
 from typing import Protocol
 
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
     DependencyFailureV1,
     FailureClassifierV1,
     PreparedRunFailure,
@@ -70,6 +72,7 @@ class ExecutorContext:
     payload: RunPayloadEnvelope
     deadline_utc: datetime
     model_bridge: WorkerModelBridgePort
+    progress_publisher: Callable[[AttemptProgressDataV1], object] | None = None
 
 
 class RunExecutor(Protocol):

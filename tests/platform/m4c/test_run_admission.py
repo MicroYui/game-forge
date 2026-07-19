@@ -5121,7 +5121,11 @@ def test_budget_failure_rolls_back_goal_artifact_publication(tmp_path: Path) -> 
     base = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
     actor = _tooling_actor()
     goal = "this goal remains only a GC-eligible blob when admission fails"
-    pending = harness.engine_admission._mint_goal_source(actor=actor, text=goal)  # noqa: SLF001
+    pending = harness.engine_admission._mint_goal_source(  # noqa: SLF001
+        actor=actor,
+        text=goal,
+        domain_scope=DomainScope(domain_ids=("economy",)),
+    )
 
     with pytest.raises(QuotaExceeded):
         harness.engine_admission.admit_generation(
@@ -5956,6 +5960,7 @@ def test_forbidden_generation_does_not_publish_goal_source_artifact(tmp_path: Pa
     pending = harness.engine_admission._mint_goal_source(  # noqa: SLF001
         actor=wrong_role,
         text=goal,
+        domain_scope=DomainScope(domain_ids=("economy",)),
     )
 
     with pytest.raises(Forbidden):

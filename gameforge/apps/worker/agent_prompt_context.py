@@ -314,7 +314,14 @@ def build_builtin_agent_prompt_context_authority(
                 request_params_canonical_json=canonical_json(params),
                 model_request_schema_versions=("model-router@2",),
                 policy_injected_params=(
-                    ()
+                    (
+                        CanonicalPolicyInjectedParamV1(
+                            name="max_output_tokens",
+                            minimum=1,
+                            maximum=1_000_000,
+                            required=True,
+                        ),
+                    )
                     if agent_node_id in direct_empty_params
                     else (
                         CanonicalPolicyInjectedParamV1(

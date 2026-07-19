@@ -473,6 +473,7 @@ class PlaytestRunHandler:
                 context,
                 tool_version=PLAYTEST_TOOL_VERSION,
                 projected_fields=(
+                    "doc_version",
                     "ir_snapshot_id",
                     "constraint_snapshot_id",
                     "env_contract_version",

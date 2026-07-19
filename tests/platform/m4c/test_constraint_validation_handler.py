@@ -545,6 +545,25 @@ def test_mixed_candidate_validated_when_both_independent_pairs_decide() -> None:
     assert compile_requirement.kind == "constraint_compile"
 
 
+def test_empty_regression_suites_do_not_require_an_ir_snapshot_identity() -> None:
+    store = _store((_constraint("C_cap", "reward_gold <= 80"),))
+
+    outcome = _handler(store)(
+        _context(
+            store,
+            _payload(regression=()),
+            version_tuple=VersionTuple(
+                doc_version="design@1",
+                tool_version="constraint-validation@1",
+            ),
+        )
+    )
+
+    assert outcome.summary.outcome_code == "constraint_validated"
+    assert not any(artifact.kind == "regression_evidence" for artifact in outcome.artifacts)
+    assert outcome.requirement_dispositions == ()
+
+
 def test_max_regression_suite_request_fits_exact_prepared_artifact_bound() -> None:
     suite_ids = tuple(
         f"artifact:regression-suite:{index:04d}" for index in range(MAX_COLLECTION_ITEMS)

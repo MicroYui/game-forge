@@ -73,6 +73,7 @@ def _seed_artifacts(session: Session) -> None:
             _artifact("artifact:patch:1", payload_hash=SUBJECT_DIGEST_1),
             _artifact("artifact:patch:2", payload_hash=SUBJECT_DIGEST_2),
             _artifact(EVIDENCE_ARTIFACT_ID, payload_hash="8" * 64),
+            _artifact(REGRESSION_EVIDENCE_ARTIFACT_ID, payload_hash="9" * 64),
         ]
     )
     session.flush()
@@ -362,18 +363,24 @@ def test_decision_and_workflow_cas_are_one_repository_primitive_and_retry_exactl
             decided_at=decision.occurred_at,
         )
 
-        assert repository.append_decision_and_compare_and_set(
-            item.approval_id,
-            4,
-            decision,
-            replacement,
-        ) == replacement
-        assert repository.append_decision_and_compare_and_set(
-            item.approval_id,
-            4,
-            decision,
-            replacement,
-        ) == replacement
+        assert (
+            repository.append_decision_and_compare_and_set(
+                item.approval_id,
+                4,
+                decision,
+                replacement,
+            )
+            == replacement
+        )
+        assert (
+            repository.append_decision_and_compare_and_set(
+                item.approval_id,
+                4,
+                decision,
+                replacement,
+            )
+            == replacement
+        )
         assert repository.get_decision(decision.decision_id) == decision
         session.commit()
 
@@ -541,33 +548,48 @@ def test_subject_head_create_update_current_and_aba_protection(engine: Engine) -
         repository.insert_draft(first_item)
         repository.insert_draft(second_item)
         repository.insert_draft(third_item)
-        assert repository.compare_and_set_subject_head(
-            first_head.subject_series_id,
-            None,
-            first_head,
-        ) == first_head
-        assert repository.compare_and_set_subject_head(
-            first_head.subject_series_id,
-            None,
-            first_head,
-        ) == first_head
+        assert (
+            repository.compare_and_set_subject_head(
+                first_head.subject_series_id,
+                None,
+                first_head,
+            )
+            == first_head
+        )
+        assert (
+            repository.compare_and_set_subject_head(
+                first_head.subject_series_id,
+                None,
+                first_head,
+            )
+            == first_head
+        )
         assert repository.current(first_head.subject_series_id) == (first_head, first_item)
 
-        assert repository.compare_and_set_subject_head(
-            first_head.subject_series_id,
-            first_head,
-            second_head,
-        ) == second_head
-        assert repository.compare_and_set_subject_head(
-            first_head.subject_series_id,
-            first_head,
-            second_head,
-        ) == second_head
-        assert repository.compare_and_set_subject_head(
-            first_head.subject_series_id,
-            second_head,
-            third_head,
-        ) == third_head
+        assert (
+            repository.compare_and_set_subject_head(
+                first_head.subject_series_id,
+                first_head,
+                second_head,
+            )
+            == second_head
+        )
+        assert (
+            repository.compare_and_set_subject_head(
+                first_head.subject_series_id,
+                first_head,
+                second_head,
+            )
+            == second_head
+        )
+        assert (
+            repository.compare_and_set_subject_head(
+                first_head.subject_series_id,
+                second_head,
+                third_head,
+            )
+            == third_head
+        )
         with pytest.raises(Conflict, match="SubjectHead compare-and-set"):
             repository.compare_and_set_subject_head(
                 first_head.subject_series_id,

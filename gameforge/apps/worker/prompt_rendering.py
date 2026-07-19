@@ -905,6 +905,38 @@ class CanonicalPromptRendererAuthority:
         )
         return rendered
 
+    def require_replay_source_semantics(
+        self,
+        *,
+        handler_request: ModelRequestV1 | ModelRequestV2,
+        source_request: ModelRequestV1 | ModelRequestV2,
+    ) -> None:
+        """Compare handler-owned semantics after validating routed policy fields."""
+
+        semantic_fields = ("messages", "tool_schemas", "agent_node_id", "prompt_version")
+        if any(
+            getattr(handler_request, field) != getattr(source_request, field)
+            for field in semantic_fields
+        ):
+            raise IntegrityViolation("handler request differs from replay source semantics")
+        binding = self._bindings.get((source_request.agent_node_id, source_request.prompt_version))
+        if binding is None:
+            raise IntegrityViolation(
+                "exact canonical prompt binding is unavailable",
+                agent_node_id=source_request.agent_node_id,
+                prompt_version=source_request.prompt_version,
+            )
+        self._require_request_parameters(
+            binding=binding,
+            model_request=source_request,
+            require_policy_injected=True,
+        )
+        self._require_request_parameters(
+            binding=binding,
+            model_request=handler_request,
+            require_policy_injected=False,
+        )
+
     def _require_request_configuration(
         self,
         *,
@@ -912,39 +944,11 @@ class CanonicalPromptRendererAuthority:
         rendered: CanonicalPromptRenderV1,
         model_request: ModelRequestV1 | ModelRequestV2,
     ) -> None:
-        if model_request.model_router_schema_version not in (binding.model_request_schema_versions):
-            raise IntegrityViolation(
-                "model request schema version differs from canonical prompt authority"
-            )
-        actual_params = dict(model_request.params)
-        for rule in binding.policy_injected_params:
-            if rule.name not in actual_params:
-                if rule.required:
-                    raise IntegrityViolation(
-                        "model request lacks required policy-injected parameter",
-                        parameter=rule.name,
-                    )
-                continue
-            value = actual_params.pop(rule.name)
-            if (
-                isinstance(value, bool)
-                or not isinstance(value, int)
-                or not rule.minimum <= value <= rule.maximum
-            ):
-                raise IntegrityViolation(
-                    "model request policy-injected parameter is outside retained bounds",
-                    parameter=rule.name,
-                )
-        try:
-            actual_params_json = canonical_json(actual_params)
-        except (TypeError, ValueError) as exc:
-            raise IntegrityViolation(
-                "handler request params are not canonical bounded JSON"
-            ) from exc
-        if actual_params_json != binding.request_params_canonical_json:
-            raise IntegrityViolation(
-                "handler request params differ from canonical prompt authority"
-            )
+        self._require_request_parameters(
+            binding=binding,
+            model_request=model_request,
+            require_policy_injected=True,
+        )
         if tuple(model_request.tool_schemas) != rendered.tool_schemas:
             raise IntegrityViolation(
                 "handler tool schema set differs from exact tool-version authority"
@@ -982,6 +986,47 @@ class CanonicalPromptRendererAuthority:
         if actual_directive != expected_directive:
             raise IntegrityViolation(
                 "handler prefix-cache directive differs from exact policy authority"
+            )
+
+    @staticmethod
+    def _require_request_parameters(
+        *,
+        binding: CanonicalPromptBindingV1,
+        model_request: ModelRequestV1 | ModelRequestV2,
+        require_policy_injected: bool,
+    ) -> None:
+        if model_request.model_router_schema_version not in binding.model_request_schema_versions:
+            raise IntegrityViolation(
+                "model request schema version differs from canonical prompt authority"
+            )
+        actual_params = dict(model_request.params)
+        for rule in binding.policy_injected_params:
+            if rule.name not in actual_params:
+                if rule.required and require_policy_injected:
+                    raise IntegrityViolation(
+                        "model request lacks required policy-injected parameter",
+                        parameter=rule.name,
+                    )
+                continue
+            value = actual_params.pop(rule.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or not rule.minimum <= value <= rule.maximum
+            ):
+                raise IntegrityViolation(
+                    "model request policy-injected parameter is outside retained bounds",
+                    parameter=rule.name,
+                )
+        try:
+            actual_params_json = canonical_json(actual_params)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "handler request params are not canonical bounded JSON"
+            ) from exc
+        if actual_params_json != binding.request_params_canonical_json:
+            raise IntegrityViolation(
+                "handler request params differ from canonical prompt authority"
             )
 
     def _verify_sources(

@@ -52,6 +52,10 @@ class _PromptPublisher:
     def __init__(self, order: list[str], *, error: BaseException | None = None) -> None:
         self._order = order
         self._error = error
+        self.semantic_checks: list[tuple[object, object]] = []
+
+    def require_replay_source_semantics(self, *, handler_request, source_request) -> None:
+        self.semantic_checks.append((handler_request, source_request))
 
     def publish_prompt_rendered(self, request, **values):
         del values
@@ -334,7 +338,8 @@ def _native_bridge(
 
 def test_native_replay_charges_one_step_before_route_and_response() -> None:
     order: list[str] = []
-    bridge, run, route, call_cost, step_cost = _native_bridge(order)
+    prompt = _PromptPublisher(order)
+    bridge, run, route, call_cost, step_cost = _native_bridge(order, prompt=prompt)
 
     result = bridge.call_model(_request(run, route.request))
 
@@ -352,6 +357,7 @@ def test_native_replay_charges_one_step_before_route_and_response() -> None:
     assert len(step_cost.reservations) == len(step_cost.reconciliations) == 1
     assert step_cost.in_transaction == step_cost.reservations
     assert step_cost.standalone == []
+    assert prompt.semantic_checks == [(route.request, route.request)]
 
 
 def test_native_replay_attempt_two_restarts_selected_source_call_one() -> None:

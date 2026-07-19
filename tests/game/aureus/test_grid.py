@@ -61,3 +61,24 @@ def test_nav_provider_reachable_and_pos_of():
     assert nav.pos_of("npc:a") == (3, 3)
     assert nav.pos_of("missing") is None
     assert nav.reachable((0, 0), (3, 3)) is True
+
+
+def test_nav_reuses_one_connected_component_search_across_sources(monkeypatch):
+    grid = Grid(GridSpec(width=32, height=32, blocked=[]))
+    nav = AureusNav(grid, {})
+    searches = 0
+    original = grid._search
+
+    def counted(src, *, stops):
+        nonlocal searches
+        searches += 1
+        return original(src, stops=stops)
+
+    monkeypatch.setattr(grid, "_search", counted)
+
+    assert nav.reachable_positions((0, 0), {(31, 31), (10, 10)}) == {
+        (31, 31),
+        (10, 10),
+    }
+    assert nav.reachable((31, 31), (1, 1)) is True
+    assert searches == 1

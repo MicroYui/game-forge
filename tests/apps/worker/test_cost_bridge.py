@@ -1039,7 +1039,7 @@ def test_record_publication_step_fault_leaves_no_shard_or_consumption(
 
 
 @pytest.mark.parametrize("expiry_phase", ("before_begin", "before_commit"))
-def test_response_publication_rechecks_lease_inside_writer_transaction(
+def test_post_response_stale_fence_rolls_back_publication_and_settles_once(
     harness: _Harness,
     expiry_phase: str,
 ) -> None:
@@ -1118,6 +1118,35 @@ def test_response_publication_rechecks_lease_inside_writer_transaction(
     with Session(harness.engine) as session:
         ledger = SqlCostLedger(session, clock=harness.clock)
         assert ledger.list_usage(run_id=harness.run.run_id, attempt_no=1) == ()
+        assert (
+            SqlRunRepository(session).get_model_response_consumption(
+                harness.run.run_id,
+                1,
+                1,
+                1,
+            )
+            is None
+        )
+        assert (
+            tuple(session.scalars(select(ArtifactRow).where(ArtifactRow.kind == "cassette_bundle")))
+            == ()
+        )
+
+    # The provider response and its typed usage were already incurred.  This is the
+    # WorkerModelBridge publication-error path: settle call + logical step outside the
+    # rolled-back publication UoW, without making response/cassette authority visible.
+    call_gateway.reconcile_usage(
+        reservation=call_token,
+        decision=harness.decision,
+        result=result,
+        wall_time_ns=123_456,
+    )
+    step_gateway.reconcile_step(reservation=step_token)
+    with Session(harness.engine) as session:
+        ledger = SqlCostLedger(session, clock=harness.clock)
+        usage = ledger.list_usage(run_id=harness.run.run_id, attempt_no=1)
+        assert len(tuple(item for item in usage if item.scope == "attempt_call")) == 1
+        assert len(tuple(item for item in usage if item.scope == "agent_step")) == 1
         assert (
             SqlRunRepository(session).get_model_response_consumption(
                 harness.run.run_id,

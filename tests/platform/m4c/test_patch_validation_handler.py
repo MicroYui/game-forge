@@ -74,7 +74,7 @@ from gameforge.contracts.workflow import (
 )
 from gameforge.spine.checkers.graph import GraphChecker
 from gameforge.spine.checkers.base import CheckerExecutionBinding
-from gameforge.spine.sim.economy import EconomyModel, SimResult
+from gameforge.spine.sim.economy import EconomyModel, InvariantCheck, SimResult
 from gameforge.platform.run_handlers.patch_validation import (
     AutoApplyEvaluationRequest,
     ExactLinkedFindingRevision,
@@ -544,6 +544,23 @@ class _CleanSimulator:
 
     def run(self, model, *, seed, n_agents, n_ticks) -> SimResult:
         return SimResult(distributions={}, invariants=[], sensitivity={})
+
+
+class _ViolatingSimulator:
+    def run(self, model, *, seed, n_agents, n_ticks) -> SimResult:
+        del model, seed, n_agents, n_ticks
+        return SimResult(
+            distributions={},
+            invariants=(
+                InvariantCheck(
+                    name="economy_pressure",
+                    ok=False,
+                    observed=2.0,
+                    threshold=1.0,
+                ),
+            ),
+            sensitivity={},
+        )
 
 
 class _RecordingSimulator(_CleanSimulator):
@@ -1388,6 +1405,60 @@ def test_supporting_playtest_completion_affects_validation(
     )
     assert outcome.summary.outcome_code == f"patch_validation_{expected_status}"
     assert requirement.status == expected_status
+
+
+def test_selected_playtest_finding_is_embedded_in_its_exact_dimension() -> None:
+    store = _store()
+    preview = load_snapshot(store, PREVIEW_ID)
+    trace = _playtest_trace(completed=False)
+    trace_artifact_id = _register_authoritative_playtest_trace(
+        store,
+        trace=trace,
+        ir_snapshot_id=preview.snapshot_id,
+    )
+    revision = _finding_revision(
+        _playtest_finding(status="confirmed", snapshot_id=preview.snapshot_id)
+    )
+    loader = _ExactFindingRevisionLoader(
+        revision,
+        linked_evidence_by_finding={
+            (revision.finding_id, revision.revision): trace_artifact_id,
+        },
+    )
+    payload = _payload(
+        constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+        candidate_config_export_artifact_ids=(CONFIG_ID,),
+        checker_profiles=(),
+        playtest_trace_artifact_ids=(trace_artifact_id,),
+        findings=(_finding_binding(revision, evidence_artifact_id=trace_artifact_id),),
+    )
+    context = _context(
+        store,
+        payload,
+        constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        env_contract_version="env@1",
+    )
+
+    outcome = _handler(store, finding_revision_loader=loader)(context)
+
+    companion = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == f"playtest:{trace_artifact_id}"
+    )
+    sealed = decode_and_validate_artifact_payload(
+        payload_schema_id=companion.payload_schema_id,
+        blob=store.read_prepared(companion.object_ref),
+    )
+    embedded = sealed["detail"]["findings"]
+    assert len(embedded) == 1
+    assert embedded[0]["defect_class"] == "playtest_incomplete"
+    assert embedded[0]["producer_run_id"] == context.run.run_id
+    assert any(
+        item.evidence_artifact_index == outcome.artifacts.index(companion)
+        and item.payload.producer_run_id == context.run.run_id
+        for item in outcome.findings
+    )
 
 
 @pytest.mark.parametrize("forgery", ("missing_envelope", "missing_identity"))
@@ -3657,6 +3728,69 @@ def test_bound_impossible_constraint_makes_clean_simulation_unproven_and_ineligi
     assert any(
         finding["defect_class"] == "simulation_constraint_unproven"
         for finding in sealed["detail"]["findings"]
+    )
+
+
+def test_bound_constraint_keeps_violating_simulation_dimension_unproven() -> None:
+    store = _store()
+    constraint = Constraint(
+        id="C_bound",
+        kind="numeric",
+        oracle="deterministic",
+        **{"assert": "reward_gold < 80"},
+        severity="critical",
+    )
+    store.register(
+        CONSTRAINT_ARTIFACT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [constraint.model_dump(mode="json", by_alias=True)],
+        },
+    )
+    outcome = _handler(store, simulator=_ViolatingSimulator())(
+        _context(
+            store,
+            _payload(
+                constraint_snapshot_artifact_id=CONSTRAINT_ARTIFACT_ID,
+                checker_profiles=(),
+                simulation_profiles=(_SIM,),
+            ),
+            seed=7,
+            constraint_snapshot_id=CONSTRAINT_SNAPSHOT_ID,
+        )
+    )
+
+    evidence = _read_evidence_set(store, outcome)
+    requirement = next(
+        item for item in evidence.requirements if item.requirement_id == "simulation:sim@1"
+    )
+    assert requirement.status == "unproven"
+    companion = next(
+        artifact
+        for artifact in outcome.artifacts
+        if artifact.meta.get("requirement_id") == "simulation:sim@1"
+    )
+    sealed = json.loads(store.read_prepared(companion.object_ref))
+    assert sealed["status"] == "unproven"
+    descriptive = next(
+        finding
+        for finding in sealed["detail"]["findings"]
+        if finding["defect_class"] == "economy_pressure"
+    )
+    assert descriptive["status"] == "unproven"
+    assert descriptive["evidence"] == {
+        "observed": "f:2",
+        "threshold": "f:1",
+        "constraint_application": {
+            "status": "unproven",
+            "reason_code": "constraint_profile_not_executable",
+            "constraint_snapshot_artifact_id": CONSTRAINT_ARTIFACT_ID,
+            "constraint_ids": ["C_bound"],
+        },
+    }
+    decode_and_validate_artifact_payload(
+        payload_schema_id="regression-evidence@1",
+        blob=store.read_prepared(companion.object_ref),
     )
 
 

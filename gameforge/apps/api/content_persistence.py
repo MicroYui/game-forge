@@ -7,7 +7,7 @@ from contextlib import AbstractContextManager
 from datetime import timedelta
 
 from pydantic import JsonValue, ValidationError
-from sqlalchemy import BigInteger, func, literal_column, select, true
+from sqlalchemy import BigInteger, func, literal_column, select
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import canonical_sha256
@@ -21,6 +21,7 @@ from gameforge.contracts.workflow import (
     regression_companion_evidence_ids,
 )
 from gameforge.platform.approvals.commands import EvidenceStateProjection
+from gameforge.platform.registry import ARTIFACT_PAYLOAD_SCHEMAS
 from gameforge.platform.read_models.artifacts import (
     ArtifactPayloadReader,
     TrustedArtifactPayloadBinding,
@@ -40,6 +41,7 @@ from gameforge.runtime.persistence.approvals import SqlApprovalRepository
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.models import (
+    ApprovalEvidenceBindingRow,
     ApprovalItemRow,
     ArtifactRow,
     RefHistoryRow,
@@ -93,7 +95,13 @@ class SqlContentReadRepository(ContentReadRepository):
 
 
 class SqlApprovalPayloadBindingProvider:
-    """Resolve frozen publication schemas, cross-checking workflow bindings."""
+    """Resolve schemas from workflow authority or the frozen kind/schema registry.
+
+    Approval-bound subjects and EvidenceSets retain their stronger cross-check. Other
+    publisher-validated Artifacts (for example RunResult and preview/config outputs)
+    are readable only when their exact metadata schema is in the canonical registry;
+    arbitrary or cross-kind schema claims remain fail-closed.
+    """
 
     def __init__(
         self,
@@ -122,7 +130,7 @@ class SqlApprovalPayloadBindingProvider:
                 .limit(1)
             )
             if approval_id is None:
-                return None
+                return self._canonical_registry_binding(artifact)
             item = self._approvals.get(approval_id)
             if (
                 item is None
@@ -134,55 +142,55 @@ class SqlApprovalPayloadBindingProvider:
                     artifact_id=artifact_id,
                 )
             payload_schema_id = _SUBJECT_PAYLOAD_SCHEMAS[artifact.kind]
-        elif artifact.kind == "validation_evidence":
-            approval_id = self._session.scalar(
-                select(ApprovalItemRow.approval_id)
-                .where(ApprovalItemRow.evidence_set_artifact_id == artifact_id)
-                .order_by(ApprovalItemRow.approval_id)
-                .limit(1)
+        elif artifact.kind in {"validation_evidence", "regression_evidence"}:
+            retained = self._session.get(ApprovalEvidenceBindingRow, artifact_id)
+            if retained is None:
+                return self._canonical_registry_binding(artifact)
+            expected_kind = "validation" if artifact.kind == "validation_evidence" else "regression"
+            if retained.binding_kind != expected_kind:
+                raise IntegrityViolation(
+                    "approval Evidence Artifact binding kind differs from its Artifact",
+                    artifact_id=artifact_id,
+                )
+            item = self._approvals.get(retained.approval_id)
+            expected_binding = item is not None and (
+                item.evidence_set_artifact_id == artifact_id
+                if expected_kind == "validation"
+                else artifact_id in item.regression_evidence_artifact_ids
             )
-            if approval_id is None:
-                return None
-            item = self._approvals.get(approval_id)
-            if item is None or item.evidence_set_artifact_id != artifact_id:
+            if not expected_binding:
                 raise IntegrityViolation(
-                    "approval EvidenceSet payload binding is not retained",
+                    "approval Evidence Artifact binding is not retained",
                     artifact_id=artifact_id,
                 )
-            payload_schema_id = "evidence-set@1"
-        elif artifact.kind == "regression_evidence":
-            regression_values = func.json_each(
-                ApprovalItemRow.regression_evidence_artifact_ids
-            ).table_valued("key", "value")
-            approval_ids = self._session.scalars(
-                select(ApprovalItemRow.approval_id)
-                .select_from(ApprovalItemRow)
-                .join(regression_values, true())
-                .where(regression_values.c.value == artifact_id)
-                .order_by(ApprovalItemRow.approval_id)
-                .limit(2)
-            ).all()
-            if not approval_ids:
-                return None
-            if len(approval_ids) != 1:
-                raise IntegrityViolation(
-                    "one regression Evidence Artifact is bound to multiple ApprovalItems",
-                    artifact_id=artifact_id,
-                )
-            item = self._approvals.get(approval_ids[0])
-            if item is None or artifact_id not in item.regression_evidence_artifact_ids:
-                raise IntegrityViolation(
-                    "approval regression Evidence payload binding is not retained",
-                    artifact_id=artifact_id,
-                )
-            payload_schema_id = "regression-evidence@1"
+            payload_schema_id = (
+                "evidence-set@1" if expected_kind == "validation" else "regression-evidence@1"
+            )
         else:
-            return None
+            return self._canonical_registry_binding(artifact)
         metadata_schema = artifact.meta.get("payload_schema_id")
         if metadata_schema is not None and metadata_schema != payload_schema_id:
             raise IntegrityViolation(
                 "workflow payload binding differs from the retained Artifact metadata",
                 artifact_id=artifact_id,
+            )
+        return TrustedArtifactPayloadBinding.for_artifact(
+            artifact,
+            payload_schema_id=payload_schema_id,
+        )
+
+    @staticmethod
+    def _canonical_registry_binding(
+        artifact: ArtifactV2,
+    ) -> TrustedArtifactPayloadBinding | None:
+        payload_schema_id = artifact.meta.get("payload_schema_id")
+        if payload_schema_id is None:
+            return None
+        allowed = ARTIFACT_PAYLOAD_SCHEMAS[artifact.kind]
+        if not isinstance(payload_schema_id, str) or payload_schema_id not in allowed:
+            raise IntegrityViolation(
+                "Artifact payload schema is outside the canonical kind registry",
+                artifact_id=artifact.artifact_id,
             )
         return TrustedArtifactPayloadBinding.for_artifact(
             artifact,
@@ -358,10 +366,13 @@ class SqlApprovalContentAuthority:
                     "ApprovalItem subject kind differs from its Artifact",
                     artifact_id=artifact.artifact_id,
                 )
-        elif artifact.kind == "validation_evidence":
-            item = self._retained_evidence_item(artifact.artifact_id)
-        elif artifact.kind == "regression_evidence":
-            item = self._retained_regression_item(artifact.artifact_id)
+        elif artifact.kind in {"validation_evidence", "regression_evidence"}:
+            item = self._retained_evidence_item(
+                artifact.artifact_id,
+                binding_kind=(
+                    "validation" if artifact.kind == "validation_evidence" else "regression"
+                ),
+            )
         else:
             item = None
         if item is None:
@@ -395,52 +406,29 @@ class SqlApprovalContentAuthority:
         self._require_retained_series(item, artifact_id=artifact_id)
         return item
 
-    def _retained_evidence_item(self, artifact_id: str) -> ApprovalItem | None:
-        approval_ids = self._session.scalars(
-            select(ApprovalItemRow.approval_id)
-            .where(ApprovalItemRow.evidence_set_artifact_id == artifact_id)
-            .order_by(ApprovalItemRow.approval_id)
-            .limit(2)
-        ).all()
-        if not approval_ids:
+    def _retained_evidence_item(
+        self,
+        artifact_id: str,
+        *,
+        binding_kind: str,
+    ) -> ApprovalItem | None:
+        retained = self._session.get(ApprovalEvidenceBindingRow, artifact_id)
+        if retained is None:
             return None
-        if len(approval_ids) != 1:
+        if retained.binding_kind != binding_kind:
             raise IntegrityViolation(
-                "one EvidenceSet Artifact is bound to multiple ApprovalItems",
+                "approval Evidence Artifact binding kind differs from its Artifact",
                 artifact_id=artifact_id,
             )
-        item = self._approvals.get(approval_ids[0])
-        if item is None or item.evidence_set_artifact_id != artifact_id:
+        item = self._approvals.get(retained.approval_id)
+        bound = item is not None and (
+            item.evidence_set_artifact_id == artifact_id
+            if binding_kind == "validation"
+            else artifact_id in item.regression_evidence_artifact_ids
+        )
+        if not bound:
             raise IntegrityViolation(
-                "ApprovalItem EvidenceSet Artifact binding is unavailable",
-                artifact_id=artifact_id,
-            )
-        self._require_retained_series(item, artifact_id=artifact_id)
-        return item
-
-    def _retained_regression_item(self, artifact_id: str) -> ApprovalItem | None:
-        regression_values = func.json_each(
-            ApprovalItemRow.regression_evidence_artifact_ids
-        ).table_valued("key", "value")
-        approval_ids = self._session.scalars(
-            select(ApprovalItemRow.approval_id)
-            .select_from(ApprovalItemRow)
-            .join(regression_values, true())
-            .where(regression_values.c.value == artifact_id)
-            .order_by(ApprovalItemRow.approval_id)
-            .limit(2)
-        ).all()
-        if not approval_ids:
-            return None
-        if len(approval_ids) != 1:
-            raise IntegrityViolation(
-                "one regression Evidence Artifact is bound to multiple ApprovalItems",
-                artifact_id=artifact_id,
-            )
-        item = self._approvals.get(approval_ids[0])
-        if item is None or artifact_id not in item.regression_evidence_artifact_ids:
-            raise IntegrityViolation(
-                "ApprovalItem regression Evidence Artifact binding is unavailable",
+                "ApprovalItem Evidence Artifact binding is unavailable",
                 artifact_id=artifact_id,
             )
         self._require_retained_series(item, artifact_id=artifact_id)

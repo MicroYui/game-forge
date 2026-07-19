@@ -28,6 +28,10 @@ from gameforge.contracts.lineage import (
     parse_artifact,
 )
 from gameforge.contracts.storage import ObjectBindingRepository, ObjectStat, ObjectStore
+from gameforge.platform.publication.payload_schema import (
+    PayloadBlobDecoder,
+    decode_and_validate_artifact_payload,
+)
 
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -411,6 +415,7 @@ class ArtifactPayloadReader:
         object_bindings: ObjectBindingRepository,
         object_store: ObjectStore,
         max_payload_bytes: int,
+        external_decoders: Mapping[str, PayloadBlobDecoder] | None = None,
     ) -> None:
         if (
             isinstance(max_payload_bytes, bool)
@@ -423,6 +428,7 @@ class ArtifactPayloadReader:
         self._object_bindings = object_bindings
         self._object_store = object_store
         self._max_payload_bytes = max_payload_bytes
+        self._external_decoders = dict(external_decoders or {})
 
     def read(self, artifact_id: str) -> VerifiedArtifactPayload:
         if not isinstance(artifact_id, str) or not artifact_id:
@@ -492,7 +498,17 @@ class ArtifactPayloadReader:
                 "object payload content hash differs from ArtifactV2",
                 artifact_id=artifact_id,
             )
-        payload = _strict_canonical_json_object(payload_bytes, artifact_id=artifact_id)
+        if (
+            trusted.payload_schema_id == "config-export-package@1"
+            or trusted.payload_schema_id in self._external_decoders
+        ):
+            payload = decode_and_validate_artifact_payload(
+                payload_schema_id=trusted.payload_schema_id,
+                blob=payload_bytes,
+                external_decoders=self._external_decoders,
+            )
+        else:
+            payload = _strict_canonical_json_object(payload_bytes, artifact_id=artifact_id)
         return VerifiedArtifactPayload(
             artifact=artifact,
             object_binding=binding,

@@ -25,6 +25,7 @@ from gameforge.contracts.findings import Finding, PatchV2, TypedOp
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
     GenerationProposePayloadV1,
     PreparedRunFailure,
     PreparedRunResult,
@@ -393,12 +394,16 @@ def test_generation_rejects_mismatched_profile_binding_before_model_call(
 def test_generation_gate_pass_emits_patch_preview_config_and_gate_evidence() -> None:
     store = _store()
     bridge = FakeModelBridge(responses=(_BENIGN_OPS,))
-    outcome = _handler(store)(_context(bridge))
+    progress: list[AttemptProgressDataV1] = []
+    outcome = _handler(store)(
+        replace(_context(bridge), progress_publisher=lambda data: progress.append(data))
+    )
 
     assert isinstance(outcome, PreparedRunResult)
     assert outcome.summary.outcome_code == "generation_gate_passed"
     # exactly one LLM proposal call went through the bridge.
     assert len(bridge.requests) == 1
+    assert [item.phase_code for item in progress] == ["generation.preliminary_gate"]
     assert bridge.requests[0].source_artifact_ids == tuple(sorted((GOAL_ID, SNAPSHOT_ID)))
     assert "Design goal: tune the outpost faucet" in (
         bridge.requests[0].model_request.messages[-1].content
@@ -494,11 +499,15 @@ def test_generation_prompt_profile_cap_rejects_before_bridge_or_object_write() -
 def test_generation_gate_reject_is_evidence_only_failure_without_subject() -> None:
     store = _store()
     bridge = FakeModelBridge(responses=(_BAD_OPS,))
-    outcome = _handler(store)(_context(bridge))
+    progress: list[AttemptProgressDataV1] = []
+    outcome = _handler(store)(
+        replace(_context(bridge), progress_publisher=lambda data: progress.append(data))
+    )
 
     assert isinstance(outcome, PreparedRunFailure)
     assert outcome.cause_code == "generation_gate_rejected"
     assert outcome.failure_class == "business_rule"
+    assert [item.phase_code for item in progress] == ["generation.preliminary_gate"]
 
 
 def test_generation_parse_fallback_cannot_turn_an_empty_proposal_into_gate_pass() -> None:

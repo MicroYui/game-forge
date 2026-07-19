@@ -21,6 +21,7 @@ from gameforge.apps.worker.pool import ThreadedBlockingExecutorPool
 from gameforge.apps.worker.runner import AttemptRunner
 from gameforge.apps.worker.terminal import WorkerTerminalPublisher
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
     PreparedRunFailure,
     PreparedRunOutcome,
     RunLease,
@@ -72,7 +73,17 @@ class _CapturingTerminal:
         return outcome  # the runner returns whatever the sink returns
 
 
-def _runner(resolve_executor, terminal, pool, *, read_run_revision=None):
+class _CapturingProgress:
+    def __init__(self) -> None:
+        self.published: list[tuple[AttemptWriteFence, AttemptProgressDataV1]] = []
+
+    def publish_progress(self, *, fence, data, actor):
+        assert actor == WORKER
+        self.published.append((fence, data))
+        return data
+
+
+def _runner(resolve_executor, terminal, pool, *, read_run_revision=None, progress=None):
     registry, _ = _registry_and_definition()
     return AttemptRunner(
         executor_pool=pool,
@@ -80,6 +91,7 @@ def _runner(resolve_executor, terminal, pool, *, read_run_revision=None):
         resolve_executor=resolve_executor,
         model_bridge_factory=lambda **_: object(),
         terminal=terminal,
+        progress=progress,
         read_run_revision=read_run_revision or (lambda run_id: 3),
         resolve_failure_classifier=lambda run: registry.get_failure_classifier(
             run.failure_classifier
@@ -367,3 +379,37 @@ def test_terminal_fence_uses_fresh_current_revision_not_the_stale_claim_revision
     assert fence.attempt_no == attempt.attempt_no
     assert fence.lease_id == lease.lease_id
     assert fence.fencing_token == attempt.fencing_token
+
+
+def test_executor_progress_uses_a_fresh_fence_and_terminal_rereads_after_it() -> None:
+    run, attempt, lease = _context_run()
+    prepared = _prepared_success(artifacts=(_checker_artifact(_Blobs()),))
+    progress = _CapturingProgress()
+    revisions = iter((5, 6))
+
+    def executor(context: ExecutorContext) -> PreparedRunOutcome:
+        assert context.progress_publisher is not None
+        context.progress_publisher(
+            AttemptProgressDataV1(
+                attempt_no=attempt.attempt_no,
+                phase_code="generation.preliminary_gate",
+                completed_units=1,
+                total_units=1,
+            )
+        )
+        return prepared
+
+    terminal = _CapturingTerminal()
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        runner = _runner(
+            lambda r: executor,
+            terminal,
+            pool,
+            progress=progress,
+            read_run_revision=lambda run_id: next(revisions),
+        )
+        asyncio.run(runner.run_attempt(run=run, attempt=attempt, lease=lease, deadline_utc=None))
+
+    assert progress.published[0][0].expected_run_revision == 5
+    assert progress.published[0][1].phase_code == "generation.preliminary_gate"
+    assert terminal.published[0][0].expected_run_revision == 6

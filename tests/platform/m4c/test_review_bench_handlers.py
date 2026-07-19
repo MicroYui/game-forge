@@ -183,6 +183,11 @@ def test_review_without_triage_is_deterministic_only_and_not_applicable() -> Non
         seed=5,
         resolved_profiles=_review_profiles(),
         model_bridge=bridge,
+        version_tuple=VersionTuple(
+            doc_version="design@1",
+            tool_version="handler@1",
+            seed=5,
+        ),
     )
     outcome = _review_handler(store)(context)
 
@@ -229,7 +234,8 @@ def test_review_without_triage_is_deterministic_only_and_not_applicable() -> Non
     validate_artifact_payload(payload_schema_id="simulation-result@1", payload=simulation_payload)
     assert simulation_artifact.version_tuple.seed == 5
     assert checker_artifact.version_tuple.seed is None
-    assert primary.version_tuple.seed is None
+    assert primary.version_tuple.doc_version == "design@1"
+    assert primary.version_tuple.seed == 5
     # authoritative deterministic verdict present (checker + simulation only).
     oracle_types = {f.payload.oracle_type for f in outcome.findings}
     assert oracle_types == {"deterministic", "simulation"}
@@ -266,6 +272,19 @@ def test_review_rejects_noop_without_deterministic_profiles() -> None:
 
 def test_review_rejects_constraint_inputs_without_a_checker_profile() -> None:
     store = FakeArtifactStore()
+    store.register(SNAPSHOT_ID, _combined_snapshot())
+    store.register(
+        "artifact:constraints",
+        _constraint_payload(
+            Constraint(
+                id="C_gold_cap",
+                kind="numeric",
+                oracle="deterministic",
+                **{"assert": "reward_gold <= 80"},
+                severity="major",
+            )
+        ),
+    )
     payload = _review_payload(triage=False).model_copy(
         update={
             "constraint_snapshot_artifact_id": "artifact:constraints",
@@ -281,6 +300,32 @@ def test_review_rejects_constraint_inputs_without_a_checker_profile() -> None:
 
     with pytest.raises(IntegrityViolation, match="constraints require a checker"):
         _review_handler(store)(context)
+
+
+def test_review_allows_empty_constraint_snapshot_with_simulation_profile() -> None:
+    store = FakeArtifactStore()
+    store.register(SNAPSHOT_ID, _combined_snapshot())
+    store.register(
+        "artifact:empty-constraints",
+        {"dsl_grammar_version": "dsl@1", "constraints": []},
+    )
+    payload = _review_payload(triage=False).model_copy(
+        update={
+            "constraint_snapshot_artifact_id": "artifact:empty-constraints",
+            "checker_profiles": (),
+        }
+    )
+    outcome = _review_handler(store)(
+        build_context(
+            params=payload,
+            kind=REVIEW_KIND,
+            seed=5,
+            resolved_profiles=(_review_profiles()[0], _review_profiles()[2]),
+        )
+    )
+
+    assert outcome.prepared_schema_version == "prepared-run-result@1"
+    assert outcome.artifacts[0].lineage == ("artifact:empty-constraints", SNAPSHOT_ID)
 
 
 def test_review_rejects_partial_selection_for_full_graph_simulation_profile() -> None:

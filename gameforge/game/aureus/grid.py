@@ -30,9 +30,9 @@ class Grid:
     def is_walkable(self, pos: Pos) -> bool:
         return self.in_bounds(pos) and (pos[0], pos[1]) not in self.blocked
 
-    def _search(self, src: Pos, *, stops: set[Pos]) -> dict[Pos, Pos]:
-        remaining = set(stops)
-        if not remaining:
+    def _search(self, src: Pos, *, stops: set[Pos] | None) -> dict[Pos, Pos]:
+        remaining = None if stops is None else set(stops)
+        if remaining is not None and not remaining:
             return {}
         if not self.is_walkable(src):
             return {}
@@ -40,9 +40,10 @@ class Grid:
         q: deque[Pos] = deque([src])
         while q:
             cur = q.popleft()
-            remaining.discard(cur)
-            if not remaining:
-                break
+            if remaining is not None:
+                remaining.discard(cur)
+                if not remaining:
+                    break
             for dx, dy in _NEIGHBOURS:
                 nxt = (cur[0] + dx, cur[1] + dy)
                 if nxt in parent or not self.is_walkable(nxt):
@@ -80,9 +81,31 @@ class AureusNav:
     def __init__(self, grid: Grid, positions: dict[str, Pos]) -> None:
         self._grid = grid
         self._pos = {k: (int(v[0]), int(v[1])) for k, v in positions.items()}
+        self._component_by_pos: dict[Pos, frozenset[Pos]] = {}
 
     def pos_of(self, entity_id: str) -> Pos | None:
         return self._pos.get(entity_id)
 
+    def reachable_positions(self, src_pos: Pos, positions: Iterable[Pos]) -> set[Pos]:
+        requested = {(int(pos[0]), int(pos[1])) for pos in positions}
+        if not requested:
+            return set()
+        return requested.intersection(self._component(src_pos))
+
     def reachable(self, src_pos: Pos, dst_pos: Pos) -> bool:
-        return self._grid.shortest_path(src_pos, dst_pos) is not None
+        dst = (int(dst_pos[0]), int(dst_pos[1]))
+        return dst in self._component(src_pos)
+
+    def _component(self, src_pos: Pos) -> frozenset[Pos]:
+        src = (int(src_pos[0]), int(src_pos[1]))
+        cached = self._component_by_pos.get(src)
+        if cached is not None:
+            return cached
+
+        component = frozenset(self._grid._search(src, stops=None))
+        if component:
+            for position in component:
+                self._component_by_pos[position] = component
+        else:
+            self._component_by_pos[src] = component
+        return component

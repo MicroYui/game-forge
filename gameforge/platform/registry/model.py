@@ -423,11 +423,11 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
         (
             "generation.propose",
             1,
-        ): "9253e59f78e693f84ca3817c87bc5d9e78dd57377260d50c77fa1c4784b19878",
+        ): "a25a6abbf59620be59653cdeb932c53934d67062013422c08b11848634e88755",
         ("patch.repair", 1): "7551bbf349d3e935c07e5cb51b50f8d3cd50aa60dc4394244bdd8aa2e4b35665",
         ("patch.validate", 1): "dea532d0bdbd3d9b2a1a71aa8f1181736040a5e528a70c61bc4231d4a38e930d",
-        ("playtest.run", 1): "099288bd5fea318b35562251d647a9c9b8c9f8b9f6a10e72e8cf910b9e1e00d8",
-        ("review.run", 1): "61cfe9782fe31ac183609808c817432e836ffb27e032340ede448c5030a2249b",
+        ("playtest.run", 1): "8daadbae06cf4dd841aabb55cd56c33eb9db6f6ddad5077e066d4a56652ff81d",
+        ("review.run", 1): "73c96e391ea668da37d745730fa86ffe8b8400be72c2382882c9ef09103cff3a",
         (
             "rollback.validate",
             1,

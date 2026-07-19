@@ -283,7 +283,10 @@ class ArtifactReplayModelBridge:
         )
         if plan is None or plan.consumed_route is None:
             raise IntegrityViolation("native replay logical call is absent from source authority")
-        self._require_same_semantics(request.model_request, plan.consumed_route.request)
+        self._prompt_publisher.require_replay_source_semantics(
+            handler_request=request.model_request,
+            source_request=plan.consumed_route.request,
+        )
         current_call: int | None = None
         step_reservation: object | None = None
         try:
@@ -378,7 +381,10 @@ class ArtifactReplayModelBridge:
         source = self._source
         assert isinstance(source, LegacyArtifactReplaySource)
         planned = source.expected_call(call_ordinal=call_ordinal)
-        self._require_same_semantics(request.model_request, planned.request)
+        self._prompt_publisher.require_replay_source_semantics(
+            handler_request=request.model_request,
+            source_request=planned.request,
+        )
         link = self._publish_prompt(
             planned.request,
             source_artifact_ids=(context_link.artifact_id,),
@@ -589,15 +595,6 @@ class ArtifactReplayModelBridge:
         if requested.tzinfo is None or requested.utcoffset() != UTC.utcoffset(requested):
             raise IntegrityViolation("replay call deadline is not UTC")
         return min(authoritative.astimezone(UTC), requested.astimezone(UTC))
-
-    @staticmethod
-    def _require_same_semantics(
-        handler: ModelRequestV1 | ModelRequestV2,
-        source: ModelRequestV1 | ModelRequestV2,
-    ) -> None:
-        fields = ("messages", "params", "tool_schemas", "agent_node_id", "prompt_version")
-        if any(getattr(handler, field) != getattr(source, field) for field in fields):
-            raise IntegrityViolation("handler request differs from replay source semantics")
 
 
 __all__ = [

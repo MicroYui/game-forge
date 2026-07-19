@@ -11,6 +11,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
+from gameforge.bench.payload_codec import BENCH_PAYLOAD_DECODERS
 from gameforge.apps.api.content_persistence import (
     ApprovalEvidenceStateProjector,
     SqlApprovalContentAuthority,
@@ -39,9 +40,9 @@ from gameforge.contracts.identity import (
     Permission,
     RolePolicy,
 )
-from gameforge.contracts.jobs import RunRecord
+from gameforge.contracts.jobs import PlaytestRunPayloadV1, RunRecord, RunResultV1
 from gameforge.contracts.lineage import ArtifactV1, ArtifactV2
-from gameforge.contracts.playtest import ScenarioSpecV1, TaskSuiteV1
+from gameforge.contracts.playtest import PlaytestTraceV1, ScenarioSpecV1, TaskSuiteV1
 from gameforge.contracts.observability import (
     LogErrorV1,
     LogQueryV1,
@@ -84,6 +85,7 @@ from gameforge.platform.read_models.workflows import (
     WorkflowReadCapabilities,
     WorkflowReadService,
 )
+from gameforge.platform.runs.state import validate_run_result_binding
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.observability._fields import (
     is_sensitive_key,
@@ -640,6 +642,119 @@ class _PinnedExecutionProfileCatalog:
         return self.catalog
 
 
+class _RunResultPlaytestSelection:
+    """Resolve one successful playtest's primary trace through its exact manifest."""
+
+    def __init__(
+        self,
+        *,
+        runs: SqlRunRepository,
+        artifacts: SqlArtifactRepository,
+        payloads: ArtifactPayloadReader,
+        domains: _ArtifactDomainAuthority,
+    ) -> None:
+        self._runs = runs
+        self._artifacts = artifacts
+        self._payloads = payloads
+        self._domains = domains
+
+    def result_artifact_id(self, run_id: str) -> str | None:
+        run = self._runs.get(run_id)
+        if (
+            run is None
+            or run.kind.kind != "playtest.run"
+            or run.kind.version != 1
+            or run.status != "succeeded"
+        ):
+            return None
+        params = run.payload.params
+        if not isinstance(params, PlaytestRunPayloadV1):
+            raise IntegrityViolation("playtest Run payload has the wrong typed params")
+        if run.result_artifact_id is None:
+            raise IntegrityViolation("successful playtest Run has no result manifest")
+        verified = self._payloads.read(run.result_artifact_id)
+        if verified.artifact.kind != "run_result" or verified.payload_schema_id != "run-result@1":
+            raise IntegrityViolation("playtest Run result manifest has the wrong kind or schema")
+        try:
+            result = RunResultV1.model_validate(verified.payload)
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("playtest Run result manifest is invalid") from exc
+        expected_input_ids = set(run.payload.input_artifact_ids)
+        validate_run_result_binding(
+            run=run,
+            manifest=verified.artifact,
+            result=result,
+            expected_outcome_code="playtest_completed",
+            expected_primary_kind="playtest_trace",
+        )
+        primary = self._artifacts.get(result.primary_artifact_id)
+        if (
+            not isinstance(primary, ArtifactV2)
+            or primary.kind != "playtest_trace"
+            or primary.meta.get("payload_schema_id") != "playtest-trace@1"
+            or primary.version_tuple != result.version_projection.terminal_version_tuple
+        ):
+            raise IntegrityViolation("playtest Run primary result has the wrong kind or schema")
+        required_trace_inputs = expected_input_ids - {
+            artifact_id
+            for artifact_id in (run.payload.cassette_artifact_id,)
+            if artifact_id is not None
+        }
+        if not required_trace_inputs.issubset(primary.lineage):
+            raise IntegrityViolation("playtest trace omits a frozen Run input")
+        verified_primary = self._payloads.read(primary.artifact_id)
+        if (
+            verified_primary.artifact != primary
+            or verified_primary.payload_schema_id != "playtest-trace@1"
+        ):
+            raise IntegrityViolation("playtest trace payload binding is invalid")
+        try:
+            trace = PlaytestTraceV1.model_validate(verified_primary.payload)
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("playtest trace payload is invalid") from exc
+        expected_episodes = tuple(
+            (episode.episode_id, episode.scenario_spec_artifact_id) for episode in params.episodes
+        )
+        actual_episodes = tuple(
+            (episode.episode_id, episode.scenario_spec_artifact_id) for episode in trace.episodes
+        )
+        planner_binding = next(
+            (
+                binding
+                for binding in run.payload.resolved_profiles
+                if binding.field_path == "/params/planner_policy"
+            ),
+            None,
+        )
+        if (
+            trace.config_artifact_id != params.config_artifact_id
+            or trace.constraint_snapshot_artifact_id != params.constraint_snapshot_artifact_id
+            or trace.task_suite_artifact_id != params.task_suite_artifact_id
+            or trace.environment_profile != params.environment_profile
+            or trace.planner_policy != params.planner_policy
+            or trace.requested_max_steps_per_episode != params.max_steps_per_episode
+            or trace.interaction_mode != params.interaction_mode
+            or trace.env_contract_version != run.payload.version_tuple.env_contract_version
+            or trace.seed != run.payload.seed
+            or actual_episodes != expected_episodes
+            or planner_binding is None
+            or trace.execution_envelope.planner_profile_payload_hash
+            != planner_binding.profile_payload_hash
+        ):
+            raise IntegrityViolation("playtest trace differs from its frozen Run payload")
+        if self._domains.resolve(primary) != run.resource_domain_scope:
+            raise IntegrityViolation("playtest Run and primary result domains differ")
+        return primary.artifact_id
+
+
+@dataclass(frozen=True, slots=True)
+class _PinnedBenchReportSelection:
+    artifact_id: str | None
+
+    def selected_artifact_id(self) -> str | None:
+        return self.artifact_id
+
+
 class _LocalTelemetryRedactor:
     def redact_span(self, view: SpanViewV1) -> SpanViewV1:
         redacted = redact_span_values(view.span)
@@ -843,6 +958,7 @@ def build_local_read_services(
     execution_profile_catalog: ExecutionProfileCatalogSnapshotV1,
     cursor_signing_key: bytes,
     clock: UtcClock | None = None,
+    selected_bench_report_artifact_id: str | None = None,
 ) -> LocalReadServices:
     """Bind each public read to one short SQLite transaction/request scope."""
 
@@ -931,6 +1047,7 @@ def build_local_read_services(
                 clock=selected_clock,
                 snapshot_ttl=_SNAPSHOT_TTL,
             )
+            runs = SqlRunRepository(session)
             payload_bindings = SqlApprovalPayloadBindingProvider(
                 session,
                 approvals=approvals,
@@ -942,6 +1059,7 @@ def build_local_read_services(
                 object_bindings=object_bindings,
                 object_store=object_store,
                 max_payload_bytes=_MAX_ARTIFACT_PAYLOAD_BYTES,
+                external_decoders=BENCH_PAYLOAD_DECODERS,
             )
             approval_authority = SqlApprovalContentAuthority(
                 session,
@@ -951,17 +1069,18 @@ def build_local_read_services(
                     payload_reader=payload_reader,
                 ),
             )
+            artifact_domains = _ArtifactDomainAuthority(
+                artifacts=artifacts,
+                registry=registry,
+                payloads=_ArtifactDomainPayloadReader(
+                    object_bindings=object_bindings,
+                    object_store=object_store,
+                ),
+                payload_bindings=payload_bindings,
+            )
             content_permissions = _ContentPermissionAuthority(
                 approvals=approval_authority,
-                domains=_ArtifactDomainAuthority(
-                    artifacts=artifacts,
-                    registry=registry,
-                    payloads=_ArtifactDomainPayloadReader(
-                        object_bindings=object_bindings,
-                        object_store=object_store,
-                    ),
-                    payload_bindings=payload_bindings,
-                ),
+                domains=artifact_domains,
             )
             yield ContentReadCapabilities(
                 repository=SqlContentReadRepository(artifacts),
@@ -981,7 +1100,12 @@ def build_local_read_services(
                 schema_registry=unavailable,
                 proposal_workflows=approval_authority,
                 subject_workflows=approval_authority,
-                playtest_results=unavailable,
+                playtest_results=_RunResultPlaytestSelection(
+                    runs=runs,
+                    artifacts=artifacts,
+                    payloads=payload_reader,
+                    domains=artifact_domains,
+                ),
                 refs=SqlRefHistoryReadProvider(
                     session,
                     refs=refs,
@@ -991,7 +1115,7 @@ def build_local_read_services(
                     snapshot_session_factory=snapshot_write_scope,
                 ),
                 diffs=unavailable,
-                bench_reports=unavailable,
+                bench_reports=_PinnedBenchReportSelection(selected_bench_report_artifact_id),
                 execution_profiles=_PinnedExecutionProfileCatalog(execution_profile_catalog),
                 page_factory=page_factory(session),
             )

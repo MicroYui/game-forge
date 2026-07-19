@@ -1146,6 +1146,17 @@ class WorkerPromptRenderPublisher:
         self._prompt_renderer = prompt_renderer
         self._source_authority = source_authority or FrozenRunInputPromptSourceAuthority()
 
+    def require_replay_source_semantics(
+        self,
+        *,
+        handler_request: ModelRequestV1 | ModelRequestV2,
+        source_request: ModelRequestV1 | ModelRequestV2,
+    ) -> None:
+        self._prompt_renderer.require_replay_source_semantics(
+            handler_request=handler_request,
+            source_request=source_request,
+        )
+
     def publish_prompt_rendered(
         self,
         request: PromptRenderPublicationRequest,

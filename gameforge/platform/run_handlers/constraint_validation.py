@@ -708,6 +708,9 @@ class ConstraintValidationHandler:
         tuple[RequirementDispositionV1, ...],
         tuple[tuple[str, tuple[Finding, ...]], ...],
     ]:
+        if not payload.regression_suite_artifact_ids:
+            return (), (), (), ()
+
         # Regression runs only when the compile pipeline positively validated the
         # candidate (compile passed + overall passed + the two-engine soundness
         # quorum). Missing independent coverage short-circuits regression exactly

@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.identity import ActorContext
+from gameforge.contracts.identity import ActorContext, DomainScope
 from gameforge.contracts.lineage import ArtifactV2, VersionTuple, build_artifact_v2
 from gameforge.contracts.provenance import (
     OriginRefV1,
@@ -128,10 +128,13 @@ class AuthenticatedGoalSourceWriter:
         object_store: ObjectStore,
         actor: ActorContext,
         text: str,
+        domain_scope: DomainScope,
         created_at: str,
     ) -> MintedSource:
         if not isinstance(text, str) or not text:
             raise IntegrityViolation("authenticated goal text must be a non-empty string")
+        if not isinstance(domain_scope, DomainScope):
+            raise IntegrityViolation("authenticated goal requires an exact domain scope")
         # Blob first: verified bytes become a GC-eligible orphan if Run creation later
         # fails, but the naked text never enters the Run payload or telemetry.
         stored = object_store.put_verified(text.encode("utf-8"))
@@ -144,6 +147,7 @@ class AuthenticatedGoalSourceWriter:
             object_ref=stored.ref,
             meta={
                 "payload_schema_id": "source-raw@1",
+                "domain_scope": domain_scope.model_dump(mode="json"),
                 "provenance": provenance.model_dump(mode="json"),
             },
             created_at=created_at,

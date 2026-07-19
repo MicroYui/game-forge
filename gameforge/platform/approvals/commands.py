@@ -881,6 +881,34 @@ def _replace_item(item: ApprovalItem, **updates: object) -> ApprovalItem:
     return ApprovalItem.model_validate(payload)
 
 
+def require_human_constraint_revision(
+    item: ApprovalItem,
+    *,
+    subject_kind: SubjectKind,
+    subject_revision: int | None,
+    produced_by: Literal["agent", "human"],
+    producer_run_id: str | None,
+    supersedes_artifact_id: str | None,
+) -> None:
+    """Apply the one constraint human-revision guard at every validation seam."""
+
+    if subject_kind != item.subject_kind:
+        raise IntegrityViolation("subject payload kind differs from ApprovalItem")
+    if subject_revision is not None and subject_revision != item.subject_revision:
+        raise IntegrityViolation("subject payload revision differs from ApprovalItem")
+    if item.subject_kind == "constraint_proposal" and (
+        produced_by != "human"
+        or producer_run_id is not None
+        or item.proposer.principal_kind != "human"
+        or subject_revision is None
+        or subject_revision <= 1
+        or supersedes_artifact_id is None
+    ):
+        raise InvalidStateTransition(
+            "constraint proposal requires a superseding human author revision"
+        )
+
+
 class ApprovalCommandService:
     def __init__(
         self,
@@ -1426,7 +1454,14 @@ class ApprovalCommandService:
             self._validate_start_binding(item, prepared)
             subject = self._load_artifact(artifacts, item.subject_artifact_id)
             facts = subjects.inspect_draft_subject(subject)
-            self._require_human_constraint_revision(item, facts)
+            require_human_constraint_revision(
+                item,
+                subject_kind=facts.subject_kind,
+                subject_revision=facts.subject_revision,
+                produced_by=facts.produced_by,
+                producer_run_id=facts.producer_run_id,
+                supersedes_artifact_id=facts.supersedes_artifact_id,
+            )
 
             replay = self._get_idempotent(
                 idempotency,
@@ -1546,7 +1581,14 @@ class ApprovalCommandService:
             )
             subject = self._load_artifact(artifacts, item.subject_artifact_id)
             facts = subjects.inspect_draft_subject(subject)
-            self._require_human_constraint_revision(item, facts)
+            require_human_constraint_revision(
+                item,
+                subject_kind=facts.subject_kind,
+                subject_revision=facts.subject_revision,
+                produced_by=facts.produced_by,
+                producer_run_id=facts.producer_run_id,
+                supersedes_artifact_id=facts.supersedes_artifact_id,
+            )
             self._require_current_head(approvals, item)
             self._validate_bound_policies(item, policies)
             self._verify_agent_producer(
@@ -1940,25 +1982,6 @@ class ApprovalCommandService:
             is not AuthorizationDecision.ALLOW
         ):
             raise Forbidden("draft actor lacks the current domain permission")
-
-    @staticmethod
-    def _require_human_constraint_revision(
-        item: ApprovalItem,
-        facts: DraftSubjectFacts,
-    ) -> None:
-        if facts.subject_kind != item.subject_kind:
-            raise IntegrityViolation("subject payload kind differs from ApprovalItem")
-        ApprovalCommandService._require_subject_revision_binding(item, facts)
-        if item.subject_kind == "constraint_proposal" and (
-            facts.produced_by != "human"
-            or item.proposer.principal_kind != "human"
-            or facts.subject_revision is None
-            or facts.subject_revision <= 1
-            or facts.supersedes_artifact_id is None
-        ):
-            raise InvalidStateTransition(
-                "constraint proposal requires a superseding human author revision"
-            )
 
     @staticmethod
     def _require_subject_revision_binding(
@@ -2599,6 +2622,7 @@ __all__ = [
     "TerminalDraftAuditIntents",
     "PreparedValidationStart",
     "RefReader",
+    "require_human_constraint_revision",
     "SubjectPayloadGateway",
     "ValidationStartResult",
 ]

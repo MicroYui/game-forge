@@ -250,8 +250,7 @@ PRODUCER_RULES: Mapping[str, ProducerRule] = MappingProxyType(
         "review_report": _rule(
             "ir_snapshot_id",
             "tool_version",
-            projected_fields=frozenset({"ir_snapshot_id", "constraint_snapshot_id"})
-            | _LLM_AND_CASSETTE_FIELDS,
+            projected_fields=_SNAPSHOT_FIELDS | frozenset({"seed"}) | _LLM_AND_CASSETTE_FIELDS,
             projection_required=True,
             required_projected_fields=frozenset({"ir_snapshot_id"}),
             conditional_fields=(_DSL_CONDITION, *_LLM_CONDITIONS),
@@ -291,10 +290,9 @@ PRODUCER_RULES: Mapping[str, ProducerRule] = MappingProxyType(
             "tool_version",
             "env_contract_version",
             "seed",
-            projected_fields=frozenset(
+            projected_fields=_SNAPSHOT_FIELDS
+            | frozenset(
                 {
-                    "ir_snapshot_id",
-                    "constraint_snapshot_id",
                     "env_contract_version",
                     "seed",
                 }

@@ -3,12 +3,21 @@ from __future__ import annotations
 import io
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+from pathlib import Path
 from typing import BinaryIO
 
 import pytest
 
+from gameforge.bench.payload_codec import BENCH_PAYLOAD_DECODERS
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.config_export import (
+    ConfigExportFileV1,
+    ConfigExportPackageV1,
+    canonical_config_export_bytes,
+)
 from gameforge.contracts.errors import IntegrityViolation, NotFound, PayloadTooLarge
+from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.lineage import (
     Artifact,
     ArtifactV1,
@@ -97,10 +106,15 @@ class _ShortReadStream(io.BytesIO):
         return super().read(min(size, self._short_read_size))
 
 
-def _artifact(payload: bytes, *, meta: dict | None = None) -> ArtifactV2:
+def _artifact(
+    payload: bytes,
+    *,
+    kind: str = "checker_run",
+    meta: dict | None = None,
+) -> ArtifactV2:
     ref = object_ref_for_bytes(payload)
     return build_artifact_v2(
-        kind="checker_run",
+        kind=kind,
         version_tuple=VersionTuple(
             ir_snapshot_id="sha256:fixture",
             tool_version="checker@1",
@@ -137,6 +151,7 @@ def _reader(
     store: object,
     *,
     max_payload_bytes: int = 64 * 1024,
+    external_decoders=None,
 ) -> ArtifactPayloadReader:
     trusted_items = () if trusted is None else (trusted,)
     return ArtifactPayloadReader(
@@ -145,6 +160,7 @@ def _reader(
         object_bindings=_ObjectBindings(binding),
         object_store=store,
         max_payload_bytes=max_payload_bytes,
+        external_decoders=external_decoders,
     )
 
 
@@ -181,6 +197,131 @@ def test_reads_verified_payload_through_local_store_and_ignores_payload_claims(
     assert resolved.kind == "checker_run"
     assert resolved.metadata == artifact.model_dump(mode="json")["meta"]
     assert resolved.payload == payload_value
+    assert resolved.payload_bytes == payload
+
+
+def _config_export_package() -> ConfigExportPackageV1:
+    content = b'[{"id":"quest:1"}]'
+    return ConfigExportPackageV1(
+        export_profile=ProfileRefV1(profile_id="builtin.config_export", version=1),
+        target_environment_profile=ProfileRefV1(profile_id="builtin.environment", version=1),
+        env_contract_version="generic-agent-env@1",
+        source_preview_artifact_id="artifact:preview",
+        constraint_snapshot_artifact_id="artifact:constraints",
+        format_schema_id="config-export-files@1",
+        files=(
+            ConfigExportFileV1(
+                relative_path="quests.json",
+                media_type="application/json",
+                content_sha256=sha256(content).hexdigest(),
+                size_bytes=len(content),
+                content_bytes=content,
+            ),
+        ),
+    )
+
+
+def test_reads_trusted_binary_config_export_as_semantic_json(tmp_path) -> None:
+    package = _config_export_package()
+    payload = canonical_config_export_bytes(package)
+    store = LocalObjectStore(
+        tmp_path,
+        store_id=STORE_ID,
+        clock=FrozenUtcClock(NOW),
+        cursor_signing_key=b"artifact-read-model-object-store-key",
+        snapshot_ttl=timedelta(minutes=5),
+    )
+    stored = store.put_verified(payload)
+    artifact = _artifact(payload, kind="config_export")
+    binding = _binding(stored.ref, stored.location)
+    trusted = TrustedArtifactPayloadBinding.for_artifact(
+        artifact,
+        payload_schema_id="config-export-package@1",
+    )
+
+    resolved = _reader(artifact, trusted, binding, store).read(artifact.artifact_id)
+
+    assert resolved.payload == package.model_dump(mode="json")
+    assert resolved.payload_bytes == payload
+
+
+def test_corrupt_config_export_framing_fails_closed(tmp_path) -> None:
+    payload = b"not-a-config-export"
+    store = LocalObjectStore(
+        tmp_path,
+        store_id=STORE_ID,
+        clock=FrozenUtcClock(NOW),
+        cursor_signing_key=b"artifact-read-model-object-store-key",
+        snapshot_ttl=timedelta(minutes=5),
+    )
+    stored = store.put_verified(payload)
+    artifact = _artifact(payload, kind="config_export")
+    binding = _binding(stored.ref, stored.location)
+
+    with pytest.raises(IntegrityViolation, match="canonical binary framing"):
+        _reader(
+            artifact,
+            TrustedArtifactPayloadBinding.for_artifact(
+                artifact,
+                payload_schema_id="config-export-package@1",
+            ),
+            binding,
+            store,
+        ).read(artifact.artifact_id)
+
+
+def test_binary_config_export_is_not_sniffed_under_another_schema(tmp_path) -> None:
+    payload = canonical_config_export_bytes(_config_export_package())
+    store = LocalObjectStore(
+        tmp_path,
+        store_id=STORE_ID,
+        clock=FrozenUtcClock(NOW),
+        cursor_signing_key=b"artifact-read-model-object-store-key",
+        snapshot_ttl=timedelta(minutes=5),
+    )
+    stored = store.put_verified(payload)
+    artifact = _artifact(payload)
+    binding = _binding(stored.ref, stored.location)
+
+    with pytest.raises(IntegrityViolation, match="strict canonical JSON"):
+        _reader(
+            artifact,
+            TrustedArtifactPayloadBinding.for_artifact(
+                artifact,
+                payload_schema_id=SCHEMA_ID,
+            ),
+            binding,
+            store,
+        ).read(artifact.artifact_id)
+
+
+def test_reads_canonical_app_owned_bench_report_bytes(tmp_path) -> None:
+    payload = (Path(__file__).parents[3] / "scenarios" / "bench" / "bench-report.json").read_bytes()
+    assert payload.endswith(b"\n")
+    store = LocalObjectStore(
+        tmp_path,
+        store_id=STORE_ID,
+        clock=FrozenUtcClock(NOW),
+        cursor_signing_key=b"artifact-read-model-object-store-key",
+        snapshot_ttl=timedelta(minutes=5),
+    )
+    stored = store.put_verified(payload)
+    artifact = _artifact(payload, kind="bench_report")
+    binding = _binding(stored.ref, stored.location)
+
+    resolved = _reader(
+        artifact,
+        TrustedArtifactPayloadBinding.for_artifact(
+            artifact,
+            payload_schema_id="bench-report@2",
+        ),
+        binding,
+        store,
+        external_decoders=BENCH_PAYLOAD_DECODERS,
+    ).read(artifact.artifact_id)
+
+    assert resolved.payload["schema_version"] == "bench-report@2"
+    assert resolved.payload["qa"]["conclusion"] == "pending"
     assert resolved.payload_bytes == payload
 
 

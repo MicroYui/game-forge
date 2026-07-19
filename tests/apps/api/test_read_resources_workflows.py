@@ -49,6 +49,7 @@ from gameforge.platform.read_models.workflows import (
     CurrentApprovalProgressProjector,
     WorkflowReadCapabilities,
     WorkflowReadService,
+    _run_view,
 )
 
 
@@ -185,13 +186,21 @@ def _approval(registry: DomainRegistryV1) -> ApprovalItem:
     )
 
 
-def _run(run_id: str, *, revision: int = 1) -> RunRecord:
+def _run(
+    run_id: str,
+    *,
+    revision: int = 1,
+    status: str = "queued",
+    current_attempt_no: int | None = None,
+    next_attempt_no: int = 1,
+) -> RunRecord:
     return RunRecord.model_construct(
         run_id=run_id,
-        status="queued",
+        status=status,
         revision=revision,
-        current_attempt_no=None,
-        result_artifact_id=None,
+        current_attempt_no=current_attempt_no,
+        next_attempt_no=next_attempt_no,
+        result_artifact_id=("artifact:result" if status == "succeeded" else None),
         failure_artifact_id=None,
         terminal_cassette_artifact_id=None,
         payload={"secret_prompt": "must-not-leak"},
@@ -482,6 +491,30 @@ def test_list_run_uses_one_short_uow_max_plus_one_and_redacted_projection(read_f
     assert operation_tokens == {1}
     assert state.operations[0][0] == "uow_open"
     assert state.operations[-1][0] == "uow_close"
+
+
+@pytest.mark.parametrize(
+    ("status", "current_attempt_no", "next_attempt_no", "expected_attempt_no"),
+    (
+        ("queued", None, 1, None),
+        ("retry_wait", None, 2, 1),
+        ("succeeded", 2, 3, 2),
+    ),
+)
+def test_run_view_projects_current_or_last_allocated_attempt(
+    status: str,
+    current_attempt_no: int | None,
+    next_attempt_no: int,
+    expected_attempt_no: int | None,
+) -> None:
+    run = _run(
+        "run:narrative",
+        status=status,
+        current_attempt_no=current_attempt_no,
+        next_attempt_no=next_attempt_no,
+    )
+
+    assert _run_view(run).attempt_no == expected_attempt_no
 
 
 def test_approval_assignee_projection_uses_current_role_and_maker_checker(read_fixture) -> None:

@@ -194,11 +194,14 @@ def _query_hash(
 
 
 def _run_view(run: RunRecord) -> RunViewV1:
+    attempt_no = run.current_attempt_no
+    if attempt_no is None and run.next_attempt_no > 1:
+        attempt_no = run.next_attempt_no - 1
     return RunViewV1(
         run_id=run.run_id,
         status=run.status,
         revision=run.revision,
-        attempt_no=run.current_attempt_no,
+        attempt_no=attempt_no,
         result_artifact_id=run.result_artifact_id,
         failure_artifact_id=run.failure_artifact_id,
         terminal_cassette_artifact_id=run.terminal_cassette_artifact_id,

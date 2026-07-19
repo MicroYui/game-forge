@@ -535,6 +535,7 @@ class PatchValidationHandler:
                 preview,
                 lineage,
                 evidence_tuple,
+                context.run.run_id,
                 core_dimensions,
                 auto_apply_context,
                 qualification,
@@ -770,6 +771,7 @@ class PatchValidationHandler:
                     "patch validation simulations exceed the aggregate work budget"
                 )
             resolved_configs.append((profile, config))
+        bound_constraint_ids = tuple(sorted(constraint.id for constraint in constraints))
         for profile, config in resolved_configs:
             if root_seed is None:
                 raise ValueError("patch validation simulation requires the frozen root seed")
@@ -799,12 +801,17 @@ class PatchValidationHandler:
                         constraint_snapshot_artifact_id=(payload.constraint_snapshot_artifact_id),
                     )
                 )
-            findings = tuple(
-                (
-                    *to_findings(result, preview.snapshot_id, model),
-                    *input_application_findings,
+            descriptive_findings = tuple(to_findings(result, preview.snapshot_id, model))
+            if payload.constraint_snapshot_artifact_id is not None:
+                descriptive_findings = tuple(
+                    _unproven_bound_simulation_finding(
+                        finding,
+                        constraint_snapshot_artifact_id=(payload.constraint_snapshot_artifact_id),
+                        constraint_ids=bound_constraint_ids,
+                    )
+                    for finding in descriptive_findings
                 )
-            )
+            findings = (*descriptive_findings, *input_application_findings)
             _validate_patch_simulation_findings(
                 findings,
                 snapshot_id=preview.snapshot_id,
@@ -1167,6 +1174,7 @@ class PatchValidationHandler:
         preview: Snapshot,
         lineage: tuple[str, ...],
         evidence_tuple: VersionTuple,
+        producer_run_id: str,
         executed_dimensions: tuple[_DimensionArtifact, ...],
         auto_apply_context: AutoApplyEvidenceContextV1 | None,
         qualification: AutoApplyQualificationPlan | None,
@@ -1206,6 +1214,12 @@ class PatchValidationHandler:
                     snapshot_id=preview.snapshot_id,
                 )
             )
+            findings = tuple(rebind_finding_producers(findings, run_id=producer_run_id))
+            if findings:
+                detail = {
+                    **detail,
+                    "findings": [finding.model_dump(mode="json") for finding in findings],
+                }
             oracle_coverage = tuple(
                 sorted(
                     {
@@ -2187,6 +2201,30 @@ def _validate_patch_simulation_findings(
                 "patch simulation Finding differs from its exact execution authority",
                 finding_id=getattr(finding, "id", None),
             )
+
+
+def _unproven_bound_simulation_finding(
+    finding: Finding,
+    *,
+    constraint_snapshot_artifact_id: str,
+    constraint_ids: tuple[str, ...],
+) -> Finding:
+    """Preserve a descriptive what-if result without claiming bound-DSL authority."""
+
+    return finding.model_copy(
+        update={
+            "status": "unproven",
+            "evidence": {
+                **finding.evidence,
+                "constraint_application": {
+                    "status": "unproven",
+                    "reason_code": "constraint_profile_not_executable",
+                    "constraint_snapshot_artifact_id": constraint_snapshot_artifact_id,
+                    "constraint_ids": list(constraint_ids),
+                },
+            },
+        }
+    )
 
 
 def _empty_constraint_snapshot_unproven_finding(

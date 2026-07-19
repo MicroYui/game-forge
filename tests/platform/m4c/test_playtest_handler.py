@@ -376,6 +376,7 @@ def _context(bridge: FakeModelBridge, payload: PlaytestRunPayloadV1 | None = Non
         cassette_artifact_id="artifact:cassette",
         model_bridge=bridge,
         version_tuple=VersionTuple(
+            doc_version="caravan@1",
             ir_snapshot_id=load_scenario("scenarios/caravan.yaml").snapshot_id,
             constraint_snapshot_id=CONSTRAINT_ID,
             env_contract_version=ENV_CONTRACT_VERSION,
@@ -616,7 +617,8 @@ def test_playtest_publishes_trace_driving_the_real_agent() -> None:
     assert primary.kind == "playtest_trace"
     assert primary.payload_schema_id == "playtest-trace@1"
 
-    # version tuple: producer-local seed + inherited ir/constraint/env.
+    # version tuple: producer-local seed + inherited design/ir/constraint/env.
+    assert primary.version_tuple.doc_version == "caravan@1"
     assert primary.version_tuple.seed == 11
     assert primary.version_tuple.constraint_snapshot_id == CONSTRAINT_ID
     assert primary.version_tuple.env_contract_version == ENV_CONTRACT_VERSION

@@ -24,6 +24,12 @@ class NavProvider(Protocol):
 
     def reachable(self, src_pos: tuple[int, int], dst_pos: tuple[int, int]) -> bool: ...
 
+    def reachable_positions(
+        self,
+        src_pos: tuple[int, int],
+        positions: Iterable[tuple[int, int]],
+    ) -> set[tuple[int, int]]: ...
+
     def pos_of(self, entity_id: str) -> tuple[int, int] | None: ...
 
 
@@ -38,8 +44,12 @@ class GraphDiff(BaseModel):
     def is_empty(self) -> bool:
         return not any(
             [
-                self.added_entities, self.removed_entities, self.changed_entities,
-                self.added_relations, self.removed_relations, self.changed_relations,
+                self.added_entities,
+                self.removed_entities,
+                self.changed_entities,
+                self.added_relations,
+                self.removed_relations,
+                self.changed_relations,
             ]
         )
 
@@ -80,8 +90,9 @@ class IRGraph:
             self._in[r.dst_id].remove(relation_id)
 
     def remove_entity(self, entity_id: str) -> None:
-        for rid in [r.id for r in self._relations.values()
-                    if r.src_id == entity_id or r.dst_id == entity_id]:
+        for rid in [
+            r.id for r in self._relations.values() if r.src_id == entity_id or r.dst_id == entity_id
+        ]:
             self.remove_relation(rid)
         self._entities.pop(entity_id, None)
         self._out.pop(entity_id, None)
@@ -169,8 +180,12 @@ class IRGraph:
             if rid not in self._relations:
                 d.removed_relations.append(rid)
         for lst in (
-            d.added_entities, d.removed_entities, d.changed_entities,
-            d.added_relations, d.removed_relations, d.changed_relations,
+            d.added_entities,
+            d.removed_entities,
+            d.changed_entities,
+            d.added_relations,
+            d.removed_relations,
+            d.changed_relations,
         ):
             lst.sort()
         return d

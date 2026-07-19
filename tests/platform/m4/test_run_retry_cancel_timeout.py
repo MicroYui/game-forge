@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -14,10 +14,15 @@ from gameforge.contracts.jobs import (
     PreparedRunFailure,
     PreparedRunResult,
     PreparedRunResultSummaryV1,
+    RetryPolicyRefV1,
+    RetryPolicySnapshot,
     RetryScheduledDataV1,
     RunCommandV1,
+    RunEvent,
     RunQueuedDataV1,
     RunRecord,
+    retry_policy_digest,
+    run_kind_definition_digest,
 )
 from gameforge.contracts.lineage import (
     AuditActor,
@@ -56,6 +61,35 @@ def _run_harness(**kwargs):
         }
     )
     return _harness(definition=definition, **kwargs)
+
+
+def _install_jitter_policy(harness, jitter_policy: str) -> RetryPolicySnapshot:
+    fields = _retry_policy().model_dump(
+        mode="python",
+        exclude={"retry_policy_digest"},
+    )
+    fields["jitter_policy"] = jitter_policy
+    retry = RetryPolicySnapshot(
+        **fields,
+        retry_policy_digest=retry_policy_digest(fields),
+    )
+    retry_ref = RetryPolicyRefV1(
+        retry_policy_id=retry.retry_policy_id,
+        retry_policy_version=retry.retry_policy_version,
+        retry_policy_digest=retry.retry_policy_digest,
+    )
+    harness.registry.retry = retry
+    harness.registry.definition = harness.registry.definition.model_copy(
+        update={"retry_policy": retry_ref}
+    )
+    retained = harness.state.runs["run:1"]
+    harness.state.runs["run:1"] = retained.model_copy(
+        update={
+            "retry_policy": retry_ref,
+            "run_kind_definition_digest": run_kind_definition_digest(harness.registry.definition),
+        }
+    )
+    return retry
 
 
 def _event_types(harness) -> tuple[str, ...]:
@@ -240,6 +274,32 @@ def test_transient_failure_closes_attempt_and_persists_exact_retry_projection() 
     assert _event_types(harness)[-1:] == ("attempt.retry_scheduled",)
 
 
+def test_request_hash_jitter_policy_retains_exact_declared_delay() -> None:
+    harness = _run_harness()
+    _install_jitter_policy(harness, "deterministic-request-hash@1")
+    _start(harness)
+
+    _publish_failure(harness)
+
+    retry_at = harness.state.runs["run:1"].retry_not_before_utc
+    assert retry_at is not None
+    assert datetime.fromisoformat(retry_at.replace("Z", "+00:00")) == (
+        NOW_DT + timedelta(seconds=1, milliseconds=100)
+    )
+
+
+def test_unknown_retry_jitter_policy_rejects_without_state_change() -> None:
+    harness = _run_harness()
+    _install_jitter_policy(harness, "unknown-jitter@1")
+    _start(harness)
+    before = deepcopy(harness.state)
+
+    with pytest.raises(IntegrityViolation, match="unsupported retry jitter policy"):
+        _publish_failure(harness)
+
+    assert harness.state == before
+
+
 def test_nonretryable_failure_keeps_intrinsic_reason_on_the_last_attempt() -> None:
     harness = _run_harness()
     _start(harness)
@@ -415,6 +475,55 @@ def test_inactive_cancel_preflight_observes_subject_supersede() -> None:
         action.startswith("run-failure:artifact:run-failure:subject_superseded")
         for action in harness.state.publisher_actions
     )
+
+
+def test_queued_cancel_request_is_swept_before_queue_deadline() -> None:
+    harness = _run_harness()
+    _as_queued(harness)
+    run = harness.state.runs["run:1"]
+    cancel_at = "2026-07-14T12:00:01Z"
+    harness.state.runs[run.run_id] = run.model_copy(
+        update={
+            "revision": run.revision + 1,
+            "next_event_seq": run.next_event_seq + 1,
+            "cancel_requested_at": cancel_at,
+            "cancel_requested_by": _HUMAN,
+            "updated_at": cancel_at,
+        }
+    )
+    harness.state.events[(run.run_id, run.next_event_seq)] = RunEvent(
+        run_id=run.run_id,
+        seq=run.next_event_seq,
+        event_type="run.cancel_requested",
+        occurred_at=cancel_at,
+        data_schema_version="cancel-requested@1",
+        data=CancelRequestedDataV1(
+            command_id="command:approval-validation-cancel",
+            reason_code="subject_superseded",
+        ),
+    )
+    harness.state.forced_preflight_outcome = _prepared_failure(
+        harness,
+        cause_code="subject_superseded",
+        failure_class="subject_superseded",
+        intrinsic_retry_eligible=False,
+    )
+
+    result = harness.service_at(NOW_DT + timedelta(seconds=2)).sweep_timeout(
+        SweepRunTimeoutRequest(
+            run_id=run.run_id,
+            expected_run_revision=run.revision + 1,
+            actor=AuditActor(
+                principal_id="system:timeout-sweeper",
+                principal_kind="system",
+            ),
+        )
+    )
+
+    assert result.run.status == "cancelled"
+    assert result.retry_decision is not None
+    assert result.retry_decision.cause_code == "subject_superseded"
+    assert _event_types(harness)[-1:] == ("run.cancelled",)
 
 
 def test_retry_wait_claim_is_not_eligible_early_and_allocates_new_heads_only_when_due() -> None:

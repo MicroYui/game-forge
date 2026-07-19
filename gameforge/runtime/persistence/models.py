@@ -402,6 +402,28 @@ class ApprovalItemRow(Base):
     applied_at: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
+class ApprovalEvidenceBindingRow(Base):
+    """Exact indexed owner for validation and regression evidence Artifacts."""
+
+    __tablename__ = "approval_evidence_bindings"
+    __table_args__ = (
+        CheckConstraint(
+            "binding_kind IN ('validation', 'regression')",
+            name="ck_approval_evidence_binding_kind",
+        ),
+    )
+
+    artifact_id: Mapped[str] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        primary_key=True,
+    )
+    approval_id: Mapped[str] = mapped_column(
+        ForeignKey("approval_items.approval_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    binding_kind: Mapped[str] = mapped_column(String, nullable=False)
+
+
 class ApprovalDecisionRow(Base):
     __tablename__ = "approval_decisions"
     __table_args__ = (

@@ -138,6 +138,7 @@ _READS = (
     Permission(action="read", resource_kind="rollback_request", domain_scope="all"),
     Permission(action="read", resource_kind="ref", domain_scope="all"),
     Permission(action="read", resource_kind="finding", domain_scope="all"),
+    Permission(action="read", resource_kind="conflict_set", domain_scope="all"),
     Permission(action="read", resource_kind="trace", domain_scope="all"),
     Permission(action="read", resource_kind="log", domain_scope="all"),
     Permission(action="read", resource_kind="cost", domain_scope="all"),

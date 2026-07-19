@@ -948,6 +948,8 @@ def _lineage_spec(
                 ),
             }
         )
+        if child_kind == "review_report":
+            projection["doc_version"] = ("snapshot", ())
         if policy_id == "simulation-completed":
             projection["env_contract_version"] = ("scenario", ())
 
@@ -1001,6 +1003,10 @@ def _lineage_spec(
         )
         projection.update(
             {
+                "doc_version": (
+                    "config",
+                    ("selected_scenarios", "task_suite"),
+                ),
                 "ir_snapshot_id": (
                     "config",
                     ("selected_scenarios", "task_suite"),
@@ -1363,7 +1369,7 @@ def _producer_local_fields(
     elif child_kind == "constraint_snapshot":
         fields.add("constraint_snapshot_id")
 
-    if child_kind in {
+    if (child_kind == "review_report" and policy_id == "review-completed") or child_kind in {
         "simulation_run",
         "playtest_trace",
         "validation_evidence",
@@ -1731,7 +1737,7 @@ def _generation_policies(builder: _OutcomeBuilder) -> tuple[OutcomeArtifactPolic
                 builder,
                 policy_id,
                 "config-export",
-                "output",
+                "output" if include_export else "evidence",
                 "config_export",
                 "config-export-package@1",
                 min_count=0,

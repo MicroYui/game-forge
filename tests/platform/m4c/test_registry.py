@@ -435,8 +435,15 @@ def test_frozen_lineage_projects_existing_canonical_facts_from_typed_parents() -
             "constraint_snapshot_id": "constraint",
         },
         ("review.run", "review-completed", "primary"): {
+            "doc_version": "snapshot",
             "ir_snapshot_id": "snapshot",
             "constraint_snapshot_id": "constraint",
+        },
+        ("playtest.run", "playtest-completed", "primary"): {
+            "doc_version": "config",
+            "ir_snapshot_id": "config",
+            "constraint_snapshot_id": "constraint",
+            "env_contract_version": "config",
         },
         ("checker.run", "checker-completed", "primary"): {
             "ir_snapshot_id": "snapshot",
@@ -505,6 +512,17 @@ def test_frozen_lineage_projects_existing_canonical_facts_from_typed_parents() -
             assert projections[field].parent_role == parent_role
 
     migration = definitions["artifact.migrate"]
+
+    review = definitions["review.run"]
+    review_policy = next(
+        item for item in review.outcome_policies if item.policy_id == "review-completed"
+    )
+    review_rule = next(item for item in review_policy.artifact_rules if item.rule_id == "primary")
+    review_lineage = registry.get_lineage_policy(review_rule.lineage_policy_ref)
+    assert review_lineage is not None
+    review_projections = {item.field: item for item in review_lineage.version_projection}
+    assert review_projections["seed"].source == "producer_value"
+
     migration_policy = next(
         item
         for item in migration.outcome_policies

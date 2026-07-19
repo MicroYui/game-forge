@@ -1821,13 +1821,14 @@ class RunLifecycleService:
             if run.status in {"queued", "retry_wait"}:
                 if authority_lease is not None:
                     raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
+                cancellation_requested = run.cancel_requested_at is not None
                 if run.status == "queued":
                     deadline = _parse_utc(
                         run.queue_deadline_utc,
                         field_name="run.queue_deadline_utc",
                     )
-                    reason = "queue_deadline_exhausted"
-                    cause_code = "queue_timed_out"
+                    timeout_reason = "queue_deadline_exhausted"
+                    timeout_cause_code = "queue_timed_out"
                     if authority_attempt is not None:
                         raise IntegrityViolation("queued Run unexpectedly retains an Attempt")
                     attempt = None
@@ -1836,8 +1837,8 @@ class RunLifecycleService:
                         run.overall_deadline_utc,
                         field_name="run.overall_deadline_utc",
                     )
-                    reason = "overall_deadline_exhausted"
-                    cause_code = "timed_out"
+                    timeout_reason = "overall_deadline_exhausted"
+                    timeout_cause_code = "timed_out"
                     latest_no = run.next_attempt_no - 1
                     attempt = authority_attempt
                     if (
@@ -1846,8 +1847,10 @@ class RunLifecycleService:
                         or attempt.status in {"leased", "running"}
                     ):
                         raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
-                if guard_now < deadline:
+                if not cancellation_requested and guard_now < deadline:
                     raise InvalidStateTransition("Run timeout deadline has not elapsed")
+                reason = "not_retry_eligible" if cancellation_requested else timeout_reason
+                cause_code = "cancelled" if cancellation_requested else timeout_cause_code
                 prepared = PreparedRunFailure(
                     run_id=run.run_id,
                     attempt_no=attempt.attempt_no if attempt is not None else None,
@@ -1855,10 +1858,14 @@ class RunLifecycleService:
                     artifacts=(),
                     requirement_dispositions=(),
                     cause_code=cause_code,
-                    failure_class="timeout",
+                    failure_class="cancelled" if cancellation_requested else "timeout",
                     intrinsic_retry_eligible=False,
                     classifier=run.failure_classifier,
-                    redacted_message="Run deadline exhausted",
+                    redacted_message=(
+                        "Run cancellation requested"
+                        if cancellation_requested
+                        else "Run deadline exhausted"
+                    ),
                 )
                 prepared = _preflight_control_failure(
                     publication=publication,
@@ -2015,26 +2022,29 @@ class RunLifecycleService:
             if run.status in {"queued", "retry_wait"}:
                 if runs.get_current_lease(run.run_id) is not None:
                     raise IntegrityViolation("inactive Run unexpectedly retains an active lease")
+                cancellation_requested = run.cancel_requested_at is not None
                 if run.status == "queued":
                     deadline = _parse_utc(
                         run.queue_deadline_utc,
                         field_name="run.queue_deadline_utc",
                     )
-                    reason = "queue_deadline_exhausted"
-                    cause_code = "queue_timed_out"
+                    timeout_reason = "queue_deadline_exhausted"
+                    timeout_cause_code = "queue_timed_out"
                     attempt = None
                 else:
                     deadline = _parse_utc(
                         run.overall_deadline_utc,
                         field_name="run.overall_deadline_utc",
                     )
-                    reason = "overall_deadline_exhausted"
-                    cause_code = "timed_out"
+                    timeout_reason = "overall_deadline_exhausted"
+                    timeout_cause_code = "timed_out"
                     attempt = runs.get_attempt(run.run_id, run.next_attempt_no - 1)
                     if attempt is None or attempt.status in {"leased", "running"}:
                         raise IntegrityViolation("retry-wait Run lacks its closed latest attempt")
-                if now < deadline:
+                if not cancellation_requested and now < deadline:
                     raise InvalidStateTransition("Run timeout deadline has not elapsed")
+                reason = "not_retry_eligible" if cancellation_requested else timeout_reason
+                cause_code = "cancelled" if cancellation_requested else timeout_cause_code
                 prepared = PreparedRunFailure(
                     run_id=run.run_id,
                     attempt_no=(attempt.attempt_no if attempt is not None else None),
@@ -2042,10 +2052,14 @@ class RunLifecycleService:
                     artifacts=(),
                     requirement_dispositions=(),
                     cause_code=cause_code,
-                    failure_class="timeout",
+                    failure_class="cancelled" if cancellation_requested else "timeout",
                     intrinsic_retry_eligible=False,
                     classifier=run.failure_classifier,
-                    redacted_message="Run deadline exhausted",
+                    redacted_message=(
+                        "Run cancellation requested"
+                        if cancellation_requested
+                        else "Run deadline exhausted"
+                    ),
                 )
                 prepared = _preflight_control_failure(
                     publication=publication,
@@ -2209,7 +2223,12 @@ class RunLifecycleService:
                 evaluated_at_utc=_utc_text(now),
             )
 
-        if retry_policy.jitter_policy != "none@1":
+        # The registered policy freezes request-hash interpretation but defines no
+        # amplitude, so both accepted policies retain the exact base/exponential delay.
+        if retry_policy.jitter_policy not in {
+            "none@1",
+            "deterministic-request-hash@1",
+        }:
             raise IntegrityViolation("unsupported retry jitter policy has no deterministic adapter")
         exponent = max(attempt.attempt_no - 1, 0) if retry_policy.backoff == "exponential" else 0
         delay_ms = min(

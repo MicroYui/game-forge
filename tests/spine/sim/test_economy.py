@@ -95,6 +95,26 @@ def test_balanced_economy_has_no_collapse_and_is_seed_reproducible():
     ]
 
 
+def test_snapshot_without_currency_has_no_drop_source_obligation() -> None:
+    snapshot = _snap(
+        [Entity(id="npc:guide", type=NodeType.NPC, attrs={})],
+        [],
+    )
+
+    result = EconomySimulator().run(
+        EconomyModel.from_snapshot(snapshot), seed=1, n_agents=10, n_ticks=20
+    )
+    drop_check = next(
+        check for check in result.invariants if check.name == "drop_source_existence_and_yield_rate"
+    )
+
+    assert drop_check.ok is True
+    assert drop_check.evidence == {
+        "currencies_without_source": [],
+        "yield_rate_per_agent_tick": 0.0,
+    }
+
+
 @pytest.mark.parametrize("buy_prob", (0.5, 1.0))
 def test_economy_decodes_schema_known_numbers_after_canonical_snapshot_roundtrip(
     buy_prob: float,

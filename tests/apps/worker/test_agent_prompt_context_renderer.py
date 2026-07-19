@@ -8,6 +8,7 @@ from gameforge.apps.worker.agent_prompt_context import (
     agent_prompt_context_binding_plan_keys,
     bind_production_agent_prompt_context_authority,
     build_agent_prompt_context_source_renderer,
+    build_builtin_agent_prompt_context_authority,
     render_agent_prompt_context_sources,
 )
 from gameforge.apps.worker.prompt_rendering import (
@@ -212,6 +213,51 @@ def test_context_renderer_preserves_user_tool_roles_calls_and_has_no_system_temp
     assert [message.role for message in rendered.messages] == ["user", "tool"]
     assert all(message.role != "system" for message in rendered.messages)
     assert rendered.messages[1].tool_calls == [{"name": "checker_result", "status": "failed"}]
+
+
+def test_direct_empty_builtin_prompts_require_the_routed_output_token_bound() -> None:
+    authority = build_builtin_agent_prompt_context_authority(
+        required_plan_keys=(
+            ("bench-agent-case", "bench-agent@1", "bench@1"),
+            ("review-triage", "review-triage@1", "review-triage@1"),
+        )
+    )
+
+    for binding in authority.retained_bindings:
+        assert binding.request_params_canonical_json == "{}"
+        assert len(binding.policy_injected_params) == 1
+        injected = binding.policy_injected_params[0]
+        assert injected.name == "max_output_tokens"
+        assert injected.minimum == 1
+        assert injected.maximum == 1_000_000
+        assert injected.required is True
+
+    handler_request = _request()
+    routed_request = handler_request.model_copy(update={"params": {"max_output_tokens": 32_000}})
+    authority.require_replay_source_semantics(
+        handler_request=handler_request,
+        source_request=routed_request,
+    )
+
+    with pytest.raises(
+        IntegrityViolation,
+        match="lacks required policy-injected parameter",
+    ):
+        authority.require_replay_source_semantics(
+            handler_request=handler_request,
+            source_request=handler_request,
+        )
+
+    with pytest.raises(
+        IntegrityViolation,
+        match="params differ from canonical prompt authority",
+    ):
+        authority.require_replay_source_semantics(
+            handler_request=handler_request.model_copy(
+                update={"params": {"handler_owned_escape": 1}}
+            ),
+            source_request=routed_request,
+        )
 
 
 def test_context_renderer_rejects_node_binding_or_one_byte_message_drift() -> None:

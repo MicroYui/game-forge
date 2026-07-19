@@ -10,6 +10,7 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
+    DomainScope,
     Principal,
 )
 from gameforge.contracts.provenance import ProvenanceV1
@@ -30,6 +31,7 @@ from gameforge.runtime.object_store import LocalObjectStore
 from datetime import datetime, timezone
 
 _NOW = "2026-07-15T00:00:00Z"
+_SCOPE = DomainScope(domain_ids=("builtin",))
 
 
 def _principal(kind: str) -> Principal:
@@ -112,6 +114,7 @@ def test_writer_mints_immutable_source_raw_with_provenance(tmp_path: Path) -> No
         object_store=objects,
         actor=_actor("human"),
         text="Reduce boss gold reward to a sustainable value.",
+        domain_scope=_SCOPE,
         created_at=_NOW,
     )
     assert minted.artifact.kind == "source_raw"
@@ -120,6 +123,7 @@ def test_writer_mints_immutable_source_raw_with_provenance(tmp_path: Path) -> No
     assert minted.artifact.version_tuple.doc_version == minted.stored.ref.sha256
     assert minted.artifact.version_tuple.tool_version is None
     assert minted.artifact.meta["payload_schema_id"] == "source-raw@1"
+    assert minted.artifact.meta["domain_scope"] == _SCOPE.model_dump(mode="json")
     # Provenance folds into the content-addressed artifact id (immutable/hash-bound).
     reparsed = ProvenanceV1.model_validate(minted.artifact.meta["provenance"])
     assert reparsed == minted.provenance
@@ -144,6 +148,7 @@ def test_authenticated_source_is_resolvable_as_a_terminal_lineage_parent(
         object_store=_object_store(tmp_path),
         actor=_actor("human"),
         text="Keep the authored goal bound to its exact source revision.",
+        domain_scope=_SCOPE,
         created_at=_NOW,
     )
 
@@ -174,5 +179,6 @@ def test_writer_rejects_empty_goal_text(tmp_path: Path) -> None:
             object_store=_object_store(tmp_path),
             actor=_actor("human"),
             text="",
+            domain_scope=_SCOPE,
             created_at=_NOW,
         )

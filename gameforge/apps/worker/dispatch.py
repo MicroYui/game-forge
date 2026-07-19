@@ -16,8 +16,6 @@ from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC
 from email.utils import parsedate_to_datetime
-from hashlib import sha256
-import itertools
 import math
 
 import httpx
@@ -55,7 +53,7 @@ from gameforge.apps.worker.components import (
     build_trusted_components,
 )
 from gameforge.apps.worker.config_export import build_aureus_config_exporter
-from gameforge.apps.worker.bench_codec import BENCH_PAYLOAD_DECODERS
+from gameforge.bench.payload_codec import BENCH_PAYLOAD_DECODERS
 from gameforge.apps.worker.dispatcher import RunDispatcher
 from gameforge.apps.worker.executor import WorkerModelBridgePort
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
@@ -818,18 +816,6 @@ def build_worker_dispatch(
             honor_retry_after=retry.honor_retry_after,
             clock=clock,
         )
-        samples = itertools.count(1)
-
-        def deterministic_jitter() -> float:
-            if retry.jitter_policy == "none@1":
-                return 0.0
-            sample = next(samples)
-            digest = sha256(
-                f"{run.run_id}\x00{run.current_attempt_no}\x00{sample}".encode("utf-8")
-            ).digest()
-            unit = int.from_bytes(digest[:8], "big") / ((1 << 64) - 1)
-            return unit * 2 - 1
-
         return RetryExecutor(
             policy=RetryPolicyV1(
                 policy_version=(
@@ -849,7 +835,7 @@ def build_worker_dispatch(
             utc_clock=clock,
             monotonic_clock=SystemMonotonicClock(),
             sleeper=SystemSleeper(),
-            jitter=deterministic_jitter,
+            jitter=lambda: 0.0,
         )
 
     def _read_run_revision(run_id: str) -> int:
@@ -1036,6 +1022,7 @@ def build_worker_dispatch(
         resolve_executor=build_executor_resolver(registry, runtime.components),
         model_bridge_factory=_model_bridge_factory,
         terminal=terminal,
+        progress=lifecycle,
         read_run_revision=_read_run_revision,
         resolve_failure_classifier=lambda run: _require_failure_classifier(
             registry,

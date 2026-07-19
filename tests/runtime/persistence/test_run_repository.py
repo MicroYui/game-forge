@@ -3014,6 +3014,60 @@ def test_attempt_start_requires_the_exact_frozen_timeout_deadline(engine: Engine
         assert repository.list_events(claimed.run.run_id)[-1] == claimed.event
 
 
+def test_queued_cancel_request_acceptance_is_atomic(engine: Engine) -> None:
+    queued = _run("run:queued-cancel", idempotency_key="request:queued-cancel")
+    _create(engine, queued)
+    actor = AuditActor(principal_id="human:a", principal_kind="human")
+    command = RunCommandV1(
+        command_id="command:queued-cancel",
+        client_id="approval-workflow",
+        client_seq=queued.revision,
+        idempotency_key="queued-cancel",
+        expected_run_revision=queued.revision,
+        type="cancel",
+        payload_schema_id="run-cancel@1",
+        payload=CancelRunPayloadV1(reason_code="subject_superseded"),
+    )
+    event = RunEvent(
+        run_id=queued.run_id,
+        seq=queued.next_event_seq,
+        event_type="run.cancel_requested",
+        occurred_at=PROGRESSED,
+        data_schema_version="cancel-requested@1",
+        data=CancelRequestedDataV1(
+            command_id=command.command_id,
+            reason_code="subject_superseded",
+        ),
+    )
+    record = RunCommandRecordV1(
+        run_id=queued.run_id,
+        command=command,
+        request_hash=canonical_payload_hash(command),
+        actor=actor,
+        status="applied",
+        revision=1,
+        created_at=PROGRESSED,
+        applied_at=PROGRESSED,
+        result_event_seq=event.seq,
+    )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        accepted = transaction.runs.accept_command(
+            expected_run_revision=queued.revision,
+            record=record,
+            events=(event,),
+        )
+
+    assert accepted.run.status == "queued"
+    assert accepted.run.cancel_requested_at == PROGRESSED
+    assert accepted.run.cancel_requested_by == actor
+    with Session(engine) as session:
+        repository = SqlRunRepository(session)
+        assert repository.get(queued.run_id) == accepted.run
+        assert repository.get_command(queued.run_id, command.command_id) == record
+        assert repository.get_event(queued.run_id, event.seq) == event
+
+
 def test_command_accept_claim_complete_and_acceptance_rollback_are_atomic(
     engine: Engine,
 ) -> None:

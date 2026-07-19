@@ -78,7 +78,17 @@ from gameforge.contracts.identity import (
     DomainScope,
     RolePolicy,
 )
-from gameforge.contracts.jobs import RunAttempt, RunEvent, RunRecord
+from gameforge.contracts.jobs import (
+    CancelRequestedDataV1,
+    CancelRunPayloadV1,
+    RunAttempt,
+    RunCommandRecordV1,
+    RunCommandV1,
+    RunEvent,
+    RunRecord,
+    RunResultV1,
+    canonical_payload_hash,
+)
 from gameforge.contracts.lineage import ArtifactV2, AuditActor, AuditCorrelation, AuditSubject
 from gameforge.contracts.observability import SpanDataV1
 from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1, RollbackRequestV1
@@ -138,6 +148,7 @@ from gameforge.platform.runs.admission import (
     build_admission_capability_binder,
 )
 from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
+from gameforge.platform.runs.state import validate_run_result_binding
 from gameforge.platform.slo.service import (
     SLODefinitionCapabilities,
     SLODefinitionService,
@@ -215,6 +226,7 @@ WORKFLOW_ROUTE_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_VERSION"
 WORKFLOW_ROUTE_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_DIGEST"
 WORKFLOW_APPROVAL_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_VERSION"
 WORKFLOW_APPROVAL_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_DIGEST"
+SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV = "GAMEFORGE_SELECTED_BENCH_REPORT_ARTIFACT_ID"
 
 
 class LocalApiConfigurationError(ValueError):
@@ -352,6 +364,7 @@ class LocalApiConfig:
     root_secret: bytes = field(repr=False)
     session_signing_keys: SessionSigningKeyProvider = field(repr=False)
     allowed_websocket_origins: frozenset[str] = frozenset()
+    selected_bench_report_artifact_id: str | None = None
     # Workflow governance pointers. When all four are present the maker-checker
     # composition resolves the exact DomainRoutePolicy and ApprovalPolicy from the
     # authoritative policy snapshot repository (registry + roles come from the role
@@ -400,6 +413,14 @@ class LocalApiConfig:
             _lower_sha256(
                 self.workflow_approval_policy_digest, name="workflow_approval_policy_digest"
             )
+        if self.selected_bench_report_artifact_id is not None and (
+            not isinstance(self.selected_bench_report_artifact_id, str)
+            or not self.selected_bench_report_artifact_id
+            or len(self.selected_bench_report_artifact_id) > 4096
+        ):
+            raise LocalApiConfigurationError(
+                "selected_bench_report_artifact_id must be a non-empty bounded string"
+            )
         if not isinstance(self.root_secret, bytes) or len(self.root_secret) < 32:
             raise LocalApiConfigurationError("root_secret must contain at least 32 bytes")
         if not isinstance(self.session_signing_keys, SessionSigningKeyProvider):
@@ -446,6 +467,7 @@ class LocalApiConfig:
             workflow_route_policy_digest=source.get(WORKFLOW_ROUTE_POLICY_DIGEST_ENV),
             workflow_approval_policy_version=source.get(WORKFLOW_APPROVAL_POLICY_VERSION_ENV),
             workflow_approval_policy_digest=source.get(WORKFLOW_APPROVAL_POLICY_DIGEST_ENV),
+            selected_bench_report_artifact_id=source.get(SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV),
         )
 
 
@@ -823,6 +845,195 @@ class _RunCommandAuditGateway:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _RetainedAgentProducerRunGateway:
+    """Re-prove persisted Agent subjects and request active validation cancel."""
+
+    runs: object
+    artifacts: object
+    readers: WorkflowTypedReaders
+    registry: object
+    clock: SystemUtcClock
+    command_audit: _RunCommandAuditGateway
+
+    _OUTCOMES = {
+        "generation.propose": ("patch", "generation_gate_passed"),
+        "patch.repair": ("patch", "repair_verified"),
+        "constraint_proposal.propose": (
+            "constraint_proposal",
+            "constraint_proposal_drafted",
+        ),
+    }
+
+    def _terminal_authority(
+        self,
+        *,
+        run_id: str,
+        initiated_by: AuditActor,
+    ) -> tuple[RunRecord, ArtifactV2, RunResultV1, ArtifactV2, str]:
+        run = self.runs.get(run_id)  # type: ignore[attr-defined]
+        result_artifact = (
+            None
+            if not isinstance(run, RunRecord) or run.result_artifact_id is None
+            else self.artifacts.get(run.result_artifact_id)  # type: ignore[attr-defined]
+        )
+        if (
+            not isinstance(run, RunRecord)
+            or run.status != "succeeded"
+            or run.initiated_by != initiated_by
+            or run.kind.version != 1
+            or not isinstance(result_artifact, ArtifactV2)
+            or result_artifact.kind != "run_result"
+            or result_artifact.meta.get("payload_schema_id") != "run-result@1"
+        ):
+            raise IntegrityViolation("Agent draft producer Run authority is unavailable")
+
+        expected = self._OUTCOMES.get(run.kind.kind)
+        if expected is None:
+            raise IntegrityViolation("Agent draft producer Run kind is not allowed")
+        expected_kind, expected_outcome = expected
+        result = self.readers.load_run_result(result_artifact)
+        primary = self.artifacts.get(result.primary_artifact_id)  # type: ignore[attr-defined]
+        if not isinstance(primary, ArtifactV2):
+            raise IntegrityViolation("Agent draft producer primary Artifact is unavailable")
+
+        try:
+            validate_run_result_binding(
+                run=run,
+                manifest=result_artifact,
+                result=result,
+                expected_outcome_code=expected_outcome,
+                expected_primary_kind=expected_kind,
+            )
+        except IntegrityViolation as exc:
+            raise IntegrityViolation(
+                "Agent draft subject is not an exact terminal producer Run output"
+            ) from exc
+        if primary.kind != expected_kind:
+            raise IntegrityViolation(
+                "Agent draft subject is not an exact terminal producer Run output"
+            )
+        return run, result_artifact, result, primary, expected_kind
+
+    def verify_producer_membership(
+        self,
+        *,
+        run_id: str,
+        artifact_id: str,
+        initiated_by: AuditActor,
+    ) -> None:
+        run, _manifest, result, primary, expected_kind = self._terminal_authority(
+            run_id=run_id,
+            initiated_by=initiated_by,
+        )
+        facts = self.readers.inspect_draft_subject(primary)
+        if (
+            artifact_id != primary.artifact_id
+            or result.primary_artifact_id != primary.artifact_id
+            or primary.artifact_id not in result.produced_artifact_ids
+            or facts.subject_kind != expected_kind
+            or facts.produced_by != "agent"
+            or facts.producer_run_id != run.run_id
+        ):
+            raise IntegrityViolation(
+                "Agent draft subject is not an exact terminal producer Run output"
+            )
+
+    def verify_prepared_terminal_producer_authority(
+        self,
+        *,
+        run_id: str,
+        initiated_by: AuditActor,
+    ) -> None:
+        self._terminal_authority(run_id=run_id, initiated_by=initiated_by)
+
+    def start_validation(self, **_: object) -> str:
+        raise IntegrityViolation(
+            "local workflow validation must start through atomic Run admission"
+        )
+
+    def request_validation_cancel(
+        self,
+        *,
+        run_id: str,
+        reason: str,
+        requested_by: AuditActor,
+    ) -> None:
+        run = self.runs.get(run_id)  # type: ignore[attr-defined]
+        if (
+            not isinstance(run, RunRecord)
+            or run.kind.version != 1
+            or run.kind.kind
+            not in {
+                "patch.validate",
+                "constraint_proposal.validate",
+                "rollback.validate",
+            }
+        ):
+            raise IntegrityViolation("validation Run cancel authority is unavailable")
+        if run.cancel_requested_at is not None:
+            return
+        if run.status not in {"queued", "leased", "running", "retry_wait"}:
+            raise IntegrityViolation("terminal validation Run cannot accept a cancellation request")
+        definition = self.registry.get_run_kind(run.kind)  # type: ignore[attr-defined]
+        if definition is None or "run-cancel@1" not in definition.allowed_command_schema_ids:
+            raise IntegrityViolation("validation Run kind does not allow cancellation")
+
+        digest = sha256(f"{run.run_id}\0{reason}".encode("utf-8")).hexdigest()
+        command = RunCommandV1(
+            command_id=f"command:approval-validation-cancel:{digest}",
+            client_id="approval-workflow",
+            client_seq=run.revision,
+            idempotency_key=f"approval-validation-cancel:{digest}",
+            expected_run_revision=run.revision,
+            type="cancel",
+            payload_schema_id="run-cancel@1",
+            payload=CancelRunPayloadV1(reason_code=reason),
+        )
+        now = self.clock.now_utc().isoformat().replace("+00:00", "Z")
+        event = RunEvent(
+            run_id=run.run_id,
+            seq=run.next_event_seq,
+            event_type="run.cancel_requested",
+            occurred_at=now,
+            data_schema_version="cancel-requested@1",
+            data=CancelRequestedDataV1(
+                command_id=command.command_id,
+                reason_code=reason,
+            ),
+        )
+        record = RunCommandRecordV1(
+            run_id=run.run_id,
+            command=command,
+            request_hash=canonical_payload_hash(command),
+            actor=requested_by,
+            status="applied",
+            revision=1,
+            created_at=now,
+            applied_at=now,
+            result_event_seq=event.seq,
+        )
+        persisted = self.runs.accept_command(  # type: ignore[attr-defined]
+            expected_run_revision=run.revision,
+            record=record,
+            events=(event,),
+        )
+        if (
+            persisted.record != record
+            or persisted.events != (event,)
+            or persisted.run.revision != run.revision + 1
+            or persisted.run.cancel_requested_at != now
+            or persisted.run.cancel_requested_by != requested_by
+        ):
+            raise IntegrityViolation("validation Run cancel publication changed")
+        self.command_audit.record_command_submitted(
+            run=persisted.run,
+            record=persisted.record,
+            events=persisted.events,
+            actor=requested_by,
+        )
+
+
 def _build_run_admission_engine(
     *,
     config: LocalApiConfig,
@@ -974,7 +1185,20 @@ def _build_workflow_command_service(
             object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
             idempotency=transaction.idempotency,  # type: ignore[attr-defined]
             audit=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
-            runs=None,
+            runs=_RetainedAgentProducerRunGateway(
+                runs=transaction.runs,  # type: ignore[attr-defined]
+                artifacts=transaction.artifacts,  # type: ignore[attr-defined]
+                readers=bound,
+                registry=registry,
+                clock=clock,
+                command_audit=_RunCommandAuditGateway(
+                    audit=AuditGate(  # type: ignore[attr-defined]
+                        sink=transaction.audit,
+                        clock=clock,
+                    ),
+                    chain_id=config.audit_chain_id,
+                ),
+            ),
             subjects=bound,
             lineage=draft_verifier,
             evidence=bound,
@@ -1398,6 +1622,7 @@ def build_local_api_resources(
         execution_profile_catalog=current_execution_profile_catalog,
         cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
         clock=clock,
+        selected_bench_report_artifact_id=config.selected_bench_report_artifact_id,
     )
     playtest_payload_validator = PlaytestPayloadValidationService(
         registry=builtin_registry,
@@ -1649,6 +1874,7 @@ __all__ = [
     "LOCAL_ROOT_SECRET_ENV",
     "OBJECT_STORE_ID_ENV",
     "OBJECT_STORE_ROOT_ENV",
+    "SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV",
     "SESSION_POLICY_VERSION_ENV",
     "TELEMETRY_DB_PATH_ENV",
     "WORKFLOW_APPROVAL_POLICY_DIGEST_ENV",

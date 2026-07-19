@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import (
     LOCAL_ROOT_SECRET_ENV,
+    SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV,
     SESSION_POLICY_VERSION_ENV,
     LocalApiConfig,
     LocalApiConfigurationError,
@@ -526,6 +527,7 @@ def test_environment_configuration_requires_stable_secret_without_leaking_it(tmp
 
     rendered = repr(config)
     assert config.root_secret == secret
+    assert config.selected_bench_report_artifact_id is None
     assert encoded not in rendered
     assert secret.hex() not in rendered
 
@@ -540,6 +542,40 @@ def test_environment_configuration_requires_stable_secret_without_leaking_it(tmp
                 SESSION_SIGNING_KEY_SETS_ENV: signing,
             }
         )
+
+
+def test_environment_configuration_freezes_selected_bench_report_artifact_id(tmp_path) -> None:
+    secret = base64.b64encode(b"z" * 32).decode("ascii")
+    signing = json.dumps(
+        [
+            {
+                "key_set_version": "keys@1",
+                "keys": [
+                    {
+                        "key_id": "session-key-1",
+                        "secret_base64": base64.b64encode(b"s" * 32).decode("ascii"),
+                        "status": "active",
+                    }
+                ],
+            }
+        ]
+    )
+    source = {
+        DATABASE_URL_ENV: f"sqlite:///{tmp_path / 'configured.db'}",
+        PASSWORD_HASH_POLICY_VERSION_ENV: "argon2id@1",
+        SESSION_POLICY_VERSION_ENV: "session@1",
+        ROLE_POLICY_VERSION_ENV: "roles@1",
+        ROLE_POLICY_DIGEST_ENV: _domain_and_role_policy()[1].policy_digest,
+        LOCAL_ROOT_SECRET_ENV: secret,
+        SESSION_SIGNING_KEY_SETS_ENV: signing,
+        SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV: "artifact:bench:pinned",
+    }
+
+    config = LocalApiConfig.from_environment(source)
+
+    assert config.selected_bench_report_artifact_id == "artifact:bench:pinned"
+    with pytest.raises(LocalApiConfigurationError, match="selected_bench_report_artifact_id"):
+        LocalApiConfig.from_environment({**source, SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV: ""})
 
 
 def test_real_local_composition_runs_login_me_logout_and_honest_readiness(tmp_path) -> None:

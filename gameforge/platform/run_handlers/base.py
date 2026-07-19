@@ -45,6 +45,7 @@ from gameforge.contracts.execution_profiles import (
 )
 from gameforge.contracts.findings import Finding, FindingPayloadV1
 from gameforge.contracts.jobs import (
+    AttemptProgressDataV1,
     MAX_PREPARED_DOMAIN_ARTIFACTS,
     MAX_PREPARED_ARTIFACT_BYTES,
     MAX_PREPARED_FINDINGS,
@@ -122,6 +123,7 @@ class ExecutorContextLike(Protocol):
     payload: RunPayloadEnvelope
     deadline_utc: datetime
     model_bridge: ModelBridgePort
+    progress_publisher: Callable[[AttemptProgressDataV1], object] | None
 
 
 class ArtifactBlobReader(Protocol):

@@ -1345,7 +1345,9 @@ class RunCommandService:
                     status="duplicate",
                     persisted_status=retained.status,
                     command_revision=retained.revision,
-                    run_revision=run.revision,
+                    # Every acceptance path is one Run CAS (+1). Later lifecycle
+                    # writes must not redefine the already-committed ACK revision.
+                    run_revision=retained.command.expected_run_revision + 1,
                     event=event,
                 )
             idempotent = runs.get_command_by_idempotency(
