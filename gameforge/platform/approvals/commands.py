@@ -35,6 +35,7 @@ from gameforge.contracts.identity import (
     DomainRegistryV1,
     DomainRoutePolicy,
     DomainRoutePolicyRefV1,
+    Permission,
     Principal,
     RolePolicy,
     SubjectKind,
@@ -68,6 +69,7 @@ from gameforge.platform.approvals.state import (
     validate_status_transition,
 )
 from gameforge.platform.audit.gate import AuditAppendIntent, PreflightedAuditBatch
+from gameforge.platform.rbac.authorization import AuthorizationDecision, authorize
 
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1)]
@@ -1237,6 +1239,14 @@ class ApprovalCommandService:
             context=context,
             runs=runs,
         )
+        self._authorize_human_draft(
+            capabilities=capabilities,
+            context=context,
+            item=item,
+            facts=facts,
+            registry=registry,
+            role_policy=role,
+        )
         retained_parents = self._validate_lineage_parents(prepared, artifacts)
         lineage.validate_draft_publication(
             prepared=prepared,
@@ -1898,6 +1908,38 @@ class ApprovalCommandService:
             raise IntegrityViolation(
                 "human-authored draft requires direct publication by its human proposer"
             )
+
+    @staticmethod
+    def _authorize_human_draft(
+        *,
+        capabilities: ApprovalCommandCapabilities,
+        context: ApprovalCommandContext,
+        item: ApprovalItem,
+        facts: DraftSubjectFacts,
+        registry: DomainRegistryV1,
+        role_policy: RolePolicy,
+    ) -> None:
+        if facts.produced_by != "human":
+            return
+        principals = _required(capabilities.principals, "principals")
+        principal = principals.get(context.actor.principal_id)
+        if principal is None or principal.kind != "human":
+            raise Forbidden("draft actor has no current human principal")
+        permission = Permission(
+            action="propose",
+            resource_kind=item.subject_kind,
+            domain_scope=item.domain_scope,
+        )
+        if (
+            authorize(
+                principal=principal,
+                role_policy=role_policy,
+                requested_permission=permission,
+                domain_registry=registry,
+            )
+            is not AuthorizationDecision.ALLOW
+        ):
+            raise Forbidden("draft actor lacks the current domain permission")
 
     @staticmethod
     def _require_human_constraint_revision(

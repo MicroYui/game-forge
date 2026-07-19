@@ -48,6 +48,7 @@ import socket
 
 from fastapi.testclient import TestClient
 import pytest
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import LocalApiConfig, create_readiness_closed_local_app
@@ -88,6 +89,11 @@ from gameforge.runtime.persistence.auth import SqlAuthRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
+from gameforge.runtime.persistence.models import (
+    ApprovalItemRow,
+    ArtifactRow,
+    SubjectHeadRow,
+)
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
@@ -121,6 +127,8 @@ MAKER_LOGIN = "maker"
 MAKER_PASSWORD = "maker-password-1"
 APPROVER_LOGIN = "approver"
 APPROVER_PASSWORD = "approver-password-1"
+UNAUTHORIZED_LOGIN = "unauthorized"
+UNAUTHORIZED_PASSWORD = "unauthorized-password-1"
 
 _READS = (
     Permission(action="read", resource_kind="run", domain_scope="all"),
@@ -195,9 +203,15 @@ def _role_policy(registry) -> RolePolicy:
         registry_digest=registry.registry_digest,
     )
     grants = {
-        # Maker A: draft needs no grant; :validate needs validate/patch (+ rollback);
-        # submit needs no grant.
+        # Maker A: draft and validation both use exact current domain grants;
+        # submit itself advances only the already-authorized workflow subject.
         "content_designer": (
+            Permission(action="propose", resource_kind="patch", domain_scope=_DOMAIN),
+            Permission(
+                action="propose",
+                resource_kind="rollback_request",
+                domain_scope=_DOMAIN,
+            ),
             Permission(action="validate", resource_kind="patch", domain_scope=_DOMAIN),
             Permission(action="validate", resource_kind="rollback_request", domain_scope=_DOMAIN),
             *_READS,
@@ -539,6 +553,18 @@ def _ref_history(reader: _Session) -> tuple[dict, ...]:
     return tuple(item["value"] for item in response.json()["items"])
 
 
+def _authority_counts(harness: _Harness) -> tuple[int, int, int]:
+    engine = get_engine(harness.database_url)
+    try:
+        with Session(engine) as session:
+            return tuple(
+                int(session.scalar(select(func.count()).select_from(model)) or 0)
+                for model in (ArtifactRow, ApprovalItemRow, SubjectHeadRow)
+            )
+    finally:
+        engine.dispose()
+
+
 def _patch_body(
     *,
     base_artifact_id: str,
@@ -844,6 +870,38 @@ def _run_patch_cycle(
 
 
 # ═══════════════════════════ tests ══════════════════════════════════════════
+def test_journey_b_human_draft_requires_current_domain_permission(tmp_path: Path) -> None:
+    harness = _Harness(tmp_path)
+    base_artifact_id, base_ref = harness.seed_base_snapshot()
+    harness._provision_human(
+        principal_id="human:unauthorized",
+        login=UNAUTHORIZED_LOGIN,
+        password=UNAUTHORIZED_PASSWORD,
+        display_name="Unauthorized",
+        roles=(),
+    )
+    api = _start_api(harness.api_config())
+    try:
+        unauthorized = _login(api, UNAUTHORIZED_LOGIN, UNAUTHORIZED_PASSWORD)
+        before = _authority_counts(harness)
+
+        response = unauthorized.client.post(
+            "/api/v1/patches",
+            json=_patch_body(
+                base_artifact_id=base_artifact_id,
+                expected_ref=base_ref,
+                new_value=121,
+                rationale="Must not publish without domain permission.",
+            ),
+            headers=_headers(unauthorized, idempotency_key="unauthorized:draft"),
+        )
+
+        assert response.status_code == 403, response.text
+        assert _authority_counts(harness) == before
+    finally:
+        _stop_api(api)
+
+
 def test_journey_b_maker_checker_happy_path_repeat_restart_and_coverage(tmp_path: Path) -> None:
     harness = _Harness(tmp_path)
     base_artifact_id, base_ref = harness.seed_base_snapshot()

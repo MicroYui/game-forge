@@ -1025,6 +1025,11 @@ def _build_workflow_command_service(
             object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
             audit=AuditGate(sink=transaction.audit, clock=clock),  # type: ignore[attr-defined]
             idempotency=transaction.idempotency,  # type: ignore[attr-defined]
+            policies=_AdmissionPolicyAuthority(
+                persistent=transaction.policies,  # type: ignore[attr-defined]
+                registry=registry,
+            ),
+            principals=_PrincipalGet(transaction.identity),  # type: ignore[attr-defined]
         )
 
     commands = ApprovalCommandService(
@@ -1044,6 +1049,8 @@ def _build_workflow_command_service(
         bind_capabilities=spec_capabilities,
         clock=clock,
         audit_chain_id=config.audit_chain_id,
+        role_policy_version=config.role_policy_version,
+        role_policy_digest=config.role_policy_digest,
     )
 
     cursor_key = _derive_key(config.root_secret, "workflow-cursor")

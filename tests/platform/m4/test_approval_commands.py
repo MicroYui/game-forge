@@ -152,6 +152,21 @@ def _roles(registry: DomainRegistryV1) -> RolePolicy:
     grants = {
         "numeric_designer": (
             Permission(
+                action="propose",
+                resource_kind="patch",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
+                action="propose",
+                resource_kind="constraint_proposal",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
+                action="propose",
+                resource_kind="rollback_request",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
                 action="approval.decide",
                 resource_kind="approval",
                 domain_scope=DomainScope(domain_ids=("economy",)),
@@ -763,6 +778,7 @@ def _harness(*, min_approvals: int = 1) -> _Harness:
     runs = _Runs(state)
     audit = _Audit(state)
     principals = _Principals()
+    principals.values["human:maker"] = _principal("human:maker")
     clock = _CountingClock(NOW_DT)
     decision_ids = _DecisionIdFactory()
     capabilities = ApprovalCommandCapabilities(

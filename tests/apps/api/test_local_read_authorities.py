@@ -109,6 +109,20 @@ def test_artifact_domain_inherits_exact_parent_scope() -> None:
     assert _authority(parent, child).resolve(child) == BUILTIN
 
 
+def test_modern_explicit_artifact_domain_does_not_scan_historical_lineage() -> None:
+    object_ref = object_ref_for_bytes(b"{}")
+    artifact = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(tool_version="test@1"),
+        lineage=("artifact:retained-but-not-needed",),
+        payload_hash=object_ref.sha256,
+        object_ref=object_ref,
+        meta={"domain_scope": BUILTIN.model_dump(mode="json")},
+    )
+
+    assert _authority(artifact).resolve(artifact) == BUILTIN
+
+
 def test_typed_payload_and_metadata_domain_mismatch_fails_closed() -> None:
     object_ref = object_ref_for_bytes(b"{}")
     proposal = build_artifact_v2(

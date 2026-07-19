@@ -190,6 +190,30 @@ def _metric_query(
     )
 
 
+def test_run_trace_lookup_uses_indexes_for_both_run_id_bindings(tmp_path: Path) -> None:
+    path = tmp_path / "telemetry.sqlite3"
+    LocalTelemetryStore(path, clock=_Clock(NOW), signing_key=SIGNING_KEY).close()
+
+    with sqlite3.connect(path) as connection:
+        plan = connection.execute(
+            """
+            EXPLAIN QUERY PLAN
+            SELECT payload FROM spans
+            WHERE trace_id IN (
+                SELECT DISTINCT trace_id FROM spans
+                WHERE run_id = ? OR
+                    json_extract(payload, '$.attributes.producer_run_id') = ?
+            )
+            """,
+            ("run:target", "run:target"),
+        ).fetchall()
+
+    details = "\n".join(str(row[3]) for row in plan)
+    assert "ix_spans_run" in details
+    assert "ix_spans_producer_run" in details
+    assert "SCAN spans" not in details
+
+
 def _store(
     path: Path,
     clock: _Clock,

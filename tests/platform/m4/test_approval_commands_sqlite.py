@@ -63,6 +63,7 @@ from gameforge.runtime.persistence.audit import SqlAuditSink
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
+from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.models import (
     ApprovalDecisionRow,
     ApprovalItemRow,
@@ -139,6 +140,11 @@ def _role_policy(registry: DomainRegistryV1) -> RolePolicy:
     registry_ref = _domain_ref(registry)
     grants = {
         "numeric_designer": (
+            Permission(
+                action="propose",
+                resource_kind="patch",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
             Permission(
                 action="approval.decide",
                 resource_kind="approval",
@@ -370,6 +376,14 @@ class _UnusedCapability:
     pass
 
 
+class _PrincipalProjection:
+    def __init__(self, identities: Any) -> None:
+        self._identities = identities
+
+    def get(self, principal_id: str):
+        return self._identities.project(principal_id)
+
+
 @dataclass
 class _AuditInjection:
     fail_after_append: bool = False
@@ -443,6 +457,20 @@ def _build_harness(tmp_path: Path) -> _Harness:
         approval=approval,
     )
     with Session(engine) as session, session.begin():
+        identities = SqlIdentityRepository(session, clock=clock)
+        principal = identities.create(
+            principal_id="human:maker",
+            kind="human",
+            display_name="Maker",
+        )
+        identities.grant(
+            assignment_id="assignment:human:maker:numeric_designer",
+            principal_id=principal.principal_id,
+            role="numeric_designer",
+            scope=DomainScope(domain_ids=("economy",)),
+            granted_by=AuditActor(principal_id="human:admin", principal_kind="human"),
+            expected_principal_revision=principal.revision,
+        )
         SqlRefStore(
             session,
             cursor_signer=CursorSigner(
@@ -550,6 +578,7 @@ def _build_harness(tmp_path: Path) -> _Harness:
             object_bindings=bindings,
             runs=runs,
             cost=_UnusedCapability(),
+            identity=SqlIdentityRepository(session, clock=clock),
         )
 
     def bind_capabilities(transaction: Any) -> ApprovalCommandCapabilities:
@@ -566,6 +595,7 @@ def _build_harness(tmp_path: Path) -> _Harness:
             lineage=transaction.lineage,
             evidence=None,
             refs=transaction.refs,
+            principals=_PrincipalProjection(transaction.identity),
         )
 
     service = ApprovalCommandService(

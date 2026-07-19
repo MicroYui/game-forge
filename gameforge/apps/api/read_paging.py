@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from contextlib import AbstractContextManager
 from datetime import timedelta
 
 from sqlalchemy.orm import Session
@@ -34,14 +35,24 @@ class SqlMaterializedPageAdapter(MaterializedPagePort):
         page_size: int,
         snapshot_ttl: timedelta,
         max_materialized_items: int,
+        snapshot_session_factory: Callable[[], AbstractContextManager[Session]] | None = None,
     ) -> None:
-        self._repository = SqlMaterializedReadViewRepository(
+        self._session = session
+        self._cursor_signer = cursor_signer
+        self._clock = clock
+        self._page_size = page_size
+        self._snapshot_ttl = snapshot_ttl
+        self._max_materialized_items = max_materialized_items
+        self._snapshot_session_factory = snapshot_session_factory
+
+    def _repository(self, session: Session) -> SqlMaterializedReadViewRepository:
+        return SqlMaterializedReadViewRepository(
             session,
-            cursor_signer=cursor_signer,
-            clock=clock,
-            page_size=page_size,
-            snapshot_ttl=snapshot_ttl,
-            max_materialized_snapshot_items=max_materialized_items,
+            cursor_signer=self._cursor_signer,
+            clock=self._clock,
+            page_size=self._page_size,
+            snapshot_ttl=self._snapshot_ttl,
+            max_materialized_snapshot_items=self._max_materialized_items,
         )
 
     def create(
@@ -50,17 +61,25 @@ class SqlMaterializedPageAdapter(MaterializedPagePort):
         *,
         binding: ReadPageBinding,
     ) -> PageV1[RetainedReadPageItem]:
-        page = self._repository.create(
-            tuple(
-                MaterializedReadCandidate(
-                    resource_id=item.resource_id,
-                    observed_revision=item.observed_revision,
-                    canonical_view=item.canonical_view,
-                )
-                for item in candidates
-            ),
-            binding=_binding(binding),
+        exact_candidates = tuple(
+            MaterializedReadCandidate(
+                resource_id=item.resource_id,
+                observed_revision=item.observed_revision,
+                canonical_view=item.canonical_view,
+            )
+            for item in candidates
         )
+        if self._snapshot_session_factory is None:
+            page = self._repository(self._session).create(
+                exact_candidates,
+                binding=_binding(binding),
+            )
+        else:
+            with self._snapshot_session_factory() as session:
+                page = self._repository(session).create(
+                    exact_candidates,
+                    binding=_binding(binding),
+                )
         return _project_page(page)
 
     def page(
@@ -69,7 +88,9 @@ class SqlMaterializedPageAdapter(MaterializedPagePort):
         *,
         binding: ReadPageBinding,
     ) -> PageV1[RetainedReadPageItem]:
-        return _project_page(self._repository.page(cursor, binding=_binding(binding)))
+        return _project_page(
+            self._repository(self._session).page(cursor, binding=_binding(binding))
+        )
 
 
 def _binding(value: ReadPageBinding) -> MaterializedReadBinding:

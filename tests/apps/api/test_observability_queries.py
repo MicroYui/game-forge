@@ -505,6 +505,11 @@ class _CrossRunPort(_Port):
         )
 
 
+class _ScopeDiscoveryMustNotRunPort(_Port):
+    def get_run_trace_scope(self, run_id: str) -> tuple[str, ...]:
+        raise AssertionError(f"unauthorized scope discovery for {run_id}")
+
+
 class _ProducerMismatchPort(_CrossRunPort):
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -810,6 +815,18 @@ def test_run_trace_collection_filters_mixed_domain_traces_before_paging() -> Non
         mode="run_allowlist",
         allowed_run_ids=("run:1", "run:2"),
     )
+
+
+def test_denied_run_trace_list_stops_before_scope_discovery() -> None:
+    service, _ = _service(_ScopeDiscoveryMustNotRunPort())
+
+    with pytest.raises(Forbidden):
+        service.list_run_traces(
+            principal=_principal(domain_scope=DOMAIN_B),
+            run_id="run:1",
+            cursor=None,
+            limit=10,
+        )
 
 
 def test_producer_only_trace_is_not_treated_as_non_domain() -> None:

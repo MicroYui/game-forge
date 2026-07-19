@@ -14,6 +14,7 @@ deployment would. Had the shipped composition still passed ``governance=None`` /
 from __future__ import annotations
 
 from pathlib import Path
+import sqlite3
 
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -115,7 +116,19 @@ def _role_policy(registry: DomainRegistryV1) -> RolePolicy:
     )
     grants = {
         "content_designer": (
+            Permission(action="propose", resource_kind="patch", domain_scope=_DOMAIN),
+            Permission(
+                action="propose",
+                resource_kind="constraint_proposal",
+                domain_scope=_DOMAIN,
+            ),
+            Permission(
+                action="propose",
+                resource_kind="rollback_request",
+                domain_scope=_DOMAIN,
+            ),
             Permission(action="validate", resource_kind="patch", domain_scope=_DOMAIN),
+            Permission(action="read", resource_kind="approval", domain_scope=_DOMAIN),
         ),
     }
     effective_from = "2026-07-14T00:00:00Z"
@@ -468,6 +481,16 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
     assert patch_artifact is not None
     assert set(patch_artifact.lineage) == {base_artifact_id, constraint_artifact_id}
     assert patch_artifact.version_tuple.constraint_snapshot_id is not None
+
+    principal = _maker_actor(resources.engine, clock).principal
+    with sqlite3.connect(tmp_path / "workflow-composition.db", timeout=0.1) as writer:
+        writer.execute("BEGIN IMMEDIATE")
+        retained = resources.dependencies.workflow_reads.get_approval(
+            principal,
+            approval_id,
+        )
+        writer.rollback()
+    assert retained.approval.approval_id == approval_id
 
     # The real synchronous human draft must be directly admissible by the real
     # patch.validate service with its exact candidate config.  This is the closure

@@ -47,6 +47,7 @@ from gameforge.contracts.api import (
     WorkflowCommandResponseV1,
     compute_resource_etag,
 )
+from gameforge.contracts.auto_apply_ownership import resolve_auto_apply_ir_ownership
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.config_export import (
     ConfigExportPackageV1,
@@ -145,6 +146,32 @@ _WORKFLOW_MERGE_POLICY = ThreeWayMergePolicyV1(
     collection_identities=(),
     policy_digest=compute_merge_policy_digest("workflow-three-way@1", ()),
 )
+
+
+def _validate_spec_domain_scope(
+    *,
+    snapshot: Snapshot,
+    registry: DomainRegistryV1,
+    declared: DomainScope,
+) -> None:
+    try:
+        ownership = resolve_auto_apply_ir_ownership(registry)
+    except (TypeError, ValueError) as exc:
+        raise IntegrityViolation("spec IR domain ownership is invalid") from exc
+    if not ownership.complete:
+        raise IntegrityViolation("spec IR domain ownership is incomplete")
+
+    owned_domain_ids: set[str] = set()
+    for entity in snapshot.entities.values():
+        owned_domain_ids.update(ownership.owners_for("entity", entity.type.value))
+    for relation in snapshot.relations.values():
+        owned_domain_ids.update(ownership.owners_for("relation", relation.type.value))
+    missing = owned_domain_ids - set(declared.domain_ids)
+    if missing:
+        raise Conflict(
+            "spec domain_scope does not cover its IR resource ownership",
+            missing_domain_ids=tuple(sorted(missing)),
+        )
 
 
 # ── injected server metadata + returned outcome ──────────────────────────────
@@ -431,6 +458,11 @@ class WorkflowCommandService:
                 "spec payload uses an unsupported meta schema version",
                 meta_schema_version=snapshot.meta_schema_version,
             )
+        _validate_spec_domain_scope(
+            snapshot=snapshot,
+            registry=self._require_governance().registry,
+            declared=payload.domain_scope,
+        )
         content = snapshot.content_payload
         snapshot_id = snapshot.snapshot_id
         stored = self._objects.put_verified(canonical_json(content).encode("utf-8"))

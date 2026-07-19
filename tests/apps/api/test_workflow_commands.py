@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -13,18 +14,28 @@ from gameforge.contracts.config_export import (
     canonical_config_export_bytes,
 )
 from gameforge.contracts.execution_profiles import ProfileRefV1
+from gameforge.contracts.errors import Conflict
+from gameforge.contracts.identity import (
+    DomainDefinitionV1,
+    DomainRegistryV1,
+    DomainScope,
+    compute_domain_registry_digest,
+)
 from gameforge.contracts.ir import Entity, NodeType
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.platform.run_handlers.constraint_validation import (
     BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
 )
+from gameforge.platform.workflow.service import _validate_spec_domain_scope
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
+from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.models import ArtifactRow
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.spine.ir.snapshot import Snapshot
 from tests.apps.api.workflow_command_testkit import (
     CURSOR_KEY,
+    actor_context,
     build_harness,
     headers,
     maker_actor,
@@ -61,6 +72,71 @@ def _spec_content(reward_gold: int) -> dict:
 
 def _base_entities() -> list[Entity]:
     return [Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120})]
+
+
+def test_spec_scope_cannot_narrow_registry_owned_ir_domains() -> None:
+    definitions = (
+        DomainDefinitionV1(
+            domain_id="economy",
+            display_name="Economy",
+            status="active",
+            tags=("auto-apply:ir-all@1",),
+        ),
+        DomainDefinitionV1(
+            domain_id="narrative",
+            display_name="Narrative",
+            status="active",
+            tags=("auto-apply:entity-type:QUEST@1",),
+        ),
+    )
+    registry = DomainRegistryV1(
+        registry_version="spec-domains@1",
+        definitions=definitions,
+        registry_digest=compute_domain_registry_digest("spec-domains@1", definitions),
+    )
+    snapshot = Snapshot.from_entities_relations(
+        [Entity(id="q:spec", type=NodeType.QUEST)],
+        [],
+    )
+
+    with pytest.raises(Conflict, match="does not cover"):
+        _validate_spec_domain_scope(
+            snapshot=snapshot,
+            registry=registry,
+            declared=DomainScope(domain_ids=("economy",)),
+        )
+
+
+def test_spec_upload_requires_current_domain_permission(tmp_path: Path) -> None:
+    harness = build_harness(tmp_path)
+    with Session(harness.engine) as session, session.begin():
+        SqlIdentityRepository(session, clock=harness.clock).create(
+            principal_id="human:no-role",
+            kind="human",
+            display_name="No Role",
+        )
+    harness.use_actor(actor_context(harness, "human:no-role"))
+    with Session(harness.engine) as session:
+        before = len(session.scalars(select(ArtifactRow)).all())
+
+    with _client(harness) as client:
+        forbidden = client.post(
+            "/api/v1/specs",
+            json=_spec_payload(),
+            headers=headers(key="spec:no-role"),
+        )
+        harness.use_actor(maker_actor(harness))
+        allowed = client.post(
+            "/api/v1/specs",
+            json=_spec_payload(),
+            headers=headers(key="spec:authorized"),
+        )
+
+    assert forbidden.status_code == 403, forbidden.text
+    assert allowed.status_code == 201, allowed.text
+    assert allowed.json()["ref_value"]["revision"] == 1
+    with Session(harness.engine) as session:
+        assert len(session.scalars(select(ArtifactRow)).all()) == before + 1
 
 
 def _patch_payload(harness) -> dict:

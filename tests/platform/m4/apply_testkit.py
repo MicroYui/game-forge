@@ -119,6 +119,26 @@ def _roles(registry: DomainRegistryV1) -> RolePolicy:
     grants = {
         "numeric_designer": (
             Permission(
+                action="propose",
+                resource_kind="patch",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
+                action="propose",
+                resource_kind="constraint_proposal",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
+                action="propose",
+                resource_kind="rollback_request",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
+                action="propose",
+                resource_kind="spec",
+                domain_scope=DomainScope(domain_ids=("economy",)),
+            ),
+            Permission(
                 action="approval.decide",
                 resource_kind="approval",
                 domain_scope=DomainScope(domain_ids=("economy",)),
@@ -718,11 +738,7 @@ def harness(
             parents=(
                 (current.artifact_id, target.artifact_id)
                 if kind == "rollback_request"
-                else (
-                    (prior_constraint.artifact_id,)
-                    if prior_constraint is not None
-                    else ()
-                )
+                else ((prior_constraint.artifact_id,) if prior_constraint is not None else ())
             ),
         ),
     )

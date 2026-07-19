@@ -97,6 +97,7 @@ from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.conflicts import SqlConflictSetRepository
 from gameforge.runtime.persistence.cost import SqlCostRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
+from gameforge.runtime.persistence.engine import sqlite_read_snapshot_session
 from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.models import RunFindingLinkRow
@@ -237,20 +238,20 @@ class _ArtifactDomainAuthority:
             raise IntegrityViolation("content domain registry has no retained domains")
 
     def resolve(self, artifact: ArtifactV1 | ArtifactV2) -> DomainScope:
+        # M4 producers freeze the resource scope on lineage@2 Artifacts.  Lineage is
+        # provenance, so only legacy unscoped Artifacts need ancestry fallback.
+        if isinstance(artifact, ArtifactV2):
+            direct_scope = self._bound_scope(artifact)
+            if direct_scope is not None:
+                return direct_scope
+
         ordered, parents = self._bounded_lineage(artifact)
         resolved: dict[str, DomainScope | None] = {}
         for current in ordered:
             if self._domain_neutral_leaf(current):
                 resolved[current.artifact_id] = None
                 continue
-            explicit = self._explicit_scope(current)
-            typed = self._typed_scope(current)
-            if explicit is not None and typed is not None and explicit != typed:
-                raise IntegrityViolation(
-                    "Artifact metadata and typed payload domains disagree",
-                    artifact_id=current.artifact_id,
-                )
-            resolved_authority = explicit or typed
+            resolved_authority = self._bound_scope(current)
             parent_scopes = tuple(
                 scope
                 for parent in parents[current.artifact_id]
@@ -283,6 +284,16 @@ class _ArtifactDomainAuthority:
                 artifact_id=artifact.artifact_id,
             )
         return root_scope
+
+    def _bound_scope(self, artifact: ArtifactV1 | ArtifactV2) -> DomainScope | None:
+        explicit = self._explicit_scope(artifact)
+        typed = self._typed_scope(artifact)
+        if explicit is not None and typed is not None and explicit != typed:
+            raise IntegrityViolation(
+                "Artifact metadata and typed payload domains disagree",
+                artifact_id=artifact.artifact_id,
+            )
+        return explicit or typed
 
     def legacy_workflow_fallback_allowed(self, artifact: ArtifactV1 | ArtifactV2) -> bool:
         """Return true only when the complete retained lineage predates domain claims."""
@@ -844,6 +855,11 @@ def build_local_read_services(
 
     @contextmanager
     def session_scope():
+        with sqlite_read_snapshot_session(engine) as session:
+            yield session
+
+    @contextmanager
+    def snapshot_write_scope():
         session = Session(engine)
         session.connection().exec_driver_sql("BEGIN IMMEDIATE")
         try:
@@ -888,6 +904,7 @@ def build_local_read_services(
             page_size=page_size,
             snapshot_ttl=_SNAPSHOT_TTL,
             max_materialized_items=_MAX_MATERIALIZED_ITEMS,
+            snapshot_session_factory=snapshot_write_scope,
         )
 
     @contextmanager
@@ -954,6 +971,7 @@ def build_local_read_services(
                     cursor_signer=cursor_signer,
                     clock=selected_clock,
                     snapshot_ttl=_SNAPSHOT_TTL,
+                    snapshot_session_factory=snapshot_write_scope,
                 ),
                 payload_reader=payload_reader,
                 payload_bindings=payload_bindings,
@@ -970,6 +988,7 @@ def build_local_read_services(
                     cursor_signer=cursor_signer,
                     clock=selected_clock,
                     snapshot_ttl=_SNAPSHOT_TTL,
+                    snapshot_session_factory=snapshot_write_scope,
                 ),
                 diffs=unavailable,
                 bench_reports=unavailable,

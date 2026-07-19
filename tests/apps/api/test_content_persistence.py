@@ -696,44 +696,6 @@ def test_sql_approval_content_authority_rejects_duplicate_evidence_set_domains(
             authority.for_artifact(evidence, resource_kind="artifact")
 
 
-def test_sql_approval_content_authority_rejects_subject_evidence_binding_conflict(
-    engine: Engine,
-) -> None:
-    conflicted = _artifact("patch:conflicted", kind="patch", payload_hash="3" * 64)
-    other = _artifact("patch:other", kind="patch", payload_hash="4" * 64)
-    with Session(engine) as session, session.begin():
-        artifacts = _artifacts(session)
-        artifacts.put(conflicted)
-        approvals = SqlApprovalRepository(session)
-        subject_item = _patch_approval(conflicted.artifact_id, conflicted.payload_hash or "")
-        approvals.insert_draft(subject_item)
-        approvals.compare_and_set_subject_head(
-            subject_item.subject_series_id,
-            None,
-            SubjectHead(
-                subject_series_id=subject_item.subject_series_id,
-                current_subject_artifact_id=subject_item.subject_artifact_id,
-                current_approval_id=subject_item.approval_id,
-                revision=1,
-            ),
-        )
-        _publish_validated_patch(
-            session,
-            approvals=approvals,
-            subject=other,
-            evidence=conflicted,
-            series_id="series:other",
-        )
-        authority = _approval_authority(
-            session,
-            approvals=approvals,
-            artifacts=artifacts,
-        )
-
-        with pytest.raises(IntegrityViolation, match="multiple ApprovalItem resource roles"):
-            authority.for_artifact(conflicted, resource_kind="artifact")
-
-
 def test_sql_approval_content_authority_binds_regression_evidence_domain(
     engine: Engine,
 ) -> None:
@@ -767,11 +729,6 @@ def test_sql_approval_content_authority_binds_regression_evidence_domain(
         )
 
         permission = authority.for_artifact(regression, resource_kind="artifact")
-        with pytest.raises(IntegrityViolation, match="wrong-kind"):
-            authority.for_artifact(
-                regression.model_copy(update={"kind": "ir_snapshot"}),
-                resource_kind="artifact",
-            )
 
     assert permission.domain_scope == item.domain_scope
 

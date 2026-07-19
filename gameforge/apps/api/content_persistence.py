@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from contextlib import AbstractContextManager
 from datetime import timedelta
 
 from pydantic import JsonValue, ValidationError
@@ -62,10 +63,10 @@ _INDEX_KINDS: dict[str, ArtifactKind] = {
     "reviews": "review_report",
     "task_suites": "task_suite",
 }
-_SUBJECT_PAYLOAD_SCHEMAS: dict[str, tuple[ArtifactKind, str]] = {
-    "patch": ("patch", "patch@2"),
-    "constraint_proposal": ("constraint_proposal", "constraint-proposal@1"),
-    "rollback_request": ("rollback_request", "rollback-request@1"),
+_SUBJECT_PAYLOAD_SCHEMAS: dict[str, str] = {
+    "patch": "patch@2",
+    "constraint_proposal": "constraint-proposal@1",
+    "rollback_request": "rollback-request@1",
 }
 
 
@@ -110,98 +111,75 @@ class SqlApprovalPayloadBindingProvider:
         self._artifacts = artifacts
 
     def resolve(self, artifact_id: str) -> TrustedArtifactPayloadBinding | None:
-        candidates: set[tuple[ArtifactKind, str]] = set()
-
-        subject_kinds = self._session.scalars(
-            select(ApprovalItemRow.subject_kind)
-            .where(ApprovalItemRow.subject_artifact_id == artifact_id)
-            .distinct()
-            .limit(2)
-        ).all()
-        if len(subject_kinds) > 1:
-            raise IntegrityViolation(
-                "one Artifact is bound to conflicting approval subject kinds",
-                artifact_id=artifact_id,
-            )
-        if subject_kinds:
-            subject_kind = subject_kinds[0]
-            expected = _SUBJECT_PAYLOAD_SCHEMAS.get(subject_kind)
-            if expected is None:
-                raise IntegrityViolation(
-                    "approval subject kind has no frozen payload schema",
-                    artifact_id=artifact_id,
-                )
+        artifact = self._artifacts.get(artifact_id)
+        if type(artifact) is not ArtifactV2:
+            return None
+        if artifact.kind in _SUBJECT_PAYLOAD_SCHEMAS:
             approval_id = self._session.scalar(
                 select(ApprovalItemRow.approval_id)
-                .where(
-                    ApprovalItemRow.subject_artifact_id == artifact_id,
-                    ApprovalItemRow.subject_kind == subject_kind,
-                )
+                .where(ApprovalItemRow.subject_artifact_id == artifact_id)
                 .order_by(ApprovalItemRow.approval_id)
                 .limit(1)
             )
-            item = None if approval_id is None else self._approvals.get(approval_id)
-            if item is None or item.subject_artifact_id != artifact_id:
+            if approval_id is None:
+                return None
+            item = self._approvals.get(approval_id)
+            if (
+                item is None
+                or item.subject_artifact_id != artifact_id
+                or item.subject_kind != artifact.kind
+            ):
                 raise IntegrityViolation(
                     "approval subject payload binding is not retained",
                     artifact_id=artifact_id,
                 )
-            candidates.add(expected)
-
-        evidence_approval_id = self._session.scalar(
-            select(ApprovalItemRow.approval_id)
-            .where(ApprovalItemRow.evidence_set_artifact_id == artifact_id)
-            .order_by(ApprovalItemRow.approval_id)
-            .limit(1)
-        )
-        if evidence_approval_id is not None:
-            item = self._approvals.get(evidence_approval_id)
+            payload_schema_id = _SUBJECT_PAYLOAD_SCHEMAS[artifact.kind]
+        elif artifact.kind == "validation_evidence":
+            approval_id = self._session.scalar(
+                select(ApprovalItemRow.approval_id)
+                .where(ApprovalItemRow.evidence_set_artifact_id == artifact_id)
+                .order_by(ApprovalItemRow.approval_id)
+                .limit(1)
+            )
+            if approval_id is None:
+                return None
+            item = self._approvals.get(approval_id)
             if item is None or item.evidence_set_artifact_id != artifact_id:
                 raise IntegrityViolation(
                     "approval EvidenceSet payload binding is not retained",
                     artifact_id=artifact_id,
                 )
-            candidates.add(("validation_evidence", "evidence-set@1"))
-
-        regression_values = func.json_each(
-            ApprovalItemRow.regression_evidence_artifact_ids
-        ).table_valued("key", "value")
-        regression_approval_ids = self._session.scalars(
-            select(ApprovalItemRow.approval_id)
-            .select_from(ApprovalItemRow)
-            .join(regression_values, true())
-            .where(regression_values.c.value == artifact_id)
-            .order_by(ApprovalItemRow.approval_id)
-            .limit(2)
-        ).all()
-        if len(regression_approval_ids) > 1:
-            raise IntegrityViolation(
-                "one regression Evidence Artifact is bound to multiple ApprovalItems",
-                artifact_id=artifact_id,
-            )
-        if regression_approval_ids:
-            item = self._approvals.get(regression_approval_ids[0])
+            payload_schema_id = "evidence-set@1"
+        elif artifact.kind == "regression_evidence":
+            regression_values = func.json_each(
+                ApprovalItemRow.regression_evidence_artifact_ids
+            ).table_valued("key", "value")
+            approval_ids = self._session.scalars(
+                select(ApprovalItemRow.approval_id)
+                .select_from(ApprovalItemRow)
+                .join(regression_values, true())
+                .where(regression_values.c.value == artifact_id)
+                .order_by(ApprovalItemRow.approval_id)
+                .limit(2)
+            ).all()
+            if not approval_ids:
+                return None
+            if len(approval_ids) != 1:
+                raise IntegrityViolation(
+                    "one regression Evidence Artifact is bound to multiple ApprovalItems",
+                    artifact_id=artifact_id,
+                )
+            item = self._approvals.get(approval_ids[0])
             if item is None or artifact_id not in item.regression_evidence_artifact_ids:
                 raise IntegrityViolation(
                     "approval regression Evidence payload binding is not retained",
                     artifact_id=artifact_id,
                 )
-            candidates.add(("regression_evidence", "regression-evidence@1"))
-
-        if not candidates:
+            payload_schema_id = "regression-evidence@1"
+        else:
             return None
-        if len(candidates) != 1:
-            raise IntegrityViolation(
-                "one Artifact is bound to conflicting approval payload schemas",
-                artifact_id=artifact_id,
-            )
-        artifact = self._artifacts.get(artifact_id)
-        if type(artifact) is not ArtifactV2:
-            return None
-        expected_kind, payload_schema_id = next(iter(candidates))
         metadata_schema = artifact.meta.get("payload_schema_id")
-        metadata_conflict = metadata_schema is not None and metadata_schema != payload_schema_id
-        if artifact.kind != expected_kind or metadata_conflict:
+        if metadata_schema is not None and metadata_schema != payload_schema_id:
             raise IntegrityViolation(
                 "workflow payload binding differs from the retained Artifact metadata",
                 artifact_id=artifact_id,
@@ -373,32 +351,23 @@ class SqlApprovalContentAuthority:
         *,
         resource_kind: str,
     ) -> Permission:
-        subject_item = self._retained_item(artifact.artifact_id)
-        evidence_item = self._retained_evidence_item(artifact.artifact_id)
-        regression_item = self._retained_regression_item(artifact.artifact_id)
-        bound_items = tuple(
-            item for item in (subject_item, evidence_item, regression_item) if item is not None
-        )
-        if len(bound_items) > 1:
-            raise IntegrityViolation(
-                "one Artifact is bound to multiple ApprovalItem resource roles",
-                artifact_id=artifact.artifact_id,
-            )
-        item = bound_items[0] if bound_items else None
+        if artifact.kind in {"patch", "constraint_proposal", "rollback_request"}:
+            item = self._retained_item(artifact.artifact_id)
+            if item is not None and item.subject_kind != artifact.kind:
+                raise IntegrityViolation(
+                    "ApprovalItem subject kind differs from its Artifact",
+                    artifact_id=artifact.artifact_id,
+                )
+        elif artifact.kind == "validation_evidence":
+            item = self._retained_evidence_item(artifact.artifact_id)
+        elif artifact.kind == "regression_evidence":
+            item = self._retained_regression_item(artifact.artifact_id)
+        else:
+            item = None
         if item is None:
             raise DependencyUnavailable(
                 "content domain authority is unavailable",
                 component="content_producer_binding",
-                artifact_id=artifact.artifact_id,
-            )
-        if regression_item is not None and artifact.kind != "regression_evidence":
-            raise IntegrityViolation(
-                "ApprovalItem regression binding points to a wrong-kind Artifact",
-                artifact_id=artifact.artifact_id,
-            )
-        if evidence_item is not None and artifact.kind != "validation_evidence":
-            raise IntegrityViolation(
-                "ApprovalItem EvidenceSet binding points to a wrong-kind Artifact",
                 artifact_id=artifact.artifact_id,
             )
         return Permission(
@@ -536,12 +505,14 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
         cursor_signer: CursorSigner,
         clock: UtcClock,
         snapshot_ttl: timedelta,
+        snapshot_session_factory: Callable[[], AbstractContextManager[Session]] | None = None,
     ) -> None:
         self._session = session
         self._artifacts = artifacts
         self._cursor_signer = cursor_signer
         self._clock = clock
         self._snapshot_ttl = snapshot_ttl
+        self._snapshot_session_factory = snapshot_session_factory
 
     def page(
         self,
@@ -561,13 +532,6 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
                 "filtered immutable Artifact index is not available before its producer index",
                 component="artifact_filter_index",
             )
-        repository = SqlImmutableReadViewRepository[ArtifactV1 | ArtifactV2](
-            self._session,
-            cursor_signer=self._cursor_signer,
-            clock=self._clock,
-            page_size=page_size,
-            snapshot_ttl=self._snapshot_ttl,
-        )
 
         def high_watermark() -> int:
             value = self._session.scalar(
@@ -617,12 +581,24 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
                 )
             return tuple(result)
 
-        return repository.page(
-            binding=_immutable_binding(binding),
-            cursor=cursor,
-            high_watermark=high_watermark,
-            load_candidates=load_candidates,
-        )
+        def retained_page(snapshot_session: Session) -> PageV1[ArtifactV1 | ArtifactV2]:
+            return SqlImmutableReadViewRepository[ArtifactV1 | ArtifactV2](
+                snapshot_session,
+                cursor_signer=self._cursor_signer,
+                clock=self._clock,
+                page_size=page_size,
+                snapshot_ttl=self._snapshot_ttl,
+            ).page(
+                binding=_immutable_binding(binding),
+                cursor=cursor,
+                high_watermark=high_watermark,
+                load_candidates=load_candidates,
+            )
+
+        if cursor is None and self._snapshot_session_factory is not None:
+            with self._snapshot_session_factory() as snapshot_session:
+                return retained_page(snapshot_session)
+        return retained_page(self._session)
 
     def page_lineage(
         self,
@@ -632,14 +608,6 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
         binding: ReadPageBinding,
         page_size: int,
     ) -> PageV1[LineageSourceEntry]:
-        repository = SqlImmutableReadViewRepository[LineageSourceEntry](
-            self._session,
-            cursor_signer=self._cursor_signer,
-            clock=self._clock,
-            page_size=page_size,
-            snapshot_ttl=self._snapshot_ttl,
-        )
-
         def high_watermark() -> int:
             value = self._session.scalar(
                 select(func.coalesce(func.max(_ARTIFACT_ROWID), 0)).select_from(ArtifactRow)
@@ -683,12 +651,24 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
                 for entry, sequence in entries[start : start + limit]
             )
 
-        return repository.page(
-            binding=_immutable_binding(binding),
-            cursor=cursor,
-            high_watermark=high_watermark,
-            load_candidates=load_candidates,
-        )
+        def retained_page(snapshot_session: Session) -> PageV1[LineageSourceEntry]:
+            return SqlImmutableReadViewRepository[LineageSourceEntry](
+                snapshot_session,
+                cursor_signer=self._cursor_signer,
+                clock=self._clock,
+                page_size=page_size,
+                snapshot_ttl=self._snapshot_ttl,
+            ).page(
+                binding=_immutable_binding(binding),
+                cursor=cursor,
+                high_watermark=high_watermark,
+                load_candidates=load_candidates,
+            )
+
+        if cursor is None and self._snapshot_session_factory is not None:
+            with self._snapshot_session_factory() as snapshot_session:
+                return retained_page(snapshot_session)
+        return retained_page(self._session)
 
     def _lineage_entries(
         self,
@@ -759,12 +739,14 @@ class SqlRefHistoryReadProvider(RefHistoryReadProvider):
         cursor_signer: CursorSigner,
         clock: UtcClock,
         snapshot_ttl: timedelta,
+        snapshot_session_factory: Callable[[], AbstractContextManager[Session]] | None = None,
     ) -> None:
         self._session = session
         self._refs = refs
         self._cursor_signer = cursor_signer
         self._clock = clock
         self._snapshot_ttl = snapshot_ttl
+        self._snapshot_session_factory = snapshot_session_factory
 
     def get_current(self, ref_name: str) -> RefValue | None:
         return self._refs.get(ref_name)
@@ -780,13 +762,6 @@ class SqlRefHistoryReadProvider(RefHistoryReadProvider):
         current = self._refs.get(ref_name)
         if current is None:
             raise IntegrityViolation("ref history requested for a missing ref", ref_name=ref_name)
-        repository = SqlImmutableReadViewRepository[RefValue](
-            self._session,
-            cursor_signer=self._cursor_signer,
-            clock=self._clock,
-            page_size=page_size,
-            snapshot_ttl=self._snapshot_ttl,
-        )
 
         def high_watermark() -> int:
             value = self._session.scalar(
@@ -836,12 +811,24 @@ class SqlRefHistoryReadProvider(RefHistoryReadProvider):
                 expected += 1
             return tuple(result)
 
-        return repository.page(
-            binding=_immutable_binding(binding),
-            cursor=cursor,
-            high_watermark=high_watermark,
-            load_candidates=load_candidates,
-        )
+        def retained_page(snapshot_session: Session) -> PageV1[RefValue]:
+            return SqlImmutableReadViewRepository[RefValue](
+                snapshot_session,
+                cursor_signer=self._cursor_signer,
+                clock=self._clock,
+                page_size=page_size,
+                snapshot_ttl=self._snapshot_ttl,
+            ).page(
+                binding=_immutable_binding(binding),
+                cursor=cursor,
+                high_watermark=high_watermark,
+                load_candidates=load_candidates,
+            )
+
+        if cursor is None and self._snapshot_session_factory is not None:
+            with self._snapshot_session_factory() as snapshot_session:
+                return retained_page(snapshot_session)
+        return retained_page(self._session)
 
 
 __all__ = [

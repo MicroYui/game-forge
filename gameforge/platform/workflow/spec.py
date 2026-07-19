@@ -16,8 +16,13 @@ from typing import Any
 from pydantic import ValidationError
 
 from gameforge.contracts.api import ArtifactSummaryV1, SpecViewV1
-from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.identity import DomainScope
+from gameforge.contracts.errors import DependencyUnavailable, Forbidden, IntegrityViolation
+from gameforge.contracts.identity import (
+    DomainRegistryV1,
+    DomainScope,
+    Permission,
+    RolePolicy,
+)
 from gameforge.contracts.lineage import (
     ArtifactV2,
     AuditCorrelation,
@@ -30,6 +35,7 @@ from gameforge.platform.approvals.commands import (
     ApprovalUnitOfWork,
     PreparedObjectBinding,
 )
+from gameforge.platform.rbac.authorization import AuthorizationDecision, authorize
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,6 +58,8 @@ class SpecUploadCapabilities:
     object_bindings: Any
     audit: Any
     idempotency: Any
+    policies: Any
+    principals: Any
 
 
 SpecCapabilityBinder = Callable[[Any], SpecUploadCapabilities]
@@ -71,13 +79,17 @@ class SpecUploadService:
         bind_capabilities: SpecCapabilityBinder,
         clock: UtcClock,
         audit_chain_id: str,
+        role_policy_version: str,
+        role_policy_digest: str,
     ) -> None:
-        if not audit_chain_id:
-            raise ValueError("audit_chain_id must be non-empty")
+        if not audit_chain_id or not role_policy_version or not role_policy_digest:
+            raise ValueError("spec upload authority identifiers must be non-empty")
         self._unit_of_work = unit_of_work
         self._bind_capabilities = bind_capabilities
         self._clock = clock
         self._audit_chain_id = audit_chain_id
+        self._role_policy_version = role_policy_version
+        self._role_policy_digest = role_policy_digest
 
     def upload(
         self,
@@ -92,6 +104,7 @@ class SpecUploadService:
             bindings = _required(capabilities.object_bindings, "object_bindings")
             audit = _required(capabilities.audit, "audit")
             idempotency = _required(capabilities.idempotency, "idempotency")
+            self._authorize(plan=plan, context=context, capabilities=capabilities)
 
             replay = idempotency.get_result(
                 scope=context.idempotency_scope,
@@ -148,6 +161,57 @@ class SpecUploadService:
             if dict(stored) != view.model_dump(mode="json"):
                 raise IntegrityViolation("idempotency repository stored another spec response")
             return view
+
+    def _authorize(
+        self,
+        *,
+        plan: SpecPublicationPlan,
+        context: ApprovalCommandContext,
+        capabilities: SpecUploadCapabilities,
+    ) -> None:
+        policies = _required(capabilities.policies, "policies")
+        principals = _required(capabilities.principals, "principals")
+        role_policy = policies.get_role_policy(
+            self._role_policy_version,
+            self._role_policy_digest,
+        )
+        if not isinstance(role_policy, RolePolicy):
+            raise DependencyUnavailable(
+                "spec upload role policy is unavailable",
+                component="spec_upload_authorization",
+            )
+        registry = policies.get_domain_registry(role_policy.domain_registry_ref)
+        if not isinstance(registry, DomainRegistryV1):
+            raise DependencyUnavailable(
+                "spec upload domain registry is unavailable",
+                component="spec_upload_authorization",
+            )
+        active_domains = {
+            definition.domain_id
+            for definition in registry.definitions
+            if definition.status == "active"
+        }
+        if not set(plan.domain_scope.domain_ids) <= active_domains:
+            raise Forbidden("spec upload selects an inactive domain")
+        if context.initiated_by is not None or context.actor.principal_kind != "human":
+            raise Forbidden("spec upload requires a direct human actor")
+        principal = principals.get(context.actor.principal_id)
+        if principal is None or principal.kind != "human":
+            raise Forbidden("spec upload actor has no current human principal")
+        if (
+            authorize(
+                principal=principal,
+                role_policy=role_policy,
+                requested_permission=Permission(
+                    action="propose",
+                    resource_kind="spec",
+                    domain_scope=plan.domain_scope,
+                ),
+                domain_registry=registry,
+            )
+            is not AuthorizationDecision.ALLOW
+        ):
+            raise Forbidden("spec upload actor lacks the current domain permission")
 
     def _view(self, plan: SpecPublicationPlan, ref_value: RefValue) -> SpecViewV1:
         return SpecViewV1(

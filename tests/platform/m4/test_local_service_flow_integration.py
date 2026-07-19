@@ -1009,12 +1009,7 @@ def _seed_governance(
         policies.put_execution_profile_catalog(catalog)
 
         identities = SqlIdentityRepository(session, clock=clock)
-        identities.create(
-            principal_id="human:maker",
-            kind="human",
-            display_name="Maker",
-        )
-        for principal_id in ("human:reviewer", "human:operator"):
+        for principal_id in ("human:maker", "human:reviewer", "human:operator"):
             principal = identities.create(
                 principal_id=principal_id,
                 kind="human",
@@ -1347,6 +1342,7 @@ def test_local_service_flow_persists_apply_and_approved_rollback_authority(
         return ApprovalCommandCapabilities(
             approvals=transaction.approvals,
             policies=transaction.lineage,
+            principals=transaction.cost,
             artifacts=transaction.lineage,
             object_bindings=transaction.object_bindings,
             idempotency=transaction.lineage,

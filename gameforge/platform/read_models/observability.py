@@ -344,6 +344,12 @@ class _ObservabilityReadOperations:
             filters={"run_id": run_id, "limit": exact_limit},
             projection="trace-summary-page@1",
         )
+        singular_binding, _ = self._authorize_runs(
+            principal=principal,
+            run_ids=(run_id,),
+            resource_kind="trace",
+            query_hash=query_hash,
+        )
         related_run_ids = self._port.get_run_trace_scope(run_id)
         if (
             type(related_run_ids) is not tuple
@@ -351,12 +357,6 @@ class _ObservabilityReadOperations:
             or run_id not in related_run_ids
         ):
             raise IntegrityViolation("Run trace scope authority returned an invalid scope")
-        singular_binding, _ = self._authorize_runs(
-            principal=principal,
-            run_ids=(run_id,),
-            resource_kind="trace",
-            query_hash=query_hash,
-        )
         related_scopes = self._load_run_scopes(related_run_ids)
         authorized = self._authorization.filter_collection(
             principal=principal,

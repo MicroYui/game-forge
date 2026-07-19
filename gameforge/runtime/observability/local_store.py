@@ -370,6 +370,11 @@ class LocalTelemetryStore:
                     ON spans(trace_id, started_at, span_id);
                 CREATE INDEX IF NOT EXISTS ix_spans_ended ON spans(ended_at);
                 CREATE INDEX IF NOT EXISTS ix_spans_run ON spans(run_id, started_at);
+                CREATE INDEX IF NOT EXISTS ix_spans_producer_run
+                    ON spans(
+                        json_extract(payload, '$.attributes.producer_run_id'),
+                        started_at
+                    );
                 CREATE INDEX IF NOT EXISTS ix_spans_service ON spans(service, started_at);
 
                 CREATE TABLE IF NOT EXISTS logs (

@@ -223,6 +223,10 @@ def build_harness(
         cursor_signing_key=OBJECT_CURSOR_KEY,
     )
     catalog = execution_profile_catalog or _profile_catalog()
+    registry = apply_testkit._registry()
+    route = apply_testkit._route(registry)
+    roles = apply_testkit._roles(registry)
+    approval_policy = apply_testkit._approval_policy()
     _seed_governance(engine, clock=clock, catalog=catalog)
     run_results: dict[str, Any] = {}
 
@@ -330,6 +334,8 @@ def build_harness(
             object_bindings=transaction.object_bindings,
             audit=AuditGate(sink=transaction.audit, clock=clock),
             idempotency=transaction.lineage,
+            policies=transaction.lineage,
+            principals=transaction.cost,
         )
 
     commands = ApprovalCommandService(
@@ -356,6 +362,8 @@ def build_harness(
         bind_capabilities=spec_capabilities,
         clock=clock,
         audit_chain_id=AUDIT_CHAIN_ID,
+        role_policy_version=roles.policy_version,
+        role_policy_digest=roles.policy_digest,
     )
 
     def _read_readers(session: Session) -> WorkflowTypedReaders:
@@ -394,10 +402,6 @@ def build_harness(
         audit_chain_id=AUDIT_CHAIN_ID,
     )
 
-    registry = apply_testkit._registry()
-    route = apply_testkit._route(registry)
-    roles = apply_testkit._roles(registry)
-    approval_policy = apply_testkit._approval_policy()
     governance = WorkflowGovernance(
         registry=registry,
         route=route,
