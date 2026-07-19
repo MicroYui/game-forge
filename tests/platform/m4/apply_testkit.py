@@ -898,11 +898,27 @@ def harness(
             ref_name=binding.ref_name,
             expected_ref=RefValue(artifact_id=base.artifact_id, revision=1),
         )
+        reversed_evidence = _put_stored(
+            state,
+            stored_artifact(
+                "validation_evidence",
+                "reversed-evidence",
+                parents=(reversed_subject.artifact_id, current.artifact_id),
+            ),
+        )
+        state.evidence_sets[reversed_evidence.artifact_id] = evidence_payload.model_copy(
+            update={
+                "subject_artifact_id": reversed_subject.artifact_id,
+                "subject_digest": reversed_subject.payload_hash,
+                "validation_run_id": "run:validation:reversed",
+                "target_binding": reversed_binding,
+            }
+        )
         reversed_item = _approved_item(
             kind="patch",
             subject=reversed_subject,
             target_binding=reversed_binding,
-            evidence=evidence,
+            evidence=reversed_evidence,
             registry=registry,
             route=route,
             roles=roles,

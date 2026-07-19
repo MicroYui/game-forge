@@ -575,4 +575,12 @@ uv run pytest tests/contracts/test_cassette.py tests/contracts/m4b/test_router_c
 
 ## Completion Evidence
 
-Fill only after all tasks pass. Record the M4b baseline commit, focused M4c result, non-Bench and Bench partition totals, migration round-trip, OpenAPI/streaming compatibility result, dependency-lint/import-linter results, touched-file format result, historical-cassette compatibility plus any new explicitly M4c-scoped replay fixtures, and the exact Journey A/B/constraint E2E results. Completion of this document proves only M4c; M4d UI and M4e production/DR adapters remain unimplemented.
+- **Baseline:** M4b tip `e0b9948b`; M4c Task 18 tip `f414a5bb`.
+- **Focused M4c:** contracts/auth/platform/API/worker/E2E partition `2316 passed`.
+- **Repository partitions:** non-Bench `4766 passed, 1 skipped`; Bench `761 passed`. M3 `qa.evidence_missing` remains unchanged.
+- **Persistence and wire compatibility:** migration forward/rollback suite `35 passed`; frozen OpenAPI/streaming suite `73 passed`; all 4 generated API artifacts match the committed bytes.
+- **Boundaries and engineering gates:** import-linter `7 kept, 0 broken`; dependency lint `27 passed`; Ruff clean; all 426 Python files changed since the M4b baseline pass `ruff format --check`; `uv lock --check` and `git diff --check` pass.
+- **Cassette compatibility:** historical cassette/router/narrative suite `12 passed`; no historical cassette bytes changed. Journey A and constraint publication use hermetic, M4c-scoped native RECORD bootstrap bundles followed by distinct REPLAY Runs, with external egress denied.
+- **End-to-end journeys:** Journey A plus constraint-publication/failure recovery `9 passed`; Journey B `5 passed`. The Task 19 regression run exposed one legacy rollback fixture that reused a subject-mismatched EvidenceSet across ApprovalItems; the fixture now creates exact per-subject evidence, while the production single-owner point index remains unchanged.
+
+This evidence proves only M4c. M4d UI and M4e production/DR adapters remain unimplemented.
