@@ -8,6 +8,7 @@ import { expect, test, type Browser, type BrowserContext, type Locator, type Pag
 
 import {
   DEMO_PROVENANCE_LABEL,
+  DEMO_README_FRAMES,
   DEMO_SCENES,
   DEMO_TARGET_DURATION_MS,
   type DemoScene,
@@ -1096,22 +1097,48 @@ async function renderDemoOverlay(page: Page, scene: DemoScene): Promise<void> {
 async function showDemoScene(
   page: Page,
   key: string,
-  options: { secondaryTarget?: Locator; target?: Locator } = {},
+  options: {
+    capturePath?: string;
+    capturePosition?: "primary" | "secondary";
+    secondaryTarget?: Locator;
+    target?: Locator;
+  } = {},
 ): Promise<void> {
   const scene = requiredDemoScene(key);
   if (options.target) await scrollDemoTarget(page, options.target);
   await renderDemoOverlay(page, scene);
+  if (options.capturePath && options.capturePosition !== "secondary") {
+    await page.screenshot({ animations: "disabled", path: options.capturePath });
+  }
 
   if (options.secondaryTarget) {
     const firstHold = Math.floor(scene.holdMs / 2);
     await page.waitForTimeout(firstHold);
     const beforeScroll = Date.now();
     await scrollDemoTarget(page, options.secondaryTarget);
+    if (options.capturePath && options.capturePosition === "secondary") {
+      await page.screenshot({ animations: "disabled", path: options.capturePath });
+    }
     const scrollDuration = Date.now() - beforeScroll;
     await page.waitForTimeout(Math.max(0, scene.holdMs - firstHold - scrollDuration));
     return;
   }
+  if (options.capturePath && options.capturePosition === "secondary") {
+    throw new Error(`README demo frame ${key} requires a secondary target.`);
+  }
   await page.waitForTimeout(scene.holdMs);
+}
+
+function readmeFrameCapture(
+  directory: string,
+  sceneKey: string,
+): { capturePath: string; capturePosition: "primary" | "secondary" } {
+  const frame = DEMO_README_FRAMES.find((candidate) => candidate.sceneKey === sceneKey);
+  if (frame === undefined) throw new Error(`Unknown README demo frame: ${sceneKey}`);
+  return {
+    capturePath: join(directory, frame.filename),
+    capturePosition: frame.capturePosition,
+  };
 }
 
 async function openDemoPage(page: Page, href: string, ready: Locator): Promise<void> {
@@ -1156,9 +1183,10 @@ async function recordJourneyADemo(
 ): Promise<void> {
   const outputDir = process.env.GAMEFORGE_DEMO_OUTPUT_DIR ?? resolve(repoRoot, "web/test-results/demo-v1");
   const rawDir = join(outputDir, "raw-v2-zh");
+  const readmeFramesDir = join(outputDir, "readme-frames-v2-zh");
   const outputPath = join(outputDir, "gameforge-journey-a-silent-v2-zh.webm");
   const coverPath = join(outputDir, "gameforge-journey-a-silent-v2-zh-cover.png");
-  await mkdir(rawDir, { recursive: true });
+  await Promise.all([mkdir(rawDir, { recursive: true }), mkdir(readmeFramesDir, { recursive: true })]);
 
   const demoContext = await browser.newContext({
     baseURL: stack.baseURL,
@@ -1189,9 +1217,11 @@ async function recordJourneyADemo(
     );
     await showDemoScene(demoPage, "intro");
     await showDemoScene(demoPage, "spec", {
+      ...readmeFrameCapture(readmeFramesDir, "spec"),
       target: demoPage.getByRole("heading", { level: 1, name: "规格详情" }),
     });
     await showDemoScene(demoPage, "graph", {
+      ...readmeFrameCapture(readmeFramesDir, "graph"),
       target: demoPage.getByRole("heading", { name: "有界知识图谱" }),
     });
 
@@ -1201,6 +1231,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { name: "generation_gate_passed" }),
     );
     await showDemoScene(demoPage, "generation", {
+      ...readmeFrameCapture(readmeFramesDir, "generation"),
       secondaryTarget: demoPage.getByRole("heading", { name: "Patch → preview → config" }),
       target: demoPage.getByRole("heading", { name: "Preliminary gate" }),
     });
@@ -1216,6 +1247,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { level: 1, name: "Review Report" }),
     );
     await showDemoScene(demoPage, "review", {
+      ...readmeFrameCapture(readmeFramesDir, "review"),
       secondaryTarget: demoPage.getByRole("heading", { name: "Exact authority ledger" }),
       target: demoPage.getByRole("list", { name: "Finding 分区计数" }),
     });
@@ -1226,6 +1258,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { name: "Run 已完成，任务未全部通过" }),
     );
     await showDemoScene(demoPage, "failed-playtest", {
+      ...readmeFrameCapture(readmeFramesDir, "failed-playtest"),
       secondaryTarget: demoPage.getByRole("heading", { name: "Episode 结果与轨迹" }),
       target: demoPage.getByRole("heading", { name: "Run 已完成，任务未全部通过" }),
     });
@@ -1236,6 +1269,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
     );
     await showDemoScene(demoPage, "failed-validation", {
+      ...readmeFrameCapture(readmeFramesDir, "failed-validation"),
       target: demoPage.getByRole("heading", { name: "Validation / regression evidence" }),
     });
 
@@ -1245,6 +1279,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
     );
     await showDemoScene(demoPage, "repair", {
+      ...readmeFrameCapture(readmeFramesDir, "repair"),
       target: demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
     });
 
@@ -1254,6 +1289,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { name: "Run 已完成，全部任务通过" }),
     );
     await showDemoScene(demoPage, "passed-playtest", {
+      ...readmeFrameCapture(readmeFramesDir, "passed-playtest"),
       secondaryTarget: demoPage.getByRole("heading", { name: "Episode 结果与轨迹" }),
       target: demoPage.getByRole("heading", { name: "Run 已完成，全部任务通过" }),
     });
@@ -1266,6 +1302,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { level: 1, name: "审批详情" }),
     );
     await showDemoScene(demoPage, "approval", {
+      ...readmeFrameCapture(readmeFramesDir, "approval"),
       secondaryTarget: demoPage.getByRole("heading", { name: "Immutable decisions" }),
       target: demoPage.getByRole("heading", { name: "Subject & proposer" }),
     });
@@ -1281,6 +1318,7 @@ async function recordJourneyADemo(
 
     await openDemoPage(demoPage, "/eval", demoPage.getByRole("heading", { level: 1, name: "Eval / Bench" }));
     await showDemoScene(demoPage, "eval", {
+      ...readmeFrameCapture(readmeFramesDir, "eval"),
       target: demoPage.getByRole("heading", { level: 1, name: "Eval / Bench" }),
     });
 
@@ -1290,6 +1328,7 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { level: 1, name: "可观测性" }),
     );
     await showDemoScene(demoPage, "observability", {
+      ...readmeFrameCapture(readmeFramesDir, "observability"),
       secondaryTarget: demoPage.getByRole("heading", { name: "冻结预算与成本结算" }),
       target: demoPage.getByRole("heading", { name: "Run → Trace" }),
     });

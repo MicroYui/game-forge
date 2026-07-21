@@ -10,6 +10,12 @@ export interface DemoScene {
   variant?: "caption" | "hero";
 }
 
+export interface DemoReadmeFrame {
+  capturePosition: "primary" | "secondary";
+  filename: string;
+  sceneKey: string;
+}
+
 export const DEMO_SCENES = Object.freeze([
   {
     body: "面向游戏内容的正确性编译器与 Agent 工作台。",
@@ -112,6 +118,20 @@ export const DEMO_SCENES = Object.freeze([
     variant: "hero",
   },
 ] satisfies readonly DemoScene[]);
+
+export const DEMO_README_FRAMES = Object.freeze([
+  { capturePosition: "primary", filename: "01-spec-authority.png", sceneKey: "spec" },
+  { capturePosition: "primary", filename: "02-knowledge-graph.png", sceneKey: "graph" },
+  { capturePosition: "secondary", filename: "03-generation-gate.png", sceneKey: "generation" },
+  { capturePosition: "secondary", filename: "04-review-evidence.png", sceneKey: "review" },
+  { capturePosition: "secondary", filename: "05-playtest-failure.png", sceneKey: "failed-playtest" },
+  { capturePosition: "primary", filename: "06-validation-failure.png", sceneKey: "failed-validation" },
+  { capturePosition: "primary", filename: "07-repair-revision.png", sceneKey: "repair" },
+  { capturePosition: "secondary", filename: "08-playtest-regression.png", sceneKey: "passed-playtest" },
+  { capturePosition: "secondary", filename: "09-maker-checker-approval.png", sceneKey: "approval" },
+  { capturePosition: "primary", filename: "10-eval-bench.png", sceneKey: "eval" },
+  { capturePosition: "secondary", filename: "11-observability.png", sceneKey: "observability" },
+] satisfies readonly DemoReadmeFrame[]);
 
 const DISALLOWED_CLAIMS = ["100% correct", "online llm", "production-ready", "live model"];
 

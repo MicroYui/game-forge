@@ -1,123 +1,253 @@
-# GameForge
+<p align="center"><sub>PROJECT CODENAME · GAME CONTENT CORRECTNESS</sub></p>
 
-**Game-content correctness compiler + production-grade agent workbench.** Build a
-versionable **Design-Spec IR** (knowledge graph + typed constraints) from design
-docs / config tables → validate with **deterministic checkers + economy simulation**
-(decidable, *not* LLM-judging) → use **bounded LLM agents** for extraction proposals,
-defect triage, and repair drafting → close the loop with a **Playtest Agent** inside a
-real runnable reference game **Aureus** — observable, reproducible, auditable, human-approved.
+<h1 align="center">GameForge</h1>
 
-See `docs/superpowers/specs/` for the PRD and foundational contracts (single source of truth).
+<p align="center"><strong>让游戏内容可以被证明。</strong></p>
 
-## Status
+<p align="center">
+  面向游戏内容的<strong>正确性编译器 + 生产级 Agent 工作台</strong>：<br/>
+  把策划案与配置表编译成可版本化的 Design-Spec IR，
+  用确定性检查器和真实 Playtest 裁决，再按冻结策略经人工批准或 deterministic auto-apply 受控发布。
+</p>
 
-| Milestone | Theme | Status |
+<p align="center">
+  <code>Graph</code> · <code>Clingo</code> · <code>z3</code> · <code>Economy Simulation</code> · <code>Bounded Agents</code> · <code>Frozen Policy</code> · <code>Human Approval</code>
+</p>
+
+<p align="center"><sub>deterministic auto-apply 仅限冻结策略允许、可证明且可校验的结构性修复；数值与叙事变更仍必须人工审批。</sub></p>
+
+<p align="center">
+  <strong>M0–M3 已完成</strong>　·　<strong>M4a–M4d 已完成</strong>　·　M4e production / DR adapters 待推进
+</p>
+
+<br/>
+
+<p align="center">
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.webm">
+    <img src="docs/assets/readme/hero-journey-a-v2-zh.png" alt="GameForge：让游戏内容可以被证明" width="100%"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.webm"><strong>▶ 观看约 84 秒中文无配音演示</strong></a><br/>
+  <sub>7.31 MiB · 同一次真实本地 Journey A · 本地 API / worker · cassette 回放 · 外网阻断 · 1280 × 720</sub>
+</p>
+
+## 30 秒看懂 GameForge
+
+GameForge 不让 LLM 判断游戏内容“对不对”。它把内容生产变成一条可以验证、回放和审计的编译流水线：Agent 负责提出可能性，确定性检查器、真实环境，以及冻结发布策略与审批人掌握最终裁决权。
+
+<p align="center">
+  <a href="docs/assets/readme/product-loop.svg"><img src="docs/assets/readme/product-loop.svg" alt="GameForge 产品闭环：编译内容、确定性裁决、有边界修复、真实回归、受控发布" width="100%"/></a>
+</p>
+
+| 冻结证据 | 当前结果 | 结论边界 |
+|---|---:|---|
+| GameForge-Bench | **982** 个 seeded 样本 | 902 个 checker / simulation + 80 个 bounded narrative；冻结 `seed=0` |
+| 确定性 / 仿真缺陷 | **11 类 × 82/82** 检出 | 每类 Wilson 95% 下界约 **95.5%**，不是“所有缺陷 100%” |
+| 约束误报 | **0/902** | 仅指冻结 deterministic constraint-FP 口径 |
+| Agent 修复 | **10/10** | cassette REPLAY；Wilson 95% CI **[72.2%, 100%]** |
+| 产品表面 | **8 页 · 77 operations** | exact OpenAPI；M4e production / DR adapters 尚未完成 |
+
+前四项来自版本化的 [`BenchReport v2`](scenarios/bench/bench-report.json)；产品表面来自 [`OpenAPI v1`](docs/api/openapi-v1.json) 与 [M4d 验收记录](docs/superpowers/plans/2026-07-19-m4d-web-console.md)。它们都不是 README 手写成绩。
+
+## 一条真实闭环，不是一组静态页面
+
+### Journey A · 从创作到可发布变更
+
+1. 策划内容进入 **Spec / Knowledge Graph**，实体、关系、约束与来源可追溯。
+2. Agent 生成候选内容，但只能停在 **proposal**；生成门决定是否允许继续。
+3. Review 把 **确定性、仿真、LLM 建议、未证明**分栏，证据不会被混写。
+4. Playtest Agent 在真实可运行的 **Aureus** 中执行任务链；环境是 `done` 的唯一 authority。
+5. 失败轨迹与验证证据驱动 Patch revision；旧版本不可变，新版本重新 Review 与 Playtest。
+6. 第二身份批准 exact revision 后，平台精确应用并保留回滚、ref history 与审计轨迹。
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/assets/readme/02-knowledge-graph.png"><img src="docs/assets/readme/02-knowledge-graph.png" alt="可探索的 Design-Spec 知识图谱"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/03-generation-gate.png"><img src="docs/assets/readme/03-generation-gate.png" alt="生成门与不可变候选账本"/></a></td>
+  </tr>
+  <tr>
+    <td><strong>可探索的 Spec-IR</strong><br/><sub>10 个实体、14 条关系；画布、键盘与事实表共享选择。</sub></td>
+    <td><strong>提议与裁决分离</strong><br/><sub>Patch → exact preview → config export，候选仍需验证和审批。</sub></td>
+  </tr>
+</table>
+
+### 失败 → 修复 → 回归通过
+
+失败不会被漂亮地隐藏，也不能推动 live ref。修复产生新的不可变 revision，并重新赢得一整组证据。
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/assets/readme/05-playtest-failure.png"><img src="docs/assets/readme/05-playtest-failure.png" alt="Playtest 任务失败，step limit exhausted"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/08-playtest-regression.png"><img src="docs/assets/readme/08-playtest-regression.png" alt="修复后 Playtest 回归通过"/></a></td>
+  </tr>
+  <tr>
+    <td><strong>Before · STEP LIMIT EXHAUSTED</strong><br/><sub>失败被固化为可回放轨迹，而不是一句模型解释。</sub></td>
+    <td><strong>After · COMPLETED</strong><br/><sub>新的候选重新 Review、重新 Playtest，生成新的 Trace Artifact。</sub></td>
+  </tr>
+</table>
+
+### Journey B · 审批、精确应用与回滚
+
+GameForge 把“谁可以改变什么”当作产品能力，而不是后台备注：maker 不能批准自己的 proposal；历史票据在身份或目标变化后重新验权；apply 前再次校验 exact target、revision、evidence 与 ref。
+
+下图来自同一次 Journey A 的审批 / apply 段；独立 Journey B 真实浏览器 E2E 另行覆盖 rollback、冲突重建与 SSE `Last-Event-ID` 恢复。
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/assets/readme/09-maker-checker-approval.png"><img src="docs/assets/readme/09-maker-checker-approval.png" alt="双身份审批与不可变决策"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/07-repair-revision.png"><img src="docs/assets/readme/07-repair-revision.png" alt="补丁新 revision 精确应用"/></a></td>
+  </tr>
+  <tr>
+    <td><strong>Maker / Checker 分离</strong><br/><sub>第二身份批准精确绑定的目标版本，决定本身不可变。</sub></td>
+    <td><strong>新建版本，不覆写历史</strong><br/><sub>validation 与 regression 均通过后才可 applied。</sub></td>
+  </tr>
+</table>
+
+## 八页生产工作台
+
+不是“Dashboard + 七张占位卡”。每一页都绑定自己的 authority、失败状态和跨页证据链。
+
+| 页面 | 回答的问题 | 核心能力 |
 |---|---|---|
-| **M0a** | Shortest vertical slice: contracts + IR core + canonical snapshot + Aureus minimal kernel (quest + grid nav) + minimal checker + a 3-step quest chain | ✅ acceptance passing |
-| **M0b** | Aureus combat/economy/gacha; Schema Registry + Aureus CSV adapter round-trip; version/lineage/audit skeleton; Alembic DB migrations | ✅ acceptance passing |
-| **M1** | Graph/ASP/SMT checker suite; DSL→checker compiler; economy simulation; open-source game adapter; Finding/Patch | ✅ acceptance passing |
-| **M2a-part1** | Model Router (RECORD/REPLAY/PASSTHROUGH) + Cassette store + deterministic agent orchestration — foundations only | ✅ acceptance passing |
-| **M2a-part2** | 6 bounded LLM agent roles (extraction/triage/repair/consistency/generation) + verifier-guided repair search; Fix Pass Rate 90% | ✅ acceptance passing |
-| **M2b-1** | Playtest agent core (state abstraction + planner/executor + verifier-grounding + reflection + main loop) + regression harness (completion rate + Wilson CI + random baseline) + planner/executor ablation | ✅ acceptance passing (REPLAY/scripted smoke) |
-| **M2b-2** | MemTrace episodic/transition/skill memory + deterministic recall, compactor comparison, and consistency quorum | ✅ acceptance passing |
-| Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
-| Pre-M4: core contract corrections | Exact-base Patch rejection, producer-to-product `DROPS_FROM`, stable repair request identity, active `gpt-5.6-sol` repair/generation evidence, and checkout-stable benchmark provenance | ✅ `5fdfb32..cc0fbc4`; repair double-REPLAY **10/10**, full gate **962 passed, 1 skipped**, 7 import contracts kept |
-| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | ✅ complete; the only accepted QA experiment has 8 protocol-valid sessions / 4 pairs, manual success 0/4, assisted success 3/4, and a `savings` conclusion under the approved cap-time rule; combined acceptance passes |
-| **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | 🔄 implementation in progress; frozen design is executing in order from M4a through M4e |
+| Spec / Knowledge Graph | 当前设计事实是什么？ | 版本化 IR、约束、来源、图谱探索、Patch 草案 |
+| Generation | Agent 实际提议了什么？ | Run / attempt、生成门、候选与导出账本 |
+| Review | 哪些结论已经被证明？ | finding 分栏、exact authority、冻结 VersionTuple |
+| Playtest | 游戏里真的跑通了吗？ | Aureus 执行、确定性 completion oracle、可回放轨迹 |
+| Patch / Diff | 修复改变了什么？ | exact-base diff、验证 / 回归证据、revision history |
+| Eval / Bench | 产品能力有多少证据？ | 版本化报告、分母、CI、缺失证据显式化 |
+| Observability | 一次运行花了什么、发生了什么？ | trace、usage、预算结算、RBAC 拒绝也保留 request / trace 关联 |
+| Approvals | 谁批准了哪个精确目标？ | 双身份、逐动作 eligibility、partial / terminal decision |
 
-## M3 external-validity status
+<details>
+<summary><strong>展开查看八页完整图例</strong></summary>
+<br/>
 
-The Flare B0A mining harness and both hash-bound human reviews completed successfully.
-The frozen expanded universe contains 526 candidates, but adjudication found only 7 of
-the required 8 independent proposed fix groups: 10 proposed cases across all 4 required
-classes, with `qualified_candidate=0` and `accepted=0`. The terminal decision is
-`insufficient_evidence` with `next_action=stop_flare_heavy_investment`.
+<table>
+  <tr>
+    <td width="50%"><a href="docs/assets/readme/01-spec-authority.png"><img src="docs/assets/readme/01-spec-authority.png" alt="Spec authority 页面"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/03-generation-gate.png"><img src="docs/assets/readme/03-generation-gate.png" alt="Generation 页面"/></a></td>
+  </tr>
+  <tr><td><strong>01 · Spec / KG</strong></td><td><strong>02 · Generation</strong></td></tr>
+  <tr>
+    <td><a href="docs/assets/readme/04-review-evidence.png"><img src="docs/assets/readme/04-review-evidence.png" alt="Review 页面"/></a></td>
+    <td><a href="docs/assets/readme/05-playtest-failure.png"><img src="docs/assets/readme/05-playtest-failure.png" alt="Playtest 页面"/></a></td>
+  </tr>
+  <tr><td><strong>03 · Review</strong></td><td><strong>04 · Playtest</strong></td></tr>
+  <tr>
+    <td><a href="docs/assets/readme/06-validation-failure.png"><img src="docs/assets/readme/06-validation-failure.png" alt="Patch 与 Diff 页面"/></a></td>
+    <td><a href="docs/assets/readme/10-eval-bench.png"><img src="docs/assets/readme/10-eval-bench.png" alt="Eval 与 Bench 页面"/></a></td>
+  </tr>
+  <tr><td><strong>05 · Patch / Diff</strong></td><td><strong>06 · Eval / Bench</strong></td></tr>
+  <tr>
+    <td><a href="docs/assets/readme/11-observability.png"><img src="docs/assets/readme/11-observability.png" alt="Observability 页面"/></a></td>
+    <td><a href="docs/assets/readme/09-maker-checker-approval.png"><img src="docs/assets/readme/09-maker-checker-approval.png" alt="Approvals 页面"/></a></td>
+  </tr>
+  <tr><td><strong>07 · Observability</strong></td><td><strong>08 · Approvals</strong></td></tr>
+</table>
 
-This is a valid negative investment-gate result, not M3 acceptance. B0B, Corpus Freeze,
-and M3d-1 through M3d-4 were not entered; no Flare quest/loot reader expansion is
-authorized.
+</details>
 
-The source-neutral replacement harness preserves the frozen Flare surface while binding
-new discovery to the exact registered tool commit and profile bytes. Two code-review
-passes found and fixed three generic replay defects: selected candidates were not
-contractually limited to registered direct matches; a valid recursive external revert
-lineage could crash adjudication; and a selected revert inside an equivalence lineage
-component had mutually exclusive disposition requirements. Endless Sky discovery was
-rebuilt from clean registration anchor
-`687f36fb6ab499d3667fe43429fec4a25132c97a` and replayed byte-for-byte in two
-independent temporary directories. The registered range produces 610 matched and 562
-config-only candidates; the mechanical first-80 contains 75 config-only commits and is
-bound by candidate-universe SHA-256
-`f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f`.
+## 三个游戏 / 数据源，三种不同证明
 
-The historical generic B0A non-approving review package remains `awaiting_human_evidence`: it contains
-no dispositions, reviewer identity, or attestation, and no final candidate ledger or B0A
-decision exists. B0B and Adapter work are not authorized.
+<p align="center">
+  <a href="docs/assets/readme/evidence-surfaces.svg"><img src="docs/assets/readme/evidence-surfaces.svg" alt="Aureus、Flare、Endless Sky 的三种证据面" width="100%"/></a>
+</p>
 
-At that historical gate, M3 was engineering complete while `qa.evidence_missing` remained
-explicitly non-blocking—the governance decision says it does not block M4. The later
-accepted `participant-04` evidence has now closed that separate QA gap.
+- **Aureus — 可运行参考游戏。** 仓库内的确定性内核真实执行任务、战斗、经济与抽卡系统，是 Playtest Agent 的实际 Agent-Env。
+- **Flare — 适配器完整性。** 真实上游配置片段可解析为 Spec-IR 并逐字节 round-trip；B0A 外部缺陷挖掘终态为 `insufficient_evidence`，因此没有被包装成真实缺陷有效性证明。
+- **Endless Sky — 外部历史病例。** 冻结 **8 个 qualified cases**，覆盖 4 类缺陷的 development / verification 切分；每类仅 `n=1+1`，统计状态仍是 `underpowered`，不能外推为广泛跨游戏泛化。
 
-The separate pre-M4 core-corrections slice is complete on commits `5fdfb32`,
-`f403a5c`, `35330e8`, `5adaab0`, `586b579`, and `cc0fbc4`: Patch application now fails closed
-on stale bases and malformed preconditions; Aureus and Flare emit producer-to-product
-`DROPS_FROM`; repair request identity is stable without weakening base-bound Patch
-identity; active repair/generation recordings use `openai/gpt-5.6-sol/pre-m4@1`; and
-the seeded benchmark clean base uses checkout-independent logical source provenance.
-Two zero-live repair replays were byte-identical at 10/10. Historical M2 cassettes and
-frozen external evidence remain unchanged. Narrative BDR, Human-Edit-Distance, cost and
-latency evidence, and BenchReport v2 are complete. The accepted QA evidence contains
-only `participant-04`: eight protocol-valid sessions and four matched pairs, with manual
-success 0/4 and assisted success 3/4. The authoritative `qa-evidence@2` has
-`evidence_sha256=e7e76d9a846efd7eeaae2b06641e170c15878f7cbf1ff98a79a733b1aa451142`,
-conclusion `savings`, mean 3.407599574483333 minutes, median 4.203912946883333 minutes,
-and 95% CI [1.2129956309041665, 5.037277463891666]. Before final acceptance, the old
-aggregation was found to deviate from approved design §11
-`QA timeout/incorrect | cap time + success=false`: correct sessions now use actual capped
-active time, incorrect/time-out sessions use the 8-minute cap, and immutable raw active
-time remains audit-only. No session event, patch, or verdict was rewritten. Earlier
-rejected/preflight workspaces remain audit-only and contribute no observation or score.
-The regenerated report passes combined acceptance with no remaining QA evidence gap.
+这三者刻意不合并成一个“支持三个游戏”的营销数字：它们分别证明可执行闭环、格式完整性和外部证据流水线。
 
-## Layout (contract §1)
+## 确定性主干 + 有边界的 Agent
 
-All Python packages live under `gameforge/` (dependency direction enforced by
-`import-linter`); `web/` (React/TS) is a repo-root sibling.
+```mermaid
+flowchart TB
+    Source[策划案 / 配置表] --> IR[Design-Spec IR<br/>知识图谱 + Typed Constraints]
 
+    subgraph Trust[确定性可信主干]
+      IR --> Checkers[Graph / ASP / SMT]
+      IR --> Sim[Economy Simulation]
+      IR --> Env[Aureus Agent-Env]
+      Preview[Exact Preview] --> Checkers
+      Preview --> Sim
+      Preview --> Env
+      Checkers --> Evidence[EvidenceSet]
+      Sim --> Evidence
+      Env --> Evidence
+    end
+
+    IR -. 冻结上下文 .-> Agents[Bounded Agents<br/>抽取 · 分诊 · 修复 · 生成]
+    Agents -->|只提交 proposal| Proposal[Proposal / Patch Draft]
+    Proposal --> Preview
+    Evidence --> Gate[冻结发布策略<br/>Human Approval / structural auto-apply]
+    Gate --> Versioning[Apply / Rollback / Audit]
 ```
+
+代码依赖同样单向：`agents → spine`，永不 `spine → agents`。`spine` 禁止导入任何 LLM SDK；LLM 输出必须由确定性预言机或人工兜底。deterministic auto-apply 只覆盖可证明、可校验的结构性修复，数值与叙事变更仍由人批准。可复现承诺是固定 `model_snapshot + cassette + seed` 的**回放**，不承诺在线模型 bit 级一致。
+
+<details>
+<summary><strong>查看仓库边界</strong></summary>
+
+```text
 gameforge/
-  contracts/   # schema single source of truth (IR, Env, Finding/Patch, WorldConfig)
-  runtime/     # low-level capabilities (skeleton until M2)
-  spine/       # deterministic trusted trunk — NO LLM (ir, checkers, dsl, sim, versioning)
-  env/         # Agent-Env interface (ABC, no impl)
-  game/aureus/ # reference game: deterministic kernel implementing env
-  agents/      # bounded LLM layer (skeleton until M2)
-  platform/    # product platform (skeleton)
-  apps/cli/    # composition layer: end-to-end slice runner
-  bench/       # GameForge-Bench (skeleton until M3)
-scenarios/     # hand-written scenario configs
-web/           # Vite + React + TS console scaffold
+  contracts/     # Artifact / ObjectRef / VersionTuple / IR / Finding / Patch
+  spine/         # 确定性可信主干：checkers、DSL、simulation、versioning
+  runtime/       # persistence、model router、transport、基础能力
+  env/           # Agent-Env 接口
+  game/aureus/   # 可运行的确定性参考游戏
+  agents/        # 有边界的 LLM / Playtest agents
+  platform/      # RBAC、审批、运行、发布与可观测领域服务
+  bench/         # GameForge-Bench 与证据聚合
+  apps/api/      # HTTP / SSE / WS composition boundary
+  apps/worker/   # worker composition
+  apps/cli/      # CLI composition
+web/             # React + TypeScript 生产工作台
+scenarios/       # Aureus、缺陷、约束与冻结 benchmark 证据
 ```
 
-## Quickstart
+</details>
+
+## 可复现证据，而不是一个百分比
+
+| 范围 | 结果 | 解释 |
+|---|---:|---|
+| Seeded checker / simulation | 11 类均 `82/82` | 10 类 deterministic + 1 类 economy simulation |
+| Deterministic constraint-FP | `0/902` | 与 LLM-assisted narrative FP 分开报告；后者为 `6/381` |
+| Fix Pass Rate | `10/10` | first-pass、runtime-vetted；cassette REPLAY |
+| Playtest completion | flat `5/20` → layered `14/20` → memory `15/20` | M2 历史冻结 cassette、每臂 20 条；Planner / Executor **+45pp**，MemTrace 再 **+5pp** |
+| 真人 QA 病例研究 | manual success `0/4`；GameForge-assisted success `3/4` | 单一参与者、8 sessions / 4 matched pairs；不能泛化到所有用户 |
+| QA 配对节省时间 | 平均 **3.41 min** | 95% bootstrap CI **[1.21, 5.04]**；错误 / 超时按预注册 8 分钟 cap |
+| M4d 浏览器验收 | 8 页、70 项视觉证据、21 项 a11y / 键盘检查、5 条浏览器旅程 | 不是 WCAG 认证 |
+
+Bench 指标的完整口径、分母、置信区间和 evidence refs 保存在 [`scenarios/bench/bench-report.json`](scenarios/bench/bench-report.json)；M4d 浏览器验收数量保存在 [实现计划的完成记录](docs/superpowers/plans/2026-07-19-m4d-web-console.md)。
+
+## 快速跑通确定性主干
+
+要求：Python 3.12 与 [`uv`](https://docs.astral.sh/uv/)。以下命令已在当前仓库状态实际验证。
 
 ```bash
-uv python install 3.12 && uv sync     # provision env + deps
-uv run pytest                         # full test suite (unit + property + e2e)
-uv run lint-imports                   # dependency-direction gate (spine is LLM-free)
+uv python install 3.12
+uv sync --frozen
+
+# 真实配置 workbook → IR → Aureus；四个系统确定性完成
+uv run python -m gameforge.apps.cli scenarios/outpost 0
+
+# 干净基线经过 Graph / ASP / SMT / simulation review
+uv run python -m gameforge.apps.cli review scenarios/defects/clean scenarios/constraints 0
+
+# 验证版本化 BenchReport 的全部 acceptance 约束
+uv run python -m gameforge.bench.acceptance \
+  --report scenarios/bench/bench-report.json \
+  --repo-root .
 ```
 
-## M0a acceptance
+预期关键结果：Aureus `completed=true` 并覆盖 `combat / economy / gacha / quest`；clean review 的 `deterministic_findings=0`；Bench acceptance 返回空错误列表。
 
-One hand-written config → IR → Aureus runs a 3+ step quest chain (talk → collect → turn-in),
-deterministically and reproducibly:
-
-```bash
-uv run python -m gameforge.apps.cli scenarios/caravan.yaml 0
-# -> {"completed": true, "ticks": 30, "num_findings": 0, ...}
-```
-
-The frontend uses the pinned Node/npm toolchain recorded under `web/`:
+<details>
+<summary><strong>Web 工作台开发门禁</strong></summary>
 
 ```bash
 cd web
@@ -129,218 +259,37 @@ npm test
 npm run build
 ```
 
-## M0b acceptance
+完整产品旅程由 Playwright 启动真实本地 API / worker composition；当前尚未把这套编排包装成面向最终用户的一键 launcher，production / DR adapters 归属 M4e。
 
-A typed CSV scenario workbook (`scenarios/outpost/`) round-trips losslessly through the
-Schema Registry + Aureus adapter (`workbook -> IR -> workbook` diff is empty), and the
-same scenario drives all four Aureus systems — combat, economy, gacha, quest —
-config-driven and deterministically to completion:
+</details>
 
-```bash
-uv run python -m gameforge.apps.cli scenarios/outpost 0
-# -> {"completed": true, "ticks": 29, ..., "systems_exercised": ["combat", "economy", "gacha", "quest"]}
-```
+## 当前完成度
 
-Version/lineage/audit (contract §5) and the DB migration framework are exercised by:
+| 里程碑 | 交付 | 状态 |
+|---|---|:---:|
+| M0a–M0b | Contracts、IR、Aureus 四系统、Schema Registry、版本 / 血缘 / 审计地基 | ✅ |
+| M1 | Graph / ASP / SMT、DSL 编译、经济仿真、Finding / Patch | ✅ |
+| M2 | 有边界 Agent、Playtest、MemTrace、Model Router / cassette | ✅ |
+| M3 | 982 seeded Bench、完整指标、外部历史病例、真人 QA、Eval 证据面板 | ✅ |
+| M4a | 平台核心与持久化 | ✅ |
+| M4b | 可观测、成本治理与可靠性 | ✅ |
+| M4c | API、RBAC、审批、streaming、真实本地 composition | ✅ |
+| M4d | 八页 React 工作台、Journey A / B、隔离 QA Runner、视觉 / 浏览器门禁 | ✅ |
+| M4e | Production / DR adapters | ⏳ |
 
-```bash
-uv run alembic -c alembic.ini upgrade head && uv run alembic -c alembic.ini downgrade base
-```
+## 深入阅读
 
-`DATABASE_URL` defaults to a local sqlite file (`sqlite:///gameforge.db`, gitignored) when
-unset; the schema is Postgres-ready (SQLAlchemy Core + Alembic, no sqlite-only types).
+- [产品需求文档](docs/superpowers/specs/2026-07-03-gameforge-prd.md) — 定位、子系统、指标与里程碑验收
+- [地基契约 v0.3](docs/superpowers/specs/2026-07-03-gameforge-foundations-contracts.md) — Artifact、ObjectRef、VersionTuple 与依赖边界
+- [M4 生产化最终设计](docs/superpowers/specs/2026-07-13-m4-production-hardening-design.md) — 五片边界、跨模块契约、API / UI / 运维验收
+- [M4d 实现计划](docs/superpowers/plans/2026-07-19-m4d-web-console.md) — 八页工作台、视觉门禁、Journey 与 QA 证据
+- [README 媒体来源说明](docs/assets/readme/README.md) — 截图、录像与示意图的生成方式和边界
 
-## M1 acceptance
+## 来源、许可与边界
 
-A constraint DSL (`scenarios/constraints/*.yaml`) compiles to three deterministic
-backends — GraphChecker (graph algorithms), ASPChecker (Clingo, differential-tested
-against GraphChecker on the two defect classes they share), SMTChecker (z3) — plus an
-economy Monte-Carlo/ABM simulator, fanned into one `ReviewReport` with a strict
-deterministic / llm-assisted / simulation / unproven partition:
+- 演示截图与视频来自同一次本地 Journey A 录制；使用真实 API / worker 与冻结 cassette 回放，录制期间外部网络被阻断。画面中的时间、哈希、身份与业务内容属于测试证据。
+- 仓库只收录 Flare 的精选真实配置片段，不包含上游 engine code；片段的 CC BY-SA 3.0 来源与归属见 [`scenarios/flare_sample/NOTICE`](scenarios/flare_sample/NOTICE)，上游 engine code 本身为 GPL-3.0。
+- Endless Sky 外部病例遵循 `GPL-3.0-or-later`；归属见本地 [`NOTICE`](scenarios/external_corpus/endless_sky/NOTICE)，冻结来源与 pin 见 [`source-profile.json`](scenarios/external_corpus/endless_sky/source-profile.json)。
+- GameForge 是当前**项目代号**。仓库根目录目前未发布 LICENSE，请勿据此推定开源授权。
 
-```bash
-uv run python -m gameforge.apps.cli review scenarios/defects/clean scenarios/constraints
-# -> {"deterministic_findings": 0, "llm_assisted_findings": 1, "simulation_findings": 1, ...}
-```
-
-9 injected-defect scenarios under `scenarios/defects/<class>/` (one CSV mutation each,
-otherwise identical to the pristine `clean/` baseline) are each soundly detected as
-*exactly* their own defect class — `dangling_reference`, `missing_drop_source`,
-`cyclic_dependency`, `dead_quest`, `unsatisfiable_completion` (structural, Graph/ASP);
-`reward_out_of_range`, `prob_sum_ne_1`, `non_monotonic_curve`,
-`gacha_expectation_violation` (numeric, SMT) — while the `clean` baseline yields
-**zero deterministic findings** (oracle-FP=0, the headline KPI). A tenth scenario,
-`economy_collapse`, reproduces a Monte-Carlo economy collapse with an early-warning
-tick strictly ahead of the collapse tick. The open-source Flare adapter
-(`gameforge/spine/ingestion/flare_adapter.py`) round-trips its vendored sample
-losslessly (`from_ir(to_ir(x)) == x`); this is an adapter-integrity fixture, not a
-real-defect external-validity anchor. See
-`tests/apps/test_m1_acceptance.py` for the full acceptance suite.
-
-## M2a-part1 acceptance
-
-A toy two-call agent node, run through the deterministic orchestration harness
-(`gameforge.agents.orchestrator.run_graph`) under `ModelRouter(mode=RECORD)` against a
-canned `StubTransport`, writes one cassette file per LLM call; re-running the identical
-graph under `ModelRouter(mode=REPLAY)` — with a transport stub that raises if it is ever
-invoked — reproduces the resulting `AgentNodeResult` byte-for-byte (`model_dump()`
-equality), with zero live network calls:
-
-```bash
-uv run pytest tests/agents/test_foundations_acceptance.py -v
-# -> test_foundations_record_then_replay_reproduces_byte_identical PASSED
-```
-
-This is the foundations slice of contract §7 (Model Router / Cassette / `request_hash`)
-plus the 6-role `agent_io` contract and the "LLM SDK only in `runtime.model_router`"
-import-linter contract (7th contract, `uv run lint-imports` → 7 kept, 0 broken).
-
-## M2b-1 acceptance
-
-A layered Playtest agent (a Planner PROPOSES a high-level subgoal, an Executor
-PROPOSES the next atomic action, and `AureusEnv` is the SOLE authority on `done`)
-closes a real 3-step quest chain (`caravan`: talk → collect → turn-in) end-to-end
-under a scripted, network-free REPLAY-mode router — and beats a no-LLM
-random-action floor on the same scenario (the floor never completes within the
-step budget), proving the agent is doing real work, not coasting on scenario
-triviality:
-
-```bash
-uv run pytest tests/agents/playtest/test_playtest_smoke.py -v
-# -> scripted agent completion_rate == 1.0  vs.  random floor completion_rate < 1.0
-```
-
-The planner/executor ablation (`use_planner=True`/`False`) and the regression
-harness (`run_playtest_corpus` completion rate + per-length-bucket Wilson CI,
-`random_baseline`) both run end-to-end through
-`gameforge/agents/playtest_harness.py`; verifier-grounding (a BFS reachability
-oracle cross-checking the engine's own `unreachable` verdict before a quest is
-aborted) is exercised by the walled-env test in
-`tests/agents/playtest/test_agent_loop.py`. See those plus
-`tests/agents/test_playtest_harness.py` for the full suite.
-
-## What M0a delivers vs. deferred (不简化，只延后)
-
-**Delivered:** monorepo + dependency lint; `contracts` (IR core types, canonical
-snapshot, Env action/observation, Finding/Patch, WorldConfig — full contract field
-sets); in-memory IR store + immutable content-addressed snapshots + diff; YAML
-scenario → IR loader; minimal deterministic structural checker (reference integrity,
-collect-needs-reachable-source, quest-DAG-acyclic); Aureus minimal kernel (quest state
-machine + grid navigation) implementing the Agent-Env contract with per-tick
-`state_hash` determinism; end-to-end vertical slice; React scaffold.
-
-**Interfaces defined now, implementation deferred:** combat/economy Env atomics + IR
-combat-economy node/edge impl (M0b); Schema Registry round-trip adapter, version/
-lineage/audit, DB migrations (M0b); DSL grammar + Graph/ASP/SMT compiler + economy sim
-(M1); bounded LLM agents + cassette/model-router (M2); GameForge-Bench (M3); full web
-pages + observability/RBAC (M4).
-
-## What M0b delivers vs. deferred (不简化，只延后)
-
-**Delivered:** Aureus combat (formula-driven damage/hit/crit + seeded `CountingRandom`),
-economy (currencies/shops/atomic buy), and gacha (drop tables, atomic buy-and-roll) —
-all config-driven via `WorldConfig`, integrated into the kernel alongside quest/nav, with
-per-tick `state_hash` covering combat/gacha rng; IR combat-economy node/edge types
-produced by the loader and consumed by the checker/kernel; a typed CSV `FormatSchema` +
-`SchemaRegistry` (structural + referential validation) and a pluggable `AureusCsvAdapter`
-(`to_ir`/`from_ir`) giving a lossless workbook<->IR round trip (property-tested); the
-`scenarios/outpost/` CSV scenario exercising all four systems end-to-end; version/lineage/
-audit skeleton (contract §5 full `VersionTuple`, content-addressed `Artifact` + lineage
-DAG, ref/rollback, append-only WORM `AuditRecord` with hash chain) with both an in-memory
-store (used by `run_slice`) and a SQLAlchemy-backed store; Alembic migration framework
-with a tested forward/rollback migration; the dependency lint tightened so `spine` only
-depends on `contracts`.
-
-**Interfaces defined now, implementation deferred:** DSL grammar + Graph/ASP/SMT checker
-compilation + economy Monte-Carlo/ABM simulation + open-source game adapter external
-validity (M1); bounded LLM agents + Agent-Env + Playtest Agent + cassette/model-router
-(M2); GameForge-Bench (M3); RBAC/approval workflow + full web pages + observability
-panels (M4). `VersionTuple` fields for constraint/prompt/model/agent/cassette are
-schema-present and `None` until those milestones populate them.
-
-## What M1 delivers vs. deferred (不简化，只延后)
-
-**Delivered:** constraint DSL (`Predicate`/`Selector`/`Constraint`, deterministic and
-llm-assisted oracle kinds); `parse_assert` whitelist-only typed-AST expression
-evaluator (never `eval`/`exec`); `GraphChecker` (7 structural defect classes: dangling
-reference, missing drop source, unreachable target, cyclic dependency, dead quest,
-unsatisfiable completion, isolated node); `ASPChecker` (Clingo encoding of the two
-defect classes shared with GraphChecker, differential-tested against it, with a
-grounding-budget/wall-clock degrade-to-`unproven` — never a silent pass); `SMTChecker`
-(z3 encoding of 5 numeric defect classes: reward-out-of-range, prob-sum≠1,
-non-monotonic curve, gacha-expectation-vs-pity, interval violation); `compile(constraint)
--> Checker` routing (llm-assisted predicate check first, then kind-based dispatch) with
-`LlmRoutedChecker` as M1's complete-but-unevaluated routing target for the agent layer;
-a deterministic typed-patch apply/reject engine (contract §6 `old_value` optimistic-
-concurrency anchor); the economy Monte-Carlo/ABM simulator (6 named invariants +
-collapse/early-warning detection) and its `to_findings` projection; `ReviewReport`'s
-strict deterministic/llm-assisted/simulation/unproven partition (`build_review_report`)
-and the `run_review` CLI orchestration; the open-source Flare adapter (`to_ir`/`from_ir`,
-lossless line-level round trip); 9 injected-defect scenarios + a pristine `clean`
-baseline (oracle-FP=0) + an economy-collapse scenario, all real CSV-derived via the
-Aureus adapter, not hand-built IR fixtures.
-
-**Interfaces defined now, implementation deferred:** `unreachable_target` (needs a
-`NavProvider`; `GraphChecker._unreachable_target` is a complete, silently-no-op-safe
-implementation, but `run_review`'s CLI path never builds an Aureus world/nav, so this
-class isn't exercised by the M1 scenario suite — it's implementation-complete, just
-untriggered here); llm-assisted predicate *evaluation* (the routing/Finding-shape
-contract is complete now; actually judging a narrative predicate is M2's bounded agent
-layer); bounded LLM agents + Agent-Env + Playtest Agent + cassette/model-router (M2);
-GameForge-Bench (M3); RBAC/approval workflow + full web pages + observability panels
-(M4).
-
-## What M2a-part1 delivers vs. deferred (不简化，只延后)
-
-**Delivered:** contract §7 (`ModelSnapshot`/`Message`/`ModelRequest`/`ModelResponse`,
-`request_hash` excluding `cache_key`/schema_version so it hashes exactly the fields that
-determine the model's output) and the 6-role `agent_io` contract (`AgentNodeResult` plus
-each role's typed input/output — extraction, triage, repair, consistency, generation,
-playtest — fields defined in full now, only extraction/triage/repair/consistency/
-generation implemented in part2, playtest in M2b); the "LLM SDK only in
-`runtime.model_router`" import-linter contract (`LlmTransport`/`OpenAITransport`/
-`StubTransport` are the sole `openai` import site); `ModelRouter` with
-RECORD/REPLAY/PASSTHROUGH modes, retry-with-quota (every live transport attempt counted,
-including retries) and in-session exact-match de-duplication (stable-prefix semantic
-caching deferred to part2); `CassetteStore` flat-file record/replay keyed by
-`request_hash`; a hand-rolled deterministic orchestration harness
-(`gameforge.agents.orchestrator.run_graph` — ordered nodes, no concurrency, no hidden
-state) plus a `prompt_version` registry; and the record→replay reproducibility
-acceptance test proving byte-identical `AgentNodeResult` reproduction with zero live
-network calls.
-
-**Interfaces defined now, implementation deferred to M2a-part2:** Extraction
-Proposer/Defect Triager/Repair Drafter/Consistency Assistant/Content Generator real LLM
-semantics + per-role fallback, verifier-guided repair search, generation gate, Fix Pass
-Rate ≥70% acceptance against real recorded gateway cassettes, stable-prefix semantic
-cache. **Deferred to M2b:** Playtest Agent, mem-trace, ablation studies.
-
-## What M2b-1 delivers vs. deferred (不简化，只延后)
-
-**Delivered:** deterministic state abstraction (`abstract_state`) turning an Env
-observation into the shared input for both planner and executor; registered
-`playtest@1` planner/executor/reflect prompts; a Planner (high-level subgoal
-proposal, falls back to "advance") and an Executor (atomic-action proposal with an
-action-priority fallback to `observe`); verifier-grounding (`ground_target` /
-`make_unreachable_finding` — a static BFS reachability oracle cross-checks the
-engine's own `unreachable` verdict; only when BOTH agree is a quest aborted and a
-confirmed `unreachable_target` Finding recorded, so an LLM's mere suspicion can
-never abort a quest on its own); the main loop (`PlaytestAgent.run`) driving the
-REAL `AureusEnv` — `done`/`completed` is always read back from the env, never
-claimed by a model — with a stagnation-triggered Reflector hint, plus a flat
-(no-planner) ablation that skips the Planner call entirely; the regression harness
-(`gameforge/agents/playtest_harness.py`: `run_playtest_corpus` — completion rate +
-per-length-bucket 95% Wilson CI + `RECORD`/`REPLAY` entrypoints; `random_baseline`
-— a no-LLM uniform-random-action floor); and a REPLAY/scripted smoke test proving
-the planner/executor ablation switch runs both positions end-to-end through the
-harness, with the scripted agent (`completion_rate == 1.0`) genuinely beating the
-random floor on the same scenario (`completion_rate < 1.0`).
-
-**Interfaces defined now, implementation deferred:** the ≥20-chain deterministic
-scenario generator and the real live-opus RECORD pass that would produce actual
-corpus-wide completion-rate numbers (M2b-1b — today's numbers are scripted-smoke
-proof-of-life on one scenario, not a completion-rate claim over a real corpus);
-mem-trace + memory ablation (the `memory` slot is already wired into
-`PlaytestAgent.run` / `run_playtest_corpus`, guarded by a `None` check, and runs
-as `None` this milestone) and the adversarial-quorum narrative-defect advance
-(M2b-2).
+<p align="center"><sub>Correctness before confidence · Evidence before claims · Policy before release</sub></p>

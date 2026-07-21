@@ -1,0 +1,95 @@
+<svg width="1400" height="660" viewBox="0 0 1400 660" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="70" y1="20" x2="1330" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#171D19"/>
+      <stop offset="1" stop-color="#0D100F"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#6BC2B9"/>
+      <stop offset="0.52" stop-color="#DAB06A"/>
+      <stop offset="1" stop-color="#91A8E8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M1 1L9 5L1 9" stroke="#59665F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="660" rx="30" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1398" height="658" rx="29" stroke="#2B342F" stroke-width="2"/>
+  <circle cx="1220" cy="-10" r="270" fill="#74C8BF" fill-opacity="0.035"/>
+  <circle cx="138" cy="675" r="250" fill="#DAB06A" fill-opacity="0.035"/>
+
+  <text x="70" y="82" fill="#F3F1E9" font-size="36" font-weight="700" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">把内容生产，变成一条可证明的编译流水线</text>
+  <text x="70" y="120" fill="#9FAAA4" font-size="18" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">LLM 负责提出可能性；确定性检查器、真实环境与冻结发布策略掌握最终裁决权。</text>
+  <rect x="70" y="148" width="1260" height="3" rx="1.5" fill="url(#rule)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="70" y="205" width="238" height="242" rx="18" fill="#1D2420" stroke="#344039"/>
+    <rect x="336" y="205" width="238" height="242" rx="18" fill="#1D2420" stroke="#344039"/>
+    <rect x="602" y="205" width="238" height="242" rx="18" fill="#1D2420" stroke="#344039"/>
+    <rect x="868" y="205" width="238" height="242" rx="18" fill="#1D2420" stroke="#344039"/>
+  </g>
+
+  <path d="M308 326H330" stroke="#59665F" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M574 326H596" stroke="#59665F" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M840 326H862" stroke="#59665F" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">
+    <rect x="92" y="229" width="48" height="25" rx="12.5" fill="#6BC2B9" fill-opacity="0.14"/>
+    <text x="116" y="247" text-anchor="middle" fill="#7ED4CA" font-size="12" font-weight="700">01</text>
+    <text x="92" y="294" fill="#F3F1E9" font-size="23" font-weight="700">编译内容</text>
+    <text x="92" y="330" fill="#A9B2AD" font-size="15">策划案 · 配置表</text>
+    <text x="92" y="356" fill="#A9B2AD" font-size="15">→ Design-Spec IR</text>
+    <text x="92" y="404" fill="#6BC2B9" font-size="13" font-weight="600">版本化 · 类型化 · 可追溯</text>
+
+    <rect x="358" y="229" width="48" height="25" rx="12.5" fill="#DAB06A" fill-opacity="0.14"/>
+    <text x="382" y="247" text-anchor="middle" fill="#E6BE79" font-size="12" font-weight="700">02</text>
+    <text x="358" y="294" fill="#F3F1E9" font-size="23" font-weight="700">确定性裁决</text>
+    <text x="358" y="330" fill="#A9B2AD" font-size="15">Graph · Clingo · z3</text>
+    <text x="358" y="356" fill="#A9B2AD" font-size="15">经济仿真与约束检查</text>
+    <text x="358" y="404" fill="#E6BE79" font-size="13" font-weight="600">对错不交给模型猜测</text>
+
+    <rect x="624" y="229" width="48" height="25" rx="12.5" fill="#91A8E8" fill-opacity="0.14"/>
+    <text x="648" y="247" text-anchor="middle" fill="#A9B9ED" font-size="12" font-weight="700">03</text>
+    <text x="624" y="294" fill="#F3F1E9" font-size="23" font-weight="700">有边界地修复</text>
+    <text x="624" y="330" fill="#A9B2AD" font-size="15">Agent 提出补丁草案</text>
+    <text x="624" y="356" fill="#A9B2AD" font-size="15">Verifier 逐轮验真</text>
+    <text x="624" y="404" fill="#A9B9ED" font-size="13" font-weight="600">失败证据驱动下一次尝试</text>
+
+    <rect x="890" y="229" width="48" height="25" rx="12.5" fill="#B98ECB" fill-opacity="0.14"/>
+    <text x="914" y="247" text-anchor="middle" fill="#CCA3DD" font-size="12" font-weight="700">04</text>
+    <text x="890" y="294" fill="#F3F1E9" font-size="23" font-weight="700">真实回归</text>
+    <text x="890" y="330" fill="#A9B2AD" font-size="15">Playtest Agent 在 Aureus</text>
+    <text x="890" y="356" fill="#A9B2AD" font-size="15">执行任务与系统链路</text>
+    <text x="890" y="404" fill="#CCA3DD" font-size="13" font-weight="600">环境才是完成状态的 authority</text>
+  </g>
+
+  <path d="M1106 326H1140" stroke="#59665F" stroke-width="2" marker-end="url(#arrow)"/>
+  <g filter="url(#shadow)">
+    <rect x="1144" y="205" width="186" height="242" rx="18" fill="#20241E" stroke="#596047"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">
+    <rect x="1166" y="229" width="48" height="25" rx="12.5" fill="#8DA568" fill-opacity="0.18"/>
+    <text x="1190" y="247" text-anchor="middle" fill="#AFC880" font-size="12" font-weight="700">05</text>
+    <text x="1166" y="294" fill="#F3F1E9" font-size="23" font-weight="700">受控发布</text>
+    <text x="1166" y="330" fill="#A9B2AD" font-size="15">冻结发布策略</text>
+    <text x="1166" y="356" fill="#A9B2AD" font-size="15">精确应用与回滚</text>
+    <text x="1166" y="396" fill="#AFC880" font-size="11.5" font-weight="600">人工批准 / 可校验的</text>
+    <text x="1166" y="416" fill="#AFC880" font-size="11.5" font-weight="600">结构性 auto-apply · 审计保留</text>
+  </g>
+
+  <rect x="70" y="495" width="1260" height="103" rx="16" fill="#131814" stroke="#2B342F"/>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">
+    <text x="100" y="535" fill="#77847D" font-size="12" font-weight="700" letter-spacing="1.2">TRUST BOUNDARY</text>
+    <text x="100" y="570" fill="#F3F1E9" font-size="17" font-weight="650">Agent → 提议</text>
+    <text x="270" y="570" fill="#4B5751" font-size="20">/</text>
+    <text x="300" y="570" fill="#F3F1E9" font-size="17" font-weight="650">Checker + Env → 验证</text>
+    <text x="545" y="570" fill="#4B5751" font-size="20">/</text>
+    <text x="575" y="570" fill="#F3F1E9" font-size="17" font-weight="650">Policy → 人工批准 / 结构性 auto-apply</text>
+    <text x="900" y="570" fill="#4B5751" font-size="20">/</text>
+    <text x="930" y="570" fill="#F3F1E9" font-size="17" font-weight="650">Versioning → 应用与回滚</text>
+  </g>
+</svg>
