@@ -23,14 +23,14 @@
 <br/>
 
 <p align="center">
-  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.webm">
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.mp4">
     <img src="docs/assets/readme/hero-journey-a-v2-zh.png" alt="GameForge：让游戏内容可以被证明" width="100%"/>
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.webm"><strong>▶ 观看约 84 秒中文无配音演示</strong></a><br/>
-  <sub>7.31 MiB · 同一次真实本地 Journey A · 本地 API / worker · cassette 回放 · 外网阻断 · 1280 × 720</sub>
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.mp4"><strong>▶ 观看约 84 秒中文无配音演示</strong></a><br/>
+  <sub>H.264 MP4 · 4.08 MiB · 同一次真实本地 Journey A · 本地 API / worker · cassette 回放 · 外网阻断 · 1280 × 720</sub>
 </p>
 
 ## 30 秒看懂 GameForge

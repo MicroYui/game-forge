@@ -18,9 +18,10 @@
 
 ## 视频
 
-中文 V2 实测约 83.96 秒、1280 × 720、无配音 WebM，同一次录制生成。当前使用仓库内单个
-7,666,033-byte 压缩文件；SHA-256 为
-`ceadecab0b53c46bfd6c8eb9ecc2184e524fd4a393fb6487d67a8e3c59b02d72`。
+中文 V2 实测约 83.96 秒、1280 × 720、无音轨 H.264 MP4，由同一次 WebM 录制转码生成。
+当前使用仓库内单个 4,273,106-byte 压缩文件；SHA-256 为
+`3b173dec05f5dec91a43ff4b4151f7573ebb925528c0034826ab683d39d0ffb0`。
+转码固定为 `libx264 / CRF 25 / preset slow / yuv420p / faststart / no audio`。
 后续可替换版本应优先使用 GitHub attachment / Release，避免把重复大二进制写入 Git 历史。
 
 ## 示意图
