@@ -22,6 +22,8 @@
 当前使用仓库内单个 4,273,106-byte 压缩文件；SHA-256 为
 `3b173dec05f5dec91a43ff4b4151f7573ebb925528c0034826ab683d39d0ffb0`。
 转码固定为 `libx264 / CRF 25 / preset slow / yuv420p / faststart / no audio`。
+GitHub 首页以封面链接该 raw MP4；GitHub 当前把仓库二进制作为下载响应提供，因此 CTA
+明确标为“下载 / 播放”，不冒充 README 内联播放器。
 后续可替换版本应优先使用 GitHub attachment / Release，避免把重复大二进制写入 Git 历史。
 
 ## 示意图

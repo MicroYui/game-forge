@@ -29,7 +29,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.mp4"><strong>▶ 观看约 84 秒中文无配音演示</strong></a><br/>
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.mp4"><strong>▶ 下载 / 播放约 84 秒中文无配音演示</strong></a><br/>
   <sub>H.264 MP4 · 4.08 MiB · 同一次真实本地 Journey A · 本地 API / worker · cassette 回放 · 外网阻断 · 1280 × 720</sub>
 </p>
 
