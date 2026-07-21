@@ -6347,6 +6347,49 @@ def test_task_suite_accepts_exact_preview_config_constraint_and_environment(
     assert harness.reservation_group(accepted.run_id) is not None
 
 
+def test_task_suite_rejects_derivation_worker_adapter_drift_before_run_or_hold(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(
+        tmp_path,
+        profile_updates={
+            TASK_SUITE_PROFILE.profile_id: {
+                "handler_key": "builtin_task_suite_derivation_profile@999"
+            }
+        },
+    )
+    preview = _seed_preview(harness, label="adapter-drift")
+    constraint = _seed_constraint(harness)
+    config = _seed_config(
+        harness,
+        label="adapter-drift",
+        preview=preview,
+        constraint=constraint,
+    )
+    oracle_registry = harness.registry.completion_oracle_registries[0]
+    params = TaskSuiteDerivePayloadV1(
+        source_preview_artifact_id=preview.artifact_id,
+        config_artifact_id=config.artifact_id,
+        constraint_snapshot_artifact_id=constraint.artifact_id,
+        derivation_profile=TASK_SUITE_PROFILE,
+        environment_profile=ENVIRONMENT_PROFILE,
+        completion_oracle_registry_ref=CompletionOracleRegistryRefV1(
+            registry_version=oracle_registry.registry_version,
+            digest=oracle_registry.registry_digest,
+        ),
+    )
+    key = "task-suite:adapter-drift"
+
+    with pytest.raises(Conflict, match="adapter contract"):
+        harness.engine_admission.admit_resource_run(
+            params=params,
+            actor=_tooling_actor(),
+            server=_server(key),
+        )
+
+    _assert_no_admission_side_effects(harness, key=key)
+
+
 def test_task_suite_rejects_profile_bound_to_another_oracle_registry_before_hold(
     tmp_path: Path,
 ) -> None:

@@ -18,7 +18,7 @@ from pydantic import (
 )
 
 from gameforge.bench.hed.contracts import content_sha256
-from gameforge.bench.qa.contracts import QaSessionEvidence
+from gameforge.bench.qa.contracts import QA_ACTIVE_CAP_NS, QaSessionEvidence, load_session
 from gameforge.bench.qa.protocol import QaProtocol
 from gameforge.bench.stats import percentile, percentile_bootstrap_ci
 from gameforge.bench.taxonomy import DefectClass
@@ -34,6 +34,8 @@ StableId = Annotated[
         pattern=r"^[A-Za-z0-9][A-Za-z0-9._:@-]*$",
     ),
 ]
+_NS_PER_MINUTE = 60_000_000_000
+_ACTIVE_CAP_MINUTES = QA_ACTIVE_CAP_NS / _NS_PER_MINUTE
 
 
 class _StrictModel(BaseModel):
@@ -100,8 +102,10 @@ class QaPairOutcome(_StrictModel):
     defect_class: DefectClass
     manual_session_id: StableId
     assisted_session_id: StableId
-    manual_minutes: float = Field(gt=0.0)
-    assisted_minutes: float = Field(ge=0.0)
+    manual_active_minutes: float = Field(gt=0.0)
+    assisted_active_minutes: float = Field(ge=0.0)
+    manual_scored_minutes: float = Field(gt=0.0)
+    assisted_scored_minutes: float = Field(ge=0.0)
     saved_minutes: float
     saved_fraction: float
     manual_correct: bool
@@ -109,8 +113,10 @@ class QaPairOutcome(_StrictModel):
     pair_sha256: Sha256
 
     @field_validator(
-        "manual_minutes",
-        "assisted_minutes",
+        "manual_active_minutes",
+        "assisted_active_minutes",
+        "manual_scored_minutes",
+        "assisted_scored_minutes",
         "saved_minutes",
         "saved_fraction",
         mode="before",
@@ -128,8 +134,16 @@ class QaPairOutcome(_StrictModel):
 
     @model_validator(mode="after")
     def validate_pair(self) -> QaPairOutcome:
-        expected_saved = self.manual_minutes - self.assisted_minutes
-        expected_fraction = expected_saved / self.manual_minutes
+        expected_manual = self.manual_active_minutes if self.manual_correct else _ACTIVE_CAP_MINUTES
+        expected_assisted = (
+            self.assisted_active_minutes if self.assisted_correct else _ACTIVE_CAP_MINUTES
+        )
+        if abs(self.manual_scored_minutes - expected_manual) > 1e-12:
+            raise ValueError("manual scored minutes do not follow the correctness rule")
+        if abs(self.assisted_scored_minutes - expected_assisted) > 1e-12:
+            raise ValueError("assisted scored minutes do not follow the correctness rule")
+        expected_saved = self.manual_scored_minutes - self.assisted_scored_minutes
+        expected_fraction = expected_saved / self.manual_scored_minutes
         if abs(self.saved_minutes - expected_saved) > 1e-12:
             raise ValueError("saved_minutes does not rederive from arm times")
         if abs(self.saved_fraction - expected_fraction) > 1e-12:
@@ -144,6 +158,7 @@ class QaScore(_StrictModel):
     planned_pairs: Literal[4] = 4
     evaluated_pairs: int = Field(ge=0, le=4)
     protocol_failure_pairs: int = Field(ge=0, le=4)
+    time_scoring: Literal["incorrect_uses_active_cap"] = "incorrect_uses_active_cap"
     pairs: tuple[QaPairOutcome, ...]
     mean_saved_minutes: float | None = None
     median_saved_minutes: float | None = None
@@ -226,11 +241,7 @@ def _conclusion(
         return "failed"
     if mean_saved is not None and mean_saved < 0:
         return "negative"
-    if (
-        ci_low is not None
-        and ci_low > 0
-        and assisted.rate >= manual.rate
-    ):
+    if ci_low is not None and ci_low > 0 and assisted.rate >= manual.rate:
         return "savings"
     return "inconclusive"
 
@@ -245,8 +256,7 @@ def _session_matches_spec(session: QaSessionEvidence, spec, protocol: QaProtocol
         and session.arm == spec.arm
         and session.order == spec.order
         and session.protocol_valid
-        and session.evidence_sha256
-        == content_sha256(session, exclude={"evidence_sha256"})
+        and session.evidence_sha256 == content_sha256(session, exclude={"evidence_sha256"})
     )
 
 
@@ -295,19 +305,27 @@ def score_sessions(
         if manual.capped_active_ns <= 0:
             failure_pairs += 1
             continue
-        manual_minutes = manual.capped_active_ns / 60_000_000_000
-        assisted_minutes = assisted.capped_active_ns / 60_000_000_000
-        saved_minutes = manual_minutes - assisted_minutes
+        manual_active_minutes = manual.capped_active_ns / _NS_PER_MINUTE
+        assisted_active_minutes = assisted.capped_active_ns / _NS_PER_MINUTE
+        manual_scored_minutes = (
+            manual_active_minutes if manual.verdict.correct else _ACTIVE_CAP_MINUTES
+        )
+        assisted_scored_minutes = (
+            assisted_active_minutes if assisted.verdict.correct else _ACTIVE_CAP_MINUTES
+        )
+        saved_minutes = manual_scored_minutes - assisted_scored_minutes
         pairs.append(
             QaPairOutcome.seal(
                 pair_id=pair_id,
                 defect_class=specs[0].defect_class,
                 manual_session_id=manual.session_id,
                 assisted_session_id=assisted.session_id,
-                manual_minutes=manual_minutes,
-                assisted_minutes=assisted_minutes,
+                manual_active_minutes=manual_active_minutes,
+                assisted_active_minutes=assisted_active_minutes,
+                manual_scored_minutes=manual_scored_minutes,
+                assisted_scored_minutes=assisted_scored_minutes,
                 saved_minutes=saved_minutes,
-                saved_fraction=saved_minutes / manual_minutes,
+                saved_fraction=saved_minutes / manual_scored_minutes,
                 manual_correct=manual.verdict.correct,
                 assisted_correct=assisted.verdict.correct,
             )
@@ -357,9 +375,9 @@ def score_sessions(
 
 
 class QaEvidenceManifest(_StrictModel):
-    schema_version: Literal["qa-evidence@1"] = "qa-evidence@1"
+    schema_version: Literal["qa-evidence@2"] = "qa-evidence@2"
     protocol_sha256: Sha256
-    participant_id: Literal["participant-01"] = "participant-01"
+    participant_id: StableId = "participant-01"
     sessions: tuple[QaSessionEvidence, ...]
     score: QaScore
     evidence_sha256: Sha256
@@ -375,6 +393,8 @@ class QaEvidenceManifest(_StrictModel):
             raise ValueError("QA evidence contains duplicate sessions")
         if any(item.protocol_sha256 != self.protocol_sha256 for item in self.sessions):
             raise ValueError("QA session protocol hash differs from evidence")
+        if any(item.participant_id != self.participant_id for item in self.sessions):
+            raise ValueError("QA session participant differs from evidence")
         expected_hash = content_sha256(self, exclude={"evidence_sha256"})
         if self.evidence_sha256 != expected_hash:
             raise ValueError("evidence_sha256 does not bind QA evidence")
@@ -387,7 +407,7 @@ def seal_qa_evidence(
 ) -> QaEvidenceManifest:
     ordered = tuple(sorted(sessions, key=lambda item: item.order))
     payload = {
-        "schema_version": "qa-evidence@1",
+        "schema_version": "qa-evidence@2",
         "protocol_sha256": protocol.protocol_sha256,
         "participant_id": protocol.participant_id,
         "sessions": ordered,
@@ -430,7 +450,27 @@ def validate_qa_evidence(
     if evidence.score != score_sessions(protocol, evidence.sessions):
         raise ValueError("QA evidence score does not rederive")
     root = Path(artifact_root).resolve(strict=True)
+    expected_session_names = {f"{session.session_id}.json" for session in evidence.sessions}
+    expected_patch_names = {f"{session.session_id}.patch" for session in evidence.sessions}
     for session in evidence.sessions:
+        expected_patch_path = f"qa-patches/{session.session_id}.patch"
+        if session.final_patch_path != expected_patch_path:
+            raise ValueError(f"QA final patch path mismatch for {session.session_id}")
+    session_root = root / "qa-sessions"
+    patch_root = root / "qa-patches"
+    if (
+        not session_root.is_dir()
+        or not patch_root.is_dir()
+        or {path.name for path in session_root.iterdir()} != expected_session_names
+        or {path.name for path in patch_root.iterdir()} != expected_patch_names
+    ):
+        raise ValueError("QA session and patch artifact sets must exactly match evidence")
+    for session in evidence.sessions:
+        session_path = (root / "qa-sessions" / f"{session.session_id}.json").resolve(strict=True)
+        if not session_path.is_file() or not session_path.is_relative_to(root):
+            raise ValueError("QA session evidence is outside the artifact root")
+        if load_session(session_path) != session:
+            raise ValueError(f"QA stored session mismatch for {session.session_id}")
         patch_path = (root / session.final_patch_path).resolve(strict=True)
         if not patch_path.is_file() or not patch_path.is_relative_to(root):
             raise ValueError("QA final patch is outside the artifact root")

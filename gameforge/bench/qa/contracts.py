@@ -66,9 +66,7 @@ def _validate_finding_keys(values: tuple[FindingKey, ...]) -> None:
 
 
 class QaCorrectnessVerdict(_StrictModel):
-    schema_version: Literal["qa-correctness-verdict@1"] = (
-        "qa-correctness-verdict@1"
-    )
+    schema_version: Literal["qa-correctness-verdict@1"] = "qa-correctness-verdict@1"
     correct: bool
     reader_round_trip: bool
     native_exit_code: int | None = None
@@ -168,7 +166,7 @@ class QaSessionEvidence(_StrictModel):
     schema_version: Literal["qa-session@1"] = "qa-session@1"
     protocol_sha256: Sha256
     session_id: StableId
-    participant_id: Literal["participant-01"]
+    participant_id: StableId
     case_id: StableId
     pair_id: StableId
     arm: QaArm
@@ -272,6 +270,7 @@ __all__ = [
     "QaSessionEvidence",
     "QaSessionSpec",
     "QaSplit",
+    "StableId",
     "canonical_session_bytes",
     "content_sha256",
     "load_session",

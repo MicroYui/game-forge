@@ -10,7 +10,11 @@ from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, StringConstraints, ValidationError, WithJsonSchema
 
 from gameforge.apps.api.dependencies import require_actor
-from gameforge.contracts.cost import MAX_COST_USAGE_PAGE_SIZE, RunCostViewV1
+from gameforge.contracts.cost import (
+    MAX_COST_USAGE_PAGE_SIZE,
+    RunCostView,
+    RunCostViewSchemaVersion,
+)
 from gameforge.contracts.errors import QueryTooBroad, RequestSchemaInvalid
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.observability import (
@@ -232,18 +236,20 @@ def observability_router(service: ObservabilityReadService) -> APIRouter:
             series_limit=series_limit,
         )
 
-    @router.get("/cost/{run_id}", response_model=RunCostViewV1)
+    @router.get("/cost/{run_id}", response_model=RunCostView)
     def get_run_cost(
         run_id: NonEmptyStr,
         cursor: _BoundedCursor | None = None,
         limit: _CostPageLimit = 100,
+        view_schema_version: RunCostViewSchemaVersion = "run-cost-view@1",
         actor: ActorContext = Depends(require_actor),
-    ) -> RunCostViewV1:
+    ) -> RunCostView:
         return service.get_run_cost(
             principal=actor.principal,
             run_id=run_id,
             cursor=cursor,
             limit=limit,
+            view_schema_version=view_schema_version,
         )
 
     return router

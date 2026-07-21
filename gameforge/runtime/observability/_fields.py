@@ -24,6 +24,7 @@ from gameforge.contracts.observability import (
 
 DropCallback = Callable[[], None]
 _TELEMETRY_KEY = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,127}$")
+_KEY_SEPARATOR_TRANSLATION = str.maketrans("", "", "-._")
 _SENSITIVE_KEY_MARKERS = (
     "access_token",
     "api_key",
@@ -32,35 +33,52 @@ _SENSITIVE_KEY_MARKERS = (
     "credential",
     "id_token",
     "password",
+    "prompt",
     "prompt_text",
     "raw_prompt",
     "raw_response",
     "refresh_token",
     "rendered_prompt",
     "response_body",
+    "secret",
     "session_token",
     "system_prompt",
     "user_prompt",
 )
+_COMPACT_SENSITIVE_KEY_MARKERS = tuple(
+    marker.casefold().translate(_KEY_SEPARATOR_TRANSLATION) for marker in _SENSITIVE_KEY_MARKERS
+)
 _AUTHORIZATION_VALUE = re.compile(r"(?i)(authorization\s*[:=]\s*)?(?:bearer|basic)\s+[^\s,;]+")
 _NAMED_SECRET_MARKER = re.compile(
-    r"(?i)\b(?:api[_-]?key|client[_-]?secret|password|secret|session[_-]?token)"
+    r"(?i)\b(?:access[-._ ]?token|api[-._ ]?key|client[-._ ]?secret|"
+    r"credential|id[-._ ]?token|password|refresh[-._ ]?token|secret|session[-._ ]?token)"
     r"\s*[\"']?\s*[:=]"
 )
-_CONTENT_BLOB_MARKER = re.compile(r"(?i)\b(?:prompt|raw[_ ]?response)\s*[:=]")
+_GENERIC_AUTHORIZATION_MARKER = re.compile(
+    r"(?i)\bauthorization\s*[\"']?\s*[:=](?!\s*\[REDACTED\])"
+)
+_CONTENT_BLOB_MARKER = re.compile(
+    r"(?i)\b(?:prompt|prompt[-._ ]?text|raw[-._ ]?prompt|raw[-._ ]?response|"
+    r"rendered[-._ ]?prompt|response[-._ ]?body|system[-._ ]?prompt|user[-._ ]?prompt)"
+    r"\s*[\"']?\s*[:=]"
+)
 
 
 def is_sensitive_key(key: str) -> bool:
-    normalized = key.lower().replace("-", "_").replace(".", "_")
-    return normalized in {"prompt", "response", "secret"} or any(
-        marker in normalized for marker in _SENSITIVE_KEY_MARKERS
+    compact = key.casefold().translate(_KEY_SEPARATOR_TRANSLATION)
+    return compact in {"prompt", "response", "secret"} or any(
+        marker in compact for marker in _COMPACT_SENSITIVE_KEY_MARKERS
     )
 
 
 def redact_sensitive_text(value: str) -> tuple[str, bool]:
-    if _CONTENT_BLOB_MARKER.search(value) or _NAMED_SECRET_MARKER.search(value):
-        return "[REDACTED]", True
     redacted = _AUTHORIZATION_VALUE.sub("Authorization: [REDACTED]", value)
+    if (
+        _CONTENT_BLOB_MARKER.search(redacted)
+        or _NAMED_SECRET_MARKER.search(redacted)
+        or _GENERIC_AUTHORIZATION_MARKER.search(redacted)
+    ):
+        return "[REDACTED]", True
     return redacted, redacted != value
 
 

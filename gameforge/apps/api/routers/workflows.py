@@ -18,6 +18,7 @@ from gameforge.contracts.api import (
     ApprovalViewV1,
     BoundedId,
     OpaquePageV1,
+    RunFindingLinkViewV1,
     RunViewV1,
     compute_resource_etag,
 )
@@ -156,6 +157,27 @@ def workflow_read_router(
         actor: ActorContext = Depends(require_actor),
     ) -> OpaquePageV1[FindingRevisionV1]:
         page = service.list_run_findings(
+            actor.principal,
+            run_id,
+            cursor=_cursor(cursor, codec),
+            limit=limit,
+        )
+        projected = to_opaque_page(page, codec=codec)
+        _set_page_headers(response, projected.read_snapshot_id)
+        return projected
+
+    @router.get(
+        "/runs/{run_id}/finding-links",
+        response_model=OpaquePageV1[RunFindingLinkViewV1],
+    )
+    def run_finding_links(
+        run_id: BoundedId,
+        response: Response,
+        cursor: OpaquePageCursorParameter | None = None,
+        limit: PageLimitParameter = 100,
+        actor: ActorContext = Depends(require_actor),
+    ) -> OpaquePageV1[RunFindingLinkViewV1]:
+        page = service.list_run_finding_links(
             actor.principal,
             run_id,
             cursor=_cursor(cursor, codec),

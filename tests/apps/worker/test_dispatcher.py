@@ -244,6 +244,7 @@ def _dispatcher(
     max_in_flight=1,
     tracer=None,
     logger=None,
+    operational_metrics=None,
 ):
     return RunDispatcher(
         claim_service=_FakeClaim(claim_results),
@@ -262,6 +263,7 @@ def _dispatcher(
         max_in_flight=max_in_flight,
         tracer=tracer or Tracer(exporter=InMemoryExporter(capacity=32)),
         logger=logger or _structured_logger(),
+        operational_metrics=operational_metrics,
     )
 
 
@@ -303,6 +305,43 @@ def test_dispatch_once_reaps_claims_starts_and_runs_with_live_heartbeat() -> Non
     # The runner executed the started attempt and the heartbeat was stopped after.
     assert runner.calls and runner.calls[0][0] == run.run_id
     assert heartbeat.started is True and heartbeat.stopped is True
+
+
+def test_dispatch_attempt_metrics_follow_committed_boundaries_and_are_best_effort() -> None:
+    class Metrics:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, str]] = []
+
+        def record_worker_attempt(self, *, run_kind: str, phase: str) -> None:
+            self.calls.append((run_kind, phase))
+            raise OSError("metric exporter unavailable")
+
+    _, definition = _registry_and_definition()
+    run = _run_record(definition).model_copy(update={"status": "leased"})
+    leased_attempt = _leased_attempt()
+    lease = _lease()
+    heartbeat = _FakeHeartbeat()
+    runner = _FakeRunner(heartbeat)
+    lifecycle = _FakeLifecycle(run, _attempt(), lease)
+    metrics = Metrics()
+
+    with ThreadedBlockingExecutorPool(max_workers=2) as pool:
+        dispatcher = _dispatcher(
+            claim_results=[_claim_result(run, leased_attempt, lease)],
+            expired=(),
+            heartbeat=heartbeat,
+            runner=runner,
+            lifecycle=lifecycle,
+            pool=pool,
+            operational_metrics=metrics,
+        )
+        worked = asyncio.run(dispatcher.dispatch_once())
+
+    assert worked is True
+    assert metrics.calls == [
+        (run.kind.kind, "started"),
+        (run.kind.kind, "terminal_published"),
+    ]
 
 
 def test_idle_iteration_returns_false_and_a_missed_hint_loses_nothing() -> None:

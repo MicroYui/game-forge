@@ -23,7 +23,12 @@ from hashlib import sha256
 
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.identity import ActorContext, DomainScope
-from gameforge.contracts.lineage import ArtifactV2, VersionTuple, build_artifact_v2
+from gameforge.contracts.lineage import (
+    ArtifactV2,
+    VersionTuple,
+    build_artifact_v2,
+    object_ref_for_bytes,
+)
 from gameforge.contracts.provenance import (
     OriginRefV1,
     PromptPurpose,
@@ -65,6 +70,14 @@ class MintedSource:
 
     artifact: ArtifactV2
     stored: StoredObject
+    provenance: ProvenanceV1
+
+
+@dataclass(frozen=True, slots=True)
+class ProjectedSource:
+    """The exact source identity derived without touching an object store."""
+
+    artifact: ArtifactV2
     provenance: ProvenanceV1
 
 
@@ -131,20 +144,45 @@ class AuthenticatedGoalSourceWriter:
         domain_scope: DomainScope,
         created_at: str,
     ) -> MintedSource:
+        projected = self.project(
+            actor=actor,
+            text=text,
+            domain_scope=domain_scope,
+            created_at=created_at,
+        )
+        # Blob first: verified bytes become a GC-eligible orphan if Run creation later
+        # fails, but the naked text never enters the Run payload or telemetry.
+        stored = object_store.put_verified(text.encode("utf-8"))
+        if stored.ref != projected.artifact.object_ref:
+            raise IntegrityViolation("object store changed the projected source identity")
+        return MintedSource(
+            artifact=projected.artifact,
+            stored=stored,
+            provenance=projected.provenance,
+        )
+
+    def project(
+        self,
+        *,
+        actor: ActorContext,
+        text: str,
+        domain_scope: DomainScope,
+        created_at: str,
+    ) -> ProjectedSource:
+        """Derive the same immutable source identity without publishing bytes."""
+
         if not isinstance(text, str) or not text:
             raise IntegrityViolation("authenticated goal text must be a non-empty string")
         if not isinstance(domain_scope, DomainScope):
             raise IntegrityViolation("authenticated goal requires an exact domain scope")
-        # Blob first: verified bytes become a GC-eligible orphan if Run creation later
-        # fails, but the naked text never enters the Run payload or telemetry.
-        stored = object_store.put_verified(text.encode("utf-8"))
-        provenance = self._policy.assign(actor=actor, source_hash=stored.ref.sha256)
+        object_ref = object_ref_for_bytes(text.encode("utf-8"))
+        provenance = self._policy.assign(actor=actor, source_hash=object_ref.sha256)
         artifact = build_artifact_v2(
             kind="source_raw",
             version_tuple=VersionTuple(doc_version=provenance.origin_ref.source_revision),
             lineage=(),
-            payload_hash=stored.ref.sha256,
-            object_ref=stored.ref,
+            payload_hash=object_ref.sha256,
+            object_ref=object_ref,
             meta={
                 "payload_schema_id": "source-raw@1",
                 "domain_scope": domain_scope.model_dump(mode="json"),
@@ -152,11 +190,12 @@ class AuthenticatedGoalSourceWriter:
             },
             created_at=created_at,
         )
-        return MintedSource(artifact=artifact, stored=stored, provenance=provenance)
+        return ProjectedSource(artifact=artifact, provenance=provenance)
 
 
 __all__ = [
     "AuthenticatedGoalSourceWriter",
     "GoalProvenancePolicy",
     "MintedSource",
+    "ProjectedSource",
 ]

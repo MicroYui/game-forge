@@ -58,6 +58,7 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("post", "/api/v1/generation:propose", "202"),
     ("get", "/api/v1/reviews", "200"),
     ("get", "/api/v1/reviews/{artifact_id}", "200"),
+    ("get", "/api/v1/reviews/{artifact_id}/producer-binding", "200"),
     ("get", "/api/v1/findings", "200"),
     ("get", "/api/v1/findings/{finding_id}", "200"),
     ("get", "/api/v1/findings/{finding_id}/revisions/{revision}", "200"),
@@ -88,13 +89,16 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("get", "/api/v1/refs/{ref_name}/history", "200"),
     ("get", "/api/v1/approvals", "200"),
     ("get", "/api/v1/approvals/{approval_id}", "200"),
+    ("get", "/api/v1/workflow-subjects/{artifact_id}/approval-binding", "200"),
     ("post", "/api/v1/approvals/{approval_id}:approve", "200"),
     ("post", "/api/v1/approvals/{approval_id}:reject", "200"),
     ("post", "/api/v1/approvals/{approval_id}:request_changes", "200"),
     ("post", "/api/v1/runs", "202"),
+    ("post", "/api/v1/execution-options:resolve", "200"),
     ("get", "/api/v1/runs", "200"),
     ("get", "/api/v1/runs/{run_id}", "200"),
     ("get", "/api/v1/runs/{run_id}/findings", "200"),
+    ("get", "/api/v1/runs/{run_id}/finding-links", "200"),
     ("get", "/api/v1/runs/{run_id}/events", "200"),
     ("get", "/api/v1/runs/{run_id}/traces", "200"),
     ("get", "/api/v1/runs/{run_id}/commands", "200"),
@@ -102,6 +106,16 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("get", "/api/v1/bench/report", "200"),
     ("get", "/api/v1/execution-profiles", "200"),
     ("get", "/api/v1/execution-profiles/{profile_id}/versions/{version}", "200"),
+    (
+        "get",
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding",
+        "200",
+    ),
+    (
+        "get",
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding",
+        "200",
+    ),
     ("get", "/api/v1/traces/{trace_id}", "200"),
     ("get", "/api/v1/traces/{trace_id}/spans", "200"),
     ("get", "/api/v1/logs/query", "200"),
@@ -199,6 +213,25 @@ def test_problem_responses_present_on_error_statuses() -> None:
         assert _PROBLEM_MEDIA in validate[status]["content"]
 
 
+def test_only_exact_execution_profile_binding_reads_add_conflict_response() -> None:
+    paths = _openapi()["paths"]
+    binding_paths = (
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding",
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding",
+    )
+
+    for binding_path in binding_paths:
+        binding_responses = paths[binding_path]["get"]["responses"]
+        assert binding_responses["409"]["content"][_PROBLEM_MEDIA]["schema"] == {
+            "$ref": "#/components/schemas/Problem"
+        }
+
+    ordinary_profile_responses = paths[
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}"
+    ]["get"]["responses"]
+    assert "409" not in ordinary_profile_responses
+
+
 def test_only_request_body_operations_document_wire_size_rejection() -> None:
     for path, path_item in _openapi()["paths"].items():
         for method, operation in path_item.items():
@@ -217,6 +250,46 @@ def test_only_request_body_operations_document_wire_size_rejection() -> None:
 
 def test_write_ops_document_idempotency_etag_and_if_match() -> None:
     paths = _openapi()["paths"]
+    create_paths = (
+        "/api/v1/specs",
+        "/api/v1/patches",
+        "/api/v1/constraint-proposals",
+        "/api/v1/refs/{ref_name}/rollback-requests",
+    )
+    for path in create_paths:
+        create_params = {
+            (parameter["name"], parameter["in"]): parameter
+            for parameter in paths[path]["post"]["parameters"]
+        }
+        assert create_params[("Idempotency-Key", "header")]["required"] is True
+        assert ("If-Match", "header") not in create_params
+        assert create_params[("X-CSRF-Token", "header")]["required"] is False
+
+    versioned_paths = (
+        "/api/v1/patches/{artifact_id}:validate",
+        "/api/v1/patches/{artifact_id}:submit-for-approval",
+        "/api/v1/patches/{artifact_id}:apply",
+        "/api/v1/patches/{artifact_id}:rebase",
+        "/api/v1/patches/{artifact_id}:resolve-conflicts",
+        "/api/v1/constraint-proposals/{artifact_id}:revise",
+        "/api/v1/constraint-proposals/{artifact_id}:validate",
+        "/api/v1/constraint-proposals/{artifact_id}:submit-for-approval",
+        "/api/v1/constraint-proposals/{artifact_id}:publish",
+        "/api/v1/approvals/{approval_id}:approve",
+        "/api/v1/approvals/{approval_id}:reject",
+        "/api/v1/approvals/{approval_id}:request_changes",
+        "/api/v1/rollback-requests/{artifact_id}:validate",
+        "/api/v1/rollback-requests/{artifact_id}:submit-for-approval",
+        "/api/v1/rollback-requests/{artifact_id}:apply",
+    )
+    for path in versioned_paths:
+        versioned_params = {
+            (parameter["name"], parameter["in"]): parameter
+            for parameter in paths[path]["post"]["parameters"]
+        }
+        assert versioned_params[("Idempotency-Key", "header")]["required"] is True
+        assert versioned_params[("If-Match", "header")]["required"] is True
+
     validate = paths["/api/v1/patches/{artifact_id}:validate"]["post"]
     params = {(p["name"], p["in"]): p for p in validate["parameters"]}
     assert params[("Idempotency-Key", "header")]["required"] is True
@@ -249,6 +322,97 @@ def test_write_ops_document_idempotency_etag_and_if_match() -> None:
     for status in ("409", "422"):
         problem_schema = cancel["responses"][status]["content"][_PROBLEM_MEDIA]["schema"]
         assert problem_schema == {"$ref": "#/components/schemas/Problem"}
+
+
+def test_execution_option_resolver_documents_only_non_safe_method_csrf() -> None:
+    operation = _openapi()["paths"]["/api/v1/execution-options:resolve"]["post"]
+    parameters = {(item["name"], item["in"]): item for item in operation["parameters"]}
+
+    assert parameters == {
+        ("X-CSRF-Token", "header"): {
+            **parameters[("X-CSRF-Token", "header")],
+            "required": False,
+        }
+    }
+    assert "non-safe HTTP method" in parameters[("X-CSRF-Token", "header")]["description"]
+    assert operation["responses"]["200"]["headers"] == {
+        "Cache-Control": {
+            "description": "Always `private, no-store` for execution options.",
+            "schema": {"type": "string"},
+        }
+    }
+
+
+def test_bench_report_documents_exact_selected_artifact_identity_without_body_wrapper() -> None:
+    response = _openapi()["paths"]["/api/v1/bench/report"]["get"]["responses"]["200"]
+
+    assert response["content"]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/BenchReport"
+    }
+    assert response["headers"]["X-Artifact-ID"] == {
+        "description": (
+            "Exact selected BenchReport Artifact ID; use it with "
+            "`/api/v1/artifacts/{artifact_id}` for provenance and lineage."
+        ),
+        "schema": {"type": "string", "minLength": 1, "maxLength": 512},
+    }
+
+
+def test_run_cost_documents_safe_settlement_state_and_missing_usage_evidence() -> None:
+    document = _openapi()
+    operation = document["paths"]["/api/v1/cost/{run_id}"]["get"]
+    assert operation["responses"]["200"]["content"]["application/json"]["schema"] == {
+        "discriminator": {
+            "mapping": {
+                "run-cost-view@1": "#/components/schemas/RunCostViewV1",
+                "run-cost-view@2": "#/components/schemas/RunCostViewV2",
+            },
+            "propertyName": "view_schema_version",
+        },
+        "oneOf": [
+            {"$ref": "#/components/schemas/RunCostViewV1"},
+            {"$ref": "#/components/schemas/RunCostViewV2"},
+        ],
+        "title": "Response Get Run Cost Api V1 Cost  Run Id  Get",
+    }
+    version_parameter = next(
+        item for item in operation["parameters"] if item["name"] == "view_schema_version"
+    )
+    assert version_parameter["in"] == "query"
+    assert version_parameter["required"] is False
+    assert version_parameter["schema"] == {
+        "default": "run-cost-view@1",
+        "enum": ["run-cost-view@1", "run-cost-view@2"],
+        "title": "View Schema Version",
+        "type": "string",
+    }
+    schemas = document["components"]["schemas"]
+    run_cost = schemas["RunCostViewV2"]
+    assert run_cost["properties"]["settlement_summary"] == {
+        "$ref": "#/components/schemas/CostSettlementSummaryV1"
+    }
+    assert "settlement_summary" in run_cost["required"]
+
+    summary = schemas["CostSettlementSummaryV1"]
+    assert summary["properties"]["usage_evidence_status"] == {
+        "type": "string",
+        "enum": ["recorded", "not_recorded"],
+        "title": "Usage Evidence Status",
+    }
+    assert summary["properties"]["late_adjustment_usage_count"]["minimum"] == 0
+    assert summary["properties"]["held_unknown_group_count"]["minimum"] == 0
+    assert summary["properties"]["group_counts"]["maxItems"] == 18
+
+    public_settlement_wire = json.dumps(
+        {name: schema for name, schema in schemas.items() if name.startswith("CostSettlement")}
+    )
+    for internal_field in (
+        "reservation_group_id",
+        "request_hash",
+        "routing_decision_id",
+        "fencing_token",
+    ):
+        assert internal_field not in public_settlement_wire
 
 
 def test_login_documents_session_cookie_contract() -> None:
@@ -289,11 +453,32 @@ def test_parent_bound_pages_document_not_found() -> None:
         "/api/v1/artifacts/{artifact_id}/lineage",
         "/api/v1/refs/{ref_name}/history",
         "/api/v1/runs/{run_id}/findings",
+        "/api/v1/runs/{run_id}/finding-links",
         "/api/v1/runs/{run_id}/commands",
         "/api/v1/conflict-sets/{conflict_set_id}/conflicts",
     )
     for path in parent_pages:
         assert "404" in paths[path]["get"]["responses"], path
+        assert "410" in paths[path]["get"]["responses"], path
+
+
+def test_run_finding_link_read_exposes_exact_revision_digest_and_evidence() -> None:
+    document = _openapi()
+    operation = document["paths"]["/api/v1/runs/{run_id}/finding-links"]["get"]
+    assert operation["responses"]["200"]["content"]["application/json"]["schema"]
+
+    schema = document["components"]["schemas"]["RunFindingLinkViewV1"]
+    assert set(schema["required"]) == {
+        "attempt_no",
+        "evidence_artifact_id",
+        "finding",
+        "finding_digest",
+        "ordinal",
+        "run_id",
+    }
+    assert schema["properties"]["view_schema_version"]["const"] == ("run-finding-link-view@1")
+    assert schema["properties"]["finding_digest"]["pattern"] == "^[0-9a-f]{64}$"
+    assert schema["properties"]["finding"]["$ref"].endswith("/FindingRevisionV1")
 
 
 def test_large_integer_bounds_remain_exact_in_openapi() -> None:

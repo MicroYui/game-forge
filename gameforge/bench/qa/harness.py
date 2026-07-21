@@ -17,12 +17,16 @@ from gameforge.bench.qa.contracts import (
     QaSessionEvidence,
     QaSessionSpec,
     canonical_session_bytes,
+    load_session,
 )
 from gameforge.bench.qa.protocol import QaProtocol
 from gameforge.bench.qa.session import (
+    QaSessionState,
+    bind_session_attestation,
+    freeze_session_submission,
+    frozen_submission_root,
     initialize_session,
     load_state,
-    transition_session,
 )
 from gameforge.contracts.canonical import canonical_json
 
@@ -147,12 +151,10 @@ def unified_submission_patch(
     output: list[str] = []
     for path in sorted(before):
         _normalized_relative(path)
-        old_lines = before[path].decode("utf-8", errors="surrogateescape").splitlines(
-            keepends=True
+        old_lines = before[path].decode("utf-8", errors="surrogateescape").splitlines(keepends=True)
+        new_lines = (
+            submitted[path].decode("utf-8", errors="surrogateescape").splitlines(keepends=True)
         )
-        new_lines = submitted[path].decode(
-            "utf-8", errors="surrogateescape"
-        ).splitlines(keepends=True)
         diff = difflib.unified_diff(
             old_lines,
             new_lines,
@@ -175,6 +177,45 @@ def _atomic_write(path: Path, raw: bytes) -> None:
     os.replace(temporary, path)
 
 
+def _assert_state_matches_session(
+    state: QaSessionState,
+    protocol: QaProtocol,
+    session: QaSessionSpec,
+) -> None:
+    if (
+        state.protocol_sha256 != protocol.protocol_sha256
+        or state.session_id != session.session_id
+        or state.pair_id != session.pair_id
+        or state.arm != session.arm
+        or state.order != session.order
+    ):
+        raise ValueError("QA timer state differs from the frozen session")
+
+
+def _validate_completed_evidence(
+    evidence: QaSessionEvidence,
+    protocol: QaProtocol,
+    session: QaSessionSpec,
+    state: QaSessionState,
+    patch: bytes,
+) -> None:
+    if (
+        evidence.protocol_sha256 != protocol.protocol_sha256
+        or evidence.session_id != session.session_id
+        or evidence.participant_id != protocol.participant_id
+        or evidence.case_id != session.case_id
+        or evidence.pair_id != session.pair_id
+        or evidence.arm != session.arm
+        or evidence.order != session.order
+        or evidence.events != state.events
+        or evidence.participant_attested_no_contamination
+        != state.participant_attested_no_contamination
+        or evidence.final_patch_path != f"qa-patches/{session.session_id}.patch"
+        or evidence.final_patch_sha256 != hashlib.sha256(patch).hexdigest()
+    ):
+        raise ValueError("completed QA evidence differs from its frozen session")
+
+
 def finalize_session(
     protocol: QaProtocol,
     session: QaSessionSpec,
@@ -186,23 +227,38 @@ def finalize_session(
 ) -> QaSessionEvidence:
     root = Path(bundle)
     evidence_path = root / "session-evidence.json"
-    if evidence_path.exists() or (root / "final.patch").exists():
-        raise ValueError("QA session is already finished")
+    patch_path = root / "final.patch"
     state = load_state(root)
-    if (
-        state.protocol_sha256 != protocol.protocol_sha256
-        or state.session_id != session.session_id
-        or state.pair_id != session.pair_id
-        or state.arm != session.arm
-        or state.order != session.order
-    ):
-        raise ValueError("QA timer state differs from the frozen session")
-    finished = transition_session(root, "finish", clock=clock)
-    patch, verdict = evaluator(root / "work")
+    _assert_state_matches_session(state, protocol, session)
+
+    if evidence_path.exists():
+        if not patch_path.is_file():
+            raise ValueError("completed QA evidence is missing its final patch")
+        state = bind_session_attestation(
+            root,
+            participant_attested_no_contamination,
+        )
+        frozen_submission_root(root, state)
+        evidence = load_session(evidence_path)
+        patch = patch_path.read_bytes()
+        _validate_completed_evidence(evidence, protocol, session, state, patch)
+        return evidence
+
+    state = freeze_session_submission(root, clock=clock)
+    _assert_state_matches_session(state, protocol, session)
+    state = bind_session_attestation(
+        root,
+        participant_attested_no_contamination,
+    )
+    submission_root = frozen_submission_root(root, state)
+    patch, verdict = evaluator(submission_root)
     if not isinstance(patch, bytes) or not isinstance(verdict, QaCorrectnessVerdict):
         raise TypeError("QA evaluator must return patch bytes and a correctness verdict")
-    patch_path = root / "final.patch"
-    _atomic_write(patch_path, patch)
+    if patch_path.exists():
+        if not patch_path.is_file() or patch_path.read_bytes() != patch:
+            raise ValueError("QA final patch differs from the frozen submission")
+    else:
+        _atomic_write(patch_path, patch)
     evidence = QaSessionEvidence.seal(
         protocol_sha256=protocol.protocol_sha256,
         session_id=session.session_id,
@@ -211,15 +267,18 @@ def finalize_session(
         pair_id=session.pair_id,
         arm=session.arm,
         order=session.order,
-        events=finished.events,
+        events=state.events,
         final_patch_path=f"qa-patches/{session.session_id}.patch",
         final_patch_sha256=hashlib.sha256(patch).hexdigest(),
-        participant_attested_no_contamination=(
-            participant_attested_no_contamination
-        ),
+        participant_attested_no_contamination=participant_attested_no_contamination,
         verdict=verdict,
     )
-    _atomic_write(evidence_path, canonical_session_bytes(evidence))
+    evidence_bytes = canonical_session_bytes(evidence)
+    if evidence_path.exists():
+        if not evidence_path.is_file() or evidence_path.read_bytes() != evidence_bytes:
+            raise ValueError("QA session evidence differs from the frozen submission")
+    else:
+        _atomic_write(evidence_path, evidence_bytes)
     return evidence
 
 

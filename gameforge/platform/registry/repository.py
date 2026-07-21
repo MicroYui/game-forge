@@ -415,6 +415,18 @@ class ImmutablePlatformRegistry:
             (run_kind.kind, run_kind.version, agent_graph_version)
         )
 
+    def list_agent_execution_graphs_for_run_kind(
+        self,
+        run_kind: RunKindRef,
+    ) -> tuple[AgentExecutionGraphV1, ...]:
+        """Return the retained graph history for one exact RunKind."""
+
+        return tuple(
+            graph
+            for key, graph in sorted(self._agent_execution_graphs.items())
+            if key[:2] == (run_kind.kind, run_kind.version)
+        )
+
     def get_execution_profile_catalog(
         self, catalog_version: int, catalog_digest: str
     ) -> ExecutionProfileCatalogSnapshotV1 | None:

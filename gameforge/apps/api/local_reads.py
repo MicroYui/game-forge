@@ -14,17 +14,21 @@ from sqlalchemy.orm import Session
 from gameforge.bench.payload_codec import BENCH_PAYLOAD_DECODERS
 from gameforge.apps.api.content_persistence import (
     ApprovalEvidenceStateProjector,
+    BuiltinSchemaRegistryProvider,
     SqlApprovalContentAuthority,
     SqlApprovalPayloadBindingProvider,
     SqlContentReadRepository,
     SqlImmutableArtifactPageProvider,
     SqlRefHistoryReadProvider,
+    SqlSpecSnapshotReadAuthority,
 )
 from gameforge.apps.api.observability_paging import SqlCostUsagePageAdapter
 from gameforge.apps.api.pagination import OpaquePageCursorCodec
 from gameforge.apps.api.read_paging import SqlMaterializedPageAdapter
 from gameforge.apps.api.run_read_domain import resolve_run_read_domain
 from gameforge.contracts.canonical import sha256_lowerhex
+from gameforge.contracts.api import ReviewProducerBindingViewV1
+from gameforge.contracts.benchmark import MAX_BENCHMARK_REPORT_BYTES
 from gameforge.contracts.errors import (
     DependencyUnavailable,
     IntegrityViolation,
@@ -40,9 +44,18 @@ from gameforge.contracts.identity import (
     Permission,
     RolePolicy,
 )
-from gameforge.contracts.jobs import PlaytestRunPayloadV1, RunRecord, RunResultV1
-from gameforge.contracts.lineage import ArtifactV1, ArtifactV2
+from gameforge.contracts.jobs import (
+    OutcomeArtifactPolicyV1,
+    OutcomeArtifactRuleV1,
+    PlaytestRunPayloadV1,
+    RunManifestParentBindingV1,
+    RunFailureV1,
+    RunRecord,
+    RunResultV1,
+)
+from gameforge.contracts.lineage import ArtifactV1, ArtifactV2, ExecutionIdentityV1
 from gameforge.contracts.playtest import PlaytestTraceV1, ScenarioSpecV1, TaskSuiteV1
+from gameforge.contracts.review import ReviewReport
 from gameforge.contracts.observability import (
     LogErrorV1,
     LogQueryV1,
@@ -85,7 +98,15 @@ from gameforge.platform.read_models.workflows import (
     WorkflowReadCapabilities,
     WorkflowReadService,
 )
-from gameforge.platform.runs.state import validate_run_result_binding
+from gameforge.platform.publication.producer import (
+    DomainProducerFactsResolver,
+    validate_domain_artifact_producer,
+)
+from gameforge.platform.runs.lifecycle import select_outcome_policy
+from gameforge.platform.runs.state import (
+    validate_run_kind_binding,
+    validate_run_result_binding,
+)
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.observability._fields import (
     is_sensitive_key,
@@ -113,7 +134,7 @@ from gameforge.contracts.workflow import ConstraintProposalV1
 
 _SNAPSHOT_TTL = timedelta(minutes=5)
 _MAX_MATERIALIZED_ITEMS = 1_000
-_MAX_ARTIFACT_PAYLOAD_BYTES = 4 * 1024 * 1024
+_MAX_ARTIFACT_PAYLOAD_BYTES = MAX_BENCHMARK_REPORT_BYTES
 _MAX_ARTIFACT_DOMAIN_LINEAGE_ITEMS = 1_000
 _MAX_ARTIFACT_DOMAIN_LINEAGE_EDGES = 10_000
 
@@ -747,6 +768,368 @@ class _RunResultPlaytestSelection:
         return primary.artifact_id
 
 
+class _ReviewProducerBindingAuthority:
+    """Re-prove one explicit Review/Run occurrence without a reverse-owner index."""
+
+    _SUPPORTED_RUN_KINDS = {"review.run", "generation.propose"}
+
+    def __init__(
+        self,
+        *,
+        runs: SqlRunRepository,
+        artifacts: SqlArtifactRepository,
+        payloads: ArtifactPayloadReader,
+        registry: object,
+        run_domains: object,
+    ) -> None:
+        self._runs = runs
+        self._artifacts = artifacts
+        self._payloads = payloads
+        self._registry = registry
+        self._run_domains = run_domains
+        self._producer_facts = DomainProducerFactsResolver()
+
+    def permission_for_run(self, run_id: str) -> Permission | None:
+        run = self._runs.get(run_id)
+        if run is None:
+            return None
+        scope = self._run_domains.scope(run)  # type: ignore[attr-defined]
+        return Permission(action="read", resource_kind="run", domain_scope=scope)
+
+    def resolve(
+        self,
+        *,
+        artifact: ArtifactV2,
+        report: ReviewReport,
+        run_id: str,
+    ) -> ReviewProducerBindingViewV1 | None:
+        retained_review = self._artifacts.get(artifact.artifact_id)
+        if retained_review != artifact:
+            raise IntegrityViolation("Review occurrence Artifact authority changed during the read")
+        run = self._runs.get(run_id)
+        if (
+            run is None
+            or run.kind.version != 1
+            or run.kind.kind not in self._SUPPORTED_RUN_KINDS
+            or run.status not in {"succeeded", "failed", "cancelled", "timed_out"}
+        ):
+            return None
+
+        definition = self._registry.get_run_kind(run.kind)  # type: ignore[attr-defined]
+        retry_policy = self._registry.get_retry_policy(run.retry_policy)  # type: ignore[attr-defined]
+        if definition is None or retry_policy is None:
+            raise IntegrityViolation("Review producer retained Run policy is unavailable")
+        validate_run_kind_binding(
+            run=run,
+            definition=definition,
+            retry_policy=retry_policy,
+        )
+
+        manifest_id = (
+            run.result_artifact_id if run.status == "succeeded" else run.failure_artifact_id
+        )
+        if manifest_id is None:
+            raise IntegrityViolation("terminal Review producer Run lacks its manifest")
+        verified_manifest = self._payloads.read(manifest_id)
+        manifest = verified_manifest.artifact
+        if run.status == "succeeded":
+            if manifest.kind != "run_result" or verified_manifest.payload_schema_id != (
+                "run-result@1"
+            ):
+                raise IntegrityViolation("Review producer result manifest kind/schema differs")
+            try:
+                result = RunResultV1.model_validate(verified_manifest.payload)
+            except (TypeError, ValueError, ValidationError) as exc:
+                raise IntegrityViolation("Review producer result manifest is invalid") from exc
+            policy = select_outcome_policy(
+                definition=definition,
+                outcome_code=result.outcome_code,
+                prepared_outcome="success",
+                publication_scope="run",
+                run_status="succeeded",
+                attempt_status=None,
+                failure_class=None,
+                retry_disposition=None,
+            )
+            primary_rules = tuple(rule for rule in policy.artifact_rules if rule.role == "primary")
+            if len(primary_rules) != 1:
+                raise IntegrityViolation("Review producer outcome lacks one exact primary rule")
+            validate_run_result_binding(
+                run=run,
+                manifest=manifest,
+                result=result,
+                expected_outcome_code=policy.outcome_code,
+                expected_primary_kind=primary_rules[0].artifact_kind,
+            )
+            if result.version_projection.version_transition_policy_ref != (
+                policy.version_transition_policy_ref
+            ):
+                raise IntegrityViolation("Review producer result transition policy differs")
+            parent = self._published_review_parent(
+                result.version_projection.parents,
+                artifact.artifact_id,
+            )
+            if parent is None:
+                return None
+            if artifact.artifact_id not in result.produced_artifact_ids:
+                raise IntegrityViolation("Review result occurrence is absent from produced outputs")
+            attempt_no = result.attempt_no
+            outcome_code = result.outcome_code
+            manifest_kind = "run_result"
+            manifest_finding_count = result.finding_count
+        else:
+            if manifest.kind != "run_failure" or verified_manifest.payload_schema_id != (
+                "run-failure@1"
+            ):
+                raise IntegrityViolation("Review producer failure manifest kind/schema differs")
+            try:
+                failure = RunFailureV1.model_validate(verified_manifest.payload)
+            except (TypeError, ValueError, ValidationError) as exc:
+                raise IntegrityViolation("Review producer failure manifest is invalid") from exc
+            attempt_status = self._failure_attempt_status(failure)
+            policy = select_outcome_policy(
+                definition=definition,
+                outcome_code=failure.cause_code,
+                prepared_outcome="failure",
+                publication_scope="run",
+                run_status=run.status,
+                attempt_status=attempt_status,
+                failure_class=failure.failure_class,
+                retry_disposition="terminal",
+            )
+            self._validate_run_failure_binding(
+                run=run,
+                manifest=manifest,
+                failure=failure,
+                policy=policy,
+            )
+            parent = self._published_review_parent(
+                failure.version_projection.parents,
+                artifact.artifact_id,
+            )
+            if parent is None:
+                return None
+            if artifact.artifact_id not in failure.evidence_artifact_ids:
+                raise IntegrityViolation(
+                    "Review failure occurrence is absent from evidence outputs"
+                )
+            if failure.attempt_no is None:
+                raise IntegrityViolation(
+                    "published Review failure occurrence lacks attempt identity"
+                )
+            attempt_no = failure.attempt_no
+            outcome_code = failure.cause_code
+            manifest_kind = "run_failure"
+            manifest_finding_count = None
+
+        rule = self._review_rule(
+            policy=policy,
+            manifest_role=parent.role,
+        )
+        self._validate_review_rule_authority(
+            run=run,
+            artifact=artifact,
+            report=report,
+            policy=policy,
+            rule=rule,
+        )
+        finding_count = sum(
+            len(values)
+            for values in (
+                report.deterministic_findings,
+                report.llm_assisted_findings,
+                report.simulation_findings,
+                report.unproven_findings,
+            )
+        )
+        finding_authority = (
+            "not-applicable"
+            if finding_count == 0
+            else "exact-run-links"
+            if run.kind.kind == "review.run"
+            else "embedded-only"
+        )
+        if run.kind.kind == "review.run" and manifest_finding_count != finding_count:
+            raise IntegrityViolation(
+                "standalone Review report count differs from its exact Run finding links"
+            )
+        return ReviewProducerBindingViewV1(
+            review_artifact_id=artifact.artifact_id,
+            run_id=run.run_id,
+            attempt_no=attempt_no,
+            run_kind=run.kind,
+            terminal_status=run.status,
+            terminal_manifest_id=manifest.artifact_id,
+            terminal_manifest_kind=manifest_kind,
+            outcome_code=outcome_code,
+            outcome_policy_id=policy.policy_id,
+            outcome_policy_version=policy.policy_version,
+            outcome_rule_id=rule.rule_id,
+            manifest_role=parent.role,
+            finding_authority=finding_authority,
+        )
+
+    @staticmethod
+    def _published_review_parent(
+        parents: tuple[RunManifestParentBindingV1, ...], artifact_id: str
+    ) -> RunManifestParentBindingV1 | None:
+        matches = tuple(parent for parent in parents if parent.artifact_id == artifact_id)
+        if not matches:
+            return None
+        if len(matches) != 1:
+            raise IntegrityViolation("Review Artifact repeats in one terminal manifest")
+        parent = matches[0]
+        if (
+            parent.publication != "run_published"
+            or parent.role not in {"output", "evidence"}
+            or parent.attempt_no is not None
+            or parent.ordinal is not None
+            or parent.cassette_scope is not None
+        ):
+            raise IntegrityViolation("Review manifest occurrence has the wrong publication role")
+        return parent
+
+    @staticmethod
+    def _review_rule(
+        *, policy: OutcomeArtifactPolicyV1, manifest_role: str
+    ) -> OutcomeArtifactRuleV1:
+        expected_rule_roles = {"evidence"} if manifest_role == "evidence" else {"primary", "output"}
+        matches = tuple(
+            rule
+            for rule in policy.artifact_rules
+            if rule.artifact_kind == "review_report"
+            and "review@1" in rule.payload_schema_ids
+            and rule.role in expected_rule_roles
+        )
+        if len(matches) != 1:
+            raise IntegrityViolation("Review occurrence does not resolve one exact outcome rule")
+        return matches[0]
+
+    def _validate_review_rule_authority(
+        self,
+        *,
+        run: RunRecord,
+        artifact: ArtifactV2,
+        report: ReviewReport,
+        policy: OutcomeArtifactPolicyV1,
+        rule: OutcomeArtifactRuleV1,
+    ) -> None:
+        if artifact.kind != "review_report" or artifact.meta.get("payload_schema_id") != "review@1":
+            raise IntegrityViolation("Review occurrence Artifact kind/schema differs")
+        lineage_policy = self._registry.get_lineage_policy(  # type: ignore[attr-defined]
+            rule.lineage_policy_ref
+        )
+        if lineage_policy is None:
+            raise IntegrityViolation("Review occurrence lineage policy is unavailable")
+        raw_identity = artifact.meta.get("execution_identity")
+        try:
+            execution_identity = (
+                None if raw_identity is None else ExecutionIdentityV1.model_validate(raw_identity)
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("Review occurrence execution identity is invalid") from exc
+        facts = self._producer_facts.resolve(
+            run=run,
+            policy=policy,
+            rule=rule,
+            lineage_policy=lineage_policy,
+            payload_schema_id="review@1",
+            canonical_payload=report.model_dump(mode="json"),
+            execution_identity=execution_identity,
+            cassette_id=artifact.version_tuple.cassette_id,
+        )
+        for projection in lineage_policy.version_projection:
+            if projection.source == "producer_value" and getattr(
+                artifact.version_tuple, projection.field
+            ) != getattr(facts.producer_tuple, projection.field):
+                raise IntegrityViolation(
+                    "Review occurrence producer VersionTuple differs from frozen policy",
+                    field=projection.field,
+                )
+        validate_domain_artifact_producer(
+            artifact,
+            facts=facts,
+            lineage_policy=lineage_policy,
+            projected_tuple=artifact.version_tuple,
+        )
+
+    @staticmethod
+    def _failure_attempt_status(failure: RunFailureV1):
+        if failure.attempt_no is None:
+            return None
+        if failure.cause_code == "lease_expired" or failure.failure_class == "lease":
+            return "lease_expired"
+        if failure.failure_class in {"cancelled", "subject_superseded"}:
+            return "cancelled"
+        if failure.failure_class == "timeout":
+            return "timed_out"
+        return "failed"
+
+    @staticmethod
+    def _validate_run_failure_binding(
+        *,
+        run: RunRecord,
+        manifest: ArtifactV2,
+        failure: RunFailureV1,
+        policy: OutcomeArtifactPolicyV1,
+    ) -> None:
+        parents = failure.version_projection.parents
+        parent_ids = tuple(sorted(parent.artifact_id for parent in parents))
+        input_parents = tuple(
+            parent
+            for parent in parents
+            if parent.role == "input" and parent.publication == "existing"
+        )
+        published_evidence_ids = tuple(
+            sorted(
+                parent.artifact_id
+                for parent in parents
+                if parent.publication == "run_published" and parent.role != "input"
+            )
+        )
+        expected_inputs = tuple(sorted(run.payload.input_artifact_ids))
+        if (
+            run.status != policy.run_status_after_publication
+            or run.failure_artifact_id != manifest.artifact_id
+            or manifest.kind != "run_failure"
+            or manifest.meta.get("payload_schema_id") != "run-failure@1"
+            or manifest.version_tuple != failure.version_projection.terminal_version_tuple
+            or tuple(manifest.lineage) != parent_ids
+            or len(parent_ids) != len(set(parent_ids))
+            or any(
+                (parent.role == "input") != (parent.publication == "existing") for parent in parents
+            )
+            or failure.run_id != run.run_id
+            or failure.run_kind != run.kind
+            or failure.attempt_no != run.current_attempt_no
+            or failure.cause_code != policy.outcome_code
+            or failure.failure_class != policy.failure_class
+            or failure.retry_decision.decision != "terminal"
+            or failure.retry_decision.retry_policy != run.retry_policy
+            or failure.retry_decision.classifier != run.failure_classifier
+            or failure.version_projection.manifest_scope != "run"
+            or failure.version_projection.run_payload_hash != run.payload_hash
+            or failure.version_projection.frozen_input_version_tuple != run.payload.version_tuple
+            or failure.version_projection.version_transition_policy_ref
+            != policy.version_transition_policy_ref
+            or tuple(sorted(parent.artifact_id for parent in input_parents)) != expected_inputs
+            or len(input_parents) != len(expected_inputs)
+            or any(
+                parent.attempt_no is not None
+                or parent.ordinal is not None
+                or parent.cassette_scope
+                != (
+                    "replay_input"
+                    if parent.artifact_id == run.payload.cassette_artifact_id
+                    else None
+                )
+                for parent in input_parents
+            )
+            or failure.evidence_artifact_ids != published_evidence_ids
+        ):
+            raise IntegrityViolation("Run failure manifest differs from its immutable Run")
+
+
 @dataclass(frozen=True, slots=True)
 class _PinnedBenchReportSelection:
     artifact_id: str | None
@@ -956,6 +1339,7 @@ def build_local_read_services(
     role_policy_version: str,
     role_policy_digest: str,
     execution_profile_catalog: ExecutionProfileCatalogSnapshotV1,
+    registry: object,
     cursor_signing_key: bytes,
     clock: UtcClock | None = None,
     selected_bench_report_artifact_id: str | None = None,
@@ -1026,8 +1410,7 @@ def build_local_read_services(
     @contextmanager
     def content_uow():
         with session_scope() as session:
-            unavailable = _UnavailableAuthority("content_producer_binding")
-            _policies, registry = policy_authority(session)
+            _policies, domain_registry = policy_authority(session)
             approvals = SqlApprovalRepository(session)
             object_bindings = SqlObjectBindingRepository(
                 session,
@@ -1061,6 +1444,12 @@ def build_local_read_services(
                 max_payload_bytes=_MAX_ARTIFACT_PAYLOAD_BYTES,
                 external_decoders=BENCH_PAYLOAD_DECODERS,
             )
+            spec_snapshots = SqlSpecSnapshotReadAuthority(
+                session,
+                artifacts=artifacts,
+                payload_reader=payload_reader,
+                refs=refs,
+            )
             approval_authority = SqlApprovalContentAuthority(
                 session,
                 approvals=approvals,
@@ -1071,7 +1460,7 @@ def build_local_read_services(
             )
             artifact_domains = _ArtifactDomainAuthority(
                 artifacts=artifacts,
-                registry=registry,
+                registry=domain_registry,
                 payloads=_ArtifactDomainPayloadReader(
                     object_bindings=object_bindings,
                     object_store=object_store,
@@ -1096,10 +1485,20 @@ def build_local_read_services(
                 payload_bindings=payload_bindings,
                 authorization=authorization(session),
                 permission_resolver=content_permissions,
-                specs=unavailable,
-                schema_registry=unavailable,
+                specs=spec_snapshots,
+                schema_registry=BuiltinSchemaRegistryProvider(),
                 proposal_workflows=approval_authority,
                 subject_workflows=approval_authority,
+                review_producers=_ReviewProducerBindingAuthority(
+                    runs=runs,
+                    artifacts=artifacts,
+                    payloads=payload_reader,
+                    registry=registry,
+                    run_domains=_RunDomainAuthority(
+                        registry=domain_registry,
+                        approvals=approvals,
+                    ),
+                ),
                 playtest_results=_RunResultPlaytestSelection(
                     runs=runs,
                     artifacts=artifacts,
@@ -1114,7 +1513,7 @@ def build_local_read_services(
                     snapshot_ttl=_SNAPSHOT_TTL,
                     snapshot_session_factory=snapshot_write_scope,
                 ),
-                diffs=unavailable,
+                diffs=spec_snapshots,
                 bench_reports=_PinnedBenchReportSelection(selected_bench_report_artifact_id),
                 execution_profiles=_PinnedExecutionProfileCatalog(execution_profile_catalog),
                 page_factory=page_factory(session),
@@ -1162,8 +1561,6 @@ def build_local_read_services(
                 ),
                 approval_projector=CurrentApprovalProgressProjector(
                     policy_repository=policies,
-                    role_policy_version=role_policy_version,
-                    role_policy_digest=role_policy_digest,
                     principal_resolver=identities.project,
                 ),
                 page_factory=page_factory(session),

@@ -10,8 +10,10 @@ from typing import Literal, Protocol, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from gameforge.contracts.api import (
+    ApprovalDecisionEligibilityV1,
     ApprovalRequirementProgressV1,
     ApprovalViewV1,
+    RunFindingLinkViewV1,
     RunViewV1,
 )
 from gameforge.contracts.canonical import canonical_sha256
@@ -32,7 +34,12 @@ from gameforge.contracts.jobs import (
 )
 from gameforge.contracts.storage import MAX_PAGE_ITEMS, PageCursorV1, PageV1
 from gameforge.contracts.workflow import ApprovalItem, ApprovalRequirement
-from gameforge.platform.rbac import AuthorizationDecision, authorize
+from gameforge.platform.approvals.decisions import (
+    CurrentApproveVoteEvaluation,
+    all_requirements_satisfied,
+    current_requirement_authority_reason_code,
+    evaluate_current_approve_votes,
+)
 from gameforge.platform.read_models.authorization import (
     ReadAuthorizationService,
     ReadPolicyRepository,
@@ -77,6 +84,13 @@ class WorkflowReadRepository(Protocol):
         *,
         max_items: int,
     ) -> Sequence[FindingRevisionV1]: ...
+
+    def list_run_finding_links(
+        self,
+        run_id: str,
+        *,
+        max_items: int,
+    ) -> Sequence[RunFindingLinkViewV1]: ...
 
     def list_run_commands(
         self,
@@ -228,71 +242,60 @@ def _command_view(record: RunCommandRecordV1) -> RunCommandViewV1:
     )
 
 
-def _routed_principal(principal: Principal, requirement: ApprovalRequirement) -> Principal | None:
-    roles = tuple(role for role in principal.roles if role.role == requirement.route_role)
-    if not roles:
-        return None
-    return Principal.model_validate({**principal.model_dump(mode="python"), "roles": roles})
-
-
 class CurrentApprovalProgressProjector:
-    """Project frozen requirements against current identities and exact current RBAC."""
+    """Project frozen requirements against current identities and frozen item RBAC."""
 
     def __init__(
         self,
         *,
         policy_repository: ReadPolicyRepository,
-        role_policy_version: str,
-        role_policy_digest: str,
         principal_resolver: PrincipalResolver,
     ) -> None:
         self._policies = policy_repository
-        self._policy_version = role_policy_version
-        self._policy_digest = role_policy_digest
         self._principals = principal_resolver
 
     def project(self, item: ApprovalItem, actor: Principal) -> ApprovalViewV1:
-        policy, registry = self._authority()
+        policy, registry = self._authority(item)
         requirements = {value.requirement_id: value for value in item.requirements}
-        approvals = self._currently_valid_approvals(
+        votes = evaluate_current_approve_votes(
             item=item,
-            requirements=requirements,
-            policy=policy,
-            registry=registry,
+            principal_resolver=self._principals,
+            role_policy=policy,
+            domain_registry=registry,
         )
         distinct = {
             requirement_id: self._distinct_ids(requirement_id, requirements)
             for requirement_id in requirements
         }
-        for requirement_id, other_ids in distinct.items():
-            overlapping = (
-                set().union(*(approvals[requirement_id] & approvals[other] for other in other_ids))
-                if other_ids
-                else set()
-            )
-            if overlapping:
-                approvals[requirement_id].difference_update(overlapping)
-                for other in other_ids:
-                    approvals[other].difference_update(overlapping)
+        all_currently_satisfied = all_requirements_satisfied(
+            requirements=requirements,
+            current_votes=votes,
+        )
 
         progress: list[ApprovalRequirementProgressV1] = []
         for requirement_id in sorted(requirements):
             requirement = requirements[requirement_id]
-            count = len(approvals[requirement_id])
+            count = len(votes.effective_for(requirement_id))
             unmet_distinct = tuple(
                 other
                 for other in sorted(distinct[requirement_id])
-                if len(approvals[other]) < requirements[other].min_approvals
+                if len(votes.effective_for(other)) < requirements[other].min_approvals
             )
-            eligible = self._eligible(
-                item=item,
-                actor=actor,
-                requirement=requirement,
-                already_approved=approvals,
-                distinct_ids=distinct[requirement_id],
-                policy=policy,
-                registry=registry,
+            action_eligibility = tuple(
+                self._action_eligibility(
+                    decision=decision,
+                    item=item,
+                    actor=actor,
+                    requirement=requirement,
+                    votes=votes,
+                    distinct_ids=distinct[requirement_id],
+                    all_currently_satisfied=all_currently_satisfied,
+                    policy=policy,
+                    registry=registry,
+                )
+                for decision in ("approve", "reject", "request_changes")
             )
+            eligible = any(value.eligible for value in action_eligibility)
             progress.append(
                 ApprovalRequirementProgressV1(
                     requirement_id=requirement_id,
@@ -302,6 +305,7 @@ class CurrentApprovalProgressProjector:
                     valid_approval_count=count,
                     satisfied=count >= requirement.min_approvals,
                     eligible_for_current_actor=eligible,
+                    decision_eligibility=action_eligibility,
                     unmet_distinct_from_requirement_ids=unmet_distinct,
                 )
             )
@@ -313,57 +317,99 @@ class CurrentApprovalProgressProjector:
             ),
         )
 
-    def _authority(self) -> tuple[RolePolicy, DomainRegistryV1]:
-        policy = self._policies.get_role_policy(self._policy_version, self._policy_digest)
+    def _action_eligibility(
+        self,
+        *,
+        decision: Literal["approve", "reject", "request_changes"],
+        item: ApprovalItem,
+        actor: Principal,
+        requirement: ApprovalRequirement,
+        votes: CurrentApproveVoteEvaluation,
+        distinct_ids: set[str],
+        all_currently_satisfied: bool,
+        policy: RolePolicy,
+        registry: DomainRegistryV1,
+    ) -> ApprovalDecisionEligibilityV1:
+        reasons = self._common_eligibility_reasons(
+            item=item,
+            actor=actor,
+            requirement=requirement,
+            policy=policy,
+            registry=registry,
+        )
+        actor_already_approved = any(
+            prior.decision == "approve"
+            and prior.actor.principal_id == actor.id
+            and requirement.requirement_id in prior.requirement_ids
+            for prior in item.decisions
+        )
+        is_explicit_reconfirmation = (
+            decision == "approve"
+            and all_currently_satisfied
+            and actor.id in votes.effective_for(requirement.requirement_id)
+        )
+        if not reasons and actor_already_approved and not is_explicit_reconfirmation:
+            reasons.append("actor_already_decided_requirement")
+        if not reasons and decision == "approve":
+            if (
+                len(votes.effective_for(requirement.requirement_id)) >= requirement.min_approvals
+                and not is_explicit_reconfirmation
+            ):
+                reasons.append("requirement_already_satisfied")
+            if any(actor.id in votes.valid_for(other) for other in distinct_ids):
+                reasons.append("distinct_requirement_conflict")
+        return ApprovalDecisionEligibilityV1(
+            decision=decision,
+            eligible=not reasons,
+            reason_codes=tuple(reasons),
+        )
+
+    @staticmethod
+    def _common_eligibility_reasons(
+        *,
+        item: ApprovalItem,
+        actor: Principal,
+        requirement: ApprovalRequirement,
+        policy: RolePolicy,
+        registry: DomainRegistryV1,
+    ) -> list[str]:
+        if item.status != "pending_approval":
+            return ["workflow_not_pending"]
+        if actor.kind != "human" or actor.status != "active":
+            return ["actor_not_active_human"]
+        if actor.id == item.proposer.principal_id:
+            return ["maker_checker_conflict"]
+        reason = current_requirement_authority_reason_code(
+            principal=actor,
+            requirement=requirement,
+            role_policy=policy,
+            domain_registry=registry,
+        )
+        return [] if reason is None else [reason]
+
+    def _authority(self, item: ApprovalItem) -> tuple[RolePolicy, DomainRegistryV1]:
+        policy = self._policies.get_role_policy(
+            item.role_policy_version,
+            item.role_policy_digest,
+        )
         if type(policy) is not RolePolicy:
-            raise IntegrityViolation("current exact role policy is unavailable")
+            raise IntegrityViolation("ApprovalItem exact role policy is unavailable")
         if (
-            policy.policy_version != self._policy_version
-            or policy.policy_digest != self._policy_digest
+            policy.policy_version != item.role_policy_version
+            or policy.policy_digest != item.role_policy_digest
         ):
             raise IntegrityViolation("role policy authority returned another exact policy")
-        registry = self._policies.get_domain_registry(policy.domain_registry_ref)
+        if policy.domain_registry_ref != item.domain_registry_ref:
+            raise IntegrityViolation("ApprovalItem role policy domain registry differs")
+        registry = self._policies.get_domain_registry(item.domain_registry_ref)
         if type(registry) is not DomainRegistryV1:
-            raise IntegrityViolation("current exact domain registry is unavailable")
+            raise IntegrityViolation("ApprovalItem exact domain registry is unavailable")
         if (
-            registry.registry_version != policy.domain_registry_ref.registry_version
-            or registry.registry_digest != policy.domain_registry_ref.registry_digest
+            registry.registry_version != item.domain_registry_ref.registry_version
+            or registry.registry_digest != item.domain_registry_ref.registry_digest
         ):
             raise IntegrityViolation("domain registry authority returned another exact registry")
         return policy, registry
-
-    def _currently_valid_approvals(
-        self,
-        *,
-        item: ApprovalItem,
-        requirements: dict[str, ApprovalRequirement],
-        policy: RolePolicy,
-        registry: DomainRegistryV1,
-    ) -> dict[str, set[str]]:
-        result = {requirement_id: set() for requirement_id in requirements}
-        for decision in item.decisions:
-            if decision.decision != "approve":
-                continue
-            principal = self._principals(decision.actor.principal_id)
-            if (
-                type(principal) is not Principal
-                or principal.id != decision.actor.principal_id
-                or principal.status != "active"
-                or principal.kind != "human"
-                or decision.actor.principal_kind != principal.kind
-                or principal.id == item.proposer.principal_id
-            ):
-                continue
-            for requirement_id in decision.requirement_ids:
-                requirement = requirements.get(requirement_id)
-                if requirement is not None and self._can_decide(
-                    principal,
-                    requirement,
-                    policy=policy,
-                    registry=registry,
-                ):
-                    result[requirement_id].add(principal.id)
-        return result
 
     @staticmethod
     def _distinct_ids(
@@ -377,53 +423,6 @@ class CurrentApprovalProgressProjector:
             if requirement_id in other.distinct_from_requirement_ids
         )
         return result
-
-    def _eligible(
-        self,
-        *,
-        item: ApprovalItem,
-        actor: Principal,
-        requirement: ApprovalRequirement,
-        already_approved: dict[str, set[str]],
-        distinct_ids: set[str],
-        policy: RolePolicy,
-        registry: DomainRegistryV1,
-    ) -> bool:
-        if (
-            item.status != "pending_approval"
-            or actor.kind != "human"
-            or actor.status != "active"
-            or actor.id == item.proposer.principal_id
-            or len(already_approved[requirement.requirement_id]) >= requirement.min_approvals
-            or actor.id in already_approved[requirement.requirement_id]
-            or any(actor.id in already_approved[other] for other in distinct_ids)
-        ):
-            return False
-        return self._can_decide(actor, requirement, policy=policy, registry=registry)
-
-    @staticmethod
-    def _can_decide(
-        principal: Principal,
-        requirement: ApprovalRequirement,
-        *,
-        policy: RolePolicy,
-        registry: DomainRegistryV1,
-    ) -> bool:
-        if requirement.assignee_principal_ids and principal.id not in (
-            requirement.assignee_principal_ids
-        ):
-            return False
-        routed = _routed_principal(principal, requirement)
-        return (
-            routed is not None
-            and authorize(
-                principal=routed,
-                role_policy=policy,
-                requested_permission=requirement.required_permission,
-                domain_registry=registry,
-            )
-            is AuthorizationDecision.ALLOW
-        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -643,6 +642,72 @@ class _WorkflowReadOperations:
             run_id=run_id,
             cursor=cursor,
             limit=limit,
+        )
+
+    def list_run_finding_links(
+        self,
+        principal: Principal,
+        run_id: str,
+        *,
+        cursor: PageCursorV1 | None,
+        limit: int,
+    ) -> PageV1[RunFindingLinkViewV1]:
+        self._load_run(principal, run_id)
+        limit = _page_limit(limit)
+        definition = _ListDefinition(
+            "run_finding_links",
+            "run-finding-attempt-ordinal@1",
+            "run-finding-link-view@1",
+            "run-finding-link-view@1",
+        )
+        query = _query_hash(
+            resource_kind=definition.resource_kind,
+            filters={"run_id": run_id},
+            sort=("attempt_no:asc", "ordinal:asc"),
+            projection=definition.projection,
+            page_size=limit,
+        )
+        if cursor is None:
+            values = _bounded(
+                self._repository.list_run_finding_links(
+                    run_id,
+                    max_items=self._max_items + 1,
+                ),
+                label="Run Finding link",
+                max_items=self._max_items,
+            )
+            authorized = self._authorization.filter_collection(
+                principal=principal,
+                candidates=values,
+                collection_permission=_read_permission("finding", "all"),
+                permission_for=lambda value: _exact_permission(
+                    self._permissions.for_finding(value.finding),
+                    resource_kind="finding",
+                ),
+                query_hash=query,
+            )
+            selected = tuple(authorized.items)
+            binding = authorized.binding
+        else:
+            binding = self._authorization.require_collection_continuation(
+                principal=principal,
+                collection_permission=_read_permission("finding", "all"),
+                query_hash=query,
+            )
+            selected = ()
+        return self._materialized_page(
+            selected,
+            principal_binding=binding.principal_binding,
+            authz_fingerprint=binding.authz_fingerprint,
+            query_hash=query,
+            definition=definition,
+            cursor=cursor,
+            limit=limit,
+            model=RunFindingLinkViewV1,
+            identity=lambda value: (
+                f"{value.run_id}:attempt:{value.attempt_no}:finding-link:{value.ordinal}",
+                value.finding.revision,
+            ),
         )
 
     def list_run_commands(
@@ -1004,6 +1069,22 @@ class WorkflowReadService:
     ) -> PageV1[FindingRevisionV1]:
         with self._unit_of_work() as capabilities:
             return self._operations(capabilities).list_run_findings(
+                principal,
+                run_id,
+                cursor=cursor,
+                limit=limit,
+            )
+
+    def list_run_finding_links(
+        self,
+        principal: Principal,
+        run_id: str,
+        *,
+        cursor: PageCursorV1 | None,
+        limit: int,
+    ) -> PageV1[RunFindingLinkViewV1]:
+        with self._unit_of_work() as capabilities:
+            return self._operations(capabilities).list_run_finding_links(
                 principal,
                 run_id,
                 cursor=cursor,

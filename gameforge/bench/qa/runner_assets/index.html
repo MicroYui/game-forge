@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QA Session Runner</title>
+    <link rel="stylesheet" href="/runner.css" />
+  </head>
+  <body>
+    <main class="study-shell">
+      <header class="study-header">
+        <div>
+          <p id="study-label" class="eyebrow">读取实验信息…</p>
+          <h1>QA Session Runner</h1>
+          <p class="lede">
+            一次只完成一个任务。计时、暂停和最终证据由本机冻结协议记录。
+          </p>
+        </div>
+        <div class="progress-mark" aria-label="实验进度">
+          <span id="progress-count">0 / 8</span>
+          <small>真实场次</small>
+        </div>
+      </header>
+
+      <section class="status-strip" aria-labelledby="session-heading">
+        <div>
+          <p class="section-label">CURRENT SESSION</p>
+          <h2 id="session-heading">读取当前状态…</h2>
+        </div>
+        <div class="timer" aria-label="本场剩余活动时间">
+          <span id="timer-value">08:00</span>
+          <small>active time</small>
+        </div>
+      </section>
+
+      <div
+        id="notice"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <div id="error" class="notice notice-error" role="alert" hidden></div>
+
+      <section id="ready-panel" class="panel" hidden>
+        <p class="section-label">BEFORE YOU BEGIN</p>
+        <h2>准备当前场次</h2>
+        <p>准备只会生成当前任务；不会提前暴露后续案例，也不会开始计时。</p>
+        <button id="next-button" class="button button-primary" type="button">
+          准备当前场次
+        </button>
+      </section>
+
+      <section id="prepared-panel" class="panel" hidden>
+        <div class="mode-row">
+          <span id="prepared-mode" class="mode-pill"></span>
+          <span id="prepared-order" class="quiet"></span>
+        </div>
+        <h2>点击后立即开始计时</h2>
+        <p id="prepared-guidance"></p>
+        <label class="check-row">
+          <input id="start-confirmation" type="checkbox" />
+          <span
+            >我确认：本场从开始到记录完成，只使用 Runner
+            打开的隔离编辑器和原生语法检查；辅助场可另使用本页显示的 GameForge
+            建议。我不会使用 Copilot、Codex/ChatGPT 或其他外部
+            AI，不会使用网络搜索、普通 GameForge Console、旧 QA
+            工作区或其他资料。编辑器内查找（⌘F）允许。错误、超时或无法完成都如实保留，不重做。</span
+          >
+        </label>
+        <button
+          id="start-button"
+          class="button button-primary"
+          type="button"
+          disabled
+        >
+          开始本场
+        </button>
+      </section>
+
+      <section id="task-panel" class="panel task-panel" hidden>
+        <div class="task-heading">
+          <div>
+            <p class="section-label">UPSTREAM TASK</p>
+            <h2 id="task-subject" tabindex="-1"></h2>
+          </div>
+          <span id="task-mode" class="mode-pill"></span>
+        </div>
+        <p id="task-boundary" class="quiet">
+          允许：隔离编辑器、原生语法检查；辅助场另含本页 GameForge
+          建议。禁止：Copilot、任何外部 AI、网络搜索、普通 Console、旧 QA 内容。
+        </p>
+
+        <div class="file-ledger">
+          <div>
+            <span class="field-label">当前工作目录</span>
+            <code id="work-path"></code>
+          </div>
+          <div>
+            <span class="field-label">允许修改的文件</span>
+            <ul id="changed-paths"></ul>
+          </div>
+        </div>
+
+        <div id="assistance-panel" class="assistance" hidden>
+          <p class="section-label">FROZEN GAMEFORGE ASSISTANCE</p>
+          <h3>本场允许使用的建议</h3>
+          <p id="finding-message" class="finding-message"></p>
+          <div class="assistance-grid">
+            <div>
+              <span class="field-label">最小复现</span>
+              <pre
+                id="finding-repro"
+                tabindex="0"
+                aria-label="最小复现内容"
+              ></pre>
+            </div>
+            <div>
+              <span class="field-label">Agent Patch</span>
+              <pre
+                id="agent-patch"
+                tabindex="0"
+                aria-label="Agent Patch 内容"
+              ></pre>
+            </div>
+          </div>
+          <p id="assistance-status" class="quiet"></p>
+        </div>
+
+        <div class="action-row">
+          <button
+            id="open-editor-button"
+            class="button button-primary"
+            type="button"
+          >
+            打开无扩展编辑器
+          </button>
+          <button id="syntax-button" class="button" type="button">
+            运行原生语法检查
+          </button>
+          <button id="pause-button" class="button" type="button">暂停</button>
+        </div>
+
+        <pre
+          id="syntax-output"
+          class="syntax-output"
+          tabindex="0"
+          aria-label="原生语法检查输出"
+          hidden
+        ></pre>
+
+        <div class="finish-block">
+          <div>
+            <p class="section-label">FINAL SUBMISSION</p>
+            <h3>保存编辑器中的全部文件后结束</h3>
+            <p>
+              结束会立即冻结本场 Patch 与确定性
+              verdict；结果在八场结束前不会显示。
+            </p>
+          </div>
+          <label class="field-control" for="attestation-select">
+            污染声明
+            <select id="attestation-select">
+              <option value="">请选择</option>
+              <option value="clear">确认本场全程仅使用允许材料</option>
+              <option value="contaminated">
+                使用过禁止材料，或无法确认（本场记为 protocol_failure）
+              </option>
+            </select>
+          </label>
+          <button
+            id="finish-button"
+            class="button button-danger"
+            type="button"
+            disabled
+          >
+            结束并记录，不可重做
+          </button>
+        </div>
+      </section>
+
+      <section id="paused-panel" class="panel completion-panel" hidden>
+        <p class="section-label">TIMER PAUSED</p>
+        <h2 tabindex="-1">本场计时已暂停</h2>
+        <p>
+          任务内容与辅助信息已经移除。请同时停止阅读、搜索和编辑，准备继续时再恢复。
+        </p>
+        <button id="resume-button" class="button button-primary" type="button">
+          继续本场
+        </button>
+      </section>
+
+      <section id="frozen-panel" class="panel completion-panel" hidden>
+        <p id="frozen-label" class="section-label">SUBMISSION FROZEN</p>
+        <h2 id="frozen-heading" tabindex="-1">提交已冻结</h2>
+        <p id="frozen-guidance">
+          编辑器后续变化不会计入结果。仍需完成污染声明。
+        </p>
+        <label
+          class="field-control frozen-attestation"
+          for="frozen-attestation-select"
+        >
+          污染声明
+          <select id="frozen-attestation-select">
+            <option value="">请选择</option>
+            <option value="clear">确认本场全程仅使用允许材料</option>
+            <option value="contaminated">
+              使用过禁止材料，或无法确认（本场记为 protocol_failure）
+            </option>
+          </select>
+        </label>
+        <button
+          id="frozen-finish-button"
+          class="button button-danger"
+          type="button"
+          disabled
+        >
+          完成声明并记录，不可重做
+        </button>
+      </section>
+
+      <section id="recorded-panel" class="panel completion-panel" hidden>
+        <p class="section-label">SESSION RECORDED</p>
+        <h2 tabindex="-1">本场已经冻结</h2>
+        <p>不会显示正确性，也不会开放重做。请休息片刻，再准备下一场。</p>
+        <p
+          id="recorded-protocol"
+          class="protocol-result"
+          role="status"
+          hidden
+        ></p>
+        <button
+          id="recorded-next-button"
+          class="button button-primary"
+          type="button"
+        >
+          准备下一场
+        </button>
+      </section>
+
+      <section id="complete-panel" class="panel completion-panel" hidden>
+        <p class="section-label">8 / 8 COMPLETE</p>
+        <h2 tabindex="-1">所有真人场次已记录</h2>
+        <p>
+          请返回 Codex。接下来只会导入、重验和生成汇总，不会修改或补做任何场次。
+        </p>
+        <p
+          id="complete-protocol"
+          class="protocol-result"
+          role="status"
+          hidden
+        ></p>
+      </section>
+
+      <footer>
+        <span id="participant-id">读取参与者…</span>
+        <span id="protocol-summary">读取协议…</span>
+        <span>loopback-only</span>
+      </footer>
+    </main>
+    <script src="/runner.js"></script>
+  </body>
+</html>

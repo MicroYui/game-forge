@@ -438,8 +438,6 @@ def build_harness(
                 readers=readers,
                 progress_projector=CurrentApprovalProgressProjector(
                     policy_repository=policies,
-                    role_policy_version=roles.policy_version,
-                    role_policy_digest=roles.policy_digest,
                     principal_resolver=identities.project,
                 ),
             )

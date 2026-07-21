@@ -85,11 +85,12 @@ hed.disposition.hed_protocol_failure | hed_protocol_failure | measured | 0/8 (0.
 
 [QA Study]
 qa.scope | Scope | recorded | single-participant-eight-session-case-study
-qa.conclusion | Conclusion | pending | pending
-qa.paired_saved_minutes | paired_saved_minutes | pending | unavailable | evaluated=0 planned=4
-qa.paired_saved_fraction | paired_saved_fraction | pending | unavailable | evaluated=0 planned=4
-qa.manual_success | manual_success | pending | unavailable | evaluated=0 planned=4
-qa.assisted_success | assisted_success | pending | unavailable | evaluated=0 planned=4
+qa.time_scoring | Time scoring | recorded | incorrect_uses_active_cap | evidence=qa
+qa.conclusion | Conclusion | savings | savings | evidence=qa
+qa.paired_saved_minutes | paired_saved_minutes | measured | mean=3.408 minutes; median=4.204; p95=5.167 | evaluated=4 planned=4 | 95% CI [1.213, 5.037] | evidence=qa
+qa.paired_saved_fraction | paired_saved_fraction | measured | mean=0.426 fraction; median=0.525; p95=0.646 | evaluated=4 planned=4 | 95% CI [0.152, 0.63] | evidence=qa
+qa.manual_success | manual_success | measured | 0/4 (0.0%) | evaluated=4 planned=4 | 95% CI [0.000, 0.490] | evidence=qa
+qa.assisted_success | assisted_success | measured | 3/4 (75.0%) | evaluated=4 planned=4 | 95% CI [0.301, 0.954] | evidence=qa
 
 [Agent Cost and Latency]
 cost.external-hed.model_snapshot | external-hed model | recorded | openai/gpt-5.6-sol/pre-m4@1 | evidence=agent-cost
@@ -237,7 +238,7 @@ evidence.narrative | narrative | available | scenarios/narrative_bench/verificat
 evidence.narrative-cases | narrative-cases | available | scenarios/narrative_bench/verification.jsonl sha256=503afa2f70ff660cb64a1110f7b1e63b5a633679334877bd709a00acef935872 | evidence=narrative-cases
 evidence.narrative-corpus | narrative-corpus | available | scenarios/narrative_bench/corpus-manifest.json sha256=d55e97419cc7390aa6373ba2dc0048722b7b0cf7f07a060fb2b377917314f301 | evidence=narrative-corpus
 evidence.narrative-protocol | narrative-protocol | available | scenarios/narrative_bench/protocol.json sha256=e861bf2eb93221e1f5e461050e91f36dc4c089e4e8937f20417b31a6a376f74b | evidence=narrative-protocol
-evidence.qa | qa | pending | scenarios/external_cases/endless_sky/qa-evidence.json unavailable | evidence=qa
-evidence.qa-protocol | qa-protocol | available | scenarios/external_cases/endless_sky/qa-protocol.json sha256=e7514514fb502a553d80660d030d0c2d9f56f7f82f30d738dee562be6d3b8d0c | evidence=qa-protocol
+evidence.qa | qa | available | scenarios/external_cases/endless_sky/qa-evidence.json sha256=42883ec7df4b87380d8e13c77ead51b78f67ceea2023bba5c75222f64bc87499 | evidence=qa
+evidence.qa-protocol | qa-protocol | available | scenarios/external_cases/endless_sky/qa-protocol-participant-04.json sha256=a89ce547a81da4fb4087b54378c24fcdb8468c30995eb96c023dc6afeb2087df | evidence=qa-protocol
 evidence.runtime | runtime | available | scenarios/bench/deterministic-runtime-evidence.json sha256=8e7237a6abcb25fd6426c036d83a3dff1ce1b355465cdd4c761a00ade1789cbe | evidence=runtime
 evidence.seeded | seeded | available | gameforge/bench/corpus.py sha256=b79af05fd4b0c774f856bdc2d460fc42cef85bbd1ecddbe67c4e7d877068c8ca | evidence=seeded

@@ -21,16 +21,20 @@ from gameforge.contracts.api import (
     ArtifactSummaryV1,
     ConstraintProposalReadViewV1,
     ConstraintSnapshotViewV1,
+    ConstraintValidationCompilerBindingViewV1,
     ExecutionProfileReadViewV1,
     GraphItemV1,
     LineageEntryV1,
     PatchArtifactReadViewV1,
     RefHistoryEntryV1,
     ReviewArtifactViewV1,
+    ReviewProducerBindingViewV1,
     RollbackRequestReadViewV1,
     SchemaRegistryDocumentV1,
     SpecViewV1,
+    SubjectApprovalBindingViewV1,
     TaskSuiteArtifactViewV1,
+    TaskSuiteDerivationBindingViewV1,
 )
 from gameforge.contracts.canonical import (
     canonical_sha256,
@@ -40,6 +44,7 @@ from gameforge.contracts.canonical import (
 from gameforge.contracts.diff import SnapshotDiff, SnapshotDiffEntry
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.errors import (
+    Conflict,
     DependencyUnavailable,
     Forbidden,
     IntegrityViolation,
@@ -56,6 +61,7 @@ from gameforge.contracts.execution_profiles import (
     ExecutionProfileLifecycleV1,
     ExecutionProfileViewV1,
     RunKindRef,
+    TaskSuiteDerivationProfileConfigV2,
     execution_profile_payload_hash,
 )
 from gameforge.contracts.findings import PatchV2
@@ -83,6 +89,12 @@ from gameforge.platform.read_models.paging import (
     ReadPageBinding,
     ReadPageCandidate,
 )
+from gameforge.platform.registry.constraint_compilers import (
+    resolve_constraint_validation_compiler_authority,
+)
+from gameforge.platform.registry.task_suite_derivation import (
+    resolve_task_suite_derivation_authority,
+)
 
 
 _READ_ACTION = "read"
@@ -90,6 +102,14 @@ _SHA256_LENGTH = 64
 _T = TypeVar("_T", bound=BaseModel)
 ArtifactWire = ArtifactV1 | ArtifactV2
 ApprovalStatusText = str
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedBenchReportRead:
+    """Authorized BenchReport payload plus the exact selected Artifact identity."""
+
+    artifact: ArtifactSummaryV1
+    payload: dict[str, Any]
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,6 +149,30 @@ class ConstraintProposalWorkflowBinding:
             or len(self.approval_status) > 512
         ):
             raise ValueError("approval_status must be a non-empty bounded string")
+
+
+@dataclass(frozen=True, slots=True)
+class ConstraintValidationCompilerBindingRead:
+    binding: ConstraintValidationCompilerBindingViewV1
+    catalog_version: int
+
+    def __post_init__(self) -> None:
+        if type(self.binding) is not ConstraintValidationCompilerBindingViewV1:
+            raise TypeError("binding must be ConstraintValidationCompilerBindingViewV1")
+        if isinstance(self.catalog_version, bool) or self.catalog_version < 1:
+            raise ValueError("catalog_version must be positive")
+
+
+@dataclass(frozen=True, slots=True)
+class TaskSuiteDerivationBindingRead:
+    binding: TaskSuiteDerivationBindingViewV1
+    catalog_version: int
+
+    def __post_init__(self) -> None:
+        if type(self.binding) is not TaskSuiteDerivationBindingViewV1:
+            raise TypeError("binding must be TaskSuiteDerivationBindingViewV1")
+        if isinstance(self.catalog_version, bool) or self.catalog_version < 1:
+            raise ValueError("catalog_version must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -236,9 +280,28 @@ class SubjectWorkflowReadProvider(Protocol):
 
     def resolve_rollback(self, artifact_id: str) -> RollbackWorkflowReadBinding | None: ...
 
+    def resolve_approval_binding(
+        self,
+        artifact_id: str,
+    ) -> SubjectApprovalBindingViewV1 | None: ...
+
 
 class PlaytestResultReadProvider(Protocol):
     def result_artifact_id(self, run_id: str) -> str | None: ...
+
+
+class ReviewProducerBindingProvider(Protocol):
+    """Verify one explicit Review Artifact/Run occurrence against retained authority."""
+
+    def permission_for_run(self, run_id: str) -> Permission | None: ...
+
+    def resolve(
+        self,
+        *,
+        artifact: ArtifactV2,
+        report: ReviewReport,
+        run_id: str,
+    ) -> ReviewProducerBindingViewV1 | None: ...
 
 
 class RefHistoryReadProvider(Protocol):
@@ -302,6 +365,7 @@ class ContentReadCapabilities:
     schema_registry: SchemaRegistryProvider
     proposal_workflows: ConstraintProposalWorkflowProvider
     subject_workflows: SubjectWorkflowReadProvider
+    review_producers: ReviewProducerBindingProvider
     playtest_results: PlaytestResultReadProvider
     refs: RefHistoryReadProvider
     diffs: SnapshotDiffReadProvider
@@ -488,6 +552,33 @@ def _model_payload(
         raise IntegrityViolation(f"{label} payload violates its typed schema") from exc
 
 
+def _review_report_payload(
+    artifact: ArtifactWire,
+    payload: Mapping[str, Any],
+) -> ReviewReport:
+    """Parse review@1 plus its exact producer-bound requirement occurrence.
+
+    Generation gates bind ``requirement_id`` into the persisted review payload so
+    outcome-policy cardinality can be proved.  It is occurrence metadata rather
+    than a ReviewReport field, and therefore must match the immutable Artifact
+    metadata before being removed from the public report projection.
+    """
+
+    values = dict(payload)
+    requirement_id = values.pop("requirement_id", None)
+    meta_requirement = artifact.meta.get("requirement_id")
+    if (requirement_id is None) != (meta_requirement is None):
+        raise IntegrityViolation("review requirement binding is incomplete")
+    if requirement_id is not None and (
+        not isinstance(requirement_id, str)
+        or not requirement_id
+        or len(requirement_id) > 512
+        or requirement_id != meta_requirement
+    ):
+        raise IntegrityViolation("review requirement binding differs from its Artifact")
+    return _model_payload(values, ReviewReport, label="review report")
+
+
 def _scope_union(left: DomainScopeValue, right: DomainScopeValue) -> DomainScopeValue:
     if left is None or right is None:
         raise IntegrityViolation("diff input domain scope is not proved")
@@ -507,6 +598,18 @@ def _profile_view(
     elif isinstance(definition.details, ConfigExportProfileDetailsV1):
         env_contract_version = definition.details.env_contract_version
         target_environment_profile = definition.details.target_environment_profile
+    elif (
+        definition.profile_kind == "task_suite_derivation"
+        and definition.config_schema_id == "task_suite_derivation-profile-config@2"
+    ):
+        try:
+            target_environment_profile = TaskSuiteDerivationProfileConfigV2.model_validate(
+                definition.config
+            ).target_environment_profile
+        except ValidationError as exc:
+            raise IntegrityViolation(
+                "task-suite derivation profile has an invalid target environment binding"
+            ) from exc
     return ExecutionProfileViewV1(
         profile=definition.profile,
         profile_payload_hash=execution_profile_payload_hash(definition),
@@ -856,6 +959,54 @@ class _ContentReadOperations:
         )
         return self._rollback_view(artifact, permission, verified)
 
+    def get_subject_approval_binding(
+        self,
+        principal: Principal,
+        artifact_id: str,
+    ) -> SubjectApprovalBindingViewV1:
+        artifact = self._get_artifact(artifact_id)
+        if artifact.kind not in {"patch", "constraint_proposal", "rollback_request"}:
+            raise NotFound(
+                "workflow subject does not exist",
+                artifact_id=artifact_id,
+            )
+        permission = _permission(
+            self._permissions.for_artifact(artifact, resource_kind=artifact.kind),
+            resource_kind=artifact.kind,
+        )
+        query = _query_hash(
+            resource_kind=artifact.kind,
+            filters={"artifact_id": artifact_id},
+            sort=(),
+            projection="subject-approval-binding-view@1",
+        )
+        self._authorization.require_singular(
+            principal=principal,
+            permission=permission,
+            query_hash=query,
+        )
+        if permission is None:
+            raise IntegrityViolation("workflow subject domain scope is not proved")
+
+        binding = self._capabilities.subject_workflows.resolve_approval_binding(artifact_id)
+        if binding is None:
+            raise NotFound(
+                "workflow subject approval binding does not exist",
+                artifact_id=artifact_id,
+            )
+        if type(binding) is not SubjectApprovalBindingViewV1:
+            raise IntegrityViolation("workflow subject approval binding is invalid")
+        if (
+            binding.subject_artifact_id != artifact.artifact_id
+            or binding.subject_kind != artifact.kind
+            or binding.subject_digest != artifact.payload_hash
+        ):
+            raise IntegrityViolation(
+                "workflow subject approval binding differs from its Artifact",
+                artifact_id=artifact_id,
+            )
+        return binding
+
     def list_rollback_requests(
         self,
         principal: Principal,
@@ -899,6 +1050,65 @@ class _ContentReadOperations:
             expected_schema="review@1",
         )
         return self._review_view(artifact, permission, verified)
+
+    def get_review_producer_binding(
+        self,
+        principal: Principal,
+        artifact_id: str,
+        *,
+        run_id: str,
+    ) -> ReviewProducerBindingViewV1:
+        artifact, _permission_value = self._load_authorized_artifact(
+            principal,
+            artifact_id,
+            resource_kind="review",
+            projection="review-producer-binding-view@1",
+        )
+        run_permission = _permission(
+            self._capabilities.review_producers.permission_for_run(run_id),
+            resource_kind="run",
+        )
+        if run_permission is None:
+            raise NotFound("Run does not exist", run_id=run_id)
+        run_query = _query_hash(
+            resource_kind="run",
+            filters={"run_id": run_id},
+            sort=(),
+            projection="review-producer-binding-view@1",
+        )
+        self._authorization.require_singular(
+            principal=principal,
+            permission=run_permission,
+            query_hash=run_query,
+        )
+        verified = self._read_verified(
+            artifact,
+            expected_kind="review_report",
+            expected_schema="review@1",
+        )
+        report = _review_report_payload(artifact, verified.payload)
+        if report.snapshot_id != artifact.version_tuple.ir_snapshot_id:
+            raise IntegrityViolation("ReviewReport snapshot differs from Artifact VersionTuple")
+        if not isinstance(
+            artifact, ArtifactV2
+        ):  # narrowed by _read_verified; keep typed seam exact.
+            raise IntegrityViolation("Review producer binding requires ArtifactV2")
+        value = self._capabilities.review_producers.resolve(
+            artifact=artifact,
+            report=report,
+            run_id=run_id,
+        )
+        if value is None:
+            raise NotFound(
+                "Review producer occurrence does not exist",
+                artifact_id=artifact_id,
+                run_id=run_id,
+            )
+        if type(value) is not ReviewProducerBindingViewV1:
+            raise IntegrityViolation("Review producer authority returned an invalid binding")
+        if value.review_artifact_id != artifact_id or value.run_id != run_id:
+            raise IntegrityViolation("Review producer authority returned another occurrence")
+        return value
 
     def list_reviews(
         self,
@@ -996,6 +1206,28 @@ class _ContentReadOperations:
             "environment_profile_id": environment_profile_id,
             "environment_profile_version": environment_profile_version,
         }
+        filtered = any(value is not None for value in filters.values())
+
+        def matches(value: TaskSuiteArtifactViewV1) -> bool:
+            suite = value.task_suite
+            return (
+                (
+                    config_artifact_id is None
+                    or suite.config_export_artifact_id == config_artifact_id
+                )
+                and (
+                    constraint_artifact_id is None
+                    or suite.constraint_snapshot_artifact_id == constraint_artifact_id
+                )
+                and (
+                    environment_profile_id is None
+                    or (
+                        suite.environment_profile.profile_id == environment_profile_id
+                        and suite.environment_profile.version == environment_profile_version
+                    )
+                )
+            )
+
         return self._artifact_page(
             principal,
             definition=_ListDefinition(
@@ -1011,6 +1243,10 @@ class _ContentReadOperations:
             index_kind="task_suites",
             expected_kind="task_suite",
             projector=self._task_suite_view,
+            projection_model=TaskSuiteArtifactViewV1 if filtered else None,
+            materialize_projection=filtered,
+            source_filters={} if filtered else None,
+            view_eligible=matches if filtered else None,
             identity=lambda value: (value.artifact.artifact_id, 1),
         )
 
@@ -1302,14 +1538,14 @@ class _ContentReadOperations:
             expires_at=source_page.expires_at,
         )
 
-    def get_bench_report(self, principal: Principal) -> dict[str, JsonValue]:
+    def get_bench_report(self, principal: Principal) -> SelectedBenchReportRead:
         artifact_id = self._capabilities.bench_reports.selected_artifact_id()
         if artifact_id is None:
             raise DependencyUnavailable(
                 "selected BenchReport authority is unavailable",
                 component="bench_report",
             )
-        artifact, _ = self._load_authorized_artifact(
+        artifact, permission = self._load_authorized_artifact(
             principal,
             artifact_id,
             resource_kind="bench_report",
@@ -1322,7 +1558,14 @@ class _ContentReadOperations:
         )
         if verified.payload.get("schema_version") != "bench-report@2":
             raise IntegrityViolation("selected BenchReport payload has the wrong schema")
-        return dict(verified.payload)
+        return SelectedBenchReportRead(
+            artifact=_artifact_summary(
+                artifact,
+                permission=permission,
+                payload_schema_id=verified.payload_schema_id,
+            ),
+            payload=verified.payload,
+        )
 
     def list_execution_profiles(
         self,
@@ -1448,6 +1691,169 @@ class _ContentReadOperations:
             query_hash=query,
         )
         return value
+
+    def get_constraint_validation_compiler_binding(
+        self,
+        principal: Principal,
+        *,
+        profile_id: str,
+        version: int,
+    ) -> ConstraintValidationCompilerBindingRead:
+        catalog = self._catalog()
+        definitions = tuple(
+            item
+            for item in catalog.definitions
+            if item.profile.profile_id == profile_id and item.profile.version == version
+        )
+        lifecycles = tuple(
+            item
+            for item in catalog.lifecycle
+            if item.profile.profile_id == profile_id and item.profile.version == version
+        )
+        if not definitions and not lifecycles:
+            raise NotFound(
+                "execution profile version does not exist in the current catalog",
+                profile_id=profile_id,
+                version=version,
+            )
+        if len(definitions) != 1 or len(lifecycles) != 1:
+            raise IntegrityViolation(
+                "execution profile catalog has a partial or duplicate compiler binding",
+                profile_id=profile_id,
+                version=version,
+            )
+        definition = definitions[0]
+        lifecycle = lifecycles[0]
+        query = _query_hash(
+            resource_kind="execution_profile",
+            filters={"profile_id": profile_id, "version": version},
+            sort=(),
+            projection="constraint-validation-compiler-binding@1",
+        )
+        self._authorization.require_singular(
+            principal=principal,
+            permission=_collection_permission(
+                "execution_profile",
+                definition.domain_scope,
+            ),
+            query_hash=query,
+        )
+        authority = resolve_constraint_validation_compiler_authority(
+            definition,
+            lifecycle,
+        )
+        try:
+            binding = ConstraintValidationCompilerBindingViewV1(
+                compiler_profile=authority.compiler_profile,
+                profile_payload_hash=authority.profile_payload_hash,
+                run_kind=authority.run_kind,
+                differential_engines=authority.differential_engines,
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("constraint validation compiler binding is invalid") from exc
+        return ConstraintValidationCompilerBindingRead(
+            binding=binding,
+            catalog_version=catalog.catalog_version,
+        )
+
+    def get_task_suite_derivation_binding(
+        self,
+        principal: Principal,
+        *,
+        profile_id: str,
+        version: int,
+    ) -> TaskSuiteDerivationBindingRead:
+        catalog = self._catalog()
+        definitions = tuple(
+            item
+            for item in catalog.definitions
+            if item.profile.profile_id == profile_id and item.profile.version == version
+        )
+        lifecycles = tuple(
+            item
+            for item in catalog.lifecycle
+            if item.profile.profile_id == profile_id and item.profile.version == version
+        )
+        if not definitions and not lifecycles:
+            raise NotFound(
+                "execution profile version does not exist in the current catalog",
+                profile_id=profile_id,
+                version=version,
+            )
+        if len(definitions) != 1 or len(lifecycles) != 1:
+            raise IntegrityViolation(
+                "execution profile catalog has a partial or duplicate task-suite binding",
+                profile_id=profile_id,
+                version=version,
+            )
+        definition = definitions[0]
+        lifecycle = lifecycles[0]
+        query = _query_hash(
+            resource_kind="execution_profile",
+            filters={"profile_id": profile_id, "version": version},
+            sort=(),
+            projection="task-suite-derivation-binding@1",
+        )
+        self._authorization.require_singular(
+            principal=principal,
+            permission=_collection_permission(
+                "execution_profile",
+                definition.domain_scope,
+            ),
+            query_hash=query,
+        )
+        authority = resolve_task_suite_derivation_authority(definition, lifecycle)
+        environment_definitions = tuple(
+            item
+            for item in catalog.definitions
+            if item.profile == authority.target_environment_profile
+        )
+        environment_lifecycles = tuple(
+            item
+            for item in catalog.lifecycle
+            if item.profile == authority.target_environment_profile
+        )
+        if len(environment_definitions) != 1 or len(environment_lifecycles) != 1:
+            raise IntegrityViolation(
+                "task-suite derivation profile has an unclosed target environment"
+            )
+        environment_definition = environment_definitions[0]
+        environment_lifecycle = environment_lifecycles[0]
+        self._authorization.require_singular(
+            principal=principal,
+            permission=_collection_permission(
+                "execution_profile",
+                environment_definition.domain_scope,
+            ),
+            query_hash=query,
+        )
+        if (
+            environment_definition.profile_kind != "environment"
+            or authority.run_kind not in environment_definition.compatible_run_kinds
+            or environment_lifecycle.state != "active"
+        ):
+            raise Conflict(
+                "task-suite derivation target environment is not active and compatible",
+                profile_id=environment_definition.profile.profile_id,
+                profile_version=environment_definition.profile.version,
+                profile_status=environment_lifecycle.state,
+            )
+        try:
+            binding = TaskSuiteDerivationBindingViewV1(
+                derivation_profile=authority.derivation_profile,
+                profile_payload_hash=authority.profile_payload_hash,
+                run_kind=authority.run_kind,
+                target_environment_profile=authority.target_environment_profile,
+                completion_oracle_registry_ref=authority.completion_oracle_registry_ref,
+                max_scenarios=authority.max_scenarios,
+                max_total_prepared_artifact_bytes=(authority.max_total_prepared_artifact_bytes),
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntegrityViolation("task-suite derivation binding is invalid") from exc
+        return TaskSuiteDerivationBindingRead(
+            binding=binding,
+            catalog_version=catalog.catalog_version,
+        )
 
     def _get_artifact(self, artifact_id: str) -> ArtifactWire:
         value = self._repository.get_artifact(artifact_id)
@@ -1715,7 +2121,7 @@ class _ContentReadOperations:
         permission: Permission,
         verified: VerifiedArtifactPayload,
     ) -> ReviewArtifactViewV1:
-        report = _model_payload(verified.payload, ReviewReport, label="review report")
+        report = _review_report_payload(artifact, verified.payload)
         if report.snapshot_id != artifact.version_tuple.ir_snapshot_id:
             raise IntegrityViolation("ReviewReport snapshot differs from Artifact VersionTuple")
         return ReviewArtifactViewV1(
@@ -1767,9 +2173,17 @@ class _ContentReadOperations:
         ],
         projection_model: type[_T] | None = None,
         materialize_projection: bool = False,
+        source_filters: Mapping[str, JsonValue] | None = None,
         eligible: Callable[[ArtifactWire], bool] | None = None,
+        view_eligible: Callable[[_T], bool] | None = None,
         identity: Callable[[_T], tuple[str, int]],
     ) -> PageV1[_T]:
+        if source_filters is not None and (
+            index_kind != "task_suites" or not materialize_projection
+        ):
+            raise IntegrityViolation(
+                "verified-payload source filtering is reserved for materialized task suites"
+            )
         limit = _page_limit(limit)
         query = _query_hash(
             resource_kind=definition.resource_kind,
@@ -1812,7 +2226,7 @@ class _ContentReadOperations:
                 source_page = self._capabilities.immutable_artifact_pages.page(
                     index_kind=index_kind,
                     expected_artifact_kind=expected_kind,
-                    filters=filters,
+                    filters=filters if source_filters is None else source_filters,
                     cursor=source_cursor,
                     binding=read_binding,
                     page_size=source_page_size,
@@ -1878,6 +2292,8 @@ class _ContentReadOperations:
             )
             for artifact in authorized.items
         )
+        if view_eligible is not None:
+            values = tuple(value for value in values if view_eligible(value))
         for value in values:
             resource_id, revision = identity(value)
             if not resource_id or revision < 1:
@@ -2066,6 +2482,13 @@ class ContentReadService:
     ) -> RollbackRequestReadViewV1:
         return self._call("get_rollback_request", principal, artifact_id)
 
+    def get_subject_approval_binding(
+        self,
+        principal: Principal,
+        artifact_id: str,
+    ) -> SubjectApprovalBindingViewV1:
+        return self._call("get_subject_approval_binding", principal, artifact_id)
+
     def list_rollback_requests(
         self, principal: Principal, **kwargs: Any
     ) -> PageV1[RollbackRequestReadViewV1]:
@@ -2073,6 +2496,20 @@ class ContentReadService:
 
     def get_review(self, principal: Principal, artifact_id: str) -> ReviewArtifactViewV1:
         return self._call("get_review", principal, artifact_id)
+
+    def get_review_producer_binding(
+        self,
+        principal: Principal,
+        artifact_id: str,
+        *,
+        run_id: str,
+    ) -> ReviewProducerBindingViewV1:
+        return self._call(
+            "get_review_producer_binding",
+            principal,
+            artifact_id,
+            run_id=run_id,
+        )
 
     def list_reviews(self, principal: Principal, **kwargs: Any) -> PageV1[ReviewArtifactViewV1]:
         return self._call("list_reviews", principal, **kwargs)
@@ -2103,7 +2540,7 @@ class ContentReadService:
     ) -> PageV1[RefHistoryEntryV1]:
         return self._call("ref_history", principal, ref_name, **kwargs)
 
-    def get_bench_report(self, principal: Principal) -> dict[str, JsonValue]:
+    def get_bench_report(self, principal: Principal) -> SelectedBenchReportRead:
         return self._call("get_bench_report", principal)
 
     def list_execution_profiles(
@@ -2116,11 +2553,34 @@ class ContentReadService:
     ) -> ExecutionProfileReadViewV1:
         return self._call("get_execution_profile", principal, **kwargs)
 
+    def get_constraint_validation_compiler_binding(
+        self,
+        principal: Principal,
+        **kwargs: Any,
+    ) -> ConstraintValidationCompilerBindingRead:
+        return self._call(
+            "get_constraint_validation_compiler_binding",
+            principal,
+            **kwargs,
+        )
+
+    def get_task_suite_derivation_binding(
+        self,
+        principal: Principal,
+        **kwargs: Any,
+    ) -> TaskSuiteDerivationBindingRead:
+        return self._call(
+            "get_task_suite_derivation_binding",
+            principal,
+            **kwargs,
+        )
+
 
 __all__ = [
     "BenchReportSelectionProvider",
     "ConstraintProposalWorkflowBinding",
     "ConstraintProposalWorkflowProvider",
+    "ConstraintValidationCompilerBindingRead",
     "ContentDomainPermissionResolver",
     "ContentReadCapabilities",
     "ContentReadRepository",
@@ -2129,6 +2589,7 @@ __all__ = [
     "ExecutionProfileCatalogProvider",
     "PatchWorkflowReadBinding",
     "PlaytestResultReadProvider",
+    "ReviewProducerBindingProvider",
     "RefHistoryReadProvider",
     "RollbackWorkflowReadBinding",
     "SchemaRegistryProvider",
@@ -2137,4 +2598,5 @@ __all__ = [
     "SpecBindingProvider",
     "SpecReadBinding",
     "SubjectWorkflowReadProvider",
+    "TaskSuiteDerivationBindingRead",
 ]

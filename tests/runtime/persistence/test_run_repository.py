@@ -3,7 +3,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 from dataclasses import replace
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -94,9 +94,15 @@ from gameforge.runtime.persistence.models import (
     UsageEntryRow,
 )
 from gameforge.runtime.cost.ledger import SqlCostLedger
+from gameforge.runtime.clock import FrozenUtcClock
+from gameforge.runtime.persistence.approvals import SqlApprovalRepository
+from gameforge.runtime.persistence.conflicts import SqlConflictSetRepository
+from gameforge.runtime.persistence.cursor import CursorSigner
+from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.runs import RunAttemptStart, RunClaim, SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
+from gameforge.runtime.persistence.workflow_reads import SqlWorkflowReadRepository
 from tests.runtime.cost.test_repository import (
     REQUEST_HASH as COST_REQUEST_HASH,
     _budget,
@@ -2179,6 +2185,76 @@ def test_finding_link_can_be_read_by_its_exact_run_and_finding_revision(
             )
             is None
         )
+
+
+def test_workflow_read_projects_exact_typed_run_finding_link_and_rejects_producer_drift(
+    engine: Engine,
+) -> None:
+    expected = _persist_exact_finding_link(engine)
+    clock = FrozenUtcClock(datetime(2026, 7, 14, 9, tzinfo=timezone.utc))
+    signer = CursorSigner(signing_key=b"workflow-read-test-key", clock=clock)
+
+    def repository(session: Session) -> SqlWorkflowReadRepository:
+        return SqlWorkflowReadRepository(
+            session,
+            approvals=SqlApprovalRepository(session),
+            runs=SqlRunRepository(session),
+            findings=SqlFindingRepository(session, cursor_signer=signer, clock=clock),
+            conflicts=SqlConflictSetRepository(session, cursor_signer=signer, clock=clock),
+        )
+
+    with Session(engine) as session:
+        links = repository(session).list_run_finding_links(expected.run_id, max_items=10)
+
+    assert len(links) == 1
+    assert links[0].run_id == expected.run_id
+    assert links[0].attempt_no == expected.attempt_no
+    assert links[0].ordinal == expected.ordinal
+    assert links[0].finding.finding_id == expected.finding_id
+    assert links[0].finding.revision == expected.finding_revision
+    assert links[0].finding_digest == expected.finding_digest
+    assert links[0].evidence_artifact_id == expected.evidence_artifact_id
+
+    tampered_finding = links[0].finding.model_copy(
+        update={
+            "payload": links[0].finding.payload.model_copy(
+                update={"producer_run_id": "run:another"}
+            )
+        }
+    )
+    tampered_digest = finding_revision_digest(tampered_finding)
+    with engine.begin() as connection:
+        connection.execute(
+            update(FindingRevisionRow)
+            .where(
+                FindingRevisionRow.finding_id == expected.finding_id,
+                FindingRevisionRow.revision == expected.finding_revision,
+            )
+            .values(
+                payload=tampered_finding.payload.model_dump(mode="json"),
+                finding_digest=tampered_digest,
+            )
+        )
+        connection.execute(
+            update(FindingHeadRow)
+            .where(FindingHeadRow.finding_id == expected.finding_id)
+            .values(current_digest=tampered_digest)
+        )
+        connection.execute(
+            update(RunFindingLinkRow)
+            .where(
+                RunFindingLinkRow.run_id == expected.run_id,
+                RunFindingLinkRow.attempt_no == expected.attempt_no,
+                RunFindingLinkRow.ordinal == expected.ordinal,
+            )
+            .values(finding_digest=tampered_digest)
+        )
+
+    with (
+        Session(engine) as session,
+        pytest.raises(IntegrityViolation, match="producer Run"),
+    ):
+        repository(session).list_run_finding_links(expected.run_id, max_items=10)
 
 
 def test_finding_links_can_be_enumerated_by_exact_evidence_artifact(

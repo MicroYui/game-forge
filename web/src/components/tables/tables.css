@@ -1,0 +1,198 @@
+.gf-copyable {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+}
+
+.gf-copyable__tooltip {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: calc(100% + var(--space-1));
+  inset-inline-end: 0;
+  width: max-content;
+  max-width: min(240px, 80vw);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--font-size-small);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition:
+    opacity var(--duration-hover) var(--ease-standard),
+    transform var(--duration-hover) var(--ease-standard);
+}
+
+.gf-copyable__button:hover + .gf-copyable__tooltip,
+.gf-copyable__button:focus-visible + .gf-copyable__tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gf-copyable__value {
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.gf-copyable__value--scrollable {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.gf-copyable__button,
+.gf-secondary-button {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  transition:
+    border-color var(--duration-hover) var(--ease-standard),
+    color var(--duration-hover) var(--ease-standard),
+    background-color var(--duration-hover) var(--ease-standard);
+}
+
+.gf-copyable__button {
+  display: inline-grid;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  place-items: center;
+}
+
+.gf-copyable__button:hover,
+.gf-secondary-button:hover:not(:disabled) {
+  border-color: var(--info);
+  color: var(--info);
+}
+
+.gf-secondary-button {
+  min-height: 34px;
+  padding: var(--space-1) var(--space-3);
+}
+
+.gf-cursor-table {
+  display: grid;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.gf-cursor-table__toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  min-width: 0;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--line);
+}
+
+.gf-cursor-table__heading {
+  min-width: 0;
+  font-size: var(--font-size-h3);
+  overflow-wrap: anywhere;
+}
+
+.gf-cursor-table__toolbar-actions {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+  max-width: min(46vw, 720px);
+  overflow-wrap: anywhere;
+}
+
+.gf-cursor-table__toolbar-actions > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.gf-cursor-table__scroll {
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.gf-cursor-table table {
+  width: 100%;
+  min-width: 560px;
+}
+
+.gf-cursor-table th,
+.gf-cursor-table td {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--line);
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.gf-cursor-table th {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-heading);
+}
+
+.gf-cursor-table tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.gf-cursor-table__empty {
+  color: var(--muted);
+  text-align: center !important;
+}
+
+.gf-cursor-table__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--line);
+}
+
+.gf-cursor-table__pagination p {
+  min-width: 0;
+  color: var(--muted);
+  font-size: var(--font-size-small);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .gf-cursor-table__toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gf-cursor-table__toolbar-actions {
+    max-width: 100%;
+  }
+
+  .gf-cursor-table__pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

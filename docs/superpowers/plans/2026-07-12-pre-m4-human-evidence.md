@@ -4,7 +4,13 @@
 
 **Goal:** Measure Human-Edit-Distance against all eight upstream human fixes and collect a protocol-valid four-pair QA-hours case study without introducing game-specific logic into GameForge's Agent, checker, metric, or report contracts.
 
-**Execution status (2026-07-13):** HED evidence and the frozen QA protocol/tooling are complete. The product owner deferred the eight real participant sessions and will provide them later; the remaining Task 8 session import and Task 9 human-evidence closure stay unchecked and are the only outstanding M3 product evidence.
+**Execution status (2026-07-21):** Complete. `participant-04` completed the frozen eight-session/four-pair study without a protocol failure. Canonical import, final-patch replay, deterministic verdict rederivation, QA scoring, BenchReport JSON/text/HTML regeneration, and combined M3 acceptance all pass. This is the only accepted and measured QA experiment: manual success is 0/4, assisted success is 3/4, mean paired saving is 3.407599574483333 minutes, median paired saving is 4.203912946883333 minutes, the 95% bootstrap interval is [1.2129956309041665, 5.037277463891666], and the conclusion is `savings`. Protocol SHA-256 is `40afa46f4be87f2573148ce3ff12254e3761e51cf8f849fbeb59c2e585ff6cee`; the authoritative schema is `qa-evidence@2` and its `evidence_sha256` is `e7e76d9a846efd7eeaae2b06641e170c15878f7cbf1ff98a79a733b1aa451142`. Before final acceptance, the old aggregation was found to deviate from approved design §11 `QA timeout/incorrect | cap time + success=false`: correct sessions use actual capped active time, incorrect/time-out sessions use the 8-minute cap, and immutable raw active time remains audit-only. No monotonic event, raw duration, patch, or verdict was rewritten. Combined acceptance returns `[]`; `qa.evidence_missing` is closed.
+
+Earlier participant work remains immutable audit history only: the contaminated
+`participant-01` attempt was rejected, `participant-02` was a launcher preflight, and
+`participant-03` was stopped after an editor infrastructure failure. None contributes a
+session, pair, denominator, score, evidence row, or BenchReport value. They are not
+additional accepted experiments and are not merged with `participant-04`.
 
 **Architecture:** A source-neutral HED package compares semantic IR deltas produced from the same before snapshot: one target comes from the verifier-gated Repair Agent and one from the upstream author's after commit. A separate source-neutral QA package freezes a counterbalanced matched-pair schedule, records monotonic timer events, and scores the same correctness contract for both arms; a thin Endless Sky composition boundary materializes source files and calls the existing reader, Adapter, predicate, native parser, and generic checkers. New Agent evidence is recorded with `openai/gpt-5.6-sol/pre-m4@1`; all historical Opus 4.8 cassettes remain byte-identical.
 
@@ -30,7 +36,7 @@
 - QA session time comes only from ordered `time.monotonic_ns()` events with the state machine `start -> (pause -> resume)* -> finish`. Active time excludes paused intervals; elapsed time does not. Each session has an active cap of 480 seconds and the total design cap is 3,840 seconds.
 - A timeout or incorrect final patch is a valid QA outcome. Missing events, invalid state transition, missing final patch, arm contamination attestation failure, or missing deterministic correctness verdict is a protocol failure.
 - QA correctness uses the same source submission for both arms and requires: lossless parse, native parser success, independent predicate clear, target-class generic Finding clear, and no new generic deterministic Finding relative to the frozen before case.
-- QA reports paired active-minute differences, paired percentage differences, their mean/median/bootstrap CI, and arm success rates with Wilson CIs. It may claim savings only when the paired-minute CI lower bound is greater than zero and assisted success rate is not below manual; otherwise the conclusion is `inconclusive` or `negative`.
+- QA preserves actual capped active minutes as raw audit data, but computes paired scored-minute and percentage differences under the approved cap rule: a correct session uses its actual capped active time, while an incorrect or timed-out session uses the full 8-minute cap; the percentage denominator is the manual scored time. It reports mean/median/bootstrap CI and arm success rates with Wilson CIs. It may claim savings only when the paired-minute CI lower bound is greater than zero and assisted success rate is not below manual; otherwise the conclusion is `inconclusive` or `negative`.
 - Participant evidence is a one-person, eight-case study only. No field, text, or UI may generalize it to industry-wide productivity.
 - This plan does not implement Cost/Latency aggregation, BenchReport v2, combined M3 acceptance, M4 UI, RBAC, approval infrastructure, or a storage service.
 - Every task ends with `git diff --check`; commits contain no AI attribution.
@@ -855,7 +861,7 @@ git commit -m "feat(bench): add matched-pair QA session harness"
 - Consumes: all eight protocol-ordered real participant sessions.
 - Produces: `QaPairOutcome`, `QaScore`, `QaEvidenceManifest`, canonical scoring/validation, and the measured one-participant case-study artifact.
 
-- [ ] **Step 1: Write failing paired-score tests before collecting data**
+- [x] **Step 1: Write failing paired-score tests before collecting data**
 
 ```python
 def test_score_uses_all_four_pairs_and_same_correctness_contract():
@@ -873,9 +879,9 @@ def test_savings_claim_requires_positive_lower_bound_and_no_success_regression()
     assert score_sessions(protocol(), assisted_slower()).conclusion == "negative"
 ```
 
-Also test percentage denominator uses manual capped active time, manual zero time yields a protocol failure, incorrect/timed-out outcomes remain valid, any invalid session makes its pair unevaluated, metric/hash tampering fails, and session order/case/arm must exactly match the frozen protocol.
+Also test percentage denominator uses manual scored time, correct outcomes use actual capped active time, incorrect/timed-out outcomes use the full 8-minute cap while retaining raw active time for audit, manual zero time yields a protocol failure, any invalid session makes its pair unevaluated, metric/hash tampering fails, and session order/case/arm must exactly match the frozen protocol.
 
-- [ ] **Step 2: Run score tests and verify RED**
+- [x] **Step 2: Run score tests and verify RED**
 
 Run: `uv run pytest tests/bench/qa/test_score.py tests/bench/qa/test_measured_evidence.py -q`
 
@@ -889,8 +895,10 @@ class QaPairOutcome(_StrictModel):
     defect_class: DefectClass
     manual_session_id: StableId
     assisted_session_id: StableId
-    manual_minutes: float
-    assisted_minutes: float
+    manual_active_minutes: float
+    assisted_active_minutes: float
+    manual_scored_minutes: float
+    assisted_scored_minutes: float
     saved_minutes: float
     saved_fraction: float
     manual_correct: bool
@@ -901,6 +909,7 @@ class QaScore(_StrictModel):
     planned_pairs: Literal[4]
     evaluated_pairs: int
     protocol_failure_pairs: int
+    time_scoring: Literal["incorrect_uses_active_cap"]
     mean_saved_minutes: float | None
     median_saved_minutes: float | None
     saved_minutes_ci_low: float | None
@@ -914,9 +923,9 @@ class QaScore(_StrictModel):
     conclusion: Literal["savings", "inconclusive", "negative", "failed"]
 ```
 
-Use capped active minutes. `negative` requires `mean_saved_minutes < 0`; `failed` requires any protocol failure or fewer than four evaluated pairs; otherwise apply the strict savings rule from Global Constraints.
+Use scored minutes: a correct session contributes its actual capped active minutes, while an incorrect or timed-out session contributes the full 8-minute cap. Preserve raw active minutes for audit and never rewrite the underlying session. `negative` requires `mean_saved_minutes < 0`; `failed` requires any protocol failure or fewer than four evaluated pairs; otherwise apply the strict savings rule from Global Constraints.
 
-- [ ] **Step 4: Prepare an external QA workspace and conduct sessions in frozen order**
+- [x] **Step 4: Prepare an external QA workspace and conduct sessions in frozen order**
 
 Use a directory outside the repository, for example `/tmp/gameforge-qa-participant-01`. For each order `1..8`:
 
@@ -928,7 +937,7 @@ Use a directory outside the repository, for example `/tmp/gameforge-qa-participa
 
 The Agent cannot perform or simulate these participant sessions. If real participant evidence is not available, stop this task with the protocol and harness complete; do not fabricate times, attestations, or patches.
 
-- [ ] **Step 5: Import, validate, and freeze session evidence**
+- [x] **Step 5: Import, validate, and freeze session evidence**
 
 Run:
 
@@ -937,12 +946,13 @@ uv run python -m gameforge.bench.external_cases.endless_sky_qa import-evidence \
   --workspace /tmp/gameforge-qa-participant-01 \
   --output scenarios/external_cases/endless_sky
 uv run python -m gameforge.bench.external_cases.endless_sky_qa validate-evidence \
-  scenarios/external_cases/endless_sky/qa-evidence.json
+  scenarios/external_cases/endless_sky/qa-evidence.json \
+  --protocol scenarios/external_cases/endless_sky/qa-protocol-participant-04.json
 ```
 
 Expected: exactly eight canonical session files and patches are copied by content hash, every verdict revalidates against the frozen submission, and `qa-evidence.json` reports four pairs without changing any session result.
 
-- [ ] **Step 6: Run measured acceptance and commit**
+- [x] **Step 6: Run measured acceptance and commit**
 
 ```bash
 uv run pytest tests/bench/qa -q
@@ -960,11 +970,135 @@ Record exact arm times/successes, paired estimates/CIs, conclusion, evidence SHA
 
 Task 8 automation checkpoint: paired scoring, conservative conclusion rules,
 workspace import, final-patch replay, and deterministic verdict revalidation are
-implemented and covered by synthetic temporary-workspace tests. No participant
-times, attestations, patches, or measured QA evidence have been created. Steps
-1-2 remain open until the measured-evidence acceptance test is added against
-real sessions; Steps 4-6 remain open until the participant completes all eight
-protocol-ordered sessions.
+implemented and covered by synthetic temporary-workspace tests. On 2026-07-21 a
+participant completed all eight protocol-ordered sessions, but later disclosed
+Copilot AI use in `qa-session-04` and `qa-session-05` after having recorded
+no-contamination attestations. Because manual permits only the supplied source files, clean editor,
+and native parser, those sessions are `protocol_failure` with their recorded times and
+submissions unchanged; the whole attempt conclusion is `failed`. The imported copies and
+measured-evidence test were removed before report publication; the original
+workspace remains outside the repository only for audit. No artifact from that rejected
+attempt is accepted or scored, and the same participant cannot retry those exposed cases.
+This paragraph describes only the rejected `participant-01` attempt; it does not describe
+the later accepted `participant-04` evidence.
+
+#### Formal replacement attempt preregistration (2026-07-21)
+
+The product owner requested one formal replacement attempt by the same human
+participant. This is an experienced-participant follow-up, not a first-use study. The
+failed attempt above remains immutable and rejected; its case IDs, times, submissions,
+attestations, and conclusion are not rewritten or counted. The replacement may start
+only after a complete new eight-case bundle, its assistance material, and a new protocol
+digest have been frozen.
+
+Use the existing pinned Endless Sky object store and registered search range as a
+QA-only reserve source. This does not reopen Flare, the frozen generic B0A adjudication,
+or the accepted external BDR corpus. Before looking at any HED result or participant
+result, apply this deterministic selection policy:
+
+1. Recompute the registered full matched sequence and require the frozen totals of 610
+   matched / 562 config-only at pinned head
+   `b10b7d6c24496e2f67a230a2553b344e200ba289`.
+2. Exclude the eight previously exposed commits and cases, their objective-equivalent
+   lineage, and every source path opened by the failed attempt.
+3. Keep only single-parent, config-only commits whose before and after trees parse with
+   the native parser and round-trip losslessly through the source reader.
+4. For every changed top-level mission/effect record, run the four already implemented
+   independent predicates. A candidate qualifies for a class only on the exact
+   `before=violation`, `after=clear` transition and when the corresponding generic
+   deterministic Finding is present before and absent after. Do not add or relax an
+   oracle in response to the observed candidate supply.
+5. Preserve registered commit order, then target-locator order, and take the first two
+   qualified, lineage-distinct cases for each of the existing four classes. The first is
+   development and the second verification. If any class has fewer than two, stop the
+   same-participant replacement as blocked rather than reuse an exposed case or change
+   the design after seeing results.
+
+After selection, freeze all eight case trees and the complete assisted-arm HED material
+before session 1. HED protocol failure blocks launch; an `agent_unusable` result remains
+in place and does not authorize case replacement. The timer, four-row counterbalance,
+deterministic correctness, scoring, and result language stay unchanged. Use
+`participant-01`, a distinct attempt/session/pair namespace, a fresh workspace, and an
+attempt/protocol marker that makes old sessions and patches unimportable. The Runner
+receives only explicit contamination wording and workspace/editor isolation hardening;
+its layout and A—Editorial visual design do not change. The product owner approved this
+unchanged-layout wording gate before implementation.
+
+The deterministic feasibility scan then replayed the complete frozen mirror and verified
+the registered 610 matched / 562 config-only totals. After the exclusions above, 427
+single-parent, reader-round-trippable commits supplied 659 changed mission/effect
+records. Five records had an independent predicate `violation → clear` transition; only
+four also had the required generic deterministic Finding transition: three
+`cyclic_dependency`, one `dangling_reference`, zero `dead_quest`, and zero
+`unreachable_target`. Native and lineage gates can only reduce those counts. Step 5's
+predeclared stop condition therefore fired: this same-participant replacement is
+`blocked_insufficient_unexposed_cases`. No case, HED artifact, protocol, workspace, or
+session was generated. The ordinary cache is a promisor partial clone and was rejected;
+the scan used the complete offline evidence mirror. The only currently authorized
+formal follow-up is a new, unexposed participant using the existing frozen eight-case
+study after assigning a truthful new participant/attempt identity.
+
+#### Approved new-participant replacement
+
+The product owner then chose the original minimal study shape: exactly one new person,
+not two people and not two selective make-up sessions. The initial replacement identity
+`participant-02` was consumed during a launcher preflight when the already-exposed
+product owner prepared and started session 1 to report that the “open clean editor”
+button did not show a window. Its server was stopped, no session was finished or
+imported, and `/tmp/gameforge-qa-participant-02` is retained only as a rejected preflight
+workspace. The bug was traced to macOS `open -na ... --args`: it created an isolated
+profile but the VS Code process exited. The launcher now calls the installed VS Code CLI
+directly, checks its exit status, explicitly disables Copilot/Copilot Chat, and reuses one
+session-scoped clean profile/window.
+
+`participant-03` then exposed a second launcher defect during the first formal session:
+the session-scoped VS Code profile path made the appended macOS AF_UNIX socket path exceed
+the 103-byte pathname limit, so the editor exited immediately despite the CLI returning
+success. The Runner was paused after 96.586750792 seconds; no session was finished or
+imported. The product owner chose clean replacement rather than retaining the biased
+manual duration. `/tmp/gameforge-qa-participant-03` therefore remains audit-only. The
+launcher now uses a stable per-session 24-hex profile under `/tmp/gf-qa-vscode`, preserving
+extension isolation while keeping the real socket path below the platform limit. A
+long-path empty-workspace smoke remained open, and the focused Runner suite passed all 21
+tests.
+
+The actual new person is therefore `participant-04`. They must never have seen the old
+eight source bundles, GameForge assistance, submissions, verdicts, or results, and must
+complete all eight sessions under the original cases, HED material, four-row
+counterbalance, timers, correctness oracle, and scoring rules. The old failed attempt and
+both launcher failures contribute no observation.
+
+The active replacement protocol is frozen at
+`scenarios/external_cases/endless_sky/qa-protocol-participant-04.json`, uses session/pair
+namespace `qa-retest-04`, and has protocol SHA-256
+`40afa46f4be87f2573148ce3ff12254e3761e51cf8f849fbeb59c2e585ff6cee`.
+Its fresh outside-repository workspace is `/tmp/gameforge-qa-participant-04`; a canonical
+workspace marker binds that directory to the protocol digest and participant before any
+case is materialized. A nonempty unbound directory, the old workspace, or any different
+protocol/participant is rejected. The product owner approved keeping the A—Editorial
+Runner layout unchanged while explicitly banning Copilot, other external AI, network
+search, normal Console, and old QA material; editor-local find remains allowed, and the
+assisted arm may use only the current Runner-provided GameForge suggestion.
+
+`participant-04` subsequently completed all eight sessions. All eight canonical session
+files and patches were imported from `/tmp/gameforge-qa-participant-04`, revalidated
+against `qa-protocol-participant-04.json`, and sealed as authoritative `qa-evidence@2`
+with `evidence_sha256`
+`e7e76d9a846efd7eeaae2b06641e170c15878f7cbf1ff98a79a733b1aa451142`.
+The accepted denominator is exactly four matched pairs with zero protocol-failure pairs;
+manual correctness is 0/4 and assisted correctness is 3/4. Under the approved scoring
+rule, correct sessions use actual capped active time and incorrect or timed-out sessions
+use the full 8-minute cap. The four paired savings are 3.55584337015,
+5.222572404166667, 4.851982523616666, and 0 minutes, yielding mean
+3.407599574483333 minutes, median 4.203912946883333 minutes, 95% bootstrap interval
+[1.2129956309041665, 5.037277463891666], and conclusion `savings`.
+
+This correction was made before final acceptance after the old aggregation was found to
+deviate from the already approved design §11 rule
+`QA timeout/incorrect | cap time + success=false`. It changes only the derived score and
+evidence schema: the original monotonic events, raw active durations, final patches, and
+deterministic verdicts remain byte-for-byte audit evidence and were not rewritten. No
+earlier workspace or session appears in the accepted manifest or report.
 
 ---
 
@@ -980,7 +1114,7 @@ protocol-ordered sessions.
 - Consumes: frozen external, narrative, HED, and QA evidence plus all historical cassettes.
 - Produces: a closed HED/QA slice ready for the separate Cost/Latency + BenchReport v2 plan.
 
-- [ ] **Step 1: Add combined human-evidence acceptance**
+- [x] **Step 1: Add combined human-evidence acceptance**
 
 ```python
 def test_pre_m4_human_evidence_slice_is_complete_and_honest():
@@ -997,7 +1131,7 @@ def test_pre_m4_human_evidence_slice_is_complete_and_honest():
 
 Revalidate all nested hashes, all HED cassettes, all QA final patch bytes, all deterministic verdicts, both bootstrap intervals, and absence of source specialization in core HED/QA/Agent/checker code.
 
-- [ ] **Step 2: Run focused historical/new regression**
+- [x] **Step 2: Run focused historical/new regression**
 
 ```bash
 uv run pytest tests/bench/hed tests/bench/qa tests/bench/external_cases \
@@ -1008,7 +1142,7 @@ git diff --exit-code -- cassettes ':!cassettes/hed'
 
 Expected: all pass; only the dedicated HED cassette root is new.
 
-- [ ] **Step 3: Run all repository gates**
+- [x] **Step 3: Run all repository gates**
 
 ```bash
 uv run pytest -q
@@ -1019,7 +1153,7 @@ git diff --check
 
 Expected: full suite passes with only already-declared skips, dependency gates pass, Ruff is clean, and whitespace diff is clean.
 
-- [ ] **Step 4: Re-run HED and external evidence after the full suite**
+- [x] **Step 4: Re-run HED and external evidence after the full suite**
 
 ```bash
 uv run python -m gameforge.bench.external_cases.endless_sky_hed --replay --output /tmp/hed-final.json
@@ -1030,7 +1164,7 @@ git diff --exit-code -- scenarios/external_cases/endless_sky/external-corpus-man
 
 Expected: byte-identical HED REPLAY and external deterministic evidence.
 
-- [ ] **Step 5: Mark this plan complete and commit closure**
+- [x] **Step 5: Mark this plan complete and commit closure**
 
 Mark Tasks 1-9 `[x]` only after their commands pass. Update `plans/README.md` to say HED and QA-hours are complete while Cost/Latency, BenchReport v2, combined acceptance, and final pre-M4 audit remain. Do not mark M3 complete or begin M4.
 

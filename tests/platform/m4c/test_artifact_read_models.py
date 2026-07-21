@@ -321,7 +321,8 @@ def test_reads_canonical_app_owned_bench_report_bytes(tmp_path) -> None:
     ).read(artifact.artifact_id)
 
     assert resolved.payload["schema_version"] == "bench-report@2"
-    assert resolved.payload["qa"]["conclusion"] == "pending"
+    assert resolved.payload["qa"]["time_scoring"] == "incorrect_uses_active_cap"
+    assert resolved.payload["qa"]["conclusion"] == "savings"
     assert resolved.payload_bytes == payload
 
 

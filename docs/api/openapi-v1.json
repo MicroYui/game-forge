@@ -190,6 +190,50 @@
         "title": "ApprovalDecision",
         "type": "object"
       },
+      "ApprovalDecisionEligibilityV1": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "enum": [
+              "approve",
+              "reject",
+              "request_changes"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "items": {
+              "enum": [
+                "workflow_not_pending",
+                "actor_not_active_human",
+                "maker_checker_conflict",
+                "actor_not_assigned",
+                "route_role_missing",
+                "permission_denied",
+                "requirement_already_satisfied",
+                "actor_already_decided_requirement",
+                "distinct_requirement_conflict"
+              ],
+              "type": "string"
+            },
+            "maxItems": 9,
+            "title": "Reason Codes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decision",
+          "eligible",
+          "reason_codes"
+        ],
+        "title": "ApprovalDecisionEligibilityV1",
+        "type": "object"
+      },
       "ApprovalDecisionRequestV1": {
         "additionalProperties": false,
         "properties": {
@@ -604,6 +648,15 @@
       "ApprovalRequirementProgressV1": {
         "additionalProperties": false,
         "properties": {
+          "decision_eligibility": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalDecisionEligibilityV1"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Decision Eligibility",
+            "type": "array"
+          },
           "domain_scope": {
             "$ref": "#/components/schemas/DomainScope"
           },
@@ -663,6 +716,7 @@
           "valid_approval_count",
           "satisfied",
           "eligible_for_current_actor",
+          "decision_eligibility",
           "unmet_distinct_from_requirement_ids"
         ],
         "title": "ApprovalRequirementProgressV1",
@@ -2253,6 +2307,46 @@
         "title": "ConstraintValidationAdmissionRequestV1",
         "type": "object"
       },
+      "ConstraintValidationCompilerBindingViewV1": {
+        "additionalProperties": false,
+        "description": "Browser-safe exact compiler authority for constraint validation.",
+        "properties": {
+          "binding_schema_version": {
+            "const": "constraint-validation-compiler-binding@1",
+            "default": "constraint-validation-compiler-binding@1",
+            "title": "Binding Schema Version",
+            "type": "string"
+          },
+          "compiler_profile": {
+            "$ref": "#/components/schemas/ProfileRefV1"
+          },
+          "differential_engines": {
+            "items": {
+              "$ref": "#/components/schemas/SolverEngineRefV1"
+            },
+            "maxItems": 1024,
+            "minItems": 2,
+            "title": "Differential Engines",
+            "type": "array"
+          },
+          "profile_payload_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Profile Payload Hash",
+            "type": "string"
+          },
+          "run_kind": {
+            "$ref": "#/components/schemas/RunKindRef"
+          }
+        },
+        "required": [
+          "compiler_profile",
+          "profile_payload_hash",
+          "run_kind",
+          "differential_engines"
+        ],
+        "title": "ConstraintValidationCompilerBindingViewV1",
+        "type": "object"
+      },
       "CostAmountV1": {
         "additionalProperties": false,
         "properties": {
@@ -2330,6 +2424,110 @@
           "deterministic"
         ],
         "title": "CostLatencySection",
+        "type": "object"
+      },
+      "CostSettlementGroupCountV1": {
+        "additionalProperties": false,
+        "description": "Safe aggregate count for one reservation scope/status pair.",
+        "properties": {
+          "count_schema_version": {
+            "const": "cost-settlement-group-count@1",
+            "default": "cost-settlement-group-count@1",
+            "title": "Count Schema Version",
+            "type": "string"
+          },
+          "group_count": {
+            "exclusiveMinimum": 0.0,
+            "title": "Group Count",
+            "type": "integer"
+          },
+          "scope": {
+            "enum": [
+              "run_budget_hold",
+              "attempt_call",
+              "agent_step"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "reserved",
+              "reconciled",
+              "held_unknown",
+              "conservatively_settled",
+              "late_reconciled",
+              "released"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "status",
+          "group_count"
+        ],
+        "title": "CostSettlementGroupCountV1",
+        "type": "object"
+      },
+      "CostSettlementSummaryV1": {
+        "additionalProperties": false,
+        "description": "Run-level settlement state without reservation or routing identities.",
+        "properties": {
+          "group_counts": {
+            "items": {
+              "$ref": "#/components/schemas/CostSettlementGroupCountV1"
+            },
+            "maxItems": 18,
+            "minItems": 1,
+            "title": "Group Counts",
+            "type": "array"
+          },
+          "held_unknown_group_count": {
+            "minimum": 0.0,
+            "title": "Held Unknown Group Count",
+            "type": "integer"
+          },
+          "late_adjustment_usage_count": {
+            "minimum": 0.0,
+            "title": "Late Adjustment Usage Count",
+            "type": "integer"
+          },
+          "summary_schema_version": {
+            "const": "cost-settlement-summary@1",
+            "default": "cost-settlement-summary@1",
+            "title": "Summary Schema Version",
+            "type": "string"
+          },
+          "total_group_count": {
+            "exclusiveMinimum": 0.0,
+            "title": "Total Group Count",
+            "type": "integer"
+          },
+          "usage_entry_count": {
+            "minimum": 0.0,
+            "title": "Usage Entry Count",
+            "type": "integer"
+          },
+          "usage_evidence_status": {
+            "enum": [
+              "recorded",
+              "not_recorded"
+            ],
+            "title": "Usage Evidence Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_counts",
+          "total_group_count",
+          "held_unknown_group_count",
+          "usage_entry_count",
+          "usage_evidence_status",
+          "late_adjustment_usage_count"
+        ],
+        "title": "CostSettlementSummaryV1",
         "type": "object"
       },
       "CostUsageViewV1": {
@@ -2877,6 +3075,195 @@
           "available"
         ],
         "title": "EvidenceArtifactRef",
+        "type": "object"
+      },
+      "ExecutionOptionResolveRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "llm_execution_mode": {
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "prospective_request": {
+            "discriminator": {
+              "mapping": {
+                "constraint-propose-request@1": "#/components/schemas/ProspectiveConstraintProposeRequestV1",
+                "generation-propose-request@1": "#/components/schemas/ProspectiveGenerationProposeRequestV1",
+                "patch-repair-request@1": "#/components/schemas/ProspectivePatchRepairRequestV1",
+                "playtest-run-request@1": "#/components/schemas/ProspectivePlaytestRunRequestV1",
+                "run-submission-request@1": "#/components/schemas/ProspectiveGenericAgentRunRequestV1"
+              },
+              "propertyName": "request_schema_version"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ProspectiveGenericAgentRunRequestV1"
+              },
+              {
+                "$ref": "#/components/schemas/ProspectiveGenerationProposeRequestV1"
+              },
+              {
+                "$ref": "#/components/schemas/ProspectiveConstraintProposeRequestV1"
+              },
+              {
+                "$ref": "#/components/schemas/ProspectivePatchRepairRequestV1"
+              },
+              {
+                "$ref": "#/components/schemas/ProspectivePlaytestRunRequestV1"
+              }
+            ],
+            "title": "Prospective Request"
+          },
+          "replay_source_run_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replay Source Run Id"
+          },
+          "request_schema_version": {
+            "const": "execution-option-resolve-request@1",
+            "default": "execution-option-resolve-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "resource_operation_id": {
+            "enum": [
+              "propose_generation_api_v1_generation_propose_post",
+              "repair_patch_api_v1_patches__artifact_id__repair_post",
+              "propose_constraint_api_v1_constraint_proposals_propose_post",
+              "submit_run_api_v1_runs_post",
+              "run_playtest_api_v1_playtest_run_post"
+            ],
+            "title": "Resource Operation Id",
+            "type": "string"
+          },
+          "run_kind": {
+            "$ref": "#/components/schemas/RunKindRef"
+          }
+        },
+        "required": [
+          "resource_operation_id",
+          "run_kind",
+          "llm_execution_mode",
+          "prospective_request"
+        ],
+        "title": "ExecutionOptionResolveRequestV1",
+        "type": "object"
+      },
+      "ExecutionOptionViewV1": {
+        "additionalProperties": false,
+        "properties": {
+          "cassette_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cassette Artifact Id"
+          },
+          "domain_scope": {
+            "$ref": "#/components/schemas/DomainScope"
+          },
+          "execution_version_plan": {
+            "$ref": "#/components/schemas/ExecutionVersionPlanV1"
+          },
+          "llm_execution_mode": {
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "option_id": {
+            "pattern": "^execution-option:sha256:[0-9a-f]{64}$",
+            "title": "Option Id",
+            "type": "string"
+          },
+          "option_schema_version": {
+            "const": "execution-option@1",
+            "default": "execution-option@1",
+            "title": "Option Schema Version",
+            "type": "string"
+          },
+          "prospective_request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Prospective Request Hash",
+            "type": "string"
+          },
+          "resolved_profile_binding_digests": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 1024,
+            "minItems": 1,
+            "title": "Resolved Profile Binding Digests",
+            "type": "array"
+          },
+          "resolved_request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Resolved Request Hash",
+            "type": "string"
+          },
+          "resource_operation_id": {
+            "enum": [
+              "propose_generation_api_v1_generation_propose_post",
+              "repair_patch_api_v1_patches__artifact_id__repair_post",
+              "propose_constraint_api_v1_constraint_proposals_propose_post",
+              "submit_run_api_v1_runs_post",
+              "run_playtest_api_v1_playtest_run_post"
+            ],
+            "title": "Resource Operation Id",
+            "type": "string"
+          },
+          "run_kind": {
+            "$ref": "#/components/schemas/RunKindRef"
+          },
+          "source_run_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Id"
+          }
+        },
+        "required": [
+          "option_id",
+          "resource_operation_id",
+          "run_kind",
+          "domain_scope",
+          "llm_execution_mode",
+          "execution_version_plan",
+          "prospective_request_hash",
+          "resolved_request_hash",
+          "resolved_profile_binding_digests"
+        ],
+        "title": "ExecutionOptionViewV1",
         "type": "object"
       },
       "ExecutionProfileViewV1": {
@@ -5693,6 +6080,57 @@
         "title": "OpaquePageV1[RunCommandViewV1]",
         "type": "object"
       },
+      "OpaquePageV1_RunFindingLinkViewV1_": {
+        "additionalProperties": false,
+        "properties": {
+          "expires_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Expires At",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RunFindingLinkViewV1"
+            },
+            "maxItems": 1000,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_schema_version": {
+            "const": "page@1",
+            "default": "page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          },
+          "read_snapshot_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Read Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "read_snapshot_id",
+          "items",
+          "expires_at"
+        ],
+        "title": "OpaquePageV1[RunFindingLinkViewV1]",
+        "type": "object"
+      },
       "OpaquePageV1_RunViewV1_": {
         "additionalProperties": false,
         "properties": {
@@ -7145,6 +7583,346 @@
         "title": "ProfileRefV1",
         "type": "object"
       },
+      "ProspectiveConstraintProposeRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "authoring_goal_text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Authoring Goal Text",
+            "type": "string"
+          },
+          "base_constraint_snapshot_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Constraint Snapshot Artifact Id"
+          },
+          "cassette_artifact_id": {
+            "title": "Cassette Artifact Id",
+            "type": "null"
+          },
+          "domain_scope": {
+            "$ref": "#/components/schemas/DomainScope"
+          },
+          "dsl_grammar_version": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Dsl Grammar Version",
+            "type": "string"
+          },
+          "execution_version_plan": {
+            "title": "Execution Version Plan",
+            "type": "null"
+          },
+          "extraction_policy": {
+            "$ref": "#/components/schemas/ProfileRefV1"
+          },
+          "llm_execution_mode": {
+            "default": "record",
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "constraint-propose-request@1",
+            "default": "constraint-propose-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "source_artifact_ids": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 1024,
+            "minItems": 1,
+            "title": "Source Artifact Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_artifact_ids",
+          "authoring_goal_text",
+          "domain_scope",
+          "dsl_grammar_version",
+          "extraction_policy",
+          "execution_version_plan",
+          "cassette_artifact_id"
+        ],
+        "title": "ProspectiveConstraintProposeRequestV1",
+        "type": "object"
+      },
+      "ProspectiveGenerationProposeRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "base_snapshot_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Base Snapshot Artifact Id",
+            "type": "string"
+          },
+          "candidate_export_profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileRefV1"
+            },
+            "maxItems": 1024,
+            "title": "Candidate Export Profiles",
+            "type": "array"
+          },
+          "cassette_artifact_id": {
+            "title": "Cassette Artifact Id",
+            "type": "null"
+          },
+          "constraint_snapshot_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Constraint Snapshot Artifact Id"
+          },
+          "domain_scope": {
+            "$ref": "#/components/schemas/DomainScope"
+          },
+          "execution_version_plan": {
+            "title": "Execution Version Plan",
+            "type": "null"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/FindingEvidenceBindingV1"
+            },
+            "maxItems": 1024,
+            "title": "Findings",
+            "type": "array"
+          },
+          "generation_policy": {
+            "$ref": "#/components/schemas/ProfileRefV1"
+          },
+          "llm_execution_mode": {
+            "default": "record",
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "objective_goal_text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Objective Goal Text",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "generation-propose-request@1",
+            "default": "generation-propose-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "target": {
+            "$ref": "#/components/schemas/RefReadBindingV1"
+          }
+        },
+        "required": [
+          "base_snapshot_artifact_id",
+          "findings",
+          "objective_goal_text",
+          "domain_scope",
+          "target",
+          "generation_policy",
+          "candidate_export_profiles",
+          "execution_version_plan",
+          "cassette_artifact_id"
+        ],
+        "title": "ProspectiveGenerationProposeRequestV1",
+        "type": "object"
+      },
+      "ProspectiveGenericAgentRunRequestV1": {
+        "additionalProperties": false,
+        "description": "Prospective Agent-only branch of the unchanged generic ``POST /runs`` wire.",
+        "properties": {
+          "cassette_artifact_id": {
+            "title": "Cassette Artifact Id",
+            "type": "null"
+          },
+          "execution_version_plan": {
+            "title": "Execution Version Plan",
+            "type": "null"
+          },
+          "llm_execution_mode": {
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "params": {
+            "discriminator": {
+              "mapping": {
+                "bench-run@1": "#/components/schemas/BenchRunPayloadV1",
+                "review-run@1": "#/components/schemas/ReviewRunPayloadV1"
+              },
+              "propertyName": "schema_version"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ReviewRunPayloadV1"
+              },
+              {
+                "$ref": "#/components/schemas/BenchRunPayloadV1"
+              }
+            ],
+            "title": "Params"
+          },
+          "request_schema_version": {
+            "const": "run-submission-request@1",
+            "default": "run-submission-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 18446744073709551615,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          }
+        },
+        "required": [
+          "params",
+          "llm_execution_mode",
+          "execution_version_plan",
+          "cassette_artifact_id"
+        ],
+        "title": "ProspectiveGenericAgentRunRequestV1",
+        "type": "object"
+      },
+      "ProspectivePatchRepairRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "cassette_artifact_id": {
+            "title": "Cassette Artifact Id",
+            "type": "null"
+          },
+          "execution_version_plan": {
+            "title": "Execution Version Plan",
+            "type": "null"
+          },
+          "llm_execution_mode": {
+            "default": "record",
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "params": {
+            "$ref": "#/components/schemas/PatchRepairPayloadV1"
+          },
+          "request_schema_version": {
+            "const": "patch-repair-request@1",
+            "default": "patch-repair-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 18446744073709551615,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          }
+        },
+        "required": [
+          "params",
+          "execution_version_plan",
+          "cassette_artifact_id"
+        ],
+        "title": "ProspectivePatchRepairRequestV1",
+        "type": "object"
+      },
+      "ProspectivePlaytestRunRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "cassette_artifact_id": {
+            "title": "Cassette Artifact Id",
+            "type": "null"
+          },
+          "execution_version_plan": {
+            "title": "Execution Version Plan",
+            "type": "null"
+          },
+          "llm_execution_mode": {
+            "default": "record",
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "params": {
+            "$ref": "#/components/schemas/PlaytestRunPayloadV1"
+          },
+          "request_schema_version": {
+            "const": "playtest-run-request@1",
+            "default": "playtest-run-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "seed": {
+            "maximum": 18446744073709551615,
+            "minimum": 0.0,
+            "title": "Seed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "params",
+          "seed",
+          "execution_version_plan",
+          "cassette_artifact_id"
+        ],
+        "title": "ProspectivePlaytestRunRequestV1",
+        "type": "object"
+      },
       "QaSection": {
         "additionalProperties": false,
         "properties": {
@@ -7192,6 +7970,15 @@
           "scope": {
             "const": "single-participant-eight-session-case-study",
             "title": "Scope",
+            "type": "string"
+          },
+          "time_scoring": {
+            "default": "legacy_observed_capped_active",
+            "enum": [
+              "legacy_observed_capped_active",
+              "incorrect_uses_active_cap"
+            ],
+            "title": "Time Scoring",
             "type": "string"
           }
         },
@@ -7526,6 +8313,119 @@
           "report"
         ],
         "title": "ReviewArtifactViewV1",
+        "type": "object"
+      },
+      "ReviewProducerBindingViewV1": {
+        "additionalProperties": false,
+        "description": "Exact occurrence of one Review Artifact in one terminal Run manifest.",
+        "properties": {
+          "attempt_no": {
+            "minimum": 1.0,
+            "title": "Attempt No",
+            "type": "integer"
+          },
+          "finding_authority": {
+            "enum": [
+              "exact-run-links",
+              "embedded-only",
+              "not-applicable"
+            ],
+            "title": "Finding Authority",
+            "type": "string"
+          },
+          "manifest_role": {
+            "enum": [
+              "output",
+              "evidence"
+            ],
+            "title": "Manifest Role",
+            "type": "string"
+          },
+          "outcome_code": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Outcome Code",
+            "type": "string"
+          },
+          "outcome_policy_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Outcome Policy Id",
+            "type": "string"
+          },
+          "outcome_policy_version": {
+            "minimum": 1.0,
+            "title": "Outcome Policy Version",
+            "type": "integer"
+          },
+          "outcome_rule_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Outcome Rule Id",
+            "type": "string"
+          },
+          "review_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Review Artifact Id",
+            "type": "string"
+          },
+          "run_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "run_kind": {
+            "$ref": "#/components/schemas/RunKindRef"
+          },
+          "terminal_manifest_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Terminal Manifest Id",
+            "type": "string"
+          },
+          "terminal_manifest_kind": {
+            "enum": [
+              "run_result",
+              "run_failure"
+            ],
+            "title": "Terminal Manifest Kind",
+            "type": "string"
+          },
+          "terminal_status": {
+            "enum": [
+              "succeeded",
+              "failed",
+              "cancelled",
+              "timed_out"
+            ],
+            "title": "Terminal Status",
+            "type": "string"
+          },
+          "view_schema_version": {
+            "const": "review-producer-binding-view@1",
+            "default": "review-producer-binding-view@1",
+            "title": "View Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_artifact_id",
+          "run_id",
+          "attempt_no",
+          "run_kind",
+          "terminal_status",
+          "terminal_manifest_id",
+          "terminal_manifest_kind",
+          "outcome_code",
+          "outcome_policy_id",
+          "outcome_policy_version",
+          "outcome_rule_id",
+          "manifest_role",
+          "finding_authority"
+        ],
+        "title": "ReviewProducerBindingViewV1",
         "type": "object"
       },
       "ReviewReport": {
@@ -8495,7 +9395,7 @@
       },
       "RunCostViewV1": {
         "additionalProperties": false,
-        "description": "Bounded, cursor-paged public cost view for one authorized Run.",
+        "description": "Legacy bounded cost view retained for exact wire compatibility.",
         "properties": {
           "budget_set": {
             "$ref": "#/components/schemas/BudgetSetSnapshotV1"
@@ -8540,6 +9440,111 @@
           "usage"
         ],
         "title": "RunCostViewV1",
+        "type": "object"
+      },
+      "RunCostViewV2": {
+        "additionalProperties": false,
+        "description": "Bounded public cost view with complete Run settlement state.",
+        "properties": {
+          "budget_set": {
+            "$ref": "#/components/schemas/BudgetSetSnapshotV1"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "run_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "settlement_summary": {
+            "$ref": "#/components/schemas/CostSettlementSummaryV1"
+          },
+          "usage": {
+            "items": {
+              "$ref": "#/components/schemas/CostUsageViewV1"
+            },
+            "maxItems": 1000,
+            "title": "Usage",
+            "type": "array"
+          },
+          "view_schema_version": {
+            "const": "run-cost-view@2",
+            "default": "run-cost-view@2",
+            "title": "View Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "budget_set",
+          "settlement_summary",
+          "usage"
+        ],
+        "title": "RunCostViewV2",
+        "type": "object"
+      },
+      "RunFindingLinkViewV1": {
+        "additionalProperties": false,
+        "description": "Exact immutable Finding revision bound to one producer Run ordinal.",
+        "properties": {
+          "attempt_no": {
+            "minimum": 1.0,
+            "title": "Attempt No",
+            "type": "integer"
+          },
+          "evidence_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Evidence Artifact Id",
+            "type": "string"
+          },
+          "finding": {
+            "$ref": "#/components/schemas/FindingRevisionV1"
+          },
+          "finding_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Finding Digest",
+            "type": "string"
+          },
+          "ordinal": {
+            "minimum": 1.0,
+            "title": "Ordinal",
+            "type": "integer"
+          },
+          "run_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "view_schema_version": {
+            "const": "run-finding-link-view@1",
+            "default": "run-finding-link-view@1",
+            "title": "View Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "attempt_no",
+          "ordinal",
+          "finding",
+          "finding_digest",
+          "evidence_artifact_id"
+        ],
+        "title": "RunFindingLinkViewV1",
         "type": "object"
       },
       "RunKindRef": {
@@ -9439,6 +10444,95 @@
         "title": "SpecViewV1",
         "type": "object"
       },
+      "SubjectApprovalBindingViewV1": {
+        "additionalProperties": false,
+        "description": "Exact retained workflow binding for one immutable subject Artifact.",
+        "properties": {
+          "approval_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Approval Id",
+            "type": "string"
+          },
+          "approval_status": {
+            "enum": [
+              "draft",
+              "validating",
+              "validation_failed",
+              "validated",
+              "pending_approval",
+              "auto_apply_eligible",
+              "approved",
+              "changes_requested",
+              "rejected",
+              "applied",
+              "rolled_back",
+              "superseded"
+            ],
+            "title": "Approval Status",
+            "type": "string"
+          },
+          "is_current_head": {
+            "title": "Is Current Head",
+            "type": "boolean"
+          },
+          "subject_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Subject Artifact Id",
+            "type": "string"
+          },
+          "subject_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Subject Digest",
+            "type": "string"
+          },
+          "subject_head_revision": {
+            "minimum": 1.0,
+            "title": "Subject Head Revision",
+            "type": "integer"
+          },
+          "subject_kind": {
+            "enum": [
+              "patch",
+              "constraint_proposal",
+              "rollback_request"
+            ],
+            "title": "Subject Kind",
+            "type": "string"
+          },
+          "subject_revision": {
+            "minimum": 1.0,
+            "title": "Subject Revision",
+            "type": "integer"
+          },
+          "subject_series_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Subject Series Id",
+            "type": "string"
+          },
+          "workflow_revision": {
+            "minimum": 1.0,
+            "title": "Workflow Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "subject_artifact_id",
+          "subject_digest",
+          "subject_kind",
+          "subject_series_id",
+          "subject_revision",
+          "subject_head_revision",
+          "is_current_head",
+          "approval_id",
+          "workflow_revision",
+          "approval_status"
+        ],
+        "title": "SubjectApprovalBindingViewV1",
+        "type": "object"
+      },
       "SubmitForApprovalRequestV1": {
         "additionalProperties": false,
         "properties": {
@@ -9530,6 +10624,58 @@
           "task_suite"
         ],
         "title": "TaskSuiteArtifactViewV1",
+        "type": "object"
+      },
+      "TaskSuiteDerivationBindingViewV1": {
+        "additionalProperties": false,
+        "description": "Browser-safe complete authority for one task-suite derivation profile.",
+        "properties": {
+          "binding_schema_version": {
+            "const": "task-suite-derivation-binding@1",
+            "default": "task-suite-derivation-binding@1",
+            "title": "Binding Schema Version",
+            "type": "string"
+          },
+          "completion_oracle_registry_ref": {
+            "$ref": "#/components/schemas/CompletionOracleRegistryRefV1"
+          },
+          "derivation_profile": {
+            "$ref": "#/components/schemas/ProfileRefV1"
+          },
+          "max_scenarios": {
+            "maximum": 1024.0,
+            "minimum": 1.0,
+            "title": "Max Scenarios",
+            "type": "integer"
+          },
+          "max_total_prepared_artifact_bytes": {
+            "maximum": 268435456.0,
+            "minimum": 1.0,
+            "title": "Max Total Prepared Artifact Bytes",
+            "type": "integer"
+          },
+          "profile_payload_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Profile Payload Hash",
+            "type": "string"
+          },
+          "run_kind": {
+            "$ref": "#/components/schemas/RunKindRef"
+          },
+          "target_environment_profile": {
+            "$ref": "#/components/schemas/ProfileRefV1"
+          }
+        },
+        "required": [
+          "derivation_profile",
+          "profile_payload_hash",
+          "run_kind",
+          "target_environment_profile",
+          "completion_oracle_registry_ref",
+          "max_scenarios",
+          "max_total_prepared_artifact_bytes"
+        ],
+        "title": "TaskSuiteDerivationBindingViewV1",
         "type": "object"
       },
       "TaskSuiteDerivePayloadV1": {
@@ -10433,7 +11579,7 @@
         "type": "apiKey"
       },
       "SessionCookie": {
-        "description": "Browser session cookie issued by POST /auth/login. Attributes: HttpOnly, Secure, SameSite=Strict, Path=/. Mutating requests must also present the session-bound X-CSRF-Token header returned by login; the Origin/Referer is validated by the authentication middleware.",
+        "description": "Browser session cookie issued by POST /auth/login. Attributes: HttpOnly, Secure, SameSite=Strict, Path=/. Non-safe HTTP methods must also present the session-bound X-CSRF-Token header returned by login; the Origin/Referer is validated by the authentication middleware.",
         "in": "cookie",
         "name": "gameforge_session",
         "type": "apiKey"
@@ -10808,7 +11954,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -11032,7 +12178,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -11256,7 +12402,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -12154,6 +13300,14 @@
                   "type": "string"
                 }
               },
+              "X-Artifact-ID": {
+                "description": "Exact selected BenchReport Artifact ID; use it with `/api/v1/artifacts/{artifact_id}` for provenance and lineage.",
+                "schema": {
+                  "maxLength": 512,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
               "X-Resource-Revision": {
                 "description": "The resource's monotonic integer revision.",
                 "schema": {
@@ -12622,18 +13776,7 @@
             }
           },
           {
-            "in": "header",
-            "name": "If-Match",
-            "required": true,
-            "schema": {
-              "maxLength": 512,
-              "minLength": 1,
-              "title": "If-Match",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -12999,7 +14142,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13223,7 +14366,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13447,7 +14590,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13671,7 +14814,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -13873,7 +15016,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -14384,6 +15527,20 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "view_schema_version",
+            "required": false,
+            "schema": {
+              "default": "run-cost-view@1",
+              "enum": [
+                "run-cost-view@1",
+                "run-cost-view@2"
+              ],
+              "title": "View Schema Version",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14391,7 +15548,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RunCostViewV1"
+                  "discriminator": {
+                    "mapping": {
+                      "run-cost-view@1": "#/components/schemas/RunCostViewV1",
+                      "run-cost-view@2": "#/components/schemas/RunCostViewV2"
+                    },
+                    "propertyName": "view_schema_version"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/RunCostViewV1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RunCostViewV2"
+                    }
+                  ],
+                  "title": "Response Get Run Cost Api V1 Cost  Run Id  Get"
                 }
               }
             },
@@ -14706,6 +15878,155 @@
         "summary": "Diff",
         "tags": [
           "content-reads"
+        ]
+      }
+    },
+    "/api/v1/execution-options:resolve": {
+      "post": {
+        "operationId": "resolve_execution_option_api_v1_execution_options_resolve_post",
+        "parameters": [
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionOptionResolveRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionOptionViewV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always `private, no-store` for execution options.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Resolve Execution Option",
+        "tags": [
+          "execution-options"
         ]
       }
     },
@@ -15137,6 +16458,332 @@
           }
         ],
         "summary": "Execution Profile",
+        "tags": [
+          "content-reads"
+        ]
+      }
+    },
+    "/api/v1/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding": {
+      "get": {
+        "operationId": "constraint_validation_compiler_binding_api_v1_execution_profiles__profile_id__versions__version__constraint_validation_binding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Profile Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "title": "Version",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConstraintValidationCompilerBindingViewV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Constraint Validation Compiler Binding",
+        "tags": [
+          "content-reads"
+        ]
+      }
+    },
+    "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding": {
+      "get": {
+        "operationId": "task_suite_derivation_binding_api_v1_execution_profiles__profile_id__versions__version__task_suite_derivation_binding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Profile Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "title": "Version",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskSuiteDerivationBindingViewV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Task Suite Derivation Binding",
         "tags": [
           "content-reads"
         ]
@@ -15618,7 +17265,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -16637,18 +18284,7 @@
             }
           },
           {
-            "in": "header",
-            "name": "If-Match",
-            "required": true,
-            "schema": {
-              "maxLength": 512,
-              "minLength": 1,
-              "title": "If-Match",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17014,7 +18650,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17238,7 +18874,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17451,7 +19087,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17649,7 +19285,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -17873,7 +19509,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -18097,7 +19733,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -18441,7 +20077,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -18814,18 +20450,7 @@
             }
           },
           {
-            "in": "header",
-            "name": "If-Match",
-            "required": true,
-            "schema": {
-              "maxLength": 512,
-              "minLength": 1,
-              "title": "If-Match",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -19318,6 +20943,159 @@
         ]
       }
     },
+    "/api/v1/reviews/{artifact_id}/producer-binding": {
+      "get": {
+        "operationId": "review_producer_binding_api_v1_reviews__artifact_id__producer_binding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewProducerBindingViewV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Review Producer Binding",
+        "tags": [
+          "content-reads"
+        ]
+      }
+    },
     "/api/v1/rollback-requests": {
       "get": {
         "operationId": "rollback_requests_api_v1_rollback_requests_get",
@@ -19663,7 +21441,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -19887,7 +21665,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -20111,7 +21889,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -20502,7 +22280,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -21153,6 +22931,192 @@
         ]
       }
     },
+    "/api/v1/runs/{run_id}/finding-links": {
+      "get": {
+        "operationId": "run_finding_links_api_v1_runs__run_id__finding_links_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 4096,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpaquePageV1_RunFindingLinkViewV1_"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Run Finding Links",
+        "tags": [
+          "workflow-reads"
+        ]
+      }
+    },
     "/api/v1/runs/{run_id}/findings": {
       "get": {
         "operationId": "run_findings_api_v1_runs__run_id__findings_get",
@@ -21527,7 +23491,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -22025,18 +23989,7 @@
             }
           },
           {
-            "in": "header",
-            "name": "If-Match",
-            "required": true,
-            "schema": {
-              "maxLength": 512,
-              "minLength": 1,
-              "title": "If-Match",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -22945,7 +24898,7 @@
             }
           },
           {
-            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie on a mutating operation; ignored for ApiKey service clients.",
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
             "in": "header",
             "name": "X-CSRF-Token",
             "required": false,
@@ -23418,6 +25371,148 @@
         "summary": "Get Trace Spans",
         "tags": [
           "observability"
+        ]
+      }
+    },
+    "/api/v1/workflow-subjects/{artifact_id}/approval-binding": {
+      "get": {
+        "operationId": "subject_approval_binding_api_v1_workflow_subjects__artifact_id__approval_binding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectApprovalBindingViewV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Subject Approval Binding",
+        "tags": [
+          "content-reads"
         ]
       }
     }

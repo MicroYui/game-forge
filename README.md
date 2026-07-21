@@ -22,7 +22,7 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M2b-2** | MemTrace episodic/transition/skill memory + deterministic recall, compactor comparison, and consistency quorum | ✅ acceptance passing |
 | Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
 | Pre-M4: core contract corrections | Exact-base Patch rejection, producer-to-product `DROPS_FROM`, stable repair request identity, active `gpt-5.6-sol` repair/generation evidence, and checkout-stable benchmark provenance | ✅ `5fdfb32..cc0fbc4`; repair double-REPLAY **10/10**, full gate **962 passed, 1 skipped**, 7 import contracts kept |
-| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | ✅ engineering complete; real QA evidence is deferred and remains `qa.evidence_missing`, without being rewritten as passing |
+| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | ✅ complete; the only accepted QA experiment has 8 protocol-valid sessions / 4 pairs, manual success 0/4, assisted success 3/4, and a `savings` conclusion under the approved cap-time rule; combined acceptance passes |
 | **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | 🔄 implementation in progress; frozen design is executing in order from M4a through M4e |
 
 ## M3 external-validity status
@@ -50,9 +50,13 @@ config-only candidates; the mechanical first-80 contains 75 config-only commits 
 bound by candidate-universe SHA-256
 `f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f`.
 
-The complete non-approving review package remains `awaiting_human_evidence`: it contains
+The historical generic B0A non-approving review package remains `awaiting_human_evidence`: it contains
 no dispositions, reviewer identity, or attestation, and no final candidate ledger or B0A
 decision exists. B0B and Adapter work are not authorized.
+
+At that historical gate, M3 was engineering complete while `qa.evidence_missing` remained
+explicitly non-blocking—the governance decision says it does not block M4. The later
+accepted `participant-04` evidence has now closed that separate QA gap.
 
 The separate pre-M4 core-corrections slice is complete on commits `5fdfb32`,
 `f403a5c`, `35330e8`, `5adaab0`, `586b579`, and `cc0fbc4`: Patch application now fails closed
@@ -62,9 +66,18 @@ identity; active repair/generation recordings use `openai/gpt-5.6-sol/pre-m4@1`;
 the seeded benchmark clean base uses checkout-independent logical source provenance.
 Two zero-live repair replays were byte-identical at 10/10. Historical M2 cassettes and
 frozen external evidence remain unchanged. Narrative BDR, Human-Edit-Distance, cost and
-latency evidence, and BenchReport v2 are complete. The product owner deferred the real
-QA sessions; combined acceptance continues to report `qa.evidence_missing`, but that
-missing human evidence does not block M4 implementation.
+latency evidence, and BenchReport v2 are complete. The accepted QA evidence contains
+only `participant-04`: eight protocol-valid sessions and four matched pairs, with manual
+success 0/4 and assisted success 3/4. The authoritative `qa-evidence@2` has
+`evidence_sha256=e7e76d9a846efd7eeaae2b06641e170c15878f7cbf1ff98a79a733b1aa451142`,
+conclusion `savings`, mean 3.407599574483333 minutes, median 4.203912946883333 minutes,
+and 95% CI [1.2129956309041665, 5.037277463891666]. Before final acceptance, the old
+aggregation was found to deviate from approved design §11
+`QA timeout/incorrect | cap time + success=false`: correct sessions now use actual capped
+active time, incorrect/time-out sessions use the 8-minute cap, and immutable raw active
+time remains audit-only. No session event, patch, or verdict was rewritten. Earlier
+rejected/preflight workspaces remain audit-only and contribute no observation or score.
+The regenerated report passes combined acceptance with no remaining QA evidence gap.
 
 ## Layout (contract §1)
 
@@ -104,10 +117,16 @@ uv run python -m gameforge.apps.cli scenarios/caravan.yaml 0
 # -> {"completed": true, "ticks": 30, "num_findings": 0, ...}
 ```
 
-The frontend scaffold builds with:
+The frontend uses the pinned Node/npm toolchain recorded under `web/`:
 
 ```bash
-cd web && npm install && npm run build
+cd web
+npm ci
+npm exec playwright install chromium
+npm run contracts:check
+npm run typecheck
+npm test
+npm run build
 ```
 
 ## M0b acceptance

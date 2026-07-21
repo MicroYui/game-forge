@@ -62,17 +62,31 @@ _IDEMPOTENCY_HEADER = "Idempotency-Key"
 _IF_MATCH_HEADER = "If-Match"
 
 
+def _valid_header_value(value: str, *, max_length: int) -> bool:
+    return bool(
+        value
+        and value == value.strip()
+        and len(value) <= max_length
+        and not any(ord(character) < 0x21 or ord(character) == 0x7F for character in value)
+    )
+
+
+def _is_strong_entity_tag(value: str) -> bool:
+    return bool(
+        len(value) >= 3
+        and value[0] == '"'
+        and value[-1] == '"'
+        and "," not in value
+        and not value.startswith("W/")
+    )
+
+
 def _single_header(request: Request, name: str, *, max_length: int) -> str:
     values = request.headers.getlist(name)
     if len(values) != 1:
         raise RequestSchemaInvalid(f"{name} must be supplied exactly once")
     value = values[0]
-    if (
-        not value
-        or value != value.strip()
-        or len(value) > max_length
-        or any(ord(character) < 0x21 or ord(character) == 0x7F for character in value)
-    ):
+    if not _valid_header_value(value, max_length=max_length):
         raise RequestSchemaInvalid(f"{name} is invalid")
     return value
 
@@ -88,17 +102,26 @@ def _command_metadata(
     if not isinstance(headers, tuple) or len(headers) != 2:
         raise RequestSchemaInvalid("workflow command headers are unavailable")
     idempotency_key, if_match = headers
-    request_hash = canonical_sha256(
-        {
-            "request_hash_schema_version": "workflow-command-request-hash@1",
-            "api_version": "v1",
-            "operation": operation,
-            "method": request.method,
-            "path": request.url.path,
-            "if_match": if_match,
-            "payload": payload.model_dump(mode="json", by_alias=True),
-        }
-    )
+    hash_payload = {
+        "request_hash_schema_version": "workflow-command-request-hash@1",
+        "api_version": "v1",
+        "operation": operation,
+        "method": request.method,
+        "path": request.url.path,
+        "payload": payload.model_dump(mode="json", by_alias=True),
+    }
+    hash_if_match = if_match
+    if hash_if_match is None:
+        legacy_hash_if_match = getattr(
+            request.state,
+            "workflow_create_hash_if_match",
+            None,
+        )
+        if isinstance(legacy_hash_if_match, str):
+            hash_if_match = legacy_hash_if_match
+    if hash_if_match is not None:
+        hash_payload["if_match"] = hash_if_match
+    request_hash = canonical_sha256(hash_payload)
     trace_context = current_trace_context()
     return WorkflowCommandMetadata(
         actor=actor,
@@ -131,18 +154,35 @@ def _require_command_headers(
         max_length=512,
     )
     exact_if_match = _single_header(request, _IF_MATCH_HEADER, max_length=512)
-    if (
-        len(exact_if_match) < 3
-        or exact_if_match[0] != '"'
-        or exact_if_match[-1] != '"'
-        or "," in exact_if_match
-        or exact_if_match.startswith("W/")
-    ):
+    if not _is_strong_entity_tag(exact_if_match):
         raise RequestSchemaInvalid("If-Match must contain one strong quoted entity tag")
     request.state.workflow_command_headers = (
         exact_idempotency_key,
         exact_if_match,
     )
+
+
+def _require_create_headers(
+    request: Request,
+    idempotency_key: Annotated[
+        str,
+        Header(alias=_IDEMPOTENCY_HEADER, min_length=1, max_length=512),
+    ],
+) -> None:
+    del idempotency_key
+    exact_idempotency_key = _single_header(
+        request,
+        _IDEMPOTENCY_HEADER,
+        max_length=512,
+    )
+    request.state.workflow_command_headers = (exact_idempotency_key, None)
+    # Pre-D2 creates persisted a valid strong If-Match in the @1 idempotency hash.
+    # It remains hash-only during the upgrade; create OCC never consumes this header.
+    legacy_if_match = request.headers.getlist(_IF_MATCH_HEADER)
+    if len(legacy_if_match) == 1:
+        candidate = legacy_if_match[0]
+        if _valid_header_value(candidate, max_length=512) and _is_strong_entity_tag(candidate):
+            request.state.workflow_create_hash_if_match = candidate
 
 
 def _set_command_headers(response: Response, result: object) -> None:
@@ -202,13 +242,11 @@ def _execute(
 
 
 def workflow_command_router() -> APIRouter:
-    router = APIRouter(
-        prefix="/api/v1",
-        tags=["workflow-commands"],
-        dependencies=[Depends(_require_command_headers)],
-    )
+    router = APIRouter(prefix="/api/v1", tags=["workflow-commands"])
+    create_router = APIRouter(dependencies=[Depends(_require_create_headers)])
+    versioned_router = APIRouter(dependencies=[Depends(_require_command_headers)])
 
-    @router.post("/specs", response_model=SpecViewV1, status_code=status.HTTP_201_CREATED)
+    @create_router.post("/specs", response_model=SpecViewV1, status_code=status.HTTP_201_CREATED)
     def upload_spec(
         payload: HumanSpecUploadRequestV1,
         request: Request,
@@ -227,7 +265,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @create_router.post(
         "/patches",
         response_model=PatchArtifactReadViewV1,
         status_code=status.HTTP_201_CREATED,
@@ -250,7 +288,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @create_router.post(
         "/constraint-proposals",
         response_model=ConstraintProposalReadViewV1,
         status_code=status.HTTP_201_CREATED,
@@ -273,7 +311,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/constraint-proposals/{artifact_id}:revise",
         response_model=ConstraintProposalReadViewV1,
         status_code=status.HTTP_201_CREATED,
@@ -297,7 +335,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/patches/{artifact_id}:validate",
         response_model=RunAcceptedV1,
         status_code=status.HTTP_202_ACCEPTED,
@@ -321,7 +359,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/constraint-proposals/{artifact_id}:validate",
         response_model=RunAcceptedV1,
         status_code=status.HTTP_202_ACCEPTED,
@@ -345,7 +383,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/rollback-requests/{artifact_id}:validate",
         response_model=RunAcceptedV1,
         status_code=status.HTTP_202_ACCEPTED,
@@ -391,7 +429,9 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post("/patches/{artifact_id}:submit-for-approval", response_model=ApprovalViewV1)
+    @versioned_router.post(
+        "/patches/{artifact_id}:submit-for-approval", response_model=ApprovalViewV1
+    )
     def submit_patch(
         artifact_id: BoundedId,
         payload: SubmitForApprovalRequestV1,
@@ -411,7 +451,7 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/constraint-proposals/{artifact_id}:submit-for-approval",
         response_model=ApprovalViewV1,
     )
@@ -434,7 +474,7 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/rollback-requests/{artifact_id}:submit-for-approval",
         response_model=ApprovalViewV1,
     )
@@ -481,7 +521,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post("/approvals/{approval_id}:approve", response_model=ApprovalViewV1)
+    @versioned_router.post("/approvals/{approval_id}:approve", response_model=ApprovalViewV1)
     def approve(
         approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
@@ -501,7 +541,7 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post("/approvals/{approval_id}:reject", response_model=ApprovalViewV1)
+    @versioned_router.post("/approvals/{approval_id}:reject", response_model=ApprovalViewV1)
     def reject(
         approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
@@ -521,7 +561,9 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post("/approvals/{approval_id}:request_changes", response_model=ApprovalViewV1)
+    @versioned_router.post(
+        "/approvals/{approval_id}:request_changes", response_model=ApprovalViewV1
+    )
     def request_changes(
         approval_id: BoundedId,
         payload: ApprovalDecisionRequestV1,
@@ -563,7 +605,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post("/patches/{artifact_id}:apply", response_model=WorkflowApplyResultV1)
+    @versioned_router.post("/patches/{artifact_id}:apply", response_model=WorkflowApplyResultV1)
     def apply_patch(
         artifact_id: BoundedId,
         payload: WorkflowApplyRequestV1,
@@ -583,7 +625,7 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/constraint-proposals/{artifact_id}:publish",
         response_model=WorkflowApplyResultV1,
     )
@@ -606,7 +648,7 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post(
+    @versioned_router.post(
         "/rollback-requests/{artifact_id}:apply",
         response_model=WorkflowApplyResultV1,
     )
@@ -629,7 +671,7 @@ def workflow_command_router() -> APIRouter:
             dependencies=dependencies,
         )
 
-    @router.post("/patches/{artifact_id}:rebase", response_model=RebaseResult)
+    @versioned_router.post("/patches/{artifact_id}:rebase", response_model=RebaseResult)
     def rebase_patch(
         artifact_id: BoundedId,
         payload: PatchRebaseRequestV1,
@@ -649,7 +691,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post("/patches/{artifact_id}:resolve-conflicts", response_model=RebaseResult)
+    @versioned_router.post("/patches/{artifact_id}:resolve-conflicts", response_model=RebaseResult)
     def resolve_patch_conflicts(
         artifact_id: BoundedId,
         payload: ResolveConflictsRequestV1,
@@ -669,7 +711,7 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
-    @router.post(
+    @create_router.post(
         "/refs/{ref_name}/rollback-requests",
         response_model=RollbackRequestReadViewV1,
         status_code=status.HTTP_201_CREATED,
@@ -693,6 +735,8 @@ def workflow_command_router() -> APIRouter:
             payload=payload,
         )
 
+    router.include_router(create_router)
+    router.include_router(versioned_router)
     return router
 
 

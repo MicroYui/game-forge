@@ -19,6 +19,8 @@ from gameforge.contracts.cost import (
     BudgetSnapshotV1,
     CacheHitObservationV1,
     CostAmountV1,
+    CostSettlementGroupCountV1,
+    CostSettlementSummaryV1,
     LatencyObservationV1,
     MAX_COST_USAGE_PAGE_SIZE,
     MonetaryObservationV1,
@@ -278,7 +280,7 @@ def _log_page(query: LogQueryV1) -> LogPageV1:
         log_id="log:1",
         ts_utc=NOW,
         level="error",
-        message="Authorization: Bearer log-secret",
+        message="Authorization: Bearer log-secret renderedPrompt: rendered-message-secret",
         service="worker",
         event_name="model.finished",
         run_id="run:1",
@@ -286,9 +288,15 @@ def _log_page(query: LogQueryV1) -> LogPageV1:
         span_id=SPAN_ID,
         error=LogErrorV1(
             error_type="ProviderError",
-            message="api_key=private-key",
+            message="refreshToken=private-key",
         ),
-        fields={"raw_response": "private response", "attempt": 1},
+        fields={
+            "raw_response": "private response",
+            "rawResponse": "private camel response",
+            "apiKey": "private camel API key",
+            "accessToken": "private camel access token",
+            "attempt": 1,
+        },
     )
     return LogPageV1(
         items=(LogRecordViewV1(record=record),),
@@ -351,6 +359,28 @@ def _usage() -> UsageEntryV1:
     )
 
 
+def _settlement_summary(*, usage_entry_count: int = 1) -> CostSettlementSummaryV1:
+    return CostSettlementSummaryV1(
+        group_counts=(
+            CostSettlementGroupCountV1(
+                scope="run_budget_hold",
+                status="reserved",
+                group_count=1,
+            ),
+            CostSettlementGroupCountV1(
+                scope="agent_step",
+                status="held_unknown",
+                group_count=1,
+            ),
+        ),
+        total_group_count=2,
+        held_unknown_group_count=1,
+        usage_entry_count=usage_entry_count,
+        usage_evidence_status="recorded" if usage_entry_count else "not_recorded",
+        late_adjustment_usage_count=0,
+    )
+
+
 @dataclass
 class _Port:
     missing_scope: bool = False
@@ -362,6 +392,7 @@ class _Port:
         self.log_scopes: list[AuthorizedTelemetryRunScope] = []
         self.span_scopes: list[AuthorizedTelemetryRunScope] = []
         self.run_trace_scopes: list[AuthorizedTelemetryRunScope] = []
+        self.cost_query_hashes: list[str] = []
 
     def get_run_scope(self, run_id: str) -> RunObservabilityScope | None:
         if self.missing_scope or run_id != "run:1":
@@ -455,12 +486,14 @@ class _Port:
         authorization: object,
         query_hash: str,
     ) -> RunCostReadPage | None:
-        del cursor, limit, query_hash
+        del cursor, limit
+        self.cost_query_hashes.append(query_hash)
         self.authorization_bindings.append(authorization)
         if run_id != "run:1":
             return None
         return RunCostReadPage(
             budget_set=_budget_set(),
+            settlement_summary=_settlement_summary(),
             usage_entries=(_usage(),),
             next_cursor=None,
         )
@@ -752,13 +785,25 @@ def test_service_authorizes_run_scope_and_redacts_trace_log_and_cost_views() -> 
         "log-secret",
         "private-key",
         "private response",
+        "private camel response",
+        "private camel API key",
+        "private camel access token",
+        "rendered-message-secret",
         "routing:private",
         "sha256:" + "a" * 64,
     ):
         assert secret not in wire
     assert "fencing_token_at_reserve" not in wire
+    assert "reservation_group_id" not in wire
+    assert "request_hash" not in wire
+    assert "routing_decision_id" not in wire
+    assert cost.settlement_summary.held_unknown_group_count == 1
+    assert cost.settlement_summary.usage_evidence_status == "recorded"
     assert spans.items[0].span.attributes["raw_prompt"] == "[REDACTED]"
     assert logs.items[0].record.fields["raw_response"] == "[REDACTED]"
+    assert logs.items[0].record.fields["rawResponse"] == "[REDACTED]"
+    assert logs.items[0].record.fields["apiKey"] == "[REDACTED]"
+    assert logs.items[0].record.fields["accessToken"] == "[REDACTED]"
     assert len(port.authorization_bindings) == 3
     assert port.log_scopes == [
         AuthorizedTelemetryRunScope(mode="run_allowlist", allowed_run_ids=("run:1",))
@@ -1093,9 +1138,22 @@ def test_router_exposes_the_seven_versioned_bounded_read_endpoints() -> None:
         },
     )
     assert metrics.status_code == 200, metrics.text
-    assert client.get("/api/v1/cost/run:1", params={"limit": 10}).status_code == 200
+    legacy_cost = client.get("/api/v1/cost/run:1", params={"limit": 10})
+    assert legacy_cost.status_code == 200
+    assert legacy_cost.json()["view_schema_version"] == "run-cost-view@1"
+    assert "settlement_summary" not in legacy_cost.json()
 
-    assert len(port.authorization_bindings) == 5
+    cost = client.get(
+        "/api/v1/cost/run:1",
+        params={"limit": 10, "view_schema_version": "run-cost-view@2"},
+    )
+    assert cost.status_code == 200
+    assert cost.json()["view_schema_version"] == "run-cost-view@2"
+    assert cost.json()["settlement_summary"]["held_unknown_group_count"] == 1
+    assert len(port.cost_query_hashes) == 2
+    assert port.cost_query_hashes[0] != port.cost_query_hashes[1]
+
+    assert len(port.authorization_bindings) == 6
 
 
 def test_service_opens_one_short_read_uow_per_public_call() -> None:

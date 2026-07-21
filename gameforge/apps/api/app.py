@@ -23,6 +23,7 @@ from gameforge.apps.api.routers.auth import auth_router
 from gameforge.apps.api.routers.content import content_read_router
 from gameforge.apps.api.routers.observability import observability_router
 from gameforge.apps.api.routers.runs import run_admission_router
+from gameforge.apps.api.routers.execution_options import execution_option_router
 from gameforge.apps.api.routers.workflows import workflow_read_router
 from gameforge.apps.api.routers.workflow_commands import workflow_command_router
 from gameforge.apps.api.commands import run_commands_router
@@ -90,6 +91,7 @@ def create_app(
     app.include_router(observability_router(observability_reads))
     app.include_router(workflow_command_router())
     app.include_router(run_admission_router())
+    app.include_router(execution_option_router())
     app.include_router(run_events_router())
     app.include_router(run_commands_router())
     return app

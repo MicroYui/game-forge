@@ -20,17 +20,21 @@ from gameforge.contracts.api import (
     BoundedId,
     ConstraintProposalReadViewV1,
     ConstraintSnapshotViewV1,
+    ConstraintValidationCompilerBindingViewV1,
     GraphItemV1,
     LineageEntryV1,
     OpaquePageV1,
     PatchArtifactReadViewV1,
     RefHistoryEntryV1,
     ReviewArtifactViewV1,
+    ReviewProducerBindingViewV1,
     RollbackRequestReadViewV1,
     SchemaRegistryDocumentV1,
     SnapshotDiffHttpPageV1,
     SpecViewV1,
+    SubjectApprovalBindingViewV1,
     TaskSuiteArtifactViewV1,
+    TaskSuiteDerivationBindingViewV1,
     compute_resource_etag,
 )
 from gameforge.contracts.canonical import canonical_sha256
@@ -76,6 +80,55 @@ def _set_page_headers(response: Response, snapshot_id: str) -> None:
         }
     )
     response.headers["ETag"] = f'"{digest}"'
+    response.headers["Cache-Control"] = "private, no-cache"
+
+
+def _set_subject_approval_binding_headers(
+    response: Response,
+    value: SubjectApprovalBindingViewV1,
+) -> None:
+    digest = canonical_sha256(
+        {
+            "etag_schema_version": "subject-approval-binding-etag@1",
+            "binding": value.model_dump(mode="json"),
+        }
+    )
+    response.headers["ETag"] = f'"{digest}"'
+    response.headers["X-Resource-Revision"] = str(value.workflow_revision)
+    response.headers["Cache-Control"] = "private, no-cache"
+
+
+def _set_constraint_validation_compiler_binding_headers(
+    response: Response,
+    value: ConstraintValidationCompilerBindingViewV1,
+    *,
+    catalog_version: int,
+) -> None:
+    digest = canonical_sha256(
+        {
+            "etag_schema_version": "constraint-validation-compiler-binding-etag@1",
+            "binding": value.model_dump(mode="json"),
+        }
+    )
+    response.headers["ETag"] = f'"{digest}"'
+    response.headers["X-Resource-Revision"] = str(catalog_version)
+    response.headers["Cache-Control"] = "private, no-cache"
+
+
+def _set_task_suite_derivation_binding_headers(
+    response: Response,
+    value: TaskSuiteDerivationBindingViewV1,
+    *,
+    catalog_version: int,
+) -> None:
+    digest = canonical_sha256(
+        {
+            "etag_schema_version": "task-suite-derivation-binding-etag@1",
+            "binding": value.model_dump(mode="json"),
+        }
+    )
+    response.headers["ETag"] = f'"{digest}"'
+    response.headers["X-Resource-Revision"] = str(catalog_version)
     response.headers["Cache-Control"] = "private, no-cache"
 
 
@@ -314,6 +367,19 @@ def content_read_router(
         )
         return value
 
+    @router.get(
+        "/workflow-subjects/{artifact_id}/approval-binding",
+        response_model=SubjectApprovalBindingViewV1,
+    )
+    def subject_approval_binding(
+        artifact_id: BoundedId,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+    ) -> SubjectApprovalBindingViewV1:
+        value = service.get_subject_approval_binding(actor.principal, artifact_id)
+        _set_subject_approval_binding_headers(response, value)
+        return value
+
     @router.get("/reviews", response_model=OpaquePageV1[ReviewArtifactViewV1])
     def reviews(
         response: Response,
@@ -341,6 +407,29 @@ def content_read_router(
             response,
             resource_kind="review",
             resource_id=value.artifact.artifact_id,
+            revision=1,
+        )
+        return value
+
+    @router.get(
+        "/reviews/{artifact_id}/producer-binding",
+        response_model=ReviewProducerBindingViewV1,
+    )
+    def review_producer_binding(
+        artifact_id: BoundedId,
+        run_id: BoundedId,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+    ) -> ReviewProducerBindingViewV1:
+        value = service.get_review_producer_binding(
+            actor.principal,
+            artifact_id,
+            run_id=run_id,
+        )
+        _set_resource_headers(
+            response,
+            resource_kind="review_producer_binding",
+            resource_id=f"{artifact_id}:{run_id}",
             revision=1,
         )
         return value
@@ -467,14 +556,30 @@ def content_read_router(
         _set_page_headers(response, value.read_snapshot_id)
         return value
 
-    @router.get("/bench/report", response_model=BenchReport)
+    @router.get(
+        "/bench/report",
+        response_model=BenchReport,
+        responses={
+            200: {
+                "headers": {
+                    "X-Artifact-ID": {
+                        "description": (
+                            "Exact selected BenchReport Artifact ID; use it with "
+                            "`/api/v1/artifacts/{artifact_id}` for provenance and lineage."
+                        ),
+                        "schema": {"type": "string", "minLength": 1, "maxLength": 512},
+                    }
+                }
+            }
+        },
+    )
     def bench_report(
         response: Response,
         actor: ActorContext = Depends(require_actor),
     ) -> BenchReport:
-        payload = service.get_bench_report(actor.principal)
+        selected = service.get_bench_report(actor.principal)
         try:
-            value = BenchReport.model_validate(payload)
+            value = BenchReport.model_validate(selected.payload)
         except (TypeError, ValueError, ValidationError) as exc:
             raise IntegrityViolation(
                 "selected BenchReport payload violates BenchReport v2"
@@ -485,6 +590,7 @@ def content_read_router(
             resource_id=canonical_sha256(value.model_dump(mode="json")),
             revision=1,
         )
+        response.headers["X-Artifact-ID"] = selected.artifact.artifact_id
         return value
 
     @router.get(
@@ -555,6 +661,54 @@ def content_read_router(
             revision=internal.catalog_version,
         )
         return internal.profile
+
+    @router.get(
+        "/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding",
+        response_model=ConstraintValidationCompilerBindingViewV1,
+    )
+    def constraint_validation_compiler_binding(
+        profile_id: BoundedId,
+        version: _PositiveInt64,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+    ) -> ConstraintValidationCompilerBindingViewV1:
+        if version < 1:
+            raise RequestSchemaInvalid("execution profile version must be positive")
+        internal = service.get_constraint_validation_compiler_binding(
+            actor.principal,
+            profile_id=profile_id,
+            version=version,
+        )
+        _set_constraint_validation_compiler_binding_headers(
+            response,
+            internal.binding,
+            catalog_version=internal.catalog_version,
+        )
+        return internal.binding
+
+    @router.get(
+        "/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding",
+        response_model=TaskSuiteDerivationBindingViewV1,
+    )
+    def task_suite_derivation_binding(
+        profile_id: BoundedId,
+        version: _PositiveInt64,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+    ) -> TaskSuiteDerivationBindingViewV1:
+        if version < 1:
+            raise RequestSchemaInvalid("execution profile version must be positive")
+        internal = service.get_task_suite_derivation_binding(
+            actor.principal,
+            profile_id=profile_id,
+            version=version,
+        )
+        _set_task_suite_derivation_binding_headers(
+            response,
+            internal.binding,
+            catalog_version=internal.catalog_version,
+        )
+        return internal.binding
 
     return router
 

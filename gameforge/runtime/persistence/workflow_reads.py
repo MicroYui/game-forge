@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from gameforge.contracts.api import RunFindingLinkViewV1
 from gameforge.contracts.diff import ConflictSet, MergeConflict
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.findings import FindingRevisionV1, finding_revision_digest
@@ -119,6 +120,16 @@ class SqlWorkflowReadRepository:
         *,
         max_items: int,
     ) -> Sequence[FindingRevisionV1]:
+        return tuple(
+            item.finding for item in self.list_run_finding_links(run_id, max_items=max_items)
+        )
+
+    def list_run_finding_links(
+        self,
+        run_id: str,
+        *,
+        max_items: int,
+    ) -> Sequence[RunFindingLinkViewV1]:
         rows = self._session.execute(
             select(
                 RunFindingLinkRow.attempt_no,
@@ -128,7 +139,7 @@ class SqlWorkflowReadRepository:
             .order_by(RunFindingLinkRow.attempt_no, RunFindingLinkRow.ordinal)
             .limit(_limit(max_items))
         ).all()
-        result: list[FindingRevisionV1] = []
+        result: list[RunFindingLinkViewV1] = []
         for attempt_no, ordinal in rows:
             link = self._required(
                 self._runs.get_finding_link(run_id, attempt_no, ordinal),
@@ -144,7 +155,18 @@ class SqlWorkflowReadRepository:
             assert isinstance(finding, FindingRevisionV1)
             if finding_revision_digest(finding) != link.finding_digest:
                 raise IntegrityViolation("Run Finding link digest differs from its exact revision")
-            result.append(finding)
+            if finding.payload.producer_run_id != link.run_id:
+                raise IntegrityViolation("Run Finding link differs from the Finding producer Run")
+            result.append(
+                RunFindingLinkViewV1(
+                    run_id=link.run_id,
+                    attempt_no=link.attempt_no,
+                    ordinal=link.ordinal,
+                    finding=finding,
+                    finding_digest=link.finding_digest,
+                    evidence_artifact_id=link.evidence_artifact_id,
+                )
+            )
         return tuple(result)
 
     def list_run_commands(

@@ -7,7 +7,9 @@ import pytest
 from sqlalchemy import Engine, event
 from sqlalchemy.orm import Session
 
+from gameforge.contracts.api import SchemaRegistryDocumentV1
 from gameforge.contracts.canonical import canonical_json, canonical_sha256
+from gameforge.contracts.diff import SnapshotDiffEntry
 from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.execution_profiles import (
     ProfileRefV1,
@@ -22,6 +24,7 @@ from gameforge.contracts.identity import (
     Permission,
     compute_domain_registry_digest,
 )
+from gameforge.contracts.ir import Entity
 from gameforge.contracts.lineage import (
     ArtifactV1,
     ArtifactV2,
@@ -42,8 +45,10 @@ from gameforge.contracts.workflow import (
     SubjectHead,
     ConstraintProposalV1,
 )
-from gameforge.platform.read_models.artifacts import VerifiedArtifactPayload
+from gameforge.platform.read_models.artifacts import ArtifactPayloadReader, VerifiedArtifactPayload
+from gameforge.platform.read_models.content import SpecReadBinding
 from gameforge.platform.read_models.paging import ReadPageBinding
+from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.object_store.local import LocalObjectStore
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
@@ -54,6 +59,8 @@ from gameforge.apps.api.content_persistence import (
     SqlApprovalPayloadBindingProvider,
     SqlImmutableArtifactPageProvider,
     SqlRefHistoryReadProvider,
+    SqlSpecSnapshotReadAuthority,
+    builtin_ir_schema_registry,
 )
 from gameforge.apps.api.local_reads import _ArtifactDomainAuthority, _ArtifactDomainPayloadReader
 from gameforge.runtime.persistence.cursor import CursorSigner
@@ -543,6 +550,165 @@ def test_ref_history_pages_are_contiguous_and_exclude_later_appends(
     assert len({(item.artifact_id, item.revision) for item in retained}) == len(retained)
 
 
+def _persist_snapshot(
+    *,
+    artifacts: SqlArtifactRepository,
+    bindings: SqlObjectBindingRepository,
+    store: LocalObjectStore,
+    snapshot: Snapshot,
+    lineage: tuple[str, ...] = (),
+    schema_registry_version: str | None = None,
+) -> ArtifactV2:
+    payload = canonical_json(snapshot.content_payload).encode("utf-8")
+    stored = store.put_verified(payload)
+    metadata: dict[str, object] = {
+        "domain_scope": {"domain_ids": ["content"]},
+        "payload_schema_id": "ir-core@1",
+    }
+    if schema_registry_version is not None:
+        metadata["schema_registry_version"] = schema_registry_version
+    artifact = build_artifact_v2(
+        kind="ir_snapshot",
+        version_tuple=VersionTuple(
+            ir_snapshot_id=snapshot.snapshot_id,
+            tool_version="content-read-test@1",
+        ),
+        lineage=lineage,
+        payload_hash=stored.ref.sha256,
+        object_ref=stored.ref,
+        meta=metadata,
+        created_at="2026-07-14T12:00:00Z",
+    )
+    bindings.bind_verified(stored.ref, stored.location, None)
+    artifacts.put(artifact)
+    return artifact
+
+
+def test_sql_spec_snapshot_authority_resolves_inherited_registry_current_ref_and_diff(
+    engine: Engine,
+    tmp_path,
+) -> None:
+    base = Snapshot.from_entities_relations(
+        [
+            Entity(
+                id="quest:one",
+                type="QUEST",
+                attrs={"reward_gold": 120},
+            )
+        ],
+        [],
+    )
+    proposed = Snapshot.from_entities_relations(
+        [
+            Entity(
+                id="quest:one",
+                type="QUEST",
+                attrs={"reward_gold": 80},
+            )
+        ],
+        [],
+    )
+    store = LocalObjectStore(
+        tmp_path / "spec-objects",
+        store_id="local:test",
+        clock=_clock(),
+        cursor_signing_key=SIGNING_KEY,
+    )
+    with Session(engine) as session, session.begin():
+        bindings = SqlObjectBindingRepository(session, store, "local:test")
+        artifacts = SqlArtifactRepository(
+            session,
+            binding_repository=bindings,
+            cursor_signer=_signer(),
+            clock=_clock(),
+        )
+        base_artifact = _persist_snapshot(
+            artifacts=artifacts,
+            bindings=bindings,
+            store=store,
+            snapshot=base,
+            schema_registry_version="registry@1",
+        )
+        proposed_artifact = _persist_snapshot(
+            artifacts=artifacts,
+            bindings=bindings,
+            store=store,
+            snapshot=proposed,
+            lineage=(base_artifact.artifact_id,),
+        )
+        duplicate_proposed = _persist_snapshot(
+            artifacts=artifacts,
+            bindings=bindings,
+            store=store,
+            snapshot=proposed,
+            lineage=(base_artifact.artifact_id, proposed_artifact.artifact_id),
+        )
+        assert duplicate_proposed.artifact_id != proposed_artifact.artifact_id
+        refs = _refs(session)
+        current = refs.compare_and_set("content-head", None, proposed_artifact.artifact_id)
+        approvals = SqlApprovalRepository(session)
+        payload_bindings = SqlApprovalPayloadBindingProvider(
+            session,
+            approvals=approvals,
+            artifacts=artifacts,
+        )
+        authority = SqlSpecSnapshotReadAuthority(
+            session,
+            artifacts=artifacts,
+            payload_reader=ArtifactPayloadReader(
+                artifacts=artifacts,
+                trusted_bindings=payload_bindings,
+                object_bindings=bindings,
+                object_store=store,
+                max_payload_bytes=1024 * 1024,
+            ),
+            refs=refs,
+        )
+
+        assert authority.resolve(base_artifact.artifact_id) == SpecReadBinding(
+            artifact_id=base_artifact.artifact_id,
+            snapshot_id=base.snapshot_id,
+            schema_registry_version="registry@1",
+        )
+        assert authority.resolve(proposed_artifact.artifact_id) == SpecReadBinding(
+            artifact_id=proposed_artifact.artifact_id,
+            snapshot_id=proposed.snapshot_id,
+            schema_registry_version="registry@1",
+            ref_name="content-head",
+            ref_value=current,
+        )
+        assert authority.resolve_snapshot_id(proposed.snapshot_id) == authority.resolve(
+            proposed_artifact.artifact_id
+        )
+        diff = authority.read(base.snapshot_id, proposed.snapshot_id, max_items=10)
+
+    assert diff.diff.entry_count == 1
+    assert diff.entries == (
+        SnapshotDiffEntry.model_validate(
+            {
+                "path": "/entities/quest:one/attrs/reward_gold",
+                "before": {"presence": "present", "value": 120},
+                "after": {"presence": "present", "value": 80},
+            }
+        ),
+    )
+
+
+def test_builtin_ir_schema_registry_is_exact_and_versioned() -> None:
+    registry = builtin_ir_schema_registry()
+
+    assert type(registry) is SchemaRegistryDocumentV1
+    assert registry.registry_version == "registry@1"
+    assert registry.registry_digest == canonical_sha256(
+        {
+            "registry_schema_version": registry.registry_schema_version,
+            "registry_version": registry.registry_version,
+            "schemas": registry.schemas,
+        }
+    )
+    assert registry.schemas["ir-core@1"]["properties"]["meta_schema_version"] == {"const": "meta@1"}
+
+
 def test_filtered_task_suite_index_fails_closed_until_its_producer_index_exists(
     engine: Engine,
 ) -> None:
@@ -622,6 +788,7 @@ def test_sql_approval_content_authority_uses_current_subject_head(engine: Engine
         )
 
         workflow = authority.resolve_patch(artifact.artifact_id)
+        binding = authority.resolve_approval_binding(artifact.artifact_id)
         permission = authority.for_artifact(artifact, resource_kind="patch")
 
     assert workflow is not None
@@ -629,11 +796,47 @@ def test_sql_approval_content_authority_uses_current_subject_head(engine: Engine
     assert workflow.validation_status == "not_started"
     assert workflow.regression_status == "not_started"
     assert workflow.approval_status == "draft"
+    assert binding is not None
+    assert binding.model_dump(mode="json") == {
+        "subject_artifact_id": artifact.artifact_id,
+        "subject_digest": payload_hash,
+        "subject_kind": "patch",
+        "subject_series_id": item.subject_series_id,
+        "subject_revision": 1,
+        "subject_head_revision": 1,
+        "is_current_head": True,
+        "approval_id": item.approval_id,
+        "workflow_revision": 1,
+        "approval_status": "draft",
+    }
     assert permission == Permission(
         action="read",
         resource_kind="patch",
         domain_scope=item.domain_scope,
     )
+
+
+def test_sql_approval_content_authority_does_not_guess_evidence_only_patch_binding(
+    engine: Engine,
+) -> None:
+    artifact = _artifact(
+        "patch:evidence-only-rejected",
+        kind="patch",
+        payload_hash="2" * 64,
+    )
+    with Session(engine) as session, session.begin():
+        artifacts = _artifacts(session)
+        artifacts.put(artifact)
+        approvals = SqlApprovalRepository(session)
+        authority = _approval_authority(
+            session,
+            approvals=approvals,
+            artifacts=artifacts,
+        )
+
+        binding = authority.resolve_approval_binding(artifact.artifact_id)
+
+    assert binding is None
 
 
 def test_sql_approval_content_authority_uses_indexed_validation_owner(
@@ -800,13 +1003,22 @@ def test_sql_approval_content_authority_retains_superseded_patch_projection(
             session,
             approvals=approvals,
             artifacts=artifacts,
-        ).resolve_patch(first_artifact.artifact_id)
+        )
+        patch_projection = historical.resolve_patch(first_artifact.artifact_id)
+        binding = historical.resolve_approval_binding(first_artifact.artifact_id)
 
-    assert historical is not None
-    assert historical.workflow_revision == 2
-    assert historical.approval_status == "superseded"
-    assert historical.validation_status == "not_started"
-    assert historical.regression_status == "not_started"
+    assert patch_projection is not None
+    assert patch_projection.workflow_revision == 2
+    assert patch_projection.approval_status == "superseded"
+    assert patch_projection.validation_status == "not_started"
+    assert patch_projection.regression_status == "not_started"
+    assert binding is not None
+    assert binding.subject_artifact_id == first_artifact.artifact_id
+    assert binding.subject_revision == 1
+    assert binding.subject_head_revision == 2
+    assert binding.is_current_head is False
+    assert binding.workflow_revision == 2
+    assert binding.approval_status == "superseded"
 
 
 def test_sql_approval_content_authority_retains_superseded_constraint_projection(
@@ -845,11 +1057,18 @@ def test_sql_approval_content_authority_retains_superseded_constraint_projection
             session,
             approvals=approvals,
             artifacts=artifacts,
-        ).resolve(first_artifact.artifact_id)
+        )
+        proposal_projection = historical.resolve(first_artifact.artifact_id)
+        binding = historical.resolve_approval_binding(first_artifact.artifact_id)
 
-    assert historical is not None
-    assert historical.workflow_revision == 2
-    assert historical.approval_status == "superseded"
+    assert proposal_projection is not None
+    assert proposal_projection.workflow_revision == 2
+    assert proposal_projection.approval_status == "superseded"
+    assert binding is not None
+    assert binding.subject_kind == "constraint_proposal"
+    assert binding.subject_revision == 1
+    assert binding.subject_head_revision == 2
+    assert binding.is_current_head is False
 
 
 def test_sql_approval_content_authority_retains_superseded_rollback_projection(
@@ -888,11 +1107,18 @@ def test_sql_approval_content_authority_retains_superseded_rollback_projection(
             session,
             approvals=approvals,
             artifacts=artifacts,
-        ).resolve_rollback(first_artifact.artifact_id)
+        )
+        rollback_projection = historical.resolve_rollback(first_artifact.artifact_id)
+        binding = historical.resolve_approval_binding(first_artifact.artifact_id)
 
-    assert historical is not None
-    assert historical.workflow_revision == 2
-    assert historical.approval_status == "superseded"
+    assert rollback_projection is not None
+    assert rollback_projection.workflow_revision == 2
+    assert rollback_projection.approval_status == "superseded"
+    assert binding is not None
+    assert binding.subject_kind == "rollback_request"
+    assert binding.subject_revision == 1
+    assert binding.subject_head_revision == 2
+    assert binding.is_current_head is False
 
 
 @pytest.mark.parametrize(

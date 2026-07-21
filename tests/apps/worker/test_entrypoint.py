@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 import gameforge.apps.worker.__main__ as worker_main
 import gameforge.apps.worker.app as worker_app
 import gameforge.apps.worker.components as worker_components
+from gameforge.apps.operational_metrics import BUILTIN_OPERATIONAL_METRIC_REGISTRY
 from gameforge.apps.worker.__main__ import main
 from gameforge.apps.worker.app import (
     LocalWorkerConfig,
@@ -297,6 +298,43 @@ def test_exact_profile_validator_closes_task13_validation_adapter_contracts(
         llm_execution_mode="not_applicable",
         run_kind=run_kind,
     )
+
+
+@pytest.mark.parametrize(
+    "definition_update",
+    (
+        {"config_schema_id": "constraint_compiler-profile-config@999"},
+        {"compatible_run_kinds": (RunKindRef(kind="checker.run", version=1),)},
+        {"input_schema_ids": ("checker-run@1",)},
+        {"output_schema_ids": ("checker-report@1",)},
+        {"stochastic": True},
+        {"required_capabilities": ("reasoning",)},
+    ),
+)
+def test_exact_profile_validator_rejects_constraint_compiler_adapter_drift(
+    definition_update: dict[str, object],
+) -> None:
+    registry = build_builtin_registry()
+    binding = _builtin_profile_binding(
+        registry,
+        profile_id="builtin.constraint_compiler",
+        profile_kind="constraint_compiler",
+        field_path="/params/compiler_profile",
+    )
+    definition, lifecycle = registry.resolve_execution_profile_binding(binding)
+
+    class DriftedRegistry:
+        def resolve_execution_profile_binding(self, actual):
+            assert actual == binding
+            return definition.model_copy(update=definition_update), lifecycle
+
+    validator = worker_components._build_exact_profile_binding_validator(DriftedRegistry())
+    with pytest.raises(IntegrityViolation, match="incompatible"):
+        validator(
+            binding,
+            llm_execution_mode="not_applicable",
+            run_kind=RunKindRef(kind="constraint_proposal.validate", version=1),
+        )
 
 
 def test_exact_profile_validator_rejects_task13_catalog_hash_and_lifecycle_tampering() -> None:
@@ -1594,6 +1632,17 @@ def test_worker_readiness_rejects_an_unmigrated_database(tmp_path: Path) -> None
         runtime.close()
 
 
+def test_worker_runtime_installs_the_shared_builtin_metric_registry(tmp_path: Path) -> None:
+    runtime = build_worker_runtime(_config(tmp_path))
+    try:
+        assert (
+            runtime.telemetry_store.get_metric_descriptor_registry()
+            == BUILTIN_OPERATIONAL_METRIC_REGISTRY
+        )
+    finally:
+        runtime.close()
+
+
 def test_worker_readiness_rejects_missing_model_route_authority_table(tmp_path: Path) -> None:
     config = _config(tmp_path)
     migrations_api.upgrade(config.database_url, "head")
@@ -1698,6 +1747,17 @@ def test_worker_runtime_partial_build_closes_every_created_resource(
     class Telemetry:
         def __init__(self, *args, **kwargs) -> None:
             del args, kwargs
+            self.registry = None
+
+        def register_metric_registry(self, registry) -> None:
+            self.registry = registry
+
+        @property
+        def metric_registry_ref(self):
+            return self.registry.ref
+
+        def record(self, point) -> None:
+            del point
 
         def close(self) -> None:
             closed.append("telemetry")

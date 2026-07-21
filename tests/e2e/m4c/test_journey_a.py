@@ -79,6 +79,7 @@ from tests.e2e.m4c.test_journey_b import (
     _headers,
     _login,
     _ref_history,
+    _role_policy,
     _start_api,
     _stop_api,
 )
@@ -107,6 +108,62 @@ _REPAIR_OPS = json.dumps(
         }
     ]
 )
+
+
+def _journey_a_role_policy(registry) -> RolePolicy:
+    base = _role_policy(registry)
+    maker_grants = (
+        *base.grants["content_designer"],
+        Permission(
+            action="replay",
+            resource_kind="run",
+            domain_scope=DomainScope(domain_ids=(DOMAIN,)),
+        ),
+        Permission(
+            action="run",
+            resource_kind="review",
+            domain_scope=DomainScope(domain_ids=(DOMAIN,)),
+        ),
+        Permission(
+            action="derive",
+            resource_kind="task_suite",
+            domain_scope=DomainScope(domain_ids=(DOMAIN,)),
+        ),
+        Permission(
+            action="run",
+            resource_kind="playtest",
+            domain_scope=DomainScope(domain_ids=(DOMAIN,)),
+        ),
+        *(
+            Permission(action="read", resource_kind=kind, domain_scope="all")
+            for kind in (
+                "constraint",
+                "review",
+                "task_suite",
+                "playtest",
+                "bench",
+                "playtest_result",
+                "bench_report",
+            )
+        ),
+    )
+    grants = {
+        **base.grants,
+        "content_designer": maker_grants,
+    }
+    policy_version = "journey-a-roles@1"
+    return RolePolicy(
+        policy_version=policy_version,
+        domain_registry_ref=base.domain_registry_ref,
+        grants=grants,
+        effective_from=base.effective_from,
+        policy_digest=compute_role_policy_digest(
+            policy_version,
+            base.domain_registry_ref,
+            grants,
+            base.effective_from,
+        ),
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -217,58 +274,7 @@ class _Harness(JourneyBHarness):
     def _seed_policies(self) -> None:
         catalogs = build_builtin_registry().list_execution_profile_catalogs()
         self.catalog = catalogs[0]
-        maker_grants = (
-            *self.role_policy.grants["content_designer"],
-            Permission(
-                action="replay",
-                resource_kind="run",
-                domain_scope=DomainScope(domain_ids=(DOMAIN,)),
-            ),
-            Permission(
-                action="run",
-                resource_kind="review",
-                domain_scope=DomainScope(domain_ids=(DOMAIN,)),
-            ),
-            Permission(
-                action="derive",
-                resource_kind="task_suite",
-                domain_scope=DomainScope(domain_ids=(DOMAIN,)),
-            ),
-            Permission(
-                action="run",
-                resource_kind="playtest",
-                domain_scope=DomainScope(domain_ids=(DOMAIN,)),
-            ),
-            *(
-                Permission(action="read", resource_kind=kind, domain_scope="all")
-                for kind in (
-                    "review",
-                    "task_suite",
-                    "playtest",
-                    "bench",
-                    "playtest_result",
-                    "bench_report",
-                )
-            ),
-        )
-        grants = {
-            **self.role_policy.grants,
-            "content_designer": maker_grants,
-        }
-        policy_version = "journey-a-roles@1"
-        effective_from = self.role_policy.effective_from
-        self.role_policy = RolePolicy(
-            policy_version=policy_version,
-            domain_registry_ref=self.role_policy.domain_registry_ref,
-            grants=grants,
-            effective_from=effective_from,
-            policy_digest=compute_role_policy_digest(
-                policy_version,
-                self.role_policy.domain_registry_ref,
-                grants,
-                effective_from,
-            ),
-        )
+        self.role_policy = _journey_a_role_policy(self.registry)
         super()._seed_policies()
         engine = get_engine(self.database_url)
         try:
@@ -382,7 +388,11 @@ class _Harness(JourneyBHarness):
             lineage=lineage,
             payload_hash=stored.ref.sha256,
             object_ref=stored.ref,
-            meta={"payload_schema_id": payload_schema_id, "domain_scope": _DOMAIN_JSON},
+            meta={
+                "payload_schema_id": payload_schema_id,
+                "domain_scope": _DOMAIN_JSON,
+                **({"schema_registry_version": "registry@1"} if kind == "ir_snapshot" else {}),
+            },
             created_at="2026-07-19T00:00:00Z",
         )
         engine = get_engine(self.database_url)
@@ -898,6 +908,14 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
             ("builtin.validation", 1),
             ("builtin.patch_repair", 1),
         }.issubset(active_profiles)
+        constraint_page = maker.client.get(
+            "/api/v1/constraints",
+            params={"limit": 100},
+        )
+        assert constraint_page.status_code == 200, constraint_page.text
+        assert [
+            item["artifact"]["artifact_id"] for item in constraint_page.json()["items"]
+        ] == [constraint_id]
 
         record = maker.client.post(
             "/api/v1/generation:propose",
@@ -979,6 +997,26 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
         assert review_artifact["artifact"]["kind"] == "review_report"
         assert isinstance(review_artifact["payload"]["deterministic_findings"], list)
         assert isinstance(review_artifact["payload"]["llm_assisted_findings"], list)
+        review_binding = maker.client.get(
+            f"/api/v1/reviews/{review_id}/producer-binding",
+            params={"run_id": review_replay.run_id},
+        )
+        assert review_binding.status_code == 200, review_binding.text
+        review_authority = review_binding.json()
+        assert review_authority["run_kind"] == {"kind": "review.run", "version": 1}
+        assert review_authority["manifest_role"] == "output"
+        review_finding_count = sum(
+            len(review_artifact["payload"][key])
+            for key in (
+                "deterministic_findings",
+                "llm_assisted_findings",
+                "simulation_findings",
+                "unproven_findings",
+            )
+        )
+        assert review_authority["finding_authority"] == (
+            "exact-run-links" if review_finding_count else "not-applicable"
+        )
 
         task_suite = _submit(
             worker,
@@ -1514,10 +1552,11 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
         assert bench.status_code == 200, bench.text
         bench_report = bench.json()
         assert bench_report["schema_version"] == "bench-report@2"
-        assert bench_report["qa"]["conclusion"] == "pending"
+        assert bench_report["qa"]["time_scoring"] == "incorrect_uses_active_cap"
+        assert bench_report["qa"]["conclusion"] == "savings"
         assert all(
-            bench_report["qa"][name]["status"] == "pending"
-            and bench_report["qa"][name]["evaluated_n"] == 0
+            bench_report["qa"][name]["status"] == "measured"
+            and bench_report["qa"][name]["evaluated_n"] == 4
             for name in (
                 "paired_saved_minutes",
                 "paired_saved_fraction",
@@ -1525,9 +1564,9 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
                 "assisted_success",
             )
         )
-        assert bench_report["qa"]["evidence_ref"] is None
+        assert bench_report["qa"]["evidence_ref"] == "qa"
         qa_evidence = next(item for item in bench_report["evidence"] if item["evidence_id"] == "qa")
-        assert qa_evidence["available"] is False
+        assert qa_evidence["available"] is True
     finally:
         worker.close()
         _stop_api(api)
@@ -1595,6 +1634,21 @@ def test_journey_a_gate_rejected_replay_is_evidence_only(tmp_path: Path) -> None
         kinds = {value["artifact"]["kind"] for value in evidence.values()}
         assert {"patch", "ir_snapshot", "checker_run", "review_report"}.issubset(kinds)
         assert "config_export" not in kinds
+        rejected_review_id = next(
+            artifact_id
+            for artifact_id, value in evidence.items()
+            if value["artifact"]["kind"] == "review_report"
+        )
+        rejected_review_binding = maker.client.get(
+            f"/api/v1/reviews/{rejected_review_id}/producer-binding",
+            params={"run_id": replay.run_id},
+        )
+        assert rejected_review_binding.status_code == 200, rejected_review_binding.text
+        rejected_review_authority = rejected_review_binding.json()
+        assert rejected_review_authority["terminal_manifest_kind"] == "run_failure"
+        assert rejected_review_authority["outcome_policy_id"] == "generation-gate-rejected"
+        assert rejected_review_authority["outcome_rule_id"] == "review"
+        assert rejected_review_authority["manifest_role"] == "evidence"
         rejected_patch_id = next(
             artifact_id
             for artifact_id, value in evidence.items()

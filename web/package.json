@@ -3,20 +3,58 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "npm@11.16.0",
+  "engines": {
+    "node": "24.18.0",
+    "npm": "11.16.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "toolchain:check": "node scripts/check-toolchain.mjs",
+    "contracts:generate": "node scripts/generate-contracts.mjs",
+    "contracts:check": "node scripts/check-contracts.mjs",
+    "typecheck": "tsc -b && tsc -p tsconfig.e2e.json --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test --grep-invert \"@visual|@a11y\"",
+    "test:visual": "playwright test --grep \"@visual\"",
+    "test:a11y": "playwright test --grep \"@a11y\"",
+    "evidence:index": "npm run test:visual && node scripts/build-visual-evidence-index.mjs",
+    "format:check": "prettier --check src e2e scripts *.ts *.mjs *.json *.html"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@tanstack/react-query": "5.101.2",
+    "cytoscape": "3.34.0",
+    "eventsource-parser": "3.1.0",
+    "lucide-react": "1.24.0",
+    "openapi-fetch": "0.17.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "7.18.1",
+    "recharts": "3.9.2"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.61.1",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@types/node": "24.13.3",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "@vitejs/plugin-basic-ssl": "2.3.0",
+    "@vitejs/plugin-react": "6.0.3",
+    "jsdom": "26.1.0",
+    "json-schema-to-typescript": "15.0.4",
+    "openapi-typescript": "7.13.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3",
+    "vite": "8.1.4",
+    "vitest": "4.1.10"
+  },
+  "overrides": {
+    "js-yaml": "4.3.0"
   }
 }

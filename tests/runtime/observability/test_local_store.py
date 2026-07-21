@@ -38,6 +38,7 @@ from gameforge.runtime.observability.local_store import (
     LocalTelemetryStore,
 )
 from gameforge.runtime.observability.cursor import TelemetryCursorState
+from gameforge.runtime.observability.logs import StructuredLogger
 from gameforge.runtime.observability.metrics import MetricRegistrySink
 
 
@@ -296,6 +297,84 @@ def test_wal_store_is_restart_readable_and_returns_exact_dtos(tmp_path: Path) ->
     assert log_page.items[0].redacted_fields == ()
     assert metric_page.series[0].descriptor == descriptor.ref
     assert metric_page.series[0].scalar_points[0].value == 3
+
+
+def test_structured_logger_redacts_naming_variants_before_persist_and_query(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "telemetry.sqlite3"
+    clock = _Clock(NOW)
+    store = _store(path, clock)
+    logger = StructuredLogger(
+        service="worker",
+        store=store,
+        clock=clock,
+        id_generator=lambda: "log-sensitive-keys",
+    )
+    secrets = {
+        "raw_response": "snake-raw-secret",
+        "raw-response": "kebab-raw-secret",
+        "raw.response": "dot-raw-secret",
+        "rawResponse": "camel-raw-secret",
+        "apiKey": "camel-api-secret",
+        "accessToken": "camel-access-secret",
+    }
+
+    written = logger.log(
+        level="info",
+        event_name="model.finished",
+        message="model execution completed",
+        fields={**secrets, "attempt": 1},
+    )
+    assert written is not None
+
+    with sqlite3.connect(path) as connection:
+        persisted = connection.execute(
+            "SELECT payload FROM logs WHERE log_id = ?",
+            (written.log_id,),
+        ).fetchone()[0]
+    page = store.query_logs(_log_query())
+    queried = page.items[0]
+    copies = (written.model_dump_json(), persisted, page.model_dump_json())
+
+    for secret in secrets.values():
+        assert all(secret not in copy for copy in copies)
+    assert queried.record.message == "model execution completed"
+    assert queried.record.fields["attempt"] == 1
+    assert all(queried.record.fields[key] == "[REDACTED]" for key in secrets)
+    assert set(secrets) <= set(queried.record.fields["redacted_fields"])
+
+
+def test_structured_logger_redacts_camel_case_free_text_before_persist_and_query(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "telemetry.sqlite3"
+    clock = _Clock(NOW)
+    store = _store(path, clock)
+    logger = StructuredLogger(
+        service="worker",
+        store=store,
+        clock=clock,
+        id_generator=lambda: "log-sensitive-text",
+    )
+
+    written = logger.log(
+        level="info",
+        event_name="model.finished",
+        message="renderedPrompt: message-camel-secret",
+        fields={"detail": "accessToken=field-camel-secret"},
+    )
+    assert written is not None
+
+    with sqlite3.connect(path) as connection:
+        persisted = connection.execute(
+            "SELECT payload FROM logs WHERE log_id = ?",
+            (written.log_id,),
+        ).fetchone()[0]
+    queried = store.query_logs(_log_query())
+    for wire in (written.model_dump_json(), persisted, queried.model_dump_json()):
+        assert "message-camel-secret" not in wire
+        assert "field-camel-secret" not in wire
 
 
 def test_local_store_defensively_sanitizes_spans_on_write_and_read(tmp_path: Path) -> None:

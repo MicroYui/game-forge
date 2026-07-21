@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -11,14 +13,32 @@ from fastapi.testclient import TestClient
 from gameforge.apps.api.dependencies import require_actor
 from gameforge.apps.api.errors import install_error_handlers
 from gameforge.apps.api.routers.content import content_read_router
-from gameforge.contracts.api import ArtifactSummaryV1, Problem
-from gameforge.contracts.canonical import canonical_json, compute_snapshot_id
+from gameforge.bench.report_contracts import BenchReport
+from gameforge.contracts.api import (
+    ArtifactSummaryV1,
+    ConstraintValidationCompilerBindingViewV1,
+    Problem,
+    ReviewProducerBindingViewV1,
+    SubjectApprovalBindingViewV1,
+    TaskSuiteDerivationBindingViewV1,
+)
+from gameforge.contracts.canonical import canonical_json, canonical_sha256, compute_snapshot_id
 from gameforge.contracts.diff import SnapshotDiff
 from gameforge.contracts.errors import (
+    Conflict,
     DependencyUnavailable,
     Forbidden,
     IntegrityViolation,
     NotFound,
+    QueryTooBroad,
+)
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileDefinitionV1,
+    ExecutionProfileLifecycleV1,
+    ProfileRefV1,
+    RunKindRef,
+    TaskSuiteDerivationProfileConfigV1,
+    canonical_config_hash,
 )
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import (
@@ -36,6 +56,8 @@ from gameforge.contracts.lineage import (
     build_artifact_v2,
     object_ref_for_bytes,
 )
+from gameforge.contracts.review import ReviewReport
+from gameforge.contracts.playtest import TaskSuiteV1
 from gameforge.contracts.storage import PageCursorV1, PageV1, RefValue
 from gameforge.platform.read_models.artifacts import (
     TrustedArtifactPayloadBinding,
@@ -46,14 +68,18 @@ from gameforge.platform.read_models.authorization import (
     ReadAuthorizationBinding,
 )
 from gameforge.platform.read_models.content import (
+    ConstraintValidationCompilerBindingRead,
     ContentReadCapabilities,
     ContentReadService,
     LineageSourceEntry,
     PatchWorkflowReadBinding,
     SnapshotDiffRead,
     SpecReadBinding,
+    TaskSuiteDerivationBindingRead,
+    _profile_view,
 )
 from gameforge.platform.read_models.paging import RetainedReadPageItem
+from gameforge.platform.registry import build_builtin_registry
 
 
 DOMAIN = DomainScope(domain_ids=("content",))
@@ -84,6 +110,7 @@ def _artifact(
     schema_id: str,
     payload: dict[str, Any],
     versions: VersionTuple,
+    meta: dict[str, Any] | None = None,
 ):
     payload_bytes = canonical_json(payload).encode("utf-8")
     object_ref = object_ref_for_bytes(payload_bytes)
@@ -93,7 +120,7 @@ def _artifact(
         lineage=(),
         payload_hash=object_ref.sha256,
         object_ref=object_ref,
-        meta={},
+        meta={} if meta is None else meta,
         created_at="2026-07-14T00:00:00Z",
     )
     location = ObjectLocation(
@@ -147,6 +174,69 @@ def _spec_artifact(entity_id: str = "npc:guide"):
         versions=VersionTuple(ir_snapshot_id=snapshot_id, tool_version="ingest@1"),
     )
     return artifact, verified, binding, snapshot_id
+
+
+def _task_suite_artifact(
+    label: str,
+    *,
+    config_artifact_id: str,
+    constraint_artifact_id: str,
+    environment_profile: ProfileRefV1,
+):
+    reset_payload = {
+        "scenario_id": f"scenario:{label}",
+        "config_export_artifact_id": config_artifact_id,
+        "quest_ids": [f"quest:{label}"],
+        "start_seed": 0,
+    }
+    suite = TaskSuiteV1.model_validate(
+        {
+            "suite_profile": {
+                "profile_id": "builtin.task_suite_derivation",
+                "version": 2,
+            },
+            "source_preview_artifact_id": f"preview:{label}",
+            "config_export_artifact_id": config_artifact_id,
+            "constraint_snapshot_artifact_id": constraint_artifact_id,
+            "environment_profile": environment_profile.model_dump(mode="json"),
+            "env_contract_version": "generic-agent-env@1",
+            "completion_oracle_registry_ref": {
+                "registry_version": 1,
+                "digest": "5" * 64,
+            },
+            "episodes": [
+                {
+                    "episode_id": f"episode:{label}",
+                    "scenario_spec_artifact_id": f"scenario-artifact:{label}",
+                    "completion_oracle": {
+                        "oracle_id": "all-quests-completed",
+                        "version": 1,
+                        "params_schema_id": "all-quests-completed-params@1",
+                        "params": {"quest_ids": [f"quest:{label}"]},
+                    },
+                    "domain_scope": DOMAIN.model_dump(mode="json"),
+                    "reset_binding": {
+                        "reset_schema_id": "generic-env-reset@1",
+                        "payload_hash": canonical_sha256(reset_payload),
+                        "payload": reset_payload,
+                    },
+                    "step_budget": 200,
+                }
+            ],
+        }
+    )
+    return _artifact(
+        kind="task_suite",
+        schema_id="task-suite@1",
+        payload=suite.model_dump(mode="json"),
+        versions=VersionTuple(
+            ir_snapshot_id=f"snapshot:{label}",
+            constraint_snapshot_id=f"constraint-snapshot:{label}",
+            tool_version="task-suite-deriver@1",
+            env_contract_version="generic-agent-env@1",
+        ),
+        meta={"domain_scope": DOMAIN.model_dump(mode="json")},
+    )
 
 
 class _Authorization:
@@ -369,8 +459,10 @@ class _ProposalWorkflows:
 
 
 class _SubjectWorkflows:
-    def __init__(self, patches=None) -> None:
+    def __init__(self, patches=None, approval_bindings=None) -> None:
         self.patches = patches or {}
+        self.approval_bindings = approval_bindings or {}
+        self.approval_binding_calls: list[str] = []
 
     def resolve_patch(self, artifact_id: str):
         return self.patches.get(artifact_id)
@@ -378,6 +470,10 @@ class _SubjectWorkflows:
     def resolve_rollback(self, artifact_id: str):
         del artifact_id
         return None
+
+    def resolve_approval_binding(self, artifact_id: str):
+        self.approval_binding_calls.append(artifact_id)
+        return self.approval_bindings.get(artifact_id)
 
 
 class _Refs:
@@ -427,19 +523,52 @@ class _Diffs:
 
 
 class _Bench:
+    def __init__(self, artifact_id: str | None = None) -> None:
+        self.artifact_id = artifact_id
+
     def selected_artifact_id(self):
-        return None
+        return self.artifact_id
+
+
+def _bench_report_payload() -> dict[str, Any]:
+    path = Path(__file__).parents[3] / "scenarios" / "bench" / "bench-report.json"
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 class _Catalog:
+    def __init__(self, value=None) -> None:
+        self.value = value
+
     def current_catalog(self):
-        return None
+        return self.value
 
 
 class _PlaytestResults:
     def result_artifact_id(self, run_id: str):
         del run_id
         return None
+
+
+class _ReviewProducers:
+    def __init__(self, values=None, run_scopes=None) -> None:
+        self.values = values or {}
+        self.run_scopes = run_scopes or {}
+        self.calls: list[tuple[str, str]] = []
+        self.run_permission_calls: list[str] = []
+
+    def permission_for_run(self, run_id: str):
+        self.run_permission_calls.append(run_id)
+        scope = self.run_scopes.get(run_id, DOMAIN)
+        return (
+            None
+            if scope is None
+            else Permission(action="read", resource_kind="run", domain_scope=scope)
+        )
+
+    def resolve(self, *, artifact, report, run_id: str):
+        del report
+        self.calls.append((artifact.artifact_id, run_id))
+        return self.values.get((artifact.artifact_id, run_id))
 
 
 def _service(
@@ -455,12 +584,16 @@ def _service(
     refs=None,
     events=None,
     max_items: int = 1,
+    execution_profiles=None,
+    review_producers=None,
+    materialized_pages=None,
+    bench_reports=None,
 ):
     repository = _Repository(artifacts, events)
     reader = _Reader(verified, events)
     pages = immutable_pages or _ImmutablePages({})
     diffs = _Diffs()
-    materialized_pages = _MaterializedPages()
+    materialized_pages = materialized_pages or _MaterializedPages()
     capabilities = ContentReadCapabilities(
         repository=repository,
         immutable_artifact_pages=pages,
@@ -472,11 +605,12 @@ def _service(
         schema_registry=_SchemaRegistry(),
         proposal_workflows=_ProposalWorkflows(),
         subject_workflows=subject_workflows or _SubjectWorkflows(),
+        review_producers=review_producers or _ReviewProducers(),
         playtest_results=_PlaytestResults(),
         refs=refs or _Refs(),
         diffs=diffs,
-        bench_reports=_Bench(),
-        execution_profiles=_Catalog(),
+        bench_reports=bench_reports or _Bench(),
+        execution_profiles=execution_profiles or _Catalog(),
         page_factory=materialized_pages.adapter,
     )
 
@@ -993,6 +1127,177 @@ def test_evidence_only_patch_is_hidden_from_workflow_patch_reads() -> None:
     assert reader.calls.count(evidence_artifact.artifact_id) == 1
 
 
+def test_subject_approval_binding_authorizes_the_subject_without_reading_payload() -> None:
+    payload = PatchV2(
+        revision=1,
+        base_snapshot_id="snapshot:base",
+        target_snapshot_id="snapshot:target",
+        expected_to_fix=[],
+        preconditions=[],
+        side_effect_risk="low",
+        ops=[],
+        produced_by="human",
+        rationale="typed patch",
+    ).model_dump(mode="json")
+    artifact, verified, trusted = _artifact(
+        kind="patch",
+        schema_id="patch@2",
+        payload=payload,
+        versions=VersionTuple(ir_snapshot_id="snapshot:base", tool_version="patch@2"),
+    )
+    binding = SubjectApprovalBindingViewV1(
+        subject_artifact_id=artifact.artifact_id,
+        subject_digest=artifact.payload_hash,
+        subject_kind="patch",
+        subject_series_id="series:patch",
+        subject_revision=1,
+        subject_head_revision=1,
+        is_current_head=True,
+        approval_id="approval:patch",
+        workflow_revision=4,
+        approval_status="pending_approval",
+    )
+
+    class _RecordingPermissions(_Permissions):
+        def __init__(self) -> None:
+            self.resource_kinds: list[str] = []
+
+        def for_artifact(self, artifact, *, resource_kind: str):
+            self.resource_kinds.append(resource_kind)
+            return super().for_artifact(artifact, resource_kind=resource_kind)
+
+    permissions = _RecordingPermissions()
+    service, _, reader, _, _, _ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        subject_workflows=_SubjectWorkflows(approval_bindings={artifact.artifact_id: binding}),
+        permission_resolver=permissions,
+    )
+
+    resolved = service.get_subject_approval_binding(_principal(), artifact.artifact_id)
+
+    assert resolved == binding
+    assert permissions.resource_kinds == ["patch"]
+    assert reader.calls == []
+
+
+def test_subject_approval_binding_etag_changes_when_the_subject_head_advances() -> None:
+    artifact, verified, trusted = _artifact(
+        kind="patch",
+        schema_id="patch@2",
+        payload={"patch_schema_version": "patch@2"},
+        versions=VersionTuple(tool_version="patch@2"),
+    )
+    bindings = {
+        artifact.artifact_id: SubjectApprovalBindingViewV1(
+            subject_artifact_id=artifact.artifact_id,
+            subject_digest=artifact.payload_hash,
+            subject_kind="patch",
+            subject_series_id="series:patch",
+            subject_revision=1,
+            subject_head_revision=1,
+            is_current_head=True,
+            approval_id="approval:patch",
+            workflow_revision=4,
+            approval_status="pending_approval",
+        )
+    }
+    service, _, _, _, _, _ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        subject_workflows=_SubjectWorkflows(approval_bindings=bindings),
+    )
+    app = FastAPI()
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:approval-binding",
+    )
+    client = TestClient(app)
+
+    current = client.get(f"/api/v1/workflow-subjects/{artifact.artifact_id}/approval-binding")
+    bindings[artifact.artifact_id] = bindings[artifact.artifact_id].model_copy(
+        update={"subject_head_revision": 2, "is_current_head": False}
+    )
+    historical = client.get(f"/api/v1/workflow-subjects/{artifact.artifact_id}/approval-binding")
+
+    assert current.status_code == historical.status_code == 200
+    assert current.headers["x-resource-revision"] == "4"
+    assert historical.headers["x-resource-revision"] == "4"
+    assert current.json()["is_current_head"] is True
+    assert historical.json()["is_current_head"] is False
+    assert current.headers["etag"] != historical.headers["etag"]
+
+
+def test_subject_approval_binding_does_not_invent_an_evidence_only_patch_binding() -> None:
+    artifact, verified, trusted = _artifact(
+        kind="patch",
+        schema_id="patch@2",
+        payload={"patch_schema_version": "patch@2"},
+        versions=VersionTuple(tool_version="generation-gate@1"),
+    )
+    service, _, reader, _, _, _ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+    )
+
+    with pytest.raises(NotFound):
+        service.get_subject_approval_binding(_principal(), artifact.artifact_id)
+
+    assert reader.calls == []
+
+
+def test_subject_approval_binding_checks_domain_rbac_before_disclosing_the_binding() -> None:
+    artifact, verified, trusted = _artifact(
+        kind="patch",
+        schema_id="patch@2",
+        payload={"patch_schema_version": "patch@2"},
+        versions=VersionTuple(tool_version="patch@2"),
+    )
+    workflows = _SubjectWorkflows(
+        approval_bindings={
+            artifact.artifact_id: SubjectApprovalBindingViewV1(
+                subject_artifact_id=artifact.artifact_id,
+                subject_digest=artifact.payload_hash,
+                subject_kind="patch",
+                subject_series_id="series:other",
+                subject_revision=1,
+                subject_head_revision=1,
+                is_current_head=True,
+                approval_id="approval:other",
+                workflow_revision=1,
+                approval_status="draft",
+            )
+        }
+    )
+    service, _, reader, _, _, _ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        subject_workflows=workflows,
+        authorization=_ScopeAuthorization({"content"}),
+        permission_resolver=_MappedPermissions({artifact.artifact_id: OTHER_DOMAIN}),
+    )
+
+    with pytest.raises(Forbidden):
+        service.get_subject_approval_binding(_principal(), artifact.artifact_id)
+
+    assert workflows.approval_binding_calls == []
+    assert reader.calls == []
+
+
 def test_missing_schema_registry_authority_is_explicit_dependency_failure() -> None:
     service, _, _, _, _, _ = _service(
         artifacts=(),
@@ -1005,6 +1310,953 @@ def test_missing_schema_registry_authority_is_explicit_dependency_failure() -> N
         service.get_schema_registry(_principal(), "registry@missing")
 
     assert error.value.context["component"] == "schema_registry"
+
+
+def test_selected_bench_report_read_retains_exact_authorized_artifact_identity() -> None:
+    payload = _bench_report_payload()
+    artifact, verified, trusted = _artifact(
+        kind="bench_report",
+        schema_id="bench-report@2",
+        payload=payload,
+        versions=VersionTuple(
+            doc_version="bench-report-fixture@1",
+            tool_version="bench-report@2",
+        ),
+    )
+    service, _, reader, _, _, _ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        bench_reports=_Bench(artifact.artifact_id),
+    )
+
+    selected = service.get_bench_report(_principal())
+
+    assert selected.artifact.artifact_id == artifact.artifact_id
+    assert selected.artifact.payload_schema_id == "bench-report@2"
+    assert selected.payload == payload
+    assert reader.calls == [artifact.artifact_id]
+
+
+def test_selected_bench_report_read_accepts_valid_reports_above_generic_json_limit() -> None:
+    payload = _bench_report_payload()
+    source = payload["false_positives"][0]
+    payload["false_positives"].extend(
+        {
+            **source,
+            "name": f"future_fp_{index}",
+            "bucket": f"future_bucket_{index}",
+        }
+        for index in range(400)
+    )
+    BenchReport.model_validate(payload)
+    assert len(canonical_json(payload).encode("utf-8")) > 64 * 1024
+    artifact, verified, trusted = _artifact(
+        kind="bench_report",
+        schema_id="bench-report@2",
+        payload=payload,
+        versions=VersionTuple(tool_version="bench-report@2"),
+    )
+    service, _, reader, _, _, _ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        bench_reports=_Bench(artifact.artifact_id),
+    )
+
+    selected = service.get_bench_report(_principal())
+
+    assert selected.artifact.artifact_id == artifact.artifact_id
+    assert selected.payload == payload
+    assert reader.calls == [artifact.artifact_id]
+
+
+def test_bench_report_router_exposes_exact_artifact_id_without_wrapping_body() -> None:
+    payload = _bench_report_payload()
+    artifact, verified, trusted = _artifact(
+        kind="bench_report",
+        schema_id="bench-report@2",
+        payload=payload,
+        versions=VersionTuple(
+            doc_version="bench-report-fixture@1",
+            tool_version="bench-report@2",
+        ),
+    )
+    service, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        bench_reports=_Bench(artifact.artifact_id),
+    )
+    app = FastAPI()
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:bench-report",
+    )
+
+    with TestClient(app) as client:
+        response = client.get("/api/v1/bench/report")
+
+    assert response.status_code == 200, response.text
+    assert response.headers["X-Artifact-ID"] == artifact.artifact_id
+    assert response.json() == BenchReport.model_validate(payload).model_dump(mode="json")
+    assert "artifact" not in response.json()
+
+
+def _review_occurrence_fixture():
+    report = ReviewReport(snapshot_id="snapshot:review")
+    artifact, verified, trusted = _artifact(
+        kind="review_report",
+        schema_id="review@1",
+        payload=report.model_dump(mode="json"),
+        versions=VersionTuple(
+            ir_snapshot_id=report.snapshot_id,
+            tool_version="review@1",
+        ),
+    )
+    binding = ReviewProducerBindingViewV1(
+        review_artifact_id=artifact.artifact_id,
+        run_id="run:review",
+        attempt_no=1,
+        run_kind=RunKindRef(kind="review.run", version=1),
+        terminal_status="succeeded",
+        terminal_manifest_id="artifact:run-result",
+        terminal_manifest_kind="run_result",
+        outcome_code="review_completed",
+        outcome_policy_id="review-completed",
+        outcome_policy_version=1,
+        outcome_rule_id="primary",
+        manifest_role="output",
+        finding_authority="not-applicable",
+    )
+    return artifact, verified, trusted, binding
+
+
+def test_review_producer_binding_reads_one_explicit_occurrence() -> None:
+    artifact, verified, trusted, binding = _review_occurrence_fixture()
+    producers = _ReviewProducers({(artifact.artifact_id, binding.run_id): binding})
+    service, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        review_producers=producers,
+    )
+
+    result = service.get_review_producer_binding(
+        _principal(),
+        artifact.artifact_id,
+        run_id=binding.run_id,
+    )
+
+    assert result == binding
+    assert producers.run_permission_calls == [binding.run_id]
+    assert producers.calls == [(artifact.artifact_id, binding.run_id)]
+
+
+def test_review_producer_binding_rejects_a_non_occurrence_without_guessing() -> None:
+    artifact, verified, trusted, _binding = _review_occurrence_fixture()
+    producers = _ReviewProducers()
+    service, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        review_producers=producers,
+    )
+
+    with pytest.raises(NotFound, match="occurrence"):
+        service.get_review_producer_binding(
+            _principal(),
+            artifact.artifact_id,
+            run_id="run:other",
+        )
+
+    assert producers.calls == [(artifact.artifact_id, "run:other")]
+
+
+def test_review_producer_binding_authorizes_before_payload_or_run_disclosure() -> None:
+    artifact, verified, trusted, binding = _review_occurrence_fixture()
+    producers = _ReviewProducers({(artifact.artifact_id, binding.run_id): binding})
+    service, _repository, reader, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        review_producers=producers,
+        authorization=_ScopeAuthorization({"content"}),
+        permission_resolver=_MappedPermissions({artifact.artifact_id: OTHER_DOMAIN}),
+    )
+
+    with pytest.raises(Forbidden):
+        service.get_review_producer_binding(
+            _principal(),
+            artifact.artifact_id,
+            run_id=binding.run_id,
+        )
+
+    assert reader.calls == []
+    assert producers.run_permission_calls == []
+    assert producers.calls == []
+
+
+def test_review_producer_binding_requires_candidate_run_read_permission() -> None:
+    artifact, verified, trusted, binding = _review_occurrence_fixture()
+    producers = _ReviewProducers(
+        {(artifact.artifact_id, binding.run_id): binding},
+        run_scopes={binding.run_id: OTHER_DOMAIN},
+    )
+    service, _repository, reader, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        review_producers=producers,
+        authorization=_ScopeAuthorization({"content"}),
+    )
+
+    with pytest.raises(Forbidden):
+        service.get_review_producer_binding(
+            _principal(),
+            artifact.artifact_id,
+            run_id=binding.run_id,
+        )
+
+    assert producers.run_permission_calls == [binding.run_id]
+    assert reader.calls == []
+    assert producers.calls == []
+
+
+def test_generation_review_read_accepts_only_the_exact_requirement_occurrence() -> None:
+    report = ReviewReport(snapshot_id="snapshot:generation-review")
+    payload = {**report.model_dump(mode="json"), "requirement_id": "generation-gate:review"}
+    artifact, verified, trusted = _artifact(
+        kind="review_report",
+        schema_id="review@1",
+        payload=payload,
+        versions=VersionTuple(
+            ir_snapshot_id=report.snapshot_id,
+            tool_version="generation-gate@1",
+        ),
+        meta={"requirement_id": "generation-gate:review"},
+    )
+    service, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+    )
+
+    assert service.get_review(_principal(), artifact.artifact_id).report == report
+
+    corrupt, corrupt_verified, corrupt_trusted = _artifact(
+        kind="review_report",
+        schema_id="review@1",
+        payload=payload,
+        versions=VersionTuple(
+            ir_snapshot_id=report.snapshot_id,
+            tool_version="generation-gate@1",
+        ),
+        meta={"requirement_id": "generation-gate:other"},
+    )
+    corrupt_service, *_ = _service(
+        artifacts=(corrupt,),
+        verified={corrupt.artifact_id: corrupt_verified},
+        bindings={corrupt.artifact_id: corrupt_trusted},
+        specs={},
+    )
+    with pytest.raises(IntegrityViolation, match="requirement binding differs"):
+        corrupt_service.get_review(_principal(), corrupt.artifact_id)
+
+
+def _builtin_profile_catalog():
+    return build_builtin_registry().list_execution_profile_catalogs()[-1]
+
+
+def test_active_task_suite_derivation_profile_projects_exact_target_environment() -> None:
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(_builtin_profile_catalog()),
+    )
+
+    page = service.list_execution_profiles(
+        _principal(),
+        profile_kind="task_suite_derivation",
+        run_kind=None,
+        domain_id=None,
+        status="active",
+        cursor=None,
+        limit=10,
+    )
+
+    assert len(page.items) == 1
+    assert page.items[0].profile.profile == ProfileRefV1(
+        profile_id="builtin.task_suite_derivation",
+        version=2,
+    )
+    assert page.items[0].profile.target_environment_profile == ProfileRefV1(
+        profile_id="builtin.environment",
+        version=1,
+    )
+
+
+def test_task_suite_derivation_projection_keeps_profile_v2_with_v1_config_compatible() -> None:
+    catalog = _builtin_profile_catalog()
+    definition = next(
+        item
+        for item in catalog.definitions
+        if item.profile
+        == ProfileRefV1(
+            profile_id="builtin.task_suite_derivation",
+            version=2,
+        )
+    )
+    lifecycle = next(item for item in catalog.lifecycle if item.profile == definition.profile)
+    config = TaskSuiteDerivationProfileConfigV1().model_dump(mode="json")
+    historical_config_definition = ExecutionProfileDefinitionV1.model_validate(
+        {
+            **definition.model_dump(mode="json"),
+            "config_schema_id": "task_suite_derivation-profile-config@1",
+            "config": config,
+            "config_hash": canonical_config_hash(config),
+        }
+    )
+
+    view = _profile_view(historical_config_definition, lifecycle)
+
+    assert view.target_environment_profile is None
+
+
+def test_task_suite_derivation_projection_uses_v2_config_for_later_profile_ref() -> None:
+    catalog = _builtin_profile_catalog()
+    definition = next(
+        item
+        for item in catalog.definitions
+        if item.profile
+        == ProfileRefV1(
+            profile_id="builtin.task_suite_derivation",
+            version=2,
+        )
+    )
+    lifecycle = next(item for item in catalog.lifecycle if item.profile == definition.profile)
+    later_ref = ProfileRefV1(profile_id="custom.task_suite_derivation", version=3)
+    later_definition = ExecutionProfileDefinitionV1.model_validate(
+        {
+            **definition.model_dump(mode="json"),
+            "profile": later_ref.model_dump(mode="json"),
+        }
+    )
+    later_lifecycle = ExecutionProfileLifecycleV1.model_validate(
+        {
+            **lifecycle.model_dump(mode="json"),
+            "profile": later_ref.model_dump(mode="json"),
+        }
+    )
+
+    view = _profile_view(later_definition, later_lifecycle)
+
+    assert view.target_environment_profile == ProfileRefV1(
+        profile_id="builtin.environment",
+        version=1,
+    )
+
+
+def test_task_suite_filters_materialize_exact_verified_payloads_with_stable_pagination() -> None:
+    environment = ProfileRefV1(profile_id="builtin.environment", version=1)
+    first = _task_suite_artifact(
+        "first",
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile=environment,
+    )
+    second = _task_suite_artifact(
+        "second",
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile=environment,
+    )
+    unrelated = _task_suite_artifact(
+        "unrelated",
+        config_artifact_id="config:other",
+        constraint_artifact_id="constraint:other",
+        environment_profile=ProfileRefV1(profile_id="builtin.environment", version=2),
+    )
+    triples = (first, second, unrelated)
+    artifacts = tuple(sorted((item[0] for item in triples), key=lambda item: item.artifact_id))
+    verified = {item[0].artifact_id: item[1] for item in triples}
+    bindings = {item[0].artifact_id: item[2] for item in triples}
+    pages = _ImmutablePages({"task_suites": artifacts})
+    retained = _MaterializedPages()
+    service, *_ = _service(
+        artifacts=artifacts,
+        verified=verified,
+        bindings=bindings,
+        specs={},
+        immutable_pages=pages,
+        materialized_pages=retained,
+        max_items=10,
+    )
+
+    page = service.list_task_suites(
+        _principal(),
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile_id=environment.profile_id,
+        environment_profile_version=environment.version,
+        cursor=None,
+        limit=1,
+    )
+    assert page.next_cursor is not None
+    continued = service.list_task_suites(
+        _principal(),
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile_id=environment.profile_id,
+        environment_profile_version=environment.version,
+        cursor=page.next_cursor,
+        limit=1,
+    )
+
+    expected_ids = tuple(sorted((first[0].artifact_id, second[0].artifact_id)))
+    assert tuple(item.artifact.artifact_id for item in (*page.items, *continued.items)) == (
+        expected_ids
+    )
+    assert continued.read_snapshot_id == page.read_snapshot_id
+    assert continued.next_cursor is None
+    assert pages.calls[0]["filters"] == {}
+    assert retained.query_hash == page.next_cursor.query_hash
+
+
+def test_task_suite_materialized_filter_authorizes_before_reading_payload() -> None:
+    environment = ProfileRefV1(profile_id="builtin.environment", version=1)
+    allowed = _task_suite_artifact(
+        "allowed",
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile=environment,
+    )
+    denied = _task_suite_artifact(
+        "denied",
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile=environment,
+    )
+    artifacts = tuple(sorted((allowed[0], denied[0]), key=lambda item: item.artifact_id))
+    pages = _ImmutablePages({"task_suites": artifacts})
+    service, _repository, reader, *_ = _service(
+        artifacts=artifacts,
+        verified={allowed[0].artifact_id: allowed[1], denied[0].artifact_id: denied[1]},
+        bindings={allowed[0].artifact_id: allowed[2], denied[0].artifact_id: denied[2]},
+        specs={},
+        immutable_pages=pages,
+        authorization=_ScopeAuthorization({"content"}),
+        permission_resolver=_MappedPermissions(
+            {allowed[0].artifact_id: DOMAIN, denied[0].artifact_id: OTHER_DOMAIN}
+        ),
+        max_items=10,
+    )
+
+    page = service.list_task_suites(
+        _principal(),
+        config_artifact_id="config:target",
+        constraint_artifact_id=None,
+        environment_profile_id=None,
+        environment_profile_version=None,
+        cursor=None,
+        limit=10,
+    )
+
+    assert tuple(item.artifact.artifact_id for item in page.items) == (allowed[0].artifact_id,)
+    assert reader.calls == [allowed[0].artifact_id]
+
+
+def test_task_suite_materialized_filter_fails_typed_when_source_set_exceeds_bound() -> None:
+    environment = ProfileRefV1(profile_id="builtin.environment", version=1)
+    first = _task_suite_artifact(
+        "bounded-first",
+        config_artifact_id="config:target",
+        constraint_artifact_id="constraint:target",
+        environment_profile=environment,
+    )
+    second = _task_suite_artifact(
+        "bounded-second",
+        config_artifact_id="config:other",
+        constraint_artifact_id="constraint:other",
+        environment_profile=environment,
+    )
+    artifacts = tuple(sorted((first[0], second[0]), key=lambda item: item.artifact_id))
+    service, _repository, reader, *_ = _service(
+        artifacts=artifacts,
+        verified={first[0].artifact_id: first[1], second[0].artifact_id: second[1]},
+        bindings={first[0].artifact_id: first[2], second[0].artifact_id: second[2]},
+        specs={},
+        immutable_pages=_ImmutablePages({"task_suites": artifacts}),
+        max_items=1,
+    )
+
+    with pytest.raises(QueryTooBroad, match="materialization bound"):
+        service.list_task_suites(
+            _principal(),
+            config_artifact_id="config:target",
+            constraint_artifact_id=None,
+            environment_profile_id=None,
+            environment_profile_version=None,
+            cursor=None,
+            limit=1,
+        )
+    assert reader.calls == []
+
+
+def test_task_suite_derivation_binding_reads_complete_active_authority() -> None:
+    catalog = _builtin_profile_catalog()
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(catalog),
+    )
+
+    result = service.get_task_suite_derivation_binding(
+        _principal(),
+        profile_id="builtin.task_suite_derivation",
+        version=2,
+    )
+
+    assert isinstance(result, TaskSuiteDerivationBindingRead)
+    assert isinstance(result.binding, TaskSuiteDerivationBindingViewV1)
+    assert result.catalog_version == catalog.catalog_version
+    assert result.binding.derivation_profile.version == 2
+    assert result.binding.target_environment_profile.profile_id == "builtin.environment"
+    assert result.binding.completion_oracle_registry_ref.registry_version == 1
+    assert result.binding.max_scenarios == 1024
+    assert result.binding.max_total_prepared_artifact_bytes == 256 * 1024 * 1024
+
+
+def test_task_suite_derivation_binding_reuses_exact_execution_profile_rbac() -> None:
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(_builtin_profile_catalog()),
+        authorization=_ScopeAuthorization({"content"}),
+    )
+
+    with pytest.raises(Forbidden):
+        service.get_task_suite_derivation_binding(
+            _principal(),
+            profile_id="builtin.task_suite_derivation",
+            version=2,
+        )
+
+
+def test_task_suite_derivation_binding_rejects_non_active_target_environment() -> None:
+    catalog = _builtin_profile_catalog()
+    replay_only_environment = catalog.model_copy(
+        update={
+            "lifecycle": tuple(
+                item.model_copy(update={"state": "replay_only"})
+                if item.profile.profile_id == "builtin.environment"
+                else item
+                for item in catalog.lifecycle
+            )
+        }
+    )
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(replay_only_environment),
+    )
+
+    with pytest.raises(Conflict, match="target environment.*active"):
+        service.get_task_suite_derivation_binding(
+            _principal(),
+            profile_id="builtin.task_suite_derivation",
+            version=2,
+        )
+
+
+def test_constraint_validation_compiler_binding_reads_exact_active_authority() -> None:
+    catalog = _builtin_profile_catalog()
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(catalog),
+    )
+
+    result = service.get_constraint_validation_compiler_binding(
+        _principal(),
+        profile_id="builtin.constraint_compiler",
+        version=1,
+    )
+
+    assert isinstance(result, ConstraintValidationCompilerBindingRead)
+    assert isinstance(result.binding, ConstraintValidationCompilerBindingViewV1)
+    assert result.catalog_version == catalog.catalog_version
+    assert result.binding.compiler_profile.profile_id == "builtin.constraint_compiler"
+    assert tuple(item.engine_id for item in result.binding.differential_engines) == (
+        "clingo",
+        "graph-reference",
+        "numeric-reference",
+        "z3",
+    )
+
+
+@pytest.mark.parametrize(
+    "update",
+    [
+        {"config_schema_id": "constraint_compiler-profile-config@999"},
+        {"compatible_run_kinds": (RunKindRef(kind="checker.run", version=1),)},
+        {"input_schema_ids": ("checker-run@1",)},
+        {"output_schema_ids": ("checker-report@1",)},
+        {"stochastic": True},
+        {"required_capabilities": ("reasoning",)},
+    ],
+    ids=(
+        "config-schema",
+        "compatible-run-kinds",
+        "input-schemas",
+        "output-schemas",
+        "stochastic",
+        "required-capabilities",
+    ),
+)
+def test_constraint_validation_compiler_binding_rejects_worker_adapter_drift(
+    update: dict[str, object],
+) -> None:
+    catalog = _builtin_profile_catalog()
+    mutated = catalog.model_copy(
+        update={
+            "definitions": tuple(
+                item.model_copy(update=update)
+                if item.profile.profile_id == "builtin.constraint_compiler"
+                else item
+                for item in catalog.definitions
+            )
+        }
+    )
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(mutated),
+    )
+
+    with pytest.raises(Conflict, match="adapter contract"):
+        service.get_constraint_validation_compiler_binding(
+            _principal(),
+            profile_id="builtin.constraint_compiler",
+            version=1,
+        )
+
+
+def test_constraint_validation_compiler_binding_has_typed_missing_kind_and_dependency_errors() -> (
+    None
+):
+    missing_service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+    )
+    with pytest.raises(DependencyUnavailable) as unavailable:
+        missing_service.get_constraint_validation_compiler_binding(
+            _principal(),
+            profile_id="builtin.constraint_compiler",
+            version=1,
+        )
+    assert unavailable.value.context["component"] == "execution_profile_catalog"
+
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(_builtin_profile_catalog()),
+    )
+    with pytest.raises(NotFound):
+        service.get_constraint_validation_compiler_binding(
+            _principal(),
+            profile_id="missing.compiler",
+            version=1,
+        )
+    with pytest.raises(Conflict, match="constraint_compiler"):
+        service.get_constraint_validation_compiler_binding(
+            _principal(),
+            profile_id="builtin.validation",
+            version=1,
+        )
+
+
+def test_constraint_validation_compiler_binding_router_etag_covers_complete_binding() -> None:
+    catalog = _builtin_profile_catalog()
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(catalog),
+    )
+    app = FastAPI()
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:compiler-binding",
+    )
+
+    with TestClient(app) as client:
+        response = client.get(
+            "/api/v1/execution-profiles/builtin.constraint_compiler/versions/1/"
+            "constraint-validation-binding"
+        )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    digest = canonical_sha256(
+        {
+            "etag_schema_version": "constraint-validation-compiler-binding-etag@1",
+            "binding": body,
+        }
+    )
+    assert response.headers["etag"] == f'"{digest}"'
+    assert response.headers["x-resource-revision"] == str(catalog.catalog_version)
+    assert response.headers["cache-control"] == "private, no-cache"
+
+
+def _compiler_binding_http_response(catalog, profile_id: str):
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(catalog),
+    )
+    app = FastAPI()
+    install_error_handlers(app)
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:compiler-binding-error",
+    )
+    with TestClient(app) as client:
+        return client.get(
+            f"/api/v1/execution-profiles/{profile_id}/versions/1/constraint-validation-binding"
+        )
+
+
+def test_constraint_validation_compiler_binding_maps_exact_read_failures() -> None:
+    catalog = _builtin_profile_catalog()
+
+    missing = _compiler_binding_http_response(catalog, "missing.compiler")
+    wrong_kind = _compiler_binding_http_response(catalog, "builtin.validation")
+    unavailable = _compiler_binding_http_response(None, "builtin.constraint_compiler")
+
+    inactive_catalog = catalog.model_copy(
+        update={
+            "lifecycle": tuple(
+                item.model_copy(update={"state": "disabled"})
+                if item.profile.profile_id == "builtin.constraint_compiler"
+                else item
+                for item in catalog.lifecycle
+            )
+        }
+    )
+    inactive = _compiler_binding_http_response(
+        inactive_catalog,
+        "builtin.constraint_compiler",
+    )
+
+    without_compiler_lifecycle = catalog.model_copy(
+        update={
+            "lifecycle": tuple(
+                item
+                for item in catalog.lifecycle
+                if item.profile.profile_id != "builtin.constraint_compiler"
+            )
+        }
+    )
+    corrupt = _compiler_binding_http_response(
+        without_compiler_lifecycle,
+        "builtin.constraint_compiler",
+    )
+
+    assert (missing.status_code, Problem.model_validate(missing.json()).code) == (
+        404,
+        "not_found",
+    )
+    assert (wrong_kind.status_code, Problem.model_validate(wrong_kind.json()).code) == (
+        409,
+        "revision_conflict",
+    )
+    assert (inactive.status_code, Problem.model_validate(inactive.json()).code) == (
+        409,
+        "revision_conflict",
+    )
+    assert (unavailable.status_code, Problem.model_validate(unavailable.json()).code) == (
+        503,
+        "dependency_unavailable",
+    )
+    assert (corrupt.status_code, Problem.model_validate(corrupt.json()).code) == (
+        500,
+        "integrity_violation",
+    )
+
+
+def test_task_suite_derivation_binding_router_etag_covers_complete_binding() -> None:
+    catalog = _builtin_profile_catalog()
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(catalog),
+    )
+    app = FastAPI()
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:task-suite-binding",
+    )
+
+    with TestClient(app) as client:
+        response = client.get(
+            "/api/v1/execution-profiles/builtin.task_suite_derivation/versions/2/"
+            "task-suite-derivation-binding"
+        )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    digest = canonical_sha256(
+        {
+            "etag_schema_version": "task-suite-derivation-binding-etag@1",
+            "binding": body,
+        }
+    )
+    assert response.headers["etag"] == f'"{digest}"'
+    assert response.headers["x-resource-revision"] == str(catalog.catalog_version)
+    assert response.headers["cache-control"] == "private, no-cache"
+
+
+def _task_suite_binding_http_response(catalog, profile_id: str, version: int = 2):
+    service, *_ = _service(
+        artifacts=(),
+        verified={},
+        bindings={},
+        specs={},
+        execution_profiles=_Catalog(catalog),
+    )
+    app = FastAPI()
+    install_error_handlers(app)
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:task-suite-binding-error",
+    )
+    with TestClient(app) as client:
+        return client.get(
+            f"/api/v1/execution-profiles/{profile_id}/versions/{version}/"
+            "task-suite-derivation-binding"
+        )
+
+
+def test_task_suite_derivation_binding_maps_exact_read_failures() -> None:
+    catalog = _builtin_profile_catalog()
+    missing = _task_suite_binding_http_response(catalog, "missing.derivation")
+    wrong_kind = _task_suite_binding_http_response(catalog, "builtin.environment", 1)
+    unavailable = _task_suite_binding_http_response(
+        None,
+        "builtin.task_suite_derivation",
+    )
+    replay_only_catalog = catalog.model_copy(
+        update={
+            "lifecycle": tuple(
+                item.model_copy(update={"state": "replay_only"})
+                if item.profile.profile_id == "builtin.task_suite_derivation"
+                and item.profile.version == 2
+                else item
+                for item in catalog.lifecycle
+            )
+        }
+    )
+    replay_only = _task_suite_binding_http_response(
+        replay_only_catalog,
+        "builtin.task_suite_derivation",
+    )
+    without_lifecycle = catalog.model_copy(
+        update={
+            "lifecycle": tuple(
+                item
+                for item in catalog.lifecycle
+                if not (
+                    item.profile.profile_id == "builtin.task_suite_derivation"
+                    and item.profile.version == 2
+                )
+            )
+        }
+    )
+    corrupt = _task_suite_binding_http_response(
+        without_lifecycle,
+        "builtin.task_suite_derivation",
+    )
+
+    assert (missing.status_code, Problem.model_validate(missing.json()).code) == (
+        404,
+        "not_found",
+    )
+    assert (wrong_kind.status_code, Problem.model_validate(wrong_kind.json()).code) == (
+        409,
+        "revision_conflict",
+    )
+    assert (replay_only.status_code, Problem.model_validate(replay_only.json()).code) == (
+        409,
+        "revision_conflict",
+    )
+    assert (unavailable.status_code, Problem.model_validate(unavailable.json()).code) == (
+        503,
+        "dependency_unavailable",
+    )
+    assert (corrupt.status_code, Problem.model_validate(corrupt.json()).code) == (
+        500,
+        "integrity_violation",
+    )
 
 
 def test_content_router_exports_every_frozen_content_read_path() -> None:
@@ -1034,8 +2286,10 @@ def test_content_router_exports_every_frozen_content_read_path() -> None:
         "/api/v1/patches/{artifact_id}",
         "/api/v1/rollback-requests",
         "/api/v1/rollback-requests/{artifact_id}",
+        "/api/v1/workflow-subjects/{artifact_id}/approval-binding",
         "/api/v1/reviews",
         "/api/v1/reviews/{artifact_id}",
+        "/api/v1/reviews/{artifact_id}/producer-binding",
         "/api/v1/task-suites",
         "/api/v1/task-suites/{artifact_id}",
         "/api/v1/playtest/{run_id}/result",
@@ -1044,6 +2298,8 @@ def test_content_router_exports_every_frozen_content_read_path() -> None:
         "/api/v1/bench/report",
         "/api/v1/execution-profiles",
         "/api/v1/execution-profiles/{profile_id}/versions/{version}",
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding",
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding",
     } <= paths
 
     profile_response = openapi["paths"][
@@ -1058,6 +2314,16 @@ def test_content_router_exports_every_frozen_content_read_path() -> None:
     page_schema = openapi["components"]["schemas"][page_schema_name]
     item_ref = page_schema["properties"]["items"]["items"]["$ref"]
     assert item_ref.endswith("/ExecutionProfileViewV1")
+
+    compiler_binding_response = openapi["paths"][
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding"
+    ]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+    assert compiler_binding_response["$ref"].endswith("/ConstraintValidationCompilerBindingViewV1")
+
+    task_suite_binding_response = openapi["paths"][
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding"
+    ]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+    assert task_suite_binding_response["$ref"].endswith("/TaskSuiteDerivationBindingViewV1")
 
 
 def test_content_router_maps_invalid_cross_field_profile_queries_to_typed_422() -> None:
@@ -1091,6 +2357,10 @@ def test_content_router_maps_invalid_cross_field_profile_queries_to_typed_422() 
             params={"run_kind": "checker.run", "run_kind_version": 0},
         ),
         client.get("/api/v1/execution-profiles/env:local/versions/0"),
+        client.get(
+            "/api/v1/execution-profiles/builtin.task_suite_derivation/versions/0/"
+            "task-suite-derivation-binding"
+        ),
     )
 
     for response in responses:

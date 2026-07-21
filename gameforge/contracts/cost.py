@@ -70,6 +70,19 @@ _DIMENSION_ORDER = {
     )
 }
 _SCOPE_ORDER = {"run": 0, "principal": 1, "system": 2}
+_RESERVATION_SCOPE_ORDER = {
+    "run_budget_hold": 0,
+    "attempt_call": 1,
+    "agent_step": 2,
+}
+_RESERVATION_STATUS_ORDER = {
+    "reserved": 0,
+    "reconciled": 1,
+    "held_unknown": 2,
+    "conservatively_settled": 3,
+    "late_reconciled": 4,
+    "released": 5,
+}
 _EXPECTED_UNITS: dict[str, str] = {
     "input_token": "token",
     "output_token": "token",
@@ -500,8 +513,67 @@ class CostUsageViewV1(_FrozenModel):
         return self
 
 
+class CostSettlementGroupCountV1(_FrozenModel):
+    """Safe aggregate count for one reservation scope/status pair."""
+
+    count_schema_version: Literal["cost-settlement-group-count@1"] = "cost-settlement-group-count@1"
+    scope: ReservationScope
+    status: ReservationStatus
+    group_count: PositiveInt
+
+
+class CostSettlementSummaryV1(_FrozenModel):
+    """Run-level settlement state without reservation or routing identities."""
+
+    summary_schema_version: Literal["cost-settlement-summary@1"] = "cost-settlement-summary@1"
+    group_counts: tuple[CostSettlementGroupCountV1, ...] = Field(
+        min_length=1,
+        max_length=len(_RESERVATION_SCOPE_ORDER) * len(_RESERVATION_STATUS_ORDER),
+    )
+    total_group_count: PositiveInt
+    held_unknown_group_count: NonNegativeInt
+    usage_entry_count: NonNegativeInt
+    usage_evidence_status: Literal["recorded", "not_recorded"]
+    late_adjustment_usage_count: NonNegativeInt
+
+    @field_validator("group_counts")
+    @classmethod
+    def _canonical_group_counts(
+        cls,
+        value: tuple[CostSettlementGroupCountV1, ...],
+    ) -> tuple[CostSettlementGroupCountV1, ...]:
+        keys = [(item.scope, item.status) for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("settlement group scope/status pairs must be unique")
+        return tuple(
+            sorted(
+                value,
+                key=lambda item: (
+                    _RESERVATION_SCOPE_ORDER[item.scope],
+                    _RESERVATION_STATUS_ORDER[item.status],
+                ),
+            )
+        )
+
+    @model_validator(mode="after")
+    def _closed_totals(self) -> CostSettlementSummaryV1:
+        if self.total_group_count != sum(item.group_count for item in self.group_counts):
+            raise ValueError("settlement total_group_count differs from group counts")
+        held_unknown = sum(
+            item.group_count for item in self.group_counts if item.status == "held_unknown"
+        )
+        if self.held_unknown_group_count != held_unknown:
+            raise ValueError("settlement held_unknown count differs from group counts")
+        expected_evidence_status = "recorded" if self.usage_entry_count else "not_recorded"
+        if self.usage_evidence_status != expected_evidence_status:
+            raise ValueError("settlement usage evidence status differs from entry count")
+        if self.late_adjustment_usage_count > self.usage_entry_count:
+            raise ValueError("late adjustment count exceeds usage entry count")
+        return self
+
+
 class RunCostViewV1(_FrozenModel):
-    """Bounded, cursor-paged public cost view for one authorized Run."""
+    """Legacy bounded cost view retained for exact wire compatibility."""
 
     view_schema_version: Literal["run-cost-view@1"] = "run-cost-view@1"
     run_id: NonEmptyStr
@@ -514,6 +586,30 @@ class RunCostViewV1(_FrozenModel):
         if self.budget_set.run_id != self.run_id:
             raise ValueError("cost view Run differs from its budget set")
         return self
+
+
+class RunCostViewV2(_FrozenModel):
+    """Bounded public cost view with complete Run settlement state."""
+
+    view_schema_version: Literal["run-cost-view@2"] = "run-cost-view@2"
+    run_id: NonEmptyStr
+    budget_set: BudgetSetSnapshotV1
+    settlement_summary: CostSettlementSummaryV1
+    usage: tuple[CostUsageViewV1, ...] = Field(max_length=MAX_COST_USAGE_PAGE_SIZE)
+    next_cursor: OpaqueCursor | None = None
+
+    @model_validator(mode="after")
+    def _run_binding(self) -> RunCostViewV2:
+        if self.budget_set.run_id != self.run_id:
+            raise ValueError("cost view Run differs from its budget set")
+        return self
+
+
+RunCostViewSchemaVersion = Literal["run-cost-view@1", "run-cost-view@2"]
+RunCostView = Annotated[
+    RunCostViewV1 | RunCostViewV2,
+    Field(discriminator="view_schema_version"),
+]
 
 
 class PermitGroupV1(_FrozenModel):
@@ -665,6 +761,8 @@ __all__ = [
     "CostAmountV1",
     "CostDimension",
     "CostLedger",
+    "CostSettlementGroupCountV1",
+    "CostSettlementSummaryV1",
     "CostUsageViewV1",
     "LatencyObservationV1",
     "MonetaryObservationV1",
@@ -674,7 +772,10 @@ __all__ = [
     "PriceQuoteV1",
     "PriceUnavailableV1",
     "ReservationGroupV1",
+    "RunCostView",
+    "RunCostViewSchemaVersion",
     "RunCostViewV1",
+    "RunCostViewV2",
     "TokenUsageObservationV1",
     "UsageEntryV1",
 ]

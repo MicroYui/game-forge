@@ -14,9 +14,13 @@ from pydantic import BaseModel, ValidationError
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.cost import (
     BudgetSetSnapshotV1,
+    CostSettlementSummaryV1,
     CostUsageViewV1,
     MAX_COST_USAGE_PAGE_SIZE,
+    RunCostView,
+    RunCostViewSchemaVersion,
     RunCostViewV1,
+    RunCostViewV2,
     UsageEntryV1,
 )
 from gameforge.contracts.errors import (
@@ -148,6 +152,7 @@ class RunCostReadPage:
     """Internal exact ledger page; the service projects only safe fields."""
 
     budget_set: BudgetSetSnapshotV1
+    settlement_summary: CostSettlementSummaryV1
     usage_entries: tuple[UsageEntryV1, ...]
     next_cursor: str | None
 
@@ -646,7 +651,8 @@ class _ObservabilityReadOperations:
         run_id: str,
         cursor: str | None,
         limit: int,
-    ) -> RunCostViewV1:
+        view_schema_version: RunCostViewSchemaVersion = "run-cost-view@2",
+    ) -> RunCostView:
         if not isinstance(run_id, str) or not 1 <= len(run_id) <= 512:
             raise RequestSchemaInvalid("run_id must be a non-empty bounded string")
         exact_limit = _bounded_limit(
@@ -655,10 +661,12 @@ class _ObservabilityReadOperations:
             label="cost usage",
         )
         exact_cursor = _bounded_cursor(cursor)
+        if view_schema_version not in {"run-cost-view@1", "run-cost-view@2"}:
+            raise RequestSchemaInvalid("unsupported run cost view schema version")
         query_hash = _query_hash(
             resource_kind="cost",
             filters={"run_id": run_id, "limit": exact_limit},
-            projection="run-cost-view@1",
+            projection=view_schema_version,
         )
         binding, _ = self._authorize_runs(
             principal=principal,
@@ -679,20 +687,27 @@ class _ObservabilityReadOperations:
             raise IntegrityViolation("cost adapter returned an invalid page")
         if type(page.budget_set) is not BudgetSetSnapshotV1:
             raise IntegrityViolation("cost adapter returned an invalid budget set")
+        if type(page.settlement_summary) is not CostSettlementSummaryV1:
+            raise IntegrityViolation("cost adapter returned an invalid settlement summary")
         if page.budget_set.run_id != run_id or len(page.usage_entries) > exact_limit:
             raise IntegrityViolation("cost page differs from its bounded Run query")
+        if page.settlement_summary.usage_entry_count < len(page.usage_entries):
+            raise IntegrityViolation("cost settlement summary omits retained usage entries")
         _validate_cursor(page.next_cursor)
         usage: list[CostUsageViewV1] = []
         for entry in page.usage_entries:
             if type(entry) is not UsageEntryV1 or entry.run_id != run_id:
                 raise IntegrityViolation("cost usage entry differs from its Run query")
             usage.append(_cost_usage_view(entry))
-        return RunCostViewV1(
-            run_id=run_id,
-            budget_set=page.budget_set,
-            usage=tuple(usage),
-            next_cursor=page.next_cursor,
-        )
+        common = {
+            "run_id": run_id,
+            "budget_set": page.budget_set,
+            "usage": tuple(usage),
+            "next_cursor": page.next_cursor,
+        }
+        if view_schema_version == "run-cost-view@1":
+            return RunCostViewV1(**common)
+        return RunCostViewV2(settlement_summary=page.settlement_summary, **common)
 
     def _trace(self, trace_id: str) -> TraceSummaryV1:
         if not isinstance(trace_id, str) or _TRACE_ID.fullmatch(trace_id) is None:
@@ -907,13 +922,15 @@ class ObservabilityReadService:
         run_id: str,
         cursor: str | None,
         limit: int,
-    ) -> RunCostViewV1:
+        view_schema_version: RunCostViewSchemaVersion = "run-cost-view@2",
+    ) -> RunCostView:
         with self._unit_of_work() as capabilities:
             return self._operations(capabilities).get_run_cost(
                 principal=principal,
                 run_id=run_id,
                 cursor=cursor,
                 limit=limit,
+                view_schema_version=view_schema_version,
             )
 
 

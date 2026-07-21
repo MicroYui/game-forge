@@ -429,6 +429,79 @@ def test_usage_is_append_only_idempotent_and_conflicting_identity_fails(engine: 
             transaction.cost.put_usage(changed)
 
 
+def test_run_settlement_summary_aggregates_safe_group_and_adjustment_counts(
+    engine: Engine,
+) -> None:
+    budget = _budget()
+    budget_set = _budget_set(budget)
+    hold, hold_reservation = _hold(budget)
+    call, call_reservation = _call(budget, hold)
+    call = call.model_copy(update={"status": "late_reconciled"})
+    call_reservation = call_reservation.model_copy(update={"status": "late_reconciled"})
+    unknown = ReservationGroupV1(
+        reservation_group_id="step-unknown-1",
+        scope="agent_step",
+        run_id=hold.run_id,
+        budget_set_snapshot_id=hold.budget_set_snapshot_id,
+        parent_hold_group_id=hold.reservation_group_id,
+        attempt_no=1,
+        request_hash="sha256:" + "2" * 64,
+        fencing_token=1,
+        idempotency_key="step-unknown-idempotency",
+        budget_reservation_ids=("reservation-step-unknown-1",),
+        status="held_unknown",
+        revision=2,
+        created_at=NOW,
+    )
+    unknown_reservation = BudgetReservationV1(
+        reservation_id="reservation-step-unknown-1",
+        reservation_group_id=unknown.reservation_group_id,
+        budget_id=budget.budget_id,
+        reserved=(_amount("input_token", 5),),
+        status="held_unknown",
+        revision=2,
+    )
+    catalog, policy, decision = _catalog_policy_decision()
+    original = _usage(
+        call,
+        call_reservation,
+        routing_decision_id=decision.decision_id,
+    )
+    adjustment = original.model_copy(
+        update={
+            "usage_id": "usage-adjustment-1",
+            "adjustment_of_usage_id": original.usage_id,
+            "recorded_at": NOW + timedelta(microseconds=1),
+        }
+    )
+
+    with SqliteUnitOfWork(engine, _capabilities).begin() as transaction:
+        transaction.cost.put_budget(budget)
+        transaction.cost.put_budget_set(budget_set)
+        transaction.cost.put_reservation_group(hold, (hold_reservation,))
+        transaction.cost.put_reservation_group(call, (call_reservation,))
+        transaction.cost.put_reservation_group(unknown, (unknown_reservation,))
+        transaction.cost.put_model_catalog(catalog)
+        transaction.cost.put_routing_policy(policy)
+        transaction.cost.put_routing_decision(decision)
+        transaction.cost.put_usage(original)
+        transaction.cost.put_usage(adjustment)
+
+    with Session(engine) as session:
+        summary = SqlCostRepository(session).summarize_run_settlement(run_id="run-1")
+
+    assert [(item.scope, item.status, item.group_count) for item in summary.group_counts] == [
+        ("run_budget_hold", "reserved", 1),
+        ("attempt_call", "late_reconciled", 1),
+        ("agent_step", "held_unknown", 1),
+    ]
+    assert summary.total_group_count == 3
+    assert summary.held_unknown_group_count == 1
+    assert summary.usage_entry_count == 2
+    assert summary.usage_evidence_status == "recorded"
+    assert summary.late_adjustment_usage_count == 1
+
+
 def test_usage_rejects_an_unresolved_routing_variant(engine: Engine) -> None:
     budget = _budget()
     budget_set = _budget_set(budget)

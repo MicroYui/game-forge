@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -45,7 +46,11 @@ from gameforge.bench.qa.score import (
     validate_qa_evidence,
     write_evidence as write_qa_evidence,
 )
-from gameforge.bench.qa.session import load_state, transition_session
+from gameforge.bench.qa.session import (
+    frozen_submission_root,
+    load_state,
+    transition_session,
+)
 from gameforge.contracts.canonical import canonical_json
 
 _ROOT = Path("scenarios/external_cases/endless_sky")
@@ -56,14 +61,16 @@ _NATIVE_SOURCE = _ROOT / "native/endless_sky_data_parser.cpp"
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _frozen_inputs() -> tuple[
+def _frozen_inputs(
+    protocol_path: str | Path = _PROTOCOL_PATH,
+) -> tuple[
     ExternalCorpusManifest,
     HedEvidenceManifest,
     QaProtocol,
 ]:
     external = load_manifest(_EXTERNAL_PATH)
     hed = load_evidence(_HED_PATH)
-    protocol = load_protocol(_PROTOCOL_PATH)
+    protocol = load_protocol(protocol_path)
     assert_qa_protocol_ready(protocol, external, hed)
     return external, hed, protocol
 
@@ -83,8 +90,9 @@ def materialize_case(
     assisted: HedCaseOutcome | None,
     external: ExternalCorpusManifest | None = None,
     protocol: QaProtocol | None = None,
+    protocol_path: str | Path = _PROTOCOL_PATH,
 ) -> Path:
-    active_external, active_hed, active_protocol = _frozen_inputs()
+    active_external, active_hed, active_protocol = _frozen_inputs(protocol_path)
     external = external or active_external
     protocol = protocol or active_protocol
     if protocol != active_protocol or external != active_external:
@@ -101,9 +109,7 @@ def materialize_case(
         assistance = {
             "finding": assisted.target_finding.model_dump(mode="json"),
             "agent_patch": (
-                assisted.patch.model_dump(mode="json")
-                if assisted.patch is not None
-                else None
+                assisted.patch.model_dump(mode="json") if assisted.patch is not None else None
             ),
             "passed_verification": assisted.passed_verification,
             "disposition": assisted.disposition,
@@ -160,9 +166,43 @@ def _workspace_root(value: str | Path) -> Path:
     return workspace
 
 
-def next_session(workspace: str | Path) -> Path:
-    root = _workspace_root(workspace)
-    external, hed, protocol = _frozen_inputs()
+def _bound_workspace(value: str | Path, protocol: QaProtocol) -> Path:
+    workspace = _workspace_root(value)
+    marker = workspace / ".qa-workspace.json"
+    expected = (
+        canonical_json(
+            {
+                "schema_version": "qa-workspace@1",
+                "participant_id": protocol.participant_id,
+                "protocol_sha256": protocol.protocol_sha256,
+            }
+        )
+        + "\n"
+    ).encode("utf-8")
+    if marker.is_file():
+        if marker.read_bytes() != expected:
+            raise ValueError("QA workspace protocol marker is not canonical or does not match")
+        unexpected = {
+            path.name for path in workspace.iterdir() if path.name not in {marker.name, "sessions"}
+        }
+        if unexpected:
+            raise ValueError("QA workspace contains files outside its bound protocol")
+        return workspace
+    if any(workspace.iterdir()):
+        raise ValueError("nonempty QA workspace is not bound to a frozen protocol")
+    temporary = marker.with_suffix(".tmp")
+    temporary.write_bytes(expected)
+    os.replace(temporary, marker)
+    return workspace
+
+
+def next_session(
+    workspace: str | Path,
+    *,
+    protocol_path: str | Path = _PROTOCOL_PATH,
+) -> Path:
+    external, hed, protocol = _frozen_inputs(protocol_path)
+    root = _bound_workspace(workspace, protocol)
     sessions_root = root / "sessions"
     sessions_root.mkdir(exist_ok=True)
     outcomes = {item.case_id: item for item in hed.outcomes}
@@ -180,13 +220,19 @@ def next_session(workspace: str | Path) -> Path:
             assisted=assisted,
             external=external,
             protocol=protocol,
+            protocol_path=protocol_path,
         )
     raise ValueError("all frozen QA sessions are finished")
 
 
-def _session_bundle(workspace: str | Path, session_id: str):
-    root = _workspace_root(workspace)
-    external, _, protocol = _frozen_inputs()
+def _session_bundle(
+    workspace: str | Path,
+    session_id: str,
+    *,
+    protocol_path: str | Path = _PROTOCOL_PATH,
+):
+    external, _, protocol = _frozen_inputs(protocol_path)
+    root = _bound_workspace(workspace, protocol)
     matches = [item for item in protocol.sessions if item.session_id == session_id]
     if len(matches) != 1:
         raise ValueError(f"unknown QA session ID: {session_id}")
@@ -196,8 +242,13 @@ def _session_bundle(workspace: str | Path, session_id: str):
     return external, protocol, matches[0], bundle
 
 
-def _status(workspace: str | Path) -> dict[str, object]:
-    root = _workspace_root(workspace)
+def _status(
+    workspace: str | Path,
+    *,
+    protocol_path: str | Path = _PROTOCOL_PATH,
+) -> dict[str, object]:
+    _, _, protocol = _frozen_inputs(protocol_path)
+    root = _bound_workspace(workspace, protocol)
     sessions_root = root / "sessions"
     rows: list[dict[str, object]] = []
     if sessions_root.exists():
@@ -242,13 +293,27 @@ def _validate_workspace_session(
     patch = patch_path.read_bytes()
     if hashlib.sha256(patch).hexdigest() != session.final_patch_sha256:
         raise ValueError(f"QA final patch hash mismatch for {spec.session_id}")
+    state = load_state(bundle)
+    if (
+        state.status != "finished"
+        or state.protocol_sha256 != protocol.protocol_sha256
+        or state.session_id != spec.session_id
+        or state.pair_id != spec.pair_id
+        or state.arm != spec.arm
+        or state.order != spec.order
+        or state.events != session.events
+        or state.participant_attested_no_contamination
+        != session.participant_attested_no_contamination
+    ):
+        raise ValueError(f"QA frozen session state mismatch for {spec.session_id}")
+    submission_root = frozen_submission_root(bundle, state)
     rebuilt_patch, verdict = evaluate_submission(
         spec.case_id,
-        bundle / "work",
+        submission_root,
         external=external,
     )
     if rebuilt_patch != patch:
-        raise ValueError(f"QA final patch does not match work tree for {spec.session_id}")
+        raise ValueError(f"QA final patch does not match frozen submission for {spec.session_id}")
     if content_sha256(verdict) != content_sha256(session.verdict):
         raise ValueError(f"QA correctness verdict mismatch for {spec.session_id}")
     return session, patch
@@ -257,9 +322,11 @@ def _validate_workspace_session(
 def import_workspace_evidence(
     workspace: str | Path,
     output: str | Path,
+    *,
+    protocol_path: str | Path = _PROTOCOL_PATH,
 ) -> QaEvidenceManifest:
-    root = _workspace_root(workspace)
-    external, _, protocol = _frozen_inputs()
+    external, _, protocol = _frozen_inputs(protocol_path)
+    root = _bound_workspace(workspace, protocol)
     sessions_root = root / "sessions"
     validated = []
     for spec in protocol.sessions:
@@ -282,9 +349,7 @@ def import_workspace_evidence(
     session_output.mkdir(parents=True)
     patch_output.mkdir()
     for spec, session, patch in validated:
-        (session_output / f"{spec.session_id}.json").write_bytes(
-            canonical_session_bytes(session)
-        )
+        (session_output / f"{spec.session_id}.json").write_bytes(canonical_session_bytes(session))
         (patch_output / f"{spec.session_id}.patch").write_bytes(patch)
     evidence = seal_qa_evidence(
         protocol,
@@ -318,16 +383,17 @@ def _reconstruct_submission(
             if completed.returncode != 0:
                 detail = completed.stderr.decode("utf-8", errors="replace")
                 raise ValueError(f"QA final patch cannot be replayed: {detail}")
-        return {
-            relative: (root / relative).read_bytes()
-            for relative in runtime.spec.changed_paths
-        }
+        return {relative: (root / relative).read_bytes() for relative in runtime.spec.changed_paths}
 
 
-def validate_imported_evidence(path: str | Path) -> QaEvidenceManifest:
+def validate_imported_evidence(
+    path: str | Path,
+    *,
+    protocol_path: str | Path = _PROTOCOL_PATH,
+) -> QaEvidenceManifest:
     evidence_path = Path(path)
     artifact_root = evidence_path.parent
-    external, _, protocol = _frozen_inputs()
+    external, _, protocol = _frozen_inputs(protocol_path)
     evidence = load_qa_evidence(evidence_path)
     validate_qa_evidence(evidence, protocol, artifact_root)
     sessions_by_id = {item.session_id: item for item in evidence.sessions}
@@ -363,23 +429,32 @@ def _main() -> None:
     for command in ("next", "status"):
         child = subparsers.add_parser(command)
         child.add_argument("--workspace", type=Path, required=True)
+        child.add_argument("--protocol", type=Path, default=_PROTOCOL_PATH)
     for command in ("start", "pause", "resume"):
         child = subparsers.add_parser(command)
         child.add_argument("--workspace", type=Path, required=True)
         child.add_argument("--session", required=True)
+        child.add_argument("--protocol", type=Path, default=_PROTOCOL_PATH)
     finish = subparsers.add_parser("finish")
     finish.add_argument("--workspace", type=Path, required=True)
     finish.add_argument("--session", required=True)
+    finish.add_argument("--protocol", type=Path, default=_PROTOCOL_PATH)
     finish.add_argument("--attest-no-contamination", action="store_true")
     importer = subparsers.add_parser("import-evidence")
     importer.add_argument("--workspace", type=Path, required=True)
     importer.add_argument("--output", type=Path, required=True)
+    importer.add_argument("--protocol", type=Path, default=_PROTOCOL_PATH)
     validator = subparsers.add_parser("validate-evidence")
     validator.add_argument("evidence", type=Path)
+    validator.add_argument("--protocol", type=Path, default=_PROTOCOL_PATH)
+    server = subparsers.add_parser("serve")
+    server.add_argument("--workspace", type=Path, required=True)
+    server.add_argument("--protocol", type=Path, default=_PROTOCOL_PATH)
+    server.add_argument("--port", type=int, default=4187)
     args = parser.parse_args()
 
     if args.command == "next":
-        bundle = next_session(args.workspace)
+        bundle = next_session(args.workspace, protocol_path=args.protocol)
         state = load_state(bundle)
         print(
             canonical_json(
@@ -393,20 +468,42 @@ def _main() -> None:
         )
         return
     if args.command == "status":
-        print(canonical_json(_status(args.workspace)))
+        print(canonical_json(_status(args.workspace, protocol_path=args.protocol)))
         return
     if args.command == "import-evidence":
-        evidence = import_workspace_evidence(args.workspace, args.output)
+        evidence = import_workspace_evidence(
+            args.workspace,
+            args.output,
+            protocol_path=args.protocol,
+        )
         print(evidence.evidence_sha256)
         return
     if args.command == "validate-evidence":
-        evidence = validate_imported_evidence(args.evidence)
+        evidence = validate_imported_evidence(
+            args.evidence,
+            protocol_path=args.protocol,
+        )
         print(evidence.evidence_sha256)
+        return
+    if args.command == "serve":
+        import uvicorn
+
+        from gameforge.bench.external_cases.endless_sky_qa_runner import (
+            create_runner_app,
+        )
+
+        uvicorn.run(
+            create_runner_app(args.workspace, protocol_path=args.protocol),
+            host="127.0.0.1",
+            port=args.port,
+            log_level="warning",
+        )
         return
 
     external, protocol, session, bundle = _session_bundle(
         args.workspace,
         args.session,
+        protocol_path=args.protocol,
     )
     if args.command in {"start", "pause", "resume"}:
         state = transition_session(bundle, args.command)

@@ -52,6 +52,7 @@ class RequestContextMiddleware:
             request_id = "request:unavailable"
         state = _state(scope)
         state["request_id"] = request_id
+        metric_recorded = False
 
         with self._dependencies.tracer.span(
             "http.request",
@@ -65,6 +66,7 @@ class RequestContextMiddleware:
             state["trace_id"] = trace_id
 
             async def send_with_context(message: Message) -> None:
+                nonlocal metric_recorded
                 if message["type"] == "http.response.start":
                     raw_status = message.get("status")
                     response_status = (
@@ -83,6 +85,17 @@ class RequestContextMiddleware:
                     headers["X-Request-ID"] = request_id
                     if trace_id is not None:
                         headers["X-Trace-ID"] = trace_id
+                    if not metric_recorded and self._dependencies.operational_metrics is not None:
+                        metric_recorded = True
+                        try:
+                            self._dependencies.operational_metrics.record_api_request(
+                                method=str(scope.get("method", "")),
+                                status_code=response_status,
+                            )
+                        except Exception:
+                            # Metric export is best-effort and cannot alter the
+                            # already-selected authoritative HTTP result.
+                            pass
                 await send(message)
 
             await self._app(scope, receive, send_with_context)

@@ -40,9 +40,7 @@ def test_measured_report_views_are_exact_projections_of_one_v2_model():
 def test_measured_report_has_complete_sections_and_truthful_model_versions():
     report = load_bench_report(_REPORT)
 
-    classes = {
-        item.defect_class for item in (*report.seeded, *report.narrative.bdr)
-    }
+    classes = {item.defect_class for item in (*report.seeded, *report.narrative.bdr)}
     assert classes == set(DefectClass)
     assert report.meta.corpus_size >= 500
     assert report.narrative.model_snapshot.model == "gpt-5.6-sol"
@@ -57,7 +55,7 @@ def test_measured_report_has_complete_sections_and_truthful_model_versions():
     assert len(report.hed.dispositions) == 4
 
 
-def test_current_real_bundle_fails_only_the_explicit_qa_gate():
+def test_current_real_bundle_passes_with_the_accepted_qa_evidence():
     report = load_bench_report(_REPORT)
     evidence = load_m3_evidence_bundle(
         report,
@@ -67,8 +65,12 @@ def test_current_real_bundle_fails_only_the_explicit_qa_gate():
 
     failures = validate_m3_acceptance(report, evidence)
 
-    assert not _QA.exists()
-    assert [item.code for item in failures] == ["qa.evidence_missing"]
+    assert _QA.is_file()
+    assert failures == ()
+    assert report.qa.evidence_ref == "qa"
+    assert report.qa.time_scoring == "incorrect_uses_active_cap"
+    assert report.qa.conclusion == "savings"
+    assert report.qa.paired_saved_minutes.evaluated_n == 4
 
 
 def test_report_cli_revalidates_existing_views_without_rebuilding():

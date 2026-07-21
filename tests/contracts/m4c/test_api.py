@@ -4,6 +4,7 @@ from pydantic import ValidationError
 import pytest
 
 from gameforge.contracts.api import (
+    ApprovalDecisionEligibilityV1,
     ApprovalDecisionRequestV1,
     ApprovalRequirementProgressV1,
     ApprovalViewV1,
@@ -31,6 +32,7 @@ from gameforge.contracts.api import (
     SessionPolicyV1,
     SessionRecordV1,
     SessionToken,
+    SubjectApprovalBindingViewV1,
     compute_login_name_normalization_policy_digest,
     encode_sse_event,
 )
@@ -406,11 +408,34 @@ def test_approval_transport_projection_is_canonical_and_count_bound() -> None:
         valid_approval_count=1,
         satisfied=False,
         eligible_for_current_actor=True,
+        decision_eligibility=(
+            ApprovalDecisionEligibilityV1(
+                decision="request_changes",
+                eligible=True,
+                reason_codes=(),
+            ),
+            ApprovalDecisionEligibilityV1(
+                decision="approve",
+                eligible=False,
+                reason_codes=("distinct_requirement_conflict",),
+            ),
+            ApprovalDecisionEligibilityV1(
+                decision="reject",
+                eligible=True,
+                reason_codes=(),
+            ),
+        ),
         unmet_distinct_from_requirement_ids=("content",),
     )
 
     assert request.requirement_ids == ("content", "numeric")
     assert progress.satisfied is False
+    assert [value.decision for value in progress.decision_eligibility] == [
+        "approve",
+        "reject",
+        "request_changes",
+    ]
+    assert progress.eligible_for_current_actor is True
     with pytest.raises(ValidationError, match="satisfied"):
         ApprovalRequirementProgressV1(
             **{
@@ -422,6 +447,85 @@ def test_approval_transport_projection_is_canonical_and_count_bound() -> None:
     schema = ApprovalViewV1.model_json_schema()["properties"]
     assert schema["requirement_progress"]["maxItems"] == 1024
     assert schema["current_actor_allowed_requirement_ids"]["maxItems"] == 1024
+
+
+def test_approval_action_eligibility_requires_all_three_actions_and_exact_aggregate() -> None:
+    base = {
+        "requirement_id": "numeric",
+        "domain_scope": DomainScope(domain_ids=("economy",)),
+        "route_role": "numeric_designer",
+        "min_approvals": 1,
+        "valid_approval_count": 1,
+        "satisfied": True,
+        "eligible_for_current_actor": True,
+        "unmet_distinct_from_requirement_ids": (),
+    }
+    approve = ApprovalDecisionEligibilityV1(
+        decision="approve",
+        eligible=False,
+        reason_codes=("requirement_already_satisfied",),
+    )
+    reject = ApprovalDecisionEligibilityV1(
+        decision="reject",
+        eligible=True,
+        reason_codes=(),
+    )
+    request_changes = ApprovalDecisionEligibilityV1(
+        decision="request_changes",
+        eligible=True,
+        reason_codes=(),
+    )
+
+    value = ApprovalRequirementProgressV1(
+        **base,
+        decision_eligibility=(request_changes, approve, reject),
+    )
+    assert value.decision_eligibility == (approve, reject, request_changes)
+
+    with pytest.raises(ValidationError, match="at least 3"):
+        ApprovalRequirementProgressV1(
+            **base,
+            decision_eligibility=(approve, reject),
+        )
+    with pytest.raises(ValidationError, match="aggregate"):
+        ApprovalRequirementProgressV1(
+            **{**base, "eligible_for_current_actor": False},
+            decision_eligibility=(approve, reject, request_changes),
+        )
+    with pytest.raises(ValidationError, match="reason_codes"):
+        ApprovalDecisionEligibilityV1(
+            decision="approve",
+            eligible=True,
+            reason_codes=("permission_denied",),
+        )
+
+
+def test_subject_approval_binding_contract_has_only_the_frozen_fields() -> None:
+    value = SubjectApprovalBindingViewV1(
+        subject_artifact_id="artifact:patch:1",
+        subject_digest="a" * 64,
+        subject_kind="patch",
+        subject_series_id="series:patch",
+        subject_revision=1,
+        subject_head_revision=2,
+        is_current_head=False,
+        approval_id="approval:patch:1",
+        workflow_revision=7,
+        approval_status="superseded",
+    )
+
+    assert set(value.model_dump(mode="json")) == {
+        "subject_artifact_id",
+        "subject_digest",
+        "subject_kind",
+        "subject_series_id",
+        "subject_revision",
+        "subject_head_revision",
+        "is_current_head",
+        "approval_id",
+        "workflow_revision",
+        "approval_status",
+    }
 
 
 def test_sse_wire_is_canonical_and_contains_no_worker_lease_data() -> None:

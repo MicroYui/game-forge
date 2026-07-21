@@ -473,6 +473,11 @@ class RunRegistryGateway(Protocol):
         agent_graph_version: str,
     ) -> AgentExecutionGraphV1 | None: ...
 
+    def list_agent_execution_graphs_for_run_kind(
+        self,
+        run_kind: RunKindRef,
+    ) -> tuple[AgentExecutionGraphV1, ...]: ...
+
     def get_profile_requirements(
         self,
         kind: RunKindRef,

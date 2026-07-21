@@ -1,30 +1,73 @@
-const MILESTONES: { id: string; theme: string; status: string }[] = [
-  { id: "M0a", theme: "Shortest vertical slice (config → IR → Aureus 3-step chain)", status: "in progress" },
-  { id: "M0b", theme: "Aureus combat/economy + Schema Registry round-trip + version/lineage", status: "planned" },
-  { id: "M1", theme: "Graph/ASP/SMT checkers + DSL compile + economy sim", status: "planned" },
-  { id: "M2", theme: "Bounded LLM agents + Playtest Agent + regression (cassette)", status: "planned" },
-  { id: "M3", theme: "GameForge-Bench + full metrics + Eval panel", status: "planned" },
-  { id: "M4", theme: "Production hardening: observability, lineage, RBAC, full pages", status: "planned" },
-];
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+
+import { AppShell, LoginPage, NotFoundPage, RequireAuth, RunDetailRoute } from "./app/router";
+import { ApprovalDetailRoute, ApprovalsRoute } from "./features/approvals";
+import { ArtifactDetailRoute, ArtifactLineageRoute } from "./features/artifacts";
+import { EvalRoute } from "./features/eval";
+import { GenerationRoute } from "./features/generation";
+import { ObservabilityRoute, TraceDetailRoute } from "./features/observability";
+import {
+  PatchDetailRoute,
+  PatchWorkspaceRoute,
+  RefHistoryRoute,
+  RollbackDetailRoute,
+} from "./features/patches";
+import { PlaytestRoute } from "./features/playtest";
+import { FindingDetailRoute, ReviewDetailRoute, ReviewWorkspaceRoute } from "./features/review";
+import {
+  ConstraintProposalRoute,
+  ConstraintSnapshotRoute,
+  SpecDetailRoute,
+  SpecWorkspaceRoute,
+} from "./features/specs";
+const VisualFoundationPage = import.meta.env.DEV
+  ? lazy(() =>
+      import("./features/visual-foundation").then((module) => ({ default: module.VisualFoundationPage })),
+    )
+  : null;
 
 export default function App() {
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", maxWidth: 780, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ marginBottom: 4 }}>GameForge Console</h1>
-      <p style={{ color: "#555", marginTop: 0 }}>
-        Correctness compiler + agent workbench for game content — scaffold (M0a).
-      </p>
-      <h2 style={{ fontSize: 16 }}>Milestone map</h2>
-      <ul style={{ lineHeight: 1.6 }}>
-        {MILESTONES.map((m) => (
-          <li key={m.id}>
-            <strong>{m.id}</strong> — {m.theme} <em style={{ color: "#888" }}>({m.status})</em>
-          </li>
-        ))}
-      </ul>
-      <p style={{ color: "#888", fontSize: 13 }}>
-        Pages (Spec/KG, Generation, Review, Playtest, Patch, Eval, Observability, Approvals) land in M4.
-      </p>
-    </main>
+    <Routes>
+      <Route element={<LoginPage />} path="/login" />
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route element={<Navigate replace to="/specs" />} index />
+          <Route element={<SpecWorkspaceRoute />} path="/specs" />
+          <Route element={<SpecDetailRoute />} path="/specs/:artifactId" />
+          <Route element={<ConstraintSnapshotRoute />} path="/constraints/:artifactId" />
+          <Route element={<ConstraintProposalRoute />} path="/constraint-proposals/:artifactId" />
+          <Route element={<GenerationRoute />} path="/generation" />
+          <Route element={<ReviewWorkspaceRoute />} path="/reviews" />
+          <Route element={<ReviewDetailRoute />} path="/reviews/:artifactId" />
+          <Route element={<PlaytestRoute />} path="/playtest" />
+          <Route element={<PatchWorkspaceRoute />} path="/patches" />
+          <Route element={<EvalRoute />} path="/eval" />
+          <Route element={<ObservabilityRoute />} path="/observability" />
+          <Route element={<ApprovalsRoute />} path="/approvals" />
+          <Route element={<RunDetailRoute />} path="/runs/:runId" />
+          <Route element={<FindingDetailRoute />} path="/findings/:findingId/revisions/:revision" />
+          <Route element={<PatchDetailRoute />} path="/patches/:patchId" />
+          <Route element={<RollbackDetailRoute />} path="/rollback-requests/:artifactId" />
+          <Route element={<ApprovalDetailRoute />} path="/approvals/:approvalId" />
+          <Route element={<ArtifactDetailRoute />} path="/artifacts/:artifactId" />
+          <Route element={<ArtifactLineageRoute />} path="/artifacts/:artifactId/lineage" />
+          <Route element={<RefHistoryRoute />} path="/refs/:refName/history" />
+          <Route element={<TraceDetailRoute />} path="/observability/traces/:traceId" />
+          {VisualFoundationPage !== null && (
+            <Route
+              element={
+                <Suspense fallback={<p className="gf-page">正在载入视觉评审…</p>}>
+                  <VisualFoundationPage />
+                </Suspense>
+              }
+              path="/__visual__/foundation"
+            />
+          )}
+          <Route element={<NotFoundPage />} path="*" />
+        </Route>
+      </Route>
+    </Routes>
   );
 }

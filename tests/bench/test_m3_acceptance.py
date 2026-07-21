@@ -34,7 +34,10 @@ from gameforge.bench.narrative.evidence import (
 from gameforge.bench.narrative.harness import load_evidence as load_narrative
 from gameforge.bench.narrative.protocol import load_protocol as load_narrative_protocol
 from gameforge.bench.qa.contracts import QaEvent, QaSessionEvidence, seal_qa_verdict
-from gameforge.bench.qa.protocol import load_protocol as load_qa_protocol
+from gameforge.bench.qa.protocol import (
+    canonical_protocol_bytes as canonical_qa_protocol_bytes,
+    load_protocol as load_qa_protocol,
+)
 from gameforge.bench.qa.score import (
     canonical_evidence_bytes as canonical_qa_bytes,
     seal_qa_evidence,
@@ -139,8 +142,7 @@ def _workload(
         zip(logical_counts, recorded_counts, strict=True)
     ):
         hashes = tuple(
-            _request_hash(workload_id, index, request_index)
-            for request_index in range(recorded_n)
+            _request_hash(workload_id, index, request_index) for request_index in range(recorded_n)
         )
         logical = (*hashes, *((hashes[0],) * (logical_n - recorded_n)))
         historical = snapshot == OPUS_M2
@@ -202,9 +204,7 @@ def _workload(
         session_cache_reuses=logical_total - recorded_total,
         known_transport_attempts=0 if snapshot == OPUS_M2 else recorded_total,
         known_transport_retries=0,
-        unknown_transport_attempt_records=(
-            recorded_total if snapshot == OPUS_M2 else 0
-        ),
+        unknown_transport_attempt_records=(recorded_total if snapshot == OPUS_M2 else 0),
         monetary_status="unavailable",
         price_book_ref=None,
         workload_sha256="b" * 64,
@@ -232,9 +232,7 @@ def _cost_evidence(narrative_sha256: str, hed_sha256: str):
 def _runtime_evidence() -> DeterministicRuntimeEvidence:
     per_class_n = {
         defect: (
-            0
-            if CLASS_META[defect].bucket is Bucket.llm_assisted
-            else default_per_class_n()[defect]
+            0 if CLASS_META[defect].bucket is Bucket.llm_assisted else default_per_class_n()[defect]
         )
         for defect in DefectClass
     }
@@ -352,9 +350,7 @@ def _artifact(
 def complete():
     external = load_external(_EXTERNAL_ROOT / "external-corpus-manifest.json")
     narrative_protocol = load_narrative_protocol(_NARRATIVE_ROOT / "protocol.json")
-    narrative_corpus = load_narrative_corpus(
-        _NARRATIVE_ROOT / "corpus-manifest.json"
-    )
+    narrative_corpus = load_narrative_corpus(_NARRATIVE_ROOT / "corpus-manifest.json")
     narrative = load_narrative(_NARRATIVE_ROOT / "verification-evidence.json")
     hed_protocol = load_hed_protocol(_EXTERNAL_ROOT / "hed-protocol.json")
     hed = load_hed(_EXTERNAL_ROOT / "hed-evidence.json")
@@ -392,6 +388,12 @@ def complete():
             "scenarios/external_cases/source/qa-evidence.json",
             qa.schema_version,
             canonical_qa_bytes(qa),
+        ),
+        _artifact(
+            "qa-protocol",
+            "scenarios/external_cases/source/qa-protocol.json",
+            qa_protocol.schema_version,
+            canonical_qa_protocol_bytes(qa_protocol),
         ),
         _artifact(
             "runtime",
@@ -445,6 +447,7 @@ def complete():
         external=external,
         narrative=narrative,
         hed=hed,
+        qa_protocol=qa_protocol,
         qa=qa,
         agent_cost=cost,
         deterministic_runtime=runtime,
@@ -473,12 +476,10 @@ def test_current_missing_real_qa_evidence_is_one_specific_failure(complete):
     qa_ref = next(item for item in report.evidence if item.evidence_id == "qa")
     pending_ref = qa_ref.model_copy(update={"available": False, "sha256": None})
     artifacts = tuple(
-        pending_ref if item.evidence_id == "qa" else item
-        for item in evidence.artifacts
+        pending_ref if item.evidence_id == "qa" else item for item in evidence.artifacts
     )
     report_refs = tuple(
-        pending_ref if item.evidence_id == "qa" else item
-        for item in report.evidence
+        pending_ref if item.evidence_id == "qa" else item for item in report.evidence
     )
     pending = report.model_copy(
         update={
@@ -521,15 +522,9 @@ def test_seeded_corpus_size_and_complete_evaluated_taxonomy_are_gated(complete):
         }
     )
 
-    assert "corpus.size_below_minimum" in _codes(
-        too_small, _with_report(evidence, too_small)
-    )
-    assert "corpus.class_missing" in _codes(
-        missing_class, _with_report(evidence, missing_class)
-    )
-    assert "corpus.metric_not_evaluated" in _codes(
-        pending, _with_report(evidence, pending)
-    )
+    assert "corpus.size_below_minimum" in _codes(too_small, _with_report(evidence, too_small))
+    assert "corpus.class_missing" in _codes(missing_class, _with_report(evidence, missing_class))
+    assert "corpus.metric_not_evaluated" in _codes(pending, _with_report(evidence, pending))
 
 
 def test_narrative_denominators_clean_controls_and_power_are_gated(complete):
@@ -565,9 +560,7 @@ def test_narrative_denominators_clean_controls_and_power_are_gated(complete):
     assert "narrative.clean_denominator" in _codes(
         report, evidence.model_copy(update={"narrative": short_clean})
     )
-    assert "narrative.power_under_target" in _codes(
-        weak_power, _with_report(evidence, weak_power)
-    )
+    assert "narrative.power_under_target" in _codes(weak_power, _with_report(evidence, weak_power))
 
 
 def test_deterministic_oracle_false_positive_must_be_zero(complete):
@@ -617,9 +610,7 @@ def test_external_case_class_hit_clear_and_after_fp_gates(complete):
         }
     )
 
-    assert "external.case_count" in _codes(
-        report, evidence.model_copy(update={"external": short})
-    )
+    assert "external.case_count" in _codes(report, evidence.model_copy(update={"external": short}))
     assert "external.verification_hit_missing" in _codes(
         report, evidence.model_copy(update={"external": missing_hit})
     )
@@ -645,9 +636,7 @@ def test_hed_full_denominator_protocol_and_human_target_are_gated(complete):
         update={"outcomes": (missing_delta, *evidence.hed.outcomes[1:])}
     )
 
-    assert "hed.outcome_count" in _codes(
-        report, evidence.model_copy(update={"hed": short})
-    )
+    assert "hed.outcome_count" in _codes(report, evidence.model_copy(update={"hed": short}))
     assert "hed.protocol_failure" in _codes(
         report, evidence.model_copy(update={"hed": protocol_failed})
     )
@@ -677,11 +666,41 @@ def test_qa_requires_four_valid_pairs_and_both_real_arms(complete):
         update={"sessions": (contaminated, *evidence.qa.sessions[1:])}
     )
 
-    assert "qa.valid_pairs" in _codes(
-        report, evidence.model_copy(update={"qa": invalid})
+    assert "qa.valid_pairs" in _codes(report, evidence.model_copy(update={"qa": invalid}))
+    assert "qa.session_invalid" in _codes(report, evidence.model_copy(update={"qa": sessions}))
+
+
+def test_qa_participant_must_match_protocol_and_report_is_exact_projection(complete):
+    report, evidence, _ = complete
+    relabelled_sessions = tuple(
+        session.model_copy(update={"participant_id": "participant-99"})
+        for session in evidence.qa.sessions
     )
-    assert "qa.session_invalid" in _codes(
-        report, evidence.model_copy(update={"qa": sessions})
+    relabelled = evidence.qa.model_copy(
+        update={
+            "participant_id": "participant-99",
+            "sessions": relabelled_sessions,
+        }
+    )
+    wrong_protocol = evidence.qa.model_copy(update={"protocol_sha256": "0" * 64})
+    minutes = report.qa.paired_saved_minutes.model_copy(
+        update={"median": report.qa.paired_saved_minutes.median + 1.0}
+    )
+    altered_report = report.model_copy(
+        update={"qa": report.qa.model_copy(update={"paired_saved_minutes": minutes})}
+    )
+
+    assert "qa.protocol_binding" in _codes(
+        report,
+        evidence.model_copy(update={"qa": relabelled}),
+    )
+    assert "qa.protocol_binding" in _codes(
+        report,
+        evidence.model_copy(update={"qa": wrong_protocol}),
+    )
+    assert "qa.report_mismatch" in _codes(
+        altered_report,
+        _with_report(evidence, altered_report),
     )
 
 
@@ -716,9 +735,7 @@ def test_agent_tokens_latency_workloads_and_cassette_denominators_are_gated(comp
             "recorded_latency_ms": 0,
         }
     )
-    missing_cassette = workload.model_copy(
-        update={"samples": (sample, *workload.samples[1:])}
-    )
+    missing_cassette = workload.model_copy(update={"samples": (sample, *workload.samples[1:])})
 
     def changed(row):  # noqa: ANN001
         return evidence.agent_cost.model_copy(
@@ -753,9 +770,7 @@ def test_report_view_and_evidence_path_hash_mismatches_are_gated(complete):
     artifact = evidence.artifacts[0].model_copy(update={"path": "tampered.json"})
     artifacts = (artifact, *evidence.artifacts[1:])
 
-    assert "view.hash_mismatch" in _codes(
-        report, evidence.model_copy(update={"views": views})
-    )
+    assert "view.hash_mismatch" in _codes(report, evidence.model_copy(update={"views": views}))
     assert "evidence.ref_mismatch" in _codes(
         report, evidence.model_copy(update={"artifacts": artifacts})
     )
@@ -764,23 +779,15 @@ def test_report_view_and_evidence_path_hash_mismatches_are_gated(complete):
 def test_current_and_historical_models_cannot_be_relabelled(complete):
     report, evidence, _ = complete
     relabelled = report.model_copy(
-        update={
-            "narrative": report.narrative.model_copy(
-                update={"model_snapshot": OPUS_M2}
-            )
-        }
+        update={"narrative": report.narrative.model_copy(update={"model_snapshot": OPUS_M2})}
     )
 
-    assert "model.relabeling" in _codes(
-        relabelled, _with_report(evidence, relabelled)
-    )
+    assert "model.relabeling" in _codes(relabelled, _with_report(evidence, relabelled))
 
 
 def test_gate_failures_are_stably_sorted(complete):
     report, evidence, _ = complete
-    broken = report.model_copy(
-        update={"meta": report.meta.model_copy(update={"corpus_size": 1})}
-    )
+    broken = report.model_copy(update={"meta": report.meta.model_copy(update={"corpus_size": 1})})
     failures = validate_m3_acceptance(
         broken,
         evidence.model_copy(update={"deterministic_runtime": None}),

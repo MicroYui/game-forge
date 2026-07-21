@@ -452,6 +452,7 @@ def build_qa_section(
         return QaSection(
             scope="single-participant-eight-session-case-study",
             protocol_sha256=protocol.protocol_sha256,
+            time_scoring="incorrect_uses_active_cap",
             paired_saved_minutes=DistributionMetric.pending(
                 name="paired_saved_minutes",
                 unit="minutes",
@@ -570,6 +571,7 @@ def build_qa_section(
     return QaSection(
         scope="single-participant-eight-session-case-study",
         protocol_sha256=protocol.protocol_sha256,
+        time_scoring=score.time_scoring,
         paired_saved_minutes=minutes,
         paired_saved_fraction=fraction,
         manual_success=manual,
@@ -1053,6 +1055,13 @@ def report_projection(report: BenchReport) -> tuple[ViewRow, ...]:
     rows.extend(
         (
             _simple_row("qa.scope", "qa", "Scope", qa.scope),
+            _simple_row(
+                "qa.time_scoring",
+                "qa",
+                "Time scoring",
+                qa.time_scoring,
+                evidence_ref=qa.evidence_ref,
+            ),
             _simple_row(
                 "qa.conclusion",
                 "qa",

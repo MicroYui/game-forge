@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 import json
 
 from fastapi.testclient import TestClient
@@ -10,6 +11,8 @@ from sqlalchemy import event, inspect, select
 from sqlalchemy.orm import Session
 
 from gameforge.apps.api.local import (
+    EXECUTION_ROUTING_POLICY_DIGEST_ENV,
+    EXECUTION_ROUTING_POLICY_VERSION_ENV,
     LOCAL_ROOT_SECRET_ENV,
     SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV,
     SESSION_POLICY_VERSION_ENV,
@@ -20,7 +23,12 @@ from gameforge.apps.api.local import (
     create_local_app,
     create_readiness_closed_local_app,
 )
+from gameforge.apps.operational_metrics import (
+    API_REQUEST_COUNT,
+    BUILTIN_OPERATIONAL_METRIC_REGISTRY,
+)
 import gameforge.apps.api.local as local_module
+import gameforge.apps.api.local_reads as local_reads_module
 from gameforge.apps.cli.identity import (
     PASSWORD_HASH_POLICY_VERSION_ENV,
     ROLE_POLICY_DIGEST_ENV,
@@ -35,6 +43,7 @@ from gameforge.contracts.auth import (
     SessionPolicyV1,
     compute_login_name_normalization_policy_digest,
 )
+from gameforge.contracts.benchmark import MAX_BENCHMARK_REPORT_BYTES
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.cassette_import import LegacyImportVerificationPolicyRegistryV1
 from gameforge.contracts.cost import BudgetV1, CostAmountV1
@@ -94,6 +103,10 @@ from gameforge.runtime.secrets.session_keys import (
     SESSION_SIGNING_KEY_SETS_ENV,
     SessionSigningKeyProvider,
 )
+
+
+def test_local_verified_payload_reader_covers_the_frozen_bench_report_limit() -> None:
+    assert local_reads_module._MAX_ARTIFACT_PAYLOAD_BYTES == MAX_BENCHMARK_REPORT_BYTES
 
 
 def _normalization_policy() -> LoginNameNormalizationPolicyV1:
@@ -170,6 +183,7 @@ def _domain_and_role_policy() -> tuple[DomainRegistryV1, RolePolicy]:
                 domain_scope=None,
             ),
             Permission(action="read", resource_kind="metric", domain_scope=None),
+            Permission(action="read", resource_kind="schema_registry", domain_scope=None),
         ),
         "tooling": (
             Permission(
@@ -180,6 +194,8 @@ def _domain_and_role_policy() -> tuple[DomainRegistryV1, RolePolicy]:
             Permission(action="run", resource_kind="checker", domain_scope="all"),
             Permission(action="read", resource_kind="spec", domain_scope="all"),
             Permission(action="read", resource_kind="artifact", domain_scope="all"),
+            Permission(action="read", resource_kind="patch", domain_scope="all"),
+            Permission(action="read", resource_kind="task_suite", domain_scope="all"),
             Permission(action="read", resource_kind="run", domain_scope="all"),
             Permission(action="read", resource_kind="approval", domain_scope="all"),
             Permission(
@@ -365,7 +381,7 @@ def _seed_local_command_inputs(app, *, principal_id: str) -> str:
     return artifact.artifact_id
 
 
-def _seed_validation_evidence(app) -> tuple[str, EvidenceSet]:
+def _seed_validation_evidence(app) -> tuple[str, str, EvidenceSet]:
     resources = app.state.local_resources
     subject_payload = canonical_json({"patch_schema_version": "patch@2"}).encode("utf-8")
     stored_subject = resources.object_store.put_verified(subject_payload)
@@ -493,7 +509,7 @@ def _seed_validation_evidence(app) -> tuple[str, EvidenceSet]:
             validating.workflow_revision,
             validated,
         )
-    return evidence_artifact.artifact_id, evidence
+    return subject.artifact_id, evidence_artifact.artifact_id, evidence
 
 
 def test_environment_configuration_requires_stable_secret_without_leaking_it(tmp_path) -> None:
@@ -527,6 +543,8 @@ def test_environment_configuration_requires_stable_secret_without_leaking_it(tmp
 
     rendered = repr(config)
     assert config.root_secret == secret
+    assert config.execution_routing_policy_version is None
+    assert config.execution_routing_policy_digest is None
     assert config.selected_bench_report_artifact_id is None
     assert encoded not in rendered
     assert secret.hex() not in rendered
@@ -540,6 +558,90 @@ def test_environment_configuration_requires_stable_secret_without_leaking_it(tmp
                 ROLE_POLICY_DIGEST_ENV: _domain_and_role_policy()[1].policy_digest,
                 LOCAL_ROOT_SECRET_ENV: "not-base64",
                 SESSION_SIGNING_KEY_SETS_ENV: signing,
+            }
+        )
+
+
+def test_environment_configuration_freezes_exact_execution_routing_policy_pointer(
+    tmp_path,
+) -> None:
+    secret = base64.b64encode(b"z" * 32).decode("ascii")
+    signing = json.dumps(
+        [
+            {
+                "key_set_version": "keys@1",
+                "keys": [
+                    {
+                        "key_id": "session-key-1",
+                        "secret_base64": base64.b64encode(b"s" * 32).decode("ascii"),
+                        "status": "active",
+                    }
+                ],
+            }
+        ]
+    )
+    source = {
+        DATABASE_URL_ENV: f"sqlite:///{tmp_path / 'configured.db'}",
+        PASSWORD_HASH_POLICY_VERSION_ENV: "argon2id@1",
+        SESSION_POLICY_VERSION_ENV: "session@1",
+        ROLE_POLICY_VERSION_ENV: "roles@1",
+        ROLE_POLICY_DIGEST_ENV: _domain_and_role_policy()[1].policy_digest,
+        LOCAL_ROOT_SECRET_ENV: secret,
+        SESSION_SIGNING_KEY_SETS_ENV: signing,
+    }
+
+    config = LocalApiConfig.from_environment(
+        {
+            **source,
+            EXECUTION_ROUTING_POLICY_VERSION_ENV: "7",
+            EXECUTION_ROUTING_POLICY_DIGEST_ENV: "a" * 64,
+        }
+    )
+
+    assert config.execution_routing_policy_version == 7
+    assert config.execution_routing_policy_digest == "a" * 64
+
+    for partial in (
+        {EXECUTION_ROUTING_POLICY_VERSION_ENV: "7"},
+        {EXECUTION_ROUTING_POLICY_DIGEST_ENV: "a" * 64},
+    ):
+        with pytest.raises(LocalApiConfigurationError, match="execution routing-policy pointer"):
+            LocalApiConfig.from_environment({**source, **partial})
+
+
+@pytest.mark.parametrize("version", ["0", "01", "-1", "1.0", " one "])
+def test_environment_configuration_rejects_noncanonical_execution_policy_version(
+    tmp_path,
+    version: str,
+) -> None:
+    secret = base64.b64encode(b"z" * 32).decode("ascii")
+    signing = json.dumps(
+        [
+            {
+                "key_set_version": "keys@1",
+                "keys": [
+                    {
+                        "key_id": "session-key-1",
+                        "secret_base64": base64.b64encode(b"s" * 32).decode("ascii"),
+                        "status": "active",
+                    }
+                ],
+            }
+        ]
+    )
+
+    with pytest.raises(LocalApiConfigurationError, match=EXECUTION_ROUTING_POLICY_VERSION_ENV):
+        LocalApiConfig.from_environment(
+            {
+                DATABASE_URL_ENV: f"sqlite:///{tmp_path / 'configured.db'}",
+                PASSWORD_HASH_POLICY_VERSION_ENV: "argon2id@1",
+                SESSION_POLICY_VERSION_ENV: "session@1",
+                ROLE_POLICY_VERSION_ENV: "roles@1",
+                ROLE_POLICY_DIGEST_ENV: _domain_and_role_policy()[1].policy_digest,
+                LOCAL_ROOT_SECRET_ENV: secret,
+                SESSION_SIGNING_KEY_SETS_ENV: signing,
+                EXECUTION_ROUTING_POLICY_VERSION_ENV: version,
+                EXECUTION_ROUTING_POLICY_DIGEST_ENV: "a" * 64,
             }
         )
 
@@ -614,6 +716,43 @@ def test_real_local_composition_runs_login_me_logout_and_honest_readiness(tmp_pa
     with Session(engine) as session:
         assert SqlAuditSink(session).verify_chain("identity") is True
     engine.dispose()
+
+
+def test_fresh_local_composition_exposes_exact_registry_and_queryable_metrics(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'gameforge-metrics.db'}"
+    _seed_and_bootstrap(database_url)
+    app = create_local_app(config=_config(tmp_path, database_url))
+    start = datetime.now(UTC) - timedelta(minutes=1)
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        login = client.post(
+            "/api/v1/auth/login",
+            json={"login_name": "admin", "password": "correct-password"},
+        )
+        descriptors = client.get("/api/v1/metrics/descriptors")
+        query = client.get(
+            "/api/v1/metrics/query",
+            params={
+                "descriptor_refs": json.dumps(
+                    [API_REQUEST_COUNT.ref.model_dump(mode="json")],
+                    separators=(",", ":"),
+                ),
+                "start_utc": start.isoformat(),
+                "end_utc": (datetime.now(UTC) + timedelta(minutes=1)).isoformat(),
+                "resolution_s": 60,
+                "max_points": 100,
+                "series_limit": 100,
+            },
+        )
+
+    assert login.status_code == 204
+    assert descriptors.status_code == 200
+    assert descriptors.json() == BUILTIN_OPERATIONAL_METRIC_REGISTRY.model_dump(mode="json")
+    assert query.status_code == 200
+    series = query.json()["series"]
+    assert series
+    assert {item["metric_name"] for item in series} == {API_REQUEST_COUNT.metric_name}
+    assert sum(point["value"] for item in series for point in item["scalar_points"]) >= 2
 
 
 def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp_path) -> None:
@@ -905,8 +1044,9 @@ def test_real_local_composition_mounts_request_scoped_bounded_reads(tmp_path) ->
         runs = client.get("/api/v1/runs", params={"limit": 10})
         profiles = client.get("/api/v1/execution-profiles", params={"limit": 100})
         validation_profile = client.get("/api/v1/execution-profiles/builtin.validation/versions/1")
+        ir_registry = client.get("/api/v1/schema-registry/registry@1")
         missing_registry = client.get("/api/v1/schema-registry/not-published")
-        missing_metrics = client.get("/api/v1/metrics/descriptors")
+        metrics = client.get("/api/v1/metrics/descriptors")
 
     assert login.status_code == 204
     assert first_specs.status_code == second_specs.status_code == 200
@@ -919,15 +1059,16 @@ def test_real_local_composition_mounts_request_scoped_bounded_reads(tmp_path) ->
     assert validation_profile.status_code == 200
     assert validation_profile.json()["profile"]["profile_id"] == "builtin.validation"
     assert "catalog_version" not in validation_profile.json()
+    assert ir_registry.status_code == 200
+    assert ir_registry.json()["registry_version"] == "registry@1"
+    assert "ir-core@1" in ir_registry.json()["schemas"]
 
-    for response, component in (
-        (missing_registry, "content_producer_binding"),
-        (missing_metrics, "metric_descriptor_registry"),
-    ):
-        assert response.status_code == 503
-        problem = Problem.model_validate(response.json())
-        assert problem.code == "dependency_unavailable"
-        assert problem.errors == ({"component": component},)
+    assert metrics.status_code == 200
+    assert metrics.json() == BUILTIN_OPERATIONAL_METRIC_REGISTRY.model_dump(mode="json")
+    assert missing_registry.status_code == 503
+    problem = Problem.model_validate(missing_registry.json())
+    assert problem.code == "dependency_unavailable"
+    assert problem.errors == ({"component": "schema_registry"},)
 
 
 def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_path) -> None:
@@ -1127,6 +1268,7 @@ def test_direct_resource_composition_does_not_read_legacy_authority_environment(
         legacy_import_authority=authority,
     )
     try:
+        assert resources.dependencies.execution_version_plans is not None
         admission = resources.dependencies.run_admission
         assert admission._legacy_import_authority is authority  # noqa: SLF001
     finally:
@@ -1137,7 +1279,7 @@ def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> No
     database_url = f"sqlite:///{tmp_path / 'validation-evidence.db'}"
     _seed_and_bootstrap(database_url)
     app = create_local_app(config=_config(tmp_path, database_url))
-    evidence_artifact_id, evidence = _seed_validation_evidence(app)
+    subject_artifact_id, evidence_artifact_id, evidence = _seed_validation_evidence(app)
 
     with TestClient(app, base_url="https://gameforge.test") as client:
         login = client.post(
@@ -1145,6 +1287,7 @@ def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> No
             json={"login_name": "admin", "password": "correct-password"},
         )
         response = client.get(f"/api/v1/artifacts/{evidence_artifact_id}")
+        binding = client.get(f"/api/v1/workflow-subjects/{subject_artifact_id}/approval-binding")
 
     assert login.status_code == 204
     assert response.status_code == 200
@@ -1154,6 +1297,20 @@ def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> No
     assert body["artifact"]["payload_schema_id"] == "evidence-set@1"
     assert body["artifact"]["domain_scope"] == {"domain_ids": ["game-content"]}
     assert body["payload"] == evidence.model_dump(mode="json", exclude_none=True)
+    assert binding.status_code == 200
+    assert binding.json() == {
+        "subject_artifact_id": subject_artifact_id,
+        "subject_digest": evidence.subject_digest,
+        "subject_kind": "patch",
+        "subject_series_id": "series:local-evidence",
+        "subject_revision": 1,
+        "subject_head_revision": 1,
+        "is_current_head": True,
+        "approval_id": "approval:local-evidence",
+        "workflow_revision": 3,
+        "approval_status": "validated",
+    }
+    assert binding.headers["X-Resource-Revision"] == "3"
 
 
 def test_local_composition_never_auto_migrates_authoritative_database(tmp_path) -> None:

@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,8 @@ from gameforge.contracts.cost import (
     BudgetSnapshotV1,
     BudgetV1,
     ConcurrencyPermitV1,
+    CostSettlementGroupCountV1,
+    CostSettlementSummaryV1,
     PermitGroupV1,
     ReservationGroupV1,
     UsageEntryV1,
@@ -783,6 +785,51 @@ class SqlCostRepository:
             statement.order_by(UsageEntryRow.recorded_at, UsageEntryRow.usage_id).limit(limit)
         ).all()
         return tuple(self._parse_usage_row(row) for row in rows)
+
+    def summarize_run_settlement(self, *, run_id: str) -> CostSettlementSummaryV1:
+        """Aggregate public settlement state without loading sensitive group identities."""
+
+        if not isinstance(run_id, str) or not run_id:
+            raise ValueError("run_id must be a non-empty string")
+        group_rows = self._session.execute(
+            select(
+                ReservationGroupRow.scope,
+                ReservationGroupRow.status,
+                func.count(ReservationGroupRow.reservation_group_id),
+            )
+            .where(ReservationGroupRow.run_id == run_id)
+            .group_by(ReservationGroupRow.scope, ReservationGroupRow.status)
+        ).all()
+        if not group_rows:
+            raise IntegrityViolation(
+                "Run has no reservation settlement authority",
+                run_id=run_id,
+            )
+        group_counts = tuple(
+            CostSettlementGroupCountV1(
+                scope=str(scope),
+                status=str(status),
+                group_count=int(group_count),
+            )
+            for scope, status, group_count in group_rows
+        )
+        usage_entry_count, late_adjustment_usage_count = self._session.execute(
+            select(
+                func.count(UsageEntryRow.usage_id),
+                func.count(UsageEntryRow.adjustment_of_usage_id),
+            ).where(UsageEntryRow.run_id == run_id)
+        ).one()
+        exact_usage_count = int(usage_entry_count)
+        return CostSettlementSummaryV1(
+            group_counts=group_counts,
+            total_group_count=sum(item.group_count for item in group_counts),
+            held_unknown_group_count=sum(
+                item.group_count for item in group_counts if item.status == "held_unknown"
+            ),
+            usage_entry_count=exact_usage_count,
+            usage_evidence_status="recorded" if exact_usage_count else "not_recorded",
+            late_adjustment_usage_count=int(late_adjustment_usage_count),
+        )
 
     def put_permit_group(
         self,

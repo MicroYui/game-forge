@@ -4,6 +4,7 @@ import json
 
 import pytest
 
+import gameforge.bench.qa.harness as harness_module
 from gameforge.bench.qa.contracts import QaCorrectnessVerdict
 from gameforge.bench.qa.harness import (
     QaBundleMaterial,
@@ -13,7 +14,11 @@ from gameforge.bench.qa.harness import (
     write_arm_bundle,
 )
 from gameforge.bench.qa.protocol import load_protocol
-from gameforge.bench.qa.session import transition_session
+from gameforge.bench.qa.session import (
+    freeze_session_submission,
+    load_state,
+    transition_session,
+)
 
 _PROTOCOL = "scenarios/external_cases/endless_sky/qa-protocol.json"
 
@@ -32,20 +37,24 @@ def _material(tmp_path, *, assisted=False):
     tool = tmp_path / "source-tool"
     tool.write_bytes(b"tool")
     tool.chmod(0o755)
-    return protocol, spec, QaBundleMaterial(
-        session=spec,
-        upstream_subject="Fix a configuration defect",
-        before_files={"data/example.txt": b"mission Before\n"},
-        native_tool=tool,
-        assistance=(
-            {
-                "finding": {"id": "finding-1"},
-                "agent_patch": {"id": "patch-1"},
-                "passed_verification": True,
-                "disposition": "edited",
-            }
-            if assisted
-            else None
+    return (
+        protocol,
+        spec,
+        QaBundleMaterial(
+            session=spec,
+            upstream_subject="Fix a configuration defect",
+            before_files={"data/example.txt": b"mission Before\n"},
+            native_tool=tool,
+            assistance=(
+                {
+                    "finding": {"id": "finding-1"},
+                    "agent_patch": {"id": "patch-1"},
+                    "passed_verification": True,
+                    "disposition": "edited",
+                }
+                if assisted
+                else None
+            ),
         ),
     )
 
@@ -103,9 +112,7 @@ def test_exact_changed_path_reader_rejects_extra_files_and_symlinks(tmp_path):
     path = work / "data/example.txt"
     path.parent.mkdir(parents=True)
     path.write_bytes(b"ok")
-    assert read_exact_changed_paths(work, ("data/example.txt",)) == {
-        "data/example.txt": b"ok"
-    }
+    assert read_exact_changed_paths(work, ("data/example.txt",)) == {"data/example.txt": b"ok"}
 
     (work / "extra.txt").write_bytes(b"extra")
     with pytest.raises(ValueError, match="exact changed_paths"):
@@ -160,7 +167,7 @@ def test_finish_persists_patch_verdict_and_canonical_session_evidence(tmp_path):
     assert (bundle / "session-evidence.json").is_file()
 
 
-def test_finish_rejects_duplicate_finish_and_false_attestation_is_invalid(tmp_path):
+def test_finish_is_idempotent_but_cannot_change_frozen_attestation(tmp_path):
     protocol, spec, material = _material(tmp_path, assisted=False)
     bundle = write_arm_bundle(protocol, material, tmp_path / "bundle")
     transition_session(bundle, "start", clock=_Clock(100))
@@ -174,12 +181,141 @@ def test_finish_rejects_duplicate_finish_and_false_attestation_is_invalid(tmp_pa
     )
     assert session.protocol_valid is False
 
-    with pytest.raises(ValueError, match="transition|finished"):
+    duplicate = finalize_session(
+        protocol,
+        spec,
+        bundle,
+        evaluator=lambda work: pytest.fail("completed finish must not rerun oracle"),
+        participant_attested_no_contamination=False,
+        clock=_Clock(),
+    )
+    assert duplicate == session
+
+    with pytest.raises(ValueError, match="attestation"):
         finalize_session(
             protocol,
             spec,
             bundle,
-            evaluator=lambda work: (b"", _verdict()),
+            evaluator=lambda work: pytest.fail("attestation mismatch must fail first"),
             participant_attested_no_contamination=True,
-            clock=_Clock(300),
+            clock=_Clock(),
         )
+
+
+def test_evaluator_failure_reuses_frozen_time_and_submission_on_retry(tmp_path):
+    protocol, spec, material = _material(tmp_path, assisted=False)
+    bundle = write_arm_bundle(protocol, material, tmp_path / "bundle")
+    transition_session(bundle, "start", clock=_Clock(100))
+
+    def fail(work):
+        assert work.name.startswith(".qa-frozen-submission-")
+        assert (work / "data/example.txt").read_bytes() == b"mission Before\n"
+        raise RuntimeError("oracle unavailable")
+
+    with pytest.raises(RuntimeError, match="oracle unavailable"):
+        finalize_session(
+            protocol,
+            spec,
+            bundle,
+            evaluator=fail,
+            participant_attested_no_contamination=True,
+            clock=_Clock(200),
+        )
+
+    state = load_state(bundle)
+    assert state.status == "finished"
+    assert state.events[-1].monotonic_ns == 200
+    assert state.participant_attested_no_contamination is True
+    assert not (bundle / "work").exists()
+    assert not (bundle / "final.patch").exists()
+    assert not (bundle / "session-evidence.json").exists()
+
+    live = bundle / "work/data/example.txt"
+    live.parent.mkdir(parents=True)
+    live.write_bytes(b"edited after frozen finish\n")
+
+    def recover(work):
+        assert (work / "data/example.txt").read_bytes() == b"mission Before\n"
+        return b"patch-bytes\n", _verdict()
+
+    recovered = finalize_session(
+        protocol,
+        spec,
+        bundle,
+        evaluator=recover,
+        participant_attested_no_contamination=True,
+        clock=_Clock(),
+    )
+    assert recovered.active_ns == 100
+
+
+def test_deadline_freeze_can_bind_attestation_and_finalize_later(tmp_path):
+    protocol, spec, material = _material(tmp_path, assisted=False)
+    bundle = write_arm_bundle(protocol, material, tmp_path / "bundle")
+    transition_session(bundle, "start", clock=_Clock(100))
+
+    frozen = freeze_session_submission(bundle, clock=_Clock(200))
+    assert frozen.participant_attested_no_contamination is None
+
+    session = finalize_session(
+        protocol,
+        spec,
+        bundle,
+        evaluator=lambda work: (b"patch-bytes\n", _verdict()),
+        participant_attested_no_contamination=True,
+        clock=_Clock(),
+    )
+
+    assert session.events[-1].monotonic_ns == 200
+    assert session.participant_attested_no_contamination is True
+
+
+def test_evidence_write_failure_recovers_from_frozen_submission(tmp_path, monkeypatch):
+    protocol, spec, material = _material(tmp_path, assisted=False)
+    bundle = write_arm_bundle(protocol, material, tmp_path / "bundle")
+    transition_session(bundle, "start", clock=_Clock(100))
+    real_atomic_write = harness_module._atomic_write
+    failed = False
+    evaluated: list[bytes] = []
+
+    def fail_evidence_once(path, raw):  # noqa: ANN001
+        nonlocal failed
+        if path.name == "session-evidence.json" and not failed:
+            failed = True
+            raise OSError("evidence disk unavailable")
+        return real_atomic_write(path, raw)
+
+    def evaluate(work):
+        raw = (work / "data/example.txt").read_bytes()
+        evaluated.append(raw)
+        return b"patch-bytes\n", _verdict()
+
+    monkeypatch.setattr(harness_module, "_atomic_write", fail_evidence_once)
+    with pytest.raises(OSError, match="evidence disk unavailable"):
+        finalize_session(
+            protocol,
+            spec,
+            bundle,
+            evaluator=evaluate,
+            participant_attested_no_contamination=True,
+            clock=_Clock(200),
+        )
+
+    assert (bundle / "final.patch").read_bytes() == b"patch-bytes\n"
+    assert not (bundle / "session-evidence.json").exists()
+    live = bundle / "work/data/example.txt"
+    live.parent.mkdir(parents=True)
+    live.write_bytes(b"late editor save\n")
+
+    recovered = finalize_session(
+        protocol,
+        spec,
+        bundle,
+        evaluator=evaluate,
+        participant_attested_no_contamination=True,
+        clock=_Clock(),
+    )
+
+    assert recovered.events[-1].monotonic_ns == 200
+    assert evaluated == [b"mission Before\n", b"mission Before\n"]
+    assert (bundle / "session-evidence.json").is_file()

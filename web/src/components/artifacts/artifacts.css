@@ -1,0 +1,120 @@
+.gf-artifact-detail {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.gf-artifact-detail__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: start;
+  min-width: 0;
+}
+
+.gf-artifact-detail__eyebrow {
+  margin-block-end: var(--space-1);
+  color: var(--muted);
+  font-size: var(--font-size-small);
+  text-transform: uppercase;
+}
+
+.gf-artifact-detail__authority-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--info);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.gf-artifact-detail__section {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.gf-artifact-detail__facts,
+.gf-artifact-detail__tuple {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.gf-artifact-detail__facts > div,
+.gf-artifact-detail__tuple > div {
+  display: grid;
+  grid-template-columns: minmax(128px, 0.36fr) minmax(0, 1fr);
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--line);
+}
+
+.gf-artifact-detail__facts > div:nth-child(odd):not(.gf-artifact-detail__wide),
+.gf-artifact-detail__tuple > div:nth-child(odd) {
+  border-inline-end: 1px solid var(--line);
+}
+
+.gf-artifact-detail__wide {
+  grid-column: 1 / -1;
+}
+
+.gf-artifact-detail__facts dt,
+.gf-artifact-detail__tuple dt {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
+.gf-artifact-detail__facts dd,
+.gf-artifact-detail__tuple dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.gf-artifact-detail__domains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.gf-artifact-detail__domains .gf-copyable {
+  max-width: 100%;
+}
+
+.gf-artifact-detail__lineage-empty {
+  padding: var(--space-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .gf-artifact-detail__facts,
+  .gf-artifact-detail__tuple {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gf-artifact-detail__facts > div,
+  .gf-artifact-detail__tuple > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gf-artifact-detail__facts > div:nth-child(odd):not(.gf-artifact-detail__wide),
+  .gf-artifact-detail__tuple > div:nth-child(odd) {
+    border-inline-end: 0;
+  }
+
+  .gf-artifact-detail__wide {
+    grid-column: auto;
+  }
+}

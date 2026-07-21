@@ -13,7 +13,12 @@ from gameforge.apps.api.errors import install_error_handlers
 from gameforge.apps.api.routers.workflows import workflow_read_router
 from gameforge.contracts.diff import ConflictSet, JsonValueState, MergeConflict
 from gameforge.contracts.errors import Forbidden, IntegrityViolation, NotFound, QueryTooBroad
-from gameforge.contracts.findings import FindingPayloadV1, FindingRevisionV1
+from gameforge.contracts.api import RunFindingLinkViewV1
+from gameforge.contracts.findings import (
+    FindingPayloadV1,
+    FindingRevisionV1,
+    finding_revision_digest,
+)
 from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
@@ -33,6 +38,7 @@ from gameforge.contracts.jobs import RunCommandRecordV1, RunCommandViewV1, RunRe
 from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.storage import PageCursorV1, PageV1, RefValue
 from gameforge.contracts.workflow import (
+    ApprovalDecision,
     ApprovalItem,
     ApprovalPolicyRefV1,
     ApprovalRequirement,
@@ -133,6 +139,7 @@ def _approval(registry: DomainRegistryV1) -> ApprovalItem:
         registry_digest=registry.registry_digest,
     )
     scope = DomainScope(domain_ids=("narrative",))
+    role_policy = _policy(registry)
     return ApprovalItem(
         approval_id="approval:1",
         subject_series_id="patch-series:1",
@@ -150,8 +157,8 @@ def _approval(registry: DomainRegistryV1) -> ApprovalItem:
             route_digest="b" * 64,
             domain_registry_ref=ref,
         ),
-        role_policy_version="roles@1",
-        role_policy_digest="c" * 64,
+        role_policy_version=role_policy.policy_version,
+        role_policy_digest=role_policy.policy_digest,
         approval_policy=ApprovalPolicyRefV1(
             policy_version="approval@1",
             policy_digest="d" * 64,
@@ -250,6 +257,18 @@ def _command() -> RunCommandRecordV1:
     )
 
 
+def _finding_link() -> RunFindingLinkViewV1:
+    finding = _finding()
+    return RunFindingLinkViewV1(
+        run_id="run:narrative",
+        attempt_no=1,
+        ordinal=1,
+        finding=finding,
+        finding_digest=finding_revision_digest(finding),
+        evidence_artifact_id="artifact:checker-run:1",
+    )
+
+
 def _conflict_set() -> ConflictSet:
     return ConflictSet(
         id="conflict-set:1",
@@ -280,6 +299,7 @@ class _State:
     approvals: tuple[ApprovalItem, ...]
     runs: tuple[RunRecord, ...]
     findings: tuple[FindingRevisionV1, ...]
+    run_finding_links: tuple[RunFindingLinkViewV1, ...]
     commands: tuple[RunCommandRecordV1, ...]
     conflict_set: ConflictSet
     conflicts: tuple[MergeConflict, ...]
@@ -348,6 +368,12 @@ class _Repository:
     def list_run_findings(self, run_id: str, *, max_items: int):
         self._record("list_run_findings", (run_id, max_items))
         return self._state.findings[:max_items]
+
+    def list_run_finding_links(self, run_id: str, *, max_items: int):
+        self._record("list_run_finding_links", (run_id, max_items))
+        return tuple(value for value in self._state.run_finding_links if value.run_id == run_id)[
+            :max_items
+        ]
 
     def list_run_commands(self, run_id: str, *, max_items: int):
         self._record("list_run_commands", (run_id, max_items))
@@ -438,8 +464,6 @@ def _service(state: _State, principals: dict[str, Principal], *, max_items: int 
                 permission_resolver=_Permissions(state, token),
                 approval_projector=CurrentApprovalProgressProjector(
                     policy_repository=policies,
-                    role_policy_version=policy.policy_version,
-                    role_policy_digest=policy.policy_digest,
                     principal_resolver=resolve,
                 ),
                 page_factory=lambda limit: _Pages(state, token, limit),
@@ -460,6 +484,7 @@ def read_fixture():
         approvals=(_approval(registry),),
         runs=(_run("run:narrative"), _run("run:economy")),
         findings=(_finding(),),
+        run_finding_links=(_finding_link(),),
         commands=(_command(),),
         conflict_set=_conflict_set(),
         conflicts=(_conflict(),),
@@ -536,6 +561,206 @@ def test_approval_assignee_projection_uses_current_role_and_maker_checker(read_f
     assert bob.items[0].current_actor_allowed_requirement_ids == ("requirement:narrative",)
     assert bob.items[0].requirement_progress[0].valid_approval_count == 0
     assert alice.items == ()
+
+
+def test_approval_projection_resolves_the_item_frozen_policy_after_deployment_upgrade() -> None:
+    registry = _registry()
+    frozen = _policy(registry)
+    current_grants = {
+        "content_designer": tuple(
+            permission
+            for permission in frozen.grants["content_designer"]
+            if permission.action == "read"
+        )
+    }
+    current = RolePolicy(
+        policy_version="roles@2",
+        domain_registry_ref=frozen.domain_registry_ref,
+        grants=current_grants,
+        effective_from=NOW,
+        policy_digest=compute_role_policy_digest(
+            "roles@2",
+            frozen.domain_registry_ref,
+            current_grants,
+            NOW,
+        ),
+    )
+    item = _approval(registry).model_copy(
+        update={
+            "role_policy_version": frozen.policy_version,
+            "role_policy_digest": frozen.policy_digest,
+        }
+    )
+    bob = _principal("human:bob")
+
+    class _RetainedPolicies:
+        def get_role_policy(self, version: str, digest: str):
+            return {
+                (frozen.policy_version, frozen.policy_digest): frozen,
+                (current.policy_version, current.policy_digest): current,
+            }.get((version, digest))
+
+        def get_domain_registry(self, ref: DomainRegistryRefV1):
+            return registry if ref == frozen.domain_registry_ref else None
+
+    view = CurrentApprovalProgressProjector(
+        policy_repository=_RetainedPolicies(),
+        principal_resolver=lambda principal_id: bob if principal_id == bob.id else None,
+    ).project(item, bob)
+
+    approve = next(
+        value
+        for value in view.requirement_progress[0].decision_eligibility
+        if value.decision == "approve"
+    )
+    assert approve.eligible is True
+    assert approve.reason_codes == ()
+
+
+def test_reject_and_request_changes_remain_eligible_for_a_satisfied_requirement() -> None:
+    registry = _registry()
+    policy = _policy(registry)
+    first = (
+        _approval(registry)
+        .requirements[0]
+        .model_copy(update={"assignee_principal_ids": ("human:bob", "human:charlie")})
+    )
+    second = first.model_copy(
+        update={
+            "requirement_id": "requirement:secondary",
+            "assignee_principal_ids": ("human:bob",),
+        }
+    )
+    prior = ApprovalDecision(
+        decision_id="decision:charlie",
+        requirement_ids=(first.requirement_id,),
+        decision="approve",
+        actor=AuditActor(principal_id="human:charlie", principal_kind="human"),
+        expected_workflow_revision=3,
+        reason_code="reviewed",
+        occurred_at=NOW,
+    )
+    item = _approval(registry).model_copy(
+        update={
+            "role_policy_version": policy.policy_version,
+            "role_policy_digest": policy.policy_digest,
+            "requirements": (first, second),
+            "decisions": (prior,),
+            "workflow_revision": 5,
+        }
+    )
+    bob = _principal("human:bob")
+    charlie = _principal("human:charlie")
+
+    class _FrozenPolicies:
+        def get_role_policy(self, version: str, digest: str):
+            return (
+                policy
+                if (version, digest) == (policy.policy_version, policy.policy_digest)
+                else None
+            )
+
+        def get_domain_registry(self, ref: DomainRegistryRefV1):
+            return registry if ref == policy.domain_registry_ref else None
+
+    principals = {bob.id: bob, charlie.id: charlie}
+    view = CurrentApprovalProgressProjector(
+        policy_repository=_FrozenPolicies(),
+        principal_resolver=principals.get,
+    ).project(item, bob)
+    progress = next(
+        value for value in view.requirement_progress if value.requirement_id == first.requirement_id
+    )
+    by_action = {value.decision: value for value in progress.decision_eligibility}
+
+    assert progress.satisfied is True
+    assert by_action["approve"].eligible is False
+    assert by_action["approve"].reason_codes == ("requirement_already_satisfied",)
+    assert by_action["reject"].eligible is True
+    assert by_action["request_changes"].eligible is True
+
+
+def test_pending_all_satisfied_projects_explicit_reconfirmation_for_an_effective_voter() -> None:
+    registry = _registry()
+    policy = _policy(registry)
+    requirement = (
+        _approval(registry)
+        .requirements[0]
+        .model_copy(
+            update={
+                "min_approvals": 2,
+                "assignee_principal_ids": (
+                    "human:bob",
+                    "human:charlie",
+                    "human:dave",
+                ),
+            }
+        )
+    )
+    bob_vote = ApprovalDecision(
+        decision_id="decision:bob",
+        requirement_ids=(requirement.requirement_id,),
+        decision="approve",
+        actor=AuditActor(principal_id="human:bob", principal_kind="human"),
+        expected_workflow_revision=4,
+        reason_code="reviewed",
+        occurred_at=NOW,
+    )
+    charlie_vote = bob_vote.model_copy(
+        update={
+            "decision_id": "decision:charlie",
+            "actor": AuditActor(
+                principal_id="human:charlie",
+                principal_kind="human",
+            ),
+            "expected_workflow_revision": 5,
+        }
+    )
+    item = _approval(registry).model_copy(
+        update={
+            "requirements": (requirement,),
+            "decisions": (bob_vote, charlie_vote),
+            "workflow_revision": 6,
+        }
+    )
+    bob = _principal("human:bob")
+    charlie = _principal("human:charlie")
+    dave = _principal("human:dave")
+
+    class _FrozenPolicies:
+        def get_role_policy(self, version: str, digest: str):
+            return (
+                policy
+                if (version, digest) == (policy.policy_version, policy.policy_digest)
+                else None
+            )
+
+        def get_domain_registry(self, ref: DomainRegistryRefV1):
+            return registry if ref == policy.domain_registry_ref else None
+
+    principals = {bob.id: bob, charlie.id: charlie, dave.id: dave}
+    projector = CurrentApprovalProgressProjector(
+        policy_repository=_FrozenPolicies(),
+        principal_resolver=principals.get,
+    )
+
+    bob_view = projector.project(item, bob)
+    progress = bob_view.requirement_progress[0]
+    by_action = {value.decision: value for value in progress.decision_eligibility}
+    assert progress.satisfied is True
+    assert by_action["approve"].eligible is True
+    assert by_action["approve"].reason_codes == ()
+    assert by_action["reject"].reason_codes == ("actor_already_decided_requirement",)
+    assert by_action["request_changes"].reason_codes == ("actor_already_decided_requirement",)
+    assert bob_view.current_actor_allowed_requirement_ids == (requirement.requirement_id,)
+
+    dave_approve = next(
+        value
+        for value in projector.project(item, dave).requirement_progress[0].decision_eligibility
+        if value.decision == "approve"
+    )
+    assert dave_approve.eligible is False
+    assert dave_approve.reason_codes == ("requirement_already_satisfied",)
 
 
 def test_approval_projection_treats_one_way_distinct_requirement_as_symmetric(
@@ -635,6 +860,7 @@ def test_router_exposes_exact_workflow_reads_etags_and_no_command_payload(read_f
         approval = client.get("/api/v1/approvals/approval:1")
         run = client.get("/api/v1/runs/run:narrative")
         finding = client.get("/api/v1/findings/finding:1/revisions/1")
+        finding_links = client.get("/api/v1/runs/run:narrative/finding-links")
         commands = client.get("/api/v1/runs/run:narrative/commands")
         conflicts = client.get("/api/v1/conflict-sets/conflict-set:1/conflicts")
 
@@ -642,7 +868,24 @@ def test_router_exposes_exact_workflow_reads_etags_and_no_command_payload(read_f
     for response in (approval, run, finding):
         assert response.headers["ETag"].startswith('"')
         assert int(response.headers["X-Resource-Revision"]) >= 1
-    assert commands.status_code == conflicts.status_code == 200
+    approval_actions = {
+        value["decision"]: value
+        for value in approval.json()["requirement_progress"][0]["decision_eligibility"]
+    }
+    assert approval_actions == {
+        "approve": {"decision": "approve", "eligible": True, "reason_codes": []},
+        "reject": {"decision": "reject", "eligible": True, "reason_codes": []},
+        "request_changes": {
+            "decision": "request_changes",
+            "eligible": True,
+            "reason_codes": [],
+        },
+    }
+    assert finding_links.status_code == commands.status_code == conflicts.status_code == 200
+    link_wire = finding_links.json()["items"][0]
+    assert RunFindingLinkViewV1.model_validate(link_wire).finding.finding_id == "finding:1"
+    assert link_wire["finding_digest"] == finding_revision_digest(_finding())
+    assert link_wire["evidence_artifact_id"] == "artifact:checker-run:1"
     command_wire = commands.json()["items"][0]
     assert RunCommandViewV1.model_validate(command_wire).command_id == "command:1"
     assert "payload" not in command_wire
@@ -661,9 +904,18 @@ def test_exact_finding_and_run_finding_return_immutable_revision(read_fixture) -
         cursor=None,
         limit=100,
     )
+    linked_authority = service.list_run_finding_links(
+        principals["human:bob"],
+        "run:narrative",
+        cursor=None,
+        limit=100,
+    )
 
     assert exact == linked.items[0]
     assert linked.items[0].revision == 1
+    assert linked_authority.items[0].finding == exact
+    assert linked_authority.items[0].finding_digest == finding_revision_digest(exact)
+    assert linked_authority.items[0].evidence_artifact_id == "artifact:checker-run:1"
 
 
 def test_unproved_resource_domain_fails_closed(read_fixture) -> None:
@@ -688,8 +940,6 @@ def test_unproved_resource_domain_fails_closed(read_fixture) -> None:
             permission_resolver=_MissingPermissions(state, 1),
             approval_projector=CurrentApprovalProgressProjector(
                 policy_repository=policies,
-                role_policy_version=policy.policy_version,
-                role_policy_digest=policy.policy_digest,
                 principal_resolver=lambda principal_id: principals.get(principal_id),
             ),
             page_factory=lambda limit: _Pages(state, 1, limit),

@@ -138,6 +138,30 @@ def test_writer_mints_immutable_source_raw_with_provenance(tmp_path: Path) -> No
     assert "Reduce boss gold" not in minted.artifact.model_dump_json()
 
 
+def test_writer_projects_the_exact_source_artifact_without_writing_a_blob(tmp_path: Path) -> None:
+    writer = AuthenticatedGoalSourceWriter(
+        policy=GoalProvenancePolicy(registry=build_source_kind_registry())
+    )
+    text = "Resolve this exact goal without publishing it during option lookup."
+
+    projected = writer.project(
+        actor=_actor("human"),
+        text=text,
+        domain_scope=_SCOPE,
+        created_at=_NOW,
+    )
+    minted = writer.mint(
+        object_store=_object_store(tmp_path),
+        actor=_actor("human"),
+        text=text,
+        domain_scope=_SCOPE,
+        created_at=_NOW,
+    )
+
+    assert projected.artifact == minted.artifact
+    assert projected.provenance == minted.provenance
+
+
 def test_authenticated_source_is_resolvable_as_a_terminal_lineage_parent(
     tmp_path: Path,
 ) -> None:

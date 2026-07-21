@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+import gameforge.bench.run_bench as run_bench_module
 from gameforge.bench.cost_latency import (
     SampleTrace,
     aggregate_workload,
@@ -42,6 +45,27 @@ OPUS_M2 = ModelSnapshot(
 )
 
 
+def test_report_qa_loader_propagates_source_specific_replay_failure(
+    tmp_path: Path,
+    monkeypatch,
+):
+    evidence_path = tmp_path / "qa-evidence.json"
+    evidence_path.touch()
+    protocol_path = tmp_path / "qa-protocol.json"
+
+    def reject(*_args, **_kwargs):  # noqa: ANN002, ANN003
+        raise ValueError("deterministic verdict replay mismatch")
+
+    monkeypatch.setattr(
+        run_bench_module,
+        "validate_imported_qa_evidence",
+        reject,
+    )
+
+    with pytest.raises(ValueError, match="verdict replay mismatch"):
+        run_bench_module._load_qa_evidence(evidence_path, protocol_path)
+
+
 def _metric(defect_class: DefectClass, *, n: int = 1, k: int = 1) -> Metric:
     low, high = wilson_ci(k, n)
     return Metric(
@@ -58,9 +82,7 @@ def _metric(defect_class: DefectClass, *, n: int = 1, k: int = 1) -> Metric:
 
 def _score() -> SeededScore:
     deterministic = tuple(
-        defect
-        for defect in DefectClass
-        if CLASS_META[defect].bucket is not Bucket.llm_assisted
+        defect for defect in DefectClass if CLASS_META[defect].bucket is not Bucket.llm_assisted
     )
     low, high = wilson_ci(0, 1)
     cross_low, cross_high = wilson_ci(0, len(deterministic))
@@ -169,7 +191,7 @@ def _artifacts() -> tuple[EvidenceArtifactRef, ...]:
             evidence_id="qa",
             path="scenarios/external_cases/endless_sky/qa-evidence.json",
             sha256=None,
-            schema_version="qa-evidence@1",
+            schema_version="qa-evidence@2",
             available=False,
         )
     )
@@ -227,9 +249,7 @@ def test_v2_report_contains_all_fifteen_measured_class_metrics(tmp_path: Path):
         evidence_bundle=bundle,
     )
 
-    classes = {
-        row.defect_class for row in (*report.seeded, *report.narrative.bdr)
-    }
+    classes = {row.defect_class for row in (*report.seeded, *report.narrative.bdr)}
     assert classes == set(DefectClass)
     assert all(row.evaluated_n > 0 for row in report.narrative.bdr)
     assert report.schema_version == "bench-report@2"

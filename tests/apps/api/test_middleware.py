@@ -213,6 +213,32 @@ def test_client_error_span_retains_status_without_blame_as_server_error() -> Non
     assert exporter.spans[0].status == "unset"
 
 
+def test_http_request_metric_is_emitted_after_response_and_is_best_effort() -> None:
+    class Metrics:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, int]] = []
+
+        def record_api_request(self, *, method: str, status_code: int) -> None:
+            self.calls.append((method, status_code))
+            raise OSError("metric exporter unavailable")
+
+    metrics = Metrics()
+    app = create_app(
+        ApiDependencies(
+            tracer=Tracer(exporter=InMemoryExporter(capacity=10), id_generator=_Ids()),
+            request_id_factory=_RequestIds(),
+            readiness=_ready(),
+            operational_metrics=metrics,
+        )
+    )
+
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        response = client.get("/api/v1/does-not-exist")
+
+    assert response.status_code == 404
+    assert metrics.calls == [("GET", 404)]
+
+
 def test_http_middleware_contains_no_cost_governor() -> None:
     app = create_app(
         ApiDependencies(

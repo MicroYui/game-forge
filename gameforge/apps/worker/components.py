@@ -62,7 +62,13 @@ from gameforge.platform.registry import (
     TrustedComponentMaps,
     build_readiness_component_maps,
 )
+from gameforge.platform.registry.constraint_compilers import (
+    builtin_constraint_compiler_adapter_matches,
+)
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
+from gameforge.platform.registry.task_suite_derivation import (
+    BUILTIN_TASK_SUITE_DERIVATION_ADAPTER_CONTRACT_V2,
+)
 from gameforge.platform.playtest_payload_schemas import (
     ExactModelPayloadValidator,
     build_builtin_playtest_payload_validators,
@@ -610,13 +616,6 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         frozenset(("config-export-package@1",)),
         frozenset((False,)),
     ),
-    "constraint_compiler": (
-        "builtin_constraint_compiler_profile@1",
-        "constraint_compiler-profile-config@1",
-        frozenset(("constraint-validation@1",)),
-        frozenset(("constraint-compile-evidence@1", "constraint-snapshot@1")),
-        frozenset((False,)),
-    ),
     "constraint_extraction": (
         "builtin_constraint_extraction_profile@1",
         "constraint_extraction-profile-config@1",
@@ -713,11 +712,11 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         frozenset((True,)),
     ),
     "task_suite_derivation": (
-        "builtin_task_suite_derivation_profile@2",
-        "task_suite_derivation-profile-config@2",
-        frozenset(("task-suite-derive@1",)),
-        frozenset(("scenario-spec@1", "task-suite@1")),
-        frozenset((False,)),
+        BUILTIN_TASK_SUITE_DERIVATION_ADAPTER_CONTRACT_V2.handler_key,
+        BUILTIN_TASK_SUITE_DERIVATION_ADAPTER_CONTRACT_V2.config_schema_id,
+        frozenset(BUILTIN_TASK_SUITE_DERIVATION_ADAPTER_CONTRACT_V2.input_schema_ids),
+        frozenset(BUILTIN_TASK_SUITE_DERIVATION_ADAPTER_CONTRACT_V2.output_schema_ids),
+        frozenset((BUILTIN_TASK_SUITE_DERIVATION_ADAPTER_CONTRACT_V2.stochastic,)),
     ),
     "validation": (
         "builtin_validation_profile@1",
@@ -748,24 +747,32 @@ def _build_exact_profile_binding_validator(
         run_kind: RunKindRef,
     ) -> None:
         definition, lifecycle = registry.resolve_execution_profile_binding(binding)
-        contract = _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS.get(binding.expected_profile_kind)
-        if contract is None:
-            raise IntegrityViolation(
-                "execution profile kind has no registered handler adapter contract",
-                field_path=binding.field_path,
+        if binding.expected_profile_kind == "constraint_compiler":
+            incompatible = (
+                definition.profile != binding.profile
+                or run_kind not in definition.compatible_run_kinds
+                or not builtin_constraint_compiler_adapter_matches(definition)
             )
-        handler_key, config_schema_id, inputs, outputs, stochastic_values = contract
-        if (
-            definition.profile != binding.profile
-            or definition.profile_kind != binding.expected_profile_kind
-            or run_kind not in definition.compatible_run_kinds
-            or definition.handler_key != handler_key
-            or definition.config_schema_id != config_schema_id
-            or frozenset(definition.input_schema_ids) != inputs
-            or frozenset(definition.output_schema_ids) != outputs
-            or definition.stochastic not in stochastic_values
-            or definition.required_capabilities
-        ):
+        else:
+            contract = _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS.get(binding.expected_profile_kind)
+            if contract is None:
+                raise IntegrityViolation(
+                    "execution profile kind has no registered handler adapter contract",
+                    field_path=binding.field_path,
+                )
+            handler_key, config_schema_id, inputs, outputs, stochastic_values = contract
+            incompatible = (
+                definition.profile != binding.profile
+                or definition.profile_kind != binding.expected_profile_kind
+                or run_kind not in definition.compatible_run_kinds
+                or definition.handler_key != handler_key
+                or definition.config_schema_id != config_schema_id
+                or frozenset(definition.input_schema_ids) != inputs
+                or frozenset(definition.output_schema_ids) != outputs
+                or definition.stochastic not in stochastic_values
+                or bool(definition.required_capabilities)
+            )
+        if incompatible:
             raise IntegrityViolation(
                 "execution profile definition is incompatible with the exact Run binding",
                 field_path=binding.field_path,

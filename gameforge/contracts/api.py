@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Annotated, Generic, Literal, TypeAlias, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints, model_validator
@@ -17,9 +18,27 @@ from gameforge.contracts.diff import (
     SnapshotDiffEntry,
 )
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.execution_profiles import ExecutionProfileViewV1, ProfileRefV1
-from gameforge.contracts.findings import PatchV2, TypedOp
-from gameforge.contracts.identity import DomainScope, DomainScopeValue, Role
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileViewV1,
+    MAX_PREPARED_OUTCOME_BYTES_V1,
+    MAX_TASK_SUITE_SCENARIOS_V1,
+    ProfileRefV1,
+    ResolvedExecutionProfileBindingV1,
+    RunKindRef,
+)
+from gameforge.contracts.findings import (
+    FindingRevisionV1,
+    PatchV2,
+    TypedOp,
+    finding_revision_digest,
+)
+from gameforge.contracts.identity import (
+    DomainScope,
+    DomainScopeValue,
+    LowerHexSha256,
+    Role,
+    SubjectKind,
+)
 from gameforge.contracts.ir import Entity, Relation
 from gameforge.contracts.jobs import (
     BenchRunPayloadV1,
@@ -44,7 +63,7 @@ from gameforge.contracts.jobs import (
     Uint64,
 )
 from gameforge.contracts.lineage import ArtifactKind, VersionTuple
-from gameforge.contracts.playtest import TaskSuiteV1
+from gameforge.contracts.playtest import CompletionOracleRegistryRefV1, TaskSuiteV1
 from gameforge.contracts.review import ReviewReport
 from gameforge.contracts.storage import MAX_PAGE_ITEMS, RefValue
 from gameforge.contracts.workflow import (
@@ -217,6 +236,49 @@ class ReviewArtifactViewV1(_FrozenModel):
         return self
 
 
+class ReviewProducerBindingViewV1(_FrozenModel):
+    """Exact occurrence of one Review Artifact in one terminal Run manifest."""
+
+    view_schema_version: Literal["review-producer-binding-view@1"] = (
+        "review-producer-binding-view@1"
+    )
+    review_artifact_id: BoundedId
+    run_id: BoundedId
+    attempt_no: PositiveInt
+    run_kind: RunKindRef
+    terminal_status: Literal["succeeded", "failed", "cancelled", "timed_out"]
+    terminal_manifest_id: BoundedId
+    terminal_manifest_kind: Literal["run_result", "run_failure"]
+    outcome_code: BoundedId
+    outcome_policy_id: BoundedId
+    outcome_policy_version: PositiveInt
+    outcome_rule_id: BoundedId
+    manifest_role: Literal["output", "evidence"]
+    finding_authority: Literal["exact-run-links", "embedded-only", "not-applicable"]
+
+    @model_validator(mode="after")
+    def _terminal_occurrence(self) -> "ReviewProducerBindingViewV1":
+        if (self.run_kind.kind, self.run_kind.version) not in {
+            ("review.run", 1),
+            ("generation.propose", 1),
+        }:
+            raise ValueError("Review producer Run kind is not supported")
+        succeeded = self.terminal_status == "succeeded"
+        if succeeded != (self.terminal_manifest_kind == "run_result"):
+            raise ValueError("Review producer terminal status and manifest kind differ")
+        if self.run_kind.kind == "review.run" and self.manifest_role != "output":
+            raise ValueError("standalone Review must be a Run output")
+        if self.run_kind.kind == "generation.propose" and self.manifest_role != "evidence":
+            raise ValueError("generation-gate Review must be Run evidence")
+        if self.finding_authority == "exact-run-links" and self.run_kind.kind != "review.run":
+            raise ValueError("exact Run links belong only to standalone Review Runs")
+        if self.finding_authority == "embedded-only" and self.run_kind.kind != (
+            "generation.propose"
+        ):
+            raise ValueError("embedded Review findings belong only to generation gates")
+        return self
+
+
 class TaskSuiteArtifactViewV1(_FrozenModel):
     view_schema_version: Literal["task-suite-artifact-view@1"] = "task-suite-artifact-view@1"
     artifact: ArtifactSummaryV1
@@ -281,6 +343,21 @@ class RollbackRequestReadViewV1(_FrozenModel):
         return self
 
 
+class SubjectApprovalBindingViewV1(_FrozenModel):
+    """Exact retained workflow binding for one immutable subject Artifact."""
+
+    subject_artifact_id: BoundedId
+    subject_digest: LowerHexSha256
+    subject_kind: SubjectKind
+    subject_series_id: BoundedId
+    subject_revision: PositiveInt
+    subject_head_revision: PositiveInt
+    is_current_head: bool
+    approval_id: BoundedId
+    workflow_revision: PositiveInt
+    approval_status: ApprovalStatus
+
+
 class SnapshotDiffHttpPageV1(_FrozenModel):
     page_schema_version: Literal["snapshot-diff-http-page@1"] = "snapshot-diff-http-page@1"
     diff: SnapshotDiff
@@ -304,6 +381,57 @@ class ExecutionProfileReadViewV1(_FrozenModel):
     profile: ExecutionProfileViewV1
     catalog_version: PositiveInt
     catalog_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+
+
+class ConstraintValidationCompilerBindingViewV1(_FrozenModel):
+    """Browser-safe exact compiler authority for constraint validation."""
+
+    binding_schema_version: Literal["constraint-validation-compiler-binding@1"] = (
+        "constraint-validation-compiler-binding@1"
+    )
+    compiler_profile: ProfileRefV1
+    profile_payload_hash: LowerHexSha256
+    run_kind: RunKindRef
+    differential_engines: tuple[SolverEngineRefV1, ...] = Field(
+        min_length=2,
+        max_length=MAX_COLLECTION_ITEMS,
+    )
+
+    @model_validator(mode="after")
+    def _exact_binding(self) -> "ConstraintValidationCompilerBindingViewV1":
+        if (self.run_kind.kind, self.run_kind.version) != (
+            "constraint_proposal.validate",
+            1,
+        ):
+            raise ValueError("run_kind must be constraint_proposal.validate@1")
+        keys = tuple((engine.engine_id, engine.version) for engine in self.differential_engines)
+        if keys != tuple(sorted(set(keys))):
+            raise ValueError("differential_engines must be canonical and unique")
+        return self
+
+
+class TaskSuiteDerivationBindingViewV1(_FrozenModel):
+    """Browser-safe complete authority for one task-suite derivation profile."""
+
+    binding_schema_version: Literal["task-suite-derivation-binding@1"] = (
+        "task-suite-derivation-binding@1"
+    )
+    derivation_profile: ProfileRefV1
+    profile_payload_hash: LowerHexSha256
+    run_kind: RunKindRef
+    target_environment_profile: ProfileRefV1
+    completion_oracle_registry_ref: CompletionOracleRegistryRefV1
+    max_scenarios: int = Field(ge=1, le=MAX_TASK_SUITE_SCENARIOS_V1)
+    max_total_prepared_artifact_bytes: int = Field(
+        ge=1,
+        le=MAX_PREPARED_OUTCOME_BYTES_V1,
+    )
+
+    @model_validator(mode="after")
+    def _exact_binding(self) -> "TaskSuiteDerivationBindingViewV1":
+        if (self.run_kind.kind, self.run_kind.version) != ("task_suite.derive", 1):
+            raise ValueError("run_kind must be task_suite.derive@1")
+        return self
 
 
 class RunAcceptedV1(_FrozenModel):
@@ -345,6 +473,26 @@ class RunViewV1(_FrozenModel):
             raise ValueError(f"{self.status} Run requires attempt_no")
         if self.status == "queued" and self.attempt_no is not None:
             raise ValueError("queued Run cannot expose an attempt number")
+        return self
+
+
+class RunFindingLinkViewV1(_FrozenModel):
+    """Exact immutable Finding revision bound to one producer Run ordinal."""
+
+    view_schema_version: Literal["run-finding-link-view@1"] = "run-finding-link-view@1"
+    run_id: BoundedId
+    attempt_no: PositiveInt
+    ordinal: PositiveInt
+    finding: FindingRevisionV1
+    finding_digest: LowerHexSha256
+    evidence_artifact_id: BoundedId
+
+    @model_validator(mode="after")
+    def _exact_authority(self) -> "RunFindingLinkViewV1":
+        if self.finding.payload.producer_run_id != self.run_id:
+            raise ValueError("Finding producer Run differs from the Run link")
+        if finding_revision_digest(self.finding) != self.finding_digest:
+            raise ValueError("Finding digest differs from the exact immutable revision")
         return self
 
 
@@ -714,6 +862,213 @@ class PlaytestRunRequestV1(_FrozenModel):
         return self
 
 
+AgentGenericRunKindPayload: TypeAlias = Annotated[
+    ReviewRunPayloadV1 | BenchRunPayloadV1,
+    Field(discriminator="schema_version"),
+]
+
+
+class ProspectiveGenericAgentRunRequestV1(_FrozenModel):
+    """Prospective Agent-only branch of the unchanged generic ``POST /runs`` wire."""
+
+    request_schema_version: Literal["run-submission-request@1"] = "run-submission-request@1"
+    params: AgentGenericRunKindPayload
+    llm_execution_mode: Literal["live", "record", "replay"]
+    seed: Uint64 | None = None
+    execution_version_plan: None = Field()
+    cassette_artifact_id: None = Field()
+
+    @model_validator(mode="after")
+    def _agent_only(self) -> "ProspectiveGenericAgentRunRequestV1":
+        if isinstance(self.params, ReviewRunPayloadV1) and self.params.llm_triage_policy is None:
+            raise ValueError("prospective review requires an LLM triage profile")
+        if isinstance(self.params, BenchRunPayloadV1) and self.params.execution_scope != (
+            "execute_cases"
+        ):
+            raise ValueError("prospective Agent bench must execute cases")
+        _bounded_request_payload(self)
+        return self
+
+
+class ProspectiveGenerationProposeRequestV1(GenerationProposeRequestV1):
+    execution_version_plan: None = Field()
+    cassette_artifact_id: None = Field()
+
+
+class ProspectiveConstraintProposeRequestV1(ConstraintProposeRequestV1):
+    execution_version_plan: None = Field()
+    cassette_artifact_id: None = Field()
+
+
+class ProspectivePatchRepairRequestV1(PatchRepairRequestV1):
+    execution_version_plan: None = Field()
+    cassette_artifact_id: None = Field()
+
+
+class ProspectivePlaytestRunRequestV1(PlaytestRunRequestV1):
+    execution_version_plan: None = Field()
+    cassette_artifact_id: None = Field()
+
+
+ProspectiveAgentRunRequestV1: TypeAlias = Annotated[
+    ProspectiveGenericAgentRunRequestV1
+    | ProspectiveGenerationProposeRequestV1
+    | ProspectiveConstraintProposeRequestV1
+    | ProspectivePatchRepairRequestV1
+    | ProspectivePlaytestRunRequestV1,
+    Field(discriminator="request_schema_version"),
+]
+
+
+AgentResourceOperationId: TypeAlias = Literal[
+    "propose_generation_api_v1_generation_propose_post",
+    "repair_patch_api_v1_patches__artifact_id__repair_post",
+    "propose_constraint_api_v1_constraint_proposals_propose_post",
+    "submit_run_api_v1_runs_post",
+    "run_playtest_api_v1_playtest_run_post",
+]
+
+
+def _prospective_run_kind(
+    request: ProspectiveAgentRunRequestV1,
+) -> tuple[AgentResourceOperationId, RunKindRef]:
+    if isinstance(request, ProspectiveGenerationProposeRequestV1):
+        return (
+            "propose_generation_api_v1_generation_propose_post",
+            RunKindRef(kind="generation.propose", version=1),
+        )
+    if isinstance(request, ProspectivePatchRepairRequestV1):
+        return (
+            "repair_patch_api_v1_patches__artifact_id__repair_post",
+            RunKindRef(kind="patch.repair", version=1),
+        )
+    if isinstance(request, ProspectiveConstraintProposeRequestV1):
+        return (
+            "propose_constraint_api_v1_constraint_proposals_propose_post",
+            RunKindRef(kind="constraint_proposal.propose", version=1),
+        )
+    if isinstance(request, ProspectivePlaytestRunRequestV1):
+        return (
+            "run_playtest_api_v1_playtest_run_post",
+            RunKindRef(kind="playtest.run", version=1),
+        )
+    if isinstance(request, ProspectiveGenericAgentRunRequestV1):
+        kind = "review.run" if isinstance(request.params, ReviewRunPayloadV1) else "bench.run"
+        return "submit_run_api_v1_runs_post", RunKindRef(kind=kind, version=1)
+    raise TypeError("unsupported prospective Agent request")
+
+
+class ExecutionOptionResolveRequestV1(_FrozenModel):
+    request_schema_version: Literal["execution-option-resolve-request@1"] = (
+        "execution-option-resolve-request@1"
+    )
+    resource_operation_id: AgentResourceOperationId
+    run_kind: RunKindRef
+    llm_execution_mode: Literal["live", "record", "replay"]
+    prospective_request: ProspectiveAgentRunRequestV1
+    replay_source_run_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _exact_request_mapping(self) -> "ExecutionOptionResolveRequestV1":
+        expected_operation, expected_kind = _prospective_run_kind(self.prospective_request)
+        if self.resource_operation_id != expected_operation:
+            raise ValueError("resource operation does not match the prospective request")
+        if self.run_kind != expected_kind:
+            raise ValueError("RunKind does not match the prospective request")
+        if self.llm_execution_mode != self.prospective_request.llm_execution_mode:
+            raise ValueError("execution mode does not match the prospective request")
+        if (self.llm_execution_mode == "replay") != (self.replay_source_run_id is not None):
+            raise ValueError("replay source is required exactly for replay execution")
+        _bounded_request_payload(self)
+        return self
+
+
+_EXECUTION_OPTION_HASH_UNSET = object()
+
+
+def compute_execution_option_request_hash(
+    request: ExecutionOptionResolveRequestV1,
+    *,
+    execution_version_plan: ExecutionVersionPlanV1 | None | object = (_EXECUTION_OPTION_HASH_UNSET),
+    cassette_artifact_id: str | None | object = _EXECUTION_OPTION_HASH_UNSET,
+) -> str:
+    prospective = request.prospective_request.model_dump(mode="json", by_alias=True)
+    if execution_version_plan is not _EXECUTION_OPTION_HASH_UNSET:
+        prospective["execution_version_plan"] = (
+            None
+            if execution_version_plan is None
+            else execution_version_plan.model_dump(mode="json", by_alias=True)
+        )
+    if cassette_artifact_id is not _EXECUTION_OPTION_HASH_UNSET:
+        prospective["cassette_artifact_id"] = cassette_artifact_id
+    return canonical_sha256(
+        {
+            "resource_operation_id": request.resource_operation_id,
+            "run_kind": request.run_kind.model_dump(mode="json"),
+            "llm_execution_mode": request.llm_execution_mode,
+            "prospective_request": prospective,
+        }
+    )
+
+
+def compute_resolved_profile_binding_digests(
+    bindings: tuple[ResolvedExecutionProfileBindingV1, ...],
+) -> tuple[str, ...]:
+    ordered = tuple(sorted(bindings, key=lambda binding: binding.field_path))
+    if len({binding.field_path for binding in ordered}) != len(ordered):
+        raise ValueError("resolved profile binding field paths must be unique")
+    return tuple(sorted(canonical_sha256(binding.model_dump(mode="json")) for binding in ordered))
+
+
+def compute_execution_option_id(value: Mapping[str, object] | BaseModel) -> str:
+    body = (
+        value.model_dump(mode="json", by_alias=True)
+        if isinstance(value, BaseModel)
+        else dict(value)
+    )
+    body.pop("option_id", None)
+    body = {
+        key: item.model_dump(mode="json", by_alias=True) if isinstance(item, BaseModel) else item
+        for key, item in body.items()
+    }
+    return "execution-option:sha256:" + canonical_sha256(body)
+
+
+class ExecutionOptionViewV1(_FrozenModel):
+    option_schema_version: Literal["execution-option@1"] = "execution-option@1"
+    option_id: Annotated[
+        str,
+        StringConstraints(pattern=r"^execution-option:sha256:[0-9a-f]{64}$"),
+    ]
+    resource_operation_id: AgentResourceOperationId
+    run_kind: RunKindRef
+    domain_scope: DomainScope
+    llm_execution_mode: Literal["live", "record", "replay"]
+    execution_version_plan: ExecutionVersionPlanV1
+    prospective_request_hash: LowerHexSha256
+    resolved_request_hash: LowerHexSha256
+    resolved_profile_binding_digests: tuple[LowerHexSha256, ...] = Field(
+        min_length=1,
+        max_length=MAX_COLLECTION_ITEMS,
+    )
+    source_run_id: BoundedId | None = None
+    cassette_artifact_id: BoundedId | None = None
+
+    @model_validator(mode="after")
+    def _exact_option(self) -> "ExecutionOptionViewV1":
+        digests = tuple(sorted(set(self.resolved_profile_binding_digests)))
+        if digests != self.resolved_profile_binding_digests:
+            raise ValueError("resolved profile binding digests must be stable-unique")
+        replay = self.llm_execution_mode == "replay"
+        if replay != (self.source_run_id is not None and self.cassette_artifact_id is not None):
+            raise ValueError("replay source and cassette are required exactly for replay")
+        if not replay and (self.source_run_id is not None or self.cassette_artifact_id is not None):
+            raise ValueError("non-replay option forbids a source and cassette")
+        if self.option_id != compute_execution_option_id(self):
+            raise ValueError("option_id does not match the canonical execution option")
+        return self
+
+
 class SubmitForApprovalRequestV1(_FrozenModel):
     request_schema_version: Literal["submit-for-approval-request@1"] = (
         "submit-for-approval-request@1"
@@ -792,6 +1147,59 @@ class ApprovalDecisionRequestV1(_FrozenModel):
         return self
 
 
+ApprovalDecisionActionV1: TypeAlias = Literal["approve", "reject", "request_changes"]
+ApprovalEligibilityReasonCodeV1: TypeAlias = Literal[
+    "workflow_not_pending",
+    "actor_not_active_human",
+    "maker_checker_conflict",
+    "actor_not_assigned",
+    "route_role_missing",
+    "permission_denied",
+    "requirement_already_satisfied",
+    "actor_already_decided_requirement",
+    "distinct_requirement_conflict",
+]
+_APPROVAL_DECISION_ACTION_ORDER = {
+    "approve": 0,
+    "reject": 1,
+    "request_changes": 2,
+}
+_APPROVAL_ELIGIBILITY_REASON_ORDER = {
+    "workflow_not_pending": 0,
+    "actor_not_active_human": 1,
+    "maker_checker_conflict": 2,
+    "actor_not_assigned": 3,
+    "route_role_missing": 4,
+    "permission_denied": 5,
+    "requirement_already_satisfied": 6,
+    "actor_already_decided_requirement": 7,
+    "distinct_requirement_conflict": 8,
+}
+
+
+class ApprovalDecisionEligibilityV1(_FrozenModel):
+    decision: ApprovalDecisionActionV1
+    eligible: bool
+    reason_codes: tuple[ApprovalEligibilityReasonCodeV1, ...] = Field(
+        max_length=len(_APPROVAL_ELIGIBILITY_REASON_ORDER),
+    )
+
+    @model_validator(mode="after")
+    def _canonical_reasons(self) -> "ApprovalDecisionEligibilityV1":
+        if len(self.reason_codes) != len(set(self.reason_codes)):
+            raise ValueError("approval eligibility reason_codes must be unique")
+        reasons = tuple(
+            sorted(
+                self.reason_codes,
+                key=_APPROVAL_ELIGIBILITY_REASON_ORDER.__getitem__,
+            )
+        )
+        if self.eligible != (not reasons):
+            raise ValueError("eligible must be true exactly when reason_codes is empty")
+        object.__setattr__(self, "reason_codes", reasons)
+        return self
+
+
 class ApprovalRequirementProgressV1(_FrozenModel):
     requirement_id: BoundedId
     domain_scope: DomainScope
@@ -800,17 +1208,37 @@ class ApprovalRequirementProgressV1(_FrozenModel):
     valid_approval_count: NonNegativeInt
     satisfied: bool
     eligible_for_current_actor: bool
+    decision_eligibility: tuple[ApprovalDecisionEligibilityV1, ...] = Field(
+        min_length=len(_APPROVAL_DECISION_ACTION_ORDER),
+        max_length=len(_APPROVAL_DECISION_ACTION_ORDER),
+    )
     unmet_distinct_from_requirement_ids: tuple[BoundedId, ...] = Field(
         max_length=MAX_APPROVAL_REQUIREMENTS,
     )
 
     @model_validator(mode="after")
     def _canonical_projection(self) -> "ApprovalRequirementProgressV1":
+        actions = [value.decision for value in self.decision_eligibility]
+        if set(actions) != set(_APPROVAL_DECISION_ACTION_ORDER) or len(actions) != len(
+            set(actions)
+        ):
+            raise ValueError("decision_eligibility must exactly cover all decision actions")
+        decision_eligibility = tuple(
+            sorted(
+                self.decision_eligibility,
+                key=lambda value: _APPROVAL_DECISION_ACTION_ORDER[value.decision],
+            )
+        )
+        if self.eligible_for_current_actor != any(value.eligible for value in decision_eligibility):
+            raise ValueError(
+                "eligible_for_current_actor must match the action eligibility aggregate"
+            )
         object.__setattr__(
             self,
             "unmet_distinct_from_requirement_ids",
             tuple(sorted(set(self.unmet_distinct_from_requirement_ids))),
         )
+        object.__setattr__(self, "decision_eligibility", decision_eligibility)
         if self.satisfied != (self.valid_approval_count >= self.min_approvals):
             raise ValueError("satisfied must match the valid approval threshold")
         return self
@@ -928,7 +1356,10 @@ def encode_sse_event(event: RunEventEnvelope) -> str:
 
 __all__ = [
     *_auth_exports,
+    "ApprovalDecisionActionV1",
+    "ApprovalDecisionEligibilityV1",
     "ApprovalDecisionRequestV1",
+    "ApprovalEligibilityReasonCodeV1",
     "ApprovalRequirementProgressV1",
     "ApprovalViewV1",
     "ArtifactPayloadViewV1",
@@ -936,6 +1367,9 @@ __all__ = [
     "ConstraintProposalReadViewV1",
     "ConstraintProposeRequestV1",
     "ConstraintSnapshotViewV1",
+    "ConstraintValidationCompilerBindingViewV1",
+    "ExecutionOptionResolveRequestV1",
+    "ExecutionOptionViewV1",
     "ExecutionProfileReadViewV1",
     "GenerationProposeRequestV1",
     "GenericRunKindPayload",
@@ -953,6 +1387,12 @@ __all__ = [
     "PatchValidationAdmissionRequestV1",
     "PlaytestRunRequestV1",
     "Problem",
+    "ProspectiveAgentRunRequestV1",
+    "ProspectiveConstraintProposeRequestV1",
+    "ProspectiveGenerationProposeRequestV1",
+    "ProspectiveGenericAgentRunRequestV1",
+    "ProspectivePatchRepairRequestV1",
+    "ProspectivePlaytestRunRequestV1",
     "RefHistoryEntryV1",
     "ResolveConflictsRequestV1",
     "RollbackDraftRequestV1",
@@ -964,12 +1404,15 @@ __all__ = [
     "RunCommandProblemV1",
     "RunCommandServerFrame",
     "RunEventEnvelope",
+    "RunFindingLinkViewV1",
     "RunSubmissionRequestV1",
     "RunViewV1",
     "SchemaRegistryDocumentV1",
     "SnapshotDiffHttpPageV1",
     "SpecViewV1",
     "SubmitForApprovalRequestV1",
+    "SubjectApprovalBindingViewV1",
+    "TaskSuiteDerivationBindingViewV1",
     "TaskSuiteArtifactViewV1",
     "TaskSuiteDeriveRequestV1",
     "ConstraintValidationAdmissionRequestV1",
@@ -977,6 +1420,9 @@ __all__ = [
     "WorkflowApplyResultV1",
     "WorkflowCommandPayloadV1",
     "WorkflowCommandResponseV1",
+    "compute_execution_option_id",
+    "compute_execution_option_request_hash",
+    "compute_resolved_profile_binding_digests",
     "compute_resource_etag",
     "encode_sse_event",
 ]

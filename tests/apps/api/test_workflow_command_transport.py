@@ -13,6 +13,7 @@ from gameforge.apps.api.dependencies import (
     require_actor,
 )
 from gameforge.contracts.api import RunAcceptedV1
+from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import InvalidStateTransition
 from gameforge.contracts.identity import ActorContext, AuthenticationContext, Principal
 from gameforge.contracts.jobs import Problem
@@ -61,7 +62,50 @@ class _Commands:
         )
 
 
-def _app(commands: _Commands):
+@dataclass
+class _SpecCommands:
+    commands: list[WorkflowCommand] = field(default_factory=list)
+
+    def execute(self, command: WorkflowCommand) -> WorkflowCommandResult:
+        self.commands.append(command)
+        return WorkflowCommandResult(
+            value={
+                "view_schema_version": "spec-view@1",
+                "artifact": {
+                    "summary_schema_version": "artifact-summary@1",
+                    "artifact_id": "artifact:spec:1",
+                    "lineage_schema_version": "lineage@1",
+                    "kind": "ir_snapshot",
+                    "version_tuple": {
+                        "doc_version": None,
+                        "ir_snapshot_id": "snapshot:spec:1",
+                        "constraint_snapshot_id": None,
+                        "tool_version": "spec-upload@1",
+                        "model_snapshot": None,
+                        "prompt_version": None,
+                        "agent_graph_version": None,
+                        "env_contract_version": None,
+                        "seed": None,
+                        "cassette_id": None,
+                    },
+                    "parent_artifact_ids": [],
+                    "payload_hash": None,
+                    "payload_schema_id": "ir-core@1",
+                    "domain_scope": {"domain_ids": ["economy"]},
+                    "created_at": None,
+                },
+                "snapshot_id": "snapshot:spec:1",
+                "schema_registry_version": "registry@1",
+                "ref_name": "spec/head",
+                "ref_value": {"artifact_id": "artifact:spec:1", "revision": 1},
+            },
+            resource_kind="spec_ref",
+            resource_id="spec/head",
+            revision=1,
+        )
+
+
+def _app(commands: _Commands | _SpecCommands):
     app = create_app(
         ApiDependencies(
             workflow_commands=commands,
@@ -94,6 +138,18 @@ def _validation_payload() -> dict[str, object]:
         "review_artifact_ids": [],
         "playtest_trace_artifact_ids": [],
         "regression_suite_artifact_ids": [],
+    }
+
+
+def _spec_payload() -> dict[str, object]:
+    return {
+        "request_schema_version": "human-spec-upload-request@1",
+        "ref_name": "spec/head",
+        "expected_ref": None,
+        "schema_registry_version": "registry@1",
+        "meta_schema_version": "meta@1",
+        "domain_scope": {"domain_ids": ["economy"]},
+        "content_payload": {},
     }
 
 
@@ -169,7 +225,7 @@ def test_request_hash_binds_route_payload_and_if_match_not_idempotency_key() -> 
         _headers(etag='"one", "two"'),
     ],
 )
-def test_every_command_requires_one_idempotency_key_and_strong_if_match(
+def test_every_existing_resource_command_requires_one_idempotency_key_and_strong_if_match(
     headers: dict[str, str],
 ) -> None:
     commands = _Commands()
@@ -183,6 +239,90 @@ def test_every_command_requires_one_idempotency_key_and_strong_if_match(
 
     assert response.status_code == 422
     assert response.headers["content-type"] == "application/problem+json"
+    assert Problem.model_validate(response.json()).code == "request_schema_invalid"
+    assert commands.commands == []
+
+
+def test_create_command_omits_if_match_and_ignores_a_legacy_header_semantically() -> None:
+    commands = _SpecCommands()
+    app, _ = _app(commands)
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        without_legacy = client.post(
+            "/api/v1/specs",
+            json=_spec_payload(),
+            headers={"Idempotency-Key": "spec:create:without-legacy"},
+        )
+        with_legacy = client.post(
+            "/api/v1/specs",
+            json=_spec_payload(),
+            headers={
+                "Idempotency-Key": "spec:create:with-legacy",
+                "If-Match": "legacy-value-that-is-not-an-etag",
+            },
+        )
+
+    assert [without_legacy.status_code, with_legacy.status_code] == [201, 201]
+    first, second = commands.commands
+    assert first.metadata.if_match is None
+    assert second.metadata.if_match is None
+    assert first.metadata.request_hash == second.metadata.request_hash
+    assert first.metadata.request_hash == canonical_sha256(
+        {
+            "request_hash_schema_version": "workflow-command-request-hash@1",
+            "api_version": "v1",
+            "operation": "spec.upload",
+            "method": "POST",
+            "path": "/api/v1/specs",
+            "payload": first.payload.model_dump(mode="json", by_alias=True),
+        }
+    )
+
+
+def test_valid_legacy_create_if_match_preserves_the_exact_pre_d2_request_hash() -> None:
+    commands = _SpecCommands()
+    app, _ = _app(commands)
+    legacy_etag = '"legacy-create-etag"'
+    headers = {
+        "Idempotency-Key": "spec:create:legacy-retry",
+        "If-Match": legacy_etag,
+    }
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        first_response = client.post(
+            "/api/v1/specs",
+            json=_spec_payload(),
+            headers=headers,
+        )
+        retry_response = client.post(
+            "/api/v1/specs",
+            json=_spec_payload(),
+            headers=headers,
+        )
+
+    assert [first_response.status_code, retry_response.status_code] == [201, 201]
+    first, retry = commands.commands
+    expected_hash = canonical_sha256(
+        {
+            "request_hash_schema_version": "workflow-command-request-hash@1",
+            "api_version": "v1",
+            "operation": "spec.upload",
+            "method": "POST",
+            "path": "/api/v1/specs",
+            "if_match": legacy_etag,
+            "payload": first.payload.model_dump(mode="json", by_alias=True),
+        }
+    )
+    assert first.metadata.if_match is None
+    assert retry.metadata.if_match is None
+    assert first.metadata.request_hash == retry.metadata.request_hash == expected_hash
+
+
+def test_create_command_still_requires_exactly_one_idempotency_key() -> None:
+    commands = _SpecCommands()
+    app, _ = _app(commands)
+    with TestClient(app, base_url="https://gameforge.test") as client:
+        response = client.post("/api/v1/specs", json=_spec_payload())
+
+    assert response.status_code == 422
     assert Problem.model_validate(response.json()).code == "request_schema_invalid"
     assert commands.commands == []
 

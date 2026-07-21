@@ -1,0 +1,118 @@
+{
+  "playtest_trace_schema_version": "playtest-trace@1",
+  "config_artifact_id": "artifact:config-export:outpost-r18",
+  "constraint_snapshot_artifact_id": "artifact:constraints:production-r7",
+  "task_suite_artifact_id": "artifact:task-suite:outpost-r18",
+  "environment_profile": {
+    "profile_id": "environment:aureus",
+    "version": 1
+  },
+  "planner_policy": {
+    "profile_id": "planner:layered",
+    "version": 4
+  },
+  "env_contract_version": "env@1",
+  "interaction_mode": "autonomous",
+  "seed": 1,
+  "requested_max_steps_per_episode": 6,
+  "planner_memory_mode": "off",
+  "execution_envelope": {
+    "planner_profile_payload_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "selected_episode_count": 1,
+    "total_step_limit": 6,
+    "model_call_upper_bound": 18,
+    "total_trace_byte_upper_bound": 851976,
+    "actual_model_calls": 4,
+    "total_action_count": 4,
+    "total_action_trace_bytes": 748,
+    "actual_trace_bytes": 2836
+  },
+  "episodes": [
+    {
+      "episode_id": "episode:outpost-signal",
+      "scenario_spec_artifact_id": "artifact:scenario:outpost-signal",
+      "seed": 3145463017865480,
+      "seed_binding": {
+        "seed_derivation_version": "subseed@1",
+        "root_seed": 1,
+        "run_kind": {
+          "kind": "playtest.run",
+          "version": 1
+        },
+        "profile": {
+          "profile_id": "environment:aureus",
+          "version": 1
+        },
+        "case_id": "artifact:task-suite:outpost-r18:episode:outpost-signal",
+        "replication_index": 0,
+        "seed": 3145463017865480
+      },
+      "step_budget": 8,
+      "execution_step_limit": 6,
+      "completion_oracle": {
+        "oracle_id": "oracle:all-quests-completed",
+        "version": 1,
+        "params_schema_id": "state-predicate-params@1",
+        "params": {
+          "predicate": "all_quests_completed"
+        }
+      },
+      "completed": false,
+      "terminal_reason": "agent_stopped",
+      "initial_state_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "final_state_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "action_trace": [
+        {
+          "action": {
+            "kind": "navigate_to",
+            "target": "NPC:lincheng"
+          },
+          "last_action_result": "ok",
+          "tick": 4,
+          "state_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "action": {
+            "kind": "interact",
+            "target": "NPC:lincheng"
+          },
+          "last_action_result": "ok",
+          "tick": 5,
+          "state_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        {
+          "action": {
+            "kind": "navigate_to",
+            "target": "MONSTER:relay-guardian"
+          },
+          "last_action_result": "blocked: path unavailable",
+          "tick": 6,
+          "state_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        {
+          "action": {
+            "kind": "wait",
+            "ticks": 1
+          },
+          "last_action_result": "blocked: no progress",
+          "tick": 7,
+          "state_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        }
+      ],
+      "markers": [
+        {
+          "kind": "stuck",
+          "step_index": 3,
+          "state_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "detail": "three consecutive steps produced the same authoritative state"
+        },
+        {
+          "kind": "failure",
+          "step_index": 3,
+          "state_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "detail": "agent_stopped"
+        }
+      ]
+    }
+  ]
+}

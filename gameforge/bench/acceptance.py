@@ -35,8 +35,15 @@ from gameforge.bench.qa.score import (
     QaEvidenceManifest,
     canonical_evidence_bytes as canonical_qa_bytes,
     load_evidence as load_qa,
+    score_sessions,
+    validate_qa_evidence,
 )
-from gameforge.bench.report import format_text
+from gameforge.bench.qa.protocol import (
+    QaProtocol,
+    canonical_protocol_bytes as canonical_qa_protocol_bytes,
+    load_protocol as load_qa_protocol,
+)
+from gameforge.bench.report import build_qa_section, format_text
 from gameforge.bench.report_contracts import (
     BenchReport,
     BinaryMetric,
@@ -113,6 +120,7 @@ class M3EvidenceBundle(StrictModel):
     external: ExternalCorpusManifest
     narrative: NarrativeEvidenceManifest
     hed: HedEvidenceManifest
+    qa_protocol: QaProtocol
     qa: QaEvidenceManifest | None
     agent_cost: AgentCostLatencyEvidence | None
     deterministic_runtime: DeterministicRuntimeEvidence | None
@@ -184,11 +192,7 @@ def _binary_matches(
 
 
 def _by_class(rows: Sequence[BinaryMetric]) -> dict[DefectClass, BinaryMetric]:
-    return {
-        item.defect_class: item
-        for item in rows
-        if item.defect_class is not None
-    }
+    return {item.defect_class: item for item in rows if item.defect_class is not None}
 
 
 def _validate_corpus(report: BenchReport, failures: list[GateFailure]) -> None:
@@ -253,8 +257,7 @@ def _validate_narrative(
         )
     if (
         report.narrative.protocol_sha256 != evidence.protocol_sha256
-        or report.narrative.corpus_manifest_sha256
-        != evidence.corpus_manifest_sha256
+        or report.narrative.corpus_manifest_sha256 != evidence.corpus_manifest_sha256
     ):
         _add(
             failures,
@@ -338,11 +341,7 @@ def _validate_narrative(
     power = {item.defect_class: item for item in report.power}
     for defect in NARRATIVE_CLASSES:
         row = power.get(defect)
-        if (
-            row is None
-            or row.achieved_half_width > _POWER_TARGET
-            or row.status != "measured"
-        ):
+        if row is None or row.achieved_half_width > _POWER_TARGET or row.status != "measured":
             _add(
                 failures,
                 "narrative.power_under_target",
@@ -419,14 +418,10 @@ def _validate_external(
         )
     classes = {item.spec.defect_class for item in cases}
     verification_classes = {
-        item.spec.defect_class
-        for item in cases
-        if item.spec.split == "verification"
+        item.spec.defect_class for item in cases if item.spec.split == "verification"
     }
     development_classes = {
-        item.spec.defect_class
-        for item in cases
-        if item.spec.split == "development"
+        item.spec.defect_class for item in cases if item.spec.split == "development"
     }
     if (
         len(classes) != _EXTERNAL_CLASSES
@@ -452,8 +447,7 @@ def _validate_external(
     for case in cases:
         path = f"evidence.external.cases.{case.spec.case_id}"
         before_hit = any(
-            item.status == "confirmed"
-            and item.defect_class == case.spec.defect_class.value
+            item.status == "confirmed" and item.defect_class == case.spec.defect_class.value
             for item in case.findings_before
         )
         if (
@@ -635,6 +629,7 @@ def _validate_hed(
 
 def _validate_qa(
     report: BenchReport,
+    protocol: QaProtocol,
     evidence: QaEvidenceManifest | None,
     failures: list[GateFailure],
 ) -> None:
@@ -645,7 +640,7 @@ def _validate_qa(
             "evidence.qa",
             "eight real participant sessions and four matched pairs are still missing",
         )
-        if report.qa.conclusion != "pending" or report.qa.evidence_ref is not None:
+        if report.qa != build_qa_section(protocol, None):
             _add(
                 failures,
                 "qa.report_mismatch",
@@ -653,6 +648,25 @@ def _validate_qa(
                 "missing QA evidence must remain explicitly pending",
             )
         return
+
+    if (
+        evidence.protocol_sha256 != protocol.protocol_sha256
+        or evidence.participant_id != protocol.participant_id
+        or any(item.participant_id != protocol.participant_id for item in evidence.sessions)
+    ):
+        _add(
+            failures,
+            "qa.protocol_binding",
+            "evidence.qa",
+            "QA evidence and every session must bind the supplied participant protocol",
+        )
+    if evidence.score != score_sessions(protocol, evidence.sessions):
+        _add(
+            failures,
+            "qa.score_mismatch",
+            "evidence.qa.score",
+            "QA score must rederive exactly from the protocol-bound sessions",
+        )
 
     score = evidence.score
     if (
@@ -705,18 +719,11 @@ def _validate_qa(
                 "matched QA result must bind both timed arms and their correctness verdicts",
             )
 
-    if (
-        report.qa.protocol_sha256 != evidence.protocol_sha256
-        or report.qa.evidence_ref is None
-        or report.qa.conclusion != score.conclusion
-        or report.qa.manual_success.evaluated_n != score.manual_success.n
-        or report.qa.manual_success.k != score.manual_success.k
-        or report.qa.assisted_success.evaluated_n != score.assisted_success.n
-        or report.qa.assisted_success.k != score.assisted_success.k
-        or report.qa.paired_saved_minutes.evaluated_n != score.evaluated_pairs
-        or report.qa.paired_saved_minutes.mean != score.mean_saved_minutes
-        or report.qa.paired_saved_fraction.mean != score.mean_saved_fraction
-    ):
+    try:
+        expected_section = build_qa_section(protocol, evidence)
+    except ValueError:
+        expected_section = None
+    if report.qa != expected_section:
         _add(
             failures,
             "qa.report_mismatch",
@@ -750,9 +757,7 @@ def _validate_cost(
         return
 
     source = {item.workload_id: item for item in evidence.workloads}
-    rendered = {
-        item.workload_id: item for item in report.cost_latency.agent.workloads
-    }
+    rendered = {item.workload_id: item for item in report.cost_latency.agent.workloads}
     expected_ids = set(_WORKLOAD_DENOMINATORS)
     if set(source) != expected_ids or set(rendered) != expected_ids:
         _add(
@@ -889,13 +894,10 @@ def _validate_cost(
             or row.session_cache_reuses != workload.session_cache_reuses
             or row.known_transport_attempts != workload.known_transport_attempts
             or row.known_transport_retries != workload.known_transport_retries
-            or row.unknown_transport_attempt_records
-            != workload.unknown_transport_attempt_records
-            or row.tokens_per_sample.evaluated_n
-            != workload.tokens_per_sample.evaluated_n
+            or row.unknown_transport_attempt_records != workload.unknown_transport_attempt_records
+            or row.tokens_per_sample.evaluated_n != workload.tokens_per_sample.evaluated_n
             or row.tokens_per_sample.mean != workload.tokens_per_sample.mean
-            or row.request_latency_ms.evaluated_n
-            != workload.request_latency_ms.evaluated_n
+            or row.request_latency_ms.evaluated_n != workload.request_latency_ms.evaluated_n
             or row.request_latency_ms.mean != workload.request_latency_ms.mean
         ):
             _add(
@@ -997,13 +999,10 @@ def _canonical_source_hashes(
     evidence: M3EvidenceBundle,
 ) -> dict[str, str]:
     values = {
-        report.external.evidence_ref: _sha256(
-            canonical_external_bytes(evidence.external)
-        ),
-        report.narrative.evidence_ref: _sha256(
-            canonical_narrative_bytes(evidence.narrative)
-        ),
+        report.external.evidence_ref: _sha256(canonical_external_bytes(evidence.external)),
+        report.narrative.evidence_ref: _sha256(canonical_narrative_bytes(evidence.narrative)),
         report.hed.evidence_ref: _sha256(canonical_hed_bytes(evidence.hed)),
+        "qa-protocol": _sha256(canonical_qa_protocol_bytes(evidence.qa_protocol)),
     }
     if evidence.qa is not None and report.qa.evidence_ref is not None:
         values[report.qa.evidence_ref] = _sha256(canonical_qa_bytes(evidence.qa))
@@ -1064,7 +1063,7 @@ def validate_m3_acceptance(
     _validate_false_positives(report, failures)
     _validate_external(report, evidence.external, failures)
     _validate_hed(report, evidence.hed, evidence.external, failures)
-    _validate_qa(report, evidence.qa, failures)
+    _validate_qa(report, evidence.qa_protocol, evidence.qa, failures)
     _validate_cost(
         report,
         evidence.agent_cost,
@@ -1074,10 +1073,7 @@ def validate_m3_acceptance(
     )
     _validate_runtime(report, evidence.deterministic_runtime, failures)
     _validate_artifacts_and_views(report, evidence, failures)
-    unique = {
-        (item.code, item.path, item.message): item
-        for item in failures
-    }
+    unique = {(item.code, item.path, item.message): item for item in failures}
     return tuple(unique[key] for key in sorted(unique))
 
 
@@ -1118,19 +1114,16 @@ def load_m3_evidence_bundle(
 
     root = Path(repo_root)
     refs = {item.evidence_id: item for item in report.evidence}
-    external = load_external(
-        _artifact_path(root, refs, report.external.evidence_ref)
-    )
-    narrative = load_narrative(
-        _artifact_path(root, refs, report.narrative.evidence_ref)
-    )
+    external = load_external(_artifact_path(root, refs, report.external.evidence_ref))
+    narrative = load_narrative(_artifact_path(root, refs, report.narrative.evidence_ref))
     hed = load_hed(_artifact_path(root, refs, report.hed.evidence_ref))
+    qa_protocol = load_qa_protocol(_artifact_path(root, refs, "qa-protocol"))
     qa_ref = refs.get(report.qa.evidence_ref or "qa")
     qa_path = root / qa_ref.path if qa_ref is not None else None
     qa = load_qa(qa_path) if qa_path is not None and qa_path.is_file() else None
-    agent_cost = load_agent_cost(
-        _artifact_path(root, refs, report.cost_latency.agent.evidence_ref)
-    )
+    if qa is not None:
+        validate_qa_evidence(qa, qa_protocol, qa_path.parent)
+    agent_cost = load_agent_cost(_artifact_path(root, refs, report.cost_latency.agent.evidence_ref))
     runtime = load_runtime_evidence(
         _artifact_path(root, refs, report.cost_latency.deterministic.evidence_ref)
     )
@@ -1150,6 +1143,7 @@ def load_m3_evidence_bundle(
         external=external,
         narrative=narrative,
         hed=hed,
+        qa_protocol=qa_protocol,
         qa=qa,
         agent_cost=agent_cost,
         deterministic_runtime=runtime,

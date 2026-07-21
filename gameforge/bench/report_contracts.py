@@ -418,6 +418,10 @@ class HedSection(StrictModel):
 class QaSection(StrictModel):
     scope: Literal["single-participant-eight-session-case-study"]
     protocol_sha256: Sha256
+    time_scoring: Literal[
+        "legacy_observed_capped_active",
+        "incorrect_uses_active_cap",
+    ] = "legacy_observed_capped_active"
     paired_saved_minutes: DistributionMetric
     paired_saved_fraction: DistributionMetric
     manual_success: BinaryMetric
@@ -547,9 +551,32 @@ class BenchReport(StrictModel):
                 raise ValueError("per-class BDR metric requires a defect class")
             if metric.bucket != CLASS_META[metric.defect_class].bucket.value:
                 raise ValueError("per-class BDR metric bucket differs from taxonomy")
+        if any(
+            CLASS_META[metric.defect_class].bucket.value == "llm_assisted"
+            for metric in self.seeded
+            if metric.defect_class is not None
+        ) or any(
+            CLASS_META[metric.defect_class].bucket.value != "llm_assisted"
+            for metric in self.narrative.bdr
+            if metric.defect_class is not None
+        ):
+            raise ValueError("seeded and narrative BDR partitions differ from the taxonomy")
         power_classes = tuple(metric.defect_class for metric in self.power)
         if len(power_classes) != len(DefectClass) or set(power_classes) != set(DefectClass):
             raise ValueError("BenchReport power rows must cover all 15 defect classes")
+        bdr_by_class = {metric.defect_class: metric for metric in all_class_metrics}
+        for power in self.power:
+            bdr = bdr_by_class[power.defect_class]
+            if bdr.ci_low is None or bdr.ci_high is None or bdr.ci_method != "wilson95":
+                raise ValueError("power row differs from its BDR metric")
+            achieved_half_width = (bdr.ci_high - bdr.ci_low) / 2.0
+            if (
+                power.bucket != bdr.bucket
+                or power.evaluated_n != bdr.evaluated_n
+                or abs(power.achieved_half_width - achieved_half_width) > 1e-12
+                or power.evidence_ref != bdr.evidence_ref
+            ):
+                raise ValueError("power row differs from its BDR metric")
         for rows in (
             self.seeded,
             self.false_positives,
@@ -636,7 +663,13 @@ def load_bench_report(path: str | Path) -> BenchReport:
     if payload.get("schema_version") != "bench-report@2":
         raise ValueError("unsupported BenchReport schema; expected bench-report@2")
     report = BenchReport.model_validate(payload)
-    if canonical_report_bytes(report) != raw:
+    legacy_qa = isinstance(payload.get("qa"), dict) and "time_scoring" not in payload["qa"]
+    expected_bytes = (
+        (canonical_json(payload) + "\n").encode("utf-8")
+        if legacy_qa
+        else canonical_report_bytes(report)
+    )
+    if expected_bytes != raw:
         raise ValueError("bench-report@2 JSON is not canonical")
     return report
 

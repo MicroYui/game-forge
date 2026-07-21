@@ -9,7 +9,10 @@ from gameforge.platform.approvals.apply import (
     VerifiedTargetPayload,
 )
 from gameforge.platform.approvals.decisions import (
+    CurrentApproveVoteEvaluation,
     apply_approval_decision,
+    current_requirement_authority_reason_code,
+    evaluate_current_approve_votes,
     reauthorize_approved_item_for_apply,
     validate_approval_policy_bindings,
 )
@@ -37,6 +40,7 @@ __all__ = [
     "ApprovedApplyRequest",
     "ApprovedApplyResult",
     "ApprovedApplyService",
+    "CurrentApproveVoteEvaluation",
     "ExactRollbackExecutionVerifier",
     "ValidationResetReason",
     "PreparedValidationCompletion",
@@ -50,6 +54,8 @@ __all__ = [
     "VerifiedTargetPayload",
     "apply_approval_decision",
     "build_approval_requirements",
+    "current_requirement_authority_reason_code",
+    "evaluate_current_approve_votes",
     "next_workflow_revision",
     "reauthorize_approved_item_for_apply",
     "validate_approval_policy_bindings",

@@ -182,6 +182,24 @@ def test_session_round_trips_as_canonical_hash_bound_json(tmp_path):
     assert load_session(path) == session
 
 
+def test_session_accepts_a_new_stable_participant_identity():
+    values = _session_values()
+    values["participant_id"] = "participant-02"
+
+    session = QaSessionEvidence.seal(**values)
+
+    assert session.schema_version == "qa-session@1"
+    assert session.participant_id == "participant-02"
+
+
+def test_session_rejects_an_unstable_participant_identity():
+    values = _session_values()
+    values["participant_id"] = "participant 02"
+
+    with pytest.raises(ValidationError, match="participant_id"):
+        QaSessionEvidence.seal(**values)
+
+
 def test_session_contract_forbids_extra_fields():
     payload = QaSessionEvidence.seal(**_session_values()).model_dump(mode="json")
     payload["approval_nonce"] = "not-required"

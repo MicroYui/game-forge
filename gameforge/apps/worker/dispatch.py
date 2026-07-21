@@ -22,6 +22,7 @@ import httpx
 
 from sqlalchemy.orm import Session
 
+from gameforge.apps.operational_metrics import install_builtin_operational_metrics
 from gameforge.apps.worker.app import (
     LocalWorkerConfig,
     WORKER_RUN_AUDIT_CHAIN_ID,
@@ -1072,6 +1073,10 @@ def build_worker_dispatch(
         lease_duration_ns=config.lease_duration_ns,
         tracer=runtime.tracer,
         logger=runtime.logger,
+        operational_metrics=install_builtin_operational_metrics(
+            store=runtime.telemetry_store,
+            clock=clock,
+        ),
         heartbeat_interval_s=config.heartbeat_interval_s,
         reaper_limit=config.reaper_limit,
         poll_interval_s=config.poll_interval_s,

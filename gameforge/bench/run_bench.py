@@ -14,6 +14,9 @@ from gameforge.bench.cost_latency import (
 )
 from gameforge.bench.corpus import build_corpus
 from gameforge.bench.external_cases.qualify import load_manifest as load_external
+from gameforge.bench.external_cases.endless_sky_qa import (
+    validate_imported_evidence as validate_imported_qa_evidence,
+)
 from gameforge.bench.hed.contracts import (
     load_evidence as load_hed,
     validate_evidence_manifest as validate_hed,
@@ -33,7 +36,6 @@ from gameforge.bench.qa.protocol import (
     assert_qa_protocol_ready,
     load_protocol as load_qa_protocol,
 )
-from gameforge.bench.qa.score import load_evidence as load_qa
 from gameforge.bench.report import (
     ReportEvidenceBundle,
     build_bench_report as compose_bench_report,
@@ -55,6 +57,7 @@ _NARRATIVE_ROOT = Path("scenarios/narrative_bench")
 _DEFAULT_AGENT_COST = Path("scenarios/bench/agent-cost-latency-evidence.json")
 _DEFAULT_RUNTIME = Path("scenarios/bench/deterministic-runtime-evidence.json")
 _DEFAULT_QA = _EXTERNAL_ROOT / "qa-evidence.json"
+_DEFAULT_QA_PROTOCOL = _EXTERNAL_ROOT / "qa-protocol-participant-04.json"
 
 
 def _resolve(root: Path, path: str | Path) -> Path:
@@ -86,12 +89,25 @@ def _artifact(
     )
 
 
+def _load_qa_evidence(
+    evidence_path: Path,
+    protocol_path: Path,
+):  # noqa: ANN202 - inferred frozen evidence type
+    if not evidence_path.is_file():
+        return None
+    return validate_imported_qa_evidence(
+        evidence_path,
+        protocol_path=protocol_path,
+    )
+
+
 def load_report_evidence(
     *,
     repo_root: str | Path = ".",
     agent_cost_path: str | Path = _DEFAULT_AGENT_COST,
     runtime_path: str | Path = _DEFAULT_RUNTIME,
     qa_path: str | Path = _DEFAULT_QA,
+    qa_protocol_path: str | Path = _DEFAULT_QA_PROTOCOL,
 ) -> ReportEvidenceBundle:
     """Load and cross-validate every non-seeded input from explicit paths."""
 
@@ -99,7 +115,7 @@ def load_report_evidence(
     external_path = root / _EXTERNAL_ROOT / "external-corpus-manifest.json"
     hed_protocol_path = root / _EXTERNAL_ROOT / "hed-protocol.json"
     hed_path = root / _EXTERNAL_ROOT / "hed-evidence.json"
-    qa_protocol_path = root / _EXTERNAL_ROOT / "qa-protocol.json"
+    measured_qa_protocol_path = _resolve(root, qa_protocol_path)
     narrative_protocol_path = root / _NARRATIVE_ROOT / "protocol.json"
     narrative_manifest_path = root / _NARRATIVE_ROOT / "corpus-manifest.json"
     narrative_evidence_path = root / _NARRATIVE_ROOT / "verification-evidence.json"
@@ -125,9 +141,9 @@ def load_report_evidence(
     assert_hed_protocol(hed_protocol, external, manifest_path=external_path)
     hed = load_hed(hed_path)
     validate_hed(hed, protocol=hed_protocol, external_manifest=external)
-    qa_protocol = load_qa_protocol(qa_protocol_path)
+    qa_protocol = load_qa_protocol(measured_qa_protocol_path)
     assert_qa_protocol_ready(qa_protocol, external, hed)
-    qa = load_qa(measured_qa_path) if measured_qa_path.is_file() else None
+    qa = _load_qa_evidence(measured_qa_path, measured_qa_protocol_path)
     agent_cost = load_agent_cost(cost_path)
     validate_agent_cost_evidence(agent_cost, repo_root=root)
     runtime = load_runtime_evidence(measured_runtime_path)
@@ -187,13 +203,13 @@ def load_report_evidence(
             root,
             evidence_id="qa",
             path=measured_qa_path,
-            schema_version=(qa.schema_version if qa is not None else "qa-evidence@1"),
+            schema_version=(qa.schema_version if qa is not None else "qa-evidence@2"),
             available=qa is not None,
         ),
         _artifact(
             root,
             evidence_id="qa-protocol",
-            path=qa_protocol_path,
+            path=measured_qa_protocol_path,
             schema_version=qa_protocol.schema_version,
         ),
         _artifact(
@@ -236,12 +252,14 @@ def build_bench_report(
     agent_cost_path: str | Path = _DEFAULT_AGENT_COST,
     runtime_path: str | Path = _DEFAULT_RUNTIME,
     qa_path: str | Path = _DEFAULT_QA,
+    qa_protocol_path: str | Path = _DEFAULT_QA_PROTOCOL,
 ) -> BenchReport:
     bundle = evidence_bundle or load_report_evidence(
         repo_root=repo_root,
         agent_cost_path=agent_cost_path,
         runtime_path=runtime_path,
         qa_path=qa_path,
+        qa_protocol_path=qa_protocol_path,
     )
     corpus = build_corpus(seed=seed, per_class_n=per_class_n, n_clean=n_clean)
     active_constraints = (
@@ -270,6 +288,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--agent-cost", type=Path, default=_DEFAULT_AGENT_COST)
     parser.add_argument("--runtime", type=Path, default=_DEFAULT_RUNTIME)
     parser.add_argument("--qa", type=Path, default=_DEFAULT_QA)
+    parser.add_argument("--qa-protocol", type=Path, default=_DEFAULT_QA_PROTOCOL)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args(argv)
     if args.validate_bundle is not None:
@@ -282,6 +301,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         agent_cost_path=args.agent_cost,
         runtime_path=args.runtime,
         qa_path=args.qa,
+        qa_protocol_path=args.qa_protocol,
     )
     write_report_bundle(report, args.output_dir)
     return 0

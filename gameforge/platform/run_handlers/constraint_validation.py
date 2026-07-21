@@ -67,6 +67,9 @@ from gameforge.spine.dsl.ast import DslError, parse_assert
 from gameforge.spine.checkers.base import CheckerExecutionBinding
 from gameforge.spine.dsl.compile import compile_all
 
+from gameforge.platform.registry.constraint_compilers import (
+    BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
+)
 from gameforge.platform.run_handlers.base import (
     ArtifactBlobReader,
     ExactProfileBindingValidator,
@@ -113,12 +116,6 @@ COMPILER_PROFILE_FIELD = "/params/compiler_profile"
 COMPILE_TOOL_VERSION = "constraint-compile@1"
 REGRESSION_TOOL_VERSION = "regression@1"
 EVIDENCE_TOOL_VERSION = "constraint-validation@1"
-BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1 = (
-    SolverEngineRefV1(engine_id="clingo", version=1),
-    SolverEngineRefV1(engine_id="graph-reference", version=1),
-    SolverEngineRefV1(engine_id="numeric-reference", version=1),
-    SolverEngineRefV1(engine_id="z3", version=1),
-)
 
 _VALIDATED_CODE = "constraint_validated"
 _FAILED_WITH_CANDIDATE_CODE = "constraint_validation_failed_with_candidate"

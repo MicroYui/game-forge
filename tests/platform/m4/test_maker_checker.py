@@ -106,9 +106,7 @@ def _route_policy(
         domain_registry_ref=ref,
         rules=tuple(rules),
         effective_from=NOW,
-        route_digest=compute_domain_route_policy_digest(
-            "routes@1", ref, rules, NOW
-        ),
+        route_digest=compute_domain_route_policy_digest("routes@1", ref, rules, NOW),
     )
 
 
@@ -282,6 +280,7 @@ def _apply(
     route_policy: DomainRoutePolicy,
     role_policy: RolePolicy,
     approval_policy: ApprovalPolicyV1,
+    principal_resolver=None,
 ) -> ApprovalItem:
     return apply_approval_decision(
         item=item,
@@ -291,6 +290,8 @@ def _apply(
         route_policy=route_policy,
         role_policy=role_policy,
         approval_policy=approval_policy,
+        principal_resolver=principal_resolver
+        or (lambda principal_id: principal if principal_id == principal.id else None),
     )
 
 
@@ -382,10 +383,141 @@ def test_min_approvals_and_partial_approval_keep_item_pending() -> None:
         route,
         role,
         approval,
+        principal_resolver={alice.id: alice, bob.id: bob}.get,
     )
     assert after_bob.status == "approved"
     assert after_bob.workflow_revision == 5
     assert after_bob.decided_at == NOW
+
+
+def test_final_approval_revalidates_historical_votes_against_current_identity() -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        domain_ids=("economy", "narrative"),
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+    )
+    bob = _principal(
+        "human:bob",
+        _assignment("human:bob", "content_designer", ("narrative",)),
+    )
+    economy_done = _apply(
+        item,
+        _decision(item, alice.id, "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    alice_without_role = alice.model_copy(update={"roles": (), "authz_revision": 2})
+
+    still_pending = _apply(
+        economy_done,
+        _decision(economy_done, bob.id, "route:narrative"),
+        bob,
+        registry,
+        route,
+        role,
+        approval,
+        principal_resolver={alice.id: alice_without_role, bob.id: bob}.get,
+    )
+
+    assert still_pending.status == "pending_approval"
+    assert len(still_pending.decisions) == 2
+
+
+def test_currently_satisfied_pending_item_allows_only_an_effective_voter_to_reconfirm() -> None:
+    registry = _registry()
+    route = _route_policy(registry, economy_min=2)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+    )
+    bob = _principal(
+        "human:bob",
+        _assignment("human:bob", "numeric_designer", ("economy",)),
+    )
+    charlie = _principal(
+        "human:charlie",
+        _assignment("human:charlie", "numeric_designer", ("economy",)),
+    )
+    after_alice = _apply(
+        item,
+        _decision(item, alice.id, "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    alice_without_role = alice.model_copy(update={"roles": (), "authz_revision": 2})
+    still_pending = _apply(
+        after_alice,
+        _decision(after_alice, bob.id, "route:economy"),
+        bob,
+        registry,
+        route,
+        role,
+        approval,
+        principal_resolver={alice.id: alice_without_role, bob.id: bob}.get,
+    )
+    restored = {alice.id: alice, bob.id: bob, charlie.id: charlie}
+
+    with pytest.raises(Forbidden, match="already satisfied"):
+        _apply(
+            still_pending,
+            _decision(still_pending, charlie.id, "route:economy"),
+            charlie,
+            registry,
+            route,
+            role,
+            approval,
+            principal_resolver=restored.get,
+        )
+
+    approved = _apply(
+        still_pending,
+        _decision(still_pending, alice.id, "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+        principal_resolver=restored.get,
+    )
+
+    assert approved.status == "approved"
+    assert approved.workflow_revision == still_pending.workflow_revision + 1
+    assert len(approved.decisions) == 3
+    assert (
+        reauthorize_approved_item_for_apply(
+            item=approved,
+            principal_resolver=restored.get,
+            domain_registry=registry,
+            route_policy=route,
+            role_policy=role,
+            approval_policy=approval,
+        )
+        is None
+    )
 
 
 def test_distinct_requirements_need_different_actors() -> None:
@@ -454,6 +586,7 @@ def test_distinct_requirements_need_different_actors() -> None:
         route,
         role,
         approval,
+        principal_resolver={alice.id: alice, bob.id: bob}.get,
     )
     assert approved.status == "approved"
 
@@ -587,9 +720,7 @@ def test_maker_checker_human_assignee_route_role_and_current_permission_guards()
             role.effective_from,
         ),
     )
-    stale_item = item.model_copy(
-        update={"role_policy_digest": no_grants.policy_digest}
-    )
+    stale_item = item.model_copy(update={"role_policy_digest": no_grants.policy_digest})
     assigned = _principal(
         "human:assigned",
         _assignment("human:assigned", "numeric_designer", ("economy",)),
@@ -658,6 +789,64 @@ def test_reject_and_request_changes_are_immediate_terminal_decisions(
         )
 
 
+@pytest.mark.parametrize(
+    ("decision_kind", "expected_status"),
+    [("reject", "rejected"), ("request_changes", "changes_requested")],
+)
+def test_terminal_decisions_remain_allowed_after_requirement_is_satisfied(
+    decision_kind: str,
+    expected_status: str,
+) -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        domain_ids=("economy", "narrative"),
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+    )
+    bob = _principal(
+        "human:bob",
+        _assignment("human:bob", "numeric_designer", ("economy",)),
+    )
+    economy_done = _apply(
+        item,
+        _decision(item, alice.id, "route:economy"),
+        alice,
+        registry,
+        route,
+        role,
+        approval,
+    )
+    assert economy_done.status == "pending_approval"
+
+    terminal = _apply(
+        economy_done,
+        _decision(
+            economy_done,
+            bob.id,
+            "route:economy",
+            decision=decision_kind,
+        ),
+        bob,
+        registry,
+        route,
+        role,
+        approval,
+        principal_resolver={alice.id: alice, bob.id: bob}.get,
+    )
+
+    assert terminal.status == expected_status
+    assert terminal.decisions[-1].decision == decision_kind
+
+
 def test_terminal_decision_can_cover_distinct_requirements() -> None:
     registry = _registry()
     route = _route_policy(registry, distinct=True)
@@ -692,6 +881,52 @@ def test_terminal_decision_can_cover_distinct_requirements() -> None:
         approval,
     )
     assert result.status == "rejected"
+
+
+def test_pending_item_with_a_terminal_decision_fails_closed() -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _role_policy(registry)
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+    alice = _principal(
+        "human:alice",
+        _assignment("human:alice", "numeric_designer", ("economy",)),
+    )
+    bob = _principal(
+        "human:bob",
+        _assignment("human:bob", "numeric_designer", ("economy",)),
+    )
+    corrupt = item.model_copy(
+        update={
+            "decisions": (
+                _decision(
+                    item,
+                    alice.id,
+                    "route:economy",
+                    decision="request_changes",
+                ),
+            ),
+            "workflow_revision": item.workflow_revision + 1,
+        }
+    )
+
+    with pytest.raises(IntegrityViolation, match="terminal decision"):
+        _apply(
+            corrupt,
+            _decision(corrupt, bob.id, "route:economy"),
+            bob,
+            registry,
+            route,
+            role,
+            approval,
+            principal_resolver={alice.id: alice, bob.id: bob}.get,
+        )
 
 
 def test_decision_replay_is_idempotent_but_changed_payload_conflicts() -> None:
@@ -826,6 +1061,7 @@ def test_apply_reauthorization_replays_approved_history_without_mutation() -> No
         route,
         role,
         approval,
+        principal_resolver={alice.id: alice, bob.id: bob}.get,
     )
     before = approved.model_dump(mode="json")
     principals = {alice.id: alice, bob.id: bob}
@@ -970,9 +1206,7 @@ def test_apply_reauthorization_rechecks_maker_checker_and_assignee() -> None:
         _assignment("human:maker", "numeric_designer", ("economy",)),
     )
     maker_decision = approved.decisions[0].model_copy(
-        update={
-            "actor": AuditActor(principal_id=maker.id, principal_kind="human")
-        }
+        update={"actor": AuditActor(principal_id=maker.id, principal_kind="human")}
     )
     maker_history = approved.model_copy(update={"decisions": (maker_decision,)})
     with pytest.raises(Forbidden, match="maker-checker"):
@@ -1010,9 +1244,7 @@ def test_apply_reauthorization_rejects_incomplete_or_non_approve_history() -> No
         role,
         approval,
     )
-    corrupt_approved = partial.model_copy(
-        update={"status": "approved", "decided_at": NOW}
-    )
+    corrupt_approved = partial.model_copy(update={"status": "approved", "decided_at": NOW})
     principals = {alice.id: alice}
 
     with pytest.raises(IntegrityViolation, match="minimum approvals"):
@@ -1025,12 +1257,8 @@ def test_apply_reauthorization_rejects_incomplete_or_non_approve_history() -> No
             approval_policy=approval,
         )
 
-    terminal_decision = partial.decisions[0].model_copy(
-        update={"decision": "request_changes"}
-    )
-    terminal_history = corrupt_approved.model_copy(
-        update={"decisions": (terminal_decision,)}
-    )
+    terminal_decision = partial.decisions[0].model_copy(update={"decision": "request_changes"})
+    terminal_history = corrupt_approved.model_copy(update={"decisions": (terminal_decision,)})
     with pytest.raises(IntegrityViolation, match="approve decisions"):
         reauthorize_approved_item_for_apply(
             item=terminal_history,
@@ -1080,6 +1308,7 @@ def test_apply_reauthorization_rejects_duplicate_and_distinct_actor_coverage() -
         route,
         role,
         approval,
+        principal_resolver={alice.id: alice, bob.id: bob}.get,
     )
     principals = {alice.id: alice, bob.id: bob}
 
@@ -1121,16 +1350,12 @@ def test_apply_reauthorization_rejects_duplicate_and_distinct_actor_coverage() -
         if decision.requirement_ids == ("route:narrative",)
     )
     same_actor_narrative = narrative.model_copy(
-        update={
-            "actor": AuditActor(principal_id=alice.id, principal_kind="human")
-        }
+        update={"actor": AuditActor(principal_id=alice.id, principal_kind="human")}
     )
     distinct_violation = approved.model_copy(
         update={
             "decisions": tuple(
-                same_actor_narrative
-                if decision.decision_id == narrative.decision_id
-                else decision
+                same_actor_narrative if decision.decision_id == narrative.decision_id else decision
                 for decision in approved.decisions
             )
         }

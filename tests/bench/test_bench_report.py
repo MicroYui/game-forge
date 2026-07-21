@@ -29,6 +29,7 @@ from gameforge.bench.report_contracts import (
     write_bench_report,
 )
 from gameforge.bench.taxonomy import CLASS_META, DefectClass
+from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.model_router import ModelSnapshot
 
 
@@ -109,6 +110,7 @@ def _sample_report() -> BenchReport:
             "bdr",
             defect_class=defect_class,
             bucket=CLASS_META[defect_class].bucket.value,
+            n=82,
             evidence_ref="seeded",
         )
         for defect_class in DefectClass
@@ -125,6 +127,7 @@ def _sample_report() -> BenchReport:
         for defect_class in DefectClass
         if defect_class in narrative_classes
     )
+    bdr_by_class = {metric.defect_class: metric for metric in (*seeded, *narrative_bdr)}
     external_classes = (
         DefectClass.cyclic_dependency,
         DefectClass.dangling_reference,
@@ -176,20 +179,19 @@ def _sample_report() -> BenchReport:
             _binary("oracle_fp", bucket="deterministic_fp", n=1, k=0),
             _binary("constraint_fp", bucket="constraint_fp", n=902, k=0),
         ),
-        agent=(
-            _binary("fix_pass_rate", bucket="agent", n=10, evidence_ref="cost"),
-        ),
+        agent=(_binary("fix_pass_rate", bucket="agent", n=10, evidence_ref="cost"),),
         power=tuple(
             PowerMetric(
                 defect_class=defect_class,
                 bucket=CLASS_META[defect_class].bucket.value,
-                evaluated_n=381 if defect_class in narrative_classes else 82,
-                achieved_half_width=0.04,
+                evaluated_n=bdr_by_class[defect_class].evaluated_n,
+                achieved_half_width=(
+                    bdr_by_class[defect_class].ci_high - bdr_by_class[defect_class].ci_low
+                )
+                / 2,
                 target_half_width=0.05,
                 status="measured",
-                evidence_ref=(
-                    "narrative" if defect_class in narrative_classes else "seeded"
-                ),
+                evidence_ref=("narrative" if defect_class in narrative_classes else "seeded"),
             )
             for defect_class in DefectClass
         ),
@@ -274,6 +276,7 @@ def _sample_report() -> BenchReport:
         qa=QaSection(
             scope="single-participant-eight-session-case-study",
             protocol_sha256="e" * 64,
+            time_scoring="incorrect_uses_active_cap",
             paired_saved_minutes=qa_time,
             paired_saved_fraction=qa_fraction,
             manual_success=qa_success,
@@ -368,7 +371,7 @@ def _sample_report() -> BenchReport:
                 evidence_id="qa",
                 path="scenarios/external_cases/endless_sky/qa-evidence.json",
                 sha256=None,
-                schema_version="qa-evidence@1",
+                schema_version="qa-evidence@2",
                 available=False,
             ),
         ),
@@ -458,7 +461,7 @@ def test_evidence_reference_requires_hash_exactly_when_available():
             evidence_id="qa",
             path="scenarios/qa.json",
             sha256=None,
-            schema_version="qa-evidence@1",
+            schema_version="qa-evidence@2",
             available=True,
         )
     with pytest.raises(ValidationError):
@@ -466,7 +469,7 @@ def test_evidence_reference_requires_hash_exactly_when_available():
             evidence_id="qa",
             path="../outside.json",
             sha256="a" * 64,
-            schema_version="qa-evidence@1",
+            schema_version="qa-evidence@2",
             available=True,
         )
 
@@ -483,6 +486,17 @@ def test_bench_report_v2_round_trips_canonical_json(tmp_path):
     assert loaded.schema_version == "bench-report@2"
 
 
+def test_legacy_v2_without_time_scoring_remains_readable(tmp_path):
+    payload = _sample_report().model_dump(mode="json")
+    payload["qa"].pop("time_scoring")
+    path = tmp_path / "legacy-bench-report.json"
+    path.write_text(canonical_json(payload) + "\n", encoding="utf-8")
+
+    loaded = load_bench_report(path)
+
+    assert loaded.qa.time_scoring == "legacy_observed_capped_active"
+
+
 def test_report_requires_all_fifteen_classes_once():
     report = _sample_report()
     with pytest.raises(ValidationError, match="15 defect classes"):
@@ -494,12 +508,48 @@ def test_report_requires_all_fifteen_classes_once():
         )
 
 
+@pytest.mark.parametrize(
+    ("field_name", "replacement"),
+    [
+        ("bucket", "llm_assisted"),
+        ("evaluated_n", 83),
+        ("achieved_half_width", 0.03),
+        ("evidence_ref", "narrative"),
+    ],
+)
+def test_report_binds_each_power_row_to_its_exact_bdr_metric(field_name, replacement):
+    report = _sample_report()
+    payload = report.model_dump(mode="json")
+    first_power = dict(payload["power"][0])
+    first_power[field_name] = replacement
+    payload["power"][0] = first_power
+
+    with pytest.raises(ValidationError, match="power row differs from its BDR metric"):
+        BenchReport.model_validate(payload)
+
+
+def test_report_keeps_llm_bdr_rows_out_of_the_seeded_partition():
+    report = _sample_report()
+    payload = report.model_dump(mode="json")
+    payload["seeded"][0], payload["narrative"]["bdr"][0] = (
+        payload["narrative"]["bdr"][0],
+        payload["seeded"][0],
+    )
+
+    with pytest.raises(ValidationError, match="seeded and narrative BDR partitions"):
+        BenchReport.model_validate(payload)
+
+
 def test_report_rejects_unknown_evidence_reference():
     report = _sample_report()
     bad_seeded = list(report.seeded)
     bad_seeded[0] = bad_seeded[0].model_copy(update={"evidence_ref": "missing"})
+    bad_power = list(report.power)
+    bad_power[0] = bad_power[0].model_copy(update={"evidence_ref": "missing"})
     with pytest.raises(ValidationError, match="unknown evidence ref"):
-        BenchReport.model_validate({**report.model_dump(), "seeded": bad_seeded})
+        BenchReport.model_validate(
+            {**report.model_dump(), "seeded": bad_seeded, "power": bad_power}
+        )
 
 
 def test_load_report_rejects_v1_with_clear_schema_error(tmp_path):

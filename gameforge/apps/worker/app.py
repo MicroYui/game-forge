@@ -46,6 +46,7 @@ from sqlalchemy.exc import ArgumentError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.util import asbool
 
+from gameforge.apps.operational_metrics import install_builtin_operational_metrics
 from gameforge.apps.worker.agent_drafts import (
     TransactionWorkflowGovernanceProvider,
     WorkerAgentDraftGovernanceRefs,
@@ -534,6 +535,7 @@ def build_worker_runtime(
             clock=clock,
             signing_key=_derive_key(config.root_secret, "telemetry-cursor"),
         )
+        install_builtin_operational_metrics(store=telemetry_store, clock=clock)
         tracer = Tracer(
             exporter=_TelemetryExporter(telemetry_store),
             sampler=AlwaysOnSampler(),

@@ -4,7 +4,7 @@
 
 **Goal:** Measure cassette-bound Agent token/record-time latency and controlled deterministic pipeline latency, then publish the complete `bench-report@2` JSON/text/static-HTML model and an honest combined M3 acceptance gate without fabricating the still-pending real QA study.
 
-**Execution status (2026-07-13):** The non-human scope is complete and verified. The product owner explicitly deferred the eight real QA sessions; they remain the sole `qa.evidence_missing` acceptance failure. M3 product acceptance is pending only for that real QA follow-up, and M4 has not started.
+**Execution status (2026-07-21):** Complete. The non-human cost/latency scope remains frozen, and the only accepted/measured QA experiment is now `participant-04`: eight protocol-valid sessions, four evaluated pairs, manual success 0/4, and assisted success 3/4. The authoritative artifact is `qa-evidence@2` with `evidence_sha256=e7e76d9a846efd7eeaae2b06641e170c15878f7cbf1ff98a79a733b1aa451142`; conclusion is `savings`, mean saved time is 3.407599574483333 minutes, median is 4.203912946883333 minutes, and the 95% bootstrap interval is [1.2129956309041665, 5.037277463891666]. Before final acceptance, the old aggregation was found to deviate from approved design §11 `QA timeout/incorrect | cap time + success=false`: correct sessions use actual capped active time, incorrect/time-out sessions use the 8-minute cap, and immutable raw active time remains audit-only. No session event, patch, or verdict was rewritten. `qa-evidence.json` and `qa-protocol-participant-04.json` are hash-bound into the regenerated JSON/text/HTML BenchReport; combined M3 acceptance returns `[]`. Earlier rejected or launcher-failure workspaces remain audit-only and contribute no report observation, denominator, score, or projection.
 
 **Architecture:** Source-neutral metric and evidence contracts live under `gameforge/bench/`; a thin Agent-cost composition module maps frozen narrative, HED, repair, and playtest request traces to immutable cassette records while preserving each workload's model snapshot. A separate deterministic runtime harness times the existing checker/simulation pipeline under a hash-bound environment manifest. `BenchReport` composes seeded, narrative, external, HED, QA, Agent, cost, latency, and power evidence into one strict v2 model; JSON is canonical authority, and text/HTML render only that model. The acceptance validator consumes the report plus typed manifests and returns structured failures until every PRD gate, including real QA evidence, is genuinely satisfied.
 
@@ -976,7 +976,7 @@ non-human pre-M4 audit are complete. Real QA evidence is deferred, M3 remains
 pending only for that evidence, and M4 has not started. Merging this verified
 non-human closure to `master` completes the current goal.
 
-- [ ] **Step 5 (deferred follow-up): Import eight real sessions and close M3**
+- [x] **Step 5 (completed follow-up): Import eight real sessions and close M3**
 
 This step is outside the current non-human closure. When the product owner
 provides the sessions, run the Task 9 report/acceptance commands again. The final

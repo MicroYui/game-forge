@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+import hashlib
+
 import pytest
 from pydantic import ValidationError
 
-from gameforge.bench.qa.contracts import QaEvent, QaSessionEvidence, seal_qa_verdict
+from gameforge.bench.qa.contracts import (
+    QaEvent,
+    QaSessionEvidence,
+    seal_qa_verdict,
+    write_session,
+)
 from gameforge.bench.qa.protocol import load_protocol
 from gameforge.bench.qa.score import (
     QaEvidenceManifest,
@@ -12,6 +19,7 @@ from gameforge.bench.qa.score import (
     load_evidence,
     score_sessions,
     seal_qa_evidence,
+    validate_qa_evidence,
 )
 
 _PROTOCOL = "scenarios/external_cases/endless_sky/qa-protocol.json"
@@ -32,11 +40,19 @@ def _verdict(correct: bool):
     )
 
 
-def _session(spec, *, seconds: int, correct: bool = True, valid: bool = True):
+def _session(
+    spec,
+    *,
+    seconds: int,
+    correct: bool = True,
+    valid: bool = True,
+    protocol=None,
+):
+    protocol = protocol or load_protocol(_PROTOCOL)
     values = {
-        "protocol_sha256": load_protocol(_PROTOCOL).protocol_sha256,
+        "protocol_sha256": protocol.protocol_sha256,
         "session_id": spec.session_id,
-        "participant_id": "participant-01",
+        "participant_id": protocol.participant_id,
         "case_id": spec.case_id,
         "pair_id": spec.pair_id,
         "arm": spec.arm,
@@ -62,9 +78,7 @@ def _sessions(
 ):
     protocol = load_protocol(_PROTOCOL)
     sessions = []
-    for pair_index, pair_id in enumerate(
-        sorted({item.pair_id for item in protocol.sessions})
-    ):
+    for pair_index, pair_id in enumerate(sorted({item.pair_id for item in protocol.sessions})):
         pair = [item for item in protocol.sessions if item.pair_id == pair_id]
         for spec in pair:
             if spec.arm == "manual":
@@ -131,6 +145,28 @@ def test_incorrect_and_timed_out_sessions_remain_valid_outcomes():
     assert any(item.timed_out for item in sessions)
 
 
+def test_incorrect_submission_uses_cap_for_score_and_preserves_active_time():
+    protocol = load_protocol(_PROTOCOL)
+    score = score_sessions(
+        protocol,
+        _sessions(
+            manual_seconds=(60, 60, 60, 60),
+            assisted_seconds=(120, 120, 120, 120),
+            manual_correct=(False, False, False, False),
+        ),
+    )
+
+    assert score.time_scoring == "incorrect_uses_active_cap"
+    assert score.conclusion == "savings"
+    for pair in score.pairs:
+        assert pair.manual_active_minutes == 1.0
+        assert pair.manual_scored_minutes == 8.0
+        assert pair.assisted_active_minutes == 2.0
+        assert pair.assisted_scored_minutes == 2.0
+        assert pair.saved_minutes == 6.0
+        assert pair.saved_fraction == 0.75
+
+
 def test_invalid_session_or_zero_manual_time_makes_its_pair_unevaluated():
     protocol = load_protocol(_PROTOCOL)
     sessions = list(_sessions())
@@ -144,9 +180,7 @@ def test_invalid_session_or_zero_manual_time_makes_its_pair_unevaluated():
     assert invalid.conclusion == "failed"
 
     sessions = list(_sessions())
-    sessions[manual_index] = sessions[manual_index].model_copy(
-        update={"capped_active_ns": 0}
-    )
+    sessions[manual_index] = sessions[manual_index].model_copy(update={"capped_active_ns": 0})
     zero = score_sessions(protocol, sessions)
     assert zero.evaluated_pairs == 3
     assert zero.protocol_failure_pairs == 1
@@ -184,3 +218,65 @@ def test_qa_evidence_round_trips_and_rejects_metric_or_hash_tampering(tmp_path):
     )
     with pytest.raises(ValidationError, match="score|evaluated"):
         QaEvidenceManifest.model_validate(payload)
+
+
+def test_evidence_accepts_new_participant_but_rejects_mixed_session_identity():
+    base = load_protocol(_PROTOCOL)
+    protocol = base.model_copy(update={"participant_id": "participant-02"})
+    protocol = protocol.__class__.seal(
+        participant_id=protocol.participant_id,
+        external_manifest_sha256=protocol.external_manifest_sha256,
+        hed_evidence_sha256=protocol.hed_evidence_sha256,
+        sessions=protocol.sessions,
+    )
+    sessions = tuple(_session(spec, seconds=60, protocol=protocol) for spec in protocol.sessions)
+
+    evidence = seal_qa_evidence(protocol, sessions)
+
+    assert evidence.schema_version == "qa-evidence@2"
+    assert evidence.participant_id == "participant-02"
+    mixed = list(sessions)
+    mixed_values = mixed[0].model_dump(mode="python")
+    mixed_values["participant_id"] = "participant-01"
+    mixed[0] = QaSessionEvidence.seal(**mixed_values)
+    with pytest.raises(ValidationError, match="participant"):
+        seal_qa_evidence(protocol, mixed)
+
+
+def _write_artifact_tree(tmp_path, protocol, sessions):  # noqa: ANN001
+    session_root = tmp_path / "qa-sessions"
+    patch_root = tmp_path / "qa-patches"
+    session_root.mkdir()
+    patch_root.mkdir()
+    empty_sha256 = hashlib.sha256(b"").hexdigest()
+    stored = []
+    for session in sessions:
+        values = session.model_dump(mode="python")
+        values["final_patch_sha256"] = empty_sha256
+        sealed = QaSessionEvidence.seal(**values)
+        stored.append(sealed)
+        write_session(session_root / f"{sealed.session_id}.json", sealed)
+        (tmp_path / sealed.final_patch_path).write_bytes(b"")
+    return seal_qa_evidence(protocol, stored)
+
+
+def test_evidence_requires_session_owned_patch_path(tmp_path):
+    protocol = load_protocol(_PROTOCOL)
+    sessions = list(_sessions())
+    values = sessions[0].model_dump(mode="python")
+    values["final_patch_path"] = "qa-patches/shared.patch"
+    sessions[0] = QaSessionEvidence.seal(**values)
+    evidence = _write_artifact_tree(tmp_path, protocol, sessions)
+
+    with pytest.raises(ValueError, match="final patch path"):
+        validate_qa_evidence(evidence, protocol, tmp_path)
+
+
+def test_evidence_rejects_extra_session_or_patch_artifacts(tmp_path):
+    protocol = load_protocol(_PROTOCOL)
+    evidence = _write_artifact_tree(tmp_path, protocol, _sessions())
+    (tmp_path / "qa-sessions" / "old-session.json").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "qa-patches" / "old-session.patch").write_bytes(b"")
+
+    with pytest.raises(ValueError, match="artifact set"):
+        validate_qa_evidence(evidence, protocol, tmp_path)

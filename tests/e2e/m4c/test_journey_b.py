@@ -145,6 +145,7 @@ _READS = (
     Permission(action="read", resource_kind="spec", domain_scope="all"),
     Permission(action="read", resource_kind="execution_profile", domain_scope="all"),
 )
+_SCHEMA_READ = Permission(action="read", resource_kind="schema_registry", domain_scope=None)
 
 
 @pytest.fixture(autouse=True)
@@ -225,6 +226,7 @@ def _role_policy(registry) -> RolePolicy:
             Permission(action="publish", resource_kind="constraint_proposal", domain_scope=_DOMAIN),
             *_READS,
         ),
+        "tooling": (_SCHEMA_READ,),
     }
     return RolePolicy(
         policy_version=ROLE_POLICY_VERSION,
@@ -313,14 +315,14 @@ class _Harness:
             # A deliberately has the CURRENT route role and approval.decide grant.
             # The self-approval assertion therefore isolates the maker-checker guard
             # instead of passing because an ordinary RBAC check happened to deny A.
-            roles=("content_designer", "numeric_designer"),
+            roles=("content_designer", "numeric_designer", "tooling"),
         )
         self._provision_human(
             principal_id="human:approver",
             login=APPROVER_LOGIN,
             password=APPROVER_PASSWORD,
             display_name="Approver B",
-            roles=("numeric_designer",),
+            roles=("numeric_designer", "tooling"),
         )
 
     def _provision_human(
@@ -366,7 +368,7 @@ class _Harness:
                     assignment_id=f"assignment:{principal_id}:{role}",
                     principal_id=principal_id,
                     role=role,
-                    scope=_DOMAIN,
+                    scope=None if role == "tooling" else _DOMAIN,
                     granted_by=AuditActor(
                         principal_id="system:test",
                         principal_kind="system",
@@ -427,6 +429,7 @@ class _Harness:
             object_ref=stored.ref,
             meta={
                 "payload_schema_id": "ir-core@1",
+                "schema_registry_version": "registry@1",
                 "domain_scope": _DOMAIN.model_dump(mode="json"),
             },
             created_at=NOW,

@@ -50,6 +50,7 @@ def test_projection_surfaces_every_product_evidence_section():
     assert "external.verification.cyclic_dependency" in rows
     assert rows["hed.disposition.hed_unusable"].value == "2/8 (25.0%)"
     assert rows["qa.scope"].value == "single-participant-eight-session-case-study"
+    assert rows["qa.time_scoring"].value == "incorrect_uses_active_cap"
     assert rows["cost.narrative-verification.tokens.input"].value == "80"
     assert rows["cost.narrative-verification.tokens.cache_read"].value == "0"
     assert rows["cost.narrative-verification.transport.unknown_records"].value == "8"

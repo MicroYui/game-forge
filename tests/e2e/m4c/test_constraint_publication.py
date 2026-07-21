@@ -18,14 +18,19 @@ from sqlalchemy.orm import Session
 
 from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.contracts.canonical import canonical_json
+from gameforge.contracts.execution_profiles import (
+    ExecutionProfileCatalogSnapshotV1,
+    ProfileRefV1,
+    execution_profile_catalog_digest,
+)
 from gameforge.contracts.identity import (
     Permission,
     RolePolicy,
     compute_role_policy_digest,
 )
 from gameforge.contracts.workflow import ApprovalItem
-from gameforge.platform.run_handlers.constraint_validation import (
-    BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
+from gameforge.platform.registry.constraint_compilers import (
+    resolve_constraint_validation_compiler_authority,
 )
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence.audit import SqlAuditSink
@@ -140,6 +145,53 @@ def _seed_model_authorities(harness: _Harness):
     return authorities, catalog, routing
 
 
+def _install_drifted_constraint_compiler_catalog(
+    harness: _Harness,
+    update: dict[str, object],
+):
+    base = harness.catalog
+    definition = next(
+        item
+        for item in base.definitions
+        if item.profile.profile_id == "builtin.constraint_compiler"
+    )
+    lifecycle = next(item for item in base.lifecycle if item.profile == definition.profile)
+    baseline_authority = resolve_constraint_validation_compiler_authority(
+        definition,
+        lifecycle,
+    )
+    drifted_profile = ProfileRefV1(
+        profile_id=definition.profile.profile_id,
+        version=definition.profile.version + 1,
+    )
+    drifted_definition = definition.model_copy(update={"profile": drifted_profile, **update})
+    drifted_lifecycle = lifecycle.model_copy(update={"profile": drifted_profile})
+    definitions = (*base.definitions, drifted_definition)
+    lifecycles = (*base.lifecycle, drifted_lifecycle)
+    payload = {
+        "catalog_schema_version": "execution-profile-catalog@1",
+        "catalog_version": base.catalog_version + 1_000,
+        "definitions": [item.model_dump(mode="json") for item in definitions],
+        "lifecycle": [item.model_dump(mode="json") for item in lifecycles],
+    }
+    catalog = ExecutionProfileCatalogSnapshotV1.model_validate(
+        {
+            **payload,
+            "catalog_digest": execution_profile_catalog_digest(payload),
+        }
+    )
+    engine = get_engine(harness.database_url)
+    try:
+        with Session(engine) as session, session.begin():
+            SqlPolicySnapshotRepository(
+                session,
+                clock=harness.clock,
+            ).put_execution_profile_catalog(catalog)
+    finally:
+        engine.dispose()
+    return drifted_profile, baseline_authority.differential_engines
+
+
 def _worker_config(harness: _Harness):
     return replace(
         harness.worker_config(),
@@ -207,7 +259,17 @@ def _revision_body(
     }
 
 
-def _validation_body(item: ApprovalItem, *, ref_name: str) -> dict:
+def _compiler_binding(reader: _Session) -> dict:
+    response = reader.client.get(
+        "/api/v1/execution-profiles/builtin.constraint_compiler/versions/1/"
+        "constraint-validation-binding"
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def _validation_body(reader: _Session, item: ApprovalItem, *, ref_name: str) -> dict:
+    compiler = _compiler_binding(reader)
     return {
         "request_schema_version": "constraint-validation-admission-request@1",
         "approval_id": item.approval_id,
@@ -217,14 +279,8 @@ def _validation_body(item: ApprovalItem, *, ref_name: str) -> dict:
         "base_constraint_snapshot_artifact_id": None,
         "target": {"ref_name": ref_name, "expected_ref": None},
         "dsl_grammar_version": "dsl@1",
-        "compiler_profile": {
-            "profile_id": "builtin.constraint_compiler",
-            "version": 1,
-        },
-        "differential_engines": [
-            value.model_dump(mode="json")
-            for value in BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1
-        ],
+        "compiler_profile": compiler["compiler_profile"],
+        "differential_engines": compiler["differential_engines"],
         "golden_suite_artifact_id": None,
         "regression_suite_artifact_ids": [],
         "validation_policy": {"profile_id": "builtin.validation", "version": 1},
@@ -397,8 +453,9 @@ def _assert_exact_compile(
     differential = [
         stage for stage in compile_evidence["stages"] if stage["stage"] == "differential"
     ]
+    compiler = _compiler_binding(reader)
     assert {(stage["engine_id"], stage["engine_version"]) for stage in differential} == {
-        (ref.engine_id, str(ref.version)) for ref in BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1
+        (ref["engine_id"], str(ref["version"])) for ref in compiler["differential_engines"]
     }
 
 
@@ -414,7 +471,7 @@ def _validate(
 ) -> tuple[ApprovalItem, str]:
     response = maker.client.post(
         f"/api/v1/constraint-proposals/{item.subject_artifact_id}:validate",
-        json=_validation_body(item, ref_name=ref_name),
+        json=_validation_body(maker, item, ref_name=ref_name),
         headers=_headers(
             maker,
             idempotency_key=f"{key}:validate",
@@ -532,6 +589,102 @@ def _assert_audit_chains(harness: _Harness) -> None:
         engine.dispose()
 
 
+@pytest.mark.parametrize(
+    "update",
+    [
+        {"config_schema_id": "constraint_compiler-profile-config@999"},
+        {"input_schema_ids": ("checker-run@1",)},
+        {"output_schema_ids": ("checker-report@1",)},
+        {"stochastic": True},
+        {"required_capabilities": ("reasoning",)},
+    ],
+    ids=(
+        "config-schema",
+        "input-schemas",
+        "output-schemas",
+        "stochastic",
+        "required-capabilities",
+    ),
+)
+def test_constraint_compiler_adapter_drift_blocks_binding_read_and_admission_before_202(
+    tmp_path: Path,
+    update: dict[str, object],
+) -> None:
+    harness = _Harness(tmp_path)
+    _install_constraint_role_policy(harness)
+    source_id = _seed_source(harness)
+    compiler_profile, differential_engines = _install_drifted_constraint_compiler_catalog(
+        harness,
+        update,
+    )
+    ref_name = "constraint-adapter-drift"
+    api = _start_api(harness.api_config())
+    try:
+        maker = _login(api, MAKER_LOGIN, MAKER_PASSWORD)
+        binding = maker.client.get(
+            "/api/v1/execution-profiles/builtin.constraint_compiler/versions/2/"
+            "constraint-validation-binding"
+        )
+        assert binding.status_code == 409, binding.text
+
+        draft = maker.client.post(
+            "/api/v1/constraint-proposals",
+            json=_draft_body(
+                ref_name=ref_name,
+                constraint=_constraint("c:adapter-drift", "reward_gold <= 100"),
+                source_id=source_id,
+                rationale="Create a subject for adapter-drift admission.",
+            ),
+            headers=_headers(maker, idempotency_key="adapter-drift:draft"),
+        )
+        assert draft.status_code == 201, draft.text
+        draft_id = draft.json()["artifact"]["artifact_id"]
+        v1 = _approval(maker, f"approval:constraint_proposal:{draft_id}")
+        v2 = _revise(
+            maker,
+            prior=v1,
+            ref_name=ref_name,
+            constraint=_constraint("c:adapter-drift", "reward_gold <= 90"),
+            source_id=source_id,
+            key="adapter-drift",
+        )
+        request_body = {
+            "request_schema_version": "constraint-validation-admission-request@1",
+            "approval_id": v2.approval_id,
+            "expected_subject_head_revision": v2.subject_revision,
+            "expected_workflow_revision": v2.workflow_revision,
+            "subject_digest": v2.subject_digest,
+            "base_constraint_snapshot_artifact_id": None,
+            "target": {"ref_name": ref_name, "expected_ref": None},
+            "dsl_grammar_version": "dsl@1",
+            "compiler_profile": compiler_profile.model_dump(mode="json"),
+            "differential_engines": [item.model_dump(mode="json") for item in differential_engines],
+            "golden_suite_artifact_id": None,
+            "regression_suite_artifact_ids": [],
+            "validation_policy": {"profile_id": "builtin.validation", "version": 1},
+            "seed": 1 if update.get("stochastic") is True else None,
+        }
+        _assert_rejected_without_authority_change(
+            harness,
+            approval_id=v2.approval_id,
+            ref_name=ref_name,
+            status_code=409,
+            request=lambda: maker.client.post(
+                f"/api/v1/constraint-proposals/{v2.subject_artifact_id}:validate",
+                json=request_body,
+                headers=_headers(
+                    maker,
+                    idempotency_key="adapter-drift:validate",
+                    resource_kind="constraint_proposal",
+                    resource_id=v2.subject_artifact_id,
+                    revision=v2.workflow_revision,
+                ),
+            ),
+        )
+    finally:
+        _stop_api(api)
+
+
 def test_constraint_publication_agent_replay_and_human_entry_paths(
     tmp_path: Path,
 ) -> None:
@@ -629,7 +782,7 @@ def test_constraint_publication_agent_replay_and_human_entry_paths(
             status_code=409,
             request=lambda: maker.client.post(
                 f"/api/v1/constraint-proposals/{replay_v1.subject_artifact_id}:validate",
-                json=_validation_body(replay_v1, ref_name=_AGENT_REF),
+                json=_validation_body(maker, replay_v1, ref_name=_AGENT_REF),
                 headers=_headers(
                     maker,
                     idempotency_key="agent:missing-human-revision",
@@ -648,7 +801,7 @@ def test_constraint_publication_agent_replay_and_human_entry_paths(
             key="agent",
         )
 
-        stale_validation = _validation_body(agent_v2, ref_name=_AGENT_REF)
+        stale_validation = _validation_body(maker, agent_v2, ref_name=_AGENT_REF)
         stale_validation["expected_workflow_revision"] = 99
         _assert_rejected_without_authority_change(
             harness,
@@ -664,6 +817,31 @@ def test_constraint_publication_agent_replay_and_human_entry_paths(
                     resource_kind="constraint_proposal",
                     resource_id=agent_v2.subject_artifact_id,
                     revision=99,
+                ),
+            ),
+        )
+        tampered_compiler_binding = _validation_body(
+            maker,
+            agent_v2,
+            ref_name=_AGENT_REF,
+        )
+        tampered_compiler_binding["differential_engines"] = tampered_compiler_binding[
+            "differential_engines"
+        ][:-1]
+        _assert_rejected_without_authority_change(
+            harness,
+            approval_id=agent_v2.approval_id,
+            ref_name=_AGENT_REF,
+            status_code=409,
+            request=lambda: maker.client.post(
+                f"/api/v1/constraint-proposals/{agent_v2.subject_artifact_id}:validate",
+                json=tampered_compiler_binding,
+                headers=_headers(
+                    maker,
+                    idempotency_key="agent:tampered-compiler-binding",
+                    resource_kind="constraint_proposal",
+                    resource_id=agent_v2.subject_artifact_id,
+                    revision=agent_v2.workflow_revision,
                 ),
             ),
         )
@@ -809,7 +987,7 @@ def test_constraint_publication_agent_replay_and_human_entry_paths(
             status_code=409,
             request=lambda: maker.client.post(
                 f"/api/v1/constraint-proposals/{human_v1.subject_artifact_id}:validate",
-                json=_validation_body(human_v1, ref_name=_HUMAN_REF),
+                json=_validation_body(maker, human_v1, ref_name=_HUMAN_REF),
                 headers=_headers(
                     maker,
                     idempotency_key="human:missing-human-revision",

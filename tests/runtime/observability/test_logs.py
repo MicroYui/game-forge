@@ -2,14 +2,47 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from gameforge.runtime.clock import FrozenUtcClock
 from gameforge.runtime.observability.in_memory import InMemoryTelemetryStore
+from gameforge.runtime.observability._fields import is_sensitive_key, redact_sensitive_text
 from gameforge.runtime.observability.context import use_trace_context
 from gameforge.runtime.observability.logs import StructuredLogger
 from gameforge.contracts.observability import TraceContextV1
 
 
 NOW = datetime(2026, 7, 14, 8, 0, tzinfo=UTC)
+
+
+@pytest.mark.parametrize(
+    "key",
+    (
+        "raw_response",
+        "raw-response",
+        "raw.response",
+        "rawResponse",
+        "api_key",
+        "api-key",
+        "api.key",
+        "apiKey",
+        "access_token",
+        "access-token",
+        "access.token",
+        "accessToken",
+    ),
+)
+def test_sensitive_log_keys_match_across_supported_naming_styles(key: str) -> None:
+    assert is_sensitive_key(key)
+
+
+def test_normal_log_metadata_is_not_treated_as_secret_content() -> None:
+    assert not is_sensitive_key("message")
+    assert not is_sensitive_key("response_code")
+    assert redact_sensitive_text("response_code=200 message=completed") == (
+        "response_code=200 message=completed",
+        False,
+    )
 
 
 def test_structured_logger_redacts_sensitive_and_oversized_fields() -> None:
@@ -101,3 +134,46 @@ def test_logger_inherits_current_trace_and_redacts_sensitive_message_and_error()
     wire = record.model_dump_json()
     for secret in ("top-secret-token", "dump-world-state", "sk-live-secret", "private-body"):
         assert secret not in wire
+
+
+@pytest.mark.parametrize(
+    "marker",
+    (
+        "renderedPrompt",
+        "promptText",
+        "rawPrompt",
+        "rawResponse",
+        "responseBody",
+        "systemPrompt",
+        "userPrompt",
+        "accessToken",
+        "authorization",
+        "refreshToken",
+        "idToken",
+        "sessionToken",
+        "apiKey",
+        "clientSecret",
+    ),
+)
+def test_structured_logger_redacts_camel_case_sensitive_free_text(marker: str) -> None:
+    store = InMemoryTelemetryStore(clock=FrozenUtcClock(NOW), signing_key=b"test-key")
+    logger = StructuredLogger(
+        service="worker",
+        store=store,
+        clock=FrozenUtcClock(NOW),
+        id_generator=lambda: f"log-{marker}",
+    )
+    message_secret = f"message-secret-{marker}"
+    field_secret = f"field-secret-{marker}"
+
+    record = logger.log(
+        level="info",
+        event_name="provider.finished",
+        message=f"{marker}: {message_secret}",
+        fields={"detail": f"{marker}={field_secret}"},
+    )
+
+    assert record is not None
+    wire = record.model_dump_json()
+    assert message_secret not in wire
+    assert field_secret not in wire

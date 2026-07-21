@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 from fastapi import Request
 
+from gameforge.apps.operational_metrics import OperationalMetricsPort
 from gameforge.contracts.auth import (
     ApiKeyAuthRequestV1,
     PasswordAuthRequestV1,
@@ -21,6 +22,8 @@ from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.jobs import RunDispatchTraceCarrierV1
 from gameforge.contracts.errors import AuthRequired
 from gameforge.contracts.api import (
+    ExecutionOptionResolveRequestV1,
+    ExecutionOptionViewV1,
     RunAcceptedV1,
     WorkflowCommandPayloadV1,
     WorkflowCommandResponseV1,
@@ -28,7 +31,8 @@ from gameforge.contracts.api import (
 from gameforge.runtime.observability import AlwaysOffSampler, Tracer
 
 if TYPE_CHECKING:
-    from gameforge.contracts.jobs import RunCommandV1, RunEvent
+    from gameforge.contracts.execution_graphs import AgentExecutionGraphV1
+    from gameforge.contracts.jobs import ExecutionVersionPlanV1, RunCommandV1, RunEvent
     from gameforge.contracts.lineage import AuditActor
     from gameforge.platform.read_models.content import ContentReadService
     from gameforge.platform.read_models.observability import ObservabilityReadService
@@ -108,14 +112,18 @@ class WorkflowCommandMetadata:
     trace_id: str | None
     idempotency_key: str
     request_hash: str
-    if_match: str
+    if_match: str | None
     dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
 
     def __post_init__(self) -> None:
-        for name in ("request_id", "idempotency_key", "if_match"):
+        for name in ("request_id", "idempotency_key"):
             value = getattr(self, name)
             if not isinstance(value, str) or not value or len(value) > 4096:
                 raise ValueError(f"{name} must be a non-empty bounded string")
+        if self.if_match is not None and (
+            not isinstance(self.if_match, str) or not self.if_match or len(self.if_match) > 4096
+        ):
+            raise ValueError("if_match must be a bounded string when supplied")
         if (
             not isinstance(self.request_hash, str)
             or len(self.request_hash) != 64
@@ -181,6 +189,29 @@ class RunAdmissionPort(Protocol):
     def admit_generation(self, **kwargs: object) -> RunAcceptedV1: ...
 
     def admit_constraint_proposal(self, **kwargs: object) -> RunAcceptedV1: ...
+
+
+class ExecutionVersionPlanResolvePort(Protocol):
+    """Resolve the frozen model-routing authority for one Agent execution."""
+
+    def resolve(
+        self,
+        *,
+        graph: AgentExecutionGraphV1,
+        llm_execution_mode: Literal["live", "record", "replay"],
+        replay_plan: ExecutionVersionPlanV1 | None = None,
+    ) -> ExecutionVersionPlanV1: ...
+
+
+class ExecutionOptionResolvePort(Protocol):
+    """Bounded read-only projection over the authoritative admission read phase."""
+
+    def resolve_execution_option(
+        self,
+        *,
+        request: ExecutionOptionResolveRequestV1,
+        actor: ActorContext,
+    ) -> ExecutionOptionViewV1: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -430,6 +461,8 @@ class ApiDependencies:
     observability_reads: ObservabilityReadService | None = None
     workflow_commands: WorkflowCommandPort | None = None
     run_admission: RunAdmissionPort | None = None
+    execution_version_plans: ExecutionVersionPlanResolvePort | None = None
+    execution_options: ExecutionOptionResolvePort | None = None
     run_event_stream: RunEventStreamPort | None = None
     run_event_notifier: RunEventNotifierPort | None = None
     run_event_stream_config: RunEventStreamConfig = field(default_factory=RunEventStreamConfig)
@@ -438,6 +471,7 @@ class ApiDependencies:
     run_command_ws_config: RunCommandWebSocketConfig = field(
         default_factory=lambda: RunCommandWebSocketConfig()
     )
+    operational_metrics: OperationalMetricsPort | None = None
 
     def __post_init__(self) -> None:
         if not callable(self.request_id_factory):
@@ -477,6 +511,8 @@ def require_actor(request: Request) -> ActorContext:
 __all__ = [
     "ApiDependencies",
     "ApiKeyAuthenticationPort",
+    "ExecutionOptionResolvePort",
+    "ExecutionVersionPlanResolvePort",
     "LogoutCommandPort",
     "ReadinessPort",
     "RunAdmissionPort",

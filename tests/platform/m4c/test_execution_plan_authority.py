@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
 from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
 
-from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation
 from gameforge.contracts.execution_graphs import (
     AgentExecutionGraphV1,
     AgentExecutionNodeV1,
@@ -27,6 +28,7 @@ from gameforge.contracts.routing import (
     compute_routing_policy_digest,
 )
 from gameforge.platform.runs.execution_plan import (
+    ExecutionVersionPlanResolver,
     ExecutionVersionPlanAuthorityValidator,
     LegacyExecutionVersionPlanAuthorityValidator,
 )
@@ -230,6 +232,136 @@ def test_execution_plan_resolves_both_exact_authorities() -> None:
         ("catalog", plan.model_catalog_version, plan.model_catalog_digest),
         ("policy", plan.routing_policy_version, plan.routing_policy_digest),
     ]
+
+
+def _resolver(
+    authority: _Authority,
+    *,
+    policy_version: int | None,
+    policy_digest: str | None,
+) -> ExecutionVersionPlanResolver:
+    return ExecutionVersionPlanResolver(
+        authority_scope=lambda: nullcontext(authority),
+        routing_policy_version=policy_version,
+        routing_policy_digest=policy_digest,
+    )
+
+
+def test_execution_plan_resolver_fails_closed_when_deployment_pointer_is_absent() -> None:
+    catalog, policy, plan = _valid_graph()
+    authority = _Authority(catalogs=(catalog,), policies=(policy,))
+    resolver = _resolver(authority, policy_version=None, policy_digest=None)
+
+    with pytest.raises(DependencyUnavailable, match="routing-policy pointer"):
+        resolver.resolve(
+            graph=_retained_graph(plan),
+            llm_execution_mode="live",
+        )
+
+    assert authority.calls == []
+
+
+@pytest.mark.parametrize("llm_execution_mode", ["live", "record"])
+def test_execution_plan_resolver_builds_and_validates_from_exact_policy_pointer(
+    llm_execution_mode: str,
+) -> None:
+    catalog, policy, expected = _valid_graph()
+    authority = _Authority(catalogs=(catalog,), policies=(policy,))
+    resolver = _resolver(
+        authority,
+        policy_version=policy.policy_version,
+        policy_digest=policy.routing_policy_digest,
+    )
+
+    actual = resolver.resolve(
+        graph=_retained_graph(expected),
+        llm_execution_mode=llm_execution_mode,  # type: ignore[arg-type]
+    )
+
+    assert actual == expected
+    assert authority.calls[0] == (
+        "policy",
+        policy.policy_version,
+        policy.routing_policy_digest,
+    )
+    assert authority.calls[1] == (
+        "catalog",
+        policy.catalog_version,
+        policy.catalog_digest,
+    )
+
+
+def test_execution_plan_resolver_derives_catalog_from_policy_and_ignores_newer_history() -> None:
+    selected_catalog, selected_policy, selected_plan = _valid_graph()
+    newer_descriptor = _descriptor("newer")
+    newer_catalog = _catalog(newer_descriptor, version=selected_catalog.catalog_version + 1)
+    newer_policy = _policy(
+        newer_catalog,
+        _rule("generation", newer_descriptor.model_snapshot),
+        version=selected_policy.policy_version + 1,
+    )
+    authority = _Authority(
+        catalogs=(selected_catalog, newer_catalog),
+        policies=(selected_policy, newer_policy),
+    )
+    resolver = _resolver(
+        authority,
+        policy_version=selected_policy.policy_version,
+        policy_digest=selected_policy.routing_policy_digest,
+    )
+
+    actual = resolver.resolve(
+        graph=_retained_graph(selected_plan),
+        llm_execution_mode="live",
+    )
+
+    assert actual == selected_plan
+    assert all(
+        call[1:] != (newer_policy.policy_version, newer_policy.routing_policy_digest)
+        for call in authority.calls
+    )
+    assert all(
+        call[1:] != (newer_catalog.catalog_version, newer_catalog.catalog_digest)
+        for call in authority.calls
+    )
+
+
+def test_execution_plan_resolver_rejects_wrong_configured_policy_digest() -> None:
+    catalog, policy, plan = _valid_graph()
+    authority = _Authority(catalogs=(catalog,), policies=(policy,))
+    resolver = _resolver(
+        authority,
+        policy_version=policy.policy_version,
+        policy_digest="f" * 64,
+    )
+
+    with pytest.raises(IntegrityViolation, match="configured exact routing policy"):
+        resolver.resolve(
+            graph=_retained_graph(plan),
+            llm_execution_mode="record",
+        )
+
+    assert authority.calls == [("policy", policy.policy_version, "f" * 64)]
+
+
+def test_execution_plan_resolver_replay_uses_source_plan_not_deployment_pointer() -> None:
+    catalog, policy, source_plan = _valid_graph()
+    authority = _Authority(catalogs=(catalog,), policies=(policy,))
+    resolver = _resolver(
+        authority,
+        policy_version=policy.policy_version + 100,
+        policy_digest="f" * 64,
+    )
+
+    actual = resolver.resolve(
+        graph=_retained_graph(source_plan),
+        llm_execution_mode="replay",
+        replay_plan=source_plan,
+    )
+
+    assert actual == source_plan
+    assert ("policy", policy.policy_version + 100, "f" * 64) not in authority.calls
+    assert ("policy", policy.policy_version, policy.routing_policy_digest) in authority.calls
 
 
 def test_execution_plan_closes_exact_retained_agent_graph() -> None:

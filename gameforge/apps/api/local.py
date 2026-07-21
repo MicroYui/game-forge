@@ -41,6 +41,7 @@ from gameforge.apps.api.health import (
     SloRetentionReadinessProbe,
 )
 from gameforge.apps.api.local_reads import build_local_read_services
+from gameforge.apps.operational_metrics import install_builtin_operational_metrics
 from gameforge.apps.api.streaming import (
     RunEventNotifier,
     RunEventReadScope,
@@ -148,6 +149,10 @@ from gameforge.platform.runs.admission import (
     build_admission_capability_binder,
 )
 from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
+from gameforge.platform.runs.execution_plan import (
+    ExecutionPlanAuthority,
+    ExecutionVersionPlanResolver,
+)
 from gameforge.platform.runs.state import validate_run_result_binding
 from gameforge.platform.slo.service import (
     SLODefinitionCapabilities,
@@ -226,6 +231,8 @@ WORKFLOW_ROUTE_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_VERSION"
 WORKFLOW_ROUTE_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_ROUTE_POLICY_DIGEST"
 WORKFLOW_APPROVAL_POLICY_VERSION_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_VERSION"
 WORKFLOW_APPROVAL_POLICY_DIGEST_ENV = "GAMEFORGE_WORKFLOW_APPROVAL_POLICY_DIGEST"
+EXECUTION_ROUTING_POLICY_VERSION_ENV = "GAMEFORGE_EXECUTION_ROUTING_POLICY_VERSION"
+EXECUTION_ROUTING_POLICY_DIGEST_ENV = "GAMEFORGE_EXECUTION_ROUTING_POLICY_DIGEST"
 SELECTED_BENCH_REPORT_ARTIFACT_ID_ENV = "GAMEFORGE_SELECTED_BENCH_REPORT_ARTIFACT_ID"
 
 
@@ -341,6 +348,15 @@ def _lower_sha256(value: str, *, name: str) -> str:
     return value
 
 
+def _optional_positive_integer(source: Mapping[str, str], name: str) -> int | None:
+    raw = source.get(name)
+    if raw is None:
+        return None
+    if not raw or raw[0] == "0" or any(character not in "0123456789" for character in raw):
+        raise LocalApiConfigurationError(f"{name} must be a canonical positive integer")
+    return int(raw)
+
+
 def _allowed_websocket_origins(source: Mapping[str, str]) -> frozenset[str]:
     raw = source.get(ALLOWED_WEBSOCKET_ORIGINS_ENV, "")
     if not isinstance(raw, str):
@@ -365,6 +381,12 @@ class LocalApiConfig:
     session_signing_keys: SessionSigningKeyProvider = field(repr=False)
     allowed_websocket_origins: frozenset[str] = frozenset()
     selected_bench_report_artifact_id: str | None = None
+    # Deployment authority for native LIVE/RECORD Agent execution. The exact model
+    # catalog is derived from the retained policy; REPLAY remains source-plan-bound.
+    # Both fields may be absent so API composition can start without LLM execution,
+    # while resolution fails closed if such execution is requested.
+    execution_routing_policy_version: int | None = None
+    execution_routing_policy_digest: str | None = None
     # Workflow governance pointers. When all four are present the maker-checker
     # composition resolves the exact DomainRoutePolicy and ApprovalPolicy from the
     # authoritative policy snapshot repository (registry + roles come from the role
@@ -390,6 +412,21 @@ class LocalApiConfig:
             if not isinstance(value, str) or not value or len(value) > 4096:
                 raise LocalApiConfigurationError(f"{name} must be a non-empty bounded string")
         _lower_sha256(self.role_policy_digest, name="role_policy_digest")
+        execution_policy = (
+            self.execution_routing_policy_version,
+            self.execution_routing_policy_digest,
+        )
+        if (execution_policy[0] is None) != (execution_policy[1] is None):
+            raise LocalApiConfigurationError(
+                "execution routing-policy pointer must be provided together or not at all"
+            )
+        if execution_policy[0] is not None and execution_policy[1] is not None:
+            version, digest = execution_policy
+            if isinstance(version, bool) or not isinstance(version, int) or version < 1:
+                raise LocalApiConfigurationError(
+                    "execution_routing_policy_version must be a positive integer"
+                )
+            _lower_sha256(digest, name="execution_routing_policy_digest")
         governance = (
             self.workflow_route_policy_version,
             self.workflow_route_policy_digest,
@@ -463,6 +500,11 @@ class LocalApiConfig:
             root_secret=_root_secret(source),
             session_signing_keys=signing_keys,
             allowed_websocket_origins=_allowed_websocket_origins(source),
+            execution_routing_policy_version=_optional_positive_integer(
+                source,
+                EXECUTION_ROUTING_POLICY_VERSION_ENV,
+            ),
+            execution_routing_policy_digest=source.get(EXECUTION_ROUTING_POLICY_DIGEST_ENV),
             workflow_route_policy_version=source.get(WORKFLOW_ROUTE_POLICY_VERSION_ENV),
             workflow_route_policy_digest=source.get(WORKFLOW_ROUTE_POLICY_DIGEST_ENV),
             workflow_approval_policy_version=source.get(WORKFLOW_APPROVAL_POLICY_VERSION_ENV),
@@ -1045,6 +1087,7 @@ def _build_run_admission_engine(
     execution_profile_catalog: object,
     playtest_payload_validator: PlaytestPayloadValidationService,
     legacy_import_authority: LegacyImportAuthority | None,
+    execution_version_plans: ExecutionVersionPlanResolver,
 ) -> RunAdmissionEngine:
     """Compose the real Run admission engine over the write UoW + object store.
 
@@ -1127,6 +1170,7 @@ def _build_run_admission_engine(
             clock=clock, audit_chain_id=config.audit_chain_id
         ),
         legacy_import_authority=legacy_import_authority,
+        execution_version_plans=execution_version_plans,
     )
 
 
@@ -1336,8 +1380,6 @@ def _build_workflow_command_service(
                 ),
                 progress_projector=CurrentApprovalProgressProjector(
                     policy_repository=policies,
-                    role_policy_version=config.role_policy_version,
-                    role_policy_digest=config.role_policy_digest,
                     principal_resolver=identities.project,
                 ),
             )
@@ -1424,6 +1466,10 @@ def build_local_api_resources(
         config.telemetry_db_path,
         clock=clock,
         signing_key=_derive_key(config.root_secret, "telemetry-cursor"),
+    )
+    operational_metrics = install_builtin_operational_metrics(
+        store=telemetry_store,
+        clock=clock,
     )
     token_runtime = SessionTokenRuntime(
         key_set_resolver=config.session_signing_keys.resolve,
@@ -1620,6 +1666,7 @@ def build_local_api_resources(
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
         execution_profile_catalog=current_execution_profile_catalog,
+        registry=builtin_registry,
         cursor_signing_key=_derive_key(config.root_secret, "api-read-cursor"),
         clock=clock,
         selected_bench_report_artifact_id=config.selected_bench_report_artifact_id,
@@ -1629,6 +1676,17 @@ def build_local_api_resources(
         validators=_typed_playtest_payload_validators(components.playtest_payload_validators),
     )
     config_exporter = build_aureus_config_exporter(builtin_registry)
+
+    @contextmanager
+    def execution_plan_authority_scope() -> Iterator[ExecutionPlanAuthority]:
+        with sqlite_read_snapshot_session(engine) as session:
+            yield SqlCostLedger(session, clock=clock)
+
+    execution_version_plans = ExecutionVersionPlanResolver(
+        authority_scope=execution_plan_authority_scope,
+        routing_policy_version=config.execution_routing_policy_version,
+        routing_policy_digest=config.execution_routing_policy_digest,
+    )
     run_admission = _build_run_admission_engine(
         config=config,
         clock=clock,
@@ -1639,6 +1697,7 @@ def build_local_api_resources(
         execution_profile_catalog=current_execution_profile_catalog,
         playtest_payload_validator=playtest_payload_validator,
         legacy_import_authority=legacy_import_authority,
+        execution_version_plans=execution_version_plans,
     )
     # The synchronous ``:validate`` admission atomically starts validation: its injected
     # ``_ValidationStartWriter`` CASes the ApprovalItem ``draft→validating`` INSIDE the
@@ -1776,6 +1835,7 @@ def build_local_api_resources(
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
     )
+
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
         api_key_authentication=api_key_authentication,
@@ -1786,6 +1846,8 @@ def build_local_api_resources(
         observability_reads=read_services.observability,
         workflow_commands=workflow_commands,
         run_admission=run_admission,
+        execution_version_plans=execution_version_plans,
+        execution_options=run_admission,
         run_event_stream=run_event_stream,
         run_event_notifier=run_event_notifier,
         run_command_service=run_command_service,
@@ -1795,6 +1857,7 @@ def build_local_api_resources(
             sampler=AlwaysOnSampler(),
             resource={"service.name": "gameforge-api"},
         ),
+        operational_metrics=operational_metrics,
         allowed_websocket_origins=config.allowed_websocket_origins,
     )
     return LocalApiResources(
@@ -1871,6 +1934,8 @@ def create_readiness_closed_local_app(
 
 __all__ = [
     "ALLOWED_WEBSOCKET_ORIGINS_ENV",
+    "EXECUTION_ROUTING_POLICY_DIGEST_ENV",
+    "EXECUTION_ROUTING_POLICY_VERSION_ENV",
     "LOCAL_ROOT_SECRET_ENV",
     "OBJECT_STORE_ID_ENV",
     "OBJECT_STORE_ROOT_ENV",

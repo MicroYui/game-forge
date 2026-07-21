@@ -184,7 +184,7 @@ class WorkflowServerContext:
     trace_id: str | None
     idempotency_key: str
     request_hash: str
-    if_match: str
+    if_match: str | None
     resource_id: str
     dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
 

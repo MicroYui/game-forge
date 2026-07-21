@@ -82,7 +82,7 @@ _SECURITY_SCHEMES: dict[str, dict[str, Any]] = {
         "name": _SESSION_COOKIE_NAME,
         "description": (
             "Browser session cookie issued by POST /auth/login. Attributes: "
-            "HttpOnly, Secure, SameSite=Strict, Path=/. Mutating requests must also "
+            "HttpOnly, Secure, SameSite=Strict, Path=/. Non-safe HTTP methods must also "
             "present the session-bound X-CSRF-Token header returned by login; "
             "the Origin/Referer is validated by the authentication middleware."
         ),
@@ -109,11 +109,13 @@ _ERROR_STATUSES: dict[str, tuple[str, ...]] = {
     "auth_logout": ("401", "403", "422", "429", "500", "503"),
     "auth_me": ("401", "403", "429", "500", "503"),
     "read_item": _BASE_ERROR_STATUSES + ("404",),
+    "execution_profile_binding_read": _BASE_ERROR_STATUSES + ("404", "409"),
     "read_page": _BASE_ERROR_STATUSES + ("400", "410"),
     "read_parent_page": _BASE_ERROR_STATUSES + ("400", "404", "410"),
     "observability": _BASE_ERROR_STATUSES + ("400", "404", "410"),
     "write_command": _BASE_ERROR_STATUSES + ("400", "404", "409", "410", "413"),
     "run_admission": _BASE_ERROR_STATUSES + ("404", "409", "413"),
+    "execution_option_resolve": _BASE_ERROR_STATUSES + ("409", "413"),
     "cancel": _BASE_ERROR_STATUSES + ("404", "409", "413"),
     "sse": ("400", "401", "403", "404", "410", "422", "500", "503"),
 }
@@ -163,6 +165,9 @@ _LOGOUT_HEADERS = {
     "Cache-Control": _header("Always `no-store` for the authentication response."),
 }
 _NO_STORE_HEADERS = {"Cache-Control": _header("Always `no-store`.")}
+_EXECUTION_OPTION_HEADERS = {
+    "Cache-Control": _header("Always `private, no-store` for execution options.")
+}
 _ADMISSION_HEADERS = {
     "Location": _header("Relative status URL of the accepted Run."),
     "Cache-Control": _header("Always `private, no-cache`."),
@@ -181,7 +186,8 @@ _CSRF_REQUEST_HEADER = {
     "required": False,
     "description": (
         "Session-bound CSRF token from login. Required when authenticating with the "
-        "session cookie on a mutating operation; ignored for ApiKey service clients."
+        "session cookie with a non-safe HTTP method, including a read-only POST "
+        "resolver; ignored for ApiKey service clients."
     ),
     "schema": {"type": "string", "maxLength": 4096},
 }
@@ -221,8 +227,16 @@ _PARENT_BOUND_PAGE_PATHS = frozenset(
         "/api/v1/artifacts/{artifact_id}/lineage",
         "/api/v1/refs/{ref_name}/history",
         "/api/v1/runs/{run_id}/findings",
+        "/api/v1/runs/{run_id}/finding-links",
         "/api/v1/runs/{run_id}/commands",
         "/api/v1/conflict-sets/{conflict_set_id}/conflicts",
+    }
+)
+
+_EXECUTION_PROFILE_BINDING_PATHS = frozenset(
+    {
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/constraint-validation-binding",
+        "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding",
     }
 )
 
@@ -237,6 +251,10 @@ _SSE_DESCRIPTION = (
 # ── classification ──────────────────────────────────────────────────────────
 def _operation_class(method: str, path: str, operation: Mapping[str, Any]) -> str:
     tags = operation.get("tags", []) or []
+    if method == "get" and path in _EXECUTION_PROFILE_BINDING_PATHS:
+        return "execution_profile_binding_read"
+    if method == "post" and path == "/api/v1/execution-options:resolve":
+        return "execution_option_resolve"
     if "auth" in tags:
         if path.endswith("/login"):
             return "auth_login"
@@ -334,7 +352,7 @@ def _inject_success_headers(operation: dict[str, Any], operation_class: str) -> 
         _set_headers(operation, "204", _LOGOUT_HEADERS)
     elif operation_class == "auth_me":
         _set_headers(operation, "200", _NO_STORE_HEADERS)
-    elif operation_class == "read_item":
+    elif operation_class in ("read_item", "execution_profile_binding_read"):
         _set_headers(operation, "200", _ETAG_HEADERS)
     elif operation_class in ("read_page", "read_parent_page"):
         _set_headers(operation, "200", _PAGE_HEADERS)
@@ -344,6 +362,8 @@ def _inject_success_headers(operation: dict[str, Any], operation_class: str) -> 
             _set_headers(operation, code, _ETAG_HEADERS)
     elif operation_class == "run_admission":
         _set_headers(operation, "202", _ADMISSION_HEADERS)
+    elif operation_class == "execution_option_resolve":
+        _set_headers(operation, "200", _EXECUTION_OPTION_HEADERS)
     elif operation_class == "cancel":
         _set_headers(operation, "200", _NO_STORE_HEADERS)
     elif operation_class == "sse":
@@ -377,7 +397,12 @@ def _append_parameter(operation: dict[str, Any], parameter: Mapping[str, Any]) -
 def _inject_request_headers(operation: dict[str, Any], operation_class: str) -> None:
     if operation_class == "auth_logout":
         _append_parameter(operation, _LOGOUT_CSRF_REQUEST_HEADER)
-    elif operation_class in ("write_command", "run_admission", "cancel"):
+    elif operation_class in (
+        "write_command",
+        "run_admission",
+        "execution_option_resolve",
+        "cancel",
+    ):
         _append_parameter(operation, _CSRF_REQUEST_HEADER)
     if operation_class == "auth_logout":
         _append_parameter(operation, _IDEMPOTENCY_REQUEST_HEADER)

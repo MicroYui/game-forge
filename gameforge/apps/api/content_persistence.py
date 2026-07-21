@@ -10,14 +10,18 @@ from pydantic import JsonValue, ValidationError
 from sqlalchemy import BigInteger, func, literal_column, select
 from sqlalchemy.orm import Session
 
+from gameforge.contracts.api import SchemaRegistryDocumentV1, SubjectApprovalBindingViewV1
 from gameforge.contracts.canonical import canonical_sha256
+from gameforge.contracts.diff import SnapshotDiff
 from gameforge.contracts.errors import DependencyUnavailable, IntegrityViolation, QueryTooBroad
-from gameforge.contracts.identity import Permission
+from gameforge.contracts.identity import DomainScope, Permission
+from gameforge.contracts.ir import EdgeType, NodeType
 from gameforge.contracts.lineage import ArtifactKind, ArtifactV1, ArtifactV2
 from gameforge.contracts.storage import PageCursorV1, PageV1, RefValue, UtcClock
 from gameforge.contracts.workflow import (
     ApprovalItem,
     EvidenceSet,
+    SubjectHead,
     regression_companion_evidence_ids,
 )
 from gameforge.platform.approvals.commands import EvidenceStateProjection
@@ -35,8 +39,13 @@ from gameforge.platform.read_models.content import (
     PatchWorkflowReadBinding,
     RefHistoryReadProvider,
     RollbackWorkflowReadBinding,
+    SnapshotDiffRead,
+    SpecReadBinding,
 )
 from gameforge.platform.read_models.paging import ReadPageBinding
+from gameforge.platform.diff.engine import iter_snapshot_diff_entries
+from gameforge.platform.diff.ir_rebase import snapshot_from_canonical_view
+from gameforge.contracts.versions import IR_SCHEMA_VERSION, META_SCHEMA_VERSION
 from gameforge.runtime.persistence.approvals import SqlApprovalRepository
 from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
@@ -44,6 +53,7 @@ from gameforge.runtime.persistence.models import (
     ApprovalEvidenceBindingRow,
     ApprovalItemRow,
     ArtifactRow,
+    RefRow,
     RefHistoryRow,
 )
 from gameforge.runtime.persistence.read_views import (
@@ -56,6 +66,7 @@ from gameforge.runtime.persistence.refs import SqlRefStore
 
 _ARTIFACT_ROWID = literal_column("artifacts.rowid", type_=BigInteger())
 _MAX_LINEAGE_ITEMS = 1_000
+_BUILTIN_IR_SCHEMA_REGISTRY_VERSION = "registry@1"
 _INDEX_KINDS: dict[str, ArtifactKind] = {
     "specs": "ir_snapshot",
     "constraints": "constraint_snapshot",
@@ -70,6 +81,80 @@ _SUBJECT_PAYLOAD_SCHEMAS: dict[str, str] = {
     "constraint_proposal": "constraint-proposal@1",
     "rollback_request": "rollback-request@1",
 }
+
+
+def builtin_ir_schema_registry() -> SchemaRegistryDocumentV1:
+    """Return the frozen canonical-IR schema document used by local composition."""
+
+    source_ref = {
+        "additionalProperties": False,
+        "properties": {
+            "adapter": {"type": "string"},
+            "column": {"type": ["string", "null"]},
+            "file": {"type": "string"},
+            "row": {"type": ["integer", "null"]},
+            "sheet": {"type": ["string", "null"]},
+        },
+        "required": ["adapter", "file"],
+        "type": "object",
+    }
+    entity = {
+        "additionalProperties": False,
+        "properties": {
+            "attrs": {"additionalProperties": True, "type": "object"},
+            "schema_version": {"const": IR_SCHEMA_VERSION},
+            "source_ref": source_ref,
+            "tags": {"items": {"type": "string"}, "type": "array"},
+            "type": {"enum": [item.value for item in NodeType], "type": "string"},
+        },
+        "required": ["attrs", "schema_version", "type"],
+        "type": "object",
+    }
+    relation = {
+        "additionalProperties": False,
+        "properties": {
+            "attrs": {"additionalProperties": True, "type": "object"},
+            "dst_id": {"type": "string"},
+            "schema_version": {"const": IR_SCHEMA_VERSION},
+            "source_ref": source_ref,
+            "src_id": {"type": "string"},
+            "type": {"enum": [item.value for item in EdgeType], "type": "string"},
+        },
+        "required": ["dst_id", "schema_version", "src_id", "type"],
+        "type": "object",
+    }
+    schemas: dict[str, JsonValue] = {
+        IR_SCHEMA_VERSION: {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": False,
+            "properties": {
+                "entities": {"additionalProperties": entity, "type": "object"},
+                "meta_schema_version": {"const": META_SCHEMA_VERSION},
+                "relations": {"additionalProperties": relation, "type": "object"},
+            },
+            "required": ["entities", "meta_schema_version", "relations"],
+            "type": "object",
+        }
+    }
+    payload = {
+        "registry_schema_version": "schema-registry-document@1",
+        "registry_version": _BUILTIN_IR_SCHEMA_REGISTRY_VERSION,
+        "schemas": schemas,
+    }
+    return SchemaRegistryDocumentV1(
+        **payload,
+        registry_digest=canonical_sha256(payload),
+    )
+
+
+class BuiltinSchemaRegistryProvider:
+    """One immutable local registry document; unknown versions stay unavailable."""
+
+    def __init__(self) -> None:
+        self._document = builtin_ir_schema_registry()
+
+    def get(self, version: str) -> SchemaRegistryDocumentV1 | None:
+        return self._document if version == self._document.registry_version else None
 
 
 def _immutable_binding(value: ReadPageBinding) -> ImmutableReadBinding:
@@ -92,6 +177,260 @@ class SqlContentReadRepository(ContentReadRepository):
 
     def get_artifact(self, artifact_id: str) -> ArtifactV1 | ArtifactV2 | None:
         return self._artifacts.get(artifact_id)
+
+
+class SqlSpecSnapshotReadAuthority:
+    """Derive exact Spec bindings and deterministic diffs from retained Artifacts."""
+
+    def __init__(
+        self,
+        session: Session,
+        *,
+        artifacts: SqlArtifactRepository,
+        payload_reader: ArtifactPayloadReader,
+        refs: SqlRefStore,
+    ) -> None:
+        if getattr(artifacts, "_session", None) is not session:
+            raise ValueError("spec snapshot authority must share the Artifact Session")
+        if getattr(refs, "_session", None) is not session:
+            raise ValueError("spec snapshot authority must share the Ref Session")
+        self._session = session
+        self._artifacts = artifacts
+        self._payload_reader = payload_reader
+        self._refs = refs
+
+    def resolve(self, artifact_id: str) -> SpecReadBinding | None:
+        artifact = self._artifacts.get(artifact_id)
+        if type(artifact) is not ArtifactV2 or artifact.kind != "ir_snapshot":
+            return None
+        return self._binding(artifact)
+
+    def resolve_snapshot_id(self, snapshot_id: str) -> SpecReadBinding | None:
+        if not isinstance(snapshot_id, str) or not snapshot_id or len(snapshot_id) > 512:
+            raise ValueError("snapshot_id must be a non-empty bounded string")
+        identifiers = tuple(
+            self._session.scalars(
+                select(ArtifactRow.artifact_id)
+                .where(
+                    ArtifactRow.kind == "ir_snapshot",
+                    ArtifactRow.version_tuple["ir_snapshot_id"].as_string() == snapshot_id,
+                )
+                .order_by(ArtifactRow.artifact_id)
+                .limit(_MAX_LINEAGE_ITEMS + 1)
+            ).all()
+        )
+        if len(identifiers) > _MAX_LINEAGE_ITEMS:
+            raise QueryTooBroad(
+                "snapshot identity resolves to too many retained Artifacts",
+                max_items=_MAX_LINEAGE_ITEMS,
+            )
+        candidates: list[tuple[SpecReadBinding, ArtifactV2, DomainScope]] = []
+        for identifier in identifiers:
+            artifact = self._artifacts.get(identifier)
+            if type(artifact) is not ArtifactV2 or artifact.kind != "ir_snapshot":
+                raise IntegrityViolation(
+                    "snapshot identity index resolved a non-snapshot Artifact",
+                    artifact_id=identifier,
+                )
+            binding = self._binding(artifact)
+            snapshot = self._load_snapshot(artifact)
+            if snapshot.snapshot_id != snapshot_id:
+                raise IntegrityViolation(
+                    "snapshot identity differs from verified canonical content",
+                    artifact_id=identifier,
+                )
+            candidates.append((binding, artifact, self._domain_scope(artifact)))
+        if not candidates:
+            return None
+
+        first_binding, first_artifact, first_scope = candidates[0]
+        for binding, artifact, scope in candidates[1:]:
+            if (
+                artifact.payload_hash != first_artifact.payload_hash
+                or binding.schema_registry_version != first_binding.schema_registry_version
+                or scope != first_scope
+            ):
+                raise IntegrityViolation(
+                    "duplicate snapshot identity has inconsistent retained authority",
+                    snapshot_id=snapshot_id,
+                )
+        current = [candidate for candidate in candidates if candidate[0].ref_name is not None]
+        selected = min(current or candidates, key=lambda candidate: candidate[0].artifact_id)
+        return selected[0]
+
+    def read(
+        self,
+        base_snapshot_id: str,
+        target_snapshot_id: str,
+        *,
+        max_items: int,
+    ) -> SnapshotDiffRead:
+        if isinstance(max_items, bool) or not isinstance(max_items, int) or max_items < 1:
+            raise ValueError("max_items must be positive")
+        base = self._snapshot_for_id(base_snapshot_id)
+        target = self._snapshot_for_id(target_snapshot_id)
+        entries = []
+        for entry in iter_snapshot_diff_entries(base.content_payload, target.content_payload):
+            if len(entries) == max_items:
+                raise QueryTooBroad(
+                    "snapshot diff exceeds the configured item bound",
+                    max_items=max_items,
+                )
+            entries.append(entry)
+        return SnapshotDiffRead(
+            diff=SnapshotDiff(
+                base_snapshot_id=base_snapshot_id,
+                target_snapshot_id=target_snapshot_id,
+                entry_count=len(entries),
+            ),
+            entries=tuple(entries),
+        )
+
+    def _snapshot_for_id(self, snapshot_id: str):
+        binding = self.resolve_snapshot_id(snapshot_id)
+        if binding is None:
+            raise DependencyUnavailable(
+                "snapshot Artifact authority is unavailable",
+                component="spec_snapshot",
+                snapshot_id=snapshot_id,
+            )
+        artifact = self._artifacts.get(binding.artifact_id)
+        if type(artifact) is not ArtifactV2 or artifact.kind != "ir_snapshot":
+            raise IntegrityViolation("resolved snapshot Artifact is unavailable")
+        return self._load_snapshot(artifact)
+
+    def _binding(self, artifact: ArtifactV2) -> SpecReadBinding:
+        snapshot_id = artifact.version_tuple.ir_snapshot_id
+        if not isinstance(snapshot_id, str) or not snapshot_id or len(snapshot_id) > 512:
+            raise IntegrityViolation(
+                "ir_snapshot Artifact has no exact snapshot identity",
+                artifact_id=artifact.artifact_id,
+            )
+        registry_version = self._schema_registry_version(artifact)
+        ref_names = tuple(
+            self._session.scalars(
+                select(RefRow.name)
+                .where(RefRow.artifact_id == artifact.artifact_id)
+                .order_by(RefRow.name)
+                .limit(2)
+            ).all()
+        )
+        if len(ref_names) > 1:
+            raise IntegrityViolation(
+                "one Spec Artifact is current under multiple refs",
+                artifact_id=artifact.artifact_id,
+            )
+        if not ref_names:
+            return SpecReadBinding(
+                artifact_id=artifact.artifact_id,
+                snapshot_id=snapshot_id,
+                schema_registry_version=registry_version,
+            )
+        ref_name = ref_names[0]
+        ref_value = self._refs.get(ref_name)
+        if ref_value is None or ref_value.artifact_id != artifact.artifact_id:
+            raise IntegrityViolation(
+                "Spec current-ref index differs from Ref authority",
+                artifact_id=artifact.artifact_id,
+            )
+        return SpecReadBinding(
+            artifact_id=artifact.artifact_id,
+            snapshot_id=snapshot_id,
+            schema_registry_version=registry_version,
+            ref_name=ref_name,
+            ref_value=ref_value,
+        )
+
+    def _schema_registry_version(self, artifact: ArtifactV2) -> str:
+        direct = self._direct_schema_registry_version(artifact)
+        if direct is not None:
+            return direct
+        versions: set[str] = set()
+        visited = {artifact.artifact_id}
+        stack = list(reversed(tuple(artifact.lineage)))
+        while stack:
+            parent_id = stack.pop()
+            if parent_id in visited:
+                continue
+            if len(visited) >= _MAX_LINEAGE_ITEMS:
+                raise QueryTooBroad(
+                    "Spec schema-registry lineage exceeds the configured bound",
+                    max_items=_MAX_LINEAGE_ITEMS,
+                )
+            visited.add(parent_id)
+            parent = self._artifacts.get(parent_id)
+            if not isinstance(parent, (ArtifactV1, ArtifactV2)):
+                raise IntegrityViolation(
+                    "Spec schema-registry lineage parent is unavailable",
+                    artifact_id=artifact.artifact_id,
+                    parent_artifact_id=parent_id,
+                )
+            if type(parent) is ArtifactV2 and parent.kind == "ir_snapshot":
+                inherited = self._direct_schema_registry_version(parent)
+                if inherited is not None:
+                    versions.add(inherited)
+                    if len(versions) > 1:
+                        raise IntegrityViolation(
+                            "Spec lineage carries conflicting schema-registry versions",
+                            artifact_id=artifact.artifact_id,
+                        )
+            stack.extend(reversed(tuple(parent.lineage)))
+        if not versions:
+            raise DependencyUnavailable(
+                "Spec schema-registry binding is unavailable",
+                component="schema_registry",
+                artifact_id=artifact.artifact_id,
+            )
+        return next(iter(versions))
+
+    @staticmethod
+    def _direct_schema_registry_version(artifact: ArtifactV2) -> str | None:
+        value = artifact.meta.get("schema_registry_version")
+        if value is None:
+            return None
+        if not isinstance(value, str) or not value or len(value) > 512:
+            raise IntegrityViolation(
+                "Spec schema-registry metadata is invalid",
+                artifact_id=artifact.artifact_id,
+            )
+        return value
+
+    @staticmethod
+    def _domain_scope(artifact: ArtifactV2) -> DomainScope:
+        raw = artifact.meta.get("domain_scope")
+        try:
+            scope = DomainScope.model_validate(raw)
+        except (TypeError, ValueError) as exc:
+            raise IntegrityViolation(
+                "Spec Artifact domain authority is invalid",
+                artifact_id=artifact.artifact_id,
+            ) from exc
+        if raw != scope.model_dump(mode="json"):
+            raise IntegrityViolation(
+                "Spec Artifact domain authority is noncanonical",
+                artifact_id=artifact.artifact_id,
+            )
+        return scope
+
+    def _load_snapshot(self, artifact: ArtifactV2):
+        verified = self._payload_reader.read(artifact.artifact_id)
+        if (
+            type(verified) is not VerifiedArtifactPayload
+            or verified.artifact != artifact
+            or verified.kind != "ir_snapshot"
+            or verified.payload_schema_id != IR_SCHEMA_VERSION
+        ):
+            raise IntegrityViolation(
+                "Spec Artifact payload binding is invalid",
+                artifact_id=artifact.artifact_id,
+            )
+        snapshot = snapshot_from_canonical_view(verified.payload)
+        if snapshot.snapshot_id != artifact.version_tuple.ir_snapshot_id:
+            raise IntegrityViolation(
+                "Spec Artifact VersionTuple differs from canonical content",
+                artifact_id=artifact.artifact_id,
+            )
+        return snapshot
 
 
 class SqlApprovalPayloadBindingProvider:
@@ -353,6 +692,27 @@ class SqlApprovalContentAuthority:
             approval_status=item.status,
         )
 
+    def resolve_approval_binding(
+        self,
+        artifact_id: str,
+    ) -> SubjectApprovalBindingViewV1 | None:
+        item = self._item_for_artifact(artifact_id)
+        if item is None:
+            return None
+        head, _current_item = self._require_retained_series(item, artifact_id=artifact_id)
+        return SubjectApprovalBindingViewV1(
+            subject_artifact_id=item.subject_artifact_id,
+            subject_digest=item.subject_digest,
+            subject_kind=item.subject_kind,
+            subject_series_id=item.subject_series_id,
+            subject_revision=item.subject_revision,
+            subject_head_revision=head.revision,
+            is_current_head=head.current_approval_id == item.approval_id,
+            approval_id=item.approval_id,
+            workflow_revision=item.workflow_revision,
+            approval_status=item.status,
+        )
+
     def for_artifact(
         self,
         artifact: ArtifactV1 | ArtifactV2,
@@ -434,7 +794,12 @@ class SqlApprovalContentAuthority:
         self._require_retained_series(item, artifact_id=artifact_id)
         return item
 
-    def _require_retained_series(self, item: ApprovalItem, *, artifact_id: str) -> None:
+    def _require_retained_series(
+        self,
+        item: ApprovalItem,
+        *,
+        artifact_id: str,
+    ) -> tuple[SubjectHead, ApprovalItem]:
         current = self._approvals.current(item.subject_series_id)
         if current is None:
             raise IntegrityViolation(
@@ -448,7 +813,7 @@ class SqlApprovalContentAuthority:
                     "SubjectHead current ApprovalItem differs from its retained subject",
                     artifact_id=artifact_id,
                 )
-            return
+            return head, current_item
         if (
             item.status != "superseded"
             or item.subject_kind != current_item.subject_kind
@@ -458,6 +823,7 @@ class SqlApprovalContentAuthority:
                 "historical ApprovalItem is not a retained superseded subject revision",
                 artifact_id=artifact_id,
             )
+        return head, current_item
 
     def _item_for_artifact(self, artifact_id: str) -> ApprovalItem | None:
         approval_ids = self._session.scalars(
@@ -821,9 +1187,12 @@ class SqlRefHistoryReadProvider(RefHistoryReadProvider):
 
 __all__ = [
     "ApprovalEvidenceStateProjector",
+    "BuiltinSchemaRegistryProvider",
     "SqlApprovalContentAuthority",
     "SqlApprovalPayloadBindingProvider",
     "SqlContentReadRepository",
     "SqlImmutableArtifactPageProvider",
     "SqlRefHistoryReadProvider",
+    "SqlSpecSnapshotReadAuthority",
+    "builtin_ir_schema_registry",
 ]

@@ -38,9 +38,19 @@ from typing import Any, Literal, Protocol
 
 from gameforge.contracts.api import (
     ConstraintValidationAdmissionRequestV1,
+    ExecutionOptionResolveRequestV1,
+    ExecutionOptionViewV1,
     PatchValidationAdmissionRequestV1,
+    ProspectiveConstraintProposeRequestV1,
+    ProspectiveGenerationProposeRequestV1,
+    ProspectiveGenericAgentRunRequestV1,
+    ProspectivePatchRepairRequestV1,
+    ProspectivePlaytestRunRequestV1,
     RollbackValidationAdmissionRequestV1,
     RunAcceptedV1,
+    compute_execution_option_id,
+    compute_execution_option_request_hash,
+    compute_resolved_profile_binding_digests,
 )
 from gameforge.contracts.benchmark import (
     MAX_BENCHMARK_AGENT_MODEL_CALLS_TOTAL,
@@ -80,6 +90,7 @@ from gameforge.contracts.errors import (
     IdempotencyConflict,
     IntegrityViolation,
     StaleTaskSuite,
+    WorkflowGuard,
 )
 from gameforge.contracts.execution_graphs import AgentExecutionGraphV1
 from gameforge.contracts.execution_profiles import (
@@ -197,10 +208,13 @@ from gameforge.platform.registry.defaults import (
     PROFILE_OUTPUT_SCHEMA_REQUIREMENTS,
 )
 from gameforge.platform.registry.model import FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA
-from gameforge.platform.run_handlers.checker import validate_checker_work_budget
-from gameforge.platform.run_handlers.constraint_validation import (
-    BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1,
+from gameforge.platform.registry.constraint_compilers import (
+    resolve_constraint_validation_compiler_authority,
 )
+from gameforge.platform.registry.task_suite_derivation import (
+    resolve_task_suite_derivation_authority,
+)
+from gameforge.platform.run_handlers.checker import validate_checker_work_budget
 from gameforge.platform.run_handlers.simulation import (
     validate_economy_simulation_work_budget,
 )
@@ -216,6 +230,7 @@ from gameforge.platform.runs.commands import (
 from gameforge.platform.runs.execution_plan import (
     ExecutionVersionPlanAuthorityValidator,
     LegacyExecutionVersionPlanAuthorityValidator,
+    validate_execution_plan_domain_coverage,
 )
 from gameforge.platform.runs.replay import (
     MAX_REPLAY_ARTIFACT_BYTES,
@@ -592,6 +607,16 @@ class AdmissionReadPort:
 
 AdmissionReadScope = Callable[[], AbstractContextManager[AdmissionReadPort]]
 CurrentPrincipalResolver = Callable[[Any, ActorContext], Principal | None]
+
+
+class ExecutionPlanResolver(Protocol):
+    def resolve(
+        self,
+        *,
+        graph: AgentExecutionGraphV1,
+        llm_execution_mode: Literal["live", "record", "replay"],
+        replay_plan: ExecutionVersionPlanV1 | None = None,
+    ) -> ExecutionVersionPlanV1: ...
 
 
 class _AdmissionReplayReader(ReplayAdmissionReader):
@@ -988,6 +1013,15 @@ class _AuthorizationBinding:
 
 
 @dataclass(frozen=True, slots=True)
+class _PreparedRun:
+    artifacts: dict[str, ArtifactV2]
+    permission_item: ApprovalItem | None
+    authorization: _AuthorizationBinding
+    replay_context: _ReplayAdmissionContext | None
+    payload: RunPayloadEnvelope
+
+
+@dataclass(frozen=True, slots=True)
 class _ReplayAdmissionContext:
     """One immutable cassette parse reused throughout a single admission."""
 
@@ -1250,6 +1284,7 @@ class RunAdmissionEngine:
         deadline_policy: AdmissionDeadlinePolicy | None = None,
         validation_start_writer: ValidationStartWriter | None = None,
         dr_recovery_manifest_authority: DrRecoveryManifestAuthority | None = None,
+        execution_version_plans: ExecutionPlanResolver | None = None,
     ) -> None:
         self._run_commands = run_commands
         self._unit_of_work = unit_of_work
@@ -1265,6 +1300,7 @@ class RunAdmissionEngine:
         self._legacy_import_decisions = legacy_import_decisions
         self._validation_start_writer = validation_start_writer
         self._dr_recovery_manifest_authority = dr_recovery_manifest_authority
+        self._execution_version_plans = execution_version_plans
         self._playtest_payload_validator = playtest_payload_validator
         if not isinstance(role_policy_version, str) or not role_policy_version:
             raise IntegrityViolation("run admission requires an exact role policy version")
@@ -1279,6 +1315,228 @@ class RunAdmissionEngine:
         self._role_policy_version = role_policy_version
         self._role_policy_digest = role_policy_digest
         self._deadlines = deadline_policy or AdmissionDeadlinePolicy()
+
+    def resolve_execution_option(
+        self,
+        *,
+        request: ExecutionOptionResolveRequestV1,
+        actor: ActorContext,
+    ) -> ExecutionOptionViewV1:
+        """Resolve one exact Agent execution without publishing any authority."""
+
+        kind = request.run_kind
+        params, creation_mode, seed, pending_sources = self._execution_option_params(
+            request,
+            actor=actor,
+        )
+        prospective_hash = compute_execution_option_request_hash(request)
+        with self._read_scope() as read:
+            source: RunRecord | None = None
+            cassette_artifact_id: str | None = None
+            replay_plan: ExecutionVersionPlanV1 | None = None
+            if request.llm_execution_mode == "replay":
+                replay_authorization = self._preauthorize_execution_option_replay_lookup(
+                    kind=kind,
+                    creation_mode=creation_mode,
+                    params=params,
+                    pending_source_artifacts=pending_sources,
+                    read=read,
+                    actor=actor,
+                )
+                if read.runs is None:
+                    raise DependencyUnavailable(
+                        "replay source Run authority is unavailable",
+                        component="execution_option_replay_source",
+                    )
+                candidate = read.runs.get(request.replay_source_run_id)
+                if not isinstance(candidate, RunRecord):
+                    raise WorkflowGuard("replay source is not compatible")
+                source = candidate
+                cassette_artifact_id = source.terminal_cassette_artifact_id
+                replay_plan = source.payload.execution_version_plan
+                expected_inputs = self._input_artifact_ids(params, None)
+                if (
+                    source.kind != kind
+                    or source.status not in {"succeeded", "failed", "cancelled", "timed_out"}
+                    or source.payload.llm_execution_mode != "record"
+                    or source.resource_domain_scope != replay_authorization.resource_domain
+                    or source.payload.params != params
+                    or source.payload.seed != seed
+                    or source.payload.input_artifact_ids != expected_inputs
+                    or cassette_artifact_id is None
+                    or replay_plan is None
+                ):
+                    raise WorkflowGuard("replay source is not compatible")
+
+            def resolve_plan(
+                definition: RunKindDefinition,
+                resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
+                catalog: ExecutionProfileCatalogSnapshotV1,
+            ) -> ExecutionVersionPlanV1:
+                return self._resolve_execution_option_plan(
+                    kind=kind,
+                    definition=definition,
+                    resolved_profiles=resolved_profiles,
+                    catalog=catalog,
+                    llm_execution_mode=request.llm_execution_mode,
+                    replay_plan=replay_plan,
+                )
+
+            prepared = self._prepare_run(
+                budget_set_snapshot_id="budget-set:execution-option-projection",
+                kind=kind,
+                creation_mode=creation_mode,
+                params=params,
+                version_tuple=self._params_version_tuple(params),
+                llm_execution_mode=request.llm_execution_mode,
+                seed=seed,
+                read=read,
+                actor=actor,
+                cassette_artifact_id=cassette_artifact_id,
+                pending_source_artifacts=pending_sources,
+                resolve_execution_plan=resolve_plan,
+                expected_replay_source=source,
+            )
+
+        plan = prepared.payload.execution_version_plan
+        domain_scope = prepared.authorization.resource_domain
+        if plan is None or not isinstance(domain_scope, DomainScope):
+            raise IntegrityViolation("execution option did not resolve an Agent domain and plan")
+        resolved_hash = compute_execution_option_request_hash(
+            request,
+            execution_version_plan=plan,
+            cassette_artifact_id=cassette_artifact_id,
+        )
+        body: dict[str, object] = {
+            "option_schema_version": "execution-option@1",
+            "option_id": "execution-option:sha256:" + "0" * 64,
+            "resource_operation_id": request.resource_operation_id,
+            "run_kind": kind,
+            "domain_scope": domain_scope,
+            "llm_execution_mode": request.llm_execution_mode,
+            "execution_version_plan": plan,
+            "prospective_request_hash": prospective_hash,
+            "resolved_request_hash": resolved_hash,
+            "resolved_profile_binding_digests": (
+                compute_resolved_profile_binding_digests(prepared.payload.resolved_profiles)
+            ),
+            "source_run_id": None if source is None else source.run_id,
+            "cassette_artifact_id": cassette_artifact_id,
+        }
+        body["option_id"] = compute_execution_option_id(body)
+        return ExecutionOptionViewV1.model_validate(body)
+
+    def _execution_option_params(
+        self,
+        request: ExecutionOptionResolveRequestV1,
+        *,
+        actor: ActorContext,
+    ) -> tuple[
+        RunKindPayload,
+        Literal["generic_runs_endpoint", "resource_endpoint_only"],
+        int | None,
+        tuple[ArtifactV2, ...],
+    ]:
+        prospective = request.prospective_request
+        if isinstance(prospective, ProspectiveGenericAgentRunRequestV1):
+            return prospective.params, "generic_runs_endpoint", prospective.seed, ()
+        if isinstance(prospective, ProspectivePatchRepairRequestV1):
+            return prospective.params, "resource_endpoint_only", prospective.seed, ()
+        if isinstance(prospective, ProspectivePlaytestRunRequestV1):
+            return prospective.params, "resource_endpoint_only", prospective.seed, ()
+        if isinstance(prospective, ProspectiveGenerationProposeRequestV1):
+            source = self._project_goal_source(
+                actor=actor,
+                text=prospective.objective_goal_text,
+                domain_scope=prospective.domain_scope,
+            )
+            params = GenerationProposePayloadV1(
+                base_snapshot_artifact_id=prospective.base_snapshot_artifact_id,
+                constraint_snapshot_artifact_id=prospective.constraint_snapshot_artifact_id,
+                findings=prospective.findings,
+                objective_goal=PromptGoalBindingV1(
+                    source_artifact_id=source.artifact_id,
+                    expected_payload_hash=source.payload_hash,
+                ),
+                domain_scope=prospective.domain_scope,
+                target=prospective.target,
+                generation_policy=prospective.generation_policy,
+                candidate_export_profiles=prospective.candidate_export_profiles,
+            )
+            return params, "resource_endpoint_only", None, (source,)
+        if isinstance(prospective, ProspectiveConstraintProposeRequestV1):
+            source = self._project_goal_source(
+                actor=actor,
+                text=prospective.authoring_goal_text,
+                domain_scope=prospective.domain_scope,
+            )
+            params = ConstraintProposalProposePayloadV1(
+                source_artifact_ids=prospective.source_artifact_ids,
+                base_constraint_snapshot_artifact_id=(
+                    prospective.base_constraint_snapshot_artifact_id
+                ),
+                domain_scope=prospective.domain_scope,
+                authoring_goal=PromptGoalBindingV1(
+                    source_artifact_id=source.artifact_id,
+                    expected_payload_hash=source.payload_hash,
+                ),
+                dsl_grammar_version=prospective.dsl_grammar_version,
+                extraction_policy=prospective.extraction_policy,
+            )
+            return params, "resource_endpoint_only", None, (source,)
+        raise IntegrityViolation("unsupported prospective Agent request")
+
+    def _preauthorize_execution_option_replay_lookup(
+        self,
+        *,
+        kind: RunKindRef,
+        creation_mode: Literal["generic_runs_endpoint", "resource_endpoint_only"],
+        params: RunKindPayload,
+        pending_source_artifacts: tuple[ArtifactV2, ...],
+        read: AdmissionReadPort,
+        actor: ActorContext,
+    ) -> _AuthorizationBinding:
+        definition = self._resolve_definition(kind, creation_mode)
+        artifacts = self._verify_input_artifacts(
+            params=params,
+            cassette_artifact_id=None,
+            read=read,
+            pending_source_artifacts=pending_source_artifacts,
+        )
+        self._verify_prompt_goal_binding(
+            params=params,
+            artifacts=artifacts,
+            read=read,
+            actor=actor,
+            pending_source_artifacts=pending_source_artifacts,
+        )
+        self._verify_finding_bindings(params=params, artifacts=artifacts, read=read)
+        permission_item = (
+            self._load_repair_subject(read=read, params=params, artifacts=artifacts)
+            if isinstance(params, PatchRepairPayloadV1)
+            else None
+        )
+        verified_suite_scope = self._verify_task_suite_and_playtest_bindings(
+            params=params,
+            artifacts=artifacts,
+            read=read,
+            llm_execution_mode="replay",
+            catalog=self._catalog,
+        )
+        authorization = self._authorize_run_permission(
+            definition=definition,
+            kind=kind,
+            params=params,
+            artifacts=artifacts,
+            read=read,
+            actor=actor,
+            validation_item=permission_item,
+            verified_suite_scope=verified_suite_scope,
+        )
+        return self._authorize_replay_permission(
+            authorization=authorization,
+            actor=actor,
+        )
 
     # ── Task-7 ValidationAdmissionPort seam ──────────────────────────────────
     def admit(
@@ -1851,11 +2109,11 @@ class RunAdmissionEngine:
             events_url=f"/api/v1/runs/{retained.run_id}/events",
         )
 
-    # ── shared admission path ────────────────────────────────────────────────
-    def _admit_run(
+    # ── shared read-only execution preparation ──────────────────────────────
+    def _prepare_run(
         self,
         *,
-        run_id: str,
+        budget_set_snapshot_id: str,
         kind: RunKindRef,
         creation_mode: Literal["generic_runs_endpoint", "resource_endpoint_only", "internal_only"],
         params: RunKindPayload,
@@ -1864,18 +2122,23 @@ class RunAdmissionEngine:
         seed: int | None,
         read: AdmissionReadPort,
         actor: ActorContext,
-        idempotency_scope: str,
-        idempotency_key: str,
-        request_hash: str,
-        request_id: str | None,
-        trace_id: str | None,
-        dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None,
         execution_version_plan: ExecutionVersionPlanV1 | None = None,
         cassette_artifact_id: str | None = None,
-        source_writes: tuple[_SourceWrite, ...] = (),
+        pending_source_artifacts: tuple[ArtifactV2, ...] = (),
         validation_item: ApprovalItem | None = None,
-        companion_write: Callable[[Any], None] | None = None,
-    ) -> RunAcceptedV1:
+        resolve_execution_plan: (
+            Callable[
+                [
+                    RunKindDefinition,
+                    tuple[ResolvedExecutionProfileBindingV1, ...],
+                    ExecutionProfileCatalogSnapshotV1,
+                ],
+                ExecutionVersionPlanV1,
+            ]
+            | None
+        ) = None,
+        expected_replay_source: RunRecord | None = None,
+    ) -> _PreparedRun:
         definition = self._resolve_definition(kind, creation_mode)
         catalog, replay_context = self._execution_profile_catalog_for_request(
             kind=kind,
@@ -1889,34 +2152,35 @@ class RunAdmissionEngine:
             params=params,
             cassette_artifact_id=cassette_artifact_id,
             read=read,
-            pending_sources=source_writes,
+            pending_source_artifacts=pending_source_artifacts,
         )
         self._verify_prompt_goal_binding(
             params=params,
             artifacts=artifacts,
             read=read,
             actor=actor,
-            pending_sources=source_writes,
+            pending_source_artifacts=pending_source_artifacts,
         )
         self._verify_finding_bindings(params=params, artifacts=artifacts, read=read)
-        self._verify_benchmark_admission(
-            params=params,
-            artifacts=artifacts,
-            read=read,
-            run_definition=definition,
-            llm_execution_mode=llm_execution_mode,
-            execution_version_plan=execution_version_plan,
-            cassette_artifact_id=cassette_artifact_id,
-            seed=seed,
-            catalog=catalog,
-        )
-        self._verify_execution_request_shape(
-            definition=definition,
-            params=params,
-            llm_execution_mode=llm_execution_mode,
-            execution_version_plan=execution_version_plan,
-            cassette_artifact_id=cassette_artifact_id,
-        )
+        if resolve_execution_plan is None:
+            self._verify_benchmark_admission(
+                params=params,
+                artifacts=artifacts,
+                read=read,
+                run_definition=definition,
+                llm_execution_mode=llm_execution_mode,
+                execution_version_plan=execution_version_plan,
+                cassette_artifact_id=cassette_artifact_id,
+                seed=seed,
+                catalog=catalog,
+            )
+            self._verify_execution_request_shape(
+                definition=definition,
+                params=params,
+                llm_execution_mode=llm_execution_mode,
+                execution_version_plan=execution_version_plan,
+                cassette_artifact_id=cassette_artifact_id,
+            )
         permission_item = validation_item
         if isinstance(params, PatchRepairPayloadV1):
             permission_item = self._load_repair_subject(
@@ -1931,6 +2195,32 @@ class RunAdmissionEngine:
             llm_execution_mode=llm_execution_mode,
             catalog=catalog,
         )
+        if resolve_execution_plan is not None:
+            if execution_version_plan is not None:
+                raise IntegrityViolation("execution option cannot accept a client plan")
+            execution_version_plan = resolve_execution_plan(
+                definition,
+                resolved_profiles,
+                catalog,
+            )
+            self._verify_benchmark_admission(
+                params=params,
+                artifacts=artifacts,
+                read=read,
+                run_definition=definition,
+                llm_execution_mode=llm_execution_mode,
+                execution_version_plan=execution_version_plan,
+                cassette_artifact_id=cassette_artifact_id,
+                seed=seed,
+                catalog=catalog,
+            )
+            self._verify_execution_request_shape(
+                definition=definition,
+                params=params,
+                llm_execution_mode=llm_execution_mode,
+                execution_version_plan=execution_version_plan,
+                cassette_artifact_id=cassette_artifact_id,
+            )
         self._verify_seed_policy(
             definition=definition,
             params=params,
@@ -2014,11 +2304,30 @@ class RunAdmissionEngine:
             resolved_profiles=resolved_profiles,
             read=read,
             actor=actor,
-            pending_sources=source_writes,
             validation_item=permission_item,
             verified_suite_scope=verified_suite_scope,
             catalog=catalog,
         )
+        is_legacy_import_replay = (
+            replay_context is not None
+            and replay_context.preparation.execution_profile_authority.source_kind
+            == "legacy_import"
+        )
+        if execution_version_plan is not None and not is_legacy_import_replay:
+            if not isinstance(authorization.resource_domain, DomainScope):
+                raise IntegrityViolation(
+                    "Agent execution plan requires a resolved resource DomainScope"
+                )
+            if read.routing is None:
+                raise DependencyUnavailable(
+                    "execution-plan retained authority is unavailable",
+                    component="execution_plan_authority",
+                )
+            validate_execution_plan_domain_coverage(
+                read.routing,
+                execution_version_plan,
+                domain_scope=authorization.resource_domain,
+            )
         additional_input_artifact_ids: tuple[str, ...] = ()
         if isinstance(params, DrDrillPayloadV1):
             manifest = self._resolve_dr_recovery_manifest(params=params, read=read)
@@ -2053,7 +2362,6 @@ class RunAdmissionEngine:
             seed=seed,
             producer_basis=version_tuple,
         )
-        budget_set_snapshot_id = f"budget-set:{run_id}"
         payload = RunPayloadEnvelope(
             payload_schema_version=definition.payload_schema_id,
             input_artifact_ids=self._input_artifact_ids(
@@ -2075,12 +2383,70 @@ class RunAdmissionEngine:
             cassette_artifact_id=cassette_artifact_id,
             params=params,
         )
+        if expected_replay_source is not None:
+            self._verify_execution_option_replay_compatibility(
+                kind=kind,
+                source=expected_replay_source,
+                payload=payload,
+                authorization=authorization,
+            )
         authorization = self._validate_replay_authority(
             kind=kind,
             payload=payload,
             authorization=authorization,
             actor=actor,
             replay_context=replay_context,
+            expected_source_run_id=(
+                None if expected_replay_source is None else expected_replay_source.run_id
+            ),
+        )
+        return _PreparedRun(
+            artifacts=artifacts,
+            permission_item=permission_item,
+            authorization=authorization,
+            replay_context=replay_context,
+            payload=payload,
+        )
+
+    # ── shared admission path ────────────────────────────────────────────────
+    def _admit_run(
+        self,
+        *,
+        run_id: str,
+        kind: RunKindRef,
+        creation_mode: Literal["generic_runs_endpoint", "resource_endpoint_only", "internal_only"],
+        params: RunKindPayload,
+        version_tuple: VersionTuple,
+        llm_execution_mode: Literal["not_applicable", "live", "record", "replay"],
+        seed: int | None,
+        read: AdmissionReadPort,
+        actor: ActorContext,
+        idempotency_scope: str,
+        idempotency_key: str,
+        request_hash: str,
+        request_id: str | None,
+        trace_id: str | None,
+        dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None,
+        execution_version_plan: ExecutionVersionPlanV1 | None = None,
+        cassette_artifact_id: str | None = None,
+        source_writes: tuple[_SourceWrite, ...] = (),
+        validation_item: ApprovalItem | None = None,
+        companion_write: Callable[[Any], None] | None = None,
+    ) -> RunAcceptedV1:
+        prepared = self._prepare_run(
+            budget_set_snapshot_id=f"budget-set:{run_id}",
+            kind=kind,
+            creation_mode=creation_mode,
+            params=params,
+            version_tuple=version_tuple,
+            llm_execution_mode=llm_execution_mode,
+            seed=seed,
+            read=read,
+            actor=actor,
+            execution_version_plan=execution_version_plan,
+            cassette_artifact_id=cassette_artifact_id,
+            pending_source_artifacts=tuple(write.minted.artifact for write in source_writes),
+            validation_item=validation_item,
         )
 
         carrier = dispatch_trace_carrier
@@ -2098,10 +2464,10 @@ class RunAdmissionEngine:
             idempotency_key=idempotency_key,
             request_hash=request_hash,
             request_id=request_id,
-            payload=payload,
+            payload=prepared.payload,
             resource_domain_scope=(
-                authorization.resource_domain
-                if isinstance(authorization.resource_domain, DomainScope)
+                prepared.authorization.resource_domain
+                if isinstance(prepared.authorization.resource_domain, DomainScope)
                 else None
             ),
             dispatch_trace_carrier=carrier,
@@ -2123,12 +2489,12 @@ class RunAdmissionEngine:
             companion_write=companion_write,
             fresh_admission_guard=self._fresh_admission_guard(
                 actor=actor,
-                authorization=authorization,
-                artifacts=artifacts,
+                authorization=prepared.authorization,
+                artifacts=prepared.artifacts,
                 params=params,
-                subject_item=permission_item,
+                subject_item=prepared.permission_item,
                 source_writes=source_writes,
-                replay_context=replay_context,
+                replay_context=prepared.replay_context,
             ),
         )
         run_id = result.run.run_id
@@ -2277,15 +2643,16 @@ class RunAdmissionEngine:
                 raise IntegrityViolation(
                     "constraint validation lacks one exact compiler profile binding"
                 )
-            compiler_definition, _ = self._registry.resolve_execution_profile_binding(
-                compiler_bindings[0]
+            compiler_definition, compiler_lifecycle = (
+                self._registry.resolve_execution_profile_binding(compiler_bindings[0])
             )
-            if (
-                compiler_definition.profile != params.compiler_profile
-                or compiler_definition.handler_key != "builtin_constraint_compiler_profile@1"
-            ):
+            if compiler_definition.profile != params.compiler_profile:
                 raise Conflict("constraint compiler implementation is not available exactly")
-            if params.differential_engines != (BUILTIN_CONSTRAINT_DIFFERENTIAL_ENGINE_REFS_V1):
+            compiler_authority = resolve_constraint_validation_compiler_authority(
+                compiler_definition,
+                compiler_lifecycle,
+            )
+            if params.differential_engines != compiler_authority.differential_engines:
                 raise Conflict(
                     "constraint differential engines differ from the exact compiler authority"
                 )
@@ -3687,9 +4054,31 @@ class RunAdmissionEngine:
         resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
         catalog: ExecutionProfileCatalogSnapshotV1,
     ) -> None:
+        if self._agent_execution_graph_selector_matches(
+            graph,
+            resolved_profiles=resolved_profiles,
+            catalog=catalog,
+        ):
+            return
+        selector = graph.profile_selector
+        assert selector is not None
+        raise Conflict(
+            "execution plan Agent graph does not match the exact profile config",
+            agent_graph_version=graph.agent_graph_version,
+            field_path=selector.profile_field_path,
+            config_pointer=selector.config_pointer,
+        )
+
+    def _agent_execution_graph_selector_matches(
+        self,
+        graph: AgentExecutionGraphV1,
+        *,
+        resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
+        catalog: ExecutionProfileCatalogSnapshotV1,
+    ) -> bool:
         selector = graph.profile_selector
         if selector is None:
-            return
+            return True
         binding = next(
             (item for item in resolved_profiles if item.field_path == selector.profile_field_path),
             None,
@@ -3719,13 +4108,57 @@ class RunAdmissionEngine:
                     "playtest planner profile has an invalid versioned config"
                 ) from exc
         actual = _resolve_pointer(definition.config, selector.config_pointer)
-        if actual != selector.expected_value:
-            raise Conflict(
-                "execution plan Agent graph does not match the exact profile config",
-                agent_graph_version=graph.agent_graph_version,
-                field_path=selector.profile_field_path,
-                config_pointer=selector.config_pointer,
+        return actual == selector.expected_value
+
+    def _resolve_execution_option_plan(
+        self,
+        *,
+        kind: RunKindRef,
+        definition: RunKindDefinition,
+        resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
+        catalog: ExecutionProfileCatalogSnapshotV1,
+        llm_execution_mode: Literal["live", "record", "replay"],
+        replay_plan: ExecutionVersionPlanV1 | None,
+    ) -> ExecutionVersionPlanV1:
+        resolver = self._execution_version_plans
+        if resolver is None:
+            raise DependencyUnavailable(
+                "execution option plan resolver is unavailable",
+                component="execution_option_plan_resolver",
             )
+        if llm_execution_mode == "replay":
+            if replay_plan is None:
+                raise WorkflowGuard("replay source has no execution version plan")
+            graph = self._registry.get_agent_execution_graph(
+                kind,
+                replay_plan.agent_graph_version,
+            )
+            if graph is None:
+                raise IntegrityViolation("replay source Agent graph history is not retained")
+        else:
+            candidates = tuple(
+                graph
+                for graph in self._registry.list_agent_execution_graphs_for_run_kind(kind)
+                if graph.status == "active"
+                and graph.executor_key == definition.executor_key
+                and self._agent_execution_graph_selector_matches(
+                    graph,
+                    resolved_profiles=resolved_profiles,
+                    catalog=catalog,
+                )
+            )
+            if not candidates:
+                raise Conflict("no active Agent graph matches the exact execution profiles")
+            if len(candidates) != 1:
+                raise IntegrityViolation(
+                    "active Agent graph selectors do not choose one exact graph"
+                )
+            graph = candidates[0]
+        return resolver.resolve(
+            graph=graph,
+            llm_execution_mode=llm_execution_mode,
+            replay_plan=replay_plan,
+        )
 
     # ── RBAC authorization with the server-resolved resource domain ──────────
     def _authorize(
@@ -3738,7 +4171,6 @@ class RunAdmissionEngine:
         resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
         read: AdmissionReadPort,
         actor: ActorContext,
-        pending_sources: tuple[_SourceWrite, ...],
         validation_item: ApprovalItem | None,
         verified_suite_scope: DomainScope | None,
         catalog: ExecutionProfileCatalogSnapshotV1,
@@ -3753,6 +4185,37 @@ class RunAdmissionEngine:
         (:func:`gameforge.platform.rbac.authorization.authorize`).
         """
 
+        authorization = self._authorize_run_permission(
+            definition=definition,
+            kind=kind,
+            params=params,
+            artifacts=artifacts,
+            read=read,
+            actor=actor,
+            validation_item=validation_item,
+            verified_suite_scope=verified_suite_scope,
+        )
+        self._verify_profile_scope(
+            kind=kind,
+            params=params,
+            resolved_profiles=resolved_profiles,
+            resource_domain=authorization.resource_domain,
+            catalog=catalog,
+        )
+        return authorization
+
+    def _authorize_run_permission(
+        self,
+        *,
+        definition: RunKindDefinition,
+        kind: RunKindRef,
+        params: RunKindPayload,
+        artifacts: dict[str, ArtifactV2],
+        read: AdmissionReadPort,
+        actor: ActorContext,
+        validation_item: ApprovalItem | None,
+        verified_suite_scope: DomainScope | None,
+    ) -> _AuthorizationBinding:
         role_policy = read.policies.get_role_policy(
             self._role_policy_version,
             self._role_policy_digest,
@@ -3795,69 +4258,38 @@ class RunAdmissionEngine:
             resource_kind=definition.required_permission.resource_kind,
             domain_scope=resource_domain,
         )
-        self._verify_profile_scope(
-            kind=kind,
-            params=params,
-            resolved_profiles=resolved_profiles,
-            resource_domain=resource_domain,
-            catalog=catalog,
-        )
-        permissions = (requested,)
-        for permission in permissions:
-            if (
-                authorize(
-                    principal=actor.principal,
-                    role_policy=role_policy,
-                    requested_permission=permission,
-                    domain_registry=registry,
-                )
-                is not AuthorizationDecision.ALLOW
-            ):
-                raise Forbidden(
-                    "actor is not authorized to admit this run kind in the resolved domain",
-                    action=permission.action,
-                    resource_kind=permission.resource_kind,
-                )
-        del pending_sources
+        if (
+            authorize(
+                principal=actor.principal,
+                role_policy=role_policy,
+                requested_permission=requested,
+                domain_registry=registry,
+            )
+            is not AuthorizationDecision.ALLOW
+        ):
+            raise Forbidden(
+                "actor is not authorized to admit this run kind in the resolved domain",
+                action=requested.action,
+                resource_kind=requested.resource_kind,
+            )
         return _AuthorizationBinding(
             role_policy=role_policy,
             domain_registry=registry,
             resource_domain=resource_domain,
-            permissions=permissions,
+            permissions=(requested,),
         )
 
-    def _validate_replay_authority(
-        self,
+    @staticmethod
+    def _authorize_replay_permission(
         *,
-        kind: RunKindRef,
-        payload: RunPayloadEnvelope,
         authorization: _AuthorizationBinding,
         actor: ActorContext,
-        replay_context: _ReplayAdmissionContext | None,
     ) -> _AuthorizationBinding:
-        if payload.llm_execution_mode != "replay":
-            return authorization
-        if replay_context is None:
-            raise IntegrityViolation("replay admission lacks its exact prepared cassette authority")
-        proof = replay_context.validator.validate(
-            kind=kind,
-            payload=payload,
-            preparation=replay_context.preparation,
+        replay_permission = Permission(
+            action="replay",
+            resource_kind="run",
+            domain_scope=authorization.resource_domain,
         )
-        # Injected legacy facades are immutable/content-bound process authorities,
-        # not transaction rows. Recheck them here so the SQLite writer is never held
-        # while defensive-copying an arbitrarily large imported authority set.
-        if replay_context.legacy_authority is not None:
-            replay_context.legacy_authority.revalidate()
-        if (
-            replay_context.legacy_decisions is not None
-            and self._legacy_import_decisions is not None
-        ):
-            replay_context.legacy_decisions.revalidate(
-                self._legacy_import_decisions,
-                require_batch=False,
-            )
-        replay_permission = proof.required_permission(authorization.resource_domain)
         if (
             authorize(
                 principal=actor.principal,
@@ -3877,6 +4309,96 @@ class RunAdmissionEngine:
             domain_registry=authorization.domain_registry,
             resource_domain=authorization.resource_domain,
             permissions=(*authorization.permissions, replay_permission),
+        )
+
+    @staticmethod
+    def _verify_execution_option_replay_compatibility(
+        *,
+        kind: RunKindRef,
+        source: RunRecord,
+        payload: RunPayloadEnvelope,
+        authorization: _AuthorizationBinding,
+    ) -> None:
+        """Map user-controlled source/request drift to a typed workflow guard."""
+
+        source_tuple = source.payload.version_tuple.model_dump(mode="json")
+        prospective_tuple = payload.version_tuple.model_dump(mode="json")
+        source_tuple.pop("cassette_id", None)
+        prospective_tuple.pop("cassette_id", None)
+        prospective_inputs = tuple(
+            artifact_id
+            for artifact_id in payload.input_artifact_ids
+            if artifact_id != payload.cassette_artifact_id
+        )
+        compatible = (
+            source.kind == kind
+            and source.status in {"succeeded", "failed", "cancelled", "timed_out"}
+            and source.payload.llm_execution_mode == "record"
+            and source.terminal_cassette_artifact_id == payload.cassette_artifact_id
+            and source.resource_domain_scope == authorization.resource_domain
+            and source.payload.input_artifact_ids == prospective_inputs
+            and source.payload.params == payload.params
+            and source.payload.execution_version_plan == payload.execution_version_plan
+            and source.payload.execution_profile_catalog_version
+            == payload.execution_profile_catalog_version
+            and source.payload.execution_profile_catalog_digest
+            == payload.execution_profile_catalog_digest
+            and source.payload.resolved_profiles == payload.resolved_profiles
+            and source.payload.policy_bindings == payload.policy_bindings
+            and source.payload.schema_bindings == payload.schema_bindings
+            and source.payload.resolved_policy_snapshots == payload.resolved_policy_snapshots
+            and source.payload.seed == payload.seed
+            and source_tuple == prospective_tuple
+        )
+        if not compatible:
+            raise WorkflowGuard("replay source is not compatible with the prospective request")
+
+    def _validate_replay_authority(
+        self,
+        *,
+        kind: RunKindRef,
+        payload: RunPayloadEnvelope,
+        authorization: _AuthorizationBinding,
+        actor: ActorContext,
+        replay_context: _ReplayAdmissionContext | None,
+        expected_source_run_id: str | None = None,
+    ) -> _AuthorizationBinding:
+        if payload.llm_execution_mode != "replay":
+            return authorization
+        if replay_context is None:
+            raise IntegrityViolation("replay admission lacks its exact prepared cassette authority")
+        proof = replay_context.validator.validate(
+            kind=kind,
+            payload=payload,
+            preparation=replay_context.preparation,
+        )
+        if expected_source_run_id is not None and (
+            proof.source_kind != "native" or proof.source_run_id != expected_source_run_id
+        ):
+            raise IntegrityViolation("replay proof differs from the explicit source Run")
+        # Injected legacy facades are immutable/content-bound process authorities,
+        # not transaction rows. Recheck them here so the SQLite writer is never held
+        # while defensive-copying an arbitrarily large imported authority set.
+        if replay_context.legacy_authority is not None:
+            replay_context.legacy_authority.revalidate()
+        if (
+            replay_context.legacy_decisions is not None
+            and self._legacy_import_decisions is not None
+        ):
+            replay_context.legacy_decisions.revalidate(
+                self._legacy_import_decisions,
+                require_batch=False,
+            )
+        expected_permission = proof.required_permission(authorization.resource_domain)
+        if expected_permission != Permission(
+            action="replay",
+            resource_kind="run",
+            domain_scope=authorization.resource_domain,
+        ):
+            raise IntegrityViolation("replay proof returned an unexpected permission")
+        return self._authorize_replay_permission(
+            authorization=authorization,
+            actor=actor,
         )
 
     def _verify_profile_scope(
@@ -5103,7 +5625,7 @@ class RunAdmissionEngine:
         artifacts: dict[str, ArtifactV2],
         read: AdmissionReadPort,
         actor: ActorContext,
-        pending_sources: tuple[_SourceWrite, ...],
+        pending_source_artifacts: tuple[ArtifactV2, ...],
     ) -> None:
         if isinstance(params, GenerationProposePayloadV1):
             binding = params.objective_goal
@@ -5133,7 +5655,7 @@ class RunAdmissionEngine:
             raise IntegrityViolation(
                 "Prompt goal provenance differs from the authenticated actor authority"
             )
-        pending_ids = {write.minted.artifact.artifact_id for write in pending_sources}
+        pending_ids = {artifact.artifact_id for artifact in pending_source_artifacts}
         if artifact.artifact_id in pending_ids:
             return
         blob = self._load_artifact_blob(artifact, read=read)
@@ -5150,11 +5672,10 @@ class RunAdmissionEngine:
         params: RunKindPayload,
         cassette_artifact_id: str | None,
         read: AdmissionReadPort,
-        pending_sources: tuple[_SourceWrite, ...] = (),
+        pending_source_artifacts: tuple[ArtifactV2, ...] = (),
     ) -> dict[str, ArtifactV2]:
         pending: dict[str, ArtifactV2] = {}
-        for write in pending_sources:
-            artifact = write.minted.artifact
+        for artifact in pending_source_artifacts:
             retained = pending.get(artifact.artifact_id)
             if retained is not None and retained != artifact:
                 raise IntegrityViolation("pending source id binds different immutable content")
@@ -5670,14 +6191,20 @@ class RunAdmissionEngine:
             "task_suite_derivation",
             catalog=catalog,
         )
-        profile_config = self._task_suite_derivation_config(definition)
-        if profile_config.target_environment_profile != params.environment_profile:
+        lifecycle = next(
+            (item for item in catalog.lifecycle if item.profile == definition.profile),
+            None,
+        )
+        if lifecycle is None:
+            raise IntegrityViolation("task-suite derivation profile lifecycle is unavailable")
+        authority = resolve_task_suite_derivation_authority(definition, lifecycle)
+        if authority.target_environment_profile != params.environment_profile:
             self._stale("task-suite derivation profile targets another environment")
         if (
-            profile_config.completion_oracle_registry_version
+            authority.completion_oracle_registry_ref.registry_version
             != params.completion_oracle_registry_ref.registry_version
             or not compare_digest(
-                profile_config.completion_oracle_registry_digest,
+                authority.completion_oracle_registry_ref.digest,
                 params.completion_oracle_registry_ref.digest,
             )
         ):
@@ -6280,6 +6807,20 @@ class RunAdmissionEngine:
         return f"run:{digest}"
 
     # ── source_raw minting for goal text ─────────────────────────────────────
+    def _project_goal_source(
+        self,
+        *,
+        actor: ActorContext,
+        text: str,
+        domain_scope: DomainScope,
+    ) -> ArtifactV2:
+        return self._goal_writer.project(
+            actor=actor,
+            text=text,
+            domain_scope=domain_scope,
+            created_at=_utc_text(_utc_now(self._clock)),
+        ).artifact
+
     def _mint_goal_source(
         self,
         *,

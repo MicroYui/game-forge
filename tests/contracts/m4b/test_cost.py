@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from gameforge.contracts.cost import (
     BudgetReservationV1,
@@ -14,10 +14,15 @@ from gameforge.contracts.cost import (
     CacheHitObservationV1,
     CostAmountV1,
     CostLedger,
+    CostSettlementGroupCountV1,
+    CostSettlementSummaryV1,
     LatencyObservationV1,
     MonetaryObservationV1,
     PermitGroupV1,
     ReservationGroupV1,
+    RunCostViewV1,
+    RunCostView,
+    RunCostViewV2,
     TokenUsageObservationV1,
     UsageEntryV1,
 )
@@ -79,6 +84,103 @@ def test_unknown_observations_are_not_reported_zero_or_false() -> None:
         TokenUsageObservationV1(status="unavailable", total_tokens=0)
     with pytest.raises(ValidationError):
         CacheHitObservationV1(status="reported")
+
+
+def test_settlement_summary_keeps_missing_usage_distinct_from_zero_cost() -> None:
+    assert "settlement_summary" not in RunCostViewV1.model_fields
+    assert RunCostViewV2.model_fields["settlement_summary"].is_required()
+    summary = CostSettlementSummaryV1(
+        group_counts=(
+            CostSettlementGroupCountV1(
+                scope="attempt_call",
+                status="held_unknown",
+                group_count=1,
+            ),
+            CostSettlementGroupCountV1(
+                scope="run_budget_hold",
+                status="reserved",
+                group_count=1,
+            ),
+        ),
+        total_group_count=2,
+        held_unknown_group_count=1,
+        usage_entry_count=0,
+        usage_evidence_status="not_recorded",
+        late_adjustment_usage_count=0,
+    )
+
+    assert [(item.scope, item.status, item.group_count) for item in summary.group_counts] == [
+        ("run_budget_hold", "reserved", 1),
+        ("attempt_call", "held_unknown", 1),
+    ]
+    assert summary.usage_evidence_status == "not_recorded"
+
+    with pytest.raises(ValidationError, match="usage evidence"):
+        summary.model_copy(
+            update={"usage_evidence_status": "recorded"},
+        ).model_validate(
+            {
+                **summary.model_dump(mode="json"),
+                "usage_evidence_status": "recorded",
+            }
+        )
+
+    with pytest.raises(ValidationError, match="held_unknown"):
+        CostSettlementSummaryV1(
+            **summary.model_dump(
+                exclude={"held_unknown_group_count"},
+            ),
+            held_unknown_group_count=0,
+        )
+
+
+def test_run_cost_view_union_permanently_reads_v1_and_v2_by_discriminator() -> None:
+    budget = _budget(budget_id="run", scope_kind="run", scope_id="run-1")
+    budget_set = BudgetSetSnapshotV1(
+        budget_set_snapshot_id="budget-set-1",
+        run_id="run-1",
+        selection_policy_version="selection@1",
+        snapshots=(
+            BudgetSnapshotV1(
+                snapshot_id="snapshot-run",
+                budget_id=budget.budget_id,
+                scope_kind=budget.scope_kind,
+                scope_id=budget.scope_id,
+                policy_version=budget.policy_version,
+                budget_revision_at_freeze=budget.revision,
+                limits=budget.limits,
+                reserved=budget.reserved,
+                consumed=budget.consumed,
+                captured_at=NOW,
+            ),
+        ),
+        captured_at=NOW,
+    )
+    v1 = RunCostViewV1(run_id="run-1", budget_set=budget_set, usage=())
+    summary = CostSettlementSummaryV1(
+        group_counts=(
+            CostSettlementGroupCountV1(
+                scope="run_budget_hold",
+                status="reserved",
+                group_count=1,
+            ),
+        ),
+        total_group_count=1,
+        held_unknown_group_count=0,
+        usage_entry_count=0,
+        usage_evidence_status="not_recorded",
+        late_adjustment_usage_count=0,
+    )
+    v2 = RunCostViewV2(
+        run_id="run-1",
+        budget_set=budget_set,
+        settlement_summary=summary,
+        usage=(),
+    )
+
+    adapter = TypeAdapter(RunCostView)
+    assert type(adapter.validate_python(v1.model_dump(mode="json"))) is RunCostViewV1
+    assert type(adapter.validate_python(v2.model_dump(mode="json"))) is RunCostViewV2
 
 
 def test_budget_keeps_concurrent_run_as_limit_only() -> None:

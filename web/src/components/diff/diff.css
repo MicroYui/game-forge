@@ -1,0 +1,213 @@
+.gf-json-state {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.gf-json-state--missing {
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-style: italic;
+}
+
+.gf-diff,
+.gf-merge {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.gf-diff {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.gf-diff__header,
+.gf-merge__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.7fr);
+  gap: var(--space-5);
+  align-items: start;
+  min-width: 0;
+}
+
+.gf-diff__header {
+  padding: var(--space-4);
+  border-block-end: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.gf-diff__header p,
+.gf-merge__header p,
+.gf-merge-conflict > header p {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+  overflow-wrap: anywhere;
+}
+
+.gf-diff__header dl {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.gf-diff__header dl > div {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.gf-diff__header dt {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
+.gf-diff__header dd {
+  min-width: 0;
+  margin: 0;
+}
+
+.gf-diff__scroll,
+.gf-merge-conflict__scroll {
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.gf-diff table,
+.gf-merge-conflict table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.gf-diff table {
+  min-width: 760px;
+}
+
+.gf-diff th,
+.gf-diff td,
+.gf-merge-conflict th,
+.gf-merge-conflict td {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--line);
+  text-align: start;
+  vertical-align: top;
+}
+
+.gf-diff thead th,
+.gf-merge-conflict thead th {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+}
+
+.gf-diff tbody tr:last-child > *,
+.gf-merge-conflict tbody tr:last-child > * {
+  border-block-end: 0;
+}
+
+.gf-merge__items {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.gf-merge-conflict {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.gf-merge-conflict > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: start;
+  min-width: 0;
+  padding: var(--space-4);
+  border-block-end: 1px solid var(--line);
+}
+
+.gf-merge-conflict > header h3 {
+  overflow-wrap: anywhere;
+}
+
+.gf-merge-conflict table {
+  min-width: 680px;
+}
+
+.gf-merge-conflict__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 0;
+  border-block-start: 1px solid var(--line);
+}
+
+.gf-merge-conflict__choices legend {
+  padding: 0;
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-heading);
+}
+
+.gf-merge-conflict__choices label {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 32px;
+}
+
+.gf-merge-conflict__custom {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.gf-merge-conflict__custom label {
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-heading);
+}
+
+.gf-merge-conflict__custom textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  padding: var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--font-mono);
+}
+
+.gf-merge-conflict__custom [role="alert"] {
+  color: var(--danger);
+  font-size: var(--font-size-small);
+}
+
+@media (max-width: 720px) {
+  .gf-diff__header,
+  .gf-merge__header,
+  .gf-merge-conflict > header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -15,20 +15,9 @@ from gameforge.contracts.observability import (
 from gameforge.contracts.storage import UtcClock
 from gameforge.runtime.observability.context import current_trace_context
 from gameforge.runtime.observability._fields import (
+    is_sensitive_key,
     redact_sensitive_text,
     sanitize_telemetry_value,
-)
-
-
-_SENSITIVE_FRAGMENTS = (
-    "api_key",
-    "authorization",
-    "credential",
-    "password",
-    "prompt",
-    "raw_response",
-    "secret",
-    "session_token",
 )
 
 
@@ -112,8 +101,7 @@ class StructuredLogger:
         result: dict[str, Any] = {}
         redacted: list[str] = []
         for key in sorted(fields):
-            lowered = key.lower()
-            if any(fragment in lowered for fragment in _SENSITIVE_FRAGMENTS):
+            if is_sensitive_key(key):
                 result[key] = "[REDACTED]"
                 redacted.append(key)
                 continue

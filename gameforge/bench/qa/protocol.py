@@ -15,6 +15,7 @@ from gameforge.bench.qa.contracts import (
     QA_ACTIVE_CAP_NS,
     QA_TOTAL_ACTIVE_CAP_NS,
     QaSessionSpec,
+    StableId,
 )
 from gameforge.bench.taxonomy import DefectClass
 from gameforge.contracts.canonical import canonical_json
@@ -33,7 +34,7 @@ class QaProtocol(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["qa-protocol@1"] = "qa-protocol@1"
-    participant_id: Literal["participant-01"] = "participant-01"
+    participant_id: StableId = "participant-01"
     external_manifest_sha256: Sha256
     hed_evidence_sha256: Sha256
     correctness_protocol_id: Literal["external-submission-verdict@1"] = (
@@ -83,10 +84,13 @@ class QaProtocol(BaseModel):
         )
         if len(classes) != 4:
             raise ValueError("QA protocol requires four defect classes")
+        id_namespace = _schedule_id_namespace(self.sessions)
         for index, defect_class in enumerate(classes):
             pair = [item for item in self.sessions if item.defect_class is defect_class]
             if len(pair) != 2 or len({item.pair_id for item in pair}) != 1:
                 raise ValueError("each QA class must form exactly one pair")
+            if pair[0].pair_id != f"{id_namespace}-pair-{index + 1:02d}":
+                raise ValueError("QA pair ID differs from the frozen namespace")
             if {item.arm for item in pair} != {"manual", "assisted"}:
                 raise ValueError("each QA pair requires both arms")
             if {item.split for item in pair} != {"development", "verification"}:
@@ -101,7 +105,25 @@ class QaProtocol(BaseModel):
         return self
 
 
-def _build_schedule(manifest: ExternalCorpusManifest) -> tuple[QaSessionSpec, ...]:
+def _schedule_id_namespace(sessions: tuple[QaSessionSpec, ...]) -> str:
+    first_suffix = "-session-01"
+    first_id = sessions[0].session_id
+    if not first_id.endswith(first_suffix):
+        raise ValueError("QA session ID differs from the frozen namespace")
+    namespace = first_id[: -len(first_suffix)]
+    if not namespace:
+        raise ValueError("QA session ID requires a non-empty namespace")
+    for item in sessions:
+        if item.session_id != f"{namespace}-session-{item.order:02d}":
+            raise ValueError("QA session ID differs from the frozen namespace")
+    return namespace
+
+
+def _build_schedule(
+    manifest: ExternalCorpusManifest,
+    *,
+    id_namespace: str = "qa",
+) -> tuple[QaSessionSpec, ...]:
     grouped: dict[DefectClass, dict[str, Any]] = {}
     for case in manifest.cases:
         bucket = grouped.setdefault(case.spec.defect_class, {})
@@ -109,18 +131,20 @@ def _build_schedule(manifest: ExternalCorpusManifest) -> tuple[QaSessionSpec, ..
             raise ValueError("QA external denominator has duplicate class/split cases")
         bucket[case.spec.split] = case.spec
     classes = sorted(grouped, key=lambda item: item.value)
-    if len(classes) != 4 or any(set(grouped[item]) != {"development", "verification"} for item in classes):
+    if len(classes) != 4 or any(
+        set(grouped[item]) != {"development", "verification"} for item in classes
+    ):
         raise ValueError("QA requires four classes with development/verification cases")
 
     sessions: list[QaSessionSpec] = []
     order = 1
     for index, defect_class in enumerate(classes):
-        pair_id = f"qa-pair-{index + 1:02d}"
+        pair_id = f"{id_namespace}-pair-{index + 1:02d}"
         for split, arm in _PATTERN[index]:
             spec = grouped[defect_class][split]
             sessions.append(
                 QaSessionSpec(
-                    session_id=f"qa-session-{order:02d}",
+                    session_id=f"{id_namespace}-session-{order:02d}",
                     pair_id=pair_id,
                     case_id=spec.case_id,
                     defect_class=defect_class,
@@ -136,6 +160,9 @@ def _build_schedule(manifest: ExternalCorpusManifest) -> tuple[QaSessionSpec, ..
 def seal_qa_protocol(
     external: ExternalCorpusManifest,
     hed: HedEvidenceManifest,
+    *,
+    participant_id: StableId = "participant-01",
+    id_namespace: StableId = "qa",
 ) -> QaProtocol:
     if hed.external_manifest_sha256 != external.manifest_sha256:
         raise ValueError("HED evidence does not bind the supplied external manifest")
@@ -155,9 +182,10 @@ def seal_qa_protocol(
     if hed.evidence_sha256 != content_sha256(hed, exclude={"evidence_sha256"}):
         raise ValueError("HED evidence self hash is invalid")
     return QaProtocol.seal(
+        participant_id=participant_id,
         external_manifest_sha256=external.manifest_sha256,
         hed_evidence_sha256=hed.evidence_sha256,
-        sessions=_build_schedule(external),
+        sessions=_build_schedule(external, id_namespace=id_namespace),
     )
 
 
@@ -166,7 +194,12 @@ def assert_qa_protocol_ready(
     external: ExternalCorpusManifest,
     hed: HedEvidenceManifest,
 ) -> None:
-    expected = seal_qa_protocol(external, hed)
+    expected = seal_qa_protocol(
+        external,
+        hed,
+        participant_id=protocol.participant_id,
+        id_namespace=_schedule_id_namespace(protocol.sessions),
+    )
     if protocol != expected:
         raise ValueError("QA protocol differs from the frozen external/HED inputs")
 
@@ -195,11 +228,18 @@ def _main() -> None:
     parser.add_argument("--external", type=Path, required=True)
     parser.add_argument("--hed", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--participant-id", default="participant-01")
+    parser.add_argument("--id-namespace", default="qa")
     args = parser.parse_args()
 
     external = load_external(args.external)
     hed = load_evidence(args.hed)
-    protocol = seal_qa_protocol(external, hed)
+    protocol = seal_qa_protocol(
+        external,
+        hed,
+        participant_id=args.participant_id,
+        id_namespace=args.id_namespace,
+    )
     assert_qa_protocol_ready(protocol, external, hed)
     write_protocol(args.output, protocol)
     print(protocol.protocol_sha256)

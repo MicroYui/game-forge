@@ -1,0 +1,101 @@
+.u-display {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-heading);
+  line-height: 1.18;
+}
+
+.u-small {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+  line-height: 1.45;
+}
+
+.u-micro {
+  color: var(--muted);
+  font-size: var(--font-size-micro);
+  line-height: 1.45;
+}
+
+.u-mono,
+.u-identifier {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+.u-identifier {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.u-disabled {
+  color: var(--faint);
+}
+
+.u-nonessential-decoration {
+  color: var(--faint);
+}
+
+.u-chip,
+.u-status,
+.u-toggle {
+  display: inline-flex;
+  justify-self: start;
+  gap: var(--space-1);
+  align-items: center;
+  min-height: 24px;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.u-status--deterministic {
+  border-color: var(--deterministic);
+  color: var(--deterministic);
+}
+
+.u-status--suggestion {
+  border-color: var(--suggestion);
+  color: var(--suggestion);
+}
+
+.u-status--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.u-status--ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.u-status--info {
+  border-color: var(--info);
+  color: var(--info);
+}
+
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.u-scroll-region {
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.u-divider {
+  border-block-start: 1px solid var(--line);
+}

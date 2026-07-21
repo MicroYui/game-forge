@@ -25,6 +25,7 @@ from collections.abc import Callable, Sequence
 from contextlib import nullcontext
 from datetime import UTC, datetime
 
+from gameforge.apps.operational_metrics import OperationalMetricsPort
 from gameforge.apps.worker.heartbeat import LeaseHeartbeat
 from gameforge.apps.worker.pool import BlockingExecutorPool
 from gameforge.apps.worker.runner import AttemptRunner
@@ -83,6 +84,7 @@ class RunDispatcher:
         lease_duration_ns: int,
         tracer: Tracer,
         logger: StructuredLogger,
+        operational_metrics: OperationalMetricsPort | None = None,
         heartbeat_interval_s: float = 5.0,
         reaper_limit: int = 32,
         poll_interval_s: float = 1.0,
@@ -110,6 +112,7 @@ class RunDispatcher:
         self._lease_duration_ns = lease_duration_ns
         self._tracer = tracer
         self._logger = logger
+        self._operational_metrics = operational_metrics
         self._heartbeat_interval_s = heartbeat_interval_s
         self._reaper_limit = reaper_limit
         self._poll_interval_s = poll_interval_s
@@ -314,6 +317,7 @@ class RunDispatcher:
                 trace_id = None if span.context is None else span.context.trace_id
                 started = await self._control_pool.run(lambda: self._start(claim, trace_id))
                 run, attempt, lease = started.run, started.attempt, started.lease
+                self._record_attempt_metric(run.kind.kind, "started")
                 self._logger.log(
                     level="info",
                     event_name="worker.attempt.started",
@@ -338,10 +342,24 @@ class RunDispatcher:
                         lease=lease,
                         deadline_utc=_parse_utc(attempt.attempt_deadline_utc),
                     )
+                    self._record_attempt_metric(run.kind.kind, "terminal_published")
                     span.set_status("ok")
                 finally:
                     heartbeat_stop.set()
                     await heartbeat_task
+
+    def _record_attempt_metric(self, run_kind: str, phase: str) -> None:
+        if self._operational_metrics is None:
+            return
+        try:
+            self._operational_metrics.record_worker_attempt(
+                run_kind=run_kind,
+                phase=phase,
+            )
+        except Exception:
+            # Start/terminal authority is already committed at these boundaries;
+            # best-effort metric export cannot reverse or reclassify it.
+            pass
 
     def _start(self, claim: RunClaimResult, trace_id: str | None):
         return self._lifecycle.start_attempt(

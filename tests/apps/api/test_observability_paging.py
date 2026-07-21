@@ -13,6 +13,8 @@ from gameforge.contracts.cost import (
     BudgetSnapshotV1,
     CacheHitObservationV1,
     CostAmountV1,
+    CostSettlementGroupCountV1,
+    CostSettlementSummaryV1,
     LatencyObservationV1,
     MonetaryObservationV1,
     TokenUsageObservationV1,
@@ -82,10 +84,47 @@ def _usage(index: int) -> UsageEntryV1:
     )
 
 
+def _settlement_summary(
+    usage_entry_count: int,
+    *,
+    late_adjustment_usage_count: int = 0,
+) -> CostSettlementSummaryV1:
+    group_counts = [
+        CostSettlementGroupCountV1(
+            scope="run_budget_hold",
+            status="reserved",
+            group_count=1,
+        ),
+    ]
+    if usage_entry_count:
+        group_counts.append(
+            CostSettlementGroupCountV1(
+                scope="attempt_call",
+                status="late_reconciled" if late_adjustment_usage_count else "reconciled",
+                group_count=usage_entry_count,
+            )
+        )
+    return CostSettlementSummaryV1(
+        group_counts=tuple(group_counts),
+        total_group_count=1 + usage_entry_count,
+        held_unknown_group_count=0,
+        usage_entry_count=usage_entry_count,
+        usage_evidence_status="recorded" if usage_entry_count else "not_recorded",
+        late_adjustment_usage_count=late_adjustment_usage_count,
+    )
+
+
 class _Repository:
     def __init__(self, items: tuple[UsageEntryV1, ...]) -> None:
         self.items = items
+        self.summary = _settlement_summary(len(items))
         self.calls = 0
+        self.summary_calls = 0
+
+    def summarize_run_settlement(self, *, run_id: str) -> CostSettlementSummaryV1:
+        assert run_id == "run:1"
+        self.summary_calls += 1
+        return self.summary
 
     def list_usage(
         self,
@@ -149,7 +188,9 @@ def test_cost_usage_pages_materialize_once_and_resume_through_existing_read_view
         assert [item.usage_id for item in first.usage_entries] == ["usage:1"]
         assert first.next_cursor is not None
         calls_after_materialization = repository.calls
+        summary_calls_after_materialization = repository.summary_calls
         repository.items = (_usage(1), _usage(2), _usage(3))
+        repository.summary = _settlement_summary(3, late_adjustment_usage_count=1)
 
         with Session(engine) as session, session.begin():
             second = _adapter(session, repository).page(
@@ -162,7 +203,9 @@ def test_cost_usage_pages_materialize_once_and_resume_through_existing_read_view
             )
         assert [item.usage_id for item in second.usage_entries] == ["usage:2"]
         assert second.next_cursor is None
+        assert second.settlement_summary == first.settlement_summary
         assert repository.calls == calls_after_materialization
+        assert repository.summary_calls == summary_calls_after_materialization
     finally:
         engine.dispose()
 
@@ -198,5 +241,31 @@ def test_cost_usage_materialization_rejects_an_unbounded_complete_view(tmp_path)
                 ),
                 query_hash="3" * 64,
             )
+    finally:
+        engine.dispose()
+
+
+def test_cost_view_retains_not_recorded_summary_when_usage_is_empty(tmp_path) -> None:
+    engine = get_engine(f"sqlite:///{tmp_path / 'empty-cost-pages.db'}")
+    Base.metadata.create_all(engine)
+    repository = _Repository(())
+    try:
+        with Session(engine) as session, session.begin():
+            page = _adapter(session, repository).page(
+                run_id="run:1",
+                budget_set=_budget_set(),
+                cursor=None,
+                limit=1,
+                authorization=ReadAuthorizationBinding(
+                    principal_binding="1" * 64,
+                    authz_fingerprint="2" * 64,
+                ),
+                query_hash="3" * 64,
+            )
+
+        assert page.usage_entries == ()
+        assert page.next_cursor is None
+        assert page.settlement_summary.usage_evidence_status == "not_recorded"
+        assert page.settlement_summary.usage_entry_count == 0
     finally:
         engine.dispose()

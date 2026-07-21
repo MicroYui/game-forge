@@ -1,0 +1,152 @@
+@import "./tokens.css";
+
+@font-face {
+  font-family: "GameForge Editorial Serif";
+  src: url("../assets/fonts/gameforge-editorial-serif-vf-subset.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-body);
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+
+:where(button, input, textarea, select) {
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0;
+}
+
+:where(button, input, textarea, select):disabled,
+[aria-disabled="true"] {
+  color: var(--faint);
+  cursor: not-allowed;
+}
+
+:where(button, [role="button"]):not(:disabled, [aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+:where(h1, h2, h3, p, ul, ol, dl, pre, figure, blockquote) {
+  margin-block: 0;
+}
+
+:where(h1, h2, h3) {
+  color: var(--ink);
+  font-weight: var(--font-weight-heading);
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+small {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
+a {
+  color: var(--info);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:where(code, kbd, samp, pre),
+.u-mono {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  letter-spacing: 0;
+}
+
+:where(code, kbd, samp) {
+  overflow-wrap: anywhere;
+}
+
+pre {
+  max-width: 100%;
+  overflow: auto;
+  tab-size: 2;
+  white-space: pre;
+}
+
+:where(img, svg, canvas, video) {
+  display: block;
+  max-width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+::selection {
+  background: var(--deterministic);
+  color: var(--surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-hover: 0ms;
+    --duration-panel: 0ms;
+  }
+
+  html:focus-within {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

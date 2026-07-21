@@ -633,6 +633,34 @@ def test_repair_effect_rejects_authority_result_that_does_not_inherit_domain() -
         )
 
 
+def test_repair_unverified_effect_leaves_subject_and_approval_authority_untouched() -> None:
+    run, _verified_policy, _artifacts, _payloads, approvals = _repair_case()
+    policy = _policy(run.kind, "repair-unverified")
+    before_item = approvals.item
+    before_head = approvals.head
+    assert policy.workflow_effect_key == "leave_patch_head_unchanged@1"
+
+    apply_workflow_effect(
+        policy.workflow_effect_key,
+        WorkflowEffectContext(
+            run=run,
+            policy=policy,
+            scope="run",
+            published_primary_artifact_id=None,
+            published_output_artifact_ids=(),
+            published_artifact_ids_by_rule={rule.rule_id: () for rule in policy.artifact_rules},
+            published_payloads_by_rule={rule.rule_id: () for rule in policy.artifact_rules},
+            published_artifacts_by_rule={rule.rule_id: () for rule in policy.artifact_rules},
+            approvals=approvals,
+            actor=WORKER,
+            occurred_at=NOW,
+        ),
+    )
+
+    assert approvals.item is before_item
+    assert approvals.head is before_head
+
+
 def test_active_registry_agent_effect_keys_resolve_to_callables() -> None:
     for key in (
         "create_patch_subject_head_and_draft@1",

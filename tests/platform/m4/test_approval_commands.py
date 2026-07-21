@@ -2502,6 +2502,57 @@ def test_decide_current_supports_partial_requirement_approval() -> None:
     assert harness.state.audit[-1][0] == "approval.partially_approved"
 
 
+def test_decide_current_revalidates_historical_votes_before_final_approval() -> None:
+    harness = _harness(min_approvals=2)
+    pending = _pending_item(harness)
+    alice = _principal("human:alice")
+    bob = _principal("human:bob")
+    harness.principals.values.update({alice.id: alice, bob.id: bob})
+
+    partial = harness.service.decide_current(
+        approval_id=pending.approval_id,
+        request=_server_decision_request(pending),
+        context=_context(
+            actor=alice.id,
+            key="decision:alice",
+            request_hash="8" * 64,
+        ),
+    )
+    harness.principals.values[alice.id] = alice.model_copy(
+        update={"roles": (), "authz_revision": alice.authz_revision + 1}
+    )
+
+    rechecked = harness.service.decide_current(
+        approval_id=partial.approval_id,
+        request=_server_decision_request(partial),
+        context=_context(
+            actor=bob.id,
+            key="decision:bob",
+            request_hash="9" * 64,
+        ),
+    )
+
+    assert rechecked.status == "pending_approval"
+    assert len(rechecked.decisions) == 2
+    assert harness.state.audit[-1][0] == "approval.partially_approved"
+
+    harness.principals.values[alice.id] = alice
+    confirmed = harness.service.decide_current(
+        approval_id=rechecked.approval_id,
+        request=_server_decision_request(rechecked),
+        context=_context(
+            actor=alice.id,
+            key="decision:alice-reconfirmed",
+            request_hash="a" * 64,
+        ),
+    )
+
+    assert confirmed.status == "approved"
+    assert confirmed.workflow_revision == rechecked.workflow_revision + 1
+    assert len(confirmed.decisions) == 3
+    assert harness.state.audit[-1][0] == "approval.approved"
+
+
 @pytest.mark.parametrize(
     "current_identity",
     ["missing", "roles_revoked", "disabled", "nonhuman"],

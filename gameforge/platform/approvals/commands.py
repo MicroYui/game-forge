@@ -1672,6 +1672,7 @@ class ApprovalCommandService:
             capabilities = self._bind_capabilities(transaction)
             approvals = _required(capabilities.approvals, "approvals")
             policies = _required(capabilities.policies, "policies")
+            principals = _required(capabilities.principals, "principals")
             idempotency = _required(capabilities.idempotency, "idempotency")
             audit = _required(capabilities.audit, "audit")
             item = self._load_item(approvals, approval_id)
@@ -1717,6 +1718,9 @@ class ApprovalCommandService:
                 route_policy=route,
                 role_policy=role,
                 approval_policy=approval_policy,
+                principal_resolver=lambda principal_id: (
+                    principal if principal_id == principal.id else principals.get(principal_id)
+                ),
             )
             if any(prior.decision_id == decision.decision_id for prior in item.decisions):
                 raise IntegrityViolation("decision exists without its command idempotency result")
@@ -1818,6 +1822,7 @@ class ApprovalCommandService:
                 route_policy=route,
                 role_policy=role,
                 approval_policy=approval_policy,
+                principal_resolver=principals.get,
             )
             if any(prior.decision_id == decision.decision_id for prior in item.decisions):
                 raise IntegrityViolation("decision exists without its command idempotency result")
