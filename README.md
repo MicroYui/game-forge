@@ -1,232 +1,235 @@
-<p align="center"><sub>PROJECT CODENAME · GAME CONTENT CORRECTNESS</sub></p>
+<p align="center"><sub>GAME CONTENT CORRECTNESS COMPILER</sub></p>
 
 <h1 align="center">GameForge</h1>
 
 <p align="center"><strong>让游戏内容可以被证明。</strong></p>
 
 <p align="center">
-  面向游戏内容的<strong>正确性编译器 + 生产级 Agent 工作台</strong>：<br/>
-  把策划案与配置表编译成可版本化的 Design-Spec IR，
-  用确定性检查器和真实 Playtest 裁决，再按冻结策略经人工批准或 deterministic auto-apply 受控发布。
+  从策划意图与配置表生成可版本化的 Spec-IR，<br/>
+  用确定性检查器、经济仿真和真实 Playtest 找出问题，再经独立审批把验证过的版本写入正式内容。
 </p>
 
 <p align="center">
-  <code>Graph</code> · <code>Clingo</code> · <code>z3</code> · <code>Economy Simulation</code> · <code>Bounded Agents</code> · <code>Frozen Policy</code> · <code>Human Approval</code>
-</p>
-
-<p align="center"><sub>deterministic auto-apply 仅限冻结策略允许、可证明且可校验的结构性修复；数值与叙事变更仍必须人工审批。</sub></p>
-
-<p align="center">
-  <strong>M0–M3 已完成</strong>　·　<strong>M4a–M4d 已完成</strong>　·　M4e production / DR adapters 待推进
+  <code>Graph</code> · <code>Clingo</code> · <code>z3</code> · <code>Economy Simulation</code> · <code>Bounded Agents</code> · <code>Human Approval</code>
 </p>
 
 <br/>
 
 <p align="center">
-  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.mp4">
-    <img src="docs/assets/readme/hero-journey-a-v2-zh.png" alt="GameForge：让游戏内容可以被证明" width="100%"/>
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-complete-workflow-zh.mp4">
+    <img src="docs/assets/readme/hero-complete-workflow-zh.png" alt="GameForge 完整使用流程：从输入需求到阻止错误发布" width="100%"/>
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-journey-a-silent-v2-zh.mp4"><strong>▶ 下载 / 播放约 84 秒中文无配音演示</strong></a><br/>
-  <sub>H.264 MP4 · 4.08 MiB · 同一次真实本地 Journey A · 本地 API / worker · cassette 回放 · 外网阻断 · 1280 × 720</sub>
+  <a href="https://github.com/MicroYui/game-forge/raw/refs/heads/master/docs/assets/readme/gameforge-complete-workflow-zh.mp4"><strong>▶ 下载 / 播放完整中文无配音演示</strong></a><br/>
+  <sub>约 88 秒 · 输入需求 → 查看差异 → 真实试玩 → 修复复测 → 独立审批 → 应用</sub>
 </p>
 
-## 30 秒看懂 GameForge
+## 先看一个具体任务
 
-GameForge 不让 LLM 判断游戏内容“对不对”。它把内容生产变成一条可以验证、回放和审计的编译流水线：Agent 负责提出可能性，确定性检查器、真实环境，以及冻结发布策略与审批人掌握最终裁决权。
+假设你正在维护任务「失踪的商队」。玩家现在需要收集 **3 枚破损徽记**，地图上的唯一采集点也刚好提供 **3 枚**。你想尝试把任务需求提高到 4，于是在 GameForge 的「内容生成」页输入：
+
+```text
+Raise the caravan emblem requirement from three to four.
+```
+
+也就是：**“把商队任务需要的徽记从 3 枚提高到 4 枚。”**
+
+| 阶段 | 任务需求 | 地图供给 | 正式内容发生了什么 |
+|---|---:|---:|---|
+| 修改前 | 3 | 3 | 当前版本可完成 |
+| 用户输入 | 请求 3 → 4 | 3 | 还没有改变 |
+| Agent 候选 | 4 | 3 | 仍未改变，只生成候选 |
+| 真实 Playtest | 4 | 3 | 任务未完成，发布被阻止 |
+| 修复候选 | 恢复为 3 | 3 | 仍未改变，等待重新验证 |
+| 复测与独立审批后 | 3 | 3 | 安全 revision 写入正式内容 ref |
+
+这不是一个“无论输入什么都给成功”的演示。它展示的是：**一次孤立的 3 → 4 改动破坏了可完成性，GameForge 找到失败、阻止发布，并安全撤销了这项改动。** 如果业务仍然要求 4，就应同时把可获得徽记提高到至少 4，再重新走 Review、Playtest 与审批。
+
+## 演示中的完整操作流程
+
+下面逐步拆解的是仓库内预置案例。只想理解产品时，直接看视频和截图即可；要在本地复现，先执行文末的浏览器回放命令，它会准备临时 workspace、示例数据与 maker / approver 两个身份。
+
+第一次看只需记住这些界面词：
+
+- **Base Spec**：修改所依据的内容快照。
+- **Constraint snapshot**：本次修改必须遵守的规则快照。
+- **Profile**：已经登记的执行配方，例如用哪些检查器或环境。
+- **Candidate**：尚未进入正式内容的候选。
+- **Patch / preview / config**：字段改动、改完后的预览、可导出的配置。
+- **Revision**：不可变的历史版本；修复会新建版本，不会擦掉旧版本。
+- **正式版本指针（live ref）**：当前被认定为正式内容的精确版本。
+- **Source Run**：演示回放所依据的冻结运行记录；普通在线执行不需要把它理解成“正确答案”。
+- **Exact**：严格绑定同一组 Artifact ID、digest 与 revision，不靠页面猜测关联对象。
+
+### 1. 在「内容生成」输入你想改什么
+
+从左侧进入 **内容生成**，选择本次修改所依据的 Base Spec、Constraint snapshot、生成与环境 profile；然后在 `Authenticated authoring goal` 写下自然语言目标，点击 **开始生成**。
 
 <p align="center">
-  <a href="docs/assets/readme/product-loop.svg"><img src="docs/assets/readme/product-loop.svg" alt="GameForge 产品闭环：编译内容、确定性裁决、有边界修复、真实回归、受控发布" width="100%"/></a>
+  <a href="docs/assets/readme/flow-01-input.png"><img src="docs/assets/readme/flow-01-input.png" alt="内容生成页：输入把徽记需求从 3 提高到 4" width="100%"/></a>
 </p>
 
-| 冻结证据 | 当前结果 | 结论边界 |
-|---|---:|---|
-| GameForge-Bench | **982** 个 seeded 样本 | 902 个 checker / simulation + 80 个 bounded narrative；冻结 `seed=0` |
-| 确定性 / 仿真缺陷 | **11 类 × 82/82** 检出 | 每类 Wilson 95% 下界约 **95.5%**，不是“所有缺陷 100%” |
-| 约束误报 | **0/902** | 仅指冻结 deterministic constraint-FP 口径 |
-| Agent 修复 | **10/10** | cassette REPLAY；Wilson 95% CI **[72.2%, 100%]** |
-| 产品表面 | **8 页 · 77 operations** | exact OpenAPI；M4e production / DR adapters 尚未完成 |
+演示使用 `replay` 和冻结的 source Run，因此可以复现同一次 Agent 提议；对错并不由这次 Agent 输出决定。
 
-前四项来自版本化的 [`BenchReport v2`](scenarios/bench/bench-report.json)；产品表面来自 [`OpenAPI v1`](docs/api/openapi-v1.json) 与 [M4d 验收记录](docs/superpowers/plans/2026-07-19-m4d-web-console.md)。它们都不是 README 手写成绩。
+### 2. 检查候选，而不是把它当成成品
 
-## 一条真实闭环，不是一组静态页面
+生成完成后，你会先看到 `generation_gate_passed` 与一条不可变候选链：**Patch → preview → config**。此时正式内容仍是原来的 3 / 3。
 
-### Journey A · 从创作到可发布变更
-
-1. 策划内容进入 **Spec / Knowledge Graph**，实体、关系、约束与来源可追溯。
-2. Agent 生成候选内容，但只能停在 **proposal**；生成门决定是否允许继续。
-3. Review 把 **确定性、仿真、LLM 建议、未证明**分栏，证据不会被混写。
-4. Playtest Agent 在真实可运行的 **Aureus** 中执行任务链；环境是 `done` 的唯一 authority。
-5. 失败轨迹与验证证据驱动 Patch revision；旧版本不可变，新版本重新 Review 与 Playtest。
-6. 第二身份批准 exact revision 后，平台精确应用并保留回滚、ref history 与审计轨迹。
+打开 Patch 的 **Base / Current / Proposed**，字段级 Diff 会把真正发生的变化摊开：`step:collect_emblem.count` 从 **3** 变成 **4**，而地图供给仍为 **3**。
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/assets/readme/02-knowledge-graph.png"><img src="docs/assets/readme/02-knowledge-graph.png" alt="可探索的 Design-Spec 知识图谱"/></a></td>
-    <td width="50%"><a href="docs/assets/readme/03-generation-gate.png"><img src="docs/assets/readme/03-generation-gate.png" alt="生成门与不可变候选账本"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-02-candidate.png"><img src="docs/assets/readme/flow-02-candidate.png" alt="生成完成后的不可变候选链"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-03-diff.png"><img src="docs/assets/readme/flow-03-diff.png" alt="字段级 Diff：徽记需求从 3 变为 4"/></a></td>
   </tr>
   <tr>
-    <td><strong>可探索的 Spec-IR</strong><br/><sub>10 个实体、14 条关系；画布、键盘与事实表共享选择。</sub></td>
-    <td><strong>提议与裁决分离</strong><br/><sub>Patch → exact preview → config export，候选仍需验证和审批。</sub></td>
+    <td><strong>候选已生成</strong><br/><sub>生成门允许继续验证，但不会移动正式 ref。</sub></td>
+    <td><strong>3 → 4 清楚可见</strong><br/><sub>Base、Current、Proposed 与 Before / After 都可检查。</sub></td>
   </tr>
 </table>
 
-### 失败 → 修复 → 回归通过
+### 3. 先 Review，再让真实游戏执行
 
-失败不会被漂亮地隐藏，也不能推动 live ref。修复产生新的不可变 revision，并重新赢得一整组证据。
+进入 **审查报告**，启动候选 Review。确定性检查、仿真、LLM 建议和“尚未证明”会分区展示；本例即使确定性与仿真 Finding 都是 0，仍有 3 项尚未证明，不能跳过 Playtest。
+
+随后派生精确绑定的任务集（exact TaskSuite），在 **自动试玩**启动 Playtest。可运行参考游戏 Aureus 会真正执行对话、采集、交付等任务步骤；本例由冻结的 `all-quests-completed` completion oracle 读取最终环境状态并判定任务是否完成。
+
+<p align="center">
+  <a href="docs/assets/readme/flow-04-review.png"><img src="docs/assets/readme/flow-04-review.png" alt="Review 中分区展示确定性证据与建议" width="100%"/></a>
+</p>
+
+### 4. 看见失败，并确认它没有进入正式版本
+
+Playtest 最终判定任务未完成并留下可回放轨迹。从候选 Diff、场景供给和执行轨迹可以定位原因：任务要求 4 枚，但唯一采集点只给 3 枚。
+
+回到 Patch，把本次 Review、Trace、Finding 与 RegressionSuite 绑定为 **Exact validation inputs**，点击 **启动 exact validation**。验证结果为失败；**Submit for independent approval** 与 **Apply approved Patch** 都不可用，正式版本指针（live ref）仍指向安全版本。
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/assets/readme/05-playtest-failure.png"><img src="docs/assets/readme/05-playtest-failure.png" alt="Playtest 任务失败，step limit exhausted"/></a></td>
-    <td width="50%"><a href="docs/assets/readme/08-playtest-regression.png"><img src="docs/assets/readme/08-playtest-regression.png" alt="修复后 Playtest 回归通过"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-05-playtest-failure.png"><img src="docs/assets/readme/flow-05-playtest-failure.png" alt="真实 Playtest 未能完成任务"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-06-release-blocked.png"><img src="docs/assets/readme/flow-06-release-blocked.png" alt="验证失败阻止提交审批与应用"/></a></td>
   </tr>
   <tr>
-    <td><strong>Before · STEP LIMIT EXHAUSTED</strong><br/><sub>失败被固化为可回放轨迹，而不是一句模型解释。</sub></td>
-    <td><strong>After · COMPLETED</strong><br/><sub>新的候选重新 Review、重新 Playtest，生成新的 Trace Artifact。</sub></td>
+    <td><strong>任务没有跑通</strong><br/><sub>权威结论是 bounded episode 内完成条件未满足。</sub></td>
+    <td><strong>错误不能推动 live ref</strong><br/><sub>失败证据绑定精确 Patch revision，而不是一句模型解释。</sub></td>
   </tr>
 </table>
 
-### Journey B · 审批、精确应用与回滚
+### 5. 创建修复 revision，然后从头验证
 
-GameForge 把“谁可以改变什么”当作产品能力，而不是后台备注：maker 不能批准自己的 proposal；历史票据在身份或目标变化后重新验权；apply 前再次校验 exact target、revision、evidence 与 ref。
+点击 **Resolve 并启动 repair**。这次真实修复把不完整的 4 恢复为 3，并创建一个新的不可变 revision；旧候选、失败轨迹和旧审批记录都不会被覆写。
 
-下图来自同一次 Journey A 的审批 / apply 段；独立 Journey B 真实浏览器 E2E 另行覆盖 rollback、冲突重建与 SSE `Last-Event-ID` 恢复。
+新 revision 必须重新 Review、重新派生 TaskSuite、重新 Playtest。需求与供给恢复为 3 / 3 后，任务完整通过并产生新的 Trace Artifact。
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/assets/readme/09-maker-checker-approval.png"><img src="docs/assets/readme/09-maker-checker-approval.png" alt="双身份审批与不可变决策"/></a></td>
-    <td width="50%"><a href="docs/assets/readme/07-repair-revision.png"><img src="docs/assets/readme/07-repair-revision.png" alt="补丁新 revision 精确应用"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-07-repair.png"><img src="docs/assets/readme/flow-07-repair.png" alt="修复产生新的不可变 Patch revision"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-08-regression-passed.png"><img src="docs/assets/readme/flow-08-regression-passed.png" alt="修复后重新 Playtest 并全部通过"/></a></td>
   </tr>
   <tr>
-    <td><strong>Maker / Checker 分离</strong><br/><sub>第二身份批准精确绑定的目标版本，决定本身不可变。</sub></td>
-    <td><strong>新建版本，不覆写历史</strong><br/><sub>validation 与 regression 均通过后才可 applied。</sub></td>
+    <td><strong>新建历史，不改写历史</strong><br/><sub>修复 revision 不继承旧候选的失败结论或审批。</sub></td>
+    <td><strong>重新赢得证据</strong><br/><sub>新的 Review、validation 与 Playtest 都绑定新版本。</sub></td>
   </tr>
 </table>
 
-## 八页生产工作台
+### 6. 第二个身份批准，最后才应用
 
-不是“Dashboard + 七张占位卡”。每一页都绑定自己的 authority、失败状态和跨页证据链。
+验证通过后，提议者点击 **Submit for independent approval**。另一个有资格的身份检查 Requirement progress、填写原因并点击 **提交批准**；提议者不能批准自己的提议。
 
-| 页面 | 回答的问题 | 核心能力 |
+回到 Patch，点击 **Apply approved Patch** 并 **确认 Apply**。只有这一刻，`content-head` 的版本历史（ref history）才新增 revision；此前那个“需求 4、供给 3”的候选从未成为正式内容。
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/assets/readme/flow-09-independent-approval.png"><img src="docs/assets/readme/flow-09-independent-approval.png" alt="第二身份提交不可变审批决定"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/flow-10-live-ref-history.png"><img src="docs/assets/readme/flow-10-live-ref-history.png" alt="正式内容 ref history 新增安全 revision"/></a></td>
+  </tr>
+  <tr>
+    <td><strong>Maker / Checker 分离</strong><br/><sub>决定绑定精确 subject、target、digest 与 workflow revision。</sub></td>
+    <td><strong>发布可追溯、可回滚</strong><br/><sub>draft、validate、approve 都不移动 ref，只有 apply 才新增历史。</sub></td>
+  </tr>
+</table>
+
+## 八个页面分别做什么
+
+| 页面 | 你在这里做什么 | 它回答的问题 |
 |---|---|---|
-| Spec / Knowledge Graph | 当前设计事实是什么？ | 版本化 IR、约束、来源、图谱探索、Patch 草案 |
-| Generation | Agent 实际提议了什么？ | Run / attempt、生成门、候选与导出账本 |
-| Review | 哪些结论已经被证明？ | finding 分栏、exact authority、冻结 VersionTuple |
-| Playtest | 游戏里真的跑通了吗？ | Aureus 执行、确定性 completion oracle、可回放轨迹 |
-| Patch / Diff | 修复改变了什么？ | exact-base diff、验证 / 回归证据、revision history |
-| Eval / Bench | 产品能力有多少证据？ | 版本化报告、分母、CI、缺失证据显式化 |
-| Observability | 一次运行花了什么、发生了什么？ | trace、usage、预算结算、RBAC 拒绝也保留 request / trace 关联 |
-| Approvals | 谁批准了哪个精确目标？ | 双身份、逐动作 eligibility、partial / terminal decision |
+| 规范与知识图谱 | 浏览版本化 Spec-IR、约束、来源和关系 | 当前内容事实究竟是什么？ |
+| 内容生成 | 输入目标，生成 Patch / preview / config 候选 | Agent 实际提议了什么？ |
+| 审查报告 | 分区检查确定性、仿真、建议与未证明结论 | 哪些结论有证据？ |
+| 自动试玩 | 在 Aureus 中执行任务链并回放轨迹 | 游戏里真的跑通了吗？ |
+| 补丁与差异 | 查看字段 Diff、验证、修复与 revision history | 哪个字段变了，为什么能发布？ |
+| 评测基准 | 查看版本化报告、分母、置信区间和证据引用 | 产品能力有多少可复现证据？ |
+| 可观测性 | 追踪 Run、Trace、日志、用量与预算 | 这次运行发生了什么、花了什么？ |
+| 审批队列 | 审查精确目标并形成不可变决定 | 谁批准了哪个版本？ |
 
 <details>
-<summary><strong>展开查看八页完整图例</strong></summary>
+<summary><strong>展开查看 Spec、知识图谱、评测与可观测页面</strong></summary>
 <br/>
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/assets/readme/01-spec-authority.png"><img src="docs/assets/readme/01-spec-authority.png" alt="Spec authority 页面"/></a></td>
-    <td width="50%"><a href="docs/assets/readme/03-generation-gate.png"><img src="docs/assets/readme/03-generation-gate.png" alt="Generation 页面"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/01-spec-authority.png"><img src="docs/assets/readme/01-spec-authority.png" alt="版本化 Spec authority 页面"/></a></td>
+    <td width="50%"><a href="docs/assets/readme/02-knowledge-graph.png"><img src="docs/assets/readme/02-knowledge-graph.png" alt="可探索的 Spec-IR 知识图谱"/></a></td>
   </tr>
-  <tr><td><strong>01 · Spec / KG</strong></td><td><strong>02 · Generation</strong></td></tr>
+  <tr><td><strong>Spec authority</strong></td><td><strong>Knowledge Graph</strong></td></tr>
   <tr>
-    <td><a href="docs/assets/readme/04-review-evidence.png"><img src="docs/assets/readme/04-review-evidence.png" alt="Review 页面"/></a></td>
-    <td><a href="docs/assets/readme/05-playtest-failure.png"><img src="docs/assets/readme/05-playtest-failure.png" alt="Playtest 页面"/></a></td>
-  </tr>
-  <tr><td><strong>03 · Review</strong></td><td><strong>04 · Playtest</strong></td></tr>
-  <tr>
-    <td><a href="docs/assets/readme/06-validation-failure.png"><img src="docs/assets/readme/06-validation-failure.png" alt="Patch 与 Diff 页面"/></a></td>
     <td><a href="docs/assets/readme/10-eval-bench.png"><img src="docs/assets/readme/10-eval-bench.png" alt="Eval 与 Bench 页面"/></a></td>
+    <td><a href="docs/assets/readme/11-observability.png"><img src="docs/assets/readme/11-observability.png" alt="Run 与 Trace 可观测页面"/></a></td>
   </tr>
-  <tr><td><strong>05 · Patch / Diff</strong></td><td><strong>06 · Eval / Bench</strong></td></tr>
-  <tr>
-    <td><a href="docs/assets/readme/11-observability.png"><img src="docs/assets/readme/11-observability.png" alt="Observability 页面"/></a></td>
-    <td><a href="docs/assets/readme/09-maker-checker-approval.png"><img src="docs/assets/readme/09-maker-checker-approval.png" alt="Approvals 页面"/></a></td>
-  </tr>
-  <tr><td><strong>07 · Observability</strong></td><td><strong>08 · Approvals</strong></td></tr>
+  <tr><td><strong>Eval / Bench</strong></td><td><strong>Observability</strong></td></tr>
 </table>
 
 </details>
 
-## 三个游戏 / 数据源，三种不同证明
+## 为什么这些结论可信
+
+GameForge 不让 LLM 充当正确性裁判。Agent 只负责抽取、分诊、生成与修复提议；确定性检查器与 completion oracle 给出可判定结论，仿真提供固定假设下的描述性证据，人工审批决定是否接受并发布已经验证的版本。
+
+<p align="center">
+  <a href="docs/assets/readme/product-loop.svg"><img src="docs/assets/readme/product-loop.svg" alt="GameForge 产品闭环：编译、裁决、修复、回归与受控发布" width="100%"/></a>
+</p>
+
+- **可判定检查**：Graph、ASP / Clingo 与 SMT / z3 负责形式化、可判定的约束结论。
+- **描述性仿真**：经济仿真在固定 seed 与假设下提供 what-if 证据，不冒充形式化证明。
+- **真实执行环境**：Aureus 的任务、战斗、经济与抽卡系统由配置驱动，Playtest 必须在环境里真正完成。
+- **精确版本绑定**：Artifact、ObjectRef、VersionTuple、Finding、Patch 与 EvidenceSet 把结论绑定到具体输入。
+- **发布治理**：maker-checker 分离，apply 前重新校验 target、revision、evidence 与 ref。
+- **可复现回放**：承诺固定 `model_snapshot + cassette + seed` 的回放，不承诺在线模型 bit 级一致。
+
+代码依赖同样单向：`agents → spine`，永不 `spine → agents`；`spine` 不导入任何 LLM SDK。deterministic auto-apply 只适用于冻结策略允许、可证明且可校验的结构性修复，数值与叙事变更仍需人工审批。
+
+## 可复现证据
+
+| 验证范围 | 结果 | 结论边界 |
+|---|---:|---|
+| GameForge-Bench | **982** 个 seeded 样本 | 902 个 checker / simulation + 80 个 bounded narrative；冻结 `seed=0` |
+| 确定性 / 仿真缺陷 | **11 类 × 82/82** 检出 | 每类 Wilson 95% 下界约 **95.5%**，不是“所有缺陷 100%” |
+| Deterministic constraint-FP | **0/902** | 与 LLM-assisted narrative FP `6/381` 分开报告 |
+| Agent 修复 | **10/10** | first-pass、runtime-vetted、cassette REPLAY；Wilson 95% CI **[72.2%, 100%]** |
+| Playtest completion | flat `5/20` → layered `14/20` → memory `15/20` | 冻结的 20 条 / 组回放样本；Planner / Executor **+45pp**，MemTrace 再 **+5pp** |
+| 真人 QA 病例研究 | manual `0/4`；GameForge-assisted `3/4` | 单一参与者、8 sessions / 4 matched pairs，不能泛化到所有用户 |
+| QA 配对节省时间 | 平均 **3.41 min** | 95% bootstrap CI **[1.21, 5.04]**；错误 / 超时按预注册 8 分钟 cap |
+| 产品表面 | **8 页 · 77 operations** | API 表面以 [`OpenAPI v1`](docs/api/openapi-v1.json) 为准 |
+
+Bench 的完整分母、置信区间和 evidence refs 保存在版本化的 [`BenchReport`](scenarios/bench/bench-report.json)，不是 README 手写成绩。
+
+## 三种游戏内容证据
 
 <p align="center">
   <a href="docs/assets/readme/evidence-surfaces.svg"><img src="docs/assets/readme/evidence-surfaces.svg" alt="Aureus、Flare、Endless Sky 的三种证据面" width="100%"/></a>
 </p>
 
-- **Aureus — 可运行参考游戏。** 仓库内的确定性内核真实执行任务、战斗、经济与抽卡系统，是 Playtest Agent 的实际 Agent-Env。
-- **Flare — 适配器完整性。** 真实上游配置片段可解析为 Spec-IR 并逐字节 round-trip；B0A 外部缺陷挖掘终态为 `insufficient_evidence`，因此没有被包装成真实缺陷有效性证明。
-- **Endless Sky — 外部历史病例。** 冻结 **8 个 qualified cases**，覆盖 4 类缺陷的 development / verification 切分；每类仅 `n=1+1`，统计状态仍是 `underpowered`，不能外推为广泛跨游戏泛化。
+- **Aureus — 可运行参考游戏。** 确定性内核真实执行任务、战斗、经济与抽卡系统，是 Playtest Agent 的实际 Agent-Env。
+- **Flare — 适配器完整性。** 精选真实配置片段可解析为 Spec-IR 并逐字节 round-trip；外部缺陷挖掘结论为 `insufficient_evidence`，没有被包装成缺陷有效性证明。
+- **Endless Sky — 外部历史病例。** 冻结 8 个 qualified cases，覆盖 4 类缺陷的 development / verification 切分；每类仅 `n=1+1`，统计状态仍是 `underpowered`。
 
-这三者刻意不合并成一个“支持三个游戏”的营销数字：它们分别证明可执行闭环、格式完整性和外部证据流水线。
+三者分别证明可执行闭环、格式完整性和外部证据流水线，不能合并成一个含糊的“支持三个游戏”数字。
 
-## 确定性主干 + 有边界的 Agent
+## 在本地验证
 
-```mermaid
-flowchart TB
-    Source[策划案 / 配置表] --> IR[Design-Spec IR<br/>知识图谱 + Typed Constraints]
-
-    subgraph Trust[确定性可信主干]
-      IR --> Checkers[Graph / ASP / SMT]
-      IR --> Sim[Economy Simulation]
-      IR --> Env[Aureus Agent-Env]
-      Preview[Exact Preview] --> Checkers
-      Preview --> Sim
-      Preview --> Env
-      Checkers --> Evidence[EvidenceSet]
-      Sim --> Evidence
-      Env --> Evidence
-    end
-
-    IR -. 冻结上下文 .-> Agents[Bounded Agents<br/>抽取 · 分诊 · 修复 · 生成]
-    Agents -->|只提交 proposal| Proposal[Proposal / Patch Draft]
-    Proposal --> Preview
-    Evidence --> Gate[冻结发布策略<br/>Human Approval / structural auto-apply]
-    Gate --> Versioning[Apply / Rollback / Audit]
-```
-
-代码依赖同样单向：`agents → spine`，永不 `spine → agents`。`spine` 禁止导入任何 LLM SDK；LLM 输出必须由确定性预言机或人工兜底。deterministic auto-apply 只覆盖可证明、可校验的结构性修复，数值与叙事变更仍由人批准。可复现承诺是固定 `model_snapshot + cassette + seed` 的**回放**，不承诺在线模型 bit 级一致。
-
-<details>
-<summary><strong>查看仓库边界</strong></summary>
-
-```text
-gameforge/
-  contracts/     # Artifact / ObjectRef / VersionTuple / IR / Finding / Patch
-  spine/         # 确定性可信主干：checkers、DSL、simulation、versioning
-  runtime/       # persistence、model router、transport、基础能力
-  env/           # Agent-Env 接口
-  game/aureus/   # 可运行的确定性参考游戏
-  agents/        # 有边界的 LLM / Playtest agents
-  platform/      # RBAC、审批、运行、发布与可观测领域服务
-  bench/         # GameForge-Bench 与证据聚合
-  apps/api/      # HTTP / SSE / WS composition boundary
-  apps/worker/   # worker composition
-  apps/cli/      # CLI composition
-web/             # React + TypeScript 生产工作台
-scenarios/       # Aureus、缺陷、约束与冻结 benchmark 证据
-```
-
-</details>
-
-## 可复现证据，而不是一个百分比
-
-| 范围 | 结果 | 解释 |
-|---|---:|---|
-| Seeded checker / simulation | 11 类均 `82/82` | 10 类 deterministic + 1 类 economy simulation |
-| Deterministic constraint-FP | `0/902` | 与 LLM-assisted narrative FP 分开报告；后者为 `6/381` |
-| Fix Pass Rate | `10/10` | first-pass、runtime-vetted；cassette REPLAY |
-| Playtest completion | flat `5/20` → layered `14/20` → memory `15/20` | M2 历史冻结 cassette、每臂 20 条；Planner / Executor **+45pp**，MemTrace 再 **+5pp** |
-| 真人 QA 病例研究 | manual success `0/4`；GameForge-assisted success `3/4` | 单一参与者、8 sessions / 4 matched pairs；不能泛化到所有用户 |
-| QA 配对节省时间 | 平均 **3.41 min** | 95% bootstrap CI **[1.21, 5.04]**；错误 / 超时按预注册 8 分钟 cap |
-| M4d 浏览器验收 | 8 页、70 项视觉证据、21 项 a11y / 键盘检查、5 条浏览器旅程 | 不是 WCAG 认证 |
-
-Bench 指标的完整口径、分母、置信区间和 evidence refs 保存在 [`scenarios/bench/bench-report.json`](scenarios/bench/bench-report.json)；M4d 浏览器验收数量保存在 [实现计划的完成记录](docs/superpowers/plans/2026-07-19-m4d-web-console.md)。
-
-## 快速跑通确定性主干
-
-要求：Python 3.12 与 [`uv`](https://docs.astral.sh/uv/)。以下命令已在当前仓库状态实际验证。
+核心验证要求 Python 3.12 与 [`uv`](https://docs.astral.sh/uv/)；浏览器回放另需 Node.js 24.18.0 与 npm 11.16.0。
 
 ```bash
 uv python install 3.12
@@ -244,52 +247,25 @@ uv run python -m gameforge.bench.acceptance \
   --repo-root .
 ```
 
-预期关键结果：Aureus `completed=true` 并覆盖 `combat / economy / gacha / quest`；clean review 的 `deterministic_findings=0`；Bench acceptance 返回空错误列表。
+预期关键结果：Aureus `completed=true` 并覆盖 `combat / economy / gacha / quest`；clean review 分栏显示 `deterministic_findings=0`、`llm_assisted_findings=1`、`simulation_findings=1`、`unproven=0`；Bench acceptance 返回空错误列表。
 
-<details>
-<summary><strong>Web 工作台开发门禁</strong></summary>
+要重放 README 展示的完整浏览器流程：
 
 ```bash
 cd web
 npm ci
 npm exec playwright install chromium
-npm run contracts:check
-npm run typecheck
-npm test
-npm run build
+npm run test:e2e -- --headed --grep \
+  "proves generation, review, playtest, repair, approval, and exact apply over real authority"
 ```
 
-完整产品旅程由 Playwright 启动真实本地 API / worker composition；当前尚未把这套编排包装成面向最终用户的一键 launcher，production / DR adapters 归属 M4e。
+该命令在临时 workspace 中启动真实本地 API、worker 与浏览器；产品 API 不被 mock / intercept，浏览器与 launcher 的外部网络 fail-closed。
 
-</details>
+## 来源与许可
 
-## 当前完成度
-
-| 里程碑 | 交付 | 状态 |
-|---|---|:---:|
-| M0a–M0b | Contracts、IR、Aureus 四系统、Schema Registry、版本 / 血缘 / 审计地基 | ✅ |
-| M1 | Graph / ASP / SMT、DSL 编译、经济仿真、Finding / Patch | ✅ |
-| M2 | 有边界 Agent、Playtest、MemTrace、Model Router / cassette | ✅ |
-| M3 | 982 seeded Bench、完整指标、外部历史病例、真人 QA、Eval 证据面板 | ✅ |
-| M4a | 平台核心与持久化 | ✅ |
-| M4b | 可观测、成本治理与可靠性 | ✅ |
-| M4c | API、RBAC、审批、streaming、真实本地 composition | ✅ |
-| M4d | 八页 React 工作台、Journey A / B、隔离 QA Runner、视觉 / 浏览器门禁 | ✅ |
-| M4e | Production / DR adapters | ⏳ |
-
-## 深入阅读
-
-- [产品需求文档](docs/superpowers/specs/2026-07-03-gameforge-prd.md) — 定位、子系统、指标与里程碑验收
-- [地基契约 v0.3](docs/superpowers/specs/2026-07-03-gameforge-foundations-contracts.md) — Artifact、ObjectRef、VersionTuple 与依赖边界
-- [M4 生产化最终设计](docs/superpowers/specs/2026-07-13-m4-production-hardening-design.md) — 五片边界、跨模块契约、API / UI / 运维验收
-- [M4d 实现计划](docs/superpowers/plans/2026-07-19-m4d-web-console.md) — 八页工作台、视觉门禁、Journey 与 QA 证据
-- [README 媒体来源说明](docs/assets/readme/README.md) — 截图、录像与示意图的生成方式和边界
-
-## 来源、许可与边界
-
-- 演示截图与视频来自同一次本地 Journey A 录制；使用真实 API / worker 与冻结 cassette 回放，录制期间外部网络被阻断。画面中的时间、哈希、身份与业务内容属于测试证据。
-- 仓库只收录 Flare 的精选真实配置片段，不包含上游 engine code；片段的 CC BY-SA 3.0 来源与归属见 [`scenarios/flare_sample/NOTICE`](scenarios/flare_sample/NOTICE)，上游 engine code 本身为 GPL-3.0。
-- Endless Sky 外部病例遵循 `GPL-3.0-or-later`；归属见本地 [`NOTICE`](scenarios/external_corpus/endless_sky/NOTICE)，冻结来源与 pin 见 [`source-profile.json`](scenarios/external_corpus/endless_sky/source-profile.json)。
-- GameForge 是当前**项目代号**。仓库根目录目前未发布 LICENSE，请勿据此推定开源授权。
+- 主流程截图与视频来自同一条真实本地流程；输入镜头在真实点击“开始生成”之前捕获，后续候选、Review、Playtest、修复、审批与 ref history 都来自这次提交的真实工件。补充页面图与完整媒体校验见 [`docs/assets/readme/README.md`](docs/assets/readme/README.md)。
+- 仓库只收录 Flare 的精选真实配置片段，不包含上游 engine code；CC BY-SA 3.0 来源与归属见 [`scenarios/flare_sample/NOTICE`](scenarios/flare_sample/NOTICE)，上游 engine code 本身为 GPL-3.0。
+- Endless Sky 外部病例遵循 `GPL-3.0-or-later`；归属见 [`NOTICE`](scenarios/external_corpus/endless_sky/NOTICE)，冻结来源与 pin 见 [`source-profile.json`](scenarios/external_corpus/endless_sky/source-profile.json)。
+- 仓库根目录未发布 LICENSE，请勿据此推定开源授权。
 
 <p align="center"><sub>Correctness before confidence · Evidence before claims · Policy before release</sub></p>

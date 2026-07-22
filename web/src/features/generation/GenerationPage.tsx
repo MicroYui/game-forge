@@ -598,7 +598,7 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
             </label>
           )}
           {!hasExactTarget && selectedSpec && (
-            <p role="alert">所选 Spec 没有 exact ref_value，不能作为 Journey A target。</p>
+            <p role="alert">所选 Spec 没有 exact ref_value，不能作为正式内容 target。</p>
           )}
           <button disabled={!canSubmit} type="submit">
             {attempt?.pending ? "正在解析并提交…" : "开始生成"}
@@ -1158,7 +1158,7 @@ export function GenerationPage({ api = generationApi }: { api?: GenerationApi })
         <>
           <header className="gf-generation__hero">
             <div>
-              <p className="gf-generation__kicker">Generation-as-proposal · Journey A</p>
+              <p className="gf-generation__kicker">Content generation · Proposal only</p>
               <h1>内容生成</h1>
               <p>输入策划目标，绑定 exact authority，让 Agent 只产候选并接受确定性 preliminary gate。</p>
             </div>

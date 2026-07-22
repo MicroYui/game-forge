@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DEMO_AUTHORING_GOAL,
   DEMO_PROVENANCE_LABEL,
   DEMO_README_FRAMES,
   DEMO_SCENES,
@@ -9,13 +10,38 @@ import {
 } from "./journey-a-demo-storyboard";
 
 describe("Journey A demo storyboard", () => {
-  it("fits the agreed silent V1 window and leaves room for real page transitions", () => {
+  it("fits the agreed silent demo window and leaves room for real page transitions", () => {
     const holdDuration = DEMO_SCENES.reduce((total, scene) => total + scene.holdMs, 0);
 
     expect(DEMO_TARGET_DURATION_MS).toBeGreaterThanOrEqual(75_000);
     expect(DEMO_TARGET_DURATION_MS).toBeLessThanOrEqual(90_000);
     expect(holdDuration).toBeLessThan(DEMO_TARGET_DURATION_MS);
     expect(DEMO_TARGET_DURATION_MS - holdDuration).toBeGreaterThanOrEqual(6_000);
+  });
+
+  it("starts from the exact authoring input and tells one concrete cause-and-effect story", () => {
+    expect(DEMO_AUTHORING_GOAL).toBe("Raise the caravan emblem requirement from three to four.");
+    expect(DEMO_SCENES.map((scene) => scene.key)).toEqual([
+      "intro",
+      "input",
+      "generation",
+      "candidate-diff",
+      "review",
+      "failed-playtest",
+      "failed-validation",
+      "repair",
+      "passed-playtest",
+      "approval",
+      "apply",
+      "outro",
+    ]);
+
+    const story = DEMO_SCENES.map((scene) => `${scene.title} ${scene.body}`).join(" ");
+    expect(story).toContain("3");
+    expect(story).toContain("4");
+    expect(story).toContain("只提供 3 枚");
+    expect(story).toContain("恢复为 3");
+    expect(story).toContain("没有进入 live ref");
   });
 
   it("uses unique Chinese chapters and an honest local replay provenance label", () => {
@@ -27,28 +53,27 @@ describe("Journey A demo storyboard", () => {
     expect(validateDemoStoryboard()).toEqual([]);
   });
 
-  it("defines a compact, ordered README gallery from the same real Journey A run", () => {
-    expect(DEMO_README_FRAMES).toHaveLength(11);
+  it("defines a compact, ordered beginner gallery from the same real workflow", () => {
+    expect(DEMO_README_FRAMES).toHaveLength(10);
     expect(DEMO_README_FRAMES.map((frame) => frame.filename)).toEqual([
-      "01-spec-authority.png",
-      "02-knowledge-graph.png",
-      "03-generation-gate.png",
-      "04-review-evidence.png",
-      "05-playtest-failure.png",
-      "06-validation-failure.png",
-      "07-repair-revision.png",
-      "08-playtest-regression.png",
-      "09-maker-checker-approval.png",
-      "10-eval-bench.png",
-      "11-observability.png",
+      "flow-01-input.png",
+      "flow-02-candidate.png",
+      "flow-03-diff.png",
+      "flow-04-review.png",
+      "flow-05-playtest-failure.png",
+      "flow-06-release-blocked.png",
+      "flow-07-repair.png",
+      "flow-08-regression-passed.png",
+      "flow-09-independent-approval.png",
+      "flow-10-live-ref-history.png",
     ]);
     expect(new Set(DEMO_README_FRAMES.map((frame) => frame.sceneKey)).size).toBe(DEMO_README_FRAMES.length);
     expect(
       Object.fromEntries(DEMO_README_FRAMES.map((frame) => [frame.sceneKey, frame.capturePosition])),
     ).toMatchObject({
-      approval: "secondary",
+      approval: "primary",
       generation: "secondary",
-      observability: "secondary",
+      input: "primary",
       review: "secondary",
       "failed-playtest": "secondary",
       "passed-playtest": "secondary",

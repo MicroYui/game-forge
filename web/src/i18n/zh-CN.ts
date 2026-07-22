@@ -66,8 +66,8 @@ export const messages = {
     identity_admin: "身份管理员",
   },
   placeholders: {
-    description: "页面契约与导航已就位；业务视图将在对应 M4d 页面任务中接入真实 API。",
-    label: "如实占位",
+    description: "当前没有可展示的业务数据。",
+    label: "暂无数据",
     notFoundDescription: "请从主导航选择一个页面。",
   },
   states: {

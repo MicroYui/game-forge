@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { expect, test, type Browser, type BrowserContext, type Locator, type Page } from "@playwright/test";
 
 import {
+  DEMO_AUTHORING_GOAL,
   DEMO_PROVENANCE_LABEL,
   DEMO_README_FRAMES,
   DEMO_SCENES,
@@ -26,6 +27,12 @@ const approverCredentials = { login: "approver", password: "approver-password-1"
 const domainId = "builtin";
 const refName = "content-head";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+
+function demoOutputDirectory(): string {
+  return (
+    process.env.GAMEFORGE_DEMO_OUTPUT_DIR ?? resolve(repoRoot, "web/test-results/demo-complete-workflow")
+  );
+}
 
 interface JourneyAManifest {
   base_artifact_id: string;
@@ -312,11 +319,11 @@ async function transportLines(): Promise<string[]> {
   }
 }
 
-async function selectGenerationReplay(
+async function fillGenerationReplayForm(
   page: Page,
   manifest: JourneyAManifest,
   input: { goal: string; sourceRunId: string },
-): Promise<string> {
+): Promise<void> {
   await page.goto("/generation");
   await expect(page.getByRole("heading", { level: 1, name: "内容生成" })).toBeVisible();
   await page.getByLabel("Base Spec / ref").selectOption(manifest.base_artifact_id);
@@ -328,7 +335,27 @@ async function selectGenerationReplay(
   await page.getByLabel("Authenticated authoring goal").fill(input.goal);
   await page.getByLabel("LLM execution mode").selectOption("replay");
   await page.getByLabel("Replay source Run").fill(input.sourceRunId);
-  await page.getByRole("button", { name: "开始生成" }).click();
+}
+
+async function selectGenerationReplay(
+  page: Page,
+  manifest: JourneyAManifest,
+  input: { goal: string; sourceRunId: string },
+): Promise<string> {
+  await fillGenerationReplayForm(page, manifest, input);
+  const startGeneration = page.getByRole("button", { name: "开始生成" });
+  if (process.env.GAMEFORGE_RECORD_DEMO === "1" && input.goal === DEMO_AUTHORING_GOAL) {
+    const darkTheme = page.getByRole("button", { name: "切换到深色主题" });
+    if ((await darkTheme.count()) > 0) await darkTheme.click();
+    await startGeneration.scrollIntoViewIfNeeded();
+    const outputDir = demoOutputDirectory();
+    await mkdir(outputDir, { recursive: true });
+    await page.screenshot({
+      animations: "disabled",
+      path: join(outputDir, "authoring-input-source.png"),
+    });
+  }
+  await startGeneration.click();
   let runId = "";
   await expect
     .poll(() => {
@@ -859,7 +886,6 @@ async function applyPatch(page: Page, patchId: string): Promise<void> {
 }
 
 interface JourneyADemoInput {
-  approvalHref: string;
   failedPlaytestHref: string;
   failedReviewId: string;
   generationRunId: string;
@@ -868,7 +894,6 @@ interface JourneyADemoInput {
   previewId: string;
   repairedPatchId: string;
   repairedPlaytestHref: string;
-  repairRunId: string;
 }
 
 function requiredDemoScene(key: string): DemoScene {
@@ -1129,6 +1154,26 @@ async function showDemoScene(
   await page.waitForTimeout(scene.holdMs);
 }
 
+async function captureDemoSourceFrame(page: Page, filename: string, target: Locator): Promise<void> {
+  if (process.env.GAMEFORGE_RECORD_DEMO !== "1") return;
+  await scrollDemoTarget(page, target);
+  const outputDir = demoOutputDirectory();
+  await mkdir(outputDir, { recursive: true });
+  await page.screenshot({ animations: "disabled", path: join(outputDir, filename) });
+}
+
+async function openDemoSourceFrame(page: Page, path: string, alt: string): Promise<void> {
+  const source = await readFile(path);
+  await page.setContent(`
+    <style>
+      html, body { background: #101311; height: 100%; margin: 0; overflow: hidden; }
+      img { display: block; height: 100vh; object-fit: cover; width: 100vw; }
+    </style>
+    <img alt="${alt}" src="data:image/png;base64,${source.toString("base64")}" />
+  `);
+  await expect(page.getByRole("img", { name: alt })).toBeVisible();
+}
+
 function readmeFrameCapture(
   directory: string,
   sceneKey: string,
@@ -1165,27 +1210,16 @@ async function authenticateDemoContext(context: BrowserContext): Promise<string>
   return csrfToken;
 }
 
-async function rotateDemoSession(context: BrowserContext, csrfToken: string): Promise<string> {
-  const response = await context.request.post(`${stack.baseURL}/api/v1/auth/logout`, {
-    headers: {
-      "Idempotency-Key": `demo-session-rotate-${Date.now()}`,
-      "X-CSRF-Token": csrfToken,
-    },
-  });
-  expect(response.status()).toBe(204);
-  return authenticateDemoContext(context);
-}
-
 async function recordJourneyADemo(
   browser: Browser,
   input: JourneyADemoInput,
   unexpected: Set<string>,
 ): Promise<void> {
-  const outputDir = process.env.GAMEFORGE_DEMO_OUTPUT_DIR ?? resolve(repoRoot, "web/test-results/demo-v1");
-  const rawDir = join(outputDir, "raw-v2-zh");
-  const readmeFramesDir = join(outputDir, "readme-frames-v2-zh");
-  const outputPath = join(outputDir, "gameforge-journey-a-silent-v2-zh.webm");
-  const coverPath = join(outputDir, "gameforge-journey-a-silent-v2-zh-cover.png");
+  const outputDir = demoOutputDirectory();
+  const rawDir = join(outputDir, "raw-complete-workflow-zh");
+  const readmeFramesDir = join(outputDir, "readme-frames-complete-workflow-zh");
+  const outputPath = join(outputDir, "gameforge-complete-workflow-zh.webm");
+  const coverPath = join(outputDir, "gameforge-complete-workflow-zh-cover.png");
   await Promise.all([mkdir(rawDir, { recursive: true }), mkdir(readmeFramesDir, { recursive: true })]);
 
   const demoContext = await browser.newContext({
@@ -1202,7 +1236,7 @@ async function recordJourneyADemo(
     document.documentElement.dataset.theme = "dark";
   });
   await guardAuthoringEgress(demoContext, stack.baseURL, unexpected);
-  let demoCsrfToken = await authenticateDemoContext(demoContext);
+  await authenticateDemoContext(demoContext);
 
   const demoPage = await demoContext.newPage();
   const startedAt = Date.now();
@@ -1210,19 +1244,14 @@ async function recordJourneyADemo(
   if (video === null) throw new Error("Journey A demo context did not start video recording.");
 
   try {
-    await openDemoPage(
+    await openDemoSourceFrame(
       demoPage,
-      `/specs/${encodeURIComponent(input.manifest.base_artifact_id)}`,
-      demoPage.getByRole("heading", { level: 1, name: "规格详情" }),
+      join(outputDir, "authoring-input-source.png"),
+      "真实提交前的内容生成输入",
     );
     await showDemoScene(demoPage, "intro");
-    await showDemoScene(demoPage, "spec", {
-      ...readmeFrameCapture(readmeFramesDir, "spec"),
-      target: demoPage.getByRole("heading", { level: 1, name: "规格详情" }),
-    });
-    await showDemoScene(demoPage, "graph", {
-      ...readmeFrameCapture(readmeFramesDir, "graph"),
-      target: demoPage.getByRole("heading", { name: "有界知识图谱" }),
+    await showDemoScene(demoPage, "input", {
+      ...readmeFrameCapture(readmeFramesDir, "input"),
     });
 
     await openDemoPage(
@@ -1234,6 +1263,16 @@ async function recordJourneyADemo(
       ...readmeFrameCapture(readmeFramesDir, "generation"),
       secondaryTarget: demoPage.getByRole("heading", { name: "Patch → preview → config" }),
       target: demoPage.getByRole("heading", { name: "Preliminary gate" }),
+    });
+
+    await openDemoPage(
+      demoPage,
+      `/patches/${encodeURIComponent(input.patchId)}`,
+      demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
+    );
+    await showDemoScene(demoPage, "candidate-diff", {
+      ...readmeFrameCapture(readmeFramesDir, "candidate-diff"),
+      target: demoPage.getByRole("heading", { name: "字段级 Diff" }),
     });
 
     const failedReviewSearch = new URLSearchParams({
@@ -1263,24 +1302,22 @@ async function recordJourneyADemo(
       target: demoPage.getByRole("heading", { name: "Run 已完成，任务未全部通过" }),
     });
 
-    await openDemoPage(
+    await openDemoSourceFrame(
       demoPage,
-      `/patches/${encodeURIComponent(input.patchId)}`,
-      demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
+      join(outputDir, "failed-validation-source.png"),
+      "验证失败且正式版本未移动",
     );
     await showDemoScene(demoPage, "failed-validation", {
       ...readmeFrameCapture(readmeFramesDir, "failed-validation"),
-      target: demoPage.getByRole("heading", { name: "Validation / regression evidence" }),
     });
 
-    await openDemoPage(
+    await openDemoSourceFrame(
       demoPage,
-      `/patches/${encodeURIComponent(input.repairedPatchId)}`,
-      demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
+      join(outputDir, "repair-draft-source.png"),
+      "新建且尚未验证的修复版本",
     );
     await showDemoScene(demoPage, "repair", {
       ...readmeFrameCapture(readmeFramesDir, "repair"),
-      target: demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
     });
 
     await openDemoPage(
@@ -1294,17 +1331,15 @@ async function recordJourneyADemo(
       target: demoPage.getByRole("heading", { name: "Run 已完成，全部任务通过" }),
     });
 
-    demoCsrfToken = await rotateDemoSession(demoContext, demoCsrfToken);
-
-    await openDemoPage(
+    await demoContext.clearCookies();
+    await authenticateDemoContext(demoContext);
+    await openDemoSourceFrame(
       demoPage,
-      input.approvalHref,
-      demoPage.getByRole("heading", { level: 1, name: "审批详情" }),
+      join(outputDir, "approved-before-apply-source.png"),
+      "已批准但尚未应用的精确版本",
     );
     await showDemoScene(demoPage, "approval", {
       ...readmeFrameCapture(readmeFramesDir, "approval"),
-      secondaryTarget: demoPage.getByRole("heading", { name: "Immutable decisions" }),
-      target: demoPage.getByRole("heading", { name: "Subject & proposer" }),
     });
 
     await openDemoPage(
@@ -1313,24 +1348,8 @@ async function recordJourneyADemo(
       demoPage.getByRole("heading", { level: 1, name: refName }),
     );
     await showDemoScene(demoPage, "apply", {
+      ...readmeFrameCapture(readmeFramesDir, "apply"),
       target: demoPage.getByRole("heading", { level: 1, name: refName }),
-    });
-
-    await openDemoPage(demoPage, "/eval", demoPage.getByRole("heading", { level: 1, name: "Eval / Bench" }));
-    await showDemoScene(demoPage, "eval", {
-      ...readmeFrameCapture(readmeFramesDir, "eval"),
-      target: demoPage.getByRole("heading", { level: 1, name: "Eval / Bench" }),
-    });
-
-    await openDemoPage(
-      demoPage,
-      `/observability?run=${encodeURIComponent(input.repairRunId)}`,
-      demoPage.getByRole("heading", { level: 1, name: "可观测性" }),
-    );
-    await showDemoScene(demoPage, "observability", {
-      ...readmeFrameCapture(readmeFramesDir, "observability"),
-      secondaryTarget: demoPage.getByRole("heading", { name: "冻结预算与成本结算" }),
-      target: demoPage.getByRole("heading", { name: "Run → Trace" }),
     });
 
     await showDemoScene(demoPage, "outro");
@@ -1563,7 +1582,7 @@ test.describe("journey-a-authoring", () => {
       await test.step("generation gate pass publishes a non-empty candidate config without moving ref", async () => {
         const before = await transportLines();
         generationRunId = await selectGenerationReplay(makerPage, manifest, {
-          goal: "Raise the caravan emblem requirement from three to four.",
+          goal: DEMO_AUTHORING_GOAL,
           sourceRunId: manifest.generation_source_run_id,
         });
         await expect(makerPage.getByRole("heading", { name: "generation_gate_passed" })).toBeVisible({
@@ -1752,6 +1771,11 @@ test.describe("journey-a-authoring", () => {
         ).toBeDisabled();
         await expect(makerPage.getByRole("button", { name: "Apply approved Patch" })).toBeDisabled();
         expect(await refHistory(makerPage)).toHaveLength(1);
+        await captureDemoSourceFrame(
+          makerPage,
+          "failed-validation-source.png",
+          makerPage.getByRole("heading", { name: "Validation / regression evidence" }),
+        );
       });
 
       let repairedPatchId = "";
@@ -1839,6 +1863,14 @@ test.describe("journey-a-authoring", () => {
           regression_evidence_artifact_ids: [],
           supersedes_approval_id: oldAuthority.binding.approval_id,
         });
+        if (process.env.GAMEFORGE_RECORD_DEMO === "1") {
+          await makerPage.goto(`/patches/${encodeURIComponent(repairedPatchId)}`);
+          await captureDemoSourceFrame(
+            makerPage,
+            "repair-draft-source.png",
+            makerPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
+          );
+        }
         await makerPage.goto(`/patches/${encodeURIComponent(patchId)}`);
         await expect(
           makerPage.getByRole("button", { name: "Submit for independent approval" }),
@@ -2028,6 +2060,14 @@ test.describe("journey-a-authoring", () => {
         expect(await refHistory(makerPage)).toEqual([
           { entry_schema_version: "ref-history-entry@1", ref_name: refName, value: manifest.expected_ref },
         ]);
+        if (process.env.GAMEFORGE_RECORD_DEMO === "1") {
+          await makerPage.goto(approvalHref);
+          await captureDemoSourceFrame(
+            makerPage,
+            "approved-before-apply-source.png",
+            makerPage.getByRole("heading", { name: "Immutable decisions" }),
+          );
+        }
 
         await applyPatch(approverPage, repairedPatchId);
         const history = await refHistory(approverPage);
@@ -2079,7 +2119,6 @@ test.describe("journey-a-authoring", () => {
         await recordJourneyADemo(
           browser,
           {
-            approvalHref,
             failedPlaytestHref,
             failedReviewId,
             generationRunId,
@@ -2088,7 +2127,6 @@ test.describe("journey-a-authoring", () => {
             previewId,
             repairedPatchId,
             repairedPlaytestHref,
-            repairRunId,
           },
           unexpected,
         );
