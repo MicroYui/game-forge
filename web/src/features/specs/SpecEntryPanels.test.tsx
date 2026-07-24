@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { ReauthenticationRequiredError } from "../../api/csrf";
@@ -8,7 +9,7 @@ import type { components } from "../../api/generated/openapi";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError, type SafeProblem } from "../../api/problem";
 import { createQueryClient } from "../../api/query-client";
-import { SpecEntryPanels, type SpecEntryPanelsApi } from "./SpecEntryPanels";
+import { SpecEntryPanels, type SpecEntryCatalogs, type SpecEntryPanelsApi } from "./SpecEntryPanels";
 import type {
   ConstraintProposalReadView,
   ExecutionOptionView,
@@ -133,6 +134,48 @@ const specResult: SpecView = {
   view_schema_version: "spec-view@1",
 };
 
+const constraintCatalog = {
+  artifact: {
+    ...artifact("artifact:constraint:base", "constraint_snapshot"),
+    domain_scope: { domain_ids: ["domain:economy", "domain:rewards"] },
+    version_tuple: { constraint_snapshot_id: "constraint:base", tool_version: "compiler@1" },
+  },
+  constraints: [],
+  dsl_grammar_version: "dsl@1",
+  view_schema_version: "constraint-snapshot-view@1" as const,
+};
+
+const sourceProposal: ConstraintProposalReadView = {
+  ...proposalResult,
+  artifact: artifact("artifact:proposal:source", "constraint_proposal"),
+  proposal: {
+    ...proposalResult.proposal,
+    produced_by: "agent",
+    producer_run_id: "run:replay:source",
+    rationale: "已验证的金币奖励来源",
+    source_bindings: [
+      {
+        provenance_hash: "3".repeat(64),
+        source_artifact_id: "artifact:source:design",
+        source_ref: null,
+      },
+    ],
+  },
+};
+
+const sourceRaw = artifact("artifact:source:design", "source_raw");
+const sourceRendered = {
+  ...artifact("artifact:source:rendered", "source_rendered"),
+  created_at: "2026-07-20T09:30:00Z",
+};
+
+const catalogs: SpecEntryCatalogs = {
+  constraints: [constraintCatalog],
+  proposals: [sourceProposal],
+  sources: [sourceRaw, sourceRendered],
+  specs: [specResult],
+};
+
 const acceptedRun: RunAccepted = {
   accepted_schema_version: "run-accepted@1",
   events_url: "/api/v1/runs/run%3Aconstraint%3A1/events",
@@ -144,6 +187,7 @@ function api(overrides: Partial<SpecEntryPanelsApi> = {}): SpecEntryPanelsApi {
   return {
     draftConstraint: vi.fn(async () => proposalResult),
     listExecutionProfiles: vi.fn(async () => profilePage),
+    listRefHistory: vi.fn(),
     proposeConstraint: vi.fn(async () => acceptedRun),
     resolveExecutionOption: vi.fn(async () => resolvedOption),
     uploadSpec: vi.fn(async () => specResult),
@@ -153,9 +197,11 @@ function api(overrides: Partial<SpecEntryPanelsApi> = {}): SpecEntryPanelsApi {
 
 function renderPanels(entryApi: SpecEntryPanelsApi) {
   return render(
-    <QueryClientProvider client={createQueryClient()}>
-      <SpecEntryPanels api={entryApi} />
-    </QueryClientProvider>,
+    <MemoryRouter initialEntries={["/specs?entry=create"]}>
+      <QueryClientProvider client={createQueryClient()}>
+        <SpecEntryPanels api={entryApi} catalogs={catalogs} />
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -168,17 +214,18 @@ function deferred<T>() {
 }
 
 async function fillHumanDraft(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText("Human ref name"), "refs/constraints/economy");
-  await user.click(screen.getByLabelText("No current ref"));
-  await user.type(
-    screen.getByLabelText("Human base ConstraintSnapshot Artifact ID"),
+  const human = screen.getByRole("heading", { name: "Human typed draft" }).closest("article")!;
+  await user.click(within(human).getByRole("radio", { name: "创建新 ref" }));
+  await user.type(within(human).getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/economy");
+  await user.selectOptions(
+    within(human).getByLabelText("基于哪个约束快照（可选）"),
     "artifact:constraint:base",
   );
-  await user.type(screen.getByLabelText("Human domain IDs"), "domain:economy, domain:rewards");
-  await user.type(screen.getByLabelText("Human DSL grammar"), "dsl@1");
-  await user.type(screen.getByLabelText("Human source Artifact IDs"), "artifact:source:design");
-  await user.type(screen.getByLabelText("Human rationale"), "Keep gold inflation bounded.");
-  fireEvent.change(screen.getByLabelText("Typed constraints JSON"), {
+  await user.click(within(human).getByRole("checkbox", { name: "economy" }));
+  await user.click(within(human).getByRole("checkbox", { name: "rewards" }));
+  await user.click(within(human).getByRole("checkbox", { name: /原始策划材料.*source_raw/ }));
+  await user.type(within(human).getByLabelText("Human rationale"), "Keep gold inflation bounded.");
+  fireEvent.change(within(human).getByLabelText("Typed constraints JSON"), {
     target: {
       value: JSON.stringify([
         {
@@ -199,22 +246,41 @@ async function fillAgentDraft(
   mode: "live" | "record" | "replay" = "record",
 ) {
   const profileSelect = await screen.findByLabelText("Agent execution profile");
-  await user.type(screen.getByLabelText("Agent source Artifact IDs"), "artifact:source:design");
-  await user.type(
-    screen.getByLabelText("Agent base ConstraintSnapshot Artifact ID"),
+  const agent = screen.getByRole("heading", { name: "Agent 提案" }).closest("article")!;
+  await user.click(within(agent).getByRole("checkbox", { name: /原始策划材料.*source_raw/ }));
+  await user.selectOptions(
+    within(agent).getByLabelText("基于哪个约束快照（可选）"),
     "artifact:constraint:base",
   );
-  await user.type(screen.getByLabelText("Agent domain IDs"), "domain:economy");
-  await user.type(screen.getByLabelText("Agent DSL grammar"), "dsl@1");
   await user.type(screen.getByLabelText("Agent authoring goal"), "Extract a deterministic reward cap.");
   await user.selectOptions(profileSelect, "builtin.constraint_extraction@4");
   await user.selectOptions(screen.getByLabelText("LLM execution mode"), mode);
   if (mode === "replay") {
-    await user.type(screen.getByLabelText("Replay source Run"), "run:replay:source");
+    await user.selectOptions(screen.getByLabelText("Replay 来源 Run"), "run:replay:source");
   }
 }
 
 describe("SpecEntryPanels", () => {
+  it("offers raw and rendered source artifacts even before any proposal exists", async () => {
+    render(
+      <QueryClientProvider client={createQueryClient()}>
+        <SpecEntryPanels api={api()} catalogs={{ ...catalogs, proposals: [] }} />
+      </QueryClientProvider>,
+    );
+
+    const agent = screen.getByRole("heading", { name: "Agent 提案" }).closest("article")!;
+    expect(
+      within(agent).getByRole("checkbox", {
+        name: /原始策划材料（source_raw）.*2026-07-19.*source_raw@1.*artifact:source:design/,
+      }),
+    ).toBeVisible();
+    expect(
+      within(agent).getByRole("checkbox", {
+        name: /已解析策划材料（source_rendered）.*2026-07-20.*source_rendered@1.*artifact:sou…rendered/,
+      }),
+    ).toBeVisible();
+  });
+
   it("requires an explicit active extraction profile, resolves a prospective request, and copies the exact option into one Agent create", async () => {
     const entryApi = api();
     const user = userEvent.setup();
@@ -306,19 +372,22 @@ describe("SpecEntryPanels", () => {
     await screen.findByLabelText("Agent execution profile");
     expect(document.getElementById("spec-content-hint")).not.toHaveAttribute("role");
 
-    await user.type(screen.getByLabelText("Schema registry version"), "registry@3");
-    await user.type(screen.getByLabelText("Meta schema version"), "meta@2");
-    await user.type(screen.getByLabelText("Spec ref name"), "refs/specs/economy");
-    await user.click(screen.getByLabelText("Spec has no current ref"));
-    await user.type(screen.getByLabelText("Spec domain IDs"), "domain:economy");
+    const spec = screen.getByRole("heading", { name: "Human spec upload" }).closest("article")!;
+    await user.selectOptions(
+      within(spec).getByRole("combobox", { name: "Schema registry version" }),
+      "registry@3",
+    );
+    await user.click(within(spec).getByRole("radio", { name: "创建新 Spec ref" }));
+    await user.type(within(spec).getByRole("textbox", { name: "新 Ref 名称" }), "refs/specs/economy");
+    await user.click(within(spec).getByRole("checkbox", { name: "economy" }));
     fireEvent.change(screen.getByLabelText("Spec content JSON"), {
-      target: { value: JSON.stringify({ economy: { reward_cap: 75 } }) },
+      target: { value: JSON.stringify({ economy: { reward_cap: 75 }, meta_schema_version: "meta@2" }) },
     });
     await user.click(screen.getByRole("button", { name: "上传 Human spec" }));
 
     await waitFor(() => expect(entryApi.uploadSpec).toHaveBeenCalledTimes(1));
     expect(vi.mocked(entryApi.uploadSpec).mock.calls[0][0]).toEqual({
-      content_payload: { economy: { reward_cap: 75 } },
+      content_payload: { economy: { reward_cap: 75 }, meta_schema_version: "meta@2" },
       domain_scope: { domain_ids: ["domain:economy"] },
       expected_ref: null,
       meta_schema_version: "meta@2",

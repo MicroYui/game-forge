@@ -46,8 +46,27 @@ describe("typed HTTP and auth client", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]?.credentials).toBe("include");
     expect(requests[0]?.url).toBe("https://console.test/api/v1/auth/login");
+    expect(requests[0]?.headers.get("X-GameForge-Reauthentication")).toBeNull();
     expect(readCsrfToken()).toBe("csrf-from-header");
     expect(sessionStorage.length).toBe(1);
+  });
+
+  it("marks only explicit password reauthentication on the login wire", async () => {
+    const requests: Request[] = [];
+    const fetch = vi.fn(async (request: Request) => {
+      requests.push(request);
+      return new Response(null, { status: 204, headers: { "X-CSRF-Token": "replacement-csrf" } });
+    });
+    const api = createGameForgeApi({ baseUrl: "https://console.test", fetch });
+
+    await api.login(
+      { schema_version: "password-auth@1", login_name: "alice", password: "secret" },
+      { forceReauthentication: true },
+    );
+
+    expect(requests).toHaveLength(1);
+    expect(requests[0]?.headers.get("X-GameForge-Reauthentication")).toBe("password");
+    expect(readCsrfToken()).toBe("replacement-csrf");
   });
 
   it("allows cookie-backed reads without local CSRF material", async () => {

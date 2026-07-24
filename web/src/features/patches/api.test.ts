@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { GameForgeOpenApiClient } from "../../api/client";
+import { createGameForgeApi, type GameForgeOpenApiClient } from "../../api/client";
 import { storeCsrfToken } from "../../api/csrf";
 import type {
   ApprovalView,
@@ -14,6 +14,7 @@ import type {
   RollbackDraftRequest,
   RollbackRequestReadView,
   RollbackValidationAdmissionRequest,
+  RunSubmissionRequest,
   SubmitForApprovalRequest,
   WorkflowApplyRequest,
 } from "./api";
@@ -49,14 +50,27 @@ describe("Patch and rollback workflow API", () => {
     const cursor = "opaque.patch+/=%2Ftail";
     const get = vi.fn(async (path: string) => {
       switch (path) {
+        case "/api/v1/artifacts":
+        case "/api/v1/approvals":
+        case "/api/v1/findings":
         case "/api/v1/patches":
         case "/api/v1/rollback-requests":
         case "/api/v1/artifacts/{artifact_id}/lineage":
         case "/api/v1/execution-profiles":
         case "/api/v1/refs/{ref_name}/history":
+        case "/api/v1/runs/{run_id}/finding-links":
         case "/api/v1/diff":
         case "/api/v1/conflict-sets/{conflict_set_id}/conflicts":
           return response({ items: [], next_cursor: null });
+        case "/api/v1/runs/{run_id}":
+          return response({
+            events_url: "/api/v1/runs/run:focused/events",
+            revision: 1,
+            run_id: "run:focused",
+            status: "queued",
+            status_url: "/api/v1/runs/run:focused",
+            view_schema_version: "run-view@1",
+          });
         case "/api/v1/patches/{artifact_id}":
           return response(patch, { ETag: '"patch:opaque-9"' });
         case "/api/v1/rollback-requests/{artifact_id}":
@@ -80,6 +94,11 @@ describe("Patch and rollback workflow API", () => {
     });
     const api = createPatchWorkflowApi({ GET: get } as unknown as GameForgeOpenApiClient);
 
+    await api.listArtifacts("constraint_snapshot", cursor);
+    await api.listApprovals(cursor);
+    await api.listFindings(cursor);
+    await api.listRunFindingLinks("run:review:7", cursor);
+    await api.getRun("run:focused");
     await api.listPatches(cursor);
     const versionedPatch = await api.getPatch("artifact:patch:7");
     await api.listRollbackRequests(cursor);
@@ -101,6 +120,24 @@ describe("Patch and rollback workflow API", () => {
     expect(versionedPatch).toEqual({ etag: '"patch:opaque-9"', value: patch });
     expect(versionedRollback).toEqual({ etag: '"rollback:opaque-5"', value: rollback });
     expect(versionedApproval).toEqual({ etag: '"approval:opaque-9"', value: approval });
+    expect(get).toHaveBeenCalledWith("/api/v1/artifacts", {
+      params: { query: { cursor, kind: "constraint_snapshot" } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/approvals", {
+      params: { query: { cursor, limit: 100 } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/findings", {
+      params: { query: { cursor, limit: 100 } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/runs/{run_id}/finding-links", {
+      params: { path: { run_id: "run:review:7" }, query: { cursor, limit: 100 } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/runs/{run_id}", {
+      params: { path: { run_id: "run:focused" } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/artifacts/{artifact_id}", {
+      params: { path: { artifact_id: "artifact:patch:7" } },
+    });
     expect(get).toHaveBeenCalledWith("/api/v1/execution-profiles", {
       params: {
         query: {
@@ -122,6 +159,67 @@ describe("Patch and rollback workflow API", () => {
     });
   });
 
+  it("lists cassette-backed replay sources only when the exact terminal manifest is a Patch repair", async () => {
+    const cursor = "opaque.runs+/=%2Ftail";
+    const failedReplaySource = {
+      attempt_no: 2,
+      events_url: "/api/v1/runs/run:failed/events",
+      failure_artifact_id: "artifact:failure:patch-repair",
+      result_artifact_id: null,
+      revision: 7,
+      run_id: "run:failed",
+      status: "failed" as const,
+      status_url: "/api/v1/runs/run:failed",
+      terminal_cassette_artifact_id: "artifact:cassette:failed",
+      view_schema_version: "run-view@1" as const,
+    };
+    const succeededWithoutCassette = {
+      ...failedReplaySource,
+      run_id: "run:succeeded-without-cassette",
+      status: "succeeded" as const,
+      terminal_cassette_artifact_id: null,
+    };
+    const replayFailureManifest = {
+      artifact: {
+        artifact_id: "artifact:failure:patch-repair",
+        created_at: "2026-07-23T03:47:50Z",
+        kind: "run_failure",
+        payload_schema_id: "run-failure@1",
+      },
+      payload: {
+        cause_code: "repair_source_failed",
+        failure_schema_version: "run-failure@1",
+        run_id: failedReplaySource.run_id,
+        run_kind: { kind: "patch.repair", version: 1 },
+      },
+    };
+    const get = vi.fn(async (path: string) => {
+      if (path === "/api/v1/artifacts/{artifact_id}") return response(replayFailureManifest);
+      return response({
+        expires_at: "2026-07-23T12:00:00Z",
+        items: [failedReplaySource, succeededWithoutCassette],
+        next_cursor: null,
+        page_schema_version: "page@1",
+        read_snapshot_id: "read:runs",
+      });
+    });
+    const api = createPatchWorkflowApi({ GET: get } as unknown as GameForgeOpenApiClient);
+
+    const replaySources = await api.listReplaySourceRuns(cursor);
+
+    expect(replaySources.items).toEqual([
+      {
+        ...failedReplaySource,
+        completedAt: "2026-07-23T03:47:50Z",
+        outcomeCode: "repair_source_failed",
+        runKind: { kind: "patch.repair", version: 1 },
+      },
+    ]);
+    expect(get).toHaveBeenCalledWith("/api/v1/runs", {
+      params: { query: { cursor } },
+    });
+  });
+
   it("turns every paged 410 into an explicit restart boundary without changing the cursor", async () => {
     const staleCursor = "stale.patch+/=";
     const get = vi.fn(async () => ({
@@ -139,6 +237,11 @@ describe("Patch and rollback workflow API", () => {
     const api = createPatchWorkflowApi({ GET: get } as unknown as GameForgeOpenApiClient);
 
     for (const read of [
+      () => api.listArtifacts("review_report", staleCursor),
+      () => api.listApprovals(staleCursor),
+      () => api.listFindings(staleCursor),
+      () => api.listRunFindingLinks("run:review:7", staleCursor),
+      () => api.listReplaySourceRuns(staleCursor),
       () => api.listPatches(staleCursor),
       () => api.listRollbackRequests(staleCursor),
       () => api.listLineage("artifact:patch:7", staleCursor),
@@ -153,7 +256,7 @@ describe("Patch and rollback workflow API", () => {
       });
     }
 
-    expect(get).toHaveBeenCalledTimes(7);
+    expect(get).toHaveBeenCalledTimes(12);
   });
 
   it("requires opaque ETags for every versioned workflow resource", async () => {
@@ -246,6 +349,7 @@ describe("Patch and rollback workflow API", () => {
 
   it("keeps create and repair mutation identity independent of resource ETags", async () => {
     const post = vi.fn(async (path: string, _options: unknown) => {
+      if (path === "/api/v1/runs") return response({ run_id: "run:focused" });
       if (path.endsWith(":repair")) return response({ run_id: "run:repair" });
       if (path.includes("rollback-requests")) return response(rollback);
       return response(patch);
@@ -255,13 +359,16 @@ describe("Patch and rollback workflow API", () => {
       params: { subject_patch_artifact_id: "artifact:patch:7" },
     } as PatchRepairRequest;
     const rollbackRequest = {} as RollbackDraftRequest;
+    const runRequest = {} as RunSubmissionRequest;
 
     await api.draftPatch({} as HumanPatchDraftRequest, intent);
+    await api.submitRun(runRequest, intent);
     await api.repairPatch(repairRequest, intent);
     await api.draftRollback("refs/design/live", rollbackRequest, intent);
 
     expect(post.mock.calls.map(([path]) => path)).toEqual([
       "/api/v1/patches",
+      "/api/v1/runs",
       "/api/v1/patches/{artifact_id}:repair",
       "/api/v1/refs/{ref_name}/rollback-requests",
     ]);
@@ -283,6 +390,15 @@ describe("Patch and rollback workflow API", () => {
         path: { artifact_id: "artifact:patch:7" },
       },
     });
+    expect(post).toHaveBeenCalledWith("/api/v1/runs", {
+      body: runRequest,
+      params: {
+        header: {
+          "Idempotency-Key": intent.idempotencyKey,
+          "X-CSRF-Token": "csrf:patches",
+        },
+      },
+    });
     expect(post).toHaveBeenCalledWith("/api/v1/refs/{ref_name}/rollback-requests", {
       body: rollbackRequest,
       params: {
@@ -293,6 +409,21 @@ describe("Patch and rollback workflow API", () => {
         path: { ref_name: "refs/design/live" },
       },
     });
+  });
+
+  it("serializes a slash ref as one exact rollback route parameter", async () => {
+    const fetcher = vi.fn(async (_request: Request) => Response.json(rollback));
+    const api = createPatchWorkflowApi(
+      createGameForgeApi({ baseUrl: "https://gameforge.test", fetch: fetcher }).client,
+    );
+
+    await api.draftRollback("refs/design/live", {} as RollbackDraftRequest, intent);
+
+    const request = fetcher.mock.calls[0]?.[0];
+    expect(request).toBeInstanceOf(Request);
+    const pathname = new URL(request!.url).pathname;
+    expect(pathname).toBe("/api/v1/refs/refs%2Fdesign%2Flive/rollback-requests");
+    expect(decodeURIComponent(pathname)).toBe("/api/v1/refs/refs/design/live/rollback-requests");
   });
 
   it("resolves a frozen execution option with CSRF only", async () => {

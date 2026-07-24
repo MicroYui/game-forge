@@ -8,10 +8,12 @@ import type { RunEvent } from "../../api/generated/sse-run-event-v1";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import type { RunEventStreamState } from "../../api/sse";
+import { ReauthenticationLink } from "../../app/ReauthenticationLink";
 import { SnapshotDiffView } from "../../components/diff";
 import { EvidenceSections } from "../../components/evidence";
 import { RunProgress, type RunEventItem } from "../../components/run-progress";
 import { ProblemPanel, StatePanel } from "../../components/ui";
+import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
 import {
   generationApi,
   type ExecutionOptionResolveRequest,
@@ -29,7 +31,12 @@ import type {
   PassedGenerationCandidate,
   RejectedGenerationCandidate,
 } from "./candidate";
-import { loadGenerationOutcome, type PassedGenerationOutcome, UnsafeGenerationOutcomeError } from "./outcome";
+import {
+  type GateRejectedGenerationOutcome,
+  loadGenerationOutcome,
+  type PassedGenerationOutcome,
+  UnsafeGenerationOutcomeError,
+} from "./outcome";
 
 import "./generation.css";
 
@@ -179,15 +186,53 @@ function supportsRunKind(profile: ExecutionProfile, kind: string, version = 1): 
   );
 }
 
-function stableIds(value: string): string[] {
-  return [
-    ...new Set(
-      value
-        .split(/[\s,]+/)
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
-  ].sort();
+function domainLabel(domainId: string): string {
+  return (
+    {
+      builtin: "内置规则域",
+      "domain:combat": "战斗系统",
+      "domain:economy": "经济系统",
+      "domain:narrative": "叙事内容",
+      "domain:quest": "任务系统",
+      "domain:rewards": "奖励系统",
+    }[domainId] ?? domainId.replace(/^domain:/, "")
+  );
+}
+
+function specLabel(spec: SpecView): string {
+  if (spec.ref_name && spec.ref_value) return `${spec.ref_name} · 第 ${spec.ref_value.revision} 版`;
+  return `未绑定发布指针 · ${spec.schema_registry_version}`;
+}
+
+function constraintLabel(constraint: ConstraintCatalogItem): string {
+  const first = constraint.constraints[0];
+  const record =
+    first && typeof first === "object" && !Array.isArray(first) ? (first as Record<string, unknown>) : null;
+  const summary = record
+    ? ["description", "name", "id", "expression", "assert"]
+        .map((key) => record[key])
+        .find((value): value is string => typeof value === "string" && value.trim().length > 0)
+    : null;
+  const count = `${constraint.constraints.length} 条规则`;
+  return summary ? `${summary} · ${count}` : `${count} · ${constraint.dsl_grammar_version}`;
+}
+
+function constraintOptionLabel(constraint: ConstraintCatalogItem, collidingSummaries: number): string {
+  const summary = constraintLabel(constraint);
+  if (collidingSummaries < 2) return summary;
+  const created = constraint.artifact.created_at?.slice(0, 10) ?? "时间未知";
+  const identity = constraint.artifact.artifact_id.slice(-8);
+  return `${summary} · ${created} · …${identity}`;
+}
+
+function matchesQuery(query: string, ...values: Array<string | null | undefined>): boolean {
+  const needle = query.trim().toLocaleLowerCase();
+  if (!needle) return true;
+  return values.some((value) => value?.toLocaleLowerCase().includes(needle));
+}
+
+function runLabel(run: ReplaySourceRun): string {
+  return replaySourceOptionLabel(run);
 }
 
 function normalizedError(error: unknown): Error {
@@ -211,11 +256,7 @@ function MutationFailure({ attempt, onRetry }: { attempt: GenerationAttempt; onR
   if (attempt.error instanceof ReauthenticationRequiredError) {
     return (
       <StatePanel
-        action={
-          <a className="gf-secondary-button" href="/login">
-            重新登录
-          </a>
-        }
+        action={<ReauthenticationLink />}
         description="当前浏览器标签页没有可用 CSRF 会话；未发送新的生成请求。"
         state="error"
         title="需要重新登录"
@@ -239,12 +280,13 @@ function MutationFailure({ attempt, onRetry }: { attempt: GenerationAttempt; onR
 function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccepted(runId: string): void }) {
   const catalog = useQuery({
     queryFn: async () => {
-      const [specs, constraints, profiles] = await Promise.all([
+      const [specs, constraints, profiles, replayRuns] = await Promise.all([
         api.listSpecs(null),
         api.listConstraints(null),
         api.listExecutionProfiles(null),
+        api.listReplaySourceRuns(null),
       ]);
-      return { constraints, profiles, specs };
+      return { constraints, profiles, replayRuns, specs };
     },
     queryKey: ["generation", "authoring-catalog"],
     retry: false,
@@ -254,7 +296,9 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
   const [generationKey, setGenerationKey] = useState("");
   const [environmentKey, setEnvironmentKey] = useState("");
   const [exportKeys, setExportKeys] = useState<string[]>([]);
-  const [domainIdsText, setDomainIdsText] = useState("");
+  const [domainIds, setDomainIds] = useState<string[]>([]);
+  const [specQuery, setSpecQuery] = useState("");
+  const [constraintQuery, setConstraintQuery] = useState("");
   const [goal, setGoal] = useState("");
   const [mode, setMode] = useState<"" | LlmExecutionMode>("");
   const [replaySourceRunId, setReplaySourceRunId] = useState("");
@@ -264,12 +308,14 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
     null,
   );
   const [profileCatalog, setProfileCatalog] = useState<CatalogPageState<ExecutionProfile> | null>(null);
+  const [replayRunCatalog, setReplayRunCatalog] = useState<CatalogPageState<ReplaySourceRun> | null>(null);
 
   useEffect(() => {
     if (!catalog.data) return;
     setSpecCatalog(catalogState(catalog.data.specs));
     setConstraintCatalog(catalogState(catalog.data.constraints));
     setProfileCatalog(catalogState(catalog.data.profiles));
+    setReplayRunCatalog(catalogState(catalog.data.replayRuns));
   }, [catalog.data]);
 
   if (catalog.isPending) {
@@ -299,12 +345,17 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
       />
     );
   }
-  if (!specCatalog || !constraintCatalog || !profileCatalog) {
+  if (!specCatalog || !constraintCatalog || !profileCatalog || !replayRunCatalog) {
     return <StatePanel description="正在固定目录分页快照。" state="loading" title="正在准备 exact 目录" />;
   }
 
   const specs = specCatalog.items;
   const constraints = constraintCatalog.items;
+  const constraintLabelCounts = new Map<string, number>();
+  for (const item of constraints) {
+    const label = constraintLabel(item);
+    constraintLabelCounts.set(label, (constraintLabelCounts.get(label) ?? 0) + 1);
+  }
   const profiles = profileCatalog.items;
   const generationProfiles = profiles.filter(
     (profile) =>
@@ -315,7 +366,8 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
   const environmentProfiles = profiles.filter(
     (profile) => profile.status === "active" && profile.profile_kind === "environment",
   );
-  const selectedSpec = specs.find((item) => item.artifact.artifact_id === specId);
+  const refBoundSpecs = specs.filter((item) => item.ref_name != null && item.ref_value != null);
+  const selectedSpec = refBoundSpecs.find((item) => item.artifact.artifact_id === specId);
   const selectedConstraint = constraints.find((item) => item.artifact.artifact_id === constraintId);
   const selectedGeneration = generationProfiles.find((profile) => profileKey(profile) === generationKey);
   const selectedEnvironment = environmentProfiles.find((profile) => profileKey(profile) === environmentKey);
@@ -330,7 +382,20 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
     .map((key) => exportProfiles.find((profile) => profileKey(profile) === key))
     .filter((profile): profile is ExecutionProfile => profile !== undefined)
     .sort((left, right) => profileKey(left).localeCompare(profileKey(right)));
-  const domains = stableIds(domainIdsText);
+  const domains = [...domainIds].sort();
+  const domainOptions = selectedGeneration?.domain_scope.domain_ids ?? [];
+  const visibleSpecs = refBoundSpecs.filter((item) =>
+    matchesQuery(specQuery, specLabel(item), item.ref_name, item.schema_registry_version),
+  );
+  const visibleConstraints = constraints.filter((item) =>
+    matchesQuery(
+      constraintQuery,
+      constraintLabel(item),
+      item.dsl_grammar_version,
+      item.artifact.created_at,
+      item.artifact.artifact_id,
+    ),
+  );
   const hasExactTarget = Boolean(selectedSpec?.ref_name && selectedSpec.ref_value);
   const canSubmit =
     !attempt?.pending &&
@@ -443,12 +508,21 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
           }}
         >
           <label>
+            搜索可用规格
+            <input
+              onChange={(event) => setSpecQuery(event.target.value)}
+              placeholder="按发布指针或版本搜索"
+              type="search"
+              value={specQuery}
+            />
+          </label>
+          <label>
             Base Spec / ref
             <select onChange={(event) => setSpecId(event.target.value)} value={specId}>
               <option value="">请选择 exact ref-bound Spec</option>
-              {specs.map((item) => (
+              {visibleSpecs.map((item) => (
                 <option key={item.artifact.artifact_id} value={item.artifact.artifact_id}>
-                  {item.artifact.artifact_id} · {item.ref_name ?? "无 ref"}
+                  {specLabel(item)}
                 </option>
               ))}
             </select>
@@ -460,12 +534,21 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
             state={specCatalog}
           />
           <label>
+            搜索约束规则
+            <input
+              onChange={(event) => setConstraintQuery(event.target.value)}
+              placeholder="按规则名称或 DSL 版本搜索"
+              type="search"
+              value={constraintQuery}
+            />
+          </label>
+          <label>
             Constraint snapshot
             <select onChange={(event) => setConstraintId(event.target.value)} value={constraintId}>
               <option value="">请选择 exact ConstraintSnapshot</option>
-              {constraints.map((item) => (
+              {visibleConstraints.map((item) => (
                 <option key={item.artifact.artifact_id} value={item.artifact.artifact_id}>
-                  {item.artifact.artifact_id} · {item.dsl_grammar_version}
+                  {constraintOptionLabel(item, constraintLabelCounts.get(constraintLabel(item)) ?? 0)}
                 </option>
               ))}
             </select>
@@ -492,7 +575,13 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
           />
           <label>
             Generation profile
-            <select onChange={(event) => setGenerationKey(event.target.value)} value={generationKey}>
+            <select
+              onChange={(event) => {
+                setGenerationKey(event.target.value);
+                setDomainIds([]);
+              }}
+              value={generationKey}
+            >
               <option value="">请选择 active generation profile</option>
               {generationProfiles.map((item) => (
                 <option key={profileKey(item)} value={profileKey(item)}>
@@ -566,21 +655,45 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
             }
             state={profileCatalog}
           />
-          <label>
-            Domain IDs
-            <input
-              onChange={(event) => setDomainIdsText(event.target.value)}
-              type="text"
-              value={domainIdsText}
-            />
-          </label>
+          <fieldset>
+            <legend>内容领域</legend>
+            {!selectedGeneration ? (
+              <p>先选择 Generation profile，页面会列出它明确覆盖的业务领域。</p>
+            ) : domainOptions.length === 0 ? (
+              <p>所选 Generation profile 没有可用领域，不能启动生成。</p>
+            ) : (
+              domainOptions.map((domainId) => (
+                <label key={domainId}>
+                  <input
+                    checked={domainIds.includes(domainId)}
+                    onChange={(event) =>
+                      setDomainIds((current) =>
+                        event.target.checked
+                          ? [...current, domainId].sort()
+                          : current.filter((candidate) => candidate !== domainId),
+                      )
+                    }
+                    type="checkbox"
+                  />
+                  {domainLabel(domainId)}
+                </label>
+              ))
+            )}
+          </fieldset>
           <label>
             Authenticated authoring goal
             <textarea onChange={(event) => setGoal(event.target.value)} rows={5} value={goal} />
           </label>
           <label>
             LLM execution mode
-            <select onChange={(event) => setMode(event.target.value as "" | LlmExecutionMode)} value={mode}>
+            <select
+              onChange={(event) => {
+                const next = event.target.value as "" | LlmExecutionMode;
+                setMode(next);
+                if (next !== "replay") setReplaySourceRunId("");
+              }}
+              value={mode}
+            >
               <option value="">请选择 live / record / replay</option>
               <option value="live">live</option>
               <option value="record">record</option>
@@ -588,14 +701,42 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
             </select>
           </label>
           {mode === "replay" && (
-            <label>
-              Replay source Run
-              <input
-                onChange={(event) => setReplaySourceRunId(event.target.value)}
-                type="text"
-                value={replaySourceRunId}
+            <>
+              <label>
+                Replay source Run
+                <select
+                  onChange={(event) => setReplaySourceRunId(event.target.value)}
+                  value={replaySourceRunId}
+                >
+                  <option value="">请选择一个已完成的回放来源</option>
+                  {replayRunCatalog.items.map((run) => (
+                    <option key={run.run_id} value={run.run_id}>
+                      {runLabel(run)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <CatalogPageControl
+                label="已完成 Runs"
+                onLoad={() =>
+                  void readCatalogPage(
+                    replayRunCatalog,
+                    setReplayRunCatalog,
+                    api.listReplaySourceRuns.bind(api),
+                    false,
+                  )
+                }
+                onRestart={() =>
+                  void readCatalogPage(
+                    replayRunCatalog,
+                    setReplayRunCatalog,
+                    api.listReplaySourceRuns.bind(api),
+                    true,
+                  )
+                }
+                state={replayRunCatalog}
               />
-            </label>
+            </>
           )}
           {!hasExactTarget && selectedSpec && (
             <p role="alert">所选 Spec 没有 exact ref_value，不能作为正式内容 target。</p>
@@ -613,7 +754,7 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
         <dl>
           <div>
             <dt>Base</dt>
-            <dd>{selectedSpec?.artifact.artifact_id ?? "未选择"}</dd>
+            <dd>{selectedSpec ? specLabel(selectedSpec) : "未选择"}</dd>
           </div>
           <div>
             <dt>Ref</dt>
@@ -625,7 +766,14 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
           </div>
           <div>
             <dt>Constraint</dt>
-            <dd>{selectedConstraint?.artifact.artifact_id ?? "未选择"}</dd>
+            <dd>
+              {selectedConstraint
+                ? constraintOptionLabel(
+                    selectedConstraint,
+                    constraintLabelCounts.get(constraintLabel(selectedConstraint)) ?? 0,
+                  )
+                : "未选择"}
+            </dd>
           </div>
           <div>
             <dt>Generation</dt>
@@ -764,6 +912,78 @@ function RejectedCandidateChain({ candidate }: { candidate: RejectedGenerationCa
         <ArtifactCard artifact={candidate.preview} label="Evidence-only Preview" />
       </div>
     </section>
+  );
+}
+
+function generationFieldLabel(fieldPath: string): string {
+  return fieldPath === "reward.gold" ? "金币奖励" : fieldPath;
+}
+
+function GateRejectedOutcome({ outcome }: { outcome: GateRejectedGenerationOutcome }) {
+  const primaryBlocker = outcome.blockers[0];
+  const technicalEvidenceCount = 2 + outcome.candidate.evidence.length;
+  return (
+    <div className="gf-generation__outcome-stack">
+      <StatePanel
+        action={
+          <a className="gf-primary-link" href="/generation">
+            调整目标后重新生成
+          </a>
+        }
+        description="生成已完成，确定性门禁阻止了不合规提议；这不是系统故障。"
+        state="terminal"
+        title={`拦截成功：${generationFieldLabel(primaryBlocker.fieldPath)} ${primaryBlocker.actualValue} 超过上限 ${primaryBlocker.limit}`}
+      />
+      <section className="gf-generation__rejection-summary" aria-label="门禁拦截摘要">
+        <section aria-label="提议改动">
+          <p className="gf-generation__kicker">提议改动</p>
+          <h2>候选值没有进入正式内容</h2>
+          <ul>
+            {outcome.changes.map((change) => (
+              <li key={`${change.entityId}:${change.fieldPath}`}>
+                <span>{change.entityTitle ?? change.entityId}</span>{" "}
+                {change.entityTitle && <code>{change.entityId}</code>} <code>{change.fieldPath}</code>{" "}
+                <strong>
+                  {change.oldValue} → {change.newValue}
+                </strong>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section aria-label="拦截原因">
+          <p className="gf-generation__kicker">拦截原因</p>
+          <h2>确定性约束已确认违规</h2>
+          <ul>
+            {outcome.blockers.map((blocker) => (
+              <li key={`${blocker.constraintId}:${blocker.entityId}:${blocker.fieldPath}`}>
+                <code>{blocker.constraintId}</code>{" "}
+                <strong>
+                  {blocker.actualValue} &gt; {blocker.limit}
+                </strong>{" "}
+                <span>确定性检查 · confirmed</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section aria-label="正式内容状态">
+          <p className="gf-generation__kicker">正式内容</p>
+          <h2>正式内容未变化</h2>
+          <p>
+            该提议仅作为 evidence 保留；没有创建 workflow subject 或 config export，也没有移动任何正式 ref。
+          </p>
+        </section>
+      </section>
+      <details className="gf-generation__technical-evidence">
+        <summary>查看技术证据（{technicalEvidenceCount}）</summary>
+        <div>
+          <RejectedCandidateChain candidate={outcome.candidate} />
+          <OutcomeEvidence
+            evidence={outcome.candidate.evidence}
+            intermediates={outcome.candidate.intermediates}
+          />
+        </div>
+      </details>
+    </div>
   );
 }
 
@@ -989,22 +1209,7 @@ function GenerationOutcomePanel({ api, run }: { api: GenerationApi; run: RunView
     );
   }
   if (outcome.data.kind === "passed") return <PassedOutcome outcome={outcome.data} />;
-  if (outcome.data.kind === "gate-rejected") {
-    return (
-      <div className="gf-generation__outcome-stack">
-        <StatePanel
-          description={outcome.data.candidate.message}
-          state="error"
-          title={outcome.data.candidate.causeCode}
-        />
-        <RejectedCandidateChain candidate={outcome.data.candidate} />
-        <OutcomeEvidence
-          evidence={outcome.data.candidate.evidence}
-          intermediates={outcome.data.candidate.intermediates}
-        />
-      </div>
-    );
-  }
+  if (outcome.data.kind === "gate-rejected") return <GateRejectedOutcome outcome={outcome.data} />;
   if (outcome.data.kind === "failure") return <FailedOutcome candidate={outcome.data.candidate} />;
   return (
     <StatePanel
@@ -1019,18 +1224,23 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
   const [events, setEvents] = useState<RunEventItem[]>([]);
   const [streamState, setStreamState] = useState<RunEventStreamState>({ status: "idle" });
   const streamRef = useRef<GenerationEventStreamHandle>();
+  const streamReceivedEventRef = useRef(false);
   const run = useQuery({
     queryFn: () => api.getRun(runId),
     queryKey: ["generation", "run", runId],
     retry: false,
   });
   const { refetch } = run;
+  const hasTerminalRunView = run.data !== undefined && terminalStatuses.has(run.data.status);
 
   useEffect(() => {
     setEvents([]);
     setStreamState({ status: "idle" });
+    streamReceivedEventRef.current = false;
     const stream = api.createEventStream({
       onEvent(event, cursor) {
+        if (event.run_id !== runId) return;
+        streamReceivedEventRef.current = true;
         setEvents((current) => {
           const key = `${event.run_id}:${event.seq}`;
           if (current.some((item) => `${item.event.run_id}:${item.event.seq}` === key)) return current;
@@ -1038,7 +1248,10 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
         });
         if (terminalEvents.has(event.event_type)) void refetch();
       },
-      onStateChange: setStreamState,
+      onStateChange(state) {
+        if (state.status === "connecting") streamReceivedEventRef.current = false;
+        setStreamState(state);
+      },
       runId,
     });
     streamRef.current = stream;
@@ -1062,27 +1275,32 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
         ),
     [events],
   );
+  const preliminaryGatePanel = preliminaryGate ? (
+    <StatePanel
+      description="已从真实 SSE attempt.progress 观察到 generation.preliminary_gate。"
+      state={
+        run.data?.status === "succeeded"
+          ? "terminal"
+          : run.data && terminalStatuses.has(run.data.status)
+            ? "error"
+            : "streaming"
+      }
+      title="Preliminary gate"
+    />
+  ) : null;
 
   return (
     <section className="gf-generation__run" aria-labelledby="generation-run-title">
       <header>
         <p className="gf-generation__kicker">Run-backed authoring state</p>
-        <h1 id="generation-run-title">运行 {runId}</h1>
+        <h1 id="generation-run-title">生成结果</h1>
+        <p className="gf-generation__run-identity">
+          <span>Run ID</span>
+          <code>{runId}</code>
+        </p>
         <p>URL 只保存 Run ID；目标文本不进入地址栏。</p>
       </header>
-      {preliminaryGate && (
-        <StatePanel
-          description="已从真实 SSE attempt.progress 观察到 generation.preliminary_gate。"
-          state={
-            run.data?.status === "succeeded"
-              ? "terminal"
-              : run.data && terminalStatuses.has(run.data.status)
-                ? "error"
-                : "streaming"
-          }
-          title="Preliminary gate"
-        />
-      )}
+      {!hasTerminalRunView && preliminaryGatePanel}
       {streamState.status === "expired" && (
         <StatePanel
           action={
@@ -1099,7 +1317,8 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
           title="事件流需要显式重启"
         />
       )}
-      {(streamState.status === "disconnected" || streamState.status === "error") && (
+      {((streamState.status === "disconnected" && (!hasTerminalRunView || streamReceivedEventRef.current)) ||
+        streamState.status === "error") && (
         <StatePanel
           action={
             <button
@@ -1138,11 +1357,17 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
           state="error"
           title="Run identity mismatch"
         />
-      ) : (
+      ) : terminalStatuses.has(run.data.status) ? (
         <>
-          <RunProgress events={events} run={run.data} />
           <GenerationOutcomePanel api={api} run={run.data} />
+          <details className="gf-generation__run-technical">
+            <summary>查看运行技术状态</summary>
+            {preliminaryGatePanel}
+            <RunProgress events={events} run={run.data} />
+          </details>
         </>
+      ) : (
+        <RunProgress events={events} run={run.data} />
       )}
     </section>
   );

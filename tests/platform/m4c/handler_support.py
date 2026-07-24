@@ -269,21 +269,29 @@ def resolved_policy_snapshot(
     )
 
 
-def execution_plan(nodes: dict[str, str]) -> ExecutionVersionPlanV1:
+def execution_plan(
+    nodes: dict[str, str],
+    *,
+    prompt_versions: dict[str, str] | None = None,
+    tool_versions: dict[str, str] | None = None,
+    agent_graph_version: str = "graph@1",
+) -> ExecutionVersionPlanV1:
     """Build a valid execution plan mapping ``agent_node_id -> model reference``."""
 
+    prompt_versions = prompt_versions or {}
+    tool_versions = tool_versions or {}
     planned = tuple(
         PlannedAgentNodeVersionV1(
             agent_node_id=node_id,
-            prompt_version="p@1",
-            tool_version="t@1",
+            prompt_version=prompt_versions.get(node_id, "p@1"),
+            tool_version=tool_versions.get(node_id, "t@1"),
             allowed_model_snapshots=(reference,),
         )
         for node_id, reference in nodes.items()
     )
     body = {
         "plan_schema_version": "execution-version-plan@1",
-        "agent_graph_version": "graph@1",
+        "agent_graph_version": agent_graph_version,
         "nodes": [node.model_dump(mode="json") for node in planned],
         "model_catalog_version": 1,
         "model_catalog_digest": _HEX,
@@ -292,7 +300,7 @@ def execution_plan(nodes: dict[str, str]) -> ExecutionVersionPlanV1:
     }
     digest = execution_version_plan_digest(body)
     return ExecutionVersionPlanV1(
-        agent_graph_version="graph@1",
+        agent_graph_version=agent_graph_version,
         nodes=planned,
         model_catalog_version=1,
         model_catalog_digest=_HEX,

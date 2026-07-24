@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -31,6 +31,7 @@ function executionProfile(
   profileId: string,
   profileKind: ExecutionProfile["profile_kind"],
   status: ExecutionProfile["status"] = "active",
+  stochastic = false,
 ): ExecutionProfile {
   return {
     compatible_run_kinds: [{ kind: "review.run", version: 1 }],
@@ -44,7 +45,7 @@ function executionProfile(
     profile_payload_hash: "a".repeat(64),
     required_capabilities: [],
     status,
-    stochastic: profileKind === "llm_triage",
+    stochastic,
     target_environment_profile: null,
   };
 }
@@ -53,6 +54,12 @@ const reviewProfile = executionProfile("builtin.review", "review");
 const checkerProfile = executionProfile("builtin.checker", "checker");
 const simulationProfile = executionProfile("builtin.simulation", "simulation");
 const triageProfile = executionProfile("builtin.llm_triage", "llm_triage");
+const stochasticTriageProfile = executionProfile(
+  "builtin.llm_triage.stochastic",
+  "llm_triage",
+  "active",
+  true,
+);
 
 const executionPlan: components["schemas"]["ExecutionVersionPlanV1"] = {
   agent_graph_version: "review-triage@1",
@@ -182,6 +189,29 @@ function reviewApi(overrides: Partial<ReviewApi>): ReviewApi {
     getReviewProducerBinding: vi.fn(),
     getSpec: vi.fn(),
     listReviewProfiles: vi.fn(),
+    listReplaySourceRuns: vi.fn(async () =>
+      page(
+        [
+          {
+            attempt_no: 1,
+            completedAt: "2026-07-23T03:47:50Z",
+            events_url: "/api/v1/runs/run:review:record-source/events",
+            failure_artifact_id: null,
+            outcomeCode: "review_completed",
+            result_artifact_id: "artifact:result:review-source",
+            revision: 3,
+            runKind: { kind: "review.run", version: 1 },
+            run_id: "run:review:record-source",
+            status: "succeeded" as const,
+            status_url: "/api/v1/runs/run:review:record-source",
+            terminal_cassette_artifact_id: "artifact:cassette:review-source",
+            view_schema_version: "run-view@1" as const,
+          },
+        ],
+        null,
+        "read:review-source-runs",
+      ),
+    ),
     listLineage: vi.fn(),
     listReviews: vi.fn(),
     listRunFindingLinks: vi.fn(),
@@ -215,7 +245,10 @@ async function selectReviewReplay(user: ReturnType<typeof userEvent.setup>) {
     "builtin.llm_triage@1",
   );
   await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
-  await user.type(screen.getByRole("textbox", { name: "Replay source Run" }), "run:review:record-source");
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Replay source Run" }),
+    "run:review:record-source",
+  );
 }
 
 async function selectRequiredReviewReplay(user: ReturnType<typeof userEvent.setup>) {
@@ -224,7 +257,7 @@ async function selectRequiredReviewReplay(user: ReturnType<typeof userEvent.setu
 }
 
 describe("Review workspace", () => {
-  it("keeps the ordinary immutable ledger free of Generation launch controls", async () => {
+  it("keeps the ordinary immutable ledger free of candidate launch controls", async () => {
     const listReviewProfiles = vi.fn();
     renderWorkspace(
       reviewApi({
@@ -238,7 +271,7 @@ describe("Review workspace", () => {
     expect(listReviewProfiles).not.toHaveBeenCalled();
   });
 
-  it("does not expose the launch card for a partial Generation navigation context", async () => {
+  it("does not expose the launch card without an exact constraint", async () => {
     const listReviewProfiles = vi.fn();
     renderWorkspace(
       reviewApi({
@@ -253,7 +286,63 @@ describe("Review workspace", () => {
     expect(listReviewProfiles).not.toHaveBeenCalled();
   });
 
-  it("resolves and submits one exact Review docket from a complete Generation context", async () => {
+  it("launches an exact human Patch candidate without fabricating a source Run link", async () => {
+    const user = userEvent.setup();
+    const resolveExecutionOption = vi.fn().mockResolvedValue({
+      ...executionOption,
+      cassette_artifact_id: null,
+      llm_execution_mode: "record",
+      source_run_id: null,
+    });
+    const submitRun = vi.fn().mockResolvedValue({
+      accepted_schema_version: "run-accepted@1",
+      events_url: "/api/v1/runs/run:review:human/events",
+      run_id: "run:review:human",
+      status_url: "/api/v1/runs/run:review:human",
+    });
+    renderWorkspace(
+      reviewApi({
+        listReviewProfiles: vi
+          .fn()
+          .mockResolvedValue(
+            page([reviewProfile, checkerProfile, triageProfile], null, "read:review-profiles"),
+          ),
+        listReviews: vi.fn().mockResolvedValue(page([], null)),
+        resolveExecutionOption,
+        submitRun,
+      }),
+      `/reviews?snapshot=${encodeURIComponent(generationContext.snapshot)}&constraint=${encodeURIComponent(generationContext.constraint)}`,
+    );
+
+    expect(await screen.findByRole("heading", { name: "启动候选 Review" })).toBeVisible();
+    const ledger = screen.getByRole("complementary", { name: "Review input 账页" });
+    const sourceRunEntry = within(ledger).getByText("导航来源 Run（非提交输入）").closest("div");
+    expect(sourceRunEntry).not.toBeNull();
+    expect(within(sourceRunEntry!).getByText("无")).toBeVisible();
+    expect(within(sourceRunEntry!).queryByRole("link")).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "Review profile" }), "builtin.review@1");
+    await user.click(screen.getByRole("checkbox", { name: "builtin.checker · builtin.checker@1" }));
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "LLM triage profile" }),
+      "builtin.llm_triage@1",
+    );
+    await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "record");
+    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+
+    await waitFor(() => expect(submitRun).toHaveBeenCalledOnce());
+    expect(resolveExecutionOption.mock.calls[0][0]).toMatchObject({
+      prospective_request: {
+        params: {
+          constraint_snapshot_artifact_id: generationContext.constraint,
+          snapshot_artifact_id: generationContext.snapshot,
+        },
+      },
+      replay_source_run_id: null,
+    });
+  });
+
+  it("resolves and submits one exact Review docket with optional source Run context", async () => {
     const user = userEvent.setup();
     const listReviewProfiles = vi
       .fn()
@@ -301,10 +390,14 @@ describe("Review workspace", () => {
       screen.getByRole("combobox", { name: "LLM triage profile" }),
       "builtin.llm_triage@1",
     );
-    await user.clear(screen.getByRole("spinbutton", { name: "Seed" }));
-    await user.type(screen.getByRole("spinbutton", { name: "Seed" }), "13");
+    expect(screen.queryByRole("spinbutton", { name: "Seed" })).not.toBeInTheDocument();
+    expect(screen.getByText("Seed 不适用")).toBeVisible();
+    expect(screen.getByText(/当前所选 profiles 均为确定性执行/)).toBeVisible();
     await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
-    await user.type(screen.getByRole("textbox", { name: "Replay source Run" }), "run:review:record-source");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Replay source Run" }),
+      "run:review:record-source",
+    );
     await user.click(screen.getByRole("button", { name: "启动 Review" }));
 
     await waitFor(() => expect(resolveExecutionOption).toHaveBeenCalledOnce());
@@ -326,7 +419,7 @@ describe("Review workspace", () => {
           snapshot_artifact_id: generationContext.snapshot,
         },
         request_schema_version: "run-submission-request@1",
-        seed: 13,
+        seed: null,
       },
       replay_source_run_id: "run:review:record-source",
       request_schema_version: "execution-option-resolve-request@1",
@@ -348,6 +441,63 @@ describe("Review workspace", () => {
       "href",
       "/runs/run%3Areview%3Aaccepted",
     );
+  });
+
+  it("requires a valid non-negative integer seed when any selected profile is stochastic", async () => {
+    const user = userEvent.setup();
+    const resolveExecutionOption = vi.fn().mockResolvedValue(executionOption);
+    const submitRun = vi.fn().mockResolvedValue({
+      accepted_schema_version: "run-accepted@1",
+      events_url: "/api/v1/runs/run:review:stochastic/events",
+      run_id: "run:review:stochastic",
+      status_url: "/api/v1/runs/run:review:stochastic",
+    });
+    renderWorkspace(
+      reviewApi({
+        listReviewProfiles: vi
+          .fn()
+          .mockResolvedValue(
+            page([reviewProfile, checkerProfile, stochasticTriageProfile], null, "read:review-profiles"),
+          ),
+        listReviews: vi.fn().mockResolvedValue(page([], null)),
+        resolveExecutionOption,
+        submitRun,
+      }),
+      `/reviews?sourceRun=${encodeURIComponent(generationContext.sourceRun)}&snapshot=${encodeURIComponent(generationContext.snapshot)}&constraint=${encodeURIComponent(generationContext.constraint)}`,
+    );
+
+    await user.selectOptions(
+      await screen.findByRole("combobox", { name: "Review profile" }),
+      "builtin.review@1",
+    );
+    await user.click(screen.getByRole("checkbox", { name: "builtin.checker · builtin.checker@1" }));
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "LLM triage profile" }),
+      "builtin.llm_triage.stochastic@1",
+    );
+    await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Replay source Run" }),
+      "run:review:record-source",
+    );
+
+    const seedInput = screen.getByRole("spinbutton", { name: "Seed" });
+    expect(seedInput).toBeRequired();
+    expect(screen.getByText(/所选 profile 包含随机执行/)).toBeVisible();
+    await user.clear(seedInput);
+    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
+    await user.type(seedInput, "-1");
+    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
+    expect(resolveExecutionOption).not.toHaveBeenCalled();
+
+    await user.clear(seedInput);
+    await user.type(seedInput, "13");
+    expect(screen.getByRole("button", { name: "启动 Review" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+
+    await waitFor(() => expect(resolveExecutionOption).toHaveBeenCalledOnce());
+    expect(resolveExecutionOption.mock.calls[0][0].prospective_request.seed).toBe(13);
+    await waitFor(() => expect(submitRun).toHaveBeenCalledOnce());
   });
 
   it("allows an empty exact constraint to run with only a simulation profile", async () => {
@@ -567,8 +717,9 @@ describe("Review workspace", () => {
     expect(screen.getByRole("combobox", { name: "Review profile" })).toBeDisabled();
     expect(screen.getByRole("combobox", { name: "LLM triage profile" })).toBeDisabled();
     expect(screen.getByRole("combobox", { name: "LLM execution mode" })).toBeDisabled();
-    expect(screen.getByRole("textbox", { name: "Replay source Run" })).toBeDisabled();
-    expect(screen.getByRole("spinbutton", { name: "Seed" })).toHaveValue(1);
+    expect(screen.getByRole("combobox", { name: "Replay source Run" })).toBeDisabled();
+    expect(screen.getByText("Seed 不适用")).toBeVisible();
+    expect(screen.queryByRole("spinbutton", { name: "Seed" })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "以同一 intent 重试" }));
 
     expect(await screen.findByRole("link", { name: "打开 Run run:review:retry" })).toBeVisible();
@@ -680,9 +831,9 @@ describe("Review workspace", () => {
     expect(screen.getByText("review@2")).toBeVisible();
     expect(screen.getByText("2 确定性 · 0 仿真 · 0 LLM · 0 未证明")).toBeVisible();
     expect(screen.getByText("1 确定性 · 0 仿真 · 0 LLM · 0 未证明")).toBeVisible();
-    expect(screen.getByText(/Generation Run 仅作为导航上下文/)).toBeVisible();
-    expect(screen.getByText("direct parent 包含请求的 preview Artifact")).toBeVisible();
-    expect(screen.getByText("direct parent 不含请求的 preview；未隐藏该报告")).toBeVisible();
+    expect(screen.getByText(/来源 Run 仅作为导航上下文/)).toBeVisible();
+    expect(screen.getByText("direct parent 包含请求的候选 Artifact")).toBeVisible();
+    expect(screen.getByText("direct parent 不含请求的候选 Artifact；未隐藏该报告")).toBeVisible();
   });
 
   it("fails closed instead of labeling a malformed Review partition", async () => {

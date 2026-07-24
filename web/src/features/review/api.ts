@@ -10,8 +10,10 @@ import {
 import type { components, paths } from "../../api/generated/openapi";
 import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
+import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
 
 export type ConstraintSnapshotView = components["schemas"]["ConstraintSnapshotViewV1"];
+export type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
 export type FindingRevision = components["schemas"]["FindingRevisionV1"];
 export type ExecutionOptionResolveRequest = components["schemas"]["ExecutionOptionResolveRequestV1"];
 export type ExecutionOptionView = components["schemas"]["ExecutionOptionViewV1"];
@@ -24,12 +26,15 @@ export type ReviewProducerBindingView = components["schemas"]["ReviewProducerBin
 export type RunFindingLinkView = components["schemas"]["RunFindingLinkViewV1"];
 export type RunFindingLinkPage = components["schemas"]["OpaquePageV1_RunFindingLinkViewV1_"];
 export type RunAccepted = components["schemas"]["RunAcceptedV1"];
+export type RunPage = components["schemas"]["OpaquePageV1_RunViewV1_"];
+export type RunView = components["schemas"]["RunViewV1"];
 export type RunSubmissionRequest = NonNullable<FetchOptions<paths["/api/v1/runs"]["post"]>["body"]>;
 export type SpecView = components["schemas"]["SpecViewV1"];
 
 export interface ReviewApi {
   listReviews(cursor: string | null): Promise<ReviewPage>;
   listReviewProfiles(cursor: string | null): Promise<ExecutionProfilePage>;
+  listReplaySourceRuns(cursor: string | null): Promise<ReplaySourceRunPage>;
   resolveExecutionOption(request: ExecutionOptionResolveRequest): Promise<ExecutionOptionView>;
   submitRun(request: RunSubmissionRequest, intent: MutationIntent): Promise<RunAccepted>;
   getReview(artifactId: string): Promise<ReviewArtifactView>;
@@ -76,6 +81,23 @@ export function createReviewApi(client: GameForgeOpenApiClient = gameForgeApi.cl
           }),
         ),
       );
+    },
+
+    listReplaySourceRuns(cursor) {
+      return readCursorPage(cursor, async () => {
+        const page = await unwrapApiResponse<RunPage>(
+          await client.GET("/api/v1/runs", {
+            params: { query: { ...cursorQuery(cursor) } },
+          }),
+        );
+        return projectReplaySourcePage(page, { kind: "review.run", version: 1 }, async (artifactId) =>
+          unwrapApiResponse<ArtifactPayloadView>(
+            await client.GET("/api/v1/artifacts/{artifact_id}", {
+              params: { path: { artifact_id: artifactId } },
+            }),
+          ),
+        );
+      });
     },
 
     async resolveExecutionOption(request) {

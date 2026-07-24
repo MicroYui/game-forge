@@ -178,17 +178,29 @@ async function transportLines(): Promise<string[]> {
 }
 
 async function configureRefBinding(page: Page, refName: string, expectedRef: RefValue | null) {
-  await page.getByLabel("Ref name").fill(refName);
-  const missingRef = page.getByRole("checkbox", {
-    name: "确认当前 ref 不存在（expected_ref=null）",
-  });
+  const binding = page.getByRole("group", { name: "发布位置" });
   if (expectedRef === null) {
-    if (!(await missingRef.isChecked())) await missingRef.check();
+    await binding.getByRole("radio", { name: "创建新 ref" }).check();
+    await binding.getByLabel("Ref 名称").fill(refName);
     return;
   }
-  if (await missingRef.isChecked()) await missingRef.uncheck();
-  await page.getByLabel("Expected ref Artifact ID").fill(expectedRef.artifact_id);
-  await page.getByLabel("Expected ref revision").fill(String(expectedRef.revision));
+  await binding.getByRole("radio", { name: "更新已有 ref" }).check();
+  await binding.getByLabel("Ref 名称").fill(refName);
+  await binding.getByRole("button", { name: "查找当前版本" }).click();
+  const resolved = binding.getByRole("status");
+  await expect(resolved).toContainText(refName);
+  await expect(resolved).toContainText(`已选择当前 revision ${expectedRef.revision}`);
+}
+
+function shortId(value: string): string {
+  return value.length <= 22 ? value : `${value.slice(0, 12)}…${value.slice(-8)}`;
+}
+
+async function selectSourceArtifact(entry: Locator, pickerName: string, artifactId: string): Promise<void> {
+  const picker = entry.getByRole("group", { name: pickerName });
+  const option = picker.locator("label").filter({ hasText: shortId(artifactId) });
+  await expect(option).toHaveCount(1);
+  await option.getByRole("checkbox").check();
 }
 
 function proposalArtifactId(href: string): string {
@@ -285,13 +297,16 @@ async function createAgentReplayDraft(
   expect(transportBefore).toEqual(["extraction"]);
   await page.goto("/specs");
   const entry = page.locator('article[data-entry="agent"]');
-  await entry.getByLabel("Agent source Artifact IDs").fill(manifest.source_artifact_id);
-  await entry.getByLabel("Agent domain IDs").fill(domainId);
-  await entry.getByLabel("Agent DSL grammar").fill("dsl@1");
+  await selectSourceArtifact(entry, "Agent 可使用的来源", manifest.source_artifact_id);
+  const grammar = entry.getByRole("combobox", { name: "DSL grammar", exact: true });
+  await expect(grammar).toBeEnabled();
+  await grammar.selectOption("dsl@1");
   await entry.getByLabel("Agent authoring goal").fill("Extract a deterministic gold reward cap.");
   await entry.getByLabel("Agent execution profile").selectOption("builtin.constraint_extraction@1");
   await entry.getByLabel("LLM execution mode").selectOption("replay");
-  await entry.getByLabel("Replay source Run").fill(manifest.record_source_run_id);
+  const replaySource = entry.getByRole("combobox", { name: "Replay 来源 Run", exact: true });
+  await expect(replaySource).toBeEnabled();
+  await replaySource.selectOption(manifest.record_source_run_id);
   await entry.getByRole("button", { name: "生成 Agent 候选" }).click();
 
   const runLink = entry.getByRole("link", { name: /^打开 Run run:/u });
@@ -325,11 +340,14 @@ function typedConstraint(id: string, expression: string) {
 async function createHumanDraft(page: Page, manifest: ConstraintManifest, refName: string): Promise<string> {
   await page.goto("/specs");
   const entry = page.locator('article[data-entry="human"]');
-  await entry.getByLabel("Human ref name").fill(refName);
-  await entry.getByRole("radio", { name: "No current ref" }).check();
-  await entry.getByLabel("Human domain IDs").fill(domainId);
-  await entry.getByLabel("Human DSL grammar").fill("dsl@1");
-  await entry.getByLabel("Human source Artifact IDs").fill(manifest.source_artifact_id);
+  const binding = entry.getByRole("group", { name: "发布位置" });
+  await binding.getByRole("radio", { name: "创建新 ref" }).check();
+  await binding.getByLabel("Ref 名称").fill(refName);
+  await entry
+    .getByRole("group", { name: "适用游戏域" })
+    .getByRole("checkbox", { name: domainId, exact: true })
+    .check();
+  await selectSourceArtifact(entry, "规则来源", manifest.source_artifact_id);
   await entry.getByLabel("Human rationale").fill("Initial human typed reward-cap proposal.");
   await entry
     .getByLabel("Typed constraints JSON")
@@ -367,8 +385,10 @@ async function validateExactCandidate(
   expectedRef: RefValue | null,
 ): Promise<void> {
   await configureRefBinding(page, refName, expectedRef);
-  await page.getByLabel("Compiler profile").selectOption("builtin.constraint_compiler@1");
-  await page.getByLabel("Validation profile").selectOption("builtin.validation@1");
+  await page
+    .getByRole("combobox", { name: "约束编译器", exact: true })
+    .selectOption("builtin.constraint_compiler@1");
+  await page.getByRole("combobox", { name: "验证方案", exact: true }).selectOption("builtin.validation@1");
   const validate = page.getByRole("button", { name: "开始确定性验证" });
   await expect(validate).toBeEnabled();
   await validate.click();
@@ -454,7 +474,7 @@ async function assertExactCandidateEvidence(page: Page, authority: ProposalAutho
 }
 
 async function submitForApproval(page: Page): Promise<string> {
-  await page.getByLabel("Approval requirement").selectOption({ index: 1 });
+  await page.getByRole("combobox", { name: "审批职责", exact: true }).selectOption({ index: 1 });
   const submit = page.getByRole("button", { name: "提交审批" });
   await expect(submit).toBeEnabled();
   await submit.click();
@@ -502,8 +522,33 @@ async function assertSelfApprovalFails(
   expect(await readRefAuthority(page, refName)).toEqual(beforeRef);
 }
 
-async function approveIndependently(page: Page, approvalHref: string, reason: string): Promise<void> {
+interface ConstraintApprovalExpectation {
+  constraintExpression: string;
+  refName: string;
+  reviewNote: string;
+}
+
+function displayedConstraintExpression(value: string): string {
+  return value.replace(/<=/gu, "≤").replace(/>=/gu, "≥").replace(/!=/gu, "≠").replace(/==/gu, "=");
+}
+
+async function approveIndependently(
+  page: Page,
+  approvalHref: string,
+  expectation: ConstraintApprovalExpectation,
+): Promise<void> {
   await page.goto(approvalHref);
+  const review = page.getByRole("region", { name: "受审内容与验证依据" });
+  await expect(review).toBeVisible();
+  await expect(review.getByRole("heading", { name: "你正在批准什么" })).toBeVisible();
+  const constraintCards = review.locator("article.gf-constraint-summary");
+  expect(await constraintCards.count()).toBeGreaterThan(0);
+  await expect(constraintCards.first().locator(".gf-constraint-summary__rule strong")).toHaveText(
+    displayedConstraintExpression(expectation.constraintExpression),
+  );
+  await expect(review.getByRole("heading", { name: "确定性验证已通过" })).toBeVisible();
+  await expect(review.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+
   const requirements = page.getByRole("checkbox", { name: /^选择 /u });
   await expect(requirements.first()).toBeVisible();
   const requirementCount = await requirements.count();
@@ -512,8 +557,17 @@ async function approveIndependently(page: Page, approvalHref: string, reason: st
     await expect(requirements.nth(index)).toBeEnabled();
     await requirements.nth(index).check();
   }
-  await page.getByLabel("决定原因代码").fill(reason);
+  await page
+    .getByRole("combobox", { name: "决定原因", exact: true })
+    .selectOption("content_and_evidence_reviewed");
+  await page.getByLabel("补充说明").fill(expectation.reviewNote);
   await page.getByRole("button", { name: "提交批准" }).click();
+  const confirmation = page.getByRole("dialog", { name: "确认批准决定" });
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toContainText("EvidenceSet 已通过");
+  await expect(confirmation).toContainText(`目标为 ${expectation.refName}`);
+  await expect(confirmation).toContainText("条约束");
+  await page.getByRole("button", { name: "确认批准" }).click();
   await expect(page.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
 }
 
@@ -621,10 +675,18 @@ async function publishThroughUi(
   beforeRef: RefAuthority,
 ): Promise<void> {
   await page.goto(proposalHref);
-  await expect(page.getByText(candidateId, { exact: true })).toBeVisible();
+  const candidateLink = page.getByRole("link", { name: "检查候选快照内容与 ref 状态" });
+  await expect(candidateLink).toBeVisible();
+  await expect(candidateLink).toHaveAttribute(
+    "href",
+    `/constraints/${encodeURIComponent(candidateId)}?ref=${encodeURIComponent(refName)}`,
+  );
   const publish = page.getByRole("button", { name: "发布权威约束" });
   await expect(publish).toBeEnabled();
   await publish.click();
+  const confirmation = page.getByRole("dialog", { name: "确认发布权威约束" });
+  await expect(confirmation).toContainText(refName);
+  await page.getByRole("button", { name: "确认发布" }).click();
   await expect(page.getByRole("heading", { name: "已发布为权威约束" })).toBeVisible();
   const history = await readRefAuthority(page, refName);
   expect(history.status).toBe(200);
@@ -678,7 +740,13 @@ async function prepareProposalPublication(
   await makerPage.goto(proposalHref);
   const approvalHref = await submitForApproval(makerPage);
   await assertSelfApprovalFails(makerPage, proposalId, approvalHref, input.refName, input.key);
-  await approveIndependently(approverPage, approvalHref, `${input.key}_independent_review_passed`);
+  const reviewedConstraint = validated.proposal.proposal.constraints[0];
+  if (!reviewedConstraint) throw new Error("Validated proposal has no concrete constraint to review.");
+  await approveIndependently(approverPage, approvalHref, {
+    constraintExpression: reviewedConstraint.assert,
+    refName: input.refName,
+    reviewNote: `${input.key}_independent_review_passed`,
+  });
   await assertIndependentApproval(approverPage, proposalId, candidateId);
   expect((await readRefAuthority(approverPage, input.refName)).items).toEqual([]);
 
@@ -765,11 +833,13 @@ async function recoverPublicationAfterStaleRef(
 
   await makerPage.goto(proposalHref);
   const approvalHref = await submitForApproval(makerPage);
-  await approveIndependently(
-    approverPage,
-    approvalHref,
-    `${publication.key}_recovered_independent_review_passed`,
-  );
+  const reviewedConstraint = validated.proposal.proposal.constraints[0];
+  if (!reviewedConstraint) throw new Error("Recovered proposal has no concrete constraint to review.");
+  await approveIndependently(approverPage, approvalHref, {
+    constraintExpression: reviewedConstraint.assert,
+    refName: publication.refName,
+    reviewNote: `${publication.key}_recovered_independent_review_passed`,
+  });
   await assertIndependentApproval(approverPage, proposalId, candidateId);
   return {
     candidateId,
@@ -811,6 +881,8 @@ test.describe("constraint-publication", () => {
     await guardAuthoringEgress(approverContext, stack.baseURL, unexpectedRequests);
     const makerPage = await makerContext.newPage();
     const approverPage = await approverContext.newPage();
+    makerPage.setDefaultTimeout(10_000);
+    approverPage.setDefaultTimeout(10_000);
 
     try {
       await loginAuthoringPage(makerPage, makerCredentials);

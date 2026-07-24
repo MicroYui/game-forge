@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Annotated, TypeVar
 
-from fastapi import APIRouter, Depends, Header, Request, Response, status
+from fastapi import APIRouter, Depends, Header, Path, Request, Response, status
 from pydantic import BaseModel
 
 from gameforge.apps.api.dependencies import (
@@ -712,12 +712,19 @@ def workflow_command_router() -> APIRouter:
         )
 
     @create_router.post(
-        "/refs/{ref_name}/rollback-requests",
+        "/refs/{ref_name:path}/rollback-requests",
         response_model=RollbackRequestReadViewV1,
         status_code=status.HTTP_201_CREATED,
     )
     def draft_rollback(
-        ref_name: BoundedId,
+        ref_name: Annotated[
+            BoundedId,
+            Path(
+                description=(
+                    "Exact ref name; slash-delimited refs are preserved as one path parameter."
+                )
+            ),
+        ],
         payload: RollbackDraftRequestV1,
         request: Request,
         response: Response,

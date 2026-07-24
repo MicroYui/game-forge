@@ -84,6 +84,7 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("post", "/api/v1/rollback-requests/{artifact_id}:validate", "202"),
     ("post", "/api/v1/rollback-requests/{artifact_id}:submit-for-approval", "200"),
     ("post", "/api/v1/rollback-requests/{artifact_id}:apply", "200"),
+    ("get", "/api/v1/artifacts", "200"),
     ("get", "/api/v1/artifacts/{artifact_id}", "200"),
     ("get", "/api/v1/artifacts/{artifact_id}/lineage", "200"),
     ("get", "/api/v1/refs/{ref_name}/history", "200"),
@@ -265,6 +266,12 @@ def test_write_ops_document_idempotency_etag_and_if_match() -> None:
         assert ("If-Match", "header") not in create_params
         assert create_params[("X-CSRF-Token", "header")]["required"] is False
 
+    rollback_ref = {
+        (parameter["name"], parameter["in"]): parameter
+        for parameter in paths["/api/v1/refs/{ref_name}/rollback-requests"]["post"]["parameters"]
+    }[("ref_name", "path")]
+    assert "slash-delimited refs are preserved" in rollback_ref["description"]
+
     versioned_paths = (
         "/api/v1/patches/{artifact_id}:validate",
         "/api/v1/patches/{artifact_id}:submit-for-approval",
@@ -418,6 +425,17 @@ def test_run_cost_documents_safe_settlement_state_and_missing_usage_evidence() -
 def test_login_documents_session_cookie_contract() -> None:
     document = _openapi()
     login = document["paths"]["/api/v1/auth/login"]["post"]
+    parameters = {(item["name"], item["in"]): item for item in login["parameters"]}
+    reauthentication = parameters[("X-GameForge-Reauthentication", "header")]
+    assert reauthentication["required"] is False
+    assert reauthentication["schema"] == {
+        "anyOf": [{"const": "password", "type": "string"}, {"type": "null"}],
+        "description": (
+            "Explicit password reauthentication ceremony for a browser tab "
+            "that has a session cookie but no synchronizer token."
+        ),
+        "title": "X-Gameforge-Reauthentication",
+    }
     headers = login["responses"]["204"]["headers"]
     assert "Set-Cookie" in headers
     assert "X-CSRF-Token" in headers

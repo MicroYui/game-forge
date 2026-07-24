@@ -26,6 +26,77 @@ export interface RelationGraphFact extends GraphFactBase {
 
 export type GraphFact = EntityGraphFact | RelationGraphFact;
 
+const ENTITY_TYPE_LABELS: Readonly<Record<string, string>> = {
+  BATTLE_ENCOUNTER: "战斗遭遇",
+  CHARACTER: "角色",
+  CURRENCY: "货币",
+  DIALOGUE_NODE: "对话节点",
+  DROP_TABLE: "掉落表",
+  EFFECT: "效果",
+  EQUIPMENT: "装备",
+  EVENT: "事件",
+  FACTION: "阵营",
+  FORMULA: "公式",
+  GACHA_POOL: "卡池",
+  INTERACTABLE: "交互物",
+  ITEM: "道具",
+  MONSTER: "怪物",
+  NPC: "非玩家角色",
+  QUEST: "任务",
+  QUEST_STEP: "任务步骤",
+  REGION: "区域",
+  REWARD_TABLE: "奖励表",
+  SHOP: "商店",
+  SKILL: "技能",
+  SPAWN_POINT: "生成点",
+  STATUS_EFFECT: "状态效果",
+  UNLOCK_CONDITION: "解锁条件",
+};
+
+const RELATION_TYPE_LABELS: Readonly<Record<string, string>> = {
+  ALLY_WITH: "结盟",
+  APPLIES_EFFECT: "施加效果",
+  BELONGS_TO: "隶属于",
+  CONSUMES: "消耗",
+  CONTAINS: "包含",
+  DROPS_FROM: "产出掉落",
+  GATED_BY: "受条件约束",
+  GRANTS: "赋予",
+  HAS_STAT_CURVE: "使用属性曲线",
+  HAS_STEP: "包含步骤",
+  HOSTILE_TO: "敌对",
+  LOCATED_IN: "位于",
+  PATH_TO: "通往",
+  PRECEDES: "前置于",
+  REFERENCES: "引用",
+  REQUIRES: "需要",
+  REVEALS: "揭示",
+  REWARDS: "奖励",
+  SELLS: "出售",
+  SPAWNS: "生成",
+  STARTS_AT: "开始于",
+  TALKS_TO: "对话对象",
+  TRIGGERED_BY: "由其触发",
+  UNLOCKS: "解锁",
+  USES_SKILL: "使用技能",
+};
+
+export function graphTypeLabel(fact: GraphFact): string {
+  if (fact.kind === "entity") return ENTITY_TYPE_LABELS[fact.type] ?? "其他实体类型";
+  return RELATION_TYPE_LABELS[fact.type] ?? "其他关系类型";
+}
+
+export function graphFactDisplayName(fact: GraphFact): string {
+  if (fact.kind === "relation") {
+    const candidate = fact.attrs.display_name ?? fact.attrs.name ?? fact.attrs.title ?? fact.attrs.label;
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    return graphTypeLabel(fact);
+  }
+  const candidate = fact.attrs.display_name ?? fact.attrs.name ?? fact.attrs.title;
+  if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  return `未命名${graphTypeLabel(fact)}`;
+}
+
 function entityFact(item: GraphItem): EntityGraphFact {
   const entity = item.entity;
   if (item.item_kind !== "entity" || entity === null || entity === undefined || entity.id !== item.item_id) {
@@ -89,9 +160,9 @@ export function graphFactKey(fact: GraphFact): string {
 
 export function graphSearchText(fact: GraphFact): string {
   const relationText = fact.kind === "relation" ? `${fact.srcId} ${fact.dstId}` : fact.tags.join(" ");
-  return `${fact.kind} ${fact.type} ${fact.id} ${relationText} ${JSON.stringify(fact.attrs)} ${
-    fact.sourceRef?.adapter ?? ""
-  } ${formatSourceRef(fact.sourceRef)}`.toLocaleLowerCase("zh-CN");
+  return `${fact.kind} ${graphTypeLabel(fact)} ${graphFactDisplayName(fact)} ${fact.type} ${fact.id} ${relationText} ${JSON.stringify(fact.attrs)} ${fact.sourceRef?.adapter ?? ""} ${formatSourceRef(fact.sourceRef)}`.toLocaleLowerCase(
+    "zh-CN",
+  );
 }
 
 export function formatSourceRef(sourceRef: GraphSourceRef | null): string {
@@ -110,12 +181,6 @@ function compactLabel(value: string, maximum = 30): string {
   return `${value.slice(0, head)}…${value.slice(-tail)}`;
 }
 
-function entityLabel(fact: EntityGraphFact): string {
-  const candidate = fact.attrs.display_name ?? fact.attrs.name ?? fact.attrs.title;
-  const name = typeof candidate === "string" && candidate.trim() ? candidate : fact.id;
-  return `${fact.type}\n${compactLabel(name)}`;
-}
-
 export function toCytoscapeElements(facts: readonly GraphFact[]): ElementDefinition[] {
   const entities = facts.filter((fact): fact is EntityGraphFact => fact.kind === "entity");
   const relations = facts.filter((fact): fact is RelationGraphFact => fact.kind === "relation");
@@ -132,7 +197,7 @@ export function toCytoscapeElements(facts: readonly GraphFact[]): ElementDefinit
     data: {
       factKey: graphFactKey(entity),
       id: graphFactKey(entity),
-      label: entityLabel(entity),
+      label: `${graphTypeLabel(entity)}\n${compactLabel(graphFactDisplayName(entity))}`,
       loaded: true,
       type: entity.type,
     },
@@ -153,7 +218,7 @@ export function toCytoscapeElements(facts: readonly GraphFact[]): ElementDefinit
     data: {
       factKey: graphFactKey(relation),
       id: graphFactKey(relation),
-      label: relation.type,
+      label: graphTypeLabel(relation),
       source: `entity:${relation.srcId}`,
       target: `entity:${relation.dstId}`,
       type: relation.type,

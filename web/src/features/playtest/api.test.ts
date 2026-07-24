@@ -55,6 +55,32 @@ const artifact = {
   artifact: { artifact_id: "artifact:config:1" },
 } as unknown as ArtifactPayloadView;
 const run = { run_id: "run:playtest:1", status: "running" } as unknown as RunView;
+const failedReplaySource = {
+  failure_artifact_id: "artifact:failure:playtest-source",
+  result_artifact_id: null,
+  run_id: "run:playtest:failed-source",
+  status: "failed",
+  terminal_cassette_artifact_id: "artifact:cassette:playtest-failed",
+} as RunView;
+const replayFailureManifest = {
+  artifact: {
+    artifact_id: "artifact:failure:playtest-source",
+    created_at: "2026-07-23T03:47:50Z",
+    kind: "run_failure",
+    payload_schema_id: "run-failure@1",
+  },
+  payload: {
+    cause_code: "step_limit_exhausted",
+    failure_schema_version: "run-failure@1",
+    run_id: failedReplaySource.run_id,
+    run_kind: { kind: "playtest.run", version: 1 },
+  },
+} as unknown as ArtifactPayloadView;
+const successWithoutCassette = {
+  run_id: "run:playtest:no-cassette",
+  status: "succeeded",
+  terminal_cassette_artifact_id: null,
+} as RunView;
 
 const deriveRequest: TaskSuiteDeriveRequest = {
   params: {
@@ -141,16 +167,20 @@ describe("Playtest API", () => {
 
   it("reads exact suite, authority, candidate, run, result, Finding, and command resources", async () => {
     const cursor = "opaque.playtest+/=%2Ftail";
-    const get = vi.fn(async (path: string) => {
+    const get = vi.fn(async (path: string, options?: { params?: { path?: { artifact_id?: string } } }) => {
       switch (path) {
         case "/api/v1/task-suites":
           return response(page([taskSuite], null));
+        case "/api/v1/artifacts":
+          return response(page([artifact.artifact], null));
         case "/api/v1/task-suites/{artifact_id}":
           return response(taskSuite);
         case "/api/v1/execution-profiles":
         case "/api/v1/runs/{run_id}/finding-links":
         case "/api/v1/runs/{run_id}/commands":
           return response(page([], null));
+        case "/api/v1/runs":
+          return response(page([failedReplaySource, successWithoutCassette], null));
         case "/api/v1/execution-profiles/{profile_id}/versions/{version}/task-suite-derivation-binding":
           return response(derivationBinding);
         case "/api/v1/specs/{artifact_id}":
@@ -158,6 +188,10 @@ describe("Playtest API", () => {
         case "/api/v1/constraints/{artifact_id}":
           return response(constraint);
         case "/api/v1/artifacts/{artifact_id}":
+          if (options?.params?.path?.artifact_id === replayFailureManifest.artifact.artifact_id) {
+            return response(replayFailureManifest);
+          }
+          return response(artifact);
         case "/api/v1/playtest/{run_id}/result":
           return response(artifact);
         case "/api/v1/runs/{run_id}":
@@ -196,8 +230,19 @@ describe("Playtest API", () => {
     await api.getArtifact("artifact:config:1");
     await api.getRun("run:playtest:1");
     await api.getPlaytestResult("run:playtest:1");
+    await api.listConfigExports(cursor);
     await api.listRunFindingLinks("run:playtest:1", cursor);
     await api.listRunCommands("run:playtest:1", cursor);
+    const replaySources = await api.listReplaySourceRuns(cursor);
+
+    expect(replaySources.items).toEqual([
+      {
+        ...failedReplaySource,
+        completedAt: "2026-07-23T03:47:50Z",
+        outcomeCode: "step_limit_exhausted",
+        runKind: { kind: "playtest.run", version: 1 },
+      },
+    ]);
 
     expect(get).toHaveBeenCalledWith("/api/v1/task-suites", {
       params: {
@@ -210,6 +255,9 @@ describe("Playtest API", () => {
           limit: 25,
         },
       },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/artifacts", {
+      params: { query: { cursor, kind: "config_export", limit: 100 } },
     });
     expect(get).toHaveBeenCalledWith("/api/v1/task-suites/{artifact_id}", {
       params: { path: { artifact_id: "artifact:task-suite:1" } },
@@ -230,6 +278,9 @@ describe("Playtest API", () => {
           status: "active",
         },
       },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/runs", {
+      params: { query: { cursor } },
     });
     expect(get).toHaveBeenCalledWith("/api/v1/specs/{artifact_id}", {
       params: { path: { artifact_id: "artifact:preview:1" } },

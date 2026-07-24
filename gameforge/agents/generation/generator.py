@@ -26,6 +26,11 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 register_all_prompts()
 
+_GENERATION_PROMPT_NAMES = {
+    "generation@1": "generation.system",
+    "generation@2": "generation.v2.system",
+}
+
 
 class ContentGenerator:
     node_id = "generation"
@@ -39,10 +44,17 @@ class ContentGenerator:
         input: object,
         router: ModelRouter,
         *,
+        prompt_version: str = "generation@1",
         execute_local_gate: bool = True,
     ) -> AgentNodeResult:
         goal = input if isinstance(input, DesignGoalInput) else DesignGoalInput(**input)  # type: ignore[arg-type]
-        version, system = get_prompt("generation.system")
+        try:
+            prompt_name = _GENERATION_PROMPT_NAMES[prompt_version]
+        except KeyError as exc:
+            raise ValueError(f"unsupported generation prompt version: {prompt_version!r}") from exc
+        version, system = get_prompt(prompt_name)
+        if version != prompt_version:
+            raise ValueError("generation prompt registry returned another exact version")
         user = self._build_user_prompt(goal)
 
         request_hashes: list[str] = []

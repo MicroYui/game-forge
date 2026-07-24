@@ -13,6 +13,13 @@ import { ApiProblemError, sanitizeProblem } from "./problem";
 type PasswordAuthRequest = components["schemas"]["PasswordAuthRequestV1"];
 type AuthenticatedPrincipal = components["schemas"]["Principal"];
 
+export const PASSWORD_REAUTHENTICATION_HEADER = "X-GameForge-Reauthentication";
+export const PASSWORD_REAUTHENTICATION_VALUE = "password";
+
+export type LoginOptions = Readonly<{
+  forceReauthentication?: boolean;
+}>;
+
 type ApiResponse<T> = {
   data?: T;
   error?: unknown;
@@ -23,7 +30,7 @@ export type GameForgeOpenApiClient = Client<paths>;
 
 export type GameForgeApi = {
   client: GameForgeOpenApiClient;
-  login(request: PasswordAuthRequest): Promise<void>;
+  login(request: PasswordAuthRequest, options?: LoginOptions): Promise<void>;
   logout(intent: MutationIntent): Promise<void>;
   me(): Promise<AuthenticatedPrincipal>;
 };
@@ -65,8 +72,17 @@ export function createGameForgeApi(options: ClientOptions = {}): GameForgeApi {
 
   return {
     client,
-    async login(request) {
-      const result = await client.POST("/api/v1/auth/login", { body: request });
+    async login(request, loginOptions = {}) {
+      const result = await client.POST("/api/v1/auth/login", {
+        body: request,
+        params: loginOptions.forceReauthentication
+          ? {
+              header: {
+                [PASSWORD_REAUTHENTICATION_HEADER]: PASSWORD_REAUTHENTICATION_VALUE,
+              },
+            }
+          : undefined,
+      });
       await unwrapApiResponse<void>(result);
       invalidateSession();
       const csrfToken = result.response.headers.get("X-CSRF-Token");

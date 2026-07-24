@@ -13,6 +13,8 @@ import {
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   specWorkflowApi,
+  type ArtifactKind,
+  type ArtifactPage,
   type ConstraintProposalReadView,
   type ConstraintSnapshotView,
   type SpecView,
@@ -22,7 +24,10 @@ import { SpecEntryPanels, type SpecEntryPanelsApi } from "./SpecEntryPanels";
 import "./specs.css";
 
 export type SpecWorkspaceApi = SpecEntryPanelsApi &
-  Pick<SpecWorkflowApi, "listConstraintProposals" | "listConstraintSnapshots" | "listSpecs">;
+  Pick<
+    SpecWorkflowApi,
+    "listArtifacts" | "listConstraintProposals" | "listConstraintSnapshots" | "listSpecs"
+  >;
 
 interface CursorPageState<T> {
   error?: Error;
@@ -53,6 +58,36 @@ function paginationState<T>(state: CursorPageState<T>): CursorPaginationState {
 
 function normalizedPageError(error: unknown): Error {
   return error instanceof Error ? error : new Error("分页读取失败。");
+}
+
+async function readCompleteSourceCatalog(
+  api: Pick<SpecWorkflowApi, "listArtifacts">,
+  kind: Extract<ArtifactKind, "source_raw" | "source_rendered">,
+): Promise<ArtifactPage["items"]> {
+  const items: ArtifactPage["items"] = [];
+  const artifactIds = new Set<string>();
+  const cursors = new Set<string>();
+  let cursor: string | null = null;
+  let readSnapshotId: string | null = null;
+  for (let pageCount = 0; pageCount < 256; pageCount += 1) {
+    const page = await api.listArtifacts(kind, cursor);
+    if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
+      throw new Error(`${kind} 来源目录分页快照发生变化。`);
+    }
+    readSnapshotId = page.read_snapshot_id;
+    for (const artifact of page.items) {
+      if (artifact.kind !== kind) throw new Error(`${kind} 来源目录返回了错误 kind。`);
+      if (artifactIds.has(artifact.artifact_id)) throw new Error(`${kind} 来源目录返回了重复 Artifact。`);
+      artifactIds.add(artifact.artifact_id);
+      items.push(artifact);
+    }
+    const next = page.next_cursor ?? null;
+    if (next === null) return items;
+    if (cursors.has(next)) throw new Error(`${kind} 来源目录游标形成循环。`);
+    cursors.add(next);
+    cursor = next;
+  }
+  throw new Error(`${kind} 来源目录超过有界页数。`);
 }
 
 function domainLabel(value: SpecView["artifact"]["domain_scope"]): string {
@@ -197,12 +232,19 @@ function WorkspaceError({ error, onRetry }: { error: Error; onRetry(): void }) {
 export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspaceApi }) {
   const workspace = useQuery({
     queryFn: async () => {
-      const [specs, constraintSnapshots, constraintProposals] = await Promise.all([
+      const [specs, constraintSnapshots, constraintProposals, sourceRaw, sourceRendered] = await Promise.all([
         api.listSpecs(null),
         api.listConstraintSnapshots(null),
         api.listConstraintProposals(null),
+        readCompleteSourceCatalog(api, "source_raw"),
+        readCompleteSourceCatalog(api, "source_rendered"),
       ]);
-      return { constraintProposals, constraintSnapshots, specs };
+      return {
+        constraintProposals,
+        constraintSnapshots,
+        sources: [...sourceRaw, ...sourceRendered],
+        specs,
+      };
     },
     queryKey: ["spec-workspace"],
     retry: false,
@@ -286,7 +328,7 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
     return (
       <div className="gf-page gf-specs">
         <StatePanel
-          description="正在读取有界规格、constraint_snapshot Artifact 与 constraint proposal 页。"
+          description="正在读取有界规格、constraint_snapshot、constraint proposal 与可用来源目录。"
           headingLevel={1}
           state="loading"
           title="正在读取规格工作台"
@@ -348,8 +390,6 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
           <p>Artifact 存在、可读取或由编译产生，都不能单独证明权威；需由发布结果或 ref 历史另行证明。</p>
         </div>
       </aside>
-
-      <SpecEntryPanels api={api} />
 
       {empty ? (
         <StatePanel
@@ -441,6 +481,16 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
           </section>
         </div>
       )}
+
+      <SpecEntryPanels
+        api={api}
+        catalogs={{
+          constraints: currentConstraints.items,
+          proposals: currentProposals.items,
+          sources: workspace.data.sources,
+          specs: currentSpecs.items,
+        }}
+      />
     </div>
   );
 }

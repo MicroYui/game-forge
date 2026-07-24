@@ -254,6 +254,7 @@ def test_session_token_lookup_touch_and_revoke(
             repository.touch_session(
                 created.session_id,
                 expected_revision=2,
+                last_seen_at="2026-07-14T02:00:00Z",
                 idle_expires_at="2026-07-14T04:00:00Z",
             )
         session.rollback()
@@ -262,6 +263,7 @@ def test_session_token_lookup_touch_and_revoke(
         touched = repository.touch_session(
             created.session_id,
             expected_revision=1,
+            last_seen_at="2026-07-14T02:00:00Z",
             idle_expires_at="2026-07-14T04:00:00Z",
         )
         session.commit()
@@ -285,6 +287,7 @@ def test_session_token_lookup_touch_and_revoke(
             repository.touch_session(
                 created.session_id,
                 expected_revision=revoked.revision,
+                last_seen_at="2026-07-14T03:00:00Z",
                 idle_expires_at="2026-07-14T05:00:00Z",
             )
 
@@ -326,7 +329,42 @@ def test_session_touch_cannot_revive_an_expired_session(
             repository.touch_session(
                 created.session_id,
                 expected_revision=created.revision,
+                last_seen_at="2026-07-14T03:00:00Z",
                 idle_expires_at="2026-07-14T05:00:00Z",
+            )
+        session.rollback()
+
+        assert repository.get_session(created.session_id) == created
+
+
+@pytest.mark.parametrize(
+    ("last_seen_at", "message"),
+    [
+        ("2026-07-14T02:00:00+00:00", "canonical UTC timestamp"),
+        ("2026-07-14T01:15:00Z", "clock moved backwards"),
+        ("2026-07-14T02:00:00.000001Z", "later than repository time"),
+    ],
+)
+def test_session_touch_rejects_invalid_caller_time_samples(
+    engine: Engine,
+    clock: _MutableUtcClock,
+    last_seen_at: str,
+    message: str,
+) -> None:
+    with Session(engine) as session:
+        _create_principals(session, clock)
+        repository = _repository(session, clock)
+        repository.create_password(_password())
+        created = repository.create_session(_session(last_seen_at="2026-07-14T01:30:00Z"))
+        session.commit()
+
+        clock.current = T1
+        with pytest.raises(IntegrityViolation, match=message):
+            repository.touch_session(
+                created.session_id,
+                expected_revision=created.revision,
+                last_seen_at=last_seen_at,
+                idle_expires_at="2026-07-14T04:00:00Z",
             )
         session.rollback()
 

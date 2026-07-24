@@ -31,8 +31,35 @@ const profile = {
   profile: { profile_id: "builtin.generation", version: 3 },
 } as unknown as ExecutionProfileReadView;
 const run = { revision: 4, run_id: "run:generation:1", status: "succeeded" } as unknown as RunView;
+const failedReplaySource = {
+  ...run,
+  failure_artifact_id: "artifact:failure:generation-source",
+  result_artifact_id: null,
+  run_id: "run:generation:failed-source",
+  status: "failed",
+  terminal_cassette_artifact_id: "artifact:cassette:failed-source",
+} as RunView;
+const successWithoutCassette = {
+  ...run,
+  run_id: "run:generation:no-cassette",
+  terminal_cassette_artifact_id: null,
+} as RunView;
 const artifact = {
   artifact: { artifact_id: "artifact:run-result:1" },
+} as unknown as ArtifactPayloadView;
+const replayFailureManifest = {
+  artifact: {
+    artifact_id: "artifact:failure:generation-source",
+    created_at: "2026-07-23T03:47:50Z",
+    kind: "run_failure",
+    payload_schema_id: "run-failure@1",
+  },
+  payload: {
+    cause_code: "generation_gate_rejected",
+    failure_schema_version: "run-failure@1",
+    run_id: failedReplaySource.run_id,
+    run_kind: { kind: "generation.propose", version: 1 },
+  },
 } as unknown as ArtifactPayloadView;
 const patch = {
   artifact: { artifact_id: "artifact:patch:1" },
@@ -105,13 +132,15 @@ describe("generation API", () => {
 
   it("reads the exact Journey A resources and preserves every opaque cursor", async () => {
     const cursor = "opaque.generation+/=%2Ftail";
-    const get = vi.fn(async (path: string) => {
+    const get = vi.fn(async (path: string, options?: { params?: { path?: { artifact_id?: string } } }) => {
       switch (path) {
         case "/api/v1/specs":
         case "/api/v1/constraints":
         case "/api/v1/execution-profiles":
         case "/api/v1/diff":
           return response({ items: [], next_cursor: null });
+        case "/api/v1/runs":
+          return response({ items: [failedReplaySource, successWithoutCassette], next_cursor: null });
         case "/api/v1/specs/{artifact_id}":
           return response(spec);
         case "/api/v1/constraints/{artifact_id}":
@@ -121,7 +150,11 @@ describe("generation API", () => {
         case "/api/v1/runs/{run_id}":
           return response(run);
         case "/api/v1/artifacts/{artifact_id}":
-          return response(artifact);
+          return response(
+            options?.params?.path?.artifact_id === replayFailureManifest.artifact.artifact_id
+              ? replayFailureManifest
+              : artifact,
+          );
         case "/api/v1/patches/{artifact_id}":
           return response(patch, { ETag: '"patch:2"' });
         case "/api/v1/workflow-subjects/{artifact_id}/approval-binding":
@@ -139,6 +172,7 @@ describe("generation API", () => {
     await api.listConstraints(cursor);
     await api.getConstraint("artifact:constraint:live");
     await api.listExecutionProfiles(cursor);
+    const replaySources = await api.listReplaySourceRuns(cursor);
     await api.getExecutionProfile("builtin.generation", 3);
     await api.getRun("run:generation:1");
     await api.getArtifact("artifact:run-result:1");
@@ -149,6 +183,14 @@ describe("generation API", () => {
 
     expect(versionedPatch).toEqual({ etag: '"patch:2"', value: patch });
     expect(versionedApproval).toEqual({ etag: '"approval:5"', value: approval });
+    expect(replaySources.items).toEqual([
+      {
+        ...failedReplaySource,
+        completedAt: "2026-07-23T03:47:50Z",
+        outcomeCode: "generation_gate_rejected",
+        runKind: { kind: "generation.propose", version: 1 },
+      },
+    ]);
     expect(get).toHaveBeenCalledWith("/api/v1/specs", { params: { query: { cursor } } });
     expect(get).toHaveBeenCalledWith("/api/v1/specs/{artifact_id}", {
       params: { path: { artifact_id: "artifact:spec:base" } },
@@ -158,6 +200,9 @@ describe("generation API", () => {
       params: { path: { artifact_id: "artifact:constraint:live" } },
     });
     expect(get).toHaveBeenCalledWith("/api/v1/execution-profiles", {
+      params: { query: { cursor } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/runs", {
       params: { query: { cursor } },
     });
     expect(get).toHaveBeenCalledWith("/api/v1/execution-profiles/{profile_id}/versions/{version}", {

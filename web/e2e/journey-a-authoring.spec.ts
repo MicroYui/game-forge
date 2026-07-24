@@ -24,7 +24,6 @@ import {
 
 const makerCredentials = { login: "maker", password: "maker-password-1" };
 const approverCredentials = { login: "approver", password: "approver-password-1" };
-const domainId = "builtin";
 const refName = "content-head";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -55,6 +54,7 @@ type ApprovalView = components["schemas"]["ApprovalViewV1"];
 type ExecutionOptionResolveRequest = components["schemas"]["ExecutionOptionResolveRequestV1"];
 type ExecutionOptionView = components["schemas"]["ExecutionOptionViewV1"];
 type FindingBinding = components["schemas"]["FindingEvidenceBindingV1"];
+type PatchArtifactReadView = components["schemas"]["PatchArtifactReadViewV1"];
 type PatchRepairRequest = components["schemas"]["PatchRepairRequestV1"];
 type PatchValidationRequest = components["schemas"]["PatchValidationAdmissionRequestV1"];
 type PlaytestRunRequest = components["schemas"]["PlaytestRunRequestV1"];
@@ -331,10 +331,10 @@ async function fillGenerationReplayForm(
   await page.getByLabel("Generation profile").selectOption("builtin.generation@1");
   await page.getByLabel("Environment profile").selectOption("builtin.environment@1");
   await page.getByRole("checkbox", { name: /builtin\.config_export@1/u }).check();
-  await page.getByLabel("Domain IDs").fill(domainId);
+  await page.getByRole("group", { name: "内容领域" }).getByRole("checkbox", { name: "内置规则域" }).check();
   await page.getByLabel("Authenticated authoring goal").fill(input.goal);
   await page.getByLabel("LLM execution mode").selectOption("replay");
-  await page.getByLabel("Replay source Run").fill(input.sourceRunId);
+  await page.getByLabel("Replay source Run").selectOption(input.sourceRunId);
 }
 
 async function selectGenerationReplay(
@@ -671,7 +671,7 @@ async function launchReviewReplay(
   await page.getByLabel("LLM triage profile").selectOption("builtin.llm_triage@1");
   await page.getByLabel("Seed").fill("1");
   await page.getByLabel("LLM execution mode").selectOption("replay");
-  await page.getByLabel("Replay source Run").fill(sourceRunId);
+  await page.getByLabel("Replay source Run").selectOption(sourceRunId);
   await page.getByRole("button", { name: "启动 Review" }).click();
   const href = await requiredHref(page.getByRole("link", { name: /^打开 Run /u }));
   return openRunAndWait(page, href, "succeeded");
@@ -738,7 +738,7 @@ async function launchPlaytestReplay(
   await launch.getByLabel("LLM execution mode").selectOption("replay");
   await launch.getByLabel("Seed").fill("1");
   await launch.getByLabel("每 episode 最大步数").fill(String(input.maxSteps));
-  await launch.getByLabel("Replay source Run").fill(input.sourceRunId);
+  await launch.getByLabel("Replay source Run").selectOption(input.sourceRunId);
   await launch.getByRole("button", { name: "解析并启动 Playtest" }).click();
   let runId = "";
   await expect
@@ -766,15 +766,28 @@ async function validatePatch(
 ): Promise<string> {
   await page.goto(`/patches/${encodeURIComponent(input.patchId)}`);
   await page.getByLabel("Validation policy").selectOption("builtin.validation@1");
-  await page.getByLabel(/ConstraintSnapshot Artifact ID/u).fill(input.constraintId);
-  await page.getByLabel(/Candidate ConfigExport Artifact IDs/u).fill(input.configId);
-  await page.getByLabel(/Review Artifact IDs/u).fill(input.reviewId);
-  await page.getByLabel(/PlaytestTrace Artifact IDs/u).fill(input.traceId);
-  await page.getByLabel(/RegressionSuite Artifact IDs/u).fill(input.regressionSuiteId);
-  await page
-    .getByLabel(/Expected historical FindingEvidenceBindingV1/u)
-    .fill(JSON.stringify(input.expectedFindings));
-  await page.getByLabel(/Observed \/ repair FindingEvidenceBindingV1/u).fill(JSON.stringify(input.findings));
+  await page.getByRole("radio", { name: `约束快照 ${input.constraintId}` }).check();
+  await page.getByRole("checkbox", { name: `候选配置导出 ${input.configId}` }).check();
+  await page.getByRole("checkbox", { name: `审查报告 ${input.reviewId}` }).check();
+  await page.getByRole("checkbox", { name: `实测轨迹 ${input.traceId}` }).check();
+  await page.getByRole("checkbox", { name: `回归套件 ${input.regressionSuiteId}` }).check();
+  if (input.expectedFindings.length > 0) {
+    await page.getByText("高级：精确 Finding 绑定", { exact: true }).click();
+    await page
+      .locator("label", { hasText: "历史 FindingEvidenceBindingV1[]（JSON）" })
+      .locator("textarea")
+      .fill(JSON.stringify(input.expectedFindings));
+  }
+  const findingSelector = page.getByRole("group", { name: "本次要验证的 Finding" });
+  await expect(findingSelector).toBeVisible();
+  for (const finding of input.findings) {
+    const option = findingSelector.locator("label", {
+      hasText: `${finding.finding_id}@${finding.finding_revision}`,
+    });
+    await expect(option).toBeVisible();
+    await option.getByRole("checkbox").check();
+  }
+  await expect(page.getByText("本次观测 / Repair FindingEvidenceBindingV1[]（JSON）")).toHaveCount(0);
   await page.getByLabel("Seed").fill("17");
   const validate = page.getByRole("button", { name: "启动 exact validation" });
   await expect(validate).toBeEnabled();
@@ -838,12 +851,16 @@ async function repairPatchReplay(
   await page.goto(`/patches/${encodeURIComponent(input.patchId)}`);
   await page.getByLabel("Repair policy").selectOption("builtin.patch_repair@1");
   await page.getByRole("group", { name: "Repair candidate export profiles" }).getByRole("checkbox").check();
-  await page.getByLabel(/ConstraintSnapshot Artifact ID/u).fill(input.constraintId);
-  await page.getByLabel(/RegressionSuite Artifact IDs/u).fill(input.regressionSuiteId);
-  await page.getByLabel(/Observed \/ repair FindingEvidenceBindingV1/u).fill(JSON.stringify([input.finding]));
+  await page.getByRole("radio", { name: `约束快照 ${input.constraintId}` }).check();
+  await page.getByRole("checkbox", { name: `回归套件 ${input.regressionSuiteId}` }).check();
+  const repairFindings = page.getByRole("list", { name: "Repair Findings" });
+  await expect(repairFindings).toBeVisible();
+  const exactFinding = repairFindings.getByRole("listitem").filter({ hasText: input.finding.finding_id });
+  await expect(exactFinding).toContainText(`Revision ${input.finding.finding_revision}`);
+  await expect(page.getByText("本次观测 / Repair FindingEvidenceBindingV1[]（JSON）")).toHaveCount(0);
   await page.getByLabel("Seed").fill("19");
   await page.getByLabel("Repair LLM mode").selectOption("replay");
-  await page.getByLabel("Replay source Run").fill(input.sourceRunId);
+  await page.getByLabel("Replay source Run").selectOption(input.sourceRunId);
   const repair = page.getByRole("button", { name: "Resolve 并启动 repair" });
   await expect(repair).toBeEnabled();
   await repair.click();
@@ -860,9 +877,40 @@ async function submitPatch(page: Page, patchId: string): Promise<string> {
   return requiredHref(page.getByRole("link", { name: "打开审批详情" }));
 }
 
-async function approvePatch(page: Page, approvalHref: string): Promise<void> {
+function displayedPatchValue(value: unknown): string {
+  return value === undefined ? "无" : (JSON.stringify(value) ?? "无");
+}
+
+async function approvePatch(page: Page, approvalHref: string, patchId: string): Promise<void> {
   await page.goto(approvalHref);
-  const requirementTable = page.getByRole("table", { name: "Requirement progress" });
+  const exactPatch = await sameOriginRequest<PatchArtifactReadView>(
+    page,
+    `/api/v1/patches/${encodeURIComponent(patchId)}`,
+  );
+  expect(exactPatch.body.patch.ops.length).toBeGreaterThan(0);
+
+  const review = page.getByRole("region", { name: "受审内容与验证依据" });
+  await expect(review).toBeVisible();
+  await expect(review.getByRole("heading", { name: "你正在批准什么" })).toBeVisible();
+  await expect(review.getByRole("heading", { name: "确定性验证已通过" })).toBeVisible();
+  await expect(review.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+
+  const operationList = review.getByRole("list", { name: "Patch 变更内容" });
+  const renderedOperations = operationList.getByRole("listitem");
+  await expect(renderedOperations).toHaveCount(exactPatch.body.patch.ops.length);
+  for (let index = 0; index < exactPatch.body.patch.ops.length; index += 1) {
+    const expectedOperation = exactPatch.body.patch.ops[index]!;
+    const renderedOperation = renderedOperations.nth(index);
+    await expect(renderedOperation).toContainText(expectedOperation.target);
+    const values = renderedOperation.locator(".gf-approvals__before-after > div");
+    await expect(values).toHaveCount(2);
+    await expect(values.nth(0)).toContainText("修改前");
+    await expect(values.nth(0)).toContainText(displayedPatchValue(expectedOperation.old_value));
+    await expect(values.nth(1)).toContainText("修改后");
+    await expect(values.nth(1)).toContainText(displayedPatchValue(expectedOperation.new_value));
+  }
+
+  const requirementTable = page.getByRole("table", { name: "审批职责进度" });
   await expect(requirementTable).toBeVisible();
   const requirements = requirementTable.getByRole("checkbox", { name: /^选择 /u });
   const count = await requirements.count();
@@ -871,8 +919,15 @@ async function approvePatch(page: Page, approvalHref: string): Promise<void> {
     await expect(requirements.nth(index)).toBeEnabled();
     await requirements.nth(index).check();
   }
-  await page.getByLabel("决定原因代码").fill("journey_a_independent_review");
+  await page.getByRole("combobox", { name: "决定原因" }).selectOption("content_and_evidence_reviewed");
+  await page.getByLabel("补充说明").fill("journey_a_independent_review");
   await page.getByRole("button", { name: "提交批准" }).click();
+  const confirmation = page.getByRole("dialog", { name: "确认批准决定" });
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toContainText("EvidenceSet 已通过");
+  await expect(confirmation).toContainText(`目标为 ${refName}`);
+  await expect(confirmation).toContainText(`${exactPatch.body.patch.ops.length} 项 Patch 变更`);
+  await page.getByRole("button", { name: "确认批准" }).click();
   await expect(page.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
 }
 
@@ -1764,6 +1819,7 @@ test.describe("journey-a-authoring", () => {
         });
         failedApproval = (await waitForPatchStatus(makerPage, patchId, "validation_failed")).approval;
         expect(failedApproval.approval.evidence_set_artifact_id).toBeTruthy();
+        expect(failedApproval.approval.last_validation_failure_artifact_id).toBeNull();
         await makerPage.goto(`/patches/${encodeURIComponent(patchId)}`);
         await expect(makerPage.getByText("validation_failed", { exact: true }).first()).toBeVisible();
         await expect(
@@ -2049,7 +2105,7 @@ test.describe("journey-a-authoring", () => {
           makerPage.getByText("maker-checker：提议者不能决定自己的提议", { exact: true }).first(),
         ).toBeVisible();
         await expect(makerPage.getByRole("checkbox", { name: /^选择 /u }).first()).toBeDisabled();
-        await approvePatch(approverPage, approvalHref);
+        await approvePatch(approverPage, approvalHref, repairedPatchId);
 
         const approved = await waitForPatchStatus(approverPage, repairedPatchId, "approved");
         const target = approved.approval.approval.target_binding;

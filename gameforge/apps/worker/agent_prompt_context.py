@@ -35,6 +35,7 @@ AGENT_PROMPT_CONTEXT_RENDERER_VERSION = "agent-prompt-context-renderer@1"
 # message and the renderer must not manufacture one.
 _BUILTIN_SYSTEM_PROMPTS: dict[tuple[str, str], str | None] = {
     ("generation", "generation@1"): "generation.system",
+    ("generation", "generation@2"): "generation.v2.system",
     ("repair", "repair@4"): "repair.system",
     ("extraction", "extraction@1"): "extraction.system",
     ("review-triage", "review-triage@1"): None,

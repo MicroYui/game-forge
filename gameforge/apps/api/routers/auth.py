@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, Header, Request, Response, status
 
 from gameforge.apps.api.dependencies import (
     ApiDependencies,
@@ -25,6 +26,8 @@ from gameforge.contracts.identity import ActorContext, Principal
 SESSION_COOKIE_NAME = "gameforge_session"
 CSRF_HEADER_NAME = "X-CSRF-Token"
 IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
+PASSWORD_REAUTHENTICATION_HEADER_NAME = "X-GameForge-Reauthentication"
+PASSWORD_REAUTHENTICATION_VALUE = "password"
 
 
 def _parse_utc(value: str) -> datetime:
@@ -46,8 +49,19 @@ def auth_router() -> APIRouter:
         payload: PasswordAuthRequestV1,
         request: Request,
         response: Response,
+        password_reauthentication: Annotated[
+            Literal["password"] | None,
+            Header(
+                alias=PASSWORD_REAUTHENTICATION_HEADER_NAME,
+                description=(
+                    "Explicit password reauthentication ceremony for a browser tab "
+                    "that has a session cookie but no synchronizer token."
+                ),
+            ),
+        ] = None,
         dependencies: ApiDependencies = Depends(api_dependencies),
     ) -> None:
+        del password_reauthentication
         service = dependencies.session_authentication
         if service is None:
             raise DependencyUnavailable("session authentication is not configured")
@@ -111,6 +125,8 @@ def auth_router() -> APIRouter:
 __all__ = [
     "CSRF_HEADER_NAME",
     "IDEMPOTENCY_HEADER_NAME",
+    "PASSWORD_REAUTHENTICATION_HEADER_NAME",
+    "PASSWORD_REAUTHENTICATION_VALUE",
     "SESSION_COOKIE_NAME",
     "auth_router",
 ]

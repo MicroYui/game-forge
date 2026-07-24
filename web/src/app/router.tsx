@@ -7,8 +7,9 @@ import { ProblemPanel, StatePanel } from "../components/ui";
 import { RunDetailPage } from "../features/runs";
 import { messages } from "../i18n/zh-CN";
 import { useAuth } from "./providers";
+import type { ReauthenticationLocationState } from "./ReauthenticationLink";
 
-type ReturnLocationState = { returnTo?: string };
+type ReturnLocationState = Partial<ReauthenticationLocationState>;
 
 function safeReturnPath(value: unknown): string {
   return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && value !== "/login"
@@ -63,9 +64,13 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [problem, setProblem] = useState<SafeProblem | null>(null);
   const [unexpectedError, setUnexpectedError] = useState(false);
-  const returnTo = safeReturnPath((location.state as ReturnLocationState | null)?.returnTo);
+  const returnLocation = location.state as ReturnLocationState | null;
+  const forceReauthentication = returnLocation?.forceReauthentication === true;
+  const returnTo = safeReturnPath(returnLocation?.returnTo);
 
-  if (auth.status === "authenticated") return <Navigate replace to={returnTo} />;
+  if (auth.status === "authenticated" && !forceReauthentication) {
+    return <Navigate replace to={returnTo} />;
+  }
   if (auth.status === "loading") {
     return (
       <main className="gf-auth-page">
@@ -102,7 +107,9 @@ export function LoginPage() {
     setProblem(null);
     setUnexpectedError(false);
     try {
-      await auth.login({ login_name: loginName, password, schema_version: "password-auth@1" });
+      const request = { login_name: loginName, password, schema_version: "password-auth@1" } as const;
+      if (forceReauthentication) await auth.login(request, { forceReauthentication: true });
+      else await auth.login(request);
       setPassword("");
       navigate(returnTo, { replace: true });
     } catch (error) {

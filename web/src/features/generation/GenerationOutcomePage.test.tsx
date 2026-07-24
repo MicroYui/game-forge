@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -160,6 +160,68 @@ function configPayload(sourcePreviewArtifactId: string) {
     constraint_snapshot_artifact_id: CONSTRAINT_ID,
     package_schema_version: "config-export-package@1",
     source_preview_artifact_id: sourcePreviewArtifactId,
+  };
+}
+
+function rejectedPatchPayload() {
+  return {
+    base_snapshot_id: BASE_SNAPSHOT_ID,
+    ops: [
+      {
+        new_value: 150,
+        old_value: 60,
+        op: "set_entity_attr",
+        op_id: "op0",
+        target: "quest:missing_caravan.reward.gold",
+      },
+    ],
+    patch_schema_version: "patch@2",
+    produced_by: "agent",
+    producer_run_id: RUN_ID,
+    rationale: "generation gate rejected proposal (retained for review)",
+    revision: 1,
+    side_effect_risk: "low",
+    target_snapshot_id: PREVIEW_SNAPSHOT_ID,
+  };
+}
+
+function rejectedPreviewPayload() {
+  return {
+    entities: {
+      "quest:missing_caravan": {
+        attrs: {
+          reward: { gold: 150 },
+          title: "失踪的商队",
+        },
+        schema_version: "ir-core@1",
+        type: "QUEST",
+      },
+    },
+    meta_schema_version: "meta@1",
+    relations: {},
+  };
+}
+
+function rejectedCheckerPayload() {
+  return {
+    findings: [
+      {
+        constraint_id: "side_quest_reward_gold_cap",
+        defect_class: "reward_out_of_range",
+        entities: ["quest:missing_caravan"],
+        evidence: {
+          assert: "reward.gold <= 80",
+          violating_assignment: { "reward.gold": 150 },
+        },
+        message: "Entity quest:missing_caravan violates reward.gold <= 80",
+        oracle_type: "deterministic",
+        severity: "major",
+        source: "checker",
+        status: "confirmed",
+      },
+    ],
+    payload_schema_version: "checker-report@1",
+    snapshot_id: PREVIEW_SNAPSHOT_ID,
   };
 }
 
@@ -763,6 +825,7 @@ function outcomeApi(
     getSpec: vi.fn(async () => baseSpec),
     listConstraints: vi.fn(),
     listExecutionProfiles: vi.fn(),
+    listReplaySourceRuns: vi.fn(),
     listSpecs: vi.fn(),
     proposeGeneration: vi.fn(),
     resolveExecutionOption: vi.fn(),
@@ -783,9 +846,9 @@ function successfulArtifacts(): ReadonlyMap<string, ArtifactPayloadView> {
 function rejectedArtifacts(): ReadonlyMap<string, ArtifactPayloadView> {
   return new Map([
     [FAILURE_ID, rejectedManifest()],
-    [PATCH_ID, artifactView(patchSummary)],
-    [PREVIEW_ID, artifactView(previewSummary)],
-    [GATE_EVIDENCE_ID, artifactView(gateEvidenceSummary)],
+    [PATCH_ID, artifactView(patchSummary, rejectedPatchPayload())],
+    [PREVIEW_ID, artifactView(previewSummary, rejectedPreviewPayload())],
+    [GATE_EVIDENCE_ID, artifactView(gateEvidenceSummary, rejectedCheckerPayload())],
   ]);
 }
 
@@ -886,12 +949,38 @@ describe("Generation outcome", () => {
 
     renderOutcome(harness.api);
 
-    expect(await screen.findByText("generation_gate_rejected")).toBeVisible();
+    const pageTitle = screen.getByRole("heading", { level: 1, name: "生成结果" });
+    const runHeader = pageTitle.closest("header");
+    expect(runHeader).not.toBeNull();
+    expect(within(runHeader!).getByText(RUN_ID).tagName).toBe("CODE");
+    const outcomeHeading = await screen.findByRole("heading", {
+      name: "拦截成功：金币奖励 150 超过上限 80",
+    });
+    expect(outcomeHeading).toBeVisible();
+    const technicalStatus = screen.getByText("查看运行技术状态").closest("details");
+    expect(technicalStatus).not.toHaveAttribute("open");
+    expect(
+      outcomeHeading.compareDocumentPosition(technicalStatus!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByText("failed")).not.toBeVisible();
+    expect(screen.getByText("生成已完成，确定性门禁阻止了不合规提议；这不是系统故障。")).toBeVisible();
+    expect(screen.getByRole("region", { name: "提议改动" })).toHaveTextContent(
+      "失踪的商队 quest:missing_caravan reward.gold 60 → 150",
+    );
+    expect(screen.getByRole("region", { name: "拦截原因" })).toHaveTextContent(
+      "side_quest_reward_gold_cap 150 > 80 确定性检查 · confirmed",
+    );
+    expect(screen.getByRole("region", { name: "正式内容状态" })).toHaveTextContent("正式内容未变化");
+    expect(screen.getByRole("region", { name: "正式内容状态" })).toHaveTextContent("没有移动任何正式 ref");
+    expect(screen.getByRole("link", { name: "调整目标后重新生成" })).toHaveAttribute("href", "/generation");
+    expect(screen.queryByRole("button", { name: /repair/i })).not.toBeInTheDocument();
+    const evidenceDetails = screen.getByText("查看技术证据（3）").closest("details");
+    expect(evidenceDetails).not.toHaveAttribute("open");
     act(() => harness.callbacks()?.onEvent(preliminaryGateEvent(), "6"));
     const preliminaryGate = await screen.findByRole("heading", { name: "Preliminary gate" });
     expect(preliminaryGate.closest("section")).toHaveAttribute("data-state", "error");
-    expect(screen.getByText(PATCH_ID)).toBeVisible();
-    expect(screen.getByText(PREVIEW_ID)).toBeVisible();
+    expect(screen.getByText(PATCH_ID)).not.toBeVisible();
+    expect(screen.getByText(PREVIEW_ID)).not.toBeVisible();
     expect(screen.queryByText(CONFIG_ID)).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "候选后续动作" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Review 候选" })).not.toBeInTheDocument();
@@ -906,6 +995,80 @@ describe("Generation outcome", () => {
     expect(harness.api.getApproval).not.toHaveBeenCalled();
     expect(harness.api.getArtifact).not.toHaveBeenCalledWith(RENDERED_ID);
     expect(harness.api.getArtifact).not.toHaveBeenCalledWith(CASSETTE_ID);
+  });
+
+  it("fails closed instead of making semantic claims when rejected evidence payloads disagree", async () => {
+    const artifacts = new Map(rejectedArtifacts());
+    const checker = structuredClone(artifacts.get(GATE_EVIDENCE_ID)!);
+    const payload = checker.payload as ReturnType<typeof rejectedCheckerPayload>;
+    payload.findings[0].evidence.violating_assignment["reward.gold"] = 149;
+    artifacts.set(GATE_EVIDENCE_ID, checker);
+    const harness = outcomeApi(async () => run("failed", { failureArtifactId: FAILURE_ID }), artifacts);
+
+    renderOutcome(harness.api);
+
+    expect(await screen.findByRole("heading", { name: "候选 authority 不安全" })).toBeVisible();
+    expect(screen.queryByText(/60\s*→\s*150/)).not.toBeInTheDocument();
+    expect(screen.queryByText("正式内容未变化")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "调整目标后重新生成" })).not.toBeInTheDocument();
+  });
+
+  it("does not report a reconnect failure when a terminal RunView closes an empty resumed stream", async () => {
+    const harness = outcomeApi(
+      async () => run("failed", { failureArtifactId: FAILURE_ID }),
+      rejectedArtifacts(),
+    );
+    renderOutcome(harness.api);
+    await waitFor(() => expect(harness.callbacks()).not.toBeNull());
+
+    act(() => harness.callbacks()?.onStateChange({ status: "disconnected" }));
+
+    expect(await screen.findByRole("heading", { name: "拦截成功：金币奖励 150 超过上限 80" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "事件流连接中断" })).not.toBeInTheDocument();
+  });
+
+  it("reports a reconnect failure when a terminal RunView receives a partial suffix before EOF", async () => {
+    const harness = outcomeApi(
+      async () => run("failed", { failureArtifactId: FAILURE_ID }),
+      rejectedArtifacts(),
+    );
+    renderOutcome(harness.api);
+    await waitFor(() => expect(harness.callbacks()).not.toBeNull());
+
+    act(() => {
+      harness.callbacks()?.onStateChange({ status: "connecting" });
+      harness.callbacks()?.onEvent(preliminaryGateEvent(), "6");
+      harness.callbacks()?.onStateChange({ status: "disconnected" });
+    });
+
+    expect(await screen.findByRole("heading", { name: "事件流连接中断" })).toBeVisible();
+  });
+
+  it("keeps real stream errors visible for a terminal RunView", async () => {
+    const harness = outcomeApi(
+      async () => run("failed", { failureArtifactId: FAILURE_ID }),
+      rejectedArtifacts(),
+    );
+    renderOutcome(harness.api);
+    await waitFor(() => expect(harness.callbacks()).not.toBeNull());
+
+    act(() =>
+      harness.callbacks()?.onStateChange({ error: new Error("invalid terminal frame"), status: "error" }),
+    );
+
+    expect(await screen.findByRole("heading", { name: "事件流连接中断" })).toBeVisible();
+  });
+
+  it("reports an empty stream disconnect while the authoritative RunView is nonterminal", async () => {
+    const harness = outcomeApi(async () => run("queued"), new Map());
+    renderOutcome(harness.api);
+    await waitFor(() => expect(harness.callbacks()).not.toBeNull());
+
+    act(() => harness.callbacks()?.onStateChange({ status: "disconnected" }));
+
+    expect(await screen.findByRole("heading", { name: "事件流连接中断" })).toBeVisible();
+    expect(screen.getByText("queued")).toBeVisible();
+    expect(screen.queryByText("查看运行技术状态")).not.toBeInTheDocument();
   });
 
   it("shows a verified repair successor without inheriting the superseded workflow state", async () => {

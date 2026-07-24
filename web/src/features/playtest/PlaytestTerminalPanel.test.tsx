@@ -140,6 +140,7 @@ function api(): PlaytestApi {
     getSpec: vi.fn(),
     getTaskSuite: vi.fn(),
     getTaskSuiteDerivationBinding: vi.fn(),
+    listConfigExports: vi.fn(),
     listExecutionProfiles: vi.fn(),
     listRunCommands: vi.fn(),
     listRunFindingLinks: vi.fn(async () => ({
@@ -149,6 +150,7 @@ function api(): PlaytestApi {
       page_schema_version: "page@1" as const,
       read_snapshot_id: "read:terminal-findings",
     })),
+    listReplaySourceRuns: vi.fn(),
     listTaskSuites: vi.fn(),
     resolveExecutionOption: vi.fn(),
     runPlaytest: vi.fn(),

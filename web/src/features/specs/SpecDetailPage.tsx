@@ -16,6 +16,12 @@ import {
   type PatchArtifactReadView,
   type SpecWorkflowApi,
 } from "./api";
+import {
+  compileStructuredOperations,
+  createStructuredOperation,
+  StructuredPatchEditor,
+  type StructuredOperationDraft,
+} from "./StructuredPatchEditor";
 import "./specs.css";
 
 export type SpecDetailApi = Pick<
@@ -104,6 +110,11 @@ export function SpecDetailPage({
   const [noCurrentRef, setNoCurrentRef] = useState(false);
   const [constraintSnapshotId, setConstraintSnapshotId] = useState("");
   const [selectedExportProfiles, setSelectedExportProfiles] = useState<string[]>([]);
+  const [structuredOperations, setStructuredOperations] = useState<StructuredOperationDraft[]>([
+    createStructuredOperation("structured-row-1"),
+  ]);
+  const [useRawOperations, setUseRawOperations] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [operationsJson, setOperationsJson] = useState("[]");
   const [preconditionsJson, setPreconditionsJson] = useState("[]");
   const [expectedToFix, setExpectedToFix] = useState("");
@@ -186,7 +197,8 @@ export function SpecDetailPage({
     event.preventDefault();
     if (draftAttempt || draftPending || !detail.data) return;
     setFormError(null);
-    const operations = parseJsonArray(operationsJson);
+    const structured = compileStructuredOperations(structuredOperations, currentGraph.items);
+    const operations = useRawOperations ? parseJsonArray(operationsJson) : structured.ops;
     const preconditions = parseJsonArray(preconditionsJson);
     const exactRevision = Number(expectedRefRevision);
     const expectedRef = noCurrentRef
@@ -204,18 +216,26 @@ export function SpecDetailPage({
       );
       return profile ? [profile.profile] : [];
     });
+    if (exportProfiles.length > 0 && !constraintSnapshotId.trim()) {
+      setFormError(
+        "已选择配置导出方案；配置导出必须绑定约束快照。请在“高级：精确绑定、前置条件与原始 JSON”中填写约束快照 Artifact ID，或取消配置导出方案。当前输入已保留，草案尚未提交。",
+      );
+      return;
+    }
     if (
       !refName.trim() ||
       expectedRef === undefined ||
       operations === null ||
       operations.length === 0 ||
+      (!useRawOperations && structured.error !== null) ||
       preconditions === null ||
       exportProfiles.length !== selectedExportProfiles.length ||
       !rationale.trim() ||
       !sideEffectRisk.trim()
     ) {
       setFormError(
-        "请填写 exact ref、非空 operations 数组、合法 preconditions 数组、说明与风险；如选择 export profile，必须是 exact active 版本。",
+        structured.error ??
+          "请填写 exact ref、非空 operations、合法 preconditions、说明与风险；如选择 export profile，必须是 exact active 版本。",
       );
       return;
     }
@@ -367,221 +387,6 @@ export function SpecDetailPage({
         </div>
       </dl>
 
-      <aside className="gf-specs__edit-boundary" role="note">
-        <PencilRuler aria-hidden="true" size={20} />
-        <div>
-          <strong>IR 编辑边界</strong>
-          <p>
-            本页不直接修改 Snapshot。任何人工编辑必须创建 typed Patch 草案，绑定 exact
-            base/ref，随后进入验证与审批。
-          </p>
-        </div>
-      </aside>
-
-      <section className="gf-specs__workspace-section" aria-labelledby="patch-draft-title">
-        <header className="gf-specs__section-heading">
-          <FilePenLine aria-hidden="true" size={19} />
-          <div>
-            <h2 id="patch-draft-title">创建 typed Patch 草案</h2>
-            <p>
-              Snapshot 保持不可变；这里仅创建 <code>patch@2</code> candidate，并绑定当前 exact base/ref 与显式
-              export profiles。
-            </p>
-          </div>
-        </header>
-
-        {draftError &&
-          (draftError instanceof ApiProblemError ? (
-            <div>
-              <ProblemPanel problem={draftError.problem} />
-              <button
-                className="gf-secondary-button"
-                onClick={() => {
-                  setDraftAttempt(null);
-                  setDraftError(null);
-                }}
-                type="button"
-              >
-                修正草案输入
-              </button>
-            </div>
-          ) : (
-            <StatePanel
-              action={
-                draftAttempt ? (
-                  <button
-                    className="gf-secondary-button"
-                    disabled={draftPending}
-                    onClick={() => void executePatchDraft(draftAttempt)}
-                    type="button"
-                  >
-                    以同一 intent 重试
-                  </button>
-                ) : undefined
-              }
-              description="传输结果未知；页面保留完全相同的 payload 与 idempotency key，不会自动创建第二个草案。"
-              state="error"
-              title="Patch 创建结果未知"
-            />
-          ))}
-
-        {formError && <p role="alert">{formError}</p>}
-
-        <form className="gf-form" onSubmit={submitPatchDraft}>
-          <fieldset disabled={draftPending || draftAttempt !== null || draftResult !== null}>
-            <legend className="u-small">Exact Patch draft input</legend>
-            <label>
-              Ref name
-              <input onChange={(event) => setRefName(event.target.value)} required value={refName} />
-            </label>
-            <label className="gf-cluster">
-              <input
-                checked={noCurrentRef}
-                onChange={(event) => setNoCurrentRef(event.target.checked)}
-                type="checkbox"
-              />
-              确认当前 ref 不存在（expected_ref=null）
-            </label>
-            {!noCurrentRef && (
-              <div className="gf-form">
-                <label>
-                  Expected ref Artifact ID
-                  <input
-                    onChange={(event) => setExpectedRefArtifactId(event.target.value)}
-                    required
-                    value={expectedRefArtifactId}
-                  />
-                </label>
-                <label>
-                  Expected ref revision
-                  <input
-                    min="1"
-                    onChange={(event) => setExpectedRefRevision(event.target.value)}
-                    required
-                    type="number"
-                    value={expectedRefRevision}
-                  />
-                </label>
-              </div>
-            )}
-            <label>
-              Candidate export profile
-              <select
-                aria-describedby="patch-export-profile-help"
-                multiple
-                onChange={(event) =>
-                  setSelectedExportProfiles(
-                    [...event.currentTarget.selectedOptions].map((option) => option.value),
-                  )
-                }
-                size={Math.min(Math.max(exportProfiles.length, 2), 5)}
-                value={selectedExportProfiles}
-              >
-                {exportProfiles.map((profile) => (
-                  <option key={profileKey(profile)} value={profileKey(profile)}>
-                    {profile.display_name} · {profileKey(profile)}
-                  </option>
-                ))}
-              </select>
-              <span className="u-small" id="patch-export-profile-help">
-                可选；选择时使用 exact active config_export profile，不使用隐藏默认值。
-              </span>
-            </label>
-            {currentProfiles.nextCursor && (
-              <button
-                className="gf-secondary-button"
-                disabled={currentProfiles.loading}
-                onClick={() => void readProfilePage(currentProfiles.nextCursor, false)}
-                type="button"
-              >
-                {currentProfiles.loading ? "正在加载 profiles" : "加载更多 profiles"}
-              </button>
-            )}
-            {currentProfiles.error && (
-              <StatePanel
-                action={
-                  currentProfiles.error instanceof CursorExpiredError ? (
-                    <button
-                      className="gf-secondary-button"
-                      onClick={() => void readProfilePage(null, true)}
-                      type="button"
-                    >
-                      重新读取 profile 目录
-                    </button>
-                  ) : undefined
-                }
-                description="Profile 分页读取失败；不会回退到隐式 export profile。"
-                state="error"
-                title="无法继续读取 profiles"
-              />
-            )}
-            <label>
-              Constraint snapshot Artifact ID（可选）
-              <input
-                onChange={(event) => setConstraintSnapshotId(event.target.value)}
-                value={constraintSnapshotId}
-              />
-            </label>
-            <label>
-              Patch operations JSON
-              <textarea
-                className="u-mono"
-                onChange={(event) => setOperationsJson(event.target.value)}
-                rows={8}
-                value={operationsJson}
-              />
-            </label>
-            <label>
-              Preconditions JSON
-              <textarea
-                className="u-mono"
-                onChange={(event) => setPreconditionsJson(event.target.value)}
-                rows={4}
-                value={preconditionsJson}
-              />
-            </label>
-            <label>
-              Expected Finding IDs（每行一个，可选）
-              <textarea
-                onChange={(event) => setExpectedToFix(event.target.value)}
-                rows={3}
-                value={expectedToFix}
-              />
-            </label>
-            <label>
-              Patch rationale
-              <textarea
-                onChange={(event) => setRationale(event.target.value)}
-                required
-                rows={3}
-                value={rationale}
-              />
-            </label>
-            <label>
-              Side-effect risk
-              <input
-                onChange={(event) => setSideEffectRisk(event.target.value)}
-                required
-                value={sideEffectRisk}
-              />
-            </label>
-            <button type="submit">创建 Patch 草案</button>
-          </fieldset>
-        </form>
-
-        {draftResult && (
-          <section className="gf-specs__authority" data-authority="candidate">
-            <FilePenLine aria-hidden="true" size={22} />
-            <div>
-              <p className="gf-specs__authority-label">Candidate</p>
-              <h3>Typed Patch 草案已创建</h3>
-              <CopyableText copyLabel="复制 Patch Artifact ID" value={draftResult.artifact.artifact_id} />
-              <a href={`/patches/${encodeURIComponent(draftResult.artifact.artifact_id)}`}>打开 Patch 草案</a>
-            </div>
-          </section>
-        )}
-      </section>
-
       <section className="gf-specs__workspace-section" aria-labelledby="spec-graph-title">
         <header className="gf-specs__section-heading">
           <Network aria-hidden="true" size={19} />
@@ -609,6 +414,271 @@ export function SpecDetailPage({
             paginationState={graphPaginationState(currentGraph)}
           />
         )}
+      </section>
+
+      <aside className="gf-specs__edit-boundary" role="note">
+        <PencilRuler aria-hidden="true" size={20} />
+        <div>
+          <strong>IR 编辑边界</strong>
+          <p>
+            本页不直接修改 Snapshot。任何人工编辑必须创建 typed Patch 草案，绑定 exact
+            base/ref，随后进入验证与审批。
+          </p>
+        </div>
+      </aside>
+
+      <section className="gf-specs__workspace-section" aria-labelledby="patch-draft-title">
+        <header className="gf-specs__section-heading">
+          <FilePenLine aria-hidden="true" size={19} />
+          <div>
+            <h2 id="patch-draft-title">创建 typed Patch 草案</h2>
+            <p>用名称选择要改的实体与关系，预览后再进入验证、审批与应用；当前 Snapshot 不会被直接修改。</p>
+          </div>
+        </header>
+
+        <div className="gf-specs__patch-content">
+          {draftError &&
+            (draftError instanceof ApiProblemError ? (
+              <div>
+                <ProblemPanel problem={draftError.problem} />
+                <button
+                  className="gf-secondary-button"
+                  onClick={() => {
+                    setDraftAttempt(null);
+                    setDraftError(null);
+                  }}
+                  type="button"
+                >
+                  修正草案输入
+                </button>
+              </div>
+            ) : (
+              <StatePanel
+                action={
+                  draftAttempt ? (
+                    <button
+                      className="gf-secondary-button"
+                      disabled={draftPending}
+                      onClick={() => void executePatchDraft(draftAttempt)}
+                      type="button"
+                    >
+                      以同一 intent 重试
+                    </button>
+                  ) : undefined
+                }
+                description="传输结果未知；页面保留完全相同的 payload 与 idempotency key，不会自动创建第二个草案。"
+                state="error"
+                title="Patch 创建结果未知"
+              />
+            ))}
+
+          {formError && <p role="alert">{formError}</p>}
+
+          <form className="gf-form" onSubmit={submitPatchDraft}>
+            <fieldset disabled={draftPending || draftAttempt !== null || draftResult !== null}>
+              <legend className="u-small">Patch 草案</legend>
+              <div className="gf-specs__patch-destination">
+                <div>
+                  <strong>提交到</strong>
+                  <span>
+                    {noCurrentRef ? "尚不存在的规格分支" : `当前规格分支 · revision ${expectedRefRevision}`}
+                  </span>
+                </div>
+                <label className="gf-cluster">
+                  目标分支名称（Ref）
+                  <input onChange={(event) => setRefName(event.target.value)} required value={refName} />
+                </label>
+              </div>
+
+              <StructuredPatchEditor
+                graphItems={currentGraph.items}
+                onChange={setStructuredOperations}
+                operations={structuredOperations}
+              />
+              {useRawOperations && (
+                <p className="gf-specs__raw-mode-note" role="status">
+                  当前将提交高级区中的原始 TypedOp JSON；上方可视化变更暂不进入请求。取消高级区勾选即可恢复。
+                </p>
+              )}
+
+              <label>
+                配置导出方案（可选）
+                <select
+                  aria-describedby="patch-export-profile-help"
+                  multiple
+                  onChange={(event) =>
+                    setSelectedExportProfiles(
+                      [...event.currentTarget.selectedOptions].map((option) => option.value),
+                    )
+                  }
+                  size={Math.min(Math.max(exportProfiles.length, 2), 5)}
+                  value={selectedExportProfiles}
+                >
+                  {exportProfiles.map((profile) => (
+                    <option key={profileKey(profile)} value={profileKey(profile)}>
+                      {profile.display_name} · v{profile.profile.version}
+                    </option>
+                  ))}
+                </select>
+                <span className="u-small" id="patch-export-profile-help">
+                  可选；仅在这份 Patch 需要配置导出验证时选择。
+                </span>
+              </label>
+              {currentProfiles.nextCursor && (
+                <button
+                  className="gf-secondary-button"
+                  disabled={currentProfiles.loading}
+                  onClick={() => void readProfilePage(currentProfiles.nextCursor, false)}
+                  type="button"
+                >
+                  {currentProfiles.loading ? "正在加载 profiles" : "加载更多 profiles"}
+                </button>
+              )}
+              {currentProfiles.error && (
+                <StatePanel
+                  action={
+                    currentProfiles.error instanceof CursorExpiredError ? (
+                      <button
+                        className="gf-secondary-button"
+                        onClick={() => void readProfilePage(null, true)}
+                        type="button"
+                      >
+                        重新读取 profile 目录
+                      </button>
+                    ) : undefined
+                  }
+                  description="Profile 分页读取失败；不会回退到隐式 export profile。"
+                  state="error"
+                  title="无法继续读取 profiles"
+                />
+              )}
+
+              <label>
+                变更说明
+                <textarea
+                  onChange={(event) => setRationale(event.target.value)}
+                  placeholder="说明为什么要做这些变更"
+                  required
+                  rows={3}
+                  value={rationale}
+                />
+              </label>
+              <label>
+                副作用风险
+                <input
+                  onChange={(event) => setSideEffectRisk(event.target.value)}
+                  placeholder="例如：低风险，仅新增叙事实体"
+                  required
+                  value={sideEffectRisk}
+                />
+              </label>
+
+              <details
+                className="gf-specs__advanced-binding"
+                onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
+              >
+                <summary>高级：精确绑定、前置条件与原始 JSON</summary>
+                {advancedOpen && (
+                  <div className="gf-specs__advanced-fields">
+                    <p className="gf-specs__structured-hint">
+                      仅在重放既有请求或处理无法由可视化编辑器表达的 payload 时使用。
+                    </p>
+                    <label className="gf-cluster">
+                      <input
+                        checked={noCurrentRef}
+                        onChange={(event) => setNoCurrentRef(event.target.checked)}
+                        type="checkbox"
+                      />
+                      确认当前 ref 不存在（expected_ref=null）
+                    </label>
+                    {!noCurrentRef && (
+                      <div className="gf-form">
+                        <label>
+                          Expected ref Artifact ID
+                          <input
+                            onChange={(event) => setExpectedRefArtifactId(event.target.value)}
+                            required
+                            value={expectedRefArtifactId}
+                          />
+                        </label>
+                        <label>
+                          Expected ref revision
+                          <input
+                            min="1"
+                            onChange={(event) => setExpectedRefRevision(event.target.value)}
+                            required
+                            type="number"
+                            value={expectedRefRevision}
+                          />
+                        </label>
+                      </div>
+                    )}
+                    <label>
+                      Constraint snapshot Artifact ID（可选）
+                      <input
+                        onChange={(event) => setConstraintSnapshotId(event.target.value)}
+                        value={constraintSnapshotId}
+                      />
+                    </label>
+                    <label className="gf-cluster">
+                      <input
+                        checked={useRawOperations}
+                        onChange={(event) => setUseRawOperations(event.target.checked)}
+                        type="checkbox"
+                      />
+                      使用原始 TypedOp JSON 替代上方可视化变更
+                    </label>
+                    <label>
+                      Patch operations JSON
+                      <textarea
+                        className="u-mono"
+                        onChange={(event) => {
+                          setOperationsJson(event.target.value);
+                          setUseRawOperations(true);
+                        }}
+                        rows={8}
+                        value={operationsJson}
+                      />
+                    </label>
+                    <label>
+                      Preconditions JSON
+                      <textarea
+                        className="u-mono"
+                        onChange={(event) => setPreconditionsJson(event.target.value)}
+                        rows={4}
+                        value={preconditionsJson}
+                      />
+                    </label>
+                    <label>
+                      Expected Finding IDs（每行一个，可选）
+                      <textarea
+                        onChange={(event) => setExpectedToFix(event.target.value)}
+                        rows={3}
+                        value={expectedToFix}
+                      />
+                    </label>
+                  </div>
+                )}
+              </details>
+
+              <button type="submit">创建 Patch 草案</button>
+            </fieldset>
+          </form>
+
+          {draftResult && (
+            <section className="gf-specs__authority" data-authority="candidate">
+              <FilePenLine aria-hidden="true" size={22} />
+              <div>
+                <p className="gf-specs__authority-label">Candidate</p>
+                <h3>Typed Patch 草案已创建</h3>
+                <CopyableText copyLabel="复制 Patch Artifact ID" value={draftResult.artifact.artifact_id} />
+                <a href={`/patches/${encodeURIComponent(draftResult.artifact.artifact_id)}`}>
+                  打开 Patch 草案
+                </a>
+              </div>
+            </section>
+          )}
+        </div>
       </section>
     </div>
   );

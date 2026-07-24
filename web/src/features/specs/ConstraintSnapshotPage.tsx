@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, CircleDotDashed, FileCheck2, GitBranch, Route, ShieldQuestion } from "lucide-react";
+import { useState } from "react";
 
 import type { components } from "../../api/generated/openapi";
 import { ApiProblemError } from "../../api/problem";
@@ -11,9 +12,11 @@ import {
   type SpecWorkflowApi,
   type SubjectApprovalBindingView,
 } from "./api";
+import { ConstraintSummaryList } from "./ConstraintSummary";
 import "./specs.css";
 
-export type ConstraintSnapshotApi = Pick<SpecWorkflowApi, "getConstraintSnapshot">;
+export type ConstraintSnapshotApi = Pick<SpecWorkflowApi, "getConstraintSnapshot"> &
+  Partial<Pick<SpecWorkflowApi, "listRefHistory">>;
 
 type ApprovalStatus = SubjectApprovalBindingView["approval_status"];
 type RefValue = components["schemas"]["RefValue"];
@@ -31,6 +34,12 @@ export type ConstraintSnapshotAuthorityEvidence =
       evidenceKind: "ref_history";
       refName: string;
       refValue: RefValue;
+    }
+  | {
+      currentRefValue: RefValue;
+      evidenceKind: "historical_ref";
+      historicalRefValue: RefValue;
+      refName: string;
     }
   | {
       evidenceKind: "unresolved";
@@ -174,6 +183,23 @@ function AuthorityPanel({
     );
   }
 
+  if (evidence.evidenceKind === "historical_ref" && evidence.historicalRefValue.artifact_id === artifactId) {
+    return (
+      <section className="gf-specs__authority" data-authority="historical">
+        <GitBranch aria-hidden="true" size={22} />
+        <div>
+          <p className="gf-specs__authority-label">Historical</p>
+          <h2>这是曾发布过的历史约束</h2>
+          <p>
+            此 Artifact 位于 revision {evidence.historicalRefValue.revision}；当前 ref 已到 revision{" "}
+            {evidence.currentRefValue.revision}，不会把历史版本误称为当前权威。
+          </p>
+          <a href={`/refs/${encodeURIComponent(evidence.refName)}/history`}>检查完整 ref 历史</a>
+        </div>
+      </section>
+    );
+  }
+
   const reason =
     evidence.evidenceKind === "unresolved"
       ? evidence.reason
@@ -205,14 +231,62 @@ export function ConstraintSnapshotPage({
     evidenceKind: "unresolved",
     reason: "未提供批准目标或 ref 历史证据。",
   },
+  refName = null,
 }: {
   api?: ConstraintSnapshotApi;
   artifactId: string;
   authorityEvidence?: ConstraintSnapshotAuthorityEvidence;
+  refName?: string | null;
 }) {
+  const [refInput, setRefInput] = useState(refName ?? "");
   const detail = useQuery({
     queryFn: () => api.getConstraintSnapshot(artifactId),
     queryKey: ["constraint-snapshot", artifactId],
+    retry: false,
+  });
+  const refEvidence = useQuery({
+    enabled: refName !== null,
+    queryFn: async (): Promise<ConstraintSnapshotAuthorityEvidence> => {
+      if (!refName || !api.listRefHistory) {
+        return { evidenceKind: "unresolved", reason: "未提供可读取的 exact ref history。" };
+      }
+      const entries = [] as RefValue[];
+      const seen = new Set<string>();
+      let cursor: string | null = null;
+      let readSnapshotId: string | null = null;
+      for (let pageCount = 0; pageCount < 256; pageCount += 1) {
+        const page = await api.listRefHistory(refName, cursor);
+        if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
+          throw new Error("Constraint ref history changed read snapshot.");
+        }
+        readSnapshotId = page.read_snapshot_id;
+        entries.push(...page.items.map((entry) => entry.value));
+        const next = page.next_cursor ?? null;
+        if (next === null) {
+          if (entries.length === 0) throw new Error("Constraint ref history is empty.");
+          const current = entries.reduce((latest, value) =>
+            value.revision > latest.revision ? value : latest,
+          );
+          if (current.artifact_id === artifactId) {
+            return { evidenceKind: "ref_history", refName, refValue: current };
+          }
+          const historical = entries.find((value) => value.artifact_id === artifactId);
+          return historical
+            ? {
+                currentRefValue: current,
+                evidenceKind: "historical_ref",
+                historicalRefValue: historical,
+                refName,
+              }
+            : { evidenceKind: "unresolved", reason: `Ref ${refName} 从未指向此 Artifact。` };
+        }
+        if (seen.has(next)) throw new Error("Constraint ref history returned a cursor cycle.");
+        seen.add(next);
+        cursor = next;
+      }
+      throw new Error("Constraint ref history exceeded its bounded page count.");
+    },
+    queryKey: ["constraint-snapshot", artifactId, "authority", refName],
     retry: false,
   });
 
@@ -256,6 +330,7 @@ export function ConstraintSnapshotPage({
 
   const snapshot = detail.data;
   const constraints = constraintPreviews(snapshot);
+  const resolvedAuthority = refName === null ? authorityEvidence : (refEvidence.data ?? authorityEvidence);
 
   return (
     <div className="gf-page gf-specs gf-constraint-snapshot">
@@ -278,7 +353,41 @@ export function ConstraintSnapshotPage({
         </span>
       </header>
 
-      <AuthorityPanel artifactId={snapshot.artifact.artifact_id} evidence={authorityEvidence} />
+      {refEvidence.isPending && refName !== null ? (
+        <StatePanel
+          description={`正在读取 ${refName} 的完整历史。`}
+          state="loading"
+          title="正在验证权威状态"
+        />
+      ) : refEvidence.isError ? (
+        <StatePanel
+          description="Ref history 未能完整闭合；页面不会据此标记 authority。"
+          state="error"
+          title="无法验证权威状态"
+        />
+      ) : (
+        <AuthorityPanel artifactId={snapshot.artifact.artifact_id} evidence={resolvedAuthority} />
+      )}
+
+      {refName === null && (
+        <section className="gf-specs__authority-check" aria-label="检查约束 ref">
+          <div>
+            <strong>知道它属于哪个约束 ref？</strong>
+            <p>输入 ref 名称后由服务器完整历史证明当前或历史状态；无需填写 Artifact ID。</p>
+          </div>
+          <label>
+            Ref 名称
+            <input onChange={(event) => setRefInput(event.target.value)} value={refInput} />
+          </label>
+          <a
+            aria-disabled={!refInput.trim()}
+            className="gf-secondary-button"
+            href={refInput.trim() ? `?ref=${encodeURIComponent(refInput.trim())}` : undefined}
+          >
+            检查 ref 历史
+          </a>
+        </section>
+      )}
 
       <dl className="gf-specs__facts" aria-label="约束快照身份">
         <div>
@@ -346,13 +455,19 @@ export function ConstraintSnapshotPage({
             title="快照中没有约束条目"
           />
         ) : (
-          <CursorTable
-            caption="约束条目（快照载荷）"
-            columns={constraintColumns}
-            getRowKey={(item) => item.id}
-            items={constraints}
-            toolbar={<span>{constraints.length} 条 exact payload entry</span>}
-          />
+          <div className="gf-constraint-snapshot__content">
+            <ConstraintSummaryList values={snapshot.constraints} />
+            <details>
+              <summary>查看技术字段表</summary>
+              <CursorTable
+                caption="约束条目（快照载荷）"
+                columns={constraintColumns}
+                getRowKey={(item) => item.id}
+                items={constraints}
+                toolbar={<span>{constraints.length} 条 exact payload entry</span>}
+              />
+            </details>
+          </div>
         )}
       </section>
     </div>

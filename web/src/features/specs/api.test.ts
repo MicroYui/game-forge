@@ -56,6 +56,7 @@ describe("Spec and constraint workflow API", () => {
     const get = vi.fn(async (path: string) => {
       switch (path) {
         case "/api/v1/specs":
+        case "/api/v1/artifacts":
         case "/api/v1/specs/{artifact_id}/graph":
         case "/api/v1/constraints":
         case "/api/v1/constraint-proposals":
@@ -93,6 +94,7 @@ describe("Spec and constraint workflow API", () => {
     const api = createSpecWorkflowApi({ GET: get } as unknown as GameForgeOpenApiClient);
 
     await api.listSpecs(cursor);
+    await api.listArtifacts("source_raw", cursor);
     await api.getSpec("artifact:spec-1");
     await api.getArtifactPayload("artifact:spec-1");
     await api.listSpecGraph("artifact:spec-1", cursor);
@@ -113,6 +115,9 @@ describe("Spec and constraint workflow API", () => {
     expect(versionedApproval).toEqual({ etag: '"approval:9"', value: approval });
     expect(get).toHaveBeenCalledWith("/api/v1/specs", {
       params: { query: { cursor } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/artifacts", {
+      params: { query: { cursor, kind: "source_raw" } },
     });
     expect(get).toHaveBeenCalledWith("/api/v1/specs/{artifact_id}/graph", {
       params: { path: { artifact_id: "artifact:spec-1" }, query: { cursor } },

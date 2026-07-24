@@ -257,7 +257,7 @@ function hasInheritedReplacementAuthority(item: ApprovalRecord): boolean {
   );
 }
 
-export function verifyReplacementRevision(
+export function verifyReplacementChain(
   previous: PatchAuthorityProjection,
   replacement: PatchAuthorityProjection,
 ): void {
@@ -289,6 +289,21 @@ export function verifyReplacementRevision(
   ) {
     reject("Prior Patch revision was not retained as the exact superseded head predecessor.");
   }
+  if (
+    !replacement.binding.is_current_head ||
+    replacement.binding.subject_head_revision !== newPatch.revision
+  ) {
+    reject("Replacement Patch is not the exact current subject head.");
+  }
+}
+
+export function verifyReplacementRevision(
+  previous: PatchAuthorityProjection,
+  replacement: PatchAuthorityProjection,
+): void {
+  verifyReplacementChain(previous, replacement);
+  const newPatch = replacement.subject.patch;
+  const newItem = replacement.approval.approval;
   if (
     replacement.subject.approval_status !== "draft" ||
     replacement.binding.approval_status !== "draft" ||

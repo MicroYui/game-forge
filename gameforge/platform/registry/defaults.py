@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from types import MappingProxyType
-from typing import Any, get_args
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel
 
@@ -2847,6 +2847,7 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             str,
             RunKindIdentity,
             str,
+            Literal["active", "replay_only", "disabled"],
             AgentExecutionProfileSelectorV1 | None,
             tuple[tuple[str, str, str], ...],
         ],
@@ -2856,13 +2857,23 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "generation-graph@1",
             ("generation.propose", 1),
             "generation_proposer@1",
+            "replay_only",
             None,
             (("generation", "generation@1", "generation@1"),),
+        ),
+        (
+            "generation-graph@2",
+            ("generation.propose", 1),
+            "generation_proposer@1",
+            "active",
+            None,
+            (("generation", "generation@2", "generation@1"),),
         ),
         (
             "repair-graph@1",
             ("patch.repair", 1),
             "repair_search@1",
+            "active",
             None,
             (("repair", "repair@4", "repair@1"),),
         ),
@@ -2870,6 +2881,7 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "constraint-proposal-graph@1",
             ("constraint_proposal.propose", 1),
             "constraint_proposer@1",
+            "active",
             None,
             (("extraction", "extraction@1", "extraction@1"),),
         ),
@@ -2877,6 +2889,7 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "review-triage-graph@1",
             ("review.run", 1),
             "review_runner@1",
+            "active",
             None,
             (("review-triage", "review-triage@1", "review-triage@1"),),
         ),
@@ -2884,6 +2897,7 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "playtest-core-graph@1",
             ("playtest.run", 1),
             "playtest_runner@1",
+            "active",
             AgentExecutionProfileSelectorV1(
                 profile_field_path="/params/planner_policy",
                 config_pointer="/memory_mode",
@@ -2899,6 +2913,7 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "playtest-memory-graph@1",
             ("playtest.run", 1),
             "playtest_runner@1",
+            "active",
             AgentExecutionProfileSelectorV1(
                 profile_field_path="/params/planner_policy",
                 config_pointer="/memory_mode",
@@ -2919,12 +2934,13 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "bench-agent-graph@1",
             ("bench.run", 1),
             "bench_runner@1",
+            "active",
             None,
             (("bench-agent-case", "bench-agent@1", "bench@1"),),
         ),
     )
     graphs: list[AgentExecutionGraphV1] = []
-    for graph_version, run_kind, executor_key, profile_selector, node_shapes in shapes:
+    for graph_version, run_kind, executor_key, status, profile_selector, node_shapes in shapes:
         nodes = tuple(
             AgentExecutionNodeV1(
                 agent_node_id=node_id,
@@ -2938,7 +2954,7 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "agent_graph_version": graph_version,
             "run_kind": RunKindRef(kind=run_kind[0], version=run_kind[1]),
             "executor_key": executor_key,
-            "status": "active",
+            "status": status,
             "profile_selector": profile_selector,
             "nodes": nodes,
         }

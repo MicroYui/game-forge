@@ -40,9 +40,33 @@ export type PassedGenerationOutcome = {
   constraint: ConstraintSnapshotView;
 };
 
+export type RejectedGenerationChange = {
+  entityId: string;
+  entityTitle: string | null;
+  fieldPath: string;
+  newValue: number;
+  oldValue: number;
+};
+
+export type ConfirmedGenerationBlocker = {
+  actualValue: number;
+  constraintId: string;
+  entityId: string;
+  fieldPath: string;
+  limit: number;
+  severity: "critical" | "major" | "minor";
+};
+
+export type GateRejectedGenerationOutcome = {
+  blockers: ConfirmedGenerationBlocker[];
+  candidate: RejectedGenerationCandidate;
+  changes: RejectedGenerationChange[];
+  kind: "gate-rejected";
+};
+
 export type GenerationOutcome =
   | PassedGenerationOutcome
-  | { candidate: RejectedGenerationCandidate; kind: "gate-rejected" }
+  | GateRejectedGenerationOutcome
   | { candidate: FailedGenerationCandidate; kind: "failure" }
   | { candidate: UnsafeGenerationCandidate; kind: "unsafe" };
 
@@ -64,6 +88,201 @@ function assertSafe(condition: unknown, message: string): asserts condition {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function valueAtPath(root: Record<string, unknown>, path: string): unknown {
+  let current: unknown = root;
+  for (const segment of path.split(".")) {
+    if (!isRecord(current) || !Object.prototype.hasOwnProperty.call(current, segment)) return undefined;
+    current = current[segment];
+  }
+  return current;
+}
+
+function parseRejectedChangeTarget(target: string): { entityId: string; fieldPath: string } {
+  const separator = target.indexOf(".");
+  assertSafe(separator > 0 && separator < target.length - 1, "Rejected Patch target is malformed.");
+  const entityId = target.slice(0, separator);
+  const fieldPath = target.slice(separator + 1);
+  assertSafe(/^[^\s.]+$/.test(entityId), "Rejected Patch entity identity is unsafe.");
+  assertSafe(
+    /^[A-Za-z_][A-Za-z0-9_-]*(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/.test(fieldPath),
+    "Rejected Patch field path is unsafe.",
+  );
+  return { entityId, fieldPath };
+}
+
+function rejectedArtifactSummary(
+  artifacts: readonly ArtifactPayloadView[],
+  candidate: RejectedGenerationCandidate,
+  run: RunView,
+): Pick<GateRejectedGenerationOutcome, "blockers" | "changes"> {
+  const byId = new Map(artifacts.map((artifact) => [artifact.artifact.artifact_id, artifact]));
+  const patchView = byId.get(candidate.patch.artifact_id);
+  assertSafe(
+    patchView?.artifact.kind === "patch" &&
+      patchView.artifact.payload_schema_id === "patch@2" &&
+      isRecord(patchView.payload),
+    "Rejected Patch payload is unavailable or has the wrong schema.",
+  );
+  const patchPayload = patchView.payload;
+  assertSafe(patchPayload.patch_schema_version === "patch@2", "Rejected Patch schema marker changed.");
+  assertSafe(patchPayload.produced_by === "agent", "Rejected Patch is not an Agent proposal.");
+  assertSafe(
+    patchPayload.producer_run_id === run.run_id,
+    "Rejected Patch producer differs from the URL Run.",
+  );
+  assertSafe(
+    patchPayload.base_snapshot_id === candidate.patch.version_tuple.ir_snapshot_id,
+    "Rejected Patch exact base differs from its VersionTuple.",
+  );
+  assertSafe(
+    patchPayload.target_snapshot_id === candidate.preview.version_tuple.ir_snapshot_id,
+    "Rejected Patch target differs from the manifest preview.",
+  );
+  assertSafe(
+    Array.isArray(patchPayload.ops) && patchPayload.ops.length > 0,
+    "Rejected Patch has no typed ops.",
+  );
+
+  const changes = patchPayload.ops.map((value): RejectedGenerationChange => {
+    assertSafe(isRecord(value), "Rejected Patch contains a malformed op.");
+    assertSafe(
+      value.op === "set_entity_attr" &&
+        typeof value.op_id === "string" &&
+        value.op_id.length > 0 &&
+        typeof value.target === "string" &&
+        isFiniteNumber(value.old_value) &&
+        isFiniteNumber(value.new_value),
+      "Rejected Patch contains an op that cannot be summarized safely.",
+    );
+    const { entityId, fieldPath } = parseRejectedChangeTarget(value.target);
+    return {
+      entityId,
+      entityTitle: null,
+      fieldPath,
+      newValue: value.new_value,
+      oldValue: value.old_value,
+    };
+  });
+
+  const previewView = byId.get(candidate.preview.artifact_id);
+  assertSafe(
+    previewView?.artifact.kind === "ir_snapshot" &&
+      previewView.artifact.payload_schema_id === "ir-core@1" &&
+      isRecord(previewView.payload),
+    "Rejected preview payload is unavailable or has the wrong schema.",
+  );
+  const previewPayload = previewView.payload;
+  assertSafe(
+    previewPayload.meta_schema_version === "meta@1" &&
+      isRecord(previewPayload.entities) &&
+      isRecord(previewPayload.relations),
+    "Rejected preview is not a canonical IR snapshot.",
+  );
+  const entities = previewPayload.entities;
+  for (const change of changes) {
+    const entity = entities[change.entityId];
+    assertSafe(
+      isRecord(entity) &&
+        entity.schema_version === "ir-core@1" &&
+        typeof entity.type === "string" &&
+        entity.type.length > 0 &&
+        isRecord(entity.attrs),
+      "Rejected preview does not contain the changed canonical entity.",
+    );
+    assertSafe(
+      valueAtPath(entity.attrs, change.fieldPath) === change.newValue,
+      "Rejected preview value differs from the Patch proposal.",
+    );
+    const title = entity.attrs.title;
+    assertSafe(
+      title === undefined || (typeof title === "string" && title.length > 0),
+      "Rejected preview title is unsafe.",
+    );
+    change.entityTitle = title ?? null;
+  }
+
+  const checkerSummaries = candidate.evidence.filter(
+    (artifact) => artifact.kind === "checker_run" && artifact.payload_schema_id === "checker-report@1",
+  );
+  assertSafe(checkerSummaries.length === 1, "Rejected candidate does not bind exactly one checker report.");
+  const checkerView = byId.get(checkerSummaries[0].artifact_id);
+  assertSafe(
+    checkerView?.artifact.kind === "checker_run" &&
+      checkerView.artifact.payload_schema_id === "checker-report@1" &&
+      isRecord(checkerView.payload),
+    "Rejected checker payload is unavailable or has the wrong schema.",
+  );
+  const checkerPayload = checkerView.payload;
+  assertSafe(
+    checkerPayload.payload_schema_version === "checker-report@1" &&
+      checkerPayload.snapshot_id === patchPayload.target_snapshot_id &&
+      Array.isArray(checkerPayload.findings),
+    "Rejected checker report differs from the candidate preview.",
+  );
+
+  const blockers = checkerPayload.findings.flatMap((value): ConfirmedGenerationBlocker[] => {
+    if (
+      !isRecord(value) ||
+      value.source !== "checker" ||
+      value.oracle_type !== "deterministic" ||
+      value.status !== "confirmed" ||
+      value.defect_class !== "reward_out_of_range"
+    ) {
+      return [];
+    }
+    const findingEntities = value.entities;
+    assertSafe(
+      (value.severity === "critical" || value.severity === "major" || value.severity === "minor") &&
+        typeof value.constraint_id === "string" &&
+        value.constraint_id.length > 0 &&
+        isStringArray(findingEntities) &&
+        isRecord(value.evidence) &&
+        typeof value.evidence.assert === "string" &&
+        isRecord(value.evidence.violating_assignment),
+      "Confirmed generation blocker is malformed.",
+    );
+    const assertion =
+      /^([A-Za-z_][A-Za-z0-9_-]*(?:\.[A-Za-z_][A-Za-z0-9_-]*)*)\s*<=\s*(-?(?:0|[1-9]\d*)(?:\.\d+)?)$/.exec(
+        value.evidence.assert,
+      );
+    assertSafe(assertion !== null, "Confirmed generation blocker uses an unsupported assertion.");
+    const fieldPath = assertion[1];
+    const limit = Number(assertion[2]);
+    const actualValue = value.evidence.violating_assignment[fieldPath];
+    assertSafe(
+      Number.isFinite(limit) && isFiniteNumber(actualValue) && actualValue > limit,
+      "Confirmed generation blocker does not prove a numeric upper-bound violation.",
+    );
+    const matchingChanges = changes.filter(
+      (change) =>
+        change.fieldPath === fieldPath &&
+        change.newValue === actualValue &&
+        findingEntities.includes(change.entityId),
+    );
+    assertSafe(matchingChanges.length === 1, "Confirmed generation blocker does not bind one Patch change.");
+    return [
+      {
+        actualValue,
+        constraintId: value.constraint_id,
+        entityId: matchingChanges[0].entityId,
+        fieldPath,
+        limit,
+        severity: value.severity,
+      },
+    ];
+  });
+  assertSafe(blockers.length > 0, "Rejected candidate has no confirmed deterministic blocker.");
+  return { blockers, changes };
 }
 
 function configConstraintArtifactId(
@@ -332,7 +551,7 @@ export async function loadGenerationOutcome(api: GenerationApi, run: RunView): P
   }
   if (candidate.kind === "gate-rejected") {
     assertSafe(run.status === "failed", "Gate rejection is not bound to a failed Run.");
-    return { candidate, kind: "gate-rejected" };
+    return { candidate, kind: "gate-rejected", ...rejectedArtifactSummary(artifacts, candidate, run) };
   }
   if (candidate.kind === "failure") {
     assertSafe(run.status !== "succeeded", "Succeeded Run points to a failure manifest.");

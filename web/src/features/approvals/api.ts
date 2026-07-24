@@ -9,6 +9,10 @@ export type ApprovalAction = "approve" | "reject" | "request_changes";
 export type ApprovalDecisionBody = components["schemas"]["ApprovalDecisionRequestV1"];
 export type ApprovalPageData = components["schemas"]["OpaquePageV1_ApprovalViewV1_"];
 export type ApprovalViewData = components["schemas"]["ApprovalViewV1"];
+export type ApprovalArtifactPayload = components["schemas"]["ArtifactPayloadViewV1"];
+export type ApprovalConstraintProposal = components["schemas"]["ConstraintProposalReadViewV1"];
+export type ApprovalPatch = components["schemas"]["PatchArtifactReadViewV1"];
+export type ApprovalRollbackRequest = components["schemas"]["RollbackRequestReadViewV1"];
 
 export interface VersionedApproval {
   etag: string;
@@ -29,6 +33,10 @@ export interface ApprovalsApi {
     intent: MutationIntent,
   ): Promise<VersionedApproval>;
   getApproval(approvalId: string): Promise<VersionedApproval>;
+  getArtifactPayload(artifactId: string): Promise<ApprovalArtifactPayload>;
+  getConstraintProposal(artifactId: string): Promise<ApprovalConstraintProposal>;
+  getPatch(artifactId: string): Promise<ApprovalPatch>;
+  getRollbackRequest(artifactId: string): Promise<ApprovalRollbackRequest>;
   listMine(cursor: string | null): Promise<ApprovalPageData>;
 }
 
@@ -77,6 +85,38 @@ export function createApprovalsApi(client: GameForgeOpenApiClient = gameForgeApi
           params: { path: { approval_id: approvalId } },
         }),
         approvalId,
+      );
+    },
+
+    async getArtifactPayload(artifactId) {
+      return unwrapApiResponse<ApprovalArtifactPayload>(
+        await client.GET("/api/v1/artifacts/{artifact_id}", {
+          params: { path: { artifact_id: artifactId } },
+        }),
+      );
+    },
+
+    async getConstraintProposal(artifactId) {
+      return unwrapApiResponse<ApprovalConstraintProposal>(
+        await client.GET("/api/v1/constraint-proposals/{artifact_id}", {
+          params: { path: { artifact_id: artifactId } },
+        }),
+      );
+    },
+
+    async getPatch(artifactId) {
+      return unwrapApiResponse<ApprovalPatch>(
+        await client.GET("/api/v1/patches/{artifact_id}", {
+          params: { path: { artifact_id: artifactId } },
+        }),
+      );
+    },
+
+    async getRollbackRequest(artifactId) {
+      return unwrapApiResponse<ApprovalRollbackRequest>(
+        await client.GET("/api/v1/rollback-requests/{artifact_id}", {
+          params: { path: { artifact_id: artifactId } },
+        }),
       );
     },
 

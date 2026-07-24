@@ -5468,6 +5468,57 @@
         "title": "OpaquePageV1[ApprovalViewV1]",
         "type": "object"
       },
+      "OpaquePageV1_ArtifactSummaryV1_": {
+        "additionalProperties": false,
+        "properties": {
+          "expires_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Expires At",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactSummaryV1"
+            },
+            "maxItems": 1000,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_schema_version": {
+            "const": "page@1",
+            "default": "page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          },
+          "read_snapshot_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Read Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "read_snapshot_id",
+          "items",
+          "expires_at"
+        ],
+        "title": "OpaquePageV1[ArtifactSummaryV1]",
+        "type": "object"
+      },
       "OpaquePageV1_ConstraintProposalReadViewV1_": {
         "additionalProperties": false,
         "properties": {
@@ -12588,6 +12639,208 @@
         ]
       }
     },
+    "/api/v1/artifacts": {
+      "get": {
+        "operationId": "artifact_catalog_api_v1_artifacts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "source_raw",
+                "source_rendered",
+                "ir_snapshot",
+                "constraint_snapshot",
+                "constraint_proposal",
+                "config_export",
+                "scenario_spec",
+                "task_suite",
+                "regression_suite",
+                "golden_suite",
+                "bench_dataset",
+                "benchmark_spec",
+                "review_report",
+                "checker_run",
+                "simulation_run",
+                "playtest_trace",
+                "patch",
+                "validation_evidence",
+                "regression_evidence",
+                "rollback_request",
+                "run_result",
+                "run_failure",
+                "cassette_bundle",
+                "migration_report",
+                "bench_report",
+                "operational_evidence"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 4096,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpaquePageV1_ArtifactSummaryV1_"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Artifact Catalog",
+        "tags": [
+          "content-reads"
+        ]
+      }
+    },
     "/api/v1/artifacts/{artifact_id}": {
       "get": {
         "operationId": "artifact_api_v1_artifacts__artifact_id__get",
@@ -12919,6 +13172,27 @@
     "/api/v1/auth/login": {
       "post": {
         "operationId": "login_api_v1_auth_login_post",
+        "parameters": [
+          {
+            "description": "Explicit password reauthentication ceremony for a browser tab that has a session cookie but no synchronizer token.",
+            "in": "header",
+            "name": "X-GameForge-Reauthentication",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "password",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Explicit password reauthentication ceremony for a browser tab that has a session cookie but no synchronizer token.",
+              "title": "X-Gameforge-Reauthentication"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -20428,10 +20702,12 @@
         "operationId": "draft_rollback_api_v1_refs__ref_name__rollback_requests_post",
         "parameters": [
           {
+            "description": "Exact ref name; slash-delimited refs are preserved as one path parameter.",
             "in": "path",
             "name": "ref_name",
             "required": true,
             "schema": {
+              "description": "Exact ref name; slash-delimited refs are preserved as one path parameter.",
               "maxLength": 512,
               "minLength": 1,
               "title": "Ref Name",

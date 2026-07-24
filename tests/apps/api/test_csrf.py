@@ -8,7 +8,13 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from gameforge.apps.api.app import create_app
 from gameforge.apps.api.dependencies import ApiDependencies
 from gameforge.apps.api.health import ReadinessChecks, ReadinessService
-from gameforge.contracts.auth import ApiKeyAuthRequestV1, SecretText, SessionToken
+from gameforge.contracts.auth import (
+    ApiKeyAuthRequestV1,
+    PasswordAuthRequestV1,
+    SecretText,
+    SessionIssueV1,
+    SessionToken,
+)
 from gameforge.contracts.errors import CsrfFailed
 from gameforge.contracts.identity import ActorContext, AuthenticationContext, Principal
 from gameforge.contracts.jobs import Problem
@@ -32,6 +38,23 @@ def _principal(kind: str) -> Principal:
 
 
 class _SessionAuth:
+    def login(
+        self,
+        request: PasswordAuthRequestV1,
+        *,
+        request_id: str,
+    ) -> SessionIssueV1:
+        assert request_id.startswith("request:")
+        assert request.login_name == "alice"
+        assert request.password.get_secret_value() == "correct-password"
+        return SessionIssueV1(
+            session_id="session:csrf-test:replacement",
+            session_token=SessionToken("replacement-session"),
+            csrf_token=SecretText("replacement-csrf"),
+            absolute_expires_at="2099-07-15T00:00:00Z",
+            idle_expires_at="2099-07-14T01:00:00Z",
+        )
+
     def resolve(
         self,
         token: SessionToken,
@@ -198,16 +221,30 @@ def test_mixed_session_and_api_key_credentials_fail_closed() -> None:
     assert Problem.model_validate(response.json()).code == "auth_failed"
 
 
-def test_existing_browser_session_cannot_bypass_csrf_on_login() -> None:
+def test_existing_browser_session_cannot_bypass_csrf_on_ordinary_login() -> None:
     with TestClient(_app(), base_url="https://gameforge.test") as client:
         client.cookies.set("gameforge_session", "valid-session")
         response = client.post(
             "/api/v1/auth/login",
-            json={"login_name": "alice", "password": "irrelevant"},
+            json={"login_name": "alice", "password": "correct-password"},
         )
 
     assert response.status_code == 403
     assert Problem.model_validate(response.json()).code == "csrf_failed"
+
+
+def test_explicit_password_reauthentication_issues_a_fresh_session_without_old_csrf() -> None:
+    with TestClient(_app(), base_url="https://gameforge.test") as client:
+        client.cookies.set("gameforge_session", "valid-session")
+        response = client.post(
+            "/api/v1/auth/login",
+            headers={"X-GameForge-Reauthentication": "password"},
+            json={"login_name": "alice", "password": "correct-password"},
+        )
+
+    assert response.status_code == 204
+    assert response.headers["X-CSRF-Token"] == "replacement-csrf"
+    assert "replacement-session" in response.headers["Set-Cookie"]
 
 
 def test_password_login_rejects_api_key_authentication_context() -> None:

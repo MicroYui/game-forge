@@ -11,11 +11,18 @@ import { ProblemPanel, StatePanel } from "../../components/ui";
 import { currentRefFromCompleteHistory } from "./authority";
 import {
   patchWorkflowApi,
+  type ApprovalView,
+  type ArtifactPayloadView,
   type PatchWorkflowApi,
   type RefHistoryEntry,
   type RollbackDraftRequest,
   type RollbackRequestReadView,
 } from "./api";
+import {
+  collectRollbackSnapshotDiff,
+  RollbackContentComparison,
+  type RollbackSnapshotDiff,
+} from "./RollbackContentComparison";
 import "./patches.css";
 
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
@@ -30,6 +37,13 @@ interface MutationState {
   error: Error | null;
   pending: boolean;
   retry: (() => Promise<void>) | null;
+}
+
+interface DraftProfilesData {
+  contentDiff: RollbackSnapshotDiff | null;
+  currentArtifact: ArtifactPayloadView;
+  profiles: ExecutionProfile[];
+  targetArtifact: ArtifactPayloadView;
 }
 
 function normalizedError(error: unknown): Error {
@@ -117,6 +131,34 @@ async function collectRollbackProfiles(api: PatchWorkflowApi): Promise<Execution
   throw new Error("Rollback profile catalog exceeded its bounded page count.");
 }
 
+async function collectApprovals(api: PatchWorkflowApi): Promise<ApprovalView[]> {
+  const approvals: ApprovalView[] = [];
+  const approvalIds = new Set<string>();
+  const cursors = new Set<string>();
+  let cursor: string | null = null;
+  let readSnapshotId: string | null = null;
+  for (let pageCount = 0; pageCount < 256; pageCount += 1) {
+    const page = await api.listApprovals(cursor);
+    if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
+      throw new Error("Approval catalog changed read snapshot.");
+    }
+    readSnapshotId = page.read_snapshot_id;
+    for (const approval of page.items) {
+      if (approvalIds.has(approval.approval.approval_id)) {
+        throw new Error("Approval catalog returned a duplicate Approval.");
+      }
+      approvalIds.add(approval.approval.approval_id);
+      approvals.push(approval);
+    }
+    const next = cursorFromPage(page);
+    if (next === null) return approvals;
+    if (cursors.has(next)) throw new Error("Approval catalog returned a cursor cycle.");
+    cursors.add(next);
+    cursor = next;
+  }
+  throw new Error("Approval catalog exceeded its bounded page count.");
+}
+
 async function loadRefHistory(api: PatchWorkflowApi, refName: string): Promise<RefHistoryData> {
   const history = await collectHistory(api, refName);
   const current = currentRefFromCompleteHistory(refName, history.entries, null);
@@ -127,7 +169,7 @@ async function loadDraftProfiles(
   api: PatchWorkflowApi,
   currentArtifactId: string,
   targetArtifactId: string,
-): Promise<ExecutionProfile[]> {
+): Promise<DraftProfilesData> {
   const [currentArtifact, targetArtifact, profiles] = await Promise.all([
     api.getArtifact(currentArtifactId),
     currentArtifactId === targetArtifactId ? Promise.resolve(null) : api.getArtifact(targetArtifactId),
@@ -146,10 +188,41 @@ async function loadDraftProfiles(
   if (currentDomainIds.some((domainId) => !targetDomains.has(domainId))) {
     throw new Error("Historical rollback target does not cover the current ref domain scope.");
   }
-  return profiles.filter(
-    (profile) =>
-      supportsRunKind(profile, "rollback.validate") && profileCoversDomains(profile, targetDomainIds),
-  );
+  const resolvedTargetArtifact = targetArtifact ?? currentArtifact;
+  return {
+    contentDiff: await collectRollbackSnapshotDiff(api, currentArtifact, resolvedTargetArtifact),
+    currentArtifact,
+    profiles: profiles.filter(
+      (profile) =>
+        supportsRunKind(profile, "rollback.validate") && profileCoversDomains(profile, targetDomainIds),
+    ),
+    targetArtifact: resolvedTargetArtifact,
+  };
+}
+
+function reversalCandidates(
+  approvals: readonly ApprovalView[],
+  refName: string,
+  current: components["schemas"]["RefValue"],
+  target: components["schemas"]["RefValue"],
+): ApprovalView[] {
+  if (current.revision !== target.revision + 1) return [];
+  return approvals.filter(({ approval }) => {
+    const binding = approval.target_binding;
+    return (
+      approval.status === "applied" &&
+      binding !== null &&
+      binding !== undefined &&
+      binding.ref_name === refName &&
+      binding.target_artifact_id === current.artifact_id &&
+      binding.expected_ref?.artifact_id === target.artifact_id &&
+      binding.expected_ref.revision === target.revision
+    );
+  });
+}
+
+function shortId(value: string): string {
+  return value.length <= 24 ? value : `${value.slice(0, 12)}…${value.slice(-8)}`;
 }
 
 export function RefHistoryPage({
@@ -188,7 +261,22 @@ export function RefHistoryPage({
     ],
     retry: false,
   });
-  const selectedProfile = draftProfiles.data?.find((profile) => profileKey(profile) === profileSelection);
+  const approvals = useQuery({
+    enabled: selectedEntry !== undefined,
+    queryFn: () => collectApprovals(api),
+    queryKey: ["ref-history", refName, "reversal-approvals"],
+    retry: false,
+  });
+  const selectedProfile = draftProfiles.data?.profiles.find(
+    (profile) => profileKey(profile) === profileSelection,
+  );
+  const approvalCandidates = useMemo(
+    () =>
+      history.data && selectedEntry
+        ? reversalCandidates(approvals.data ?? [], refName, history.data.current, selectedEntry.value)
+        : [],
+    [approvals.data, history.data, refName, selectedEntry],
+  );
   const historicalEntries = useMemo(
     () =>
       history.data
@@ -292,7 +380,7 @@ export function RefHistoryPage({
     <div className="gf-page gf-patches gf-ref-history" data-layout="editorial-ref-history">
       <nav aria-label="Ref history 导航" className="gf-patches__back-nav">
         <a href="/patches">返回 Patch / Diff</a>
-        <a href={`/artifacts/${encodeURIComponent(data.current.artifact_id)}`}>Current Artifact</a>
+        <a href={`/artifacts/${encodeURIComponent(data.current.artifact_id)}`}>检查当前版本技术详情</a>
       </nav>
 
       <header className="gf-patches__hero">
@@ -316,9 +404,12 @@ export function RefHistoryPage({
           <dd>Current · revision {data.current.revision}</dd>
         </div>
         <div className="gf-patches__fact-wide">
-          <dt>Artifact</dt>
+          <dt>技术身份</dt>
           <dd>
-            <CopyableText copyLabel="复制 current Artifact ID" value={data.current.artifact_id} />
+            <details>
+              <summary>查看 current Artifact ID</summary>
+              <CopyableText copyLabel="复制 current Artifact ID" value={data.current.artifact_id} />
+            </details>
           </dd>
         </div>
         <div>
@@ -345,25 +436,46 @@ export function RefHistoryPage({
                 <span>revision {entry.value.revision}</span>
                 <div>
                   {isCurrent ? (
-                    <strong>Current · {entry.value.artifact_id}</strong>
+                    <strong>Current · revision {entry.value.revision}</strong>
                   ) : (
                     <label>
                       <input
-                        aria-label={`revision ${entry.value.revision} · ${entry.value.artifact_id}`}
+                        aria-label={`回退到 revision ${entry.value.revision}`}
                         checked={selectedRevision === entry.value.revision}
                         name="rollback-target"
-                        onChange={() => setSelectedRevision(entry.value.revision)}
+                        onChange={() => {
+                          setSelectedRevision(entry.value.revision);
+                          setProfileSelection("");
+                          setReversesApprovalId("");
+                        }}
                         type="radio"
                       />
-                      <code>{entry.value.artifact_id}</code>
+                      回退到 revision {entry.value.revision}
                     </label>
                   )}
+                  <details>
+                    <summary>查看 exact Artifact 身份</summary>
+                    <CopyableText
+                      copyLabel={`复制 revision ${entry.value.revision} Artifact ID`}
+                      value={entry.value.artifact_id}
+                    />
+                  </details>
                 </div>
               </li>
             );
           })}
         </ol>
       </section>
+
+      {selectedEntry && draftProfiles.data && (
+        <RollbackContentComparison
+          current={draftProfiles.data.currentArtifact}
+          currentLabel={`Current revision ${data.current.revision}`}
+          diff={draftProfiles.data.contentDiff}
+          target={draftProfiles.data.targetArtifact}
+          targetLabel={`目标 revision ${selectedEntry.value.revision}`}
+        />
+      )}
 
       <section className="gf-patches__workspace-section" aria-labelledby="rollback-draft-title">
         <header>
@@ -385,7 +497,7 @@ export function RefHistoryPage({
               Rollback policy
               <select onChange={(event) => setProfileSelection(event.target.value)} value={profileSelection}>
                 <option value="">选择 active rollback profile</option>
-                {(draftProfiles.data ?? []).map((profile) => (
+                {(draftProfiles.data?.profiles ?? []).map((profile) => (
                   <option key={profileKey(profile)} value={profileKey(profile)}>
                     {profile.display_name} · {profileKey(profile)}
                   </option>
@@ -393,12 +505,36 @@ export function RefHistoryPage({
               </select>
             </label>
             <label>
-              Reverses approval ID（可选）
-              <input
+              被回滚的审批（可选）
+              <select
+                disabled={approvals.isPending || approvals.isError}
                 onChange={(event) => setReversesApprovalId(event.target.value)}
                 value={reversesApprovalId}
-              />
+              >
+                <option value="">不关联审批状态</option>
+                {approvalCandidates.map(({ approval }) => (
+                  <option key={approval.approval_id} value={approval.approval_id}>
+                    {approval.subject_kind} · {approval.applied_at?.slice(0, 10) ?? "已应用"} ·{" "}
+                    {shortId(approval.approval_id)}
+                  </option>
+                ))}
+              </select>
             </label>
+            <p className="gf-patches__muted">
+              {approvalCandidates.length > 0
+                ? "仅列出 exact expected_ref 与本次 current ref 连续闭合的 applied Approval。"
+                : "当前可见审批目录没有能与这两个连续 revision 精确闭合的 applied Approval。"}
+            </p>
+            <details className="gf-patches__form-wide">
+              <summary>高级：输入审计记录中的 Approval ID</summary>
+              <label>
+                Reverses approval ID
+                <input
+                  onChange={(event) => setReversesApprovalId(event.target.value)}
+                  value={reversesApprovalId}
+                />
+              </label>
+            </details>
             <label className="gf-patches__form-wide">
               Rollback reason
               <textarea onChange={(event) => setReason(event.target.value)} rows={3} value={reason} />

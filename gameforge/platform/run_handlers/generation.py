@@ -129,6 +129,7 @@ class GenerationRunRequest:
     snapshot: Snapshot
     constraints: tuple[Constraint, ...]
     goal: DesignGoalInput
+    prompt_version: str
     findings: tuple[Finding, ...]
     gate_requirements: tuple[ResolvedArtifactRequirementV1, ...]
     gate_simulation_seed: int
@@ -324,6 +325,7 @@ class GenerationProposalHandler:
                 snapshot=snapshot,
                 constraints=tuple(constraints),
                 goal=goal,
+                prompt_version=self._generation_prompt_version(context),
                 findings=findings,
                 gate_requirements=self._gate_requirements(context),
                 gate_simulation_seed=execution_config.gate_simulation_seed,
@@ -401,6 +403,18 @@ class GenerationProposalHandler:
         if payload.constraint_snapshot_artifact_id is None:
             return []
         return self.constraint_loader(self.blobs, payload.constraint_snapshot_artifact_id)
+
+    @staticmethod
+    def _generation_prompt_version(context: ExecutorContextLike) -> str:
+        plan = context.payload.execution_version_plan
+        if plan is None:
+            raise ValueError("generation Run lacks an exact execution version plan")
+        matches = tuple(
+            node for node in plan.nodes if node.agent_node_id == GENERATION_AGENT_NODE_ID
+        )
+        if len(matches) != 1:
+            raise ValueError("generation execution plan lacks one exact generation node")
+        return matches[0].prompt_version
 
     @staticmethod
     def _validate_execution_config(

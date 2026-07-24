@@ -70,6 +70,7 @@
 }
 
 .gf-playtest__context,
+.gf-playtest__candidate-catalog,
 .gf-playtest__suite-ledger,
 .gf-playtest__derive,
 .gf-playtest__launch,
@@ -82,6 +83,7 @@
 }
 
 .gf-playtest__context > header,
+.gf-playtest__candidate-catalog > header,
 .gf-playtest__suite-ledger > header,
 .gf-playtest__derive > header,
 .gf-playtest__launch > header,
@@ -96,6 +98,7 @@
 }
 
 .gf-playtest__context > header p,
+.gf-playtest__candidate-catalog > header p,
 .gf-playtest__launch > header p {
   margin-block-start: var(--space-1);
   color: var(--muted);
@@ -123,6 +126,7 @@
 }
 
 .gf-playtest__context li span,
+.gf-playtest__candidate-card dt,
 .gf-playtest__binding dt,
 .gf-playtest__suite-card dt {
   color: var(--muted);
@@ -132,6 +136,8 @@
 .gf-playtest__context code,
 .gf-playtest__context a,
 .gf-playtest__context > p,
+.gf-playtest__candidate-card code,
+.gf-playtest__candidate-card dd,
 .gf-playtest__suite-card code,
 .gf-playtest__suite-card dd,
 .gf-playtest__run code,
@@ -147,6 +153,14 @@
 
 .gf-playtest__suite-ledger {
   grid-column: span 8;
+}
+
+.gf-playtest__suite-ledger[data-standalone="true"] {
+  grid-column: 1 / -1;
+}
+
+.gf-playtest__candidate-catalog {
+  border-block-start: 3px solid var(--suggestion);
 }
 
 .gf-playtest__derive {
@@ -177,13 +191,22 @@
   font-size: var(--font-size-small);
 }
 
+.gf-playtest__candidate-grid,
 .gf-playtest__suite-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
   padding: var(--space-5);
 }
 
+.gf-playtest__candidate-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gf-playtest__suite-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+}
+
+.gf-playtest__candidate-pagination,
 .gf-playtest__suite-pagination {
   display: flex;
   flex-wrap: wrap;
@@ -195,6 +218,7 @@
   font-size: var(--font-size-small);
 }
 
+.gf-playtest__candidate-card,
 .gf-playtest__suite-card {
   display: grid;
   gap: var(--space-4);
@@ -207,11 +231,43 @@
   background: var(--surface-2);
 }
 
+.gf-playtest__candidate-card {
+  border-block-start-color: var(--suggestion);
+}
+
+.gf-playtest__candidate-card h3 {
+  margin-block-start: var(--space-1);
+  font-size: var(--font-size-body);
+}
+
+.gf-playtest__candidate-card > details {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+}
+
+.gf-playtest__candidate-card > details summary {
+  color: var(--muted);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.gf-playtest__candidate-card > details[open] summary {
+  margin-block-end: var(--space-3);
+}
+
 .gf-playtest__suite-card[data-selected="true"] {
   outline: 2px solid color-mix(in srgb, var(--suggestion) 56%, transparent);
   outline-offset: 2px;
 }
 
+.gf-playtest__suite-card > button {
+  white-space: normal;
+}
+
+.gf-playtest__candidate-card > header,
 .gf-playtest__suite-card > header {
   display: flex;
   gap: var(--space-3);
@@ -219,12 +275,15 @@
   justify-content: space-between;
 }
 
+.gf-playtest__candidate-card > header p,
+.gf-playtest__candidate-card > header span,
 .gf-playtest__suite-card > header p,
 .gf-playtest__suite-card > header span {
   color: var(--muted);
   font-size: var(--font-size-small);
 }
 
+.gf-playtest__candidate-card dl,
 .gf-playtest__suite-card dl,
 .gf-playtest__binding {
   display: grid;
@@ -232,6 +291,7 @@
   margin: 0;
 }
 
+.gf-playtest__candidate-card dl > div,
 .gf-playtest__suite-card dl > div,
 .gf-playtest__binding > div {
   display: grid;
@@ -241,6 +301,7 @@
   border-block-end: 1px solid var(--line);
 }
 
+.gf-playtest__candidate-card dd,
 .gf-playtest__suite-card dd,
 .gf-playtest__binding dd {
   min-width: 0;
@@ -551,6 +612,7 @@
   }
 
   .gf-playtest__context ol,
+  .gf-playtest__candidate-grid,
   .gf-playtest__suite-grid,
   .gf-playtest__launch-grid,
   .gf-playtest__run > .gf-run-progress dl,
@@ -573,6 +635,7 @@
     border-inline-start: 0;
   }
 
+  .gf-playtest__candidate-card > header,
   .gf-playtest__suite-card > header,
   .gf-playtest__principle {
     align-items: start;

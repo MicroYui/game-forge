@@ -803,6 +803,25 @@ def test_ref_history_filters_historical_domains_without_binding_to_current_scope
 
     assert tuple(item.value.revision for item in page.items) == expected_revisions
 
+    app = FastAPI()
+    install_error_handlers(app)
+    app.include_router(content_read_router(service))
+    app.dependency_overrides[require_actor] = lambda: ActorContext(
+        principal=_principal(),
+        authentication=AuthenticationContext(
+            mechanism="session",
+            credential_id="password:reader",
+        ),
+        session_id="session:reader",
+        request_id="request:slash-ref-history",
+    )
+    response = TestClient(app).get("/api/v1/refs/refs%2Flive/history", params={"limit": 10})
+
+    assert response.status_code == 200
+    assert (
+        tuple(item["value"]["revision"] for item in response.json()["items"]) == expected_revisions
+    )
+
 
 def test_spec_list_uses_retained_immutable_page_without_full_list_cap() -> None:
     artifact, verified, trusted, snapshot_id = _spec_artifact()
@@ -829,6 +848,81 @@ def test_spec_list_uses_retained_immutable_page_without_full_list_cap() -> None:
     assert pages.calls[0]["index_kind"] == "specs"
     assert pages.calls[0]["expected_artifact_kind"] == "ir_snapshot"
     assert pages.calls[0]["binding"].resource_kind == "specs"
+
+
+def test_constraint_list_accepts_canonical_assert_alias() -> None:
+    payload = {
+        "dsl_grammar_version": "dsl@1",
+        "constraints": [
+            {
+                "id": "side_quest_reward_gold_cap",
+                "dsl_grammar_version": "dsl@1",
+                "kind": "numeric",
+                "oracle": "deterministic",
+                "predicates": [],
+                "assert": "reward_gold <= 80",
+                "severity": "major",
+                "note": "Side quests may reward no more than 80 gold.",
+            }
+        ],
+    }
+    artifact, verified, trusted = _artifact(
+        kind="constraint_snapshot",
+        schema_id="constraint-snapshot@1",
+        payload=payload,
+        versions=VersionTuple(
+            constraint_snapshot_id=canonical_sha256(payload),
+            tool_version="constraint-compiler@1",
+        ),
+    )
+    service, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        immutable_pages=_ImmutablePages({"constraints": (artifact,)}),
+    )
+
+    page = service.list_constraints(_principal(), cursor=None, limit=10)
+
+    assert page.items[0].constraints[0]["assert"] == "reward_gold <= 80"
+
+
+def test_constraint_list_still_rejects_unknown_constraint_fields() -> None:
+    payload = {
+        "dsl_grammar_version": "dsl@1",
+        "constraints": [
+            {
+                "id": "side_quest_reward_gold_cap",
+                "dsl_grammar_version": "dsl@1",
+                "kind": "numeric",
+                "oracle": "deterministic",
+                "predicates": [],
+                "assert": "reward_gold <= 80",
+                "severity": "major",
+                "future_field": "must not be ignored",
+            }
+        ],
+    }
+    artifact, verified, trusted = _artifact(
+        kind="constraint_snapshot",
+        schema_id="constraint-snapshot@1",
+        payload=payload,
+        versions=VersionTuple(
+            constraint_snapshot_id=canonical_sha256(payload),
+            tool_version="constraint-compiler@1",
+        ),
+    )
+    service, *_ = _service(
+        artifacts=(artifact,),
+        verified={artifact.artifact_id: verified},
+        bindings={artifact.artifact_id: trusted},
+        specs={},
+        immutable_pages=_ImmutablePages({"constraints": (artifact,)}),
+    )
+
+    with pytest.raises(IntegrityViolation, match="unknown fields"):
+        service.list_constraints(_principal(), cursor=None, limit=10)
 
 
 def test_singular_loads_envelope_then_authorizes_before_reading_payload() -> None:

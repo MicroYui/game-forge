@@ -1,14 +1,18 @@
 import cytoscape, { type Core, type EventObject, type StylesheetJson } from "cytoscape";
-import { ArrowRight, Check, CircleDot, GitBranch, Search } from "lucide-react";
+import { ArrowRight, Check, CircleDot, GitBranch, Maximize2, Search } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { CopyableText } from "../tables";
 import type { CursorPaginationState } from "../tables/CursorTable";
 import {
   adaptGraphItems,
   formatSourceRef,
+  graphFactDisplayName,
   graphFactKey,
   graphSearchText,
+  graphTypeLabel,
   toCytoscapeElements,
+  type EntityGraphFact,
   type GraphFact,
   type GraphItem,
   type RelationGraphFact,
@@ -143,27 +147,42 @@ function FactKind({ fact }: { fact: GraphFact }) {
   );
 }
 
-function Endpoint({ id, loaded }: { id: string; loaded: boolean }) {
+function Endpoint({ entity, id }: { entity?: EntityGraphFact; id: string }) {
   return (
     <span className="gf-kg__endpoint">
-      <code>{id}</code>
-      {!loaded && <span className="gf-kg__endpoint-note">端点未包含在当前页</span>}
+      <strong>{entity ? graphFactDisplayName(entity) : "未载入实体"}</strong>
+      <CopyableText copyLabel={`复制端点实体 ID ${id}`} value={id} />
+      {!entity && <span className="gf-kg__endpoint-note">端点未包含在当前页</span>}
     </span>
   );
 }
 
-function FactInspector({ fact, loadedEntityIds }: { fact: GraphFact; loadedEntityIds: ReadonlySet<string> }) {
+function FactInspector({
+  entitiesById,
+  fact,
+}: {
+  entitiesById: ReadonlyMap<string, EntityGraphFact>;
+  fact: GraphFact;
+}) {
   return (
     <aside className="gf-kg__inspector" aria-label="已选图谱事实" tabIndex={0}>
       <div className="gf-kg__inspector-heading">
         <FactKind fact={fact} />
         <span className="gf-kg__selection-label">当前选择：{fact.kind === "entity" ? "实体" : "关系"}</span>
       </div>
-      <code className="gf-kg__inspector-id">{fact.id}</code>
+      <div className="gf-kg__inspector-title">
+        <h3>{graphFactDisplayName(fact)}</h3>
+        <CopyableText
+          copyLabel={`复制${fact.kind === "entity" ? "实体" : "关系"} ID ${fact.id}`}
+          scrollable
+          value={fact.id}
+        />
+      </div>
       <dl className="gf-kg__facts">
         <div>
           <dt>类型</dt>
-          <dd>
+          <dd className="gf-kg__type-value">
+            <span>{graphTypeLabel(fact)}</span>
             <code>{fact.type}</code>
           </dd>
         </div>
@@ -178,13 +197,13 @@ function FactInspector({ fact, loadedEntityIds }: { fact: GraphFact; loadedEntit
             <div>
               <dt>起点实体</dt>
               <dd>
-                <Endpoint id={fact.srcId} loaded={loadedEntityIds.has(fact.srcId)} />
+                <Endpoint entity={entitiesById.get(fact.srcId)} id={fact.srcId} />
               </dd>
             </div>
             <div>
               <dt>终点实体</dt>
               <dd>
-                <Endpoint id={fact.dstId} loaded={loadedEntityIds.has(fact.dstId)} />
+                <Endpoint entity={entitiesById.get(fact.dstId)} id={fact.dstId} />
               </dd>
             </div>
           </>
@@ -218,12 +237,20 @@ function FactInspector({ fact, loadedEntityIds }: { fact: GraphFact; loadedEntit
   );
 }
 
-function relationEndpoints(fact: RelationGraphFact) {
+function relationEndpoints(fact: RelationGraphFact, entitiesById: ReadonlyMap<string, EntityGraphFact>) {
+  const source = entitiesById.get(fact.srcId);
+  const target = entitiesById.get(fact.dstId);
   return (
     <span className="gf-kg__relation-summary">
-      <code>{fact.srcId}</code>
+      <span>
+        <strong>{source ? graphFactDisplayName(source) : "未载入实体"}</strong>
+        <code>{fact.srcId}</code>
+      </span>
       <ArrowRight aria-hidden="true" size={14} />
-      <code>{fact.dstId}</code>
+      <span>
+        <strong>{target ? graphFactDisplayName(target) : "未载入实体"}</strong>
+        <code>{fact.dstId}</code>
+      </span>
     </span>
   );
 }
@@ -280,8 +307,13 @@ export function KnowledgeGraph({
   const cyRef = useRef<Core | null>(null);
   const facts = useMemo(() => adaptGraphItems(items), [items]);
   const elements = useMemo(() => toCytoscapeElements(facts), [facts]);
-  const loadedEntityIds = useMemo(
-    () => new Set(facts.filter((fact) => fact.kind === "entity").map((fact) => fact.id)),
+  const entitiesById = useMemo(
+    () =>
+      new Map(
+        facts
+          .filter((fact): fact is EntityGraphFact => fact.kind === "entity")
+          .map((fact) => [fact.id, fact] as const),
+      ),
     [facts],
   );
   const palette = useGraphPalette();
@@ -320,8 +352,7 @@ export function KnowledgeGraph({
   const entityCount = facts.filter((fact) => fact.kind === "entity").length;
   const relationCount = facts.length - entityCount;
   const hasReferenceNodes = facts.some(
-    (fact) =>
-      fact.kind === "relation" && (!loadedEntityIds.has(fact.srcId) || !loadedEntityIds.has(fact.dstId)),
+    (fact) => fact.kind === "relation" && (!entitiesById.has(fact.srcId) || !entitiesById.has(fact.dstId)),
   );
 
   useEffect(() => {
@@ -388,6 +419,17 @@ export function KnowledgeGraph({
 
       <div className="gf-kg__workspace">
         <div className="gf-kg__canvas-panel">
+          <div className="gf-kg__canvas-toolbar">
+            <span>关系视图</span>
+            <button
+              className="gf-secondary-button"
+              onClick={() => cyRef.current?.fit(undefined, 28)}
+              type="button"
+            >
+              <Maximize2 aria-hidden="true" size={15} />
+              适配视图
+            </button>
+          </div>
           <div
             className="gf-kg__canvas"
             aria-hidden="true"
@@ -398,7 +440,7 @@ export function KnowledgeGraph({
           {hasReferenceNodes && <p className="gf-kg__reference-note">关系仍可在事实列表中完整检查。</p>}
         </div>
         {selectedFact ? (
-          <FactInspector fact={selectedFact} loadedEntityIds={loadedEntityIds} />
+          <FactInspector entitiesById={entitiesById} fact={selectedFact} />
         ) : (
           <aside className="gf-kg__inspector gf-kg__inspector--empty" aria-label="已选图谱事实" tabIndex={0}>
             <p>{facts.length === 0 ? "当前页没有图谱事实。" : "请选择一个图谱事实。"}</p>
@@ -435,8 +477,8 @@ export function KnowledgeGraph({
             <thead>
               <tr>
                 <th scope="col">类别</th>
-                <th scope="col">类型</th>
-                <th scope="col">标识符</th>
+                <th scope="col">名称与类型</th>
+                <th scope="col">技术标识</th>
                 <th scope="col">关系端点 / 标签</th>
                 <th scope="col">检查</th>
               </tr>
@@ -450,14 +492,24 @@ export function KnowledgeGraph({
                     <td>
                       <FactKind fact={fact} />
                     </td>
-                    <td>
-                      <code>{fact.type}</code>
+                    <td className="gf-kg__fact-name">
+                      <strong>{graphFactDisplayName(fact)}</strong>
+                      <span>
+                        {fact.kind === "entity" ? graphTypeLabel(fact) : "关系类型"} ·{" "}
+                        <code>{fact.type}</code>
+                      </span>
                     </td>
                     <td>
-                      <code className="gf-kg__table-id">{fact.id}</code>
+                      <CopyableText
+                        copyLabel={`复制${fact.kind === "entity" ? "实体" : "关系"} ID ${fact.id}`}
+                        scrollable
+                        value={fact.id}
+                      />
                     </td>
                     <td>
-                      {fact.kind === "relation" ? relationEndpoints(fact) : fact.tags.join(" · ") || "无标签"}
+                      {fact.kind === "relation"
+                        ? relationEndpoints(fact, entitiesById)
+                        : fact.tags.join(" · ") || "无标签"}
                     </td>
                     <td>
                       <button

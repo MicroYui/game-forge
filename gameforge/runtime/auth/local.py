@@ -488,6 +488,7 @@ class LocalSessionRuntime:
             record = self._auth.touch_session(
                 record.session_id,
                 expected_revision=record.revision,
+                last_seen_at=expected.last_seen_at,
                 idle_expires_at=expected.idle_expires_at,
             )
             if record != expected:

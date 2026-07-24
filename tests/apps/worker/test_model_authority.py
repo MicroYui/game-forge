@@ -180,6 +180,7 @@ def test_local_model_authority_loader_closes_exact_environment_configuration(
         ("bench-agent-case", "bench-agent@1", "bench@1"),
         ("extraction", "extraction@1", "extraction@1"),
         ("generation", "generation@1", "generation@1"),
+        ("generation", "generation@2", "generation@1"),
         ("playtest.executor", "playtest@2", "playtest@1"),
         ("playtest.memory", "playtest.memory.compact@1", "playtest@1"),
         ("playtest.planner", "playtest@1", "playtest@1"),

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import quote
 
+import pytest
 from fastapi.testclient import TestClient
 
 from gameforge.contracts.ir import Entity, NodeType
@@ -16,7 +18,7 @@ from tests.apps.api.workflow_command_testkit import (
     reviewer_actor,
 )
 
-REF = "content-head"  # single path segment: the rollback-draft route is /refs/{ref_name}/...
+REF = "content/head"
 
 
 def _client(harness) -> TestClient:
@@ -145,6 +147,35 @@ def _draft_rollback(harness, client, *, ref_value, reverses, key: str) -> tuple[
     assert draft.status_code == 201, draft.text
     artifact_id = draft.json()["artifact"]["artifact_id"]
     return artifact_id, f"approval:rollback_request:{artifact_id}"
+
+
+@pytest.mark.parametrize(
+    "route_ref",
+    [REF, quote(REF, safe="")],
+    ids=["raw-slash", "percent-encoded-slash"],
+)
+def test_rollback_draft_route_preserves_exact_slash_ref(tmp_path: Path, route_ref: str) -> None:
+    harness = build_harness(tmp_path)
+    publish_base(
+        harness,
+        entities=[Entity(id="q:1", type=NodeType.QUEST, attrs={"reward_gold": 120})],
+        ref_name=REF,
+    )
+    with _client(harness) as client:
+        patch_approval_id, ref_after_patch = _apply_patch(harness, client, key="patch")
+        harness.use_actor(maker_actor(harness))
+        draft = client.post(
+            f"/api/v1/refs/{route_ref}/rollback-requests",
+            json=_rollback_draft_payload(
+                harness,
+                ref_value=ref_after_patch,
+                reverses=patch_approval_id,
+            ),
+            headers=headers(key=f"rollback:{route_ref}"),
+        )
+
+        assert draft.status_code == 201, draft.text
+        assert draft.json()["request"]["ref_name"] == REF
 
 
 def test_rollback_request_validate_submit_independent_approval_apply(tmp_path: Path) -> None:

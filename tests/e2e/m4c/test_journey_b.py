@@ -116,7 +116,7 @@ from tests.platform.m4 import apply_testkit
 # ⊆ the profile domain), so the whole maker-checker journey — patch AND rollback — is
 # routed here, keeping every profile binding domain-consistent end-to-end.
 DOMAIN = "builtin"
-REF_NAME = "content-head"
+REF_NAME = "content/head"
 NOW = "2026-07-16T12:00:00Z"
 REGISTRY_VERSION = "journey-b-domains@1"
 ROUTE_VERSION = "journey-b-routes@1"

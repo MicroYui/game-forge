@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -128,6 +128,30 @@ const step: GraphItem = {
   item_schema_version: "graph-item@1",
 };
 
+const lincheng: GraphItem = {
+  entity: {
+    attrs: { name: "林澈" },
+    id: "npc:lincheng",
+    schema_version: "ir-core@1",
+    type: "NPC",
+  },
+  item_id: "npc:lincheng",
+  item_kind: "entity",
+  item_schema_version: "graph-item@1",
+};
+
+const newbieVillage: GraphItem = {
+  entity: {
+    attrs: { name: "新手村" },
+    id: "region:newbie_zone",
+    schema_version: "ir-core@1",
+    type: "REGION",
+  },
+  item_id: "region:newbie_zone",
+  item_kind: "entity",
+  item_schema_version: "graph-item@1",
+};
+
 function graphPage(items: GraphItem[], nextCursor: string | null, snapshot = "read:graph") {
   return {
     expires_at: "2026-07-19T09:00:00Z",
@@ -177,6 +201,19 @@ describe("SpecDetailPage", () => {
     expect(screen.getByRole("region", { name: "规格知识图谱" })).toBeVisible();
     expect(screen.getAllByText("quest:frontier-beacon").length).toBeGreaterThan(0);
     expect(screen.getByRole("heading", { name: "创建 typed Patch 草案" })).toBeVisible();
+    const graphSection = screen.getByRole("heading", { name: "有界知识图谱" }).closest("section");
+    const patchSection = screen.getByRole("heading", { name: "创建 typed Patch 草案" }).closest("section");
+    if (!graphSection || !patchSection)
+      throw new Error("Spec sections are missing their semantic containers.");
+    expect(
+      graphSection.compareDocumentPosition(patchSection) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "变更内容" })).toBeVisible();
+    expect(screen.getByText("高级：精确绑定、前置条件与原始 JSON").closest("details")).not.toHaveAttribute(
+      "open",
+    );
+    expect(screen.queryByRole("textbox", { name: "Patch operations JSON" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Expected ref Artifact ID" })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "加载下一页图谱" }));
 
@@ -194,10 +231,15 @@ describe("SpecDetailPage", () => {
     const user = userEvent.setup();
     renderPage(detailApi);
     await screen.findByRole("heading", { name: "创建 typed Patch 草案" });
+    await user.click(screen.getByText("高级：精确绑定、前置条件与原始 JSON"));
 
     await user.selectOptions(
-      screen.getByRole("listbox", { name: /Candidate export profile/ }),
+      screen.getByRole("listbox", { name: /配置导出方案/ }),
       "builtin.aureus_csv_export@2",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Constraint snapshot Artifact ID（可选）" }),
+      "artifact:constraint:frontier",
     );
     fireEvent.change(screen.getByRole("textbox", { name: "Patch operations JSON" }), {
       target: {
@@ -211,8 +253,8 @@ describe("SpecDetailPage", () => {
         ]),
       },
     });
-    await user.type(screen.getByRole("textbox", { name: "Patch rationale" }), "调整前哨信标");
-    await user.type(screen.getByRole("textbox", { name: "Side-effect risk" }), "low");
+    await user.type(screen.getByRole("textbox", { name: "变更说明" }), "调整前哨信标");
+    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "low");
     await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
 
     expect(await screen.findByRole("heading", { name: "Patch 创建结果未知" })).toBeVisible();
@@ -224,7 +266,7 @@ describe("SpecDetailPage", () => {
       {
         base_snapshot_artifact_id: artifact.artifact_id,
         candidate_export_profiles: [exportProfile.profile],
-        constraint_snapshot_artifact_id: null,
+        constraint_snapshot_artifact_id: "artifact:constraint:frontier",
         expected_ref: spec.ref_value,
         expected_to_fix: [],
         ops: [
@@ -249,11 +291,73 @@ describe("SpecDetailPage", () => {
     );
   });
 
+  it("blocks a selected export profile without a constraint snapshot while preserving editable input", async () => {
+    const detailApi = api();
+    const user = userEvent.setup();
+    renderPage(detailApi);
+    await screen.findByRole("heading", { name: "创建 typed Patch 草案" });
+    await user.click(screen.getByText("高级：精确绑定、前置条件与原始 JSON"));
+
+    await user.selectOptions(
+      screen.getByRole("listbox", { name: /配置导出方案/ }),
+      "builtin.aureus_csv_export@2",
+    );
+    const operations = JSON.stringify([
+      {
+        new_value: 150,
+        old_value: 60,
+        op: "set_entity_attr",
+        op_id: "op:raise-reward",
+        target: "quest:missing_caravan.reward.gold",
+      },
+    ]);
+    fireEvent.change(screen.getByRole("textbox", { name: "Patch operations JSON" }), {
+      target: { value: operations },
+    });
+    await user.type(screen.getByRole("textbox", { name: "变更说明" }), "演示错误奖励进入 Repair 闭环");
+    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "低风险，仅修改单个任务奖励");
+    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+
+    expect(detailApi.draftPatch).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("已选择配置导出方案；配置导出必须绑定约束快照");
+    expect(screen.getByRole("textbox", { name: "Patch operations JSON" })).toHaveValue(operations);
+    expect(screen.getByRole("textbox", { name: "变更说明" })).toHaveValue("演示错误奖励进入 Repair 闭环");
+    expect(screen.getByRole("textbox", { name: "副作用风险" })).toHaveValue("低风险，仅修改单个任务奖励");
+    expect(screen.getByRole("listbox", { name: /配置导出方案/ })).toHaveValue([
+      "builtin.aureus_csv_export@2",
+    ]);
+    expect(screen.getByRole("button", { name: "创建 Patch 草案" })).toBeEnabled();
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Constraint snapshot Artifact ID（可选）" }),
+      "artifact:constraint:frontier",
+    );
+    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+
+    expect(detailApi.draftPatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        candidate_export_profiles: [exportProfile.profile],
+        constraint_snapshot_artifact_id: "artifact:constraint:frontier",
+        ops: [
+          {
+            new_value: 150,
+            old_value: 60,
+            op: "set_entity_attr",
+            op_id: "op:raise-reward",
+            target: "quest:missing_caravan.reward.gold",
+          },
+        ],
+      }),
+      { idempotencyKey: expect.any(String) },
+    );
+  });
+
   it("allows a deterministic human Patch to omit config exports when no constraint is selected", async () => {
     const detailApi = api();
     const user = userEvent.setup();
     renderPage(detailApi);
     await screen.findByRole("heading", { name: "创建 typed Patch 草案" });
+    await user.click(screen.getByText("高级：精确绑定、前置条件与原始 JSON"));
 
     fireEvent.change(screen.getByRole("textbox", { name: "Patch operations JSON" }), {
       target: {
@@ -268,14 +372,119 @@ describe("SpecDetailPage", () => {
         ]),
       },
     });
-    await user.type(screen.getByRole("textbox", { name: "Patch rationale" }), "降低任务金币奖励");
-    await user.type(screen.getByRole("textbox", { name: "Side-effect risk" }), "low");
+    await user.type(screen.getByRole("textbox", { name: "变更说明" }), "降低任务金币奖励");
+    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "low");
     await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
 
     expect(detailApi.draftPatch).toHaveBeenCalledWith(
       expect.objectContaining({
         candidate_export_profiles: [],
         constraint_snapshot_artifact_id: null,
+      }),
+      { idempotencyKey: expect.any(String) },
+    );
+    expect(await screen.findByRole("link", { name: "打开 Patch 草案" })).toBeVisible();
+  });
+
+  it("creates 林逸、双向好友与新手村位置关系 without asking the maker to copy IDs", async () => {
+    const detailApi = api({
+      listSpecGraph: vi.fn(async () => graphPage([lincheng, newbieVillage], null)),
+    });
+    const user = userEvent.setup();
+    renderPage(detailApi);
+
+    const firstChange = await screen.findByRole("group", { name: "变更 1" });
+    await user.selectOptions(
+      within(firstChange).getByRole("combobox", { name: "实体类型" }),
+      within(firstChange).getByRole("option", { name: "非玩家角色" }),
+    );
+    await user.type(within(firstChange).getByRole("textbox", { name: "实体名称" }), "林逸");
+
+    await user.click(screen.getByRole("button", { name: "添加一项变更" }));
+    const secondChange = screen.getByRole("group", { name: "变更 2" });
+    await user.selectOptions(
+      within(secondChange).getByRole("combobox", { name: "操作类型" }),
+      "add_relation",
+    );
+    await user.selectOptions(within(secondChange).getByRole("combobox", { name: "关系类型" }), "ALLY_WITH");
+    await user.selectOptions(
+      within(secondChange).getByRole("combobox", { name: "起点" }),
+      within(within(secondChange).getByRole("combobox", { name: "起点" })).getByRole("option", {
+        name: "林逸 · 新增的非玩家角色",
+      }),
+    );
+    await user.selectOptions(
+      within(secondChange).getByRole("combobox", { name: "终点" }),
+      within(within(secondChange).getByRole("combobox", { name: "终点" })).getByRole("option", {
+        name: "林澈 · 非玩家角色",
+      }),
+    );
+    await user.type(within(secondChange).getByRole("textbox", { name: "关系名称（可选）" }), "好友");
+    await user.click(within(secondChange).getByRole("checkbox", { name: "同时创建反向关系" }));
+
+    await user.click(screen.getByRole("button", { name: "添加一项变更" }));
+    const thirdChange = screen.getByRole("group", { name: "变更 3" });
+    await user.selectOptions(within(thirdChange).getByRole("combobox", { name: "操作类型" }), "add_relation");
+    await user.selectOptions(within(thirdChange).getByRole("combobox", { name: "关系类型" }), "LOCATED_IN");
+    await user.selectOptions(
+      within(thirdChange).getByRole("combobox", { name: "起点" }),
+      within(within(thirdChange).getByRole("combobox", { name: "起点" })).getByRole("option", {
+        name: "林逸 · 新增的非玩家角色",
+      }),
+    );
+    await user.selectOptions(
+      within(thirdChange).getByRole("combobox", { name: "终点" }),
+      within(within(thirdChange).getByRole("combobox", { name: "终点" })).getByRole("option", {
+        name: "新手村 · 区域",
+      }),
+    );
+
+    await user.type(screen.getByRole("textbox", { name: "变更说明" }), "新增林逸的人际与位置关系");
+    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "low");
+    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+
+    expect(detailApi.draftPatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ops: [
+          {
+            new_value: { attrs: { name: "林逸" }, type: "NPC" },
+            op: "add_entity",
+            op_id: "op:structured-1",
+            target: "npc:林逸",
+          },
+          {
+            new_value: {
+              attrs: { label: "好友" },
+              dst_id: "npc:lincheng",
+              src_id: "npc:林逸",
+              type: "ALLY_WITH",
+            },
+            op: "add_relation",
+            op_id: "op:structured-2",
+            target: "relation:ally_with:npc_林逸:npc_lincheng",
+          },
+          {
+            new_value: {
+              attrs: { label: "好友" },
+              dst_id: "npc:林逸",
+              src_id: "npc:lincheng",
+              type: "ALLY_WITH",
+            },
+            op: "add_relation",
+            op_id: "op:structured-2-reverse",
+            target: "relation:ally_with:npc_lincheng:npc_林逸",
+          },
+          {
+            new_value: {
+              dst_id: "region:newbie_zone",
+              src_id: "npc:林逸",
+              type: "LOCATED_IN",
+            },
+            op: "add_relation",
+            op_id: "op:structured-3",
+            target: "relation:located_in:npc_林逸:region_newbie_zone",
+          },
+        ],
       }),
       { idempotencyKey: expect.any(String) },
     );

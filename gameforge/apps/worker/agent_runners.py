@@ -381,7 +381,12 @@ class M2GenerationAgentRunner:
                     )
                 }
             )
-        result = generator.run(goal, request.router, execute_local_gate=False)
+        result = generator.run(
+            goal,
+            request.router,
+            prompt_version=request.prompt_version,
+            execute_local_gate=False,
+        )
 
         proposal = result.produced.get("proposal", {})
         ops_raw = proposal.get("proposed_ops", []) if isinstance(proposal, dict) else []

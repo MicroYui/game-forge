@@ -82,7 +82,7 @@ const graphItems: GraphItem[] = [
     entity: {
       id: "step:talk-to-lincheng",
       type: "QUEST_STEP",
-      attrs: { order: 1 },
+      attrs: { name: "向林澄报告", order: 1 },
       schema_version: "ir-core@1",
     },
   },
@@ -136,6 +136,9 @@ describe("KnowledgeGraph", () => {
     expect(screen.getByRole("region", { name: "知识图谱" })).toBeVisible();
     expect(screen.getByText("图谱快照第 1 页")).toBeVisible();
     expect(screen.getByText("当前有界页：2 个实体，1 条关系")).toBeVisible();
+    expect(screen.getAllByText("失落车队").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("任务").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("包含步骤").length).toBeGreaterThan(0);
     expect(screen.getAllByText(longQuestId).length).toBeGreaterThan(0);
     expect(screen.getByRole("table", { name: "图谱事实列表" })).toBeVisible();
     expect(screen.getByText("quests.csv · Quest · 第 17 行 · quest_id")).toBeVisible();
@@ -146,12 +149,16 @@ describe("KnowledgeGraph", () => {
     const user = userEvent.setup();
     render(<KnowledgeGraph items={graphItems} />);
 
-    const relationRow = screen.getByRole("row", { name: /关系 HAS_STEP relation:quest-has-step-1/ });
+    const relationRow = screen.getByRole("row", {
+      name: /关系 包含步骤 关系类型 · HAS_STEP relation:quest-has-step-1/,
+    });
     await user.click(within(relationRow).getByRole("button", { name: "检查关系 relation:quest-has-step-1" }));
 
     expect(within(relationRow).getByText("已选择")).toBeVisible();
     expect(screen.getByText("当前选择：关系")).toBeVisible();
     expect(screen.getByText("起点实体")).toBeVisible();
+    expect(screen.getAllByText("失落车队").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("向林澄报告").length).toBeGreaterThan(0);
     expect(cytoscapeMock.cy.$id).toHaveBeenCalledWith("relation:relation:quest-has-step-1");
     expect(cytoscapeMock.select).toHaveBeenCalled();
 
@@ -161,7 +168,11 @@ describe("KnowledgeGraph", () => {
       tapHandler({ target: { data: () => "entity:step:talk-to-lincheng" } });
     });
     expect(screen.getByText("当前选择：实体")).toBeVisible();
-    expect(screen.getByText("step:talk-to-lincheng", { selector: ".gf-kg__inspector-id" })).toBeVisible();
+    expect(
+      within(screen.getByRole("complementary", { name: "已选图谱事实" })).getByText("step:talk-to-lincheng", {
+        selector: "code.gf-copyable__value",
+      }),
+    ).toBeVisible();
 
     await user.clear(screen.getByRole("searchbox", { name: "搜索当前图谱页" }));
     await user.type(screen.getByRole("searchbox", { name: "搜索当前图谱页" }), "HAS_STEP");
@@ -237,7 +248,7 @@ describe("KnowledgeGraph", () => {
   it("uses text labels as well as visual emphasis for selected facts", () => {
     render(<KnowledgeGraph items={graphItems} />);
 
-    const selectedRow = screen.getByRole("row", { name: new RegExp(`实体 QUEST ${longQuestId}`) });
+    const selectedRow = screen.getByRole("row", { name: /实体 失落车队 任务 · QUEST/ });
     expect(within(selectedRow).getByText("已选择")).toBeVisible();
     expect(selectedRow).toHaveAttribute("aria-selected", "true");
   });
@@ -256,6 +267,34 @@ describe("KnowledgeGraph", () => {
     expect(inspector).toHaveFocus();
   });
 
+  it("keeps exact IDs secondary but searchable and directly copyable", async () => {
+    const user = userEvent.setup();
+    render(<KnowledgeGraph items={graphItems} />);
+
+    const table = screen.getByRole("table", { name: "图谱事实列表" });
+    const questCopy = within(table).getByRole("button", { name: `复制实体 ID ${longQuestId}` });
+    const questRow = questCopy.closest("tr")!;
+    expect(within(questRow).getByText("失落车队")).toBeVisible();
+    expect(within(questRow).getByRole("button", { name: `复制实体 ID ${longQuestId}` })).toBeVisible();
+
+    await user.clear(screen.getByRole("searchbox", { name: "搜索当前图谱页" }));
+    await user.type(screen.getByRole("searchbox", { name: "搜索当前图谱页" }), longQuestId);
+    expect(screen.getByText("找到 2 项；画布中其余事实已弱化。")).toBeVisible();
+    expect(within(screen.getByRole("table", { name: "图谱事实列表" })).getAllByRole("row")).toHaveLength(3);
+  });
+
+  it("offers a keyboard-reachable fit-view control", async () => {
+    const user = userEvent.setup();
+    render(<KnowledgeGraph items={graphItems} />);
+
+    const fitButton = screen.getByRole("button", { name: "适配视图" });
+    fitButton.focus();
+    expect(fitButton).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(cytoscapeMock.fit).toHaveBeenCalledTimes(1);
+  });
+
   it("supports URL-owned search and selection without creating a second authority", async () => {
     const user = userEvent.setup();
     const onSearchQueryChange = vi.fn();
@@ -272,7 +311,9 @@ describe("KnowledgeGraph", () => {
 
     expect(screen.getByRole("searchbox", { name: "搜索当前图谱页" })).toHaveValue("");
     expect(screen.getByText("当前选择：关系")).toBeVisible();
-    const entityRow = screen.getByRole("row", { name: /实体 QUEST_STEP step:talk-to-lincheng/ });
+    const entityRow = screen.getByRole("row", {
+      name: /实体 向林澄报告 任务步骤 · QUEST_STEP step:talk-to-lincheng/,
+    });
     await user.click(within(entityRow).getByRole("button", { name: "检查实体 step:talk-to-lincheng" }));
     expect(onSelectedFactKeyChange).toHaveBeenCalledWith("entity:step:talk-to-lincheng");
     expect(screen.getByText("当前选择：关系")).toBeVisible();

@@ -13,6 +13,7 @@ import { SpecWorkspacePage, type SpecWorkspaceApi } from "./SpecWorkspacePage";
 type Spec = components["schemas"]["SpecViewV1"];
 type ConstraintSnapshot = components["schemas"]["ConstraintSnapshotViewV1"];
 type ConstraintProposal = components["schemas"]["ConstraintProposalReadViewV1"];
+type ArtifactSummary = components["schemas"]["ArtifactSummaryV1"];
 
 const baseArtifact: components["schemas"]["ArtifactSummaryV1"] = {
   artifact_id: "artifact:spec:frontier",
@@ -77,6 +78,23 @@ const constraintProposal: ConstraintProposal = {
   workflow_revision: 5,
 };
 
+const sourceRaw: ArtifactSummary = {
+  ...baseArtifact,
+  artifact_id: "artifact:source:raw-frontier",
+  kind: "source_raw",
+  parent_artifact_ids: [],
+  payload_schema_id: "source-document@1",
+};
+
+const sourceRendered: ArtifactSummary = {
+  ...baseArtifact,
+  artifact_id: "artifact:source:rendered-frontier",
+  created_at: "2026-07-20T09:30:00Z",
+  kind: "source_rendered",
+  parent_artifact_ids: [sourceRaw.artifact_id],
+  payload_schema_id: "source-rendered@1",
+};
+
 function page<T>(items: T[], nextCursor: string | null, readSnapshotId: string) {
   return {
     expires_at: "2026-07-19T09:00:00Z",
@@ -90,9 +108,13 @@ function page<T>(items: T[], nextCursor: string | null, readSnapshotId: string) 
 function api(overrides: Partial<SpecWorkspaceApi> = {}): SpecWorkspaceApi {
   return {
     draftConstraint: vi.fn(async () => constraintProposal),
+    listArtifacts: vi.fn(async (kind) =>
+      page(kind === "source_raw" ? [sourceRaw] : [sourceRendered], null, `read:${kind}`),
+    ),
     listConstraintProposals: vi.fn(async () => page([constraintProposal], null, "read:proposals")),
     listConstraintSnapshots: vi.fn(async () => page([constraintSnapshot], null, "read:constraints")),
     listExecutionProfiles: vi.fn(async () => page([], null, "read:profiles")),
+    listRefHistory: vi.fn(),
     listSpecs: vi.fn(async () => page([spec], null, "read:specs")),
     proposeConstraint: vi.fn(async () => ({
       accepted_schema_version: "run-accepted@1" as const,
@@ -125,6 +147,61 @@ function deferred<T>() {
 }
 
 describe("SpecWorkspacePage", () => {
+  it("fully reads raw and rendered source catalogs before rendering first-proposal pickers", async () => {
+    const secondRaw = {
+      ...sourceRaw,
+      artifact_id: "artifact:source:raw-harbor",
+      created_at: "2026-07-21T10:00:00Z",
+    } satisfies ArtifactSummary;
+    const listArtifacts = vi.fn<SpecWorkspaceApi["listArtifacts"]>(async (kind, cursor) => {
+      if (kind === "source_rendered") return page([sourceRendered], null, "read:source_rendered");
+      return cursor === null
+        ? page([sourceRaw], "opaque.source-raw+/=", "read:source_raw")
+        : page([secondRaw], null, "read:source_raw");
+    });
+    renderPage(
+      api({
+        listArtifacts,
+        listConstraintProposals: vi.fn(async () => page([], null, "read:proposals:empty")),
+      }),
+    );
+
+    const agent = (await screen.findByRole("heading", { name: "Agent 提案" })).closest("article")!;
+    expect(
+      within(agent).getByRole("checkbox", {
+        name: /原始策划材料（source_raw）.*artifact:sou…frontier/,
+      }),
+    ).toBeVisible();
+    expect(
+      within(agent).getByRole("checkbox", {
+        name: /原始策划材料（source_raw）.*artifact:sou…w-harbor/,
+      }),
+    ).toBeVisible();
+    expect(
+      within(agent).getByRole("checkbox", {
+        name: /已解析策划材料（source_rendered）.*artifact:sou…frontier/,
+      }),
+    ).toBeVisible();
+    expect(listArtifacts.mock.calls).toEqual([
+      ["source_raw", null],
+      ["source_rendered", null],
+      ["source_raw", "opaque.source-raw+/="],
+    ]);
+  });
+
+  it("fails closed when a source catalog changes read snapshot during pagination", async () => {
+    const listArtifacts = vi.fn<SpecWorkspaceApi["listArtifacts"]>(async (kind, cursor) => {
+      if (kind === "source_rendered") return page([], null, "read:source_rendered");
+      return cursor === null
+        ? page([sourceRaw], "opaque.source-raw+/=", "read:source_raw:first")
+        : page([], null, "read:source_raw:changed");
+    });
+    renderPage(api({ listArtifacts }));
+
+    expect(await screen.findByRole("heading", { name: "无法读取规格工作台" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Agent 提案" })).not.toBeInTheDocument();
+  });
+
   it("moves from loading to a contract-honest ready workspace and preserves opaque cursors", async () => {
     const first = deferred<Awaited<ReturnType<SpecWorkspaceApi["listSpecs"]>>>();
     const nextSpec = {
@@ -150,7 +227,7 @@ describe("SpecWorkspacePage", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "规格与约束快照" })).toBeVisible();
     expect(screen.getByText(/不是全局权威约束列表/)).toBeVisible();
     expect(screen.getByText("需由发布结果或 ref 历史另行证明")).toBeVisible();
-    expect(screen.getByText("registry@3")).toBeVisible();
+    expect(screen.getAllByText("registry@3")[0]).toBeVisible();
     expect(screen.getByRole("heading", { name: "Agent 提案" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Human typed draft" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Human spec upload" })).toBeVisible();

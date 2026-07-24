@@ -4,7 +4,9 @@ import { useState } from "react";
 
 import { createMutationIntent, ReauthenticationRequiredError, type MutationIntent } from "../../api/csrf";
 import { ApiProblemError } from "../../api/problem";
+import { ReauthenticationLink } from "../../app/ReauthenticationLink";
 import { ProblemPanel, StatePanel } from "../../components/ui";
+import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
 import type {
   ExecutionOptionResolveRequest,
   ExecutionProfilePage,
@@ -17,10 +19,10 @@ import type {
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type LlmExecutionMode = ProspectiveReviewRunRequest["llm_execution_mode"];
 
-export interface ReviewGenerationContext {
+export interface ReviewCandidateContext {
   constraintArtifactId: string;
   snapshotArtifactId: string;
-  sourceRunId: string;
+  sourceRunId: string | null;
 }
 
 interface ReviewLaunchAttempt {
@@ -104,17 +106,45 @@ async function collectReviewProfiles(api: ReviewApi): Promise<ExecutionProfile[]
   }
 }
 
+async function collectReplaySourceRuns(api: ReviewApi): Promise<ReplaySourceRun[]> {
+  const runs: ReplaySourceRun[] = [];
+  const seenCursors = new Set<string>();
+  const seenRuns = new Set<string>();
+  let cursor: string | null = null;
+  let readSnapshotId: string | null = null;
+
+  for (;;) {
+    const page = await api.listReplaySourceRuns(cursor);
+    if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
+      throw new ReviewLaunchAuthorityError("已完成 Run 目录分页快照发生变化。");
+    }
+    readSnapshotId = page.read_snapshot_id;
+    for (const run of page.items) {
+      if (seenRuns.has(run.run_id)) {
+        throw new ReviewLaunchAuthorityError("已完成 Run 目录返回重复运行。");
+      }
+      seenRuns.add(run.run_id);
+      runs.push(run);
+    }
+    const next = page.next_cursor ?? null;
+    if (next === null) return runs;
+    if (seenCursors.has(next)) throw new ReviewLaunchAuthorityError("已完成 Run 目录返回循环游标。");
+    seenCursors.add(next);
+    cursor = next;
+  }
+}
+
+function replayRunLabel(run: ReplaySourceRun): string {
+  return replaySourceOptionLabel(run);
+}
+
 function LaunchFailure({ attempt, onRetry }: { attempt: ReviewLaunchAttempt; onRetry(): void }) {
   if (attempt.error === null) return null;
   if (attempt.error instanceof ApiProblemError) return <ProblemPanel problem={attempt.error.problem} />;
   if (attempt.error instanceof ReauthenticationRequiredError) {
     return (
       <StatePanel
-        action={
-          <a className="gf-secondary-button" href="/login">
-            重新登录
-          </a>
-        }
+        action={<ReauthenticationLink />}
         description="当前浏览器标签页没有可用 CSRF 会话；Review mutation 尚未发送。"
         state="error"
         title="需要重新登录"
@@ -157,7 +187,7 @@ function blocksNewIntent(attempt: ReviewLaunchAttempt | null): boolean {
   return attempt?.resolved != null && attempt.error != null && !(attempt.error instanceof ApiProblemError);
 }
 
-export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: ReviewGenerationContext }) {
+export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: ReviewCandidateContext }) {
   const catalog = useQuery({
     queryFn: () => collectReviewProfiles(api),
     queryKey: ["review", "launch-profiles"],
@@ -182,6 +212,12 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
   const [mode, setMode] = useState<"" | LlmExecutionMode>("");
   const [replaySourceRunId, setReplaySourceRunId] = useState("");
   const [attempt, setAttempt] = useState<ReviewLaunchAttempt | null>(null);
+  const replayRuns = useQuery({
+    enabled: mode === "replay",
+    queryFn: () => collectReplaySourceRuns(api),
+    queryKey: ["review", "replay-source-runs"],
+    retry: false,
+  });
 
   if (catalog.isPending || constraint.isPending) {
     return (
@@ -251,6 +287,12 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
   const profileSelectionValid =
     (selectedCheckers.length > 0 || selectedSimulations.length > 0) &&
     (!hasConstraintRules || selectedCheckers.length > 0);
+  const seedRequired = [
+    ...(selectedReview ? [selectedReview] : []),
+    ...selectedCheckers,
+    ...selectedSimulations,
+    ...(selectedTriage ? [selectedTriage] : []),
+  ].some((profile) => profile.stochastic);
   const parsedSeed = Number(seed);
   const validSeed = seed.trim().length > 0 && Number.isSafeInteger(parsedSeed) && parsedSeed >= 0;
   const expectedReplaySource = mode === "replay" ? replaySourceRunId.trim() : null;
@@ -262,9 +304,9 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
     selectedReview !== undefined &&
     profileSelectionValid &&
     selectedTriage !== undefined &&
-    validSeed &&
+    (!seedRequired || validSeed) &&
     mode !== "" &&
-    (mode !== "replay" || (expectedReplaySource ?? "").length > 0);
+    (mode !== "replay" || replayRuns.data?.some((run) => run.run_id === expectedReplaySource) === true);
 
   async function execute(frozen: ReviewLaunchAttempt) {
     setAttempt({ ...frozen, error: null, pending: true, result: null });
@@ -306,7 +348,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
   }
 
   function submit() {
-    if (!canSubmit || !selectedReview || !selectedTriage || !validSeed) return;
+    if (!canSubmit || !selectedReview || !selectedTriage || (seedRequired && !validSeed)) return;
     const prospective: ProspectiveReviewRunRequest = {
       cassette_artifact_id: null,
       execution_version_plan: null,
@@ -322,7 +364,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
         snapshot_artifact_id: context.snapshotArtifactId,
       },
       request_schema_version: "run-submission-request@1",
-      seed: parsedSeed,
+      seed: seedRequired ? parsedSeed : null,
     };
     const request: ExecutionOptionResolveRequest = {
       llm_execution_mode: mode,
@@ -353,7 +395,10 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
             <h2 id="review-launch-title">启动候选 Review</h2>
           </div>
         </div>
-        <p>仅完整 Generation 上下文显示；先解析 execution option，再提交真实 Review Run。</p>
+        <p>
+          Exact 候选 Artifact 与 constraint 齐备时显示；来源 Run 仅作可选导航上下文。先解析 execution
+          option，再提交真实 Review Run。
+        </p>
       </header>
 
       <div className="gf-review__launch-body">
@@ -457,22 +502,39 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           )}
 
           <div className="gf-review__launch-row">
-            <label>
-              Seed
-              <input
-                disabled={controlsFrozen}
-                min="0"
-                onChange={(event) => setSeed(event.target.value)}
-                step="1"
-                type="number"
-                value={seed}
-              />
-            </label>
+            {seedRequired ? (
+              <label>
+                Seed
+                <input
+                  aria-label="Seed"
+                  aria-describedby="review-seed-help"
+                  disabled={controlsFrozen}
+                  min="0"
+                  onChange={(event) => setSeed(event.target.value)}
+                  required
+                  step="1"
+                  type="number"
+                  value={seed}
+                />
+                <span className="u-small" id="review-seed-help">
+                  所选 profile 包含随机执行；必须填写非负整数 Seed。
+                </span>
+              </label>
+            ) : (
+              <div className="gf-review__launch-note" role="note">
+                <strong>Seed 不适用</strong>
+                <span>当前所选 profiles 均为确定性执行；请求固定发送 seed=null。</span>
+              </div>
+            )}
             <label>
               LLM execution mode
               <select
                 disabled={controlsFrozen}
-                onChange={(event) => setMode(event.target.value as "" | LlmExecutionMode)}
+                onChange={(event) => {
+                  const next = event.target.value as "" | LlmExecutionMode;
+                  setMode(next);
+                  if (next !== "replay") setReplaySourceRunId("");
+                }}
                 value={mode}
               >
                 <option value="">请选择 live / record / replay</option>
@@ -485,13 +547,26 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           {mode === "replay" && (
             <label>
               Replay source Run
-              <input
+              <select
                 disabled={controlsFrozen}
                 onChange={(event) => setReplaySourceRunId(event.target.value)}
-                type="text"
                 value={replaySourceRunId}
-              />
+              >
+                <option value="">
+                  {replayRuns.isPending ? "正在读取已完成运行…" : "请选择一个已完成的回放来源"}
+                </option>
+                {replayRuns.data?.map((run) => (
+                  <option key={run.run_id} value={run.run_id}>
+                    {replayRunLabel(run)}
+                  </option>
+                ))}
+              </select>
             </label>
+          )}
+          {mode === "replay" && replayRuns.isError && (
+            <p className="gf-review__launch-note" role="alert">
+              无法读取已完成 Run 目录；Review 不会要求手工粘贴 Run ID。
+            </p>
           )}
           <button disabled={!canSubmit} type="submit">
             {attempt?.pending ? "正在解析并提交…" : "启动 Review"}
@@ -505,11 +580,15 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
             <div>
               <dt>导航来源 Run（非提交输入）</dt>
               <dd>
-                <a href={`/runs/${encodeURIComponent(context.sourceRunId)}`}>{context.sourceRunId}</a>
+                {context.sourceRunId ? (
+                  <a href={`/runs/${encodeURIComponent(context.sourceRunId)}`}>{context.sourceRunId}</a>
+                ) : (
+                  "无"
+                )}
               </dd>
             </div>
             <div>
-              <dt>Preview</dt>
+              <dt>Candidate Artifact</dt>
               <dd>{context.snapshotArtifactId}</dd>
             </div>
             <div>

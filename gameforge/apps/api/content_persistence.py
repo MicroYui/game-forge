@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from contextlib import AbstractContextManager
 from datetime import timedelta
+from typing import get_args
 
 from pydantic import JsonValue, ValidationError
 from sqlalchemy import BigInteger, func, literal_column, select
@@ -67,6 +68,7 @@ from gameforge.runtime.persistence.refs import SqlRefStore
 _ARTIFACT_ROWID = literal_column("artifacts.rowid", type_=BigInteger())
 _MAX_LINEAGE_ITEMS = 1_000
 _BUILTIN_IR_SCHEMA_REGISTRY_VERSION = "registry@1"
+_ARTIFACT_KINDS = frozenset(get_args(ArtifactKind))
 _INDEX_KINDS: dict[str, ArtifactKind] = {
     "specs": "ir_snapshot",
     "constraints": "constraint_snapshot",
@@ -878,14 +880,20 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
         binding: ReadPageBinding,
         page_size: int,
     ) -> PageV1[ArtifactV1 | ArtifactV2]:
-        registered_kind = _INDEX_KINDS.get(index_kind)
-        if registered_kind is None or registered_kind != expected_artifact_kind:
-            raise IntegrityViolation("Artifact read index kind is not an immutable M4c index")
-        if any(value is not None for value in filters.values()):
-            raise DependencyUnavailable(
-                "filtered immutable Artifact index is not available before its producer index",
-                component="artifact_filter_index",
-            )
+        if index_kind == "artifacts":
+            if expected_artifact_kind not in _ARTIFACT_KINDS or dict(filters) != {
+                "kind": expected_artifact_kind
+            }:
+                raise IntegrityViolation("Artifact catalog kind binding is invalid")
+        else:
+            registered_kind = _INDEX_KINDS.get(index_kind)
+            if registered_kind is None or registered_kind != expected_artifact_kind:
+                raise IntegrityViolation("Artifact read index kind is not an immutable M4c index")
+            if any(value is not None for value in filters.values()):
+                raise DependencyUnavailable(
+                    "filtered immutable Artifact index is not available before its producer index",
+                    component="artifact_filter_index",
+                )
 
         def high_watermark() -> int:
             value = self._session.scalar(

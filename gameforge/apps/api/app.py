@@ -20,6 +20,7 @@ from gameforge.apps.api.middleware import (
     RequestContextMiddleware,
 )
 from gameforge.apps.api.routers.auth import auth_router
+from gameforge.apps.api.routers.artifacts import artifact_catalog_router
 from gameforge.apps.api.routers.content import content_read_router
 from gameforge.apps.api.routers.observability import observability_router
 from gameforge.apps.api.routers.runs import run_admission_router
@@ -86,6 +87,7 @@ def create_app(
     observability_reads = selected.observability_reads or ObservabilityReadService(
         unit_of_work=_unavailable_read_uow("observability_read_authority"),
     )
+    app.include_router(artifact_catalog_router(content_reads))
     app.include_router(content_read_router(content_reads))
     app.include_router(workflow_read_router(workflow_reads))
     app.include_router(observability_router(observability_reads))

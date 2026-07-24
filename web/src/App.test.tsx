@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import canonicalReport from "../../scenarios/bench/bench-report.json";
@@ -16,6 +16,8 @@ import {
   type SessionBoundarySubscriber,
 } from "./app/providers";
 import type { AuthenticatedPrincipal } from "./app/auth-types";
+import { ReauthenticationLink } from "./app/ReauthenticationLink";
+import { LoginPage } from "./app/router";
 import { messages } from "./i18n/zh-CN";
 
 const principal: AuthenticatedPrincipal = {
@@ -221,7 +223,56 @@ function renderApp(
   );
 }
 
+function ReauthenticationReturnProbe() {
+  const location = useLocation();
+  return (
+    <main>
+      <output data-testid="reauth-return-location">{`${location.pathname}${location.search}`}</output>
+      <ReauthenticationLink />
+    </main>
+  );
+}
+
+function renderReauthenticationFlow(path: string, api: AuthApi) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <AuthProvider api={api} subscribeToSessionBoundary={() => () => undefined}>
+        <Routes>
+          <Route element={<LoginPage />} path="/login" />
+          <Route element={<ReauthenticationReturnProbe />} path="/playtest" />
+        </Routes>
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+}
+
 describe("App", () => {
+  it("forces credential reauthentication and returns to the exact current location", async () => {
+    const user = userEvent.setup();
+    const api = createAuthApi();
+    const exactPath =
+      "/playtest?sourceRun=run%3Arepair&preview=sha256%3Apreview&config=sha256%3Aconfig&constraint=sha256%3Aconstraint";
+    renderReauthenticationFlow(exactPath, api);
+
+    expect(await screen.findByTestId("reauth-return-location")).toHaveTextContent(exactPath);
+    await user.click(screen.getByRole("link", { name: "重新登录" }));
+
+    expect(await screen.findByRole("heading", { name: messages.auth.signIn })).toBeVisible();
+    await user.type(screen.getByLabelText(messages.auth.loginName), "lincheng");
+    await user.type(screen.getByLabelText(messages.auth.password), "new-tab-credential");
+    await user.click(screen.getByRole("button", { name: messages.auth.signInAction }));
+
+    expect(await screen.findByTestId("reauth-return-location")).toHaveTextContent(exactPath);
+    expect(api.login).toHaveBeenCalledWith(
+      {
+        login_name: "lincheng",
+        password: "new-tab-credential",
+        schema_version: "password-auth@1",
+      },
+      { forceReauthentication: true },
+    );
+  });
+
   it("exposes the eight first-class routes in an authenticated semantic shell", async () => {
     stubEmptySpecWorkspace();
     renderApp();
@@ -331,9 +382,9 @@ describe("App", () => {
     stubEmptyApprovalWorkspace();
     renderApp("/approvals");
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Approvals" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "审批队列" })).toBeVisible();
     expect(screen.getByRole("main")).toContainElement(
-      screen.getByRole("heading", { level: 1, name: "Approvals" }),
+      screen.getByRole("heading", { level: 1, name: "审批队列" }),
     );
     expect(screen.getByRole("navigation", { name: messages.shell.breadcrumbs })).toHaveTextContent(
       messages.routes.approvals,
@@ -353,7 +404,7 @@ describe("App", () => {
     await user.type(screen.getByLabelText(messages.auth.password), "not-rendered-after-submit");
     await user.click(screen.getByRole("button", { name: messages.auth.signInAction }));
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Approvals" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "审批队列" })).toBeVisible();
     expect(api.login).toHaveBeenCalledWith({
       login_name: "lincheng",
       password: "not-rendered-after-submit",

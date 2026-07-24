@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import type { components } from "../../api/generated/openapi";
@@ -42,10 +43,13 @@ function artifact(
 const constraint: components["schemas"]["Constraint"] = {
   assert: "reward_gold <= 75",
   dsl_grammar_version: "dsl@1",
+  forall: { node_type: "REWARD", var: "reward", where: { currency: "gold" } },
   id: "constraint:reward-cap",
   kind: "numeric",
   note: "控制金币通胀",
   oracle: "deterministic",
+  predicates: [{ expr: "reward_gold >= 0", oracle: "deterministic" }],
+  scope: { node_type: "QUEST", var: "quest", where: { category: "side" } },
   severity: "major",
 };
 
@@ -118,6 +122,15 @@ function approvalView(
   overrides: Partial<components["schemas"]["ApprovalItem"]> = {},
 ): ApprovalView {
   const registry = { registry_digest: "d".repeat(64), registry_version: "domains@1" };
+  const defaultSubjectRevision = status === "draft" ? 1 : 2;
+  const hasValidationEvidence = [
+    "validated",
+    "pending_approval",
+    "auto_apply_eligible",
+    "approved",
+    "applied",
+    "rolled_back",
+  ].includes(status);
   return {
     approval: {
       approval_id: "approval:server-bound",
@@ -127,10 +140,7 @@ function approvalView(
       decisions: [],
       domain_registry_ref: registry,
       domain_scope: domainScope,
-      evidence_set_artifact_id:
-        status === "validated" || status === "pending_approval" || status === "approved"
-          ? "artifact:evidence:1"
-          : null,
+      evidence_set_artifact_id: hasValidationEvidence ? "artifact:evidence:1" : null,
       last_validation_failure_artifact_id: null,
       proposer: { principal_id: "human:maker", principal_kind: "human" },
       regression_evidence_artifact_ids: [],
@@ -146,12 +156,9 @@ function approvalView(
       subject_artifact_id: "artifact:proposal:1",
       subject_digest: "2".repeat(64),
       subject_kind: "constraint_proposal",
-      subject_revision: 1,
+      subject_revision: defaultSubjectRevision,
       subject_series_id: "series:constraint:1",
-      target_binding:
-        status === "validated" || status === "pending_approval" || status === "approved"
-          ? targetBinding
-          : null,
+      target_binding: hasValidationEvidence ? targetBinding : null,
       workflow_revision: 7,
       ...overrides,
     },
@@ -193,15 +200,16 @@ function approvalBinding(
   status: SubjectApprovalBindingView["approval_status"] = "draft",
   overrides: Partial<SubjectApprovalBindingView> = {},
 ): SubjectApprovalBindingView {
+  const defaultSubjectRevision = status === "draft" ? 1 : 2;
   return {
     approval_id: "approval:server-bound",
     approval_status: status,
     is_current_head: true,
     subject_artifact_id: "artifact:proposal:1",
     subject_digest: "2".repeat(64),
-    subject_head_revision: 1,
+    subject_head_revision: defaultSubjectRevision,
     subject_kind: "constraint_proposal",
-    subject_revision: 1,
+    subject_revision: defaultSubjectRevision,
     subject_series_id: "series:constraint:1",
     workflow_revision: 7,
     ...overrides,
@@ -251,7 +259,7 @@ function evidenceArtifact(status: "passed" | "failed" | "unproven"): ArtifactPay
       requirements: [
         {
           applicability: "required",
-          evidence_artifact_id: status === "unproven" ? null : "artifact:compile-evidence:1",
+          evidence_artifact_id: "artifact:compile-evidence:1",
           kind: "constraint_compile",
           reason_code: status === "unproven" ? "solver_timeout" : null,
           requirement_id: "compile",
@@ -264,6 +272,59 @@ function evidenceArtifact(status: "passed" | "failed" | "unproven"): ArtifactPay
       supporting_artifact_ids: [],
       target_binding: status === "passed" ? targetBinding : null,
       validation_run_id: "run:validation:1",
+    },
+    resource_revision: 1,
+    view_schema_version: "artifact-payload-view@1",
+  };
+}
+
+function compileEvidenceArtifact(
+  status: "passed" | "failed" | "unproven" = "passed",
+  reasonCode = "numeric_reference_witness_selector_unsupported",
+): ArtifactPayloadView {
+  return {
+    artifact: artifact("artifact:compile-evidence:1", "validation_evidence", "constraint-compile-evidence@1"),
+    payload: {
+      base_constraint_snapshot_artifact_id: "artifact:constraint:base",
+      candidate_constraint_snapshot_artifact_id:
+        status === "passed" ? targetBinding.target_artifact_id : null,
+      compiler_profile: compilerProfile.profile,
+      dsl_grammar_version: "dsl@1",
+      evidence_schema_version: "constraint-compile-evidence@1",
+      overall_status: status,
+      proposal_artifact_id: "artifact:proposal:1",
+      stages: [
+        { reason_code: null, stage: "parse", stage_id: "parse", status: "passed" },
+        { reason_code: null, stage: "typecheck", stage_id: "typecheck", status: "passed" },
+        {
+          reason_code: status === "passed" ? null : "execution_short_circuited",
+          stage: "compile",
+          stage_id: "compile",
+          status: status === "passed" ? "passed" : "unproven",
+        },
+        {
+          engine_id: "numeric-reference",
+          engine_version: "1",
+          reason_code: status === "passed" ? null : reasonCode,
+          stage: "differential",
+          stage_id: "differential:numeric-reference",
+          status,
+        },
+        {
+          engine_id: "z3",
+          engine_version: "1",
+          reason_code: status === "passed" ? null : reasonCode.replace("numeric_reference", "z3_numeric"),
+          stage: "differential",
+          stage_id: "differential:z3",
+          status,
+        },
+        {
+          reason_code: status === "passed" ? "golden_suite_absent" : "execution_short_circuited",
+          stage: "golden",
+          stage_id: "golden",
+          status: status === "passed" ? "not_applicable" : "unproven",
+        },
+      ],
     },
     resource_revision: 1,
     view_schema_version: "artifact-payload-view@1",
@@ -325,14 +386,30 @@ function api(overrides: Partial<ConstraintProposalApi> = {}): ConstraintProposal
     status_url: "/api/v1/runs/run:validation:accepted",
   };
   return {
+    draftConstraint: vi.fn(async () => proposal("human", "artifact:proposal:follow-up", 1)),
     getApproval: vi.fn(async () => ({ etag: '"approval:7"', value: approval })),
     getApprovalBinding: vi.fn(async () => approvalBinding()),
-    getArtifactPayload: vi.fn(async (artifactId) =>
-      artifactId === "artifact:constraint:base" ? baseArtifact : evidenceArtifact("passed"),
-    ),
+    getArtifactPayload: vi.fn(async (artifactId) => {
+      if (artifactId === "artifact:constraint:base") return baseArtifact;
+      if (artifactId === "artifact:compile-evidence:1") return compileEvidenceArtifact();
+      return evidenceArtifact("passed");
+    }),
     getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:1"', value: current })),
     getConstraintValidationCompilerBinding: vi.fn(async () => compilerBinding),
     listExecutionProfiles: vi.fn(async () => profilePage),
+    listRefHistory: vi.fn(async () => ({
+      expires_at: "2026-07-19T09:00:00Z",
+      items: [
+        {
+          entry_schema_version: "ref-history-entry@1" as const,
+          ref_name: "refs/constraints/economy",
+          value: { artifact_id: "artifact:constraint:base", revision: 4 },
+        },
+      ],
+      next_cursor: null,
+      page_schema_version: "page@1" as const,
+      read_snapshot_id: "read:constraint-ref",
+    })),
     publishConstraint: vi.fn(async () => publishResult),
     reviseConstraint: vi.fn(async () => proposal("human", "artifact:proposal:2", 2)),
     submitConstraintForApproval: vi.fn(async () => approval),
@@ -343,10 +420,18 @@ function api(overrides: Partial<ConstraintProposalApi> = {}): ConstraintProposal
 
 function renderPage(proposalApi: ConstraintProposalApi) {
   return render(
-    <QueryClientProvider client={createQueryClient()}>
-      <ConstraintProposalPage api={proposalApi} artifactId="artifact:proposal:1" />
-    </QueryClientProvider>,
+    <MemoryRouter initialEntries={["/constraint-proposals/artifact%3Aproposal%3A1"]}>
+      <QueryClientProvider client={createQueryClient()}>
+        <ConstraintProposalPage api={proposalApi} artifactId="artifact:proposal:1" />
+        <RouteProbe />
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
+}
+
+function RouteProbe() {
+  const location = useLocation();
+  return <output aria-label="Current route">{location.pathname}</output>;
 }
 
 function problem(overrides: Partial<SafeProblem> = {}): SafeProblem {
@@ -368,13 +453,10 @@ function problem(overrides: Partial<SafeProblem> = {}): SafeProblem {
 }
 
 async function fillRefBinding(user: ReturnType<typeof userEvent.setup>) {
-  await user.clear(screen.getByRole("textbox", { name: "Ref name" }));
-  await user.type(screen.getByRole("textbox", { name: "Ref name" }), "refs/constraints/economy");
-  await user.type(
-    screen.getByRole("textbox", { name: "Expected ref Artifact ID" }),
-    "artifact:constraint:base",
-  );
-  await user.type(screen.getByRole("spinbutton", { name: "Expected ref revision" }), "4");
+  await user.click(screen.getByRole("radio", { name: "更新已有 ref" }));
+  await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/economy");
+  await user.click(screen.getByRole("button", { name: "查找当前版本" }));
+  await screen.findByText("已选择当前 revision 4");
 }
 
 describe("ConstraintProposalPage", () => {
@@ -387,6 +469,18 @@ describe("ConstraintProposalPage", () => {
     expect(screen.getByText("Agent 候选 · 必须由 Human 修订")).toBeVisible();
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
     expect(screen.getByRole("heading", { name: "人工接管与修订" })).toBeVisible();
+    expect(screen.getByLabelText("当前 immutable typed constraints")).toHaveTextContent(
+      '"node_type": "QUEST"',
+    );
+    expect(screen.getByLabelText("当前 immutable typed constraints")).toHaveTextContent(
+      '"node_type": "REWARD"',
+    );
+    expect(screen.getByLabelText("当前 immutable typed constraints")).toHaveTextContent(
+      '"expr": "reward_gold >= 0"',
+    );
+    expect(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" })).toHaveValue(
+      JSON.stringify([constraint], null, 2),
+    );
     expect(proposalApi.getApproval).toHaveBeenCalledWith("approval:server-bound");
     expect(screen.getByRole("link", { name: "打开 exact approval" })).toHaveAttribute(
       "href",
@@ -398,8 +492,8 @@ describe("ConstraintProposalPage", () => {
         .every((select) => select)
         .valueOf(),
     ).toBeTruthy();
-    expect(screen.getByRole("combobox", { name: "Compiler profile" })).toHaveValue("");
-    expect(screen.getByRole("combobox", { name: "Validation profile" })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "约束编译器" })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "验证方案" })).toHaveValue("");
   });
 
   it("requires an explicit confirmation before submitting expected_ref=null", async () => {
@@ -407,10 +501,188 @@ describe("ConstraintProposalPage", () => {
     renderPage(api());
     await screen.findByRole("heading", { name: "人工接管与修订" });
 
-    await user.type(screen.getByRole("textbox", { name: "Ref name" }), "refs/constraints/new");
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeDisabled();
-    await user.click(screen.getByRole("checkbox", { name: "确认当前 ref 不存在（expected_ref=null）" }));
+    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
+    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/new");
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeEnabled();
+  });
+
+  it("fails closed when the edited revision constraints are not a JSON object array", async () => {
+    const user = userEvent.setup();
+    renderPage(api());
+    await screen.findByRole("heading", { name: "人工接管与修订" });
+
+    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
+    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/new");
+    fireEvent.change(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" }), {
+      target: { value: "{}" },
+    });
+
+    expect(screen.getByText("需要 JSON array，且每个条目必须是 object。")).toBeVisible();
+    expect(screen.getByRole("button", { name: "提交人工修订" })).toBeDisabled();
+  });
+
+  it("keeps a rejected 422 revision editable and retryable because the server made no write", async () => {
+    const invalid = new ApiProblemError(
+      problem({
+        code: "request_schema_invalid",
+        detail: "The constraint payload is not valid.",
+        status: 422,
+        title: "Invalid request",
+      }),
+    );
+    const reviseConstraint = vi
+      .fn<ConstraintProposalApi["reviseConstraint"]>()
+      .mockRejectedValueOnce(invalid)
+      .mockResolvedValueOnce(proposal("human", "artifact:proposal:2", 2));
+    const proposalApi = api({ reviseConstraint });
+    const user = userEvent.setup();
+    renderPage(proposalApi);
+    await screen.findByText("Agent 候选 · 必须由 Human 修订");
+    await fillRefBinding(user);
+
+    const submit = screen.getByRole("button", { name: "提交人工修订" });
+    await user.click(submit);
+    expect(await screen.findByText("The constraint payload is not valid.")).toBeVisible();
+    expect(screen.getByText("请求未写入服务器；修正上面的表单后可以直接重试。")).toBeVisible();
+    expect(screen.queryByRole("button", { name: "重新读取服务器状态" })).not.toBeInTheDocument();
+    expect(submit).toBeEnabled();
+
+    await user.click(submit);
+    expect(reviseConstraint).toHaveBeenCalledTimes(2);
+    expect(screen.getByLabelText("Current route")).toHaveTextContent(
+      "/constraint-proposals/artifact%3Aproposal%3A2",
+    );
+  });
+
+  it.each([
+    {
+      currentRef: { artifact_id: "artifact:constraint:published", revision: 1 },
+      historicalExpectedRef: null,
+      status: "applied" as const,
+    },
+    {
+      currentRef: { artifact_id: "artifact:constraint:before-publish", revision: 6 },
+      historicalExpectedRef: { artifact_id: "artifact:constraint:before-publish", revision: 4 },
+      status: "rolled_back" as const,
+    },
+  ])(
+    "creates a fresh-current-ref follow-up draft for a $status proposal instead of revising history",
+    async ({ currentRef, historicalExpectedRef, status }) => {
+      const historicalTarget = {
+        ...targetBinding,
+        expected_ref: historicalExpectedRef,
+        ref_name: "constraints/head",
+        target_artifact_id: "artifact:constraint:published",
+        target_snapshot_id: "constraint-snapshot:published",
+      } satisfies components["schemas"]["ConstraintTargetBindingV1"];
+      const terminal = proposal("human", `artifact:proposal:${status}`, 3, status);
+      const draftConstraint = vi.fn<ConstraintProposalApi["draftConstraint"]>(async () =>
+        proposal("human", "artifact:proposal:follow-up", 1),
+      );
+      const reviseConstraint = vi.fn<ConstraintProposalApi["reviseConstraint"]>();
+      const proposalApi = api({
+        draftConstraint,
+        getApproval: vi.fn(async () => ({
+          etag: `"approval:${status}"`,
+          value: approvalView(status, {
+            subject_artifact_id: terminal.artifact.artifact_id,
+            subject_revision: 3,
+            target_binding: historicalTarget,
+          }),
+        })),
+        getApprovalBinding: vi.fn(async () =>
+          approvalBinding(status, {
+            subject_artifact_id: terminal.artifact.artifact_id,
+            subject_head_revision: 3,
+            subject_revision: 3,
+          }),
+        ),
+        getConstraintProposal: vi.fn(async () => ({ etag: `"proposal:${status}"`, value: terminal })),
+        listRefHistory: vi.fn(async () => ({
+          expires_at: "2026-07-19T09:00:00Z",
+          items: [
+            {
+              entry_schema_version: "ref-history-entry@1" as const,
+              ref_name: "constraints/head",
+              value: currentRef,
+            },
+          ],
+          next_cursor: null,
+          page_schema_version: "page@1" as const,
+          read_snapshot_id: "read:constraints-head",
+        })),
+        reviseConstraint,
+      });
+      const user = userEvent.setup();
+      renderPage(proposalApi);
+
+      expect(await screen.findByText("已发布记录不可原地修订")).toBeVisible();
+      expect(screen.queryByRole("button", { name: "提交人工修订" })).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "创建后续提案草稿" })).toBeDisabled();
+
+      await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
+      await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
+      expect(screen.getByRole("button", { name: "创建后续提案草稿" })).toBeDisabled();
+
+      await user.click(screen.getByRole("radio", { name: "更新已有 ref" }));
+      await user.clear(screen.getByRole("textbox", { name: "Ref 名称" }));
+      await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
+      await user.click(screen.getByRole("button", { name: "查找当前版本" }));
+      expect(await screen.findByText(`已选择当前 revision ${currentRef.revision}`)).toBeVisible();
+
+      const corrected = { ...constraint, assert: "reward.gold <= 80" };
+      fireEvent.change(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" }), {
+        target: { value: JSON.stringify([corrected]) },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "修订说明" }), {
+        target: { value: "修正实际 IR 字段路径。" },
+      });
+      await user.click(screen.getByRole("button", { name: "创建后续提案草稿" }));
+
+      expect(reviseConstraint).not.toHaveBeenCalled();
+      expect(draftConstraint).toHaveBeenCalledWith(
+        {
+          base_constraint_snapshot_artifact_id: currentRef.artifact_id,
+          constraints: [corrected],
+          domain_scope: terminal.proposal.domain_scope,
+          dsl_grammar_version: terminal.proposal.dsl_grammar_version,
+          expected_ref: currentRef,
+          rationale: "修正实际 IR 字段路径。",
+          ref_name: "constraints/head",
+          request_schema_version: "human-constraint-draft-request@1",
+          source_artifact_ids: ["artifact:source:design"],
+        },
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
+      );
+      expect(await screen.findByText("后续提案草稿已创建")).toBeVisible();
+      expect(screen.getByRole("link", { name: "打开后续提案并确认人工修订" })).toHaveAttribute(
+        "href",
+        "/constraint-proposals/artifact%3Aproposal%3Afollow-up",
+      );
+    },
+  );
+
+  it("does not present a revision-one human draft as ready for deterministic validation", async () => {
+    const humanDraft = proposal("human", "artifact:proposal:human-draft", 1, "draft");
+    renderPage(
+      api({
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:human-draft"',
+          value: approvalView("draft", {
+            subject_artifact_id: humanDraft.artifact.artifact_id,
+          }),
+        })),
+        getApprovalBinding: vi.fn(async () =>
+          approvalBinding("draft", { subject_artifact_id: humanDraft.artifact.artifact_id }),
+        ),
+        getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:human-draft"', value: humanDraft })),
+      }),
+    );
+
+    expect(await screen.findByText("Human 初稿 · 仍需确认修订")).toBeVisible();
+    expect(screen.getByText("这份 Human 初稿还不是可验证 revision")).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
   });
 
   it("fails closed when binding and Approval revisions are composed from different reads", async () => {
@@ -432,12 +704,13 @@ describe("ConstraintProposalPage", () => {
       api({
         getApproval: vi.fn(async () => ({
           etag: '"approval:historical"',
-          value: approvalView("superseded"),
+          value: approvalView("superseded", { subject_revision: 1 }),
         })),
         getApprovalBinding: vi.fn(async () =>
           approvalBinding("superseded", {
             is_current_head: false,
             subject_head_revision: 2,
+            subject_revision: 1,
           }),
         ),
         getConstraintProposal: vi.fn(async () => ({
@@ -449,9 +722,48 @@ describe("ConstraintProposalPage", () => {
 
     expect(await screen.findByRole("heading", { level: 1, name: "约束候选" })).toBeVisible();
     expect(screen.getByText("head 2 · workflow 7 · superseded")).toBeVisible();
+    expect(screen.getByText("这是已保留的历史 revision")).toBeVisible();
+    expect(screen.getByRole("link", { name: "返回规格工作台查看当前候选" })).toHaveAttribute(
+      "href",
+      "/specs",
+    );
     expect(screen.queryByRole("heading", { name: "审批绑定不一致" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" })).toBeDisabled();
+    expect(screen.getByRole("textbox", { name: "修订说明" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
+  });
+
+  it("does not infer a human author revision from an impossible post-draft workflow status", async () => {
+    const revisionOne = proposal("human", "artifact:proposal:revision-one", 1, "validated");
+    renderPage(
+      api({
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:revision-one"',
+          value: approvalView("validated", {
+            subject_artifact_id: revisionOne.artifact.artifact_id,
+            subject_revision: 1,
+          }),
+        })),
+        getApprovalBinding: vi.fn(async () =>
+          approvalBinding("validated", {
+            subject_artifact_id: revisionOne.artifact.artifact_id,
+            subject_head_revision: 1,
+            subject_revision: 1,
+          }),
+        ),
+        getConstraintProposal: vi.fn(async () => ({
+          etag: '"proposal:revision-one"',
+          value: revisionOne,
+        })),
+      }),
+    );
+
+    expect(await screen.findByText("Human 初稿 · 仍需确认修订")).toBeVisible();
+    await userEvent
+      .setup()
+      .selectOptions(screen.getByRole("combobox", { name: "审批职责" }), requirement.requirement_id);
+    expect(screen.getByRole("button", { name: "提交审批" })).toBeDisabled();
   });
 
   it("fails closed when an equal subject/head revision is marked non-current", async () => {
@@ -521,16 +833,13 @@ describe("ConstraintProposalPage", () => {
     renderPage(proposalApi);
 
     expect(await screen.findByRole("heading", { name: "Base Constraint Artifact 未唯一解析" })).toBeVisible();
-    await user.type(screen.getByRole("textbox", { name: "Ref name" }), "refs/constraints/new");
-    await user.click(screen.getByRole("checkbox", { name: "确认当前 ref 不存在（expected_ref=null）" }));
+    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
+    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/new");
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Compiler profile" }),
+      screen.getByRole("combobox", { name: "约束编译器" }),
       "builtin.constraint_compiler@1",
     );
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Validation profile" }),
-      "builtin.validation@3",
-    );
+    await user.selectOptions(screen.getByRole("combobox", { name: "验证方案" }), "builtin.validation@3");
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
   });
@@ -569,6 +878,13 @@ describe("ConstraintProposalPage", () => {
     await screen.findByRole("heading", { name: "人工接管与修订" });
 
     await fillRefBinding(user);
+    const revisedConstraint = {
+      ...constraint,
+      scope: { node_type: "QUEST", var: "q", where: {} },
+    };
+    fireEvent.change(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" }), {
+      target: { value: JSON.stringify([revisedConstraint]) },
+    });
     await user.click(screen.getByRole("button", { name: "提交人工修订" }));
 
     expect(proposalApi.reviseConstraint).toHaveBeenCalledWith(
@@ -576,7 +892,7 @@ describe("ConstraintProposalPage", () => {
       {
         approval_id: "approval:server-bound",
         base_constraint_snapshot_artifact_id: "artifact:constraint:base",
-        constraints: agent.proposal.constraints,
+        constraints: [revisedConstraint],
         domain_scope: agent.proposal.domain_scope,
         dsl_grammar_version: "dsl@1",
         expected_ref: { artifact_id: "artifact:constraint:base", revision: 4 },
@@ -590,6 +906,9 @@ describe("ConstraintProposalPage", () => {
       expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
     await waitFor(() => expect(getConstraintProposal).toHaveBeenCalledWith("artifact:proposal:2"));
+    expect(screen.getByLabelText("Current route")).toHaveTextContent(
+      "/constraint-proposals/artifact%3Aproposal%3A2",
+    );
     expect(await screen.findByText("Human 修订候选")).toBeVisible();
     expect(screen.getByRole("link", { name: "当前 revision canonical detail" })).toHaveAttribute(
       "href",
@@ -598,8 +917,12 @@ describe("ConstraintProposalPage", () => {
   });
 
   it("copies the frozen compiler tuple verbatim into validation and links only the accepted Run", async () => {
-    const human = proposal("human");
-    const binding = approvalBinding("draft");
+    const human = proposal("human", "artifact:proposal:2", 2);
+    const binding = approvalBinding("draft", {
+      subject_artifact_id: human.artifact.artifact_id,
+      subject_head_revision: 2,
+      subject_revision: 2,
+    });
     const compilerBinding = {
       binding_schema_version: "constraint-validation-compiler-binding@1" as const,
       compiler_profile: compilerProfile.profile,
@@ -612,6 +935,13 @@ describe("ConstraintProposalPage", () => {
       run_kind: { kind: "constraint_proposal.validate", version: 1 },
     };
     const proposalApi = api({
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:human"',
+        value: approvalView("draft", {
+          subject_artifact_id: human.artifact.artifact_id,
+          subject_revision: 2,
+        }),
+      })),
       getApprovalBinding: vi.fn(async () => binding),
       getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:human"', value: human })),
       getConstraintValidationCompilerBinding: vi.fn(async () => compilerBinding),
@@ -622,13 +952,10 @@ describe("ConstraintProposalPage", () => {
 
     await fillRefBinding(user);
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Compiler profile" }),
+      screen.getByRole("combobox", { name: "约束编译器" }),
       "builtin.constraint_compiler@1",
     );
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Validation profile" }),
-      "builtin.validation@3",
-    );
+    await user.selectOptions(screen.getByRole("combobox", { name: "验证方案" }), "builtin.validation@3");
     await user.click(screen.getByRole("button", { name: "开始确定性验证" }));
 
     expect(proposalApi.getConstraintValidationCompilerBinding).toHaveBeenCalledWith(
@@ -662,11 +989,116 @@ describe("ConstraintProposalPage", () => {
       "href",
       "/runs/run%3Avalidation%3Aaccepted",
     );
+    expect(screen.getByRole("textbox", { name: "Ref 名称" })).toHaveValue("refs/constraints/economy");
+    expect(screen.getByText("已选择当前 revision 4")).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Expected ref Artifact ID" })).not.toBeInTheDocument();
     expect(proposalApi.getConstraintProposal).toHaveBeenCalledTimes(2);
   });
 
+  it("polls the retained workflow while validation is active and renders the terminal EvidenceSet", async () => {
+    const human = proposal("human", "artifact:proposal:1", 2);
+    let validationStarted = false;
+    let readsAfterStart = 0;
+    let cycleStatus: "draft" | "validating" | "validated" = "draft";
+    const proposalApi = api({
+      getApproval: vi.fn(async () => ({
+        etag: `"approval:${cycleStatus}"`,
+        value: approvalView(cycleStatus, { subject_revision: 2 }),
+      })),
+      getApprovalBinding: vi.fn(async () =>
+        approvalBinding(cycleStatus, { subject_head_revision: 2, subject_revision: 2 }),
+      ),
+      getConstraintProposal: vi.fn(async () => {
+        if (validationStarted) {
+          readsAfterStart += 1;
+          cycleStatus = readsAfterStart === 1 ? "validating" : "validated";
+        }
+        return {
+          etag: `"proposal:${cycleStatus}"`,
+          value: { ...human, approval_status: cycleStatus },
+        };
+      }),
+      validateConstraint: vi.fn(async () => {
+        validationStarted = true;
+        return {
+          accepted_schema_version: "run-accepted@1" as const,
+          events_url: "/api/v1/runs/run:validation:poll/events",
+          run_id: "run:validation:poll",
+          status_url: "/api/v1/runs/run:validation:poll",
+        };
+      }),
+    });
+    const user = userEvent.setup();
+    renderPage(proposalApi);
+    await screen.findByText("Human 修订候选");
+
+    await fillRefBinding(user);
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "约束编译器" }),
+      "builtin.constraint_compiler@1",
+    );
+    await user.selectOptions(screen.getByRole("combobox", { name: "验证方案" }), "builtin.validation@3");
+    await user.click(screen.getByRole("button", { name: "开始确定性验证" }));
+
+    expect(await screen.findByText("确定性证据：validated", {}, { timeout: 2_500 })).toBeVisible();
+    expect(readsAfterStart).toBeGreaterThanOrEqual(2);
+  });
+
+  it("shows the failed engine, concrete cause, and next repair step from compile evidence", async () => {
+    const status = "validation_failed" as const;
+    const failedApproval = approvalView(status, { evidence_set_artifact_id: "artifact:evidence:1" });
+    const proposalApi = api({
+      getApproval: vi.fn(async () => ({ etag: '"approval:failed"', value: failedApproval })),
+      getApprovalBinding: vi.fn(async () => approvalBinding(status)),
+      getArtifactPayload: vi.fn(async (artifactId) => {
+        if (artifactId === "artifact:constraint:base") return baseArtifact;
+        if (artifactId === "artifact:compile-evidence:1") return compileEvidenceArtifact("unproven");
+        return evidenceArtifact("unproven");
+      }),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:failed"',
+        value: proposal("human", "artifact:proposal:1", 2, status),
+      })),
+    });
+    renderPage(proposalApi);
+
+    expect(await screen.findByText("确定性证据：unproven")).toBeVisible();
+    const guidance = screen.getByRole("alert");
+    expect(guidance).toHaveTextContent("numeric-reference · 多引擎交叉验证未证明");
+    expect(guidance).toHaveTextContent("无法确定这条规则要作用于哪些游戏对象");
+    expect(guidance).toHaveTextContent("把适用对象设为 QUEST");
+    expect(guidance).toHaveTextContent("numeric_reference_witness_selector_unsupported");
+    expect(screen.getByText("查看每个编译与检查引擎")).toBeVisible();
+  });
+
+  it("keeps an unknown compile reason visible instead of inventing an explanation", async () => {
+    const status = "validation_failed" as const;
+    const failedApproval = approvalView(status, { evidence_set_artifact_id: "artifact:evidence:1" });
+    const proposalApi = api({
+      getApproval: vi.fn(async () => ({ etag: '"approval:failed"', value: failedApproval })),
+      getApprovalBinding: vi.fn(async () => approvalBinding(status)),
+      getArtifactPayload: vi.fn(async (artifactId) => {
+        if (artifactId === "artifact:constraint:base") return baseArtifact;
+        if (artifactId === "artifact:compile-evidence:1") {
+          return compileEvidenceArtifact("unproven", "future_engine_reason");
+        }
+        return evidenceArtifact("unproven");
+      }),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:failed"',
+        value: proposal("human", "artifact:proposal:1", 2, status),
+      })),
+    });
+    renderPage(proposalApi);
+
+    expect(await screen.findByText("确定性证据：unproven")).toBeVisible();
+    const guidance = screen.getByRole("alert");
+    expect(guidance).toHaveTextContent("检查器返回原因：future_engine_reason");
+    expect(guidance).toHaveTextContent("future_engine_reason");
+  });
+
   it("does not offer another validation command while the current proposal is already validating", async () => {
-    const human = proposal("human", "artifact:proposal:1", 1, "validating");
+    const human = proposal("human", "artifact:proposal:1", 2, "validating");
     const proposalApi = api({
       getApproval: vi.fn(async () => ({
         etag: '"approval:validating"',
@@ -681,13 +1113,10 @@ describe("ConstraintProposalPage", () => {
 
     await fillRefBinding(user);
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Compiler profile" }),
+      screen.getByRole("combobox", { name: "约束编译器" }),
       "builtin.constraint_compiler@1",
     );
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Validation profile" }),
-      "builtin.validation@3",
-    );
+    await user.selectOptions(screen.getByRole("combobox", { name: "验证方案" }), "builtin.validation@3");
 
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
     expect(proposalApi.validateConstraint).not.toHaveBeenCalled();
@@ -714,7 +1143,7 @@ describe("ConstraintProposalPage", () => {
         getArtifactPayload,
         getConstraintProposal: vi.fn(async () => ({
           etag: '"proposal:human"',
-          value: proposal("human", "artifact:proposal:1", 1, approvalStatus),
+          value: proposal("human", "artifact:proposal:1", 2, approvalStatus),
         })),
       }),
     );
@@ -749,7 +1178,7 @@ describe("ConstraintProposalPage", () => {
         ),
         getConstraintProposal: vi.fn(async () => ({
           etag: '"proposal:human"',
-          value: proposal("human", "artifact:proposal:1", 1, "validated"),
+          value: proposal("human", "artifact:proposal:1", 2, "validated"),
         })),
       }),
     );
@@ -760,7 +1189,7 @@ describe("ConstraintProposalPage", () => {
   });
 
   it("selects an exact approval requirement for the another-human handoff and submits typed state", async () => {
-    const human = proposal("human", "artifact:proposal:1", 1, "validated");
+    const human = proposal("human", "artifact:proposal:1", 2, "validated");
     const approval = approvalView("validated");
     const binding = approvalBinding("validated");
     const proposalApi = api({
@@ -774,15 +1203,11 @@ describe("ConstraintProposalPage", () => {
 
     const submit = screen.getByRole("button", { name: "提交审批" });
     expect(submit).toBeDisabled();
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Approval requirement" }),
-      requirement.requirement_id,
-    );
-    expect(screen.getByText("constraint_admin")).toBeVisible();
-    expect(screen.getByText("approve · constraint_proposal · domain:economy")).toBeVisible();
-    expect(
-      screen.getByText("此选择仅用于核对 server-frozen route，不进入 submit payload，也不会改变审批路由。"),
-    ).toBeVisible();
+    await user.selectOptions(screen.getByRole("combobox", { name: "审批职责" }), requirement.requirement_id);
+    expect(screen.getByText("约束管理员")).toBeVisible();
+    expect(screen.getByText("批准约束提案")).toBeVisible();
+    expect(screen.getByText("经济系统")).toBeVisible();
+    expect(screen.getByText("这里不会改变审批规则，只是让你确认系统将把提案交给谁审。")).toBeVisible();
     await user.click(submit);
 
     expect(proposalApi.submitConstraintForApproval).toHaveBeenCalledWith(
@@ -802,7 +1227,7 @@ describe("ConstraintProposalPage", () => {
   });
 
   it("publishes only the approved ConstraintTargetBinding and renders the returned ref authority", async () => {
-    const human = proposal("human", "artifact:proposal:1", 1, "approved");
+    const human = proposal("human", "artifact:proposal:1", 2, "approved");
     const approval = approvalView("approved");
     const binding = approvalBinding("approved");
     const proposalApi = api({
@@ -814,6 +1239,10 @@ describe("ConstraintProposalPage", () => {
     renderPage(proposalApi);
     await screen.findByText("确定性证据：validated");
     await user.click(screen.getByRole("button", { name: "发布权威约束" }));
+    expect(screen.getByRole("dialog", { name: "确认发布权威约束" })).toHaveTextContent(
+      "1 条已验证并获批的约束",
+    );
+    await user.click(screen.getByRole("button", { name: "确认发布" }));
 
     expect(proposalApi.publishConstraint).toHaveBeenCalledWith(
       { etag: '"proposal:approved"', value: human },
@@ -844,7 +1273,7 @@ describe("ConstraintProposalPage", () => {
       getApprovalBinding: vi.fn(async () => approvalBinding("approved")),
       getConstraintProposal: vi.fn(async () => ({
         etag: '"proposal:approved"',
-        value: proposal("human", "artifact:proposal:1", 1, "approved"),
+        value: proposal("human", "artifact:proposal:1", 2, "approved"),
       })),
       publishConstraint: vi.fn(async () => {
         throw conflict;
@@ -854,6 +1283,7 @@ describe("ConstraintProposalPage", () => {
     renderPage(proposalApi);
     await screen.findByText("确定性证据：validated");
     await user.click(screen.getByRole("button", { name: "发布权威约束" }));
+    await user.click(screen.getByRole("button", { name: "确认发布" }));
 
     expect(await screen.findByText("Exact ref changed.")).toBeVisible();
     expect(screen.getByText("conflict:set/42")).toBeVisible();
@@ -880,7 +1310,7 @@ describe("ConstraintProposalPage", () => {
       getApprovalBinding: vi.fn(async () => approvalBinding("approved")),
       getConstraintProposal: vi.fn(async () => ({
         etag: '"proposal:approved"',
-        value: proposal("human", "artifact:proposal:1", 1, "approved"),
+        value: proposal("human", "artifact:proposal:1", 2, "approved"),
       })),
       publishConstraint,
     });
@@ -890,6 +1320,7 @@ describe("ConstraintProposalPage", () => {
 
     const publish = screen.getByRole("button", { name: "发布权威约束" });
     await user.click(publish);
+    await user.click(screen.getByRole("button", { name: "确认发布" }));
     expect(await screen.findByRole("heading", { name: "工作流命令失败" })).toBeVisible();
     expect(screen.queryByText(/network timeout/)).not.toBeInTheDocument();
     expect(publish).toBeDisabled();
@@ -899,6 +1330,7 @@ describe("ConstraintProposalPage", () => {
     await user.click(screen.getByRole("button", { name: "重新读取服务器状态" }));
     await waitFor(() => expect(publish).toBeEnabled());
     await user.click(publish);
+    await user.click(screen.getByRole("button", { name: "确认发布" }));
     expect(publishConstraint).toHaveBeenCalledTimes(2);
     const firstIntent = publishConstraint.mock.calls[0]?.[2].idempotencyKey;
     const secondIntent = publishConstraint.mock.calls[1]?.[2].idempotencyKey;

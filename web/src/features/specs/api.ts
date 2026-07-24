@@ -13,6 +13,8 @@ import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination"
 import { gameForgeApi } from "../../api/runtime";
 
 export type ApprovalView = components["schemas"]["ApprovalViewV1"];
+export type ArtifactKind = components["schemas"]["ArtifactSummaryV1"]["kind"];
+export type ArtifactPage = components["schemas"]["OpaquePageV1_ArtifactSummaryV1_"];
 export type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
 export type ConstraintProposalPage = components["schemas"]["OpaquePageV1_ConstraintProposalReadViewV1_"];
 export type ConstraintProposalReadView = components["schemas"]["ConstraintProposalReadViewV1"];
@@ -66,6 +68,7 @@ type ApiResponse<T> = {
 };
 
 export interface SpecWorkflowApi {
+  listArtifacts(kind: ArtifactKind, cursor: string | null): Promise<ArtifactPage>;
   listSpecs(cursor: string | null): Promise<SpecPage>;
   getSpec(artifactId: string): Promise<SpecView>;
   getArtifactPayload(artifactId: string): Promise<ArtifactPayloadView>;
@@ -135,6 +138,16 @@ async function unwrapVersionedResponse<T>(result: ApiResponse<T>): Promise<Versi
 
 export function createSpecWorkflowApi(client: GameForgeOpenApiClient = gameForgeApi.client): SpecWorkflowApi {
   return {
+    listArtifacts(kind, cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<ArtifactPage>(
+          await client.GET("/api/v1/artifacts", {
+            params: { query: { kind, ...cursorQuery(cursor) } },
+          }),
+        ),
+      );
+    },
+
     listSpecs(cursor) {
       return readCursorPage(cursor, async () =>
         unwrapApiResponse<SpecPage>(

@@ -10,11 +10,14 @@ import { cursorFromPage, CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { createBrowserRunCommandClient } from "../../api/runtime";
 import type { RunEventStreamState } from "../../api/sse";
+import { ReauthenticationLink } from "../../app/ReauthenticationLink";
 import { RunCommandControls, RunProgress, type RunEventItem } from "../../components/run-progress";
 import { ProblemPanel, StatePanel } from "../../components/ui";
+import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
 import {
   playtestApi,
   type ArtifactPayloadView,
+  type ArtifactSummaryPage,
   type ExecutionOptionResolveRequest,
   type ExecutionProfileListFilters,
   type ExecutionProfilePage,
@@ -182,6 +185,56 @@ function taskSuiteOwnerKey(suite: TaskSuiteArtifactView): string {
   return `${suite.artifact.artifact_id}\u0000${suite.artifact.payload_hash}`;
 }
 
+interface ConfigCandidate {
+  artifactId: string;
+  constraintArtifactId: string;
+  createdAt: string | null;
+  domainIds: readonly string[];
+  envContractVersion: string;
+  environmentProfile: { profile_id: string; version: number };
+  previewArtifactId: string;
+}
+
+function requireConfigCandidate(
+  manifest: ArtifactPayloadView,
+  summary: ArtifactSummaryPage["items"][number],
+): ConfigCandidate {
+  const payload = manifest.payload;
+  if (
+    summary.summary_schema_version !== "artifact-summary@1" ||
+    summary.kind !== "config_export" ||
+    summary.payload_schema_id !== "config-export-package@1" ||
+    typeof summary.payload_hash !== "string" ||
+    manifest.view_schema_version !== "artifact-payload-view@1" ||
+    manifest.artifact.artifact_id !== summary.artifact_id ||
+    manifest.artifact.kind !== "config_export" ||
+    manifest.artifact.payload_schema_id !== "config-export-package@1" ||
+    manifest.artifact.payload_hash !== summary.payload_hash ||
+    !isRecord(payload) ||
+    payload.package_schema_version !== "config-export-package@1" ||
+    typeof payload.source_preview_artifact_id !== "string" ||
+    payload.source_preview_artifact_id.length === 0 ||
+    typeof payload.constraint_snapshot_artifact_id !== "string" ||
+    payload.constraint_snapshot_artifact_id.length === 0 ||
+    !isProfileRef(payload.target_environment_profile) ||
+    typeof payload.env_contract_version !== "string" ||
+    payload.env_contract_version.length === 0 ||
+    manifest.artifact.domain_scope === null ||
+    manifest.artifact.domain_scope === "all"
+  ) {
+    fail("ConfigExport catalog item does not close against its immutable payload authority.");
+  }
+  return {
+    artifactId: manifest.artifact.artifact_id,
+    constraintArtifactId: payload.constraint_snapshot_artifact_id,
+    createdAt: manifest.artifact.created_at ?? null,
+    domainIds: manifest.artifact.domain_scope.domain_ids,
+    envContractVersion: payload.env_contract_version,
+    environmentProfile: payload.target_environment_profile,
+    previewArtifactId: payload.source_preview_artifact_id,
+  };
+}
+
 function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
   return profile.compatible_run_kinds.some((candidate) => candidate.kind === kind && candidate.version === 1);
 }
@@ -258,6 +311,40 @@ async function collectExecutionProfiles(
 interface TaskSuitePageParam {
   cursor: string | null;
   readSnapshotId: string | null;
+}
+
+interface ConfigCandidatePageParam {
+  cursor: string | null;
+  readSnapshotId: string | null;
+}
+
+interface LoadedConfigCandidatePage {
+  candidates: ConfigCandidate[];
+  cursor: string | null;
+  page: ArtifactSummaryPage;
+}
+
+async function loadConfigCandidatePage(
+  api: PlaytestApi,
+  pageParam: ConfigCandidatePageParam,
+): Promise<LoadedConfigCandidatePage> {
+  const page = await api.listConfigExports(pageParam.cursor);
+  if (pageParam.readSnapshotId !== null && page.read_snapshot_id !== pageParam.readSnapshotId) {
+    fail("ConfigExport pagination changed read snapshot.");
+  }
+  const artifactIds = new Set<string>();
+  for (const summary of page.items) {
+    if (artifactIds.has(summary.artifact_id)) {
+      fail("ConfigExport catalog page returned a duplicate immutable Artifact.");
+    }
+    artifactIds.add(summary.artifact_id);
+  }
+  const candidates = await Promise.all(
+    page.items.map(async (summary) =>
+      requireConfigCandidate(await api.getArtifact(summary.artifact_id), summary),
+    ),
+  );
+  return { candidates, cursor: pageParam.cursor, page };
 }
 
 interface LoadedTaskSuitePage {
@@ -376,11 +463,7 @@ function MutationError({ error }: { error: Error | null }) {
   if (error instanceof ReauthenticationRequiredError) {
     return (
       <StatePanel
-        action={
-          <a className="gf-secondary-button" href="/login">
-            重新登录
-          </a>
-        }
+        action={<ReauthenticationLink />}
         description="当前标签页没有可用 CSRF 会话；请求未发送。"
         state="error"
         title="需要重新登录"
@@ -418,6 +501,36 @@ export async function collectRunCommands(
     cursor = next;
   }
   fail("Run command pagination exceeded its bounded page count.");
+}
+
+async function collectReplaySourceRuns(api: PlaytestApi): Promise<ReplaySourceRun[]> {
+  const runs: ReplaySourceRun[] = [];
+  const seenCursors = new Set<string>();
+  const seenRuns = new Set<string>();
+  let cursor: string | null = null;
+  let readSnapshotId: string | null = null;
+  for (let pageCount = 0; pageCount < 256; pageCount += 1) {
+    const page = await api.listReplaySourceRuns(cursor);
+    if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
+      fail("Replay source Run pagination changed read snapshot.");
+    }
+    readSnapshotId = page.read_snapshot_id;
+    for (const run of page.items) {
+      if (seenRuns.has(run.run_id)) fail("Replay source Run pagination returned a duplicate Run.");
+      seenRuns.add(run.run_id);
+      runs.push(run);
+    }
+    const next = cursorFromPage(page);
+    if (next === null) return runs;
+    if (seenCursors.has(next)) fail("Replay source Run pagination returned a cursor cycle.");
+    seenCursors.add(next);
+    cursor = next;
+  }
+  fail("Replay source Run pagination exceeded its bounded page count.");
+}
+
+function replayRunLabel(run: ReplaySourceRun): string {
+  return replaySourceOptionLabel(run);
 }
 
 function TrackedRun({
@@ -731,12 +844,68 @@ function SuiteCard({
         </div>
       </dl>
       <button
+        aria-label={selected ? "已选择" : `选择 ${suite.artifact.artifact_id}`}
         className={selected ? "gf-secondary-button" : "gf-primary-button"}
         disabled={disabled}
         onClick={onSelect}
         type="button"
       >
-        {selected ? "已选择" : `选择 ${suite.artifact.artifact_id}`}
+        {selected ? "已选择" : "选择此 TaskSuite"}
+      </button>
+    </article>
+  );
+}
+
+function ConfigCandidateCard({ candidate, onSelect }: { candidate: ConfigCandidate; onSelect(): void }) {
+  const generatedAt = candidate.createdAt?.replace("T", " ").replace("Z", " UTC") ?? "时间未记录";
+  const candidateTitle = candidate.createdAt ? `内容候选 · ${candidate.createdAt.slice(11, 16)}` : "内容候选";
+  return (
+    <article className="gf-playtest__candidate-card">
+      <header>
+        <div>
+          <p>可试玩配置</p>
+          <h3>{candidateTitle}</h3>
+        </div>
+        <span>{profileKey(candidate.environmentProfile)}</span>
+      </header>
+      <dl>
+        <div>
+          <dt>生成时间</dt>
+          <dd>{generatedAt}</dd>
+        </div>
+        <div>
+          <dt>运行环境</dt>
+          <dd>{candidate.envContractVersion}</dd>
+        </div>
+        <div>
+          <dt>覆盖领域</dt>
+          <dd>{candidate.domainIds.join("、")}</dd>
+        </div>
+      </dl>
+      <details>
+        <summary>查看精确绑定</summary>
+        <dl>
+          <div>
+            <dt>配置</dt>
+            <dd>{candidate.artifactId}</dd>
+          </div>
+          <div>
+            <dt>内容预览</dt>
+            <dd>{candidate.previewArtifactId}</dd>
+          </div>
+          <div>
+            <dt>规则快照</dt>
+            <dd>{candidate.constraintArtifactId}</dd>
+          </div>
+        </dl>
+      </details>
+      <button
+        aria-label={`使用配置 ${candidate.artifactId}`}
+        className="gf-primary-button"
+        onClick={onSelect}
+        type="button"
+      >
+        选择并准备 TaskSuite
       </button>
     </article>
   );
@@ -768,6 +937,8 @@ export function PlaytestPage({
   ].join("\u0000");
   const contextCount = [previewArtifactId, configArtifactId, constraintArtifactId].filter(Boolean).length;
   const contextIsPartial = contextCount > 0 && contextCount < 3;
+  const showCandidateCatalog =
+    contextCount === 0 && selectedSuiteId === null && deriveRunId === null && playtestRunId === null;
   const contextIds: CandidateContextIds | null =
     contextCount === 3
       ? {
@@ -801,6 +972,13 @@ export function PlaytestPage({
   const [mode, setMode] = useState<LlmExecutionMode>("record");
   const [interactionMode, setInteractionMode] = useState<InteractionMode>("autonomous");
   const [replaySourceRunId, setReplaySourceRunId] = useState("");
+  const replayRuns = useQuery({
+    enabled: mode === "replay",
+    queryFn: () => collectReplaySourceRuns(api),
+    queryKey: ["playtest", "replay-source-runs"],
+    retry: false,
+  });
+  const [candidateReadGeneration, setCandidateReadGeneration] = useState(0);
   const [suiteReadGeneration, setSuiteReadGeneration] = useState(0);
   const [recoveredSuite, setRecoveredSuite] = useState<RecoveredSuiteChoice | null>(null);
   const mutationChainRef = useRef<"derive" | "launch" | null>(null);
@@ -825,6 +1003,23 @@ export function PlaytestPage({
       currentSuiteOwnerRef.current = null;
     };
   }, []);
+
+  const configCandidates = useInfiniteQuery({
+    enabled: showCandidateCatalog,
+    initialPageParam: { cursor: null, readSnapshotId: null } as ConfigCandidatePageParam,
+    queryFn: ({ pageParam }) => loadConfigCandidatePage(api, pageParam),
+    getNextPageParam: (lastPage, allPages): ConfigCandidatePageParam | undefined => {
+      const next = cursorFromPage(lastPage.page);
+      if (next === null) return undefined;
+      if (allPages.length >= 256) fail("ConfigExport pagination exceeded its bounded page count.");
+      if (allPages.some((loaded) => loaded.cursor === next)) {
+        fail("ConfigExport pagination returned a cursor cycle.");
+      }
+      return { cursor: next, readSnapshotId: lastPage.page.read_snapshot_id };
+    },
+    queryKey: ["playtest", "config-candidates", candidateReadGeneration],
+    retry: false,
+  });
 
   const suiteList = useInfiniteQuery({
     enabled: !contextIsPartial && (contextIds === null || context.isSuccess),
@@ -1146,7 +1341,7 @@ export function PlaytestPage({
       seed.trim() === "" ||
       !Number.isSafeInteger(parsedSeed) ||
       parsedSeed < 0 ||
-      (mode === "replay" && replaySourceRunId.trim().length === 0)
+      (mode === "replay" && replayRuns.data?.some((run) => run.run_id === replaySourceRunId.trim()) !== true)
     ) {
       setLaunchAttempt({
         accepted: null,
@@ -1292,11 +1487,29 @@ export function PlaytestPage({
     }
     return { error: null, items };
   }, [suiteList.data]);
+  const configCandidateProjection = useMemo(() => {
+    const items = configCandidates.data?.pages.flatMap((loaded) => loaded.candidates) ?? [];
+    const artifactIds = new Set<string>();
+    for (const item of items) {
+      if (artifactIds.has(item.artifactId)) {
+        return {
+          error: new PlaytestPageAuthorityError(
+            "ConfigExport pagination returned a duplicate immutable Artifact.",
+          ),
+          items: [] as ConfigCandidate[],
+        };
+      }
+      artifactIds.add(item.artifactId);
+    }
+    return { error: null, items };
+  }, [configCandidates.data]);
   const suiteListError = suiteList.error ?? suiteProjection.error;
+  const configCandidateError = configCandidates.error ?? configCandidateProjection.error;
   const contextError = contextIsPartial
     ? new PlaytestPageAuthorityError("preview, config, and constraint navigation IDs must be complete.")
     : context.error;
   const suites = suiteProjection.items;
+  const candidateConfigs = configCandidateProjection.items;
   const deriveOutcomeUnknown = isUnknownDeriveAttempt(deriveAttempt);
   const launchOutcomeUnknown = isUnknownLaunchAttempt(launchAttempt);
   const deriveOperationLocked = deriveAttempt?.pending === true || deriveOutcomeUnknown;
@@ -1372,11 +1585,106 @@ export function PlaytestPage({
             </p>
           )}
         </section>
+      ) : showCandidateCatalog ? (
+        <section
+          aria-labelledby="playtest-candidate-catalog-title"
+          className="gf-playtest__candidate-catalog"
+          role="region"
+        >
+          <header>
+            <Gamepad2 aria-hidden="true" size={22} />
+            <div>
+              <p className="gf-playtest__kicker">Same-tab candidate selection</p>
+              <h2 id="playtest-candidate-catalog-title">选择待试玩候选</h2>
+              <p>直接选择已生成的配置；页面会在当前标签页重验内容预览、规则与运行环境。</p>
+            </div>
+          </header>
+          {configCandidates.isPending ? (
+            <StatePanel
+              description="正在读取可用于自动试玩的配置目录。"
+              state="loading"
+              title="正在发现候选配置"
+            />
+          ) : configCandidateError ? (
+            configCandidateError instanceof CursorExpiredError ? (
+              <StatePanel
+                action={
+                  <button
+                    className="gf-secondary-button"
+                    onClick={() => setCandidateReadGeneration((current) => current + 1)}
+                    type="button"
+                  >
+                    从第一页重新读取
+                  </button>
+                }
+                description="候选配置 cursor 已过期；页面没有静默跳过缺失页。"
+                state="error"
+                title="候选配置目录游标已过期"
+              />
+            ) : configCandidateError instanceof ApiProblemError ? (
+              <ProblemPanel problem={configCandidateError.problem} />
+            ) : (
+              <StatePanel
+                description={configCandidateError.message || "候选配置目录读取失败；未猜测或回退到最新配置。"}
+                state="error"
+                title="无法发现候选配置"
+              />
+            )
+          ) : candidateConfigs.length === 0 ? (
+            <StatePanel
+              action={
+                <a className="gf-secondary-button" href="/generation">
+                  前往内容生成
+                </a>
+              }
+              description="当前没有可用于派生 TaskSuite 的 ConfigExport；请先生成一个候选。"
+              state="empty"
+              title="暂无待试玩候选"
+            />
+          ) : (
+            <>
+              <div className="gf-playtest__candidate-grid">
+                {candidateConfigs.map((candidate) => (
+                  <ConfigCandidateCard
+                    candidate={candidate}
+                    key={candidate.artifactId}
+                    onSelect={() => {
+                      setRecoveredSuite(null);
+                      updateSearch({
+                        action: "derive",
+                        config: candidate.artifactId,
+                        constraint: candidate.constraintArtifactId,
+                        deriveRun: null,
+                        preview: candidate.previewArtifactId,
+                        run: null,
+                        sourceRun: null,
+                        suite: null,
+                      });
+                    }}
+                  />
+                ))}
+              </div>
+              {configCandidates.hasNextPage && (
+                <div className="gf-playtest__candidate-pagination">
+                  <button
+                    className="gf-secondary-button"
+                    disabled={configCandidates.isFetchingNextPage}
+                    onClick={() => void configCandidates.fetchNextPage()}
+                    type="button"
+                  >
+                    {configCandidates.isFetchingNextPage ? "正在加载下一页…" : "加载更多候选配置"}
+                  </button>
+                  <span>已载入 {candidateConfigs.length} 个可试玩配置</span>
+                </div>
+              )}
+            </>
+          )}
+        </section>
       ) : (
         <StatePanel
-          description="可浏览已有 TaskSuite；从 Generation 的 exact candidate 链接进入后才能派生新 suite。"
-          state="empty"
-          title="未提供候选绑定上下文"
+          description="正在按已选择的 TaskSuite 或 Run 恢复工作区；不会从未绑定的 ConfigExport 猜测候选。"
+          state="loading"
+          title="正在恢复自动试玩上下文"
         />
       )}
 
@@ -1401,7 +1709,11 @@ export function PlaytestPage({
         />
       )}
 
-      <section className="gf-playtest__suite-ledger" aria-labelledby="playtest-suite-ledger-title">
+      <section
+        aria-labelledby="playtest-suite-ledger-title"
+        className="gf-playtest__suite-ledger"
+        data-standalone={context.data ? undefined : "true"}
+      >
         <header>
           <Boxes aria-hidden="true" size={22} />
           <div>
@@ -1448,6 +1760,13 @@ export function PlaytestPage({
           )
         ) : suites.length === 0 ? (
           <StatePanel
+            action={
+              context.data ? (
+                <button className="gf-secondary-button" onClick={requestExactDerivation} type="button">
+                  前往派生设置
+                </button>
+              ) : undefined
+            }
             description="当前 exact config/constraint/environment 下没有已派生 TaskSuite。"
             state="empty"
             title="没有匹配的 TaskSuite"
@@ -1741,7 +2060,7 @@ export function PlaytestPage({
                   type="checkbox"
                 />
                 <span>
-                  {episode.episode_id} · {episode.scenario_spec_artifact_id} · budget {episode.step_budget}
+                  {episode.episode_id} · 最多 {episode.step_budget} 步
                 </span>
               </label>
             ))}
@@ -1767,7 +2086,11 @@ export function PlaytestPage({
               <select
                 disabled={launchControlsLocked}
                 value={mode}
-                onChange={(event) => setMode(event.target.value as LlmExecutionMode)}
+                onChange={(event) => {
+                  const next = event.target.value as LlmExecutionMode;
+                  setMode(next);
+                  if (next !== "replay") setReplaySourceRunId("");
+                }}
               >
                 <option value="record">record</option>
                 <option value="live">live</option>
@@ -1811,11 +2134,20 @@ export function PlaytestPage({
             {mode === "replay" && (
               <label>
                 <span>Replay source Run</span>
-                <input
+                <select
                   disabled={launchControlsLocked}
                   onChange={(event) => setReplaySourceRunId(event.target.value)}
                   value={replaySourceRunId}
-                />
+                >
+                  <option value="">
+                    {replayRuns.isPending ? "正在读取已完成运行…" : "请选择一个已完成的回放来源"}
+                  </option>
+                  {replayRuns.data?.map((run) => (
+                    <option key={run.run_id} value={run.run_id}>
+                      {replayRunLabel(run)}
+                    </option>
+                  ))}
+                </select>
               </label>
             )}
           </div>

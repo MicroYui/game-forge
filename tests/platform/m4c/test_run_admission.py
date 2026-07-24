@@ -4832,9 +4832,9 @@ def test_generation_mints_source_raw_and_hides_naked_text(tmp_path: Path) -> Non
     )
     run = harness.run_record(accepted.run_id)
     assert run is not None and run.status == "queued"
-    assert run.payload.version_tuple.prompt_version == "generation@1"
+    assert run.payload.version_tuple.prompt_version == "generation@2"
     assert run.payload.version_tuple.model_snapshot == "test:model@1"
-    assert run.payload.version_tuple.agent_graph_version == "generation-graph@1"
+    assert run.payload.version_tuple.agent_graph_version == "generation-graph@2"
     assert run.payload.version_tuple.tool_version == "generation@1"
     # the payload references only the source_raw artifact id/hash, never the text
     goal_binding = run.payload.params.objective_goal

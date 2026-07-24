@@ -57,6 +57,29 @@ describe("Approvals API", () => {
     );
   });
 
+  it("reads exact approval subject content and EvidenceSet through dedicated safe projections", async () => {
+    const get = vi.fn(async () => response({ marker: "exact" }));
+    const api = createApprovalsApi({ GET: get } as unknown as GameForgeOpenApiClient);
+
+    await api.getPatch("artifact:patch:7");
+    await api.getConstraintProposal("artifact:constraint-proposal:7");
+    await api.getRollbackRequest("artifact:rollback:7");
+    await api.getArtifactPayload("artifact:evidence:7");
+
+    expect(get).toHaveBeenCalledWith("/api/v1/patches/{artifact_id}", {
+      params: { path: { artifact_id: "artifact:patch:7" } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/constraint-proposals/{artifact_id}", {
+      params: { path: { artifact_id: "artifact:constraint-proposal:7" } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/rollback-requests/{artifact_id}", {
+      params: { path: { artifact_id: "artifact:rollback:7" } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/artifacts/{artifact_id}", {
+      params: { path: { artifact_id: "artifact:evidence:7" } },
+    });
+  });
+
   it("rejects a detail or decision response owned by another approval route", async () => {
     const wrong = {
       ...approval,

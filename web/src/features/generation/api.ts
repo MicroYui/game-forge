@@ -12,6 +12,7 @@ import type { RunEvent } from "../../api/generated/sse-run-event-v1";
 import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
 import { clearAuthorizedSessionState, gameForgeApi } from "../../api/runtime";
 import { RunEventStream, type RunEventStreamState } from "../../api/sse";
+import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
 
 export type ApprovalView = components["schemas"]["ApprovalViewV1"];
 export type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
@@ -28,6 +29,7 @@ export type PatchArtifactReadView = components["schemas"]["PatchArtifactReadView
 export type ProspectiveGenerationProposeRequest =
   components["schemas"]["ProspectiveGenerationProposeRequestV1"];
 export type RunAccepted = components["schemas"]["RunAcceptedV1"];
+export type RunPage = components["schemas"]["OpaquePageV1_RunViewV1_"];
 export type RunView = components["schemas"]["RunViewV1"];
 export type SnapshotDiffPage = components["schemas"]["SnapshotDiffHttpPageV1"];
 export type SpecPage = components["schemas"]["OpaquePageV1_SpecViewV1_"];
@@ -60,6 +62,7 @@ export interface GenerationApi {
   resolveExecutionOption(request: ExecutionOptionResolveRequest): Promise<ExecutionOptionView>;
   proposeGeneration(request: GenerationProposeRequest, intent: MutationIntent): Promise<RunAccepted>;
   getRun(runId: string): Promise<RunView>;
+  listReplaySourceRuns(cursor: string | null): Promise<ReplaySourceRunPage>;
   createEventStream(
     callbacks: GenerationEventStreamCallbacks & { runId: string },
   ): GenerationEventStreamHandle;
@@ -160,6 +163,23 @@ export function createGenerationApi(client: GameForgeOpenApiClient = gameForgeAp
           params: { path: { run_id: runId } },
         }),
       );
+    },
+
+    listReplaySourceRuns(cursor) {
+      return readCursorPage(cursor, async () => {
+        const page = await unwrapApiResponse<RunPage>(
+          await client.GET("/api/v1/runs", {
+            params: { query: { ...cursorQuery(cursor) } },
+          }),
+        );
+        return projectReplaySourcePage(page, { kind: "generation.propose", version: 1 }, async (artifactId) =>
+          unwrapApiResponse<ArtifactPayloadView>(
+            await client.GET("/api/v1/artifacts/{artifact_id}", {
+              params: { path: { artifact_id: artifactId } },
+            }),
+          ),
+        );
+      });
     },
 
     async getSpec(artifactId) {

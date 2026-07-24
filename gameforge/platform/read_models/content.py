@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol, TypeVar
+from typing import Any, Literal, Protocol, TypeVar, get_args
 
 from pydantic import BaseModel, JsonValue, ValidationError
 
@@ -99,6 +99,7 @@ from gameforge.platform.registry.task_suite_derivation import (
 
 _READ_ACTION = "read"
 _SHA256_LENGTH = 64
+_ARTIFACT_KINDS = frozenset(get_args(ArtifactKind))
 _T = TypeVar("_T", bound=BaseModel)
 ArtifactWire = ArtifactV1 | ArtifactV2
 ApprovalStatusText = str
@@ -236,6 +237,7 @@ class ImmutableArtifactPageProvider(Protocol):
         self,
         *,
         index_kind: Literal[
+            "artifacts",
             "specs",
             "constraints",
             "constraint_proposals",
@@ -543,7 +545,11 @@ def _model_payload(
     *,
     label: str,
 ) -> _T:
-    unknown = set(payload) - set(model.model_fields)
+    accepted_fields = set(model.model_fields)
+    accepted_fields.update(
+        field.alias for field in model.model_fields.values() if isinstance(field.alias, str)
+    )
+    unknown = set(payload) - accepted_fields
     if unknown:
         raise IntegrityViolation(f"{label} payload contains unknown fields")
     try:
@@ -669,6 +675,115 @@ class _ContentReadOperations:
                 payload_schema_id=verified.payload_schema_id,
             ),
             payload=verified.payload,
+        )
+
+    def list_artifacts(
+        self,
+        principal: Principal,
+        *,
+        kind: ArtifactKind,
+        cursor: PageCursorV1 | None,
+        limit: int,
+    ) -> PageV1[ArtifactSummaryV1]:
+        """List safe immutable envelopes for one exact ArtifactKind.
+
+        Payload bytes are deliberately not read. The exact kind remains part of
+        the retained query/cursor binding, and each item passes the same current
+        resource-domain authorization used by singular Artifact reads.
+        """
+
+        if kind not in _ARTIFACT_KINDS:
+            raise RequestSchemaInvalid("Artifact catalog kind is not supported")
+        limit = _page_limit(limit)
+        filters: dict[str, JsonValue] = {"kind": kind}
+        query = _query_hash(
+            resource_kind="artifacts",
+            filters=filters,
+            sort=("artifact_id:asc",),
+            projection="artifact-summary@1",
+            page_size=limit,
+        )
+        collection_permission = _collection_permission("artifact")
+        if cursor is None:
+            authorization_binding = self._authorization.filter_collection(
+                principal=principal,
+                candidates=(),
+                collection_permission=collection_permission,
+                permission_for=lambda _: collection_permission,
+                query_hash=query,
+            ).binding
+        else:
+            authorization_binding = self._authorization.require_collection_continuation(
+                principal=principal,
+                collection_permission=collection_permission,
+                query_hash=query,
+            )
+        read_binding = ReadPageBinding(
+            resource_kind="artifacts",
+            query_hash=query,
+            authz_fingerprint=authorization_binding.authz_fingerprint,
+            stable_sort_schema_id="artifact-kind-id@1",
+            view_schema_id="artifact-summary@1",
+            principal_binding=authorization_binding.principal_binding,
+        )
+        source_page = self._capabilities.immutable_artifact_pages.page(
+            index_kind="artifacts",
+            expected_artifact_kind=kind,
+            filters=filters,
+            cursor=cursor,
+            binding=read_binding,
+            page_size=limit,
+        )
+        if not isinstance(source_page, PageV1) or len(source_page.items) > limit:
+            raise IntegrityViolation("Artifact catalog authority returned an invalid page")
+        artifacts = tuple(_parse_artifact_wire(value) for value in source_page.items)
+        artifact_ids = tuple(value.artifact_id for value in artifacts)
+        if artifact_ids != tuple(sorted(set(artifact_ids))) or any(
+            value.kind != kind for value in artifacts
+        ):
+            raise IntegrityViolation("Artifact catalog page is unsorted, duplicate, or wrong-kind")
+        permissions = {
+            artifact.artifact_id: _permission(
+                self._permissions.for_artifact(artifact, resource_kind="artifact"),
+                resource_kind="artifact",
+            )
+            for artifact in artifacts
+        }
+        authorized = self._authorization.filter_collection(
+            principal=principal,
+            candidates=artifacts,
+            collection_permission=collection_permission,
+            permission_for=lambda value: permissions[value.artifact_id],
+            query_hash=query,
+        )
+        if authorized.binding != authorization_binding:
+            raise IntegrityViolation(
+                "Artifact catalog authorization binding changed during the read"
+            )
+        summaries: list[ArtifactSummaryV1] = []
+        for artifact in authorized.items:
+            permission = permissions.get(artifact.artifact_id)
+            if permission is None:
+                raise IntegrityViolation("Artifact catalog authorization returned an unproved item")
+            payload_binding = (
+                _optional_payload_binding(self._bindings, artifact)
+                if isinstance(artifact, ArtifactV2)
+                else None
+            )
+            summaries.append(
+                _artifact_summary(
+                    artifact,
+                    permission=permission,
+                    payload_schema_id=(
+                        None if payload_binding is None else payload_binding.payload_schema_id
+                    ),
+                )
+            )
+        return PageV1[ArtifactSummaryV1](
+            read_snapshot_id=source_page.read_snapshot_id,
+            items=tuple(summaries),
+            next_cursor=source_page.next_cursor,
+            expires_at=source_page.expires_at,
         )
 
     def get_spec(self, principal: Principal, artifact_id: str) -> SpecViewV1:
@@ -2438,6 +2553,9 @@ class ContentReadService:
 
     def get_artifact(self, principal: Principal, artifact_id: str) -> ArtifactPayloadViewV1:
         return self._call("get_artifact", principal, artifact_id)
+
+    def list_artifacts(self, principal: Principal, **kwargs: Any) -> PageV1[ArtifactSummaryV1]:
+        return self._call("list_artifacts", principal, **kwargs)
 
     def get_spec(self, principal: Principal, artifact_id: str) -> SpecViewV1:
         return self._call("get_spec", principal, artifact_id)

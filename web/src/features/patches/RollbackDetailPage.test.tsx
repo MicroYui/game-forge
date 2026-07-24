@@ -23,6 +23,7 @@ const REF_NAME = "spec/main";
 const TARGET_ID = "artifact:spec:baseline";
 const CURRENT_ID = "artifact:spec:current";
 const TARGET_SNAPSHOT = "snapshot:baseline";
+const CURRENT_SNAPSHOT = "snapshot:current";
 const SUBJECT_DIGEST = "a".repeat(64);
 const TARGET_DIGEST = "b".repeat(64);
 
@@ -55,7 +56,9 @@ function artifactSummary(
           : "e".repeat(64),
     payload_schema_id: payloadSchemaId,
     summary_schema_version: "artifact-summary@1" as const,
-    version_tuple: { ir_snapshot_id: TARGET_SNAPSHOT },
+    version_tuple: {
+      ir_snapshot_id: artifactId === CURRENT_ID ? CURRENT_SNAPSHOT : TARGET_SNAPSHOT,
+    },
   };
 }
 
@@ -205,22 +208,54 @@ function api(initialStatus: ApprovalStatus, overrides: Partial<PatchWorkflowApi>
     getApprovalBinding: vi.fn(async () => binding(status)),
     getArtifact: vi.fn(async (artifactId) => ({
       artifact:
-        artifactId === TARGET_ID
+        artifactId === TARGET_ID || artifactId === CURRENT_ID
           ? artifactSummary(artifactId, "ir_snapshot", "ir-core@1")
           : artifactSummary(
               artifactId,
               artifactId.includes("regression") ? "regression_evidence" : "validation_evidence",
               artifactId.includes("regression") ? "regression-evidence@1" : "evidence-set@1",
             ),
-      payload: {},
+      payload:
+        artifactId === TARGET_ID
+          ? { economy: { reward_gold: 80 }, title: "稳定经济基线" }
+          : artifactId === CURRENT_ID
+            ? { economy: { reward_gold: 120 }, title: "当前高奖励版本" }
+            : {},
       resource_revision: 1,
       view_schema_version: "artifact-payload-view@1" as const,
     })),
     getExecutionProfile: vi.fn(async () => frozenRollbackProfile),
+    getSnapshotDiff: vi.fn(async (baseSnapshotId, targetSnapshotId) => ({
+      diff: {
+        base_snapshot_id: baseSnapshotId,
+        diff_schema_version: "snapshot-diff@1" as const,
+        entry_count: 1,
+        target_snapshot_id: targetSnapshotId,
+      },
+      page: page(
+        [
+          {
+            after: { presence: "present" as const, value: 80 },
+            before: { presence: "present" as const, value: 120 },
+            path: "/economy/reward_gold",
+          },
+        ],
+        "diff:rollback",
+      ),
+      page_schema_version: "snapshot-diff-http-page@1" as const,
+    })),
     getRollbackRequest: vi.fn(async () => ({
       etag: '"rollback:5"',
       value: rollbackView(status),
     })),
+    listArtifacts: vi.fn(async (kind) =>
+      page(
+        kind === "regression_suite"
+          ? [artifactSummary("artifact:regression-suite:1", "regression_suite", "regression-suite@1")]
+          : [],
+        `artifacts:${kind}`,
+      ),
+    ),
     listExecutionProfiles: vi.fn(async (filters) =>
       page(
         profileItems.filter((candidate) => candidate.profile_kind === filters.profile_kind),
@@ -304,9 +339,14 @@ describe("Rollback detail", () => {
       status_url: "/api/v1/runs/run:rollback-validation",
     };
     const validateRollback = vi.fn<PatchWorkflowApi["validateRollback"]>(async () => accepted);
-    renderPage(api("draft", { validateRollback }));
+    const workflowApi = api("draft", { validateRollback });
+    renderPage(workflowApi);
 
     await screen.findByRole("heading", { name: "Rollback validation" });
+    expect(screen.getByRole("heading", { name: "回滚后会改变什么" })).toBeVisible();
+    expect(screen.getByText("/economy/reward_gold")).toBeVisible();
+    expect(screen.getByText(/120 → 80/)).toBeVisible();
+    expect(workflowApi.getSnapshotDiff).toHaveBeenCalledWith(CURRENT_SNAPSHOT, TARGET_SNAPSHOT, null);
     expect(screen.getByRole("heading", { name: "Workflow evidence Artifact ledger" })).toBeVisible();
     expect(screen.queryByRole("heading", { name: "确定性预言机" })).not.toBeInTheDocument();
     await user.selectOptions(
@@ -314,7 +354,8 @@ describe("Rollback detail", () => {
       "builtin.schema_compatibility@1",
     );
     await user.click(screen.getByRole("checkbox", { name: /builtin.impact_analysis@1/ }));
-    await user.type(screen.getByLabelText(/RegressionSuite Artifact IDs/), "artifact:regression-suite:1");
+    await user.type(screen.getByRole("searchbox", { name: "搜索回归套件" }), "regression-suite");
+    await user.click(screen.getByRole("checkbox", { name: /回归套件.*regression-suite@1/ }));
     await user.clear(screen.getByLabelText("Seed"));
     await user.type(screen.getByLabelText("Seed"), "17");
     await user.click(screen.getByRole("button", { name: "启动 rollback validation" }));

@@ -136,6 +136,27 @@ def _permission_resolver_keys(registry: Any) -> set[str]:
     }
 
 
+def test_generation_v2_graph_is_active_while_v1_remains_replayable() -> None:
+    registry = build_builtin_registry()
+
+    graphs = registry.list_agent_execution_graphs_for_run_kind(
+        RunKindRef(kind="generation.propose", version=1)
+    )
+
+    assert [
+        (
+            graph.agent_graph_version,
+            graph.status,
+            graph.nodes[0].prompt_version,
+            graph.nodes[0].tool_version,
+        )
+        for graph in graphs
+    ] == [
+        ("generation-graph@1", "replay_only", "generation@1", "generation@1"),
+        ("generation-graph@2", "active", "generation@2", "generation@1"),
+    ]
+
+
 def _components(registry: Any) -> TrustedComponentMaps:
     assert set(DEFERRED_EXECUTORS) == set(_DEFERRED_EXECUTOR_KEYS)
     assert _NON_DEFERRED_EXECUTOR_KEYS.isdisjoint(DEFERRED_EXECUTORS)

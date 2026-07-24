@@ -1,4 +1,4 @@
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams, useSearchParams } from "react-router-dom";
 
 import { ConstraintProposalPage } from "./ConstraintProposalPage";
 import { ConstraintSnapshotPage } from "./ConstraintSnapshotPage";
@@ -17,8 +17,9 @@ export function SpecDetailRoute() {
 
 export function ConstraintSnapshotRoute() {
   const { artifactId } = useParams<{ artifactId: string }>();
+  const [searchParams] = useSearchParams();
   if (!artifactId) return <Navigate replace to="/specs?section=constraints" />;
-  return <ConstraintSnapshotPage artifactId={artifactId} />;
+  return <ConstraintSnapshotPage artifactId={artifactId} refName={searchParams.get("ref")} />;
 }
 
 export function ConstraintProposalRoute() {

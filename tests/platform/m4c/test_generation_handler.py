@@ -35,6 +35,7 @@ from gameforge.contracts.jobs import (
 )
 from gameforge.contracts.lineage import VersionTuple
 from gameforge.spine.checkers.graph import GraphChecker
+from gameforge.spine.dsl.compile import compile_all
 from gameforge.platform.run_handlers.generation import (
     GenerationGateOutcomeV1,
     GenerationExecutionConfig,
@@ -284,6 +285,7 @@ def _context(
     bridge: FakeModelBridge,
     *,
     payload: GenerationProposePayloadV1 | None = None,
+    prompt_version: str = "generation@1",
 ):
     actual_payload = payload or _payload()
     requirements = tuple(
@@ -322,7 +324,14 @@ def _context(
             resolved_policy_snapshot("generation-gate", "/params/generation_policy", requirements),
         ),
         llm_execution_mode="replay",
-        plan=execution_plan({"generation": MODEL_REF}),
+        plan=execution_plan(
+            {"generation": MODEL_REF},
+            prompt_versions={"generation": prompt_version},
+            tool_versions={"generation": "generation@1"},
+            agent_graph_version=(
+                "generation-graph@2" if prompt_version == "generation@2" else "generation-graph@1"
+            ),
+        ),
         cassette_artifact_id="artifact:cassette",
         model_bridge=bridge,
         version_tuple=VersionTuple(
@@ -584,6 +593,84 @@ def test_generation_structural_rejection_retains_typed_evidence_only_outcome(
         finding["evidence"] == {"reason_code": reason_code}
         for finding in review_payload["deterministic_findings"]
     )
+
+
+def test_generation_v2_nested_reward_edit_reaches_confirmed_cap_finding() -> None:
+    store = _store()
+    quest = Entity(
+        id="quest:missing_caravan",
+        type=NodeType.QUEST,
+        attrs={
+            "title": "失踪的商队",
+            "reward": {"gold": 60},
+        },
+    )
+    store.register(SNAPSHOT_ID, snapshot_bytes([quest], []))
+    store.register(
+        CONSTRAINT_ID,
+        {
+            "dsl_grammar_version": "dsl@1",
+            "constraints": [
+                {
+                    "id": "side_quest_reward_gold_cap",
+                    "dsl_grammar_version": "dsl@1",
+                    "kind": "numeric",
+                    "oracle": "deterministic",
+                    "scope": {"var": "q", "node_type": "QUEST", "where": {}},
+                    "predicates": [],
+                    "assert": "reward.gold <= 80",
+                    "severity": "major",
+                }
+            ],
+        },
+    )
+    store.register(GOAL_ID, "将《失踪的商队》的金币奖励从 60 修改为 150。".encode())
+    response = json.dumps(
+        [
+            {
+                "op": "set_entity_attr",
+                "target": "quest:missing_caravan.reward.gold",
+                "old_value": 60,
+                "new_value": 150,
+            }
+        ]
+    )
+    bridge = FakeModelBridge(responses=(response,))
+    handler = GenerationProposalHandler(
+        blobs=store,
+        store=store,
+        agent_runner=M2GenerationAgentRunner(
+            checker_factory=lambda _snapshot, constraints: compile_all(constraints)
+        ),
+        config_exporter=_FakeConfigExporter(),
+        execution_config_resolver=lambda _profile: _execution_config(),
+    )
+
+    outcome = handler(_context(bridge, prompt_version="generation@2"))
+
+    assert isinstance(outcome, PreparedRunFailure)
+    patch_artifact = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
+    patch = PatchV2.model_validate(json.loads(store.read_prepared(patch_artifact.object_ref)))
+    assert [(op.op, op.target, op.old_value, op.new_value) for op in patch.ops] == [
+        ("set_entity_attr", "quest:missing_caravan.reward.gold", 60, 150)
+    ]
+    preview_artifact = next(
+        artifact for artifact in outcome.artifacts if artifact.kind == "ir_snapshot"
+    )
+    preview = json.loads(store.read_prepared(preview_artifact.object_ref))
+    assert preview["entities"]["quest:missing_caravan"]["attrs"]["reward"]["gold"] == 150
+    checker_artifact = next(
+        artifact for artifact in outcome.artifacts if artifact.kind == "checker_run"
+    )
+    findings = json.loads(store.read_prepared(checker_artifact.object_ref))["findings"]
+    assert not any(item["defect_class"] == "invalid_generation_proposal" for item in findings)
+    cap = next(item for item in findings if item["defect_class"] == "reward_out_of_range")
+    assert cap["status"] == "confirmed"
+    assert cap["constraint_id"] == "side_quest_reward_gold_cap"
+    request = bridge.requests[0].model_request
+    assert request.prompt_version == "generation@2"
+    assert "set_entity_attr" in request.messages[0].content
+    assert "Do NOT include the literal segment attrs" in request.messages[0].content
 
 
 def test_generation_gate_does_not_mask_a_new_relation_with_same_class_and_entity() -> None:

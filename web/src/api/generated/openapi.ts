@@ -85,6 +85,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Artifact Catalog */
+        get: operations["artifact_catalog_api_v1_artifacts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/artifacts/{artifact_id}": {
         parameters: {
             query?: never;
@@ -3034,6 +3051,23 @@ export interface components {
             /** Read Snapshot Id */
             read_snapshot_id: string;
         };
+        /** OpaquePageV1[ArtifactSummaryV1] */
+        OpaquePageV1_ArtifactSummaryV1_: {
+            /** Expires At */
+            expires_at: string;
+            /** Items */
+            items: components["schemas"]["ArtifactSummaryV1"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Schema Version
+             * @default page@1
+             * @constant
+             */
+            page_schema_version: "page@1";
+            /** Read Snapshot Id */
+            read_snapshot_id: string;
+        };
         /** OpaquePageV1[ConstraintProposalReadViewV1] */
         OpaquePageV1_ConstraintProposalReadViewV1_: {
             /** Expires At */
@@ -5811,6 +5845,115 @@ export interface operations {
             };
         };
     };
+    artifact_catalog_api_v1_artifacts_get: {
+        parameters: {
+            query: {
+                kind: "source_raw" | "source_rendered" | "ir_snapshot" | "constraint_snapshot" | "constraint_proposal" | "config_export" | "scenario_spec" | "task_suite" | "regression_suite" | "golden_suite" | "bench_dataset" | "benchmark_spec" | "review_report" | "checker_run" | "simulation_run" | "playtest_trace" | "patch" | "validation_evidence" | "regression_evidence" | "rollback_request" | "run_result" | "run_failure" | "cassette_bundle" | "migration_report" | "bench_report" | "operational_evidence";
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache`. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag bound to the read snapshot of this page. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpaquePageV1_ArtifactSummaryV1_"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     artifact_api_v1_artifacts__artifact_id__get: {
         parameters: {
             query?: never;
@@ -6033,7 +6176,10 @@ export interface operations {
     login_api_v1_auth_login_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Explicit password reauthentication ceremony for a browser tab that has a session cookie but no synchronizer token. */
+                "X-GameForge-Reauthentication"?: "password" | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -10894,6 +11040,7 @@ export interface operations {
                 "X-CSRF-Token"?: string;
             };
             path: {
+                /** @description Exact ref name; slash-delimited refs are preserved as one path parameter. */
                 ref_name: string;
             };
             cookie?: never;

@@ -1287,6 +1287,10 @@ def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> No
             json={"login_name": "admin", "password": "correct-password"},
         )
         response = client.get(f"/api/v1/artifacts/{evidence_artifact_id}")
+        catalog = client.get(
+            "/api/v1/artifacts",
+            params={"kind": "validation_evidence", "limit": 10},
+        )
         binding = client.get(f"/api/v1/workflow-subjects/{subject_artifact_id}/approval-binding")
 
     assert login.status_code == 204
@@ -1297,6 +1301,9 @@ def test_real_local_api_reads_approval_bound_validation_evidence(tmp_path) -> No
     assert body["artifact"]["payload_schema_id"] == "evidence-set@1"
     assert body["artifact"]["domain_scope"] == {"domain_ids": ["game-content"]}
     assert body["payload"] == evidence.model_dump(mode="json", exclude_none=True)
+    assert catalog.status_code == 200
+    assert catalog.json()["items"] == [body["artifact"]]
+    assert "payload" not in catalog.json()["items"][0]
     assert binding.status_code == 200
     assert binding.json() == {
         "subject_artifact_id": subject_artifact_id,

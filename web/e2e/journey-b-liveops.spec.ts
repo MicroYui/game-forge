@@ -12,6 +12,8 @@ import { expect, test, type BrowserContext, type Locator, type Page } from "@pla
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const makerCredentials = { login: "maker", password: "maker-password-1" };
 const approverCredentials = { login: "approver", password: "approver-password-1" };
+const refName = "content/head";
+const refHistoryPath = `/refs/${encodeURIComponent(refName)}/history`;
 
 type WorkerMode = "disabled" | "enabled";
 
@@ -224,7 +226,7 @@ async function login(page: Page, credentials: { login: string; password: string 
 }
 
 async function refHistorySnapshot(page: Page): Promise<{ current: string; entries: string[] }> {
-  await page.goto("/refs/content-head/history");
+  await page.goto(refHistoryPath);
   const current = page.getByText(/^Current · revision \d+$/u).first();
   await expect(current).toBeVisible();
   return {
@@ -246,10 +248,10 @@ async function openCurrentSpec(page: Page): Promise<void> {
   await page.goto("/specs");
   const currentRow = page
     .getByRole("row")
-    .filter({ has: page.getByRole("link", { name: /^content-head · revision \d+$/u }) });
+    .filter({ has: page.getByRole("link", { name: new RegExp(`^${refName} · revision \\d+$`, "u") }) });
   await expect(currentRow).toHaveCount(1);
   await currentRow.getByRole("link", { name: "检查规格与图谱" }).click();
-  await expect(page.getByLabel("Ref name")).toHaveValue("content-head");
+  await expect(page.getByLabel("目标分支名称（Ref）")).toHaveValue(refName);
 }
 
 async function requiredHref(locator: Locator): Promise<string> {
@@ -270,9 +272,10 @@ async function draftPatch(
   },
 ): Promise<string> {
   await openCurrentSpec(page);
+  await page.getByText("高级：精确绑定、前置条件与原始 JSON").click();
   await page.getByLabel("Patch operations JSON").fill(JSON.stringify([input.operation], null, 2));
-  await page.getByLabel("Patch rationale").fill(input.rationale);
-  await page.getByLabel("Side-effect risk").fill(input.sideEffectRisk);
+  await page.getByLabel("变更说明").fill(input.rationale);
+  await page.getByLabel("副作用风险").fill(input.sideEffectRisk);
   await page.getByRole("button", { name: "创建 Patch 草案" }).click();
   const link = page.getByRole("link", { name: "打开 Patch 草案" });
   const href = await requiredHref(link);
@@ -313,7 +316,7 @@ async function waitForPatchSubmit(page: Page, patchHref: string): Promise<void> 
       { intervals: [100, 200, 500], timeout: 30_000 },
     )
     .toBe(true);
-  await expect(page.getByRole("link", { name: /^EvidenceSet · /u })).toBeVisible();
+  await expect(page.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
 }
 
 async function submitPatch(page: Page): Promise<string> {
@@ -322,18 +325,85 @@ async function submitPatch(page: Page): Promise<string> {
   return requiredHref(page.getByRole("link", { name: "打开审批详情" }));
 }
 
-async function prepareApproval(page: Page, approvalHref: string, reason: string): Promise<void> {
+type ApprovalReviewExpectation =
+  | {
+      after: unknown;
+      before: unknown;
+      kind: "patch";
+      refName: string;
+      target: string;
+    }
+  | {
+      kind: "rollback";
+      reason: string;
+      refName: string;
+    };
+
+function displayedJsonValue(value: unknown): string {
+  return value === undefined ? "无" : (JSON.stringify(value) ?? "无");
+}
+
+async function assertApprovalMaterials(page: Page, expectation: ApprovalReviewExpectation): Promise<void> {
+  const review = page.getByRole("region", { name: "受审内容与验证依据" });
+  await expect(review).toBeVisible();
+  await expect(review.getByRole("heading", { name: "你正在批准什么" })).toBeVisible();
+  await expect(review.getByRole("heading", { name: "确定性验证已通过" })).toBeVisible();
+  await expect(review.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+
+  if (expectation.kind === "patch") {
+    const operations = review.getByRole("list", { name: "Patch 变更内容" });
+    await expect(operations).toBeVisible();
+    await expect(operations.getByRole("listitem")).toHaveCount(1);
+    const operation = operations.getByRole("listitem");
+    await expect(operation).toContainText(expectation.target);
+    const values = operation.locator(".gf-approvals__before-after > div");
+    await expect(values).toHaveCount(2);
+    await expect(values.nth(0)).toContainText("修改前");
+    await expect(values.nth(0)).toContainText(displayedJsonValue(expectation.before));
+    await expect(values.nth(1)).toContainText("修改后");
+    await expect(values.nth(1)).toContainText(displayedJsonValue(expectation.after));
+    return;
+  }
+
+  await expect(review).toContainText(expectation.reason);
+  await expect(review).toContainText(`将 ${expectation.refName} 回退到历史 revision`);
+}
+
+async function prepareApproval(
+  page: Page,
+  approvalHref: string,
+  expectation: ApprovalReviewExpectation,
+  reviewNote: string,
+): Promise<void> {
   await page.goto(approvalHref);
+  await assertApprovalMaterials(page, expectation);
   const requirement = page.getByRole("checkbox", { name: /^选择 /u }).first();
   await expect(requirement).toBeEnabled();
   await requirement.check();
-  await page.getByLabel("决定原因代码").fill(reason);
+  await page
+    .getByRole("combobox", { name: "决定原因", exact: true })
+    .selectOption("content_and_evidence_reviewed");
+  await page.getByLabel("补充说明").fill(reviewNote);
 }
 
-async function approve(page: Page, approvalHref: string, reason: string): Promise<void> {
-  await prepareApproval(page, approvalHref, reason);
+async function confirmApproval(page: Page, refName: string): Promise<void> {
   await page.getByRole("button", { name: "提交批准" }).click();
-  await expect(page.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
+  const confirmation = page.getByRole("dialog", { name: "确认批准决定" });
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toContainText("确定性证据集已通过");
+  await expect(confirmation).toContainText(`目标为 ${refName}`);
+  await page.getByRole("button", { name: "确认批准" }).click();
+}
+
+async function approve(
+  page: Page,
+  approvalHref: string,
+  expectation: ApprovalReviewExpectation,
+  reviewNote: string,
+): Promise<void> {
+  await prepareApproval(page, approvalHref, expectation, reviewNote);
+  await confirmApproval(page, expectation.refName);
+  await expect(page.getByText(/^已批准 · 流程版本 \d+$/u)).toBeVisible();
 }
 
 async function applyPatch(page: Page, patchHref: string): Promise<void> {
@@ -353,8 +423,8 @@ async function waitForRunSucceeded(page: Page, runHref: string): Promise<void> {
 }
 
 async function draftRollback(page: Page): Promise<string> {
-  await page.goto("/refs/content-head/history");
-  await page.getByRole("radio", { name: /^revision 1 · /u }).check();
+  await page.goto(refHistoryPath);
+  await page.getByRole("radio", { name: "回退到 revision 1" }).check();
   await page.getByLabel("Rollback policy").selectOption("builtin.rollback@1");
   await page.getByLabel("Rollback reason").fill("Restore the exact approved baseline.");
   await page.getByRole("button", { name: "创建 Rollback request" }).click();
@@ -445,6 +515,13 @@ test.describe("journey-b-liveops", () => {
       await login(approverPage, approverCredentials);
 
       await test.step("happy Patch waits queued, reconnects SSE, and exposes exact evidence", async () => {
+        const reviewExpectation: ApprovalReviewExpectation = {
+          after: 80,
+          before: 120,
+          kind: "patch",
+          refName,
+          target: "q:1.reward_gold",
+        };
         const patchHref = await draftPatch(makerPage, {
           diffAfter: "80",
           diffPath: "/entities/q:1/attrs/reward_gold",
@@ -496,7 +573,7 @@ test.describe("journey-b-liveops", () => {
           name: /^Regression \/ companion evidence · /u,
         });
         await expect(companionLinks).toHaveCount(2);
-        const evidenceLink = makerPage.getByRole("link", { name: /^EvidenceSet · /u });
+        const evidenceLink = makerPage.getByRole("link", { name: "打开 EvidenceSet" });
         const evidenceHref = await requiredHref(evidenceLink);
         const companionHrefs: string[] = [];
         for (let index = 0; index < 2; index += 1) {
@@ -527,16 +604,16 @@ test.describe("journey-b-liveops", () => {
         const staleApprovalPage = await staleApproverContext.newPage();
         try {
           await login(staleApprovalPage, approverCredentials);
-          await prepareApproval(approverPage, approvalHref, "independent_review_passed");
-          await prepareApproval(staleApprovalPage, approvalHref, "stale_parallel_review");
-          await approverPage.getByRole("button", { name: "提交批准" }).click();
-          await expect(approverPage.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
-          await staleApprovalPage.getByRole("button", { name: "提交批准" }).click();
+          await prepareApproval(approverPage, approvalHref, reviewExpectation, "independent_review_passed");
+          await prepareApproval(staleApprovalPage, approvalHref, reviewExpectation, "stale_parallel_review");
+          await confirmApproval(approverPage, reviewExpectation.refName);
+          await expect(approverPage.getByText(/^已批准 · 流程版本 \d+$/u)).toBeVisible();
+          await confirmApproval(staleApprovalPage, reviewExpectation.refName);
           await expect(
             staleApprovalPage.locator('[role="alert"][data-code="revision_conflict"]'),
           ).toBeVisible();
           await staleApprovalPage.getByRole("button", { name: "刷新审批状态" }).click();
-          await expect(staleApprovalPage.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
+          await expect(staleApprovalPage.getByText(/^已批准 · 流程版本 \d+$/u)).toBeVisible();
           await expect(staleApprovalPage.getByRole("button", { name: "提交批准" })).toBeDisabled();
         } finally {
           await staleApproverContext.close();
@@ -553,7 +630,16 @@ test.describe("journey-b-liveops", () => {
         await waitForRunSucceeded(makerPage, runHref);
         await waitForRollbackSubmit(makerPage, rollbackHref);
         const approvalHref = await submitRollback(makerPage);
-        await approve(approverPage, approvalHref, "rollback_review_passed");
+        await approve(
+          approverPage,
+          approvalHref,
+          {
+            kind: "rollback",
+            reason: "Restore the exact approved baseline.",
+            refName,
+          },
+          "rollback_review_passed",
+        );
         await applyRollback(approverPage, rollbackHref);
         await expect(
           approverPage.getByRole("heading", { name: "Historical target content lineage" }),
@@ -579,7 +665,18 @@ test.describe("journey-b-liveops", () => {
         await waitForRunSucceeded(makerPage, proposedRun);
         await waitForPatchSubmit(makerPage, proposedHref);
         const proposedApproval = await submitPatch(makerPage);
-        await approve(approverPage, proposedApproval, "preferred_revision_reviewed");
+        await approve(
+          approverPage,
+          proposedApproval,
+          {
+            after: 80,
+            before: 120,
+            kind: "patch",
+            refName,
+            target: "q:1.reward_gold",
+          },
+          "preferred_revision_reviewed",
+        );
 
         const staleMakerContext = await browser.newContext({
           baseURL: journeyBaseURL,
@@ -609,7 +706,18 @@ test.describe("journey-b-liveops", () => {
           await waitForRunSucceeded(makerPage, interveningRun);
           await waitForPatchSubmit(makerPage, interveningHref);
           const interveningApproval = await submitPatch(makerPage);
-          await approve(approverPage, interveningApproval, "intervening_revision_reviewed");
+          await approve(
+            approverPage,
+            interveningApproval,
+            {
+              after: 100,
+              before: 120,
+              kind: "patch",
+              refName,
+              target: "q:1.reward_gold",
+            },
+            "intervening_revision_reviewed",
+          );
           await applyPatch(approverPage, interveningHref);
           expect(await currentRevision(approverPage)).toBe(4);
 
@@ -646,7 +754,18 @@ test.describe("journey-b-liveops", () => {
           await waitForRunSucceeded(stalePatchPage, replacementRun);
           await waitForPatchSubmit(stalePatchPage, replacementHref);
           const replacementApproval = await submitPatch(stalePatchPage);
-          await approve(approverPage, replacementApproval, "rebased_revision_reviewed");
+          await approve(
+            approverPage,
+            replacementApproval,
+            {
+              after: 80,
+              before: 100,
+              kind: "patch",
+              refName,
+              target: "resolved-subgraph",
+            },
+            "rebased_revision_reviewed",
+          );
           await applyPatch(approverPage, replacementHref);
           expect(await currentRevision(approverPage)).toBe(5);
         } finally {
@@ -684,7 +803,7 @@ test.describe("journey-b-liveops", () => {
 
         await makerPage.goto(failedHref);
         await expect(makerPage.getByText("validation_failed", { exact: true }).first()).toBeVisible();
-        await expect(makerPage.getByRole("link", { name: /^EvidenceSet · /u })).toBeVisible();
+        await expect(makerPage.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
         await expect(
           makerPage.getByRole("button", { name: "Submit for independent approval" }),
         ).toBeDisabled();

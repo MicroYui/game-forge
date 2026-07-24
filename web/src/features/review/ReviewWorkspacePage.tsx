@@ -14,7 +14,7 @@ import {
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { findingBuckets } from "./authority";
 import { reviewApi, type ReviewApi, type ReviewArtifactView } from "./api";
-import { ReviewLaunchCard, type ReviewGenerationContext } from "./ReviewLaunchCard";
+import { ReviewLaunchCard, type ReviewCandidateContext } from "./ReviewLaunchCard";
 import "./review.css";
 
 interface ReviewPageState {
@@ -105,11 +105,11 @@ function columns(
       id: "context",
       render: (item) =>
         snapshotContext === null ? (
-          <span className="gf-review__muted">无 preview 上下文；未推断当前候选</span>
+          <span className="gf-review__muted">无候选 Artifact 上下文；未推断 current alias</span>
         ) : item.artifact.parent_artifact_ids.includes(snapshotContext) ? (
-          <span className="gf-review__context-match">direct parent 包含请求的 preview Artifact</span>
+          <span className="gf-review__context-match">direct parent 包含请求的候选 Artifact</span>
         ) : (
-          <span className="gf-review__context-miss">direct parent 不含请求的 preview；未隐藏该报告</span>
+          <span className="gf-review__context-miss">direct parent 不含请求的候选 Artifact；未隐藏该报告</span>
         ),
     },
   ];
@@ -133,11 +133,11 @@ function WorkspaceError({ error, onRetry }: { error: Error; onRetry(): void }) {
 
 export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
   const [searchParams] = useSearchParams();
-  const sourceRunId = searchParams.get("sourceRun");
-  const snapshotContext = searchParams.get("snapshot");
-  const constraintContext = searchParams.get("constraint");
-  const launchContext: ReviewGenerationContext | null =
-    sourceRunId && snapshotContext && constraintContext
+  const sourceRunId = searchParams.get("sourceRun")?.trim() || null;
+  const snapshotContext = searchParams.get("snapshot")?.trim() || null;
+  const constraintContext = searchParams.get("constraint")?.trim() || null;
+  const launchContext: ReviewCandidateContext | null =
+    snapshotContext && constraintContext
       ? {
           constraintArtifactId: constraintContext,
           snapshotArtifactId: snapshotContext,
@@ -225,21 +225,22 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
         </div>
       </header>
 
-      {(sourceRunId || snapshotContext) && (
-        <aside className="gf-review__context" aria-label="Generation 导航上下文">
+      {(sourceRunId || snapshotContext || constraintContext) && (
+        <aside className="gf-review__context" aria-label="候选导航上下文">
           <GitCompareArrows aria-hidden="true" size={20} />
           <div>
-            <h2>来自 Generation 的导航上下文</h2>
+            <h2>候选导航上下文</h2>
             {sourceRunId && (
               <p>
-                Generation Run 仅作为导航上下文：
-                <a href={`/runs/${encodeURIComponent(sourceRunId)}`}>{sourceRunId}</a>。详情页会通过 terminal
-                manifest 验证它是否属于该 Review 的 producer occurrence。
+                来源 Run 仅作为导航上下文：
+                <a href={`/runs/${encodeURIComponent(sourceRunId)}`}>{sourceRunId}</a>。它不会成为 Review
+                提交输入，也不会替代 exact 候选 Artifact。
               </p>
             )}
             {snapshotContext && (
               <p>
-                请求 preview：<code>{snapshotContext}</code>。列表保留不匹配报告，详情再校验 exact lineage。
+                请求候选 Artifact：<code>{snapshotContext}</code>。列表保留不匹配报告，详情再校验 exact
+                lineage。
               </p>
             )}
             {constraintContext && (
@@ -256,7 +257,7 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
         <ReviewLaunchCard
           api={api}
           context={launchContext}
-          key={`${launchContext.sourceRunId}\u0000${launchContext.snapshotArtifactId}\u0000${launchContext.constraintArtifactId}`}
+          key={`${launchContext.sourceRunId ?? ""}\u0000${launchContext.snapshotArtifactId}\u0000${launchContext.constraintArtifactId}`}
         />
       )}
 

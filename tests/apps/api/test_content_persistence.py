@@ -496,6 +496,50 @@ def test_artifact_kind_pages_use_one_retained_immutable_high_watermark(
     ]
 
 
+def test_generic_artifact_catalog_page_retains_kind_and_high_watermark(
+    engine: Engine,
+) -> None:
+    with Session(engine) as setup, setup.begin():
+        repository = _artifacts(setup)
+        for item in (
+            _artifact("config:z", kind="config_export"),
+            _artifact("review:ignored", kind="review_report"),
+            _artifact("config:a", kind="config_export"),
+        ):
+            repository.put(item)
+
+    binding = _binding("artifacts-config-export")
+    with Session(engine) as first_session, first_session.begin():
+        first = _artifact_pages(first_session).page(
+            index_kind="artifacts",
+            expected_artifact_kind="config_export",
+            filters={"kind": "config_export"},
+            cursor=None,
+            binding=binding,
+            page_size=1,
+        )
+
+    assert [item.artifact_id for item in first.items] == ["config:a"]
+    assert first.next_cursor is not None
+
+    with Session(engine) as concurrent, concurrent.begin():
+        _artifacts(concurrent).put(_artifact("config:m", kind="config_export"))
+
+    with Session(engine) as second_session, second_session.begin():
+        second = _artifact_pages(second_session).page(
+            index_kind="artifacts",
+            expected_artifact_kind="config_export",
+            filters={"kind": "config_export"},
+            cursor=first.next_cursor,
+            binding=binding,
+            page_size=1,
+        )
+
+    assert second.read_snapshot_id == first.read_snapshot_id
+    assert [item.artifact_id for item in second.items] == ["config:z"]
+    assert second.next_cursor is None
+
+
 def test_ref_history_pages_are_contiguous_and_exclude_later_appends(
     engine: Engine,
 ) -> None:

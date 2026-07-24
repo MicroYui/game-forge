@@ -49,6 +49,7 @@ function api(value: Snapshot = snapshot): ConstraintSnapshotApi {
 function renderPage(
   snapshotApi: ConstraintSnapshotApi,
   authorityEvidence: ConstraintSnapshotAuthorityEvidence,
+  refName: string | null = null,
 ) {
   return render(
     <QueryClientProvider client={createQueryClient()}>
@@ -56,6 +57,7 @@ function renderPage(
         api={snapshotApi}
         artifactId={artifact.artifact_id}
         authorityEvidence={authorityEvidence}
+        refName={refName}
       />
     </QueryClientProvider>,
   );
@@ -79,7 +81,7 @@ describe("ConstraintSnapshotPage", () => {
       "/approvals/approval%3Aconstraint%3Afrontier",
     );
     expect(screen.queryByText("已由 ref 历史证明权威")).not.toBeInTheDocument();
-    expect(screen.getByText("reward_gold <= 75")).toBeVisible();
+    expect(screen.getByText("reward_gold ≤ 75")).toBeVisible();
   });
 
   it("labels authority only when exact ref history resolves to this Artifact", async () => {
@@ -95,6 +97,60 @@ describe("ConstraintSnapshotPage", () => {
       "href",
       "/refs/refs%2Fconstraints%2Feconomy/history",
     );
+  });
+
+  it("derives production-route authority from the complete exact ref history", async () => {
+    const listRefHistory = vi.fn(async () => ({
+      expires_at: "2026-07-19T09:00:00Z",
+      items: [
+        {
+          entry_schema_version: "ref-history-entry@1" as const,
+          ref_name: "refs/constraints/economy",
+          value: { artifact_id: artifact.artifact_id, revision: 12 },
+        },
+      ],
+      next_cursor: null,
+      page_schema_version: "page@1" as const,
+      read_snapshot_id: "read:constraint-authority",
+    }));
+    renderPage(
+      { getConstraintSnapshot: vi.fn(async () => snapshot), listRefHistory },
+      { evidenceKind: "unresolved", reason: "default must not win" },
+      "refs/constraints/economy",
+    );
+
+    expect(await screen.findByText("已由 ref 历史证明权威")).toBeVisible();
+    expect(listRefHistory).toHaveBeenCalledWith("refs/constraints/economy", null);
+  });
+
+  it("labels an exact historical occurrence without calling it current authority", async () => {
+    const listRefHistory = vi.fn(async () => ({
+      expires_at: "2026-07-19T09:00:00Z",
+      items: [
+        {
+          entry_schema_version: "ref-history-entry@1" as const,
+          ref_name: "refs/constraints/economy",
+          value: { artifact_id: artifact.artifact_id, revision: 12 },
+        },
+        {
+          entry_schema_version: "ref-history-entry@1" as const,
+          ref_name: "refs/constraints/economy",
+          value: { artifact_id: "artifact:constraint:current", revision: 13 },
+        },
+      ],
+      next_cursor: null,
+      page_schema_version: "page@1" as const,
+      read_snapshot_id: "read:constraint-authority",
+    }));
+    renderPage(
+      { getConstraintSnapshot: vi.fn(async () => snapshot), listRefHistory },
+      { evidenceKind: "unresolved", reason: "default must not win" },
+      "refs/constraints/economy",
+    );
+
+    expect(await screen.findByText("这是曾发布过的历史约束")).toBeVisible();
+    expect(screen.getByText(/当前 ref 已到 revision 13/)).toBeVisible();
+    expect(screen.queryByText("已由 ref 历史证明权威")).not.toBeInTheDocument();
   });
 
   it("refuses authority evidence that points at another Artifact", async () => {

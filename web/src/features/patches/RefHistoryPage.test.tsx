@@ -6,12 +6,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { components } from "../../api/generated/openapi";
 import { createQueryClient } from "../../api/query-client";
-import type { PatchWorkflowApi, RollbackRequestReadView } from "./api";
+import type { ApprovalView, PatchWorkflowApi, RollbackRequestReadView } from "./api";
 import { RefHistoryPage } from "./RefHistoryPage";
 
 const REF_NAME = "spec/main";
 const TARGET_ID = "artifact:spec:baseline";
 const CURRENT_ID = "artifact:spec:current";
+const REVERSED_APPROVAL_ID = "approval:patch:economy-change";
 
 function page<T>(items: T[], snapshot: string) {
   return {
@@ -47,6 +48,20 @@ const rollbackProfile: components["schemas"]["ExecutionProfileViewV1"] = {
   target_environment_profile: null,
 };
 
+const reversalApproval = {
+  approval: {
+    applied_at: "2026-07-20T06:30:00Z",
+    approval_id: REVERSED_APPROVAL_ID,
+    status: "applied",
+    subject_kind: "patch",
+    target_binding: {
+      expected_ref: { artifact_id: TARGET_ID, revision: 1 },
+      ref_name: REF_NAME,
+      target_artifact_id: CURRENT_ID,
+    },
+  },
+} as ApprovalView;
+
 function renderPage(api: PatchWorkflowApi) {
   return render(
     <QueryClientProvider client={createQueryClient()}>
@@ -75,7 +90,9 @@ describe("Ref history rollback draft", () => {
           artifact_id: artifactId,
           domain_scope: { domain_ids: ["domain:economy"] },
         },
+        payload: { economy: { reward_gold: artifactId === CURRENT_ID ? 120 : 80 } },
       })),
+      listApprovals: vi.fn(async () => page([], "approvals:visible")),
       listExecutionProfiles: vi.fn(async () => page([rollbackProfile], "profiles:rollback")),
       listRefHistory: vi.fn(async () =>
         page(
@@ -97,8 +114,10 @@ describe("Ref history rollback draft", () => {
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    expect(await screen.findByText("Current · revision 2")).toBeVisible();
-    await user.click(screen.getByRole("radio", { name: `revision 1 · ${TARGET_ID}` }));
+    expect((await screen.findAllByText("Current · revision 2"))[0]).toBeVisible();
+    await user.click(screen.getByRole("radio", { name: "回退到 revision 1" }));
+    expect(screen.getByRole("heading", { name: "回滚后会改变什么" })).toBeVisible();
+    expect(screen.getByText(/120 → 80/)).toBeVisible();
     await screen.findByRole("option", { name: /Safe design rollback/ });
     await user.selectOptions(screen.getByLabelText("Rollback policy"), "builtin.rollback@3");
     await user.type(screen.getByLabelText("Rollback reason"), "Restore the reviewed economy baseline.");
@@ -122,6 +141,57 @@ describe("Ref history rollback draft", () => {
     expect(createdLink).toHaveAttribute("href", "/rollback-requests/artifact%3Arollback%3Anew");
     expect(createdLink.closest('[role="status"]')).not.toBeNull();
     expect(screen.getByText(/draft 创建不会移动 ref/)).toBeVisible();
+  });
+
+  it("offers only an applied approval whose exact transition closes target to current", async () => {
+    const user = userEvent.setup();
+    const draftRollback = vi.fn<PatchWorkflowApi["draftRollback"]>(
+      async () =>
+        ({
+          artifact: { artifact_id: "artifact:rollback:with-reversal" },
+        }) as RollbackRequestReadView,
+    );
+    const api = {
+      draftRollback,
+      getArtifact: vi.fn(async (artifactId) => ({
+        artifact: {
+          artifact_id: artifactId,
+          domain_scope: { domain_ids: ["domain:economy"] },
+        },
+        payload: { economy: { reward_gold: artifactId === CURRENT_ID ? 120 : 80 } },
+      })),
+      listApprovals: vi.fn(async () => page([reversalApproval], "approvals:visible")),
+      listExecutionProfiles: vi.fn(async () => page([rollbackProfile], "profiles:rollback")),
+      listRefHistory: vi.fn(async () =>
+        page(
+          [
+            {
+              entry_schema_version: "ref-history-entry@1" as const,
+              ref_name: REF_NAME,
+              value: { artifact_id: TARGET_ID, revision: 1 },
+            },
+            {
+              entry_schema_version: "ref-history-entry@1" as const,
+              ref_name: REF_NAME,
+              value: { artifact_id: CURRENT_ID, revision: 2 },
+            },
+          ],
+          "history:main",
+        ),
+      ),
+    } as unknown as PatchWorkflowApi;
+    renderPage(api);
+
+    await user.click(await screen.findByRole("radio", { name: "回退到 revision 1" }));
+    const approvalSelect = await screen.findByRole("combobox", { name: "被回滚的审批（可选）" });
+    await user.selectOptions(approvalSelect, REVERSED_APPROVAL_ID);
+    await user.selectOptions(screen.getByLabelText("Rollback policy"), "builtin.rollback@3");
+    await user.type(screen.getByLabelText("Rollback reason"), "Reverse the applied economy change.");
+    await user.click(screen.getByRole("button", { name: "创建 Rollback request" }));
+
+    await waitFor(() => expect(draftRollback).toHaveBeenCalledTimes(1));
+    expect(draftRollback.mock.calls[0][1].reverses_approval_id).toBe(REVERSED_APPROVAL_ID);
+    expect(screen.getByRole("textbox", { name: "Reverses approval ID" })).not.toBeVisible();
   });
 
   it("keeps draft actions locked until an explicit authority reload succeeds", async () => {
@@ -155,13 +225,15 @@ describe("Ref history rollback draft", () => {
           artifact_id: artifactId,
           domain_scope: { domain_ids: ["domain:economy"] },
         },
+        payload: { economy: { reward_gold: artifactId === CURRENT_ID ? 120 : 80 } },
       })),
+      listApprovals: vi.fn(async () => page([], "approvals:visible")),
       listExecutionProfiles: vi.fn(async () => page([rollbackProfile], "profiles:rollback")),
       listRefHistory,
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    await user.click(await screen.findByRole("radio", { name: `revision 1 · ${TARGET_ID}` }));
+    await user.click(await screen.findByRole("radio", { name: "回退到 revision 1" }));
     await screen.findByRole("option", { name: /Safe design rollback/ });
     await user.selectOptions(screen.getByLabelText("Rollback policy"), "builtin.rollback@3");
     await user.type(screen.getByLabelText("Rollback reason"), "Restore the reviewed baseline.");
@@ -188,7 +260,9 @@ describe("Ref history rollback draft", () => {
             domain_ids: artifactId === CURRENT_ID ? ["domain:combat", "domain:economy"] : ["domain:economy"],
           },
         },
+        payload: { economy: { reward_gold: artifactId === CURRENT_ID ? 120 : 80 } },
       })),
+      listApprovals: vi.fn(async () => page([], "approvals:visible")),
       listExecutionProfiles: vi.fn(async () => page([rollbackProfile], "profiles:rollback")),
       listRefHistory: vi.fn(async () =>
         page(
@@ -210,7 +284,7 @@ describe("Ref history rollback draft", () => {
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    await user.click(await screen.findByRole("radio", { name: `revision 1 · ${TARGET_ID}` }));
+    await user.click(await screen.findByRole("radio", { name: "回退到 revision 1" }));
 
     expect(await screen.findByRole("heading", { name: "Rollback profiles 不可用" })).toBeVisible();
     expect(screen.getByRole("button", { name: "创建 Rollback request" })).toBeDisabled();

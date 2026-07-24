@@ -6,6 +6,7 @@ PROPOSES — the authoritative pass/fail comes from deterministic verifiers
 literal single braces so agents.prompts.registry.render (str.format) never
 crashes; the ONLY format field anywhere is {counterexample} in repair.refine.
 """
+
 from __future__ import annotations
 
 from gameforge.agents.prompts.registry import register_prompt
@@ -205,17 +206,13 @@ _CONSISTENCY_REBUTTAL = (
     "Do not introduce a hint absent from the disputed list."
 )
 
-_CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING = (
-    _CONSISTENCY_REBUTTAL + " METHOD: constraint matching."
-)
-_CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE = (
-    _CONSISTENCY_REBUTTAL + " METHOD: causal world state."
-)
+_CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING = _CONSISTENCY_REBUTTAL + " METHOD: constraint matching."
+_CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE = _CONSISTENCY_REBUTTAL + " METHOD: causal world state."
 _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION = (
     _CONSISTENCY_REBUTTAL + " METHOD: adversarial falsification."
 )
 
-_GENERATION = (
+_GENERATION_V1 = (
     "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
     "(entities, regions, items, numeric ranges), you PROPOSE new content as a typed patch grounded "
     "in that snapshot. Your output is only a proposal that must pass the deterministic checker and "
@@ -224,18 +221,64 @@ _GENERATION = (
     "Repair Drafter: op, target, old_value, new_value."
 )
 
+_GENERATION_V2 = (
+    "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
+    "(entities, regions, items, numeric ranges), you PROPOSE content as a typed patch grounded in "
+    "that snapshot. Your output is only a proposal that must pass the deterministic checker and "
+    "economy-simulation gate before it can become a candidate. "
+    "Output ONLY a JSON array of ops (no prose, no code fences). Every op must use exactly one of "
+    "these seven op values: add_entity, delete_entity, set_entity_attr, add_relation, "
+    "delete_relation, set_relation_attr, replace_subgraph. Do NOT use JSON Patch op names replace, "
+    "add, or remove. Each op object uses op, target, old_value, and new_value; op_id is optional. "
+    "For an existing entity attribute, use set_entity_attr. Its target is "
+    "<entity_id>.<path-inside-attrs>; the path is relative to the entity's attrs object. Do NOT "
+    "include the literal segment attrs in the target. For example, when entity "
+    "quest:missing_caravan has attrs.reward.gold, target it as "
+    "quest:missing_caravan.reward.gold, with old_value copied exactly from the snapshot. "
+    "For set_relation_attr use <relation_id>.<path-inside-relation-attrs>. For add_entity or "
+    "delete_entity, target is the entity id; add_entity new_value contains type and attrs. For "
+    "add_relation or delete_relation, target is the relation id; add_relation new_value contains "
+    "type, src_id, and dst_id. For replace_subgraph, target is a descriptive label and new_value "
+    "contains entities and relations. Use only real existing ids from the supplied snapshot unless "
+    "the operation explicitly adds that id."
+)
+
 _PROMPTS: list[tuple[str, str, str]] = [
     ("extraction.system", "extraction@1", _EXTRACTION),
     ("triage.system", "triage@1", _TRIAGE),
     ("repair.system", "repair@4", _REPAIR),
     ("repair.refine", "repair@4", _REPAIR_REFINE),
     ("consistency.system", "consistency@3", _CONSISTENCY),
-    ("consistency.perspective.constraint_matching", "consistency@3", _CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING),
-    ("consistency.perspective.causal_world_state", "consistency@3", _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE),
-    ("consistency.perspective.adversarial_falsification", "consistency@3", _CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION),
-    ("consistency.rebuttal.constraint_matching", "consistency@3", _CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING),
-    ("consistency.rebuttal.causal_world_state", "consistency@3", _CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE),
-    ("consistency.rebuttal.adversarial_falsification", "consistency@3", _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION),
+    (
+        "consistency.perspective.constraint_matching",
+        "consistency@3",
+        _CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING,
+    ),
+    (
+        "consistency.perspective.causal_world_state",
+        "consistency@3",
+        _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE,
+    ),
+    (
+        "consistency.perspective.adversarial_falsification",
+        "consistency@3",
+        _CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION,
+    ),
+    (
+        "consistency.rebuttal.constraint_matching",
+        "consistency@3",
+        _CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING,
+    ),
+    (
+        "consistency.rebuttal.causal_world_state",
+        "consistency@3",
+        _CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE,
+    ),
+    (
+        "consistency.rebuttal.adversarial_falsification",
+        "consistency@3",
+        _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION,
+    ),
     ("consistency.legacy.system", "consistency@1", _LEGACY_CONSISTENCY),
     ("consistency.legacy.perspective.temporal", "consistency@1", _CONSISTENCY_PERSPECTIVE_TEMPORAL),
     ("consistency.legacy.perspective.identity", "consistency@1", _CONSISTENCY_PERSPECTIVE_IDENTITY),
@@ -243,7 +286,8 @@ _PROMPTS: list[tuple[str, str, str]] = [
     ("consistency.legacy.rebuttal.temporal", "consistency@1", _CONSISTENCY_REBUTTAL_TEMPORAL),
     ("consistency.legacy.rebuttal.identity", "consistency@1", _CONSISTENCY_REBUTTAL_IDENTITY),
     ("consistency.legacy.rebuttal.spoiler", "consistency@1", _CONSISTENCY_REBUTTAL_SPOILER),
-    ("generation.system", "generation@1", _GENERATION),
+    ("generation.system", "generation@1", _GENERATION_V1),
+    ("generation.v2.system", "generation@2", _GENERATION_V2),
 ]
 
 

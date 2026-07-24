@@ -561,6 +561,7 @@ class SqlAuthRepository:
         session_id: str,
         *,
         expected_revision: int,
+        last_seen_at: str,
         idle_expires_at: str,
     ) -> SessionRecordV1:
         current = self._require_session(session_id)
@@ -574,8 +575,18 @@ class SqlAuthRepository:
             )
         if current.revoked_at is not None:
             raise Conflict("session is revoked", session_id=current.session_id)
-        now = _utc_text(self._clock)
-        now_instant = _parse_utc(now, field_name="session last_seen_at", stored=False)
+        now_instant = _parse_utc(
+            last_seen_at,
+            field_name="session last_seen_at",
+            stored=False,
+        )
+        repository_now = _parse_utc(
+            _utc_text(self._clock),
+            field_name="auth repository clock",
+            stored=False,
+        )
+        if now_instant > repository_now:
+            raise IntegrityViolation("session touch cannot be later than repository time")
         if now_instant >= _parse_utc(
             current.idle_expires_at,
             field_name="session idle_expires_at",
@@ -589,7 +600,7 @@ class SqlAuthRepository:
         candidate = SessionRecordV1.model_validate(
             current.model_copy(
                 update={
-                    "last_seen_at": now,
+                    "last_seen_at": last_seen_at,
                     "idle_expires_at": idle_expires_at,
                     "revision": current.revision + 1,
                 }

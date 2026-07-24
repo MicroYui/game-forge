@@ -60,6 +60,23 @@
   background: var(--surface-2);
 }
 
+.gf-kg__canvas-toolbar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: var(--space-2);
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-heading);
+}
+
+.gf-kg__canvas-toolbar button {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
 .gf-kg__canvas {
   width: 100%;
   height: 420px;
@@ -125,7 +142,7 @@
   color: var(--deterministic);
 }
 
-.gf-kg__inspector-id,
+.gf-kg__inspector-title code,
 .gf-kg__table-id,
 .gf-kg__endpoint code,
 .gf-kg__relation-summary code {
@@ -134,11 +151,43 @@
   word-break: break-word;
 }
 
-.gf-kg__inspector-id {
+.gf-kg__inspector-title {
+  display: grid;
+  gap: var(--space-2);
   padding-block-end: var(--space-3);
   border-block-end: 1px solid var(--line);
+}
+
+.gf-kg__inspector-title h3 {
   color: var(--ink);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-h3);
+}
+
+.gf-kg__inspector-title .gf-copyable,
+.gf-kg__table-scroll .gf-copyable,
+.gf-kg__endpoint .gf-copyable {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.gf-kg__inspector-title .gf-copyable__value,
+.gf-kg__table-scroll .gf-copyable__value,
+.gf-kg__endpoint .gf-copyable__value {
+  min-width: 0;
+  color: var(--muted);
+  font-size: var(--font-size-micro);
+}
+
+.gf-kg__type-value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.gf-kg__type-value code {
+  color: var(--muted);
+  font-size: var(--font-size-micro);
 }
 
 .gf-kg__facts {
@@ -168,6 +217,10 @@
   display: grid;
   gap: var(--space-1);
   min-width: 0;
+}
+
+.gf-kg__endpoint strong {
+  color: var(--ink);
 }
 
 .gf-kg__endpoint-note {
@@ -288,12 +341,43 @@
   box-shadow: inset 3px 0 0 var(--deterministic);
 }
 
+.gf-kg__fact-name {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.gf-kg__fact-name strong {
+  color: var(--ink);
+  font-weight: var(--font-weight-heading);
+}
+
+.gf-kg__fact-name span {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
 .gf-kg__relation-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: var(--space-2);
   align-items: center;
   min-width: 0;
+}
+
+.gf-kg__relation-summary > span {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.gf-kg__relation-summary strong {
+  color: var(--ink);
+  font-size: var(--font-size-small);
+}
+
+.gf-kg__relation-summary code {
+  color: var(--muted);
+  font-size: var(--font-size-micro);
 }
 
 .gf-kg__relation-summary svg {

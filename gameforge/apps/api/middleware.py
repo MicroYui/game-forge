@@ -11,6 +11,10 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from gameforge.apps.api.dependencies import ApiDependencies
 from gameforge.apps.api.errors import problem_response
+from gameforge.apps.api.routers.auth import (
+    PASSWORD_REAUTHENTICATION_HEADER_NAME,
+    PASSWORD_REAUTHENTICATION_VALUE,
+)
 from gameforge.contracts.auth import ApiKeyAuthRequestV1, ApiKeySecret, SecretText, SessionToken
 from gameforge.contracts.errors import (
     AuthError,
@@ -181,12 +185,19 @@ class AuthenticationMiddleware:
         cookies = _parse_cookies(headers.get("cookie"))
         session_value = cookies.get(self._dependencies.session_cookie.name)
         authorization = headers.get("authorization")
+        password_reauthentication = headers.getlist(PASSWORD_REAUTHENTICATION_HEADER_NAME) == [
+            PASSWORD_REAUTHENTICATION_VALUE
+        ]
         if session_value is not None and authorization is not None:
             raise AuthFailed("multiple HTTP credential mechanisms are forbidden")
         if scope.get("path") == _LOGIN_PATH:
             if authorization is not None:
                 raise AuthFailed("password login does not accept API-key credentials")
-            if session_value is None:
+            if session_value is None or password_reauthentication:
+                # The explicit custom header distinguishes intentional password
+                # reauthentication from a cross-site form targeting an already
+                # authenticated browser.  Only this exact endpoint may ignore the
+                # old cookie and issue a fresh session + CSRF pair.
                 await self._app(scope, receive, send)
                 return
 

@@ -11,14 +11,20 @@ import {
 import type { components, paths } from "../../api/generated/openapi";
 import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
+import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
 
 export type ApprovalView = components["schemas"]["ApprovalViewV1"];
+export type ApprovalPage = components["schemas"]["OpaquePageV1_ApprovalViewV1_"];
+export type ArtifactKind = components["schemas"]["ArtifactSummaryV1"]["kind"];
+export type ArtifactPage = components["schemas"]["OpaquePageV1_ArtifactSummaryV1_"];
 export type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
 export type ConflictPage = components["schemas"]["OpaquePageV1_MergeConflict_"];
 export type ExecutionOptionResolveRequest = components["schemas"]["ExecutionOptionResolveRequestV1"];
 export type ExecutionOptionView = components["schemas"]["ExecutionOptionViewV1"];
 export type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
 export type ExecutionProfilePage = components["schemas"]["OpaquePageV1_ExecutionProfileViewV1_"];
+export type FindingPage = components["schemas"]["OpaquePageV1_FindingRevisionV1_"];
+export type FindingRevision = components["schemas"]["FindingRevisionV1"];
 type ExecutionProfileQuery = NonNullable<paths["/api/v1/execution-profiles"]["get"]["parameters"]["query"]>;
 export type ExecutionProfileListFilters = Omit<ExecutionProfileQuery, "cursor">;
 export type HumanPatchDraftRequest = NonNullable<FetchOptions<paths["/api/v1/patches"]["post"]>["body"]>;
@@ -50,6 +56,11 @@ export type RollbackValidationAdmissionRequest = NonNullable<
   FetchOptions<paths["/api/v1/rollback-requests/{artifact_id}:validate"]["post"]>["body"]
 >;
 export type RunAccepted = components["schemas"]["RunAcceptedV1"];
+export type RunPage = components["schemas"]["OpaquePageV1_RunViewV1_"];
+export type RunFindingLinkPage = components["schemas"]["OpaquePageV1_RunFindingLinkViewV1_"];
+export type RunFindingLinkView = components["schemas"]["RunFindingLinkViewV1"];
+export type RunSubmissionRequest = NonNullable<FetchOptions<paths["/api/v1/runs"]["post"]>["body"]>;
+export type RunView = components["schemas"]["RunViewV1"];
 export type SnapshotDiffPage = components["schemas"]["SnapshotDiffHttpPageV1"];
 export type SpecView = components["schemas"]["SpecViewV1"];
 export type SubjectApprovalBindingView = components["schemas"]["SubjectApprovalBindingViewV1"];
@@ -81,6 +92,13 @@ type ApiResponse<T> = {
 };
 
 export interface PatchWorkflowApi {
+  listArtifacts(kind: ArtifactKind, cursor: string | null): Promise<ArtifactPage>;
+  listApprovals(cursor: string | null): Promise<ApprovalPage>;
+  listFindings(cursor: string | null): Promise<FindingPage>;
+  listRunFindingLinks(runId: string, cursor: string | null): Promise<RunFindingLinkPage>;
+  getRun(runId: string): Promise<RunView>;
+  submitRun(request: RunSubmissionRequest, intent: MutationIntent): Promise<RunAccepted>;
+  listReplaySourceRuns(cursor: string | null): Promise<ReplaySourceRunPage>;
   listPatches(cursor: string | null): Promise<PatchPage>;
   getPatch(artifactId: string): Promise<VersionedResource<PatchArtifactReadView>>;
   listRollbackRequests(cursor: string | null): Promise<RollbackRequestPage>;
@@ -171,6 +189,83 @@ export function createPatchWorkflowApi(
   client: GameForgeOpenApiClient = gameForgeApi.client,
 ): PatchWorkflowApi {
   return {
+    listArtifacts(kind, cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<ArtifactPage>(
+          await client.GET("/api/v1/artifacts", {
+            params: { query: { kind, ...cursorQuery(cursor) } },
+          }),
+        ),
+      );
+    },
+
+    listApprovals(cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<ApprovalPage>(
+          await client.GET("/api/v1/approvals", {
+            params: { query: { ...cursorQuery(cursor), limit: 100 } },
+          }),
+        ),
+      );
+    },
+
+    listFindings(cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<FindingPage>(
+          await client.GET("/api/v1/findings", {
+            params: { query: { ...cursorQuery(cursor), limit: 100 } },
+          }),
+        ),
+      );
+    },
+
+    listRunFindingLinks(runId, cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<RunFindingLinkPage>(
+          await client.GET("/api/v1/runs/{run_id}/finding-links", {
+            params: {
+              path: { run_id: runId },
+              query: { ...cursorQuery(cursor), limit: 100 },
+            },
+          }),
+        ),
+      );
+    },
+
+    async getRun(runId) {
+      return unwrapApiResponse<RunView>(
+        await client.GET("/api/v1/runs/{run_id}", {
+          params: { path: { run_id: runId } },
+        }),
+      );
+    },
+
+    async submitRun(request, intent) {
+      return unwrapApiResponse<RunAccepted>(
+        await client.POST("/api/v1/runs", {
+          body: request,
+          params: { header: headersForIdempotentMutation(intent) },
+        }),
+      );
+    },
+
+    listReplaySourceRuns(cursor) {
+      return readCursorPage(cursor, async () => {
+        const page = await unwrapApiResponse<RunPage>(
+          await client.GET("/api/v1/runs", {
+            params: { query: cursorQuery(cursor) },
+          }),
+        );
+        return projectReplaySourcePage(page, { kind: "patch.repair", version: 1 }, async (artifactId) =>
+          unwrapApiResponse<ArtifactPayloadView>(
+            await client.GET("/api/v1/artifacts/{artifact_id}", {
+              params: { path: { artifact_id: artifactId } },
+            }),
+          ),
+        );
+      });
+    },
+
     listPatches(cursor) {
       return readCursorPage(cursor, async () =>
         unwrapApiResponse<PatchPage>(

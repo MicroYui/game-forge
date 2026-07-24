@@ -68,6 +68,16 @@ class _Clock:
         return self.current
 
 
+@dataclass
+class _TickingClock(_Clock):
+    step: timedelta = timedelta(microseconds=1)
+
+    def now_utc(self) -> datetime:
+        current = self.current
+        self.current += self.step
+        return current
+
+
 class _Entropy:
     def __init__(self) -> None:
         self._ordinal = 0
@@ -593,6 +603,40 @@ def test_session_issue_resolve_csrf_and_touch_return_only_frozen_transport_dtos(
                 csrf_token=SecretText("wrong"),
                 request_method="PATCH",
             )
+
+
+def test_session_touch_uses_one_exact_sample_from_a_running_clock(engine: Engine) -> None:
+    clock = _TickingClock(T0)
+    password_runtime = Argon2PasswordRuntime(random_bytes=_Entropy())
+    hash_policy = _hash_policy("argon2@1")
+
+    with Session(engine) as session:
+        auth, identities = _repositories(session, clock)
+        password = _create_human(auth, identities, password_runtime, hash_policy)
+        runtime = _session_runtime(auth, identities, clock)
+        issued = runtime.issue(
+            SessionIssueRequestV1(
+                principal_id=password.principal_id,
+                source_credential_id=password.credential_id,
+                credential_version=password.credential_version,
+                session_policy_version="session@1",
+            )
+        )
+        session.commit()
+
+        clock.current += timedelta(seconds=61)
+        expected_touch = clock.current
+        resolved = runtime.resolve(
+            issued.session_token,
+            csrf_token=None,
+            request_method="GET",
+        )
+
+        retained = auth.get_session(issued.session_id)
+        assert retained is not None
+        assert retained.revision == 2
+        assert retained.last_seen_at == expected_touch.isoformat().replace("+00:00", "Z")
+        assert resolved.idle_expires_at == retained.idle_expires_at
 
 
 def test_session_resolve_rejects_revocation_expiry_and_stale_password_version(

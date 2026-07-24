@@ -18,6 +18,8 @@ import {
 import {
   patchWorkflowApi,
   type ApprovalView,
+  type ArtifactKind,
+  type ArtifactPage,
   type ArtifactPayloadView,
   type LineagePage,
   type PatchWorkflowApi,
@@ -28,6 +30,11 @@ import {
   type VersionedResource,
   type WorkflowApplyResult,
 } from "./api";
+import {
+  collectRollbackSnapshotDiff,
+  RollbackContentComparison,
+  type RollbackSnapshotDiff,
+} from "./RollbackContentComparison";
 import "./patches.css";
 
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
@@ -38,6 +45,8 @@ interface RollbackDetailData {
   approval: VersionedResource<ApprovalView>;
   binding: SubjectApprovalBindingView;
   current: VersionedResource<RollbackRequestReadView>;
+  currentArtifact: ArtifactPayloadView;
+  contentDiff: RollbackSnapshotDiff | null;
   currentRef: Readonly<RefValue>;
   evidence: ArtifactPayloadView | null;
   failure: ArtifactPayloadView | null;
@@ -45,6 +54,7 @@ interface RollbackDetailData {
   impactProfiles: ExecutionProfile[];
   lineage: LineagePage["items"];
   rollbackProfile: ExecutionProfile;
+  regressionSuites: ArtifactPage["items"];
   schemaProfiles: ExecutionProfile[];
   target: Readonly<RollbackTargetBinding>;
   targetArtifact: ArtifactPayloadView;
@@ -82,17 +92,6 @@ function profileCoversDomains(profile: ExecutionProfile, requiredDomainIds: read
   return requiredDomainIds.every((domainId) => covered.has(domainId));
 }
 
-function parseLines(value: string): string[] {
-  return [
-    ...new Set(
-      value
-        .split(/\r?\n/u)
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
-  ];
-}
-
 async function collectRefHistory(api: PatchWorkflowApi, refName: string): Promise<RefHistoryEntry[]> {
   const entries: RefHistoryEntry[] = [];
   const seen = new Set<string>();
@@ -112,6 +111,37 @@ async function collectRefHistory(api: PatchWorkflowApi, refName: string): Promis
     cursor = next;
   }
   throw new Error("Ref history exceeded its bounded page count.");
+}
+
+async function collectArtifacts(api: PatchWorkflowApi, kind: ArtifactKind): Promise<ArtifactPage["items"]> {
+  const artifacts: ArtifactPage["items"] = [];
+  const artifactIds = new Set<string>();
+  const cursors = new Set<string>();
+  let cursor: string | null = null;
+  let readSnapshotId: string | null = null;
+  for (let pageCount = 0; pageCount < 256; pageCount += 1) {
+    const page = await api.listArtifacts(kind, cursor);
+    if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
+      throw new Error(`${kind} catalog changed read snapshot.`);
+    }
+    readSnapshotId = page.read_snapshot_id;
+    for (const artifact of page.items) {
+      if (artifact.kind !== kind) throw new Error(`${kind} catalog returned the wrong Artifact kind.`);
+      if (artifactIds.has(artifact.artifact_id)) throw new Error(`${kind} catalog returned a duplicate.`);
+      artifactIds.add(artifact.artifact_id);
+      artifacts.push(artifact);
+    }
+    const next = cursorFromPage(page);
+    if (next === null) return artifacts;
+    if (cursors.has(next)) throw new Error(`${kind} catalog returned a cursor cycle.`);
+    cursors.add(next);
+    cursor = next;
+  }
+  throw new Error(`${kind} catalog exceeded its bounded page count.`);
+}
+
+function shortId(value: string): string {
+  return value.length <= 24 ? value : `${value.slice(0, 12)}…${value.slice(-8)}`;
 }
 
 async function collectLineage(api: PatchWorkflowApi, artifactId: string): Promise<LineagePage["items"]> {
@@ -172,6 +202,7 @@ async function loadRollbackDetail(api: PatchWorkflowApi, artifactId: string): Pr
   const request = current.value.request;
   const [
     targetArtifact,
+    currentArtifact,
     history,
     lineage,
     rollbackProfile,
@@ -179,8 +210,10 @@ async function loadRollbackDetail(api: PatchWorkflowApi, artifactId: string): Pr
     impactProfiles,
     evidence,
     failure,
+    regressionSuites,
   ] = await Promise.all([
     api.getArtifact(request.target_artifact_id),
+    api.getArtifact(request.expected_current_ref.artifact_id),
     collectRefHistory(api, request.ref_name),
     collectLineage(api, request.target_artifact_id),
     api.getExecutionProfile(
@@ -193,7 +226,15 @@ async function loadRollbackDetail(api: PatchWorkflowApi, artifactId: string): Pr
     item.last_validation_failure_artifact_id
       ? api.getArtifact(item.last_validation_failure_artifact_id)
       : Promise.resolve(null),
+    collectArtifacts(api, "regression_suite"),
   ]);
+  if (
+    targetArtifact.artifact.artifact_id !== request.target_artifact_id ||
+    currentArtifact.artifact.artifact_id !== request.expected_current_ref.artifact_id
+  ) {
+    throw new Error("Rollback content comparison Artifact identity is inconsistent.");
+  }
+  const contentDiff = await collectRollbackSnapshotDiff(api, currentArtifact, targetArtifact);
   const target = verifyRollbackWorkflowAuthority({
     approval: approval.value,
     binding,
@@ -217,7 +258,9 @@ async function loadRollbackDetail(api: PatchWorkflowApi, artifactId: string): Pr
   return {
     approval,
     binding,
+    contentDiff,
     current,
+    currentArtifact,
     currentRef,
     evidence,
     failure,
@@ -228,6 +271,7 @@ async function loadRollbackDetail(api: PatchWorkflowApi, artifactId: string): Pr
     ),
     lineage,
     rollbackProfile,
+    regressionSuites,
     schemaProfiles: schemaProfiles.filter(
       (profile) =>
         supportsRunKind(profile, "rollback.validate") && profileCoversDomains(profile, requiredDomainIds),
@@ -300,7 +344,8 @@ export function RollbackDetailPage({
   const mutationLock = useRef(false);
   const [schemaProfileKey, setSchemaProfileKey] = useState("");
   const [impactKeys, setImpactKeys] = useState<Set<string>>(new Set());
-  const [regressionSuiteIds, setRegressionSuiteIds] = useState("");
+  const [regressionSuiteIds, setRegressionSuiteIds] = useState<Set<string>>(new Set());
+  const [regressionSearch, setRegressionSearch] = useState("");
   const [seed, setSeed] = useState("1");
   const [acceptedRunId, setAcceptedRunId] = useState<string | null>(null);
   const [mutation, setMutation] = useState<MutationState | null>(null);
@@ -315,7 +360,17 @@ export function RollbackDetailPage({
     () => workflow.data?.impactProfiles.filter((profile) => impactKeys.has(profileKey(profile))) ?? [],
     [impactKeys, workflow.data?.impactProfiles],
   );
-  const regressionIds = useMemo(() => parseLines(regressionSuiteIds), [regressionSuiteIds]);
+  const regressionIds = useMemo(() => [...regressionSuiteIds].sort(), [regressionSuiteIds]);
+  const visibleRegressionSuites = useMemo(() => {
+    const query = regressionSearch.trim().toLocaleLowerCase();
+    if (!query) return workflow.data?.regressionSuites ?? [];
+    return (workflow.data?.regressionSuites ?? []).filter((artifact) =>
+      [artifact.payload_schema_id, artifact.artifact_id, artifact.created_at ?? ""]
+        .join(" ")
+        .toLocaleLowerCase()
+        .includes(query),
+    );
+  }, [regressionSearch, workflow.data?.regressionSuites]);
   const parsedSeed = Number(seed);
   const seedIsValid = seed.trim() !== "" && Number.isSafeInteger(parsedSeed) && parsedSeed >= 0;
   const seedRequired =
@@ -533,9 +588,12 @@ export function RollbackDetailPage({
           <dd>Current · revision {data.currentRef.revision}</dd>
         </div>
         <div className="gf-patches__fact-wide">
-          <dt>Current Artifact</dt>
+          <dt>Current 技术身份</dt>
           <dd>
-            <CopyableText copyLabel="复制 current ref Artifact ID" value={data.currentRef.artifact_id} />
+            <details>
+              <summary>查看 current ref Artifact ID</summary>
+              <CopyableText copyLabel="复制 current ref Artifact ID" value={data.currentRef.artifact_id} />
+            </details>
           </dd>
         </div>
         <div>
@@ -557,6 +615,14 @@ export function RollbackDetailPage({
         />
       )}
 
+      <RollbackContentComparison
+        current={data.currentArtifact}
+        currentLabel={`Current revision ${data.current.value.request.expected_current_ref.revision}`}
+        diff={data.contentDiff}
+        target={data.targetArtifact}
+        targetLabel={`目标 revision ${data.current.value.request.target_history_revision}`}
+      />
+
       <section className="gf-patches__workspace-section" aria-labelledby="rollback-target-title">
         <header>
           <GitCommitHorizontal aria-hidden="true" size={21} />
@@ -568,17 +634,11 @@ export function RollbackDetailPage({
         <dl className="gf-patches__target-ledger">
           <div>
             <dt>Expected current ref</dt>
-            <dd>
-              revision {data.current.value.request.expected_current_ref.revision} ·{" "}
-              <code>{data.current.value.request.expected_current_ref.artifact_id}</code>
-            </dd>
+            <dd>revision {data.current.value.request.expected_current_ref.revision}</dd>
           </div>
           <div>
             <dt>Historical target</dt>
-            <dd>
-              history revision {data.current.value.request.target_history_revision} ·{" "}
-              <code>{data.target.target_artifact_id}</code>
-            </dd>
+            <dd>history revision {data.current.value.request.target_history_revision}</dd>
           </div>
           <div>
             <dt>Target digest</dt>
@@ -606,10 +666,19 @@ export function RollbackDetailPage({
             </dd>
           </div>
           <div className="gf-patches__fact-wide">
-            <dt>RollbackRequest source lineage</dt>
+            <dt>Exact transition identity</dt>
             <dd>
-              current <code>{data.current.value.request.expected_current_ref.artifact_id}</code> + target{" "}
-              <code>{data.target.target_artifact_id}</code>
+              <details>
+                <summary>查看 current 与 target Artifact ID</summary>
+                <CopyableText
+                  copyLabel="复制 frozen current Artifact ID"
+                  value={data.current.value.request.expected_current_ref.artifact_id}
+                />
+                <CopyableText
+                  copyLabel="复制 frozen target Artifact ID"
+                  value={data.target.target_artifact_id}
+                />
+              </details>
             </dd>
           </div>
         </dl>
@@ -630,7 +699,13 @@ export function RollbackDetailPage({
                 {entry.value.revision === data.currentRef.revision ? "Current" : "revision"}{" "}
                 {entry.value.revision}
               </span>
-              <code>{entry.value.artifact_id}</code>
+              <details>
+                <summary>查看 exact Artifact 身份</summary>
+                <CopyableText
+                  copyLabel={`复制 history revision ${entry.value.revision} Artifact ID`}
+                  value={entry.value.artifact_id}
+                />
+              </details>
             </li>
           ))}
         </ol>
@@ -697,14 +772,39 @@ export function RollbackDetailPage({
           <p className="gf-patches__muted">
             Seed {seedRequired ? "required by the resolved stochastic/regression closure" : "not applicable"}.
           </p>
-          <label className="gf-patches__form-wide">
-            RegressionSuite Artifact IDs（每行一个）
-            <textarea
-              onChange={(event) => setRegressionSuiteIds(event.target.value)}
-              rows={3}
-              value={regressionSuiteIds}
-            />
-          </label>
+          <fieldset className="gf-patches__checklist gf-patches__form-wide">
+            <legend>Regression suites（可选）</legend>
+            <label>
+              搜索回归套件
+              <input
+                onChange={(event) => setRegressionSearch(event.target.value)}
+                type="search"
+                value={regressionSearch}
+              />
+            </label>
+            {data.regressionSuites.length === 0 ? (
+              <span className="gf-patches__muted">当前 Artifact 目录没有 regression_suite。</span>
+            ) : visibleRegressionSuites.length === 0 ? (
+              <span className="gf-patches__muted">没有匹配的回归套件。</span>
+            ) : (
+              visibleRegressionSuites.map((artifact) => (
+                <label key={artifact.artifact_id}>
+                  <input
+                    checked={regressionSuiteIds.has(artifact.artifact_id)}
+                    onChange={(event) => {
+                      const next = new Set(regressionSuiteIds);
+                      if (event.target.checked) next.add(artifact.artifact_id);
+                      else next.delete(artifact.artifact_id);
+                      setRegressionSuiteIds(next);
+                    }}
+                    type="checkbox"
+                  />
+                  回归套件 · {artifact.created_at?.slice(0, 10) ?? "时间未知"} · {artifact.payload_schema_id}{" "}
+                  · {shortId(artifact.artifact_id)}
+                </label>
+              ))
+            )}
+          </fieldset>
         </div>
         <div className="gf-patches__action-row">
           <button disabled={!canValidate} onClick={validate} type="button">

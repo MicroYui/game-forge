@@ -105,8 +105,9 @@ describe("generated API contracts", () => {
       Object.values(path).flatMap((operation) => operation.operationId ?? []),
     );
 
-    expect(operationIds).toHaveLength(77);
-    expect(new Set(operationIds)).toHaveLength(77);
+    expect(operationIds).toHaveLength(78);
+    expect(new Set(operationIds)).toHaveLength(78);
+    expect(operationIds).toContain("artifact_catalog_api_v1_artifacts_get");
     expect(operationIds).toContain("resolve_execution_option_api_v1_execution_options_resolve_post");
     expect(operationIds).toContain(
       "subject_approval_binding_api_v1_workflow_subjects__artifact_id__approval_binding_get",

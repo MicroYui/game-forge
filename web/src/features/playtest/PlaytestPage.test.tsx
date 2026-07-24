@@ -6,6 +6,7 @@ import { MemoryRouter, useLocation, useNavigate, useSearchParams } from "react-r
 import { describe, expect, it, vi } from "vitest";
 
 import type { RunCommandClient } from "../../api/commands";
+import { ReauthenticationRequiredError } from "../../api/csrf";
 import { createQueryClient } from "../../api/query-client";
 import type { components } from "../../api/generated/openapi";
 import type { RunEvent } from "../../api/generated/sse-run-event-v1";
@@ -384,8 +385,31 @@ function api(overrides: Partial<PlaytestApi> = {}): PlaytestApi {
         `read:profiles:${filters.profile_kind ?? "all"}`,
       ),
     ),
+    listConfigExports: vi.fn(async () => page([configArtifact().artifact], "read:config-exports")),
     listRunCommands: vi.fn(async () => page([], "read:commands")),
     listRunFindingLinks: vi.fn(async () => page([], "read:findings")),
+    listReplaySourceRuns: vi.fn(async () =>
+      page(
+        [
+          {
+            attempt_no: 1,
+            completedAt: "2026-07-23T03:47:50Z",
+            events_url: "/api/v1/runs/run:playtest:source/events",
+            failure_artifact_id: null,
+            outcomeCode: "playtest_completed",
+            result_artifact_id: "artifact:result:playtest-source",
+            revision: 3,
+            runKind: { kind: "playtest.run", version: 1 },
+            run_id: "run:playtest:source",
+            status: "succeeded" as const,
+            status_url: "/api/v1/runs/run:playtest:source",
+            terminal_cassette_artifact_id: "artifact:cassette:playtest-source",
+            view_schema_version: "run-view@1" as const,
+          },
+        ],
+        "read:playtest-source-runs",
+      ),
+    ),
     listTaskSuites: vi.fn(async () => page([suite], "read:suites")),
     resolveExecutionOption: vi.fn(async () => executionOption),
     runPlaytest: vi.fn(async () => ({
@@ -518,6 +542,49 @@ function renderUnmountablePage(playtestApi: PlaytestApi, path: string) {
 const contextPath = `/playtest?sourceRun=${encodeURIComponent(SOURCE_RUN_ID)}&preview=${encodeURIComponent(PREVIEW_ID)}&config=${encodeURIComponent(CONFIG_ID)}&constraint=${encodeURIComponent(CONSTRAINT_ID)}`;
 
 describe("Playtest page", () => {
+  it("lets the ordinary entry select an exact config candidate without copying IDs or leaving the tab", async () => {
+    const user = userEvent.setup();
+    const listConfigExports = vi.fn(async () =>
+      page([configArtifact().artifact], "read:config-exports:entry"),
+    );
+    const playtestApi = api({
+      listConfigExports,
+      listTaskSuites: vi.fn(async () => page([], "read:suites:empty-entry")),
+    });
+    renderPageWithLocation(playtestApi, "/playtest");
+
+    const catalog = await screen.findByRole("region", { name: "选择待试玩候选" });
+    expect(await within(catalog).findByText(CONFIG_ID)).toBeInTheDocument();
+    expect(await within(catalog).findByText("builtin.environment@1")).toBeVisible();
+    await user.click(within(catalog).getByRole("button", { name: `使用配置 ${CONFIG_ID}` }));
+
+    await waitFor(() => {
+      const location = screen.getByTestId("location-probe").textContent ?? "";
+      expect(location).toContain(`preview=${encodeURIComponent(PREVIEW_ID)}`);
+      expect(location).toContain(`config=${encodeURIComponent(CONFIG_ID)}`);
+      expect(location).toContain(`constraint=${encodeURIComponent(CONSTRAINT_ID)}`);
+      expect(location).toContain("action=derive");
+    });
+    expect(await screen.findByRole("region", { name: "候选绑定账本" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "派生 exact TaskSuite" })).toBeEnabled();
+    expect(listConfigExports).toHaveBeenCalledWith(null);
+  });
+
+  it("fails closed when a catalog candidate does not match its immutable ConfigExport payload", async () => {
+    const mismatched = configArtifact();
+    mismatched.artifact = { ...mismatched.artifact, artifact_id: "artifact:config:other" };
+    const playtestApi = api({
+      getArtifact: vi.fn(async () => mismatched),
+      listConfigExports: vi.fn(async () => page([configArtifact().artifact], "read:config-exports:mismatch")),
+      listTaskSuites: vi.fn(async () => page([], "read:suites:empty-mismatch")),
+    });
+    renderPageWithLocation(playtestApi, "/playtest");
+
+    expect(await screen.findByRole("heading", { name: "无法发现候选配置" })).toBeVisible();
+    expect(screen.getByTestId("location-probe")).toHaveTextContent("/playtest");
+    expect(screen.queryByRole("button", { name: /使用配置/ })).not.toBeInTheDocument();
+  });
+
   it("fails closed on a cyclic RunCommand recovery cursor", async () => {
     const commandPage = {
       ...page([], "read:commands:cycle"),
@@ -640,6 +707,22 @@ describe("Playtest page", () => {
       request_schema_version: "task-suite-derive-request@1",
     });
     expect((await screen.findAllByText(DERIVE_RUN_ID))[0]).toBeVisible();
+  });
+
+  it("offers explicit route-preserving reauthentication when the current tab has no CSRF", async () => {
+    const user = userEvent.setup();
+    const playtestApi = api({
+      deriveTaskSuite: vi.fn(async () => {
+        throw new ReauthenticationRequiredError();
+      }),
+    });
+    renderPage(playtestApi, `${contextPath}&action=derive`);
+
+    await screen.findByText("builtin.task_suite_derivation@2");
+    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+
+    expect(await screen.findByRole("heading", { name: "需要重新登录" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "重新登录" })).toHaveAttribute("href", "/login");
   });
 
   it("renders binding read failure and retries the exact derivation binding", async () => {
@@ -797,6 +880,8 @@ describe("Playtest page", () => {
     ).not.toBeInTheDocument();
     await user.selectOptions(within(launch).getByLabelText("LLM execution mode"), "replay");
     expect(await within(launch).findByRole("option", { name: /builtin\.playtest_planner@2/ })).toBeVisible();
+    expect(within(launch).queryByRole("textbox", { name: "Replay source Run" })).not.toBeInTheDocument();
+    expect(await within(launch).findByRole("option", { name: /自动试玩.*laytest:source/ })).toBeVisible();
     await user.selectOptions(within(launch).getByLabelText("LLM execution mode"), "record");
     expect(
       within(launch).queryByRole("option", { name: /builtin\.playtest_planner@2/ }),

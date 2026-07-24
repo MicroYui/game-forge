@@ -12,8 +12,10 @@ import type { RunEvent } from "../../api/generated/sse-run-event-v1";
 import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
 import { clearAuthorizedSessionState, gameForgeApi } from "../../api/runtime";
 import { RunEventStream, type RunEventStreamState } from "../../api/sse";
+import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
 
 export type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
+export type ArtifactSummaryPage = components["schemas"]["OpaquePageV1_ArtifactSummaryV1_"];
 export type ConstraintSnapshotView = components["schemas"]["ConstraintSnapshotViewV1"];
 export type ExecutionOptionResolveRequest = components["schemas"]["ExecutionOptionResolveRequestV1"];
 export type ExecutionOptionView = components["schemas"]["ExecutionOptionViewV1"];
@@ -23,6 +25,7 @@ export type ProspectivePlaytestRunRequest = components["schemas"]["ProspectivePl
 export type RunAccepted = components["schemas"]["RunAcceptedV1"];
 export type RunCommandPage = components["schemas"]["OpaquePageV1_RunCommandViewV1_"];
 export type RunFindingLinkPage = components["schemas"]["OpaquePageV1_RunFindingLinkViewV1_"];
+export type RunPage = components["schemas"]["OpaquePageV1_RunViewV1_"];
 export type RunView = components["schemas"]["RunViewV1"];
 export type SpecView = components["schemas"]["SpecViewV1"];
 export type TaskSuiteArtifactView = components["schemas"]["TaskSuiteArtifactViewV1"];
@@ -50,6 +53,7 @@ export interface PlaytestEventStreamHandle {
 }
 
 export interface PlaytestApi {
+  listConfigExports(cursor: string | null): Promise<ArtifactSummaryPage>;
   listTaskSuites(filters: TaskSuiteListFilters, cursor: string | null): Promise<TaskSuitePage>;
   getTaskSuite(artifactId: string): Promise<TaskSuiteArtifactView>;
   getTaskSuiteDerivationBinding(profileId: string, version: number): Promise<TaskSuiteDerivationBindingView>;
@@ -64,6 +68,7 @@ export interface PlaytestApi {
   resolveExecutionOption(request: ExecutionOptionResolveRequest): Promise<ExecutionOptionView>;
   runPlaytest(request: PlaytestRunRequest, intent: MutationIntent): Promise<RunAccepted>;
   getRun(runId: string): Promise<RunView>;
+  listReplaySourceRuns(cursor: string | null): Promise<ReplaySourceRunPage>;
   getPlaytestResult(runId: string): Promise<ArtifactPayloadView>;
   listRunFindingLinks(runId: string, cursor: string | null): Promise<RunFindingLinkPage>;
   listRunCommands(runId: string, cursor: string | null): Promise<RunCommandPage>;
@@ -106,6 +111,16 @@ export function createPlaytestApi(client: GameForgeOpenApiClient = gameForgeApi.
       );
     },
 
+    listConfigExports(cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<ArtifactSummaryPage>(
+          await client.GET("/api/v1/artifacts", {
+            params: { query: { ...cursorQuery(cursor), kind: "config_export", limit: 100 } },
+          }),
+        ),
+      );
+    },
+
     async getConstraint(artifactId) {
       return unwrapApiResponse<ConstraintSnapshotView>(
         await client.GET("/api/v1/constraints/{artifact_id}", {
@@ -128,6 +143,23 @@ export function createPlaytestApi(client: GameForgeOpenApiClient = gameForgeApi.
           params: { path: { run_id: runId } },
         }),
       );
+    },
+
+    listReplaySourceRuns(cursor) {
+      return readCursorPage(cursor, async () => {
+        const page = await unwrapApiResponse<RunPage>(
+          await client.GET("/api/v1/runs", {
+            params: { query: { ...cursorQuery(cursor) } },
+          }),
+        );
+        return projectReplaySourcePage(page, { kind: "playtest.run", version: 1 }, async (artifactId) =>
+          unwrapApiResponse<ArtifactPayloadView>(
+            await client.GET("/api/v1/artifacts/{artifact_id}", {
+              params: { path: { artifact_id: artifactId } },
+            }),
+          ),
+        );
+      });
     },
 
     async getSpec(artifactId) {

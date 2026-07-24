@@ -4,10 +4,12 @@ import type { GameForgeOpenApiClient } from "../../api/client";
 import { storeCsrfToken } from "../../api/csrf";
 import type { components } from "../../api/generated/openapi";
 import type {
+  ArtifactPayloadView,
   ConstraintSnapshotView,
   ExecutionOptionResolveRequest,
   FindingRevision,
   ReviewArtifactView,
+  RunView,
   RunSubmissionRequest,
   SpecView,
 } from "./api";
@@ -35,6 +37,32 @@ const spec = { artifact: { artifact_id: "artifact:preview:7" } } as unknown as S
 const constraint = {
   artifact: { artifact_id: "artifact:constraint:7" },
 } as unknown as ConstraintSnapshotView;
+const failedReplaySource = {
+  failure_artifact_id: "artifact:failure:review-source",
+  result_artifact_id: null,
+  run_id: "run:review:failed-source",
+  status: "failed",
+  terminal_cassette_artifact_id: "artifact:cassette:review-failed",
+} as RunView;
+const replayFailureManifest = {
+  artifact: {
+    artifact_id: "artifact:failure:review-source",
+    created_at: "2026-07-23T03:47:50Z",
+    kind: "run_failure",
+    payload_schema_id: "run-failure@1",
+  },
+  payload: {
+    cause_code: "review_source_failed",
+    failure_schema_version: "run-failure@1",
+    run_id: failedReplaySource.run_id,
+    run_kind: { kind: "review.run", version: 1 },
+  },
+} as unknown as ArtifactPayloadView;
+const successWithoutCassette = {
+  run_id: "run:review:no-cassette",
+  status: "succeeded",
+  terminal_cassette_artifact_id: null,
+} as RunView;
 
 const prospectiveRequest: components["schemas"]["ProspectiveGenericAgentRunRequestV1"] = {
   cassette_artifact_id: null,
@@ -94,6 +122,10 @@ describe("Review API", () => {
         case "/api/v1/artifacts/{artifact_id}/lineage":
         case "/api/v1/runs/{run_id}/finding-links":
           return response({ items: [], next_cursor: null });
+        case "/api/v1/runs":
+          return response({ items: [failedReplaySource, successWithoutCassette], next_cursor: null });
+        case "/api/v1/artifacts/{artifact_id}":
+          return response(replayFailureManifest);
         case "/api/v1/reviews/{artifact_id}":
           return response(review);
         case "/api/v1/reviews/{artifact_id}/producer-binding":
@@ -115,9 +147,19 @@ describe("Review API", () => {
     await api.getReviewProducerBinding("artifact:review:7", "run:review:3");
     await api.listLineage("artifact:review:7", cursor);
     await api.listRunFindingLinks("run:review:3", cursor);
+    const replaySources = await api.listReplaySourceRuns(cursor);
     await api.getFinding("finding:quest:dead-end", 7);
     await api.getSpec("artifact:preview:7");
     await api.getConstraint("artifact:constraint:7");
+
+    expect(replaySources.items).toEqual([
+      {
+        ...failedReplaySource,
+        completedAt: "2026-07-23T03:47:50Z",
+        outcomeCode: "review_source_failed",
+        runKind: { kind: "review.run", version: 1 },
+      },
+    ]);
 
     expect(get).toHaveBeenCalledWith("/api/v1/reviews", {
       params: { query: { cursor } },
@@ -139,6 +181,9 @@ describe("Review API", () => {
     });
     expect(get).toHaveBeenCalledWith("/api/v1/runs/{run_id}/finding-links", {
       params: { path: { run_id: "run:review:3" }, query: { cursor } },
+    });
+    expect(get).toHaveBeenCalledWith("/api/v1/runs", {
+      params: { query: { cursor } },
     });
     expect(get).toHaveBeenCalledWith("/api/v1/findings/{finding_id}/revisions/{revision}", {
       params: { path: { finding_id: "finding:quest:dead-end", revision: 7 } },

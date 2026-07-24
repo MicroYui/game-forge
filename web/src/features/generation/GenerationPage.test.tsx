@@ -155,6 +155,28 @@ function api(overrides: Partial<GenerationApi> = {}): GenerationApi {
     listExecutionProfiles: vi.fn(async () =>
       page([generationProfile, environmentProfile, exportProfile], "read:profiles"),
     ),
+    listReplaySourceRuns: vi.fn(async () =>
+      page(
+        [
+          {
+            attempt_no: 1,
+            completedAt: "2026-07-23T03:47:50Z",
+            events_url: "/api/v1/runs/run:cassette:source/events",
+            failure_artifact_id: null,
+            outcomeCode: "candidate_generated",
+            result_artifact_id: "artifact:result:generation-source",
+            revision: 3,
+            runKind: { kind: "generation.propose", version: 1 },
+            run_id: "run:cassette:source",
+            status: "succeeded" as const,
+            status_url: "/api/v1/runs/run:cassette:source",
+            terminal_cassette_artifact_id: "artifact:cassette:generation",
+            view_schema_version: "run-view@1" as const,
+          },
+        ],
+        "read:runs",
+      ),
+    ),
     listSpecs: vi.fn(async () => page([spec], "read:specs")),
     proposeGeneration: vi.fn<GenerationApi["proposeGeneration"]>(async () => ({
       accepted_schema_version: "run-accepted@1",
@@ -196,16 +218,78 @@ async function fillExactGenerationForm(user: ReturnType<typeof userEvent.setup>)
     "builtin.aureus_env@1",
   );
   await user.click(screen.getByRole("checkbox", { name: "builtin.aureus_csv · builtin.aureus_csv@1" }));
-  await user.type(screen.getByRole("textbox", { name: "Domain IDs" }), "domain:economy");
+  await user.click(screen.getByRole("checkbox", { name: "经济系统" }));
   await user.type(
     screen.getByRole("textbox", { name: "Authenticated authoring goal" }),
     "将前哨奖励限制在确定性经济约束内。",
   );
   await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
-  await user.type(screen.getByRole("textbox", { name: "Replay source Run" }), "run:cassette:source");
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Replay source Run" }),
+    "run:cassette:source",
+  );
 }
 
 describe("GenerationPage", () => {
+  it("does not offer an unbound snapshot where an exact ref-bound Spec is required", async () => {
+    const unbound = {
+      ...spec,
+      artifact: artifact("artifact:spec:unbound", "ir_snapshot", "ir-core@1"),
+      ref_name: null,
+      ref_value: null,
+      snapshot_id: "snapshot:unbound",
+    };
+    renderPage(api({ listSpecs: vi.fn(async () => page([unbound, spec], "read:specs")) }));
+
+    await screen.findByRole("combobox", { name: "Base Spec / ref" });
+    expect(screen.queryByRole("option", { name: "未绑定发布指针 · registry@3" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+  });
+
+  it("presents readable searchable authority choices instead of raw identifiers", async () => {
+    const user = userEvent.setup();
+    renderPage(api());
+
+    expect(await screen.findByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "0 条规则 · dsl@1" })).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Domain IDs" })).not.toBeInTheDocument();
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Generation profile" }),
+      "builtin.generation@1",
+    );
+    expect(screen.getByRole("checkbox", { name: "经济系统" })).toBeVisible();
+
+    await user.type(screen.getByRole("searchbox", { name: "搜索可用规格" }), "not-found");
+    expect(screen.queryByRole("option", { name: "refs/specs/economy · 第 8 版" })).not.toBeInTheDocument();
+    await user.clear(screen.getByRole("searchbox", { name: "搜索可用规格" }));
+    expect(screen.getByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+  });
+
+  it("adds a compact immutable identity only when constraint summaries collide", async () => {
+    const older = {
+      ...constraint,
+      artifact: {
+        ...constraint.artifact,
+        artifact_id: "sha256:11111111111111111111111111111111111111111111111111111111aaaabbbb",
+        created_at: "2026-07-22T08:38:57Z",
+      },
+    };
+    const current = {
+      ...constraint,
+      artifact: {
+        ...constraint.artifact,
+        artifact_id: "sha256:22222222222222222222222222222222222222222222222222222222ccccdddd",
+        created_at: "2026-07-23T01:34:39Z",
+      },
+    };
+    renderPage(api({ listConstraints: vi.fn(async () => page([older, current], "read:constraints")) }));
+
+    expect(
+      await screen.findByRole("option", { name: "0 条规则 · dsl@1 · 2026-07-22 · …aaaabbbb" }),
+    ).toBeVisible();
+    expect(screen.getByRole("option", { name: "0 条规则 · dsl@1 · 2026-07-23 · …ccccdddd" })).toBeVisible();
+  });
+
   it("restarts a catalog only after the operator confirms an expired cursor", async () => {
     const listSpecs = vi
       .fn<GenerationApi["listSpecs"]>()
@@ -238,7 +322,7 @@ describe("GenerationPage", () => {
     expect(listSpecs).toHaveBeenCalledTimes(2);
 
     await user.click(screen.getByRole("button", { name: "从首屏重读 Base Specs" }));
-    expect(await screen.findByRole("option", { name: /artifact:spec:economy/ })).toBeVisible();
+    expect(await screen.findByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
     expect(listSpecs).toHaveBeenLastCalledWith(null);
   });
 
@@ -337,7 +421,7 @@ describe("GenerationPage", () => {
 
     await user.click(await screen.findByRole("button", { name: "加载更多 Base Specs" }));
 
-    expect(await screen.findByRole("option", { name: /artifact:spec:economy/ })).toBeVisible();
+    expect(await screen.findByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
     expect(listSpecs).toHaveBeenNthCalledWith(1, null);
     expect(listSpecs).toHaveBeenNthCalledWith(2, "cursor:specs:2");
   });
@@ -395,7 +479,8 @@ describe("GenerationPage", () => {
       },
       { idempotencyKey: expect.any(String) },
     );
-    expect(await screen.findByRole("heading", { name: "运行 run:generation:1" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "生成结果" })).toBeVisible();
+    expect(screen.getAllByText("run:generation:1").some((item) => item.tagName === "CODE")).toBe(true);
   });
 
   it("retries an unknown generation outcome with the frozen resolved body and same intent", async () => {

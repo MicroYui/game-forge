@@ -17,6 +17,7 @@ import {
   verifyPatchApplyResult,
   verifyRollbackApplyResult,
   verifyPatchWorkflowAuthority,
+  verifyReplacementChain,
   verifyReplacementRevision,
   verifyRollbackWorkflowAuthority,
 } from "./authority";
@@ -399,6 +400,19 @@ describe("Patch workflow authority", () => {
     }
 
     expect(() => verifyReplacementRevision(previous, replacement)).not.toThrow();
+
+    const validating = structuredClone(replacement);
+    validating.subject.approval_status = "validating";
+    validating.subject.validation_status = "running";
+    validating.subject.workflow_revision = 2;
+    validating.binding.approval_status = "validating";
+    validating.binding.workflow_revision = 2;
+    validating.approval.approval.status = "validating";
+    validating.approval.approval.workflow_revision = 2;
+    validating.approval.approval.active_validation_run_id = "run:patch:validation";
+
+    expect(() => verifyReplacementChain(previous, validating)).not.toThrow();
+    expect(() => verifyReplacementRevision(previous, validating)).toThrow(PatchAuthorityError);
 
     replacement.approval.approval.decisions = [
       {

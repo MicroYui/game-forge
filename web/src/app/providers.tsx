@@ -11,7 +11,7 @@ import {
 } from "react";
 import { X } from "lucide-react";
 
-import type { GameForgeApi } from "../api/client";
+import type { GameForgeApi, LoginOptions } from "../api/client";
 import { createMutationIntent } from "../api/csrf";
 import { ApiProblemError } from "../api/problem";
 import { gameForgeApi, subscribeSessionBoundary } from "../api/runtime";
@@ -28,7 +28,7 @@ type AuthState =
   | { status: "error"; principal: null; error: Error };
 
 type AuthContextValue = AuthState & {
-  login(request: PasswordAuthRequest): Promise<void>;
+  login(request: PasswordAuthRequest, options?: LoginOptions): Promise<void>;
   logout(): Promise<void>;
   refresh(): Promise<void>;
   expireSession(): void;
@@ -77,8 +77,9 @@ export function AuthProvider({
   const value = useMemo<AuthContextValue>(
     () => ({
       ...state,
-      async login(request) {
-        await api.login(request);
+      async login(request, options) {
+        if (options === undefined) await api.login(request);
+        else await api.login(request, options);
         const principal = await api.me();
         setState({ error: null, principal, status: "authenticated" });
       },

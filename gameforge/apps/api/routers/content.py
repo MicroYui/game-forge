@@ -536,7 +536,7 @@ def content_read_router(
         return value
 
     @router.get(
-        "/refs/{ref_name}/history",
+        "/refs/{ref_name:path}/history",
         response_model=OpaquePageV1[RefHistoryEntryV1],
     )
     def ref_history(
