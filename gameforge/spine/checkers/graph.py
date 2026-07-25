@@ -32,6 +32,7 @@ from typing import Any, Callable
 
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.ir import EdgeType, NodeType, Relation
+from gameforge.spine.event_lifecycle import EventLifecycleChecker
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import IRGraph, NavProvider
 
@@ -262,6 +263,10 @@ class GraphChecker:
             emit,
         )
         self._isolated_node(g, emit)
+        # Limited-event ownership and availability are graph semantics too. Keep
+        # them under the trusted graph checker route so publication and generation
+        # execute the same deterministic lifecycle rules.
+        findings.extend(EventLifecycleChecker().check(snapshot))
         return findings
 
     # --- 1. dangling_reference ---

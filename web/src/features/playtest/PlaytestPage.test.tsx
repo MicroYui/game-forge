@@ -39,8 +39,14 @@ const PLAYTEST_RUN_ID = "run:playtest:live";
 const SNAPSHOT_ID = "snapshot:playtest";
 const CONSTRAINT_SNAPSHOT_ID = "constraint-snapshot:playtest";
 const ENV_PROFILE = { profile_id: "builtin.environment", version: 1 } as const;
-const DERIVATION_PROFILE = { profile_id: "builtin.task_suite_derivation", version: 2 } as const;
-const PLANNER_PROFILE = { profile_id: "builtin.playtest_planner", version: 2 } as const;
+const DERIVATION_PROFILE = {
+  profile_id: "builtin.task_suite_derivation",
+  version: 2,
+} as const;
+const PLANNER_PROFILE = {
+  profile_id: "builtin.playtest_planner",
+  version: 2,
+} as const;
 const ORACLE_REF = { digest: "a".repeat(64), registry_version: 1 } as const;
 
 function summary(
@@ -365,7 +371,9 @@ function api(overrides: Partial<PlaytestApi> = {}): PlaytestApi {
     getRun: vi.fn(async (runId) => run(runId)),
     getSpec: vi.fn(
       async (): Promise<Awaited<ReturnType<PlaytestApi["getSpec"]>>> => ({
-        artifact: summary(PREVIEW_ID, "ir_snapshot", "ir-core@1", { ir_snapshot_id: SNAPSHOT_ID }),
+        artifact: summary(PREVIEW_ID, "ir_snapshot", "ir-core@1", {
+          ir_snapshot_id: SNAPSHOT_ID,
+        }),
         ref_name: null,
         ref_value: null,
         schema_registry_version: "ir-core@1",
@@ -542,6 +550,42 @@ function renderUnmountablePage(playtestApi: PlaytestApi, path: string) {
 const contextPath = `/playtest?sourceRun=${encodeURIComponent(SOURCE_RUN_ID)}&preview=${encodeURIComponent(PREVIEW_ID)}&config=${encodeURIComponent(CONFIG_ID)}&constraint=${encodeURIComponent(CONSTRAINT_ID)}`;
 
 describe("Playtest page", () => {
+  it("limits the candidate catalog to the exact current project content and constraint", async () => {
+    const otherConfigId = "artifact:config:other-project";
+    const otherPreviewId = "artifact:preview:other-project";
+    const otherConfig = configArtifact();
+    otherConfig.artifact = {
+      ...otherConfig.artifact,
+      artifact_id: otherConfigId,
+    };
+    otherConfig.payload = {
+      ...(otherConfig.payload as Record<string, unknown>),
+      source_preview_artifact_id: otherPreviewId,
+    };
+    const playtestApi = api({
+      getArtifact: vi.fn(async (artifactId) =>
+        artifactId === otherConfigId ? otherConfig : configArtifact(),
+      ),
+      listConfigExports: vi.fn(async () =>
+        page([otherConfig.artifact, configArtifact().artifact], "read:config-exports:project"),
+      ),
+      listTaskSuites: vi.fn(async () => page([], "read:suites:project")),
+    });
+    const query = new URLSearchParams({
+      project: "project:sky-harbor",
+      projectConstraint: CONSTRAINT_ID,
+      projectContent: PREVIEW_ID,
+      projectName: "天空港",
+    });
+    renderPage(playtestApi, `/playtest?${query.toString()}`);
+
+    expect(await screen.findByText("只显示天空港项目当前版本可用的试玩配置")).toBeVisible();
+    const catalog = screen.getByRole("region", { name: "选择待试玩候选" });
+    expect(await within(catalog).findAllByRole("button", { name: /准备内容候选/ })).toHaveLength(1);
+    expect(within(catalog).getByText(CONFIG_ID)).not.toBeVisible();
+    expect(within(catalog).queryByText(otherConfigId)).not.toBeInTheDocument();
+  });
+
   it("lets the ordinary entry select an exact config candidate without copying IDs or leaving the tab", async () => {
     const user = userEvent.setup();
     const listConfigExports = vi.fn(async () =>
@@ -553,10 +597,12 @@ describe("Playtest page", () => {
     });
     renderPageWithLocation(playtestApi, "/playtest");
 
-    const catalog = await screen.findByRole("region", { name: "选择待试玩候选" });
-    expect(await within(catalog).findByText(CONFIG_ID)).toBeInTheDocument();
-    expect(await within(catalog).findByText("builtin.environment@1")).toBeVisible();
-    await user.click(within(catalog).getByRole("button", { name: `使用配置 ${CONFIG_ID}` }));
+    const catalog = await screen.findByRole("region", {
+      name: "选择待试玩候选",
+    });
+    expect(await within(catalog).findByText(CONFIG_ID)).not.toBeVisible();
+    expect(await within(catalog).findByText("默认试玩环境")).toBeVisible();
+    await user.click(within(catalog).getByRole("button", { name: "准备内容候选 · 03:00" }));
 
     await waitFor(() => {
       const location = screen.getByTestId("location-probe").textContent ?? "";
@@ -565,14 +611,40 @@ describe("Playtest page", () => {
       expect(location).toContain(`constraint=${encodeURIComponent(CONSTRAINT_ID)}`);
       expect(location).toContain("action=derive");
     });
-    expect(await screen.findByRole("region", { name: "候选绑定账本" })).toBeVisible();
-    expect(await screen.findByRole("button", { name: "派生 exact TaskSuite" })).toBeEnabled();
+    expect(await screen.findByRole("region", { name: "本次试玩内容" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "创建试玩任务" })).toBeEnabled();
     expect(listConfigExports).toHaveBeenCalledWith(null);
+  });
+
+  it("does not announce a permanent context restore after an exact task suite is ready", async () => {
+    const aureusSuite: TaskSuiteArtifactView = {
+      ...suite,
+      task_suite: {
+        ...suite.task_suite,
+        environment_profile: { profile_id: "builtin.aureus_env", version: 1 },
+      },
+    };
+    renderPage(
+      api({
+        getTaskSuite: vi.fn(async () => aureusSuite),
+        listTaskSuites: vi.fn(async () => page([aureusSuite], "read:suites:aureus")),
+      }),
+      `/playtest?suite=${encodeURIComponent(SUITE_ID)}`,
+    );
+
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    expect(launch).toBeVisible();
+    expect(await screen.findByText("默认试玩环境")).toBeVisible();
+    expect(screen.getByText(/builtin\.aureus_env/u)).not.toBeVisible();
+    expect(screen.queryByRole("heading", { name: "正在恢复自动试玩上下文" })).not.toBeInTheDocument();
   });
 
   it("fails closed when a catalog candidate does not match its immutable ConfigExport payload", async () => {
     const mismatched = configArtifact();
-    mismatched.artifact = { ...mismatched.artifact, artifact_id: "artifact:config:other" };
+    mismatched.artifact = {
+      ...mismatched.artifact,
+      artifact_id: "artifact:config:other",
+    };
     const playtestApi = api({
       getArtifact: vi.fn(async () => mismatched),
       listConfigExports: vi.fn(async () => page([configArtifact().artifact], "read:config-exports:mismatch")),
@@ -590,7 +662,9 @@ describe("Playtest page", () => {
       ...page([], "read:commands:cycle"),
       next_cursor: "cursor:commands:cycle",
     };
-    const playtestApi = api({ listRunCommands: vi.fn(async () => commandPage) });
+    const playtestApi = api({
+      listRunCommands: vi.fn(async () => commandPage),
+    });
 
     await expect(collectRunCommands(playtestApi, PLAYTEST_RUN_ID)).rejects.toThrow(
       "Run command pagination returned a cursor cycle.",
@@ -603,13 +677,15 @@ describe("Playtest page", () => {
     renderPage(playtestApi, contextPath);
 
     expect(await screen.findByRole("heading", { level: 1, name: "自动试玩" })).toBeVisible();
-    const context = await screen.findByRole("region", { name: "候选绑定账本" });
-    expect(within(context).getByText(PREVIEW_ID)).toBeVisible();
-    expect(within(context).getByText(CONFIG_ID)).toBeVisible();
-    expect(within(context).getByText(CONSTRAINT_ID)).toBeVisible();
-    expect(within(context).getByText("builtin.environment@1")).toBeVisible();
-    expect(await screen.findByText(SUITE_ID)).toBeVisible();
-    expect(screen.getByText("2 episodes")).toBeVisible();
+    const context = await screen.findByRole("region", { name: "本次试玩内容" });
+    expect(within(context).getByText("候选内容已准备")).toBeVisible();
+    expect(within(context).getByText("规则已绑定")).toBeVisible();
+    expect(within(context).getByText("默认试玩环境")).toBeVisible();
+    for (const technicalId of [PREVIEW_ID, CONFIG_ID, CONSTRAINT_ID]) {
+      expect(within(context).getByText(technicalId)).not.toBeVisible();
+    }
+    expect(await screen.findByRole("heading", { name: "试玩任务集 1 · 2 个任务" })).toBeVisible();
+    expect(screen.getByText(SUITE_ID)).not.toBeVisible();
     await waitFor(() =>
       expect(playtestApi.listTaskSuites).toHaveBeenCalledWith(
         {
@@ -638,10 +714,10 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, contextPath);
 
-    expect(await screen.findByText(SUITE_ID)).toBeVisible();
+    expect(await screen.findByText(SUITE_ID)).not.toBeVisible();
     expect(screen.queryByText(SUITE_2_ID)).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "加载更多 TaskSuite" }));
-    expect(await screen.findByText(SUITE_2_ID)).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "加载更多试玩任务" }));
+    expect(await screen.findByText(SUITE_2_ID)).not.toBeVisible();
     expect(playtestApi.listTaskSuites).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ config_artifact_id: CONFIG_ID, limit: 100 }),
@@ -670,18 +746,21 @@ describe("Playtest page", () => {
     );
     const listTaskSuites = vi.fn(async (_filters, cursor: string | null) => {
       if (cursor !== null) throw expired;
-      return { ...page([suite], "read:suites:expiring"), next_cursor: "cursor:suites:2" };
+      return {
+        ...page([suite], "read:suites:expiring"),
+        next_cursor: "cursor:suites:2",
+      };
     });
     const playtestApi = api({ listTaskSuites });
     renderPage(playtestApi, contextPath);
 
     await screen.findByText(SUITE_ID);
-    await user.click(screen.getByRole("button", { name: "加载更多 TaskSuite" }));
+    await user.click(screen.getByRole("button", { name: "加载更多试玩任务" }));
     expect(await screen.findByRole("heading", { name: "TaskSuite 目录游标已过期" })).toBeVisible();
     await user.click(screen.getByRole("button", { name: "从第一页重新读取" }));
 
     await waitFor(() => expect(listTaskSuites).toHaveBeenLastCalledWith(expect.anything(), null));
-    expect(await screen.findByText(SUITE_ID)).toBeVisible();
+    expect(await screen.findByText(SUITE_ID)).not.toBeVisible();
   });
 
   it("derives a suite only from the exact public profile binding", async () => {
@@ -689,8 +768,8 @@ describe("Playtest page", () => {
     const playtestApi = api();
     renderPage(playtestApi, `${contextPath}&action=derive`);
 
-    await screen.findByRole("option", { name: /builtin\.task_suite_derivation@2/ });
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await screen.findByRole("option", { name: /标准试玩任务生成方案/ });
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
 
     await waitFor(() => expect(playtestApi.deriveTaskSuite).toHaveBeenCalledTimes(1));
     const [request] = vi.mocked(playtestApi.deriveTaskSuite).mock.calls[0];
@@ -706,7 +785,7 @@ describe("Playtest page", () => {
       },
       request_schema_version: "task-suite-derive-request@1",
     });
-    expect((await screen.findAllByText(DERIVE_RUN_ID))[0]).toBeVisible();
+    expect((await screen.findAllByText(DERIVE_RUN_ID))[0]).not.toBeVisible();
   });
 
   it("offers explicit route-preserving reauthentication when the current tab has no CSRF", async () => {
@@ -719,7 +798,7 @@ describe("Playtest page", () => {
     renderPage(playtestApi, `${contextPath}&action=derive`);
 
     await screen.findByText("builtin.task_suite_derivation@2");
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
 
     expect(await screen.findByRole("heading", { name: "需要重新登录" })).toBeVisible();
     expect(screen.getByRole("link", { name: "重新登录" })).toHaveAttribute("href", "/login");
@@ -734,10 +813,11 @@ describe("Playtest page", () => {
     const playtestApi = api({ getTaskSuiteDerivationBinding });
     renderPage(playtestApi, contextPath);
 
-    expect(await screen.findByRole("heading", { name: "派生 binding 不可用" })).toBeVisible();
-    await user.click(screen.getByRole("button", { name: "重试读取派生 binding" }));
+    expect(await screen.findByRole("heading", { name: "任务生成方案不可用" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "重试读取任务生成方案" }));
 
-    expect(await screen.findByText(`v${ORACLE_REF.registry_version} · ${ORACLE_REF.digest}`)).toBeVisible();
+    expect(await screen.findByText("已绑定确定性规则")).toBeVisible();
+    expect(screen.getByText(ORACLE_REF.digest)).not.toBeVisible();
     expect(getTaskSuiteDerivationBinding).toHaveBeenCalledTimes(2);
   });
 
@@ -751,10 +831,10 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, contextPath);
 
-    await screen.findByText(`v${ORACLE_REF.registry_version} · ${ORACLE_REF.digest}`);
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await screen.findByText("已绑定确定性规则");
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
 
-    expect(await screen.findByRole("heading", { name: "Playtest launch docket 无效" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "自动试玩设置无效" })).toBeVisible();
     expect(playtestApi.deriveTaskSuite).not.toHaveBeenCalled();
   });
 
@@ -781,7 +861,10 @@ describe("Playtest page", () => {
     const listExecutionProfiles = vi.fn(async (filters, cursor: string | null) => {
       if (filters.profile_kind === "task_suite_derivation") {
         if (cursor === null) {
-          return { ...page([], "read:profiles:derivation"), next_cursor: "cursor:profiles:2" };
+          return {
+            ...page([], "read:profiles:derivation"),
+            next_cursor: "cursor:profiles:2",
+          };
         }
         if (expireOnce) {
           expireOnce = false;
@@ -800,7 +883,7 @@ describe("Playtest page", () => {
     expect(await screen.findByRole("heading", { name: "Profile 目录游标已过期" })).toBeVisible();
     await user.click(screen.getByRole("button", { name: "从第一页重新读取 profile 目录" }));
 
-    expect(await screen.findByRole("button", { name: "派生 exact TaskSuite" })).toBeEnabled();
+    expect(await screen.findByRole("button", { name: "创建试玩任务" })).toBeEnabled();
     expect(
       listExecutionProfiles.mock.calls.filter(
         ([filters, cursor]) => filters.profile_kind === "task_suite_derivation" && cursor === null,
@@ -825,9 +908,13 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    expect(await screen.findByRole("heading", { name: "没有兼容的 Playtest planner" })).toBeVisible();
-    expect(screen.queryByRole("option", { name: /builtin\.playtest_planner@2/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "解析并启动 Playtest" })).toBeDisabled();
+    expect(
+      await screen.findByRole("heading", {
+        name: "没有兼容的 Playtest planner",
+      }),
+    ).toBeVisible();
+    expect(screen.queryByRole("option", { name: /标准 AI 试玩方案/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "开始自动试玩" })).toBeDisabled();
   });
 
   it("filters derivation profiles that do not cover the exact candidate domains", async () => {
@@ -851,15 +938,16 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, contextPath);
 
-    expect(
-      await screen.findByText("没有覆盖 exact candidate domain 的 active derivation profile。"),
-    ).toBeVisible();
+    expect(await screen.findByText("没有可用于当前候选内容的任务生成方案。")).toBeVisible();
     expect(playtestApi.getTaskSuiteDerivationBinding).not.toHaveBeenCalled();
   });
 
   it("offers replay_only planners only in replay mode", async () => {
     const user = userEvent.setup();
-    const replayOnlyPlanner = { ...plannerProfile, status: "replay_only" as const };
+    const replayOnlyPlanner = {
+      ...plannerProfile,
+      status: "replay_only" as const,
+    };
     const playtestApi = api({
       listExecutionProfiles: vi.fn(async (filters) =>
         page(
@@ -874,19 +962,19 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    expect(within(launch).queryByRole("option", { name: /标准 AI 试玩方案/ })).not.toBeInTheDocument();
+    await user.selectOptions(within(launch).getByLabelText("AI 运行方式"), "replay");
+    expect(await within(launch).findByRole("option", { name: /标准 AI 试玩方案/ })).toBeVisible();
+    expect(within(launch).queryByRole("textbox", { name: "回放来源" })).not.toBeInTheDocument();
     expect(
-      within(launch).queryByRole("option", { name: /builtin\.playtest_planner@2/ }),
-    ).not.toBeInTheDocument();
-    await user.selectOptions(within(launch).getByLabelText("LLM execution mode"), "replay");
-    expect(await within(launch).findByRole("option", { name: /builtin\.playtest_planner@2/ })).toBeVisible();
-    expect(within(launch).queryByRole("textbox", { name: "Replay source Run" })).not.toBeInTheDocument();
-    expect(await within(launch).findByRole("option", { name: /自动试玩.*laytest:source/ })).toBeVisible();
-    await user.selectOptions(within(launch).getByLabelText("LLM execution mode"), "record");
-    expect(
-      within(launch).queryByRole("option", { name: /builtin\.playtest_planner@2/ }),
-    ).not.toBeInTheDocument();
-    expect(within(launch).getByRole("button", { name: "解析并启动 Playtest" })).toBeDisabled();
+      await within(launch).findByRole("option", {
+        name: /自动试玩.*laytest:source/,
+      }),
+    ).toBeVisible();
+    await user.selectOptions(within(launch).getByLabelText("AI 运行方式"), "record");
+    expect(within(launch).queryByRole("option", { name: /标准 AI 试玩方案/ })).not.toBeInTheDocument();
+    expect(within(launch).getByRole("button", { name: "开始自动试玩" })).toBeDisabled();
   });
 
   it("recovers the exact TaskSuite from a succeeded derivation RunResult", async () => {
@@ -907,11 +995,11 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `${contextPath}&action=derive`);
 
-    await screen.findByRole("option", { name: /builtin\.task_suite_derivation@2/ });
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await screen.findByRole("option", { name: /标准试玩任务生成方案/ });
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
 
-    expect(await screen.findByRole("heading", { name: "Playtest launch docket" })).toBeVisible();
-    expect(screen.getAllByText(SUITE_ID)[0]).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "开始自动试玩" })).toBeVisible();
+    expect(screen.getAllByText(SUITE_ID)[0]).not.toBeVisible();
     expect(playtestApi.getArtifact).toHaveBeenCalledWith(DERIVE_RESULT_ID);
     expect(playtestApi.getTaskSuite).toHaveBeenCalledWith(SUITE_ID);
     expect(screen.queryByRole("link", { name: "查看 accepted 派生 Run" })).not.toBeInTheDocument();
@@ -932,7 +1020,7 @@ describe("Playtest page", () => {
     });
     renderPageWithHistory(playtestApi, `${contextPath}&deriveRun=${encodeURIComponent(DERIVE_RUN_ID)}`);
 
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(SUITE_ID);
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_ID);
     await user.click(screen.getByRole("button", { name: "返回上一条历史" }));
 
     await waitFor(() => expect(screen.getByTestId("location-probe")).toHaveTextContent("/before-playtest"));
@@ -957,7 +1045,11 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `${contextPath}&deriveRun=${encodeURIComponent(DERIVE_RUN_ID)}`);
 
-    expect(await screen.findByRole("heading", { name: "派生 TaskSuite authority 无法闭合" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", {
+        name: "派生 TaskSuite authority 无法闭合",
+      }),
+    ).toBeVisible();
     expect(getArtifact).not.toHaveBeenCalledWith(DERIVE_RESULT_ID);
   });
 
@@ -997,8 +1089,8 @@ describe("Playtest page", () => {
       `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}&deriveRun=${encodeURIComponent(DERIVE_RUN_ID)}`,
     );
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    fireEvent.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    fireEvent.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
     deriveRun = {
       ...run(DERIVE_RUN_ID, "succeeded"),
       result_artifact_id: DERIVE_RESULT_ID,
@@ -1007,14 +1099,14 @@ describe("Playtest page", () => {
       deriveStreamCallbacks?.onEvent?.(succeededEvent(DERIVE_RUN_ID, DERIVE_RESULT_ID), "2");
     });
 
-    expect(await screen.findByText(/新派生的 TaskSuite 已就绪/)).toBeVisible();
+    expect(await screen.findByText(/新任务已经准备好/)).toBeVisible();
     expect(screen.queryByText(/已作为明确选择载入/)).not.toBeInTheDocument();
-    expect(within(launch).getByText(SUITE_ID)).toBeVisible();
-    expect(screen.getByRole("button", { name: `选择新派生的 ${SUITE_2_ID}` })).toBeDisabled();
+    expect(within(launch).getByText(SUITE_ID)).not.toBeVisible();
+    expect(screen.getByRole("button", { name: `切换到新创建的试玩任务` })).toBeDisabled();
 
     resolveOption(executionOption);
     await waitFor(() => expect(playtestApi.runPlaytest).toHaveBeenCalledTimes(1));
-    expect(screen.getByRole("button", { name: `选择新派生的 ${SUITE_2_ID}` })).toBeEnabled();
+    expect(screen.getByRole("button", { name: `切换到新创建的试玩任务` })).toBeEnabled();
   });
 
   it("does not let an older derivation result replace a newly submitted derivation", async () => {
@@ -1050,8 +1142,8 @@ describe("Playtest page", () => {
       `${contextPath}&action=derive&deriveRun=${encodeURIComponent(DERIVE_RUN_ID)}`,
     );
 
-    await screen.findByRole("option", { name: /builtin\.task_suite_derivation@2/ });
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await screen.findByRole("option", { name: /标准试玩任务生成方案/ });
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
     await waitFor(() => expect(deriveTaskSuite).toHaveBeenCalledTimes(1));
     oldDeriveRun = {
       ...run(DERIVE_RUN_ID, "succeeded"),
@@ -1062,7 +1154,7 @@ describe("Playtest page", () => {
     });
 
     const recovered = await screen.findByRole("button", {
-      name: `选择新派生的 ${SUITE_2_ID}`,
+      name: `切换到新创建的试玩任务`,
     });
     expect(recovered).toBeDisabled();
     expect(screen.getByTestId("location-probe")).toHaveTextContent(
@@ -1087,7 +1179,7 @@ describe("Playtest page", () => {
     );
     expect(screen.queryByRole("link", { name: "查看 accepted 派生 Run" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: `选择新派生的 ${SUITE_2_ID}` }));
+    await user.click(screen.getByRole("button", { name: `切换到新创建的试玩任务` }));
     expect(screen.getByTestId("location-probe")).toHaveTextContent(
       `deriveRun=${encodeURIComponent(newDeriveRunId)}`,
     );
@@ -1113,10 +1205,10 @@ describe("Playtest page", () => {
       `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}&deriveRun=${encodeURIComponent(DERIVE_RUN_ID)}&run=${encodeURIComponent(PLAYTEST_RUN_ID)}`,
     );
 
-    expect(await screen.findByText(/新派生的 TaskSuite 已就绪/)).toBeVisible();
-    expect(screen.getByLabelText(`Playtest Run ${PLAYTEST_RUN_ID}`)).toBeVisible();
-    expect(screen.getByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(SUITE_ID);
-    expect(screen.getByRole("button", { name: `选择新派生的 ${SUITE_2_ID}` })).toBeEnabled();
+    expect(await screen.findByText(/新任务已经准备好/)).toBeVisible();
+    expect(screen.getByLabelText("自动试玩进度")).toBeVisible();
+    expect(screen.getByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_ID);
+    expect(screen.getByRole("button", { name: `切换到新创建的试玩任务` })).toBeEnabled();
   });
 
   it("consumes historical derivation recovery before a later explicit suite survives remount", async () => {
@@ -1138,20 +1230,18 @@ describe("Playtest page", () => {
       `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}&deriveRun=${encodeURIComponent(DERIVE_RUN_ID)}`,
     );
 
-    await screen.findByText(/新派生的 TaskSuite 已就绪/);
-    await userEvent.click(screen.getByRole("button", { name: `选择新派生的 ${SUITE_2_ID}` }));
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(
-      SUITE_2_ID,
-    );
-    await userEvent.click(screen.getByRole("button", { name: `选择 ${SUITE_ID}` }));
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(SUITE_ID);
+    await screen.findByText(/新任务已经准备好/);
+    await userEvent.click(screen.getByRole("button", { name: `切换到新创建的试玩任务` }));
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_2_ID);
+    await userEvent.click(screen.getByRole("button", { name: `选择第 1 组试玩任务` }));
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_ID);
     const remountPath = screen.getByTestId("location-probe").textContent!;
     expect(remountPath).not.toContain("deriveRun=");
 
     first.unmount();
     getRun.mockClear();
     renderPage(playtestApi, remountPath);
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(SUITE_ID);
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_ID);
     expect(getRun).not.toHaveBeenCalledWith(DERIVE_RUN_ID);
   });
 
@@ -1160,13 +1250,13 @@ describe("Playtest page", () => {
     const playtestApi = api();
     renderPage(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    const signal = within(launch).getByRole("checkbox", { name: /episode:signal/ });
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    const signal = within(launch).getByRole("checkbox", { name: /任务 2/ });
     await user.click(signal);
     await user.clear(within(launch).getByLabelText("每 episode 最大步数"));
     await user.type(within(launch).getByLabelText("每 episode 最大步数"), "7");
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
 
     await waitFor(() => expect(playtestApi.resolveExecutionOption).toHaveBeenCalledTimes(1));
     const [prospective] = vi.mocked(playtestApi.resolveExecutionOption).mock.calls[0];
@@ -1195,7 +1285,7 @@ describe("Playtest page", () => {
     const [resolved] = vi.mocked(playtestApi.runPlaytest).mock.calls[0];
     expect(resolved.execution_version_plan).toEqual(executionPlan);
     expect(resolved.cassette_artifact_id).toBeNull();
-    expect((await screen.findAllByText(PLAYTEST_RUN_ID))[0]).toBeVisible();
+    expect((await screen.findAllByText(PLAYTEST_RUN_ID))[0]).not.toBeVisible();
   });
 
   it("rejects a resolved execution option whose domain differs from the exact TaskSuite", async () => {
@@ -1208,9 +1298,9 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
 
     expect(await screen.findByRole("heading", { name: "执行选项未解析" })).toBeVisible();
     expect(playtestApi.runPlaytest).not.toHaveBeenCalled();
@@ -1227,9 +1317,9 @@ describe("Playtest page", () => {
     const playtestApi = api({ resolveExecutionOption });
     renderPage(playtestApi, contextPath);
 
-    fireEvent.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    const submit = within(launch).getByRole("button", { name: "解析并启动 Playtest" });
+    fireEvent.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    const submit = within(launch).getByRole("button", { name: "开始自动试玩" });
     fireEvent.click(submit);
     fireEvent.click(submit);
 
@@ -1254,8 +1344,8 @@ describe("Playtest page", () => {
     });
     renderPageWithRouteControls(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    await user.click(screen.getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    await user.click(screen.getByRole("button", { name: "开始自动试玩" }));
     await user.click(screen.getByRole("button", { name: "写入新 query" }));
     resolveOption(executionOption);
 
@@ -1281,12 +1371,10 @@ describe("Playtest page", () => {
     });
     renderPageWithRouteControls(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
     await user.click(screen.getByRole("button", { name: "外部切换 suite owner" }));
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(
-      SUITE_2_ID,
-    );
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_2_ID);
     resolveOption(executionOption);
 
     await waitFor(() => expect(playtestApi.resolveExecutionOption).toHaveBeenCalledTimes(1));
@@ -1306,8 +1394,8 @@ describe("Playtest page", () => {
     const playtestApi = api({ runPlaytest });
     renderPageWithRouteControls(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
     await waitFor(() => expect(runPlaytest).toHaveBeenCalledTimes(1));
     await user.click(screen.getByRole("button", { name: "外部切换 Playtest Run" }));
     resolveRun({
@@ -1338,8 +1426,8 @@ describe("Playtest page", () => {
     const playtestApi = api({ deriveTaskSuite });
     renderPageWithRouteControls(playtestApi, `${contextPath}&action=derive`);
 
-    await screen.findByRole("option", { name: /builtin\.task_suite_derivation@2/ });
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await screen.findByRole("option", { name: /标准试玩任务生成方案/ });
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
     await waitFor(() => expect(deriveTaskSuite).toHaveBeenCalledTimes(1));
     await user.click(screen.getByRole("button", { name: "外部切换派生 Run" }));
     resolveRun({
@@ -1378,8 +1466,8 @@ describe("Playtest page", () => {
     const playtestApi = api({ getTaskSuite, runPlaytest });
     renderPageWithRouteControls(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
     await waitFor(() => expect(runPlaytest).toHaveBeenCalledTimes(1));
     await user.click(screen.getByRole("button", { name: "外部切换 suite owner" }));
     await waitFor(() => expect(getTaskSuite).toHaveBeenCalledWith(SUITE_2_ID));
@@ -1399,9 +1487,7 @@ describe("Playtest page", () => {
     await act(async () => {
       resolveSecondSuite(secondSuite);
     });
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(
-      SUITE_2_ID,
-    );
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_2_ID);
     expect(screen.getByRole("link", { name: "查看 accepted Run" })).toHaveAttribute(
       "href",
       `/runs/${encodeURIComponent(PLAYTEST_RUN_ID)}`,
@@ -1416,17 +1502,17 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
-    await screen.findByLabelText(`Playtest Run ${PLAYTEST_RUN_ID}`);
-    await user.click(screen.getByRole("button", { name: `选择 ${SUITE_2_ID}` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
+    await screen.findByLabelText("自动试玩进度");
+    await user.click(screen.getByRole("button", { name: `选择第 2 组试玩任务` }));
     expect(await screen.findByRole("link", { name: "查看 accepted Run" })).toHaveAttribute(
       "href",
       `/runs/${encodeURIComponent(PLAYTEST_RUN_ID)}`,
     );
 
-    await user.click(screen.getByRole("button", { name: `选择 ${SUITE_ID}` }));
-    expect(await screen.findByRole("region", { name: "Playtest launch docket" })).toHaveTextContent(SUITE_ID);
+    await user.click(screen.getByRole("button", { name: `选择第 1 组试玩任务` }));
+    expect(await screen.findByRole("region", { name: "开始自动试玩" })).toHaveTextContent(SUITE_ID);
     expect(screen.getByRole("link", { name: "查看 accepted Run" })).toHaveAttribute(
       "href",
       `/runs/${encodeURIComponent(PLAYTEST_RUN_ID)}`,
@@ -1445,8 +1531,8 @@ describe("Playtest page", () => {
     const playtestApi = api({ runPlaytest });
     renderUnmountablePage(playtestApi, `${contextPath}&suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
     await waitFor(() => expect(runPlaytest).toHaveBeenCalledTimes(1));
     await user.click(screen.getByRole("button", { name: "卸载 Playtest 页面" }));
     resolveRun({
@@ -1465,12 +1551,12 @@ describe("Playtest page", () => {
     const playtestApi = api();
     renderPage(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.clear(within(launch).getByLabelText("Seed"));
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.clear(within(launch).getByLabelText("随机种子"));
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
 
-    expect(await screen.findByRole("heading", { name: "Playtest launch docket 无效" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "自动试玩设置无效" })).toBeVisible();
     expect(playtestApi.resolveExecutionOption).not.toHaveBeenCalled();
     expect(playtestApi.runPlaytest).not.toHaveBeenCalled();
   });
@@ -1489,15 +1575,15 @@ describe("Playtest page", () => {
     const playtestApi = api({ runPlaytest });
     renderPage(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
 
-    expect(await within(launch).findByRole("button", { name: "重试同一 Playtest intent" })).toBeVisible();
+    expect(await within(launch).findByRole("button", { name: "重试同一次启动" })).toBeVisible();
     expect(within(launch).getByLabelText("每 episode 最大步数")).toBeDisabled();
     const [firstRequest, firstIntent] = runPlaytest.mock.calls[0];
 
-    await user.click(within(launch).getByRole("button", { name: "重试同一 Playtest intent" }));
+    await user.click(within(launch).getByRole("button", { name: "重试同一次启动" }));
 
     await waitFor(() => expect(runPlaytest).toHaveBeenCalledTimes(2));
     expect(playtestApi.resolveExecutionOption).toHaveBeenCalledTimes(1);
@@ -1520,7 +1606,7 @@ describe("Playtest page", () => {
     renderPage(playtestApi, `${contextPath}&action=derive`);
 
     await screen.findByText("builtin.task_suite_derivation@2");
-    await user.click(screen.getByRole("button", { name: "派生 exact TaskSuite" }));
+    await user.click(screen.getByRole("button", { name: "创建试玩任务" }));
 
     expect(await screen.findByRole("button", { name: "重试同一派生 intent" })).toBeVisible();
     const [firstRequest, firstIntent] = deriveTaskSuite.mock.calls[0];
@@ -1536,14 +1622,14 @@ describe("Playtest page", () => {
     const playtestApi = api();
     renderPage(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
     for (const checkbox of within(launch).getAllByRole("checkbox")) {
       await user.click(checkbox);
     }
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
 
-    expect(await screen.findByRole("heading", { name: "Playtest launch docket 无效" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "自动试玩设置无效" })).toBeVisible();
     expect(playtestApi.resolveExecutionOption).not.toHaveBeenCalled();
     expect(playtestApi.runPlaytest).not.toHaveBeenCalled();
   });
@@ -1567,16 +1653,19 @@ describe("Playtest page", () => {
     const playtestApi = api({ runPlaytest: vi.fn().mockRejectedValue(stale) });
     renderPage(playtestApi, contextPath);
 
-    await user.click(await screen.findByRole("button", { name: `选择 ${SUITE_ID}` }));
-    await user.click(screen.getByRole("button", { name: "解析并启动 Playtest" }));
+    await user.click(await screen.findByRole("button", { name: `选择第 1 组试玩任务` }));
+    await user.click(screen.getByRole("button", { name: "开始自动试玩" }));
 
-    expect(await screen.findByText("stale_task_suite")).toBeVisible();
-    expect(screen.getAllByText(SUITE_ID)[0]).toBeVisible();
-    const rederive = screen.getByRole("button", { name: "按当前候选重新派生 TaskSuite" });
+    expect(await screen.findByRole("heading", { name: "内容已被更新" })).toBeVisible();
+    expect(screen.getByText("stale_task_suite")).not.toBeVisible();
+    expect(screen.getAllByText(SUITE_ID)[0]).not.toBeVisible();
+    const rederive = screen.getByRole("button", {
+      name: "按当前候选重新派生 TaskSuite",
+    });
     expect(rederive).toBeVisible();
     expect(playtestApi.deriveTaskSuite).not.toHaveBeenCalled();
     await user.click(rederive);
-    expect(await screen.findByText(/已切换到显式重新派生/)).toBeVisible();
+    expect(await screen.findByText(/将为当前候选重新创建一组任务/)).toBeVisible();
     expect(playtestApi.deriveTaskSuite).not.toHaveBeenCalled();
   });
 
@@ -1599,14 +1688,18 @@ describe("Playtest page", () => {
     const playtestApi = api({ runPlaytest: vi.fn().mockRejectedValue(stale) });
     renderPage(playtestApi, `/playtest?suite=${encodeURIComponent(SUITE_ID)}`);
 
-    const launch = await screen.findByRole("region", { name: "Playtest launch docket" });
-    await user.click(within(launch).getByRole("button", { name: "解析并启动 Playtest" }));
-    await user.click(await screen.findByRole("button", { name: "按当前候选重新派生 TaskSuite" }));
+    const launch = await screen.findByRole("region", { name: "开始自动试玩" });
+    await user.click(within(launch).getByRole("button", { name: "开始自动试玩" }));
+    await user.click(
+      await screen.findByRole("button", {
+        name: "按当前候选重新派生 TaskSuite",
+      }),
+    );
 
     await waitFor(() => expect(playtestApi.getSpec).toHaveBeenCalledWith(PREVIEW_ID));
     expect(playtestApi.getConstraint).toHaveBeenCalledWith(CONSTRAINT_ID);
     expect(playtestApi.getArtifact).toHaveBeenCalledWith(CONFIG_ID);
-    expect(await screen.findByRole("heading", { name: "派生 TaskSuite" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "创建试玩任务" })).toBeVisible();
   });
 
   it("hard-blocks suite and Run authority when candidate URL context is partial", async () => {
@@ -1617,8 +1710,8 @@ describe("Playtest page", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "候选绑定无法闭合" })).toBeVisible();
-    expect(screen.queryByRole("region", { name: "Playtest launch docket" })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(`Playtest Run ${PLAYTEST_RUN_ID}`)).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "开始自动试玩" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("自动试玩进度")).not.toBeInTheDocument();
     expect(playtestApi.listTaskSuites).not.toHaveBeenCalled();
     expect(playtestApi.getTaskSuite).not.toHaveBeenCalled();
     expect(playtestApi.getRun).not.toHaveBeenCalled();
@@ -1640,7 +1733,7 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `/playtest?run=${encodeURIComponent(PLAYTEST_RUN_ID)}`);
 
-    expect(await screen.findByText("succeeded")).toBeVisible();
+    expect(await screen.findByText("已完成")).toBeVisible();
     expect(screen.queryByRole("heading", { name: "事件流连接中断" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "使用已保存 cursor 重连" })).not.toBeInTheDocument();
   });
@@ -1663,7 +1756,7 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `/playtest?run=${encodeURIComponent(PLAYTEST_RUN_ID)}`);
 
-    expect(await screen.findByText("succeeded")).toBeVisible();
+    expect(await screen.findByText("已完成")).toBeVisible();
     expect(screen.getByRole("heading", { name: "事件流连接中断" })).toBeVisible();
     expect(screen.getByRole("button", { name: "使用已保存 cursor 重连" })).toBeVisible();
   });
@@ -1684,9 +1777,10 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `/playtest?run=${encodeURIComponent(PLAYTEST_RUN_ID)}`);
 
-    const tracked = await screen.findByLabelText(`Playtest Run ${PLAYTEST_RUN_ID}`);
-    expect(await within(tracked).findAllByText(/attempt\.progress/)).toHaveLength(2);
-    expect(within(tracked).getByRole("progressbar")).toHaveAccessibleName("second");
+    const tracked = await screen.findByLabelText("自动试玩进度");
+    expect(await within(tracked).findAllByText(/进度更新/)).toHaveLength(2);
+    expect(within(tracked).getByRole("progressbar")).toHaveAccessibleName("处理中");
+    expect(within(tracked).getByText("second")).not.toBeVisible();
   });
 
   it("keeps a real stream error visible even when RunView is terminal", async () => {
@@ -1695,7 +1789,10 @@ describe("Playtest page", () => {
         close: vi.fn(),
         restart: vi.fn(async () => undefined),
         start: vi.fn(async () => {
-          callbacks.onStateChange({ error: new Error("invalid terminal frame"), status: "error" });
+          callbacks.onStateChange({
+            error: new Error("invalid terminal frame"),
+            status: "error",
+          });
         }),
       })),
       getRun: vi.fn(async () => ({
@@ -1705,7 +1802,7 @@ describe("Playtest page", () => {
     });
     renderPage(playtestApi, `/playtest?run=${encodeURIComponent(PLAYTEST_RUN_ID)}`);
 
-    expect(await screen.findByText("succeeded")).toBeVisible();
+    expect(await screen.findByText("已完成")).toBeVisible();
     expect(screen.getByRole("heading", { name: "事件流连接中断" })).toBeVisible();
     expect(screen.getByRole("button", { name: "使用已保存 cursor 重连" })).toBeVisible();
   });

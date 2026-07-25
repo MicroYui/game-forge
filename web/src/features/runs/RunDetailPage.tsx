@@ -6,6 +6,7 @@ import type { RunEvent } from "../../api/generated/sse-run-event-v1";
 import { CursorExpiredError, cursorFromPage } from "../../api/pagination";
 import { createBrowserRunCommandClient } from "../../api/runtime";
 import type { RunEventStreamState } from "../../api/sse";
+import { compactDateTime, TechnicalDetails } from "../../components/identity";
 import { RunCommandControls, RunProgress, type RunEventItem } from "../../components/run-progress";
 import {
   runDetailApi,
@@ -75,6 +76,29 @@ function findingHref(findingId: string, revision: number): string {
 function nullable(value: string | number | null | undefined): string | number {
   return value ?? "未绑定";
 }
+
+const runStatusLabels: Readonly<Record<string, string>> = {
+  cancelled: "已取消",
+  failed: "失败",
+  queued: "等待开始",
+  running: "进行中",
+  succeeded: "已完成",
+  timed_out: "已超时",
+};
+
+const findingSeverityLabels: Readonly<Record<string, string>> = {
+  critical: "严重",
+  major: "重要",
+  minor: "一般",
+};
+
+const findingStatusLabels: Readonly<Record<string, string>> = {
+  accepted_risk: "已接受风险",
+  confirmed: "已确认",
+  dismissed: "已忽略",
+  fixed: "已修复",
+  unproven: "未证明",
+};
 
 function collectionFromPage<T>(
   page: PageLike<T>,
@@ -181,26 +205,30 @@ function ManifestPanel({
         <>
           <dl>
             <div>
-              <dt>工件</dt>
-              <dd>{manifest.artifact.artifact_id}</dd>
+              <dt>记录类型</dt>
+              <dd>{label}</dd>
             </div>
             <div>
-              <dt>类型</dt>
-              <dd>{manifest.artifact.kind}</dd>
-            </div>
-            <div>
-              <dt>Payload schema</dt>
-              <dd>{nullable(manifest.artifact.payload_schema_id)}</dd>
-            </div>
-            <div>
-              <dt>Payload hash</dt>
-              <dd>{nullable(manifest.artifact.payload_hash)}</dd>
+              <dt>创建时间</dt>
+              <dd>{compactDateTime(manifest.artifact.created_at)}</dd>
             </div>
           </dl>
           <a href={artifactHref(manifest.artifact.artifact_id)}>{linkLabel}</a>
-          <pre aria-label={`${label} payload`} tabIndex={0}>
-            {JSON.stringify(manifest.payload, null, 2)}
-          </pre>
+          <TechnicalDetails
+            items={[
+              { label: "记录 ID", value: manifest.artifact.artifact_id },
+              { label: "类型代码", value: manifest.artifact.kind },
+              { label: "数据格式", value: String(nullable(manifest.artifact.payload_schema_id)) },
+              { label: "完整性摘要", value: String(nullable(manifest.artifact.payload_hash)) },
+            ]}
+            summary="查看记录技术信息"
+          />
+          <details>
+            <summary>查看原始结果数据</summary>
+            <pre aria-label={`${label} payload`} tabIndex={0}>
+              {JSON.stringify(manifest.payload, null, 2)}
+            </pre>
+          </details>
         </>
       )}
     </section>
@@ -365,8 +393,9 @@ export function RunDetailPage({
   return (
     <div className="gf-page">
       <header>
-        <p>权威 RunView · {run.view_schema_version}</p>
-        <h1>运行 {run.run_id}</h1>
+        <p>任务执行记录</p>
+        <h1>运行详情</h1>
+        <p>这里汇总本次运行的进度、检查结果与可追溯证据。</p>
       </header>
 
       <section aria-labelledby="run-view-title">
@@ -374,37 +403,29 @@ export function RunDetailPage({
         <dl>
           <div>
             <dt>状态</dt>
-            <dd>{run.status}</dd>
+            <dd>{runStatusLabels[run.status] ?? run.status}</dd>
           </div>
           <div>
-            <dt>修订</dt>
-            <dd>{run.revision}</dd>
+            <dt>进度版本</dt>
+            <dd>第 {run.revision} 版</dd>
           </div>
           <div>
-            <dt>Attempt</dt>
-            <dd>{nullable(run.attempt_no)}</dd>
-          </div>
-          <div>
-            <dt>状态资源</dt>
-            <dd>{run.status_url}</dd>
-          </div>
-          <div>
-            <dt>事件资源</dt>
-            <dd>{run.events_url}</dd>
-          </div>
-          <div>
-            <dt>结果工件</dt>
-            <dd>{nullable(run.result_artifact_id)}</dd>
-          </div>
-          <div>
-            <dt>失败清单</dt>
-            <dd>{nullable(run.failure_artifact_id)}</dd>
-          </div>
-          <div>
-            <dt>终态 cassette</dt>
-            <dd>{nullable(run.terminal_cassette_artifact_id)}</dd>
+            <dt>执行次数</dt>
+            <dd>{run.attempt_no == null ? "尚未开始" : `第 ${run.attempt_no} 次`}</dd>
           </div>
         </dl>
+        <TechnicalDetails
+          items={[
+            { label: "运行 ID", value: run.run_id },
+            { label: "运行视图版本", value: run.view_schema_version },
+            { label: "状态资源", value: run.status_url },
+            { label: "事件资源", value: run.events_url },
+            { label: "结果记录 ID", value: String(nullable(run.result_artifact_id)) },
+            { label: "失败记录 ID", value: String(nullable(run.failure_artifact_id)) },
+            { label: "回放记录 ID", value: String(nullable(run.terminal_cassette_artifact_id)) },
+          ]}
+          summary="查看运行技术信息"
+        />
       </section>
 
       {streamState.status === "expired" && (
@@ -475,26 +496,35 @@ export function RunDetailPage({
       />
 
       <section aria-labelledby="run-findings-title">
-        <h2 id="run-findings-title">Findings</h2>
+        <h2 id="run-findings-title">发现的问题</h2>
         {findings.items.length === 0 ? (
           <p>此运行尚未发布 Finding。</p>
         ) : (
           <ol>
-            {findings.items.map((finding) => (
+            {findings.items.map((finding, index) => (
               <li key={`${finding.finding_id}:${finding.revision}`}>
                 <a href={findingHref(finding.finding_id, finding.revision)}>
-                  {finding.finding_id} · r{finding.revision}
+                  {finding.payload.message} · 第 {index + 1} 条
                 </a>
                 <p>
-                  {finding.payload.oracle_type} · {finding.payload.severity} · {finding.payload.status}
+                  {findingSeverityLabels[finding.payload.severity] ?? finding.payload.severity} ·
+                  {findingStatusLabels[finding.payload.status] ?? finding.payload.status} · 第{" "}
+                  {finding.revision}版
                 </p>
-                <p>{finding.payload.message}</p>
+                <TechnicalDetails
+                  items={[
+                    { label: "问题 ID", value: finding.finding_id },
+                    { label: "检查方式代码", value: finding.payload.oracle_type },
+                    { label: "问题类型代码", value: finding.payload.defect_class },
+                  ]}
+                  summary="查看问题技术信息"
+                />
               </li>
             ))}
           </ol>
         )}
         <CollectionControls
-          label="Findings"
+          label="问题"
           onLoadMore={() =>
             void readCollectionPage(
               findings,
@@ -536,13 +566,17 @@ export function RunDetailPage({
           <p>此运行尚无可读追踪。</p>
         ) : (
           <ol>
-            {traces.items.map((trace) => (
+            {traces.items.map((trace, index) => (
               <li key={trace.trace_id}>
-                <a href={traceHref(trace.trace_id)}>{trace.trace_id}</a>
+                <a href={traceHref(trace.trace_id)}>查看运行追踪 {index + 1}</a>
                 <span>
-                  {" "}
-                  · {trace.status} · {trace.span_count} spans
+                  {" · "}
+                  {runStatusLabels[trace.status] ?? trace.status} · {trace.span_count} 个步骤
                 </span>
+                <TechnicalDetails
+                  items={[{ label: "追踪 ID", value: trace.trace_id }]}
+                  summary="查看追踪技术信息"
+                />
               </li>
             ))}
           </ol>

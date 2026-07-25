@@ -408,13 +408,13 @@ FROZEN_PROFILE_REQUIREMENT_SHAPES: Mapping[RunKindIdentity, tuple[tuple[str, str
 FROZEN_ACTIVE_RUN_KIND_IDENTITIES: frozenset[RunKindIdentity] = frozenset(FROZEN_RUN_KIND_SHAPES)
 FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxyType(
     {
-        ("artifact.migrate", 1): "64b10377ee297187af7277a25bb6df49498f0bfdb557e4bb2183a02b42ffb201",
-        ("bench.run", 1): "39ab96fe4f25dae12a31601e7714adf944f684ab6871b8e22f16728e7a796f3f",
+        ("artifact.migrate", 1): "bf8c117dc2e532b50b7f702533d0744f47d01d6ed6a65226dd1af78800024cef",
+        ("bench.run", 1): "c8bbedc9ed23d0ca5ec70e68c385b55019428c004d30a14736d36b7bfdd32549",
         ("checker.run", 1): "f4d08fbbe49b2986ee98de23e72ccf7336b3370934df037ebc2b9a0151ca4c80",
         (
             "constraint_proposal.propose",
             1,
-        ): "f95a551e8bc6713c29ca67139c0baa67136641f87b390e4896e63b604d954196",
+        ): "a976ed7bbb4604843d4c2b61267a9892ceb523d4b0e797c94fd2008701e6415e",
         (
             "constraint_proposal.validate",
             1,
@@ -423,15 +423,15 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
         (
             "generation.propose",
             1,
-        ): "a25a6abbf59620be59653cdeb932c53934d67062013422c08b11848634e88755",
-        ("patch.repair", 1): "7551bbf349d3e935c07e5cb51b50f8d3cd50aa60dc4394244bdd8aa2e4b35665",
+        ): "d589f884a98ab3361eed7de1812113b36b5c019810515de67133e44b85a1957b",
+        ("patch.repair", 1): "48e96d0526705361c0a0d7c46828e4099bceb733d17aa3de4ee3ed54733a62a1",
         ("patch.validate", 1): "dea532d0bdbd3d9b2a1a71aa8f1181736040a5e528a70c61bc4231d4a38e930d",
-        ("playtest.run", 1): "8daadbae06cf4dd841aabb55cd56c33eb9db6f6ddad5077e066d4a56652ff81d",
-        ("review.run", 1): "73c96e391ea668da37d745730fa86ffe8b8400be72c2382882c9ef09103cff3a",
+        ("playtest.run", 1): "1e94cb0700e8b4256d90682fde79b9cef665ed14a648f6f4400c619b15c660d8",
+        ("review.run", 1): "cfbaba65265bca06035ee2ac90a16009f18d593e8f1a0e6fa825a2a1ced2547b",
         (
             "rollback.validate",
             1,
-        ): "a288a1e965cbfc23864a8f201e040293f6a0c33418478bcc5c42f7e333e07a47",
+        ): "7f30e615c21196d5b3020df233c3f4238ad3a28b8ffe74723c90f632ae914a8c",
         ("simulation.run", 1): "54ff6e59819bebcd3dd434e58f0a9d2e3413771584b971aff28f8cc1882086ef",
         (
             "task_suite.derive",

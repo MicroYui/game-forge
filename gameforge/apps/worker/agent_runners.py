@@ -22,7 +22,10 @@ from typing import Callable
 
 from gameforge.agents.extraction.proposer import ExtractionProposer
 from gameforge.agents.generation.gate import _build_ops
-from gameforge.agents.generation.generator import ContentGenerator
+from gameforge.agents.generation.generator import (
+    GENERATION_PROMPT_VERSION,
+    ContentGenerator,
+)
 from gameforge.agents.repair.search import RepairPromptRoundContext, repair_search
 from gameforge.agents.repair.verify import VerifyResult
 from gameforge.contracts.agent_io import ConstraintProposal
@@ -41,6 +44,14 @@ from gameforge.contracts.review import ReviewReport
 from gameforge.contracts.regression import RegressionCaseSeedManifestV1
 from gameforge.spine.checkers.base import Checker
 from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.identity_normalization import (
+    IdentityNormalizationResult,
+    normalize_typed_ops,
+)
+from gameforge.spine.ir_type_normalization import (
+    UnsupportedIrType,
+    normalize_typed_op_ir_types,
+)
 from gameforge.spine.patch import PatchRejected, apply_patch
 from gameforge.spine.sim.economy import (
     EconomyModel,
@@ -223,6 +234,48 @@ def _generation_unproven_simulation_finding(snapshot_id: str, reason_code: str) 
     )
 
 
+def _identity_normalization_finding(
+    snapshot_id: str,
+    result: IdentityNormalizationResult,
+) -> Finding:
+    """Retain the deterministic alias/conflict decision as ordinary gate evidence."""
+
+    evidence = {
+        "summary": result.summary.model_dump(mode="json"),
+        "alias_groups": [item.model_dump(mode="json") for item in result.alias_groups],
+        "blocking_conflicts": [item.model_dump(mode="json") for item in result.blocking_conflicts],
+    }
+    digest = canonical_sha256(
+        {
+            "evidence_schema_version": "identity-normalization-evidence@1",
+            "snapshot_id": snapshot_id,
+            **evidence,
+        }
+    )
+    blocked = bool(result.blocking_conflicts)
+    return Finding(
+        id=f"finding:identity-normalization:{digest}",
+        source="checker",
+        producer_id="identity-normalization@1",
+        producer_run_id="generation-gate",
+        oracle_type="deterministic",
+        defect_class="identity_normalization",
+        severity="major" if blocked else "minor",
+        snapshot_id=snapshot_id,
+        evidence=evidence,
+        minimal_repro={
+            "policy_version": result.summary.policy_version,
+            "input_operation_count": result.summary.input_operation_count,
+        },
+        status="confirmed" if blocked else "fixed",
+        message=(
+            "identity normalization requires human resolution"
+            if blocked
+            else "lexical aliases were normalized deterministically"
+        ),
+    )
+
+
 def _deterministic_finding_key(finding: Finding) -> str:
     """Semantic baseline identity for deterministic generation-gate findings.
 
@@ -367,6 +420,8 @@ class M2GenerationAgentRunner:
     checker_factory: CheckerFactory
 
     def run(self, request: GenerationRunRequest) -> GenerationGateOutcomeV1:
+        if request.prompt_version != GENERATION_PROMPT_VERSION:
+            raise IntegrityViolation("generation Run does not use the current prompt authority")
         checkers = self.checker_factory(request.snapshot, request.constraints)
         generator = ContentGenerator(request.snapshot, checkers)
         goal = request.goal
@@ -381,24 +436,65 @@ class M2GenerationAgentRunner:
                     )
                 }
             )
-        result = generator.run(
-            goal,
-            request.router,
-            prompt_version=request.prompt_version,
-            execute_local_gate=False,
-        )
+        if request.source_contexts:
+            result = generator.run_from_materials(
+                goal,
+                request.router,
+                materials=tuple(
+                    (source.artifact_id, source.text) for source in request.source_contexts
+                ),
+                execute_local_gate=False,
+            )
+        else:
+            result = generator.run(
+                goal,
+                request.router,
+                execute_local_gate=False,
+            )
 
         proposal = result.produced.get("proposal", {})
         ops_raw = proposal.get("proposed_ops", []) if isinstance(proposal, dict) else []
         typed_ops = _build_ops(list(ops_raw))
+        normalization: IdentityNormalizationResult | None = None
         rejection_reason: str | None = None
         if result.fallback_taken:
-            rejection_reason = "model_response_unparseable"
+            fallback_error = result.produced.get("error")
+            rejection_reason = (
+                fallback_error
+                if isinstance(fallback_error, str)
+                and fallback_error
+                in {
+                    "material_extraction_call_budget_exceeded",
+                    "material_extraction_contains_non_object_operation",
+                    "material_extraction_used_replace_subgraph",
+                    "model_output_is_not_an_operation_array",
+                    "model_output_truncated",
+                }
+                else "model_response_unparseable"
+            )
         elif typed_ops is None:
             rejection_reason = "malformed_ops"
             typed_ops = []
-        elif not typed_ops:
-            rejection_reason = "empty_ops"
+        else:
+            try:
+                typed_ops = list(normalize_typed_op_ir_types(typed_ops))
+            except UnsupportedIrType:
+                rejection_reason = "unsupported_ir_type"
+                typed_ops = []
+            if rejection_reason is None:
+                proposed_typed_ops = list(typed_ops)
+                normalization = normalize_typed_ops(request.snapshot, typed_ops)
+                if normalization.blocking_conflicts:
+                    rejection_reason = "identity_conflict"
+                    # A rejected candidate is evidence, not workflow authority. Keep
+                    # the exact typed proposal so a planner can see what caused the
+                    # identity conflict; the normalized subset may have dropped the
+                    # offending operation entirely (for example a dangling relation).
+                    typed_ops = proposed_typed_ops
+                else:
+                    typed_ops = list(normalization.ops)
+                    if not typed_ops:
+                        rejection_reason = "empty_ops"
         patch = Patch(
             id=f"generation@{request.snapshot.snapshot_id[:16]}",
             base_snapshot_id=request.snapshot.snapshot_id,
@@ -466,9 +562,19 @@ class M2GenerationAgentRunner:
             if rejection_reason is None
             else (_generation_rejection_finding(patched.snapshot_id, rejection_reason),)
         )
+        identity_findings = (
+            ()
+            if normalization is None
+            else (_identity_normalization_finding(patched.snapshot_id, normalization),)
+        )
         review = ReviewReport.partition(
             patched.snapshot_id,
-            [*checker_findings, *sim_findings, *rejection_findings],
+            [
+                *checker_findings,
+                *sim_findings,
+                *rejection_findings,
+                *identity_findings,
+            ],
         )
         base_gate_findings = (*base_checker_findings, *base_sim_findings)
         base_predicates = {
@@ -506,10 +612,10 @@ class M2GenerationAgentRunner:
                     payload=_findings_payload(
                         "checker-report@1",
                         preview_id,
-                        tuple((*checker_findings, *rejection_findings)),
+                        tuple((*checker_findings, *rejection_findings, *identity_findings)),
                         requirement_id=checker_requirement.requirement_id,
                     ),
-                    findings=tuple((*checker_findings, *rejection_findings)),
+                    findings=tuple((*checker_findings, *rejection_findings, *identity_findings)),
                 ),
             ),
             simulation_evidence=(

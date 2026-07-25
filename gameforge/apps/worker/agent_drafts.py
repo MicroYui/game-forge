@@ -612,12 +612,12 @@ class WorkerAgentDraftLineageVerifier:
         base_parents = preview_parents - {subject.artifact_id}
         if (
             subject.artifact_id not in preview_parents
-            or len(base_parents) != 1
+            or not base_parents
             or not base_parents <= set(subject.lineage)
             or subject.version_tuple.doc_version != preview.version_tuple.doc_version
         ):
             raise IntegrityViolation(
-                "Agent Patch preview must descend from its Patch and exact base"
+                "Agent Patch preview must descend from its Patch, exact base, and retained inputs"
             )
         profiles: set[str] = set()
         for config in configs:

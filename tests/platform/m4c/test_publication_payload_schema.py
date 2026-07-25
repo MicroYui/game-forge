@@ -65,6 +65,8 @@ def test_registry_covers_every_declared_schema_without_wildcards() -> None:
         "cassette-record-shard@1",
         "dr-drill-evidence@1",
         "golden-suite@1",
+        "project-material-original@1",
+        "project-material-rendered@1",
         "regression-suite@1",
         "source-raw@1",
         "source-rendered@1",

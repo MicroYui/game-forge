@@ -105,8 +105,8 @@ describe("generated API contracts", () => {
       Object.values(path).flatMap((operation) => operation.operationId ?? []),
     );
 
-    expect(operationIds).toHaveLength(78);
-    expect(new Set(operationIds)).toHaveLength(78);
+    expect(operationIds).toHaveLength(93);
+    expect(new Set(operationIds)).toHaveLength(93);
     expect(operationIds).toContain("artifact_catalog_api_v1_artifacts_get");
     expect(operationIds).toContain("resolve_execution_option_api_v1_execution_options_resolve_post");
     expect(operationIds).toContain(
@@ -122,6 +122,25 @@ describe("generated API contracts", () => {
       "review_producer_binding_api_v1_reviews__artifact_id__producer_binding_get",
     );
     expect(operationIds).toContain("run_finding_links_api_v1_runs__run_id__finding_links_get");
+    expect(operationIds).toEqual(
+      expect.arrayContaining([
+        "list_projects_api_v1_projects_get",
+        "create_project_api_v1_projects_post",
+        "get_project_api_v1_projects__project_id__get",
+        "update_project_api_v1_projects__project_id__patch",
+        "archive_project_api_v1_projects__project_id__archive_post",
+        "add_text_material_api_v1_projects__project_id__materials_text_post",
+        "upload_material_api_v1_projects__project_id__materials_upload_post",
+        "list_materials_api_v1_projects__project_id__materials_get",
+        "get_material_api_v1_projects__project_id__materials__material_id__get",
+        "archive_material_api_v1_projects__project_id__materials__material_id__archive_post",
+        "create_extraction_api_v1_projects__project_id__extractions_post",
+        "list_extractions_api_v1_projects__project_id__extractions_get",
+        "get_extraction_api_v1_projects__project_id__extractions__extraction_id__get",
+        "discard_extraction_api_v1_projects__project_id__extractions__extraction_id__discard_post",
+        "create_content_draft_api_v1_projects__project_id__content_drafts_post",
+      ]),
+    );
     expectTypeOf<paths>().toBeObject();
     expectTypeOf<operations>().toBeObject();
   });

@@ -1,15 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Braces, FilePenLine, FileStack, GitBranch, LibraryBig, ShieldQuestion } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
-import {
-  CopyableText,
-  CursorTable,
-  type CursorPaginationState,
-  type CursorTableColumn,
-} from "../../components/tables";
+import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
+import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   specWorkflowApi,
@@ -20,7 +17,11 @@ import {
   type SpecView,
   type SpecWorkflowApi,
 } from "./api";
-import { SpecEntryPanels, type SpecEntryPanelsApi } from "./SpecEntryPanels";
+import {
+  SpecEntryPanels,
+  type ProjectConstraintAuthoringContext,
+  type SpecEntryPanelsApi,
+} from "./SpecEntryPanels";
 import "./specs.css";
 
 export type SpecWorkspaceApi = SpecEntryPanelsApi &
@@ -93,67 +94,123 @@ async function readCompleteSourceCatalog(
 function domainLabel(value: SpecView["artifact"]["domain_scope"]): string {
   if (value === "all") return "全部域";
   if (value === null) return "未公开域投影";
-  return value.domain_ids.join(" · ") || "空域集合";
+  const labels: Record<string, string> = {
+    builtin: "内置内容",
+    "domain:combat": "战斗系统",
+    "domain:economy": "经济系统",
+    "domain:narrative": "叙事内容",
+    "domain:quest": "任务系统",
+    "domain:rewards": "奖励系统",
+  };
+  return (
+    value.domain_ids.map((item) => labels[item] ?? item.replace(/^domain:/u, "")).join(" · ") || "无指定领域"
+  );
 }
 
-const specColumns: readonly CursorTableColumn<SpecView>[] = [
-  {
-    header: "规格 Artifact",
-    id: "artifact",
-    render: (item) => (
-      <div className="gf-specs__table-primary">
-        <CopyableText copyLabel="复制规格 Artifact ID" value={item.artifact.artifact_id} />
-        <a href={`/specs/${encodeURIComponent(item.artifact.artifact_id)}`}>检查规格与图谱</a>
-      </div>
-    ),
-  },
-  {
-    header: "Snapshot",
-    id: "snapshot",
-    render: (item) => <CopyableText copyLabel="复制 Snapshot ID" value={item.snapshot_id} />,
-  },
-  {
-    header: "Schema registry",
-    id: "schema",
-    render: (item) => <code>{item.schema_registry_version}</code>,
-  },
-  {
-    header: "Ref 绑定",
-    id: "ref",
-    render: (item) =>
-      item.ref_name && item.ref_value ? (
-        <div className="gf-specs__ref-binding">
-          <GitBranch aria-hidden="true" size={14} />
-          <a href={`/refs/${encodeURIComponent(item.ref_name)}/history`}>
-            {item.ref_name} · revision {item.ref_value.revision}
-          </a>
-        </div>
-      ) : (
-        <span className="gf-specs__muted">未绑定 ref；工件存在不表示当前版本</span>
+const proposalStatusLabels: Record<string, string> = {
+  applied: "已发布",
+  approved: "已批准",
+  changes_requested: "待修改",
+  draft: "草稿",
+  pending_approval: "待审批",
+  rejected: "已驳回",
+  superseded: "已被替代",
+  validated: "验证通过",
+  validating: "验证中",
+  validation_failed: "验证失败",
+};
+
+function specColumns(items: readonly SpecView[]): readonly CursorTableColumn<SpecView>[] {
+  const unpublishedOrder = new Map(
+    items
+      .filter((item) => !item.ref_value)
+      .map((item, index) => [item.artifact.artifact_id, index + 1] as const),
+  );
+  return [
+    {
+      header: "内容版本",
+      id: "artifact",
+      render: (item) => (
+        <ResourceIdentity
+          actionLabel="查看内容与关系图"
+          description={`${compactDateTime(item.artifact.created_at)} · ${domainLabel(item.artifact.domain_scope)}`}
+          details={[
+            {
+              copyLabel: "复制内容标识",
+              label: "内容标识",
+              value: item.artifact.artifact_id,
+            },
+            {
+              copyLabel: "复制快照标识",
+              label: "快照标识",
+              value: item.snapshot_id,
+            },
+            { label: "数据格式版本", value: item.schema_registry_version },
+          ]}
+          href={`/specs/${encodeURIComponent(item.artifact.artifact_id)}`}
+          title={
+            item.ref_value
+              ? `当前内容 · 第 ${item.ref_value.revision} 版`
+              : `未发布内容 · 第 ${unpublishedOrder.get(item.artifact.artifact_id) ?? "—"} 份`
+          }
+        />
       ),
-  },
-  {
-    header: "域",
-    id: "domain",
-    render: (item) => <span>{domainLabel(item.artifact.domain_scope)}</span>,
-  },
-];
+    },
+    {
+      header: "发布状态",
+      id: "ref",
+      render: (item) =>
+        item.ref_name && item.ref_value ? (
+          <div className="gf-specs__ref-binding">
+            <GitBranch aria-hidden="true" size={14} />
+            <div>
+              <strong>当前发布版本</strong>
+              <a href={`/refs/${encodeURIComponent(item.ref_name)}/history`}>查看版本历史</a>
+              <TechnicalDetails
+                items={[
+                  { label: "发布位置", value: item.ref_name },
+                  { label: "发布版本", value: String(item.ref_value.revision) },
+                ]}
+              />
+            </div>
+          </div>
+        ) : (
+          <span className="gf-specs__muted">未发布，不会被当作当前版本使用</span>
+        ),
+    },
+    {
+      header: "域",
+      id: "domain",
+      render: (item) => <span>{domainLabel(item.artifact.domain_scope)}</span>,
+    },
+  ];
+}
 
 const constraintColumns: readonly CursorTableColumn<ConstraintSnapshotView>[] = [
   {
-    header: "ConstraintSnapshot Artifact",
+    header: "规则版本",
     id: "artifact",
     render: (item) => (
-      <div className="gf-specs__table-primary">
-        <CopyableText copyLabel="复制约束快照 Artifact ID" value={item.artifact.artifact_id} />
-        <a href={`/constraints/${encodeURIComponent(item.artifact.artifact_id)}`}>检查快照与权威证据</a>
-      </div>
+      <ResourceIdentity
+        actionLabel="查看规则"
+        description={`${compactDateTime(item.artifact.created_at)} · ${item.constraints.length} 条规则`}
+        details={[
+          {
+            copyLabel: "复制规则版本标识",
+            label: "规则版本标识",
+            value: item.artifact.artifact_id,
+          },
+          { label: "规则语法版本", value: item.dsl_grammar_version },
+        ]}
+        href={`/constraints/${encodeURIComponent(item.artifact.artifact_id)}`}
+        title="校验规则"
+      />
     ),
   },
   {
-    header: "DSL grammar",
+    header: "规则格式",
     id: "grammar",
-    render: (item) => <code>{item.dsl_grammar_version}</code>,
+    render: () => <span>已绑定，可确定性检查</span>,
   },
   {
     header: "条目",
@@ -166,52 +223,92 @@ const constraintColumns: readonly CursorTableColumn<ConstraintSnapshotView>[] = 
     render: () => (
       <span className="gf-specs__authority-unknown">
         <ShieldQuestion aria-hidden="true" size={14} />
-        需由发布结果或 ref 历史另行证明
+        发布状态需查看发布记录
       </span>
     ),
   },
 ];
 
-const proposalColumns: readonly CursorTableColumn<ConstraintProposalReadView>[] = [
-  {
-    header: "Proposal Artifact",
-    id: "artifact",
-    render: (item) => (
-      <div className="gf-specs__table-primary">
-        <CopyableText copyLabel="复制 Proposal Artifact ID" value={item.artifact.artifact_id} />
-        <a href={`/constraint-proposals/${encodeURIComponent(item.artifact.artifact_id)}`}>
-          检查 exact proposal
-        </a>
-      </div>
-    ),
-  },
-  {
-    header: "Produced by",
-    id: "producer",
-    render: (item) => (
-      <div className="gf-specs__table-primary">
-        <code>{item.proposal.produced_by}</code>
-        {item.proposal.producer_run_id ? (
-          <a href={`/runs/${encodeURIComponent(item.proposal.producer_run_id)}`}>
-            {item.proposal.producer_run_id}
-          </a>
-        ) : (
-          <span className="gf-specs__muted">Human direct draft · 无 producer Run</span>
-        )}
-      </div>
-    ),
-  },
-  {
-    header: "Proposal revision",
-    id: "revision",
-    render: (item) => <span>revision {item.proposal.revision}</span>,
-  },
-  {
-    header: "Approval status",
-    id: "approval",
-    render: (item) => <code>{item.approval_status}</code>,
-  },
-];
+function projectProposalQuery(context: ProjectConstraintAuthoringContext): string {
+  const query = new URLSearchParams({
+    constraintRef: context.constraintRefName,
+    project: context.projectId,
+    projectName: context.projectName,
+  });
+  if (context.baseConstraintArtifactId && context.baseConstraintRevision) {
+    query.set("constraint", context.baseConstraintArtifactId);
+    query.set("constraintRevision", String(context.baseConstraintRevision));
+  }
+  return query.toString();
+}
+
+function proposalMatchesProject(
+  proposal: ConstraintProposalReadView,
+  context: ProjectConstraintAuthoringContext,
+): boolean {
+  const sources = proposal.proposal.source_bindings.map((binding) => binding.source_artifact_id).sort();
+  return (
+    proposal.proposal.base_constraint_snapshot_id === context.baseConstraintArtifactId &&
+    sources.length === context.sourceArtifactIds.length &&
+    sources.every((source, index) => source === context.sourceArtifactIds[index])
+  );
+}
+
+function proposalColumns(
+  projectContext: ProjectConstraintAuthoringContext | null,
+): readonly CursorTableColumn<ConstraintProposalReadView>[] {
+  const projectQuery = projectContext ? projectProposalQuery(projectContext) : "";
+  return [
+    {
+      header: "规则提案",
+      id: "artifact",
+      render: (item) => (
+        <ResourceIdentity
+          actionLabel="查看提案"
+          description={`${compactDateTime(item.artifact.created_at)} · ${item.proposal.constraints.length} 条规则`}
+          details={[
+            {
+              copyLabel: "复制提案标识",
+              label: "提案标识",
+              value: item.artifact.artifact_id,
+            },
+          ]}
+          href={`/constraint-proposals/${encodeURIComponent(item.artifact.artifact_id)}${projectQuery ? `?${projectQuery}` : ""}`}
+          title={`${projectContext ? `${projectContext.projectName}项目 · ` : ""}规则提案 · 第 ${item.proposal.revision} 版`}
+        />
+      ),
+    },
+    {
+      header: "创建方式",
+      id: "producer",
+      render: (item) => (
+        <div className="gf-specs__table-primary">
+          <strong>{item.proposal.produced_by === "agent" ? "AI 生成" : "人工创建"}</strong>
+          {item.proposal.producer_run_id ? (
+            <>
+              <a href={`/runs/${encodeURIComponent(item.proposal.producer_run_id)}`}>查看生成记录</a>
+              <TechnicalDetails
+                items={[
+                  {
+                    label: "生成运行标识",
+                    value: item.proposal.producer_run_id,
+                  },
+                ]}
+              />
+            </>
+          ) : (
+            <span className="gf-specs__muted">由策划直接创建</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "状态",
+      id: "approval",
+      render: (item) => <span>{proposalStatusLabels[item.approval_status] ?? item.approval_status}</span>,
+    },
+  ];
+}
 
 function WorkspaceError({ error, onRetry }: { error: Error; onRetry(): void }) {
   if (error instanceof ApiProblemError) return <ProblemPanel problem={error.problem} />;
@@ -230,6 +327,46 @@ function WorkspaceError({ error, onRetry }: { error: Error; onRetry(): void }) {
 }
 
 export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspaceApi }) {
+  const [searchParams] = useSearchParams();
+  const projectContextResult = useMemo<{
+    error: string | null;
+    value: ProjectConstraintAuthoringContext | null;
+  }>(() => {
+    const projectId = searchParams.get("project")?.trim();
+    if (!projectId) return { error: null, value: null };
+    const constraintRefName = searchParams.get("constraintRef")?.trim() ?? "";
+    const baseConstraintArtifactId = searchParams.get("constraint")?.trim() || null;
+    const revisionText = searchParams.get("constraintRevision")?.trim() || null;
+    if (!constraintRefName || (baseConstraintArtifactId === null) !== (revisionText === null)) {
+      return {
+        error: "项目规则发布位置或当前版本绑定不完整，请返回项目刷新后重试。",
+        value: null,
+      };
+    }
+    if (revisionText !== null && !/^[1-9]\d*$/u.test(revisionText)) {
+      return { error: "项目当前规则版本号无效，请返回项目刷新后重试。", value: null };
+    }
+    const sourceArtifactIds = [
+      ...new Set(
+        searchParams
+          .getAll("source")
+          .map((item) => item.trim())
+          .filter(Boolean),
+      ),
+    ].sort();
+    return {
+      error: null,
+      value: {
+        baseConstraintArtifactId,
+        baseConstraintRevision: revisionText === null ? null : Number(revisionText),
+        constraintRefName,
+        projectId,
+        projectName: searchParams.get("projectName")?.trim() || projectId.replace(/^project:/u, ""),
+        sourceArtifactIds,
+      },
+    };
+  }, [searchParams]);
+  const projectContext = projectContextResult.value;
   const workspace = useQuery({
     queryFn: async () => {
       const [specs, constraintSnapshots, constraintProposals, sourceRaw, sourceRendered] = await Promise.all([
@@ -276,7 +413,11 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
         items: restart ? next.items : [...current.items, ...next.items],
       });
     } catch (error) {
-      setSpecs({ ...current, error: normalizedPageError(error), loading: false });
+      setSpecs({
+        ...current,
+        error: normalizedPageError(error),
+        loading: false,
+      });
     }
   }
 
@@ -352,6 +493,9 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
   const currentSpecs = specs ?? toPageState(workspace.data.specs);
   const currentConstraints = constraintSnapshots ?? toPageState(workspace.data.constraintSnapshots);
   const currentProposals = constraintProposals ?? toPageState(workspace.data.constraintProposals);
+  const visibleProposals = projectContext
+    ? currentProposals.items.filter((proposal) => proposalMatchesProject(proposal, projectContext))
+    : currentProposals.items;
   const empty =
     currentSpecs.items.length === 0 &&
     currentConstraints.items.length === 0 &&
@@ -361,10 +505,10 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
     <div className="gf-page gf-specs" data-layout="editorial-workspace">
       <header className="gf-specs__hero">
         <div>
-          <p className="gf-specs__kicker">Design-Spec IR · Authoring workspace</p>
-          <h1>规格与约束快照</h1>
+          <p className="gf-specs__kicker">策划内容工作台</p>
+          <h1>内容与规则</h1>
           <p className="gf-specs__lede">
-            从明确输入创建 Spec 或约束候选，并检查可版本化的 Spec-IR、schema registry 绑定与有界图谱。
+            管理游戏内容版本、校验规则和 AI 提案；所有历史版本都可查看、比较和追溯。
           </p>
         </div>
         <dl className="gf-specs__edition" aria-label="当前有界读取摘要">
@@ -386,10 +530,23 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
       <aside className="gf-specs__semantic-note" role="note">
         <Braces aria-hidden="true" size={20} />
         <div>
-          <strong>/constraints 返回 constraint_snapshot Artifact，不是全局权威约束列表</strong>
-          <p>Artifact 存在、可读取或由编译产生，都不能单独证明权威；需由发布结果或 ref 历史另行证明。</p>
+          <strong>只有标记为当前版本的内容，才会用于正式生成、检查和试玩。</strong>
+          <p>未发布的内容和规则会保留为候选，方便继续修改，不会悄悄替换正式版本。</p>
         </div>
       </aside>
+
+      {projectContextResult.error && (
+        <StatePanel
+          action={
+            <a className="gf-secondary-button" href="/projects">
+              返回游戏项目
+            </a>
+          }
+          description={projectContextResult.error}
+          state="error"
+          title="项目规则绑定不完整"
+        />
+      )}
 
       {empty ? (
         <StatePanel
@@ -403,25 +560,33 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
             <header className="gf-specs__section-heading">
               <FilePenLine aria-hidden="true" size={19} />
               <div>
-                <h2 id="constraint-proposals-title">约束提案目录</h2>
-                <p>逐项显示 immutable Artifact、作者来源、proposal revision、审批状态与 producer Run。</p>
+                <h2 id="constraint-proposals-title">待处理的规则提案</h2>
+                <p>查看 AI 或人工创建的新规则，以及它们当前的审批状态。</p>
               </div>
             </header>
             <CursorTable
-              caption="约束提案（候选 Artifact）"
-              columns={proposalColumns}
-              emptyLabel="当前授权范围内没有约束提案"
+              caption="规则提案"
+              columns={proposalColumns(projectContext)}
+              emptyLabel={projectContext ? "这个项目暂无规则提案" : "当前授权范围内没有约束提案"}
               getRowKey={(item) => item.artifact.artifact_id}
-              items={currentProposals.items}
+              items={visibleProposals}
               nextCursor={currentProposals.nextCursor}
               onLoadMore={(cursor) => void readProposalPage(cursor, false)}
               onRestart={() => void readProposalPage(null, true)}
               paginationState={paginationState(currentProposals)}
               toolbar={
-                <span className="gf-specs__snapshot-label">
+                <div className="gf-specs__snapshot-label">
                   <FileStack aria-hidden="true" size={14} />
-                  read snapshot <code>{currentProposals.readSnapshotId}</code>
-                </span>
+                  <TechnicalDetails
+                    items={[
+                      {
+                        label: "目录读取快照",
+                        value: currentProposals.readSnapshotId,
+                      },
+                    ]}
+                    summary="目录技术信息"
+                  />
+                </div>
               }
             />
           </section>
@@ -430,13 +595,13 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
             <header className="gf-specs__section-heading">
               <LibraryBig aria-hidden="true" size={19} />
               <div>
-                <h2 id="spec-artifacts-title">规格目录</h2>
-                <p>Ref 绑定与 Artifact 身份分开显示，避免把历史快照误称为当前。</p>
+                <h2 id="spec-artifacts-title">内容版本</h2>
+                <p>当前发布版本和未发布候选会明确区分，历史内容不会被误当作当前内容。</p>
               </div>
             </header>
             <CursorTable
-              caption="规格工件"
-              columns={specColumns}
+              caption="内容版本列表"
+              columns={specColumns(currentSpecs.items)}
               emptyLabel="当前授权范围内没有规格工件"
               getRowKey={(item) => item.artifact.artifact_id}
               items={currentSpecs.items}
@@ -445,10 +610,18 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
               onRestart={() => void readSpecsPage(null, true)}
               paginationState={paginationState(currentSpecs)}
               toolbar={
-                <span className="gf-specs__snapshot-label">
+                <div className="gf-specs__snapshot-label">
                   <FileStack aria-hidden="true" size={14} />
-                  read snapshot <code>{currentSpecs.readSnapshotId}</code>
-                </span>
+                  <TechnicalDetails
+                    items={[
+                      {
+                        label: "目录读取快照",
+                        value: currentSpecs.readSnapshotId,
+                      },
+                    ]}
+                    summary="目录技术信息"
+                  />
+                </div>
               }
             />
           </section>
@@ -457,12 +630,12 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
             <header className="gf-specs__section-heading">
               <FileStack aria-hidden="true" size={19} />
               <div>
-                <h2 id="constraint-artifacts-title">约束快照工件</h2>
-                <p>该目录包含可审计快照；列表投影本身不裁决 candidate 或 authority。</p>
+                <h2 id="constraint-artifacts-title">校验规则版本</h2>
+                <p>这里保存每个可追溯的规则版本；是否已发布需要查看对应的发布记录。</p>
               </div>
             </header>
             <CursorTable
-              caption="约束快照工件（Artifact）"
+              caption="校验规则版本列表"
               columns={constraintColumns}
               emptyLabel="当前授权范围内没有约束快照工件"
               getRowKey={(item) => item.artifact.artifact_id}
@@ -472,25 +645,36 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
               onRestart={() => void readConstraintPage(null, true)}
               paginationState={paginationState(currentConstraints)}
               toolbar={
-                <span className="gf-specs__snapshot-label">
+                <div className="gf-specs__snapshot-label">
                   <FileStack aria-hidden="true" size={14} />
-                  read snapshot <code>{currentConstraints.readSnapshotId}</code>
-                </span>
+                  <TechnicalDetails
+                    items={[
+                      {
+                        label: "目录读取快照",
+                        value: currentConstraints.readSnapshotId,
+                      },
+                    ]}
+                    summary="目录技术信息"
+                  />
+                </div>
               }
             />
           </section>
         </div>
       )}
 
-      <SpecEntryPanels
-        api={api}
-        catalogs={{
-          constraints: currentConstraints.items,
-          proposals: currentProposals.items,
-          sources: workspace.data.sources,
-          specs: currentSpecs.items,
-        }}
-      />
+      {!projectContextResult.error && (
+        <SpecEntryPanels
+          api={api}
+          catalogs={{
+            constraints: currentConstraints.items,
+            proposals: currentProposals.items,
+            sources: workspace.data.sources,
+            specs: currentSpecs.items,
+          }}
+          projectContext={projectContext}
+        />
+      )}
     </div>
   );
 }

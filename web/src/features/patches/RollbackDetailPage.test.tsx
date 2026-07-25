@@ -342,23 +342,21 @@ describe("Rollback detail", () => {
     const workflowApi = api("draft", { validateRollback });
     renderPage(workflowApi);
 
-    await screen.findByRole("heading", { name: "Rollback validation" });
+    await screen.findByRole("heading", { name: "验证回退是否安全" });
     expect(screen.getByRole("heading", { name: "回滚后会改变什么" })).toBeVisible();
-    expect(screen.getByText("/economy/reward_gold")).toBeVisible();
+    expect(screen.getByText("经济系统 / reward gold")).toBeVisible();
+    expect(screen.getByText("/economy/reward_gold")).not.toBeVisible();
     expect(screen.getByText(/120 → 80/)).toBeVisible();
     expect(workflowApi.getSnapshotDiff).toHaveBeenCalledWith(CURRENT_SNAPSHOT, TARGET_SNAPSHOT, null);
-    expect(screen.getByRole("heading", { name: "Workflow evidence Artifact ledger" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "验证依据" })).toBeVisible();
     expect(screen.queryByRole("heading", { name: "确定性预言机" })).not.toBeInTheDocument();
-    await user.selectOptions(
-      screen.getByLabelText("Schema compatibility policy"),
-      "builtin.schema_compatibility@1",
-    );
-    await user.click(screen.getByRole("checkbox", { name: /builtin.impact_analysis@1/ }));
+    await user.selectOptions(screen.getByLabelText("结构兼容性检查方案"), "builtin.schema_compatibility@1");
+    await user.click(screen.getByRole("checkbox", { name: "builtin.impact_analysis" }));
     await user.type(screen.getByRole("searchbox", { name: "搜索回归套件" }), "regression-suite");
-    await user.click(screen.getByRole("checkbox", { name: /回归套件.*regression-suite@1/ }));
-    await user.clear(screen.getByLabelText("Seed"));
-    await user.type(screen.getByLabelText("Seed"), "17");
-    await user.click(screen.getByRole("button", { name: "启动 rollback validation" }));
+    await user.click(screen.getByRole("checkbox", { name: /回归套件 1/ }));
+    await user.clear(screen.getByLabelText("随机种子"));
+    await user.type(screen.getByLabelText("随机种子"), "17");
+    await user.click(screen.getByRole("button", { name: "开始安全验证" }));
 
     await waitFor(() => expect(validateRollback).toHaveBeenCalledTimes(1));
     expect(validateRollback.mock.calls[0][1]).toEqual({
@@ -377,7 +375,7 @@ describe("Rollback detail", () => {
       target_artifact_id: TARGET_ID,
       target_history_revision: 1,
     });
-    expect(await screen.findByRole("link", { name: "打开 accepted Run" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "查看本次验证进度" })).toHaveAttribute(
       "href",
       "/runs/run%3Arollback-validation",
     );
@@ -395,14 +393,14 @@ describe("Rollback detail", () => {
     renderPage(api("draft", { validateRollback }));
 
     await user.selectOptions(
-      await screen.findByLabelText("Schema compatibility policy"),
+      await screen.findByLabelText("结构兼容性检查方案"),
       "builtin.schema_compatibility@1",
     );
-    await user.click(screen.getByRole("button", { name: "启动 rollback validation" }));
+    await user.click(screen.getByRole("button", { name: "开始安全验证" }));
 
     await waitFor(() => expect(validateRollback).toHaveBeenCalledTimes(1));
     expect(validateRollback.mock.calls[0][1].seed).toBeNull();
-    const acceptedRun = await screen.findByRole("link", { name: "打开 accepted Run" });
+    const acceptedRun = await screen.findByRole("link", { name: "查看本次验证进度" });
     expect(acceptedRun.closest('[role="status"]')).not.toBeNull();
   });
 
@@ -421,10 +419,17 @@ describe("Rollback detail", () => {
       expected_workflow_revision: 5,
       request_schema_version: "submit-for-approval-request@1",
     });
-    expect(screen.getByRole("link", { name: "打开 Approval" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看审批详情" })).toHaveAttribute(
       "href",
       "/approvals/approval%3Arollback%3Adetail",
     );
+  });
+
+  it("presents the pending approval state in planner language", async () => {
+    renderPage(api("pending_approval"));
+
+    expect(await screen.findByText("等待审批", { exact: true })).toBeVisible();
+    expect(screen.queryByText("pending_approval", { exact: true })).not.toBeInTheDocument();
   });
 
   it("applies only the frozen binding, appends ref history, and does not invent content lineage", async () => {
@@ -432,10 +437,11 @@ describe("Rollback detail", () => {
     const workflowApi = api("approved");
     renderPage(workflowApi);
 
-    expect(await screen.findByText("artifact:source:baseline")).toBeVisible();
-    expect(screen.getByText(/RefTransition is not a content-lineage edge/)).toBeVisible();
-    await user.click(screen.getByRole("button", { name: "Apply approved rollback" }));
-    await user.click(screen.getByRole("button", { name: "确认 Apply rollback" }));
+    expect(await screen.findByRole("link", { name: "查看来源版本 1" })).toBeVisible();
+    expect(screen.getByText("artifact:source:baseline")).not.toBeVisible();
+    expect(screen.getByText(/回退只会新增一条正式版本历史/)).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "应用已批准的回退" }));
+    await user.click(screen.getByRole("button", { name: "确认应用回退" }));
 
     await waitFor(() => expect(workflowApi.applyRollback).toHaveBeenCalledTimes(1));
     expect(vi.mocked(workflowApi.applyRollback).mock.calls[0][1]).toEqual({
@@ -448,14 +454,14 @@ describe("Rollback detail", () => {
       target_artifact_id: TARGET_ID,
       target_digest: TARGET_DIGEST,
     });
-    expect(await screen.findByText("Current · revision 3")).toBeVisible();
+    expect(await screen.findByText(/新的正式第 3 版/)).toBeVisible();
     const receiptHeading = screen.getByRole("heading", {
-      name: "Rollback 已通过 ref transition 应用",
+      name: "版本回退已完成",
     });
     expect(receiptHeading.closest('[role="status"]')).not.toBeNull();
-    expect(screen.getByRole("heading", { name: "Independent approval & apply" })).toHaveFocus();
-    expect(screen.getByText("ref-transition:sha256:rollback")).toBeVisible();
-    expect(screen.getByText("artifact:source:baseline")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "独立审批并应用" })).toHaveFocus();
+    expect(screen.getByText("ref-transition:sha256:rollback")).not.toBeVisible();
+    expect(screen.getByText("artifact:source:baseline")).not.toBeVisible();
     expect(workflowApi.listLineage).toHaveBeenCalledTimes(2);
   });
 });

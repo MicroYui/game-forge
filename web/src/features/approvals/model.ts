@@ -12,15 +12,15 @@ export interface RequirementRow {
 }
 
 const reasonLabels: Readonly<Record<EligibilityReasonCode, string>> = {
-  actor_already_decided_requirement: "当前身份已对此 requirement 作出不可变决定",
+  actor_already_decided_requirement: "当前身份已经对此审批职责作出决定",
   actor_not_active_human: "当前身份不是可用的人类身份",
-  actor_not_assigned: "当前身份未被指派到此 requirement",
-  distinct_requirement_conflict: "当前身份已覆盖与此 requirement 互斥的职责",
-  maker_checker_conflict: "maker-checker：提议者不能决定自己的提议",
-  permission_denied: "当前权限未覆盖此 requirement 的完整域",
-  requirement_already_satisfied: "此 requirement 已达到最小有效票数",
+  actor_not_assigned: "当前身份没有被指派到此审批职责",
+  distinct_requirement_conflict: "当前身份已经承担了必须由另一人完成的审批职责",
+  maker_checker_conflict: "职责隔离：提议者不能审批自己的提议",
+  permission_denied: "当前权限没有覆盖这项审批职责的全部内容域",
+  requirement_already_satisfied: "这项审批职责已经获得足够的有效批准",
   route_role_missing: "当前身份缺少冻结路由角色",
-  workflow_not_pending: "审批已不处于 pending_approval",
+  workflow_not_pending: "审批已经不处于待审批状态",
 };
 
 export const actionLabels: Readonly<Record<ApprovalAction, string>> = {

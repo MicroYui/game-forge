@@ -615,7 +615,7 @@ def test_auto_apply_proof_requires_exact_scope_for_every_oracle() -> None:
         )
 
 
-def test_approval_item_enforces_target_kind_auto_apply_and_maker_checker() -> None:
+def test_approval_item_enforces_target_kind_and_leaves_maker_checker_to_authority() -> None:
     policy = _approval_policy()
     policy_ref = ApprovalPolicyRefV1(
         policy_version=policy.policy_version, policy_digest=policy.policy_digest
@@ -670,13 +670,13 @@ def test_approval_item_enforces_target_kind_auto_apply_and_maker_checker() -> No
     assert item.status == "approved"
     assert ApprovalItem.model_validate(item.model_dump(mode="json")) == item
 
-    with pytest.raises(ValidationError, match="proposer"):
-        ApprovalItem(
-            **{
-                **item.model_dump(),
-                "decisions": (decision.model_copy(update={"actor": _actor("human:alice")}),),
-            }
-        )
+    privileged_self_decision = ApprovalItem(
+        **{
+            **item.model_dump(),
+            "decisions": (decision.model_copy(update={"actor": _actor("human:alice")}),),
+        }
+    )
+    assert privileged_self_decision.decisions[0].actor == privileged_self_decision.proposer
     with pytest.raises(ValidationError, match="target_binding"):
         ApprovalItem(
             **{

@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from gameforge.platform.read_models.content import ContentReadService
     from gameforge.platform.read_models.observability import ObservabilityReadService
     from gameforge.platform.read_models.workflows import WorkflowReadService
+    from gameforge.platform.projects.service import ProjectAuthoringService
     from gameforge.platform.runs.commands import RunCommandSubmissionResult
 
 
@@ -189,6 +190,42 @@ class RunAdmissionPort(Protocol):
     def admit_generation(self, **kwargs: object) -> RunAcceptedV1: ...
 
     def admit_constraint_proposal(self, **kwargs: object) -> RunAcceptedV1: ...
+
+
+class ProjectAuthoringPort(Protocol):
+    """Project/resource application surface injected into the HTTP adapter."""
+
+    def create_project(self, *args: object, **kwargs: object) -> object: ...
+
+    def get_project(self, *args: object, **kwargs: object) -> object: ...
+
+    def list_projects(self, *args: object, **kwargs: object) -> object: ...
+
+    def update_project(self, *args: object, **kwargs: object) -> object: ...
+
+    def archive_project(self, *args: object, **kwargs: object) -> object: ...
+
+    def add_text_material(self, *args: object, **kwargs: object) -> object: ...
+
+    def add_uploaded_material(self, *args: object, **kwargs: object) -> object: ...
+
+    def get_material(self, *args: object, **kwargs: object) -> object: ...
+
+    def list_materials(self, *args: object, **kwargs: object) -> object: ...
+
+    def archive_material(self, *args: object, **kwargs: object) -> object: ...
+
+    def create_extraction(self, *args: object, **kwargs: object) -> object: ...
+
+    def get_extraction(self, *args: object, **kwargs: object) -> object: ...
+
+    def list_extractions(self, *args: object, **kwargs: object) -> object: ...
+
+    def discard_extraction(self, *args: object, **kwargs: object) -> object: ...
+
+    def prepare_content_draft(self, *args: object, **kwargs: object) -> object: ...
+
+    def record_content_draft(self, *args: object, **kwargs: object) -> object: ...
 
 
 class ExecutionVersionPlanResolvePort(Protocol):
@@ -461,6 +498,7 @@ class ApiDependencies:
     observability_reads: ObservabilityReadService | None = None
     workflow_commands: WorkflowCommandPort | None = None
     run_admission: RunAdmissionPort | None = None
+    project_authoring: ProjectAuthoringService | ProjectAuthoringPort | None = None
     execution_version_plans: ExecutionVersionPlanResolvePort | None = None
     execution_options: ExecutionOptionResolvePort | None = None
     run_event_stream: RunEventStreamPort | None = None
@@ -514,6 +552,7 @@ __all__ = [
     "ExecutionOptionResolvePort",
     "ExecutionVersionPlanResolvePort",
     "LogoutCommandPort",
+    "ProjectAuthoringPort",
     "ReadinessPort",
     "RunAdmissionPort",
     "RunCommandAuthorizerPort",

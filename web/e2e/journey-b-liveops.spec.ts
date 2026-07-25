@@ -11,7 +11,10 @@ import { expect, test, type BrowserContext, type Locator, type Page } from "@pla
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const makerCredentials = { login: "maker", password: "maker-password-1" };
-const approverCredentials = { login: "approver", password: "approver-password-1" };
+const approverCredentials = {
+  login: "approver",
+  password: "approver-password-1",
+};
 const refName = "content/head";
 const refHistoryPath = `/refs/${encodeURIComponent(refName)}/history`;
 
@@ -46,7 +49,9 @@ async function waitForApiReady(process: ChildProcess): Promise<void> {
       throw new Error(`Journey B backend exited before readiness.\n${backendOutput}`);
     }
     try {
-      const response = await fetch(`${apiUrl}/readyz`, { signal: AbortSignal.timeout(500) });
+      const response = await fetch(`${apiUrl}/readyz`, {
+        signal: AbortSignal.timeout(500),
+      });
       if (response.ok) return;
     } catch {
       // The real server is still starting.
@@ -221,13 +226,13 @@ async function login(page: Page, credentials: { login: string; password: string 
   await page.getByLabel("登录名").fill(credentials.login);
   await page.getByLabel("密码").fill(credentials.password);
   await page.getByRole("button", { name: "登录" }).click();
-  await expect(page).toHaveURL(/\/specs$/u);
-  await expect(page.getByRole("heading", { level: 1, name: "规格与约束快照" })).toBeVisible();
+  await expect(page).toHaveURL(/\/projects$/u);
+  await expect(page.getByRole("heading", { level: 1, name: "游戏项目" })).toBeVisible();
 }
 
 async function refHistorySnapshot(page: Page): Promise<{ current: string; entries: string[] }> {
   await page.goto(refHistoryPath);
-  const current = page.getByText(/^Current · revision \d+$/u).first();
+  const current = page.getByLabel("当前正式版本").getByText(/^第 \d+ 版$/u);
   await expect(current).toBeVisible();
   return {
     current: ((await current.textContent()) ?? "").trim(),
@@ -239,19 +244,19 @@ async function refHistorySnapshot(page: Page): Promise<{ current: string; entrie
 
 async function currentRevision(page: Page): Promise<number> {
   const history = await refHistorySnapshot(page);
-  const match = /revision (\d+)$/u.exec(history.current);
+  const match = /^第 (\d+) 版$/u.exec(history.current);
   if (!match) throw new Error(`Could not parse current ref revision from ${history.current}.`);
   return Number(match[1]);
 }
 
 async function openCurrentSpec(page: Page): Promise<void> {
   await page.goto("/specs");
-  const currentRow = page
-    .getByRole("row")
-    .filter({ has: page.getByRole("link", { name: new RegExp(`^${refName} · revision \\d+$`, "u") }) });
+  const currentRow = page.getByRole("row").filter({
+    hasText: "当前发布版本",
+  });
   await expect(currentRow).toHaveCount(1);
-  await currentRow.getByRole("link", { name: "检查规格与图谱" }).click();
-  await expect(page.getByLabel("目标分支名称（Ref）")).toHaveValue(refName);
+  await currentRow.getByRole("link", { name: "查看内容与关系图" }).click();
+  await expect(page.getByRole("link", { name: /当前内容 · 第 \d+ 版/u })).toBeVisible();
 }
 
 async function requiredHref(locator: Locator): Promise<string> {
@@ -275,35 +280,34 @@ async function draftPatch(
   await page.getByText("高级：精确绑定、前置条件与原始 JSON").click();
   await page.getByLabel("Patch operations JSON").fill(JSON.stringify([input.operation], null, 2));
   await page.getByLabel("变更说明").fill(input.rationale);
-  await page.getByLabel("副作用风险").fill(input.sideEffectRisk);
-  await page.getByRole("button", { name: "创建 Patch 草案" }).click();
-  const link = page.getByRole("link", { name: "打开 Patch 草案" });
+  await page.getByLabel("可能影响（必填）").fill(input.sideEffectRisk);
+  await page.getByRole("button", { name: "创建修改草案" }).click();
+  const link = page.getByRole("link", { name: "检查修改草案" });
   const href = await requiredHref(link);
   await link.click();
-  await expect(page.getByRole("heading", { name: /^Patch revision 1$/u })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Base / Current / Proposed" })).toBeVisible();
-  const diffTable = page.getByRole("table", { name: "字段级快照差异" });
-  const diffRow = diffTable.getByRole("row").filter({ hasText: input.diffPath });
+  await expect(page.getByRole("heading", { name: /^修改草案 · 第 1 版$/u })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "修改前后对比" })).toBeVisible();
+  const diffTable = page.getByRole("table", { name: "修改前后的字段差异" });
+  const diffRow = diffTable.getByRole("row").nth(1);
   await expect(diffRow).toBeVisible();
   await expect(diffRow.getByRole("cell").last()).toContainText(input.diffAfter);
+  await diffRow.getByText("字段定位", { exact: true }).click();
+  await expect(diffRow).toContainText(input.diffPath);
   return href;
 }
 
 async function startPatchValidation(page: Page): Promise<string> {
-  await page.getByLabel("Validation policy").selectOption("builtin.validation@1");
+  await page.getByLabel("验证方案").selectOption("builtin.validation@1");
   await page
-    .getByRole("group", { name: "Validation checker profiles" })
-    .getByRole("checkbox", { name: "builtin.checker@1" })
+    .getByRole("group", { name: "验证使用的确定性检查" })
+    .getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v2" })
     .check();
-  await page
-    .getByRole("group", { name: "Validation simulation profiles" })
-    .getByRole("checkbox", { name: "builtin.simulation@1" })
-    .check();
-  await page.getByLabel("Seed").fill("7");
-  const validate = page.getByRole("button", { name: "启动 exact validation" });
+  await page.getByRole("group", { name: "验证使用的经济仿真" }).getByRole("checkbox").check();
+  await page.getByLabel("随机种子（仅仿真或 AI 方案需要）").fill("7");
+  const validate = page.getByRole("button", { name: "开始验证" });
   await expect(validate).toBeEnabled();
   await validate.click();
-  return requiredHref(page.getByRole("link", { name: "打开 accepted Run" }));
+  return requiredHref(page.getByRole("link", { name: "查看已受理的运行" }));
 }
 
 async function waitForPatchSubmit(page: Page, patchHref: string): Promise<void> {
@@ -311,17 +315,17 @@ async function waitForPatchSubmit(page: Page, patchHref: string): Promise<void> 
     .poll(
       async () => {
         await page.goto(patchHref);
-        return page.getByRole("button", { name: "Submit for independent approval" }).isEnabled();
+        return page.getByRole("button", { name: "提交独立审批" }).isEnabled();
       },
       { intervals: [100, 200, 500], timeout: 30_000 },
     )
     .toBe(true);
-  await expect(page.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "查看完整验证依据" })).toBeVisible();
 }
 
 async function submitPatch(page: Page): Promise<string> {
-  await page.getByRole("button", { name: "Submit for independent approval" }).click();
-  await expect(page.getByText("pending_approval", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "提交独立审批" }).click();
+  await expect(page.getByText("待审批", { exact: true }).first()).toBeVisible();
   return requiredHref(page.getByRole("link", { name: "打开审批详情" }));
 }
 
@@ -348,7 +352,7 @@ async function assertApprovalMaterials(page: Page, expectation: ApprovalReviewEx
   await expect(review).toBeVisible();
   await expect(review.getByRole("heading", { name: "你正在批准什么" })).toBeVisible();
   await expect(review.getByRole("heading", { name: "确定性验证已通过" })).toBeVisible();
-  await expect(review.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+  await expect(review.getByRole("link", { name: "查看完整证据" })).toBeVisible();
 
   if (expectation.kind === "patch") {
     const operations = review.getByRole("list", { name: "Patch 变更内容" });
@@ -390,7 +394,7 @@ async function confirmApproval(page: Page, refName: string): Promise<void> {
   await page.getByRole("button", { name: "提交批准" }).click();
   const confirmation = page.getByRole("dialog", { name: "确认批准决定" });
   await expect(confirmation).toBeVisible();
-  await expect(confirmation).toContainText("确定性证据集已通过");
+  await expect(confirmation).toContainText("确定性验证已通过");
   await expect(confirmation).toContainText(`目标为 ${refName}`);
   await page.getByRole("button", { name: "确认批准" }).click();
 }
@@ -403,41 +407,47 @@ async function approve(
 ): Promise<void> {
   await prepareApproval(page, approvalHref, expectation, reviewNote);
   await confirmApproval(page, expectation.refName);
-  await expect(page.getByText(/^已批准 · 流程版本 \d+$/u)).toBeVisible();
+  await expect(page.locator("header.gf-approvals__hero")).toContainText("已批准");
 }
 
 async function applyPatch(page: Page, patchHref: string): Promise<void> {
   await page.goto(patchHref);
-  const apply = page.getByRole("button", { name: "Apply approved Patch" });
+  const apply = page.getByRole("button", { name: "应用已批准的修改" });
   await expect(apply).toBeEnabled();
   await apply.click();
-  await expect(page.getByRole("dialog", { name: "Apply approved Patch?" })).toBeVisible();
-  await page.getByRole("button", { name: "确认 Apply" }).click();
-  await expect(page.getByRole("heading", { name: "Patch 已通过 ref transition 应用" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "确认应用已批准的修改？" })).toBeVisible();
+  await page.getByRole("button", { name: "确认应用" }).click();
+  await expect(page.getByRole("heading", { name: "修改已应用" })).toBeVisible();
 }
 
 async function waitForRunSucceeded(page: Page, runHref: string): Promise<void> {
   await page.goto(runHref);
-  await expect(page.getByText(/^run\.succeeded · /u)).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("heading", { name: /^运行 run:/u })).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "运行状态" }).getByText("已完成", { exact: true }),
+  ).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByRole("heading", { level: 1, name: "运行详情" })).toBeVisible();
 }
 
 async function draftRollback(page: Page): Promise<string> {
   await page.goto(refHistoryPath);
-  await page.getByRole("radio", { name: "回退到 revision 1" }).check();
-  await page.getByLabel("Rollback policy").selectOption("builtin.rollback@1");
-  await page.getByLabel("Rollback reason").fill("Restore the exact approved baseline.");
-  await page.getByRole("button", { name: "创建 Rollback request" }).click();
-  return requiredHref(page.getByRole("link", { name: "打开 Rollback request" }));
+  await page.getByRole("radio", { name: "回退到第 1 版" }).check();
+  await page.getByLabel("回退验证方案").selectOption("builtin.rollback@1");
+  await page.getByLabel("回退原因").fill("Restore the exact approved baseline.");
+  await page.getByRole("button", { name: "创建回退请求" }).click();
+  return requiredHref(page.getByRole("link", { name: "继续验证回退请求" }));
 }
 
 async function startRollbackValidation(page: Page, rollbackHref: string): Promise<string> {
   await page.goto(rollbackHref);
-  await page.getByLabel("Schema compatibility policy").selectOption("builtin.schema_compatibility@1");
-  const validate = page.getByRole("button", { name: "启动 rollback validation" });
+  await page.getByLabel("结构兼容性检查方案").selectOption("builtin.schema_compatibility@1");
+  const validate = page.getByRole("button", {
+    name: "开始安全验证",
+  });
   await expect(validate).toBeEnabled();
   await validate.click();
-  return requiredHref(page.getByRole("link", { name: "打开 accepted Run" }));
+  return requiredHref(page.getByRole("link", { name: "查看本次验证进度" }));
 }
 
 async function waitForRollbackSubmit(page: Page, rollbackHref: string): Promise<void> {
@@ -450,23 +460,23 @@ async function waitForRollbackSubmit(page: Page, rollbackHref: string): Promise<
       { intervals: [100, 200, 500], timeout: 30_000 },
     )
     .toBe(true);
-  await expect(page.getByRole("link", { name: /^EvidenceSet · /u })).toBeVisible();
+  await expect(page.getByRole("link", { name: "查看完整验证依据" })).toBeVisible();
 }
 
 async function submitRollback(page: Page): Promise<string> {
   await page.getByRole("button", { name: "提交独立人工审批" }).click();
-  await expect(page.getByText("pending_approval", { exact: true }).first()).toBeVisible();
-  return requiredHref(page.getByRole("link", { name: "打开 Approval" }));
+  await expect(page.getByText("等待审批", { exact: true }).first()).toBeVisible();
+  return requiredHref(page.getByRole("link", { name: "查看审批详情" }));
 }
 
 async function applyRollback(page: Page, rollbackHref: string): Promise<void> {
   await page.goto(rollbackHref);
-  const apply = page.getByRole("button", { name: "Apply approved rollback" });
+  const apply = page.getByRole("button", { name: "应用已批准的回退" });
   await expect(apply).toBeEnabled();
   await apply.click();
-  await expect(page.getByRole("dialog", { name: "Apply approved rollback?" })).toBeVisible();
-  await page.getByRole("button", { name: "确认 Apply rollback" }).click();
-  await expect(page.getByRole("heading", { name: "Rollback 已通过 ref transition 应用" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "确认应用已批准的版本回退？" })).toBeVisible();
+  await page.getByRole("button", { name: "确认应用回退" }).click();
+  await expect(page.getByRole("heading", { name: "版本回退已完成" })).toBeVisible();
 }
 
 test.describe("journey-b-liveops", () => {
@@ -500,7 +510,10 @@ test.describe("journey-b-liveops", () => {
     browser,
   }) => {
     const unexpectedRequests = new Set<string>();
-    const makerContext = await browser.newContext({ baseURL: journeyBaseURL, ignoreHTTPSErrors: true });
+    const makerContext = await browser.newContext({
+      baseURL: journeyBaseURL,
+      ignoreHTTPSErrors: true,
+    });
     const approverContext = await browser.newContext({
       baseURL: journeyBaseURL,
       ignoreHTTPSErrors: true,
@@ -537,7 +550,7 @@ test.describe("journey-b-liveops", () => {
         });
         const runHref = await startPatchValidation(makerPage);
         await makerPage.goto(runHref);
-        await expect(makerPage.getByText(/^run\.queued · /u)).toBeVisible();
+        await expect(makerPage.getByText(/^已进入队列 · /u)).toBeVisible();
         const runId = decodeURIComponent(new URL(runHref, journeyBaseURL).pathname.split("/").pop() ?? "");
         const cursorKey = `gameforge.run-events.last-event-id:${runId}`;
         const queuedCursor = await makerPage.evaluate((key) => sessionStorage.getItem(key), cursorKey);
@@ -555,25 +568,29 @@ test.describe("journey-b-liveops", () => {
         );
         await makerPage.getByRole("button", { name: "重新连接事件流" }).click();
         expect((await (await resumedRequest).allHeaders())["last-event-id"]).toBe(queuedCursor);
-        await expect(makerPage.getByText(/^run\.succeeded · /u)).toBeVisible({ timeout: 30_000 });
-        await expect(makerPage.getByText(/^run\.queued · /u)).toHaveCount(1);
+        await expect(makerPage.getByText(/^运行已完成 · /u)).toBeVisible({
+          timeout: 30_000,
+        });
+        await expect(makerPage.getByText(/^已进入队列 · /u)).toHaveCount(1);
         await expect(makerPage.getByLabel("结果清单 payload")).toContainText(
           '"outcome_code": "patch_validation_passed"',
         );
         await expect(makerPage.getByLabel("结果清单 payload")).toContainText('"produced_artifact_count": 3');
 
-        const traceLink = makerPage.getByRole("link", { name: /^追踪 /u }).first();
+        const traceLink = makerPage.getByRole("link", { name: /^查看运行追踪/u }).first();
         await expect(traceLink).toBeVisible();
         await traceLink.click();
-        await expect(makerPage.getByRole("heading", { level: 1, name: "Trace 详情" })).toBeVisible();
-        await expect(makerPage.getByRole("heading", { exact: true, name: "Trace 日志" })).toBeVisible();
+        await expect(makerPage.getByRole("heading", { level: 1, name: "运行追踪" })).toBeVisible();
+        await expect(makerPage.getByRole("heading", { exact: true, name: "运行日志" })).toBeVisible();
 
         await waitForPatchSubmit(makerPage, patchHref);
         const companionLinks = makerPage.getByRole("link", {
-          name: /^Regression \/ companion evidence · /u,
+          name: /^查看回归验证依据 \d+$/u,
         });
         await expect(companionLinks).toHaveCount(2);
-        const evidenceLink = makerPage.getByRole("link", { name: "打开 EvidenceSet" });
+        const evidenceLink = makerPage.getByRole("link", {
+          name: "查看完整验证依据",
+        });
         const evidenceHref = await requiredHref(evidenceLink);
         const companionHrefs: string[] = [];
         for (let index = 0; index < 2; index += 1) {
@@ -581,17 +598,22 @@ test.describe("journey-b-liveops", () => {
         }
         for (const companionHref of companionHrefs) {
           await makerPage.goto(companionHref);
+          await makerPage.getByText("查看记录技术信息", { exact: true }).click();
           await expect(makerPage.getByText("regression_evidence", { exact: true }).first()).toBeVisible();
         }
         await makerPage.goto(evidenceHref);
         await makerPage.getByRole("link", { name: "打开独立血缘视图" }).click();
-        await expect(makerPage.getByRole("table", { name: "血缘（有界分页）" })).toBeVisible();
+        await expect(makerPage.getByRole("table", { name: "内容来源（分页）" })).toBeVisible();
 
         await makerPage.goto(patchHref);
         const approvalHref = await submitPatch(makerPage);
         await makerPage.goto(approvalHref);
         await expect(
-          makerPage.getByText("maker-checker：提议者不能决定自己的提议", { exact: true }).first(),
+          makerPage
+            .getByText("职责隔离：提议者不能审批自己的提议", {
+              exact: true,
+            })
+            .first(),
         ).toBeVisible();
         await expect(makerPage.getByRole("checkbox", { name: /^选择 /u }).first()).toBeDisabled();
         await expect(makerPage.getByRole("button", { name: "提交批准" })).toBeDisabled();
@@ -607,20 +629,20 @@ test.describe("journey-b-liveops", () => {
           await prepareApproval(approverPage, approvalHref, reviewExpectation, "independent_review_passed");
           await prepareApproval(staleApprovalPage, approvalHref, reviewExpectation, "stale_parallel_review");
           await confirmApproval(approverPage, reviewExpectation.refName);
-          await expect(approverPage.getByText(/^已批准 · 流程版本 \d+$/u)).toBeVisible();
+          await expect(approverPage.locator("header.gf-approvals__hero")).toContainText("已批准");
           await confirmApproval(staleApprovalPage, reviewExpectation.refName);
           await expect(
             staleApprovalPage.locator('[role="alert"][data-code="revision_conflict"]'),
           ).toBeVisible();
           await staleApprovalPage.getByRole("button", { name: "刷新审批状态" }).click();
-          await expect(staleApprovalPage.getByText(/^已批准 · 流程版本 \d+$/u)).toBeVisible();
+          await expect(staleApprovalPage.locator("header.gf-approvals__hero")).toContainText("已批准");
           await expect(staleApprovalPage.getByRole("button", { name: "提交批准" })).toBeDisabled();
         } finally {
           await staleApproverContext.close();
         }
 
         await applyPatch(approverPage, patchHref);
-        await expect(approverPage.getByRole("link", { name: "检查 ref history" })).toBeVisible();
+        await expect(approverPage.getByRole("link", { name: "查看版本历史" }).last()).toBeVisible();
         expect(await currentRevision(approverPage)).toBe(2);
       });
 
@@ -642,7 +664,9 @@ test.describe("journey-b-liveops", () => {
         );
         await applyRollback(approverPage, rollbackHref);
         await expect(
-          approverPage.getByRole("heading", { name: "Historical target content lineage" }),
+          approverPage.getByRole("heading", {
+            name: "目标版本的来源",
+          }),
         ).toBeVisible();
         expect(await currentRevision(approverPage)).toBe(3);
       });
@@ -687,7 +711,11 @@ test.describe("journey-b-liveops", () => {
           const stalePatchPage = await staleMakerContext.newPage();
           await login(stalePatchPage, makerCredentials);
           await stalePatchPage.goto(proposedHref);
-          await expect(stalePatchPage.getByRole("button", { name: "Apply approved Patch" })).toBeEnabled();
+          await expect(
+            stalePatchPage.getByRole("button", {
+              name: "应用已批准的修改",
+            }),
+          ).toBeEnabled();
 
           const interveningHref = await draftPatch(makerPage, {
             diffAfter: "100",
@@ -721,33 +749,41 @@ test.describe("journey-b-liveops", () => {
           await applyPatch(approverPage, interveningHref);
           expect(await currentRevision(approverPage)).toBe(4);
 
-          await stalePatchPage.getByRole("button", { name: "Apply approved Patch" }).click();
-          await stalePatchPage.getByRole("button", { name: "确认 Apply" }).click();
+          await stalePatchPage.getByRole("button", { name: "应用已批准的修改" }).click();
+          await stalePatchPage.getByRole("button", { name: "确认应用" }).click();
           await expect(stalePatchPage.locator('[role="alert"][data-code="revision_conflict"]')).toBeVisible();
-          await stalePatchPage.getByRole("button", { name: "重新读取 exact server state" }).click();
-          await expect(stalePatchPage.getByRole("heading", { name: "Patch target 已 stale" })).toBeVisible();
-          await stalePatchPage.getByRole("button", { name: "Rebase 到 exact current ref" }).click();
-          await expect(stalePatchPage.getByRole("heading", { name: "三方冲突解析" })).toBeVisible();
+          await stalePatchPage.getByRole("button", { name: "重新读取服务器状态" }).click();
+          await expect(
+            stalePatchPage.getByRole("heading", {
+              name: "草案基于的版本已过期",
+            }),
+          ).toBeVisible();
+          await stalePatchPage.getByRole("button", { name: "重新基于当前版本计算" }).click();
+          await expect(stalePatchPage.getByRole("heading", { name: "逐项处理内容冲突" })).toBeVisible();
 
           const conflicts = stalePatchPage.locator("article.gf-merge-conflict");
           const conflictCount = await conflicts.count();
           expect(conflictCount).toBeGreaterThan(0);
           for (let index = 0; index < conflictCount; index += 1) {
-            await conflicts.nth(index).getByRole("radio", { name: "采用 Proposed" }).check();
+            await conflicts.nth(index).getByRole("radio", { name: "采用这份草案的修改" }).check();
           }
-          await stalePatchPage.getByRole("button", { name: "提交全部显式 resolutions" }).click();
+          await stalePatchPage.getByRole("button", { name: "保存全部冲突处理结果" }).click();
           await expect(
-            stalePatchPage.getByRole("heading", { name: "已创建独立 Patch revision" }),
+            stalePatchPage.getByRole("heading", {
+              name: "已创建独立的新版本",
+            }),
           ).toBeVisible();
-          await expect(stalePatchPage.getByText(/旧验证、证据与审批决定不继承/u)).toBeVisible();
+          await expect(stalePatchPage.getByText(/旧验证、证据与审批决定不会继承/u)).toBeVisible();
           const replacementHref = await requiredHref(
-            stalePatchPage.getByRole("link", { name: "打开新 Patch revision" }),
+            stalePatchPage.getByRole("link", { name: "打开新修改草案" }),
           );
           await stalePatchPage.goto(replacementHref);
-          await expect(stalePatchPage.getByRole("heading", { name: "Patch revision 2" })).toBeVisible();
-          await expect(stalePatchPage.getByText(/尚无 EvidenceSet/u)).toBeVisible();
+          await expect(stalePatchPage.getByRole("heading", { name: "修改草案 · 第 2 版" })).toBeVisible();
+          await expect(stalePatchPage.getByText(/尚无验证证据/u)).toBeVisible();
           await expect(
-            stalePatchPage.getByRole("button", { name: "Submit for independent approval" }),
+            stalePatchPage.getByRole("button", {
+              name: "提交独立审批",
+            }),
           ).toBeDisabled();
 
           const replacementRun = await startPatchValidation(stalePatchPage);
@@ -798,16 +834,19 @@ test.describe("journey-b-liveops", () => {
         await expect(makerPage.getByLabel("结果清单 payload")).toContainText(
           '"outcome_code": "patch_validation_failed"',
         );
-        await expect(makerPage.getByRole("heading", { name: "Findings" })).toBeVisible();
-        await expect(makerPage.getByRole("link", { name: /^checker:builtin\.checker@1:/u })).toBeVisible();
+        const findings = makerPage.getByRole("heading", { name: "发现的问题" }).locator("xpath=..");
+        await expect(findings).toBeVisible();
+        await expect(findings.getByRole("link")).toHaveCount(1);
 
         await makerPage.goto(failedHref);
-        await expect(makerPage.getByText("validation_failed", { exact: true }).first()).toBeVisible();
-        await expect(makerPage.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+        await expect(makerPage.getByText("检查未通过", { exact: true }).first()).toBeVisible();
+        await expect(makerPage.getByRole("link", { name: "查看完整验证依据" })).toBeVisible();
         await expect(
-          makerPage.getByRole("button", { name: "Submit for independent approval" }),
+          makerPage.getByRole("button", {
+            name: "提交独立审批",
+          }),
         ).toBeDisabled();
-        await expect(makerPage.getByRole("button", { name: "Apply approved Patch" })).toBeDisabled();
+        await expect(makerPage.getByRole("button", { name: "应用已批准的修改" })).toBeDisabled();
         expect(await refHistorySnapshot(makerPage)).toEqual(historyBeforeFailure);
       });
 

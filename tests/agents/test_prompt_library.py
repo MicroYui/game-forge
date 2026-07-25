@@ -1,9 +1,5 @@
 from gameforge.agents.prompts.library import register_all_prompts
 from gameforge.agents.prompts.registry import get_prompt, render
-from gameforge.contracts.canonical import sha256_lowerhex
-
-
-_GENERATION_V1_SHA256 = "1536235b60735dee75fe656953c5e7f7446313b3b5c5d9b1349cf558927f2479"
 
 
 def test_all_agent_prompts_registered():
@@ -15,8 +11,7 @@ def test_all_agent_prompts_registered():
         ("repair.refine", "repair@4"),
         ("consistency.system", "consistency@3"),
         ("consistency.legacy.system", "consistency@1"),
-        ("generation.system", "generation@1"),
-        ("generation.v2.system", "generation@2"),
+        ("generation.system", "generation@7"),
     ]:
         v, tmpl = get_prompt(name)
         assert v == ver
@@ -44,21 +39,12 @@ def test_refine_prompt_renders_counterexample_without_brace_crash():
     assert "reward_gold still 120" in text
 
 
-def test_generation_v1_prompt_bytes_remain_frozen_for_replay():
+def test_generation_prompt_declares_the_exact_typed_op_target_contract():
     register_all_prompts()
 
     version, text = get_prompt("generation.system")
 
-    assert version == "generation@1"
-    assert sha256_lowerhex(text.encode("utf-8")) == _GENERATION_V1_SHA256
-
-
-def test_generation_v2_prompt_declares_the_exact_typed_op_target_contract():
-    register_all_prompts()
-
-    version, text = get_prompt("generation.v2.system")
-
-    assert version == "generation@2"
+    assert version == "generation@7"
     for op in (
         "add_entity",
         "delete_entity",
@@ -72,3 +58,26 @@ def test_generation_v2_prompt_declares_the_exact_typed_op_target_contract():
     assert "quest:missing_caravan.reward.gold" in text
     assert "Do NOT include the literal segment attrs" in text
     assert "Do NOT use JSON Patch op names replace, add, or remove" in text
+
+
+def test_generation_prompt_freezes_ir_types_and_material_extraction_shape():
+    register_all_prompts()
+
+    version, prompt = get_prompt("generation.system")
+
+    assert version == "generation@7"
+    assert "EVENT" in prompt
+    assert "QUEST_STEP" in prompt
+    assert "LOCATED_IN" in prompt
+    assert "Material extraction mode" in prompt
+    assert "do not use replace_subgraph" in prompt
+    assert "Every QUEST must have" in prompt
+    assert "outgoing STARTS_AT" in prompt
+    assert "outgoing HAS_STEP" in prompt
+    assert "Referenced prerequisite quest titles" in prompt
+    assert "Do not create a CURRENCY" in prompt
+    assert "REWARD_TABLE to every explicit reward ITEM" in prompt
+    assert "availability_phase reward_claim" in prompt
+    assert "no additional keys" in prompt
+    assert "availability_schema_version is the exact string event-availability@1" in prompt
+    assert "gameplay_window" in prompt

@@ -11,12 +11,16 @@ import {
 } from "./support/authoring-live-stack";
 
 const makerCredentials = { login: "maker", password: "maker-password-1" };
-const approverCredentials = { login: "approver", password: "approver-password-1" };
+const approverCredentials = {
+  login: "approver",
+  password: "approver-password-1",
+};
 const domainId = "builtin";
 const constraintRef = "constraint-publication-head";
 
 type ApprovalView = components["schemas"]["ApprovalViewV1"];
 type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
+type ConstraintProposalPage = components["schemas"]["OpaquePageV1_ConstraintProposalReadViewV1_"];
 type ConstraintProposalView = components["schemas"]["ConstraintProposalReadViewV1"];
 type ConstraintTargetBinding = components["schemas"]["ConstraintTargetBindingV1"];
 type ConstraintValidationBinding = components["schemas"]["ConstraintValidationCompilerBindingViewV1"];
@@ -180,27 +184,24 @@ async function transportLines(): Promise<string[]> {
 async function configureRefBinding(page: Page, refName: string, expectedRef: RefValue | null) {
   const binding = page.getByRole("group", { name: "发布位置" });
   if (expectedRef === null) {
-    await binding.getByRole("radio", { name: "创建新 ref" }).check();
-    await binding.getByLabel("Ref 名称").fill(refName);
+    await binding.getByRole("radio", { name: "创建新的发布位置" }).check();
+    await binding.getByLabel("发布位置名称").fill(refName);
     return;
   }
-  await binding.getByRole("radio", { name: "更新已有 ref" }).check();
-  await binding.getByLabel("Ref 名称").fill(refName);
-  await binding.getByRole("button", { name: "查找当前版本" }).click();
+  await binding.getByRole("radio", { name: "更新已有发布位置" }).check();
+  await binding.getByLabel("发布位置名称").fill(refName);
+  await binding.getByRole("button", { name: "读取当前版本" }).click();
   const resolved = binding.getByRole("status");
   await expect(resolved).toContainText(refName);
-  await expect(resolved).toContainText(`已选择当前 revision ${expectedRef.revision}`);
-}
-
-function shortId(value: string): string {
-  return value.length <= 22 ? value : `${value.slice(0, 12)}…${value.slice(-8)}`;
+  await expect(resolved).toContainText(`已选择当前第 ${expectedRef.revision} 版`);
 }
 
 async function selectSourceArtifact(entry: Locator, pickerName: string, artifactId: string): Promise<void> {
   const picker = entry.getByRole("group", { name: pickerName });
-  const option = picker.locator("label").filter({ hasText: shortId(artifactId) });
-  await expect(option).toHaveCount(1);
-  await option.getByRole("checkbox").check();
+  await picker.getByText("高级：添加其他来源标识").click();
+  const exactSources = picker.getByLabel(`${pickerName} 高级 Artifact IDs`);
+  await exactSources.fill(artifactId);
+  await expect(exactSources).toHaveValue(artifactId);
 }
 
 function proposalArtifactId(href: string): string {
@@ -282,8 +283,12 @@ async function assertMissingHumanRevisionFails(
 
 async function waitForRunSucceeded(page: Page, runHref: string): Promise<void> {
   await page.goto(runHref);
-  await expect(page.getByText(/^run\.succeeded · /u)).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByRole("heading", { name: /^运行 run:/u })).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "运行状态" }).getByText("已完成", { exact: true }),
+  ).toBeVisible({
+    timeout: 45_000,
+  });
+  await expect(page.getByRole("heading", { level: 1, name: "运行详情" })).toBeVisible();
 }
 
 async function createAgentReplayDraft(
@@ -297,19 +302,26 @@ async function createAgentReplayDraft(
   expect(transportBefore).toEqual(["extraction"]);
   await page.goto("/specs");
   const entry = page.locator('article[data-entry="agent"]');
-  await selectSourceArtifact(entry, "Agent 可使用的来源", manifest.source_artifact_id);
-  const grammar = entry.getByRole("combobox", { name: "DSL grammar", exact: true });
+  await selectSourceArtifact(entry, "选择策划材料", manifest.source_artifact_id);
+  await entry.getByText("高级设置", { exact: true }).click();
+  const grammar = entry.getByRole("combobox", {
+    name: "规则格式",
+    exact: true,
+  });
   await expect(grammar).toBeEnabled();
   await grammar.selectOption("dsl@1");
-  await entry.getByLabel("Agent authoring goal").fill("Extract a deterministic gold reward cap.");
-  await entry.getByLabel("Agent execution profile").selectOption("builtin.constraint_extraction@1");
-  await entry.getByLabel("LLM execution mode").selectOption("replay");
-  const replaySource = entry.getByRole("combobox", { name: "Replay 来源 Run", exact: true });
+  await entry.getByLabel("你希望 AI 重点提取什么？").fill("Extract a deterministic gold reward cap.");
+  await entry.getByLabel("AI 提取方案").selectOption("builtin.constraint_extraction@1");
+  await entry.getByLabel("AI 运行方式").selectOption("replay");
+  const replaySource = entry.getByRole("combobox", {
+    name: "回放来源",
+    exact: true,
+  });
   await expect(replaySource).toBeEnabled();
   await replaySource.selectOption(manifest.record_source_run_id);
-  await entry.getByRole("button", { name: "生成 Agent 候选" }).click();
+  await entry.getByRole("button", { name: "生成规则提案" }).click();
 
-  const runLink = entry.getByRole("link", { name: /^打开 Run run:/u });
+  const runLink = entry.getByRole("link", { name: "查看提取进度" });
   const runHref = await requiredHref(runLink);
   const runId = decodeURIComponent(new URL(runHref, stack.baseURL).pathname.split("/").pop() ?? "");
   expect(runId).not.toBe(manifest.record_source_run_id);
@@ -317,10 +329,19 @@ async function createAgentReplayDraft(
   expect(await transportLines()).toEqual(transportBefore);
 
   await page.goto("/specs");
-  const proposalRegion = page.getByRole("region", { name: "约束提案（候选 Artifact）" });
-  const proposalRow = proposalRegion.getByRole("row").filter({ hasText: runId });
+  const proposalTable = page.getByRole("table", { name: "规则提案" });
+  await expect(proposalTable).toBeVisible();
+  const proposals = await browserRequest<ConstraintProposalPage>(
+    page,
+    "/api/v1/constraint-proposals?limit=100",
+  );
+  expect(proposals.status).toBe(200);
+  const exactProposals = proposals.body.items.filter((item) => item.proposal.producer_run_id === runId);
+  expect(exactProposals).toHaveLength(1);
+  const proposalHref = `/constraint-proposals/${encodeURIComponent(exactProposals[0]!.artifact.artifact_id)}`;
+  const proposalRow = proposalTable.locator(`a[href="${proposalHref}"]`).locator("xpath=ancestor::tr");
   await expect(proposalRow).toHaveCount(1);
-  const proposalHref = await requiredHref(proposalRow.getByRole("link", { name: "检查 exact proposal" }));
+  await expect(proposalRow.getByRole("link", { name: "查看提案" })).toHaveAttribute("href", proposalHref);
   return { proposalHref, runId };
 }
 
@@ -339,10 +360,11 @@ function typedConstraint(id: string, expression: string) {
 
 async function createHumanDraft(page: Page, manifest: ConstraintManifest, refName: string): Promise<string> {
   await page.goto("/specs");
+  await page.getByText("高级：手工导入结构化内容或规则", { exact: true }).click();
   const entry = page.locator('article[data-entry="human"]');
   const binding = entry.getByRole("group", { name: "发布位置" });
-  await binding.getByRole("radio", { name: "创建新 ref" }).check();
-  await binding.getByLabel("Ref 名称").fill(refName);
+  await binding.getByRole("radio", { name: "创建新的发布位置" }).check();
+  await binding.getByLabel("发布位置名称").fill(refName);
   await entry
     .getByRole("group", { name: "适用游戏域" })
     .getByRole("checkbox", { name: domainId, exact: true })
@@ -353,7 +375,7 @@ async function createHumanDraft(page: Page, manifest: ConstraintManifest, refNam
     .getByLabel("Typed constraints JSON")
     .fill(JSON.stringify([typedConstraint("c:human-cap", "reward_gold <= 100")], null, 2));
   await entry.getByRole("button", { name: "创建 Human typed draft" }).click();
-  return requiredHref(entry.getByRole("link", { name: /^打开 proposal /u }));
+  return requiredHref(entry.getByRole("link", { name: "检查规则提案" }));
 }
 
 async function reviseToHumanCandidate(
@@ -368,11 +390,11 @@ async function reviseToHumanCandidate(
   await page.getByLabel("修订说明").fill(rationale);
   const oldArtifactId = proposalArtifactId(proposalHref);
   await page.getByRole("button", { name: "提交人工修订" }).click();
-  const canonicalLink = page.getByRole("link", { name: "当前 revision canonical detail" });
+  const canonicalLink = page.getByRole("link", { name: "查看当前草案版本" });
   await expect
     .poll(async () => proposalArtifactId(await requiredHref(canonicalLink)))
     .not.toBe(oldArtifactId);
-  await expect(page.getByText("Human 修订候选", { exact: true })).toBeVisible();
+  await expect(page.getByText("人工已修订", { exact: true })).toBeVisible();
   const revisedHref = await requiredHref(canonicalLink);
   await page.goto(revisedHref);
   return revisedHref;
@@ -392,7 +414,7 @@ async function validateExactCandidate(
   const validate = page.getByRole("button", { name: "开始确定性验证" });
   await expect(validate).toBeEnabled();
   await validate.click();
-  const runHref = await requiredHref(page.getByRole("link", { name: "打开 validation Run" }).last());
+  const runHref = await requiredHref(page.getByRole("link", { name: "查看检查过程" }).last());
   await waitForRunSucceeded(page, runHref);
   const proposalId = proposalArtifactId(proposalHref);
   await expect
@@ -478,7 +500,7 @@ async function submitForApproval(page: Page): Promise<string> {
   const submit = page.getByRole("button", { name: "提交审批" });
   await expect(submit).toBeEnabled();
   await submit.click();
-  await expect(page.getByText(/pending_approval/u).first()).toBeVisible();
+  await expect(page.getByText("待审批", { exact: true }).first()).toBeVisible();
   return requiredHref(page.getByRole("link", { name: "交给另一位 Human 审批" }));
 }
 
@@ -490,9 +512,7 @@ async function assertSelfApprovalFails(
   key: string,
 ): Promise<void> {
   await page.goto(approvalHref);
-  await expect(
-    page.getByText("maker-checker：提议者不能决定自己的提议", { exact: true }).first(),
-  ).toBeVisible();
+  await expect(page.getByText("职责隔离：提议者不能审批自己的提议", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "提交批准" })).toBeDisabled();
 
   const before = await readProposalAuthority(page, proposalId);
@@ -547,7 +567,7 @@ async function approveIndependently(
     displayedConstraintExpression(expectation.constraintExpression),
   );
   await expect(review.getByRole("heading", { name: "确定性验证已通过" })).toBeVisible();
-  await expect(review.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+  await expect(review.getByRole("link", { name: "查看完整证据" })).toBeVisible();
 
   const requirements = page.getByRole("checkbox", { name: /^选择 /u });
   await expect(requirements.first()).toBeVisible();
@@ -564,11 +584,11 @@ async function approveIndependently(
   await page.getByRole("button", { name: "提交批准" }).click();
   const confirmation = page.getByRole("dialog", { name: "确认批准决定" });
   await expect(confirmation).toBeVisible();
-  await expect(confirmation).toContainText("EvidenceSet 已通过");
+  await expect(confirmation).toContainText("确定性验证已通过");
   await expect(confirmation).toContainText(`目标为 ${expectation.refName}`);
   await expect(confirmation).toContainText("条约束");
   await page.getByRole("button", { name: "确认批准" }).click();
-  await expect(page.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
+  await expect(page.locator("header.gf-approvals__hero")).toContainText("已批准");
 }
 
 async function assertIndependentApproval(
@@ -675,7 +695,9 @@ async function publishThroughUi(
   beforeRef: RefAuthority,
 ): Promise<void> {
   await page.goto(proposalHref);
-  const candidateLink = page.getByRole("link", { name: "检查候选快照内容与 ref 状态" });
+  const candidateLink = page.getByRole("link", {
+    name: "检查候选快照内容与 ref 状态",
+  });
   await expect(candidateLink).toBeVisible();
   await expect(candidateLink).toHaveAttribute(
     "href",
@@ -754,7 +776,13 @@ async function prepareProposalPublication(
     candidateId,
   );
   expect((await readRefAuthority(approverPage, input.refName)).items).toEqual([]);
-  return { candidateId, key: input.key, proposalHref, proposalId, refName: input.refName };
+  return {
+    candidateId,
+    key: input.key,
+    proposalHref,
+    proposalId,
+    refName: input.refName,
+  };
 }
 
 async function rebaseAfterStaleRef(
@@ -872,7 +900,10 @@ test.describe("constraint-publication", () => {
   }) => {
     const manifest = await stack.readManifest<ConstraintManifest>();
     const unexpectedRequests = new Set<string>();
-    const makerContext = await browser.newContext({ baseURL: stack.baseURL, ignoreHTTPSErrors: true });
+    const makerContext = await browser.newContext({
+      baseURL: stack.baseURL,
+      ignoreHTTPSErrors: true,
+    });
     const approverContext = await browser.newContext({
       baseURL: stack.baseURL,
       ignoreHTTPSErrors: true,

@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { BookOpenText, Database, FilePenLine, GitBranch, Network, PencilRuler } from "lucide-react";
+import { BookOpenText, FilePenLine, GitBranch, Network, PencilRuler } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { createMutationIntent, type MutationIntent } from "../../api/csrf";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
+import { TechnicalDetails } from "../../components/identity";
 import { KnowledgeGraph } from "../../components/kg";
-import { CopyableText, type CursorPaginationState } from "../../components/tables";
+import { type CursorPaginationState } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   specWorkflowApi,
@@ -175,7 +176,11 @@ export function SpecDetailPage({
         readSnapshotId: next.read_snapshot_id,
       });
     } catch (error) {
-      setProfiles({ ...current, error: normalizedError(error), loading: false });
+      setProfiles({
+        ...current,
+        error: normalizedError(error),
+        loading: false,
+      });
     }
   }
 
@@ -264,10 +269,10 @@ export function SpecDetailPage({
     return (
       <div className="gf-page gf-specs">
         <StatePanel
-          description="正在读取规格身份、schema registry 绑定与第一页有界图谱。"
+          description="正在整理这一版的内容、关系和可用修改方式。"
           headingLevel={1}
           state="loading"
-          title="正在读取规格详情"
+          title="正在读取内容版本"
         />
       </div>
     );
@@ -277,8 +282,8 @@ export function SpecDetailPage({
     return (
       <div className="gf-page gf-specs">
         <header className="gf-page-header">
-          <p className="gf-specs__kicker">Design-Spec IR · Detail</p>
-          <h1>规格详情</h1>
+          <p className="gf-specs__kicker">游戏内容版本</p>
+          <h1>内容版本详情</h1>
         </header>
         {detail.error instanceof ApiProblemError ? (
           <ProblemPanel problem={detail.error.problem} />
@@ -289,9 +294,9 @@ export function SpecDetailPage({
                 重试
               </button>
             }
-            description="规格详情读取失败；未展示底层异常内容。"
+            description="内容版本读取失败；现有内容不会受到影响。"
             state="error"
-            title="无法读取规格详情"
+            title="无法读取内容版本"
           />
         )}
       </div>
@@ -311,106 +316,107 @@ export function SpecDetailPage({
   );
   const exactRef =
     spec.ref_name && spec.ref_value ? `${spec.ref_name} · revision ${spec.ref_value.revision}` : null;
+  const entityCount = currentGraph.items.filter((item) => item.item_kind === "entity").length;
+  const relationCount = currentGraph.items.length - entityCount;
+  const registeredSchemaCount = Object.keys(detail.data.registry.schemas).length;
 
   return (
     <div className="gf-page gf-specs gf-spec-detail">
-      <nav aria-label="规格详情导航" className="gf-specs__back-nav">
-        <a href="/specs">返回规格工作台</a>
-        <a href={`/artifacts/${encodeURIComponent(spec.artifact.artifact_id)}`}>查看安全 Artifact 摘要</a>
+      <nav aria-label="内容版本导航" className="gf-specs__back-nav">
+        <a href="/specs">返回内容工作台</a>
+        <a href={`/artifacts/${encodeURIComponent(spec.artifact.artifact_id)}`}>查看校验与来源记录</a>
       </nav>
 
       <header className="gf-specs__hero gf-specs__hero--detail">
         <div>
-          <p className="gf-specs__kicker">Design-Spec IR · Immutable snapshot</p>
-          <h1>规格详情</h1>
-          <p className="gf-specs__lede">
-            当前视图读取一个不可变 IR Snapshot，并以同一 Artifact 身份分页检查图谱事实。
-          </p>
+          <p className="gf-specs__kicker">游戏内容版本</p>
+          <h1>内容版本详情</h1>
+          <p className="gf-specs__lede">查看这一版中的角色、任务、道具及其关系；这里不会直接改动正式内容。</p>
         </div>
         <span className="gf-specs__status-mark">
           <BookOpenText aria-hidden="true" size={17} />
-          只读快照
+          只读版本
         </span>
       </header>
 
-      <dl className="gf-specs__facts" aria-label="规格身份与 schema 绑定">
+      <dl className="gf-specs__facts" aria-label="内容版本概览">
         <div>
-          <dt>Artifact ID</dt>
+          <dt>版本状态</dt>
           <dd>
-            <CopyableText copyLabel="复制规格 Artifact ID" value={spec.artifact.artifact_id} />
-          </dd>
-        </div>
-        <div>
-          <dt>Snapshot ID</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Snapshot ID" value={spec.snapshot_id} />
-          </dd>
-        </div>
-        <div>
-          <dt>Payload schema</dt>
-          <dd>
-            <code>{spec.artifact.payload_schema_id ?? "未公开"}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>Schema registry</dt>
-          <dd className="gf-specs__inline-fact">
-            <Database aria-hidden="true" size={14} />
-            <code>{spec.schema_registry_version}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>Registry digest</dt>
-          <dd>
-            <CopyableText
-              copyLabel="复制 Schema Registry digest"
-              value={detail.data.registry.registry_digest}
-            />
-          </dd>
-        </div>
-        <div>
-          <dt>Registered schemas</dt>
-          <dd>{Object.keys(detail.data.registry.schemas).length}</dd>
-        </div>
-        <div className="gf-specs__fact-wide">
-          <dt>Ref authority</dt>
-          <dd>
-            {exactRef && spec.ref_name ? (
+            {exactRef && spec.ref_name && spec.ref_value ? (
               <span className="gf-specs__inline-fact gf-specs__inline-fact--authority">
                 <GitBranch aria-hidden="true" size={14} />
-                <a href={`/refs/${encodeURIComponent(spec.ref_name)}/history`}>{exactRef}</a>
+                <a href={`/refs/${encodeURIComponent(spec.ref_name)}/history`}>
+                  当前内容 · 第 {spec.ref_value.revision} 版
+                </a>
               </span>
             ) : (
-              <span className="gf-specs__muted">未绑定 ref；该 Artifact 不应被称为当前规格。</span>
+              <span className="gf-specs__muted">尚未发布为当前内容</span>
             )}
           </dd>
         </div>
+        <div>
+          <dt>本页内容</dt>
+          <dd>
+            {entityCount} 项内容 · {relationCount} 条关系
+          </dd>
+        </div>
+        <div>
+          <dt>结构校验</dt>
+          <dd>已按 {registeredSchemaCount} 种登记结构读取</dd>
+        </div>
       </dl>
+
+      <TechnicalDetails
+        items={[
+          {
+            copyLabel: "复制内容版本 Artifact ID",
+            label: "Artifact ID",
+            value: spec.artifact.artifact_id,
+          },
+          {
+            copyLabel: "复制内容快照 ID",
+            label: "Snapshot ID",
+            value: spec.snapshot_id,
+          },
+          {
+            label: "Payload schema",
+            value: spec.artifact.payload_schema_id ?? "未公开",
+          },
+          { label: "Schema registry", value: spec.schema_registry_version },
+          {
+            copyLabel: "复制 Registry digest",
+            label: "Registry digest",
+            value: detail.data.registry.registry_digest,
+          },
+          { label: "图谱读取快照", value: currentGraph.readSnapshotId },
+          ...(exactRef ? [{ label: "Exact ref authority", value: exactRef }] : []),
+        ]}
+        summary="查看版本技术信息"
+      />
 
       <section className="gf-specs__workspace-section" aria-labelledby="spec-graph-title">
         <header className="gf-specs__section-heading">
           <Network aria-hidden="true" size={19} />
           <div>
-            <h2 id="spec-graph-title">有界知识图谱</h2>
-            <p>
-              图谱页 <code>{currentGraph.readSnapshotId}</code>；画布与键盘事实表共享选择。
-            </p>
+            <h2 id="spec-graph-title">内容关系图</h2>
+            <p>直观看清角色、任务、道具之间如何关联；点击任意内容即可查看详情。</p>
           </div>
         </header>
         {currentGraph.items.length === 0 ? (
           <StatePanel
-            description="该结果不表示规格无效；当前读取快照仅没有可展示的 entity/relation。"
+            description="这一版当前没有可展示的角色、任务、道具或关系。"
             state="empty"
-            title="当前快照没有图谱事实"
+            title="这一版还没有内容关系"
           />
         ) : (
           <KnowledgeGraph
-            ariaLabel="规格知识图谱"
+            ariaLabel="内容关系图"
             items={currentGraph.items}
             nextCursor={currentGraph.nextCursor}
             onLoadMore={(cursor) => void readGraphPage(cursor, false)}
             onRestart={() => void readGraphPage(null, true)}
-            pageLabel={`Snapshot ${spec.snapshot_id}`}
+            pageLabel="当前版本的内容关系"
             paginationState={graphPaginationState(currentGraph)}
           />
         )}
@@ -419,11 +425,8 @@ export function SpecDetailPage({
       <aside className="gf-specs__edit-boundary" role="note">
         <PencilRuler aria-hidden="true" size={20} />
         <div>
-          <strong>IR 编辑边界</strong>
-          <p>
-            本页不直接修改 Snapshot。任何人工编辑必须创建 typed Patch 草案，绑定 exact
-            base/ref，随后进入验证与审批。
-          </p>
+          <strong>修改方式</strong>
+          <p>这里不会直接覆盖正式内容。先创建修改草案，系统完成检查与审批后才会应用。</p>
         </div>
       </aside>
 
@@ -431,8 +434,8 @@ export function SpecDetailPage({
         <header className="gf-specs__section-heading">
           <FilePenLine aria-hidden="true" size={19} />
           <div>
-            <h2 id="patch-draft-title">创建 typed Patch 草案</h2>
-            <p>用名称选择要改的实体与关系，预览后再进入验证、审批与应用；当前 Snapshot 不会被直接修改。</p>
+            <h2 id="patch-draft-title">创建修改草案</h2>
+            <p>按名称选择要改的内容，确认预览后再进入检查和审批；当前版本不会被直接修改。</p>
           </div>
         </header>
 
@@ -466,9 +469,9 @@ export function SpecDetailPage({
                     </button>
                   ) : undefined
                 }
-                description="传输结果未知；页面保留完全相同的 payload 与 idempotency key，不会自动创建第二个草案。"
+                description="系统尚未确认请求是否成功。请使用下方重试按钮继续；系统不会重复创建草案。"
                 state="error"
-                title="Patch 创建结果未知"
+                title="修改草案创建结果未知"
               />
             ))}
 
@@ -476,18 +479,23 @@ export function SpecDetailPage({
 
           <form className="gf-form" onSubmit={submitPatchDraft}>
             <fieldset disabled={draftPending || draftAttempt !== null || draftResult !== null}>
-              <legend className="u-small">Patch 草案</legend>
+              <legend className="u-small">修改草案</legend>
               <div className="gf-specs__patch-destination">
                 <div>
                   <strong>提交到</strong>
-                  <span>
-                    {noCurrentRef ? "尚不存在的规格分支" : `当前规格分支 · revision ${expectedRefRevision}`}
-                  </span>
+                  <span>{noCurrentRef ? "新的内容发布位置" : `当前内容 · 第 ${expectedRefRevision} 版`}</span>
                 </div>
-                <label className="gf-cluster">
-                  目标分支名称（Ref）
-                  <input onChange={(event) => setRefName(event.target.value)} required value={refName} />
-                </label>
+                {noCurrentRef ? (
+                  <label className="gf-cluster">
+                    新发布位置名称
+                    <input onChange={(event) => setRefName(event.target.value)} required value={refName} />
+                  </label>
+                ) : (
+                  <TechnicalDetails
+                    items={[{ label: "Ref name", value: refName }]}
+                    summary="查看发布位置技术信息"
+                  />
+                )}
               </div>
 
               <StructuredPatchEditor
@@ -501,57 +509,60 @@ export function SpecDetailPage({
                 </p>
               )}
 
-              <label>
-                配置导出方案（可选）
-                <select
-                  aria-describedby="patch-export-profile-help"
-                  multiple
-                  onChange={(event) =>
-                    setSelectedExportProfiles(
-                      [...event.currentTarget.selectedOptions].map((option) => option.value),
-                    )
-                  }
-                  size={Math.min(Math.max(exportProfiles.length, 2), 5)}
-                  value={selectedExportProfiles}
-                >
-                  {exportProfiles.map((profile) => (
-                    <option key={profileKey(profile)} value={profileKey(profile)}>
-                      {profile.display_name} · v{profile.profile.version}
-                    </option>
-                  ))}
-                </select>
-                <span className="u-small" id="patch-export-profile-help">
-                  可选；仅在这份 Patch 需要配置导出验证时选择。
-                </span>
-              </label>
-              {currentProfiles.nextCursor && (
-                <button
-                  className="gf-secondary-button"
-                  disabled={currentProfiles.loading}
-                  onClick={() => void readProfilePage(currentProfiles.nextCursor, false)}
-                  type="button"
-                >
-                  {currentProfiles.loading ? "正在加载 profiles" : "加载更多 profiles"}
-                </button>
-              )}
-              {currentProfiles.error && (
-                <StatePanel
-                  action={
-                    currentProfiles.error instanceof CursorExpiredError ? (
-                      <button
-                        className="gf-secondary-button"
-                        onClick={() => void readProfilePage(null, true)}
-                        type="button"
-                      >
-                        重新读取 profile 目录
-                      </button>
-                    ) : undefined
-                  }
-                  description="Profile 分页读取失败；不会回退到隐式 export profile。"
-                  state="error"
-                  title="无法继续读取 profiles"
-                />
-              )}
+              <details className="gf-specs__advanced-binding">
+                <summary>高级：配置导出验证</summary>
+                <label>
+                  配置导出方案（可选）
+                  <select
+                    aria-describedby="patch-export-profile-help"
+                    multiple
+                    onChange={(event) =>
+                      setSelectedExportProfiles(
+                        [...event.currentTarget.selectedOptions].map((option) => option.value),
+                      )
+                    }
+                    size={Math.min(Math.max(exportProfiles.length, 2), 5)}
+                    value={selectedExportProfiles}
+                  >
+                    {exportProfiles.map((profile) => (
+                      <option key={profileKey(profile)} value={profileKey(profile)}>
+                        {profile.display_name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="u-small" id="patch-export-profile-help">
+                    仅在这份修改需要额外验证导出配置时选择。
+                  </span>
+                </label>
+                {currentProfiles.nextCursor && (
+                  <button
+                    className="gf-secondary-button"
+                    disabled={currentProfiles.loading}
+                    onClick={() => void readProfilePage(currentProfiles.nextCursor, false)}
+                    type="button"
+                  >
+                    {currentProfiles.loading ? "正在加载方案" : "加载更多方案"}
+                  </button>
+                )}
+                {currentProfiles.error && (
+                  <StatePanel
+                    action={
+                      currentProfiles.error instanceof CursorExpiredError ? (
+                        <button
+                          className="gf-secondary-button"
+                          onClick={() => void readProfilePage(null, true)}
+                          type="button"
+                        >
+                          重新读取方案目录
+                        </button>
+                      ) : undefined
+                    }
+                    description="验证方案读取失败；系统不会擅自改用其他方案。"
+                    state="error"
+                    title="无法继续读取验证方案"
+                  />
+                )}
+              </details>
 
               <label>
                 变更说明
@@ -564,7 +575,7 @@ export function SpecDetailPage({
                 />
               </label>
               <label>
-                副作用风险
+                可能影响（必填）
                 <input
                   onChange={(event) => setSideEffectRisk(event.target.value)}
                   placeholder="例如：低风险，仅新增叙事实体"
@@ -589,7 +600,7 @@ export function SpecDetailPage({
                         onChange={(event) => setNoCurrentRef(event.target.checked)}
                         type="checkbox"
                       />
-                      确认当前 ref 不存在（expected_ref=null）
+                      确认当前发布位置不存在
                     </label>
                     {!noCurrentRef && (
                       <div className="gf-form">
@@ -612,6 +623,16 @@ export function SpecDetailPage({
                           />
                         </label>
                       </div>
+                    )}
+                    {!noCurrentRef && (
+                      <label>
+                        Target ref name
+                        <input
+                          onChange={(event) => setRefName(event.target.value)}
+                          required
+                          value={refName}
+                        />
+                      </label>
                     )}
                     <label>
                       Constraint snapshot Artifact ID（可选）
@@ -661,7 +682,7 @@ export function SpecDetailPage({
                 )}
               </details>
 
-              <button type="submit">创建 Patch 草案</button>
+              <button type="submit">创建修改草案</button>
             </fieldset>
           </form>
 
@@ -669,12 +690,14 @@ export function SpecDetailPage({
             <section className="gf-specs__authority" data-authority="candidate">
               <FilePenLine aria-hidden="true" size={22} />
               <div>
-                <p className="gf-specs__authority-label">Candidate</p>
-                <h3>Typed Patch 草案已创建</h3>
-                <CopyableText copyLabel="复制 Patch Artifact ID" value={draftResult.artifact.artifact_id} />
-                <a href={`/patches/${encodeURIComponent(draftResult.artifact.artifact_id)}`}>
-                  打开 Patch 草案
-                </a>
+                <p className="gf-specs__authority-label">待验证草案</p>
+                <h3>修改草案已创建</h3>
+                <p>下一步请检查实际改动并运行验证；创建草案不会直接修改正式内容。</p>
+                <a href={`/patches/${encodeURIComponent(draftResult.artifact.artifact_id)}`}>检查修改草案</a>
+                <TechnicalDetails
+                  items={[{ label: "Patch Artifact ID", value: draftResult.artifact.artifact_id }]}
+                  summary="查看草案技术信息"
+                />
               </div>
             </section>
           )}

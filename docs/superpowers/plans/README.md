@@ -8,6 +8,7 @@
 - 全程 TDD；里程碑完成后更新 `CLAUDE.md` 里程碑状态表。
 
 **当前计划文件**：
+- `2026-07-24-project-first-authoring.md` — 项目优先创作增量（✅ 完成：项目/批量材料/多次 AI 提案/图形编辑/放弃提案/首版发布/后续规则与试玩已闭合；确定性同一化、审计保留与 platform_admin 显式全权限自审已上线完整本地服务）
 - `2026-07-19-m4d-web-console.md` — M4d Web Console（✅ Task 1–19、V1–V3 与 D2 已完成：产品负责人选择并最终批准 A — Editorial，70 张视觉证据、21 项无障碍门禁、隔离 QA Runner 可操作状态、真实 Journey A/B 与 constraint publication 均已闭合；最终门禁为前端 67 files / 614 tests、E2E 5、visual 70、a11y 21、npm audit 0，OpenAPI/streaming 78、M4c E2E 31、non-Bench 4974 passed/1 skipped、Bench 790、依赖 27、导入契约 7/7、exact 77 operations / 4 artifacts。后续 `participant-04` 八场/四对真人证据已完整导入并通过 combined acceptance；M4 仍在进行中，M4e production/DR adapters 待推进）
 - `2026-07-14-m4c-api-worker.md` — M4c API 网关与持久 worker（✅ 已完成；Task 1–19 全闭合，focused 2316 passed、non-Bench 4766 passed/1 skipped、Bench 761 passed、迁移 35 passed、OpenAPI/streaming 73 passed、历史 cassette 12 passed，7 契约 kept）
 - `2026-07-14-m4b-observability-cost-reliability.md` — M4b 可观测、成本治理与可靠性（✅ 已完成；focused 290 passed/1 skipped，修复后全仓分区 2756 passed/1 skipped，7 契约 kept；下一片按冻结顺序进入 M4c）

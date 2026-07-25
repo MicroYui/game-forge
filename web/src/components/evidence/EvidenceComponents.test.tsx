@@ -54,7 +54,7 @@ describe("evidence components", () => {
 
     const deterministic = screen.getByRole("region", { name: "确定性预言机" });
     const simulation = screen.getByRole("region", { name: "仿真证据（描述性）" });
-    const suggestion = screen.getByRole("region", { name: "LLM 建议（需人确认）" });
+    const suggestion = screen.getByRole("region", { name: "AI 建议（需人工确认）" });
     const unproven = screen.getByRole("region", { name: "未证明（不可视为通过）" });
 
     expect(deterministic).toHaveAttribute("data-evidence-kind", "deterministic");
@@ -85,26 +85,25 @@ describe("evidence components", () => {
     render(<FindingCard finding={finding} />);
 
     expect(screen.getByRole("article")).toHaveAttribute("data-oracle", "deterministic");
-    expect(screen.getByText("严重 · critical")).toBeVisible();
+    expect(screen.getByText("严重")).toBeVisible();
     expect(screen.getByText("确定性预言机")).toBeVisible();
-    expect(screen.getByText("已确认 · confirmed")).toBeVisible();
-    expect(screen.getByText("不可变修订 7")).toBeVisible();
-    expect(screen.getByText("snapshot:immutable-42")).toBeVisible();
+    expect(screen.getByText("已确认")).toBeVisible();
+    expect(screen.getByText("第 7 版")).toBeVisible();
+    expect(screen.getByText("snapshot:immutable-42")).not.toBeVisible();
     expect(screen.getByText("aureus-csv · quest.csv / Quest / 第 17 行 / reward_gold")).toBeVisible();
-    expect(screen.getByText(/reward_gold = 120 > 80/)).toBeVisible();
-    expect(screen.getByText(/"actual": 120/)).toBeVisible();
-    expect(screen.getByText(/"maximum": 80/)).toBeVisible();
-    expect(screen.getByText(finding.finding_id)).toHaveClass("gf-copyable__value");
-    expect(screen.getByRole("button", { name: "复制 Finding ID" })).toBeVisible();
+    expect(screen.getByText(/reward_gold = 120 > 80/)).not.toBeVisible();
+    expect(screen.getByText(/"actual": 120/)).not.toBeVisible();
+    expect(screen.getByText(finding.finding_id)).not.toBeVisible();
+    expect(screen.getByText("数值超出允许范围")).toBeVisible();
     expect(screen.queryByRole("link", { name: "查看 exact Finding 修订" })).not.toBeInTheDocument();
   });
 
   it.each([
-    ["confirmed", "已确认 · confirmed"],
-    ["unproven", "未证明 · unproven"],
-    ["dismissed", "已驳回 · dismissed"],
-    ["fixed", "已修复 · fixed"],
-    ["accepted_risk", "已接受风险 · accepted_risk"],
+    ["confirmed", "已确认"],
+    ["unproven", "未证明"],
+    ["dismissed", "已忽略"],
+    ["fixed", "已修复"],
+    ["accepted_risk", "已接受风险"],
   ] as const)("renders the %s lifecycle status without recasting it as pass", (status, label) => {
     render(<FindingCard finding={{ ...finding, payload: { ...finding.payload, status } }} />);
 
@@ -115,7 +114,7 @@ describe("evidence components", () => {
     const detailHref = "/findings/finding%3Anewbie-gold?revision=7";
     render(<FindingCard detailHref={detailHref} finding={finding} />);
 
-    expect(screen.getByRole("link", { name: "查看 exact Finding 修订" })).toHaveAttribute("href", detailHref);
+    expect(screen.getByRole("link", { name: "查看此问题的历史版本" })).toHaveAttribute("href", detailHref);
   });
 
   it("shows the optional Run-link digest and evidence Artifact authority", () => {
@@ -131,9 +130,9 @@ describe("evidence components", () => {
       />,
     );
 
-    expect(screen.getByText("attempt 2 · ordinal 5")).toBeVisible();
-    expect(screen.getByText("f".repeat(64))).toBeVisible();
-    expect(screen.getByRole("link", { name: "artifact:checker:quest-cap" })).toHaveAttribute(
+    expect(screen.getByText("第 2 次检查 · 第 5 条结果")).toBeVisible();
+    expect(screen.getByText("f".repeat(64))).not.toBeVisible();
+    expect(screen.getByRole("link", { name: "查看检查证据" })).toHaveAttribute(
       "href",
       "/artifacts/artifact%3Achecker%3Aquest-cap",
     );

@@ -69,6 +69,15 @@ _PROBLEM_REF = "#/components/schemas/Problem"
 _JSON_MEDIA_TYPE = "application/json"
 _UINT64_MAX = (1 << 64) - 1
 _MAX_SSE_CURSOR = (1 << 63) - 1
+_PUBLIC_V1_ROLES = (
+    "content_designer",
+    "numeric_designer",
+    "qa",
+    "tooling",
+    "constraint_admin",
+    "gacha_compliance_reviewer",
+    "identity_admin",
+)
 
 _HTTP_METHODS = frozenset({"get", "put", "post", "delete", "patch", "head", "options", "trace"})
 _SUCCESS_CODES = ("200", "201", "202", "203", "204", "205", "206")
@@ -116,6 +125,8 @@ _ERROR_STATUSES: dict[str, tuple[str, ...]] = {
     "write_command": _BASE_ERROR_STATUSES + ("400", "404", "409", "410", "413"),
     "run_admission": _BASE_ERROR_STATUSES + ("404", "409", "413"),
     "execution_option_resolve": _BASE_ERROR_STATUSES + ("409", "413"),
+    "project_write": _BASE_ERROR_STATUSES + ("400", "404", "409", "410", "413"),
+    "project_extraction": _BASE_ERROR_STATUSES + ("400", "404", "409", "413"),
     "cancel": _BASE_ERROR_STATUSES + ("404", "409", "413"),
     "sse": ("400", "401", "403", "404", "410", "422", "500", "503"),
 }
@@ -171,6 +182,19 @@ _EXECUTION_OPTION_HEADERS = {
 _ADMISSION_HEADERS = {
     "Location": _header("Relative status URL of the accepted Run."),
     "Cache-Control": _header("Always `private, no-cache`."),
+}
+_PROJECT_WRITE_HEADERS = {
+    **_ETAG_HEADERS,
+    "Location": _header("Relative status URL of the created project resource."),
+    "X-Project-Revision": _header("Project revision after a bridged workflow command."),
+    "X-Identity-Alias-Groups": _header("Identity alias groups detected in the graph draft."),
+    "X-Identity-Auto-Merges": _header("Equivalent identities auto-merged in the graph draft."),
+}
+_PROJECT_EXTRACTION_HEADERS = {
+    **_ETAG_HEADERS,
+    "Location": _header("Relative status URL of the accepted project extraction."),
+    "X-Run-Id": _header("Run authority executing this extraction."),
+    "Link": _header("Run event stream link with rel=events."),
 }
 _SSE_HEADERS = {
     "Cache-Control": _header("Always `no-store` for the event stream."),
@@ -263,6 +287,12 @@ def _operation_class(method: str, path: str, operation: Mapping[str, Any]) -> st
         return "auth_me"
     if "workflow-commands" in tags:
         return "write_command"
+    if "projects" in tags:
+        if method == "get":
+            return "read_page" if _is_page_operation(operation) else "read_item"
+        if method == "post" and path.endswith("/extractions"):
+            return "project_extraction"
+        return "project_write"
     if "observability" in tags:
         return "observability"
     if "runs" in tags:
@@ -362,6 +392,12 @@ def _inject_success_headers(operation: dict[str, Any], operation_class: str) -> 
             _set_headers(operation, code, _ETAG_HEADERS)
     elif operation_class == "run_admission":
         _set_headers(operation, "202", _ADMISSION_HEADERS)
+    elif operation_class == "project_write":
+        code = _success_code(operation)
+        if code is not None:
+            _set_headers(operation, code, _PROJECT_WRITE_HEADERS)
+    elif operation_class == "project_extraction":
+        _set_headers(operation, "202", _PROJECT_EXTRACTION_HEADERS)
     elif operation_class == "execution_option_resolve":
         _set_headers(operation, "200", _EXECUTION_OPTION_HEADERS)
     elif operation_class == "cancel":
@@ -400,6 +436,8 @@ def _inject_request_headers(operation: dict[str, Any], operation_class: str) -> 
     elif operation_class in (
         "write_command",
         "run_admission",
+        "project_write",
+        "project_extraction",
         "execution_option_resolve",
         "cancel",
     ):
@@ -408,6 +446,46 @@ def _inject_request_headers(operation: dict[str, Any], operation_class: str) -> 
         _append_parameter(operation, _IDEMPOTENCY_REQUEST_HEADER)
     if operation_class == "sse":
         _append_parameter(operation, _LAST_EVENT_ID_REQUEST_HEADER)
+
+
+def _inject_project_upload_contract(path: str, method: str, operation: dict[str, Any]) -> None:
+    if method != "post" or path != "/api/v1/projects/{project_id}/materials:upload":
+        return
+    _append_parameter(
+        operation,
+        {
+            "name": "X-GameForge-File-Name",
+            "in": "header",
+            "required": True,
+            "description": "Visible source file name, retained as the material display name.",
+            "schema": {"type": "string", "minLength": 1, "maxLength": 256},
+        },
+    )
+    _append_parameter(
+        operation,
+        {
+            "name": "X-GameForge-Source-Format",
+            "in": "header",
+            "required": True,
+            "description": "Deterministic parser selected for the uploaded bytes.",
+            "schema": {
+                "type": "string",
+                "enum": [
+                    "plain_text",
+                    "markdown",
+                    "html",
+                    "feishu_blocks_json",
+                    "docx",
+                    "xlsx",
+                    "csv",
+                ],
+            },
+        },
+    )
+    operation["requestBody"] = {
+        "required": True,
+        "content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}},
+    }
 
 
 def _inject_problem_schema(document: dict[str, Any]) -> None:
@@ -421,6 +499,18 @@ def _inject_problem_schema(document: dict[str, Any]) -> None:
     # FastAPI's default validation types are replaced by the Problem error contract.
     schemas.pop("HTTPValidationError", None)
     schemas.pop("ValidationError", None)
+
+
+def _freeze_public_v1_role_schema(document: dict[str, Any]) -> None:
+    """Keep auth/me's role wire closed while platform authority stays server-side."""
+
+    schemas = document.setdefault("components", {}).setdefault("schemas", {})
+    assignment = schemas.get("RoleAssignmentV1")
+    properties = assignment.get("properties") if isinstance(assignment, Mapping) else None
+    role = properties.get("role") if isinstance(properties, Mapping) else None
+    if not isinstance(role, dict):
+        raise RuntimeError("OpenAPI is missing RoleAssignmentV1.role")
+    role["enum"] = list(_PUBLIC_V1_ROLES)
 
 
 def _pointer_part(value: str) -> str:
@@ -572,6 +662,7 @@ def build_openapi() -> dict[str, Any]:
 
     document = copy.deepcopy(create_app().openapi())
     _inject_problem_schema(document)
+    _freeze_public_v1_role_schema(document)
     components = document.setdefault("components", {})
     components["securitySchemes"] = copy.deepcopy(_SECURITY_SCHEMES)
     document["security"] = copy.deepcopy(_SESSION_OR_API_KEY)
@@ -595,6 +686,7 @@ def build_openapi() -> dict[str, Any]:
             _inject_error_responses(operation, operation_class)
             _inject_success_headers(operation, operation_class)
             _inject_request_headers(operation, operation_class)
+            _inject_project_upload_contract(path, method, operation)
             if operation_class == "cancel":
                 _restrict_rest_cancel(operation)
     return document

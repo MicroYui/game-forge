@@ -147,7 +147,13 @@ function review(
       by_defect_class:
         deterministicCount === 0
           ? []
-          : [{ count: deterministicCount, defect_class: "quest_dead_end", severity: "critical" }],
+          : [
+              {
+                count: deterministicCount,
+                defect_class: "quest_dead_end",
+                severity: "critical",
+              },
+            ],
       deterministic_findings: Array.from({ length: deterministicCount }, (_, index) => ({
         defect_class: "quest_dead_end",
         finding_schema_version: "finding@1",
@@ -235,25 +241,29 @@ function renderWorkspace(api: ReviewApi, url = "/reviews") {
   };
 }
 
+function reportLink(artifactId: string) {
+  const row = screen.getByText(artifactId).closest("tr");
+  if (!row) throw new Error(`Review row not found for ${artifactId}`);
+  return within(row).getByRole("link", { name: "查看报告" });
+}
+
 async function selectReviewReplay(user: ReturnType<typeof userEvent.setup>) {
+  await user.selectOptions(await screen.findByRole("combobox", { name: "内容检查方案" }), "builtin.review@1");
+  await user.selectOptions(screen.getByRole("combobox", { name: "AI 问题归纳方案" }), "builtin.llm_triage@1");
+  await user.selectOptions(screen.getByRole("combobox", { name: "AI 运行方式" }), "replay");
   await user.selectOptions(
-    await screen.findByRole("combobox", { name: "Review profile" }),
-    "builtin.review@1",
-  );
-  await user.selectOptions(
-    screen.getByRole("combobox", { name: "LLM triage profile" }),
-    "builtin.llm_triage@1",
-  );
-  await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
-  await user.selectOptions(
-    screen.getByRole("combobox", { name: "Replay source Run" }),
+    screen.getByRole("combobox", { name: "历史回放来源" }),
     "run:review:record-source",
   );
 }
 
 async function selectRequiredReviewReplay(user: ReturnType<typeof userEvent.setup>) {
   await selectReviewReplay(user);
-  await user.click(screen.getByRole("checkbox", { name: "builtin.checker · builtin.checker@1" }));
+  await user.click(
+    screen.getByRole("checkbox", {
+      name: "默认确定性检查 v1",
+    }),
+  );
 }
 
 describe("Review workspace", () => {
@@ -266,8 +276,8 @@ describe("Review workspace", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "审查报告" })).toBeVisible();
-    expect(screen.queryByRole("heading", { name: "启动候选 Review" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: "内容检查" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "启动内容检查" })).not.toBeInTheDocument();
     expect(listReviewProfiles).not.toHaveBeenCalled();
   });
 
@@ -281,8 +291,8 @@ describe("Review workspace", () => {
       `/reviews?sourceRun=${encodeURIComponent(generationContext.sourceRun)}&snapshot=${encodeURIComponent(generationContext.snapshot)}`,
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "审查报告" })).toBeVisible();
-    expect(screen.queryByRole("heading", { name: "启动候选 Review" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: "内容检查" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "启动内容检查" })).not.toBeInTheDocument();
     expect(listReviewProfiles).not.toHaveBeenCalled();
   });
 
@@ -314,21 +324,26 @@ describe("Review workspace", () => {
       `/reviews?snapshot=${encodeURIComponent(generationContext.snapshot)}&constraint=${encodeURIComponent(generationContext.constraint)}`,
     );
 
-    expect(await screen.findByRole("heading", { name: "启动候选 Review" })).toBeVisible();
-    const ledger = screen.getByRole("complementary", { name: "Review input 账页" });
-    const sourceRunEntry = within(ledger).getByText("导航来源 Run（非提交输入）").closest("div");
-    expect(sourceRunEntry).not.toBeNull();
-    expect(within(sourceRunEntry!).getByText("无")).toBeVisible();
-    expect(within(sourceRunEntry!).queryByRole("link")).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "启动内容检查" })).toBeVisible();
+    const ledger = screen.getByRole("complementary", {
+      name: "本次内容检查范围",
+    });
+    expect(within(ledger).getByText("当前候选版本")).toBeVisible();
+    expect(within(ledger).getByText("已发布的权威规则")).toBeVisible();
+    expect(within(ledger).queryByRole("link")).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Review profile" }), "builtin.review@1");
-    await user.click(screen.getByRole("checkbox", { name: "builtin.checker · builtin.checker@1" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "内容检查方案" }), "builtin.review@1");
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "默认确定性检查 v1",
+      }),
+    );
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "LLM triage profile" }),
+      screen.getByRole("combobox", { name: "AI 问题归纳方案" }),
       "builtin.llm_triage@1",
     );
-    await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "record");
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "AI 运行方式" }), "record");
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
     await waitFor(() => expect(submitRun).toHaveBeenCalledOnce());
     expect(resolveExecutionOption.mock.calls[0][0]).toMatchObject({
@@ -376,29 +391,36 @@ describe("Review workspace", () => {
       `/reviews?sourceRun=${encodeURIComponent(generationContext.sourceRun)}&snapshot=${encodeURIComponent(generationContext.snapshot)}&constraint=${encodeURIComponent(generationContext.constraint)}`,
     );
 
-    expect(await screen.findByRole("heading", { name: "启动候选 Review" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "启动内容检查" })).toBeVisible();
     expect(screen.getAllByText(generationContext.snapshot)).toHaveLength(2);
     expect(screen.getAllByText(generationContext.constraint)).toHaveLength(2);
-    expect(screen.getByText("Exact Review inputs")).toBeVisible();
-    expect(screen.getByText("导航来源 Run（非提交输入）")).toBeVisible();
+    expect(screen.getByText("本次将检查")).toBeVisible();
     expect(screen.queryByRole("option", { name: /disabled\.review/ })).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Review profile" }), "builtin.review@1");
-    await user.click(screen.getByRole("checkbox", { name: "builtin.checker · builtin.checker@1" }));
-    await user.click(screen.getByRole("checkbox", { name: "builtin.simulation · builtin.simulation@1" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "内容检查方案" }), "builtin.review@1");
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "默认确定性检查 v1",
+      }),
+    );
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "默认经济仿真 v1",
+      }),
+    );
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "LLM triage profile" }),
+      screen.getByRole("combobox", { name: "AI 问题归纳方案" }),
       "builtin.llm_triage@1",
     );
-    expect(screen.queryByRole("spinbutton", { name: "Seed" })).not.toBeInTheDocument();
-    expect(screen.getByText("Seed 不适用")).toBeVisible();
-    expect(screen.getByText(/当前所选 profiles 均为确定性执行/)).toBeVisible();
-    await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
+    expect(screen.queryByRole("spinbutton", { name: "随机种子" })).not.toBeInTheDocument();
+    expect(screen.getByText("不需要随机种子")).toBeVisible();
+    expect(screen.getByText(/当前所选方案均为确定性执行/)).toBeVisible();
+    await user.selectOptions(screen.getByRole("combobox", { name: "AI 运行方式" }), "replay");
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Replay source Run" }),
+      screen.getByRole("combobox", { name: "历史回放来源" }),
       "run:review:record-source",
     );
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
     await waitFor(() => expect(resolveExecutionOption).toHaveBeenCalledOnce());
     const resolverRequest = resolveExecutionOption.mock.calls[0][0];
@@ -437,7 +459,7 @@ describe("Review workspace", () => {
       execution_version_plan: executionPlan,
     });
     expect(submittedIntent.idempotencyKey).toEqual(expect.any(String));
-    expect(await screen.findByRole("link", { name: "打开 Run run:review:accepted" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "查看检查进度" })).toHaveAttribute(
       "href",
       "/runs/run%3Areview%3Aaccepted",
     );
@@ -467,33 +489,37 @@ describe("Review workspace", () => {
     );
 
     await user.selectOptions(
-      await screen.findByRole("combobox", { name: "Review profile" }),
+      await screen.findByRole("combobox", { name: "内容检查方案" }),
       "builtin.review@1",
     );
-    await user.click(screen.getByRole("checkbox", { name: "builtin.checker · builtin.checker@1" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "默认确定性检查 v1",
+      }),
+    );
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "LLM triage profile" }),
+      screen.getByRole("combobox", { name: "AI 问题归纳方案" }),
       "builtin.llm_triage.stochastic@1",
     );
-    await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
+    await user.selectOptions(screen.getByRole("combobox", { name: "AI 运行方式" }), "replay");
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Replay source Run" }),
+      screen.getByRole("combobox", { name: "历史回放来源" }),
       "run:review:record-source",
     );
 
-    const seedInput = screen.getByRole("spinbutton", { name: "Seed" });
+    const seedInput = screen.getByRole("spinbutton", { name: "随机种子" });
     expect(seedInput).toBeRequired();
-    expect(screen.getByText(/所选 profile 包含随机执行/)).toBeVisible();
+    expect(screen.getByText(/所选方案包含随机执行/)).toBeVisible();
     await user.clear(seedInput);
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeDisabled();
     await user.type(seedInput, "-1");
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeDisabled();
     expect(resolveExecutionOption).not.toHaveBeenCalled();
 
     await user.clear(seedInput);
     await user.type(seedInput, "13");
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeEnabled();
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
     await waitFor(() => expect(resolveExecutionOption).toHaveBeenCalledOnce());
     expect(resolveExecutionOption.mock.calls[0][0].prospective_request.seed).toBe(13);
@@ -529,13 +555,15 @@ describe("Review workspace", () => {
     );
 
     await selectReviewReplay(user);
-    await user.click(screen.getByRole("checkbox", { name: "builtin.simulation · builtin.simulation@1" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "默认经济仿真 v1",
+      }),
+    );
 
-    expect(
-      screen.getByText("当前 exact constraint 含 0 条约束；Checker 或 Simulation 至少选择一种。"),
-    ).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeEnabled();
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    expect(screen.getByText("当前没有额外规则；确定性检查或经济仿真至少选择一种。")).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
     await waitFor(() => expect(resolveExecutionOption).toHaveBeenCalledOnce());
     expect(resolveExecutionOption.mock.calls[0][0].prospective_request.params).toMatchObject({
@@ -569,7 +597,7 @@ describe("Review workspace", () => {
 
     await selectReviewReplay(user);
 
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeDisabled();
     expect(resolveExecutionOption).not.toHaveBeenCalled();
   });
 
@@ -595,12 +623,14 @@ describe("Review workspace", () => {
     );
 
     await selectReviewReplay(user);
-    await user.click(screen.getByRole("checkbox", { name: "builtin.simulation · builtin.simulation@1" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "默认经济仿真 v1",
+      }),
+    );
 
-    expect(
-      screen.getByText("当前 exact constraint 含 1 条约束；必须选择至少一个 Checker，Simulation 可选。"),
-    ).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
+    expect(screen.getByText("当前规则含 1 条约束；必须选择至少一项确定性检查，经济仿真可选。")).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeDisabled();
     expect(resolveExecutionOption).not.toHaveBeenCalled();
   });
 
@@ -625,7 +655,7 @@ describe("Review workspace", () => {
 
     await selectRequiredReviewReplay(user);
 
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeEnabled();
   });
 
   it("fails closed when the exact constraint cannot be read", async () => {
@@ -651,7 +681,7 @@ describe("Review workspace", () => {
 
     expect(await screen.findByText("无法读取 Review constraint")).toBeVisible();
     expect(getConstraint).toHaveBeenCalledWith(generationContext.constraint);
-    expect(screen.queryByRole("button", { name: "启动 Review" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "开始内容检查" })).not.toBeInTheDocument();
     expect(resolveExecutionOption).not.toHaveBeenCalled();
   });
 
@@ -678,7 +708,7 @@ describe("Review workspace", () => {
 
     expect(await screen.findByText("Review 启动 authority 不安全")).toBeVisible();
     expect(getConstraint).toHaveBeenCalledWith(generationContext.constraint);
-    expect(screen.queryByRole("button", { name: "启动 Review" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "开始内容检查" })).not.toBeInTheDocument();
     expect(resolveExecutionOption).not.toHaveBeenCalled();
   });
 
@@ -710,19 +740,19 @@ describe("Review workspace", () => {
     );
 
     await selectRequiredReviewReplay(user);
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
     expect(await screen.findByText("Review 结果未知")).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeDisabled();
-    expect(screen.getByRole("combobox", { name: "Review profile" })).toBeDisabled();
-    expect(screen.getByRole("combobox", { name: "LLM triage profile" })).toBeDisabled();
-    expect(screen.getByRole("combobox", { name: "LLM execution mode" })).toBeDisabled();
-    expect(screen.getByRole("combobox", { name: "Replay source Run" })).toBeDisabled();
-    expect(screen.getByText("Seed 不适用")).toBeVisible();
-    expect(screen.queryByRole("spinbutton", { name: "Seed" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "内容检查方案" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "AI 问题归纳方案" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "AI 运行方式" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "历史回放来源" })).toBeDisabled();
+    expect(screen.getByText("不需要随机种子")).toBeVisible();
+    expect(screen.queryByRole("spinbutton", { name: "随机种子" })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "以同一 intent 重试" }));
 
-    expect(await screen.findByRole("link", { name: "打开 Run run:review:retry" })).toBeVisible();
+    expect(await screen.findByRole("link", { name: "查看检查进度" })).toBeVisible();
     expect(reviewLaunchApi.resolveExecutionOption).toHaveBeenCalledOnce();
     expect(submitRun).toHaveBeenCalledTimes(2);
     expect(submitRun.mock.calls[1][0]).toBe(submitRun.mock.calls[0][0]);
@@ -740,21 +770,22 @@ describe("Review workspace", () => {
             page([reviewProfile, checkerProfile, triageProfile], null, "read:review-profiles"),
           ),
         listReviews: vi.fn().mockResolvedValue(page([], null)),
-        resolveExecutionOption: vi
-          .fn()
-          .mockResolvedValue({ ...executionOption, source_run_id: "run:review:different-source" }),
+        resolveExecutionOption: vi.fn().mockResolvedValue({
+          ...executionOption,
+          source_run_id: "run:review:different-source",
+        }),
         submitRun,
       }),
       `/reviews?sourceRun=${encodeURIComponent(generationContext.sourceRun)}&snapshot=${encodeURIComponent(generationContext.snapshot)}&constraint=${encodeURIComponent(generationContext.constraint)}`,
     );
 
     await selectRequiredReviewReplay(user);
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
     expect(await screen.findByText("Review 启动 authority 不安全")).toBeVisible();
     expect(submitRun).not.toHaveBeenCalled();
-    expect(screen.getByRole("combobox", { name: "Review profile" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "启动 Review" })).toBeEnabled();
+    expect(screen.getByRole("combobox", { name: "内容检查方案" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "开始内容检查" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "以同一 intent 重试" })).not.toBeInTheDocument();
   });
 
@@ -785,13 +816,17 @@ describe("Review workspace", () => {
     );
 
     await selectRequiredReviewReplay(user);
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
     expect(await screen.findByText("Review 解析失败")).toBeVisible();
-    expect(screen.getByRole("combobox", { name: "Review profile" })).toBeEnabled();
+    expect(screen.getByRole("combobox", { name: "内容检查方案" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "以同一 intent 重试" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "启动 Review" }));
+    await user.click(screen.getByRole("button", { name: "开始内容检查" }));
 
-    expect(await screen.findByRole("link", { name: "打开 Run run:review:resolver-retry" })).toBeVisible();
+    expect(
+      await screen.findByRole("link", {
+        name: "查看检查进度",
+      }),
+    ).toBeVisible();
     expect(resolveExecutionOption).toHaveBeenCalledTimes(2);
     expect(resolveExecutionOption.mock.calls[1][0]).toStrictEqual(resolveExecutionOption.mock.calls[0][0]);
     expect(submitRun).toHaveBeenCalledOnce();
@@ -818,32 +853,40 @@ describe("Review workspace", () => {
       `/reviews?sourceRun=${encodeURIComponent("run:generation:7")}&snapshot=${encodeURIComponent(previewId)}`,
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "审查报告" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开 artifact:review:1" })).toHaveAttribute(
+    expect(await screen.findByRole("heading", { level: 1, name: "内容检查" })).toBeVisible();
+    const reports = screen.getAllByText("内容检查报告");
+    expect(reports).toHaveLength(2);
+    expect(screen.getAllByText("2026年7月20日 02:00")).toHaveLength(2);
+    expect(screen.getByText("artifact:review:1")).not.toBeVisible();
+    expect(reportLink("artifact:review:1")).toHaveAttribute(
       "href",
       "/reviews/artifact%3Areview%3A1?sourceRun=run%3Ageneration%3A7&snapshot=artifact%3Apreview%3Ashared",
     );
-    expect(screen.getByRole("link", { name: "打开 artifact:review:2" })).toHaveAttribute(
+    expect(reportLink("artifact:review:2")).toHaveAttribute(
       "href",
       "/reviews/artifact%3Areview%3A2?sourceRun=run%3Ageneration%3A7&snapshot=artifact%3Apreview%3Ashared",
     );
-    expect(screen.getByText("review@1")).toBeVisible();
-    expect(screen.getByText("review@2")).toBeVisible();
-    expect(screen.getByText("2 确定性 · 0 仿真 · 0 LLM · 0 未证明")).toBeVisible();
-    expect(screen.getByText("1 确定性 · 0 仿真 · 0 LLM · 0 未证明")).toBeVisible();
-    expect(screen.getByText(/来源 Run 仅作为导航上下文/)).toBeVisible();
-    expect(screen.getByText("direct parent 包含请求的候选 Artifact")).toBeVisible();
-    expect(screen.getByText("direct parent 不含请求的候选 Artifact；未隐藏该报告")).toBeVisible();
+    expect(screen.getByText("review@1")).not.toBeVisible();
+    expect(screen.getByText("review@2")).not.toBeVisible();
+    expect(screen.getByText("2 个确定性问题 · 0 个模拟问题 · 0 条 AI 建议 · 0 项待确认")).toBeVisible();
+    expect(screen.getByText("1 个确定性问题 · 0 个模拟问题 · 0 条 AI 建议 · 0 项待确认")).toBeVisible();
+    expect(screen.getByText(/你从一次内容生成来到这里/)).toBeVisible();
+    expect(screen.getByText("与当前候选匹配")).toBeVisible();
+    expect(screen.getByText("其他内容版本的报告")).toBeVisible();
   });
 
   it("fails closed instead of labeling a malformed Review partition", async () => {
     const invalid = review("artifact:review:invalid", "review@1", [], 1);
     invalid.report.simulation_findings = invalid.report.deterministic_findings;
     invalid.report.deterministic_findings = [];
-    renderWorkspace(reviewApi({ listReviews: vi.fn().mockResolvedValue(page([invalid], null)) }));
+    renderWorkspace(
+      reviewApi({
+        listReviews: vi.fn().mockResolvedValue(page([invalid], null)),
+      }),
+    );
 
     expect(await screen.findByText("无法读取审查报告")).toBeVisible();
-    expect(screen.queryByRole("link", { name: "打开 artifact:review:invalid" })).not.toBeInTheDocument();
+    expect(screen.queryByText("artifact:review:invalid")).not.toBeInTheDocument();
   });
 
   it("appends only the same read snapshot and preserves the opaque cursor", async () => {
@@ -857,7 +900,7 @@ describe("Review workspace", () => {
     await user.click(await screen.findByRole("button", { name: "加载下一页" }));
 
     await waitFor(() => expect(listReviews).toHaveBeenLastCalledWith("opaque+/="));
-    expect(screen.getByRole("link", { name: "打开 artifact:review:2" })).toBeVisible();
+    expect(reportLink("artifact:review:2")).toBeVisible();
   });
 
   it("requires an explicit restart after a 410 and does not discard already-read rows", async () => {
@@ -889,11 +932,12 @@ describe("Review workspace", () => {
 
     await user.click(await screen.findByRole("button", { name: "加载下一页" }));
     expect(await screen.findByText(/分页游标已过期/)).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开 artifact:review:1" })).toBeVisible();
+    expect(reportLink("artifact:review:1")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "重新开始查询" }));
-    expect(await screen.findByRole("link", { name: "打开 artifact:review:fresh" })).toBeVisible();
-    expect(screen.queryByRole("link", { name: "打开 artifact:review:1" })).not.toBeInTheDocument();
+    expect(await screen.findByText("artifact:review:fresh")).not.toBeVisible();
+    expect(reportLink("artifact:review:fresh")).toBeVisible();
+    expect(screen.queryByText("artifact:review:1")).not.toBeInTheDocument();
   });
 
   it("ignores an old next-page response after a fresh first-page refetch", async () => {
@@ -912,11 +956,10 @@ describe("Review workspace", () => {
     await user.click(await screen.findByRole("button", { name: "加载下一页" }));
     await waitFor(() => expect(listReviews).toHaveBeenCalledWith("old-cursor"));
     await rendered.client.invalidateQueries({ queryKey: ["review-workspace"] });
-    expect(await screen.findByRole("link", { name: "打开 artifact:review:fresh" })).toBeVisible();
+    expect(await screen.findByText("artifact:review:fresh")).not.toBeVisible();
+    expect(reportLink("artifact:review:fresh")).toBeVisible();
 
     resolveOldPage(page([review("artifact:review:stale", "review@1", [], 0)], null));
-    await waitFor(() =>
-      expect(screen.queryByRole("link", { name: "打开 artifact:review:stale" })).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.queryByText("artifact:review:stale")).not.toBeInTheDocument());
   });
 });

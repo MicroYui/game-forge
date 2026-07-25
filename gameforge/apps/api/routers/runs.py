@@ -152,6 +152,7 @@ def run_admission_router() -> APIRouter:
     ) -> RunAcceptedV1:
         accepted = _port(dependencies).admit_generation(
             base_snapshot_artifact_id=payload.base_snapshot_artifact_id,
+            source_artifact_ids=payload.source_artifact_ids,
             constraint_snapshot_artifact_id=payload.constraint_snapshot_artifact_id,
             findings=payload.findings,
             objective_goal_text=payload.objective_goal_text,

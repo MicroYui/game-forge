@@ -3,7 +3,7 @@ import { FileSearch2, GitCommitHorizontal } from "lucide-react";
 
 import { ApiProblemError } from "../../api/problem";
 import { FindingCard } from "../../components/evidence";
-import { CopyableText } from "../../components/tables";
+import { compactDateTime, TechnicalDetails } from "../../components/identity";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { requireExactFindingRoute, ReviewAuthorityError } from "./authority";
 import { reviewApi, type ReviewApi } from "./api";
@@ -16,13 +16,13 @@ function FindingError({ error, onRetry }: { error: Error; onRetry(): void }) {
       <StatePanel
         action={
           <button className="gf-secondary-button" onClick={onRetry} type="button">
-            重新读取 exact revision
+            重新读取此版本
           </button>
         }
         description={error.message}
         headingLevel={1}
         state="error"
-        title="Finding 权威闭合失败"
+        title="问题版本校验失败"
       />
     );
   }
@@ -33,10 +33,10 @@ function FindingError({ error, onRetry }: { error: Error; onRetry(): void }) {
           重试
         </button>
       }
-      description="Finding immutable revision 读取失败；未显示底层异常。"
+      description="无法读取指定的问题版本。"
       headingLevel={1}
       state="error"
-      title="无法读取 Finding 修订"
+      title="无法读取问题版本"
     />
   );
 }
@@ -61,10 +61,10 @@ export function FindingDetailPage({
     return (
       <div className="gf-page gf-review">
         <StatePanel
-          description="正在读取 route 指定的 immutable Finding revision。"
+          description="正在读取指定的问题历史版本。"
           headingLevel={1}
           state="loading"
-          title="正在读取 Finding 修订"
+          title="正在读取问题版本"
         />
       </div>
     );
@@ -82,9 +82,9 @@ export function FindingDetailPage({
     <div className="gf-page gf-review gf-finding-detail" data-layout="editorial-finding-detail">
       <header className="gf-finding-detail__hero">
         <div>
-          <p className="gf-review__kicker">Exact finding history · no latest fallback</p>
-          <h1>Finding immutable revision</h1>
-          <CopyableText copyLabel="复制 Finding detail ID" value={finding.finding_id} />
+          <p className="gf-review__kicker">问题历史</p>
+          <h1>问题详情</h1>
+          <p>页面固定展示第 {finding.revision} 版，不会自动替换成更新版本。</p>
         </div>
         <FileSearch2 aria-hidden="true" size={34} />
       </header>
@@ -92,29 +92,40 @@ export function FindingDetailPage({
       <section className="gf-finding-detail__revision" aria-labelledby="finding-revision-title">
         <header>
           <GitCommitHorizontal aria-hidden="true" size={22} />
-          <h2 id="finding-revision-title">Revision binding</h2>
+          <h2 id="finding-revision-title">版本信息</h2>
         </header>
         <dl>
           <div>
-            <dt>Requested revision</dt>
-            <dd>{finding.revision}</dd>
+            <dt>当前查看</dt>
+            <dd>第 {finding.revision} 版</dd>
           </div>
           <div>
-            <dt>Supersedes</dt>
-            <dd>{finding.supersedes_revision ?? "初始修订"}</dd>
-          </div>
-          <div>
-            <dt>Persisted at</dt>
-            <dd>{finding.created_at}</dd>
-          </div>
-          <div>
-            <dt>Producer Run</dt>
+            <dt>上一版本</dt>
             <dd>
-              <a href={`/runs/${encodeURIComponent(finding.payload.producer_run_id)}`}>打开 producer Run</a>
+              {finding.supersedes_revision == null ? "这是首个版本" : `第 ${finding.supersedes_revision} 版`}
+            </dd>
+          </div>
+          <div>
+            <dt>保存时间</dt>
+            <dd>{compactDateTime(finding.created_at)}</dd>
+          </div>
+          <div>
+            <dt>生成记录</dt>
+            <dd>
+              <a href={`/runs/${encodeURIComponent(finding.payload.producer_run_id)}`}>查看生成记录</a>
             </dd>
           </div>
         </dl>
       </section>
+
+      <TechnicalDetails
+        items={[
+          { label: "问题 ID", value: finding.finding_id },
+          { label: "生成运行 ID", value: finding.payload.producer_run_id },
+          { label: "内容快照 ID", value: finding.payload.snapshot_id },
+        ]}
+        summary="查看问题版本技术信息"
+      />
 
       <FindingCard finding={finding} />
     </div>

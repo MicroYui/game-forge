@@ -173,8 +173,28 @@ def _role_policy(registry: DomainRegistryV1) -> RolePolicy:
         ),
         "identity_admin": (
             Permission(action="identity.manage", resource_kind="identity", domain_scope=None),
+            Permission(action="read", resource_kind="metric", domain_scope=None),
         ),
     }
+    grants["platform_admin"] = (
+        *grants["identity_admin"],
+        *grants["tooling"],
+        Permission(
+            action="approval.decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+        Permission(
+            action="approval.self_decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+        Permission(
+            action="approval.route_override",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+    )
     effective_from = "2026-07-14T00:00:00Z"
     return RolePolicy(
         policy_version=ROLE_POLICY_VERSION,

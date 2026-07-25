@@ -1,7 +1,9 @@
 import { useId, useMemo, useState } from "react";
 
 import type { components } from "../../api/generated/openapi";
+import { TechnicalDetails } from "../identity";
 import { JsonValueStateView } from "./JsonValueStateView";
+import { friendlyTechnicalPath } from "./SnapshotDiffView";
 import "./diff.css";
 
 type ConflictResolution = components["schemas"]["ConflictResolution"];
@@ -15,9 +17,9 @@ interface ResolutionDraft {
 }
 
 const choiceLabels: Record<ResolutionChoice, string> = {
-  custom: "自定义 JSON",
-  keep_current: "保留 Current",
-  take_proposed: "采用 Proposed",
+  custom: "自己填写一个值（高级）",
+  keep_current: "保留当前正式内容",
+  take_proposed: "采用这份草案的修改",
 };
 
 const choiceOrder: readonly ResolutionChoice[] = ["keep_current", "take_proposed", "custom"];
@@ -99,11 +101,11 @@ export function MergeResolver({
     <section className="gf-merge" aria-labelledby={`${instanceId}-heading`}>
       <header className="gf-merge__header">
         <div>
-          <h2 id={`${instanceId}-heading`}>三方冲突解析</h2>
-          <p>每项都必须显式选择；不会由前端或模型自动裁决。</p>
+          <h2 id={`${instanceId}-heading`}>逐项处理内容冲突</h2>
+          <p>每项都需要你亲自选择；系统和 AI 不会替你覆盖正式内容。</p>
         </div>
         <p aria-live="polite">
-          已解析 {completedCount} / {conflicts.length}
+          已处理 {completedCount} / {conflicts.length}
         </p>
       </header>
 
@@ -116,26 +118,31 @@ export function MergeResolver({
             <article className="gf-merge-conflict" key={conflict.id}>
               <header>
                 <div>
-                  <h3>{conflict.path}</h3>
-                  <p>
-                    {conflict.kind} · {conflict.id}
-                  </p>
+                  <h3>{friendlyTechnicalPath(conflict.path)}</h3>
+                  <TechnicalDetails
+                    items={[
+                      { label: "字段路径", value: conflict.path },
+                      { label: "冲突类型", value: conflict.kind },
+                      { label: "冲突标识", value: conflict.id },
+                    ]}
+                    summary="查看冲突技术信息"
+                  />
                 </div>
                 <span className="u-status">
-                  {buildResolutions([conflict], { [conflict.id]: draft }).length > 0
-                    ? "已显式选择"
-                    : "待显式选择"}
+                  {buildResolutions([conflict], { [conflict.id]: draft }).length > 0 ? "已选择" : "等待选择"}
                 </span>
               </header>
 
               <div className="gf-merge-conflict__scroll" tabIndex={0}>
                 <table>
-                  <caption className="u-sr-only">{conflict.path} 的三方值</caption>
+                  <caption className="u-sr-only">
+                    {friendlyTechnicalPath(conflict.path)} 的冲突内容对比
+                  </caption>
                   <thead>
                     <tr>
-                      <th scope="col">Base</th>
-                      <th scope="col">Current</th>
-                      <th scope="col">Proposed</th>
+                      <th scope="col">草案创建时</th>
+                      <th scope="col">当前正式内容</th>
+                      <th scope="col">草案建议</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -155,7 +162,7 @@ export function MergeResolver({
               </div>
 
               <fieldset className="gf-merge-conflict__choices">
-                <legend>选择解析方式</legend>
+                <legend>选择最终采用的内容</legend>
                 {choiceOrder
                   .filter((choice) => conflict.allowed_resolutions.includes(choice))
                   .map((choice) => (
@@ -174,9 +181,8 @@ export function MergeResolver({
 
               {draft.choice === "custom" && (
                 <div className="gf-merge-conflict__custom">
-                  <label htmlFor={customInputId}>自定义值（JSON）</label>
+                  <label htmlFor={customInputId}>自定义内容值（JSON，高级）</label>
                   <textarea
-                    aria-label={`${conflict.id} 的自定义 JSON`}
                     id={customInputId}
                     onChange={(event) => updateCustom(conflict, event.currentTarget.value)}
                     rows={5}

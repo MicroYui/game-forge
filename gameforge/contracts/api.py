@@ -33,10 +33,10 @@ from gameforge.contracts.findings import (
     finding_revision_digest,
 )
 from gameforge.contracts.identity import (
+    ApprovalRouteRole,
     DomainScope,
     DomainScopeValue,
     LowerHexSha256,
-    Role,
     SubjectKind,
 )
 from gameforge.contracts.ir import Entity, Relation
@@ -761,6 +761,7 @@ class GenerationProposeRequestV1(_FrozenModel):
 
     request_schema_version: Literal["generation-propose-request@1"] = "generation-propose-request@1"
     base_snapshot_artifact_id: BoundedId
+    source_artifact_ids: tuple[BoundedId, ...] = Field(default=(), max_length=MAX_COLLECTION_ITEMS)
     constraint_snapshot_artifact_id: BoundedId | None = None
     findings: tuple[FindingEvidenceBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     objective_goal_text: _BOUNDED_GOAL_TEXT
@@ -774,6 +775,11 @@ class GenerationProposeRequestV1(_FrozenModel):
 
     @model_validator(mode="after")
     def _bounded(self) -> "GenerationProposeRequestV1":
+        object.__setattr__(
+            self,
+            "source_artifact_ids",
+            _stable_unique_strings(self.source_artifact_ids),
+        )
         finding_ids = [item.finding_id for item in self.findings]
         if len(finding_ids) != len(set(finding_ids)):
             raise ValueError("each finding series may be bound only once")
@@ -1203,7 +1209,7 @@ class ApprovalDecisionEligibilityV1(_FrozenModel):
 class ApprovalRequirementProgressV1(_FrozenModel):
     requirement_id: BoundedId
     domain_scope: DomainScope
-    route_role: Role
+    route_role: ApprovalRouteRole
     min_approvals: PositiveInt
     valid_approval_count: NonNegativeInt
     satisfied: bool

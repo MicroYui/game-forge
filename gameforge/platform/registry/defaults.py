@@ -122,8 +122,12 @@ _PROFILE_CHANGED_AT = "2026-07-14T00:00:00Z"
 _ALL_ARTIFACT_KINDS = tuple(get_args(ArtifactKind))
 _VERSION_FIELDS = tuple(VersionTuple.model_fields)
 _ARTIFACT_SCHEMAS: dict[ArtifactKind, tuple[str, ...]] = {
-    "source_raw": ("source-raw@1", "agent-prompt-context@1"),
-    "source_rendered": ("source-rendered@1",),
+    "source_raw": (
+        "source-raw@1",
+        "agent-prompt-context@1",
+        "project-material-original@1",
+    ),
+    "source_rendered": ("source-rendered@1", "project-material-rendered@1"),
     "ir_snapshot": ("ir-core@1",),
     "constraint_snapshot": ("constraint-snapshot@1",),
     "constraint_proposal": ("constraint-proposal@1",),
@@ -678,6 +682,19 @@ def _supporting_input_parent() -> ArtifactParentRuleV1:
     )
 
 
+def _planning_material_parent() -> ArtifactParentRuleV1:
+    """Bind the exact project materials the generation Run admitted as context."""
+
+    return _parent(
+        "planning_material",
+        source="run_input",
+        kinds=("source_raw", "source_rendered"),
+        min_count=0,
+        max_count=None,
+        schemas=("project-material-original@1", "project-material-rendered@1"),
+    )
+
+
 def _lineage_spec(
     *,
     policy_id: str,
@@ -701,6 +718,7 @@ def _lineage_spec(
                         min_count=0,
                     ),
                     _parent("goal", source="run_input", kinds=("source_raw",)),
+                    _planning_material_parent(),
                     _supporting_input_parent(),
                     _rendered_parent(),
                 )
@@ -716,6 +734,7 @@ def _lineage_spec(
             parents.extend(
                 (
                     _parent("base", source="run_input", kinds=("ir_snapshot",)),
+                    _planning_material_parent(),
                     _parent(
                         "patch",
                         source="prepared_rule",
@@ -2488,22 +2507,38 @@ def _resolved_policy_profile_config(
     profile_version: int = 1,
 ) -> dict[str, Any]:
     if profile_kind == "checker":
+        defect_classes = (
+            "cyclic_dependency",
+            "dangling_reference",
+            "dead_quest",
+            "gacha_expectation_violation",
+            "interval_violation",
+            "isolated_node",
+            "missing_drop_source",
+            "non_monotonic_curve",
+            "prob_sum_ne_1",
+            "reward_out_of_range",
+            "unreachable_target",
+            "unsatisfiable_completion",
+        )
+        if profile_version == 2:
+            defect_classes = tuple(
+                sorted(
+                    (
+                        *defect_classes,
+                        "event_scope_membership_missing",
+                        "event_scope_owner_missing",
+                        "invalid_event_lifecycle",
+                        "permanent_depends_on_limited_content",
+                        "unbound_event_schedule",
+                    )
+                )
+            )
+        elif profile_version != 1:
+            raise ValueError("unsupported built-in checker profile version")
         return CheckerProfileConfigV1(
             allowed_checker_ids=("asp", "graph", "smt"),
-            allowed_defect_classes=(
-                "cyclic_dependency",
-                "dangling_reference",
-                "dead_quest",
-                "gacha_expectation_violation",
-                "interval_violation",
-                "isolated_node",
-                "missing_drop_source",
-                "non_monotonic_curve",
-                "prob_sum_ne_1",
-                "reward_out_of_range",
-                "unreachable_target",
-                "unsatisfiable_completion",
-            ),
+            allowed_defect_classes=defect_classes,
             max_direct_checker_count=3,
             max_constraint_count=256,
             max_work_units=2_000_000,
@@ -2820,6 +2855,42 @@ def _execution_profile_catalog_v2() -> ExecutionProfileCatalogSnapshotV1:
     )
 
 
+def _execution_profile_catalog_v3() -> ExecutionProfileCatalogSnapshotV1:
+    """Publish lifecycle-aware checker@2 without rewriting retained history."""
+
+    previous = _execution_profile_catalog_v2()
+    compatibility = _profile_compatibility()
+    checker_v2 = _execution_profile_definition(
+        profile_kind="checker",
+        run_kinds=compatibility["checker"],
+        profile_version=2,
+    )
+    definitions = (*previous.definitions, checker_v2)
+    previous_lifecycle = {item.profile: item for item in previous.lifecycle}
+    changed_at = "2026-07-25T00:00:00Z"
+    lifecycle = tuple(
+        previous_lifecycle.get(
+            definition.profile,
+            ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="active",
+                revision=1,
+                changed_at=changed_at,
+            ),
+        )
+        for definition in definitions
+    )
+    payload = {
+        "catalog_version": 3,
+        "definitions": definitions,
+        "lifecycle": lifecycle,
+    }
+    return ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
 def _profile_requirements() -> dict[RunKindIdentity, tuple[ProfileRequirement, ...]]:
     return {
         run_kind: tuple(
@@ -2854,20 +2925,12 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
         ...,
     ] = (
         (
-            "generation-graph@1",
-            ("generation.propose", 1),
-            "generation_proposer@1",
-            "replay_only",
-            None,
-            (("generation", "generation@1", "generation@1"),),
-        ),
-        (
-            "generation-graph@2",
+            "generation-graph@7",
             ("generation.propose", 1),
             "generation_proposer@1",
             "active",
             None,
-            (("generation", "generation@2", "generation@1"),),
+            (("generation", "generation@7", "generation@1"),),
         ),
         (
             "repair-graph@1",
@@ -3089,6 +3152,7 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
         execution_profile_catalogs=(
             _execution_profile_catalog_v1(),
             _execution_profile_catalog_v2(),
+            _execution_profile_catalog_v3(),
         ),
         migration_capability_registries=(migration_registry,),
         profile_requirements=_profile_requirements(),

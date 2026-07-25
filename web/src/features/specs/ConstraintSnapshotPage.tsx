@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import type { components } from "../../api/generated/openapi";
 import { ApiProblemError } from "../../api/problem";
+import { TechnicalDetails } from "../../components/identity";
 import { CopyableText, CursorTable, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
@@ -157,10 +158,10 @@ function AuthorityPanel({
       <section className="gf-specs__authority" data-authority="authoritative">
         <BadgeCheck aria-hidden="true" size={22} />
         <div>
-          <p className="gf-specs__authority-label">Authority</p>
-          <h2>已由 ref 历史证明权威</h2>
-          <p>Exact ref history 指向此 Artifact；revision {evidence.refValue.revision}。</p>
-          <a href={`/refs/${encodeURIComponent(evidence.refName)}/history`}>检查 ref 历史</a>
+          <p className="gf-specs__authority-label">当前使用中</p>
+          <h2>这是当前生效的规则版本</h2>
+          <p>版本历史确认当前内容正在使用第 {evidence.refValue.revision} 版规则。</p>
+          <a href={`/refs/${encodeURIComponent(evidence.refName)}/history`}>查看规则版本历史</a>
         </div>
       </section>
     );
@@ -171,13 +172,10 @@ function AuthorityPanel({
       <section className="gf-specs__authority" data-authority="candidate">
         <CircleDotDashed aria-hidden="true" size={22} />
         <div>
-          <p className="gf-specs__authority-label">Candidate</p>
-          <h2>候选快照 · 尚未证明权威</h2>
-          <p>
-            批准状态 {evidence.approvalStatus} 仍不等于 ref 已发布；workflow revision{" "}
-            {evidence.workflowRevision}。
-          </p>
-          <a href={`/approvals/${encodeURIComponent(evidence.approvalId)}`}>打开批准目标</a>
+          <p className="gf-specs__authority-label">待发布</p>
+          <h2>这是候选规则，尚未应用</h2>
+          <p>规则仍在审批流程中，不会影响当前正式内容。</p>
+          <a href={`/approvals/${encodeURIComponent(evidence.approvalId)}`}>查看审批进度</a>
         </div>
       </section>
     );
@@ -188,13 +186,13 @@ function AuthorityPanel({
       <section className="gf-specs__authority" data-authority="historical">
         <GitBranch aria-hidden="true" size={22} />
         <div>
-          <p className="gf-specs__authority-label">Historical</p>
+          <p className="gf-specs__authority-label">历史版本</p>
           <h2>这是曾发布过的历史约束</h2>
           <p>
-            此 Artifact 位于 revision {evidence.historicalRefValue.revision}；当前 ref 已到 revision{" "}
-            {evidence.currentRefValue.revision}，不会把历史版本误称为当前权威。
+            这是第 {evidence.historicalRefValue.revision} 版；当前已经更新到第{" "}
+            {evidence.currentRefValue.revision} 版。
           </p>
-          <a href={`/refs/${encodeURIComponent(evidence.refName)}/history`}>检查完整 ref 历史</a>
+          <a href={`/refs/${encodeURIComponent(evidence.refName)}/history`}>查看完整版本历史</a>
         </div>
       </section>
     );
@@ -208,20 +206,24 @@ function AuthorityPanel({
     <section className="gf-specs__authority" data-authority="unresolved">
       <ShieldQuestion aria-hidden="true" size={22} />
       <div>
-        <p className="gf-specs__authority-label">Unresolved</p>
-        <h2>权威状态未证明</h2>
-        <p>{reason}</p>
+        <p className="gf-specs__authority-label">状态未知</p>
+        <h2>无法确认这版规则是否生效</h2>
+        <p>系统没有取得完整且匹配的发布记录，因此不会把这版规则标记为当前生效。</p>
+        <details>
+          <summary>查看核验技术原因</summary>
+          <p>{reason}</p>
+        </details>
       </div>
     </section>
   );
 }
 
 const authoritySteps = [
-  "人工修订 proposal",
-  "确定性 compile / validate",
+  "策划确认并修订草案",
+  "系统自动编译并检查",
   "提交审批",
-  "另一位 human 批准",
-  "publish + constraint ref history",
+  "由另一位负责人批准",
+  "发布并写入版本历史",
 ] as const;
 
 export function ConstraintSnapshotPage({
@@ -248,7 +250,10 @@ export function ConstraintSnapshotPage({
     enabled: refName !== null,
     queryFn: async (): Promise<ConstraintSnapshotAuthorityEvidence> => {
       if (!refName || !api.listRefHistory) {
-        return { evidenceKind: "unresolved", reason: "未提供可读取的 exact ref history。" };
+        return {
+          evidenceKind: "unresolved",
+          reason: "未提供可读取的 exact ref history。",
+        };
       }
       const entries = [] as RefValue[];
       const seen = new Set<string>();
@@ -278,7 +283,10 @@ export function ConstraintSnapshotPage({
                 historicalRefValue: historical,
                 refName,
               }
-            : { evidenceKind: "unresolved", reason: `Ref ${refName} 从未指向此 Artifact。` };
+            : {
+                evidenceKind: "unresolved",
+                reason: `Ref ${refName} 从未指向此 Artifact。`,
+              };
         }
         if (seen.has(next)) throw new Error("Constraint ref history returned a cursor cycle.");
         seen.add(next);
@@ -294,10 +302,10 @@ export function ConstraintSnapshotPage({
     return (
       <div className="gf-page gf-specs">
         <StatePanel
-          description="正在读取 constraint_snapshot Artifact 与显式权威证据。"
+          description="正在读取规则内容和发布状态。"
           headingLevel={1}
           state="loading"
-          title="正在读取约束快照"
+          title="正在读取规则版本"
         />
       </div>
     );
@@ -307,8 +315,8 @@ export function ConstraintSnapshotPage({
     return (
       <div className="gf-page gf-specs">
         <header className="gf-page-header">
-          <p className="gf-specs__kicker">Constraint snapshot · Detail</p>
-          <h1>约束快照</h1>
+          <p className="gf-specs__kicker">游戏规则版本</p>
+          <h1>规则版本详情</h1>
         </header>
         {detail.error instanceof ApiProblemError ? (
           <ProblemPanel problem={detail.error.problem} />
@@ -319,9 +327,9 @@ export function ConstraintSnapshotPage({
                 重试
               </button>
             }
-            description="约束快照读取失败；未展示底层异常内容。"
+            description="规则版本读取失败；未展示底层异常内容。"
             state="error"
-            title="无法读取约束快照"
+            title="无法读取规则版本"
           />
         )}
       </div>
@@ -334,94 +342,86 @@ export function ConstraintSnapshotPage({
 
   return (
     <div className="gf-page gf-specs gf-constraint-snapshot">
-      <nav aria-label="约束快照导航" className="gf-specs__back-nav">
-        <a href="/specs">返回规格工作台</a>
-        <a href={`/artifacts/${encodeURIComponent(snapshot.artifact.artifact_id)}`}>查看安全 Artifact 摘要</a>
+      <nav aria-label="规则版本导航" className="gf-specs__back-nav">
+        <a href="/specs">返回内容工作台</a>
+        <a href={`/artifacts/${encodeURIComponent(snapshot.artifact.artifact_id)}`}>查看来源记录</a>
       </nav>
 
       <header className="gf-specs__hero gf-specs__hero--detail">
         <div>
-          <p className="gf-specs__kicker">Constraint snapshot · Immutable Artifact</p>
-          <h1>约束快照</h1>
-          <p className="gf-specs__lede">
-            快照内容与权威状态分开呈现：candidate 来自批准目标，authority 只来自 exact publish/ref 历史证据。
-          </p>
+          <p className="gf-specs__kicker">游戏规则版本</p>
+          <h1>规则版本详情</h1>
+          <p className="gf-specs__lede">查看这一版有哪些规则，以及它是待审批、当前生效还是历史版本。</p>
         </div>
         <span className="gf-specs__status-mark">
           <FileCheck2 aria-hidden="true" size={17} />
-          {snapshot.dsl_grammar_version}
+          已固定规则
         </span>
       </header>
 
       {refEvidence.isPending && refName !== null ? (
-        <StatePanel
-          description={`正在读取 ${refName} 的完整历史。`}
-          state="loading"
-          title="正在验证权威状态"
-        />
+        <StatePanel description="正在读取完整版本历史。" state="loading" title="正在核对发布状态" />
       ) : refEvidence.isError ? (
         <StatePanel
-          description="Ref history 未能完整闭合；页面不会据此标记 authority。"
+          description="版本历史读取不完整；为避免误导，页面不会把这版规则标记为当前生效。"
           state="error"
-          title="无法验证权威状态"
+          title="无法核对发布状态"
         />
       ) : (
         <AuthorityPanel artifactId={snapshot.artifact.artifact_id} evidence={resolvedAuthority} />
       )}
 
       {refName === null && (
-        <section className="gf-specs__authority-check" aria-label="检查约束 ref">
-          <div>
-            <strong>知道它属于哪个约束 ref？</strong>
-            <p>输入 ref 名称后由服务器完整历史证明当前或历史状态；无需填写 Artifact ID。</p>
-          </div>
-          <label>
-            Ref 名称
-            <input onChange={(event) => setRefInput(event.target.value)} value={refInput} />
-          </label>
-          <a
-            aria-disabled={!refInput.trim()}
-            className="gf-secondary-button"
-            href={refInput.trim() ? `?ref=${encodeURIComponent(refInput.trim())}` : undefined}
-          >
-            检查 ref 历史
-          </a>
-        </section>
+        <details className="gf-specs__authority-check">
+          <summary>高级：核验版本来源</summary>
+          <section aria-label="核验规则发布位置">
+            <div>
+              <strong>按发布位置核对完整历史</strong>
+              <p>仅在审计或排障时使用；日常查看无需填写。</p>
+            </div>
+            <label>
+              发布位置名称
+              <input onChange={(event) => setRefInput(event.target.value)} value={refInput} />
+            </label>
+            <a
+              aria-disabled={!refInput.trim()}
+              className="gf-secondary-button"
+              href={refInput.trim() ? `?ref=${encodeURIComponent(refInput.trim())}` : undefined}
+            >
+              核对版本历史
+            </a>
+          </section>
+        </details>
       )}
 
-      <dl className="gf-specs__facts" aria-label="约束快照身份">
+      <dl className="gf-specs__facts" aria-label="规则版本概览">
         <div>
-          <dt>Artifact ID</dt>
-          <dd>
-            <CopyableText copyLabel="复制约束快照 Artifact ID" value={snapshot.artifact.artifact_id} />
-          </dd>
-        </div>
-        <div>
-          <dt>Constraint snapshot ID</dt>
-          <dd>
-            <code>{snapshot.artifact.version_tuple.constraint_snapshot_id ?? "未绑定"}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>Payload schema</dt>
-          <dd>
-            <code>{snapshot.artifact.payload_schema_id ?? "未公开"}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>DSL grammar</dt>
-          <dd>
-            <code>{snapshot.dsl_grammar_version}</code>
-          </dd>
+          <dt>规则数量</dt>
+          <dd>{constraints?.length ?? "无法读取"} 条</dd>
         </div>
       </dl>
+      <TechnicalDetails
+        items={[
+          { label: "Artifact ID", value: snapshot.artifact.artifact_id },
+          {
+            label: "Constraint snapshot ID",
+            value: snapshot.artifact.version_tuple.constraint_snapshot_id ?? "未绑定",
+          },
+          {
+            label: "Payload schema",
+            value: snapshot.artifact.payload_schema_id ?? "未公开",
+          },
+          { label: "DSL grammar", value: snapshot.dsl_grammar_version },
+        ]}
+        summary="查看规则版本技术信息"
+      />
 
       <section className="gf-specs__authority-path" aria-labelledby="authority-path-title">
         <header>
           <Route aria-hidden="true" size={19} />
           <div>
-            <h2 id="authority-path-title">约束权威化路径</h2>
-            <p>流程说明不是当前状态机；当前状态只取自上方显式证据。</p>
+            <h2 id="authority-path-title">规则发布流程</h2>
+            <p>这是发布步骤说明；这版是否生效以上方状态为准。</p>
           </div>
         </header>
         <ol>
@@ -438,21 +438,21 @@ export function ConstraintSnapshotPage({
         <header className="gf-specs__section-heading">
           <GitBranch aria-hidden="true" size={19} />
           <div>
-            <h2 id="constraint-list-title">快照约束条目</h2>
-            <p>仅在 exact constraint-snapshot@1 下解释 generated JsonValue 载荷。</p>
+            <h2 id="constraint-list-title">本版规则</h2>
+            <p>先显示策划可读摘要；完整技术字段可按需展开。</p>
           </div>
         </header>
         {constraints === null ? (
           <StatePanel
-            description="Schema ID 或必需字段与当前窄渲染契约不一致；原始 JsonValue 不会直接输出。"
+            description="这版数据与当前阅读器不兼容；为避免误读，原始内容不会直接显示。"
             state="error"
-            title="无法安全解释约束载荷"
+            title="无法安全读取规则内容"
           />
         ) : constraints.length === 0 ? (
           <StatePanel
-            description="该 exact 快照包含零条约束；本页不会补造默认规则。"
+            description="这一版没有保存任何规则；页面不会自行补造内容。"
             state="empty"
-            title="快照中没有约束条目"
+            title="这一版没有规则"
           />
         ) : (
           <div className="gf-constraint-snapshot__content">

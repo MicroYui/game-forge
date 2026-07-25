@@ -70,14 +70,14 @@ const approval = {
 } as unknown as ApprovalView;
 
 const executionPlan: components["schemas"]["ExecutionVersionPlanV1"] = {
-  agent_graph_version: "generation@3",
+  agent_graph_version: "generation-graph@7",
   model_catalog_digest: "a".repeat(64),
   model_catalog_version: 4,
   nodes: [
     {
       agent_node_id: "generate",
       allowed_model_snapshots: ["openai/gpt-5.6-sol/m4@1"],
-      prompt_version: "generation@3",
+      prompt_version: "generation@7",
       tool_version: "patch-drafter@2",
     },
   ],
@@ -99,6 +99,7 @@ const prospectiveRequest: components["schemas"]["ProspectiveGenerationProposeReq
   llm_execution_mode: "record",
   objective_goal_text: "为前哨任务生成可验证的内容补丁。",
   request_schema_version: "generation-propose-request@1",
+  source_artifact_ids: [],
   target: {
     expected_ref: { artifact_id: "artifact:spec:base", revision: 7 },
     ref_name: "refs/specs/aureus",

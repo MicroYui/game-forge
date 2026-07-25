@@ -94,17 +94,16 @@ describe("TraceDetailPage", () => {
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Trace 详情" })).toBeVisible();
-    expect(screen.getByText(traceId)).toBeVisible();
-    expect(screen.getByRole("link", { name: /run:7/ })).toHaveAttribute("href", "/runs/run%3A7");
-    expect(screen.getByRole("heading", { name: "Trace waterfall" })).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Span inspector" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "运行追踪" })).toBeVisible();
+    expect(screen.getByText(traceId)).not.toBeVisible();
+    expect(screen.getByRole("link", { name: "查看关联运行 1" })).toHaveAttribute("href", "/runs/run%3A7");
+    expect(screen.getByRole("heading", { name: "执行步骤时间线" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "步骤详情" })).toBeVisible();
     expect(screen.getAllByText("worker.attempt")[0]).toBeVisible();
-    const inspector = screen.getByRole("region", { name: "Span inspector" });
-    expect(within(inspector).getByText("attempt")).toBeVisible();
-    expect(within(inspector).getByText("2")).toBeVisible();
-    expect(within(inspector).getByText("phase")).toBeVisible();
-    expect(within(inspector).getByText("publish")).toBeVisible();
+    const inspector = screen.getByRole("region", { name: "步骤详情" });
+    expect(within(inspector).getByText("attempt")).not.toBeVisible();
+    expect(within(inspector).getByText("phase")).not.toBeVisible();
+    expect(within(inspector).getByText("publish")).not.toBeVisible();
     const redactionNotice = within(inspector).getByText(/4 个字段已脱敏/);
     expect(redactionNotice).toBeVisible();
     expect(redactionNotice).not.toHaveAttribute("role");
@@ -112,16 +111,16 @@ describe("TraceDetailPage", () => {
     expect(screen.queryByText("private payload")).not.toBeInTheDocument();
     expect(screen.queryByText("private debug")).not.toBeInTheDocument();
     expect(screen.queryByText("private config")).not.toBeInTheDocument();
-    const summaryTruncation = screen.getByText("Trace summary 已截断");
-    const spanTruncation = screen.getByText("Span page 已截断");
+    const summaryTruncation = screen.getByText("运行追踪摘要 已截断");
+    const spanTruncation = screen.getByText("执行步骤列表 已截断");
     expect(summaryTruncation).toBeVisible();
     expect(spanTruncation).toBeVisible();
     expect(summaryTruncation).not.toHaveAttribute("role");
     expect(spanTruncation).not.toHaveAttribute("role");
 
-    const spanTable = screen.getByRole("region", { name: "Trace spans" });
-    expect(within(spanTable).getByText(rootSpanId)).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Trace 日志" })).toBeVisible();
+    const spanTable = screen.getByRole("region", { name: "执行步骤" });
+    expect(within(spanTable).queryByText(rootSpanId)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "运行日志" })).toBeVisible();
     expect(testApi.queryLogs).toHaveBeenCalledWith({
       cursor: null,
       endUtc: summary.ended_at,
@@ -147,7 +146,7 @@ describe("TraceDetailPage", () => {
       </QueryClientProvider>,
     );
 
-    const logsHeading = await screen.findByRole("heading", { name: "Trace 日志" });
+    const logsHeading = await screen.findByRole("heading", { name: "运行日志" });
     const logsSection = logsHeading.closest("section");
     expect(logsSection).not.toBeNull();
     await user.click(await within(logsSection!).findByRole("button", { name: "加载下一页" }));
@@ -184,8 +183,8 @@ describe("TraceDetailPage", () => {
     );
 
     await waitFor(() => expect(testApi.queryLogs).toHaveBeenCalledTimes(1));
-    await user.click(await screen.findByRole("button", { name: "检查 worker.attempt" }));
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Span inspector" })).toBeVisible());
+    await user.click(await screen.findByRole("button", { name: "查看 worker.attempt" }));
+    await waitFor(() => expect(screen.getByRole("heading", { name: "步骤详情" })).toBeVisible());
     expect(testApi.queryLogs).toHaveBeenCalledTimes(1);
     expect(testApi.queryLogs).toHaveBeenCalledWith({
       cursor: null,

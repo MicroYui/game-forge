@@ -1,6 +1,6 @@
 import type { components } from "../../api/generated/openapi";
 import { cursorFromPage } from "../../api/pagination";
-import { CopyableText } from "../../components/tables";
+import { TechnicalDetails } from "../../components/identity";
 import type { ArtifactPayloadView, PatchWorkflowApi } from "./api";
 
 const MAX_FACTS = 64;
@@ -8,6 +8,27 @@ const MAX_VISIBLE_CHANGES = 12;
 const MAX_VALUE_CHARACTERS = 160;
 
 type SnapshotDiffEntry = components["schemas"]["SnapshotDiffEntry"];
+
+const pathLabels: Record<string, string> = {
+  attrs: "属性",
+  cost: "消耗",
+  description: "描述",
+  economy: "经济系统",
+  entities: "内容",
+  gold: "金币",
+  relations: "关系",
+  reward: "奖励",
+  title: "名称",
+};
+
+function friendlyPath(path: string): string {
+  return path
+    .split(/[/.]/u)
+    .filter(Boolean)
+    .filter((part) => part !== "attrs" && part !== "entities")
+    .map((part) => pathLabels[part] ?? part.replace(/[-_]+/gu, " "))
+    .join(" / ");
+}
 
 export interface RollbackSnapshotDiff {
   entries: SnapshotDiffEntry[];
@@ -182,11 +203,12 @@ export function RollbackContentComparison({
             const entry = authoritative ? diff.entries[index] : null;
             return (
               <li key={path}>
-                <strong>{path}</strong>
+                <strong>{friendlyPath(path)}</strong>
                 <span>
                   {entry ? displayState(entry.before) : (currentFacts.facts.get(path) ?? "未设置")} →{" "}
                   {entry ? displayState(entry.after) : (targetFacts.facts.get(path) ?? "未设置")}
                 </span>
+                <TechnicalDetails items={[{ label: "字段路径", value: path }]} summary="查看字段定位" />
               </li>
             );
           })}
@@ -200,11 +222,13 @@ export function RollbackContentComparison({
       {!authoritative && fallbackTruncated && visibleChanges.length > 0 && (
         <p className="gf-patches__muted">有界摘要未比较全部内容；除上述可见差异外，可能还有未展示变化。</p>
       )}
-      <details>
-        <summary>查看 exact Artifact 技术身份</summary>
-        <CopyableText copyLabel="复制 current Artifact ID" value={current.artifact.artifact_id} />
-        <CopyableText copyLabel="复制 target Artifact ID" value={target.artifact.artifact_id} />
-      </details>
+      <TechnicalDetails
+        items={[
+          { label: "Current Artifact ID", value: current.artifact.artifact_id },
+          { label: "Target Artifact ID", value: target.artifact.artifact_id },
+        ]}
+        summary="查看对比技术信息"
+      />
     </section>
   );
 }

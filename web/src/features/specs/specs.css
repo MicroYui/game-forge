@@ -150,6 +150,28 @@
   min-width: 0;
 }
 
+.gf-specs__entry-grid--primary {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gf-specs__manual-tools {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.gf-specs__manual-tools > summary {
+  cursor: pointer;
+  color: var(--ink-2);
+  font-weight: var(--font-weight-heading);
+}
+
+.gf-specs__manual-tools[open] > summary {
+  margin-block-end: var(--space-4);
+}
+
 .gf-specs__entry-card {
   display: grid;
   gap: var(--space-4);
@@ -1296,4 +1318,29 @@
   .gf-specs__authority {
     padding: var(--space-3);
   }
+}
+.gf-specs__project-context {
+  display: flex;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--deterministic);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--deterministic) 7%, var(--surface));
+}
+
+.gf-specs__project-context > svg {
+  flex: none;
+  margin-block-start: 2px;
+  color: var(--deterministic);
+}
+
+.gf-specs__project-context > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.gf-specs__project-context p {
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
 }

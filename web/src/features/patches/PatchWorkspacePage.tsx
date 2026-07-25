@@ -4,12 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
-import {
-  CopyableText,
-  CursorTable,
-  type CursorPaginationState,
-  type CursorTableColumn,
-} from "../../components/tables";
+import { compactDateTime, ResourceIdentity } from "../../components/identity";
+import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   patchWorkflowApi,
@@ -37,50 +33,104 @@ function paginationState<T>(state: LedgerState<T>): CursorPaginationState {
   return state.loading ? "loading" : "ready";
 }
 
+function workflowStatusLabel(value: string): string {
+  return (
+    {
+      applied: "已应用",
+      approved: "已批准",
+      changes_requested: "待修改",
+      draft: "草稿",
+      pending_approval: "待审批",
+      rejected: "已驳回",
+      rolled_back: "已回滚",
+      superseded: "已被替代",
+      validated: "已验证",
+      validating: "验证中",
+      validation_failed: "验证失败",
+    }[value] ?? value
+  );
+}
+
+function evidenceStatusLabel(value: string): string {
+  return (
+    {
+      failed: "未通过",
+      not_started: "未开始",
+      passed: "已通过",
+      running: "进行中",
+    }[value] ?? value
+  );
+}
+
+function patchRationaleLabel(value: string): string {
+  if (/\p{Script=Han}/u.test(value)) return value;
+  if (/generat|proposal/iu.test(value)) return "基于内容生成结果创建的修改草案";
+  if (/reward|econom|sink|gold|currency/iu.test(value)) return "调整奖励与经济数值，使资源产出回到安全范围内";
+  return "根据检查结果创建的内容修改";
+}
+
+function rollbackReasonLabel(value: string): string {
+  return /\p{Script=Han}/u.test(value) ? value : "按已确认的历史版本恢复正式内容";
+}
+
 const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
   {
-    header: "Patch Artifact",
+    header: "内容修改",
     id: "patch",
     render: (item) => (
-      <div className="gf-patches__table-primary">
-        <CopyableText copyLabel="复制 Patch Artifact ID" value={item.artifact.artifact_id} />
-        <a href={`/patches/${encodeURIComponent(item.artifact.artifact_id)}`}>
-          打开 {item.artifact.artifact_id}
-        </a>
-      </div>
-    ),
-  },
-  {
-    header: "Immutable revision",
-    id: "revision",
-    render: (item) => <span>revision {item.patch.revision}</span>,
-  },
-  {
-    header: "Workflow",
-    id: "workflow",
-    render: (item) => (
-      <span className="gf-patches__workflow-cell">
-        {item.approval_status} · workflow {item.workflow_revision}
-      </span>
-    ),
-  },
-  {
-    header: "Snapshot transition",
-    id: "transition",
-    render: (item) => (
-      <CopyableText
-        copyLabel="复制 Snapshot transition"
-        scrollable
-        value={`${item.patch.base_snapshot_id} → ${item.patch.target_snapshot_id}`}
+      <ResourceIdentity
+        actionLabel="查看修改"
+        description={`${compactDateTime(item.artifact.created_at)} · ${patchRationaleLabel(item.patch.rationale)}`}
+        details={[
+          {
+            copyLabel: "复制修改标识",
+            label: "修改标识",
+            value: item.artifact.artifact_id,
+          },
+          ...(patchRationaleLabel(item.patch.rationale) === item.patch.rationale
+            ? []
+            : [{ label: "原始修改理由", value: item.patch.rationale }]),
+        ]}
+        href={`/patches/${encodeURIComponent(item.artifact.artifact_id)}`}
+        title={`内容修改 · 第 ${item.patch.revision} 版`}
       />
     ),
   },
   {
-    header: "Evidence state",
+    header: "版本",
+    id: "revision",
+    render: (item) => <span>第 {item.patch.revision} 版（保留历史）</span>,
+  },
+  {
+    header: "流程状态",
+    id: "workflow",
+    render: (item) => (
+      <span className="gf-patches__workflow-cell">
+        {workflowStatusLabel(item.approval_status)} · 流程版本 {item.workflow_revision}
+      </span>
+    ),
+  },
+  {
+    header: "版本变化",
+    id: "transition",
+    render: (item) => (
+      <ResourceIdentity
+        description="原内容保持不变，修改结果保存为新候选版本"
+        details={[
+          { label: "修改前版本标识", value: item.patch.base_snapshot_id },
+          { label: "修改后版本标识", value: item.patch.target_snapshot_id },
+        ]}
+        title="原版本 → 候选版本"
+      />
+    ),
+  },
+  {
+    header: "验证结果",
     id: "evidence",
     render: (item) => (
       <span>
-        validation {item.validation_status} · regression {item.regression_status}
+        内容验证：{evidenceStatusLabel(item.validation_status)} · 回归验证：
+        {evidenceStatusLabel(item.regression_status)}
       </span>
     ),
   },
@@ -88,33 +138,48 @@ const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
 
 const rollbackColumns: readonly CursorTableColumn<RollbackRequestReadView>[] = [
   {
-    header: "Rollback Artifact",
+    header: "回滚请求",
     id: "rollback",
     render: (item) => (
-      <div className="gf-patches__table-primary">
-        <CopyableText copyLabel="复制 Rollback Artifact ID" value={item.artifact.artifact_id} />
-        <a href={`/rollback-requests/${encodeURIComponent(item.artifact.artifact_id)}`}>
-          打开 {item.artifact.artifact_id}
-        </a>
-      </div>
+      <ResourceIdentity
+        actionLabel="查看回滚"
+        description={`${compactDateTime(item.artifact.created_at)} · ${rollbackReasonLabel(item.request.reason)}`}
+        details={[
+          {
+            copyLabel: "复制回滚请求标识",
+            label: "回滚请求标识",
+            value: item.artifact.artifact_id,
+          },
+          ...(rollbackReasonLabel(item.request.reason) === item.request.reason
+            ? []
+            : [{ label: "原始回退原因", value: item.request.reason }]),
+        ]}
+        href={`/rollback-requests/${encodeURIComponent(item.artifact.artifact_id)}`}
+        title={`回滚请求 · 恢复到第 ${item.request.target_history_revision} 版`}
+      />
     ),
   },
-  { header: "Ref", id: "ref", render: (item) => <code>{item.request.ref_name}</code> },
   {
-    header: "Historical target",
+    header: "发布位置",
+    id: "ref",
+    render: (item) => <span>{item.request.ref_name}</span>,
+  },
+  {
+    header: "恢复目标",
     id: "target",
     render: (item) => (
-      <span>
-        history revision {item.request.target_history_revision} · {item.request.target_artifact_id}
-      </span>
+      <ResourceIdentity
+        details={[{ label: "历史内容标识", value: item.request.target_artifact_id }]}
+        title={`恢复到第 ${item.request.target_history_revision} 版`}
+      />
     ),
   },
   {
-    header: "Workflow",
+    header: "流程状态",
     id: "workflow",
     render: (item) => (
       <span className="gf-patches__workflow-cell">
-        {item.approval_status} · workflow {item.workflow_revision}
+        {workflowStatusLabel(item.approval_status)} · 流程版本 {item.workflow_revision}
       </span>
     ),
   },
@@ -195,7 +260,11 @@ export function PatchWorkspacePage({ api = patchWorkflowApi }: { api?: PatchWork
       });
     } catch (error) {
       if (patchEpoch.current === epoch) {
-        setPatches({ ...current, error: normalizedError(error), loading: false });
+        setPatches({
+          ...current,
+          error: normalizedError(error),
+          loading: false,
+        });
       }
     }
   }
@@ -220,7 +289,11 @@ export function PatchWorkspacePage({ api = patchWorkflowApi }: { api?: PatchWork
       });
     } catch (error) {
       if (rollbackEpoch.current === epoch) {
-        setRollbacks({ ...current, error: normalizedError(error), loading: false });
+        setRollbacks({
+          ...current,
+          error: normalizedError(error),
+          loading: false,
+        });
       }
     }
   }
@@ -252,15 +325,13 @@ export function PatchWorkspacePage({ api = patchWorkflowApi }: { api?: PatchWork
     <div className="gf-page gf-patches" data-layout="editorial-patch-workspace">
       <header className="gf-patches__hero">
         <div>
-          <p className="gf-patches__kicker">Immutable revisions · explicit authority · reversible refs</p>
-          <h1>Patch / Diff</h1>
-          <p>
-            Patch 内容不可变；验证、审批和应用状态来自 retained workflow。回滚移动 ref，不伪造内容 lineage。
-          </p>
+          <p className="gf-patches__kicker">修改、验证与恢复</p>
+          <h1>修改与版本</h1>
+          <p>查看 AI 或人工提出的内容修改，确认验证状态，并在需要时恢复历史版本。</p>
         </div>
         <div className="gf-patches__hero-mark" aria-hidden="true">
           <Split size={30} />
-          <span>PATCH</span>
+          <span>修改</span>
         </div>
       </header>
 
@@ -268,20 +339,20 @@ export function PatchWorkspacePage({ api = patchWorkflowApi }: { api?: PatchWork
         <header>
           <History aria-hidden="true" size={21} />
           <div>
-            <h2 id="patch-ledger-title">Patch revision ledger</h2>
-            <p>每个 Artifact 是一个 immutable revision；列表不会折叠 series 或覆盖历史状态。</p>
+            <h2 id="patch-ledger-title">内容修改记录</h2>
+            <p>每次修改都单独保留，不会覆盖之前的版本。</p>
           </div>
         </header>
         {patchQuery.isPending || currentPatches === null ? (
-          <StatePanel description="正在读取 Patch read snapshot。" state="loading" title="正在读取 Patch" />
+          <StatePanel description="正在读取最新的内容修改记录。" state="loading" title="正在读取修改记录" />
         ) : patchQuery.isError ? (
           <LedgerError error={patchQuery.error} onRestart={() => void patchQuery.refetch()} />
         ) : (
           <>
             <CursorTable
-              caption="Patch revision ledger"
+              caption="内容修改记录"
               columns={patchColumns}
-              emptyLabel="当前权限范围内没有 Patch revision"
+              emptyLabel="当前没有内容修改记录"
               getRowKey={(item) => item.artifact.artifact_id}
               items={currentPatches.items}
               nextCursor={currentPatches.nextCursor}
@@ -300,8 +371,8 @@ export function PatchWorkspacePage({ api = patchWorkflowApi }: { api?: PatchWork
         <header>
           <RotateCcw aria-hidden="true" size={21} />
           <div>
-            <h2 id="rollback-ledger-title">Rollback request ledger</h2>
-            <p>Rollback request 经过独立 validate → approve → apply；目标是明确的历史 revision。</p>
+            <h2 id="rollback-ledger-title">版本恢复请求</h2>
+            <p>恢复请求需要先验证、再审批、最后应用，并始终指向一个明确的历史版本。</p>
           </div>
         </header>
         {rollbackQuery.isPending || currentRollbacks === null ? (
@@ -315,9 +386,9 @@ export function PatchWorkspacePage({ api = patchWorkflowApi }: { api?: PatchWork
         ) : (
           <>
             <CursorTable
-              caption="Rollback request ledger"
+              caption="版本恢复请求"
               columns={rollbackColumns}
-              emptyLabel="当前权限范围内没有 RollbackRequest"
+              emptyLabel="当前没有版本恢复请求"
               getRowKey={(item) => item.artifact.artifact_id}
               items={currentRollbacks.items}
               nextCursor={currentRollbacks.nextCursor}

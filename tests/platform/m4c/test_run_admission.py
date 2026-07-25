@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Iterator, Mapping
+from typing import Any, Iterator, Literal, Mapping
 
 import pytest
 
@@ -222,7 +222,7 @@ CURSOR_KEY = b"m4c-run-admission-cursor-key"
 OBJECT_CURSOR_KEY = b"m4c-run-admission-object-cursor-key"
 AUDIT_CHAIN_ID = "platform-authority"
 
-CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=1)
+CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
 SIMULATION_PROFILE = ProfileRefV1(profile_id="builtin.simulation", version=1)
 WORKLOAD_PROFILE = ProfileRefV1(profile_id="builtin.workload", version=1)
 GENERATION_PROFILE = ProfileRefV1(profile_id="builtin.generation", version=1)
@@ -542,6 +542,7 @@ def _shared_budget(
     scope_kind: str,
     scope_id: str,
     request_limit: int = 10_000_000,
+    consumed_requests: int = 0,
     status: str = "active",
 ) -> BudgetV1:
     return BudgetV1(
@@ -554,7 +555,17 @@ def _shared_budget(
             CostAmountV1(dimension="concurrent_run", value=3, unit="count"),
         ),
         reserved=(),
-        consumed=(),
+        consumed=(
+            ()
+            if consumed_requests == 0
+            else (
+                CostAmountV1(
+                    dimension="request",
+                    value=consumed_requests,
+                    unit="request",
+                ),
+            )
+        ),
         status=status,  # type: ignore[arg-type]
         revision=1,
         created_at=NOW_DT,
@@ -1385,6 +1396,9 @@ def _seed_patch_candidate(
     base: ArtifactV2,
     constraint: ArtifactV2 | None = None,
     expected_to_fix: tuple[str, ...] = (),
+    planning_materials: tuple[ArtifactV2, ...] = (),
+    produced_by: Literal["human", "agent"] = "human",
+    producer_run_id: str | None = None,
 ) -> tuple[ArtifactV2, ArtifactV2]:
     target_snapshot_id = f"snapshot:{label}"
     patch = PatchV2(
@@ -1395,8 +1409,8 @@ def _seed_patch_candidate(
         preconditions=[],
         side_effect_risk="low",
         ops=[],
-        produced_by="human",
-        producer_run_id=None,
+        produced_by=produced_by,
+        producer_run_id=producer_run_id,
         rationale="patch validation fixture",
     )
     subject = harness.seed_payload_artifact(
@@ -1411,6 +1425,7 @@ def _seed_patch_candidate(
         ),
         lineage=(
             base.artifact_id,
+            *(artifact.artifact_id for artifact in planning_materials),
             *(() if constraint is None else (constraint.artifact_id,)),
         ),
         payload_schema_id="patch@2",
@@ -1426,7 +1441,11 @@ def _seed_patch_candidate(
             ),
             tool_version="patch@2",
         ),
-        lineage=(base.artifact_id, subject.artifact_id),
+        lineage=(
+            base.artifact_id,
+            subject.artifact_id,
+            *(artifact.artifact_id for artifact in planning_materials),
+        ),
         payload_schema_id="ir-core@1",
         domain_scope=DomainScope(domain_ids=("builtin",)),
     )
@@ -2433,14 +2452,19 @@ def test_run_admission_freezes_and_reserves_every_applicable_budget_scope(
         system.budget_id,
     }
     expected_shared_reservation = (
-        CostAmountV1(dimension="request", value=1_000_000, unit="request"),
+        CostAmountV1(dimension="request", value=128, unit="request"),
     )
     by_budget_id = {item.budget_id: item for item in reservations}
     run_reservation = by_budget_id[f"budget:run:{accepted.run_id}"]
-    run_snapshot = next(item for item in budget_set.snapshots if item.scope_kind == "run")
-    assert run_reservation.reserved == tuple(
-        item for item in run_snapshot.limits if item.dimension != "concurrent_run"
-    )
+    assert {item.dimension: item.value for item in run_reservation.reserved} == {
+        "agent_step": 128,
+        "cache_read_token": 25_600_000,
+        "cache_write_token": 25_600_000,
+        "input_token": 25_600_000,
+        "output_token": 4_096_000,
+        "request": 128,
+        "wall_time_ns": 3_600_000_000_000,
+    }
     assert {item.dimension for item in run_reservation.reserved} == {
         "input_token",
         "output_token",
@@ -2457,6 +2481,36 @@ def test_run_admission_freezes_and_reserves_every_applicable_budget_scope(
         assert current is not None
         assert current.reserved == reservation.reserved
         assert current.revision == 2
+
+
+def test_shared_budget_remains_usable_after_a_prior_request_is_consumed(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path, provision_shared_budgets=False)
+    system = _shared_budget(
+        budget_id="budget:system:global",
+        scope_kind="system",
+        scope_id="global",
+        request_limit=1_000_000,
+        consumed_requests=1,
+    )
+    harness.seed_budget(system)
+    snapshot = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
+
+    accepted = harness.engine_admission.admit_generic_run(
+        params=_checker_params(snapshot),
+        actor=_tooling_actor(),
+        server=_server("checker:shared-budget-after-consumption"),
+    )
+
+    reservation = next(
+        item
+        for item in harness.budget_reservations(accepted.run_id)
+        if item.budget_id == system.budget_id
+    )
+    assert reservation.reserved == (
+        CostAmountV1(dimension="request", value=128, unit="request"),
+    )
 
 
 def test_run_admission_freezes_every_budget_within_each_applicable_scope(
@@ -4832,9 +4886,9 @@ def test_generation_mints_source_raw_and_hides_naked_text(tmp_path: Path) -> Non
     )
     run = harness.run_record(accepted.run_id)
     assert run is not None and run.status == "queued"
-    assert run.payload.version_tuple.prompt_version == "generation@2"
+    assert run.payload.version_tuple.prompt_version == "generation@7"
     assert run.payload.version_tuple.model_snapshot == "test:model@1"
-    assert run.payload.version_tuple.agent_graph_version == "generation-graph@2"
+    assert run.payload.version_tuple.agent_graph_version == "generation-graph@7"
     assert run.payload.version_tuple.tool_version == "generation@1"
     # the payload references only the source_raw artifact id/hash, never the text
     goal_binding = run.payload.params.objective_goal
@@ -6134,7 +6188,7 @@ def test_repair_freezes_exact_profile_verifier_requirements(tmp_path: Path) -> N
         )
         for requirement in snapshot.requirements
     } == {
-        ("checker", "builtin.checker@1", "/params/checker_profiles/0"),
+            ("checker", "builtin.checker@2", "/params/checker_profiles/0"),
         ("simulation", "builtin.simulation@1", "/params/simulation_profiles/0"),
         ("regression", regression, None),
     }
@@ -7033,6 +7087,236 @@ def test_patch_validation_cross_binds_review_and_playtest_to_exact_candidate(
     )
 
     assert harness.run_record(accepted.run_id) is not None
+
+
+def test_patch_validation_accepts_exact_generation_planning_material_parents(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="generation-material-base")
+    constraint = _seed_constraint(harness)
+    original = harness.seed_payload_artifact(
+        kind="source_raw",
+        payload={"filename": "world-design.json", "media_type": "application/json"},
+        version_tuple=VersionTuple(tool_version="project-material-ingest@1"),
+        payload_schema_id="project-material-original@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+    )
+    rendered = harness.seed_payload_artifact(
+        kind="source_rendered",
+        payload={"text": "天空港由天气管理员维护。"},
+        version_tuple=VersionTuple(tool_version="project-material-render@1"),
+        lineage=(original.artifact_id,),
+        payload_schema_id="project-material-rendered@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+    )
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="generation-material-preview",
+        base=base,
+        constraint=constraint,
+        planning_materials=(original, rendered),
+        produced_by="agent",
+        producer_run_id="run:generation:material-bound",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+    )
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:generation-material-parents"),
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+def test_patch_validation_survives_role_policy_rotation_when_both_policies_authorize(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="policy-rotation-base")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="policy-rotation-preview",
+        base=base,
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+    )
+
+    retained = harness.role_policy
+    grants = {
+        **retained.grants,
+        "tooling": (
+            *retained.grants["tooling"],
+            Permission(action="read", resource_kind="metric", domain_scope=None),
+        ),
+    }
+    current_version = "role-policy@rotated"
+    current = RolePolicy(
+        policy_version=current_version,
+        domain_registry_ref=retained.domain_registry_ref,
+        grants=grants,
+        effective_from=retained.effective_from,
+        policy_digest=compute_role_policy_digest(
+            current_version,
+            retained.domain_registry_ref,
+            grants,
+            retained.effective_from,
+        ),
+    )
+    from sqlalchemy.orm import Session
+
+    with Session(harness.engine) as session, session.begin():
+        SqlPolicySnapshotRepository(session, clock=harness.clock).put_role_policy(current)
+    harness.engine_admission._role_policy_version = current.policy_version  # noqa: SLF001
+    harness.engine_admission._role_policy_digest = current.policy_digest  # noqa: SLF001
+
+    accepted = harness.engine_admission.admit(
+        operation="patch.validate",
+        resource_id=item.subject_artifact_id,
+        request=request,
+        actor=_tooling_actor(),
+        server=_server("patch-validation:policy-rotation"),
+    )
+
+    assert harness.run_record(accepted.run_id) is not None
+
+
+@pytest.mark.parametrize("denied_authority", ("current", "frozen"))
+def test_patch_validation_rejects_role_policy_rotation_when_either_policy_denies(
+    tmp_path: Path,
+    denied_authority: str,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label=f"policy-rotation-{denied_authority}-deny-base")
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label=f"policy-rotation-{denied_authority}-deny-preview",
+        base=base,
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+    )
+
+    retained = harness.role_policy
+    grants = {
+        **retained.grants,
+        "tooling": tuple(
+            permission
+            for permission in retained.grants["tooling"]
+            if not (
+                permission.action == "validate"
+                and permission.resource_kind == "patch"
+            )
+        ),
+    }
+    denied_version = f"role-policy@{denied_authority}-denies-patch-validation"
+    denied = RolePolicy(
+        policy_version=denied_version,
+        domain_registry_ref=retained.domain_registry_ref,
+        grants=grants,
+        effective_from=retained.effective_from,
+        policy_digest=compute_role_policy_digest(
+            denied_version,
+            retained.domain_registry_ref,
+            grants,
+            retained.effective_from,
+        ),
+    )
+    from sqlalchemy.orm import Session
+
+    with Session(harness.engine) as session, session.begin():
+        SqlPolicySnapshotRepository(session, clock=harness.clock).put_role_policy(denied)
+    if denied_authority == "current":
+        harness.engine_admission._role_policy_version = denied.policy_version  # noqa: SLF001
+        harness.engine_admission._role_policy_digest = denied.policy_digest  # noqa: SLF001
+    else:
+        item = ApprovalItem.model_validate(
+            {
+                **item.model_dump(mode="json"),
+                "role_policy_version": denied.policy_version,
+                "role_policy_digest": denied.policy_digest,
+            }
+        )
+        harness.approvals = _FixedApprovals(item)
+
+    key = f"patch-validation:policy-rotation:{denied_authority}-deny"
+    with pytest.raises(Forbidden):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=_server(key),
+        )
+
+    _assert_no_admission_side_effects(harness, key=key)
+
+
+def test_patch_validation_rejects_untyped_extra_generation_preview_parent(
+    tmp_path: Path,
+) -> None:
+    harness = Harness(tmp_path)
+    base = _seed_preview(harness, label="generation-untyped-parent-base")
+    untyped_source = harness.seed_payload_artifact(
+        kind="source_raw",
+        payload={"text": "not an admitted project material"},
+        version_tuple=VersionTuple(tool_version="source@1"),
+        payload_schema_id="source-raw@1",
+        domain_scope=DomainScope(domain_ids=("builtin",)),
+    )
+    subject, preview = _seed_patch_candidate(
+        harness,
+        label="generation-untyped-parent-preview",
+        base=base,
+        planning_materials=(untyped_source,),
+        produced_by="agent",
+        producer_run_id="run:generation:untyped-parent",
+    )
+    item, request = _patch_validation_request(
+        harness,
+        subject=subject,
+        base=base,
+        preview=preview,
+        candidate_config_ids=(),
+        review_ids=(),
+        trace_ids=(),
+    )
+    server = _server("patch-validation:generation-untyped-parent")
+
+    with pytest.raises(Conflict, match="exact workflow candidate"):
+        harness.engine_admission.admit(
+            operation="patch.validate",
+            resource_id=item.subject_artifact_id,
+            request=request,
+            actor=_tooling_actor(),
+            server=server,
+        )
+
+    _assert_no_admission_side_effects(harness, key=server.idempotency_key)
 
 
 def test_patch_validation_admits_exact_absent_target_ref(tmp_path: Path) -> None:

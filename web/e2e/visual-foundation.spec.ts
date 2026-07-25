@@ -196,7 +196,7 @@ async function settleVisuals(page: Page, view: (typeof matrix)[number]["view"]) 
     await expect(page.locator('[data-testid="knowledge-graph-canvas"] canvas').first()).toBeVisible();
   }
   if (view === "trace-fallback") {
-    const terminalFrame = page.getByRole("button", { name: /第 4 帧，Tick 7/ });
+    const terminalFrame = page.getByRole("button", { name: "第 4 步" });
     await terminalFrame.evaluate((element) => (element as HTMLButtonElement).click());
     await expect(terminalFrame).toHaveAttribute("aria-current", "true");
     await page.locator(".gf-trace__timeline > ol").evaluate((element) => {

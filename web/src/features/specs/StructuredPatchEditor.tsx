@@ -702,7 +702,7 @@ export function StructuredPatchEditor({
       <header>
         <div>
           <h3 id="structured-patch-title">变更内容</h3>
-          <p>按业务名称选择图谱对象；系统会生成并保留 exact TypedOp，不需要复制任何 ID。</p>
+          <p>按业务名称选择游戏内容；系统会自动保存精确修改记录，不需要复制任何编号。</p>
         </div>
         <button
           className="gf-secondary-button"

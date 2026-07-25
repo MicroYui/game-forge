@@ -196,15 +196,15 @@ describe("Playtest terminal panel", () => {
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByRole("heading", { name: "Run 已完成，任务未全部通过" })).toBeVisible();
-    expect(screen.getByText("1 / 2 episodes completed")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "仍有试玩任务未完成" })).toBeVisible();
+    expect(screen.getByText("已完成 1 / 2 个任务")).toBeVisible();
     expect(screen.getByRole("region", { name: "Playtest 轨迹播放器" })).toBeVisible();
-    expect(screen.getByRole("heading", { name: "有界动作时间轴" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "操作时间轴" })).toBeVisible();
     expect(screen.queryByText("Aureus 2D")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /episode:signal/ }));
+    await user.click(screen.getByRole("button", { name: /任务 2/ }));
     expect(screen.getAllByText("agent stopped")[0]).toBeVisible();
-    expect(screen.getByRole("link", { name: "查看 exact Finding 修订" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看此问题的历史版本" })).toHaveAttribute(
       "href",
       "/findings/finding%3Asignal-incomplete/revisions/2",
     );
@@ -241,7 +241,7 @@ describe("Playtest terminal panel", () => {
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByRole("heading", { name: "Run 已完成，任务未全部通过" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "仍有试玩任务未完成" })).toBeVisible();
     expect(screen.getByText("未提供；终态由服务端结果闭合")).toBeVisible();
     expect(authorityMocks.bindTerminal).toHaveBeenCalledWith(
       expect.objectContaining({ requestCandidate: null }),
@@ -265,7 +265,7 @@ describe("Playtest terminal panel", () => {
       </QueryClientProvider>
     );
     const rendered = render(view(suite));
-    await screen.findByRole("heading", { name: "Run 已完成，任务未全部通过" });
+    await screen.findByRole("heading", { name: "仍有试玩任务未完成" });
     const firstCallCount = authorityMocks.bindTerminal.mock.calls.length;
 
     rendered.rerender(view(otherSuite));

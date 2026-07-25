@@ -38,6 +38,7 @@ from gameforge.platform.approvals.decisions import (
     CurrentApproveVoteEvaluation,
     all_requirements_satisfied,
     current_requirement_authority_reason_code,
+    current_self_decision_authority_reason_code,
     evaluate_current_approve_votes,
 )
 from gameforge.platform.read_models.authorization import (
@@ -377,8 +378,14 @@ class CurrentApprovalProgressProjector:
             return ["workflow_not_pending"]
         if actor.kind != "human" or actor.status != "active":
             return ["actor_not_active_human"]
-        if actor.id == item.proposer.principal_id:
-            return ["maker_checker_conflict"]
+        self_decision_reason = current_self_decision_authority_reason_code(
+            item=item,
+            principal=actor,
+            role_policy=policy,
+            domain_registry=registry,
+        )
+        if self_decision_reason is not None:
+            return [self_decision_reason]
         reason = current_requirement_authority_reason_code(
             principal=actor,
             requirement=requirement,

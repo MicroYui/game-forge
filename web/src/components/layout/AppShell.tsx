@@ -4,6 +4,7 @@ import {
   ChevronRight,
   ClipboardCheck,
   Gamepad2,
+  FolderKanban,
   GitCompare,
   LogOut,
   Menu,
@@ -22,6 +23,7 @@ import { breadcrumbsFor, navigationRoutes, type NavigationIcon } from "../../app
 import { messages } from "../../i18n/zh-CN";
 
 const navigationIcons = {
+  projects: FolderKanban,
   specs: Network,
   generation: Sparkles,
   reviews: ShieldCheck,
@@ -77,7 +79,7 @@ export function AppShell() {
       </a>
       <aside className="gf-sidebar">
         <div className="gf-brand">
-          <NavLink aria-label={messages.app.name} className="gf-brand__link" to="/specs">
+          <NavLink aria-label={messages.app.name} className="gf-brand__link" to="/projects">
             <span aria-hidden="true" className="gf-brand__mark">
               GF
             </span>

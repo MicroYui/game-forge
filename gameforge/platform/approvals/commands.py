@@ -881,6 +881,23 @@ def _replace_item(item: ApprovalItem, **updates: object) -> ApprovalItem:
     return ApprovalItem.model_validate(payload)
 
 
+def _decision_audit_action(
+    *,
+    item: ApprovalItem,
+    decision: ApprovalDecision,
+    replacement: ApprovalItem,
+) -> str:
+    suffix = {
+        "approved": "approved",
+        "rejected": "rejected",
+        "changes_requested": "changes_requested",
+        "pending_approval": "partially_approved",
+    }[replacement.status]
+    if decision.actor.principal_id == item.proposer.principal_id:
+        return f"approval.privileged_self_{suffix}"
+    return f"approval.{suffix}"
+
+
 def require_human_constraint_revision(
     item: ApprovalItem,
     *,
@@ -1731,12 +1748,11 @@ class ApprovalCommandService:
                 decision,
                 replacement,
             )
-            action = {
-                "approved": "approval.approved",
-                "rejected": "approval.rejected",
-                "changes_requested": "approval.changes_requested",
-                "pending_approval": "approval.partially_approved",
-            }[replacement.status]
+            action = _decision_audit_action(
+                item=item,
+                decision=decision,
+                replacement=replacement,
+            )
             self._audit(audit, context, action=action, item=replacement)
             response = {"approval_item": replacement.model_dump(mode="json")}
             self._put_idempotent(
@@ -1833,12 +1849,11 @@ class ApprovalCommandService:
                 decision,
                 replacement,
             )
-            action = {
-                "approved": "approval.approved",
-                "rejected": "approval.rejected",
-                "changes_requested": "approval.changes_requested",
-                "pending_approval": "approval.partially_approved",
-            }[replacement.status]
+            action = _decision_audit_action(
+                item=item,
+                decision=decision,
+                replacement=replacement,
+            )
             self._audit(audit, context, action=action, item=replacement)
             response = {"approval_item": replacement.model_dump(mode="json")}
             self._put_idempotent(

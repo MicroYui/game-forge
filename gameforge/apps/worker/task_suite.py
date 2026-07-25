@@ -8,9 +8,12 @@ resolver injected into it.
 ``AureusScenarioShaper`` derives ONE completable scenario/episode per quest chain
 in the preview (a fixed, deterministic function of the preview IR — no RNG, no
 LLM), binding each episode to the deterministic "all quests completed" oracle.
-When a preview carries no quests it degrades to a single whole-preview scenario so
-the suite is always non-empty. The reset-schema is chosen by the handler from the
-profile-selected env contract, so this shaper never hardcodes the schema id.
+When a preview carries no quests it degrades to a single whole-preview diagnostic
+scenario so the suite is always non-empty. Because ``all_quests_completed`` is
+deliberately false for an empty quest set, that diagnostic is bounded to one step:
+it reports the missing playable quest without spending a full Agent budget on an
+impossible target. The reset-schema is chosen by the handler from the profile-
+selected env contract, so this shaper never hardcodes the schema id.
 """
 
 from __future__ import annotations
@@ -111,7 +114,7 @@ class AureusScenarioShaper:
             domain_scope=request.domain_scope,
             reset_payload=reset_payload,
             completion_oracle=ALL_QUESTS_COMPLETED_ORACLE,
-            step_budget=self._step_budget(0),
+            step_budget=_MIN_STEP_BUDGET,
         )
 
 

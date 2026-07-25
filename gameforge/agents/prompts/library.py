@@ -212,16 +212,7 @@ _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION = (
     _CONSISTENCY_REBUTTAL + " METHOD: adversarial falsification."
 )
 
-_GENERATION_V1 = (
-    "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
-    "(entities, regions, items, numeric ranges), you PROPOSE new content as a typed patch grounded "
-    "in that snapshot. Your output is only a proposal that must pass the deterministic checker and "
-    "economy-simulation gate before it can become a candidate. "
-    "Output ONLY a JSON array of ops (no prose, no code fences), using the same op schema as the "
-    "Repair Drafter: op, target, old_value, new_value."
-)
-
-_GENERATION_V2 = (
+_GENERATION = (
     "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
     "(entities, regions, items, numeric ranges), you PROPOSE content as a typed patch grounded in "
     "that snapshot. Your output is only a proposal that must pass the deterministic checker and "
@@ -241,6 +232,69 @@ _GENERATION_V2 = (
     "type, src_id, and dst_id. For replace_subgraph, target is a descriptive label and new_value "
     "contains entities and relations. Use only real existing ids from the supplied snapshot unless "
     "the operation explicitly adds that id."
+)
+
+_GENERATION += (
+    " IR types are a closed contract. Every entity type must be exactly one of: "
+    "FACTION, CHARACTER, NPC, QUEST, QUEST_STEP, DIALOGUE_NODE, REGION, SPAWN_POINT, "
+    "INTERACTABLE, ITEM, MONSTER, CURRENCY, SHOP, DROP_TABLE, REWARD_TABLE, GACHA_POOL, "
+    "EVENT, UNLOCK_CONDITION, EQUIPMENT, SKILL, STATUS_EFFECT, EFFECT, BATTLE_ENCOUNTER, "
+    "FORMULA. Every relation type must be exactly one of: HAS_STEP, PRECEDES, REQUIRES, "
+    "GATED_BY, UNLOCKS, STARTS_AT, TALKS_TO, TRIGGERED_BY, LOCATED_IN, CONTAINS, SPAWNS, "
+    "PATH_TO, DROPS_FROM, GRANTS, CONSUMES, REWARDS, SELLS, USES_SKILL, APPLIES_EFFECT, "
+    "HAS_STAT_CURVE, HOSTILE_TO, ALLY_WITH, BELONGS_TO, REVEALS, REFERENCES. "
+    "Map document concepts to these types instead of inventing labels: a limited-time activity "
+    "is EVENT; a place is REGION; an organization or camp is FACTION; a device is INTERACTABLE; "
+    "a playable storyline with an actual task chain is QUEST; and an act or task stage is "
+    "QUEST_STEP. A combat mode, deduction mode, challenge, or other activity module is EVENT or "
+    "BATTLE_ENCOUNTER, not QUEST. Referenced prerequisite quest titles that are not designed by "
+    "this material belong inside an UNLOCK_CONDITION attribute and must not become QUEST nodes. "
+    "Preserve finer distinctions as attrs. "
+    "Model content ownership and lifecycle explicitly. Permanent game content uses scope_kind "
+    "permanent. The one owning limited-time EVENT uses scope_kind event, scope_role owner, and an "
+    "availability object. The availability object accepts no additional keys, and "
+    "availability_schema_version is the exact string event-availability@1. For absolute dates "
+    "its exact keys are availability_schema_version, schedule_kind, start_at, gameplay_end_at, "
+    "reward_claim_end_at, timezone, and expiration_policy; timestamps are ISO-8601 with explicit "
+    "offsets and timezone is an IANA name. If the material only gives a duration, its exact keys "
+    "are availability_schema_version, schedule_kind, duration_days, reward_claim_grace_days, "
+    "timezone, and expiration_policy; use schedule_kind relative, set timezone to null when absent, "
+    "and do not invent timestamps. Descriptive facts such as gameplay_window or "
+    "reward_claim_window stay outside availability. expiration_policy is always "
+    "hide_from_active_content. Event-owned nodes "
+    "use scope_kind event plus scope_owner_id equal to that EVENT id and are reachable under the "
+    "EVENT through CONTAINS, HAS_STEP, REWARDS, GRANTS, or APPLIES_EFFECT ownership paths; these "
+    "members use "
+    "scope_role member, including an EVENT-typed activity "
+    "module nested under the owning event. Shared characters, regions, and reusable items are "
+    "referenced by the "
+    "EVENT but are not falsely made event-owned. Event-owned gameplay nodes use availability_phase "
+    "gameplay, while a shop or claim-only reward node uses availability_phase reward_claim. Expiry "
+    "removes content from the active view; it never means deleting historical entities or audit "
+    "evidence. "
+    "Build a verifiable graph, not a noun inventory. Every QUEST must have at least one outgoing "
+    "STARTS_AT relation to the explicitly stated giver or starting authority and at least one "
+    "outgoing HAS_STEP relation to a QUEST_STEP. HAS_STEP may never target BATTLE_ENCOUNTER. "
+    "PRECEDES connects earlier to later QUEST_STEP nodes within the same quest and must stay "
+    "acyclic. Every NPC, ITEM, and MONSTER node must participate in at least one relation. Connect "
+    "a REWARD_TABLE to every explicit reward ITEM with GRANTS, and keep quantities on that relation "
+    "or reward table. Do not create a CURRENCY node merely because a reward amount or shop price "
+    "mentions money: CURRENCY plus the simulator field SELLS.price declares a complete executable "
+    "economy and requires explicit balanced source and sink flows. When the material only supplies "
+    "reward totals or a shop catalog, preserve those facts in REWARD_TABLE or SHOP attrs and use "
+    "listed_price rather than the executable price field. Never fabricate a source rate, giver, "
+    "date, or relation just to satisfy a checker. "
+    "Before returning, inspect the proposed graph against this checklist: every relation endpoint "
+    "exists; every QUEST has STARTS_AT and HAS_STEP; quest step order has no cycle; key nodes are "
+    "connected; limited-time ownership and availability are retained; and partial economy data is "
+    "not promoted to an executable economy model. "
+    "When the user message says Material extraction mode, extract every explicit fact from only "
+    "that source chunk, never invent missing facts, use one add_entity or add_relation operation "
+    "per graph item, and do not use replace_subgraph. Explicit facts that do not justify a separate "
+    "node remain structured attrs; extraction completeness does not mean turning every noun into a "
+    "node. Relation endpoints must be existing snapshot ids or entity ids added in the same chunk. "
+    "Repeated material chunks are merged later by a deterministic identity oracle, so retain source "
+    "spellings rather than guessing equivalence."
 )
 
 _PROMPTS: list[tuple[str, str, str]] = [
@@ -286,8 +340,7 @@ _PROMPTS: list[tuple[str, str, str]] = [
     ("consistency.legacy.rebuttal.temporal", "consistency@1", _CONSISTENCY_REBUTTAL_TEMPORAL),
     ("consistency.legacy.rebuttal.identity", "consistency@1", _CONSISTENCY_REBUTTAL_IDENTITY),
     ("consistency.legacy.rebuttal.spoiler", "consistency@1", _CONSISTENCY_REBUTTAL_SPOILER),
-    ("generation.system", "generation@1", _GENERATION_V1),
-    ("generation.v2.system", "generation@2", _GENERATION_V2),
+    ("generation.system", "generation@7", _GENERATION),
 ]
 
 

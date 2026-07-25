@@ -40,22 +40,60 @@ export type PassedGenerationOutcome = {
   constraint: ConstraintSnapshotView;
 };
 
-export type RejectedGenerationChange = {
-  entityId: string;
-  entityTitle: string | null;
-  fieldPath: string;
-  newValue: number;
-  oldValue: number;
-};
+export type RejectedGenerationChange =
+  | {
+      entityId: string;
+      entityTitle: string | null;
+      fieldPath: string;
+      kind: "numeric-field";
+      newValue: number;
+      oldValue: number;
+      operationId: string;
+    }
+  | {
+      destinationId: string | null;
+      kind: "operation";
+      operationId: string;
+      operationKind:
+        | "add_entity"
+        | "delete_entity"
+        | "set_entity_attr"
+        | "add_relation"
+        | "delete_relation"
+        | "set_relation_attr"
+        | "replace_subgraph";
+      sourceId: string | null;
+      target: string;
+    };
 
-export type ConfirmedGenerationBlocker = {
-  actualValue: number;
-  constraintId: string;
-  entityId: string;
-  fieldPath: string;
-  limit: number;
-  severity: "critical" | "major" | "minor";
-};
+export type ConfirmedGenerationBlocker =
+  | {
+      actualValue: number;
+      constraintId: string;
+      entityId: string;
+      fieldPath: string;
+      kind: "numeric-limit";
+      limit: number;
+      severity: "critical" | "major" | "minor";
+    }
+  | {
+      kind: "proposal-rejection";
+      reasonCode:
+        | "candidate_work_budget_exceeded"
+        | "empty_ops"
+        | "identity_conflict"
+        | "inapplicable_ops"
+        | "malformed_ops"
+        | "model_response_unparseable";
+      severity: "critical" | "major" | "minor";
+    }
+  | {
+      defectClass: string;
+      entityIds: string[];
+      kind: "deterministic-finding";
+      relationIds: string[];
+      severity: "critical" | "major" | "minor";
+    };
 
 export type GateRejectedGenerationOutcome = {
   blockers: ConfirmedGenerationBlocker[];
@@ -96,6 +134,53 @@ function isFiniteNumber(value: unknown): value is number {
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+const rejectedOperationKinds = new Set<
+  Extract<RejectedGenerationChange, { kind: "operation" }>["operationKind"]
+>([
+  "add_entity",
+  "delete_entity",
+  "set_entity_attr",
+  "add_relation",
+  "delete_relation",
+  "set_relation_attr",
+  "replace_subgraph",
+]);
+
+const proposalRejectionReasons = new Set<
+  Extract<ConfirmedGenerationBlocker, { kind: "proposal-rejection" }>["reasonCode"]
+>([
+  "candidate_work_budget_exceeded",
+  "empty_ops",
+  "identity_conflict",
+  "inapplicable_ops",
+  "malformed_ops",
+  "model_response_unparseable",
+]);
+
+function isSeverity(value: unknown): value is "critical" | "major" | "minor" {
+  return value === "critical" || value === "major" || value === "minor";
+}
+
+function safeReference(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length > 0 &&
+    value.length <= 1_024 &&
+    !/[\u0000-\u001f\u007f]/u.test(value)
+  );
+}
+
+function isRejectedOperationKind(
+  value: unknown,
+): value is Extract<RejectedGenerationChange, { kind: "operation" }>["operationKind"] {
+  return (
+    typeof value === "string" &&
+    rejectedOperationKinds.has(
+      value as Extract<RejectedGenerationChange, { kind: "operation" }>["operationKind"],
+    )
+  );
 }
 
 function valueAtPath(root: Record<string, unknown>, path: string): unknown {
@@ -156,21 +241,45 @@ function rejectedArtifactSummary(
   const changes = patchPayload.ops.map((value): RejectedGenerationChange => {
     assertSafe(isRecord(value), "Rejected Patch contains a malformed op.");
     assertSafe(
-      value.op === "set_entity_attr" &&
-        typeof value.op_id === "string" &&
-        value.op_id.length > 0 &&
-        typeof value.target === "string" &&
-        isFiniteNumber(value.old_value) &&
-        isFiniteNumber(value.new_value),
+      isRejectedOperationKind(value.op) && safeReference(value.op_id) && safeReference(value.target),
       "Rejected Patch contains an op that cannot be summarized safely.",
     );
-    const { entityId, fieldPath } = parseRejectedChangeTarget(value.target);
+    if (
+      value.op === "set_entity_attr" &&
+      isFiniteNumber(value.old_value) &&
+      isFiniteNumber(value.new_value)
+    ) {
+      const { entityId, fieldPath } = parseRejectedChangeTarget(value.target);
+      return {
+        entityId,
+        entityTitle: null,
+        fieldPath,
+        kind: "numeric-field",
+        newValue: value.new_value,
+        oldValue: value.old_value,
+        operationId: value.op_id,
+      };
+    }
+    let sourceId: string | null = null;
+    let destinationId: string | null = null;
+    if (value.op === "add_relation") {
+      assertSafe(
+        isRecord(value.new_value) &&
+          safeReference(value.new_value.type) &&
+          safeReference(value.new_value.src_id) &&
+          safeReference(value.new_value.dst_id),
+        "Rejected relation proposal is malformed.",
+      );
+      sourceId = value.new_value.src_id;
+      destinationId = value.new_value.dst_id;
+    }
     return {
-      entityId,
-      entityTitle: null,
-      fieldPath,
-      newValue: value.new_value,
-      oldValue: value.old_value,
+      destinationId,
+      kind: "operation",
+      operationId: value.op_id,
+      operationKind: value.op,
+      sourceId,
+      target: value.target,
     };
   });
 
@@ -190,6 +299,7 @@ function rejectedArtifactSummary(
   );
   const entities = previewPayload.entities;
   for (const change of changes) {
+    if (change.kind !== "numeric-field") continue;
     const entity = entities[change.entityId];
     assertSafe(
       isRecord(entity) &&
@@ -230,7 +340,7 @@ function rejectedArtifactSummary(
     "Rejected checker report differs from the candidate preview.",
   );
 
-  const blockers = checkerPayload.findings.flatMap((value): ConfirmedGenerationBlocker[] => {
+  const numericBlockers = checkerPayload.findings.flatMap((value): ConfirmedGenerationBlocker[] => {
     if (
       !isRecord(value) ||
       value.source !== "checker" ||
@@ -264,7 +374,8 @@ function rejectedArtifactSummary(
       "Confirmed generation blocker does not prove a numeric upper-bound violation.",
     );
     const matchingChanges = changes.filter(
-      (change) =>
+      (change): change is Extract<RejectedGenerationChange, { kind: "numeric-field" }> =>
+        change.kind === "numeric-field" &&
         change.fieldPath === fieldPath &&
         change.newValue === actualValue &&
         findingEntities.includes(change.entityId),
@@ -276,11 +387,67 @@ function rejectedArtifactSummary(
         constraintId: value.constraint_id,
         entityId: matchingChanges[0].entityId,
         fieldPath,
+        kind: "numeric-limit",
         limit,
         severity: value.severity,
       },
     ];
   });
+  const blockers =
+    numericBlockers.length > 0
+      ? numericBlockers
+      : checkerPayload.findings.flatMap((value): ConfirmedGenerationBlocker[] => {
+          if (
+            !isRecord(value) ||
+            value.source !== "checker" ||
+            value.oracle_type !== "deterministic" ||
+            value.status !== "confirmed" ||
+            !isSeverity(value.severity)
+          ) {
+            return [];
+          }
+          if (value.defect_class === "identity_normalization") return [];
+          if (value.defect_class === "invalid_generation_proposal") {
+            assertSafe(
+              isRecord(value.evidence) &&
+                typeof value.evidence.reason_code === "string" &&
+                proposalRejectionReasons.has(
+                  value.evidence.reason_code as Extract<
+                    ConfirmedGenerationBlocker,
+                    { kind: "proposal-rejection" }
+                  >["reasonCode"],
+                ),
+              "Rejected proposal finding has an unsupported reason.",
+            );
+            return [
+              {
+                kind: "proposal-rejection",
+                reasonCode: value.evidence.reason_code as Extract<
+                  ConfirmedGenerationBlocker,
+                  { kind: "proposal-rejection" }
+                >["reasonCode"],
+                severity: value.severity,
+              },
+            ];
+          }
+          assertSafe(
+            safeReference(value.defect_class) &&
+              isStringArray(value.entities) &&
+              value.entities.every(safeReference) &&
+              isStringArray(value.relations) &&
+              value.relations.every(safeReference),
+            "Confirmed generation blocker is malformed.",
+          );
+          return [
+            {
+              defectClass: value.defect_class,
+              entityIds: value.entities,
+              kind: "deterministic-finding",
+              relationIds: value.relations,
+              severity: value.severity,
+            },
+          ];
+        });
   assertSafe(blockers.length > 0, "Rejected candidate has no confirmed deterministic blocker.");
   return { blockers, changes };
 }

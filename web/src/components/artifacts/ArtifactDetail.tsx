@@ -2,7 +2,8 @@ import { Info } from "lucide-react";
 import { useId } from "react";
 
 import type { components } from "../../api/generated/openapi";
-import { CopyableText, CursorTable, type CursorPaginationState } from "../tables";
+import { compactDateTime, TechnicalDetails } from "../identity";
+import { CursorTable, type CursorPaginationState } from "../tables";
 import "./artifacts.css";
 
 type ArtifactSummary = components["schemas"]["ArtifactSummaryV1"];
@@ -24,9 +25,31 @@ const versionFields: readonly [keyof VersionTuple, string][] = [
 ];
 
 function domainText(scope: ArtifactSummary["domain_scope"]): readonly string[] {
-  if (scope === "all") return ["全部域"];
-  if (scope === null) return ["非域资源"];
-  return scope.domain_ids;
+  if (scope === "all") return ["全部内容领域"];
+  if (scope === null) return ["公共资源"];
+  const labels: Readonly<Record<string, string>> = {
+    "domain:combat": "战斗系统",
+    "domain:economy": "经济系统",
+    "domain:gacha": "抽卡系统",
+    "domain:narrative": "叙事内容",
+    "domain:quest": "任务系统",
+    "domain:rewards": "奖励系统",
+  };
+  return scope.domain_ids.map((domain) => labels[domain] ?? domain.replace(/^domain:/u, ""));
+}
+
+function artifactKindLabel(kind: string): string {
+  return (
+    {
+      constraint_snapshot: "规则版本",
+      evidence_set: "检查证据",
+      failure_manifest: "失败记录",
+      ir_snapshot: "内容版本",
+      patch: "修改方案",
+      review_report: "检查报告",
+      run_result: "运行结果",
+    }[kind] ?? "系统记录"
+  );
 }
 
 function tupleValue(value: string | number | null | undefined): string | null {
@@ -52,87 +75,73 @@ export function ArtifactDetail({
   const envelopeHeadingId = `${instanceId}-envelope`;
   const versionHeadingId = `${instanceId}-version`;
   const lineageHeadingId = `${instanceId}-lineage`;
+  const technicalItems = [
+    { label: "记录 ID", value: artifact.artifact_id },
+    { label: "记录类型代码", value: artifact.kind },
+    { label: "数据格式", value: artifact.payload_schema_id ?? "历史记录未提供" },
+    { label: "完整性摘要", value: artifact.payload_hash ?? "历史记录未提供" },
+    { label: "来源结构版本", value: artifact.lineage_schema_version },
+    ...(artifact.domain_scope !== null && artifact.domain_scope !== "all"
+      ? artifact.domain_scope.domain_ids.map((domain) => ({ label: "内容领域 ID", value: domain }))
+      : []),
+  ];
+  const kindLabel = artifactKindLabel(artifact.kind);
 
   return (
     <article className="gf-artifact-detail" aria-labelledby={detailHeadingId}>
       <header className="gf-artifact-detail__header">
         <div>
-          <p className="gf-artifact-detail__eyebrow">{artifact.kind}</p>
-          <h1 id={detailHeadingId}>工件详情</h1>
+          <p className="gf-artifact-detail__eyebrow">可追溯记录</p>
+          <h1 id={detailHeadingId}>{kindLabel}详情</h1>
         </div>
-        <span className="u-status">{artifact.lineage_schema_version}</span>
+        <span className="u-status">{kindLabel}</span>
       </header>
 
       <aside className="gf-artifact-detail__authority-note">
         <Info aria-hidden="true" size={18} />
-        <p>工件存在不代表当前 ref 权威；权威版本只由相应 ref 与审批状态确定。</p>
+        <p>这份记录存在，不代表它已经成为正式内容；是否生效仍以发布位置和审批状态为准。</p>
       </aside>
 
       <section className="gf-artifact-detail__section" aria-labelledby={envelopeHeadingId}>
-        <h2 id={envelopeHeadingId}>安全工件摘要</h2>
+        <h2 id={envelopeHeadingId}>记录摘要</h2>
         <dl className="gf-artifact-detail__facts">
-          <div className="gf-artifact-detail__wide">
-            <dt>Artifact ID</dt>
-            <dd>
-              <CopyableText copyLabel="复制 Artifact ID" value={artifact.artifact_id} />
-            </dd>
+          <div>
+            <dt>内容类型</dt>
+            <dd>{kindLabel}</dd>
           </div>
           <div>
-            <dt>Kind</dt>
-            <dd>{artifact.kind}</dd>
-          </div>
-          <div>
-            <dt>Payload schema</dt>
-            <dd>{artifact.payload_schema_id ?? "历史工件未提供"}</dd>
+            <dt>内容领域</dt>
+            <dd>{domainText(artifact.domain_scope).join("、")}</dd>
           </div>
           <div>
             <dt>创建时间</dt>
-            <dd>{artifact.created_at ?? "历史工件未提供"}</dd>
+            <dd>{compactDateTime(artifact.created_at)}</dd>
           </div>
           <div>
-            <dt>直接父级</dt>
-            <dd>{artifact.parent_artifact_ids.length} 个</dd>
+            <dt>内容来源</dt>
+            <dd>{artifact.parent_artifact_ids.length} 项直接来源</dd>
           </div>
-          <div className="gf-artifact-detail__wide">
-            <dt>Payload SHA-256</dt>
-            <dd>
-              {artifact.payload_hash ? (
-                <CopyableText copyLabel="复制 Payload SHA-256" value={artifact.payload_hash} />
-              ) : (
-                "历史工件未提供（不伪造）"
-              )}
-            </dd>
-          </div>
-          <div className="gf-artifact-detail__wide">
-            <dt>Domain scope</dt>
-            <dd className="gf-artifact-detail__domains">
-              {domainText(artifact.domain_scope).map((domain) => (
-                <CopyableText copyLabel="复制域 ID" key={domain} value={domain} />
-              ))}
-            </dd>
-          </div>
+          {!artifact.payload_hash && (
+            <div>
+              <dt>完整性信息</dt>
+              <dd>未提供完整性摘要</dd>
+            </div>
+          )}
         </dl>
+        <TechnicalDetails items={technicalItems} summary="查看记录技术信息" />
       </section>
 
       <section className="gf-artifact-detail__section" aria-labelledby={versionHeadingId}>
-        <h2 id={versionHeadingId}>VersionTuple</h2>
-        <dl className="gf-artifact-detail__tuple">
-          {versionFields.map(([field, label]) => {
-            const value = tupleValue(artifact.version_tuple[field]);
-            return (
-              <div key={field}>
-                <dt>{label}</dt>
-                <dd>
-                  {value === null ? (
-                    <span>不适用</span>
-                  ) : (
-                    <CopyableText copyLabel={`复制${label}`} value={value} />
-                  )}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
+        <h2 className="u-sr-only" id={versionHeadingId}>
+          版本与工具信息
+        </h2>
+        <TechnicalDetails
+          items={versionFields.map(([field, label]) => ({
+            label,
+            value: tupleValue(artifact.version_tuple[field]) ?? "不适用",
+          }))}
+          summary="查看版本与工具技术信息"
+        />
       </section>
 
       <section className="gf-artifact-detail__section" aria-labelledby={lineageHeadingId}>
@@ -141,21 +150,31 @@ export function ArtifactDetail({
         </h2>
         {lineagePage ? (
           <CursorTable<LineageEntry>
-            caption="血缘（有界分页）"
+            caption="内容来源（分页）"
             columns={[
               {
-                header: "Artifact",
+                header: "来源内容",
                 id: "artifact",
-                render: (entry) => (
-                  <CopyableText copyLabel="复制血缘 Artifact ID" value={entry.artifact.artifact_id} />
-                ),
+                render: (entry) => `${artifactKindLabel(entry.artifact.kind)} · 第 ${entry.depth} 层来源`,
               },
-              { header: "Kind", id: "kind", render: (entry) => entry.artifact.kind },
-              { header: "深度", id: "depth", render: (entry) => entry.depth },
               {
-                header: "Payload hash",
-                id: "hash",
-                render: (entry) => entry.artifact.payload_hash ?? "历史工件未提供",
+                header: "创建时间",
+                id: "created",
+                render: (entry) => compactDateTime(entry.artifact.created_at),
+              },
+              {
+                header: "技术信息",
+                id: "technical",
+                render: (entry) => (
+                  <TechnicalDetails
+                    items={[
+                      { label: "来源记录 ID", value: entry.artifact.artifact_id },
+                      { label: "记录类型代码", value: entry.artifact.kind },
+                      { label: "完整性摘要", value: entry.artifact.payload_hash ?? "历史记录未提供" },
+                    ]}
+                    summary="查看"
+                  />
+                ),
               },
             ]}
             getRowKey={(entry) => `${entry.depth}:${entry.artifact.artifact_id}`}
@@ -165,9 +184,13 @@ export function ArtifactDetail({
             onRestart={onRestartLineage}
             paginationState={lineagePaginationState}
             toolbar={
-              <span className="u-small">
-                快照 {lineagePage.read_snapshot_id} · {lineagePage.expires_at} 到期
-              </span>
+              <TechnicalDetails
+                items={[
+                  { label: "读取快照 ID", value: lineagePage.read_snapshot_id },
+                  { label: "数据有效期", value: lineagePage.expires_at },
+                ]}
+                summary="查看分页技术信息"
+              />
             }
           />
         ) : (

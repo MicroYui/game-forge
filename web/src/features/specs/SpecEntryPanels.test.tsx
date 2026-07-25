@@ -60,7 +60,11 @@ const profilePage: ExecutionProfilePage = {
   expires_at: "2026-07-19T09:00:00Z",
   items: [
     extractionProfile,
-    { ...extractionProfile, profile: { profile_id: "disabled.extractor", version: 1 }, status: "disabled" },
+    {
+      ...extractionProfile,
+      profile: { profile_id: "disabled.extractor", version: 1 },
+      status: "disabled",
+    },
     {
       ...extractionProfile,
       profile: { profile_id: "wrong.kind", version: 1 },
@@ -138,7 +142,10 @@ const constraintCatalog = {
   artifact: {
     ...artifact("artifact:constraint:base", "constraint_snapshot"),
     domain_scope: { domain_ids: ["domain:economy", "domain:rewards"] },
-    version_tuple: { constraint_snapshot_id: "constraint:base", tool_version: "compiler@1" },
+    version_tuple: {
+      constraint_snapshot_id: "constraint:base",
+      tool_version: "compiler@1",
+    },
   },
   constraints: [],
   dsl_grammar_version: "dsl@1",
@@ -213,17 +220,30 @@ function deferred<T>() {
   return { promise, resolve: resolvePromise };
 }
 
+async function openManualTools(user: ReturnType<typeof userEvent.setup>) {
+  const summary = screen.getByText("高级：手工导入结构化内容或规则");
+  if (!summary.closest("details")?.hasAttribute("open")) await user.click(summary);
+}
+
+async function openAgentSettings(user: ReturnType<typeof userEvent.setup>) {
+  const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
+  const summary = within(agent).getByText("高级设置");
+  if (!summary.closest("details")?.hasAttribute("open")) await user.click(summary);
+  return within(agent).getByLabelText("AI 提取方案");
+}
+
 async function fillHumanDraft(user: ReturnType<typeof userEvent.setup>) {
+  await openManualTools(user);
   const human = screen.getByRole("heading", { name: "Human typed draft" }).closest("article")!;
-  await user.click(within(human).getByRole("radio", { name: "创建新 ref" }));
-  await user.type(within(human).getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/economy");
+  await user.click(within(human).getByRole("radio", { name: "创建新的发布位置" }));
+  await user.type(within(human).getByRole("textbox", { name: "发布位置名称" }), "refs/constraints/economy");
   await user.selectOptions(
     within(human).getByLabelText("基于哪个约束快照（可选）"),
     "artifact:constraint:base",
   );
   await user.click(within(human).getByRole("checkbox", { name: "economy" }));
   await user.click(within(human).getByRole("checkbox", { name: "rewards" }));
-  await user.click(within(human).getByRole("checkbox", { name: /原始策划材料.*source_raw/ }));
+  await user.click(within(human).getByRole("checkbox", { name: /原始策划材料 · 2026-07-19/ }));
   await user.type(within(human).getByLabelText("Human rationale"), "Keep gold inflation bounded.");
   fireEvent.change(within(human).getByLabelText("Typed constraints JSON"), {
     target: {
@@ -245,22 +265,78 @@ async function fillAgentDraft(
   user: ReturnType<typeof userEvent.setup>,
   mode: "live" | "record" | "replay" = "record",
 ) {
-  const profileSelect = await screen.findByLabelText("Agent execution profile");
-  const agent = screen.getByRole("heading", { name: "Agent 提案" }).closest("article")!;
-  await user.click(within(agent).getByRole("checkbox", { name: /原始策划材料.*source_raw/ }));
+  const profileSelect = await openAgentSettings(user);
+  const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
+  await user.click(within(agent).getByRole("checkbox", { name: /原始策划材料 · 2026-07-19/ }));
   await user.selectOptions(
-    within(agent).getByLabelText("基于哪个约束快照（可选）"),
+    within(agent).getByLabelText("基于哪个现有规则版本（可选）"),
     "artifact:constraint:base",
   );
-  await user.type(screen.getByLabelText("Agent authoring goal"), "Extract a deterministic reward cap.");
+  await user.type(screen.getByLabelText("你希望 AI 重点提取什么？"), "Extract a deterministic reward cap.");
   await user.selectOptions(profileSelect, "builtin.constraint_extraction@4");
-  await user.selectOptions(screen.getByLabelText("LLM execution mode"), mode);
+  await user.selectOptions(screen.getByLabelText("AI 运行方式"), mode);
   if (mode === "replay") {
-    await user.selectOptions(screen.getByLabelText("Replay 来源 Run"), "run:replay:source");
+    await user.selectOptions(screen.getByLabelText("回放来源"), "run:replay:source");
   }
 }
 
 describe("SpecEntryPanels", () => {
+  it("prefills project material sources and the current project constraint base", async () => {
+    const entryApi = api();
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <QueryClientProvider client={createQueryClient()}>
+          <SpecEntryPanels
+            api={entryApi}
+            catalogs={catalogs}
+            projectContext={{
+              baseConstraintArtifactId: "artifact:constraint:base",
+              baseConstraintRevision: 3,
+              constraintRefName: "projects/project:sky-harbor/constraints/head",
+              projectId: "project:sky-harbor",
+              projectName: "天空港",
+              sourceArtifactIds: ["artifact:source:rendered"],
+            }}
+          />
+        </QueryClientProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("已绑定天空港项目的 1 份策划材料")).toBeVisible();
+    const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
+    expect(within(agent).getByRole("checkbox", { name: /已解析策划材料/ })).toBeChecked();
+    expect(within(agent).getByRole("checkbox", { name: /已解析策划材料/ })).toBeDisabled();
+    expect(within(agent).getByLabelText("基于哪个现有规则版本（可选）")).toHaveValue(
+      "artifact:constraint:base",
+    );
+
+    const profileSelect = await openAgentSettings(user);
+    await user.type(screen.getByLabelText("你希望 AI 重点提取什么？"), "提取天空港的经济与任务规则。");
+    await user.selectOptions(profileSelect, "builtin.constraint_extraction@4");
+    await user.selectOptions(screen.getByLabelText("AI 运行方式"), "record");
+    await user.click(screen.getByRole("button", { name: "生成规则提案" }));
+
+    await waitFor(() => expect(entryApi.resolveExecutionOption).toHaveBeenCalledOnce());
+    expect(entryApi.resolveExecutionOption).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prospective_request: expect.objectContaining({
+          base_constraint_snapshot_artifact_id: "artifact:constraint:base",
+          source_artifact_ids: ["artifact:source:rendered"],
+        }),
+      }),
+    );
+    const proposalListLink = await screen.findByRole("link", { name: "提取完成后查看项目提案" });
+    expect(proposalListLink).toHaveAttribute(
+      "href",
+      expect.stringContaining("constraintRef=projects%2Fproject%3Asky-harbor%2Fconstraints%2Fhead"),
+    );
+    expect(proposalListLink).toHaveAttribute(
+      "href",
+      expect.stringContaining("source=artifact%3Asource%3Arendered"),
+    );
+  });
+
   it("offers raw and rendered source artifacts even before any proposal exists", async () => {
     render(
       <QueryClientProvider client={createQueryClient()}>
@@ -268,15 +344,15 @@ describe("SpecEntryPanels", () => {
       </QueryClientProvider>,
     );
 
-    const agent = screen.getByRole("heading", { name: "Agent 提案" }).closest("article")!;
+    const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
     expect(
       within(agent).getByRole("checkbox", {
-        name: /原始策划材料（source_raw）.*2026-07-19.*source_raw@1.*artifact:source:design/,
+        name: /原始策划材料 · 2026-07-19/,
       }),
     ).toBeVisible();
     expect(
       within(agent).getByRole("checkbox", {
-        name: /已解析策划材料（source_rendered）.*2026-07-20.*source_rendered@1.*artifact:sou…rendered/,
+        name: /已解析策划材料 · 2026-07-20/,
       }),
     ).toBeVisible();
   });
@@ -286,13 +362,13 @@ describe("SpecEntryPanels", () => {
     const user = userEvent.setup();
     renderPanels(entryApi);
 
-    const profileSelect = await screen.findByLabelText("Agent execution profile");
-    expect(profileSelect).toHaveValue("");
+    const profileSelect = await openAgentSettings(user);
+    await waitFor(() => expect(profileSelect).toHaveValue("builtin.constraint_extraction@4"));
     expect(screen.queryByRole("option", { name: /disabled\.extractor/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("option", { name: /wrong\.kind/ })).not.toBeInTheDocument();
 
     await fillAgentDraft(user);
-    await user.click(screen.getByRole("button", { name: "生成 Agent 候选" }));
+    await user.click(screen.getByRole("button", { name: "生成规则提案" }));
 
     await waitFor(() => expect(entryApi.resolveExecutionOption).toHaveBeenCalledTimes(1));
     const resolveRequest = vi.mocked(entryApi.resolveExecutionOption).mock.calls[0][0];
@@ -305,7 +381,10 @@ describe("SpecEntryPanels", () => {
         domain_scope: { domain_ids: ["domain:economy"] },
         dsl_grammar_version: "dsl@1",
         execution_version_plan: null,
-        extraction_policy: { profile_id: "builtin.constraint_extraction", version: 4 },
+        extraction_policy: {
+          profile_id: "builtin.constraint_extraction",
+          version: 4,
+        },
         llm_execution_mode: "record",
         request_schema_version: "constraint-propose-request@1",
         source_artifact_ids: ["artifact:source:design"],
@@ -320,7 +399,7 @@ describe("SpecEntryPanels", () => {
     expect(request.execution_version_plan).toBe(executionPlan);
     expect(request.cassette_artifact_id).toBe("artifact:cassette:resolved");
     expect(Object.isFrozen(intent)).toBe(true);
-    expect(screen.getByRole("link", { name: "打开 Run run:constraint:1" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看提取进度" })).toHaveAttribute(
       "href",
       "/runs/run%3Aconstraint%3A1",
     );
@@ -331,7 +410,7 @@ describe("SpecEntryPanels", () => {
     const entryApi = api();
     const user = userEvent.setup();
     renderPanels(entryApi);
-    await screen.findByLabelText("Agent execution profile");
+    await openAgentSettings(user);
     expect(document.getElementById("human-constraints-hint")).not.toHaveAttribute("role");
     await fillHumanDraft(user);
     await user.click(screen.getByRole("button", { name: "创建 Human typed draft" }));
@@ -359,17 +438,19 @@ describe("SpecEntryPanels", () => {
       source_artifact_ids: ["artifact:source:design"],
     });
     expect(Object.isFrozen(intent)).toBe(true);
-    expect(screen.getByRole("link", { name: "打开 proposal artifact:proposal:human" })).toHaveAttribute(
-      "href",
-      "/constraint-proposals/artifact%3Aproposal%3Ahuman",
-    );
+    expect(
+      screen.getByRole("link", {
+        name: "检查规则提案",
+      }),
+    ).toHaveAttribute("href", "/constraint-proposals/artifact%3Aproposal%3Ahuman");
   });
 
   it("uploads a schema-bound Human spec and links the exact Spec", async () => {
     const entryApi = api();
     const user = userEvent.setup();
     renderPanels(entryApi);
-    await screen.findByLabelText("Agent execution profile");
+    await openAgentSettings(user);
+    await openManualTools(user);
     expect(document.getElementById("spec-content-hint")).not.toHaveAttribute("role");
 
     const spec = screen.getByRole("heading", { name: "Human spec upload" }).closest("article")!;
@@ -381,13 +462,21 @@ describe("SpecEntryPanels", () => {
     await user.type(within(spec).getByRole("textbox", { name: "新 Ref 名称" }), "refs/specs/economy");
     await user.click(within(spec).getByRole("checkbox", { name: "economy" }));
     fireEvent.change(screen.getByLabelText("Spec content JSON"), {
-      target: { value: JSON.stringify({ economy: { reward_cap: 75 }, meta_schema_version: "meta@2" }) },
+      target: {
+        value: JSON.stringify({
+          economy: { reward_cap: 75 },
+          meta_schema_version: "meta@2",
+        }),
+      },
     });
     await user.click(screen.getByRole("button", { name: "上传 Human spec" }));
 
     await waitFor(() => expect(entryApi.uploadSpec).toHaveBeenCalledTimes(1));
     expect(vi.mocked(entryApi.uploadSpec).mock.calls[0][0]).toEqual({
-      content_payload: { economy: { reward_cap: 75 }, meta_schema_version: "meta@2" },
+      content_payload: {
+        economy: { reward_cap: 75 },
+        meta_schema_version: "meta@2",
+      },
       domain_scope: { domain_ids: ["domain:economy"] },
       expected_ref: null,
       meta_schema_version: "meta@2",
@@ -395,7 +484,7 @@ describe("SpecEntryPanels", () => {
       request_schema_version: "human-spec-upload-request@1",
       schema_registry_version: "registry@3",
     });
-    expect(screen.getByRole("link", { name: "打开 Spec artifact:spec:uploaded" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看设计内容" })).toHaveAttribute(
       "href",
       "/specs/artifact%3Aspec%3Auploaded",
     );
@@ -409,7 +498,7 @@ describe("SpecEntryPanels", () => {
     const entryApi = api({ draftConstraint });
     const user = userEvent.setup();
     renderPanels(entryApi);
-    await screen.findByLabelText("Agent execution profile");
+    await openAgentSettings(user);
     await fillHumanDraft(user);
     await user.click(screen.getByRole("button", { name: "创建 Human typed draft" }));
 
@@ -420,7 +509,7 @@ describe("SpecEntryPanels", () => {
 
     await waitFor(() => expect(draftConstraint).toHaveBeenCalledTimes(2));
     expect(draftConstraint.mock.calls[1][1]).toBe(draftConstraint.mock.calls[0][1]);
-    expect(await screen.findByRole("link", { name: /打开 proposal/ })).toBeVisible();
+    expect(await screen.findByRole("link", { name: "检查规则提案" })).toBeVisible();
   });
 
   it("retries an unknown Agent create with the first resolved body and the same frozen intent", async () => {
@@ -432,12 +521,12 @@ describe("SpecEntryPanels", () => {
     const user = userEvent.setup();
     renderPanels(entryApi);
     await fillAgentDraft(user);
-    await user.click(screen.getByRole("button", { name: "生成 Agent 候选" }));
+    await user.click(screen.getByRole("button", { name: "生成规则提案" }));
 
     expect(await screen.findByRole("heading", { name: "创建结果未知" })).toBeVisible();
     expect(entryApi.resolveExecutionOption).toHaveBeenCalledTimes(1);
     expect(proposeConstraint).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("button", { name: "生成 Agent 候选" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "生成规则提案" })).toBeDisabled();
     await user.click(screen.getByRole("button", { name: "使用同一 intent 明确重试" }));
 
     await waitFor(() => expect(proposeConstraint).toHaveBeenCalledTimes(2));
@@ -456,18 +545,23 @@ describe("SpecEntryPanels", () => {
     },
     {
       name: "run kind",
-      option: { ...resolvedOption, run_kind: { kind: "generation.propose", version: 1 } },
+      option: {
+        ...resolvedOption,
+        run_kind: { kind: "generation.propose", version: 1 },
+      },
     },
     {
       name: "execution mode",
       option: { ...resolvedOption, llm_execution_mode: "live" as const },
     },
   ])("fails closed when the resolver changes the requested $name", async ({ option }) => {
-    const entryApi = api({ resolveExecutionOption: vi.fn(async () => option) });
+    const entryApi = api({
+      resolveExecutionOption: vi.fn(async () => option),
+    });
     const user = userEvent.setup();
     renderPanels(entryApi);
     await fillAgentDraft(user);
-    await user.click(screen.getByRole("button", { name: "生成 Agent 候选" }));
+    await user.click(screen.getByRole("button", { name: "生成规则提案" }));
 
     expect(await screen.findByRole("heading", { name: "创建结果未知" })).toBeVisible();
     expect(entryApi.proposeConstraint).not.toHaveBeenCalled();
@@ -486,7 +580,7 @@ describe("SpecEntryPanels", () => {
     const user = userEvent.setup();
     renderPanels(entryApi);
     await fillAgentDraft(user, "replay");
-    await user.click(screen.getByRole("button", { name: "生成 Agent 候选" }));
+    await user.click(screen.getByRole("button", { name: "生成规则提案" }));
 
     expect(await screen.findByRole("heading", { name: "创建结果未知" })).toBeVisible();
     expect(entryApi.resolveExecutionOption).toHaveBeenCalledWith(
@@ -497,20 +591,26 @@ describe("SpecEntryPanels", () => {
 
   it("renders profile loading and empty states without choosing a fallback", async () => {
     const pending = deferred<ExecutionProfilePage>();
-    const entryApi = api({ listExecutionProfiles: vi.fn(() => pending.promise) });
+    const entryApi = api({
+      listExecutionProfiles: vi.fn(() => pending.promise),
+    });
     renderPanels(entryApi);
 
     expect(screen.getByRole("heading", { name: "正在读取 Agent profiles" })).toBeVisible();
     pending.resolve({ ...profilePage, items: [] });
 
     expect(await screen.findByRole("heading", { name: "没有可用的 Agent profile" })).toBeVisible();
-    expect(screen.getByLabelText("Agent execution profile")).toHaveValue("");
+    expect(screen.getByLabelText("AI 提取方案")).toHaveValue("");
   });
 
   it("requires an explicit restart after the profile catalog cursor expires", async () => {
     const listExecutionProfiles = vi
       .fn<SpecEntryPanelsApi["listExecutionProfiles"]>()
-      .mockResolvedValueOnce({ ...profilePage, items: [], next_cursor: "opaque.profile+/=" })
+      .mockResolvedValueOnce({
+        ...profilePage,
+        items: [],
+        next_cursor: "opaque.profile+/=",
+      })
       .mockRejectedValueOnce(
         new CursorExpiredError(
           {
@@ -538,12 +638,16 @@ describe("SpecEntryPanels", () => {
     await user.click(await screen.findByRole("button", { name: "加载更多 Agent profiles" }));
     expect(await screen.findByRole("heading", { name: "Profile 游标已过期" })).toBeVisible();
     expect(listExecutionProfiles).toHaveBeenCalledTimes(2);
-    expect(screen.getByLabelText("Agent execution profile")).toBeDisabled();
+    expect(screen.getByLabelText("AI 提取方案")).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: "从 profile 目录首页重新开始" }));
-    expect(await screen.findByRole("option", { name: /builtin\.constraint_extraction@4/ })).toBeVisible();
+    expect(
+      await screen.findByRole("option", {
+        name: "Economy constraint extraction",
+      }),
+    ).toBeVisible();
     expect(listExecutionProfiles).toHaveBeenLastCalledWith(null);
-    expect(screen.getByLabelText("Agent execution profile")).toHaveValue("");
+    expect(screen.getByLabelText("AI 提取方案")).toHaveValue("");
   });
 
   it.each([
@@ -567,14 +671,16 @@ describe("SpecEntryPanels", () => {
         trace_id: null,
         type: "about:blank",
       } satisfies SafeProblem),
-      expected: "Domain forbidden",
+      expected: "没有操作权限",
       kind: "problem",
     },
   ])("renders $kind create failures without raw exception leakage", async ({ error, expected, kind }) => {
-    const entryApi = api({ draftConstraint: vi.fn(async () => Promise.reject(error)) });
+    const entryApi = api({
+      draftConstraint: vi.fn(async () => Promise.reject(error)),
+    });
     const user = userEvent.setup();
     renderPanels(entryApi);
-    await screen.findByLabelText("Agent execution profile");
+    await openAgentSettings(user);
     await fillHumanDraft(user);
     await user.click(screen.getByRole("button", { name: "创建 Human typed draft" }));
 

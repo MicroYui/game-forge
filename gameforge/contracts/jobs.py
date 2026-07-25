@@ -567,6 +567,7 @@ class SolverEngineRefV1(_FrozenModel):
 class GenerationProposePayloadV1(_FrozenModel):
     schema_version: Literal["generation-propose@1"] = "generation-propose@1"
     base_snapshot_artifact_id: BoundedId
+    source_artifact_ids: tuple[BoundedId, ...] = Field(default=(), max_length=MAX_COLLECTION_ITEMS)
     constraint_snapshot_artifact_id: BoundedId | None = None
     findings: tuple[FindingEvidenceBindingV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
     objective_goal: PromptGoalBindingV1
@@ -581,6 +582,11 @@ class GenerationProposePayloadV1(_FrozenModel):
         cls, value: tuple[FindingEvidenceBindingV1, ...]
     ) -> tuple[FindingEvidenceBindingV1, ...]:
         return _canonical_finding_bindings(value)
+
+    @field_validator("source_artifact_ids")
+    @classmethod
+    def _sources(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return _canonical_unique_strings(value)
 
     @field_validator("candidate_export_profiles")
     @classmethod
@@ -934,6 +940,7 @@ def _referenced_input_artifact_ids(params: RunKindPayload) -> tuple[str, ...]:
     if isinstance(params, GenerationProposePayloadV1):
         ids = [
             params.base_snapshot_artifact_id,
+            *params.source_artifact_ids,
             params.constraint_snapshot_artifact_id,
             params.objective_goal.source_artifact_id,
             _target_artifact_id(params.target),

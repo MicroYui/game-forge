@@ -88,16 +88,16 @@ def _config(tmp_path: Path) -> LocalWorkerConfig:
     )
 
 
-def _catalog_v3() -> tuple[
+def _catalog_v4() -> tuple[
     tuple[ExecutionProfileCatalogSnapshotV1, ...],
     ExecutionProfileCatalogSnapshotV1,
 ]:
     history = build_builtin_registry().list_execution_profile_catalogs()
     latest = max(history, key=lambda item: item.catalog_version)
-    assert latest.catalog_version == 2
+    assert latest.catalog_version == 3
     payload = {
         "catalog_schema_version": latest.catalog_schema_version,
-        "catalog_version": 3,
+        "catalog_version": 4,
         "definitions": latest.definitions,
         "lifecycle": latest.lifecycle,
     }
@@ -107,7 +107,7 @@ def _catalog_v3() -> tuple[
     )
 
 
-def _catalog_v3_with_unknown_handler() -> tuple[
+def _catalog_v4_with_unknown_handler() -> tuple[
     tuple[ExecutionProfileCatalogSnapshotV1, ...],
     ExecutionProfileCatalogSnapshotV1,
 ]:
@@ -145,7 +145,7 @@ def _catalog_v3_with_unknown_handler() -> tuple[
     )
     payload = {
         "catalog_schema_version": latest.catalog_schema_version,
-        "catalog_version": 3,
+        "catalog_version": 4,
         "definitions": definitions,
         "lifecycle": lifecycle,
     }
@@ -959,14 +959,14 @@ def test_worker_composition_closes_all_validation_execution_ports(tmp_path: Path
         process.close()
 
 
-def test_worker_process_uses_persisted_v3_catalog_as_one_exact_authority(
+def test_worker_process_uses_persisted_v4_catalog_as_one_exact_authority(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     config = _config(tmp_path)
     migrations_api.upgrade(config.database_url, "head")
-    builtin_history, catalog_v3 = _catalog_v3()
-    _persist_catalogs(config.database_url, (*builtin_history, catalog_v3))
+    builtin_history, catalog_v4 = _catalog_v4()
+    _persist_catalogs(config.database_url, (*builtin_history, catalog_v4))
 
     seen: dict[str, object] = {}
     real_components = worker_dispatch.build_trusted_components
@@ -999,24 +999,27 @@ def test_worker_process_uses_persisted_v3_catalog_as_one_exact_authority(
         }
         assert (
             registry.get_execution_profile_catalog(
-                catalog_v3.catalog_version,
-                catalog_v3.catalog_digest,
+                catalog_v4.catalog_version,
+                catalog_v4.catalog_digest,
             )
-            == catalog_v3
+            == catalog_v4
         )
 
+        active_profiles = {
+            item.profile for item in catalog_v4.lifecycle if item.state == "active"
+        }
         checker = next(
             definition
-            for definition in catalog_v3.definitions
-            if definition.profile_kind == "checker"
+            for definition in catalog_v4.definitions
+            if definition.profile_kind == "checker" and definition.profile in active_profiles
         )
         binding = ResolvedExecutionProfileBindingV1(
             field_path="/params/checker_profile",
             profile=checker.profile,
             expected_profile_kind="checker",
             profile_payload_hash=execution_profile_payload_hash(checker),
-            catalog_version=catalog_v3.catalog_version,
-            catalog_digest=catalog_v3.catalog_digest,
+            catalog_version=catalog_v4.catalog_version,
+            catalog_digest=catalog_v4.catalog_digest,
         )
         params = CheckerRunPayloadV1(
             snapshot_artifact_id="artifact:snapshot",
@@ -1030,8 +1033,8 @@ def test_worker_process_uses_persisted_v3_catalog_as_one_exact_authority(
             resolved_profiles=(binding,),
         ).model_copy(
             update={
-                "execution_profile_catalog_version": catalog_v3.catalog_version,
-                "execution_profile_catalog_digest": catalog_v3.catalog_digest,
+                "execution_profile_catalog_version": catalog_v4.catalog_version,
+                "execution_profile_catalog_digest": catalog_v4.catalog_digest,
                 "schema_bindings": (
                     RunSchemaBindingV1(
                         binding_key="run_payload",
@@ -1102,8 +1105,8 @@ def test_worker_composition_rejects_persisted_unknown_profile_handler(
 ) -> None:
     config = _config(tmp_path)
     migrations_api.upgrade(config.database_url, "head")
-    history, catalog_v3 = _catalog_v3_with_unknown_handler()
-    _persist_catalogs(config.database_url, (*history, catalog_v3))
+    history, catalog_v4 = _catalog_v4_with_unknown_handler()
+    _persist_catalogs(config.database_url, (*history, catalog_v4))
 
     with pytest.raises(IntegrityViolation, match="profile handlers do not close"):
         build_worker_process(config)

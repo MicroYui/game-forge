@@ -3,6 +3,7 @@ import { matchPath } from "react-router-dom";
 import { messages } from "../i18n/zh-CN";
 
 export type NavigationIcon =
+  | "projects"
   | "specs"
   | "generation"
   | "reviews"
@@ -19,6 +20,7 @@ export type NavigationRoute = {
 };
 
 export const navigationRoutes: readonly NavigationRoute[] = [
+  { icon: "projects", path: "/projects", title: messages.routes.projects },
   { icon: "specs", path: "/specs", title: messages.routes.specs },
   { icon: "generation", path: "/generation", title: messages.routes.generation },
   { icon: "reviews", path: "/reviews", title: messages.routes.reviews },
@@ -36,6 +38,7 @@ type DetailRoute = {
 };
 
 export const detailRoutes: readonly DetailRoute[] = [
+  { parentPath: "/projects", path: "/projects/:projectId", title: messages.details.project },
   { parentPath: "/specs", path: "/specs/:artifactId", title: messages.details.spec },
   {
     parentPath: "/specs",
@@ -77,13 +80,18 @@ export const detailRoutes: readonly DetailRoute[] = [
 export type BreadcrumbItem = { path?: string; title: string };
 
 export function breadcrumbsFor(pathname: string): BreadcrumbItem[] {
-  const root: BreadcrumbItem = { path: "/specs", title: messages.shell.home };
+  const root: BreadcrumbItem = { path: "/projects", title: messages.routes.projects };
   const topLevel = navigationRoutes.find((route) => matchPath({ end: true, path: route.path }, pathname));
-  if (topLevel) return [root, { title: topLevel.title }];
+  if (topLevel)
+    return topLevel.path === root.path ? [{ title: topLevel.title }] : [root, { title: topLevel.title }];
   const detail = detailRoutes.find((route) => matchPath({ end: true, path: route.path }, pathname));
   if (!detail) return [root, { title: messages.details.notFound }];
   const parent = detail.parentPath
     ? navigationRoutes.find((route) => route.path === detail.parentPath)
     : undefined;
-  return [root, ...(parent ? [{ path: parent.path, title: parent.title }] : []), { title: detail.title }];
+  return [
+    root,
+    ...(parent && parent.path !== root.path ? [{ path: parent.path, title: parent.title }] : []),
+    { title: detail.title },
+  ];
 }

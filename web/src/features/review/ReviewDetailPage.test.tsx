@@ -267,37 +267,37 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Review Report" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开 exact preview" })).toHaveAttribute(
+    expect(await screen.findByRole("heading", { level: 1, name: "内容检查报告" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看被检查的内容" })).toHaveAttribute(
       "href",
       `/specs/${encodeURIComponent(PREVIEW_ID)}`,
     );
-    expect(screen.getByRole("link", { name: "打开 exact constraint" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看使用的规则版本" })).toHaveAttribute(
       "href",
       `/constraints/${encodeURIComponent(CONSTRAINT_ID)}`,
     );
-    const tuple = screen.getByRole("region", { name: "Frozen VersionTuple" });
-    expect(within(tuple).getByText("review@1")).toBeVisible();
-    expect(within(tuple).getByText("openai/gpt-5.6-sol/m4@1")).toBeVisible();
-    expect(within(tuple).getByText("review-triage@2")).toBeVisible();
-    expect(screen.getByText("4 条 Finding；0 不代表通过")).toBeVisible();
+    const tuple = screen.getByRole("region", { name: "检查工具技术信息" });
+    expect(within(tuple).getByText("review@1")).not.toBeVisible();
+    expect(within(tuple).getByText("openai/gpt-5.6-sol/m4@1")).not.toBeVisible();
+    expect(within(tuple).getByText("review-triage@2")).not.toBeVisible();
+    expect(screen.getByText("4 个问题；没有发现问题也不等于所有规则都已证明通过。")).toBeVisible();
     expect(screen.getByRole("region", { name: "确定性预言机" })).toBeVisible();
     expect(screen.getByRole("region", { name: "仿真证据（描述性）" })).toBeVisible();
-    expect(screen.getByRole("region", { name: "LLM 建议（需人确认）" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "AI 建议（需人工确认）" })).toBeVisible();
     expect(screen.getByRole("region", { name: "未证明（不可视为通过）" })).toBeVisible();
-    expect(screen.getAllByRole("link", { name: "查看 exact Finding 修订" })).toHaveLength(4);
-    expect(screen.getByRole("link", { name: "打开 Review producer Run" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "查看此问题的历史版本" })).toHaveLength(4);
+    expect(screen.getByRole("link", { name: "查看本次检查的运行记录" })).toHaveAttribute(
       "href",
       `/runs/${encodeURIComponent(RUN_ID)}`,
     );
-    expect(screen.getByText(/与服务端验证的 Review producer occurrence 一致/)).toBeVisible();
-    expect(screen.getByText(/direct preview 与请求上下文一致/)).toBeVisible();
-    expect(screen.getByText("attempt 1 · ordinal 1")).toBeVisible();
-    expect(screen.getByRole("link", { name: "artifact:evidence:1" })).toHaveAttribute(
+    expect(screen.getByText(/已确认是生成这份报告的运行记录/)).toBeVisible();
+    expect(screen.getByText(/打开的内容预览与本报告一致/)).toBeVisible();
+    expect(screen.getByText("第 1 次检查 · 第 1 条结果")).toBeVisible();
+    expect(screen.getAllByRole("link", { name: "查看检查证据" })[0]).toHaveAttribute(
       "href",
       "/artifacts/artifact%3Aevidence%3A1",
     );
-    const counts = screen.getByRole("list", { name: "Finding 分区计数" });
+    const counts = screen.getByRole("list", { name: "问题分类计数" });
     expect(within(counts).getAllByText("1")).toHaveLength(4);
   });
 
@@ -311,7 +311,7 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText(/与服务端验证的 Review producer occurrence 一致/)).toBeVisible();
+    expect(await screen.findByText(/已确认是生成这份报告的运行记录/)).toBeVisible();
     expect(getReviewProducerBinding).toHaveBeenCalledTimes(1);
     expect(getReviewProducerBinding).toHaveBeenCalledWith(REVIEW_ID, RUN_ID);
   });
@@ -333,11 +333,11 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText(/另一条已验证的 Review producer occurrence/)).toBeVisible();
+    expect(await screen.findByText(/另一条已验证的报告生成记录/)).toBeVisible();
     expect(getReviewProducerBinding).toHaveBeenCalledTimes(2);
     expect(getReviewProducerBinding).toHaveBeenCalledWith(REVIEW_ID, RUN_ID);
     expect(getReviewProducerBinding).toHaveBeenCalledWith(REVIEW_ID, sourceRunId);
-    expect(screen.getByText(/generation-gate-pass@1/)).toBeVisible();
+    expect(screen.getByText(/generation-gate-pass@1/)).not.toBeVisible();
   });
 
   it("uses an explicit sourceRun to close an empty Review occurrence", async () => {
@@ -360,10 +360,10 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText("0 条 Finding；0 不代表通过")).toBeVisible();
+    expect(await screen.findByText("0 个问题；没有发现问题也不等于所有规则都已证明通过。")).toBeVisible();
     expect(getReviewProducerBinding).toHaveBeenCalledWith(REVIEW_ID, RUN_ID);
-    expect(screen.getByText("run_result · succeeded")).toBeVisible();
-    expect(screen.getByText(/review-completed@1/)).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看运行结果清单" })).toBeVisible();
+    expect(screen.getByText(/review-completed@1/)).not.toBeVisible();
   });
 
   it("keeps a sourceRun that is not an occurrence as navigation context only", async () => {
@@ -397,8 +397,8 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText(/未验证为该 Review 的 producer occurrence/)).toBeVisible();
-    expect(screen.getByRole("heading", { level: 1, name: "Review Report" })).toBeVisible();
+    expect(await screen.findByText(/尚未确认是这份报告的生成记录/)).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1, name: "内容检查报告" })).toBeVisible();
   });
 
   it("binds sourceRun into the detail query identity", async () => {
@@ -423,12 +423,12 @@ describe("Review detail", () => {
       </QueryClientProvider>
     );
     const rendered = render(page(RUN_ID));
-    expect(await screen.findByText(/与服务端验证的 Review producer occurrence 一致/)).toBeVisible();
+    expect(await screen.findByText(/已确认是生成这份报告的运行记录/)).toBeVisible();
 
     rendered.rerender(page(secondSourceRunId));
 
     await waitFor(() => expect(getReviewProducerBinding).toHaveBeenCalledWith(REVIEW_ID, secondSourceRunId));
-    expect(await screen.findByText(/另一条已验证的 Review producer occurrence/)).toBeVisible();
+    expect(await screen.findByText(/另一条已验证的报告生成记录/)).toBeVisible();
   });
 
   it("renders embedded-only generation evidence without fabricating revisions or latest links", async () => {
@@ -442,10 +442,10 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText(/仅报告内嵌 Finding/)).toBeVisible();
-    expect(screen.getAllByText("无 immutable revision；未回退 latest")).toHaveLength(4);
-    expect(screen.queryByRole("link", { name: "查看 exact Finding 修订" })).not.toBeInTheDocument();
-    expect(screen.getAllByText(/"observed": "blocked"/)).toHaveLength(4);
+    expect(await screen.findByText(/问题保存在报告内，没有独立历史版本/)).toBeVisible();
+    expect(screen.getAllByText("这条问题没有独立历史版本，页面只展示报告内原始结果。")).toHaveLength(4);
+    expect(screen.queryByRole("link", { name: "查看此问题的历史版本" })).not.toBeInTheDocument();
+    for (const element of screen.getAllByText(/"observed": "blocked"/)) expect(element).not.toBeVisible();
   });
 
   it("shows a failed generation producer occurrence without recasting Finding states", async () => {
@@ -467,9 +467,9 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText("run_failure · failed")).toBeVisible();
-    expect(screen.getByText("已确认 · confirmed")).toBeVisible();
-    expect(screen.getAllByText("未证明 · unproven")).toHaveLength(2);
+    expect(await screen.findByRole("link", { name: "查看运行结果清单" })).toBeVisible();
+    expect(screen.getByText("已确认")).toBeVisible();
+    expect(screen.getAllByText("未证明")).toHaveLength(3);
   });
 
   it("shows explicit empty copy for every zero-Finding partition", async () => {
@@ -492,7 +492,7 @@ describe("Review detail", () => {
       />,
     );
 
-    expect(await screen.findByText("0 条 Finding；0 不代表通过")).toBeVisible();
+    expect(await screen.findByText("0 个问题；没有发现问题也不等于所有规则都已证明通过。")).toBeVisible();
     expect(screen.getAllByText("暂无此类证据")).toHaveLength(3);
     expect(screen.getByText("暂无未证明结果")).toBeVisible();
     expect(getReviewProducerBinding).not.toHaveBeenCalled();
@@ -503,7 +503,7 @@ describe("Review detail", () => {
     const reviewApi = api({ getReview: vi.fn().mockResolvedValue(reviewView("artifact:review:wrong")) });
     renderWithQuery(<ReviewDetailPage api={reviewApi} artifactId={REVIEW_ID} />);
 
-    expect(await screen.findByRole("heading", { name: "Review 权威闭合失败" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法完整核对检查报告" })).toBeVisible();
     expect(screen.queryByText("finding:det 的审查消息")).not.toBeInTheDocument();
     expect(reviewApi.listLineage).not.toHaveBeenCalled();
     expect(reviewApi.listRunFindingLinks).not.toHaveBeenCalled();
@@ -531,7 +531,7 @@ describe("Review detail", () => {
     const reviewApi = api({ getReview: vi.fn().mockResolvedValue(invalid) });
     renderWithQuery(<ReviewDetailPage api={reviewApi} artifactId={REVIEW_ID} />);
 
-    expect(await screen.findByRole("heading", { name: "Review 权威闭合失败" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法完整核对检查报告" })).toBeVisible();
     expect(reviewApi.getReviewProducerBinding).not.toHaveBeenCalled();
     expect(reviewApi.listLineage).not.toHaveBeenCalled();
     expect(reviewApi.listRunFindingLinks).not.toHaveBeenCalled();
@@ -549,8 +549,9 @@ describe("Review detail", () => {
     const listLineage = vi.fn().mockResolvedValueOnce(first).mockResolvedValueOnce(repeated);
     renderWithQuery(<ReviewDetailPage api={api({ listLineage })} artifactId={REVIEW_ID} />);
 
-    expect(await screen.findByRole("heading", { name: "Review 权威闭合失败" })).toBeVisible();
-    expect(screen.getByText(/cursor cycle/)).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法完整核对检查报告" })).toBeVisible();
+    expect(screen.getByText(/报告、被检查内容或问题证据未能完整对应/)).toBeVisible();
+    expect(screen.getByText(/cursor cycle/)).not.toBeVisible();
     expect(listLineage).toHaveBeenCalledTimes(2);
   });
 
@@ -580,8 +581,8 @@ describe("Review detail", () => {
       );
     renderWithQuery(<ReviewDetailPage api={api({ listLineage })} artifactId={REVIEW_ID} />);
 
-    expect(await screen.findByRole("heading", { name: "Review 详情快照已过期" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "从第一页重新读取全部权威" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "报告内容已更新，请重新读取" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "从第一页重新读取全部内容" })).toBeVisible();
   });
 });
 
@@ -590,15 +591,13 @@ describe("Finding exact revision detail", () => {
     const getFinding = vi.fn().mockResolvedValue(exactFindings[0]);
     renderWithQuery(<FindingDetailPage api={api({ getFinding })} findingId="finding:det" revision={3} />);
 
-    expect(
-      await screen.findByRole("heading", { level: 1, name: "Finding immutable revision" }),
-    ).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "问题详情" })).toBeVisible();
     expect(getFinding).toHaveBeenCalledWith("finding:det", 3);
-    expect(screen.getByText("不可变修订 3")).toBeVisible();
+    expect(screen.getAllByText("第 3 版").some((element) => element.matches("dd"))).toBe(true);
     expect(screen.getByText("aureus-csv · quests.csv / 第 19 行")).toBeVisible();
-    expect(screen.getByText(/"observed": "blocked"/)).toBeVisible();
-    expect(screen.getByText(/"steps": \[/)).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开 producer Run" })).toHaveAttribute(
+    expect(screen.getByText(/"observed": "blocked"/)).not.toBeVisible();
+    expect(screen.getByText(/"steps": \[/)).not.toBeVisible();
+    expect(screen.getByRole("link", { name: "查看生成记录" })).toHaveAttribute(
       "href",
       `/runs/${encodeURIComponent(RUN_ID)}`,
     );
@@ -613,6 +612,6 @@ describe("Finding exact revision detail", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Finding 权威闭合失败" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "问题版本校验失败" })).toBeVisible();
   });
 });

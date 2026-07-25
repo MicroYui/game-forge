@@ -1543,3 +1543,131 @@ class AlertInstanceRow(Base):
     )
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class GameProjectRow(Base):
+    """Mutable project head; immutable content remains in Artifact/Ref authority."""
+
+    __tablename__ = "game_projects"
+    __table_args__ = (
+        UniqueConstraint("project_key", name="uq_game_projects_key"),
+        Index(
+            "ix_game_projects_status_updated",
+            "status",
+            "updated_at",
+            "project_id",
+        ),
+    )
+
+    project_id: Mapped[str] = mapped_column(String, primary_key=True)
+    project_key: Mapped[str] = mapped_column(String, nullable=False)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    domain_scope: Mapped[dict] = mapped_column(JSON, nullable=False)
+    bootstrap_snapshot_artifact_id: Mapped[str] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    content_ref_name: Mapped[str] = mapped_column(String, nullable=False)
+    constraint_ref_name: Mapped[str] = mapped_column(String, nullable=False)
+    latest_extraction_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    latest_patch_artifact_id: Mapped[str | None] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    latest_approval_id: Mapped[str | None] = mapped_column(
+        ForeignKey("approval_items.approval_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    created_by: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    updated_at: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ProjectMaterialRow(Base):
+    """Project binding for an immutable original/rendered source pair."""
+
+    __tablename__ = "project_materials"
+    __table_args__ = (
+        Index(
+            "ix_project_materials_project_status_created",
+            "project_id",
+            "status",
+            "created_at",
+            "material_id",
+        ),
+    )
+
+    material_id: Mapped[str] = mapped_column(String, primary_key=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("game_projects.project_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    source_format: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    original_source_artifact_id: Mapped[str] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    rendered_source_artifact_id: Mapped[str] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    created_by: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ProjectExtractionRow(Base):
+    """Project journey mapping to one authoritative asynchronous Run."""
+
+    __tablename__ = "project_extractions"
+    __table_args__ = (
+        Index(
+            "ix_project_extractions_project_created",
+            "project_id",
+            "created_at",
+            "extraction_id",
+        ),
+        Index("ix_project_extractions_run", "run_id", unique=True),
+    )
+
+    extraction_id: Mapped[str] = mapped_column(String, primary_key=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("game_projects.project_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    run_id: Mapped[str] = mapped_column(
+        ForeignKey("runs.run_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    patch_artifact_id: Mapped[str | None] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    preview_snapshot_artifact_id: Mapped[str | None] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    approval_id: Mapped[str | None] = mapped_column(
+        ForeignKey("approval_items.approval_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    publication_patch_artifact_id: Mapped[str | None] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    publication_approval_id: Mapped[str | None] = mapped_column(
+        ForeignKey("approval_items.approval_id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    created_by: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    updated_at: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)

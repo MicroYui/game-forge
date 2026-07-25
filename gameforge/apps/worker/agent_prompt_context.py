@@ -34,8 +34,7 @@ AGENT_PROMPT_CONTEXT_RENDERER_VERSION = "agent-prompt-context-renderer@1"
 # itself retained authority: the corresponding production request has no system
 # message and the renderer must not manufacture one.
 _BUILTIN_SYSTEM_PROMPTS: dict[tuple[str, str], str | None] = {
-    ("generation", "generation@1"): "generation.system",
-    ("generation", "generation@2"): "generation.v2.system",
+    ("generation", "generation@7"): "generation.system",
     ("repair", "repair@4"): "repair.system",
     ("extraction", "extraction@1"): "extraction.system",
     ("review-triage", "review-triage@1"): None,
@@ -269,7 +268,11 @@ def build_builtin_agent_prompt_context_authority(
         tool_version: build_tool_schema_set(tool_version=tool_version, tool_schemas=())
         for _, _, tool_version in canonical_keys
     }
-    direct_empty_params = {"review-triage", "bench-agent-case"}
+    routed_output_bound_prompts = {
+        ("bench-agent-case", "bench-agent@1"),
+        ("generation", "generation@7"),
+        ("review-triage", "review-triage@1"),
+    }
     bindings: list[CanonicalPromptBindingV1] = []
     for agent_node_id, prompt_version, tool_version in canonical_keys:
         if (agent_node_id, prompt_version) not in _BUILTIN_SYSTEM_PROMPTS:
@@ -278,9 +281,10 @@ def build_builtin_agent_prompt_context_authority(
                 agent_node_id=agent_node_id,
                 prompt_version=prompt_version,
             )
+        route_owns_output_bound = (agent_node_id, prompt_version) in routed_output_bound_prompts
         params = (
             {}
-            if agent_node_id in direct_empty_params
+            if route_owns_output_bound
             else {"max_tokens": 512 if agent_node_id == "playtest.memory" else 2048}
         )
         schema_set = tool_schema_sets[tool_version]
@@ -323,7 +327,7 @@ def build_builtin_agent_prompt_context_authority(
                             required=True,
                         ),
                     )
-                    if agent_node_id in direct_empty_params
+                    if route_owns_output_bound
                     else (
                         CanonicalPolicyInjectedParamV1(
                             name="temperature",

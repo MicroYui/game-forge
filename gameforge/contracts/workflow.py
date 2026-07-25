@@ -24,11 +24,11 @@ from gameforge.contracts.execution_profiles import (
     ResolvedExecutionProfileBindingV1,
 )
 from gameforge.contracts.identity import (
+    ApprovalRouteRole,
     DomainRegistryRefV1,
     DomainRoutePolicyRefV1,
     DomainScope,
     Permission,
-    Role,
     SubjectKind,
 )
 from gameforge.contracts.ir import SourceRef
@@ -506,7 +506,7 @@ class ApprovalRequirement(_FrozenModel):
     requirement_id: NonEmptyStr
     domain_scope: DomainScope
     required_permission: Permission
-    route_role: Role
+    route_role: ApprovalRouteRole
     min_approvals: PositiveInt
     assignee_principal_ids: tuple[NonEmptyStr, ...]
     distinct_from_requirement_ids: tuple[NonEmptyStr, ...]
@@ -1190,8 +1190,6 @@ class ApprovalItem(_FrozenModel):
             raise ValueError("approval requirements must cover the full domain_scope")
 
         for decision in self.decisions:
-            if decision.actor.principal_id == self.proposer.principal_id:
-                raise ValueError("proposer cannot approve or decide their own revision")
             unknown = set(decision.requirement_ids) - requirement_ids
             if unknown:
                 raise ValueError(f"decision references unknown requirements: {sorted(unknown)}")

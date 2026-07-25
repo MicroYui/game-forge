@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { cursorFromPage, CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { FindingCard } from "../../components/evidence";
+import { TechnicalDetails } from "../../components/identity";
 import { adaptPlaytestEpisodeTrace, TracePlayer } from "../../components/playtest";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import type { PlaytestApi, PlaytestRunRequest, RunFindingLinkPage, TaskSuiteArtifactView } from "./api";
@@ -159,56 +160,63 @@ function SucceededResult({
             <CircleX aria-hidden="true" />
           )}
           <div>
-            <p>Run status · succeeded</p>
+            <p>试玩已结束</p>
             <h2 id="playtest-terminal-title">
-              {terminal.allEpisodesCompleted ? "Run 已完成，全部任务通过" : "Run 已完成，任务未全部通过"}
+              {terminal.allEpisodesCompleted ? "全部试玩任务已完成" : "仍有试玩任务未完成"}
             </h2>
           </div>
         </div>
         <dl>
           <div>
-            <dt>Episode completion</dt>
+            <dt>任务完成情况</dt>
             <dd>
-              {terminal.completedEpisodeCount} / {terminal.trace.episodes.length} episodes completed
+              已完成 {terminal.completedEpisodeCount} / {terminal.trace.episodes.length} 个任务
             </dd>
           </div>
           <div>
-            <dt>Finding count</dt>
+            <dt>发现的问题</dt>
             <dd>{terminal.findingCount}</dd>
           </div>
           <div>
-            <dt>Browser request candidate</dt>
+            <dt>结果校验</dt>
             <dd>{requestCandidateLabels[terminal.requestCandidateStatus]}</dd>
           </div>
           <div>
-            <dt>Trace Artifact</dt>
+            <dt>试玩轨迹</dt>
             <dd>
               <a href={`/artifacts/${encodeURIComponent(terminal.trace.artifact.artifact.artifact_id)}`}>
-                {terminal.trace.artifact.artifact.artifact_id}
+                查看试玩轨迹记录
               </a>
             </dd>
           </div>
           <div>
-            <dt>RunResult manifest</dt>
+            <dt>试玩结果</dt>
             <dd>
               <a href={`/artifacts/${encodeURIComponent(terminal.manifest.artifact.artifact_id)}`}>
-                {terminal.manifest.artifact.artifact_id}
+                查看试玩结果记录
               </a>
             </dd>
           </div>
         </dl>
+        <TechnicalDetails
+          items={[
+            { label: "试玩轨迹记录 ID", value: terminal.trace.artifact.artifact.artifact_id },
+            { label: "试玩结果记录 ID", value: terminal.manifest.artifact.artifact_id },
+          ]}
+          summary="查看试玩结果技术信息"
+        />
       </header>
 
-      <section className="gf-playtest-terminal__episodes" aria-label="Playtest episode results">
+      <section className="gf-playtest-terminal__episodes" aria-label="试玩任务结果">
         <div className="gf-playtest-terminal__section-title">
           <ScrollText aria-hidden="true" size={19} />
           <div>
-            <p>Deterministic completion oracle</p>
-            <h3>Episode 结果与轨迹</h3>
+            <p>系统自动判定完成情况</p>
+            <h3>任务结果与轨迹</h3>
           </div>
         </div>
-        <div className="gf-playtest-terminal__episode-tabs" role="group" aria-label="选择轨迹 episode">
-          {terminal.trace.episodes.map((episode) => (
+        <div className="gf-playtest-terminal__episode-tabs" role="group" aria-label="选择试玩任务">
+          {terminal.trace.episodes.map((episode, index) => (
             <button
               aria-pressed={episode.episodeId === episodeId}
               data-completed={episode.completed || undefined}
@@ -216,8 +224,8 @@ function SucceededResult({
               onClick={() => setEpisodeId(episode.episodeId)}
               type="button"
             >
-              <span>{episode.episodeId}</span>
-              <strong>{episode.completed ? "completed" : episode.terminalReason.replace(/_/g, " ")}</strong>
+              <span>任务 {index + 1}</span>
+              <strong>{episode.completed ? "已完成" : "未完成"}</strong>
             </button>
           ))}
         </div>
@@ -240,8 +248,8 @@ function SucceededResult({
         <div className="gf-playtest-terminal__section-title">
           <Link2 aria-hidden="true" size={19} />
           <div>
-            <p>Exact RunFindingLinkViewV1</p>
-            <h3 id="playtest-finding-ledger-title">Playtest Findings</h3>
+            <p>自动检查结果</p>
+            <h3 id="playtest-finding-ledger-title">试玩发现的问题</h3>
           </div>
         </div>
         <FindingLedger links={links} terminal={terminal} />

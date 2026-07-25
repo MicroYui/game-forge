@@ -135,6 +135,24 @@ function patchView(status: ApprovalStatus): PatchView {
   };
 }
 
+function patchBoundToConstraint(
+  value: PatchView,
+  constraintArtifactId: string,
+  constraintSnapshotId: string,
+): PatchView {
+  return {
+    ...value,
+    artifact: {
+      ...value.artifact,
+      parent_artifact_ids: [...new Set([...value.artifact.parent_artifact_ids, constraintArtifactId])],
+      version_tuple: {
+        ...value.artifact.version_tuple,
+        constraint_snapshot_id: constraintSnapshotId,
+      },
+    },
+  };
+}
+
 function repairedPatchView(): PatchView {
   const value = patchView("draft");
   return {
@@ -193,7 +211,10 @@ function approvalView(status: ApprovalStatus): ApprovalView {
       created_at: "2026-07-20T06:00:00Z",
       decided_at: status === "approved" || status === "applied" ? "2026-07-20T06:10:00Z" : null,
       decisions: [],
-      domain_registry_ref: { registry_digest: "e".repeat(64), registry_version: "1" },
+      domain_registry_ref: {
+        registry_digest: "e".repeat(64),
+        registry_version: "1",
+      },
       domain_scope: { domain_ids: ["domain:economy"] },
       evidence_set_artifact_id: status === "validation_failed" || passed ? "artifact:evidence:patch" : null,
       // A deterministic/business validation failure succeeds as a Run and binds
@@ -205,7 +226,10 @@ function approvalView(status: ApprovalStatus): ApprovalView {
       role_policy_digest: "f".repeat(64),
       role_policy_version: "1",
       route_policy: {
-        domain_registry_ref: { registry_digest: "e".repeat(64), registry_version: "1" },
+        domain_registry_ref: {
+          registry_digest: "e".repeat(64),
+          registry_version: "1",
+        },
         route_digest: "1".repeat(64),
         route_version: "1",
       },
@@ -629,6 +653,52 @@ function catalogArtifact(artifactId: string, kind: ArtifactKind) {
   };
 }
 
+function reviewCatalogArtifact(
+  artifactId: string,
+  snapshotId: string,
+  defectClasses: readonly string[],
+): ArtifactPayloadView {
+  const value = catalogArtifact(artifactId, "review_report");
+  return {
+    ...value,
+    artifact: {
+      ...value.artifact,
+      version_tuple: { ir_snapshot_id: snapshotId },
+    },
+    payload: {
+      by_defect_class: defectClasses.map((defectClass) => ({
+        count: 1,
+        defect_class: defectClass,
+        severity: defectClass === "unbound_event_schedule" ? "major" : "minor",
+      })),
+      deterministic_findings: defectClasses.map((defectClass, index) => ({
+        defect_class: defectClass,
+        id: `finding:${index}`,
+      })),
+      llm_assisted_findings: [],
+      requirement_id: "generation-gate:review",
+      review_schema_version: "review@1",
+      simulation_findings: [],
+      snapshot_id: snapshotId,
+      unproven_findings: [],
+    },
+  };
+}
+
+function constraintCatalogArtifact(artifactId: string, constraintSnapshotId: string) {
+  const value = catalogArtifact(artifactId, "constraint_snapshot");
+  return {
+    ...value,
+    artifact: {
+      ...value.artifact,
+      version_tuple: {
+        ...value.artifact.version_tuple,
+        constraint_snapshot_id: constraintSnapshotId,
+      },
+    },
+  };
+}
+
 function api(status: ApprovalStatus = "draft", overrides: Partial<PatchWorkflowApi> = {}): PatchWorkflowApi {
   const view = patchView(status);
   const approval = approvalView(status);
@@ -673,7 +743,10 @@ function api(status: ApprovalStatus = "draft", overrides: Partial<PatchWorkflowA
         artifactId === CURRENT_ID ? CURRENT_SNAPSHOT : BASE_SNAPSHOT,
       ),
       ref_name: REF_NAME,
-      ref_value: { artifact_id: artifactId, revision: artifactId === CURRENT_ID ? 2 : 1 },
+      ref_value: {
+        artifact_id: artifactId,
+        revision: artifactId === CURRENT_ID ? 2 : 1,
+      },
       schema_registry_version: "ir-core@1",
       snapshot_id: artifactId === CURRENT_ID ? CURRENT_SNAPSHOT : BASE_SNAPSHOT,
       view_schema_version: "spec-view@1",
@@ -743,6 +816,14 @@ function renderPage(
 }
 
 describe("Patch detail", () => {
+  it("presents the pending approval state in planner language", async () => {
+    renderPage(api("pending_approval"));
+
+    const progress = await screen.findByLabelText("修改草案进度");
+    expect(within(progress).getByText("待审批")).toBeVisible();
+    expect(within(progress).queryByText("pending_approval")).not.toBeInTheDocument();
+  });
+
   it("renders base/current/proposed and submits only explicit server-defined conflict choices", async () => {
     const user = userEvent.setup();
     const rebasePatch = vi.fn(async () => ({
@@ -792,34 +873,34 @@ describe("Patch detail", () => {
     });
     renderPage(patchApi);
 
-    expect(await screen.findByText(CURRENT_SNAPSHOT)).toBeVisible();
-    expect(screen.getAllByText(PREVIEW_SNAPSHOT)).not.toHaveLength(0);
-    const threeWaySummary = screen
-      .getByRole("heading", { name: "Base / Current / Proposed" })
-      .closest("section");
+    expect(await screen.findByRole("heading", { name: "修改草案 · 第 1 版" })).toBeVisible();
+    expect(screen.getByText("调整奖励与经济数值，使资源产出回到安全范围内。")).toBeVisible();
+    expect(screen.getByText("Bring the reward back under the deterministic sink rate.")).not.toBeVisible();
+    expect(screen.getByText(PATCH_ID)).not.toBeVisible();
+    expect(screen.getByText(CURRENT_SNAPSHOT)).not.toBeVisible();
+    for (const element of screen.getAllByText(PREVIEW_SNAPSHOT)) expect(element).not.toBeVisible();
+    const threeWaySummary = screen.getByRole("heading", { name: "修改前后对比" }).closest("section");
     expect(threeWaySummary).not.toBeNull();
-    expect(within(threeWaySummary!).getByText("Base Snapshot")).toBeVisible();
-    expect(within(threeWaySummary!).getByText("Current Snapshot")).toBeVisible();
-    const proposedArtifact = within(threeWaySummary!).getByText("Proposed Artifact").closest("div");
-    expect(proposedArtifact).not.toBeNull();
-    expect(within(proposedArtifact!).getByText(PREVIEW_ID)).toBeVisible();
-    const proposedSnapshot = within(threeWaySummary!).getByText("Proposed Snapshot").closest("div");
-    expect(proposedSnapshot).not.toBeNull();
-    expect(within(proposedSnapshot!).getByText(PREVIEW_SNAPSHOT)).toBeVisible();
-    const operations = screen.getByRole("list", { name: "Patch typed operations" });
+    expect(within(threeWaySummary!).getByText("草案基于")).toBeVisible();
+    expect(within(threeWaySummary!).getByText("当前正式内容")).toBeVisible();
+    expect(within(threeWaySummary!).getByText("修改后预览")).toBeVisible();
+    expect(within(threeWaySummary!).getByText(PREVIEW_ID)).not.toBeVisible();
+    const operations = screen.getByRole("list", { name: "修改内容列表" });
     expect(operations).toHaveTextContent("修改实体字段");
-    expect(operations).toHaveTextContent("quest:side-01.reward_gold");
+    expect(within(operations).getByText("quest:side-01.reward_gold")).not.toBeVisible();
     expect(operations).toHaveTextContent("修改前");
     expect(operations).toHaveTextContent("120");
     expect(operations).toHaveTextContent("修改后");
     expect(operations).toHaveTextContent("80");
     expect(operations).toHaveTextContent("新增实体");
     expect(operations).toHaveTextContent("原先不存在");
-    await user.click(screen.getByRole("button", { name: "Rebase 到 exact current ref" }));
-    const resolver = await screen.findByRole("heading", { name: "三方冲突解析" });
+    await user.click(screen.getByRole("button", { name: "重新基于当前版本计算" }));
+    const resolver = await screen.findByRole("heading", {
+      name: "逐项处理内容冲突",
+    });
     const region = resolver.closest("section")!;
-    await user.click(within(region).getByRole("radio", { name: "采用 Proposed" }));
-    await user.click(screen.getByRole("button", { name: "提交全部显式 resolutions" }));
+    await user.click(within(region).getByRole("radio", { name: "采用这份草案的修改" }));
+    await user.click(screen.getByRole("button", { name: "保存全部冲突处理结果" }));
 
     await waitFor(() => expect(resolvePatchConflicts).toHaveBeenCalledTimes(1));
     expect(resolvePatchConflicts.mock.calls[0][1]).toMatchObject({
@@ -835,16 +916,25 @@ describe("Patch detail", () => {
 
   it("links a human Patch candidate to Review with the exact target Artifact and no source Run", async () => {
     const constraintId = "artifact:constraint:human-review";
+    const constraintSnapshotId = "constraint:human-review";
     const getArtifact = vi.fn(async (artifactId: string) => {
       if (artifactId !== constraintId) throw new Error(`unexpected Artifact ${artifactId}`);
-      return catalogArtifact(artifactId, "constraint_snapshot");
+      return constraintCatalogArtifact(artifactId, constraintSnapshotId);
     });
     renderPage(
-      api("draft", { getArtifact } as Partial<PatchWorkflowApi>),
+      api("draft", {
+        getArtifact,
+        getPatch: vi.fn(async () => ({
+          etag: '"patch:3"',
+          value: patchBoundToConstraint(patchView("draft"), constraintId, constraintSnapshotId),
+        })),
+      } as Partial<PatchWorkflowApi>),
       `/patches/${encodeURIComponent(PATCH_ID)}?constraint=${encodeURIComponent(constraintId)}`,
     );
 
-    const reviewLink = await screen.findByRole("link", { name: "审查当前 Patch 候选" });
+    const reviewLink = await screen.findByRole("link", {
+      name: "审查当前修改候选",
+    });
     const reviewUrl = new URL(reviewLink.getAttribute("href")!, "https://gameforge.test");
     expect(reviewUrl.pathname).toBe("/reviews");
     expect(reviewUrl.searchParams.get("snapshot")).toBe(PREVIEW_ID);
@@ -855,29 +945,36 @@ describe("Patch detail", () => {
 
   it("preserves an agent Patch producer Run as optional Review navigation context", async () => {
     const constraintId = "artifact:constraint:agent-review";
+    const constraintSnapshotId = "constraint:agent-review";
     const producerRunId = "run:generation:agent-patch";
     const agentPatch = patchView("draft");
     const getPatch = vi.fn(async () => ({
       etag: '"patch:3"',
-      value: {
-        ...agentPatch,
-        patch: {
-          ...agentPatch.patch,
-          produced_by: "agent" as const,
-          producer_run_id: producerRunId,
+      value: patchBoundToConstraint(
+        {
+          ...agentPatch,
+          patch: {
+            ...agentPatch.patch,
+            produced_by: "agent" as const,
+            producer_run_id: producerRunId,
+          },
         },
-      },
+        constraintId,
+        constraintSnapshotId,
+      ),
     }));
     const getArtifact = vi.fn(async (artifactId: string) => {
       if (artifactId !== constraintId) throw new Error(`unexpected Artifact ${artifactId}`);
-      return catalogArtifact(artifactId, "constraint_snapshot");
+      return constraintCatalogArtifact(artifactId, constraintSnapshotId);
     });
     renderPage(
       api("draft", { getArtifact, getPatch } as Partial<PatchWorkflowApi>),
       `/patches/${encodeURIComponent(PATCH_ID)}?constraint=${encodeURIComponent(constraintId)}`,
     );
 
-    const reviewLink = await screen.findByRole("link", { name: "审查当前 Patch 候选" });
+    const reviewLink = await screen.findByRole("link", {
+      name: "审查当前修改候选",
+    });
     const reviewUrl = new URL(reviewLink.getAttribute("href")!, "https://gameforge.test");
     expect(reviewUrl.searchParams.get("snapshot")).toBe(PREVIEW_ID);
     expect(reviewUrl.searchParams.get("constraint")).toBe(constraintId);
@@ -921,7 +1018,8 @@ describe("Patch detail", () => {
 
     await waitFor(() => expect(getSnapshotDiff).toHaveBeenCalledTimes(3));
     expect(getSnapshotDiff.mock.calls.map((call) => call[2])).toEqual([null, "cursor:diff:2", null]);
-    expect(await screen.findByText("/economy/fresh-page")).toBeVisible();
+    expect(await screen.findByText("经济系统 / fresh page")).toBeVisible();
+    expect(screen.getByText("/economy/fresh-page")).not.toBeVisible();
     expect(screen.queryByText("/economy/stale-page")).not.toBeInTheDocument();
   });
 
@@ -948,7 +1046,7 @@ describe("Patch detail", () => {
 
     await user.click(await screen.findByRole("button", { name: "从第一页重新读取冲突" }));
 
-    expect(await screen.findByRole("heading", { name: "三方冲突解析" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "逐项处理内容冲突" })).toBeVisible();
     expect(listConflicts.mock.calls.map((call) => call[1])).toEqual([null, "cursor:conflict:2", null]);
   });
 
@@ -999,17 +1097,27 @@ describe("Patch detail", () => {
       }),
     );
 
-    await user.click(await screen.findByRole("button", { name: "Rebase 到 exact current ref" }));
-    const firstResolver = await screen.findByRole("heading", { name: "三方冲突解析" });
-    await user.click(within(firstResolver.closest("section")!).getByRole("radio", { name: "采用 Proposed" }));
-    await user.click(screen.getByRole("button", { name: "提交全部显式 resolutions" }));
+    await user.click(await screen.findByRole("button", { name: "重新基于当前版本计算" }));
+    const firstResolver = await screen.findByRole("heading", {
+      name: "逐项处理内容冲突",
+    });
+    await user.click(
+      within(firstResolver.closest("section")!).getByRole("radio", {
+        name: "采用这份草案的修改",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "保存全部冲突处理结果" }));
 
     await waitFor(() => expect(listConflicts).toHaveBeenCalledWith("conflict-set:B", null));
-    const secondResolver = await screen.findByRole("heading", { name: "三方冲突解析" });
+    const secondResolver = await screen.findByRole("heading", {
+      name: "逐项处理内容冲突",
+    });
     expect(
-      within(secondResolver.closest("section")!).getByRole("radio", { name: "采用 Proposed" }),
+      within(secondResolver.closest("section")!).getByRole("radio", {
+        name: "采用这份草案的修改",
+      }),
     ).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "提交全部显式 resolutions" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "保存全部冲突处理结果" })).toBeDisabled();
   });
 
   it("verifies a clean rebase as a fresh revision with no inherited authority", async () => {
@@ -1028,7 +1136,10 @@ describe("Patch detail", () => {
     };
     const previousApproval: ApprovalView = {
       ...approvalView("superseded"),
-      approval: { ...approvalView("superseded").approval, status: "superseded" },
+      approval: {
+        ...approvalView("superseded").approval,
+        status: "superseded",
+      },
     };
     const replacement: PatchView = {
       ...patchView("draft"),
@@ -1112,17 +1223,19 @@ describe("Patch detail", () => {
     });
     renderPage(patchApi);
 
-    await user.click(await screen.findByRole("button", { name: "Rebase 到 exact current ref" }));
+    await user.click(await screen.findByRole("button", { name: "重新基于当前版本计算" }));
 
-    const receiptHeading = await screen.findByRole("heading", { name: "已创建独立 Patch revision" });
+    const receiptHeading = await screen.findByRole("heading", {
+      name: "已创建独立的新版本",
+    });
     const receipt = receiptHeading.closest('[role="status"]') as HTMLElement;
     expect(receipt).not.toBeNull();
-    expect(receipt).toHaveTextContent("旧验证、证据与审批决定不继承");
-    expect(within(receipt).getByRole("link", { name: "打开新 Patch revision" })).toHaveAttribute(
+    expect(receipt).toHaveTextContent("旧验证、证据与审批决定不会继承");
+    expect(within(receipt).getByRole("link", { name: "打开新修改草案" })).toHaveAttribute(
       "href",
       "/patches/artifact%3Apatch%3Arebased",
     );
-    expect(screen.getByRole("button", { name: "启动 exact validation" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始验证" })).toBeDisabled();
   });
 
   it("never resolves a deep-linked ConflictSet from a terminal Patch revision", async () => {
@@ -1159,15 +1272,20 @@ describe("Patch detail", () => {
       `/patches/${encodeURIComponent(PATCH_ID)}?conflictSet=conflict-set%3Aterminal`,
     );
 
-    const resolver = await screen.findByRole("heading", { name: "三方冲突解析" });
-    const radio = within(resolver.closest("section")!).getByRole("radio", { name: "采用 Proposed" });
+    const resolver = await screen.findByRole("heading", {
+      name: "逐项处理内容冲突",
+    });
+    const radio = within(resolver.closest("section")!).getByRole("radio", {
+      name: "采用这份草案的修改",
+    });
     await userEvent.click(radio);
-    expect(screen.getByRole("button", { name: "提交全部显式 resolutions" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "保存全部冲突处理结果" })).toBeDisabled();
   });
 
   it("reads complete resource catalogs, verifies deep-linked IDs, and submits friendly selections", async () => {
     const user = userEvent.setup();
     const constraintId = "artifact:constraint:linked";
+    const constraintSnapshotId = "constraint:linked";
     const configOneId = "artifact:config:linked";
     const configTwoId = "artifact:config:second";
     const reviewId = "artifact:review:linked";
@@ -1176,6 +1294,7 @@ describe("Patch detail", () => {
     const kinds = new Map<string, ArtifactKind>([
       [constraintId, "constraint_snapshot"],
       [configOneId, "config_export"],
+      [configTwoId, "config_export"],
       [reviewId, "review_report"],
       [traceId, "playtest_trace"],
       [regressionId, "regression_suite"],
@@ -1201,7 +1320,9 @@ describe("Patch detail", () => {
     const getArtifact = vi.fn(async (artifactId: string) => {
       const kind = kinds.get(artifactId);
       if (!kind) throw new Error(`unexpected Artifact ${artifactId}`);
-      return catalogArtifact(artifactId, kind);
+      return kind === "constraint_snapshot"
+        ? constraintCatalogArtifact(artifactId, constraintSnapshotId)
+        : catalogArtifact(artifactId, kind);
     });
     const query = new URLSearchParams({
       config: configOneId,
@@ -1211,39 +1332,59 @@ describe("Patch detail", () => {
       trace: traceId,
     });
     renderPage(
-      api("draft", { getArtifact, listArtifacts, validatePatch } as Partial<PatchWorkflowApi>),
+      api("draft", {
+        getArtifact,
+        getPatch: vi.fn(async () => ({
+          etag: '"patch:3"',
+          value: patchBoundToConstraint(patchView("draft"), constraintId, constraintSnapshotId),
+        })),
+        listArtifacts,
+        validatePatch,
+      } as Partial<PatchWorkflowApi>),
       `/patches/${encodeURIComponent(PATCH_ID)}?${query.toString()}`,
     );
 
-    await screen.findByRole("heading", { name: "Exact validation inputs" });
-    expect(screen.getByRole("heading", { name: "Workflow evidence Artifact ledger" })).toBeVisible();
+    await screen.findByRole("heading", { name: "验证所需内容" });
+    expect(
+      screen.getByRole("heading", {
+        name: "验证证据记录",
+      }),
+    ).toBeVisible();
     expect(screen.queryByRole("heading", { name: "确定性预言机" })).not.toBeInTheDocument();
-    await waitFor(() => expect(getArtifact).toHaveBeenCalledTimes(5));
+    await waitFor(() => expect(getArtifact).toHaveBeenCalledTimes(6));
     expect(getArtifact.mock.calls.map(([artifactId]) => artifactId).sort()).toEqual([...kinds.keys()].sort());
-    expect(screen.getByRole("radio", { name: `约束快照 ${constraintId}` })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: `候选配置导出 ${configOneId}` })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: `审查报告 ${reviewId}` })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: `实测轨迹 ${traceId}` })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: `回归套件 ${regressionId}` })).toBeChecked();
+    expect(
+      within(screen.getByRole("group", { name: "约束快照" })).getByRole("radio", {
+        name: /约束快照 · 暂无附加规则.*对应当前修改/,
+      }),
+    ).toBeChecked();
+    expect(
+      within(screen.getByRole("group", { name: "候选配置导出" })).getAllByRole("checkbox")[0],
+    ).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "审查报告" })).getByRole("checkbox")).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "实测轨迹" })).getByRole("checkbox")).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "回归套件" })).getByRole("checkbox")).toBeChecked();
     expect(screen.queryByLabelText(/Artifact IDs（每行一个）/)).not.toBeInTheDocument();
 
     await user.type(screen.getByLabelText("搜索候选配置导出"), "config:second");
-    await user.click(screen.getByRole("checkbox", { name: `候选配置导出 ${configTwoId}` }));
-    await user.selectOptions(screen.getByLabelText("Validation policy"), "builtin.validation@1");
+    const configGroup = within(screen.getByRole("group", { name: "候选配置导出" }));
+    expect(configGroup.getAllByRole("checkbox", { name: /候选配置导出.*2026年7月20日/ })[0]).toBeChecked();
+    await user.click(configGroup.getAllByRole("checkbox")[1]);
+    await user.selectOptions(screen.getByLabelText("验证方案"), "builtin.validation@1");
     const historicalFinding = {
       evidence_artifact_id: "artifact:evidence:old",
       finding_digest: "f".repeat(64),
       finding_id: "finding:economy:old",
       finding_revision: 2,
     };
-    const advanced = screen.getByText("高级：精确 Finding 绑定").closest("details");
+    const advanced = screen.getByText("高级：精确问题证据绑定").closest("details");
     expect(advanced).not.toHaveAttribute("open");
-    await user.click(screen.getByText("高级：精确 Finding 绑定"));
+    await user.click(screen.getByText("高级：精确问题证据绑定"));
     expect(screen.queryByLabelText(/本次观测 \/ Repair FindingEvidenceBindingV1/)).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText(/历史 FindingEvidenceBindingV1/), {
+    fireEvent.change(screen.getByLabelText(/历史问题证据绑定/), {
       target: { value: JSON.stringify([historicalFinding]) },
     });
-    await user.click(screen.getByRole("button", { name: "启动 exact validation" }));
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
 
     await waitFor(() => expect(validatePatch).toHaveBeenCalledTimes(1));
     expect(validatePatch.mock.calls[0][1]).toMatchObject({
@@ -1261,28 +1402,172 @@ describe("Patch detail", () => {
       review_artifact_ids: [reviewId],
       seed: 1,
       subject_digest: SUBJECT_DIGEST,
-      target: { expected_ref: { artifact_id: BASE_ID, revision: 1 }, ref_name: REF_NAME },
+      target: {
+        expected_ref: { artifact_id: BASE_ID, revision: 1 },
+        ref_name: REF_NAME,
+      },
       validation_policy: { profile_id: "builtin.validation", version: 1 },
     });
-    const acceptedRun = await screen.findByRole("link", { name: "打开 accepted Run" });
+    const acceptedRun = await screen.findByRole("link", {
+      name: "查看已受理的运行",
+    });
     expect(acceptedRun).toHaveAttribute("href", "/runs/run%3Avalidation");
     expect(acceptedRun.closest('[role="status"]')).not.toBeNull();
+    const validationSection = screen.getByRole("heading", { name: "验证所需内容" }).closest("section");
+    expect(validationSection).not.toBeNull();
+    expect(within(validationSection!).getByText("验证正在运行")).toBeVisible();
+    expect(within(validationSection!).getByRole("link", { name: "打开验证运行" })).toHaveAttribute(
+      "href",
+      "/runs/run%3Avalidation",
+    );
+    expect(within(validationSection!).getByRole("link", { name: "查看验证结果" })).toHaveAttribute(
+      "href",
+      "#patch-evidence-title",
+    );
     expect(
       listArtifacts.mock.calls.filter(([kind]) => kind === "config_export").map(([, cursor]) => cursor),
     ).toEqual([null, "cursor:config:2"]);
+  });
+
+  it("names validation resources by their content and target instead of anonymous ordinals", async () => {
+    const currentReviewId = "artifact:review:current-event";
+    const cleanReviewId = "artifact:review:other-clean";
+    const reviews = [
+      {
+        ...reviewCatalogArtifact(currentReviewId, PREVIEW_SNAPSHOT, [
+          "unbound_event_schedule",
+          "identity_normalization",
+        ]).artifact,
+        created_at: "2026-07-25T07:16:33Z",
+      },
+      {
+        ...reviewCatalogArtifact(cleanReviewId, "snapshot:other", []).artifact,
+        created_at: "2026-07-24T05:11:20Z",
+      },
+    ];
+    const getArtifact = vi.fn(async (artifactId: string) => {
+      if (artifactId === currentReviewId) {
+        const view = reviewCatalogArtifact(currentReviewId, PREVIEW_SNAPSHOT, [
+          "unbound_event_schedule",
+          "identity_normalization",
+        ]);
+        return { ...view, artifact: reviews[0] };
+      }
+      if (artifactId === cleanReviewId) {
+        const view = reviewCatalogArtifact(cleanReviewId, "snapshot:other", []);
+        return { ...view, artifact: reviews[1] };
+      }
+      throw new Error(`unexpected Artifact ${artifactId}`);
+    });
+    renderPage(
+      api("draft", {
+        getArtifact,
+        listArtifacts: vi.fn(async (kind: ArtifactKind) =>
+          page(kind === "review_report" ? reviews : [], `read:artifacts:${kind}`),
+        ),
+      }),
+    );
+
+    const group = await screen.findByRole("group", { name: "审查报告" });
+    expect(
+      within(group).getByRole("checkbox", {
+        name: /审查报告 · 2 个问题.*限时活动缺少开始和结束时间.*对应当前修改/,
+      }),
+    ).toBeVisible();
+    expect(
+      within(group).getByRole("checkbox", {
+        name: /审查报告 · 未发现问题.*对应其他内容版本/,
+      }),
+    ).toBeVisible();
+    expect(within(group).queryByText(/第 [12] 份/)).not.toBeInTheDocument();
+    expect(getArtifact).toHaveBeenCalledTimes(2);
   });
 
   it("preselects one unambiguous recommended validation profile once and respects a later opt-out", async () => {
     const user = userEvent.setup();
     renderPage(api("draft"));
 
-    expect(await screen.findByLabelText("Validation policy")).toHaveValue("builtin.validation@1");
-    const checker = screen.getByRole("checkbox", { name: "builtin.checker@1" });
+    expect(await screen.findByLabelText("验证方案")).toHaveValue("builtin.validation@1");
+    expect(screen.getByRole("heading", { name: "先验证当前修改" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "验证失败后：自动修复并重新检查" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "可选：引用已有验证结果" })).toBeVisible();
+    const checker = screen.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v1" });
     expect(checker).toBeChecked();
 
     await user.click(checker);
     expect(checker).not.toBeChecked();
     await waitFor(() => expect(checker).not.toBeChecked());
+  });
+
+  it("preselects the newest version when one built-in profile ships several versions", async () => {
+    const checkerV1 = profile("checker", "patch.validate");
+    const checkerV2: ExecutionProfile = {
+      ...checkerV1,
+      profile: { ...checkerV1.profile, version: 2 },
+    };
+    const profiles = [
+      profile("validation", "patch.validate"),
+      profile("patch_repair", "patch.repair"),
+      checkerV1,
+      checkerV2,
+      profile("simulation", "patch.validate"),
+      profile("config_export", "config.export"),
+    ];
+    renderPage(
+      api("draft", {
+        listExecutionProfiles: vi.fn<PatchWorkflowApi["listExecutionProfiles"]>(async (filters) =>
+          page(
+            profiles.filter((candidate) => candidate.profile_kind === filters.profile_kind),
+            `read:profiles:${filters.profile_kind}`,
+          ),
+        ),
+      }),
+    );
+
+    const newest = await screen.findByRole("checkbox", {
+      name: "规则与关系检查 · 内置标准方案 v2",
+    });
+    expect(newest).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v1" })).not.toBeChecked();
+  });
+
+  it("automatically locks validation to the exact constraint snapshot bound by the Patch", async () => {
+    const user = userEvent.setup();
+    const constraintArtifactId = "artifact:constraint:patch-bound";
+    const constraintSnapshotId = "constraint:patch-bound";
+    const boundPatch = patchBoundToConstraint(patchView("draft"), constraintArtifactId, constraintSnapshotId);
+    const boundConstraint = constraintCatalogArtifact(constraintArtifactId, constraintSnapshotId).artifact;
+    const validatePatch = vi.fn<PatchWorkflowApi["validatePatch"]>(async () => ({
+      accepted_schema_version: "run-accepted@1",
+      events_url: "/api/v1/runs/run:bound-validation/events",
+      run_id: "run:bound-validation",
+      status_url: "/api/v1/runs/run:bound-validation",
+    }));
+    renderPage(
+      api("draft", {
+        getArtifact: vi.fn(async (artifactId: string) => {
+          if (artifactId !== constraintArtifactId) throw new Error(`unexpected Artifact ${artifactId}`);
+          return constraintCatalogArtifact(constraintArtifactId, constraintSnapshotId);
+        }),
+        getPatch: vi.fn(async () => ({ etag: '"patch:3"', value: boundPatch })),
+        listArtifacts: vi.fn(async (kind: ArtifactKind) =>
+          page(kind === "constraint_snapshot" ? [boundConstraint] : [], `read:artifacts:${kind}`),
+        ),
+        validatePatch,
+      }),
+    );
+
+    const constraintGroup = await screen.findByRole("group", { name: "约束快照" });
+    const exactConstraint = within(constraintGroup).getByRole("radio", {
+      name: /约束快照 · 暂无附加规则.*对应当前修改/,
+    });
+    expect(exactConstraint).toBeChecked();
+    expect(exactConstraint).toBeDisabled();
+    expect(within(constraintGroup).getByText("由这份修改自动绑定，不能在验证时替换。")).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
+    await waitFor(() => expect(validatePatch).toHaveBeenCalledTimes(1));
+    expect(validatePatch.mock.calls[0][1].constraint_snapshot_artifact_id).toBe(constraintArtifactId);
   });
 
   it("restores a Repair successor's exact historical Findings from the retained failed EvidenceSet", async () => {
@@ -1298,7 +1583,10 @@ describe("Patch detail", () => {
     const patchApi = api("draft", {
       getApproval: vi.fn(async (approvalId) =>
         approvalId === "approval:patch:repaired"
-          ? { etag: '"approval:successor"', value: repairSuccessorApprovalView() }
+          ? {
+              etag: '"approval:successor"',
+              value: repairSuccessorApprovalView(),
+            }
           : { etag: '"approval:predecessor"', value: predecessorApproval },
       ),
       getApprovalBinding: vi.fn(async (subjectId) =>
@@ -1322,11 +1610,11 @@ describe("Patch detail", () => {
     renderPage(patchApi, `/patches/${encodeURIComponent(REPAIRED_PATCH_ID)}`, REPAIRED_PATCH_ID);
 
     expect(
-      await screen.findByText(`已从前序失败 EvidenceSet 恢复 ${REPAIR_FINDINGS.length} 项历史 Finding。`),
+      await screen.findByText(`已从前序失败证据恢复 ${REPAIR_FINDINGS.length} 项历史问题。`),
     ).toBeVisible();
-    expect(screen.queryByLabelText(/历史 FindingEvidenceBindingV1/)).not.toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText("Validation policy"), "builtin.validation@1");
-    await user.click(screen.getByRole("button", { name: "启动 exact validation" }));
+    expect(screen.queryByLabelText(/历史问题证据绑定/)).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("验证方案"), "builtin.validation@1");
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
 
     await waitFor(() => expect(validatePatch).toHaveBeenCalledTimes(1));
     expect(validatePatch.mock.calls[0][1]).toMatchObject({
@@ -1344,7 +1632,10 @@ describe("Patch detail", () => {
       api("draft", {
         getApproval: vi.fn(async (approvalId) =>
           approvalId === "approval:patch:repaired"
-            ? { etag: '"approval:successor"', value: repairSuccessorApprovalView() }
+            ? {
+                etag: '"approval:successor"',
+                value: repairSuccessorApprovalView(),
+              }
             : { etag: '"approval:predecessor"', value: predecessorApproval },
         ),
         getApprovalBinding: vi.fn(async (subjectId) =>
@@ -1367,8 +1658,8 @@ describe("Patch detail", () => {
       REPAIRED_PATCH_ID,
     );
 
-    expect(await screen.findByRole("heading", { name: "Patch authority 不可用" })).toBeVisible();
-    expect(screen.queryByRole("button", { name: "启动 exact validation" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "暂时无法确认修改草案" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "开始验证" })).not.toBeInTheDocument();
   });
 
   it("selects only exact current-preview evidence groups and submits their Run-linked bindings", async () => {
@@ -1402,18 +1693,20 @@ describe("Patch detail", () => {
     const validatePatch = vi.fn<PatchWorkflowApi["validatePatch"]>(async () => accepted);
     renderPage(api("draft", { listFindings, listRunFindingLinks, validatePatch }));
 
-    const selector = await screen.findByRole("group", { name: "本次要验证的 Finding" });
-    const currentCheckbox = within(selector).getByRole("checkbox", {
-      name: /选择证据组：.*1 个 Finding/,
+    const selector = await screen.findByRole("group", {
+      name: "本次要复验的问题",
     });
-    expect(within(selector).getByText("economy_collapse")).toBeVisible();
-    expect(within(selector).getByText("confirmed · sim · simulation")).toBeVisible();
+    const currentCheckbox = within(selector).getByRole("checkbox", {
+      name: /选择问题证据组 \d+，1 个问题/,
+    });
+    expect(within(selector).getByText("经济系统可能失衡")).toBeVisible();
+    expect(within(selector).getByText("已确认 · 经济仿真 · 仿真结果")).toBeVisible();
     expect(screen.queryByText("旧快照 Finding。")).not.toBeInTheDocument();
     expect(screen.queryByText("没有 producer Run。")).not.toBeInTheDocument();
 
     await user.click(currentCheckbox);
-    await user.selectOptions(screen.getByLabelText("Validation policy"), "builtin.validation@1");
-    await user.click(screen.getByRole("button", { name: "启动 exact validation" }));
+    await user.selectOptions(screen.getByLabelText("验证方案"), "builtin.validation@1");
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
 
     await waitFor(() => expect(validatePatch).toHaveBeenCalledTimes(1));
     expect(validatePatch.mock.calls[0]?.[1].findings).toEqual([
@@ -1455,14 +1748,51 @@ describe("Patch detail", () => {
         status_url: "/api/v1/runs/run:validation:active",
       };
     });
-    renderPage(api("draft", { getApproval, getApprovalBinding, getPatch, validatePatch }));
+    renderPage(
+      api("draft", {
+        getApproval,
+        getApprovalBinding,
+        getPatch,
+        validatePatch,
+      }),
+    );
 
-    await user.selectOptions(await screen.findByLabelText("Validation policy"), "builtin.validation@1");
-    await user.click(screen.getByRole("button", { name: "启动 exact validation" }));
+    await user.selectOptions(await screen.findByLabelText("验证方案"), "builtin.validation@1");
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
 
-    expect((await screen.findAllByText("validation_failed", {}, { timeout: 2_000 }))[0]).toBeVisible();
+    expect((await screen.findAllByText("检查未通过", {}, { timeout: 2_000 }))[0]).toBeVisible();
     expect(validatingReads).toBeGreaterThanOrEqual(2);
     expect(getPatch).toHaveBeenCalledTimes(3);
+  });
+
+  it("shows a rejected validation request beside the start button", async () => {
+    const user = userEvent.setup();
+    const validatePatch = vi.fn<PatchWorkflowApi["validatePatch"]>(async () => {
+      throw new ApiProblemError({
+        code: "integrity_violation",
+        conflict_set_id: null,
+        detail: "An internal integrity check failed.",
+        earliest_cursor: null,
+        instance: "urn:gameforge:request:validation-failed",
+        request_id: "request:validation-failed",
+        retry_after_s: null,
+        run_id: null,
+        status: 500,
+        title: "Integrity violation",
+        trace_id: "trace:validation-failed",
+        type: "urn:gameforge:problem:integrity_violation",
+      });
+    });
+    renderPage(api("draft", { validatePatch }));
+
+    await user.selectOptions(await screen.findByLabelText("验证方案"), "builtin.validation@1");
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
+
+    const validationSection = screen.getByRole("heading", { name: "验证所需内容" }).closest("section");
+    expect(validationSection).not.toBeNull();
+    await waitFor(() => expect(validatePatch).toHaveBeenCalledOnce());
+    expect(within(validationSection!).getByRole("alert")).toHaveTextContent("系统暂时不可用");
+    expect(within(validationSection!).getByText("integrity_violation")).toBeInTheDocument();
   });
 
   it("toggles every Finding in one evidence group atomically while keeping other evidence independent", async () => {
@@ -1528,12 +1858,14 @@ describe("Patch detail", () => {
       }),
     );
 
-    const selector = await screen.findByRole("group", { name: "本次要验证的 Finding" });
+    const selector = await screen.findByRole("group", {
+      name: "本次要复验的问题",
+    });
     const sharedGroup = within(selector).getByRole("checkbox", {
-      name: /选择证据组：.*2 个 Finding/,
+      name: /选择问题证据组 \d+，2 个问题/,
     });
     const otherGroup = within(selector).getByRole("checkbox", {
-      name: /选择证据组：.*1 个 Finding/,
+      name: /选择问题证据组 \d+，1 个问题/,
     });
     expect(within(selector).getAllByRole("checkbox")).toHaveLength(2);
 
@@ -1553,8 +1885,8 @@ describe("Patch detail", () => {
     expect(sharedGroup).toBeChecked();
     expect(otherGroup).not.toBeChecked();
 
-    await user.selectOptions(screen.getByLabelText("Validation policy"), "builtin.validation@1");
-    await user.click(screen.getByRole("button", { name: "启动 exact validation" }));
+    await user.selectOptions(screen.getByLabelText("验证方案"), "builtin.validation@1");
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
 
     await waitFor(() => expect(validatePatch).toHaveBeenCalledTimes(1));
     expect(validatePatch.mock.calls[0]?.[1].findings).toEqual([
@@ -1576,10 +1908,15 @@ describe("Patch detail", () => {
   it("runs an exact constraint-only checker and automatically selects its focused Finding", async () => {
     const user = userEvent.setup();
     const constraintId = "artifact:constraint:reward-cap";
+    const constraintSnapshotId = "constraint:reward-cap";
     const reviewId = "artifact:review:composite";
     const focusedRunId = "run:checker:focused-reward";
     const focusedFinding = findingRevision(
-      { finding_id: "finding:reward-cap", revision: 1, supersedes_revision: null },
+      {
+        finding_id: "finding:reward-cap",
+        revision: 1,
+        supersedes_revision: null,
+      },
       {
         constraint_id: "side_quest_reward_gold_cap",
         defect_class: "reward_out_of_range",
@@ -1645,7 +1982,9 @@ describe("Patch detail", () => {
       };
     });
     const getArtifact = vi.fn<PatchWorkflowApi["getArtifact"]>(async (artifactId) => {
-      if (artifactId === constraintId) return catalogArtifact(constraintId, "constraint_snapshot");
+      if (artifactId === constraintId) {
+        return constraintCatalogArtifact(constraintId, constraintSnapshotId);
+      }
       if (artifactId === reviewId) return catalogArtifact(reviewId, "review_report");
       return evidenceSetArtifact();
     });
@@ -1653,6 +1992,10 @@ describe("Patch detail", () => {
     renderPage(
       api("draft", {
         getArtifact,
+        getPatch: vi.fn(async () => ({
+          etag: '"patch:3"',
+          value: patchBoundToConstraint(patchView("draft"), constraintId, constraintSnapshotId),
+        })),
         getRun,
         listExecutionProfiles,
         listFindings,
@@ -1682,9 +2025,9 @@ describe("Patch detail", () => {
       seed: null,
     });
     expect(await screen.findByText("支线任务奖励金币 150 超过上限 80。")).toBeVisible();
-    expect(screen.getByRole("checkbox", { name: /选择证据组：.*1 个 Finding/ })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: new RegExp(reviewId) })).not.toBeChecked();
-    expect(screen.getByRole("link", { name: "打开聚焦检查 Run" })).toHaveAttribute(
+    expect(screen.getByRole("checkbox", { name: /选择问题证据组 \d+，1 个问题/ })).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "审查报告" })).getByRole("checkbox")).not.toBeChecked();
+    expect(screen.getByRole("link", { name: "查看聚焦检查运行" })).toHaveAttribute(
       "href",
       `/runs/${encodeURIComponent(focusedRunId)}`,
     );
@@ -1704,8 +2047,8 @@ describe("Patch detail", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { name: "Finding authority 不可用" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 exact validation" })).toBeDisabled();
+    expect(await screen.findByRole("heading", { name: "无法确认问题记录" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始验证" })).toBeDisabled();
   });
 
   it.each([
@@ -1733,8 +2076,12 @@ describe("Patch detail", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { name: "Finding authority 不可用" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 exact validation" })).toBeDisabled();
+    expect(
+      await screen.findByRole("heading", {
+        name: "无法确认问题记录",
+      }),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始验证" })).toBeDisabled();
   });
 
   it("fails closed when Finding pagination changes read snapshot", async () => {
@@ -1749,8 +2096,8 @@ describe("Patch detail", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { name: "Finding authority 不可用" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 exact validation" })).toBeDisabled();
+    expect(await screen.findByRole("heading", { name: "无法确认问题记录" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始验证" })).toBeDisabled();
   });
 
   it("fails closed when a deep-linked exact ID has the wrong Artifact kind", async () => {
@@ -1763,8 +2110,8 @@ describe("Patch detail", () => {
 
     expect(await screen.findByRole("heading", { name: "资源目录无法确认" })).toBeVisible();
     expect(getArtifact).toHaveBeenCalledWith(wrongId);
-    expect(screen.getByRole("button", { name: "启动 exact validation" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始验证" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("fails closed when paginated Artifact directory authority changes read snapshot", async () => {
@@ -1781,8 +2128,8 @@ describe("Patch detail", () => {
     renderPage(api("draft", { listArtifacts } as Partial<PatchWorkflowApi>));
 
     expect(await screen.findByRole("heading", { name: "资源目录无法确认" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "启动 exact validation" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始验证" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
     expect(
       listArtifacts.mock.calls.filter(([kind]) => kind === "config_export").map(([, cursor]) => cursor),
     ).toEqual([null, "cursor:config:next"]);
@@ -1818,8 +2165,14 @@ describe("Patch detail", () => {
     const validatePatch = vi.fn<PatchWorkflowApi["validatePatch"]>(async () => accepted);
     renderPage(
       api("draft", {
-        getApproval: vi.fn(async () => ({ etag: '"approval:first-write"', value: absentApproval })),
-        getPatch: vi.fn(async () => ({ etag: '"patch:first-write"', value: absentPatch })),
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:first-write"',
+          value: absentApproval,
+        })),
+        getPatch: vi.fn(async () => ({
+          etag: '"patch:first-write"',
+          value: absentPatch,
+        })),
         listLineage: vi.fn(async () =>
           page(
             [
@@ -1839,8 +2192,8 @@ describe("Patch detail", () => {
       }),
     );
 
-    await user.selectOptions(await screen.findByLabelText("Validation policy"), "builtin.validation@1");
-    await user.click(screen.getByRole("button", { name: "启动 exact validation" }));
+    await user.selectOptions(await screen.findByLabelText("验证方案"), "builtin.validation@1");
+    await user.click(screen.getByRole("button", { name: "开始验证" }));
 
     await waitFor(() => expect(validatePatch).toHaveBeenCalledTimes(1));
     expect(validatePatch.mock.calls[0][1]).toMatchObject({
@@ -1859,14 +2212,21 @@ describe("Patch detail", () => {
     });
     renderPage(api("validated", { submitPatchForApproval }));
 
-    const submit = await screen.findByRole("button", { name: "Submit for independent approval" });
+    const submit = await screen.findByRole("button", {
+      name: "提交独立审批",
+    });
     await user.click(submit);
 
-    const detailNode = await screen.findByText(detail);
-    expect(detailNode).toBeVisible();
+    const detailNode = await screen.findByText(detail, { exact: false });
+    expect(detailNode).not.toBeVisible();
     expect(detailNode.closest('[role="alert"]')).toHaveAttribute("data-code", code);
+    expect(
+      screen.getByRole("heading", {
+        name: status === 403 ? "没有操作权限" : "内容已被更新",
+      }),
+    ).toBeVisible();
     expect(submit).toBeDisabled();
-    expect(screen.getByRole("button", { name: "重新读取 exact server state" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "重新读取服务器状态" })).toBeVisible();
   });
 
   it("renders exact failed EvidenceSet Findings and freezes them into the repair request", async () => {
@@ -1903,15 +2263,19 @@ describe("Patch detail", () => {
     const repairPatch = vi.fn<PatchWorkflowApi["repairPatch"]>(async () => accepted);
     renderPage(api("validation_failed", { repairPatch, resolveExecutionOption }));
 
-    const findings = await screen.findByRole("list", { name: "Repair Findings" });
-    expect(within(findings).getByText("finding:economy-collapse")).toBeVisible();
-    expect(within(findings).getByText("Revision 3")).toBeVisible();
-    expect(within(findings).getByText("finding:reward-cap")).toBeVisible();
-    expect(within(findings).getByText("Revision 1")).toBeVisible();
+    const findings = await screen.findByRole("list", {
+      name: "自动修复目标问题",
+    });
+    expect(within(findings).getByText("问题 1")).toBeVisible();
+    expect(within(findings).getByText("已核对第 3 版问题记录")).toBeVisible();
+    expect(within(findings).getByText("问题 2")).toBeVisible();
+    expect(within(findings).getByText("已核对第 1 版问题记录")).toBeVisible();
+    expect(within(findings).getByText("finding:economy-collapse")).not.toBeVisible();
+    expect(within(findings).getByText("finding:reward-cap")).not.toBeVisible();
     expect(screen.queryByLabelText(/本次观测 \/ Repair FindingEvidenceBindingV1/)).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText("Repair policy"), "builtin.patch_repair@1");
-    await user.click(screen.getByRole("button", { name: "Resolve 并启动 repair" }));
+    await user.selectOptions(screen.getByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    await user.click(screen.getByRole("button", { name: "开始自动修复" }));
 
     await waitFor(() => expect(repairPatch).toHaveBeenCalledTimes(1));
     expect(resolveExecutionOption.mock.calls[0]?.[0].prospective_request).toMatchObject({
@@ -1927,6 +2291,8 @@ describe("Patch detail", () => {
 
   it("polls an accepted Repair Run, strictly verifies its RunResult, and hands the primary Patch to the verified replacement receipt", async () => {
     const user = userEvent.setup();
+    const constraintArtifactId = "artifact:constraint:active";
+    const constraintSnapshotId = "constraint:active";
     let accepted = false;
     const getRun = vi
       .fn<PatchWorkflowApi["getRun"]>()
@@ -1941,18 +2307,25 @@ describe("Patch detail", () => {
       ) {
         return repairedProducedArtifact(artifactId);
       }
-      if (artifactId === "artifact:constraint:active") {
-        return catalogArtifact(artifactId, "constraint_snapshot");
+      if (artifactId === constraintArtifactId) {
+        return constraintCatalogArtifact(artifactId, constraintSnapshotId);
       }
       return evidenceSetArtifact();
     });
     const getPatch = vi.fn<PatchWorkflowApi["getPatch"]>(async (artifactId) => {
       if (artifactId === REPAIRED_PATCH_ID) {
-        return { etag: '"patch:repaired"', value: repairedPatchView() };
+        return {
+          etag: '"patch:repaired"',
+          value: patchBoundToConstraint(repairedPatchView(), constraintArtifactId, constraintSnapshotId),
+        };
       }
       return {
         etag: '"patch:previous"',
-        value: patchView(accepted ? "superseded" : "validation_failed"),
+        value: patchBoundToConstraint(
+          patchView(accepted ? "superseded" : "validation_failed"),
+          constraintArtifactId,
+          constraintSnapshotId,
+        ),
       };
     });
     const getApprovalBinding = vi.fn<PatchWorkflowApi["getApprovalBinding"]>(async (artifactId) => {
@@ -1990,23 +2363,23 @@ describe("Patch detail", () => {
         getRun,
         repairPatch,
       }),
-      `/patches/${encodeURIComponent(PATCH_ID)}?constraint=${encodeURIComponent(
-        "artifact:constraint:active",
-      )}`,
+      `/patches/${encodeURIComponent(PATCH_ID)}?constraint=${encodeURIComponent(constraintArtifactId)}`,
     );
 
-    await user.selectOptions(await screen.findByLabelText("Repair policy"), "builtin.patch_repair@1");
-    await user.click(screen.getByRole("button", { name: "Resolve 并启动 repair" }));
+    await user.selectOptions(await screen.findByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    await user.click(screen.getByRole("button", { name: "开始自动修复" }));
 
-    expect(await screen.findByText("Repair Agent 正在运行")).toBeVisible();
-    const replacementLink = await screen.findByRole("link", { name: "打开新 Patch revision" });
+    expect(await screen.findByText("自动修复正在运行")).toBeVisible();
+    const replacementLink = await screen.findByRole("link", {
+      name: "打开新修改草案",
+    });
     expect(replacementLink).toHaveAttribute(
       "href",
       `/patches/${encodeURIComponent(REPAIRED_PATCH_ID)}?constraint=${encodeURIComponent(
-        "artifact:constraint:active",
+        constraintArtifactId,
       )}&config=${encodeURIComponent(REPAIRED_CONFIG_ID)}&config=${encodeURIComponent(REPAIRED_CONFIG_2_ID)}`,
     );
-    expect(screen.getByText("Repair RunResult 已验证")).toBeVisible();
+    expect(screen.getByText("自动修复结果已验证")).toBeVisible();
     expect(getArtifact).toHaveBeenCalledWith(REPAIR_RESULT_ID);
     expect(getPatch).toHaveBeenCalledWith(REPAIRED_PATCH_ID);
   });
@@ -2051,18 +2424,18 @@ describe("Patch detail", () => {
       }),
     );
 
-    await user.selectOptions(await screen.findByLabelText("Repair policy"), "builtin.patch_repair@1");
-    await user.click(screen.getByRole("button", { name: "Resolve 并启动 repair" }));
+    await user.selectOptions(await screen.findByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    await user.click(screen.getByRole("button", { name: "开始自动修复" }));
 
-    expect(await screen.findByText("Repair 结果不可采信")).toBeVisible();
-    expect(screen.queryByRole("link", { name: "打开新 Patch revision" })).not.toBeInTheDocument();
+    expect(await screen.findByText("暂时无法确认修复结果")).toBeVisible();
+    expect(screen.queryByRole("link", { name: "打开新修改草案" })).not.toBeInTheDocument();
     expect(getPatch).not.toHaveBeenCalledWith(REPAIRED_PATCH_ID);
   });
 
   it.each([
-    ["failed", "Repair Agent 执行失败"],
-    ["cancelled", "Repair Agent 已取消"],
-    ["timed_out", "Repair Agent 已超时"],
+    ["failed", "自动修复失败"],
+    ["cancelled", "自动修复已取消"],
+    ["timed_out", "自动修复已超时"],
   ] as const)(
     "shows an honest %s Repair Run terminal state without reading a RunResult",
     async (status, title) => {
@@ -2081,12 +2454,12 @@ describe("Patch detail", () => {
         }),
       );
 
-      await user.selectOptions(await screen.findByLabelText("Repair policy"), "builtin.patch_repair@1");
-      await user.click(screen.getByRole("button", { name: "Resolve 并启动 repair" }));
+      await user.selectOptions(await screen.findByLabelText("自动修复方案"), "builtin.patch_repair@1");
+      await user.click(screen.getByRole("button", { name: "开始自动修复" }));
 
       expect(await screen.findByText(title)).toBeVisible();
       expect(getArtifact).not.toHaveBeenCalledWith(REPAIR_RESULT_ID);
-      expect(screen.queryByRole("link", { name: "打开新 Patch revision" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "打开新修改草案" })).not.toBeInTheDocument();
     },
   );
 
@@ -2109,9 +2482,9 @@ describe("Patch detail", () => {
       }),
     );
 
-    expect(await screen.findByRole("list", { name: "Repair Findings" })).toBeVisible();
+    expect(await screen.findByRole("list", { name: "自动修复目标问题" })).toBeVisible();
     expect(
-      screen.queryByText("EvidenceSet 身份、目标或 schema 不一致，页面已停止解释。"),
+      screen.queryByText("验证证据的来源、目标或数据格式不一致，页面已停止解释。"),
     ).not.toBeInTheDocument();
   });
 
@@ -2135,9 +2508,9 @@ describe("Patch detail", () => {
     );
     renderPage(api("validation_failed", { getArtifact }));
 
-    expect(await screen.findByText("EvidenceSet 身份、目标或 schema 不一致，页面已停止解释。")).toBeVisible();
-    await user.selectOptions(screen.getByLabelText("Repair policy"), "builtin.patch_repair@1");
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(await screen.findByText("验证证据的来源、目标或数据格式不一致，页面已停止解释。")).toBeVisible();
+    await user.selectOptions(screen.getByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("fails closed when an EvidenceSet Finding binding is malformed", async () => {
@@ -2150,9 +2523,9 @@ describe("Patch detail", () => {
     );
     renderPage(api("validation_failed", { getArtifact }));
 
-    expect(await screen.findByText("EvidenceSet 身份、目标或 schema 不一致，页面已停止解释。")).toBeVisible();
-    await user.selectOptions(screen.getByLabelText("Repair policy"), "builtin.patch_repair@1");
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(await screen.findByText("验证证据的来源、目标或数据格式不一致，页面已停止解释。")).toBeVisible();
+    await user.selectOptions(screen.getByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("fails closed when a failed Approval also carries execution-terminal failure authority", async () => {
@@ -2161,13 +2534,16 @@ describe("Patch detail", () => {
     staleApproval.approval.last_validation_failure_artifact_id = "artifact:failure:patch";
     renderPage(
       api("validation_failed", {
-        getApproval: vi.fn(async () => ({ etag: '"approval:stale-failure"', value: staleApproval })),
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:stale-failure"',
+          value: staleApproval,
+        })),
       }),
     );
 
-    expect(await screen.findByText("EvidenceSet 身份、目标或 schema 不一致，页面已停止解释。")).toBeVisible();
-    await user.selectOptions(screen.getByLabelText("Repair policy"), "builtin.patch_repair@1");
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(await screen.findByText("验证证据的来源、目标或数据格式不一致，页面已停止解释。")).toBeVisible();
+    await user.selectOptions(screen.getByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("loads and explains a validated Patch's passed EvidenceSet without offering Repair", async () => {
@@ -2188,13 +2564,13 @@ describe("Patch detail", () => {
     renderPage(api("validated", { getArtifact }));
 
     expect(await screen.findByText("确定性结论：已通过")).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开 EvidenceSet" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看完整验证依据" })).toHaveAttribute(
       "href",
       "/artifacts/artifact%3Aevidence%3Apatch",
     );
     expect(getArtifact).toHaveBeenCalledWith("artifact:evidence:patch");
-    expect(screen.queryByRole("list", { name: "Repair Findings" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(screen.queryByRole("list", { name: "自动修复目标问题" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("does not load EvidenceSet repair authority for a non-current failed subject", async () => {
@@ -2210,10 +2586,10 @@ describe("Patch detail", () => {
       }),
     );
 
-    await screen.findByRole("heading", { name: "Exact validation inputs" });
+    await screen.findByRole("heading", { name: "验证所需内容" });
     expect(getArtifact).not.toHaveBeenCalled();
-    expect(screen.queryByRole("list", { name: "Repair Findings" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(screen.queryByRole("list", { name: "自动修复目标问题" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("retries an unknown repair outcome with the same resolved request and intent", async () => {
@@ -2256,10 +2632,10 @@ describe("Patch detail", () => {
     );
     renderPage(api("validation_failed", { repairPatch, resolveExecutionOption }));
 
-    await screen.findByRole("heading", { name: "Exact validation inputs" });
-    await user.selectOptions(screen.getByLabelText("Repair policy"), "builtin.patch_repair@1");
-    await user.click(screen.getByRole("button", { name: "Resolve 并启动 repair" }));
-    await user.click(await screen.findByRole("button", { name: "重试同一 intent" }));
+    await screen.findByRole("heading", { name: "验证所需内容" });
+    await user.selectOptions(screen.getByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    await user.click(screen.getByRole("button", { name: "开始自动修复" }));
+    await user.click(await screen.findByRole("button", { name: "重试同一请求" }));
 
     await waitFor(() => expect(repairPatch).toHaveBeenCalledTimes(2));
     expect(resolveExecutionOption).toHaveBeenCalledTimes(1);
@@ -2305,16 +2681,24 @@ describe("Patch detail", () => {
       source_run_id: sourceRun.run_id,
     }));
     const repairPatch = vi.fn<PatchWorkflowApi["repairPatch"]>(async () => accepted);
-    renderPage(api("validation_failed", { listReplaySourceRuns, repairPatch, resolveExecutionOption }));
+    renderPage(
+      api("validation_failed", {
+        listReplaySourceRuns,
+        repairPatch,
+        resolveExecutionOption,
+      }),
+    );
 
-    await user.selectOptions(await screen.findByLabelText("Repair policy"), "builtin.patch_repair@1");
-    await user.selectOptions(screen.getByLabelText("Repair LLM mode"), "replay");
-    const sourceSelect = screen.getByRole("combobox", { name: "Replay source Run" });
+    await user.selectOptions(await screen.findByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    await user.selectOptions(screen.getByLabelText("自动修复的 AI 运行方式"), "replay");
+    const sourceSelect = screen.getByRole("combobox", {
+      name: "历史回放来源",
+    });
     expect(sourceSelect).toHaveTextContent("失败");
     expect(sourceSelect).toHaveTextContent("第 2 次执行");
     expect(sourceSelect).not.toHaveTextContent(sourceRun.run_id);
     await user.selectOptions(sourceSelect, sourceRun.run_id);
-    await user.click(screen.getByRole("button", { name: "Resolve 并启动 repair" }));
+    await user.click(screen.getByRole("button", { name: "开始自动修复" }));
 
     await waitFor(() => expect(resolveExecutionOption).toHaveBeenCalledTimes(1));
     expect(resolveExecutionOption.mock.calls[0][0]).toMatchObject({
@@ -2322,7 +2706,9 @@ describe("Patch detail", () => {
       replay_source_run_id: sourceRun.run_id,
     });
     expect(repairPatch).toHaveBeenCalledWith(
-      expect.objectContaining({ cassette_artifact_id: sourceRun.terminal_cassette_artifact_id }),
+      expect.objectContaining({
+        cassette_artifact_id: sourceRun.terminal_cassette_artifact_id,
+      }),
       expect.anything(),
     );
     expect(listReplaySourceRuns.mock.calls.map(([cursor]) => cursor)).toEqual([null, "cursor:replay:2"]);
@@ -2332,12 +2718,12 @@ describe("Patch detail", () => {
     const user = userEvent.setup();
     renderPage(api("validation_failed"));
 
-    await user.selectOptions(await screen.findByLabelText("Repair policy"), "builtin.patch_repair@1");
-    await user.selectOptions(screen.getByLabelText("Repair LLM mode"), "replay");
+    await user.selectOptions(await screen.findByLabelText("自动修复方案"), "builtin.patch_repair@1");
+    await user.selectOptions(screen.getByLabelText("自动修复的 AI 运行方式"), "replay");
 
-    expect(screen.getByRole("combobox", { name: "Replay source Run" })).toBeDisabled();
-    expect(screen.getByText("没有可回放运行。请先完成一次 record 或 live 运行。")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Resolve 并启动 repair" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "历史回放来源" })).toBeDisabled();
+    expect(screen.getByText("没有可回放运行。请先完成一次在线生成或录制。")).toBeVisible();
+    expect(screen.getByRole("button", { name: "开始自动修复" })).toBeDisabled();
   });
 
   it("applies only the server-frozen target binding after explicit confirmation", async () => {
@@ -2358,9 +2744,15 @@ describe("Patch detail", () => {
     renderPage(
       api("approved", {
         applyPatch,
-        getApproval: vi.fn(async () => ({ etag: '"approval:apply"', value: approvalView(currentStatus()) })),
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:apply"',
+          value: approvalView(currentStatus()),
+        })),
         getApprovalBinding: vi.fn(async () => binding(currentStatus())),
-        getPatch: vi.fn(async () => ({ etag: '"patch:apply"', value: patchView(currentStatus()) })),
+        getPatch: vi.fn(async () => ({
+          etag: '"patch:apply"',
+          value: patchView(currentStatus()),
+        })),
         getSpec: vi.fn<PatchWorkflowApi["getSpec"]>(async (artifactId) => ({
           artifact: summary(
             artifactId,
@@ -2401,8 +2793,8 @@ describe("Patch detail", () => {
       }),
     );
 
-    await user.click(await screen.findByRole("button", { name: "Apply approved Patch" }));
-    await user.click(screen.getByRole("button", { name: "确认 Apply" }));
+    await user.click(await screen.findByRole("button", { name: "应用已批准的修改" }));
+    await user.click(screen.getByRole("button", { name: "确认应用" }));
 
     await waitFor(() => expect(applyPatch).toHaveBeenCalledTimes(1));
     expect(applyPatch.mock.calls[0][1]).toEqual({
@@ -2416,9 +2808,9 @@ describe("Patch detail", () => {
       target_digest: TARGET_DIGEST,
     });
     const receiptHeading = await screen.findByRole("heading", {
-      name: "Patch 已通过 ref transition 应用",
+      name: "修改已应用",
     });
     expect(receiptHeading.closest('[role="status"]')).not.toBeNull();
-    expect(screen.getByRole("heading", { name: "Submit / approval / apply" })).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "提交审批并应用" })).toHaveFocus();
   });
 });

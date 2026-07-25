@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, CircleDotDashed, Link2, Repeat2 } from "lucide-react";
 import { useEffect, useId, useMemo, useState, type ReactNode, type SyntheticEvent } from "react";
 
+import { TechnicalDetails } from "../identity";
 import type { TraceMarker, TraceMarkerKind, TracePlayback } from "./model";
 
 const TIMELINE_BATCH_SIZE = 100;
@@ -20,17 +21,6 @@ function MarkerIcon({ kind }: { kind: TraceMarkerKind }) {
   return <AlertTriangle aria-hidden="true" size={14} />;
 }
 
-function JsonBlock({ label, value }: { label: string; value: unknown }) {
-  return (
-    <section className="gf-trace__json-block" aria-label={label}>
-      <h3>{label}</h3>
-      <pre aria-label={`${label} 滚动区`} tabIndex={0}>
-        {JSON.stringify(value, null, 2)}
-      </pre>
-    </section>
-  );
-}
-
 function TextBlock({ children, label }: { children: ReactNode; label: string }) {
   return (
     <section className="gf-trace__json-block" aria-label={label}>
@@ -47,7 +37,36 @@ function recordKind(value: unknown): string | null {
 }
 
 function actionSummary(action: unknown): string {
-  return recordKind(action) ?? "结构化动作";
+  const labels: Readonly<Record<string, string>> = {
+    attack: "发起攻击",
+    interact: "与目标互动",
+    navigate_to: "前往目标",
+    observe: "观察环境",
+    use_item: "使用道具",
+  };
+  const kind = recordKind(action);
+  return kind ? (labels[kind] ?? "执行游戏操作") : "执行游戏操作";
+}
+
+function resultSummary(result: unknown): string {
+  if (typeof result !== "string") return "已记录操作结果";
+  const labels: Readonly<Record<string, string>> = {
+    arrived: "已到达",
+    blocked: "操作受阻",
+    ok: "操作成功",
+    agent_stopped: "自动试玩已停止",
+    attack_resolved: "攻击已结算",
+    interacted: "互动已完成",
+    observed: "观察已完成",
+    quest_accepted: "已接取任务",
+    quest_completed: "任务已完成",
+    quest_progressed: "任务已推进",
+  };
+  return labels[result] ?? "已记录操作结果";
+}
+
+function technicalJson(value: unknown): string {
+  return JSON.stringify(value, null, 2) ?? "null";
 }
 
 function MarkerDetails({ marker }: { marker: TraceMarker }) {
@@ -64,7 +83,7 @@ function MarkerDetails({ marker }: { marker: TraceMarker }) {
             <li key={`${finding.findingId}:${finding.revision}`}>
               <a href={finding.href}>
                 <Link2 aria-hidden="true" size={13} />
-                {finding.findingId} · r{finding.revision}
+                查看关联问题 · 第 {finding.revision} 版
               </a>
             </li>
           ))}
@@ -82,7 +101,7 @@ function RawTraceDetails({ trace }: { trace: TracePlayback }) {
 
   return (
     <details className="gf-trace__raw" onToggle={onToggle}>
-      <summary>完整 PlaytestTraceV1 原始 JSON</summary>
+      <summary>查看完整轨迹原始数据（高级）</summary>
       {isOpen && (
         <pre aria-label="完整轨迹原始 JSON" tabIndex={0}>
           {JSON.stringify(trace.rawPayload, null, 2)}
@@ -122,39 +141,52 @@ export function GenericTraceRenderer({ currentIndex, onSeek, trace }: GenericTra
 
   return (
     <div className="gf-trace__generic">
-      <section className="gf-trace__inspection" aria-label="当前轨迹帧契约数据">
+      <section className="gf-trace__inspection" aria-label="当前步骤详情">
         {currentFrame ? (
           <>
-            <JsonBlock label="动作 JSON" value={currentFrame.action} />
-            <JsonBlock label="动作结果" value={currentFrame.lastActionResult} />
+            <TextBlock label="本步操作">
+              <p>{actionSummary(currentFrame.action)}</p>
+            </TextBlock>
+            <TextBlock label="操作结果">
+              <p>{resultSummary(currentFrame.lastActionResult)}</p>
+            </TextBlock>
             <TextBlock label="状态">
-              <p>此契约未提供</p>
-              <span>playtest-trace@1 只记录动作后的 state_hash，不包含 Observation/state JSON。</span>
+              <p>已保存本步后的状态指纹</p>
+              <span>如需排查底层状态，可展开本步技术信息。</span>
             </TextBlock>
             <TextBlock label="事件">
-              <p>此契约未提供</p>
-              <span>playtest-trace@1 没有事件数组；界面不会从动作或结果推测事件。</span>
+              <p>没有单独的事件明细</p>
+              <span>界面不会根据动作或结果猜测未记录的事件。</span>
             </TextBlock>
+            <TechnicalDetails
+              items={[
+                { label: "动作数据", value: technicalJson(currentFrame.action) },
+                { label: "动作结果数据", value: technicalJson(currentFrame.lastActionResult) },
+                { label: "状态指纹", value: currentFrame.stateHash },
+                { label: "时间刻度", value: String(currentFrame.tick) },
+              ]}
+              summary="查看本步技术信息"
+            />
           </>
         ) : (
-          <p className="gf-trace__empty">这条 episode 没有动作记录；原始载荷仍可在下方检查。</p>
+          <p className="gf-trace__empty">这次试玩没有动作记录；原始数据仍可在下方检查。</p>
         )}
       </section>
 
       <section className="gf-trace__timeline" aria-labelledby={timelineTitleId}>
         <div className="gf-trace__section-heading">
           <div>
-            <p>PlaytestActionRecordV1</p>
-            <h3 id={timelineTitleId}>有界动作时间轴</h3>
+            <p>逐步操作</p>
+            <h3 id={timelineTitleId}>操作时间轴</h3>
           </div>
           <span>
-            已呈现 {visibleIndices.length} / {trace.frames.length} 帧
+            已呈现 {visibleIndices.length} / {trace.frames.length} 步
           </span>
         </div>
         {trace.frames.length === 0 ? (
           <p className="gf-trace__empty">暂无动作记录。</p>
         ) : (
-          <ol aria-label="有界动作时间轴">
+          <ol aria-label="操作时间轴">
             {visibleIndices.map((index) => {
               const frame = trace.frames[index];
               const frameMarkers = markersAt(index);
@@ -163,18 +195,17 @@ export function GenericTraceRenderer({ currentIndex, onSeek, trace }: GenericTra
                   <button
                     type="button"
                     aria-current={index === currentIndex}
-                    aria-label={`第 ${index + 1} 帧，Tick ${frame.tick}`}
+                    aria-label={`第 ${index + 1} 步`}
                     onClick={() => onSeek(index)}
                   >
                     <span className="gf-trace__timeline-index">{String(index + 1).padStart(2, "0")}</span>
                     <span className="gf-trace__timeline-main">
-                      <strong>Tick {frame.tick}</strong>
-                      <code>{frame.stateHash}</code>
+                      <strong>第 {index + 1} 步</strong>
                       <span className="gf-trace__timeline-payload">
-                        动作：{actionSummary(frame.action)} · 事件：此契约未提供
+                        操作：{actionSummary(frame.action)} · 结果：{resultSummary(frame.lastActionResult)}
                       </span>
                     </span>
-                    <span className="gf-trace__timeline-result">{frame.lastActionResult}</span>
+                    <span className="gf-trace__timeline-result">{resultSummary(frame.lastActionResult)}</span>
                   </button>
                   {frameMarkers.map((marker) => (
                     <MarkerDetails
@@ -191,12 +222,12 @@ export function GenericTraceRenderer({ currentIndex, onSeek, trace }: GenericTra
           <button
             className="gf-trace__load-more"
             type="button"
-            aria-label={`再加载 ${Math.min(TIMELINE_BATCH_SIZE, trace.frames.length - visibleLimit)} 帧`}
+            aria-label={`再加载 ${Math.min(TIMELINE_BATCH_SIZE, trace.frames.length - visibleLimit)} 步`}
             onClick={() =>
               setVisibleLimit((current) => Math.min(trace.frames.length, current + TIMELINE_BATCH_SIZE))
             }
           >
-            再加载 {Math.min(TIMELINE_BATCH_SIZE, trace.frames.length - visibleLimit)} 帧
+            再加载 {Math.min(TIMELINE_BATCH_SIZE, trace.frames.length - visibleLimit)} 步
           </button>
         )}
       </section>

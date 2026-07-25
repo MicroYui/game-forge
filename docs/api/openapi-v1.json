@@ -3904,6 +3904,176 @@
         "title": "FindingRevisionV1",
         "type": "object"
       },
+      "GameProjectV1": {
+        "additionalProperties": false,
+        "properties": {
+          "bootstrap_snapshot_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Bootstrap Snapshot Artifact Id",
+            "type": "string"
+          },
+          "constraint_ref_name": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Constraint Ref Name",
+            "type": "string"
+          },
+          "content_ref_name": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Content Ref Name",
+            "type": "string"
+          },
+          "created_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Created By",
+            "type": "string"
+          },
+          "current_constraint_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RefValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_content_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RefValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "domain_scope": {
+            "$ref": "#/components/schemas/DomainScope"
+          },
+          "genre": {
+            "default": "",
+            "maxLength": 128,
+            "title": "Genre",
+            "type": "string"
+          },
+          "latest_approval_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Approval Id"
+          },
+          "latest_extraction_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Extraction Id"
+          },
+          "latest_patch_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Patch Artifact Id"
+          },
+          "project_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "project_key": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "title": "Project Key",
+            "type": "string"
+          },
+          "project_schema_version": {
+            "const": "game-project@1",
+            "default": "game-project@1",
+            "title": "Project Schema Version",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "archived"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "project_key",
+          "display_name",
+          "status",
+          "domain_scope",
+          "bootstrap_snapshot_artifact_id",
+          "content_ref_name",
+          "constraint_ref_name",
+          "created_by",
+          "created_at",
+          "updated_at",
+          "revision"
+        ],
+        "title": "GameProjectV1",
+        "type": "object"
+      },
       "GenerationProposeRequestV1": {
         "additionalProperties": false,
         "description": "``POST /generation:propose`` — fixes ``generation.propose@1``.\n\nThe naked ``objective_goal_text`` is turned into an authenticated ``source_raw``\nArtifact by the composition root before the Run is created.",
@@ -3993,6 +4163,17 @@
             "default": "generation-propose-request@1",
             "title": "Request Schema Version",
             "type": "string"
+          },
+          "source_artifact_ids": {
+            "default": [],
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 1024,
+            "title": "Source Artifact Ids",
+            "type": "array"
           },
           "target": {
             "$ref": "#/components/schemas/RefReadBindingV1"
@@ -4538,6 +4719,170 @@
           "content_payload"
         ],
         "title": "HumanSpecUploadRequestV1",
+        "type": "object"
+      },
+      "IdentityAliasGroupV1": {
+        "additionalProperties": false,
+        "properties": {
+          "alias_schema_version": {
+            "const": "identity-alias-group@1",
+            "default": "identity-alias-group@1",
+            "title": "Alias Schema Version",
+            "type": "string"
+          },
+          "aliases": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4096,
+            "minItems": 1,
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_identity": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Canonical Identity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_identity",
+          "aliases"
+        ],
+        "title": "IdentityAliasGroupV1",
+        "type": "object"
+      },
+      "IdentityConflictCandidateV1": {
+        "additionalProperties": false,
+        "properties": {
+          "op_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Op Id",
+            "type": "string"
+          },
+          "source_identity": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Source Identity",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/JsonValue"
+          }
+        },
+        "required": [
+          "op_id",
+          "source_identity",
+          "value"
+        ],
+        "title": "IdentityConflictCandidateV1",
+        "type": "object"
+      },
+      "IdentityConflictV1": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/IdentityConflictCandidateV1"
+            },
+            "maxItems": 4096,
+            "minItems": 1,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "canonical_identity": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Canonical Identity",
+            "type": "string"
+          },
+          "code": {
+            "enum": [
+              "attribute_value_conflict",
+              "entity_type_conflict",
+              "ambiguous_unqualified_alias",
+              "relation_shape_conflict",
+              "dangling_relation_endpoint",
+              "malformed_operation"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "conflict_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Conflict Id",
+            "type": "string"
+          },
+          "conflict_schema_version": {
+            "const": "identity-conflict@1",
+            "default": "identity-conflict@1",
+            "title": "Conflict Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "conflict_id",
+          "code",
+          "canonical_identity",
+          "candidates"
+        ],
+        "title": "IdentityConflictV1",
+        "type": "object"
+      },
+      "IdentityNormalizationSummaryV1": {
+        "additionalProperties": false,
+        "properties": {
+          "alias_group_count": {
+            "minimum": 0.0,
+            "title": "Alias Group Count",
+            "type": "integer"
+          },
+          "auto_merge_count": {
+            "minimum": 0.0,
+            "title": "Auto Merge Count",
+            "type": "integer"
+          },
+          "blocking_conflict_count": {
+            "minimum": 0.0,
+            "title": "Blocking Conflict Count",
+            "type": "integer"
+          },
+          "input_operation_count": {
+            "minimum": 0.0,
+            "title": "Input Operation Count",
+            "type": "integer"
+          },
+          "output_operation_count": {
+            "minimum": 0.0,
+            "title": "Output Operation Count",
+            "type": "integer"
+          },
+          "policy_version": {
+            "const": "identity-normalization@1",
+            "default": "identity-normalization@1",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "summary_schema_version": {
+            "const": "identity-normalization-summary@1",
+            "default": "identity-normalization-summary@1",
+            "title": "Summary Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_operation_count",
+          "output_operation_count",
+          "alias_group_count",
+          "auto_merge_count",
+          "blocking_conflict_count"
+        ],
+        "title": "IdentityNormalizationSummaryV1",
         "type": "object"
       },
       "JsonValue": {},
@@ -7634,6 +7979,1003 @@
         "title": "ProfileRefV1",
         "type": "object"
       },
+      "ProjectArchiveRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "project-archive-request@1",
+            "default": "project-archive-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "reason"
+        ],
+        "title": "ProjectArchiveRequestV1",
+        "type": "object"
+      },
+      "ProjectCreateRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "domain_scope": {
+            "$ref": "#/components/schemas/DomainScope"
+          },
+          "genre": {
+            "default": "",
+            "maxLength": 128,
+            "title": "Genre",
+            "type": "string"
+          },
+          "project_key": {
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "title": "Project Key",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "project-create-request@1",
+            "default": "project-create-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_key",
+          "display_name",
+          "domain_scope"
+        ],
+        "title": "ProjectCreateRequestV1",
+        "type": "object"
+      },
+      "ProjectExtractionCreateRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_export_profiles": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProfileRefV1"
+            },
+            "maxItems": 16,
+            "title": "Candidate Export Profiles",
+            "type": "array"
+          },
+          "cassette_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cassette Artifact Id"
+          },
+          "execution_version_plan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionVersionPlanV1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "generation_policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileRefV1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "llm_execution_mode": {
+            "default": "record",
+            "enum": [
+              "live",
+              "record",
+              "replay"
+            ],
+            "title": "Llm Execution Mode",
+            "type": "string"
+          },
+          "material_ids": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Material Ids",
+            "type": "array"
+          },
+          "objective_goal_text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Objective Goal Text",
+            "type": "string"
+          },
+          "planning_scope": {
+            "default": "auto",
+            "enum": [
+              "auto",
+              "game_foundation",
+              "permanent_feature",
+              "limited_event",
+              "live_update"
+            ],
+            "title": "Planning Scope",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "project-extraction-create-request@1",
+            "default": "project-extraction-create-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "material_ids",
+          "objective_goal_text"
+        ],
+        "title": "ProjectExtractionCreateRequestV1",
+        "type": "object"
+      },
+      "ProjectExtractionDiscardRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "project-extraction-discard-request@1",
+            "default": "project-extraction-discard-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "reason"
+        ],
+        "title": "ProjectExtractionDiscardRequestV1",
+        "type": "object"
+      },
+      "ProjectExtractionIssueV1": {
+        "additionalProperties": false,
+        "description": "One deterministic gate issue translated for a planning workflow.",
+        "properties": {
+          "affected_content": {
+            "default": [],
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 64,
+            "title": "Affected Content",
+            "type": "array"
+          },
+          "code": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "issue_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Issue Id",
+            "type": "string"
+          },
+          "issue_schema_version": {
+            "const": "project-extraction-issue@1",
+            "default": "project-extraction-issue@1",
+            "title": "Issue Schema Version",
+            "type": "string"
+          },
+          "resolution_hint": {
+            "maxLength": 4096,
+            "title": "Resolution Hint",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "major",
+              "minor",
+              "info"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "structure",
+              "economy"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "source",
+          "severity",
+          "code",
+          "title",
+          "description",
+          "resolution_hint"
+        ],
+        "title": "ProjectExtractionIssueV1",
+        "type": "object"
+      },
+      "ProjectExtractionPageV1": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectExtractionV1"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_schema_version": {
+            "const": "project-extraction-page@1",
+            "default": "project-extraction-page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProjectExtractionPageV1",
+        "type": "object"
+      },
+      "ProjectExtractionV1": {
+        "additionalProperties": false,
+        "properties": {
+          "alias_groups": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/IdentityAliasGroupV1"
+            },
+            "maxItems": 4096,
+            "title": "Alias Groups",
+            "type": "array"
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "base_snapshot_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Base Snapshot Artifact Id",
+            "type": "string"
+          },
+          "created_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Created By",
+            "type": "string"
+          },
+          "discard_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1024,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discard Reason"
+          },
+          "discarded_at": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discarded At"
+          },
+          "discarded_by": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discarded By"
+          },
+          "disposition": {
+            "anyOf": [
+              {
+                "const": "discarded",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disposition"
+          },
+          "extraction_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Extraction Id",
+            "type": "string"
+          },
+          "extraction_schema_version": {
+            "const": "project-extraction@1",
+            "default": "project-extraction@1",
+            "title": "Extraction Schema Version",
+            "type": "string"
+          },
+          "failure_cause_code": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Cause Code"
+          },
+          "failure_message": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Message"
+          },
+          "failure_retryable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Retryable"
+          },
+          "identity_conflicts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/IdentityConflictV1"
+            },
+            "maxItems": 4096,
+            "title": "Identity Conflicts",
+            "type": "array"
+          },
+          "material_ids": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Material Ids",
+            "type": "array"
+          },
+          "normalization_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IdentityNormalizationSummaryV1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "patch_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Patch Artifact Id"
+          },
+          "planning_scope": {
+            "default": "auto",
+            "enum": [
+              "auto",
+              "game_foundation",
+              "permanent_feature",
+              "limited_event",
+              "live_update"
+            ],
+            "title": "Planning Scope",
+            "type": "string"
+          },
+          "preview_snapshot_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Snapshot Artifact Id"
+          },
+          "project_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "publication_approval_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Approval Id"
+          },
+          "publication_patch_artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Patch Artifact Id"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "run_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_artifact_ids": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Source Artifact Ids",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "running",
+              "needs_resolution",
+              "ready",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Updated At",
+            "type": "string"
+          },
+          "validation_issues": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProjectExtractionIssueV1"
+            },
+            "maxItems": 4096,
+            "title": "Validation Issues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "extraction_id",
+          "project_id",
+          "material_ids",
+          "source_artifact_ids",
+          "base_snapshot_artifact_id",
+          "run_id",
+          "status",
+          "created_by",
+          "created_at",
+          "updated_at",
+          "revision"
+        ],
+        "title": "ProjectExtractionV1",
+        "type": "object"
+      },
+      "ProjectGraphDraftRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_export_profiles": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProfileRefV1"
+            },
+            "maxItems": 16,
+            "title": "Candidate Export Profiles",
+            "type": "array"
+          },
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/Entity"
+            },
+            "maxItems": 32768,
+            "title": "Entities",
+            "type": "array"
+          },
+          "expected_project_revision": {
+            "minimum": 1.0,
+            "title": "Expected Project Revision",
+            "type": "integer"
+          },
+          "expected_source_extraction_revision": {
+            "minimum": 1.0,
+            "title": "Expected Source Extraction Revision",
+            "type": "integer"
+          },
+          "rationale": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Rationale",
+            "type": "string"
+          },
+          "relations": {
+            "items": {
+              "$ref": "#/components/schemas/Relation"
+            },
+            "maxItems": 32768,
+            "title": "Relations",
+            "type": "array"
+          },
+          "request_schema_version": {
+            "const": "project-graph-draft-request@1",
+            "default": "project-graph-draft-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "side_effect_risk": {
+            "default": "low",
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Side Effect Risk",
+            "type": "string"
+          },
+          "source_extraction_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Source Extraction Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_extraction_id",
+          "expected_source_extraction_revision",
+          "expected_project_revision",
+          "entities",
+          "relations",
+          "rationale"
+        ],
+        "title": "ProjectGraphDraftRequestV1",
+        "type": "object"
+      },
+      "ProjectMaterialPageV1": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectMaterialV1"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_schema_version": {
+            "const": "project-material-page@1",
+            "default": "project-material-page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProjectMaterialPageV1",
+        "type": "object"
+      },
+      "ProjectMaterialTextRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "project-material-text-request@1",
+            "default": "project-material-text-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          },
+          "source_format": {
+            "enum": [
+              "plain_text",
+              "markdown",
+              "html",
+              "feishu_blocks_json"
+            ],
+            "title": "Source Format",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 1048576,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name",
+          "source_format",
+          "text"
+        ],
+        "title": "ProjectMaterialTextRequestV1",
+        "type": "object"
+      },
+      "ProjectMaterialV1": {
+        "additionalProperties": false,
+        "properties": {
+          "byte_size": {
+            "maximum": 8388608.0,
+            "minimum": 1.0,
+            "title": "Byte Size",
+            "type": "integer"
+          },
+          "created_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Created By",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "material_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Material Id",
+            "type": "string"
+          },
+          "material_schema_version": {
+            "const": "project-material@1",
+            "default": "project-material@1",
+            "title": "Material Schema Version",
+            "type": "string"
+          },
+          "media_type": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Media Type",
+            "type": "string"
+          },
+          "original_source_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Original Source Artifact Id",
+            "type": "string"
+          },
+          "parse_status": {
+            "enum": [
+              "ready",
+              "rejected"
+            ],
+            "title": "Parse Status",
+            "type": "string"
+          },
+          "parse_warnings": {
+            "default": [],
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 1024,
+            "title": "Parse Warnings",
+            "type": "array"
+          },
+          "parser_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Parser Id",
+            "type": "string"
+          },
+          "parser_version": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Parser Version",
+            "type": "string"
+          },
+          "project_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "rendered_source_artifact_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Rendered Source Artifact Id",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_format": {
+            "enum": [
+              "plain_text",
+              "markdown",
+              "html",
+              "feishu_blocks_json",
+              "docx",
+              "xlsx",
+              "csv"
+            ],
+            "title": "Source Format",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text_char_count": {
+            "minimum": 0.0,
+            "title": "Text Char Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "material_id",
+          "project_id",
+          "display_name",
+          "media_type",
+          "source_format",
+          "original_source_artifact_id",
+          "rendered_source_artifact_id",
+          "parser_id",
+          "parser_version",
+          "parse_status",
+          "byte_size",
+          "text_char_count",
+          "created_by",
+          "created_at",
+          "status",
+          "revision"
+        ],
+        "title": "ProjectMaterialV1",
+        "type": "object"
+      },
+      "ProjectPageV1": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GameProjectV1"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_schema_version": {
+            "const": "project-page@1",
+            "default": "project-page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProjectPageV1",
+        "type": "object"
+      },
+      "ProjectUpdateRequestV1": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "domain_scope": {
+            "$ref": "#/components/schemas/DomainScope"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "genre": {
+            "maxLength": 128,
+            "title": "Genre",
+            "type": "string"
+          },
+          "request_schema_version": {
+            "const": "project-update-request@1",
+            "default": "project-update-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name",
+          "description",
+          "genre",
+          "domain_scope",
+          "expected_revision"
+        ],
+        "title": "ProjectUpdateRequestV1",
+        "type": "object"
+      },
       "ProspectiveConstraintProposeRequestV1": {
         "additionalProperties": false,
         "properties": {
@@ -7789,6 +9131,17 @@
             "default": "generation-propose-request@1",
             "title": "Request Schema Version",
             "type": "string"
+          },
+          "source_artifact_ids": {
+            "default": [],
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 1024,
+            "title": "Source Artifact Ids",
+            "type": "array"
           },
           "target": {
             "$ref": "#/components/schemas/RefReadBindingV1"
@@ -20508,6 +21861,3165 @@
         "summary": "Run Playtest",
         "tags": [
           "runs"
+        ]
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "operationId": "list_projects_api_v1_projects_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "draft",
+                    "active",
+                    "archived"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectPageV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "List Projects",
+        "tags": [
+          "projects"
+        ]
+      },
+      "post": {
+        "operationId": "create_project_api_v1_projects_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreateRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameProjectV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create Project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}": {
+      "get": {
+        "operationId": "get_project_api_v1_projects__project_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameProjectV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get Project",
+        "tags": [
+          "projects"
+        ]
+      },
+      "patch": {
+        "operationId": "update_project_api_v1_projects__project_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdateRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameProjectV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Update Project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/content-drafts": {
+      "post": {
+        "operationId": "create_content_draft_api_v1_projects__project_id__content_drafts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectGraphDraftRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchArtifactReadViewV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create Content Draft",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/extractions": {
+      "get": {
+        "operationId": "list_extractions_api_v1_projects__project_id__extractions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectExtractionPageV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "List Extractions",
+        "tags": [
+          "projects"
+        ]
+      },
+      "post": {
+        "operationId": "create_extraction_api_v1_projects__project_id__extractions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectExtractionCreateRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectExtractionV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Link": {
+                "description": "Run event stream link with rel=events.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the accepted project extraction.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Run-Id": {
+                "description": "Run authority executing this extraction.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create Extraction",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/extractions/{extraction_id}": {
+      "get": {
+        "operationId": "get_extraction_api_v1_projects__project_id__extractions__extraction_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "extraction_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Extraction Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectExtractionV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get Extraction",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/extractions/{extraction_id}:discard": {
+      "post": {
+        "operationId": "discard_extraction_api_v1_projects__project_id__extractions__extraction_id__discard_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "extraction_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Extraction Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectExtractionDiscardRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectExtractionV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Discard Extraction",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/materials": {
+      "get": {
+        "operationId": "list_materials_api_v1_projects__project_id__materials_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "active",
+                    "archived"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMaterialPageV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "List Materials",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/materials/{material_id}": {
+      "get": {
+        "operationId": "get_material_api_v1_projects__project_id__materials__material_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "material_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Material Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMaterialV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get Material",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/materials/{material_id}:archive": {
+      "post": {
+        "operationId": "archive_material_api_v1_projects__project_id__materials__material_id__archive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "material_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Material Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectArchiveRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMaterialV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Archive Material",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/materials:text": {
+      "post": {
+        "operationId": "add_text_material_api_v1_projects__project_id__materials_text_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectMaterialTextRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMaterialV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Add Text Material",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/materials:upload": {
+      "post": {
+        "operationId": "upload_material_api_v1_projects__project_id__materials_upload_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Visible source file name, retained as the material display name.",
+            "in": "header",
+            "name": "X-GameForge-File-Name",
+            "required": true,
+            "schema": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Deterministic parser selected for the uploaded bytes.",
+            "in": "header",
+            "name": "X-GameForge-Source-Format",
+            "required": true,
+            "schema": {
+              "enum": [
+                "plain_text",
+                "markdown",
+                "html",
+                "feishu_blocks_json",
+                "docx",
+                "xlsx",
+                "csv"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMaterialV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Upload Material",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}:archive": {
+      "post": {
+        "operationId": "archive_project_api_v1_projects__project_id__archive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectArchiveRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameProjectV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Archive Project",
+        "tags": [
+          "projects"
         ]
       }
     },

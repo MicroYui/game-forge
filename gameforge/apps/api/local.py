@@ -141,6 +141,7 @@ from gameforge.platform.provenance import (
     GoalProvenancePolicy,
     build_source_kind_registry,
 )
+from gameforge.platform.projects import ProjectAuthoringService
 from gameforge.platform.runs.admission import (
     AdmissionReadPort,
     DefaultRunBudgetPlanProvider,
@@ -209,6 +210,7 @@ from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from gameforge.runtime.persistence.projects import SqlProjectRepository
 from gameforge.runtime.persistence.ref_transitions import SqlRefTransitionRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
@@ -1515,6 +1517,7 @@ def build_local_api_resources(
             ),
             conflicts=SqlConflictSetRepository(session, cursor_signer=cursor_signer, clock=clock),
             ref_transitions=SqlRefTransitionRepository(session),
+            projects=SqlProjectRepository(session),
         )
 
     unit_of_work = SqliteUnitOfWork(engine, capability_factory)
@@ -1835,6 +1838,15 @@ def build_local_api_resources(
         role_policy_version=config.role_policy_version,
         role_policy_digest=config.role_policy_digest,
     )
+    project_authoring = ProjectAuthoringService(
+        unit_of_work=unit_of_work,
+        object_store=object_store,
+        clock=clock,
+        role_policy_version=config.role_policy_version,
+        role_policy_digest=config.role_policy_digest,
+        audit_chain_id=config.audit_chain_id,
+        run_admission=run_admission,
+    )
 
     dependencies = ApiDependencies(
         session_authentication=session_authentication,
@@ -1846,6 +1858,7 @@ def build_local_api_resources(
         observability_reads=read_services.observability,
         workflow_commands=workflow_commands,
         run_admission=run_admission,
+        project_authoring=project_authoring,
         execution_version_plans=execution_version_plans,
         execution_options=run_admission,
         run_event_stream=run_event_stream,

@@ -19,7 +19,8 @@ import type { components } from "../../api/generated/openapi";
 import { cursorFromPage } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { MergeResolver, SnapshotDiffView } from "../../components/diff";
-import { CopyableText } from "../../components/tables";
+import { findingDisplayMessage } from "../../components/evidence";
+import { TechnicalDetails } from "../../components/identity";
 import { ConfirmDialog, ProblemPanel, StatePanel } from "../../components/ui";
 import { generationManifestArtifactIds, parseGenerationCandidateManifest } from "../generation/candidate";
 import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
@@ -53,6 +54,36 @@ type PatchValidationRequest = components["schemas"]["PatchValidationAdmissionReq
 type ProfileKind = ExecutionProfile["profile_kind"];
 type RebaseResult = components["schemas"]["RebaseResult"];
 type RefHistoryEntry = components["schemas"]["RefHistoryEntryV1"];
+
+const findingDefectLabels: Readonly<Record<string, string>> = {
+  dead_quest: "任务无法完成",
+  economy_collapse: "经济系统可能失衡",
+  playtest_incomplete: "试玩未完成",
+  quest_dead_end: "任务流程存在死路",
+  reward_out_of_range: "数值超出允许范围",
+  unreachable_target: "目标无法到达",
+};
+
+const findingStatusLabels: Readonly<Record<string, string>> = {
+  accepted_risk: "已接受风险",
+  confirmed: "已确认",
+  dismissed: "已忽略",
+  fixed: "已修复",
+  unproven: "未证明",
+};
+
+const findingSourceLabels: Readonly<Record<string, string>> = {
+  checker: "规则检查",
+  llm: "AI 建议",
+  playtest: "自动试玩",
+  sim: "经济仿真",
+};
+
+const findingOracleLabels: Readonly<Record<string, string>> = {
+  deterministic: "确定性结果",
+  "llm-assisted": "AI 辅助，需确认",
+  simulation: "仿真结果",
+};
 type RefValue = components["schemas"]["RefValue"];
 type RunFindingLink = components["schemas"]["RunFindingLinkViewV1"];
 type RunSubmissionRequest = components["schemas"]["RunSubmissionRequestV1"];
@@ -144,7 +175,11 @@ type SelectableArtifactKind =
   | "regression_suite"
   | "review_report";
 
-type ArtifactCatalog = Record<SelectableArtifactKind, ArtifactSummary[]>;
+type ArtifactCatalogItem = ArtifactSummary & { catalogPayload: unknown };
+
+type ArtifactCatalog = Record<SelectableArtifactKind, ArtifactCatalogItem[]>;
+
+type ArtifactSummaryCatalog = Record<SelectableArtifactKind, ArtifactSummary[]>;
 
 type DeepLinkedArtifactIds = Record<SelectableArtifactKind, string[]>;
 
@@ -178,6 +213,54 @@ function sameRef(left: RefValue | null | undefined, right: RefValue | null | und
 
 function profileKey(profile: ExecutionProfile): string {
   return `${profile.profile.profile_id}@${profile.profile.version}`;
+}
+
+// A recommended default only exists when the catalog offers a single profile
+// identity. Several versions of that one identity stay selectable, so the
+// newest is the recommendation and every other version is an explicit opt-in.
+function recommendedProfile(profiles: readonly ExecutionProfile[]): ExecutionProfile | undefined {
+  if (profiles.length === 0) return undefined;
+  const identities = new Set(profiles.map((profile) => profile.profile.profile_id));
+  if (identities.size !== 1) return undefined;
+  return profiles.reduce((newest, profile) =>
+    profile.profile.version > newest.profile.version ? profile : newest,
+  );
+}
+
+function profileBusinessLabel(profile: ExecutionProfile): string {
+  const labels: Partial<Record<ExecutionProfile["profile_kind"], string>> = {
+    checker: "规则与关系检查",
+    config_export: "配置可导出性检查",
+    patch_repair: "AI 自动修复草案",
+    simulation: "经济与数值仿真",
+    validation: "完整验证流程",
+  };
+  const purpose =
+    labels[profile.profile_kind] ??
+    (/\p{Script=Han}/u.test(profile.display_name) ? profile.display_name : "扩展执行方案");
+  const variant = profile.profile.profile_id.startsWith("builtin.")
+    ? "内置标准方案"
+    : profile.display_name.trim() || "自定义方案";
+  return `${purpose} · ${variant} v${profile.profile.version}`;
+}
+
+function profileBusinessContext(profile: ExecutionProfile): string {
+  const descriptions: Partial<Record<ExecutionProfile["profile_kind"], string>> = {
+    checker: "检查任务结构、引用关系和规则约束",
+    config_export: "确认修改后的内容能够生成可运行配置",
+    patch_repair: "仅起草修复，结果仍会重新接受确定性验证",
+    simulation: "模拟资源产出、消耗和长期数值变化",
+    validation: "汇总本次选择的检查、仿真和已有证据",
+  };
+  return descriptions[profile.profile_kind] ?? "按当前工作流运行这项方案";
+}
+
+function patchRationaleLabel(rationale: string): string {
+  if (/\p{Script=Han}/u.test(rationale)) return rationale;
+  if (/reward|econom|sink|gold|currency/iu.test(rationale)) {
+    return "调整奖励与经济数值，使资源产出回到安全范围内。";
+  }
+  return "根据检查结果调整内容，并在应用前重新验证。";
 }
 
 function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
@@ -270,7 +353,8 @@ async function loadArtifactCatalog(
   const collected = await Promise.all(
     selectableArtifactKinds.map(async (kind) => [kind, await collectArtifactKind(api, kind)] as const),
   );
-  const catalog = Object.fromEntries(collected) as ArtifactCatalog;
+  const summaries = Object.fromEntries(collected) as ArtifactSummaryCatalog;
+  const exactViews = new Map<string, ArtifactPayloadView>();
 
   await Promise.all(
     selectableArtifactKinds.flatMap((kind) =>
@@ -279,20 +363,60 @@ async function loadArtifactCatalog(
         if (view.artifact.artifact_id !== artifactId || view.artifact.kind !== kind) {
           throw new Error(`链接中的${artifactKindLabels[kind]}无法通过 exact Artifact 类型校验。`);
         }
-        if (!catalog[kind].some((artifact) => artifact.artifact_id === artifactId)) {
-          catalog[kind].push(view.artifact);
+        exactViews.set(artifactId, view);
+        if (!summaries[kind].some((artifact) => artifact.artifact_id === artifactId)) {
+          summaries[kind].push(view.artifact);
         }
       }),
     ),
   );
 
   for (const kind of selectableArtifactKinds) {
-    catalog[kind].sort((left, right) => {
+    summaries[kind].sort((left, right) => {
       const created = (right.created_at ?? "").localeCompare(left.created_at ?? "");
       return created !== 0 ? created : left.artifact_id.localeCompare(right.artifact_id);
     });
   }
-  return catalog;
+
+  const hydrated = await Promise.all(
+    selectableArtifactKinds.map(async (kind) => {
+      const artifacts = await Promise.all(
+        summaries[kind].map(async (summary) => {
+          const view = exactViews.get(summary.artifact_id) ?? (await api.getArtifact(summary.artifact_id));
+          if (
+            view.artifact.artifact_id !== summary.artifact_id ||
+            view.artifact.kind !== kind ||
+            (summary.payload_hash !== null &&
+              summary.payload_hash !== undefined &&
+              view.artifact.payload_hash !== summary.payload_hash)
+          ) {
+            throw new Error(`${artifactKindLabels[kind]}详情与目录中的不可变内容不一致。`);
+          }
+          return { ...view.artifact, catalogPayload: view.payload };
+        }),
+      );
+      return [kind, artifacts] as const;
+    }),
+  );
+  return Object.fromEntries(hydrated) as ArtifactCatalog;
+}
+
+function exactPatchConstraintArtifactId(
+  subject: PatchArtifactReadView,
+  catalog: ArtifactCatalog,
+): string | null | undefined {
+  const semanticConstraintId = subject.artifact.version_tuple.constraint_snapshot_id ?? null;
+  const directParentIds = new Set(subject.artifact.parent_artifact_ids);
+  const directConstraintParents = catalog.constraint_snapshot.filter((artifact) =>
+    directParentIds.has(artifact.artifact_id),
+  );
+  if (semanticConstraintId === null) {
+    return directConstraintParents.length === 0 ? null : undefined;
+  }
+  const matching = directConstraintParents.filter(
+    (artifact) => artifact.version_tuple.constraint_snapshot_id === semanticConstraintId,
+  );
+  return directConstraintParents.length === 1 && matching.length === 1 ? matching[0].artifact_id : undefined;
 }
 
 function findingIdentity(finding: Pick<FindingRevision, "finding_id" | "revision">): string {
@@ -842,7 +966,7 @@ function ProfileSelect({
         <option value="">请选择</option>
         {profiles.map((profile) => (
           <option key={profileKey(profile)} value={profileKey(profile)}>
-            {profile.display_name} · {profileKey(profile)}
+            {profileBusinessLabel(profile)}
           </option>
         ))}
       </select>
@@ -865,13 +989,14 @@ function ProfileChecklist({
     <fieldset className="gf-patches__checklist">
       <legend>{label}</legend>
       {profiles.length === 0 ? (
-        <p className="gf-patches__muted">无 active profile</p>
+        <p className="gf-patches__muted">没有可用方案</p>
       ) : (
         profiles.map((profile) => {
           const key = profileKey(profile);
           return (
             <label key={key}>
               <input
+                aria-label={profileBusinessLabel(profile)}
                 checked={selected.has(key)}
                 onChange={(event) => {
                   const next = new Set(selected);
@@ -881,7 +1006,10 @@ function ProfileChecklist({
                 }}
                 type="checkbox"
               />
-              <span>{key}</span>
+              <span className="gf-patches__profile-copy">
+                <strong>{profileBusinessLabel(profile)}</strong>
+                <small>{profileBusinessContext(profile)}</small>
+              </span>
             </label>
           );
         })
@@ -902,19 +1030,18 @@ function CurrentFindingSelector({
   const groups = groupCurrentFindingOptions(options);
   return (
     <fieldset className="gf-patches__checklist gf-patches__form-wide">
-      <legend>本次要验证的 Finding</legend>
+      <legend>本次要复验的问题</legend>
       <p className="gf-patches__muted">
-        后端以 Evidence Artifact 为闭包单位：同一证据工件链接的 Finding 必须整组选择或整组取消。
-        每个复选框代表一个完整证据组；若希望失败后进入 Repair，请在本次验证前选择相应证据组。
+        同一份检查证据中的问题需要整组选择或取消，避免只验证其中一部分。若希望失败后自动修复，请在验证前选择对应证据组。
       </p>
       {groups.length === 0 ? (
-        <p className="gf-patches__muted">当前 preview 没有可选择的 exact Finding。</p>
+        <p className="gf-patches__muted">当前修改预览没有可选择的问题。</p>
       ) : (
         <div className="gf-patches__finding-evidence-groups">
-          {groups.map((group) => {
+          {groups.map((group, groupIndex) => {
             const checked = selected.has(group.evidenceArtifactId);
             const count = group.options.length;
-            const countLabel = `${count} 个 Finding`;
+            const countLabel = `${count} 个问题`;
             return (
               <section
                 className="gf-patches__finding-evidence-group"
@@ -923,7 +1050,7 @@ function CurrentFindingSelector({
               >
                 <label className="gf-patches__finding-evidence-toggle">
                   <input
-                    aria-label={`选择证据组：${compactIdentifier(group.evidenceArtifactId)} · ${countLabel}`}
+                    aria-label={`选择问题证据组 ${groupIndex + 1}，${countLabel}`}
                     checked={checked}
                     onChange={(event) => {
                       const next = new Set(selected);
@@ -934,26 +1061,33 @@ function CurrentFindingSelector({
                     type="checkbox"
                   />
                   <span>
-                    <strong>证据组 · {countLabel}</strong>
-                    <code title={group.evidenceArtifactId}>
-                      {compactIdentifier(group.evidenceArtifactId)}
-                    </code>
+                    <strong>
+                      问题证据组 {groupIndex + 1} · {countLabel}
+                    </strong>
                   </span>
                 </label>
-                <ul aria-label={`证据组 ${group.evidenceArtifactId} Findings`}>
+                <TechnicalDetails
+                  items={[{ label: "Evidence Artifact ID", value: group.evidenceArtifactId }]}
+                  summary="查看证据组技术信息"
+                />
+                <ul aria-label={`问题证据组 ${groupIndex + 1}`}>
                   {group.options.map((option) => {
                     const payload = option.finding.payload;
                     return (
                       <li key={findingIdentity(option.finding)}>
                         <div className="gf-patches__finding-heading">
-                          <strong>{payload.defect_class}</strong>
+                          <strong>{findingDefectLabels[payload.defect_class] ?? "内容问题"}</strong>
                           <span>
-                            {payload.status} · {payload.source} · {payload.oracle_type}
+                            {findingStatusLabels[payload.status] ?? payload.status} ·{" "}
+                            {findingSourceLabels[payload.source] ?? payload.source} ·{" "}
+                            {findingOracleLabels[payload.oracle_type] ?? payload.oracle_type}
                           </span>
                         </div>
-                        <p>{payload.message}</p>
+                        <p>{findingDisplayMessage(payload.defect_class, payload.message)}</p>
                         <details>
-                          <summary>精确 Finding authority</summary>
+                          <summary>查看问题技术信息</summary>
+                          {findingDisplayMessage(payload.defect_class, payload.message) !==
+                            payload.message && <code>{payload.message}</code>}
                           <code>
                             {option.finding.finding_id}@{option.finding.revision}
                           </code>
@@ -975,33 +1109,141 @@ function CurrentFindingSelector({
   );
 }
 
-function compactIdentifier(value: string): string {
-  if (value.length <= 34) return value;
-  return `${value.slice(0, 16)}…${value.slice(-12)}`;
-}
-
 function replayRunLabel(run: ReplaySourceRun): string {
   return replaySourceOptionLabel(run);
 }
 
-function artifactContext(artifact: ArtifactSummary): string {
-  const snapshot = artifact.version_tuple.constraint_snapshot_id ?? artifact.version_tuple.ir_snapshot_id;
-  const createdAt = artifact.created_at ? new Date(artifact.created_at) : null;
-  const created =
-    createdAt && Number.isFinite(createdAt.valueOf())
-      ? new Intl.DateTimeFormat("zh-CN", {
-          dateStyle: "medium",
-          hour12: false,
-          timeStyle: "short",
-        }).format(createdAt)
-      : "创建时间未记录";
-  const schema = artifact.payload_schema_id ?? "schema 未记录";
-  return snapshot ? `${created} · ${schema} · 快照 ${compactIdentifier(snapshot)}` : `${created} · ${schema}`;
+interface ArtifactPresentation {
+  context: string;
+  label: string;
 }
 
-function artifactSearchText(artifact: ArtifactSummary): string {
+const artifactDefectLabels: Readonly<Record<string, string>> = {
+  dead_quest: "任务无法完成",
+  economy_collapse: "经济系统可能失衡",
+  event_scope_membership_missing: "限时活动内容未归入活动范围",
+  identity_normalization: "名称或标识需要合并确认",
+  invalid_event_lifecycle: "限时活动生命周期不完整",
+  playtest_incomplete: "试玩未完成",
+  quest_dead_end: "任务流程存在死路",
+  reward_out_of_range: "数值超出允许范围",
+  unbound_event_schedule: "限时活动缺少开始和结束时间",
+  unreachable_target: "目标无法到达",
+};
+
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function arrayValue(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function artifactCreatedLabel(artifact: ArtifactSummary): string {
+  const createdAt = artifact.created_at ? new Date(artifact.created_at) : null;
+  return createdAt && Number.isFinite(createdAt.valueOf())
+    ? new Intl.DateTimeFormat("zh-CN", {
+        dateStyle: "medium",
+        hour12: false,
+        timeStyle: "medium",
+      }).format(createdAt)
+    : "创建时间未记录";
+}
+
+function artifactSnapshotId(artifact: ArtifactCatalogItem): string | null {
+  const payload = objectValue(artifact.catalogPayload);
+  const payloadSnapshot = payload?.snapshot_id;
+  if (typeof payloadSnapshot === "string" && payloadSnapshot) return payloadSnapshot;
+  return artifact.version_tuple.ir_snapshot_id ?? null;
+}
+
+function reviewPresentation(payload: Record<string, unknown>): { count: number; topics: string[] } {
+  const classes = arrayValue(payload.by_defect_class)
+    .map(objectValue)
+    .filter((item): item is Record<string, unknown> => item !== null);
+  const topics = [
+    ...new Set(
+      classes
+        .map((item) => item.defect_class)
+        .filter((value): value is string => typeof value === "string" && value.length > 0)
+        .map((value) => artifactDefectLabels[value] ?? "其他内容规则问题"),
+    ),
+  ];
+  const classifiedCount = classes.reduce((total, item) => {
+    const count = item.count;
+    return total + (Number.isSafeInteger(count) && Number(count) >= 0 ? Number(count) : 0);
+  }, 0);
+  const findingCount = [
+    "deterministic_findings",
+    "simulation_findings",
+    "llm_assisted_findings",
+    "unproven_findings",
+  ].reduce((total, key) => total + arrayValue(payload[key]).length, 0);
+  return { count: classifiedCount || findingCount, topics };
+}
+
+function artifactPresentation(
+  artifact: ArtifactCatalogItem,
+  subjectSnapshotId: string | null,
+): ArtifactPresentation {
+  const kindLabel = artifactKindLabels[artifact.kind as SelectableArtifactKind];
+  const payload = objectValue(artifact.catalogPayload) ?? {};
+  const created = artifactCreatedLabel(artifact);
+  const snapshotId = artifactSnapshotId(artifact);
+  const relationship =
+    subjectSnapshotId && snapshotId
+      ? snapshotId === subjectSnapshotId
+        ? "对应当前修改"
+        : "对应其他内容版本"
+      : null;
+  let label = kindLabel;
+  let purpose: string | null = null;
+
+  if (artifact.kind === "review_report") {
+    const review = reviewPresentation(payload);
+    const topicText = review.topics.length > 0 ? `：${review.topics.slice(0, 2).join("、")}` : "";
+    label =
+      review.count === 0 ? `${kindLabel} · 未发现问题` : `${kindLabel} · ${review.count} 个问题${topicText}`;
+    purpose =
+      payload.requirement_id === "generation-gate:review" ? "AI 草案生成时的前置审查" : "内容审查结果";
+  } else if (artifact.kind === "constraint_snapshot") {
+    const count = arrayValue(payload.constraints).length;
+    label = count > 0 ? `${kindLabel} · ${count} 条规则` : `${kindLabel} · 暂无附加规则`;
+  } else if (artifact.kind === "config_export") {
+    const files = arrayValue(payload.files);
+    label = files.length > 0 ? `${kindLabel} · ${files.length} 个配置文件` : `${kindLabel} · ${created}`;
+    purpose = "用于确认修改后配置能够被游戏读取";
+  } else if (artifact.kind === "playtest_trace") {
+    const episodes = arrayValue(payload.episodes)
+      .map(objectValue)
+      .filter((item) => item !== null);
+    const completed = episodes.filter((episode) => episode?.completed === true).length;
+    label =
+      episodes.length > 0
+        ? `${kindLabel} · ${completed}/${episodes.length} 个场景完成`
+        : `${kindLabel} · ${created}`;
+    purpose = "自动试玩的真实执行记录";
+  } else if (artifact.kind === "regression_suite") {
+    const adapterPayload = objectValue(payload.adapter_payload);
+    const caseCount = arrayValue(adapterPayload?.cases).length;
+    label = caseCount > 0 ? `${kindLabel} · ${caseCount} 个回归用例` : `${kindLabel} · ${created}`;
+    purpose = "用于复查已有玩法是否被这次修改破坏";
+  }
+
+  return {
+    label,
+    context: [relationship, purpose, `生成于 ${created}`].filter(Boolean).join(" · "),
+  };
+}
+
+function artifactSearchText(artifact: ArtifactCatalogItem, subjectSnapshotId: string | null): string {
   const scope = artifact.domain_scope === "all" ? "all" : (artifact.domain_scope?.domain_ids ?? []).join(" ");
+  const presentation = artifactPresentation(artifact, subjectSnapshotId);
   return [
+    presentation.label,
+    presentation.context,
     artifact.artifact_id,
     artifact.kind,
     artifact.payload_schema_id ?? "",
@@ -1017,22 +1259,27 @@ function artifactSearchText(artifact: ArtifactSummary): string {
 function ArtifactResourcePicker({
   artifacts,
   kind,
+  locked = false,
   mode,
   onChange,
   selected,
+  subjectSnapshotId,
 }: {
-  artifacts: readonly ArtifactSummary[];
+  artifacts: readonly ArtifactCatalogItem[];
   kind: SelectableArtifactKind;
+  locked?: boolean;
   mode: "multiple" | "single";
   onChange(value: Set<string>): void;
   selected: ReadonlySet<string>;
+  subjectSnapshotId: string | null;
 }) {
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase("zh-CN");
   const visible = normalizedQuery
     ? artifacts.filter(
         (artifact) =>
-          selected.has(artifact.artifact_id) || artifactSearchText(artifact).includes(normalizedQuery),
+          selected.has(artifact.artifact_id) ||
+          artifactSearchText(artifact, subjectSnapshotId).includes(normalizedQuery),
       )
     : artifacts;
   const label = artifactKindLabels[kind];
@@ -1044,7 +1291,7 @@ function ArtifactResourcePicker({
           <span>搜索{label}</span>
           <input
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="按时间、快照、schema 或技术标识搜索"
+            placeholder="按时间搜索，也支持技术标识"
             type="search"
             value={query}
           />
@@ -1053,10 +1300,12 @@ function ArtifactResourcePicker({
           已选 {selected.size} 项 · 目录 {artifacts.length} 项
         </span>
       </div>
+      {locked && <p className="gf-patches__muted">由这份修改自动绑定，不能在验证时替换。</p>}
       {mode === "single" && (
         <label className="gf-patches__resource-option gf-patches__resource-option--none">
           <input
             checked={selected.size === 0}
+            disabled={locked}
             name={`artifact-picker-${kind}`}
             onChange={() => onChange(new Set())}
             type="radio"
@@ -1073,11 +1322,13 @@ function ArtifactResourcePicker({
         <div className="gf-patches__resource-options">
           {visible.map((artifact) => {
             const checked = selected.has(artifact.artifact_id);
+            const presentation = artifactPresentation(artifact, subjectSnapshotId);
             return (
               <label className="gf-patches__resource-option" key={artifact.artifact_id}>
                 <input
-                  aria-label={`${label} ${artifact.artifact_id}`}
+                  aria-label={`${presentation.label} ${presentation.context}`}
                   checked={checked}
+                  disabled={locked}
                   name={mode === "single" ? `artifact-picker-${kind}` : undefined}
                   onChange={(event) => {
                     if (mode === "single") {
@@ -1092,8 +1343,8 @@ function ArtifactResourcePicker({
                   type={mode === "single" ? "radio" : "checkbox"}
                 />
                 <span>
-                  <strong>{artifactContext(artifact)}</strong>
-                  <code title={artifact.artifact_id}>{compactIdentifier(artifact.artifact_id)}</code>
+                  <strong>{presentation.label}</strong>
+                  <small>{presentation.context}</small>
                 </span>
               </label>
             );
@@ -1110,7 +1361,7 @@ function MutationFailure({ onReload, state }: { onReload(): void; state: Mutatio
       <div className="gf-patches__mutation-error">
         <ProblemPanel problem={state.error.problem} />
         <button className="gf-secondary-button" onClick={onReload} type="button">
-          重新读取 exact server state
+          重新读取服务器状态
         </button>
       </div>
     );
@@ -1121,7 +1372,7 @@ function MutationFailure({ onReload, state }: { onReload(): void; state: Mutatio
         <div className="gf-cluster">
           {state.retry && (
             <button className="gf-secondary-button" onClick={() => void state.retry?.()} type="button">
-              重试同一 intent
+              重试同一请求
             </button>
           )}
           <button className="gf-secondary-button" onClick={onReload} type="button">
@@ -1131,8 +1382,8 @@ function MutationFailure({ onReload, state }: { onReload(): void; state: Mutatio
       }
       description={
         state.retry
-          ? `${state.label} 结果未知；请求和 Idempotency-Key 已冻结。`
-          : `${state.label} 失败；重新读取 authority 后才能发起新操作。`
+          ? `${state.label}结果未知；系统已保留原请求，可安全重试。`
+          : `${state.label}失败；重新读取最新状态后才能发起新操作。`
       }
       state="error"
       title={state.retry ? "操作结果未知" : "工作流操作失败"}
@@ -1210,26 +1461,24 @@ function ReplacementReceipt({
     retry: false,
   });
   if (replacement.isPending) {
-    return (
-      <StatePanel description="正在重验新旧 workflow authority。" state="loading" title="正在读取新修订" />
-    );
+    return <StatePanel description="正在核对新旧草案的版本关系。" state="loading" title="正在读取新版本" />;
   }
   if (replacement.isError) {
     return (
       <StatePanel
-        description="新修订未能与 superseded predecessor 闭合；不会提供继续入口。"
+        description="新版本未能与被替代的旧版本完整对应，因此不会提供继续入口。"
         state="error"
-        title="新 Patch revision authority 不一致"
+        title="无法确认新版本"
       />
     );
   }
   return (
     <div className="gf-patches__live-receipt" role="status">
       <StatePanel
-        action={<a href={replacementHref(replacementId, continuation)}>打开新 Patch revision</a>}
-        description={`新 revision ${replacement.data.subject.patch.revision} 为 draft；旧验证、证据与审批决定不继承。`}
+        action={<a href={replacementHref(replacementId, continuation)}>打开新修改草案</a>}
+        description={`已创建第 ${replacement.data.subject.patch.revision} 版草案；旧验证、证据与审批决定不会继承。`}
         state="terminal"
-        title="已创建独立 Patch revision"
+        title="已创建独立的新版本"
       />
     </div>
   );
@@ -1646,47 +1895,47 @@ function EvidenceLedger({ data, evidence }: { data: PatchDetailData; evidence: P
   const item = data.approval.value.approval;
   return (
     <div className="gf-patches__evidence-ledger">
-      <h3>Workflow evidence Artifact ledger</h3>
+      <h3>验证证据记录</h3>
       <p className="gf-patches__muted">
-        中性索引：未解析 EvidenceSet requirements 前，不把这些 Artifact 冒充 deterministic、simulation 或
-        suggestion 证明。
+        系统会逐项核对证据要求；在核对完成前，不会把普通记录冒充确定性检查、仿真或人工建议的证明。
       </p>
       <div className="gf-patches__evidence-list">
         {evidence.kind === "none" ? (
-          <p>尚无 EvidenceSet；Run status 不会被当作验证 verdict。</p>
+          <p>尚无验证证据；仅仅运行成功不代表修改已经通过。</p>
         ) : evidence.kind === "unsafe" ? (
-          <p role="alert">EvidenceSet 身份、目标或 schema 不一致，页面已停止解释。</p>
+          <p role="alert">验证证据的来源、目标或数据格式不一致，页面已停止解释。</p>
         ) : (
           <div className="gf-patches__evidence-summary">
             <strong>确定性结论：{evidenceStatusLabel(evidence.overallStatus)}</strong>
-            <p>{evidence.requirements.length} 项 requirement 已从 exact EvidenceSet 读取。</p>
+            <p>已从可核验的证据记录读取 {evidence.requirements.length} 项验证要求。</p>
             {evidence.findingBindings.length === 0 ? (
               <p className="gf-patches__muted">
                 {evidence.overallStatus === "passed"
-                  ? "本次验证没有需要闭包的历史 Finding。"
-                  : "EvidenceSet 没有可交给 Repair 的 exact Finding。"}
+                  ? "本次验证没有需要关闭的历史问题。"
+                  : "验证证据中没有可交给自动修复的问题。"}
               </p>
             ) : (
               <>
-                <h4>
-                  {evidence.overallStatus === "passed" ? "已闭包的历史 Findings" : "Repair 目标 Findings"}
-                </h4>
+                <h4>{evidence.overallStatus === "passed" ? "已关闭的历史问题" : "自动修复目标问题"}</h4>
                 <ul
-                  aria-label={
-                    evidence.overallStatus === "passed" ? "已闭包的历史 Findings" : "Repair Findings"
-                  }
+                  aria-label={evidence.overallStatus === "passed" ? "已关闭的历史问题" : "自动修复目标问题"}
                 >
-                  {evidence.findingBindings.map((binding) => (
+                  {evidence.findingBindings.map((binding, index) => (
                     <li key={`${binding.finding_id}@${binding.finding_revision}`}>
-                      <strong>{binding.finding_id}</strong>
-                      <span>Revision {binding.finding_revision}</span>
+                      <strong>问题 {index + 1}</strong>
+                      <span>已核对第 {binding.finding_revision} 版问题记录</span>
                       <a href={`/artifacts/${encodeURIComponent(binding.evidence_artifact_id)}`}>
-                        查看 Finding 证据
+                        查看问题证据
                       </a>
-                      <details>
-                        <summary>精确绑定</summary>
-                        <code>{binding.finding_digest}</code>
-                      </details>
+                      <TechnicalDetails
+                        items={[
+                          { label: "Finding ID", value: binding.finding_id },
+                          { label: "Finding revision", value: String(binding.finding_revision) },
+                          { label: "Finding digest", value: binding.finding_digest },
+                          { label: "Evidence Artifact ID", value: binding.evidence_artifact_id },
+                        ]}
+                        summary="查看问题绑定技术信息"
+                      />
                     </li>
                   ))}
                 </ul>
@@ -1712,18 +1961,18 @@ function EvidenceLedger({ data, evidence }: { data: PatchDetailData; evidence: P
                 </li>
               ))}
             </ul>
-            <a href={`/runs/${encodeURIComponent(evidence.runId)}`}>打开验证 Run</a>
-            <a href={`/artifacts/${encodeURIComponent(item.evidence_set_artifact_id!)}`}>打开 EvidenceSet</a>
+            <a href={`/runs/${encodeURIComponent(evidence.runId)}`}>查看验证过程</a>
+            <a href={`/artifacts/${encodeURIComponent(item.evidence_set_artifact_id!)}`}>查看完整验证依据</a>
           </div>
         )}
         {item.last_validation_failure_artifact_id && (
           <a href={`/artifacts/${encodeURIComponent(item.last_validation_failure_artifact_id)}`}>
-            最近 validation failure · {item.last_validation_failure_artifact_id}
+            查看最近一次验证失败记录
           </a>
         )}
-        {item.regression_evidence_artifact_ids.map((artifactId) => (
+        {item.regression_evidence_artifact_ids.map((artifactId, index) => (
           <a href={`/artifacts/${encodeURIComponent(artifactId)}`} key={artifactId}>
-            Regression / companion evidence · {artifactId}
+            查看回归验证依据 {index + 1}
           </a>
         ))}
         {data.evidence && data.evidence.artifact.artifact_id !== item.evidence_set_artifact_id && (
@@ -1747,16 +1996,80 @@ const patchOpLabels: Record<components["schemas"]["TypedOp"]["op"], string> = {
   set_relation_attr: "修改关系字段",
 };
 
+const approvalStatusLabels: Readonly<Record<string, string>> = {
+  applied: "已应用",
+  approved: "已批准",
+  auto_apply_eligible: "可自动应用",
+  changes_requested: "待修改",
+  draft: "草案",
+  pending_approval: "待审批",
+  rejected: "未通过审批",
+  rolled_back: "已回滚",
+  superseded: "已被替代",
+  validated: "检查已通过",
+  validating: "检查中",
+  validation_failed: "检查未通过",
+};
+
+const checkStatusLabels: Readonly<Record<string, string>> = {
+  failed: "未通过",
+  not_started: "尚未开始",
+  passed: "已通过",
+  running: "进行中",
+};
+
+function approvalStatusLabel(value: string): string {
+  return approvalStatusLabels[value] ?? value;
+}
+
+function checkStatusLabel(value: string): string {
+  return checkStatusLabels[value] ?? value;
+}
+
+function patchRiskLabel(value: string): string {
+  return ({ high: "高", low: "低", medium: "中" } as Readonly<Record<string, string>>)[value] ?? value;
+}
+
+function isTechnicalDisplayValue(value: string): boolean {
+  return (
+    /^(?:artifact|entity|evidence|finding|item|npc|patch|quest|ref|region|relation|run|sha(?:256)?|snapshot|step):/iu.test(
+      value,
+    ) || /^[a-f\d]{40,}$/iu.test(value)
+  );
+}
+
+function patchValueLabel(value: unknown): string {
+  if (value === undefined) return "无";
+  if (value === null) return "未设置";
+  if (typeof value === "boolean") return value ? "是" : "否";
+  if (typeof value === "number") return new Intl.NumberFormat("zh-CN").format(value);
+  if (typeof value === "string") return isTechnicalDisplayValue(value) ? "已绑定内容（见技术信息）" : value;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "无";
+    if (value.every((item) => ["boolean", "number", "string"].includes(typeof item))) {
+      return value.map(patchValueLabel).join("、");
+    }
+    return `已配置 ${value.length} 项内容（见技术信息）`;
+  }
+  if (typeof value === "object") {
+    const record = value as Readonly<Record<string, unknown>>;
+    const name = record.display_name ?? record.name ?? record.title ?? record.label;
+    if (typeof name === "string" && name.trim()) return name.trim();
+    return "已配置结构化内容（见技术信息）";
+  }
+  return String(value);
+}
+
 function PatchPayloadSummary({ patch }: { patch: PatchArtifactReadView["patch"] }) {
   return (
     <section aria-labelledby="patch-content-title" className="gf-patches__workspace-section">
       <header>
         <FilePenLine aria-hidden="true" size={20} />
         <div>
-          <h2 id="patch-content-title">这份 Patch 实际修改什么</h2>
+          <h2 id="patch-content-title">这份修改会做什么</h2>
           <p>
-            {patch.ops.length} 项 typed operation · 副作用风险 {patch.side_effect_risk}；字段级 Diff
-            在下一节交叉核对。
+            {patch.ops.length} 项修改 · 影响风险：
+            {patchRiskLabel(patch.side_effect_risk)}；下方可逐项核对。
           </p>
         </div>
       </header>
@@ -1770,12 +2083,12 @@ function PatchPayloadSummary({ patch }: { patch: PatchArtifactReadView["patch"] 
           </ul>
         </div>
       )}
-      <ol className="gf-patches__op-list" aria-label="Patch typed operations">
-        {patch.ops.map((op) => (
+      <ol className="gf-patches__op-list" aria-label="修改内容列表">
+        {patch.ops.map((op, index) => (
           <li key={op.op_id}>
             <header>
               <span className="u-status u-status--info">{patchOpLabels[op.op]}</span>
-              <strong>{op.target}</strong>
+              <strong>第 {index + 1} 项变更</strong>
             </header>
             <div className="gf-patches__op-values">
               <div>
@@ -1783,7 +2096,7 @@ function PatchPayloadSummary({ patch }: { patch: PatchArtifactReadView["patch"] 
                 {op.old_value == null && (op.op === "add_entity" || op.op === "add_relation") ? (
                   <span className="gf-patches__absent-value">原先不存在</span>
                 ) : (
-                  <code>{op.old_value === undefined ? "无" : JSON.stringify(op.old_value)}</code>
+                  <span>{patchValueLabel(op.old_value)}</span>
                 )}
               </div>
               <span aria-hidden="true">→</span>
@@ -1792,10 +2105,26 @@ function PatchPayloadSummary({ patch }: { patch: PatchArtifactReadView["patch"] 
                 {op.new_value == null && (op.op === "delete_entity" || op.op === "delete_relation") ? (
                   <span className="gf-patches__absent-value">删除后不存在</span>
                 ) : (
-                  <code>{op.new_value === undefined ? "无" : JSON.stringify(op.new_value)}</code>
+                  <span>{patchValueLabel(op.new_value)}</span>
                 )}
               </div>
             </div>
+            <TechnicalDetails
+              items={[
+                { label: "操作 ID", value: op.op_id },
+                { label: "内部操作类型", value: op.op },
+                { label: "精确修改目标", value: op.target },
+                {
+                  label: "原始修改前数据",
+                  value: JSON.stringify(op.old_value ?? null, null, 2),
+                },
+                {
+                  label: "原始修改后数据",
+                  value: JSON.stringify(op.new_value ?? null, null, 2),
+                },
+              ]}
+              summary="查看本项技术信息"
+            />
           </li>
         ))}
       </ol>
@@ -1835,6 +2164,10 @@ export function PatchDetailPage({
     queryKey: ["patch-detail", artifactId, "artifact-catalog", initialArtifactIds],
     retry: false,
   });
+  const boundConstraintArtifactId = useMemo(() => {
+    if (!workflow.data || !artifactCatalog.data) return undefined;
+    return exactPatchConstraintArtifactId(workflow.data.current.value, artifactCatalog.data);
+  }, [artifactCatalog.data, workflow.data]);
   const findingTargetSnapshotId = workflow.data?.target.target_snapshot_id ?? null;
   const findingAuthorityRequired =
     workflow.data?.binding.is_current_head === true &&
@@ -1883,6 +2216,7 @@ export function PatchDetailPage({
   const [constraintArtifactId, setConstraintArtifactId] = useState(
     initialArtifactIds.constraint_snapshot[0] ?? "",
   );
+  const initializedConstraintBindingFor = useRef<string | null>(null);
   const [reviewArtifactIds, setReviewArtifactIds] = useState<Set<string>>(
     () => new Set(initialArtifactIds.review_report),
   );
@@ -1958,6 +2292,14 @@ export function PatchDetailPage({
   }, [restartDiff]);
 
   useEffect(() => {
+    if (boundConstraintArtifactId === undefined || initializedConstraintBindingFor.current === artifactId) {
+      return;
+    }
+    initializedConstraintBindingFor.current = artifactId;
+    setConstraintArtifactId(boundConstraintArtifactId ?? "");
+  }, [artifactId, boundConstraintArtifactId]);
+
+  useEffect(() => {
     setResolutions([]);
   }, [conflictSetId]);
 
@@ -2002,28 +2344,33 @@ export function PatchDetailPage({
   useEffect(() => {
     if (!workflow.data || !catalog || initializedProfileDefaultsFor.current === artifactId) return;
     initializedProfileDefaultsFor.current = artifactId;
-    if (catalog.validation.length === 1) {
-      setValidationProfileKey(profileKey(catalog.validation[0]));
+    const validation = recommendedProfile(catalog.validation);
+    if (validation !== undefined) {
+      setValidationProfileKey(profileKey(validation));
     }
-    if (catalog.patchRepair.length === 1) {
-      setRepairProfileKey(profileKey(catalog.patchRepair[0]));
+    const patchRepair = recommendedProfile(catalog.patchRepair);
+    if (patchRepair !== undefined) {
+      setRepairProfileKey(profileKey(patchRepair));
     }
-    if (catalog.validationChecker.length === 1) {
-      setValidationCheckerKeys(new Set([profileKey(catalog.validationChecker[0])]));
+    const validationChecker = recommendedProfile(catalog.validationChecker);
+    if (validationChecker !== undefined) {
+      setValidationCheckerKeys(new Set([profileKey(validationChecker)]));
     }
-    if (catalog.repairChecker.length === 1) {
-      setRepairCheckerKeys(new Set([profileKey(catalog.repairChecker[0])]));
+    const repairChecker = recommendedProfile(catalog.repairChecker);
+    if (repairChecker !== undefined) {
+      setRepairCheckerKeys(new Set([profileKey(repairChecker)]));
     }
-    if (catalog.repairConfigExport.length === 1) {
-      setRepairExportKeys(new Set([profileKey(catalog.repairConfigExport[0])]));
+    const repairConfigExport = recommendedProfile(catalog.repairConfigExport);
+    if (repairConfigExport !== undefined) {
+      setRepairExportKeys(new Set([profileKey(repairConfigExport)]));
     }
   }, [artifactId, catalog, workflow.data]);
   const selectedValidation = catalog?.validation.find(
     (profile) => profileKey(profile) === validationProfileKey,
   );
+  const recommendedFocusedChecker = catalog ? recommendedProfile(catalog.focusedChecker) : undefined;
   const effectiveFocusedCheckerProfileKey =
-    focusedCheckerProfileKey ||
-    (catalog?.focusedChecker.length === 1 ? profileKey(catalog.focusedChecker[0]) : "");
+    focusedCheckerProfileKey || (recommendedFocusedChecker ? profileKey(recommendedFocusedChecker) : "");
   const selectedFocusedChecker = catalog?.focusedChecker.find(
     (profile) => profileKey(profile) === effectiveFocusedCheckerProfileKey,
   );
@@ -2065,13 +2412,23 @@ export function PatchDetailPage({
     const includes = (kind: SelectableArtifactKind, artifactId: string) =>
       artifactCatalog.data[kind].some((artifact) => artifact.artifact_id === artifactId);
     return (
+      boundConstraintArtifactId !== undefined &&
+      constraintArtifactId === (boundConstraintArtifactId ?? "") &&
       (constraintArtifactId === "" || includes("constraint_snapshot", constraintArtifactId)) &&
       configIds.every((artifactId) => includes("config_export", artifactId)) &&
       reviewIds.every((artifactId) => includes("review_report", artifactId)) &&
       traceIds.every((artifactId) => includes("playtest_trace", artifactId)) &&
       regressionIds.every((artifactId) => includes("regression_suite", artifactId))
     );
-  }, [artifactCatalog.data, configIds, constraintArtifactId, regressionIds, reviewIds, traceIds]);
+  }, [
+    artifactCatalog.data,
+    boundConstraintArtifactId,
+    configIds,
+    constraintArtifactId,
+    regressionIds,
+    reviewIds,
+    traceIds,
+  ]);
   const parsedSeed = Number(seed);
   const seedIsValid = seed.trim() !== "" && Number.isSafeInteger(parsedSeed) && parsedSeed >= 0;
   const validationSeedRequired =
@@ -2154,7 +2511,11 @@ export function PatchDetailPage({
       });
     } catch (error) {
       if (diffEpoch.current === epoch) {
-        setDiffState({ ...current, error: normalizedError(error), loading: false });
+        setDiffState({
+          ...current,
+          error: normalizedError(error),
+          loading: false,
+        });
       }
     }
   }
@@ -2190,10 +2551,10 @@ export function PatchDetailPage({
     return (
       <div className="gf-page gf-patches">
         <StatePanel
-          description="正在读取 Patch、retained approval binding、complete ref history 与 ETag。"
+          description="正在读取修改草案、审批进度和完整版本历史。"
           headingLevel={1}
           state="loading"
-          title="正在读取 Patch workflow"
+          title="正在准备修改草案"
         />
       </div>
     );
@@ -2206,10 +2567,10 @@ export function PatchDetailPage({
         ) : (
           <StatePanel
             action={<button onClick={() => void workflow.refetch()}>重试</button>}
-            description="Patch、binding、Approval 或 ref history 未能闭合。"
+            description="修改草案、审批进度或版本历史未能完整核对。为避免误操作，页面已停止后续操作。"
             headingLevel={1}
             state="error"
-            title="Patch authority 不可用"
+            title="暂时无法确认修改草案"
           />
         )}
       </div>
@@ -2218,6 +2579,7 @@ export function PatchDetailPage({
 
   const data = workflow.data;
   const item = data.approval.value.approval;
+  const validationMutation = mutation?.label === "Patch validation" ? mutation : null;
   const selectedConstraintArtifactId = constraintArtifactId.trim();
   const reviewCandidateHref = (() => {
     if (selectedConstraintArtifactId === "") return null;
@@ -2230,6 +2592,12 @@ export function PatchDetailPage({
     return `/reviews?${params.toString()}`;
   })();
   const evidence = patchEvidenceView(data);
+  const validationRunId =
+    repairRunId === null
+      ? (acceptedRunId ??
+        item.active_validation_run_id ??
+        (evidence.kind === "evidence" ? evidence.runId : null))
+      : null;
   const repairFindings = evidence.kind === "evidence" ? evidence.findingBindings : null;
   const resolutionIds = new Set(resolutions.map((resolution) => resolution.conflict_id));
   const repairContinuation =
@@ -2372,6 +2740,7 @@ export function PatchDetailPage({
     if (!canValidate || !selectedValidation || expectedFindings === null) {
       return;
     }
+    setAcceptedRunId(null);
     const request: PatchValidationRequest = {
       approval_id: data.binding.approval_id,
       base_snapshot_artifact_id: data.baseArtifactId,
@@ -2390,7 +2759,10 @@ export function PatchDetailPage({
       seed: validationSeedRequired ? parsedSeed : null,
       simulation_profiles: selectedValidationSimulations.map((profile) => profile.profile),
       subject_digest: data.binding.subject_digest,
-      target: { expected_ref: data.target.expected_ref, ref_name: data.target.ref_name },
+      target: {
+        expected_ref: data.target.expected_ref,
+        ref_name: data.target.ref_name,
+      },
       validation_policy: selectedValidation.profile,
     };
     runFrozen(
@@ -2428,7 +2800,10 @@ export function PatchDetailPage({
         schema_version: "patch-repair@1",
         simulation_profiles: selectedRepairSimulations.map((profile) => profile.profile),
         subject_patch_artifact_id: data.current.value.artifact.artifact_id,
-        target: { expected_ref: data.target.expected_ref, ref_name: data.target.ref_name },
+        target: {
+          expected_ref: data.target.expected_ref,
+          ref_name: data.target.ref_name,
+        },
         validation_evidence_artifact_id: item.evidence_set_artifact_id,
       },
       request_schema_version: "patch-repair-request@1",
@@ -2467,7 +2842,12 @@ export function PatchDetailPage({
     const execute = async () => {
       if (mutationLock.current) return;
       mutationLock.current = true;
-      setMutation({ error: null, label: "Patch repair", pending: true, retry: null });
+      setMutation({
+        error: null,
+        label: "Patch repair",
+        pending: true,
+        retry: null,
+      });
       try {
         const accepted = await sendFrozen();
         setAcceptedRunId(accepted.run_id);
@@ -2536,77 +2916,91 @@ export function PatchDetailPage({
 
   return (
     <div className="gf-page gf-patches gf-patch-detail" data-layout="editorial-patch-detail">
-      <nav aria-label="Patch 导航" className="gf-patches__back-nav">
-        <a href="/patches">返回 Patch ledger</a>
-        <a href={`/artifacts/${encodeURIComponent(data.current.value.artifact.artifact_id)}`}>Artifact</a>
-        <a href={`/approvals/${encodeURIComponent(data.binding.approval_id)}`}>Exact approval</a>
-        <a href={`/refs/${encodeURIComponent(data.target.ref_name)}/history`}>Ref history</a>
+      <nav aria-label="修改草案导航" className="gf-patches__back-nav">
+        <a href="/patches">返回修改与版本</a>
+        <a href={`/artifacts/${encodeURIComponent(data.current.value.artifact.artifact_id)}`}>查看来源记录</a>
+        <a href={`/approvals/${encodeURIComponent(data.binding.approval_id)}`}>查看审批进度</a>
+        <a href={`/refs/${encodeURIComponent(data.target.ref_name)}/history`}>查看版本历史</a>
       </nav>
 
       <header className="gf-patches__hero gf-patches__hero--detail">
         <div>
-          <p className="gf-patches__kicker">Patch revision · immutable proposal</p>
-          <h1>Patch revision {data.current.value.patch.revision}</h1>
-          <p>{data.current.value.patch.rationale}</p>
+          <p className="gf-patches__kicker">内容修改草案</p>
+          <h1>修改草案 · 第 {data.current.value.patch.revision} 版</h1>
+          <p>{patchRationaleLabel(data.current.value.patch.rationale)}</p>
         </div>
         <span className="gf-patches__status-mark">
           {data.current.value.patch.produced_by === "agent" ? <Bot size={17} /> : <BadgeCheck size={17} />}
-          {item.status}
+          {approvalStatusLabel(item.status)}
         </span>
       </header>
 
-      <dl className="gf-patches__facts" aria-label="Patch exact workflow authority">
+      <dl className="gf-patches__facts" aria-label="修改草案进度">
         <div>
-          <dt>Patch Artifact</dt>
-          <dd>
-            <CopyableText
-              copyLabel="复制 Patch Artifact ID"
-              value={data.current.value.artifact.artifact_id}
-            />
-          </dd>
+          <dt>创建方式</dt>
+          <dd>{data.current.value.patch.produced_by === "agent" ? "AI 起草" : "人工创建"}</dd>
         </div>
         <div>
-          <dt>ETag</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Patch ETag" value={data.current.etag} />
-          </dd>
+          <dt>审批进度</dt>
+          <dd>{approvalStatusLabel(item.status)}</dd>
         </div>
         <div>
-          <dt>Subject head / workflow</dt>
-          <dd>
-            {data.binding.subject_head_revision} / {data.binding.workflow_revision}
-          </dd>
+          <dt>内容检查</dt>
+          <dd>{checkStatusLabel(data.current.value.validation_status)}</dd>
         </div>
         <div>
-          <dt>Approval status</dt>
-          <dd>{item.status}</dd>
-        </div>
-        <div>
-          <dt>Validation status</dt>
-          <dd>{data.current.value.validation_status}</dd>
-        </div>
-        <div>
-          <dt>Regression status</dt>
-          <dd>{data.current.value.regression_status}</dd>
-        </div>
-        <div className="gf-patches__fact-wide">
-          <dt>Subject digest</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Patch subject digest" value={data.binding.subject_digest} />
-          </dd>
+          <dt>回归检查</dt>
+          <dd>{checkStatusLabel(data.current.value.regression_status)}</dd>
         </div>
       </dl>
+
+      <TechnicalDetails
+        items={[
+          {
+            copyLabel: "复制修改草案 Artifact ID",
+            label: "Patch Artifact ID",
+            value: data.current.value.artifact.artifact_id,
+          },
+          {
+            copyLabel: "复制修改草案 ETag",
+            label: "ETag",
+            value: data.current.etag,
+          },
+          {
+            label: "Subject head revision",
+            value: String(data.binding.subject_head_revision),
+          },
+          {
+            label: "Workflow revision",
+            value: String(data.binding.workflow_revision),
+          },
+          {
+            copyLabel: "复制修改草案摘要",
+            label: "Subject digest",
+            value: data.binding.subject_digest,
+          },
+          ...(patchRationaleLabel(data.current.value.patch.rationale) === data.current.value.patch.rationale
+            ? []
+            : [
+                {
+                  label: "原始修改理由",
+                  value: data.current.value.patch.rationale,
+                },
+              ]),
+        ]}
+        summary="查看草案技术信息"
+      />
 
       {!data.binding.is_current_head && (
         <StatePanel
           action={
             replacementId ? (
-              <a href={replacementHref(replacementId, repairContinuation)}>打开 successor</a>
+              <a href={replacementHref(replacementId, repairContinuation)}>打开后续版本</a>
             ) : undefined
           }
-          description="当前 immutable revision 已不是 subject head；所有 mutation 均已停止。"
+          description="当前草案已被更新版本替代，所有修改操作均已停止。"
           state="terminal"
-          title="Superseded Patch revision"
+          title="这份草案已被替代"
         />
       )}
       {refDrifted && data.binding.is_current_head && (
@@ -2614,17 +3008,19 @@ export function PatchDetailPage({
           action={
             canRebase ? (
               <button className="gf-secondary-button" onClick={rebase} type="button">
-                创建 rebased Patch revision
+                基于当前正式版本重新计算
               </button>
             ) : undefined
           }
-          description="live ref 已不再等于 frozen expected ref；validate、repair、submit 与 apply 均已停止。"
+          description="正式内容已在别处更新。请先基于最新版本重新计算，再继续验证、修复或审批。"
           state="error"
-          title="Patch target 已 stale"
+          title="草案基于的版本已过期"
         />
       )}
-      {mutation && !mutation.pending && <MutationFailure onReload={() => void reload()} state={mutation} />}
-      {mutation?.pending && (
+      {mutation && mutation.label !== "Patch validation" && !mutation.pending && (
+        <MutationFailure onReload={() => void reload()} state={mutation} />
+      )}
+      {mutation?.pending && mutation.label !== "Patch validation" && (
         <StatePanel
           description={`${mutation.label} 请求已冻结并提交。`}
           state="loading"
@@ -2634,9 +3030,9 @@ export function PatchDetailPage({
       {repairRunId &&
         (repairHandoff.isPending ? (
           <StatePanel
-            description="正在读取 accepted Repair Run 的 exact server state。"
+            description="正在确认自动修复任务的最新状态。"
             state="loading"
-            title="Repair Agent 正在运行"
+            title="自动修复正在运行"
           />
         ) : repairHandoff.isError ? (
           <StatePanel
@@ -2645,15 +3041,15 @@ export function PatchDetailPage({
                 重新读取服务器状态
               </button>
             }
-            description="Run、RunResult 或 produced Artifact authority 未能闭合；不会提供新 Patch 入口。"
+            description="自动修复的任务、结果或产出未能完整核对，因此不会提供新的修改草案入口。"
             state="error"
-            title="Repair 结果不可采信"
+            title="暂时无法确认修复结果"
           />
         ) : repairHandoff.data.status === "succeeded" ? (
           <StatePanel
-            description="RunResult、repaired Patch 与配置导出已闭合；请从下方经过重验的入口继续。"
+            description="修复结果、修改草案和配置导出均已核对；请从下方经过重验的入口继续。"
             state="terminal"
-            title="Repair RunResult 已验证"
+            title="自动修复结果已验证"
           />
         ) : ["failed", "cancelled", "timed_out"].includes(repairHandoff.data.status) ? (
           <StatePanel
@@ -2662,21 +3058,21 @@ export function PatchDetailPage({
                 重新读取服务器状态
               </button>
             }
-            description="Repair Run 已进入终态且没有可采信的 repaired Patch；当前 revision 保持不变。"
+            description="自动修复已经结束，但没有形成可采信的新草案；当前版本保持不变。"
             state="error"
             title={
               repairHandoff.data.status === "failed"
-                ? "Repair Agent 执行失败"
+                ? "自动修复失败"
                 : repairHandoff.data.status === "cancelled"
-                  ? "Repair Agent 已取消"
-                  : "Repair Agent 已超时"
+                  ? "自动修复已取消"
+                  : "自动修复已超时"
             }
           />
         ) : (
           <StatePanel
-            description={`Repair Run 当前状态：${repairHandoff.data.status}。页面会继续读取。`}
+            description="页面会继续读取任务状态，无需重复提交。"
             state="loading"
-            title="Repair Agent 正在运行"
+            title="自动修复正在运行"
           />
         ))}
       {replacementId && (
@@ -2694,31 +3090,45 @@ export function PatchDetailPage({
         <header>
           <GitBranch aria-hidden="true" size={20} />
           <div>
-            <h2 id="patch-diff-title">Base / Current / Proposed</h2>
-            <p>
-              Base / Proposed Snapshot 来自 Patch；Proposed Artifact 来自 frozen target binding；Current
-              只来自 complete ref history + exact Spec read。
-            </p>
+            <h2 id="patch-diff-title">修改前后对比</h2>
+            <p>对照草案开始时的内容、当前正式内容和修改后的预览，确认没有覆盖别人的新改动。</p>
           </div>
         </header>
         <dl className="gf-patches__three-way-summary">
           <div>
-            <dt>Base Snapshot</dt>
-            <dd>{data.current.value.patch.base_snapshot_id}</dd>
+            <dt>草案基于</dt>
+            <dd>创建草案时的内容版本</dd>
           </div>
           <div>
-            <dt>Current Snapshot</dt>
-            <dd>{data.currentSnapshotId ?? "ref 不存在"}</dd>
+            <dt>当前正式内容</dt>
+            <dd>{data.currentRef ? `当前内容 · 第 ${data.currentRef.revision} 版` : "尚无正式内容"}</dd>
           </div>
           <div>
-            <dt>Proposed Artifact</dt>
-            <dd>{data.target.target_artifact_id}</dd>
-          </div>
-          <div>
-            <dt>Proposed Snapshot</dt>
-            <dd>{data.target.target_snapshot_id}</dd>
+            <dt>修改后预览</dt>
+            <dd>待检查并应用的新版本</dd>
           </div>
         </dl>
+        <TechnicalDetails
+          items={[
+            {
+              label: "Base Snapshot",
+              value: data.current.value.patch.base_snapshot_id,
+            },
+            {
+              label: "Current Snapshot",
+              value: data.currentSnapshotId ?? "ref 不存在",
+            },
+            {
+              label: "Proposed Artifact",
+              value: data.target.target_artifact_id,
+            },
+            {
+              label: "Proposed Snapshot",
+              value: data.target.target_snapshot_id,
+            },
+          ]}
+          summary="查看对比技术信息"
+        />
         {diffState === null ? (
           <StatePanel description="正在读取字段级 Diff。" state="loading" title="正在读取 Diff" />
         ) : diffState.error ? (
@@ -2753,32 +3163,47 @@ export function PatchDetailPage({
         <header>
           <GitMerge aria-hidden="true" size={20} />
           <div>
-            <h2 id="patch-rebase-title">Rebase / conflict resolution</h2>
-            <p>只有服务端定义的 keep_current / take_proposed / custom 可提交；前端不自动仲裁。</p>
+            <h2 id="patch-rebase-title">处理版本冲突</h2>
+            <p>如果正式内容在草案创建后又被修改，请先重新计算，再逐项决定保留哪一版。</p>
           </div>
         </header>
         <dl className="gf-patches__target-ledger">
           <div>
-            <dt>Frozen expected ref</dt>
+            <dt>草案原本基于</dt>
             <dd>
               {data.target.expected_ref
-                ? `${data.target.expected_ref.artifact_id}@${data.target.expected_ref.revision}`
-                : "null"}
+                ? `当前内容 · 第 ${data.target.expected_ref.revision} 版`
+                : "当时尚无正式内容"}
             </dd>
           </div>
           <div>
-            <dt>Current ref</dt>
-            <dd>
-              {data.currentRef ? `${data.currentRef.artifact_id}@${data.currentRef.revision}` : "不存在"}
-            </dd>
+            <dt>现在正式内容</dt>
+            <dd>{data.currentRef ? `当前内容 · 第 ${data.currentRef.revision} 版` : "尚无正式内容"}</dd>
           </div>
         </dl>
+        <TechnicalDetails
+          items={[
+            {
+              label: "Frozen expected ref",
+              value: data.target.expected_ref
+                ? `${data.target.expected_ref.artifact_id}@${data.target.expected_ref.revision}`
+                : "null",
+            },
+            {
+              label: "Current ref",
+              value: data.currentRef
+                ? `${data.currentRef.artifact_id}@${data.currentRef.revision}`
+                : "不存在",
+            },
+          ]}
+          summary="查看版本绑定技术信息"
+        />
         <button disabled={!canRebase} onClick={rebase} type="button">
-          Rebase 到 exact current ref
+          重新基于当前版本计算
         </button>
         {conflictSetId &&
           (conflicts.isPending ? (
-            <StatePanel description="正在完整读取 ConflictSet。" state="loading" title="正在读取冲突" />
+            <StatePanel description="正在读取全部冲突项。" state="loading" title="正在读取冲突" />
           ) : conflicts.isError ? (
             <StatePanel
               action={
@@ -2790,13 +3215,13 @@ export function PatchDetailPage({
                   从第一页重新读取冲突
                 </button>
               }
-              description="ConflictSet 分页读取失败；必须丢弃旧页并从 cursor=null 重读。"
+              description="冲突列表读取失败，已停止使用不完整数据；请从第一页重新读取。"
               state="error"
               title="冲突不可用"
             />
           ) : conflicts.data.length === 0 ? (
             <StatePanel
-              description="服务端返回空 ConflictSet，未提交 resolution。"
+              description="系统没有返回可处理的冲突项，未保存任何选择。"
               state="error"
               title="冲突集合为空"
             />
@@ -2808,7 +3233,7 @@ export function PatchDetailPage({
                 onResolutionsChange={setResolutions}
               />
               <button disabled={!canResolve} onClick={resolveConflicts} type="button">
-                提交全部显式 resolutions
+                保存全部冲突处理结果
               </button>
             </>
           ))}
@@ -2818,19 +3243,17 @@ export function PatchDetailPage({
         <header>
           <ShieldCheck aria-hidden="true" size={20} />
           <div>
-            <h2 id="patch-evidence-title">Validation / regression evidence</h2>
-            <p>EvidenceSet 与 regression artifacts 是结论 authority；Run 成功本身不是通过。</p>
+            <h2 id="patch-evidence-title">验证与回归证据</h2>
+            <p>只有通过逐项核验的证据才能支持结论；运行成功本身不等于验证通过。</p>
           </div>
         </header>
         <EvidenceLedger data={data} evidence={evidence} />
         {item.active_validation_run_id && (
-          <a href={`/runs/${encodeURIComponent(item.active_validation_run_id)}`}>
-            打开 active validation Run
-          </a>
+          <a href={`/runs/${encodeURIComponent(item.active_validation_run_id)}`}>查看正在进行的验证</a>
         )}
         {acceptedRunId && (
           <div className="gf-patches__live-receipt" role="status">
-            <a href={`/runs/${encodeURIComponent(acceptedRunId)}`}>打开 accepted Run</a>
+            <a href={`/runs/${encodeURIComponent(acceptedRunId)}`}>查看已受理的运行</a>
           </div>
         )}
       </section>
@@ -2839,8 +3262,8 @@ export function PatchDetailPage({
         <header>
           <PlayCircle aria-hidden="true" size={20} />
           <div>
-            <h2 id="patch-input-title">Exact validation inputs</h2>
-            <p>从按类型校验的完整资源目录中搜索和选择；页面提交 exact Artifact ID，但不要求手工复制。</p>
+            <h2 id="patch-input-title">验证所需内容</h2>
+            <p>从已校验类型的完整目录中选择规则、配置和历史证据，不需要手工复制任何编号。</p>
           </div>
         </header>
         {profiles.isError ||
@@ -2850,26 +3273,26 @@ export function PatchDetailPage({
             <StatePanel
               description={
                 findingAuthorityRequired && findingCatalog.isError
-                  ? "Current Finding revision 无法与 producer Run exact links 闭合；validation 已停止。"
+                  ? "当前问题记录无法与产生它的检查任务完整对应，验证已停止。"
                   : artifactCatalog.isError
-                    ? "Artifact 资源目录、分页读取快照或链接中的 exact 类型无法闭合；validate/repair 已停止。"
-                    : "Profile catalog 无法读取；validate/repair 已停止。"
+                    ? "所需内容目录未能完整核对，验证和自动修复已停止。"
+                    : "验证方案目录暂时无法读取，验证和自动修复已停止。"
               }
               state="error"
               title={
                 findingAuthorityRequired && findingCatalog.isError
-                  ? "Finding authority 不可用"
+                  ? "无法确认问题记录"
                   : artifactCatalog.isError
                     ? "资源目录无法确认"
-                    : "Profiles 不可用"
+                    : "验证方案不可用"
               }
             />
             <div className="gf-patches__action-row">
               <button disabled type="button">
-                启动 exact validation
+                开始验证
               </button>
               <button disabled type="button">
-                Resolve 并启动 repair
+                开始自动修复
               </button>
             </div>
           </div>
@@ -2879,117 +3302,145 @@ export function PatchDetailPage({
           !catalog ||
           !artifactCatalog.data ? (
           <StatePanel
-            description="正在读取 active profiles、Artifact 资源目录与 current Finding exact links。"
+            description="正在读取可用方案、验证资源和当前问题证据。"
             state="loading"
             title="正在准备可选择的验证资源"
           />
         ) : (
           <div className="gf-patches__execution-form">
+            <div className="gf-patches__form-stage-heading gf-patches__form-wide">
+              <span aria-hidden="true">1</span>
+              <div>
+                <h3>先验证当前修改</h3>
+                <p>选择本轮要执行的规则检查和仿真；下方约束由这份修改自动绑定。</p>
+              </div>
+            </div>
             <ProfileSelect
-              label="Validation policy"
+              label="验证方案"
               onChange={setValidationProfileKey}
               profiles={catalog.validation}
               value={validationProfileKey}
             />
-            <ProfileSelect
-              label="Repair policy"
-              onChange={setRepairProfileKey}
-              profiles={catalog.patchRepair}
-              value={repairProfileKey}
-            />
             <ProfileChecklist
-              label="Validation checker profiles"
+              label="验证使用的确定性检查"
               onChange={setValidationCheckerKeys}
               profiles={catalog.validationChecker}
               selected={validationCheckerKeys}
             />
             <ProfileChecklist
-              label="Validation simulation profiles"
+              label="验证使用的经济仿真"
               onChange={setValidationSimulationKeys}
               profiles={catalog.validationSimulation}
               selected={validationSimulationKeys}
             />
-            <ProfileChecklist
-              label="Repair checker profiles"
-              onChange={setRepairCheckerKeys}
-              profiles={catalog.repairChecker}
-              selected={repairCheckerKeys}
-            />
-            <ProfileChecklist
-              label="Repair simulation profiles"
-              onChange={setRepairSimulationKeys}
-              profiles={catalog.repairSimulation}
-              selected={repairSimulationKeys}
-            />
-            <ProfileChecklist
-              label="Repair candidate export profiles"
-              onChange={setRepairExportKeys}
-              profiles={catalog.repairConfigExport}
-              selected={repairExportKeys}
-            />
             <ArtifactResourcePicker
               artifacts={artifactCatalog.data.constraint_snapshot}
               kind="constraint_snapshot"
+              locked
               mode="single"
               onChange={(value) => setConstraintArtifactId([...value][0] ?? "")}
               selected={constraintArtifactId ? new Set([constraintArtifactId]) : new Set()}
+              subjectSnapshotId={data.current.value.patch.target_snapshot_id}
             />
+            {boundConstraintArtifactId === undefined && (
+              <p className="gf-patches__form-wide" role="alert">
+                无法确认这份修改实际绑定的规则，验证已安全停止。请重新生成修改或联系管理员检查血缘。
+              </p>
+            )}
             {reviewCandidateHref && (
               <div className="gf-patches__form-wide">
                 <div className="gf-patches__action-row">
                   <a className="gf-secondary-button" href={reviewCandidateHref}>
-                    审查当前 Patch 候选
+                    审查当前修改候选
                   </a>
                   <button disabled={!canRunFocusedCheck} onClick={runFocusedConstraintCheck} type="button">
                     聚焦检查所选约束
                   </button>
                 </div>
                 <p className="gf-patches__muted">
-                  传递 exact Proposed Artifact 与所选 constraint；producer Run 仅作为可选导航上下文。
+                  系统会带上当前修改候选和所选规则；来源运行只用于辅助定位。
                 </p>
                 <p className="gf-patches__muted">
-                  聚焦检查只执行所选约束，不混入完整 Review 的导航未证明项；完成后会自动选择它的 exact Finding
-                  证据组并取消复合 Review 证据。
+                  聚焦检查只执行所选规则，不混入完整检查中的其他未证明项；完成后会自动选择对应问题证据组。
                 </p>
                 {catalog.focusedChecker.length > 1 && (
                   <ProfileSelect
-                    label="聚焦检查 profile"
+                    label="聚焦检查方案"
                     onChange={setFocusedCheckerProfileKey}
                     profiles={catalog.focusedChecker}
                     value={effectiveFocusedCheckerProfileKey}
                   />
                 )}
                 {catalog.focusedChecker.length === 0 && (
-                  <p className="gf-patches__muted">没有支持 checker.run 的 active checker profile。</p>
+                  <p className="gf-patches__muted">没有可用于聚焦检查的方案。</p>
                 )}
                 {focusedCheckRunId && (
                   <div className="gf-patches__live-receipt" role="status">
-                    <a href={`/runs/${encodeURIComponent(focusedCheckRunId)}`}>打开聚焦检查 Run</a>
+                    <a href={`/runs/${encodeURIComponent(focusedCheckRunId)}`}>查看聚焦检查运行</a>
                     <span>
                       {focusedCheckRun.data?.status === "succeeded"
                         ? focusedFindingCount === null
-                          ? "检查完成，正在载入 exact Finding。"
+                          ? "检查完成，正在载入问题记录。"
                           : focusedFindingCount > 0
-                            ? `已载入 ${focusedFindingCount} 个 exact Finding。`
+                            ? `已载入 ${focusedFindingCount} 个问题。`
                             : "检查完成，所选约束未发现缺陷。"
                         : focusedCheckRun.data?.status === "failed"
-                          ? "检查运行失败；Patch 与证据选择未改变。"
+                          ? "检查运行失败；修改草案与证据选择未改变。"
                           : focusedCheckRun.data?.status === "cancelled"
-                            ? "检查已取消；Patch 与证据选择未改变。"
+                            ? "检查已取消；修改草案与证据选择未改变。"
                             : focusedCheckRun.data?.status === "timed_out"
-                              ? "检查超时；Patch 与证据选择未改变。"
+                              ? "检查超时；修改草案与证据选择未改变。"
                               : "确定性检查运行中。"}
                     </span>
                   </div>
                 )}
               </div>
             )}
+            <div className="gf-patches__form-stage-heading gf-patches__form-wide">
+              <span aria-hidden="true">2</span>
+              <div>
+                <h3>验证失败后：自动修复并重新检查</h3>
+                <p>这里的检查只在自动修复生成新草案后执行，不会与第一步重复运行。</p>
+              </div>
+            </div>
+            <ProfileSelect
+              label="自动修复方案"
+              onChange={setRepairProfileKey}
+              profiles={catalog.patchRepair}
+              value={repairProfileKey}
+            />
+            <ProfileChecklist
+              label="修复后的确定性检查"
+              onChange={setRepairCheckerKeys}
+              profiles={catalog.repairChecker}
+              selected={repairCheckerKeys}
+            />
+            <ProfileChecklist
+              label="修复后的经济仿真"
+              onChange={setRepairSimulationKeys}
+              profiles={catalog.repairSimulation}
+              selected={repairSimulationKeys}
+            />
+            <ProfileChecklist
+              label="修复后的配置导出验证"
+              onChange={setRepairExportKeys}
+              profiles={catalog.repairConfigExport}
+              selected={repairExportKeys}
+            />
+            <div className="gf-patches__form-stage-heading gf-patches__form-wide">
+              <span aria-hidden="true">3</span>
+              <div>
+                <h3>可选：引用已有验证结果</h3>
+                <p>只选择确实属于当前修改的配置、审查、试玩或回归结果；每项都会标明内容和版本关系。</p>
+              </div>
+            </div>
             <ArtifactResourcePicker
               artifacts={artifactCatalog.data.config_export}
               kind="config_export"
               mode="multiple"
               onChange={setConfigArtifactIds}
               selected={configArtifactIds}
+              subjectSnapshotId={data.current.value.patch.target_snapshot_id}
             />
             <ArtifactResourcePicker
               artifacts={artifactCatalog.data.review_report}
@@ -2997,6 +3448,7 @@ export function PatchDetailPage({
               mode="multiple"
               onChange={setReviewArtifactIds}
               selected={reviewArtifactIds}
+              subjectSnapshotId={data.current.value.patch.target_snapshot_id}
             />
             <ArtifactResourcePicker
               artifacts={artifactCatalog.data.playtest_trace}
@@ -3004,6 +3456,7 @@ export function PatchDetailPage({
               mode="multiple"
               onChange={setTraceArtifactIds}
               selected={traceArtifactIds}
+              subjectSnapshotId={data.current.value.patch.target_snapshot_id}
             />
             <ArtifactResourcePicker
               artifacts={artifactCatalog.data.regression_suite}
@@ -3011,6 +3464,7 @@ export function PatchDetailPage({
               mode="multiple"
               onChange={setRegressionSuiteIds}
               selected={regressionSuiteIds}
+              subjectSnapshotId={data.current.value.patch.target_snapshot_id}
             />
             {findingAuthorityRequired && (
               <CurrentFindingSelector
@@ -3028,23 +3482,22 @@ export function PatchDetailPage({
                         data.repairExpectedFindingAuthority.evidenceArtifactId,
                       )}`}
                     >
-                      查看前序 EvidenceSet
+                      查看前序验证证据
                     </a>
                   }
-                  description={`已从前序失败 EvidenceSet 恢复 ${data.repairExpectedFindingAuthority.bindings.length} 项历史 Finding。`}
+                  description={`已从前序失败证据恢复 ${data.repairExpectedFindingAuthority.bindings.length} 项历史问题。`}
                   state="terminal"
-                  title="Repair 验证上下文已自动接续"
+                  title="自动修复验证上下文已接续"
                 />
               </div>
             ) : (
               <details className="gf-patches__advanced-bindings gf-patches__form-wide">
-                <summary>高级：精确 Finding 绑定</summary>
+                <summary>高级：精确问题证据绑定</summary>
                 <p className="gf-patches__muted">
-                  仅用于初次 Patch 的历史缺陷闭包；Repair successor 会从前序 retained EvidenceSet
-                  自动恢复，不能粘贴或推断。
+                  仅用于首次修改草案关闭历史问题；后续自动修复会从前序保留证据自动恢复，不能粘贴或推断。
                 </p>
                 <label>
-                  <span>历史 FindingEvidenceBindingV1[]（JSON）</span>
+                  <span>历史问题证据绑定（JSON）</span>
                   <textarea
                     aria-invalid={manuallyBoundExpectedFindings === null}
                     onChange={(event) => setExpectedFindingBindingsText(event.target.value)}
@@ -3055,15 +3508,15 @@ export function PatchDetailPage({
               </details>
             )}
             <label>
-              <span>Seed</span>
+              <span>随机种子（仅仿真或 AI 方案需要）</span>
               <input min="0" onChange={(event) => setSeed(event.target.value)} type="number" value={seed} />
             </label>
             <p className="gf-patches__muted">
-              Validation seed {validationSeedRequired ? "required" : "not applicable"} · Repair seed{" "}
-              {repairSeedRequired ? "required" : "not applicable"}.
+              验证种子{validationSeedRequired ? "必填" : "不需要"} · 自动修复种子
+              {repairSeedRequired ? "必填" : "不需要"}
             </p>
             <label>
-              <span>Repair LLM mode</span>
+              <span>自动修复的 AI 运行方式</span>
               <select
                 onChange={(event) => {
                   const next = event.target.value as typeof executionMode;
@@ -3072,15 +3525,15 @@ export function PatchDetailPage({
                 }}
                 value={executionMode}
               >
-                <option value="record">record</option>
-                <option value="live">live</option>
-                <option value="replay">replay</option>
+                <option value="record">在线生成并保存回放</option>
+                <option value="live">在线生成</option>
+                <option value="replay">使用历史回放</option>
               </select>
             </label>
             {executionMode === "replay" && (
               <div>
                 <label>
-                  <span>Replay source Run</span>
+                  <span>历史回放来源</span>
                   <select
                     disabled={replayRuns.isPending || replayRuns.isError || replayRuns.data.length === 0}
                     onChange={(event) => setReplaySourceRunId(event.target.value)}
@@ -3107,18 +3560,64 @@ export function PatchDetailPage({
                     无法读取可回放运行；修复将保持禁用。
                   </p>
                 ) : replayRuns.data?.length === 0 ? (
-                  <p className="gf-patches__muted">没有可回放运行。请先完成一次 record 或 live 运行。</p>
+                  <p className="gf-patches__muted">没有可回放运行。请先完成一次在线生成或录制。</p>
                 ) : null}
               </div>
             )}
             <div className="gf-patches__action-row gf-patches__form-wide">
               <button disabled={!canValidate} onClick={validate} type="button">
-                启动 exact validation
+                开始验证
               </button>
               <button disabled={!canRepair} onClick={repair} type="button">
-                Resolve 并启动 repair
+                开始自动修复
               </button>
             </div>
+            {validationMutation && (
+              <div className="gf-patches__form-wide gf-patches__validation-feedback">
+                {validationMutation.pending ? (
+                  <StatePanel
+                    description="正在提交本次验证，页面会在任务受理后继续显示运行状态。"
+                    state="loading"
+                    title="正在开始验证"
+                  />
+                ) : (
+                  <MutationFailure onReload={() => void reload()} state={validationMutation} />
+                )}
+              </div>
+            )}
+            {validationRunId && (
+              <div className="gf-patches__form-wide gf-patches__validation-feedback">
+                <StatePanel
+                  action={
+                    <div className="gf-cluster">
+                      <a href={`/runs/${encodeURIComponent(validationRunId)}`}>打开验证运行</a>
+                      <a href="#patch-evidence-title">查看验证结果</a>
+                    </div>
+                  }
+                  description={
+                    item.status === "validated"
+                      ? "本次验证已经通过，完整证据已归入上方的验证与回归证据。"
+                      : item.status === "validation_failed"
+                        ? "本次验证已结束但未通过，可在上方查看具体问题并决定是否修复。"
+                        : "验证任务已经受理，页面会持续读取状态；无需重复点击。"
+                  }
+                  state={
+                    item.status === "validated"
+                      ? "terminal"
+                      : item.status === "validation_failed"
+                        ? "error"
+                        : "streaming"
+                  }
+                  title={
+                    item.status === "validated"
+                      ? "验证通过"
+                      : item.status === "validation_failed"
+                        ? "验证未通过"
+                        : "验证正在运行"
+                  }
+                />
+              </div>
+            )}
           </div>
         )}
       </section>
@@ -3128,31 +3627,36 @@ export function PatchDetailPage({
           <Send aria-hidden="true" size={20} />
           <div>
             <h2 id="patch-approval-title" ref={applyReturnFocusRef} tabIndex={-1}>
-              Submit / approval / apply
+              提交审批并应用
             </h2>
-            <p>Apply body 只复制已验证的 frozen target binding；不会从表单或 current ref 重算。</p>
+            <p>验证通过后交给另一位负责人审批；只有最终应用会更新正式内容。</p>
           </div>
         </header>
         <div className="gf-patches__approval-actions">
           <button disabled={!canSubmit} onClick={submit} type="button">
-            Submit for independent approval
+            提交独立审批
           </button>
           <a className="gf-secondary-button" href={`/approvals/${encodeURIComponent(item.approval_id)}`}>
             打开审批详情
           </a>
           <button disabled={!canApply} onClick={() => setConfirmApply(true)} type="button">
-            {item.status === "auto_apply_eligible" ? "Apply policy-eligible Patch" : "Apply approved Patch"}
+            {item.status === "auto_apply_eligible" ? "应用符合策略的修改" : "应用已批准的修改"}
           </button>
         </div>
         {applyResult && (
           <div className="gf-patches__live-receipt" role="status">
             <StatePanel
-              action={
-                <a href={`/refs/${encodeURIComponent(applyResult.ref_name)}/history`}>检查 ref history</a>
-              }
-              description={`${applyResult.ref_name} 现在指向 ${applyResult.ref_value.artifact_id}@${applyResult.ref_value.revision}。`}
+              action={<a href={`/refs/${encodeURIComponent(applyResult.ref_name)}/history`}>查看版本历史</a>}
+              description={`正式内容已更新为第 ${applyResult.ref_value.revision} 版。`}
               state="terminal"
-              title="Patch 已通过 ref transition 应用"
+              title="修改已应用"
+            />
+            <TechnicalDetails
+              items={[
+                { label: "发布位置", value: applyResult.ref_name },
+                { label: "Artifact ID", value: applyResult.ref_value.artifact_id },
+              ]}
+              summary="查看应用结果技术信息"
             />
           </div>
         )}
@@ -3162,15 +3666,18 @@ export function PatchDetailPage({
         <header>
           <GitBranch aria-hidden="true" size={20} />
           <div>
-            <h2 id="patch-history-title">Ref history</h2>
-            <p>Apply 前 history 不会移动；每一项都是服务端 append-only revision。</p>
+            <h2 id="patch-history-title">正式版本历史</h2>
+            <p>应用修改前不会新增版本；每次成功应用都会留下不可改写的历史记录。</p>
           </div>
         </header>
         <ol className="gf-patches__history-list">
           {data.history.map((entry) => (
             <li key={`${entry.value.revision}:${entry.value.artifact_id}`}>
-              <span>revision {entry.value.revision}</span>
-              <code>{entry.value.artifact_id}</code>
+              <span>第 {entry.value.revision} 版</span>
+              <TechnicalDetails
+                items={[{ label: "Artifact ID", value: entry.value.artifact_id }]}
+                summary="查看版本技术信息"
+              />
             </li>
           ))}
         </ol>
@@ -3178,18 +3685,18 @@ export function PatchDetailPage({
 
       <footer className="gf-patches__principle">
         <AlertTriangle aria-hidden="true" size={17} />
-        <span>所有 403/409 stale/self-approval 结果按服务端 Problem 原样 fail-closed；前端不近似授权。</span>
+        <span>权限不足、版本过期或本人审批等情况会安全停止；页面不会猜测或绕过服务端授权。</span>
         <Sparkles aria-hidden="true" size={17} />
       </footer>
 
       <ConfirmDialog
-        confirmLabel="确认 Apply"
-        description={`将按 frozen target binding 更新 ${data.target.ref_name}；该操作不会修改 Patch Artifact。`}
+        confirmLabel="确认应用"
+        description="这会把已验证且获批的修改更新到正式内容；修改草案和审计记录会保留。"
         onCancel={() => setConfirmApply(false)}
         onConfirm={apply}
         open={confirmApply}
         returnFocusRef={applyReturnFocusRef}
-        title="Apply approved Patch?"
+        title="确认应用已批准的修改？"
       />
     </div>
   );

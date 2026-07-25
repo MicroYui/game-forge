@@ -7,6 +7,7 @@ import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import type { components } from "../../api/generated/openapi";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
+import { TechnicalDetails } from "../../components/identity";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   specWorkflowApi,
@@ -41,7 +42,21 @@ export interface SpecEntryCatalogs {
   specs: readonly SpecView[];
 }
 
-const emptyCatalogs: SpecEntryCatalogs = { constraints: [], proposals: [], sources: [], specs: [] };
+export interface ProjectConstraintAuthoringContext {
+  baseConstraintArtifactId: string | null;
+  baseConstraintRevision: number | null;
+  constraintRefName: string;
+  projectId: string;
+  projectName: string;
+  sourceArtifactIds: readonly string[];
+}
+
+const emptyCatalogs: SpecEntryCatalogs = {
+  constraints: [],
+  proposals: [],
+  sources: [],
+  specs: [],
+};
 
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type ExpectedRefMode = "" | "exact" | "none";
@@ -97,6 +112,33 @@ function splitIds(value: string): string[] {
     .filter(Boolean);
 }
 
+function projectRuleQuery(context: ProjectConstraintAuthoringContext): string {
+  const query = new URLSearchParams({
+    constraintRef: context.constraintRefName,
+    project: context.projectId,
+    projectName: context.projectName,
+    section: "proposals",
+  });
+  if (context.baseConstraintArtifactId && context.baseConstraintRevision) {
+    query.set("constraint", context.baseConstraintArtifactId);
+    query.set("constraintRevision", String(context.baseConstraintRevision));
+  }
+  for (const sourceArtifactId of context.sourceArtifactIds) query.append("source", sourceArtifactId);
+  return query.toString();
+}
+
+function contentDomainLabel(domainIds: readonly string[]): string {
+  const labels: Record<string, string> = {
+    builtin: "内置内容",
+    "domain:combat": "战斗系统",
+    "domain:economy": "经济系统",
+    "domain:narrative": "叙事内容",
+    "domain:quest": "任务系统",
+    "domain:rewards": "奖励系统",
+  };
+  return domainIds.map((item) => labels[item] ?? item.replace(/^domain:/u, "")).join(" · ");
+}
+
 function parseExpectedRef(
   mode: ExpectedRefMode,
   artifactId: string,
@@ -120,7 +162,10 @@ function parseConstraintArray(
     ) {
       return { ok: false };
     }
-    return { ok: true, value: parsed as HumanConstraintDraftRequest["constraints"] };
+    return {
+      ok: true,
+      value: parsed as HumanConstraintDraftRequest["constraints"],
+    };
   } catch {
     return { ok: false };
   }
@@ -152,7 +197,10 @@ function parseContentObject(
   try {
     const parsed: unknown = JSON.parse(value);
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return { ok: false };
-    return { ok: true, value: parsed as HumanSpecUploadRequest["content_payload"] };
+    return {
+      ok: true,
+      value: parsed as HumanSpecUploadRequest["content_payload"],
+    };
   } catch {
     return { ok: false };
   }
@@ -162,27 +210,20 @@ function profileKey(profile: ExecutionProfile): string {
   return `${profile.profile.profile_id}@${profile.profile.version}`;
 }
 
-function shortId(value: string): string {
-  return value.length <= 22 ? value : `${value.slice(0, 12)}…${value.slice(-8)}`;
-}
-
 function knownSourceOptions(catalogs: SpecEntryCatalogs): { id: string; label: string }[] {
   const values = new Map<string, string>();
+  const ordinals = new Map<string, number>();
   for (const source of catalogs.sources) {
     const kindLabel = source.kind === "source_raw" ? "原始策划材料" : "已解析策划材料";
     const createdAt = source.created_at?.slice(0, 10) ?? "时间未知";
-    values.set(
-      source.artifact_id,
-      `${kindLabel}（${source.kind}） · 创建于 ${createdAt} · ${source.payload_schema_id} · ${shortId(source.artifact_id)}`,
-    );
+    const ordinal = (ordinals.get(kindLabel) ?? 0) + 1;
+    ordinals.set(kindLabel, ordinal);
+    values.set(source.artifact_id, `${kindLabel} · ${createdAt} · 第 ${ordinal} 份`);
   }
   for (const proposal of catalogs.proposals) {
     for (const binding of proposal.proposal.source_bindings) {
       if (!values.has(binding.source_artifact_id)) {
-        values.set(
-          binding.source_artifact_id,
-          `既有提案来源 · ${proposal.proposal.rationale} · ${shortId(binding.source_artifact_id)}`,
-        );
+        values.set(binding.source_artifact_id, `既有提案来源 · ${proposal.proposal.rationale}`);
       }
     }
   }
@@ -205,11 +246,13 @@ function observedDomainIds(catalogs: SpecEntryCatalogs): string[] {
 
 function BaseConstraintPicker({
   catalogs,
+  disabled = false,
   label,
   onChange,
   value,
 }: {
   catalogs: SpecEntryCatalogs;
+  disabled?: boolean;
   label: string;
   onChange(value: string): void;
   value: string;
@@ -217,12 +260,12 @@ function BaseConstraintPicker({
   return (
     <label>
       {label}
-      <select onChange={(event) => onChange(event.target.value)} value={value}>
-        <option value="">不使用 base constraint snapshot</option>
-        {catalogs.constraints.map((snapshot) => (
+      <select disabled={disabled} onChange={(event) => onChange(event.target.value)} value={value}>
+        <option value="">不基于现有规则（从头提取）</option>
+        {catalogs.constraints.map((snapshot, index) => (
           <option key={snapshot.artifact.artifact_id} value={snapshot.artifact.artifact_id}>
-            {snapshot.constraints.length} 条规则 · {snapshot.dsl_grammar_version} ·{" "}
-            {shortId(snapshot.artifact.artifact_id)}
+            规则版本 {index + 1} · {snapshot.constraints.length} 条规则 ·{" "}
+            {snapshot.artifact.created_at?.slice(0, 10) ?? "时间未知"}
           </option>
         ))}
       </select>
@@ -232,11 +275,13 @@ function BaseConstraintPicker({
 
 function SourceArtifactPicker({
   catalogs,
+  disabled = false,
   label,
   onChange,
   value,
 }: {
   catalogs: SpecEntryCatalogs;
+  disabled?: boolean;
   label: string;
   onChange(value: string): void;
   value: string;
@@ -253,12 +298,13 @@ function SourceArtifactPicker({
     <fieldset className="gf-specs__resource-picker">
       <legend>{label}</legend>
       {options.length === 0 ? (
-        <p>当前已加载目录没有可复用来源；可在高级入口添加审计记录中的 Artifact。</p>
+        <p>当前没有可用的策划材料；可在高级入口添加已有材料标识。</p>
       ) : (
         options.map((option) => (
           <label key={option.id}>
             <input
               checked={selected.has(option.id)}
+              disabled={disabled}
               onChange={(event) => toggle(option.id, event.target.checked)}
               type="checkbox"
             />
@@ -266,15 +312,19 @@ function SourceArtifactPicker({
           </label>
         ))
       )}
-      <details>
-        <summary>高级：添加其他来源 Artifact</summary>
-        <textarea
-          aria-label={`${label} 高级 Artifact IDs`}
-          onChange={(event) => onChange(event.target.value)}
-          rows={3}
-          value={value}
-        />
-      </details>
+      {disabled ? (
+        <p>材料已由当前游戏项目锁定；如需调整，请返回项目材料区。</p>
+      ) : (
+        <details>
+          <summary>高级：添加其他来源标识</summary>
+          <textarea
+            aria-label={`${label} 高级 Artifact IDs`}
+            onChange={(event) => onChange(event.target.value)}
+            rows={3}
+            value={value}
+          />
+        </details>
+      )}
     </fieldset>
   );
 }
@@ -392,7 +442,12 @@ function HumanConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       const result = await api.draftConstraint(frozen.request, frozen.intent);
       setAttempt({ ...frozen, error: null, pending: false, result });
     } catch (error) {
-      setAttempt({ ...frozen, error: normalizedError(error), pending: false, result: null });
+      setAttempt({
+        ...frozen,
+        error: normalizedError(error),
+        pending: false,
+        result: null,
+      });
     }
   }
 
@@ -455,7 +510,8 @@ function HumanConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
           value={sourceArtifactIds}
         />
         <p className="gf-specs__binding-summary">
-          DSL grammar：<strong>{dslGrammarVersion ?? "请先选择 base 或填写带 DSL 的规则"}</strong>
+          DSL grammar：
+          <strong>{dslGrammarVersion ?? "请先选择 base 或填写带 DSL 的规则"}</strong>
         </p>
         <label>
           Human rationale
@@ -485,31 +541,51 @@ function HumanConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       {attempt?.error && <MutationFailure error={attempt.error} onRetry={() => void executeHuman(attempt)} />}
       {attempt?.result && (
         <div className="gf-specs__entry-success" role="status">
-          <strong>Human proposal 已创建</strong>
+          <strong>规则提案已创建</strong>
           <a href={`/constraint-proposals/${encodeURIComponent(attempt.result.artifact.artifact_id)}`}>
-            打开 proposal {attempt.result.artifact.artifact_id}
+            检查规则提案
           </a>
+          <TechnicalDetails
+            items={[{ label: "Proposal Artifact ID", value: attempt.result.artifact.artifact_id }]}
+            summary="查看提案技术信息"
+          />
         </div>
       )}
     </article>
   );
 }
 
-function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; catalogs: SpecEntryCatalogs }) {
+function AgentConstraintEntry({
+  api,
+  catalogs,
+  projectContext,
+}: {
+  api: SpecEntryPanelsApi;
+  catalogs: SpecEntryCatalogs;
+  projectContext: ProjectConstraintAuthoringContext | null;
+}) {
   const profileQuery = useQuery({
     queryFn: () => api.listExecutionProfiles(null),
     queryKey: ["spec-entry", "constraint-extraction-profiles"],
     retry: false,
   });
   const [profiles, setProfiles] = useState<ProfileState | null>(null);
-  const [sourceArtifactIds, setSourceArtifactIds] = useState("");
-  const [baseSnapshotId, setBaseSnapshotId] = useState("");
+  const [sourceArtifactIds, setSourceArtifactIds] = useState(
+    () => projectContext?.sourceArtifactIds.join("\n") ?? "",
+  );
+  const [baseSnapshotId, setBaseSnapshotId] = useState(projectContext?.baseConstraintArtifactId ?? "");
   const [dslGrammarVersion, setDslGrammarVersion] = useState("");
   const [authoringGoal, setAuthoringGoal] = useState("");
   const [profileSelection, setProfileSelection] = useState("");
-  const [mode, setMode] = useState<"" | LlmExecutionMode>("");
+  const [mode, setMode] = useState<"" | LlmExecutionMode>("live");
   const [replaySourceRunId, setReplaySourceRunId] = useState("");
   const [attempt, setAttempt] = useState<AgentAttempt | null>(null);
+
+  useEffect(() => {
+    if (!projectContext) return;
+    setSourceArtifactIds(projectContext.sourceArtifactIds.join("\n"));
+    setBaseSnapshotId(projectContext.baseConstraintArtifactId ?? "");
+  }, [projectContext]);
 
   useEffect(() => {
     if (!profileQuery.data) return;
@@ -520,6 +596,10 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       nextCursor: profileQuery.data.next_cursor ?? null,
       readSnapshotId: profileQuery.data.read_snapshot_id,
     });
+    const available = profileQuery.data.items.filter(isActiveExtractionProfile);
+    if (profileQuery.data.next_cursor == null && available.length === 1) {
+      setProfileSelection((current) => current || profileKey(available[0]!));
+    }
   }, [profileQuery.data]);
 
   const activeProfiles = (profiles?.items ?? profileQuery.data?.items ?? []).filter(
@@ -530,12 +610,22 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
   const selectedBase = catalogs.constraints.find(
     (snapshot) => snapshot.artifact.artifact_id === baseSnapshotId,
   );
+  useEffect(() => {
+    if (selectedBase) setDslGrammarVersion(selectedBase.dsl_grammar_version);
+  }, [selectedBase]);
   const observedGrammars = [
     ...new Set([
+      "dsl@1",
       ...catalogs.constraints.map((snapshot) => snapshot.dsl_grammar_version),
       ...catalogs.proposals.map((proposal) => proposal.proposal.dsl_grammar_version),
     ]),
   ].sort();
+  const soleObservedGrammar = observedGrammars.length === 1 ? observedGrammars[0]! : null;
+  useEffect(() => {
+    if (soleObservedGrammar) {
+      setDslGrammarVersion((current) => current || soleObservedGrammar);
+    }
+  }, [soleObservedGrammar]);
   const replayRuns = catalogs.proposals.filter(
     (proposal) => proposal.proposal.produced_by === "agent" && proposal.proposal.producer_run_id,
   );
@@ -568,7 +658,11 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
         readSnapshotId: current.readSnapshotId,
       });
     } catch (error) {
-      setProfiles({ ...current, error: normalizedError(error), loading: false });
+      setProfiles({
+        ...current,
+        error: normalizedError(error),
+        loading: false,
+      });
     }
   }
 
@@ -587,7 +681,11 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       });
       setProfileSelection("");
     } catch (error) {
-      setProfiles({ ...current, error: normalizedError(error), loading: false });
+      setProfiles({
+        ...current,
+        error: normalizedError(error),
+        loading: false,
+      });
     }
   }
 
@@ -672,9 +770,9 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       <header>
         <Bot aria-hidden="true" size={21} />
         <div>
-          <p className="gf-specs__kicker">Bounded Agent authoring</p>
-          <h3>Agent 提案</h3>
-          <p>先解析 exact execution option，再创建可审计 Run；Agent 不直接写 constraint ref。</p>
+          <p className="gf-specs__kicker">AI 规则助手</p>
+          <h3>从策划材料提取规则</h3>
+          <p>选择材料并说明重点，AI 会生成待确认的规则提案，不会直接发布。</p>
         </div>
       </header>
       <form
@@ -686,13 +784,15 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       >
         <SourceArtifactPicker
           catalogs={catalogs}
-          label="Agent 可使用的来源"
+          disabled={projectContext !== null}
+          label="选择策划材料"
           onChange={setSourceArtifactIds}
           value={sourceArtifactIds}
         />
         <BaseConstraintPicker
           catalogs={catalogs}
-          label="基于哪个约束快照（可选）"
+          disabled={projectContext?.baseConstraintArtifactId != null}
+          label="基于哪个现有规则版本（可选）"
           onChange={(value) => {
             setBaseSnapshotId(value);
             const selected = catalogs.constraints.find((snapshot) => snapshot.artifact.artifact_id === value);
@@ -700,90 +800,88 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
           }}
           value={baseSnapshotId}
         />
-        <label>
-          DSL grammar
-          <select
-            disabled={selectedBase !== undefined}
-            onChange={(event) => setDslGrammarVersion(event.target.value)}
-            value={dslGrammarVersion}
-          >
-            <option value="">请选择已观察到的 grammar</option>
-            {observedGrammars.map((grammar) => (
-              <option key={grammar} value={grammar}>
-                {grammar}
-              </option>
-            ))}
-          </select>
-        </label>
-        <details className="gf-specs__advanced-binding">
-          <summary>高级：使用目录未展示的 DSL grammar</summary>
-          <label>
-            DSL grammar version
-            <input
-              onChange={(event) => setDslGrammarVersion(event.target.value)}
-              type="text"
-              value={dslGrammarVersion}
-            />
-          </label>
-        </details>
         <p className="gf-specs__binding-summary">
-          游戏域随 execution profile 锁定：
+          适用内容领域：
           <strong>
-            {selectedProfile ? selectedProfile.domain_scope.domain_ids.join(" · ") : "请先选择 profile"}
+            {selectedProfile ? contentDomainLabel(selectedProfile.domain_scope.domain_ids) : "正在准备"}
           </strong>
         </p>
+        {selectedProfile && (
+          <TechnicalDetails
+            items={[{ label: "内容领域代码", value: selectedProfile.domain_scope.domain_ids.join(", ") }]}
+            summary="查看领域技术信息"
+          />
+        )}
         <label>
-          Agent authoring goal
+          你希望 AI 重点提取什么？
           <textarea
+            placeholder="例如：提取所有金币产出上限、商店回收价格和任务前置条件。"
             onChange={(event) => setAuthoringGoal(event.target.value)}
             rows={3}
             value={authoringGoal}
           />
         </label>
-        <div className="gf-specs__form-pair">
-          <label>
-            Agent execution profile
-            <select
-              disabled={!profileCatalogReady || profiles?.loading}
-              onChange={(event) => setProfileSelection(event.target.value)}
-              value={profileSelection}
-            >
-              <option value="">请选择 active constraint_extraction profile</option>
-              {activeProfiles.map((profile) => (
-                <option key={profileKey(profile)} value={profileKey(profile)}>
-                  {profile.display_name} · {profileKey(profile)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            LLM execution mode
-            <select onChange={(event) => setMode(event.target.value as "" | LlmExecutionMode)} value={mode}>
-              <option value="">请选择 live / record / replay</option>
-              <option value="live">live</option>
-              <option value="record">record</option>
-              <option value="replay">replay</option>
-            </select>
-          </label>
-        </div>
+        <details
+          className="gf-specs__advanced-binding"
+          open={!selectedProfile || !dslGrammarVersion || !mode ? true : undefined}
+        >
+          <summary>高级设置</summary>
+          <div className="gf-form">
+            <label>
+              规则格式
+              <select
+                disabled={selectedBase !== undefined}
+                onChange={(event) => setDslGrammarVersion(event.target.value)}
+                value={dslGrammarVersion}
+              >
+                <option value="">请选择规则格式</option>
+                {observedGrammars.map((grammar) => (
+                  <option key={grammar} value={grammar}>
+                    {grammar}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              AI 提取方案
+              <select
+                disabled={!profileCatalogReady || profiles?.loading}
+                onChange={(event) => setProfileSelection(event.target.value)}
+                value={profileSelection}
+              >
+                <option value="">请选择可用方案</option>
+                {activeProfiles.map((profile) => (
+                  <option key={profileKey(profile)} value={profileKey(profile)}>
+                    {profile.display_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              AI 运行方式
+              <select onChange={(event) => setMode(event.target.value as "" | LlmExecutionMode)} value={mode}>
+                <option value="live">在线生成（推荐）</option>
+                <option value="record">在线生成并保存回放</option>
+                <option value="replay">使用历史回放（测试用）</option>
+              </select>
+            </label>
+          </div>
+        </details>
         {mode === "replay" && (
           <label>
-            Replay 来源 Run
+            回放来源
             <select onChange={(event) => setReplaySourceRunId(event.target.value)} value={replaySourceRunId}>
               <option value="">请选择既有 Agent 提案 Run</option>
-              {replayRuns.map((proposal) => (
+              {replayRuns.map((proposal, index) => (
                 <option key={proposal.proposal.producer_run_id!} value={proposal.proposal.producer_run_id!}>
-                  {proposal.proposal.rationale} · {shortId(proposal.proposal.producer_run_id!)}
+                  历史提案 {index + 1} · {proposal.proposal.rationale}
                 </option>
               ))}
             </select>
           </label>
         )}
-        <p className="gf-specs__field-hint">
-          Profile 与执行模式必须明确选择；页面不设置隐式默认或 fallback。
-        </p>
         <button disabled={!canSubmit} type="submit">
-          {attempt?.pending ? "正在解析并创建…" : "生成 Agent 候选"}
+          {attempt?.pending ? "正在提取规则…" : "生成规则提案"}
         </button>
       </form>
 
@@ -855,8 +953,19 @@ function AgentConstraintEntry({ api, catalogs }: { api: SpecEntryPanelsApi; cata
       {attempt?.error && <MutationFailure error={attempt.error} onRetry={() => void executeAgent(attempt)} />}
       {attempt?.result && (
         <div className="gf-specs__entry-success" role="status">
-          <strong>Agent Run 已接受</strong>
-          <a href={`/runs/${encodeURIComponent(attempt.result.run_id)}`}>打开 Run {attempt.result.run_id}</a>
+          <strong>AI 规则提取已开始</strong>
+          <a
+            href={`/runs/${encodeURIComponent(attempt.result.run_id)}${projectContext ? `?${projectRuleQuery(projectContext)}` : ""}`}
+          >
+            查看提取进度
+          </a>
+          {projectContext && (
+            <a href={`/specs?${projectRuleQuery(projectContext)}`}>提取完成后查看项目提案</a>
+          )}
+          <TechnicalDetails
+            items={[{ label: "Run ID", value: attempt.result.run_id }]}
+            summary="查看运行技术信息"
+          />
         </div>
       )}
     </article>
@@ -901,7 +1010,12 @@ function HumanSpecEntry({ api, catalogs }: { api: SpecEntryPanelsApi; catalogs: 
       const result = await api.uploadSpec(frozen.request, frozen.intent);
       setAttempt({ ...frozen, error: null, pending: false, result });
     } catch (error) {
-      setAttempt({ ...frozen, error: normalizedError(error), pending: false, result: null });
+      setAttempt({
+        ...frozen,
+        error: normalizedError(error),
+        pending: false,
+        result: null,
+      });
     }
   }
 
@@ -958,7 +1072,8 @@ function HumanSpecEntry({ api, catalogs }: { api: SpecEntryPanelsApi; catalogs: 
             </select>
           </label>
           <p className="gf-specs__binding-summary">
-            Meta schema：<strong>{metaSchemaVersion ?? "从 content JSON 自动读取"}</strong>
+            Meta schema：
+            <strong>{metaSchemaVersion ?? "从 content JSON 自动读取"}</strong>
           </p>
         </div>
         <details className="gf-specs__advanced-binding">
@@ -1026,8 +1141,7 @@ function HumanSpecEntry({ api, catalogs }: { api: SpecEntryPanelsApi; catalogs: 
                 <option value="">请选择当前 ref</option>
                 {boundSpecs.map((spec) => (
                   <option key={spec.artifact.artifact_id} value={spec.artifact.artifact_id}>
-                    {spec.ref_name} · revision {spec.ref_value!.revision} ·{" "}
-                    {shortId(spec.artifact.artifact_id)}
+                    {spec.ref_name} · 第 {spec.ref_value!.revision} 版
                   </option>
                 ))}
               </select>
@@ -1059,10 +1173,12 @@ function HumanSpecEntry({ api, catalogs }: { api: SpecEntryPanelsApi; catalogs: 
       {attempt?.error && <MutationFailure error={attempt.error} onRetry={() => void executeSpec(attempt)} />}
       {attempt?.result && (
         <div className="gf-specs__entry-success" role="status">
-          <strong>Spec Artifact 已创建</strong>
-          <a href={`/specs/${encodeURIComponent(attempt.result.artifact.artifact_id)}`}>
-            打开 Spec {attempt.result.artifact.artifact_id}
-          </a>
+          <strong>设计内容版本已创建</strong>
+          <a href={`/specs/${encodeURIComponent(attempt.result.artifact.artifact_id)}`}>查看设计内容</a>
+          <TechnicalDetails
+            items={[{ label: "Spec Artifact ID", value: attempt.result.artifact.artifact_id }]}
+            summary="查看内容版本技术信息"
+          />
         </div>
       )}
     </article>
@@ -1072,24 +1188,46 @@ function HumanSpecEntry({ api, catalogs }: { api: SpecEntryPanelsApi; catalogs: 
 export function SpecEntryPanels({
   api = specWorkflowApi,
   catalogs = emptyCatalogs,
+  projectContext = null,
 }: {
   api?: SpecEntryPanelsApi;
   catalogs?: SpecEntryCatalogs;
+  projectContext?: ProjectConstraintAuthoringContext | null;
 }) {
   return (
-    <section className="gf-specs__entries" aria-labelledby="spec-entry-title">
+    <section className="gf-specs__entries" aria-labelledby="spec-entry-title" id="create-rules">
+      {projectContext && (
+        <aside className="gf-specs__project-context" role="note">
+          <Bot aria-hidden="true" size={19} />
+          <div>
+            <strong>
+              已绑定{projectContext.projectName}项目的 {projectContext.sourceArtifactIds.length} 份策划材料
+            </strong>
+            <p>
+              {projectContext.baseConstraintArtifactId
+                ? "AI 会基于项目当前规则版本提出增量修改。"
+                : "这个项目尚未发布规则，AI 会从所选材料建立首份规则提案。"}
+            </p>
+          </div>
+        </aside>
+      )}
       <header>
         <div>
-          <p className="gf-specs__kicker">Authoring desk</p>
-          <h2 id="spec-entry-title">明确输入，创建候选</h2>
+          <p className="gf-specs__kicker">创建新内容</p>
+          <h2 id="spec-entry-title">从策划材料开始</h2>
         </div>
-        <p>入口独立；proposal 仍需 Human 修订、确定性验证、审批与 publish。</p>
+        <p>AI 先生成候选；策划确认、确定性验证和审批通过后才会发布。</p>
       </header>
-      <div className="gf-specs__entry-grid">
-        <AgentConstraintEntry api={api} catalogs={catalogs} />
-        <HumanConstraintEntry api={api} catalogs={catalogs} />
-        <HumanSpecEntry api={api} catalogs={catalogs} />
+      <div className="gf-specs__entry-grid gf-specs__entry-grid--primary">
+        <AgentConstraintEntry api={api} catalogs={catalogs} projectContext={projectContext} />
       </div>
+      <details className="gf-specs__manual-tools">
+        <summary>高级：手工导入结构化内容或规则</summary>
+        <div className="gf-specs__entry-grid">
+          <HumanConstraintEntry api={api} catalogs={catalogs} />
+          <HumanSpecEntry api={api} catalogs={catalogs} />
+        </div>
+      </details>
     </section>
   );
 }

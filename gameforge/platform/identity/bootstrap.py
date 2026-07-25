@@ -21,7 +21,14 @@ from gameforge.contracts.auth import (
     SecretText,
 )
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.identity import Principal, PrincipalKind, Role, RolePolicy
+from gameforge.contracts.identity import (
+    DomainScope,
+    Permission,
+    Principal,
+    PrincipalKind,
+    Role,
+    RolePolicy,
+)
 from gameforge.contracts.lineage import (
     AuditActor,
     AuditCorrelation,
@@ -41,6 +48,7 @@ BootstrapIdKind = Literal[
     "principal",
     "password_credential",
     "identity_admin_assignment",
+    "platform_admin_assignment",
     "tooling_assignment",
     "request",
 ]
@@ -69,8 +77,10 @@ class BootstrapResult(_FrozenModel):
     @classmethod
     def _exact_bootstrap_roles(cls, value: tuple[Role, ...]) -> tuple[Role, ...]:
         canonical = tuple(sorted(set(value)))
-        if canonical != ("identity_admin", "tooling"):
-            raise ValueError("bootstrap result requires exactly identity_admin and tooling")
+        if canonical != ("identity_admin", "platform_admin", "tooling"):
+            raise ValueError(
+                "bootstrap result requires exactly identity_admin, platform_admin, and tooling"
+            )
         return canonical
 
 
@@ -178,6 +188,20 @@ def _generated_id(factory: BootstrapIdFactory, kind: BootstrapIdKind) -> str:
     return value
 
 
+def _permission_covers(grant: Permission, required: Permission) -> bool:
+    if grant.action != required.action or grant.resource_kind != required.resource_kind:
+        return False
+    if required.domain_scope is None:
+        return grant.domain_scope is None
+    if required.domain_scope == "all":
+        return grant.domain_scope == "all"
+    if grant.domain_scope == "all":
+        return True
+    return isinstance(grant.domain_scope, DomainScope) and set(
+        required.domain_scope.domain_ids
+    ) <= set(grant.domain_scope.domain_ids)
+
+
 def _require_bootstrap_role_policy(policy: RolePolicy) -> None:
     identity_grants = policy.grants.get("identity_admin")
     if identity_grants is None or not any(
@@ -191,6 +215,52 @@ def _require_bootstrap_role_policy(policy: RolePolicy) -> None:
         )
     if "tooling" not in policy.grants:
         raise IntegrityViolation("retained role policy does not define tooling")
+    if not any(
+        permission.action == "read"
+        and permission.resource_kind == "metric"
+        and permission.domain_scope is None
+        for permission in identity_grants
+    ):
+        raise IntegrityViolation(
+            "retained role policy does not grant global metric read to identity_admin"
+        )
+    platform_grants = policy.grants.get("platform_admin")
+    if platform_grants is None:
+        raise IntegrityViolation("retained role policy does not define platform_admin")
+
+    required_platform_permissions = (
+        Permission(
+            action="approval.decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+        Permission(
+            action="approval.self_decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+        Permission(
+            action="approval.route_override",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+    )
+    delegated_permissions = tuple(
+        permission
+        for role, permissions in policy.grants.items()
+        if role != "platform_admin"
+        for permission in permissions
+    )
+    uncovered = tuple(
+        required
+        for required in (*delegated_permissions, *required_platform_permissions)
+        if not any(_permission_covers(grant, required) for grant in platform_grants)
+    )
+    if uncovered:
+        raise IntegrityViolation(
+            "retained role policy platform_admin does not cover all authority",
+            uncovered_permissions=[permission.model_dump(mode="json") for permission in uncovered],
+        )
 
 
 class BootstrapService:
@@ -254,9 +324,13 @@ class BootstrapService:
             self._id_factory,
             "identity_admin_assignment",
         )
+        platform_assignment_id = _generated_id(
+            self._id_factory,
+            "platform_admin_assignment",
+        )
         tooling_assignment_id = _generated_id(self._id_factory, "tooling_assignment")
         request_id = _generated_id(self._id_factory, "request")
-        if identity_assignment_id == tooling_assignment_id:
+        if len({identity_assignment_id, platform_assignment_id, tooling_assignment_id}) != 3:
             raise IntegrityViolation("identity bootstrap assignment IDs must be distinct")
 
         with self._unit_of_work.begin() as transaction:
@@ -327,6 +401,17 @@ class BootstrapService:
             if principal is None:
                 raise IntegrityViolation("bootstrapped principal projection is unavailable")
             identities.grant(
+                assignment_id=platform_assignment_id,
+                principal_id=principal_id,
+                role="platform_admin",
+                scope="all",
+                granted_by=self._bootstrap_actor,
+                expected_principal_revision=principal.revision,
+            )
+            principal = identities.project(principal_id)
+            if principal is None:
+                raise IntegrityViolation("bootstrapped principal projection is unavailable")
+            identities.grant(
                 assignment_id=tooling_assignment_id,
                 principal_id=principal_id,
                 role="tooling",
@@ -341,7 +426,7 @@ class BootstrapService:
                 principal.kind != "human"
                 or principal.status != "active"
                 or tuple(assignment.role for assignment in principal.roles)
-                != ("identity_admin", "tooling")
+                != ("identity_admin", "platform_admin", "tooling")
             ):
                 raise IntegrityViolation("bootstrapped principal projection is inconsistent")
 

@@ -23,8 +23,11 @@ import {
 } from "./support/authoring-live-stack";
 
 const makerCredentials = { login: "maker", password: "maker-password-1" };
-const approverCredentials = { login: "approver", password: "approver-password-1" };
-const refName = "content-head";
+const approverCredentials = {
+  login: "approver",
+  password: "approver-password-1",
+};
+const refName = "content/head";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 function demoOutputDirectory(): string {
@@ -160,7 +163,9 @@ async function sameOriginText(page: Page, path: string): Promise<string> {
 }
 
 function mutationHeaders(label: string): Record<string, string> {
-  return { "Idempotency-Key": `journey-a-browser:${label}:${crypto.randomUUID()}` };
+  return {
+    "Idempotency-Key": `journey-a-browser:${label}:${crypto.randomUUID()}`,
+  };
 }
 
 function resourceEtag(resourceKind: string, resourceId: string, revision: number): string {
@@ -326,15 +331,16 @@ async function fillGenerationReplayForm(
 ): Promise<void> {
   await page.goto("/generation");
   await expect(page.getByRole("heading", { level: 1, name: "内容生成" })).toBeVisible();
-  await page.getByLabel("Base Spec / ref").selectOption(manifest.base_artifact_id);
-  await page.getByLabel("Constraint snapshot").selectOption(manifest.constraint_artifact_id);
-  await page.getByLabel("Generation profile").selectOption("builtin.generation@1");
-  await page.getByLabel("Environment profile").selectOption("builtin.environment@1");
-  await page.getByRole("checkbox", { name: /builtin\.config_export@1/u }).check();
+  await page.getByLabel("要修改的内容版本").selectOption(manifest.base_artifact_id);
+  await page.getByLabel("本次遵守的规则").selectOption(manifest.constraint_artifact_id);
+  await page.getByText("高级设置", { exact: true }).click();
+  await page.getByLabel("AI 运行方式").selectOption("replay");
+  await page.getByLabel("AI 生成方案").selectOption("builtin.generation@1");
+  await page.getByLabel("试玩环境").selectOption("builtin.environment@1");
+  await page.getByRole("group", { name: "候选配置格式" }).getByRole("checkbox").check();
   await page.getByRole("group", { name: "内容领域" }).getByRole("checkbox", { name: "内置规则域" }).check();
-  await page.getByLabel("Authenticated authoring goal").fill(input.goal);
-  await page.getByLabel("LLM execution mode").selectOption("replay");
-  await page.getByLabel("Replay source Run").selectOption(input.sourceRunId);
+  await page.getByLabel("你想让 AI 做什么？").fill(input.goal);
+  await page.getByLabel("回放来源").selectOption(input.sourceRunId);
 }
 
 async function selectGenerationReplay(
@@ -444,8 +450,16 @@ async function waitForPatchStatus(
   page: Page,
   patchId: string,
   status: components["schemas"]["ApprovalItem"]["status"],
-): Promise<{ approval: ApprovalView; binding: SubjectApprovalBinding; etag: string }> {
-  let value: { approval: ApprovalView; binding: SubjectApprovalBinding; etag: string } | null = null;
+): Promise<{
+  approval: ApprovalView;
+  binding: SubjectApprovalBinding;
+  etag: string;
+}> {
+  let value: {
+    approval: ApprovalView;
+    binding: SubjectApprovalBinding;
+    etag: string;
+  } | null = null;
   await expect
     .poll(
       async () => {
@@ -489,7 +503,10 @@ async function materializeRegressionSuite(
   exactFindingJson: string,
 ): Promise<string> {
   const findingPath = join(stack.workspace, `journey-a-exact-finding-${crypto.randomUUID()}.json`);
-  await writeFile(findingPath, exactFindingJson, { encoding: "utf-8", flag: "wx" });
+  await writeFile(findingPath, exactFindingJson, {
+    encoding: "utf-8",
+    flag: "wx",
+  });
   const completed = await runFixtureCli([
     "-m",
     "tests.e2e.m4d_support.journey_a_regression_fixture",
@@ -615,7 +632,7 @@ async function recordRepairSource(
       params: {
         base_snapshot_artifact_id: input.baseArtifactId,
         candidate_export_profiles: [{ profile_id: "builtin.config_export", version: 1 }],
-        checker_profiles: [],
+        checker_profiles: [{ profile_id: "builtin.checker", version: 1 }],
         constraint_snapshot_artifact_id: input.constraintArtifactId,
         expected_subject_head_revision: item.subject_revision,
         expected_workflow_revision: item.workflow_revision,
@@ -646,7 +663,11 @@ async function requiredHref(locator: Locator): Promise<string> {
 
 async function openRunAndWait(page: Page, href: string, status: "failed" | "succeeded"): Promise<string> {
   await page.goto(href);
-  await expect(page.getByText(new RegExp(`^run\\.${status} ·`, "u"))).toBeVisible({ timeout: 45_000 });
+  await expect(
+    page
+      .getByRole("region", { name: "运行状态" })
+      .getByText(status === "succeeded" ? "已完成" : "失败", { exact: true }),
+  ).toBeVisible({ timeout: 45_000 });
   const runId = decodeURIComponent(new URL(href, stack.baseURL).pathname.split("/").pop() ?? "");
   if (!runId) throw new Error("Run link has no Run ID.");
   return runId;
@@ -664,22 +685,27 @@ async function launchReviewReplay(
     sourceRun: context.generationRunId,
   });
   await page.goto(`/reviews?${search.toString()}`);
-  await expect(page.getByRole("heading", { name: "启动候选 Review" })).toBeVisible();
-  await page.getByLabel("Review profile").selectOption("builtin.review@1");
-  if (includeChecker) await page.getByRole("checkbox", { name: /builtin\.checker@1/u }).check();
-  await page.getByRole("checkbox", { name: /builtin\.simulation@1/u }).check();
-  await page.getByLabel("LLM triage profile").selectOption("builtin.llm_triage@1");
-  await page.getByLabel("Seed").fill("1");
-  await page.getByLabel("LLM execution mode").selectOption("replay");
-  await page.getByLabel("Replay source Run").selectOption(sourceRunId);
-  await page.getByRole("button", { name: "启动 Review" }).click();
-  const href = await requiredHref(page.getByRole("link", { name: /^打开 Run /u }));
+  await expect(page.getByRole("heading", { name: "启动内容检查" })).toBeVisible();
+  await page.getByLabel("内容检查方案").selectOption("builtin.review@1");
+  if (includeChecker) await page.getByRole("checkbox", { name: "默认确定性检查 v1" }).check();
+  await page.getByRole("checkbox", { name: "默认经济仿真 v1" }).check();
+  await page.getByLabel("AI 问题归纳方案").selectOption("builtin.llm_triage@1");
+  await page.getByLabel("随机种子").fill("1");
+  await page.getByLabel("AI 运行方式").selectOption("replay");
+  await page.getByLabel("历史回放来源").selectOption(sourceRunId);
+  await page.getByRole("button", { name: "开始内容检查" }).click();
+  const href = await requiredHref(page.getByRole("link", { name: "查看检查进度" }));
   return openRunAndWait(page, href, "succeeded");
 }
 
 async function deriveTaskSuite(
   page: Page,
-  context: { configId: string; constraintId: string; previewId: string; sourceRunId: string },
+  context: {
+    configId: string;
+    constraintId: string;
+    previewId: string;
+    sourceRunId: string;
+  },
 ): Promise<{ runId: string; suite: TaskSuiteView }> {
   const search = new URLSearchParams({
     action: "derive",
@@ -689,7 +715,7 @@ async function deriveTaskSuite(
     sourceRun: context.sourceRunId,
   });
   await page.goto(`/playtest?${search.toString()}`);
-  const derive = page.getByRole("button", { name: "派生 exact TaskSuite" });
+  const derive = page.getByRole("button", { name: "创建试玩任务" });
   await expect(derive).toBeEnabled();
   await derive.click();
   let deriveRunId = "";
@@ -701,7 +727,7 @@ async function deriveTaskSuite(
     .not.toBe("");
   const outcome = await successArtifacts(page, deriveRunId);
   const suiteId = outcome.primaryArtifactId;
-  const choose = page.getByRole("button", { name: `选择新派生的 ${suiteId}` });
+  const choose = page.getByRole("button", { name: "切换到新创建的试玩任务" });
   await expect
     .poll(async () => new URL(page.url()).searchParams.get("suite") === suiteId || (await choose.isVisible()))
     .toBe(true);
@@ -732,14 +758,14 @@ async function launchPlaytestReplay(
     suite: input.suiteId,
   });
   await page.goto(`/playtest?${search.toString()}`);
-  const launch = page.getByRole("region", { name: "Playtest launch docket" });
+  const launch = page.getByRole("region", { name: "开始自动试玩" });
   await expect(launch).toBeVisible();
-  await launch.getByLabel("Planner profile").selectOption("builtin.playtest_planner@2");
-  await launch.getByLabel("LLM execution mode").selectOption("replay");
-  await launch.getByLabel("Seed").fill("1");
+  await launch.getByLabel("AI 试玩方案").selectOption("builtin.playtest_planner@2");
+  await launch.getByLabel("AI 运行方式").selectOption("replay");
+  await launch.getByLabel("随机种子").fill("1");
   await launch.getByLabel("每 episode 最大步数").fill(String(input.maxSteps));
-  await launch.getByLabel("Replay source Run").selectOption(input.sourceRunId);
-  await launch.getByRole("button", { name: "解析并启动 Playtest" }).click();
+  await launch.getByLabel("回放来源").selectOption(input.sourceRunId);
+  await launch.getByRole("button", { name: "开始自动试玩" }).click();
   let runId = "";
   await expect
     .poll(() => {
@@ -765,34 +791,56 @@ async function validatePatch(
   },
 ): Promise<string> {
   await page.goto(`/patches/${encodeURIComponent(input.patchId)}`);
-  await page.getByLabel("Validation policy").selectOption("builtin.validation@1");
-  await page.getByRole("radio", { name: `约束快照 ${input.constraintId}` }).check();
-  await page.getByRole("checkbox", { name: `候选配置导出 ${input.configId}` }).check();
-  await page.getByRole("checkbox", { name: `审查报告 ${input.reviewId}` }).check();
-  await page.getByRole("checkbox", { name: `实测轨迹 ${input.traceId}` }).check();
-  await page.getByRole("checkbox", { name: `回归套件 ${input.regressionSuiteId}` }).check();
+  await page.getByLabel("验证方案").selectOption("builtin.validation@1");
+  const constraint = page.getByRole("group", { name: "约束快照" }).getByRole("radio", {
+    checked: true,
+  });
+  await expect(constraint).toBeDisabled();
+  const selectResource = async (label: string, artifactId: string) => {
+    const group = page.getByRole("group", { name: label });
+    await group.getByLabel(`搜索${label}`).fill(artifactId);
+    const option = group.getByRole("checkbox");
+    await expect(option).toHaveCount(1);
+    if (!(await option.isChecked())) await option.check();
+  };
+  await selectResource("候选配置导出", input.configId);
+  await selectResource("审查报告", input.reviewId);
+  await selectResource("实测轨迹", input.traceId);
+  await selectResource("回归套件", input.regressionSuiteId);
   if (input.expectedFindings.length > 0) {
-    await page.getByText("高级：精确 Finding 绑定", { exact: true }).click();
-    await page
-      .locator("label", { hasText: "历史 FindingEvidenceBindingV1[]（JSON）" })
-      .locator("textarea")
-      .fill(JSON.stringify(input.expectedFindings));
+    const advancedBinding = page.getByText("高级：精确问题证据绑定", { exact: true });
+    if ((await advancedBinding.count()) > 0) {
+      await advancedBinding.click();
+      await page
+        .locator("label", { hasText: "历史问题证据绑定（JSON）" })
+        .locator("textarea")
+        .fill(JSON.stringify(input.expectedFindings));
+    } else {
+      await expect(page.getByRole("heading", { name: "自动修复验证上下文已接续" })).toBeVisible();
+      await expect(
+        page.getByText(`已从前序失败证据恢复 ${input.expectedFindings.length} 项历史问题。`),
+      ).toBeVisible();
+    }
   }
-  const findingSelector = page.getByRole("group", { name: "本次要验证的 Finding" });
+  const findingSelector = page.getByRole("group", {
+    name: "本次要复验的问题",
+  });
   await expect(findingSelector).toBeVisible();
   for (const finding of input.findings) {
-    const option = findingSelector.locator("label", {
+    const item = findingSelector.locator("li", {
       hasText: `${finding.finding_id}@${finding.finding_revision}`,
     });
-    await expect(option).toBeVisible();
-    await option.getByRole("checkbox").check();
+    await expect(item).toHaveCount(1);
+    const evidenceGroup = item.locator("xpath=ancestor::section[1]");
+    const option = evidenceGroup.getByRole("checkbox", { name: /选择问题证据组/u });
+    if (!(await option.isChecked())) await option.check();
   }
   await expect(page.getByText("本次观测 / Repair FindingEvidenceBindingV1[]（JSON）")).toHaveCount(0);
-  await page.getByLabel("Seed").fill("17");
-  const validate = page.getByRole("button", { name: "启动 exact validation" });
+  await page.getByLabel("随机种子（仅仿真或 AI 方案需要）").fill("17");
+  const validate = page.getByRole("button", { name: "开始验证" });
   await expect(validate).toBeEnabled();
   await validate.click();
-  return requiredHref(page.getByRole("link", { name: "打开 accepted Run" }));
+  return requiredHref(page.getByRole("link", { name: "查看已受理的运行" }));
 }
 
 async function exactValidationRequest(
@@ -849,31 +897,46 @@ async function repairPatchReplay(
   },
 ): Promise<string> {
   await page.goto(`/patches/${encodeURIComponent(input.patchId)}`);
-  await page.getByLabel("Repair policy").selectOption("builtin.patch_repair@1");
-  await page.getByRole("group", { name: "Repair candidate export profiles" }).getByRole("checkbox").check();
-  await page.getByRole("radio", { name: `约束快照 ${input.constraintId}` }).check();
-  await page.getByRole("checkbox", { name: `回归套件 ${input.regressionSuiteId}` }).check();
-  const repairFindings = page.getByRole("list", { name: "Repair Findings" });
+  await page.getByLabel("自动修复方案").selectOption("builtin.patch_repair@1");
+  // The recorded source Run bound checker v1, so the REPLAY must drop the newest
+  // recommended version and use exactly the recorded one.
+  const repairCheckers = page.getByRole("group", { name: "修复后的确定性检查" });
+  await repairCheckers.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v1" }).check();
+  await repairCheckers.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v2" }).uncheck();
+  await page.getByRole("group", { name: "修复后的配置导出验证" }).getByRole("checkbox").check();
+  await expect(
+    page.getByRole("group", { name: "约束快照" }).getByRole("radio", { checked: true }),
+  ).toBeDisabled();
+  const regressionGroup = page.getByRole("group", { name: "回归套件" });
+  await regressionGroup.getByLabel("搜索回归套件").fill(input.regressionSuiteId);
+  const regression = regressionGroup.getByRole("checkbox");
+  await expect(regression).toHaveCount(1);
+  if (!(await regression.isChecked())) await regression.check();
+  const repairFindings = page.getByRole("list", { name: "自动修复目标问题" });
   await expect(repairFindings).toBeVisible();
-  const exactFinding = repairFindings.getByRole("listitem").filter({ hasText: input.finding.finding_id });
-  await expect(exactFinding).toContainText(`Revision ${input.finding.finding_revision}`);
+  const exactFinding = repairFindings.getByRole("listitem").filter({
+    hasText: `已核对第 ${input.finding.finding_revision} 版问题记录`,
+  });
+  await expect(exactFinding).toHaveCount(1);
   await expect(page.getByText("本次观测 / Repair FindingEvidenceBindingV1[]（JSON）")).toHaveCount(0);
-  await page.getByLabel("Seed").fill("19");
-  await page.getByLabel("Repair LLM mode").selectOption("replay");
-  await page.getByLabel("Replay source Run").selectOption(input.sourceRunId);
-  const repair = page.getByRole("button", { name: "Resolve 并启动 repair" });
+  await page.getByLabel("随机种子（仅仿真或 AI 方案需要）").fill("19");
+  await page.getByLabel("自动修复的 AI 运行方式").selectOption("replay");
+  await page.getByLabel("历史回放来源").selectOption(input.sourceRunId);
+  const repair = page.getByRole("button", { name: "开始自动修复" });
   await expect(repair).toBeEnabled();
   await repair.click();
-  const href = await requiredHref(page.getByRole("link", { name: "打开 accepted Run" }));
+  const href = await requiredHref(page.getByRole("link", { name: "查看已受理的运行" }));
   return openRunAndWait(page, href, "succeeded");
 }
 
 async function submitPatch(page: Page, patchId: string): Promise<string> {
   await page.goto(`/patches/${encodeURIComponent(patchId)}`);
-  const submit = page.getByRole("button", { name: "Submit for independent approval" });
+  const submit = page.getByRole("button", {
+    name: "提交独立审批",
+  });
   await expect(submit).toBeEnabled();
   await submit.click();
-  await expect(page.getByText("pending_approval", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("待审批", { exact: true }).first()).toBeVisible();
   return requiredHref(page.getByRole("link", { name: "打开审批详情" }));
 }
 
@@ -893,7 +956,7 @@ async function approvePatch(page: Page, approvalHref: string, patchId: string): 
   await expect(review).toBeVisible();
   await expect(review.getByRole("heading", { name: "你正在批准什么" })).toBeVisible();
   await expect(review.getByRole("heading", { name: "确定性验证已通过" })).toBeVisible();
-  await expect(review.getByRole("link", { name: "打开 EvidenceSet" })).toBeVisible();
+  await expect(review.getByRole("link", { name: "查看完整证据" })).toBeVisible();
 
   const operationList = review.getByRole("list", { name: "Patch 变更内容" });
   const renderedOperations = operationList.getByRole("listitem");
@@ -910,9 +973,9 @@ async function approvePatch(page: Page, approvalHref: string, patchId: string): 
     await expect(values.nth(1)).toContainText(displayedPatchValue(expectedOperation.new_value));
   }
 
-  const requirementTable = page.getByRole("table", { name: "审批职责进度" });
-  await expect(requirementTable).toBeVisible();
-  const requirements = requirementTable.getByRole("checkbox", { name: /^选择 /u });
+  const requirements = page.getByRole("checkbox", {
+    name: /^选择 /u,
+  });
   const count = await requirements.count();
   expect(count).toBeGreaterThan(0);
   for (let index = 0; index < count; index += 1) {
@@ -924,20 +987,20 @@ async function approvePatch(page: Page, approvalHref: string, patchId: string): 
   await page.getByRole("button", { name: "提交批准" }).click();
   const confirmation = page.getByRole("dialog", { name: "确认批准决定" });
   await expect(confirmation).toBeVisible();
-  await expect(confirmation).toContainText("EvidenceSet 已通过");
+  await expect(confirmation).toContainText("确定性验证已通过");
   await expect(confirmation).toContainText(`目标为 ${refName}`);
-  await expect(confirmation).toContainText(`${exactPatch.body.patch.ops.length} 项 Patch 变更`);
   await page.getByRole("button", { name: "确认批准" }).click();
-  await expect(page.getByText(/^approved · workflow revision \d+$/u)).toBeVisible();
+  await expect(page.locator("header.gf-approvals__hero")).toContainText("已批准");
 }
 
 async function applyPatch(page: Page, patchId: string): Promise<void> {
   await page.goto(`/patches/${encodeURIComponent(patchId)}`);
-  const apply = page.getByRole("button", { name: "Apply approved Patch" });
+  const apply = page.getByRole("button", { name: "应用已批准的修改" });
   await expect(apply).toBeEnabled();
   await apply.click();
-  await page.getByRole("button", { name: "确认 Apply" }).click();
-  await expect(page.getByRole("heading", { name: "Patch 已通过 ref transition 应用" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "确认应用已批准的修改？" })).toBeVisible();
+  await page.getByRole("button", { name: "确认应用" }).click();
+  await expect(page.getByRole("heading", { name: "修改已应用" })).toBeVisible();
 }
 
 interface JourneyADemoInput {
@@ -960,7 +1023,11 @@ function requiredDemoScene(key: string): DemoScene {
 async function scrollDemoTarget(page: Page, target: Locator): Promise<void> {
   await expect(target).toBeVisible({ timeout: 30_000 });
   await target.evaluate((element) => {
-    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest",
+    });
   });
   await page.waitForTimeout(650);
 }
@@ -1164,13 +1231,24 @@ async function renderDemoOverlay(page: Page, scene: DemoScene): Promise<void> {
       });
       caption.animate(
         [
-          { opacity: 0, transform: scene.variant === "hero" ? "translateY(-45%)" : "translateY(14px)" },
-          { opacity: 1, transform: scene.variant === "hero" ? "translateY(-52%)" : "translateY(0)" },
+          {
+            opacity: 0,
+            transform: scene.variant === "hero" ? "translateY(-45%)" : "translateY(14px)",
+          },
+          {
+            opacity: 1,
+            transform: scene.variant === "hero" ? "translateY(-52%)" : "translateY(0)",
+          },
         ],
         { duration: 520, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" },
       );
     },
-    { index, provenance: DEMO_PROVENANCE_LABEL, scene, total: DEMO_SCENES.length },
+    {
+      index,
+      provenance: DEMO_PROVENANCE_LABEL,
+      scene,
+      total: DEMO_SCENES.length,
+    },
   );
 }
 
@@ -1188,7 +1266,10 @@ async function showDemoScene(
   if (options.target) await scrollDemoTarget(page, options.target);
   await renderDemoOverlay(page, scene);
   if (options.capturePath && options.capturePosition !== "secondary") {
-    await page.screenshot({ animations: "disabled", path: options.capturePath });
+    await page.screenshot({
+      animations: "disabled",
+      path: options.capturePath,
+    });
   }
 
   if (options.secondaryTarget) {
@@ -1197,7 +1278,10 @@ async function showDemoScene(
     const beforeScroll = Date.now();
     await scrollDemoTarget(page, options.secondaryTarget);
     if (options.capturePath && options.capturePosition === "secondary") {
-      await page.screenshot({ animations: "disabled", path: options.capturePath });
+      await page.screenshot({
+        animations: "disabled",
+        path: options.capturePath,
+      });
     }
     const scrollDuration = Date.now() - beforeScroll;
     await page.waitForTimeout(Math.max(0, scene.holdMs - firstHold - scrollDuration));
@@ -1214,7 +1298,10 @@ async function captureDemoSourceFrame(page: Page, filename: string, target: Loca
   await scrollDemoTarget(page, target);
   const outputDir = demoOutputDirectory();
   await mkdir(outputDir, { recursive: true });
-  await page.screenshot({ animations: "disabled", path: join(outputDir, filename) });
+  await page.screenshot({
+    animations: "disabled",
+    path: join(outputDir, filename),
+  });
 }
 
 async function openDemoSourceFrame(page: Page, path: string, alt: string): Promise<void> {
@@ -1312,18 +1399,20 @@ async function recordJourneyADemo(
     await openDemoPage(
       demoPage,
       `/generation?run=${encodeURIComponent(input.generationRunId)}`,
-      demoPage.getByRole("heading", { name: "generation_gate_passed" }),
+      demoPage.getByRole("heading", { name: "候选内容已通过初步检查" }),
     );
     await showDemoScene(demoPage, "generation", {
       ...readmeFrameCapture(readmeFramesDir, "generation"),
-      secondaryTarget: demoPage.getByRole("heading", { name: "Patch → preview → config" }),
-      target: demoPage.getByRole("heading", { name: "Preliminary gate" }),
+      secondaryTarget: demoPage.getByRole("heading", {
+        name: "从修改方案到可试玩配置",
+      }),
+      target: demoPage.getByRole("heading", { name: "候选内容已通过初步检查" }),
     });
 
     await openDemoPage(
       demoPage,
       `/patches/${encodeURIComponent(input.patchId)}`,
-      demoPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
+      demoPage.getByRole("heading", { level: 1, name: /修改草案/u }),
     );
     await showDemoScene(demoPage, "candidate-diff", {
       ...readmeFrameCapture(readmeFramesDir, "candidate-diff"),
@@ -1342,19 +1431,25 @@ async function recordJourneyADemo(
     );
     await showDemoScene(demoPage, "review", {
       ...readmeFrameCapture(readmeFramesDir, "review"),
-      secondaryTarget: demoPage.getByRole("heading", { name: "Exact authority ledger" }),
+      secondaryTarget: demoPage.getByRole("heading", {
+        name: "Exact authority ledger",
+      }),
       target: demoPage.getByRole("list", { name: "Finding 分区计数" }),
     });
 
     await openDemoPage(
       demoPage,
       input.failedPlaytestHref,
-      demoPage.getByRole("heading", { name: "Run 已完成，任务未全部通过" }),
+      demoPage.getByRole("heading", { name: "仍有试玩任务未完成" }),
     );
     await showDemoScene(demoPage, "failed-playtest", {
       ...readmeFrameCapture(readmeFramesDir, "failed-playtest"),
-      secondaryTarget: demoPage.getByRole("heading", { name: "Episode 结果与轨迹" }),
-      target: demoPage.getByRole("heading", { name: "Run 已完成，任务未全部通过" }),
+      secondaryTarget: demoPage.getByRole("heading", {
+        name: "Episode 结果与轨迹",
+      }),
+      target: demoPage.getByRole("heading", {
+        name: "仍有试玩任务未完成",
+      }),
     });
 
     await openDemoSourceFrame(
@@ -1378,12 +1473,16 @@ async function recordJourneyADemo(
     await openDemoPage(
       demoPage,
       input.repairedPlaytestHref,
-      demoPage.getByRole("heading", { name: "Run 已完成，全部任务通过" }),
+      demoPage.getByRole("heading", { name: "全部试玩任务已完成" }),
     );
     await showDemoScene(demoPage, "passed-playtest", {
       ...readmeFrameCapture(readmeFramesDir, "passed-playtest"),
-      secondaryTarget: demoPage.getByRole("heading", { name: "Episode 结果与轨迹" }),
-      target: demoPage.getByRole("heading", { name: "Run 已完成，全部任务通过" }),
+      secondaryTarget: demoPage.getByRole("heading", {
+        name: "Episode 结果与轨迹",
+      }),
+      target: demoPage.getByRole("heading", {
+        name: "全部试玩任务已完成",
+      }),
     });
 
     await demoContext.clearCookies();
@@ -1453,12 +1552,18 @@ test.describe("journey-a-authoring", () => {
     await guardAuthoringEgress(approverContext, stack.baseURL, unexpected);
     const makerPage = await makerContext.newPage();
     const approverPage = await approverContext.newPage();
+    makerPage.setDefaultTimeout(15_000);
+    approverPage.setDefaultTimeout(15_000);
 
     try {
       await loginAuthoringPage(makerPage, makerCredentials);
       await loginAuthoringPage(approverPage, approverCredentials);
       expect(await refHistory(makerPage)).toEqual([
-        { entry_schema_version: "ref-history-entry@1", ref_name: refName, value: manifest.expected_ref },
+        {
+          entry_schema_version: "ref-history-entry@1",
+          ref_name: refName,
+          value: manifest.expected_ref,
+        },
       ]);
 
       let generationRunId = "";
@@ -1474,16 +1579,10 @@ test.describe("journey-a-authoring", () => {
           goal: "Propose a deliberately dangling generation candidate.",
           sourceRunId: manifest.gate_rejected_source_run_id,
         });
-        await expect(makerPage.getByRole("heading", { name: "generation_gate_rejected" })).toBeVisible({
+        await expect(makerPage.getByRole("heading", { name: /^拦截成功：/u })).toBeVisible({
           timeout: 45_000,
         });
-        const preliminaryGate = makerPage.getByRole("heading", { name: "Preliminary gate" });
-        await expect(preliminaryGate).toBeVisible();
-        await expect(preliminaryGate.locator("xpath=ancestor::section[1]")).toHaveAttribute(
-          "data-state",
-          "error",
-        );
-        await expect(makerPage.getByRole("heading", { name: "Rejected Patch + preview" })).toBeVisible();
+        await expect(makerPage.getByText(/查看技术证据/u)).toBeVisible();
         await assertReplayDidNotCallTransport(before);
 
         const terminal = await terminalManifest(makerPage, runId);
@@ -1518,7 +1617,11 @@ test.describe("journey-a-authoring", () => {
         });
         const rejectedRefHistory = await refHistory(makerPage);
         expect(rejectedRefHistory).toEqual([
-          { entry_schema_version: "ref-history-entry@1", ref_name: refName, value: manifest.expected_ref },
+          {
+            entry_schema_version: "ref-history-entry@1",
+            ref_name: refName,
+            value: manifest.expected_ref,
+          },
         ]);
         const rejectedRunIds = await runIds(makerPage);
         const rejectedApprovalIds = await approvalIds(makerPage);
@@ -1640,17 +1743,11 @@ test.describe("journey-a-authoring", () => {
           goal: DEMO_AUTHORING_GOAL,
           sourceRunId: manifest.generation_source_run_id,
         });
-        await expect(makerPage.getByRole("heading", { name: "generation_gate_passed" })).toBeVisible({
+        await expect(makerPage.getByRole("heading", { name: "候选内容已通过初步检查" })).toBeVisible({
           timeout: 45_000,
         });
-        const preliminaryGate = makerPage.getByRole("heading", { name: "Preliminary gate" });
-        await expect(preliminaryGate).toBeVisible();
-        await expect(preliminaryGate.locator("xpath=ancestor::section[1]")).toHaveAttribute(
-          "data-state",
-          "terminal",
-        );
-        await expect(makerPage.getByRole("heading", { name: "Patch → preview → config" })).toBeVisible();
-        await expect(makerPage.getByText("Config export", { exact: true })).toBeVisible();
+        await expect(makerPage.getByRole("heading", { name: "从修改方案到可试玩配置" })).toBeVisible();
+        await expect(makerPage.getByText("可试玩配置", { exact: true })).toBeVisible();
         await assertReplayDidNotCallTransport(before);
 
         const outcome = await successArtifacts(makerPage, generationRunId);
@@ -1697,12 +1794,14 @@ test.describe("journey-a-authoring", () => {
         await makerPage.goto(
           `/reviews/${encodeURIComponent(failedReviewId)}?sourceRun=${encodeURIComponent(reviewRunId)}&snapshot=${encodeURIComponent(previewId)}`,
         );
-        await expect(makerPage.getByRole("heading", { level: 1, name: "Review Report" })).toBeVisible();
-        await expect(makerPage.getByRole("list", { name: "Finding 分区计数" })).toContainText("确定性");
-        await expect(makerPage.getByRole("list", { name: "Finding 分区计数" })).toContainText("LLM 建议");
-        await expect(makerPage.getByRole("heading", { name: "Exact authority ledger" })).toBeVisible();
+        await expect(makerPage.getByRole("heading", { level: 1, name: "内容检查报告" })).toBeVisible();
+        await expect(makerPage.getByRole("list", { name: "问题分类计数" })).toContainText("确定性");
+        await expect(makerPage.getByRole("list", { name: "问题分类计数" })).toContainText("AI 建议");
+        await expect(makerPage.getByRole("heading", { name: "本报告检查了什么" })).toBeVisible();
         await expect(
-          makerPage.getByText("Run-scoped immutable links + digest + evidence Artifact", { exact: true }),
+          makerPage.getByText("内容版本、规则版本和执行记录都已固定，打开报告不会悄悄切换到最新版本。", {
+            exact: true,
+          }),
         ).toBeVisible();
       });
 
@@ -1720,7 +1819,11 @@ test.describe("journey-a-authoring", () => {
           sourceRunId: oldPlaytestRecord.run.run_id,
           suiteId: suite.artifact.artifact_id,
         });
-        await expect(makerPage.getByRole("heading", { name: "Run 已完成，任务未全部通过" })).toBeVisible({
+        await expect(
+          makerPage.getByRole("heading", {
+            name: "仍有试玩任务未完成",
+          }),
+        ).toBeVisible({
           timeout: 45_000,
         });
         failedPlaytestHref = makerPage.url();
@@ -1821,16 +1924,20 @@ test.describe("journey-a-authoring", () => {
         expect(failedApproval.approval.evidence_set_artifact_id).toBeTruthy();
         expect(failedApproval.approval.last_validation_failure_artifact_id).toBeNull();
         await makerPage.goto(`/patches/${encodeURIComponent(patchId)}`);
-        await expect(makerPage.getByText("validation_failed", { exact: true }).first()).toBeVisible();
+        await expect(makerPage.getByText("检查未通过", { exact: true }).first()).toBeVisible();
         await expect(
-          makerPage.getByRole("button", { name: "Submit for independent approval" }),
+          makerPage.getByRole("button", {
+            name: "提交独立审批",
+          }),
         ).toBeDisabled();
-        await expect(makerPage.getByRole("button", { name: "Apply approved Patch" })).toBeDisabled();
+        await expect(makerPage.getByRole("button", { name: "应用已批准的修改" })).toBeDisabled();
         expect(await refHistory(makerPage)).toHaveLength(1);
         await captureDemoSourceFrame(
           makerPage,
           "failed-validation-source.png",
-          makerPage.getByRole("heading", { name: "Validation / regression evidence" }),
+          makerPage.getByRole("heading", {
+            name: "验证与回归证据",
+          }),
         );
       });
 
@@ -1924,14 +2031,16 @@ test.describe("journey-a-authoring", () => {
           await captureDemoSourceFrame(
             makerPage,
             "repair-draft-source.png",
-            makerPage.getByRole("heading", { level: 1, name: /Patch revision/u }),
+            makerPage.getByRole("heading", { level: 1, name: /修改草案/u }),
           );
         }
         await makerPage.goto(`/patches/${encodeURIComponent(patchId)}`);
         await expect(
-          makerPage.getByRole("button", { name: "Submit for independent approval" }),
+          makerPage.getByRole("button", {
+            name: "提交独立审批",
+          }),
         ).toBeDisabled();
-        await expect(makerPage.getByRole("button", { name: "Apply approved Patch" })).toBeDisabled();
+        await expect(makerPage.getByRole("button", { name: "应用已批准的修改" })).toBeDisabled();
 
         const oldItem = oldAuthority.approval.approval;
         const oldTarget = oldItem.target_binding;
@@ -2059,7 +2168,7 @@ test.describe("journey-a-authoring", () => {
           sourceRunId: source.run.run_id,
           suiteId: derived.suite.artifact.artifact_id,
         });
-        await expect(makerPage.getByRole("heading", { name: "Run 已完成，全部任务通过" })).toBeVisible({
+        await expect(makerPage.getByRole("heading", { name: "全部试玩任务已完成" })).toBeVisible({
           timeout: 45_000,
         });
         repairedPlaytestHref = makerPage.url();
@@ -2102,7 +2211,11 @@ test.describe("journey-a-authoring", () => {
         approvalHref = await submitPatch(makerPage, repairedPatchId);
         await makerPage.goto(approvalHref);
         await expect(
-          makerPage.getByText("maker-checker：提议者不能决定自己的提议", { exact: true }).first(),
+          makerPage
+            .getByText("职责隔离：提议者不能审批自己的提议", {
+              exact: true,
+            })
+            .first(),
         ).toBeVisible();
         await expect(makerPage.getByRole("checkbox", { name: /^选择 /u }).first()).toBeDisabled();
         await approvePatch(approverPage, approvalHref, repairedPatchId);
@@ -2114,7 +2227,11 @@ test.describe("journey-a-authoring", () => {
         }
         expect(target.target_artifact_id).toBe(repairedPreviewId);
         expect(await refHistory(makerPage)).toEqual([
-          { entry_schema_version: "ref-history-entry@1", ref_name: refName, value: manifest.expected_ref },
+          {
+            entry_schema_version: "ref-history-entry@1",
+            ref_name: refName,
+            value: manifest.expected_ref,
+          },
         ]);
         if (process.env.GAMEFORGE_RECORD_DEMO === "1") {
           await makerPage.goto(approvalHref);
@@ -2128,44 +2245,53 @@ test.describe("journey-a-authoring", () => {
         await applyPatch(approverPage, repairedPatchId);
         const history = await refHistory(approverPage);
         expect(history).toHaveLength(2);
-        expect(history[history.length - 1]?.value).toEqual({ artifact_id: repairedPreviewId, revision: 2 });
+        expect(history[history.length - 1]?.value).toEqual({
+          artifact_id: repairedPreviewId,
+          revision: 2,
+        });
         expect(
           (await waitForPatchStatus(approverPage, repairedPatchId, "applied")).approval.approval.status,
         ).toBe("applied");
 
         await makerPage.goto("/eval");
-        await expect(makerPage.getByRole("heading", { level: 1, name: "Eval / Bench" })).toBeVisible();
+        await expect(makerPage.getByRole("heading", { level: 1, name: "质量评测" })).toBeVisible();
         const qaRegion = makerPage.getByRole("region", { name: "真人 QA" });
-        await expect(qaRegion).toContainText("human evidence available");
-        await expect(qaRegion).toContainText("savings");
+        await expect(qaRegion).toContainText("真人证据可用");
+        await expect(qaRegion).toContainText("工具能够节省策划时间");
         await approverPage.goto(`/observability?run=${encodeURIComponent(repairRunId)}`);
-        await expect(approverPage.getByRole("heading", { level: 1, name: "可观测性" })).toBeVisible();
+        await expect(approverPage.getByRole("heading", { level: 1, name: "运行监控" })).toBeVisible();
         const runContext = approverPage
-          .getByRole("heading", { name: "当前 Run context" })
+          .getByRole("heading", { name: "当前查看的运行" })
           .locator("xpath=ancestor::section[1]");
-        await expect(runContext).toContainText(repairRunId);
+        await expect(runContext).toContainText("运行记录");
 
-        await expect(approverPage.getByRole("heading", { name: "Run → Trace" })).toBeVisible();
-        const traceTable = approverPage.getByRole("region", { name: "该 Run 的 Trace" });
+        await expect(approverPage.getByRole("heading", { name: "调用链", exact: true })).toBeVisible();
+        const traceTable = approverPage.getByRole("region", {
+          name: "这次运行的调用链",
+        });
         await expect(traceTable).toBeVisible();
         await expect.poll(async () => traceTable.getByRole("row").count()).toBeGreaterThan(1);
 
-        const logsHeading = approverPage.getByRole("heading", { name: "脱敏日志记录" });
+        const logsHeading = approverPage.getByRole("heading", {
+          name: "脱敏日志记录",
+        });
         await expect(logsHeading).toBeVisible();
         const logsSection = logsHeading.locator("xpath=ancestor::section[1]");
         await expect(logsSection.getByText("Worker attempt started.", { exact: true }).first()).toBeVisible();
         await expect(logsSection).toContainText(repairRunId);
 
-        const costHeading = approverPage.getByRole("heading", { name: "冻结预算与成本结算" });
+        const costHeading = approverPage.getByRole("heading", {
+          name: "冻结预算与成本结算",
+        });
         await expect(costHeading).toBeVisible();
         const costSection = costHeading.locator("xpath=ancestor::section[1]");
         await expect(costSection.getByRole("region", { name: "成本结算摘要" })).toBeVisible();
-        await expect(costSection).toContainText("Budget set");
+        await expect(costSection).toContainText("已按运行开始时的规则冻结");
         const usage = costSection.locator('[data-testid^="cost-usage-"]');
         await expect.poll(async () => usage.count()).toBeGreaterThan(0);
-        await expect(usage.first()).toContainText("cassette_replay");
-        await expect(usage.first().getByText("Provider latency", { exact: true })).toBeVisible();
-        await expect(usage.first().getByText("Latency unavailable", { exact: true })).toBeVisible();
+        await expect(usage.first()).toContainText("固定回放");
+        await expect(usage.first().getByText("模型服务耗时", { exact: true })).toBeVisible();
+        await expect(usage.first().getByText("服务商未提供耗时", { exact: true })).toBeVisible();
       });
 
       if (process.env.GAMEFORGE_RECORD_DEMO === "1") {

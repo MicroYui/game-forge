@@ -39,6 +39,16 @@ SubjectKindRank = {value: index for index, value in enumerate(SubjectKindOrder)}
 
 PrincipalKind = Literal["human", "service", "system"]
 Role = Literal[
+    "platform_admin",
+    "content_designer",
+    "numeric_designer",
+    "qa",
+    "tooling",
+    "constraint_admin",
+    "gacha_compliance_reviewer",
+    "identity_admin",
+]
+ApprovalRouteRole = Literal[
     "content_designer",
     "numeric_designer",
     "qa",
@@ -372,7 +382,7 @@ class DomainRouteRule(_FrozenModel):
     rule_id: NonEmptyStr
     domain_selector: RoutedDomainScope
     subject_kinds: tuple[SubjectKind, ...]
-    route_role: Role
+    route_role: ApprovalRouteRole
     required_action: NonEmptyStr
     resource_kind: NonEmptyStr
     min_approvals: PositiveInt
@@ -453,6 +463,7 @@ class DomainRoutePolicy(_FrozenModel):
 
 
 __all__ = [
+    "ApprovalRouteRole",
     "ActorContext",
     "AuthenticationContext",
     "DomainDefinitionV1",

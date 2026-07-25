@@ -112,14 +112,17 @@ describe("shared interaction primitives", () => {
   it("renders only the safe RFC 9457 projection with correlation links", () => {
     render(<ProblemPanel problem={problem} />);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("工作流修订已变化。");
-    expect(screen.getByText("revision_conflict")).toBeVisible();
-    expect(screen.getByText("request:1")).toBeVisible();
+    expect(screen.getByRole("alert")).toHaveTextContent("内容已被更新");
+    expect(screen.getByText("工作流修订已变化。", { exact: false })).not.toBeVisible();
+    expect(screen.getByText("revision_conflict")).not.toBeVisible();
+    expect(screen.getByText("request:1")).not.toBeVisible();
     expect(screen.getByRole("link", { name: /run:1/ })).toHaveAttribute("href", "/runs/run%3A1");
+    expect(screen.getByRole("link", { name: /run:1/ })).not.toBeVisible();
     expect(screen.getByRole("link", { name: /trace:1/ })).toHaveAttribute(
       "href",
       "/observability/traces/trace%3A1",
     );
+    expect(screen.getByRole("link", { name: /trace:1/ })).not.toBeVisible();
   });
 
   it("announces and dismisses a toast without relying on color", async () => {
@@ -164,7 +167,9 @@ describe("shared interaction primitives", () => {
     const user = userEvent.setup();
     render(<ConfirmProbe onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "打开确认" }));
-    const cancel = screen.getByRole("button", { name: messages.confirm.cancel });
+    const cancel = screen.getByRole("button", {
+      name: messages.confirm.cancel,
+    });
     const confirm = screen.getByRole("button", { name: "确认回滚" });
 
     expect(cancel).toHaveFocus();

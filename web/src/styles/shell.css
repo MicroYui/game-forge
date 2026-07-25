@@ -407,6 +407,23 @@ select {
   overflow-wrap: anywhere;
 }
 
+.gf-problem__technical > summary {
+  width: fit-content;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+}
+
+.gf-problem__technical[open] > summary {
+  margin-block-end: var(--space-2);
+}
+
+.gf-problem__technical > p {
+  margin-block-end: var(--space-3);
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+}
+
 .gf-toast-viewport {
   position: fixed;
   z-index: 80;

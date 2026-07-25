@@ -121,7 +121,10 @@ function approvalView(
   status: components["schemas"]["ApprovalItem"]["status"] = "draft",
   overrides: Partial<components["schemas"]["ApprovalItem"]> = {},
 ): ApprovalView {
-  const registry = { registry_digest: "d".repeat(64), registry_version: "domains@1" };
+  const registry = {
+    registry_digest: "d".repeat(64),
+    registry_version: "domains@1",
+  };
   const defaultSubjectRevision = status === "draft" ? 1 : 2;
   const hasValidationEvidence = [
     "validated",
@@ -134,7 +137,10 @@ function approvalView(
   return {
     approval: {
       approval_id: "approval:server-bound",
-      approval_policy: { policy_digest: "e".repeat(64), policy_version: "approval@1" },
+      approval_policy: {
+        policy_digest: "e".repeat(64),
+        policy_version: "approval@1",
+      },
       approval_schema_version: "approval@1",
       created_at: "2026-07-19T08:01:00Z",
       decisions: [],
@@ -294,8 +300,18 @@ function compileEvidenceArtifact(
       overall_status: status,
       proposal_artifact_id: "artifact:proposal:1",
       stages: [
-        { reason_code: null, stage: "parse", stage_id: "parse", status: "passed" },
-        { reason_code: null, stage: "typecheck", stage_id: "typecheck", status: "passed" },
+        {
+          reason_code: null,
+          stage: "parse",
+          stage_id: "parse",
+          status: "passed",
+        },
+        {
+          reason_code: null,
+          stage: "typecheck",
+          stage_id: "typecheck",
+          status: "passed",
+        },
         {
           reason_code: status === "passed" ? null : "execution_short_circuited",
           stage: "compile",
@@ -394,7 +410,10 @@ function api(overrides: Partial<ConstraintProposalApi> = {}): ConstraintProposal
       if (artifactId === "artifact:compile-evidence:1") return compileEvidenceArtifact();
       return evidenceArtifact("passed");
     }),
-    getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:1"', value: current })),
+    getConstraintProposal: vi.fn(async () => ({
+      etag: '"proposal:1"',
+      value: current,
+    })),
     getConstraintValidationCompilerBinding: vi.fn(async () => compilerBinding),
     listExecutionProfiles: vi.fn(async () => profilePage),
     listRefHistory: vi.fn(async () => ({
@@ -418,9 +437,12 @@ function api(overrides: Partial<ConstraintProposalApi> = {}): ConstraintProposal
   };
 }
 
-function renderPage(proposalApi: ConstraintProposalApi) {
+function renderPage(
+  proposalApi: ConstraintProposalApi,
+  initialEntry = "/constraint-proposals/artifact%3Aproposal%3A1",
+) {
   return render(
-    <MemoryRouter initialEntries={["/constraint-proposals/artifact%3Aproposal%3A1"]}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <QueryClientProvider client={createQueryClient()}>
         <ConstraintProposalPage api={proposalApi} artifactId="artifact:proposal:1" />
         <RouteProbe />
@@ -453,20 +475,43 @@ function problem(overrides: Partial<SafeProblem> = {}): SafeProblem {
 }
 
 async function fillRefBinding(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("radio", { name: "更新已有 ref" }));
-  await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/economy");
-  await user.click(screen.getByRole("button", { name: "查找当前版本" }));
-  await screen.findByText("已选择当前 revision 4");
+  await user.click(screen.getByRole("radio", { name: "更新已有发布位置" }));
+  await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "refs/constraints/economy");
+  await user.click(screen.getByRole("button", { name: "读取当前版本" }));
+  await screen.findByText("已选择当前第 4 版");
 }
 
 describe("ConstraintProposalPage", () => {
+  it("locks an AI proposal to the exact project rule ref carried from the project workspace", async () => {
+    const query = new URLSearchParams({
+      constraint: "artifact:constraint:base",
+      constraintRef: "projects/project:sky-harbor/constraints/head",
+      constraintRevision: "4",
+      project: "project:sky-harbor",
+      projectName: "天空港",
+    });
+    renderPage(api(), `/constraint-proposals/artifact%3Aproposal%3A1?${query.toString()}`);
+
+    expect(await screen.findByText("已绑定天空港项目的规则发布位置")).toBeVisible();
+    const lockedRefName = await screen.findByRole("textbox", { name: "发布位置名称" });
+    expect(lockedRefName).toHaveValue("projects/project:sky-harbor/constraints/head");
+    expect(lockedRefName).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "更新已有发布位置" })).toBeChecked();
+    expect(screen.getByText("已选择当前第 4 版")).toBeVisible();
+    expect(screen.getByRole("button", { name: "提交人工修订" })).toBeEnabled();
+    expect(screen.getByRole("link", { name: "返回天空港项目" })).toHaveAttribute(
+      "href",
+      "/projects/project%3Asky-harbor",
+    );
+  });
+
   it("loads the server-bound approval only, labels Agent provenance, and gates validation on human revision", async () => {
     const proposalApi = api();
     renderPage(proposalApi);
 
-    expect(screen.getByRole("heading", { name: "正在读取约束候选" })).toBeVisible();
-    expect(await screen.findByRole("heading", { level: 1, name: "约束候选" })).toBeVisible();
-    expect(screen.getByText("Agent 候选 · 必须由 Human 修订")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "正在读取规则草案" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "规则修改草案" })).toBeVisible();
+    expect(screen.getByText("AI 起草 · 必须人工确认")).toBeVisible();
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
     expect(screen.getByRole("heading", { name: "人工接管与修订" })).toBeVisible();
     expect(screen.getByLabelText("当前 immutable typed constraints")).toHaveTextContent(
@@ -482,7 +527,7 @@ describe("ConstraintProposalPage", () => {
       JSON.stringify([constraint], null, 2),
     );
     expect(proposalApi.getApproval).toHaveBeenCalledWith("approval:server-bound");
-    expect(screen.getByRole("link", { name: "打开 exact approval" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看审批进度" })).toHaveAttribute(
       "href",
       "/approvals/approval%3Aserver-bound",
     );
@@ -502,8 +547,8 @@ describe("ConstraintProposalPage", () => {
     await screen.findByRole("heading", { name: "人工接管与修订" });
 
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeDisabled();
-    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
-    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/new");
+    await user.click(screen.getByRole("radio", { name: "创建新的发布位置" }));
+    await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "refs/constraints/new");
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeEnabled();
   });
 
@@ -512,8 +557,8 @@ describe("ConstraintProposalPage", () => {
     renderPage(api());
     await screen.findByRole("heading", { name: "人工接管与修订" });
 
-    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
-    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/new");
+    await user.click(screen.getByRole("radio", { name: "创建新的发布位置" }));
+    await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "refs/constraints/new");
     fireEvent.change(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" }), {
       target: { value: "{}" },
     });
@@ -538,20 +583,23 @@ describe("ConstraintProposalPage", () => {
     const proposalApi = api({ reviseConstraint });
     const user = userEvent.setup();
     renderPage(proposalApi);
-    await screen.findByText("Agent 候选 · 必须由 Human 修订");
+    await screen.findByText("AI 起草 · 必须人工确认");
     await fillRefBinding(user);
 
     const submit = screen.getByRole("button", { name: "提交人工修订" });
     await user.click(submit);
-    expect(await screen.findByText("The constraint payload is not valid.")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "输入内容需要修改" })).toBeVisible();
+    expect(screen.getByText(/The constraint payload is not valid/)).not.toBeVisible();
     expect(screen.getByText("请求未写入服务器；修正上面的表单后可以直接重试。")).toBeVisible();
     expect(screen.queryByRole("button", { name: "重新读取服务器状态" })).not.toBeInTheDocument();
     expect(submit).toBeEnabled();
 
     await user.click(submit);
     expect(reviseConstraint).toHaveBeenCalledTimes(2);
-    expect(screen.getByLabelText("Current route")).toHaveTextContent(
-      "/constraint-proposals/artifact%3Aproposal%3A2",
+    await waitFor(() =>
+      expect(screen.getByLabelText("Current route")).toHaveTextContent(
+        "/constraint-proposals/artifact%3Aproposal%3A2",
+      ),
     );
   });
 
@@ -562,8 +610,14 @@ describe("ConstraintProposalPage", () => {
       status: "applied" as const,
     },
     {
-      currentRef: { artifact_id: "artifact:constraint:before-publish", revision: 6 },
-      historicalExpectedRef: { artifact_id: "artifact:constraint:before-publish", revision: 4 },
+      currentRef: {
+        artifact_id: "artifact:constraint:before-publish",
+        revision: 6,
+      },
+      historicalExpectedRef: {
+        artifact_id: "artifact:constraint:before-publish",
+        revision: 4,
+      },
       status: "rolled_back" as const,
     },
   ])(
@@ -598,7 +652,10 @@ describe("ConstraintProposalPage", () => {
             subject_revision: 3,
           }),
         ),
-        getConstraintProposal: vi.fn(async () => ({ etag: `"proposal:${status}"`, value: terminal })),
+        getConstraintProposal: vi.fn(async () => ({
+          etag: `"proposal:${status}"`,
+          value: terminal,
+        })),
         listRefHistory: vi.fn(async () => ({
           expires_at: "2026-07-19T09:00:00Z",
           items: [
@@ -621,20 +678,25 @@ describe("ConstraintProposalPage", () => {
       expect(screen.queryByRole("button", { name: "提交人工修订" })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "创建后续提案草稿" })).toBeDisabled();
 
-      await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
-      await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
+      await user.click(screen.getByRole("radio", { name: "创建新的发布位置" }));
+      await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "constraints/head");
       expect(screen.getByRole("button", { name: "创建后续提案草稿" })).toBeDisabled();
 
-      await user.click(screen.getByRole("radio", { name: "更新已有 ref" }));
-      await user.clear(screen.getByRole("textbox", { name: "Ref 名称" }));
-      await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
-      await user.click(screen.getByRole("button", { name: "查找当前版本" }));
-      expect(await screen.findByText(`已选择当前 revision ${currentRef.revision}`)).toBeVisible();
+      await user.click(screen.getByRole("radio", { name: "更新已有发布位置" }));
+      await user.clear(screen.getByRole("textbox", { name: "发布位置名称" }));
+      await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "constraints/head");
+      await user.click(screen.getByRole("button", { name: "读取当前版本" }));
+      expect(await screen.findByText(`已选择当前第 ${currentRef.revision} 版`)).toBeVisible();
 
       const corrected = { ...constraint, assert: "reward.gold <= 80" };
-      fireEvent.change(screen.getByRole("textbox", { name: "修订后的 typed constraints JSON" }), {
-        target: { value: JSON.stringify([corrected]) },
-      });
+      fireEvent.change(
+        screen.getByRole("textbox", {
+          name: "修订后的 typed constraints JSON",
+        }),
+        {
+          target: { value: JSON.stringify([corrected]) },
+        },
+      );
       fireEvent.change(screen.getByRole("textbox", { name: "修订说明" }), {
         target: { value: "修正实际 IR 字段路径。" },
       });
@@ -674,14 +736,19 @@ describe("ConstraintProposalPage", () => {
           }),
         })),
         getApprovalBinding: vi.fn(async () =>
-          approvalBinding("draft", { subject_artifact_id: humanDraft.artifact.artifact_id }),
+          approvalBinding("draft", {
+            subject_artifact_id: humanDraft.artifact.artifact_id,
+          }),
         ),
-        getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:human-draft"', value: humanDraft })),
+        getConstraintProposal: vi.fn(async () => ({
+          etag: '"proposal:human-draft"',
+          value: humanDraft,
+        })),
       }),
     );
 
-    expect(await screen.findByText("Human 初稿 · 仍需确认修订")).toBeVisible();
-    expect(screen.getByText("这份 Human 初稿还不是可验证 revision")).toBeVisible();
+    expect(await screen.findByText("人工初稿 · 仍需确认")).toBeVisible();
+    expect(screen.getByText("这份人工初稿仍需确认")).toBeVisible();
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
   });
 
@@ -689,7 +756,10 @@ describe("ConstraintProposalPage", () => {
     renderPage(
       api({
         getApprovalBinding: vi.fn(async () =>
-          approvalBinding("draft", { subject_series_id: "series:stale", workflow_revision: 6 }),
+          approvalBinding("draft", {
+            subject_series_id: "series:stale",
+            workflow_revision: 6,
+          }),
         ),
       }),
     );
@@ -720,10 +790,10 @@ describe("ConstraintProposalPage", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "约束候选" })).toBeVisible();
-    expect(screen.getByText("head 2 · workflow 7 · superseded")).toBeVisible();
-    expect(screen.getByText("这是已保留的历史 revision")).toBeVisible();
-    expect(screen.getByRole("link", { name: "返回规格工作台查看当前候选" })).toHaveAttribute(
+    expect(await screen.findByRole("heading", { level: 1, name: "规则修改草案" })).toBeVisible();
+    expect(screen.getByText("已被新版替代")).toBeVisible();
+    expect(screen.getByText("这是保留的历史版本")).toBeVisible();
+    expect(screen.getByRole("link", { name: "返回内容工作台查看当前草案" })).toHaveAttribute(
       "href",
       "/specs",
     );
@@ -732,6 +802,39 @@ describe("ConstraintProposalPage", () => {
     expect(screen.getByRole("textbox", { name: "修订说明" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "提交人工修订" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
+  });
+
+  it("re-reads a workflow identity that advanced between the proposal and approval reads", async () => {
+    const validating = proposal("human", "artifact:proposal:1", 2, "validating");
+    const settled = {
+      ...proposal("human", "artifact:proposal:1", 2, "validated"),
+      workflow_revision: 8,
+    };
+    let proposalReads = 0;
+    renderPage(
+      api({
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:validated"',
+          value: approvalView("validated", { workflow_revision: 8 }),
+        })),
+        getApprovalBinding: vi.fn(async () =>
+          proposalReads > 1
+            ? approvalBinding("validated", { workflow_revision: 8 })
+            : approvalBinding("validating"),
+        ),
+        getConstraintProposal: vi.fn(async () => {
+          proposalReads += 1;
+          return {
+            etag: `"proposal:${proposalReads}"`,
+            value: proposalReads > 1 ? settled : validating,
+          };
+        }),
+      }),
+    );
+
+    expect(await screen.findByRole("heading", { level: 1, name: "规则修改草案" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "审批绑定不一致" })).not.toBeInTheDocument();
+    expect(proposalReads).toBeGreaterThan(1);
   });
 
   it("does not infer a human author revision from an impossible post-draft workflow status", async () => {
@@ -759,7 +862,7 @@ describe("ConstraintProposalPage", () => {
       }),
     );
 
-    expect(await screen.findByText("Human 初稿 · 仍需确认修订")).toBeVisible();
+    expect(await screen.findByText("人工初稿 · 仍需确认")).toBeVisible();
     await userEvent
       .setup()
       .selectOptions(screen.getByRole("combobox", { name: "审批职责" }), requirement.requirement_id);
@@ -795,7 +898,9 @@ describe("ConstraintProposalPage", () => {
             artifact: {
               ...baseArtifact.artifact,
               artifact_id: "artifact:constraint:wrong",
-              version_tuple: { constraint_snapshot_id: "constraint-snapshot:other" },
+              version_tuple: {
+                constraint_snapshot_id: "constraint-snapshot:other",
+              },
             },
           },
         ],
@@ -827,14 +932,21 @@ describe("ConstraintProposalPage", () => {
         if (!candidate) throw new Error(`Unexpected candidate ${artifactId}`);
         return candidate;
       }),
-      getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:base-check"', value: human })),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:base-check"',
+        value: human,
+      })),
     });
     const user = userEvent.setup();
     renderPage(proposalApi);
 
-    expect(await screen.findByRole("heading", { name: "Base Constraint Artifact 未唯一解析" })).toBeVisible();
-    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
-    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "refs/constraints/new");
+    expect(
+      await screen.findByRole("heading", {
+        name: "找不到草案所基于的规则版本",
+      }),
+    ).toBeVisible();
+    await user.click(screen.getByRole("radio", { name: "创建新的发布位置" }));
+    await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "refs/constraints/new");
     await user.selectOptions(
       screen.getByRole("combobox", { name: "约束编译器" }),
       "builtin.constraint_compiler@1",
@@ -872,7 +984,11 @@ describe("ConstraintProposalPage", () => {
         }),
       };
     });
-    const proposalApi = api({ getApproval, getApprovalBinding, getConstraintProposal });
+    const proposalApi = api({
+      getApproval,
+      getApprovalBinding,
+      getConstraintProposal,
+    });
     const user = userEvent.setup();
     renderPage(proposalApi);
     await screen.findByRole("heading", { name: "人工接管与修订" });
@@ -909,8 +1025,8 @@ describe("ConstraintProposalPage", () => {
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
       "/constraint-proposals/artifact%3Aproposal%3A2",
     );
-    expect(await screen.findByText("Human 修订候选")).toBeVisible();
-    expect(screen.getByRole("link", { name: "当前 revision canonical detail" })).toHaveAttribute(
+    expect(await screen.findByText("人工已修订")).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看当前草案版本" })).toHaveAttribute(
       "href",
       "/constraint-proposals/artifact%3Aproposal%3A2",
     );
@@ -943,12 +1059,15 @@ describe("ConstraintProposalPage", () => {
         }),
       })),
       getApprovalBinding: vi.fn(async () => binding),
-      getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:human"', value: human })),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:human"',
+        value: human,
+      })),
       getConstraintValidationCompilerBinding: vi.fn(async () => compilerBinding),
     });
     const user = userEvent.setup();
     renderPage(proposalApi);
-    await screen.findByText("Human 修订候选");
+    await screen.findByText("人工已修订");
 
     await fillRefBinding(user);
     await user.selectOptions(
@@ -978,19 +1097,22 @@ describe("ConstraintProposalPage", () => {
         seed: null,
         subject_digest: binding.subject_digest,
         target: {
-          expected_ref: { artifact_id: "artifact:constraint:base", revision: 4 },
+          expected_ref: {
+            artifact_id: "artifact:constraint:base",
+            revision: 4,
+          },
           ref_name: "refs/constraints/economy",
         },
         validation_policy: validationProfile.profile,
       },
       expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
-    expect(await screen.findByRole("link", { name: "打开 validation Run" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "查看检查过程" })).toHaveAttribute(
       "href",
       "/runs/run%3Avalidation%3Aaccepted",
     );
-    expect(screen.getByRole("textbox", { name: "Ref 名称" })).toHaveValue("refs/constraints/economy");
-    expect(screen.getByText("已选择当前 revision 4")).toBeVisible();
+    expect(screen.getByRole("textbox", { name: "发布位置名称" })).toHaveValue("refs/constraints/economy");
+    expect(screen.getByText("已选择当前第 4 版")).toBeVisible();
     expect(screen.queryByRole("textbox", { name: "Expected ref Artifact ID" })).not.toBeInTheDocument();
     expect(proposalApi.getConstraintProposal).toHaveBeenCalledTimes(2);
   });
@@ -1006,7 +1128,10 @@ describe("ConstraintProposalPage", () => {
         value: approvalView(cycleStatus, { subject_revision: 2 }),
       })),
       getApprovalBinding: vi.fn(async () =>
-        approvalBinding(cycleStatus, { subject_head_revision: 2, subject_revision: 2 }),
+        approvalBinding(cycleStatus, {
+          subject_head_revision: 2,
+          subject_revision: 2,
+        }),
       ),
       getConstraintProposal: vi.fn(async () => {
         if (validationStarted) {
@@ -1030,7 +1155,7 @@ describe("ConstraintProposalPage", () => {
     });
     const user = userEvent.setup();
     renderPage(proposalApi);
-    await screen.findByText("Human 修订候选");
+    await screen.findByText("人工已修订");
 
     await fillRefBinding(user);
     await user.selectOptions(
@@ -1046,9 +1171,14 @@ describe("ConstraintProposalPage", () => {
 
   it("shows the failed engine, concrete cause, and next repair step from compile evidence", async () => {
     const status = "validation_failed" as const;
-    const failedApproval = approvalView(status, { evidence_set_artifact_id: "artifact:evidence:1" });
+    const failedApproval = approvalView(status, {
+      evidence_set_artifact_id: "artifact:evidence:1",
+    });
     const proposalApi = api({
-      getApproval: vi.fn(async () => ({ etag: '"approval:failed"', value: failedApproval })),
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:failed"',
+        value: failedApproval,
+      })),
       getApprovalBinding: vi.fn(async () => approvalBinding(status)),
       getArtifactPayload: vi.fn(async (artifactId) => {
         if (artifactId === "artifact:constraint:base") return baseArtifact;
@@ -1073,9 +1203,14 @@ describe("ConstraintProposalPage", () => {
 
   it("keeps an unknown compile reason visible instead of inventing an explanation", async () => {
     const status = "validation_failed" as const;
-    const failedApproval = approvalView(status, { evidence_set_artifact_id: "artifact:evidence:1" });
+    const failedApproval = approvalView(status, {
+      evidence_set_artifact_id: "artifact:evidence:1",
+    });
     const proposalApi = api({
-      getApproval: vi.fn(async () => ({ etag: '"approval:failed"', value: failedApproval })),
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:failed"',
+        value: failedApproval,
+      })),
       getApprovalBinding: vi.fn(async () => approvalBinding(status)),
       getArtifactPayload: vi.fn(async (artifactId) => {
         if (artifactId === "artifact:constraint:base") return baseArtifact;
@@ -1102,14 +1237,19 @@ describe("ConstraintProposalPage", () => {
     const proposalApi = api({
       getApproval: vi.fn(async () => ({
         etag: '"approval:validating"',
-        value: approvalView("validating", { active_validation_run_id: "run:validation:active" }),
+        value: approvalView("validating", {
+          active_validation_run_id: "run:validation:active",
+        }),
       })),
       getApprovalBinding: vi.fn(async () => approvalBinding("validating")),
-      getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:validating"', value: human })),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:validating"',
+        value: human,
+      })),
     });
     const user = userEvent.setup();
     renderPage(proposalApi);
-    await screen.findByText("Human 修订候选");
+    await screen.findByText("人工已修订");
 
     await fillRefBinding(user);
     await user.selectOptions(
@@ -1138,7 +1278,10 @@ describe("ConstraintProposalPage", () => {
     });
     renderPage(
       api({
-        getApproval: vi.fn(async () => ({ etag: '"approval:evidence"', value: approval })),
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:evidence"',
+          value: approval,
+        })),
         getApprovalBinding: vi.fn(async () => approvalBinding(approvalStatus)),
         getArtifactPayload,
         getConstraintProposal: vi.fn(async () => ({
@@ -1171,7 +1314,10 @@ describe("ConstraintProposalPage", () => {
     } satisfies ArtifactPayloadView;
     renderPage(
       api({
-        getApproval: vi.fn(async () => ({ etag: '"approval:unsafe"', value: approval })),
+        getApproval: vi.fn(async () => ({
+          etag: '"approval:unsafe"',
+          value: approval,
+        })),
         getApprovalBinding: vi.fn(async () => approvalBinding("validated")),
         getArtifactPayload: vi.fn(async (artifactId) =>
           artifactId === "artifact:constraint:base" ? baseArtifact : unsafe,
@@ -1193,9 +1339,15 @@ describe("ConstraintProposalPage", () => {
     const approval = approvalView("validated");
     const binding = approvalBinding("validated");
     const proposalApi = api({
-      getApproval: vi.fn(async () => ({ etag: '"approval:validated"', value: approval })),
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:validated"',
+        value: approval,
+      })),
       getApprovalBinding: vi.fn(async () => binding),
-      getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:validated"', value: human })),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:validated"',
+        value: human,
+      })),
     });
     const user = userEvent.setup();
     renderPage(proposalApi);
@@ -1231,9 +1383,15 @@ describe("ConstraintProposalPage", () => {
     const approval = approvalView("approved");
     const binding = approvalBinding("approved");
     const proposalApi = api({
-      getApproval: vi.fn(async () => ({ etag: '"approval:approved"', value: approval })),
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:approved"',
+        value: approval,
+      })),
       getApprovalBinding: vi.fn(async () => binding),
-      getConstraintProposal: vi.fn(async () => ({ etag: '"proposal:approved"', value: human })),
+      getConstraintProposal: vi.fn(async () => ({
+        etag: '"proposal:approved"',
+        value: human,
+      })),
     });
     const user = userEvent.setup();
     renderPage(proposalApi);
@@ -1259,17 +1417,23 @@ describe("ConstraintProposalPage", () => {
       expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
     expect(await screen.findByRole("heading", { name: "已发布为权威约束" })).toBeVisible();
-    expect(screen.getByText("ref-transition:1")).toBeVisible();
-    expect(screen.getByText(/revision 5/)).toBeVisible();
+    expect(screen.getByText("ref-transition:1")).not.toBeVisible();
+    expect(screen.getByText(/正式规则已更新为第 5 版/)).toBeVisible();
   });
 
   it("renders the exact conflict_set_id without fabricating a Patch route", async () => {
     const conflict = new ApiProblemError(
-      problem({ conflict_set_id: "conflict:set/42", detail: "Exact ref changed." }),
+      problem({
+        conflict_set_id: "conflict:set/42",
+        detail: "Exact ref changed.",
+      }),
     );
     const approval = approvalView("approved");
     const proposalApi = api({
-      getApproval: vi.fn(async () => ({ etag: '"approval:approved"', value: approval })),
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:approved"',
+        value: approval,
+      })),
       getApprovalBinding: vi.fn(async () => approvalBinding("approved")),
       getConstraintProposal: vi.fn(async () => ({
         etag: '"proposal:approved"',
@@ -1285,8 +1449,9 @@ describe("ConstraintProposalPage", () => {
     await user.click(screen.getByRole("button", { name: "发布权威约束" }));
     await user.click(screen.getByRole("button", { name: "确认发布" }));
 
-    expect(await screen.findByText("Exact ref changed.")).toBeVisible();
-    expect(screen.getByText("conflict:set/42")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "内容已被更新" })).toBeVisible();
+    expect(screen.getByText(/Exact ref changed/)).not.toBeVisible();
+    expect(screen.getByText("conflict:set/42")).not.toBeVisible();
     expect(screen.getByRole("note")).toHaveTextContent("没有 exact Patch Artifact ID");
     expect(screen.queryByRole("link", { name: "交给 Patch 冲突处理" })).not.toBeInTheDocument();
   });
@@ -1306,7 +1471,10 @@ describe("ConstraintProposalPage", () => {
       .mockRejectedValueOnce(new Error("network timeout must-not-render"))
       .mockResolvedValueOnce(successful);
     const proposalApi = api({
-      getApproval: vi.fn(async () => ({ etag: '"approval:approved"', value: approval })),
+      getApproval: vi.fn(async () => ({
+        etag: '"approval:approved"',
+        value: approval,
+      })),
       getApprovalBinding: vi.fn(async () => approvalBinding("approved")),
       getConstraintProposal: vi.fn(async () => ({
         etag: '"proposal:approved"',
@@ -1321,7 +1489,7 @@ describe("ConstraintProposalPage", () => {
     const publish = screen.getByRole("button", { name: "发布权威约束" });
     await user.click(publish);
     await user.click(screen.getByRole("button", { name: "确认发布" }));
-    expect(await screen.findByRole("heading", { name: "工作流命令失败" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "操作未完成" })).toBeVisible();
     expect(screen.queryByText(/network timeout/)).not.toBeInTheDocument();
     expect(publish).toBeDisabled();
     await user.click(publish);
@@ -1339,7 +1507,12 @@ describe("ConstraintProposalPage", () => {
 
   it("shows safe loading, Problem, and missing-binding states", async () => {
     const missing = new ApiProblemError(
-      problem({ code: "not_found", detail: "No retained binding.", status: 404, title: "Not found" }),
+      problem({
+        code: "not_found",
+        detail: "No retained binding.",
+        status: 404,
+        title: "Not found",
+      }),
     );
     renderPage(
       api({
@@ -1348,7 +1521,7 @@ describe("ConstraintProposalPage", () => {
         }),
       }),
     );
-    expect(screen.getByRole("heading", { name: "正在读取约束候选" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "正在读取规则草案" })).toBeVisible();
     expect(await screen.findByRole("heading", { name: "审批绑定缺失" })).toBeVisible();
 
     const problemApi = api({
@@ -1357,7 +1530,8 @@ describe("ConstraintProposalPage", () => {
       }),
     });
     const view = renderPage(problemApi);
-    expect(await screen.findByText("Readable safe detail.")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "系统暂时不可用" })).toBeVisible();
+    expect(screen.getByText(/Readable safe detail/)).not.toBeVisible();
     view.unmount();
   });
 });

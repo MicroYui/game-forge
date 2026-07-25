@@ -232,8 +232,7 @@ export function LogExplorer({
                   </header>
 
                   <div className="gf-log__source">
-                    <span>{record.service}</span>
-                    <code>{record.event_name}</code>
+                    <span>来源服务 · {record.service}</span>
                   </div>
                   <p className="gf-log__message">{record.message}</p>
 
@@ -244,57 +243,67 @@ export function LogExplorer({
                     </p>
                   )}
 
-                  <dl className="gf-log__identifiers">
-                    <Identifier copyLabel="复制日志 ID" label="日志 ID" value={record.log_id} />
-                    {record.request_id && (
-                      <Identifier copyLabel="复制请求 ID" label="请求 ID" value={record.request_id} />
-                    )}
-                    {record.run_id && (
-                      <Identifier copyLabel="复制运行 ID" label="运行 ID" value={record.run_id} />
-                    )}
-                    {record.trace_id && (
-                      <Identifier
-                        copyLabel="复制追踪 ID"
-                        label="追踪 ID"
-                        value={record.trace_id}
-                        valueNode={
-                          <a aria-label={`查看追踪 ${record.trace_id}`} href={traceHref(record.trace_id)}>
-                            <code>{record.trace_id}</code>
-                            <ExternalLink aria-hidden="true" size={13} strokeWidth={1.8} />
-                          </a>
-                        }
-                      />
-                    )}
-                    {record.span_id && (
-                      <Identifier copyLabel="复制 Span ID" label="Span ID" value={record.span_id} />
-                    )}
-                    {record.producer_run_id && (
-                      <Identifier
-                        copyLabel="复制生产运行 ID"
-                        label="生产运行 ID"
-                        value={record.producer_run_id}
-                      />
-                    )}
-                  </dl>
+                  {record.trace_id && (
+                    <a className="gf-log__trace-link" href={traceHref(record.trace_id)}>
+                      查看这条日志的调用链
+                      <ExternalLink aria-hidden="true" size={13} strokeWidth={1.8} />
+                    </a>
+                  )}
 
                   {record.error && (
                     <div className="gf-log__error">
                       <strong>{record.error.error_type}</strong>
                       <span>{record.error.message}</span>
-                      {record.error.stack_fingerprint && <code>{record.error.stack_fingerprint}</code>}
+                      {record.error.stack_fingerprint && (
+                        <details>
+                          <summary>查看错误技术指纹</summary>
+                          <code>{record.error.stack_fingerprint}</code>
+                        </details>
+                      )}
                     </div>
                   )}
 
-                  {item.fields.length > 0 && (
-                    <dl className="gf-log__fields">
-                      {item.fields.map(([key, value]) => (
-                        <div key={key}>
-                          <dt>{key}</dt>
-                          <dd>{valueText(value)}</dd>
-                        </div>
-                      ))}
+                  <details className="gf-log__technical">
+                    <summary>查看日志技术信息</summary>
+                    <dl className="gf-log__identifiers">
+                      <div className="gf-log__identifier">
+                        <dt>事件代码</dt>
+                        <dd>
+                          <code>{record.event_name}</code>
+                        </dd>
+                      </div>
+                      <Identifier copyLabel="复制日志 ID" label="日志 ID" value={record.log_id} />
+                      {record.request_id && (
+                        <Identifier copyLabel="复制请求 ID" label="请求 ID" value={record.request_id} />
+                      )}
+                      {record.run_id && (
+                        <Identifier copyLabel="复制运行 ID" label="运行 ID" value={record.run_id} />
+                      )}
+                      {record.trace_id && (
+                        <Identifier copyLabel="复制追踪 ID" label="追踪 ID" value={record.trace_id} />
+                      )}
+                      {record.span_id && (
+                        <Identifier copyLabel="复制 Span ID" label="Span ID" value={record.span_id} />
+                      )}
+                      {record.producer_run_id && (
+                        <Identifier
+                          copyLabel="复制生产运行 ID"
+                          label="生产运行 ID"
+                          value={record.producer_run_id}
+                        />
+                      )}
                     </dl>
-                  )}
+                    {item.fields.length > 0 && (
+                      <dl className="gf-log__fields">
+                        {item.fields.map(([key, value]) => (
+                          <div key={key}>
+                            <dt>{key}</dt>
+                            <dd>{valueText(value)}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                  </details>
                 </article>
               </li>
             );

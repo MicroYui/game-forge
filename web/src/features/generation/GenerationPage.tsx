@@ -11,6 +11,7 @@ import type { RunEventStreamState } from "../../api/sse";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
 import { SnapshotDiffView } from "../../components/diff";
 import { EvidenceSections } from "../../components/evidence";
+import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
 import { RunProgress, type RunEventItem } from "../../components/run-progress";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
@@ -67,6 +68,79 @@ interface GenerationAttempt {
   request: ExecutionOptionResolveRequest;
   resolved: GenerationProposeRequest | null;
   result: RunAccepted | null;
+}
+
+interface GenerationProjectContext {
+  constraintArtifactId: string;
+  constraintRefName: string;
+  constraintRevision: number;
+  contentArtifactId: string;
+  contentRefName: string;
+  contentRevision: number;
+  projectId: string;
+  projectName: string;
+  sourceArtifactIds: string[];
+}
+
+function parseProjectContext(searchParams: URLSearchParams): {
+  error: string | null;
+  value: GenerationProjectContext | null;
+} {
+  const projectId = searchParams.get("project")?.trim() ?? "";
+  if (!projectId) return { error: null, value: null };
+  const contentArtifactId = searchParams.get("content")?.trim() ?? "";
+  const contentRefName = searchParams.get("contentRef")?.trim() ?? "";
+  const revisionText = searchParams.get("contentRevision")?.trim() ?? "";
+  const constraintArtifactId = searchParams.get("constraint")?.trim() ?? "";
+  const constraintRefName = searchParams.get("constraintRef")?.trim() ?? "";
+  const constraintRevisionText = searchParams.get("constraintRevision")?.trim() ?? "";
+  if (
+    !contentArtifactId ||
+    !contentRefName ||
+    !/^[1-9]\d*$/u.test(revisionText) ||
+    !constraintArtifactId ||
+    !constraintRefName ||
+    !/^[1-9]\d*$/u.test(constraintRevisionText)
+  ) {
+    return {
+      error: "项目入口缺少准确的当前内容或规则版本，请返回项目刷新后重试。",
+      value: null,
+    };
+  }
+  const sources = [
+    ...new Set(
+      searchParams
+        .getAll("source")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  ].sort();
+  if (sources.length > 64 || sources.some((item) => item.length > 512)) {
+    return { error: "项目入口携带的材料来源超出允许范围，请返回项目重新选择。", value: null };
+  }
+  return {
+    error: null,
+    value: {
+      constraintArtifactId,
+      constraintRefName,
+      constraintRevision: Number(constraintRevisionText),
+      contentArtifactId,
+      contentRefName,
+      contentRevision: Number(revisionText),
+      projectId,
+      projectName: searchParams.get("projectName")?.trim() || projectId.replace(/^project:/u, ""),
+      sourceArtifactIds: sources,
+    },
+  };
+}
+
+function appendImmutableCatalogItem<T extends { artifact: { artifact_id: string } }>(
+  items: T[],
+  exact: T,
+): T[] {
+  return items.some((item) => item.artifact.artifact_id === exact.artifact.artifact_id)
+    ? items
+    : [...items, exact];
 }
 
 function catalogState<T>(page: {
@@ -199,9 +273,17 @@ function domainLabel(domainId: string): string {
   );
 }
 
+function publicationLabel(refName: string): string {
+  const leaf = refName.split("/").filter(Boolean).pop() ?? refName;
+  if (["head", "live", "current"].includes(leaf)) return "当前正式内容";
+  const domain = domainLabel(`domain:${leaf}`);
+  return domain === leaf ? `正式内容 · ${leaf}` : `${domain}正式内容`;
+}
+
 function specLabel(spec: SpecView): string {
-  if (spec.ref_name && spec.ref_value) return `${spec.ref_name} · 第 ${spec.ref_value.revision} 版`;
-  return `未绑定发布指针 · ${spec.schema_registry_version}`;
+  if (spec.ref_name && spec.ref_value)
+    return `${publicationLabel(spec.ref_name)} · 第 ${spec.ref_value.revision} 版`;
+  return "尚未发布的内容版本";
 }
 
 function constraintLabel(constraint: ConstraintCatalogItem): string {
@@ -214,15 +296,26 @@ function constraintLabel(constraint: ConstraintCatalogItem): string {
         .find((value): value is string => typeof value === "string" && value.trim().length > 0)
     : null;
   const count = `${constraint.constraints.length} 条规则`;
-  return summary ? `${summary} · ${count}` : `${count} · ${constraint.dsl_grammar_version}`;
+  if (constraint.constraints.length === 0) return "没有额外规则（仍会执行基础校验）";
+  return summary ? `${summary} · ${count}` : count;
 }
 
-function constraintOptionLabel(constraint: ConstraintCatalogItem, collidingSummaries: number): string {
+function executionProfileLabel(profile: ExecutionProfile): string {
+  if (!profile.profile.profile_id.startsWith("builtin.")) return profile.display_name;
+  if (profile.profile_kind === "generation") return "系统默认内容生成方案";
+  if (profile.profile_kind === "environment") return "标准试玩环境（Aureus）";
+  if (profile.profile_kind === "config_export") return "标准游戏配置表（CSV）";
+  return profile.display_name;
+}
+
+function constraintOptionLabel(
+  constraint: ConstraintCatalogItem,
+  collidingSummaries: number,
+  collisionOrdinal = 1,
+): string {
   const summary = constraintLabel(constraint);
   if (collidingSummaries < 2) return summary;
-  const created = constraint.artifact.created_at?.slice(0, 10) ?? "时间未知";
-  const identity = constraint.artifact.artifact_id.slice(-8);
-  return `${summary} · ${created} · …${identity}`;
+  return `${summary} · ${compactDateTime(constraint.artifact.created_at)}创建 · 同名版本 ${collisionOrdinal}`;
 }
 
 function matchesQuery(query: string, ...values: Array<string | null | undefined>): boolean {
@@ -277,18 +370,53 @@ function MutationFailure({ attempt, onRetry }: { attempt: GenerationAttempt; onR
   );
 }
 
-function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccepted(runId: string): void }) {
+function GenerationAuthoring({
+  api,
+  onAccepted,
+  projectContext,
+}: {
+  api: GenerationApi;
+  onAccepted(runId: string): void;
+  projectContext: GenerationProjectContext | null;
+}) {
   const catalog = useQuery({
     queryFn: async () => {
-      const [specs, constraints, profiles, replayRuns] = await Promise.all([
+      let [specs, constraints, profiles, replayRuns] = await Promise.all([
         api.listSpecs(null),
         api.listConstraints(null),
         api.listExecutionProfiles(null),
         api.listReplaySourceRuns(null),
       ]);
+      if (projectContext) {
+        const exactSpec = await api.getSpec(projectContext.contentArtifactId);
+        if (
+          exactSpec.artifact.artifact_id !== projectContext.contentArtifactId ||
+          exactSpec.ref_name !== projectContext.contentRefName ||
+          exactSpec.ref_value?.artifact_id !== projectContext.contentArtifactId ||
+          exactSpec.ref_value.revision !== projectContext.contentRevision
+        ) {
+          throw new Error("The project content authority changed before generation authoring loaded.");
+        }
+        specs = { ...specs, items: appendImmutableCatalogItem(specs.items, exactSpec) };
+        const exactConstraint = await api.getConstraint(projectContext.constraintArtifactId);
+        if (exactConstraint.artifact.artifact_id !== projectContext.constraintArtifactId) {
+          throw new Error("The project constraint authority differed from its exact binding.");
+        }
+        constraints = {
+          ...constraints,
+          items: appendImmutableCatalogItem(constraints.items, exactConstraint),
+        };
+      }
       return { constraints, profiles, replayRuns, specs };
     },
-    queryKey: ["generation", "authoring-catalog"],
+    queryKey: [
+      "generation",
+      "authoring-catalog",
+      projectContext?.projectId ?? null,
+      projectContext?.contentArtifactId ?? null,
+      projectContext?.contentRevision ?? null,
+      projectContext?.constraintArtifactId ?? null,
+    ],
     retry: false,
   });
   const [specId, setSpecId] = useState("");
@@ -300,7 +428,7 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
   const [specQuery, setSpecQuery] = useState("");
   const [constraintQuery, setConstraintQuery] = useState("");
   const [goal, setGoal] = useState("");
-  const [mode, setMode] = useState<"" | LlmExecutionMode>("");
+  const [mode, setMode] = useState<"" | LlmExecutionMode>("live");
   const [replaySourceRunId, setReplaySourceRunId] = useState("");
   const [attempt, setAttempt] = useState<GenerationAttempt | null>(null);
   const [specCatalog, setSpecCatalog] = useState<CatalogPageState<SpecView> | null>(null);
@@ -316,7 +444,52 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
     setConstraintCatalog(catalogState(catalog.data.constraints));
     setProfileCatalog(catalogState(catalog.data.profiles));
     setReplayRunCatalog(catalogState(catalog.data.replayRuns));
-  }, [catalog.data]);
+
+    if (projectContext) {
+      setSpecId(projectContext.contentArtifactId);
+      setConstraintId(projectContext.constraintArtifactId);
+    }
+
+    const refBound = catalog.data.specs.items.filter((item) => item.ref_name && item.ref_value);
+    if (catalog.data.specs.next_cursor == null && refBound.length === 1) {
+      setSpecId((current) => current || refBound[0]!.artifact.artifact_id);
+    }
+    if (catalog.data.constraints.next_cursor == null && catalog.data.constraints.items.length === 1) {
+      setConstraintId((current) => current || catalog.data.constraints.items[0]!.artifact.artifact_id);
+    }
+    if (catalog.data.profiles.next_cursor == null) {
+      const availableGeneration = catalog.data.profiles.items.filter(
+        (profile) =>
+          profile.status === "active" &&
+          profile.profile_kind === "generation" &&
+          supportsRunKind(profile, "generation.propose"),
+      );
+      const availableEnvironments = catalog.data.profiles.items.filter(
+        (profile) => profile.status === "active" && profile.profile_kind === "environment",
+      );
+      if (availableGeneration.length === 1) {
+        const selected = availableGeneration[0]!;
+        setGenerationKey((current) => current || profileKey(selected));
+        if (selected.domain_scope.domain_ids.length === 1) {
+          setDomainIds((current) => (current.length ? current : [...selected.domain_scope.domain_ids]));
+        }
+      }
+      if (availableEnvironments.length === 1) {
+        const selected = availableEnvironments[0]!;
+        setEnvironmentKey((current) => current || profileKey(selected));
+        const availableExports = catalog.data.profiles.items.filter(
+          (profile) =>
+            profile.status === "active" &&
+            profile.profile_kind === "config_export" &&
+            supportsRunKind(profile, "generation.propose") &&
+            sameProfile(profile.target_environment_profile, selected.profile),
+        );
+        if (availableExports.length === 1) {
+          setExportKeys((current) => (current.length ? current : [profileKey(availableExports[0]!)]));
+        }
+      }
+    }
+  }, [catalog.data, projectContext]);
 
   if (catalog.isPending) {
     return (
@@ -355,6 +528,21 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
   for (const item of constraints) {
     const label = constraintLabel(item);
     constraintLabelCounts.set(label, (constraintLabelCounts.get(label) ?? 0) + 1);
+  }
+  const constraintCollisionOrdinals = new Map<string, number>();
+  const constraintsByLabel = new Map<string, ConstraintCatalogItem[]>();
+  for (const item of constraints) {
+    const label = constraintLabel(item);
+    constraintsByLabel.set(label, [...(constraintsByLabel.get(label) ?? []), item]);
+  }
+  for (const items of constraintsByLabel.values()) {
+    items
+      .sort(
+        (left, right) =>
+          (left.artifact.created_at ?? "").localeCompare(right.artifact.created_at ?? "") ||
+          left.artifact.artifact_id.localeCompare(right.artifact.artifact_id),
+      )
+      .forEach((item, index) => constraintCollisionOrdinals.set(item.artifact.artifact_id, index + 1));
   }
   const profiles = profileCatalog.items;
   const generationProfiles = profiles.filter(
@@ -471,7 +659,11 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
       llm_execution_mode: mode,
       objective_goal_text: goal.trim(),
       request_schema_version: "generation-propose-request@1",
-      target: { expected_ref: selectedSpec.ref_value, ref_name: selectedSpec.ref_name },
+      source_artifact_ids: projectContext?.sourceArtifactIds ?? [],
+      target: {
+        expected_ref: selectedSpec.ref_value,
+        ref_name: selectedSpec.ref_name,
+      },
     };
     const request: ExecutionOptionResolveRequest = {
       llm_execution_mode: mode,
@@ -493,323 +685,460 @@ function GenerationAuthoring({ api, onAccepted }: { api: GenerationApi; onAccept
   }
 
   return (
-    <div className="gf-generation__authoring-layout">
-      <section className="gf-generation__authoring" aria-labelledby="generation-input-title">
-        <header>
-          <p className="gf-generation__kicker">Exact authority → bounded Agent run</p>
-          <h2 id="generation-input-title">目标与 exact authority</h2>
-          <p>所有 profile、base、constraint、environment 与 ref 前提都必须显式选择。</p>
-        </header>
-        <form
-          className="gf-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            submit();
-          }}
-        >
-          <label>
-            搜索可用规格
-            <input
-              onChange={(event) => setSpecQuery(event.target.value)}
-              placeholder="按发布指针或版本搜索"
-              type="search"
-              value={specQuery}
+    <>
+      {projectContext && (
+        <section className="gf-generation__project-context" aria-label="项目上下文">
+          <GitBranch aria-hidden="true" size={18} />
+          <div>
+            <strong>
+              已绑定{projectContext.projectName}项目的当前版本与 {projectContext.sourceArtifactIds.length}{" "}
+              份材料
+            </strong>
+            <span>提交时会再次核对内容发布位置和版本；若项目已更新，操作会停止并要求刷新。</span>
+          </div>
+        </section>
+      )}
+      <div className="gf-generation__authoring-layout">
+        <section className="gf-generation__authoring" aria-labelledby="generation-input-title">
+          <header>
+            <p className="gf-generation__kicker">从策划目标开始</p>
+            <h2 id="generation-input-title">描述你想生成或修改的内容</h2>
+            <p>系统会绑定明确的内容版本和规则，AI 只提交候选，不会直接改动正式内容。</p>
+          </header>
+          <form
+            className="gf-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submit();
+            }}
+          >
+            <label className="gf-generation__goal-field">
+              你想让 AI 做什么？
+              <textarea
+                onChange={(event) => setGoal(event.target.value)}
+                placeholder="例如：把前哨任务的金币奖励调整到规则允许的范围，并保持任务链可完成。"
+                rows={5}
+                value={goal}
+              />
+            </label>
+            {refBoundSpecs.length > 5 && (
+              <label>
+                搜索内容版本
+                <input
+                  onChange={(event) => setSpecQuery(event.target.value)}
+                  placeholder="按发布位置或版本搜索"
+                  type="search"
+                  value={specQuery}
+                />
+              </label>
+            )}
+            <label>
+              要修改的内容版本
+              <select
+                disabled={projectContext !== null}
+                onChange={(event) => setSpecId(event.target.value)}
+                value={specId}
+              >
+                <option value="">请选择一个已发布的内容版本</option>
+                {visibleSpecs.map((item) => (
+                  <option key={item.artifact.artifact_id} value={item.artifact.artifact_id}>
+                    {specLabel(item)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <CatalogPageControl
+              label="内容版本"
+              onLoad={() => void readCatalogPage(specCatalog, setSpecCatalog, api.listSpecs.bind(api), false)}
+              onRestart={() =>
+                void readCatalogPage(specCatalog, setSpecCatalog, api.listSpecs.bind(api), true)
+              }
+              state={specCatalog}
             />
-          </label>
-          <label>
-            Base Spec / ref
-            <select onChange={(event) => setSpecId(event.target.value)} value={specId}>
-              <option value="">请选择 exact ref-bound Spec</option>
-              {visibleSpecs.map((item) => (
-                <option key={item.artifact.artifact_id} value={item.artifact.artifact_id}>
-                  {specLabel(item)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <CatalogPageControl
-            label="Base Specs"
-            onLoad={() => void readCatalogPage(specCatalog, setSpecCatalog, api.listSpecs.bind(api), false)}
-            onRestart={() => void readCatalogPage(specCatalog, setSpecCatalog, api.listSpecs.bind(api), true)}
-            state={specCatalog}
-          />
-          <label>
-            搜索约束规则
-            <input
-              onChange={(event) => setConstraintQuery(event.target.value)}
-              placeholder="按规则名称或 DSL 版本搜索"
-              type="search"
-              value={constraintQuery}
+            {constraints.length > 5 && (
+              <label>
+                搜索规则
+                <input
+                  onChange={(event) => setConstraintQuery(event.target.value)}
+                  placeholder="按规则名称搜索"
+                  type="search"
+                  value={constraintQuery}
+                />
+              </label>
+            )}
+            <label>
+              本次遵守的规则
+              <select
+                disabled={projectContext !== null}
+                onChange={(event) => setConstraintId(event.target.value)}
+                value={constraintId}
+              >
+                <option value="">请选择规则版本</option>
+                {visibleConstraints.map((item) => (
+                  <option key={item.artifact.artifact_id} value={item.artifact.artifact_id}>
+                    {constraintOptionLabel(
+                      item,
+                      constraintLabelCounts.get(constraintLabel(item)) ?? 0,
+                      constraintCollisionOrdinals.get(item.artifact.artifact_id),
+                    )}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <CatalogPageControl
+              label="规则版本"
+              onLoad={() =>
+                void readCatalogPage(
+                  constraintCatalog,
+                  setConstraintCatalog,
+                  api.listConstraints.bind(api),
+                  false,
+                )
+              }
+              onRestart={() =>
+                void readCatalogPage(
+                  constraintCatalog,
+                  setConstraintCatalog,
+                  api.listConstraints.bind(api),
+                  true,
+                )
+              }
+              state={constraintCatalog}
             />
-          </label>
-          <label>
-            Constraint snapshot
-            <select onChange={(event) => setConstraintId(event.target.value)} value={constraintId}>
-              <option value="">请选择 exact ConstraintSnapshot</option>
-              {visibleConstraints.map((item) => (
-                <option key={item.artifact.artifact_id} value={item.artifact.artifact_id}>
-                  {constraintOptionLabel(item, constraintLabelCounts.get(constraintLabel(item)) ?? 0)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <CatalogPageControl
-            label="Constraint snapshots"
-            onLoad={() =>
-              void readCatalogPage(
-                constraintCatalog,
-                setConstraintCatalog,
-                api.listConstraints.bind(api),
-                false,
-              )
-            }
-            onRestart={() =>
-              void readCatalogPage(
-                constraintCatalog,
-                setConstraintCatalog,
-                api.listConstraints.bind(api),
-                true,
-              )
-            }
-            state={constraintCatalog}
-          />
-          <label>
-            Generation profile
-            <select
-              onChange={(event) => {
-                setGenerationKey(event.target.value);
-                setDomainIds([]);
-              }}
-              value={generationKey}
-            >
-              <option value="">请选择 active generation profile</option>
-              {generationProfiles.map((item) => (
-                <option key={profileKey(item)} value={profileKey(item)}>
-                  {item.display_name} · {profileKey(item)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Environment profile
-            <select
-              onChange={(event) => {
-                setEnvironmentKey(event.target.value);
-                setExportKeys([]);
-              }}
-              value={environmentKey}
-            >
-              <option value="">请选择 active environment profile</option>
-              {environmentProfiles.map((item) => (
-                <option key={profileKey(item)} value={profileKey(item)}>
-                  {item.display_name} · {profileKey(item)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <fieldset>
-            <legend>Candidate export profiles</legend>
-            {!selectedEnvironment ? (
-              <p>先选择 environment；页面不会使用默认导出器。</p>
-            ) : exportProfiles.length === 0 ? (
-              <p>该 environment 没有 active config_export profile。</p>
-            ) : (
-              exportProfiles.map((item) => {
-                const key = profileKey(item);
-                return (
-                  <label key={key}>
+            <fieldset>
+              <legend>内容领域</legend>
+              {!selectedGeneration ? (
+                <p>请在高级设置中选择 AI 生成方案。</p>
+              ) : domainOptions.length === 0 ? (
+                <p>所选 AI 生成方案没有可用领域，不能启动生成。</p>
+              ) : (
+                domainOptions.map((domainId) => (
+                  <label key={domainId}>
                     <input
-                      checked={exportKeys.includes(key)}
+                      checked={domainIds.includes(domainId)}
                       onChange={(event) =>
-                        setExportKeys((current) =>
+                        setDomainIds((current) =>
                           event.target.checked
-                            ? [...current, key].sort()
-                            : current.filter((candidate) => candidate !== key),
+                            ? [...current, domainId].sort()
+                            : current.filter((candidate) => candidate !== domainId),
                         )
                       }
                       type="checkbox"
                     />
-                    {item.display_name} · {key}
+                    {domainLabel(domainId)}
                   </label>
-                );
-              })
-            )}
-          </fieldset>
-          <CatalogPageControl
-            label="Execution profiles"
-            onLoad={() =>
-              void readCatalogPage(
-                profileCatalog,
-                setProfileCatalog,
-                api.listExecutionProfiles.bind(api),
-                false,
-              )
-            }
-            onRestart={() =>
-              void readCatalogPage(
-                profileCatalog,
-                setProfileCatalog,
-                api.listExecutionProfiles.bind(api),
-                true,
-              )
-            }
-            state={profileCatalog}
-          />
-          <fieldset>
-            <legend>内容领域</legend>
-            {!selectedGeneration ? (
-              <p>先选择 Generation profile，页面会列出它明确覆盖的业务领域。</p>
-            ) : domainOptions.length === 0 ? (
-              <p>所选 Generation profile 没有可用领域，不能启动生成。</p>
-            ) : (
-              domainOptions.map((domainId) => (
-                <label key={domainId}>
-                  <input
-                    checked={domainIds.includes(domainId)}
-                    onChange={(event) =>
-                      setDomainIds((current) =>
-                        event.target.checked
-                          ? [...current, domainId].sort()
-                          : current.filter((candidate) => candidate !== domainId),
-                      )
-                    }
-                    type="checkbox"
-                  />
-                  {domainLabel(domainId)}
-                </label>
-              ))
-            )}
-          </fieldset>
-          <label>
-            Authenticated authoring goal
-            <textarea onChange={(event) => setGoal(event.target.value)} rows={5} value={goal} />
-          </label>
-          <label>
-            LLM execution mode
-            <select
-              onChange={(event) => {
-                const next = event.target.value as "" | LlmExecutionMode;
-                setMode(next);
-                if (next !== "replay") setReplaySourceRunId("");
-              }}
-              value={mode}
+                ))
+              )}
+            </fieldset>
+            <details
+              className="gf-generation__advanced-settings"
+              open={
+                selectedGeneration === undefined ||
+                selectedEnvironment === undefined ||
+                selectedExports.length === 0 ||
+                mode === ""
+                  ? true
+                  : undefined
+              }
             >
-              <option value="">请选择 live / record / replay</option>
-              <option value="live">live</option>
-              <option value="record">record</option>
-              <option value="replay">replay</option>
-            </select>
-          </label>
-          {mode === "replay" && (
-            <>
-              <label>
-                Replay source Run
-                <select
-                  onChange={(event) => setReplaySourceRunId(event.target.value)}
-                  value={replaySourceRunId}
-                >
-                  <option value="">请选择一个已完成的回放来源</option>
-                  {replayRunCatalog.items.map((run) => (
-                    <option key={run.run_id} value={run.run_id}>
-                      {runLabel(run)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <CatalogPageControl
-                label="已完成 Runs"
-                onLoad={() =>
-                  void readCatalogPage(
-                    replayRunCatalog,
-                    setReplayRunCatalog,
-                    api.listReplaySourceRuns.bind(api),
-                    false,
-                  )
-                }
-                onRestart={() =>
-                  void readCatalogPage(
-                    replayRunCatalog,
-                    setReplayRunCatalog,
-                    api.listReplaySourceRuns.bind(api),
-                    true,
-                  )
-                }
-                state={replayRunCatalog}
-              />
-            </>
-          )}
-          {!hasExactTarget && selectedSpec && (
-            <p role="alert">所选 Spec 没有 exact ref_value，不能作为正式内容 target。</p>
-          )}
-          <button disabled={!canSubmit} type="submit">
-            {attempt?.pending ? "正在解析并提交…" : "开始生成"}
-          </button>
-        </form>
-        {attempt && <MutationFailure attempt={attempt} onRetry={() => void execute(attempt)} />}
-      </section>
+              <summary>高级设置</summary>
+              <div className="gf-form">
+                <label>
+                  AI 生成方案
+                  <select
+                    onChange={(event) => {
+                      setGenerationKey(event.target.value);
+                      setDomainIds([]);
+                    }}
+                    value={generationKey}
+                  >
+                    <option value="">请选择可用的 AI 生成方案</option>
+                    {generationProfiles.map((item) => (
+                      <option key={profileKey(item)} value={profileKey(item)}>
+                        {executionProfileLabel(item)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  试玩环境
+                  <select
+                    onChange={(event) => {
+                      setEnvironmentKey(event.target.value);
+                      setExportKeys([]);
+                    }}
+                    value={environmentKey}
+                  >
+                    <option value="">请选择试玩环境</option>
+                    {environmentProfiles.map((item) => (
+                      <option key={profileKey(item)} value={profileKey(item)}>
+                        {executionProfileLabel(item)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <fieldset>
+                  <legend>候选配置格式</legend>
+                  {!selectedEnvironment ? (
+                    <p>请先选择试玩环境。</p>
+                  ) : exportProfiles.length === 0 ? (
+                    <p>该试玩环境没有可用的配置格式。</p>
+                  ) : (
+                    exportProfiles.map((item) => {
+                      const key = profileKey(item);
+                      return (
+                        <label key={key}>
+                          <input
+                            checked={exportKeys.includes(key)}
+                            onChange={(event) =>
+                              setExportKeys((current) =>
+                                event.target.checked
+                                  ? [...current, key].sort()
+                                  : current.filter((candidate) => candidate !== key),
+                              )
+                            }
+                            type="checkbox"
+                          />
+                          {executionProfileLabel(item)}
+                        </label>
+                      );
+                    })
+                  )}
+                </fieldset>
+                <label>
+                  AI 运行方式
+                  <select
+                    onChange={(event) => {
+                      const next = event.target.value as "" | LlmExecutionMode;
+                      setMode(next);
+                      if (next !== "replay") setReplaySourceRunId("");
+                    }}
+                    value={mode}
+                  >
+                    <option value="live">在线生成（推荐）</option>
+                    <option value="record">在线生成并保存回放</option>
+                    <option value="replay">使用历史回放（测试用）</option>
+                  </select>
+                </label>
+                <CatalogPageControl
+                  label="运行方案"
+                  onLoad={() =>
+                    void readCatalogPage(
+                      profileCatalog,
+                      setProfileCatalog,
+                      api.listExecutionProfiles.bind(api),
+                      false,
+                    )
+                  }
+                  onRestart={() =>
+                    void readCatalogPage(
+                      profileCatalog,
+                      setProfileCatalog,
+                      api.listExecutionProfiles.bind(api),
+                      true,
+                    )
+                  }
+                  state={profileCatalog}
+                />
+              </div>
+            </details>
+            {mode === "replay" && (
+              <>
+                <label>
+                  回放来源
+                  <select
+                    onChange={(event) => setReplaySourceRunId(event.target.value)}
+                    value={replaySourceRunId}
+                  >
+                    <option value="">请选择一个已完成的回放来源</option>
+                    {replayRunCatalog.items.map((run) => (
+                      <option key={run.run_id} value={run.run_id}>
+                        {runLabel(run)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <CatalogPageControl
+                  label="已完成 Runs"
+                  onLoad={() =>
+                    void readCatalogPage(
+                      replayRunCatalog,
+                      setReplayRunCatalog,
+                      api.listReplaySourceRuns.bind(api),
+                      false,
+                    )
+                  }
+                  onRestart={() =>
+                    void readCatalogPage(
+                      replayRunCatalog,
+                      setReplayRunCatalog,
+                      api.listReplaySourceRuns.bind(api),
+                      true,
+                    )
+                  }
+                  state={replayRunCatalog}
+                />
+              </>
+            )}
+            {!hasExactTarget && selectedSpec && (
+              <p role="alert">所选内容没有明确的发布版本，不能作为正式修改目标。</p>
+            )}
+            <button disabled={!canSubmit} type="submit">
+              {attempt?.pending ? "正在解析并提交…" : "开始生成"}
+            </button>
+          </form>
+          {attempt && <MutationFailure attempt={attempt} onRetry={() => void execute(attempt)} />}
+        </section>
 
-      <aside className="gf-generation__authority-ledger" aria-label="生成 authority 账页">
-        <p className="gf-generation__kicker">Immutable selection ledger</p>
-        <h2>当前 exact 绑定</h2>
-        <dl>
-          <div>
-            <dt>Base</dt>
-            <dd>{selectedSpec ? specLabel(selectedSpec) : "未选择"}</dd>
-          </div>
-          <div>
-            <dt>Ref</dt>
-            <dd>
-              {selectedSpec?.ref_name && selectedSpec.ref_value
-                ? `${selectedSpec.ref_name} · r${selectedSpec.ref_value.revision}`
-                : "未绑定"}
-            </dd>
-          </div>
-          <div>
-            <dt>Constraint</dt>
-            <dd>
-              {selectedConstraint
-                ? constraintOptionLabel(
-                    selectedConstraint,
-                    constraintLabelCounts.get(constraintLabel(selectedConstraint)) ?? 0,
-                  )
-                : "未选择"}
-            </dd>
-          </div>
-          <div>
-            <dt>Generation</dt>
-            <dd>{selectedGeneration ? profileKey(selectedGeneration) : "未选择"}</dd>
-          </div>
-          <div>
-            <dt>Environment</dt>
-            <dd>{selectedEnvironment ? profileKey(selectedEnvironment) : "未选择"}</dd>
-          </div>
-          <div>
-            <dt>Exports</dt>
-            <dd>{selectedExports.length ? selectedExports.map(profileKey).join(" · ") : "未选择"}</dd>
-          </div>
-        </dl>
-      </aside>
-    </div>
+        <aside className="gf-generation__authority-ledger" aria-label="本次生成使用的内容与规则">
+          <p className="gf-generation__kicker">提交前确认</p>
+          <h2>本次生成会使用</h2>
+          <dl>
+            <div>
+              <dt>内容版本</dt>
+              <dd>{selectedSpec ? specLabel(selectedSpec) : "未选择"}</dd>
+            </div>
+            <div>
+              <dt>发布位置</dt>
+              <dd>
+                {selectedSpec?.ref_name && selectedSpec.ref_value
+                  ? publicationLabel(selectedSpec.ref_name)
+                  : "未绑定"}
+              </dd>
+            </div>
+            <div>
+              <dt>规则</dt>
+              <dd>
+                {selectedConstraint
+                  ? constraintOptionLabel(
+                      selectedConstraint,
+                      constraintLabelCounts.get(constraintLabel(selectedConstraint)) ?? 0,
+                      constraintCollisionOrdinals.get(selectedConstraint.artifact.artifact_id),
+                    )
+                  : "未选择"}
+              </dd>
+            </div>
+            <div>
+              <dt>AI 方案</dt>
+              <dd>{selectedGeneration ? executionProfileLabel(selectedGeneration) : "未选择"}</dd>
+            </div>
+            <div>
+              <dt>试玩环境</dt>
+              <dd>{selectedEnvironment ? executionProfileLabel(selectedEnvironment) : "未选择"}</dd>
+            </div>
+            <div>
+              <dt>配置格式</dt>
+              <dd>
+                {selectedExports.length ? selectedExports.map(executionProfileLabel).join(" · ") : "未选择"}
+              </dd>
+            </div>
+            {projectContext && (
+              <div>
+                <dt>项目材料</dt>
+                <dd>{projectContext.sourceArtifactIds.length} 份已绑定来源</dd>
+              </div>
+            )}
+          </dl>
+          <TechnicalDetails
+            items={[
+              ...(selectedSpec
+                ? [
+                    {
+                      label: "内容标识",
+                      value: selectedSpec.artifact.artifact_id,
+                    },
+                  ]
+                : []),
+              ...(selectedSpec?.ref_name ? [{ label: "发布位置", value: selectedSpec.ref_name }] : []),
+              ...(selectedConstraint
+                ? [
+                    {
+                      label: "规则版本标识",
+                      value: selectedConstraint.artifact.artifact_id,
+                    },
+                  ]
+                : []),
+              ...(selectedGeneration
+                ? [
+                    {
+                      label: "AI 方案标识",
+                      value: profileKey(selectedGeneration),
+                    },
+                  ]
+                : []),
+              ...(selectedEnvironment ? [{ label: "环境标识", value: profileKey(selectedEnvironment) }] : []),
+              ...selectedExports.map((item) => ({
+                label: "配置格式标识",
+                value: profileKey(item),
+              })),
+              ...(selectedConstraint
+                ? [
+                    {
+                      label: "规则语法版本",
+                      value: selectedConstraint.dsl_grammar_version,
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        </aside>
+      </div>
+    </>
   );
 }
 
 type CandidateArtifact = PassedGenerationCandidate["patch"];
 
+function artifactKindLabel(kind: CandidateArtifact["kind"]): string {
+  const labels: Partial<Record<CandidateArtifact["kind"], string>> = {
+    checker_run: "确定性检查证据",
+    config_export: "可试玩配置",
+    ir_snapshot: "修改后预览",
+    patch: "修改方案",
+    regression_evidence: "回归验证证据",
+    review_report: "AI 建议报告",
+    simulation_run: "模拟验证证据",
+  };
+  return labels[kind] ?? "运行产物";
+}
+
+function approvalStatusLabel(status: string): string {
+  return (
+    {
+      approved: "已批准",
+      draft: "草稿",
+      pending: "等待审批",
+      rejected: "已驳回",
+      superseded: "已由新版本替代",
+    }[status] ?? status
+  );
+}
+
+function validationStatusLabel(status: string): string {
+  return (
+    {
+      failed: "未通过",
+      not_started: "尚未验证",
+      passed: "已通过",
+      running: "验证中",
+    }[status] ?? status
+  );
+}
+
 function ArtifactCard({ artifact, label }: { artifact: CandidateArtifact; label: string }) {
   return (
     <article className="gf-generation__artifact-card">
-      <p>{label}</p>
-      <a href={artifactHref(artifact.artifact_id)}>{artifact.artifact_id}</a>
-      <dl>
-        <div>
-          <dt>Kind</dt>
-          <dd>{artifact.kind}</dd>
-        </div>
-        <div>
-          <dt>Schema</dt>
-          <dd>{artifact.payload_schema_id}</dd>
-        </div>
-      </dl>
+      <ResourceIdentity
+        actionLabel="查看详情"
+        description={`${artifactKindLabel(artifact.kind)} · ${compactDateTime(artifact.created_at)}`}
+        details={[
+          { label: "内容标识", value: artifact.artifact_id },
+          { label: "数据类型", value: artifact.kind },
+          { label: "结构版本", value: artifact.payload_schema_id ?? "未声明" },
+        ]}
+        href={artifactHref(artifact.artifact_id)}
+        title={label}
+      />
     </article>
   );
 }
@@ -820,8 +1149,20 @@ function ArtifactList({ artifacts }: { artifacts: readonly CandidateArtifact[] }
     <ul className="gf-generation__artifact-list">
       {artifacts.map((artifact) => (
         <li key={artifact.artifact_id}>
-          <a href={artifactHref(artifact.artifact_id)}>{artifact.artifact_id}</a>
-          <span>{artifact.kind}</span>
+          <ResourceIdentity
+            actionLabel="查看证据"
+            description={compactDateTime(artifact.created_at)}
+            details={[
+              { label: "证据标识", value: artifact.artifact_id },
+              { label: "数据类型", value: artifact.kind },
+              {
+                label: "结构版本",
+                value: artifact.payload_schema_id ?? "未声明",
+              },
+            ]}
+            href={artifactHref(artifact.artifact_id)}
+            title={artifactKindLabel(artifact.kind)}
+          />
         </li>
       ))}
     </ul>
@@ -830,23 +1171,24 @@ function ArtifactList({ artifacts }: { artifacts: readonly CandidateArtifact[] }
 
 function IntermediateList({ intermediates }: { intermediates: PassedGenerationCandidate["intermediates"] }) {
   return (
-    <ul className="gf-generation__artifact-list">
-      {intermediates.map((intermediate) => (
-        <li key={intermediate.artifactId}>
-          <code>{intermediate.artifactId}</code>
-          <span>manifest-only · 敏感 payload 不经通用端点公开</span>
-        </li>
-      ))}
-    </ul>
+    <TechnicalDetails
+      items={intermediates.map((intermediate, index) => ({
+        label: `运行记录 ${index + 1}`,
+        value: intermediate.artifactId,
+      }))}
+      summary={`运行记录（${intermediates.length}，仅供审计）`}
+    />
   );
 }
 
 function OutcomeEvidence({
   evidence,
   intermediates,
+  mode = "passed",
 }: {
   evidence: readonly CandidateArtifact[];
   intermediates: PassedGenerationCandidate["intermediates"];
+  mode?: "passed" | "rejected";
 }) {
   const deterministic = evidence.filter(
     (artifact) => artifact.kind === "checker_run" || artifact.kind === "regression_evidence",
@@ -856,8 +1198,10 @@ function OutcomeEvidence({
   return (
     <section className="gf-generation__evidence" aria-labelledby="generation-evidence-title">
       <header>
-        <p className="gf-generation__kicker">Oracle-grounded result</p>
-        <h2 id="generation-evidence-title">Gate evidence</h2>
+        <p className="gf-generation__kicker">检查结果</p>
+        <h2 id="generation-evidence-title">
+          {mode === "passed" ? "为什么这个候选可以继续" : "为什么这份提议被拦截"}
+        </h2>
       </header>
       <EvidenceSections
         deterministic={deterministic.length > 0 ? <ArtifactList artifacts={deterministic} /> : undefined}
@@ -866,8 +1210,8 @@ function OutcomeEvidence({
       />
       {intermediates.length > 0 && (
         <section className="gf-generation__supporting" aria-labelledby="generation-supporting-title">
-          <h3 id="generation-supporting-title">Supporting runtime artifacts</h3>
-          <p>这些工件支持回放和审计，不被当作 gate evidence。</p>
+          <h3 id="generation-supporting-title">可回放的运行记录</h3>
+          <p>仅用于排查和审计，不影响本次检查结论。</p>
           <IntermediateList intermediates={intermediates} />
         </section>
       )}
@@ -879,18 +1223,18 @@ function CandidateChain({ candidate }: { candidate: PassedGenerationCandidate })
   return (
     <section className="gf-generation__candidate" aria-labelledby="generation-candidate-title">
       <header>
-        <p className="gf-generation__kicker">Immutable candidate ledger</p>
-        <h2 id="generation-candidate-title">Patch → preview → config</h2>
-        <p>候选链来自 RunResult 的 canonical closure；工件存在不代表 ref 已更新。</p>
+        <p className="gf-generation__kicker">本次生成的内容</p>
+        <h2 id="generation-candidate-title">从修改方案到可试玩配置</h2>
+        <p>这些内容仍是候选版本，完成检查、审批和应用后才会更新正式内容。</p>
       </header>
       <div className="gf-generation__candidate-chain">
-        <ArtifactCard artifact={candidate.patch} label="Primary Patch" />
+        <ArtifactCard artifact={candidate.patch} label="修改方案" />
         <ArrowRight aria-hidden="true" size={18} />
-        <ArtifactCard artifact={candidate.preview} label="唯一 Preview" />
+        <ArtifactCard artifact={candidate.preview} label="修改后预览" />
         {candidate.configExports.map((artifact) => (
           <div className="gf-generation__candidate-next" key={artifact.artifact_id}>
             <ArrowRight aria-hidden="true" size={18} />
-            <ArtifactCard artifact={artifact} label="Config export" />
+            <ArtifactCard artifact={artifact} label="可试玩配置" />
           </div>
         ))}
       </div>
@@ -902,14 +1246,14 @@ function RejectedCandidateChain({ candidate }: { candidate: RejectedGenerationCa
   return (
     <section className="gf-generation__candidate" aria-labelledby="generation-rejected-candidate-title">
       <header>
-        <p className="gf-generation__kicker">Evidence-only retained proposal</p>
-        <h2 id="generation-rejected-candidate-title">Rejected Patch + preview</h2>
-        <p>两项仅供解释与审计；服务器没有创建 workflow subject，也没有 config export。</p>
+        <p className="gf-generation__kicker">被拦截的候选记录</p>
+        <h2 id="generation-rejected-candidate-title">未进入正式流程的修改与预览</h2>
+        <p>两项仅用于解释和审计；系统没有创建审批流程，也没有生成可试玩配置。</p>
       </header>
       <div className="gf-generation__candidate-chain">
-        <ArtifactCard artifact={candidate.patch} label="Evidence-only Patch" />
+        <ArtifactCard artifact={candidate.patch} label="被拦截的修改方案" />
         <ArrowRight aria-hidden="true" size={18} />
-        <ArtifactCard artifact={candidate.preview} label="Evidence-only Preview" />
+        <ArtifactCard artifact={candidate.preview} label="被拦截的内容预览" />
       </div>
     </section>
   );
@@ -917,6 +1261,41 @@ function RejectedCandidateChain({ candidate }: { candidate: RejectedGenerationCa
 
 function generationFieldLabel(fieldPath: string): string {
   return fieldPath === "reward.gold" ? "金币奖励" : fieldPath;
+}
+
+const rejectedOperationLabels = {
+  add_entity: "新增内容实体",
+  add_relation: "新增内容关系",
+  delete_entity: "删除内容实体",
+  delete_relation: "删除内容关系",
+  replace_subgraph: "替换一组关联内容",
+  set_entity_attr: "修改实体属性",
+  set_relation_attr: "修改关系属性",
+} as const;
+
+const proposalRejectionLabels = {
+  candidate_work_budget_exceeded: "候选内容规模超过当前安全检查范围",
+  empty_ops: "AI 没有给出可执行的修改",
+  identity_conflict: "内容名称或关系引用无法唯一对应",
+  inapplicable_ops: "这份修改无法应用到当前内容",
+  malformed_ops: "AI 给出的修改格式不完整",
+  model_response_unparseable: "AI 返回的内容无法解析",
+} as const;
+
+const deterministicFindingLabels: Readonly<Record<string, string>> = {
+  cyclic_dependency: "内容依赖形成循环",
+  dangling_reference: "引用了不存在的内容",
+  duplicate_identity: "存在重复的内容名称或标识",
+  invalid_generation_proposal: "生成提议无法安全应用",
+  unreachable_content: "存在无法到达的内容",
+};
+
+function rejectedBlockerLabel(blocker: GateRejectedGenerationOutcome["blockers"][number]): string {
+  if (blocker.kind === "numeric-limit") {
+    return `${generationFieldLabel(blocker.fieldPath)} ${blocker.actualValue} 超过规则上限 ${blocker.limit}`;
+  }
+  if (blocker.kind === "proposal-rejection") return proposalRejectionLabels[blocker.reasonCode];
+  return deterministicFindingLabels[blocker.defectClass] ?? "确定性检查发现内容问题";
 }
 
 function GateRejectedOutcome({ outcome }: { outcome: GateRejectedGenerationOutcome }) {
@@ -932,35 +1311,80 @@ function GateRejectedOutcome({ outcome }: { outcome: GateRejectedGenerationOutco
         }
         description="生成已完成，确定性门禁阻止了不合规提议；这不是系统故障。"
         state="terminal"
-        title={`拦截成功：${generationFieldLabel(primaryBlocker.fieldPath)} ${primaryBlocker.actualValue} 超过上限 ${primaryBlocker.limit}`}
+        title={`拦截成功：${rejectedBlockerLabel(primaryBlocker)}`}
       />
       <section className="gf-generation__rejection-summary" aria-label="门禁拦截摘要">
         <section aria-label="提议改动">
           <p className="gf-generation__kicker">提议改动</p>
           <h2>候选值没有进入正式内容</h2>
           <ul>
-            {outcome.changes.map((change) => (
-              <li key={`${change.entityId}:${change.fieldPath}`}>
-                <span>{change.entityTitle ?? change.entityId}</span>{" "}
-                {change.entityTitle && <code>{change.entityId}</code>} <code>{change.fieldPath}</code>{" "}
-                <strong>
-                  {change.oldValue} → {change.newValue}
-                </strong>
-              </li>
-            ))}
+            {outcome.changes.map((change) =>
+              change.kind === "numeric-field" ? (
+                <li key={change.operationId}>
+                  <span>{change.entityTitle ?? "一个内容项"}</span>{" "}
+                  <strong>
+                    {generationFieldLabel(change.fieldPath)} {change.oldValue} → {change.newValue}
+                  </strong>
+                  <TechnicalDetails
+                    items={[
+                      { label: "内容标识", value: change.entityId },
+                      { label: "字段路径", value: change.fieldPath },
+                      { label: "操作标识", value: change.operationId },
+                    ]}
+                    summary="查看改动技术信息"
+                  />
+                </li>
+              ) : (
+                <li key={change.operationId}>
+                  <strong>{rejectedOperationLabels[change.operationKind]}</strong>
+                  <span>这项提议未进入正式内容。</span>
+                  <TechnicalDetails
+                    items={[
+                      { label: "操作标识", value: change.operationId },
+                      { label: "操作类型", value: change.operationKind },
+                      { label: "目标标识", value: change.target },
+                      ...(change.sourceId ? [{ label: "来源标识", value: change.sourceId }] : []),
+                      ...(change.destinationId
+                        ? [{ label: "目标内容标识", value: change.destinationId }]
+                        : []),
+                    ]}
+                    summary="查看改动技术信息"
+                  />
+                </li>
+              ),
+            )}
           </ul>
         </section>
         <section aria-label="拦截原因">
           <p className="gf-generation__kicker">拦截原因</p>
-          <h2>确定性约束已确认违规</h2>
+          <h2>确定性检查已确认问题</h2>
           <ul>
-            {outcome.blockers.map((blocker) => (
-              <li key={`${blocker.constraintId}:${blocker.entityId}:${blocker.fieldPath}`}>
-                <code>{blocker.constraintId}</code>{" "}
-                <strong>
-                  {blocker.actualValue} &gt; {blocker.limit}
-                </strong>{" "}
-                <span>确定性检查 · confirmed</span>
+            {outcome.blockers.map((blocker, index) => (
+              <li key={`${blocker.kind}:${index}`}>
+                <strong>{rejectedBlockerLabel(blocker)}</strong>
+                <span>系统已阻止这份提议进入正式流程。</span>
+                <TechnicalDetails
+                  items={
+                    blocker.kind === "numeric-limit"
+                      ? [
+                          { label: "规则标识", value: blocker.constraintId },
+                          { label: "内容标识", value: blocker.entityId },
+                          { label: "字段路径", value: blocker.fieldPath },
+                        ]
+                      : blocker.kind === "proposal-rejection"
+                        ? [{ label: "拦截原因代码", value: blocker.reasonCode }]
+                        : [
+                            { label: "问题类型", value: blocker.defectClass },
+                            ...(blocker.entityIds.length > 0
+                              ? [{ label: "相关内容标识", value: blocker.entityIds.join(", ") }]
+                              : []),
+                            ...(blocker.relationIds.length > 0
+                              ? [{ label: "相关关系标识", value: blocker.relationIds.join(", ") }]
+                              : []),
+                          ]
+                  }
+                  summary="查看拦截技术信息"
+                />
               </li>
             ))}
           </ul>
@@ -968,9 +1392,7 @@ function GateRejectedOutcome({ outcome }: { outcome: GateRejectedGenerationOutco
         <section aria-label="正式内容状态">
           <p className="gf-generation__kicker">正式内容</p>
           <h2>正式内容未变化</h2>
-          <p>
-            该提议仅作为 evidence 保留；没有创建 workflow subject 或 config export，也没有移动任何正式 ref。
-          </p>
+          <p>这份提议只作为记录保留；系统没有创建待审批修改，也没有生成试玩配置，正式版本保持不变。</p>
         </section>
       </section>
       <details className="gf-generation__technical-evidence">
@@ -980,6 +1402,7 @@ function GateRejectedOutcome({ outcome }: { outcome: GateRejectedGenerationOutco
           <OutcomeEvidence
             evidence={outcome.candidate.evidence}
             intermediates={outcome.candidate.intermediates}
+            mode="rejected"
           />
         </div>
       </details>
@@ -1000,68 +1423,85 @@ function PreviousApproval({ outcome }: { outcome: PassedGenerationOutcome }) {
   return (
     <section className="gf-generation__revision-history" aria-labelledby="generation-revision-history-title">
       <header>
-        <p className="gf-generation__kicker">Repair successor boundary</p>
+        <p className="gf-generation__kicker">版本继承关系</p>
         <h2 id="generation-revision-history-title">旧审批状态不会继承</h2>
-        <p>旧 revision 的决定与证据保持在旧 Approval；新 revision 从自己的 workflow 状态继续。</p>
+        <p>上一版的审批决定和证据会完整保留；当前版本需要重新完成自己的检查与审批。</p>
       </header>
       <div className="gf-generation__approval-compare">
         <section aria-label="旧 Patch workflow 状态">
-          <h3>旧 Approval · r{previous.subject_revision}</h3>
+          <h3>上一版修改 · 第 {previous.subject_revision} 版</h3>
           <dl>
             <div>
-              <dt>Patch</dt>
-              <dd>{previousPatch.artifact.artifact_id}</dd>
-            </div>
-            <div>
               <dt>状态</dt>
-              <dd>{previous.status}</dd>
+              <dd>{approvalStatusLabel(previous.status)}</dd>
             </div>
             <div>
-              <dt>Head</dt>
-              <dd>{previousBinding.is_current_head ? "current" : "non-current"}</dd>
+              <dt>是否为当前版本</dt>
+              <dd>{previousBinding.is_current_head ? "是" : "否"}</dd>
             </div>
             <div>
-              <dt>Evidence</dt>
+              <dt>验证证据</dt>
               <dd>{previousEvidenceCount}</dd>
             </div>
             <div>
-              <dt>Decisions</dt>
+              <dt>审批决定</dt>
               <dd>{previous.decisions.length}</dd>
             </div>
-            <div>
-              <dt>EvidenceSet</dt>
-              <dd>{previous.evidence_set_artifact_id ?? "无"}</dd>
-            </div>
           </dl>
+          <TechnicalDetails
+            items={[
+              { label: "修改标识", value: previousPatch.artifact.artifact_id },
+              ...(previous.evidence_set_artifact_id
+                ? [
+                    {
+                      label: "证据集标识",
+                      value: previous.evidence_set_artifact_id,
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </section>
         <section aria-label="新 Patch workflow 状态">
-          <h3>新 Approval · r{current.subject_revision}</h3>
+          <h3>当前修改 · 第 {current.subject_revision} 版</h3>
           <dl>
             <div>
-              <dt>Patch</dt>
-              <dd>{outcome.patch.value.artifact.artifact_id}</dd>
-            </div>
-            <div>
-              <dt>Supersedes</dt>
-              <dd>{outcome.patch.value.patch.supersedes_artifact_id}</dd>
-            </div>
-            <div>
               <dt>状态</dt>
-              <dd>{current.status}</dd>
+              <dd>{approvalStatusLabel(current.status)}</dd>
             </div>
             <div>
-              <dt>Evidence</dt>
+              <dt>验证证据</dt>
               <dd>{currentEvidenceCount}</dd>
             </div>
             <div>
-              <dt>Decisions</dt>
+              <dt>审批决定</dt>
               <dd>{current.decisions.length}</dd>
             </div>
-            <div>
-              <dt>EvidenceSet</dt>
-              <dd>{current.evidence_set_artifact_id ?? "无"}</dd>
-            </div>
           </dl>
+          <TechnicalDetails
+            items={[
+              {
+                label: "当前修改标识",
+                value: outcome.patch.value.artifact.artifact_id,
+              },
+              ...(outcome.patch.value.patch.supersedes_artifact_id
+                ? [
+                    {
+                      label: "上一版修改标识",
+                      value: outcome.patch.value.patch.supersedes_artifact_id,
+                    },
+                  ]
+                : []),
+              ...(current.evidence_set_artifact_id
+                ? [
+                    {
+                      label: "证据集标识",
+                      value: current.evidence_set_artifact_id,
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </section>
       </div>
     </section>
@@ -1074,44 +1514,54 @@ function PassedOutcome({ outcome }: { outcome: PassedGenerationOutcome }) {
   return (
     <div className="gf-generation__outcome-stack">
       <StatePanel
-        description="RunResult 与 workflow authority 已闭合；候选仍需后续验证、审批与显式应用。"
+        description="系统已完成第一轮确定性检查。候选仍需内容检查、审批并由你明确应用，才会进入正式版本。"
         state="terminal"
-        title="generation_gate_passed"
+        title="候选内容已通过初步检查"
       />
       <CandidateChain candidate={candidate} />
       <section className="gf-generation__workflow-ledger" aria-labelledby="generation-workflow-title">
         <header>
-          <p className="gf-generation__kicker">Server-owned workflow state</p>
-          <h2 id="generation-workflow-title">Patch workflow</h2>
+          <p className="gf-generation__kicker">后续流程</p>
+          <h2 id="generation-workflow-title">这次修改的当前状态</h2>
         </header>
         <dl>
           <div>
-            <dt>Exact base</dt>
-            <dd>{baseSpec.artifact.artifact_id}</dd>
+            <dt>基于</dt>
+            <dd>
+              正式内容
+              {baseSpec.ref_value ? ` · 第 ${baseSpec.ref_value.revision} 版` : ""}
+            </dd>
           </div>
           <div>
-            <dt>Constraint</dt>
-            <dd>{constraint.artifact.artifact_id}</dd>
+            <dt>遵守规则</dt>
+            <dd>{constraint.constraints.length} 条已发布规则</dd>
           </div>
           <div>
-            <dt>Patch revision</dt>
-            <dd>{patch.value.patch.revision}</dd>
+            <dt>修改版本</dt>
+            <dd>第 {patch.value.patch.revision} 版</dd>
           </div>
           <div>
-            <dt>Approval status</dt>
-            <dd>{approvalItem.status}</dd>
+            <dt>审批</dt>
+            <dd>{approvalStatusLabel(approvalItem.status)}</dd>
           </div>
           <div>
-            <dt>Validation</dt>
-            <dd>{patch.value.validation_status}</dd>
+            <dt>完整验证</dt>
+            <dd>{validationStatusLabel(patch.value.validation_status)}</dd>
           </div>
           <div>
-            <dt>Current head</dt>
-            <dd>{binding.is_current_head ? "是" : `否 · head r${binding.subject_head_revision}`}</dd>
+            <dt>是否为当前修改</dt>
+            <dd>{binding.is_current_head ? "是" : `否 · 当前为第 ${binding.subject_head_revision} 版`}</dd>
           </div>
         </dl>
+        <TechnicalDetails
+          items={[
+            { label: "原内容标识", value: baseSpec.artifact.artifact_id },
+            { label: "规则版本标识", value: constraint.artifact.artifact_id },
+            { label: "修改标识", value: patch.value.artifact.artifact_id },
+          ]}
+        />
         <a className="gf-primary-link" href={`/patches/${encodeURIComponent(candidate.patch.artifact_id)}`}>
-          打开 exact Patch workflow <ArrowRight aria-hidden="true" size={16} />
+          打开修改详情 <ArrowRight aria-hidden="true" size={16} />
         </a>
       </section>
       <SnapshotDiffView diff={diff.diff} entries={diff.page.items} />
@@ -1119,7 +1569,7 @@ function PassedOutcome({ outcome }: { outcome: PassedGenerationOutcome }) {
       <OutcomeEvidence evidence={candidate.evidence} intermediates={candidate.intermediates} />
       <nav className="gf-generation__next-actions" aria-label="候选后续动作">
         <div>
-          <p className="gf-generation__kicker">Continue with exact Run authority</p>
+          <p className="gf-generation__kicker">继续完善候选内容</p>
           <h2>下一步</h2>
         </div>
         <a
@@ -1128,7 +1578,7 @@ function PassedOutcome({ outcome }: { outcome: PassedGenerationOutcome }) {
             constraint: constraint.artifact.artifact_id,
           })}
         >
-          Review 候选
+          检查这次修改
         </a>
         {candidate.configExports.map((config) => {
           const context = {
@@ -1138,12 +1588,15 @@ function PassedOutcome({ outcome }: { outcome: PassedGenerationOutcome }) {
           };
           return (
             <span className="gf-generation__next-config" key={config.artifact_id}>
-              <a href={sourceRunHref("/playtest", candidate.runId, { ...context, action: "derive" })}>
-                派生 TaskSuite · {config.artifact_id}
+              <a
+                href={sourceRunHref("/playtest", candidate.runId, {
+                  ...context,
+                  action: "derive",
+                })}
+              >
+                创建试玩任务
               </a>
-              <a href={sourceRunHref("/playtest", candidate.runId, context)}>
-                进入 Playtest · {config.artifact_id}
-              </a>
+              <a href={sourceRunHref("/playtest", candidate.runId, context)}>直接进入自动试玩</a>
             </span>
           );
         })}
@@ -1180,9 +1633,9 @@ function GenerationOutcomePanel({ api, run }: { api: GenerationApi; run: RunView
   if (outcome.isPending) {
     return (
       <StatePanel
-        description="正在闭合 manifest、候选工件与 workflow authority。"
+        description="正在核对本次生成的修改、预览和后续操作资格。"
         state="loading"
-        title="正在读取候选链"
+        title="正在读取生成结果"
       />
     );
   }
@@ -1190,39 +1643,55 @@ function GenerationOutcomePanel({ api, run }: { api: GenerationApi; run: RunView
     if (outcome.error instanceof ApiProblemError) return <ProblemPanel problem={outcome.error.problem} />;
     const unsafe = outcome.error instanceof UnsafeGenerationOutcomeError;
     return (
-      <StatePanel
-        action={
-          unsafe ? undefined : (
-            <button className="gf-secondary-button" onClick={() => void outcome.refetch()} type="button">
-              重试候选读取
-            </button>
-          )
-        }
-        description={
-          unsafe
-            ? outcome.error.message
-            : "候选读取失败；页面没有展示底层异常，也没有从本地状态猜测 workflow 资格。"
-        }
-        state="error"
-        title={unsafe ? "候选 authority 不安全" : "无法读取候选链"}
-      />
+      <>
+        <StatePanel
+          action={
+            unsafe ? undefined : (
+              <button className="gf-secondary-button" onClick={() => void outcome.refetch()} type="button">
+                重新读取生成结果
+              </button>
+            )
+          }
+          description={
+            unsafe
+              ? "生成记录之间存在不一致，系统已停止展示候选内容和后续操作。"
+              : "生成结果读取失败；页面不会使用不完整数据猜测后续操作资格。"
+          }
+          state="error"
+          title={unsafe ? "生成结果无法安全展示" : "无法读取生成结果"}
+        />
+        {unsafe && (
+          <TechnicalDetails
+            items={[{ label: "完整性校验信息", value: outcome.error.message }]}
+            summary="查看校验技术信息"
+          />
+        )}
+      </>
     );
   }
   if (outcome.data.kind === "passed") return <PassedOutcome outcome={outcome.data} />;
   if (outcome.data.kind === "gate-rejected") return <GateRejectedOutcome outcome={outcome.data} />;
   if (outcome.data.kind === "failure") return <FailedOutcome candidate={outcome.data.candidate} />;
   return (
-    <StatePanel
-      description={`Run manifest 未通过 typed candidate guard：${outcome.data.candidate.reason}`}
-      state="error"
-      title={outcome.data.candidate.reason}
-    />
+    <>
+      <StatePanel
+        description="本次生成的记录没有通过完整性校验，系统已停止后续操作。"
+        state="error"
+        title="生成结果无法安全展示"
+      />
+      <TechnicalDetails
+        items={[{ label: "完整性校验原因", value: outcome.data.candidate.reason }]}
+        summary="查看校验技术信息"
+      />
+    </>
   );
 }
 
 function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
   const [events, setEvents] = useState<RunEventItem[]>([]);
-  const [streamState, setStreamState] = useState<RunEventStreamState>({ status: "idle" });
+  const [streamState, setStreamState] = useState<RunEventStreamState>({
+    status: "idle",
+  });
   const streamRef = useRef<GenerationEventStreamHandle>();
   const streamReceivedEventRef = useRef(false);
   const run = useQuery({
@@ -1277,7 +1746,7 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
   );
   const preliminaryGatePanel = preliminaryGate ? (
     <StatePanel
-      description="已从真实 SSE attempt.progress 观察到 generation.preliminary_gate。"
+      description="系统已完成生成后的第一轮确定性检查。"
       state={
         run.data?.status === "succeeded"
           ? "terminal"
@@ -1285,20 +1754,17 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
             ? "error"
             : "streaming"
       }
-      title="Preliminary gate"
+      title="初步确定性检查"
     />
   ) : null;
 
   return (
     <section className="gf-generation__run" aria-labelledby="generation-run-title">
       <header>
-        <p className="gf-generation__kicker">Run-backed authoring state</p>
+        <p className="gf-generation__kicker">AI 内容助手</p>
         <h1 id="generation-run-title">生成结果</h1>
-        <p className="gf-generation__run-identity">
-          <span>Run ID</span>
-          <code>{runId}</code>
-        </p>
-        <p>URL 只保存 Run ID；目标文本不进入地址栏。</p>
+        <p>你可以在这里查看候选内容、检查结论和下一步操作。</p>
+        <TechnicalDetails items={[{ label: "运行标识", value: runId }]} summary="运行技术信息" />
       </header>
       {!hasTerminalRunView && preliminaryGatePanel}
       {streamState.status === "expired" && (
@@ -1376,6 +1842,7 @@ function GenerationRun({ api, runId }: { api: GenerationApi; runId: string }) {
 export function GenerationPage({ api = generationApi }: { api?: GenerationApi }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const runId = searchParams.get("run")?.trim() || null;
+  const projectContextResult = useMemo(() => parseProjectContext(searchParams), [searchParams]);
 
   return (
     <div className="gf-page gf-generation">
@@ -1383,39 +1850,71 @@ export function GenerationPage({ api = generationApi }: { api?: GenerationApi })
         <>
           <header className="gf-generation__hero">
             <div>
-              <p className="gf-generation__kicker">Content generation · Proposal only</p>
+              <p className="gf-generation__kicker">AI 内容助手</p>
               <h1>内容生成</h1>
-              <p>输入策划目标，绑定 exact authority，让 Agent 只产候选并接受确定性 preliminary gate。</p>
+              <p>说清楚策划目标，AI 会基于当前内容与规则生成候选，并在提交前自动检查。</p>
             </div>
             <div className="gf-generation__hero-marks" aria-label="生成原则">
               <span>
-                <Database aria-hidden="true" size={16} /> exact base
+                <Database aria-hidden="true" size={16} /> 固定内容版本
               </span>
               <span>
-                <ShieldCheck aria-hidden="true" size={16} /> deterministic gate
+                <ShieldCheck aria-hidden="true" size={16} /> 确定性检查
               </span>
               <span>
-                <Bot aria-hidden="true" size={16} /> proposal only
+                <Bot aria-hidden="true" size={16} /> 只生成候选
               </span>
             </div>
           </header>
-          <GenerationAuthoring
-            api={api}
-            onAccepted={(acceptedRunId) => setSearchParams({ run: acceptedRunId })}
-          />
+          {projectContextResult.error ? (
+            <StatePanel
+              action={
+                <a className="gf-secondary-button" href="/projects">
+                  返回游戏项目
+                </a>
+              }
+              description={projectContextResult.error}
+              state="error"
+              title="项目版本绑定不完整"
+            />
+          ) : (
+            <GenerationAuthoring
+              api={api}
+              onAccepted={(acceptedRunId) => {
+                const next = new URLSearchParams(searchParams);
+                next.set("run", acceptedRunId);
+                setSearchParams(next);
+              }}
+              projectContext={projectContextResult.value}
+            />
+          )}
         </>
       ) : (
         <>
           <nav aria-label="生成运行导航" className="gf-generation__run-nav">
-            <button className="gf-secondary-button" onClick={() => setSearchParams({})} type="button">
+            <button
+              className="gf-secondary-button"
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete("run");
+                setSearchParams(projectContextResult.value ? next : {});
+              }}
+              type="button"
+            >
               开始另一次生成
             </button>
             <a href={`/runs/${encodeURIComponent(runId)}`}>
               <PlayCircle aria-hidden="true" size={16} /> 打开完整 Run
             </a>
-            <a href="/specs">
-              <GitBranch aria-hidden="true" size={16} /> 返回 Spec/KG
-            </a>
+            {projectContextResult.value ? (
+              <a href={`/projects/${encodeURIComponent(projectContextResult.value.projectId)}`}>
+                <GitBranch aria-hidden="true" size={16} /> 返回{projectContextResult.value.projectName}项目
+              </a>
+            ) : (
+              <a href="/specs">
+                <GitBranch aria-hidden="true" size={16} /> 返回 Spec/KG
+              </a>
+            )}
           </nav>
           <GenerationRun api={api} runId={runId} />
         </>

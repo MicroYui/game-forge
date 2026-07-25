@@ -43,12 +43,12 @@ describe("LogExplorer", () => {
 
     expect(screen.getByRole("heading", { name: "运行日志" })).toBeVisible();
     expect(screen.getByText("补丁验证完成：所有确定性检查均已收敛。")).toBeVisible();
-    expect(screen.getByText("constraint_snapshot")).toBeVisible();
-    expect(screen.getByText("constraint:snapshot:7")).toBeVisible();
+    expect(screen.getByText("constraint_snapshot")).not.toBeVisible();
+    expect(screen.getByText("constraint:snapshot:7")).not.toBeVisible();
     const redactionNotice = screen.getByText("4 个字段已脱敏");
     expect(redactionNotice).toBeVisible();
     expect(redactionNotice).not.toHaveAttribute("role");
-    expect(screen.getByRole("link", { name: `查看追踪 ${LONG_ID}` })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看这条日志的调用链" })).toHaveAttribute(
       "href",
       `/observability/traces/${encodeURIComponent(LONG_ID)}`,
     );
@@ -72,6 +72,8 @@ describe("LogExplorer", () => {
     const writeText = vi.spyOn(navigator.clipboard, "writeText");
     render(<LogExplorer items={[log()]} />);
 
+    expect(screen.getByText(LONG_ID)).not.toBeVisible();
+    await user.click(screen.getByText("查看日志技术信息"));
     expect(screen.getByText(LONG_ID)).toBeVisible();
     await user.click(screen.getByRole("button", { name: "复制追踪 ID" }));
     expect(writeText).toHaveBeenCalledWith(LONG_ID);
@@ -86,7 +88,8 @@ describe("LogExplorer", () => {
     expect(copiedLog).not.toContain("绝不能出现");
   });
 
-  it("hides fields named by the server redaction projection even when their key is benign", () => {
+  it("hides fields named by the server redaction projection even when their key is benign", async () => {
+    const user = userEvent.setup();
     render(
       <LogExplorer
         items={[
@@ -101,6 +104,8 @@ describe("LogExplorer", () => {
     expect(screen.getByText("1 个字段已脱敏")).toBeVisible();
     expect(screen.queryByText("upstream_payload")).not.toBeInTheDocument();
     expect(screen.queryByText("[REDACTED]")).not.toBeInTheDocument();
+    expect(screen.getByText("attempt")).not.toBeVisible();
+    await user.click(screen.getByText("查看日志技术信息"));
     expect(screen.getByText("attempt")).toBeVisible();
   });
 
@@ -118,8 +123,8 @@ describe("LogExplorer", () => {
 
     render(<LogExplorer items={[log({ fields: sensitiveFields })]} />);
 
-    expect(screen.getByText("safe_field")).toBeVisible();
-    expect(screen.getByText("safe-visible-value")).toBeVisible();
+    expect(screen.getByText("safe_field")).not.toBeVisible();
+    expect(screen.getByText("safe-visible-value")).not.toBeVisible();
     for (const [key, value] of Object.entries(sensitiveFields).filter(([key]) => key !== "safe_field")) {
       expect(screen.queryByText(key)).not.toBeInTheDocument();
       expect(screen.queryByText(value)).not.toBeInTheDocument();
@@ -154,7 +159,7 @@ describe("LogExplorer", () => {
       />,
     );
 
-    expect(screen.getByText("nested-safe-value", { exact: false })).toBeVisible();
+    expect(screen.getByText("nested-safe-value", { exact: false })).not.toBeVisible();
     for (const value of [
       "nested-debug-value",
       "nested-handler-value",

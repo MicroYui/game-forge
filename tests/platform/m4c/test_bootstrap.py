@@ -58,6 +58,7 @@ IDS = {
     "principal": "human:bootstrap-admin",
     "password_credential": "password:bootstrap-admin:1",
     "identity_admin_assignment": "assignment:bootstrap-admin:identity-admin",
+    "platform_admin_assignment": "assignment:bootstrap-admin:platform-admin",
     "tooling_assignment": "assignment:bootstrap-admin:tooling",
     "request": "request:bootstrap-admin",
 }
@@ -138,12 +139,49 @@ def _role_policy(
                 resource_kind=identity_resource_kind,
                 domain_scope=None,
             ),
+            Permission(
+                action="read",
+                resource_kind="metric",
+                domain_scope=None,
+            ),
         ),
         "tooling": (
             Permission(
                 action="run",
                 resource_kind="tooling",
                 domain_scope="all",
+            ),
+        ),
+        "platform_admin": (
+            Permission(
+                action="identity.manage",
+                resource_kind="identity",
+                domain_scope=None,
+            ),
+            Permission(
+                action="run",
+                resource_kind="tooling",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.decide",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.self_decide",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.route_override",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="read",
+                resource_kind="metric",
+                domain_scope=None,
             ),
         ),
     }
@@ -253,7 +291,7 @@ def test_bootstrap_creates_one_human_admin_password_and_exact_roles_atomically(
 
     assert result.principal_id == IDS["principal"]
     assert result.password_credential_id == IDS["password_credential"]
-    assert result.roles == ("identity_admin", "tooling")
+    assert result.roles == ("identity_admin", "platform_admin", "tooling")
     with Session(engine) as session:
         principal = SqlIdentityRepository(session, clock=_Clock()).project(result.principal_id)
         password = SqlAuthRepository(session, clock=_Clock()).get_password(
@@ -261,11 +299,12 @@ def test_bootstrap_creates_one_human_admin_password_and_exact_roles_atomically(
         )
         assert principal is not None
         assert principal.kind == "human"
-        assert principal.revision == 4
+        assert principal.revision == 5
         assert principal.credential_epoch == 1
-        assert principal.authz_revision == 2
+        assert principal.authz_revision == 3
         assert tuple((item.role, item.scope) for item in principal.roles) == (
             ("identity_admin", None),
+            ("platform_admin", "all"),
             ("tooling", "all"),
         )
         assert password is not None
@@ -278,7 +317,7 @@ def test_bootstrap_creates_one_human_admin_password_and_exact_roles_atomically(
             password_hash,
         )
         assert session.scalar(select(func.count()).select_from(PrincipalRow)) == 1
-        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 2
+        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 3
         assert session.scalar(select(func.count()).select_from(PasswordCredentialRow)) == 1
         assert session.scalar(select(func.count()).select_from(AuditRow)) == 1
         assert SqlAuditSink(session).verify_chain("identity") is True
@@ -310,7 +349,7 @@ def test_concurrent_bootstrap_attempts_have_exactly_one_winner(
     assert sorted(outcomes) == ["conflict", "created"]
     with Session(engine) as session:
         assert session.scalar(select(func.count()).select_from(PrincipalRow)) == 1
-        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 2
+        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 3
         assert session.scalar(select(func.count()).select_from(PasswordCredentialRow)) == 1
         assert session.scalar(select(func.count()).select_from(AuditRow)) == 1
 
@@ -372,6 +411,98 @@ def test_bootstrap_rejects_role_policy_without_exact_identity_manage_permission(
         assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 0
         assert session.scalar(select(func.count()).select_from(PasswordCredentialRow)) == 0
         assert session.scalar(select(func.count()).select_from(AuditRow)) == 0
+
+
+def test_bootstrap_rejects_platform_admin_without_complete_or_privileged_authority(
+    engine: Engine,
+) -> None:
+    normalization = _normalization_policy()
+    password_hash = _hash_policy()
+    registry = _domain_registry()
+    valid = _role_policy(registry)
+    grants = dict(valid.grants)
+    grants["platform_admin"] = tuple(
+        permission
+        for permission in grants["platform_admin"]
+        if permission.action != "approval.self_decide"
+    )
+    roles = RolePolicy(
+        policy_version=valid.policy_version,
+        domain_registry_ref=valid.domain_registry_ref,
+        grants=grants,
+        effective_from=valid.effective_from,
+        policy_digest=compute_role_policy_digest(
+            valid.policy_version,
+            valid.domain_registry_ref,
+            grants,
+            valid.effective_from,
+        ),
+    )
+    with Session(engine) as session, session.begin():
+        policies = SqlPolicySnapshotRepository(session, clock=_Clock())
+        policies.put_login_name_normalization_policy(normalization)
+        policies.put_password_hash_policy(password_hash)
+        policies.put_domain_registry(registry)
+        policies.put_role_policy(roles)
+
+    with pytest.raises(IntegrityViolation, match="platform_admin"):
+        _service(
+            engine,
+            normalization=normalization,
+            password_hash=password_hash,
+            roles=roles,
+        ).bootstrap(_request())
+
+    with Session(engine) as session:
+        assert session.scalar(select(func.count()).select_from(PrincipalRow)) == 0
+        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 0
+        assert session.scalar(select(func.count()).select_from(PasswordCredentialRow)) == 0
+        assert session.scalar(select(func.count()).select_from(AuditRow)) == 0
+
+
+def test_bootstrap_rejects_composite_admin_that_cannot_read_global_system_metrics(
+    engine: Engine,
+) -> None:
+    normalization = _normalization_policy()
+    password_hash = _hash_policy()
+    registry = _domain_registry()
+    valid = _role_policy(registry)
+    grants = dict(valid.grants)
+    grants["identity_admin"] = tuple(
+        permission
+        for permission in grants["identity_admin"]
+        if not (
+            permission.action == "read"
+            and permission.resource_kind == "metric"
+            and permission.domain_scope is None
+        )
+    )
+    roles = RolePolicy(
+        policy_version=valid.policy_version,
+        domain_registry_ref=valid.domain_registry_ref,
+        grants=grants,
+        effective_from=valid.effective_from,
+        policy_digest=compute_role_policy_digest(
+            valid.policy_version,
+            valid.domain_registry_ref,
+            grants,
+            valid.effective_from,
+        ),
+    )
+    with Session(engine) as session, session.begin():
+        policies = SqlPolicySnapshotRepository(session, clock=_Clock())
+        policies.put_login_name_normalization_policy(normalization)
+        policies.put_password_hash_policy(password_hash)
+        policies.put_domain_registry(registry)
+        policies.put_role_policy(roles)
+
+    with pytest.raises(IntegrityViolation, match="identity_admin"):
+        _service(
+            engine,
+            normalization=normalization,
+            password_hash=password_hash,
+            roles=roles,
+        ).bootstrap(_request())
 
 
 class _LateFailingAuditSink:

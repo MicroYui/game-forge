@@ -409,6 +409,7 @@ class Transaction(Protocol):
     object_bindings: ObjectBindingRepository
     runs: Any
     cost: Any
+    projects: Any
 
 
 @runtime_checkable

@@ -256,5 +256,5 @@ export async function loginAuthoringPage(page: Page, credentials: AuthoringCrede
   await page.getByLabel("登录名").fill(credentials.login);
   await page.getByLabel("密码").fill(credentials.password);
   await page.getByRole("button", { name: "登录" }).click();
-  await expect(page).toHaveURL(/\/specs$/u);
+  await expect(page).toHaveURL(/\/projects$/u);
 }

@@ -42,6 +42,7 @@ from gameforge.platform.playtest_payload_schemas import (
     build_builtin_playtest_payload_validators,
 )
 from gameforge.platform.run_handlers.task_suite import (
+    ScenarioDerivationRequest,
     ScenarioDraftV1,
     TaskSuiteDeriveHandler,
 )
@@ -342,6 +343,32 @@ def test_derive_publishes_one_suite_plus_n_scenarios() -> None:
     assert all(
         episode.domain_scope == DomainScope(domain_ids=("builtin",)) for episode in suite.episodes
     )
+
+
+def test_no_quest_whole_preview_diagnostic_is_bounded_to_one_step() -> None:
+    preview = AureusCsvAdapter().to_ir(
+        {"npcs": [{"npc_id": "weather_keeper", "name": "天气管理员"}]},
+        "no-quest-preview.csv",
+    )
+    drafts = AureusScenarioShaper().shape(
+        ScenarioDerivationRequest(
+            preview_snapshot=preview,
+            source_preview_artifact_id=PREVIEW_ID,
+            config_export_artifact_id=CONFIG_ID,
+            constraint_snapshot_artifact_id=CONSTRAINT_ID,
+            environment_profile=_ENV_PROFILE,
+            env_contract_version=_ENV_CONTRACT.env_contract_version,
+            reset_schema_id=_ENV_CONTRACT.reset_schema_id,
+            derivation_profile=_DERIVATION_PROFILE,
+            completion_oracle_registry_ref=_registry_ref(),
+            domain_scope=DomainScope(domain_ids=("builtin",)),
+        )
+    )
+
+    assert len(drafts) == 1
+    assert drafts[0].reset_payload["quest_ids"] == []
+    assert drafts[0].completion_oracle == ALL_QUESTS_COMPLETED_ORACLE
+    assert drafts[0].step_budget == 1
 
 
 def test_derive_inherits_semantic_parent_versions_not_artifact_ids() -> None:

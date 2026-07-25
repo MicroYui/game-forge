@@ -33,6 +33,7 @@ _CAPABILITY_NAMES = frozenset(
         "conflicts",
         "ref_transitions",
         "findings",
+        "projects",
     }
 )
 _TerminalState = Literal["committed", "rolled_back"]
@@ -63,6 +64,7 @@ class TransactionCapabilities:
     conflicts: Any = None
     ref_transitions: Any = None
     findings: Any = None
+    projects: Any = None
 
 
 class TransactionHandle:
@@ -198,6 +200,10 @@ class TransactionHandle:
     @property
     def findings(self) -> Any:
         return self.capability("findings")
+
+    @property
+    def projects(self) -> Any:
+        return self.capability("projects")
 
     def _require_owner(self, owner_token: object) -> None:
         if owner_token is not self.__owner_token:

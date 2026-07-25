@@ -14,7 +14,9 @@ import type { ExecutionOptionView, GenerationApi, GenerationEventStreamCallbacks
 type ArtifactSummary = components["schemas"]["ArtifactSummaryV1"];
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
 
-const domainScope: components["schemas"]["DomainScope"] = { domain_ids: ["domain:economy"] };
+const domainScope: components["schemas"]["DomainScope"] = {
+  domain_ids: ["domain:economy"],
+};
 
 function artifact(
   artifactId: string,
@@ -129,7 +131,11 @@ function page<T>(items: T[], readSnapshotId: string) {
 function api(overrides: Partial<GenerationApi> = {}): GenerationApi {
   return {
     createEventStream: vi.fn((_callbacks: GenerationEventStreamCallbacks & { runId: string }) => {
-      return { close: vi.fn(), restart: vi.fn(async () => undefined), start: vi.fn(async () => undefined) };
+      return {
+        close: vi.fn(),
+        restart: vi.fn(async () => undefined),
+        start: vi.fn(async () => undefined),
+      };
     }),
     getApproval: vi.fn(),
     getApprovalBinding: vi.fn(),
@@ -201,36 +207,60 @@ function renderPage(generationApi: GenerationApi, initialEntry = "/generation") 
 
 async function fillExactGenerationForm(user: ReturnType<typeof userEvent.setup>) {
   await screen.findByRole("heading", { level: 1, name: "内容生成" });
-  await user.selectOptions(
-    await screen.findByRole("combobox", { name: "Base Spec / ref" }),
-    spec.artifact.artifact_id,
-  );
-  await user.selectOptions(
-    screen.getByRole("combobox", { name: "Constraint snapshot" }),
-    constraint.artifact.artifact_id,
-  );
-  await user.selectOptions(
-    screen.getByRole("combobox", { name: "Generation profile" }),
-    "builtin.generation@1",
-  );
-  await user.selectOptions(
-    screen.getByRole("combobox", { name: "Environment profile" }),
-    "builtin.aureus_env@1",
-  );
-  await user.click(screen.getByRole("checkbox", { name: "builtin.aureus_csv · builtin.aureus_csv@1" }));
-  await user.click(screen.getByRole("checkbox", { name: "经济系统" }));
   await user.type(
-    screen.getByRole("textbox", { name: "Authenticated authoring goal" }),
+    await screen.findByRole("textbox", { name: "你想让 AI 做什么？" }),
     "将前哨奖励限制在确定性经济约束内。",
   );
-  await user.selectOptions(screen.getByRole("combobox", { name: "LLM execution mode" }), "replay");
-  await user.selectOptions(
-    screen.getByRole("combobox", { name: "Replay source Run" }),
-    "run:cassette:source",
-  );
+  const advanced = screen.getByText("高级设置").closest("details")!;
+  if (!advanced.hasAttribute("open")) await user.click(screen.getByText("高级设置"));
+  await user.selectOptions(screen.getByRole("combobox", { name: "AI 运行方式" }), "replay");
+  await user.selectOptions(screen.getByRole("combobox", { name: "回放来源" }), "run:cassette:source");
 }
 
 describe("GenerationPage", () => {
+  it("preserves exact project content, ref revision, constraint, and material sources", async () => {
+    const user = userEvent.setup();
+    const generationApi = api();
+    const query = new URLSearchParams({
+      constraint: constraint.artifact.artifact_id,
+      constraintRef: "projects/project:sky-harbor/constraints/head",
+      constraintRevision: "2",
+      content: spec.artifact.artifact_id,
+      contentRef: spec.ref_name!,
+      contentRevision: String(spec.ref_value!.revision),
+      project: "project:sky-harbor",
+      projectName: "天空港",
+    });
+    query.append("source", "artifact:source:one");
+    query.append("source", "artifact:source:two");
+    renderPage(generationApi, `/generation?${query.toString()}`);
+
+    expect(await screen.findByText("已绑定天空港项目的当前版本与 2 份材料")).toBeVisible();
+    await fillExactGenerationForm(user);
+    await user.click(screen.getByRole("button", { name: "开始生成" }));
+
+    await waitFor(() => expect(generationApi.resolveExecutionOption).toHaveBeenCalledOnce());
+    expect(generationApi.resolveExecutionOption).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prospective_request: expect.objectContaining({
+          base_snapshot_artifact_id: spec.artifact.artifact_id,
+          constraint_snapshot_artifact_id: constraint.artifact.artifact_id,
+          source_artifact_ids: ["artifact:source:one", "artifact:source:two"],
+          target: {
+            expected_ref: spec.ref_value,
+            ref_name: spec.ref_name,
+          },
+        }),
+      }),
+    );
+    expect(await screen.findByRole("link", { name: "返回天空港项目" })).toHaveAttribute(
+      "href",
+      "/projects/project%3Asky-harbor",
+    );
+    await user.click(screen.getByRole("button", { name: "开始另一次生成" }));
+    expect(await screen.findByText("已绑定天空港项目的当前版本与 2 份材料")).toBeVisible();
+  });
+
   it("does not offer an unbound snapshot where an exact ref-bound Spec is required", async () => {
     const unbound = {
       ...spec,
@@ -239,30 +269,25 @@ describe("GenerationPage", () => {
       ref_value: null,
       snapshot_id: "snapshot:unbound",
     };
-    renderPage(api({ listSpecs: vi.fn(async () => page([unbound, spec], "read:specs")) }));
+    renderPage(
+      api({
+        listSpecs: vi.fn(async () => page([unbound, spec], "read:specs")),
+      }),
+    );
 
-    await screen.findByRole("combobox", { name: "Base Spec / ref" });
+    await screen.findByRole("combobox", { name: "要修改的内容版本" });
     expect(screen.queryByRole("option", { name: "未绑定发布指针 · registry@3" })).not.toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "经济系统正式内容 · 第 8 版" })).toBeVisible();
   });
 
-  it("presents readable searchable authority choices instead of raw identifiers", async () => {
-    const user = userEvent.setup();
+  it("presents readable choices and hides unnecessary search controls", async () => {
     renderPage(api());
 
-    expect(await screen.findByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
-    expect(screen.getByRole("option", { name: "0 条规则 · dsl@1" })).toBeVisible();
+    expect(await screen.findByRole("option", { name: "经济系统正式内容 · 第 8 版" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "没有额外规则（仍会执行基础校验）" })).toBeVisible();
     expect(screen.queryByRole("textbox", { name: "Domain IDs" })).not.toBeInTheDocument();
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Generation profile" }),
-      "builtin.generation@1",
-    );
     expect(screen.getByRole("checkbox", { name: "经济系统" })).toBeVisible();
-
-    await user.type(screen.getByRole("searchbox", { name: "搜索可用规格" }), "not-found");
-    expect(screen.queryByRole("option", { name: "refs/specs/economy · 第 8 版" })).not.toBeInTheDocument();
-    await user.clear(screen.getByRole("searchbox", { name: "搜索可用规格" }));
-    expect(screen.getByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+    expect(screen.queryByRole("searchbox", { name: "搜索内容版本" })).not.toBeInTheDocument();
   });
 
   it("adds a compact immutable identity only when constraint summaries collide", async () => {
@@ -282,18 +307,32 @@ describe("GenerationPage", () => {
         created_at: "2026-07-23T01:34:39Z",
       },
     };
-    renderPage(api({ listConstraints: vi.fn(async () => page([older, current], "read:constraints")) }));
+    renderPage(
+      api({
+        listConstraints: vi.fn(async () => page([older, current], "read:constraints")),
+      }),
+    );
 
     expect(
-      await screen.findByRole("option", { name: "0 条规则 · dsl@1 · 2026-07-22 · …aaaabbbb" }),
+      await screen.findByRole("option", {
+        name: "没有额外规则（仍会执行基础校验） · 2026年7月22日 08:38创建 · 同名版本 1",
+      }),
     ).toBeVisible();
-    expect(screen.getByRole("option", { name: "0 条规则 · dsl@1 · 2026-07-23 · …ccccdddd" })).toBeVisible();
+    expect(
+      screen.getByRole("option", {
+        name: "没有额外规则（仍会执行基础校验） · 2026年7月23日 01:34创建 · 同名版本 2",
+      }),
+    ).toBeVisible();
+    expect(screen.queryByText(/aaaabbbb|ccccdddd/u)).not.toBeInTheDocument();
   });
 
   it("restarts a catalog only after the operator confirms an expired cursor", async () => {
     const listSpecs = vi
       .fn<GenerationApi["listSpecs"]>()
-      .mockResolvedValueOnce({ ...page([], "read:specs"), next_cursor: "cursor:expired" })
+      .mockResolvedValueOnce({
+        ...page([], "read:specs"),
+        next_cursor: "cursor:expired",
+      })
       .mockRejectedValueOnce(
         new CursorExpiredError(
           {
@@ -317,12 +356,12 @@ describe("GenerationPage", () => {
     const user = userEvent.setup();
     renderPage(api({ listSpecs }));
 
-    await user.click(await screen.findByRole("button", { name: "加载更多 Base Specs" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Base Specs 游标已过期");
+    await user.click(await screen.findByRole("button", { name: "加载更多 内容版本" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("内容版本 游标已过期");
     expect(listSpecs).toHaveBeenCalledTimes(2);
 
-    await user.click(screen.getByRole("button", { name: "从首屏重读 Base Specs" }));
-    expect(await screen.findByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "从首屏重读 内容版本" }));
+    expect(await screen.findByRole("option", { name: "经济系统正式内容 · 第 8 版" })).toBeVisible();
     expect(listSpecs).toHaveBeenLastCalledWith(null);
   });
 
@@ -396,8 +435,8 @@ describe("GenerationPage", () => {
       callbacks?.onStateChange({ earliestCursor: "2", status: "expired" });
     });
 
-    expect(await screen.findByRole("heading", { name: "Preliminary gate" })).toBeVisible();
-    expect(screen.getByText("attempt.progress · 2026-07-20T00:00:00Z")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "初步确定性检查" })).toBeVisible();
+    expect(screen.getByText("进度更新 · 2026年7月20日 00:00")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "从最早保留事件重新开始" }));
     expect(restart).toHaveBeenCalledOnce();
   });
@@ -419,23 +458,27 @@ describe("GenerationPage", () => {
     const user = userEvent.setup();
     renderPage(generationApi);
 
-    await user.click(await screen.findByRole("button", { name: "加载更多 Base Specs" }));
+    await user.click(await screen.findByRole("button", { name: "加载更多 内容版本" }));
 
-    expect(await screen.findByRole("option", { name: "refs/specs/economy · 第 8 版" })).toBeVisible();
+    expect(await screen.findByRole("option", { name: "经济系统正式内容 · 第 8 版" })).toBeVisible();
     expect(listSpecs).toHaveBeenNthCalledWith(1, null);
     expect(listSpecs).toHaveBeenNthCalledWith(2, "cursor:specs:2");
   });
 
-  it("requires exact catalog selections and resolves a complete Journey A request without hidden defaults", async () => {
+  it("preselects the only compatible choices while preserving the exact submitted authority", async () => {
     const generationApi = api();
     const user = userEvent.setup();
     renderPage(generationApi);
 
     expect(await screen.findByRole("button", { name: "开始生成" })).toBeDisabled();
-    expect(screen.getByRole("combobox", { name: "Base Spec / ref" })).toHaveValue("");
-    expect(screen.getByRole("combobox", { name: "Generation profile" })).toHaveValue("");
-    expect(screen.getByRole("combobox", { name: "Environment profile" })).toHaveValue("");
-    expect(screen.getByRole("combobox", { name: "LLM execution mode" })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "要修改的内容版本" })).toHaveValue(spec.artifact.artifact_id);
+    expect(screen.getByRole("combobox", { name: "本次遵守的规则" })).toHaveValue(
+      constraint.artifact.artifact_id,
+    );
+    await user.click(screen.getByText("高级设置"));
+    expect(screen.getByRole("combobox", { name: "AI 生成方案" })).toHaveValue("builtin.generation@1");
+    expect(screen.getByRole("combobox", { name: "试玩环境" })).toHaveValue("builtin.aureus_env@1");
+    expect(screen.getByRole("combobox", { name: "AI 运行方式" })).toHaveValue("live");
 
     await fillExactGenerationForm(user);
     await user.click(screen.getByRole("button", { name: "开始生成" }));
@@ -455,6 +498,7 @@ describe("GenerationPage", () => {
         llm_execution_mode: "replay",
         objective_goal_text: "将前哨奖励限制在确定性经济约束内。",
         request_schema_version: "generation-propose-request@1",
+        source_artifact_ids: [],
         target: { expected_ref: spec.ref_value, ref_name: spec.ref_name },
       },
       replay_source_run_id: "run:cassette:source",
@@ -475,6 +519,7 @@ describe("GenerationPage", () => {
         llm_execution_mode: "replay",
         objective_goal_text: "将前哨奖励限制在确定性经济约束内。",
         request_schema_version: "generation-propose-request@1",
+        source_artifact_ids: [],
         target: { expected_ref: spec.ref_value, ref_name: spec.ref_name },
       },
       { idempotencyKey: expect.any(String) },

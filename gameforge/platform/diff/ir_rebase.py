@@ -123,7 +123,9 @@ def _model_wire(value: Entity | Relation) -> dict[str, Any]:
     return value.model_dump(mode="python")
 
 
-def _compile_ops(current: Snapshot, target: Snapshot) -> list[TypedOp]:
+def compile_snapshot_diff_ops(current: Snapshot, target: Snapshot) -> tuple[TypedOp, ...]:
+    """Compile one exact full-graph target into deterministic optimistic ops."""
+
     current_entities = current.entities
     target_entities = target.entities
     current_relations = current.relations
@@ -202,7 +204,7 @@ def _compile_ops(current: Snapshot, target: Snapshot) -> list[TypedOp]:
                 old_value=old_value,
             )
         )
-    return ops
+    return tuple(ops)
 
 
 def compile_rebased_patch(
@@ -228,7 +230,7 @@ def compile_rebased_patch(
         expected_to_fix=list(source_patch.expected_to_fix),
         preconditions=[dict(value) for value in source_patch.preconditions],
         side_effect_risk=source_patch.side_effect_risk,
-        ops=_compile_ops(current, target),
+        ops=list(compile_snapshot_diff_ops(current, target)),
         produced_by="human",
         producer_run_id=None,
         rationale=source_patch.rationale,
@@ -253,5 +255,6 @@ __all__ = [
     "CompiledRebase",
     "REBASE_TOOL_VERSION",
     "compile_rebased_patch",
+    "compile_snapshot_diff_ops",
     "snapshot_from_canonical_view",
 ]

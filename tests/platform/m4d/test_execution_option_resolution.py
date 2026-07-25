@@ -672,7 +672,8 @@ def test_live_resolution_uses_d1_and_missing_pointer_fails_closed(tmp_path: Path
     )
 
     assert resolved.llm_execution_mode == "live"
-    assert resolved.execution_version_plan.agent_graph_version == "generation-graph@2"
+    assert resolved.execution_version_plan.agent_graph_version == "generation-graph@7"
+    assert resolved.execution_version_plan.nodes[0].prompt_version == "generation@7"
 
 
 def test_final_admission_revalidates_authority_after_option_resolution(tmp_path: Path) -> None:

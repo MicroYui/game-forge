@@ -93,6 +93,11 @@ _MODEL_CALL_TABLES = {
     "run_model_response_consumptions",
 }
 _TOOL_CONTEXT_TABLES = {"run_tool_intermediate_links"}
+_PROJECT_TABLES = {
+    "game_projects",
+    "project_materials",
+    "project_extractions",
+}
 _M4_TABLES = (
     _STORAGE_TABLES
     | _IDENTITY_WORKFLOW_TABLES
@@ -103,6 +108,7 @@ _M4_TABLES = (
     | _MODEL_CALL_TABLES
     | _TOOL_CONTEXT_TABLES
     | _HOLD_BALANCE_TABLES
+    | _PROJECT_TABLES
 )
 
 
@@ -1152,7 +1158,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -1172,7 +1178,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
     assert _legacy_projection(url) == expected
 
 
@@ -1392,7 +1398,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")
@@ -1494,7 +1500,7 @@ def test_0012_backfills_capped_impact_and_replays_after_downgrade(tmp_path) -> N
     assert "run_hold_balances" not in _table_names(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
     raw = _fetch_one(
         url,
         f"SELECT payload FROM run_hold_balances WHERE hold_group_id = '{hold_group_id}'",
@@ -1516,7 +1522,7 @@ def test_0012_backfills_capped_impact_and_replays_after_downgrade(tmp_path) -> N
 
     m.downgrade(url, "0011")
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
 
 
 def test_0012_round_trip_preserves_reused_active_plus_settled_overage(tmp_path) -> None:
@@ -2298,7 +2304,7 @@ def test_0012_fails_when_budget_reserve_disagrees_with_reconstructed_holds(
     finally:
         engine.dispose()
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
 
 
 def test_0012_rejects_noncanonical_group_source_before_ddl_and_can_retry(tmp_path) -> None:
@@ -2358,7 +2364,7 @@ def test_0012_rejects_noncanonical_group_source_before_ddl_and_can_retry(tmp_pat
     finally:
         engine.dispose()
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
 
 
 def test_0012_rejects_budget_snapshot_member_drift_before_ddl_and_can_retry(tmp_path) -> None:
@@ -2414,7 +2420,7 @@ def test_0012_rejects_budget_snapshot_member_drift_before_ddl_and_can_retry(tmp_
     finally:
         engine.dispose()
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
 
 
 def test_0012_rejects_orphan_budget_reservation_before_ddl_and_can_retry(tmp_path) -> None:
@@ -2456,7 +2462,7 @@ def test_0012_rejects_orphan_budget_reservation_before_ddl_and_can_retry(tmp_pat
             "DELETE FROM budget_reservations WHERE reservation_id = 'reservation:orphan'"
         )
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0014"
+    assert _current_revision(url) == "0016"
 
 
 def test_0006_downgrade_refuses_to_discard_retained_cost_authority(tmp_path) -> None:

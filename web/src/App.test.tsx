@@ -32,7 +32,10 @@ const principal: AuthenticatedPrincipal = {
       assignment_id: "role:tooling",
       assignment_schema_version: "role-assignment@1",
       granted_at: "2026-07-19T00:00:00Z",
-      granted_by: { principal_id: "system:bootstrap", principal_kind: "system" },
+      granted_by: {
+        principal_id: "system:bootstrap",
+        principal_kind: "system",
+      },
       principal_id: "principal:lincheng",
       revision: 1,
       role: "tooling",
@@ -84,6 +87,13 @@ function stubEmptySpecWorkspace() {
     vi.fn(async (input: RequestInfo | URL) => {
       const rawUrl = input instanceof Request ? input.url : input.toString();
       const pathname = new URL(rawUrl, "https://gameforge.test").pathname;
+      if (pathname === "/api/v1/projects") {
+        return Response.json({
+          items: [],
+          next_cursor: null,
+          page_schema_version: "project-page@1",
+        });
+      }
       const collection = pathname.match(
         /^\/api\/v1\/(specs|constraints|constraint-proposals|execution-profiles)$/,
       )?.[1];
@@ -273,16 +283,20 @@ describe("App", () => {
     );
   });
 
-  it("exposes the eight first-class routes in an authenticated semantic shell", async () => {
+  it("exposes the project home and all first-class workspaces in an authenticated semantic shell", async () => {
     stubEmptySpecWorkspace();
     renderApp();
 
-    expect(await screen.findByRole("heading", { level: 1, name: "规格与约束快照" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "游戏项目" })).toBeVisible();
     expect(screen.getByRole("link", { name: messages.shell.skipToContent })).toHaveAttribute(
       "href",
       "#main-content",
     );
-    expect(screen.getByRole("navigation", { name: messages.shell.primaryNavigation })).toBeVisible();
+    expect(
+      screen.getByRole("navigation", {
+        name: messages.shell.primaryNavigation,
+      }),
+    ).toBeVisible();
     expect(screen.getByRole("navigation", { name: messages.shell.breadcrumbs })).toBeVisible();
     expect(screen.getByRole("main")).toBeVisible();
     for (const label of Object.values(messages.routes)) {
@@ -303,7 +317,11 @@ describe("App", () => {
   it("keeps the production Run detail route under the application shell", async () => {
     renderApp("/runs/run%3Aroute");
 
-    expect(await screen.findByRole("navigation", { name: messages.shell.primaryNavigation })).toBeVisible();
+    expect(
+      await screen.findByRole("navigation", {
+        name: messages.shell.primaryNavigation,
+      }),
+    ).toBeVisible();
     expect(await screen.findByRole("heading", { name: "运行详情暂不可用" })).toBeVisible();
     expect(screen.getByRole("main")).toContainElement(
       screen.getByRole("heading", { name: "运行详情暂不可用" }),
@@ -330,9 +348,9 @@ describe("App", () => {
     stubEmptyReviewWorkspace();
     renderApp("/reviews");
 
-    expect(await screen.findByRole("heading", { level: 1, name: "审查报告" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "内容检查" })).toBeVisible();
     expect(screen.getByRole("main")).toContainElement(
-      screen.getByRole("heading", { level: 1, name: "审查报告" }),
+      screen.getByRole("heading", { level: 1, name: "内容检查" }),
     );
     expect(screen.getByRole("navigation", { name: messages.shell.breadcrumbs })).toHaveTextContent(
       messages.routes.reviews,
@@ -352,13 +370,13 @@ describe("App", () => {
     );
   });
 
-  it("mounts the production Patch / Diff route under the application shell", async () => {
+  it("mounts the production modification route under the application shell", async () => {
     stubEmptyPatchWorkspace();
     renderApp("/patches");
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Patch / Diff" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "修改与版本" })).toBeVisible();
     expect(screen.getByRole("main")).toContainElement(
-      screen.getByRole("heading", { level: 1, name: "Patch / Diff" }),
+      screen.getByRole("heading", { level: 1, name: "修改与版本" }),
     );
     expect(screen.getByRole("navigation", { name: messages.shell.breadcrumbs })).toHaveTextContent(
       messages.routes.patches,
@@ -369,9 +387,9 @@ describe("App", () => {
     stubBenchReport();
     renderApp("/eval");
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Eval / Bench" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "质量评测" })).toBeVisible();
     expect(screen.getByRole("main")).toContainElement(
-      screen.getByRole("heading", { level: 1, name: "Eval / Bench" }),
+      screen.getByRole("heading", { level: 1, name: "质量评测" }),
     );
     expect(screen.getByRole("navigation", { name: messages.shell.breadcrumbs })).toHaveTextContent(
       messages.routes.eval,
@@ -419,12 +437,17 @@ describe("App", () => {
     const api = createAuthApi();
     renderApp("/reviews", api);
 
-    await screen.findByRole("heading", { level: 1, name: messages.routes.reviews });
+    await screen.findByRole("heading", {
+      level: 1,
+      name: messages.routes.reviews,
+    });
     await user.click(screen.getByRole("button", { name: messages.auth.signOut }));
 
     await waitFor(() => expect(api.logout).toHaveBeenCalledOnce());
     expect(await screen.findByRole("heading", { name: messages.auth.signIn })).toBeVisible();
-    expect(api.logout).toHaveBeenCalledWith({ idempotencyKey: expect.any(String) });
+    expect(api.logout).toHaveBeenCalledWith({
+      idempotencyKey: expect.any(String),
+    });
   });
 
   it("does not claim logout succeeded when the server keeps the session", async () => {
@@ -435,11 +458,19 @@ describe("App", () => {
     });
     renderApp("/reviews", api);
 
-    await screen.findByRole("heading", { level: 1, name: messages.routes.reviews });
+    await screen.findByRole("heading", {
+      level: 1,
+      name: messages.routes.reviews,
+    });
     await user.click(screen.getByRole("button", { name: messages.auth.signOut }));
 
     expect(await screen.findByText(messages.auth.signOutFailed)).toBeVisible();
-    expect(await screen.findByRole("heading", { level: 1, name: messages.routes.reviews })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: messages.routes.reviews,
+      }),
+    ).toBeVisible();
     expect(screen.queryByRole("heading", { name: messages.auth.signIn })).not.toBeInTheDocument();
     expect(api.me).toHaveBeenCalledTimes(2);
     expect(screen.queryByText(/upstream details/)).not.toBeInTheDocument();
@@ -454,10 +485,18 @@ describe("App", () => {
     });
     renderApp("/reviews", api);
 
-    await screen.findByRole("heading", { level: 1, name: messages.routes.reviews });
+    await screen.findByRole("heading", {
+      level: 1,
+      name: messages.routes.reviews,
+    });
     await user.click(screen.getByRole("button", { name: messages.auth.signOut }));
 
-    expect(await screen.findByRole("heading", { level: 1, name: messages.auth.signIn })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: messages.auth.signIn,
+      }),
+    ).toBeVisible();
     expect(screen.getByRole("alert")).toHaveTextContent(messages.auth.signOutFailed);
   });
 
@@ -471,7 +510,10 @@ describe("App", () => {
       };
     };
     renderApp("/reviews", createAuthApi(), subscribe);
-    await screen.findByRole("heading", { level: 1, name: messages.routes.reviews });
+    await screen.findByRole("heading", {
+      level: 1,
+      name: messages.routes.reviews,
+    });
 
     act(() => notifySessionBoundary?.());
 
@@ -499,8 +541,10 @@ describe("App", () => {
     const user = userEvent.setup();
     stubEmptySpecWorkspace();
     renderApp();
-    await screen.findByRole("heading", { level: 1, name: "规格与约束快照" });
-    const toggle = screen.getByRole("button", { name: messages.shell.openNavigation });
+    await screen.findByRole("heading", { level: 1, name: "游戏项目" });
+    const toggle = screen.getByRole("button", {
+      name: messages.shell.openNavigation,
+    });
 
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(toggle).toHaveAttribute("data-tooltip", messages.shell.openNavigation);

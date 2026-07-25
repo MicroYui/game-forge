@@ -22,7 +22,10 @@ const artifact: components["schemas"]["ArtifactSummaryV1"] = {
   payload_hash: "c".repeat(64),
   payload_schema_id: "constraint-snapshot@1",
   summary_schema_version: "artifact-summary@1",
-  version_tuple: { constraint_snapshot_id: "constraint:frontier", tool_version: "compile@1" },
+  version_tuple: {
+    constraint_snapshot_id: "constraint:frontier",
+    tool_version: "compile@1",
+  },
 };
 
 const snapshot: Snapshot = {
@@ -73,14 +76,14 @@ describe("ConstraintSnapshotPage", () => {
       workflowRevision: 6,
     });
 
-    expect(await screen.findByRole("heading", { level: 1, name: "约束快照" })).toBeVisible();
-    expect(screen.getByText("候选快照 · 尚未证明权威")).toBeVisible();
-    expect(screen.getByText(/批准状态 approved 仍不等于 ref 已发布/)).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开批准目标" })).toHaveAttribute(
+    expect(await screen.findByRole("heading", { level: 1, name: "规则版本详情" })).toBeVisible();
+    expect(screen.getByText("待发布")).toBeVisible();
+    expect(screen.getByText("规则仍在审批流程中，不会影响当前正式内容。")).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看审批进度" })).toHaveAttribute(
       "href",
       "/approvals/approval%3Aconstraint%3Afrontier",
     );
-    expect(screen.queryByText("已由 ref 历史证明权威")).not.toBeInTheDocument();
+    expect(screen.queryByText("这是当前生效的规则版本")).not.toBeInTheDocument();
     expect(screen.getByText("reward_gold ≤ 75")).toBeVisible();
   });
 
@@ -91,9 +94,9 @@ describe("ConstraintSnapshotPage", () => {
       refValue: { artifact_id: artifact.artifact_id, revision: 12 },
     });
 
-    expect(await screen.findByText("已由 ref 历史证明权威")).toBeVisible();
-    expect(screen.getByText(/revision 12/)).toBeVisible();
-    expect(screen.getByRole("link", { name: "检查 ref 历史" })).toHaveAttribute(
+    expect(await screen.findByText("这是当前生效的规则版本")).toBeVisible();
+    expect(screen.getByText(/当前内容正在使用第 12 版规则/)).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看规则版本历史" })).toHaveAttribute(
       "href",
       "/refs/refs%2Fconstraints%2Feconomy/history",
     );
@@ -119,7 +122,7 @@ describe("ConstraintSnapshotPage", () => {
       "refs/constraints/economy",
     );
 
-    expect(await screen.findByText("已由 ref 历史证明权威")).toBeVisible();
+    expect(await screen.findByText("这是当前生效的规则版本")).toBeVisible();
     expect(listRefHistory).toHaveBeenCalledWith("refs/constraints/economy", null);
   });
 
@@ -149,8 +152,8 @@ describe("ConstraintSnapshotPage", () => {
     );
 
     expect(await screen.findByText("这是曾发布过的历史约束")).toBeVisible();
-    expect(screen.getByText(/当前 ref 已到 revision 13/)).toBeVisible();
-    expect(screen.queryByText("已由 ref 历史证明权威")).not.toBeInTheDocument();
+    expect(screen.getByText(/当前已经更新到第 13 版/)).toBeVisible();
+    expect(screen.queryByText("这是当前生效的规则版本")).not.toBeInTheDocument();
   });
 
   it("refuses authority evidence that points at another Artifact", async () => {
@@ -160,23 +163,26 @@ describe("ConstraintSnapshotPage", () => {
       refValue: { artifact_id: "artifact:constraint:other", revision: 13 },
     });
 
-    expect(await screen.findByText("权威状态未证明")).toBeVisible();
-    expect(screen.getByText(/证据指向另一 Artifact/)).toBeVisible();
-    expect(screen.queryByText("已由 ref 历史证明权威")).not.toBeInTheDocument();
+    expect(await screen.findByText("无法确认这版规则是否生效")).toBeVisible();
+    expect(screen.getByText(/证据指向另一 Artifact/)).not.toBeVisible();
+    expect(screen.queryByText("这是当前生效的规则版本")).not.toBeInTheDocument();
   });
 
   it("guards the JsonValue payload behind the exact constraint schema id", async () => {
     renderPage(
       api({
         ...snapshot,
-        artifact: { ...snapshot.artifact, payload_schema_id: "constraint-snapshot@2" },
+        artifact: {
+          ...snapshot.artifact,
+          payload_schema_id: "constraint-snapshot@2",
+        },
         constraints: [{ assert: "secret raw payload must not render" }],
       }),
       { evidenceKind: "unresolved", reason: "未读取到批准目标或 ref 历史。" },
     );
 
-    expect(await screen.findByRole("heading", { name: "无法安全解释约束载荷" })).toBeVisible();
-    expect(screen.getByText("constraint-snapshot@2")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法安全读取规则内容" })).toBeVisible();
+    expect(screen.getByText("constraint-snapshot@2")).not.toBeVisible();
     expect(screen.queryByText(/secret raw payload/)).not.toBeInTheDocument();
   });
 
@@ -189,7 +195,7 @@ describe("ConstraintSnapshotPage", () => {
       { evidenceKind: "unresolved", reason: "尚无权威证据。" },
     );
 
-    expect(await screen.findByRole("heading", { name: "无法安全解释约束载荷" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法安全读取规则内容" })).toBeVisible();
     expect(screen.queryByText(/missing typed identity/)).not.toBeInTheDocument();
   });
 
@@ -198,7 +204,7 @@ describe("ConstraintSnapshotPage", () => {
       evidenceKind: "unresolved",
       reason: "尚无权威证据。",
     });
-    expect(await screen.findByRole("heading", { name: "快照中没有约束条目" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "这一版没有规则" })).toBeVisible();
 
     let reject!: (reason: Error) => void;
     const pending = new Promise<Awaited<ReturnType<ConstraintSnapshotApi["getConstraintSnapshot"]>>>(
@@ -210,9 +216,9 @@ describe("ConstraintSnapshotPage", () => {
       { getConstraintSnapshot: vi.fn(() => pending) },
       { evidenceKind: "unresolved", reason: "尚无权威证据。" },
     );
-    expect(screen.getByRole("heading", { name: "正在读取约束快照" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "正在读取规则版本" })).toBeVisible();
     reject(new Error("internal object location must-not-render"));
-    expect(await screen.findByRole("heading", { name: "无法读取约束快照" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法读取规则版本" })).toBeVisible();
     expect(screen.queryByText(/object location/)).not.toBeInTheDocument();
   });
 });

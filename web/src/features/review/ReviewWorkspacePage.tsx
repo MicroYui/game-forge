@@ -5,12 +5,8 @@ import { useSearchParams } from "react-router-dom";
 
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
-import {
-  CopyableText,
-  CursorTable,
-  type CursorPaginationState,
-  type CursorTableColumn,
-} from "../../components/tables";
+import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
+import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { findingBuckets } from "./authority";
 import { reviewApi, type ReviewApi, type ReviewArtifactView } from "./api";
@@ -53,7 +49,7 @@ function normalizedError(error: unknown): Error {
 
 function countLabel(review: ReviewArtifactView): string {
   const buckets = findingBuckets(review.report);
-  return `${buckets.deterministic.length} 确定性 · ${buckets.simulation.length} 仿真 · ${buckets.suggestion.length} LLM · ${buckets.unproven.length} 未证明`;
+  return `${buckets.deterministic.length} 个确定性问题 · ${buckets.simulation.length} 个模拟问题 · ${buckets.suggestion.length} 条 AI 建议 · ${buckets.unproven.length} 项待确认`;
 }
 
 function reviewDetailHref(
@@ -74,42 +70,70 @@ function columns(
 ): readonly CursorTableColumn<ReviewArtifactView>[] {
   return [
     {
-      header: "Review Artifact",
+      header: "检查报告",
       id: "artifact",
       render: (item) => (
-        <div className="gf-review__table-primary">
-          <CopyableText copyLabel="复制 Review Artifact ID" value={item.artifact.artifact_id} />
-          <a href={reviewDetailHref(item.artifact.artifact_id, sourceRunId, snapshotContext)}>
-            打开 {item.artifact.artifact_id}
-          </a>
-        </div>
+        <ResourceIdentity
+          actionLabel="查看报告"
+          description={compactDateTime(item.artifact.created_at)}
+          details={[
+            {
+              copyLabel: "复制报告标识",
+              label: "报告标识",
+              value: item.artifact.artifact_id,
+            },
+            {
+              copyLabel: "复制内容版本标识",
+              label: "内容版本标识",
+              value: item.report.snapshot_id,
+            },
+          ]}
+          href={reviewDetailHref(item.artifact.artifact_id, sourceRunId, snapshotContext)}
+          title="内容检查报告"
+        />
       ),
     },
     {
-      header: "精确快照",
+      header: "检查对象",
       id: "snapshot",
-      render: (item) => <CopyableText copyLabel="复制 Review snapshot ID" value={item.report.snapshot_id} />,
+      render: (item) => (
+        <ResourceIdentity
+          description="报告绑定的固定内容，不会随当前版本变化"
+          details={[{ label: "内容版本标识", value: item.report.snapshot_id }]}
+          title="固定内容版本"
+        />
+      ),
     },
     {
-      header: "Finding 分区",
+      header: "检查结果",
       id: "counts",
       render: (item) => <span>{countLabel(item)}</span>,
     },
     {
-      header: "冻结工具身份",
+      header: "检查方式",
       id: "tool",
-      render: (item) => <code>{item.artifact.version_tuple.tool_version ?? "不适用 (N/A)"}</code>,
+      render: (item) => (
+        <ResourceIdentity
+          details={[
+            {
+              label: "工具版本",
+              value: item.artifact.version_tuple.tool_version ?? "不适用",
+            },
+          ]}
+          title="确定性检查"
+        />
+      ),
     },
     {
       header: "请求上下文",
       id: "context",
       render: (item) =>
         snapshotContext === null ? (
-          <span className="gf-review__muted">无候选 Artifact 上下文；未推断 current alias</span>
+          <span className="gf-review__muted">从报告历史打开</span>
         ) : item.artifact.parent_artifact_ids.includes(snapshotContext) ? (
-          <span className="gf-review__context-match">direct parent 包含请求的候选 Artifact</span>
+          <span className="gf-review__context-match">与当前候选匹配</span>
         ) : (
-          <span className="gf-review__context-miss">direct parent 不含请求的候选 Artifact；未隐藏该报告</span>
+          <span className="gf-review__context-miss">其他内容版本的报告</span>
         ),
     },
   ];
@@ -176,7 +200,11 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
       });
     } catch (error) {
       if (requestEpoch !== pageRequestEpoch.current) return;
-      setPageState({ ...current, error: normalizedError(error), loading: false });
+      setPageState({
+        ...current,
+        error: normalizedError(error),
+        loading: false,
+      });
     }
   }
 
@@ -189,7 +217,7 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
           description="正在读取 immutable Review Artifact 快照。"
           headingLevel={1}
           state="loading"
-          title="正在读取审查报告"
+          title="正在读取内容检查"
         />
       </div>
     );
@@ -200,7 +228,7 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
       <div className="gf-page gf-review">
         <header className="gf-page-header">
           <p className="gf-review__kicker">Review artifacts · immutable history</p>
-          <h1>审查报告</h1>
+          <h1>内容检查</h1>
         </header>
         <WorkspaceError error={initial.error} onRetry={() => void initial.refetch()} />
       </div>
@@ -213,15 +241,13 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
     <div className="gf-page gf-review" data-layout="editorial-review-index">
       <header className="gf-review__hero">
         <div>
-          <p className="gf-review__kicker">Correctness desk · Review history</p>
-          <h1>审查报告</h1>
-          <p>
-            每份报告保留独立 Artifact 身份；同一快照的不同工具版本不会折叠，也不会把零 Finding 改写为通过。
-          </p>
+          <p className="gf-review__kicker">固定规则检查 · 历史报告</p>
+          <h1>内容检查</h1>
+          <p>查看每次内容检查发现的问题、待确认项和使用的固定版本。</p>
         </div>
         <div className="gf-review__hero-mark" aria-hidden="true">
           <ScanSearch size={30} />
-          <span>REVIEW</span>
+          <span>检查</span>
         </div>
       </header>
 
@@ -232,23 +258,17 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
             <h2>候选导航上下文</h2>
             {sourceRunId && (
               <p>
-                来源 Run 仅作为导航上下文：
-                <a href={`/runs/${encodeURIComponent(sourceRunId)}`}>{sourceRunId}</a>。它不会成为 Review
-                提交输入，也不会替代 exact 候选 Artifact。
+                你从一次内容生成来到这里。
+                <a href={`/runs/${encodeURIComponent(sourceRunId)}`}>查看来源生成记录</a>
               </p>
             )}
-            {snapshotContext && (
-              <p>
-                请求候选 Artifact：<code>{snapshotContext}</code>。列表保留不匹配报告，详情再校验 exact
-                lineage。
-              </p>
-            )}
-            {constraintContext && (
-              <p>
-                请求 constraint：<code>{constraintContext}</code>。Review 启动会把它作为 exact input，而非读取
-                current alias。
-              </p>
-            )}
+            <TechnicalDetails
+              items={[
+                ...(sourceRunId ? [{ label: "来源运行标识", value: sourceRunId }] : []),
+                ...(snapshotContext ? [{ label: "候选内容标识", value: snapshotContext }] : []),
+                ...(constraintContext ? [{ label: "规则版本标识", value: constraintContext }] : []),
+              ]}
+            />
           </div>
         </aside>
       )}
@@ -265,14 +285,14 @@ export function ReviewWorkspacePage({ api = reviewApi }: { api?: ReviewApi }) {
         <header>
           <FileCheck2 aria-hidden="true" size={22} />
           <div>
-            <h2 id="review-index-title">Immutable report ledger</h2>
-            <p>列表唯一键是 Review Artifact ID；顺序和分页由服务端 read snapshot 冻结。</p>
+            <h2 id="review-index-title">历史检查报告</h2>
+            <p>每次检查都会单独保留，便于比较不同内容版本和检查结果。</p>
           </div>
         </header>
         <CursorTable
-          caption="Review Artifact 历史"
+          caption="历史检查报告"
           columns={tableColumns}
-          emptyLabel="当前权限范围内没有 Review Artifact"
+          emptyLabel="当前没有可查看的检查报告"
           getRowKey={(item) => item.artifact.artifact_id}
           items={current.items}
           nextCursor={current.nextCursor}

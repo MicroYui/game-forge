@@ -13,8 +13,8 @@ import {
 import { ApiProblemError } from "../../api/problem";
 import { CursorExpiredError } from "../../api/pagination";
 import type { components } from "../../api/generated/openapi";
-import { EvidenceSections, FindingCard } from "../../components/evidence";
-import { CopyableText } from "../../components/tables";
+import { EvidenceSections, FindingCard, findingDisplayMessage } from "../../components/evidence";
+import { TechnicalDetails } from "../../components/identity";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   bindReviewAuthority,
@@ -125,28 +125,42 @@ async function loadDetail(
 }
 
 const embeddedStatusLabels = {
-  accepted_risk: "已接受风险 · accepted_risk",
-  confirmed: "已确认 · confirmed",
-  dismissed: "已驳回 · dismissed",
-  fixed: "已修复 · fixed",
-  unproven: "未证明 · unproven",
+  accepted_risk: "已接受风险",
+  confirmed: "已确认",
+  dismissed: "已忽略",
+  fixed: "已修复",
+  unproven: "未证明",
 } as const;
 
 const embeddedSeverityLabels = {
-  critical: "严重 · critical",
-  major: "主要 · major",
-  minor: "次要 · minor",
+  critical: "严重",
+  major: "重要",
+  minor: "一般",
 } as const;
+
+const defectClassLabels: Readonly<Record<string, string>> = {
+  dead_quest: "任务无法完成",
+  economy_collapse: "经济系统可能失衡",
+  playtest_incomplete: "试玩未完成",
+  quest_dead_end: "任务流程存在死路",
+  reward_out_of_range: "数值超出允许范围",
+  unreachable_target: "目标无法到达",
+};
+
+function defectClassLabel(value: string): string {
+  return defectClassLabels[value] ?? "其他规则问题";
+}
 
 const embeddedOracleMeta = {
   deterministic: { icon: ShieldCheck, label: "确定性预言机" },
-  "llm-assisted": { icon: MessageSquareWarning, label: "LLM 建议（需人确认）" },
+  "llm-assisted": { icon: MessageSquareWarning, label: "AI 建议（需人工确认）" },
   simulation: { icon: FlaskConical, label: "仿真证据（描述性）" },
 } as const;
 
 function EmbeddedFindingCard({ finding }: { finding: Finding }) {
   const oracle = embeddedOracleMeta[finding.oracle_type];
   const OracleIcon = oracle.icon;
+  const displayMessage = findingDisplayMessage(finding.defect_class, finding.message);
   return (
     <article
       className="gf-finding-card gf-review__embedded-finding"
@@ -166,37 +180,47 @@ function EmbeddedFindingCard({ finding }: { finding: Finding }) {
             {embeddedStatusLabels[finding.status]}
           </span>
         </div>
-        <h3>{finding.message}</h3>
-        <p className="gf-review__embedded-warning">无 immutable revision；未回退 latest</p>
+        <h3>{displayMessage}</h3>
+        <p className="gf-review__embedded-warning">这条问题没有独立历史版本，页面只展示报告内原始结果。</p>
       </header>
       <dl className="gf-finding-card__facts">
         <div>
-          <dt>Finding ID</dt>
-          <dd>
-            <CopyableText copyLabel="复制内嵌 Finding ID" value={finding.id} />
-          </dd>
-        </div>
-        <div>
-          <dt>生产 Run</dt>
-          <dd>
-            <CopyableText copyLabel="复制内嵌 Finding producer Run" value={finding.producer_run_id} />
-          </dd>
+          <dt>问题类型</dt>
+          <dd>{defectClassLabel(finding.defect_class)}</dd>
         </div>
       </dl>
-      <section className="gf-finding-card__repro" aria-label="内嵌 Finding 最小复现">
-        <h4>最小复现（报告内嵌）</h4>
+      <TechnicalDetails
+        items={[
+          { label: "问题 ID", value: finding.id },
+          { label: "生成运行 ID", value: finding.producer_run_id },
+          { label: "问题类型代码", value: finding.defect_class },
+          { label: "内容快照 ID", value: finding.snapshot_id },
+          ...(displayMessage === finding.message
+            ? []
+            : [{ label: "检查器原始说明", value: finding.message }]),
+        ]}
+        summary="查看问题技术信息"
+      />
+      <section className="gf-finding-card__repro" aria-label="内嵌问题最小复现">
+        <h4>最小复现</h4>
         {finding.minimal_repro === undefined ? (
-          <p className="gf-finding-card__empty">未提供 minimal_repro</p>
+          <p className="gf-finding-card__empty">未提供复现数据</p>
         ) : (
-          <pre tabIndex={0}>{JSON.stringify(finding.minimal_repro, null, 2)}</pre>
+          <details>
+            <summary>查看原始复现数据</summary>
+            <pre tabIndex={0}>{JSON.stringify(finding.minimal_repro, null, 2)}</pre>
+          </details>
         )}
       </section>
-      <section className="gf-finding-card__evidence" aria-label="内嵌 Finding evidence payload">
-        <h4>证据 payload（报告内嵌）</h4>
+      <section className="gf-finding-card__evidence" aria-label="内嵌问题证据">
+        <h4>检查证据</h4>
         {finding.evidence === undefined ? (
-          <p className="gf-finding-card__empty">未提供 evidence payload</p>
+          <p className="gf-finding-card__empty">未提供检查证据数据</p>
         ) : (
-          <pre tabIndex={0}>{JSON.stringify(finding.evidence, null, 2)}</pre>
+          <details>
+            <summary>查看原始证据数据</summary>
+            <pre tabIndex={0}>{JSON.stringify(finding.evidence, null, 2)}</pre>
+          </details>
         )}
       </section>
     </article>
@@ -227,40 +251,42 @@ function FindingBucket({ bindings }: { bindings: ReviewFindingBinding[] }) {
   );
 }
 
-function versionValue(value: string | number | null | undefined): string {
-  return value === null || value === undefined ? "不适用 (N/A)" : String(value);
-}
-
 function DetailError({ error, onRetry }: { error: Error; onRetry(): void }) {
   if (error instanceof CursorExpiredError) {
     return (
       <StatePanel
         action={
           <button className="gf-secondary-button" onClick={onRetry} type="button">
-            从第一页重新读取全部权威
+            从第一页重新读取全部内容
           </button>
         }
-        description="详情读取期间分页快照已过期；旧游标不会被静默替换。"
+        description="读取期间报告内容发生了更新。为避免混用前后两批数据，旧结果已停止使用。"
         headingLevel={1}
         state="error"
-        title="Review 详情快照已过期"
+        title="报告内容已更新，请重新读取"
       />
     );
   }
   if (error instanceof ApiProblemError) return <ProblemPanel problem={error.problem} />;
   if (error instanceof ReviewAuthorityError) {
     return (
-      <StatePanel
-        action={
-          <button className="gf-secondary-button" onClick={onRetry} type="button">
-            重新读取全部权威
-          </button>
-        }
-        description={error.message}
-        headingLevel={1}
-        state="error"
-        title="Review 权威闭合失败"
-      />
+      <>
+        <StatePanel
+          action={
+            <button className="gf-secondary-button" onClick={onRetry} type="button">
+              重新读取完整报告
+            </button>
+          }
+          description="报告、被检查内容或问题证据未能完整对应。为避免展示不可靠结论，页面已安全停止。"
+          headingLevel={1}
+          state="error"
+          title="无法完整核对检查报告"
+        />
+        <TechnicalDetails
+          items={[{ label: "核对失败原因", value: error.message }]}
+          summary="查看错误技术信息"
+        />
+      </>
     );
   }
   return (
@@ -270,10 +296,10 @@ function DetailError({ error, onRetry }: { error: Error; onRetry(): void }) {
           重试
         </button>
       }
-      description="Review 详情读取失败；未显示底层异常。"
+      description="检查报告暂时无法读取，请稍后重试。"
       headingLevel={1}
       state="error"
-      title="无法读取 Review Report"
+      title="无法读取检查报告"
     />
   );
 }
@@ -299,10 +325,10 @@ export function ReviewDetailPage({
     return (
       <div className="gf-page gf-review">
         <StatePanel
-          description="正在闭合 Review、producer occurrence、direct lineage、专用 Spec/Constraint authority 与 Run Finding links。"
+          description="正在核对报告、被检查内容、使用的规则和问题证据。"
           headingLevel={1}
           state="loading"
-          title="正在读取 Review Report"
+          title="正在读取检查报告"
         />
       </div>
     );
@@ -334,21 +360,17 @@ export function ReviewDetailPage({
     <div className="gf-page gf-review gf-review-detail" data-layout="editorial-review-detail">
       <header className="gf-review-detail__hero">
         <div>
-          <p className="gf-review__kicker">Immutable correctness report</p>
-          <h1>Review Report</h1>
-          <CopyableText copyLabel="复制 Review Artifact ID" value={bound.review.artifact.artifact_id} />
-          <p>{total} 条 Finding；0 不代表通过</p>
+          <p className="gf-review__kicker">自动检查结果</p>
+          <h1>内容检查报告</h1>
+          <p>{total} 个问题；没有发现问题也不等于所有规则都已证明通过。</p>
         </div>
         <div className="gf-review-detail__seal">
           <ScanSearch aria-hidden="true" size={28} />
-          <span>
-            <span className="u-sr-only">Review schema：</span>
-            {bound.review.report.review_schema_version}
-          </span>
+          <span>不可变报告</span>
         </div>
       </header>
 
-      <ul className="gf-review-detail__counts" aria-label="Finding 分区计数">
+      <ul className="gf-review-detail__counts" aria-label="问题分类计数">
         <li>
           <span>确定性</span>
           <strong>{counts.deterministic}</strong>
@@ -358,7 +380,7 @@ export function ReviewDetailPage({
           <strong>{counts.simulation}</strong>
         </li>
         <li>
-          <span>LLM 建议</span>
+          <span>AI 建议</span>
           <strong>{counts.suggestion}</strong>
         </li>
         <li>
@@ -368,27 +390,27 @@ export function ReviewDetailPage({
       </ul>
 
       {(sourceRunId || bound.snapshotContextMatches !== null) && (
-        <aside className="gf-review__context" aria-label="Review 请求上下文">
+        <aside className="gf-review__context" aria-label="报告来源说明">
           <Link2 aria-hidden="true" size={20} />
           <div>
             {sourceRunId && (
               <p>
-                <a href={`/runs/${encodeURIComponent(sourceRunId)}`}>{sourceRunId}</a>
+                <a href={`/runs/${encodeURIComponent(sourceRunId)}`}>查看来源运行</a>
                 {bound.sourceRunOccurrence === "not-found"
-                  ? " 未验证为该 Review 的 producer occurrence；仅保留为导航上下文。"
+                  ? " 尚未确认是这份报告的生成记录；这里只保留快捷入口。"
                   : bound.producerRunId === sourceRunId
-                    ? " 与服务端验证的 Review producer occurrence 一致。"
+                    ? " 已确认是生成这份报告的运行记录。"
                     : bound.sourceRunOccurrence === "verified" && bound.producerBinding === null
-                      ? " 已由服务端验证为该 Review 的 producer occurrence；报告无 Finding，因此 Finding authority 不适用。"
+                      ? " 已确认是生成报告的记录；报告未发现问题，无需逐项绑定问题证据。"
                       : bound.sourceRunOccurrence === "verified"
-                        ? " 是另一条已验证的 Review producer occurrence；Finding authority 仍绑定其自身的 exact occurrence。"
-                        : " 仅作为导航上下文；未请求 producer occurrence 验证。"}
+                        ? " 是另一条已验证的报告生成记录；问题证据仍以各自记录为准。"
+                        : " 仅作快捷导航，尚未要求系统核对它与报告的关系。"}
               </p>
             )}
-            {bound.snapshotContextMatches === true && <p>direct preview 与请求上下文一致。</p>}
+            {bound.snapshotContextMatches === true && <p>打开的内容预览与本报告一致。</p>}
             {bound.snapshotContextMatches === false && (
               <p className="gf-review__context-miss">
-                direct preview 与请求上下文不一致；页面保留真实报告且不替换权威。
+                打开的内容预览与本报告不一致；页面仍保留原始报告，不会悄悄替换被检查内容。
               </p>
             )}
           </div>
@@ -399,90 +421,81 @@ export function ReviewDetailPage({
         <header>
           <FileKey2 aria-hidden="true" size={22} />
           <div>
-            <h2 id="review-authority-title">Exact authority ledger</h2>
-            <p>Preview/constraint 经 direct lineage 与专用读取对拍；Artifact 存在本身不表示当前 ref。</p>
+            <h2 id="review-authority-title">本报告检查了什么</h2>
+            <p>内容版本、规则版本和执行记录都已固定，打开报告不会悄悄切换到最新版本。</p>
           </div>
         </header>
         <dl>
           <div>
-            <dt>Review snapshot</dt>
+            <dt>报告内容</dt>
+            <dd>已固定为生成报告时的内容版本</dd>
+          </div>
+          <div>
+            <dt>被检查的内容</dt>
             <dd>
-              <CopyableText copyLabel="复制 Review snapshot" value={bound.review.report.snapshot_id} />
+              <a href={`/specs/${encodeURIComponent(bound.preview.artifact_id)}`}>查看被检查的内容</a>
             </dd>
           </div>
           <div>
-            <dt>Exact preview</dt>
-            <dd>
-              <a href={`/specs/${encodeURIComponent(bound.preview.artifact_id)}`}>打开 exact preview</a>
-            </dd>
-          </div>
-          <div>
-            <dt>Exact constraint</dt>
+            <dt>使用的规则</dt>
             <dd>
               {bound.constraint ? (
                 <a href={`/constraints/${encodeURIComponent(bound.constraint.artifact_id)}`}>
-                  打开 exact constraint
+                  查看使用的规则版本
                 </a>
               ) : (
-                "不适用 (N/A)"
+                "本次检查没有绑定额外规则"
               )}
             </dd>
           </div>
           <div>
-            <dt>Producer occurrence</dt>
+            <dt>执行记录</dt>
             <dd>
               {authorityOccurrence ? (
-                <a href={`/runs/${encodeURIComponent(authorityOccurrence.run_id)}`}>
-                  打开 Review producer Run
-                </a>
+                <a href={`/runs/${encodeURIComponent(authorityOccurrence.run_id)}`}>查看本次检查的运行记录</a>
               ) : (
-                "未取得 verified producer occurrence；未从工具版本猜测 producer"
+                "没有可验证的运行记录"
               )}
             </dd>
           </div>
           <div>
-            <dt>Finding authority</dt>
+            <dt>问题依据</dt>
             <dd>
               {bound.findingAuthority === "exact-run-links"
-                ? "Run-scoped immutable links + digest + evidence Artifact"
+                ? "每个问题都绑定了固定检查证据"
                 : bound.findingAuthority === "embedded-only"
-                  ? "仅报告内嵌 Finding；未伪造 revision"
-                  : "不适用 (N/A)：报告没有 Finding"}
+                  ? "问题保存在报告内，没有独立历史版本"
+                  : "本报告没有发现问题"}
             </dd>
           </div>
           <div>
-            <dt>Terminal manifest</dt>
+            <dt>运行结果</dt>
             <dd>
               {authorityOccurrence ? (
                 <a href={`/artifacts/${encodeURIComponent(authorityOccurrence.terminal_manifest_id)}`}>
-                  {authorityOccurrence.terminal_manifest_kind} · {authorityOccurrence.terminal_status}
+                  查看运行结果清单
                 </a>
               ) : (
-                "不适用 (N/A)"
+                "没有运行结果清单"
               )}
             </dd>
           </div>
           <div>
-            <dt>Frozen outcome policy</dt>
-            <dd>
-              {authorityOccurrence
-                ? `${authorityOccurrence.outcome_policy_id}@${authorityOccurrence.outcome_policy_version} · ${authorityOccurrence.outcome_rule_id} · ${authorityOccurrence.manifest_role}`
-                : "不适用 (N/A)"}
-            </dd>
+            <dt>结果判定方式</dt>
+            <dd>{authorityOccurrence ? "已固定并可审计" : "不适用"}</dd>
           </div>
           {sourceIsDistinctOccurrence && bound.sourceProducerBinding && (
             <div>
-              <dt>Explicit source occurrence</dt>
+              <dt>另一条来源运行</dt>
               <dd>
                 <a href={`/runs/${encodeURIComponent(bound.sourceProducerBinding.run_id)}`}>
-                  {bound.sourceProducerBinding.run_id}
+                  查看另一条已验证的来源运行
                 </a>
-                {` · ${bound.sourceProducerBinding.outcome_policy_id}@${bound.sourceProducerBinding.outcome_policy_version} · ${bound.sourceProducerBinding.outcome_rule_id} · ${bound.sourceProducerBinding.manifest_role}`}
               </dd>
             </div>
           )}
           <div>
-            <dt>Artifact lineage</dt>
+            <dt>内容来源关系</dt>
             <dd>
               <a href={`/artifacts/${encodeURIComponent(bound.review.artifact.artifact_id)}/lineage`}>
                 查看完整血缘
@@ -492,45 +505,81 @@ export function ReviewDetailPage({
         </dl>
       </section>
 
+      <TechnicalDetails
+        items={[
+          { label: "报告记录 ID", value: bound.review.artifact.artifact_id },
+          { label: "报告数据版本", value: bound.review.report.review_schema_version },
+          { label: "内容快照 ID", value: bound.review.report.snapshot_id },
+          { label: "预览记录 ID", value: bound.preview.artifact_id },
+          ...(bound.constraint ? [{ label: "规则记录 ID", value: bound.constraint.artifact_id }] : []),
+          ...(authorityOccurrence
+            ? [
+                { label: "运行 ID", value: authorityOccurrence.run_id },
+                { label: "结果清单 ID", value: authorityOccurrence.terminal_manifest_id },
+                {
+                  label: "结果策略",
+                  value: `${authorityOccurrence.outcome_policy_id}@${authorityOccurrence.outcome_policy_version}`,
+                },
+                { label: "结果规则", value: authorityOccurrence.outcome_rule_id },
+                { label: "清单角色", value: authorityOccurrence.manifest_role },
+              ]
+            : []),
+          ...(sourceIsDistinctOccurrence && bound.sourceProducerBinding
+            ? [
+                { label: "另一来源运行 ID", value: bound.sourceProducerBinding.run_id },
+                {
+                  label: "另一来源结果策略",
+                  value: `${bound.sourceProducerBinding.outcome_policy_id}@${bound.sourceProducerBinding.outcome_policy_version}`,
+                },
+                { label: "另一来源结果规则", value: bound.sourceProducerBinding.outcome_rule_id },
+                { label: "另一来源清单角色", value: bound.sourceProducerBinding.manifest_role },
+              ]
+            : []),
+        ]}
+        summary="查看报告技术信息"
+      />
+
       <section className="gf-review-detail__tool" aria-labelledby="review-tool-title">
         <header>
           <Braces aria-hidden="true" size={22} />
           <div>
-            <h2 id="review-tool-title">Frozen VersionTuple</h2>
-            <p>这里展示 immutable 工具身份；不冒充未公开的 current review profile。</p>
+            <h2 className="u-sr-only" id="review-tool-title">
+              检查工具技术信息
+            </h2>
           </div>
         </header>
-        <dl>
-          {[
-            ["tool_version", tuple.tool_version],
-            ["model_snapshot", tuple.model_snapshot],
-            ["prompt_version", tuple.prompt_version],
-            ["agent_graph_version", tuple.agent_graph_version],
-            ["seed", tuple.seed],
-            ["cassette_id", tuple.cassette_id],
-          ].map(([label, value]) => (
-            <div key={String(label)}>
-              <dt>{label}</dt>
-              <dd>
-                <code>{versionValue(value)}</code>
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <TechnicalDetails
+          items={[
+            ["工具版本", tuple.tool_version],
+            ["模型快照", tuple.model_snapshot],
+            ["提示词版本", tuple.prompt_version],
+            ["Agent 流程版本", tuple.agent_graph_version],
+            ["随机种子", tuple.seed],
+            ["回放记录", tuple.cassette_id],
+          ].map(([label, value]) => ({
+            label: String(label),
+            value: value == null ? "不适用" : String(value),
+          }))}
+          summary="查看检查工具技术信息"
+        />
       </section>
 
       {bound.review.report.by_defect_class && bound.review.report.by_defect_class.length > 0 && (
         <section className="gf-review-detail__classes" aria-labelledby="review-classes-title">
           <header>
             <GitBranch aria-hidden="true" size={22} />
-            <h2 id="review-classes-title">Defect class index</h2>
+            <h2 id="review-classes-title">问题类型汇总</h2>
           </header>
           <ul>
             {bound.review.report.by_defect_class.map((item) => (
               <li key={`${item.defect_class}:${item.severity}`}>
-                <code>{item.defect_class}</code>
-                <span>{item.severity}</span>
+                <span>{defectClassLabel(item.defect_class)}</span>
+                <span>{embeddedSeverityLabels[item.severity]}</span>
                 <strong>{item.count}</strong>
+                <TechnicalDetails
+                  items={[{ label: "问题类型代码", value: item.defect_class }]}
+                  summary="技术信息"
+                />
               </li>
             ))}
           </ul>

@@ -8,6 +8,7 @@ export const FROZEN_VISUAL_TIME = "2026-07-20T08:00:00.000Z";
 export const V3_VISUAL_FIXTURE_AUTHORITY = "non-authoritative" as const;
 
 type ApprovalView = components["schemas"]["ApprovalViewV1"];
+type ArtifactPayload = components["schemas"]["ArtifactPayloadViewV1"];
 type ArtifactSummary = components["schemas"]["ArtifactSummaryV1"];
 type BenchReport = components["schemas"]["BenchReport"];
 type ConstraintProposal = components["schemas"]["ConstraintProposalReadViewV1"];
@@ -90,7 +91,10 @@ const principal = {
       assignment_id: "role:v3-visual-fixture",
       assignment_schema_version: "role-assignment@1",
       granted_at: FROZEN_VISUAL_TIME,
-      granted_by: { principal_id: "system:bootstrap", principal_kind: "system" },
+      granted_by: {
+        principal_id: "system:bootstrap",
+        principal_kind: "system",
+      },
       principal_id: "principal:v3-visual-fixture",
       revision: 1,
       role: "tooling",
@@ -179,8 +183,14 @@ function executionProfile(
   };
 }
 
-const environmentProfileRef = { profile_id: "builtin.aureus_env", version: 1 } as const;
-const derivationProfileRef = { profile_id: "builtin.task_suite_derivation", version: 2 } as const;
+const environmentProfileRef = {
+  profile_id: "builtin.aureus_env",
+  version: 1,
+} as const;
+const derivationProfileRef = {
+  profile_id: "builtin.task_suite_derivation",
+  version: 2,
+} as const;
 
 const executionProfiles = [
   executionProfile("builtin.generation", 1, "generation", "generation.propose", {
@@ -298,7 +308,10 @@ const taskSuite = {
     ],
   ),
   task_suite: {
-    completion_oracle_registry_ref: { digest: HASH.constraint, registry_version: 1 },
+    completion_oracle_registry_ref: {
+      digest: HASH.constraint,
+      registry_version: 1,
+    },
     config_export_artifact_id: "artifact:config:v3",
     constraint_snapshot_artifact_id: constraintSnapshot.artifact.artifact_id,
     env_contract_version: "aureus-env@1",
@@ -602,7 +615,10 @@ const runCost = {
 const approval = {
   approval: {
     approval_id: "approval:multi-domain:v3",
-    approval_policy: { policy_digest: HASH.approvalPolicy, policy_version: "approval-policy@1" },
+    approval_policy: {
+      policy_digest: HASH.approvalPolicy,
+      policy_version: "approval-policy@1",
+    },
     approval_schema_version: "approval@1",
     created_at: "2026-07-20T06:00:00.000Z",
     decisions: [
@@ -622,6 +638,7 @@ const approval = {
       registry_version: "domains@7",
     },
     domain_scope: { domain_ids: ["domain:economy", "domain:narrative"] },
+    evidence_set_artifact_id: "artifact:evidence:v3",
     proposer: { principal_id: "human:alice", principal_kind: "human" },
     regression_evidence_artifact_ids: ["artifact:regression:v3"],
     requirements: [
@@ -664,7 +681,7 @@ const approval = {
     },
     status: "pending_approval",
     subject_artifact_id: patchArtifact.artifact.artifact_id,
-    subject_digest: HASH.subject,
+    subject_digest: HASH.artifact,
     subject_kind: "patch",
     subject_revision: 3,
     subject_series_id: "patch-series:v3",
@@ -721,13 +738,88 @@ const approval = {
   view_schema_version: "approval-view@1",
 } satisfies ApprovalView;
 
+const approvalPatchArtifact = {
+  ...patchArtifact,
+  approval_status: approval.approval.status,
+  artifact: {
+    ...patchArtifact.artifact,
+    payload_hash: approval.approval.subject_digest,
+  },
+  workflow_revision: approval.approval.workflow_revision,
+} satisfies PatchArtifact;
+
+const approvalEvidenceArtifact = {
+  artifact: {
+    ...artifact(
+      approval.approval.evidence_set_artifact_id!,
+      "validation_evidence",
+      "evidence-set@1",
+      { tool_version: "validation@1" },
+      [approval.approval.subject_artifact_id],
+      approval.approval.domain_scope,
+    ),
+    payload_hash: HASH.subject,
+  },
+  payload: {
+    evidence_schema_version: "evidence-set@1",
+    finding_bindings: [],
+    overall_status: "passed",
+    policy_version: "validation@1",
+    requirements: [
+      {
+        applicability: "required",
+        evidence_artifact_id: "artifact:regression:v3",
+        kind: "checker",
+        reason_code: null,
+        requirement_id: "checker:deterministic",
+        status: "passed",
+        tool_version: "checker@1",
+      },
+    ],
+    subject_artifact_id: approval.approval.subject_artifact_id,
+    subject_digest: approval.approval.subject_digest,
+    supporting_artifact_ids: [],
+    target_binding: approval.approval.target_binding,
+    validation_run_id: "run:validation:v3",
+  },
+  resource_revision: 1,
+  view_schema_version: "artifact-payload-view@1",
+} satisfies ArtifactPayload;
+
+const approvalTargetArtifact = {
+  artifact: {
+    ...artifact(
+      approval.approval.target_binding!.target_artifact_id,
+      "ir_snapshot",
+      "ir-core@1",
+      { ir_snapshot_id: "snapshot:v3", tool_version: "patch@2" },
+      [approval.approval.target_binding!.expected_ref!.artifact_id],
+      approval.approval.domain_scope,
+    ),
+    payload_hash: approval.approval.target_binding!.target_digest,
+  },
+  payload: {
+    entities: {
+      "quest:newcomer": {
+        attrs: { name: "新手引导任务", reward_gold: 80 },
+        schema_version: "ir-core@1",
+        type: "QUEST",
+      },
+    },
+    meta_schema_version: "meta@1",
+    relations: {},
+  },
+  resource_revision: 1,
+  view_schema_version: "artifact-payload-view@1",
+} satisfies ArtifactPayload;
+
 export const V3_VISUAL_PAGES = [
   {
     hero: ".gf-specs__hero",
-    h1: "规格与约束快照",
+    h1: "内容与规则",
     id: "specs",
     primaryRegion: ".gf-specs__workspace-grid",
-    readyText: "artifact:proposal:v3",
+    readyText: "待处理的规则提案",
     root: ".gf-page.gf-specs",
     route: "/specs",
   },
@@ -736,16 +828,16 @@ export const V3_VISUAL_PAGES = [
     h1: "内容生成",
     id: "generation",
     primaryRegion: ".gf-generation__authoring-layout",
-    readyText: "当前 exact 绑定",
+    readyText: "描述你想生成或修改的内容",
     root: ".gf-page.gf-generation",
     route: "/generation",
   },
   {
     hero: ".gf-review__hero",
-    h1: "审查报告",
+    h1: "内容检查",
     id: "reviews",
     primaryRegion: ".gf-review__index-panel",
-    readyText: "artifact:review:v3",
+    readyText: "历史检查报告",
     root: ".gf-page.gf-review",
     route: "/reviews",
   },
@@ -754,43 +846,43 @@ export const V3_VISUAL_PAGES = [
     h1: "自动试玩",
     id: "playtest",
     primaryRegion: ".gf-playtest__suite-ledger",
-    readyText: "episode:bridge",
+    readyText: "选择试玩任务",
     root: ".gf-page.gf-playtest",
     route: "/playtest?suite=artifact%3Asuite%3Av3",
   },
   {
     hero: ".gf-patches__hero",
-    h1: "Patch / Diff",
+    h1: "修改与版本",
     id: "patches",
     primaryRegion: ".gf-patches__ledger",
-    readyText: "artifact:patch:v3",
+    readyText: "内容修改记录",
     root: ".gf-page.gf-patches",
     route: "/patches",
   },
   {
     hero: ".gf-eval__hero",
-    h1: "Eval / Bench",
+    h1: "质量评测",
     id: "eval",
     primaryRegion: ".gf-eval__authority",
-    readyText: "human evidence available",
+    readyText: "产品质量报告",
     root: ".gf-page.gf-eval",
     route: "/eval",
   },
   {
     hero: ".gf-observability__hero",
-    h1: "可观测性",
+    h1: "运行监控",
     id: "observability",
     primaryRegion: ".gf-cursor-table",
-    readyText: "budget-set:run:v3",
+    readyText: "当前查看的运行",
     root: ".gf-page.gf-observability",
     route: "/observability?run=run%3Av3",
   },
   {
     hero: ".gf-approvals__hero",
-    h1: "Approvals",
+    h1: "审批队列",
     id: "approvals",
     primaryRegion: ".gf-cursor-table",
-    readyText: "approval:multi-domain:v3",
+    readyText: "待我审批",
     root: ".gf-page.gf-approvals",
     route: "/approvals",
   },
@@ -869,7 +961,16 @@ function fixtureResponse(url: URL): FixtureResponse | null {
     case "/api/v1/constraints":
       return { body: opaquePage([constraintSnapshot], "read:constraints:v3") };
     case "/api/v1/constraint-proposals":
-      return { body: opaquePage([constraintProposal], "read:constraint-proposals:v3") };
+      return {
+        body: opaquePage([constraintProposal], "read:constraint-proposals:v3"),
+      };
+    case "/api/v1/artifacts": {
+      const kind = url.searchParams.get("kind");
+      if (kind === "source_raw" || kind === "source_rendered") {
+        return { body: opaquePage([], `read:artifacts:${kind}:v3`) };
+      }
+      return null;
+    }
     case "/api/v1/execution-profiles":
       return profilePage(url);
     case "/api/v1/reviews":
@@ -882,8 +983,16 @@ function fixtureResponse(url: URL): FixtureResponse | null {
       return { body: derivationBinding };
     case "/api/v1/patches":
       return { body: opaquePage([patchArtifact], "read:patches:v3") };
+    case "/api/v1/patches/artifact:patch:v3":
+      return { body: approvalPatchArtifact };
+    case "/api/v1/artifacts/artifact:evidence:v3":
+      return { body: approvalEvidenceArtifact };
+    case "/api/v1/artifacts/artifact:snapshot:v3":
+      return { body: approvalTargetArtifact };
     case "/api/v1/rollback-requests":
-      return { body: opaquePage([rollbackRequest], "read:rollback-requests:v3") };
+      return {
+        body: opaquePage([rollbackRequest], "read:rollback-requests:v3"),
+      };
     case "/api/v1/bench/report":
       return {
         body: benchReport,
@@ -948,7 +1057,10 @@ export async function installV3VisualBoundary(
     const url = new URL(webSocketRoute.url());
     if (url.host !== expectedHost) {
       externalEgress.add(webSocketRoute.url());
-      await webSocketRoute.close({ code: 1008, reason: "External egress is disabled." });
+      await webSocketRoute.close({
+        code: 1008,
+        reason: "External egress is disabled.",
+      });
       return;
     }
     webSocketRoute.connectToServer();
@@ -1007,6 +1119,10 @@ export async function settleV3Page(page: Page, pageCase: V3VisualPageCase) {
   await expect(page.getByText(pageCase.readyText, { exact: false }).first()).toBeVisible();
   const root = page.locator(pageCase.root).first();
   await expect(root).toBeVisible();
+  await expect(
+    root.getByRole("status"),
+    "The visual fixture must finish restoring its authoritative read context before capture.",
+  ).toHaveCount(0);
 
   await page.evaluate(() => {
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
@@ -1130,16 +1246,28 @@ async function assertRouteSpecificGeometry(root: Locator, pageCase: V3VisualPage
         root.locator(".gf-observability__metric-controls > *"),
         "Metric controls",
       );
-      await expect(root.locator(".gf-observability__terminal-id").first()).toHaveAttribute("tabindex", "0");
+      await expect(
+        root
+          .getByRole("cell", { name: /已生成结果/u })
+          .locator(".gf-resource-identity")
+          .first(),
+      ).toBeVisible();
+      await expect(
+        root
+          .getByRole("cell", { name: /已生成结果/u })
+          .getByText("技术信息", { exact: true })
+          .first(),
+      ).toBeVisible();
       break;
     case "approvals": {
-      const primaryCell = root.locator(".gf-approvals__table-primary").first();
+      const primaryCell = root.getByRole("table", { name: "待我审批" }).locator("tbody td").first();
       const primaryBox = await primaryCell.boundingBox();
       expect(primaryBox).not.toBeNull();
       expect(primaryBox!.width, "Approval primary identity column must remain usable").toBeGreaterThanOrEqual(
         pageCase.viewport.width <= 412 ? 144 : 160,
       );
-      await expect(primaryCell.locator(".gf-copyable__button").first()).toBeVisible();
+      await expect(primaryCell.locator(".gf-resource-identity")).toBeVisible();
+      await expect(primaryCell.getByText("技术信息", { exact: true })).toBeVisible();
       break;
     }
   }

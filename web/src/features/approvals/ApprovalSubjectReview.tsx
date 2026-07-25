@@ -1,6 +1,7 @@
 import { AlertTriangle, ArrowRight, FileDiff, GitBranch, RotateCcw, ShieldCheck } from "lucide-react";
 
 import type { components } from "../../api/generated/openapi";
+import { TechnicalDetails } from "../../components/identity";
 import { CopyableText } from "../../components/tables";
 import { ConstraintSummaryList } from "../specs/ConstraintSummary";
 import type {
@@ -519,12 +520,18 @@ function rollbackContentChanges(currentPayload: unknown, targetPayload: unknown)
   return changes;
 }
 
-function splitFieldTarget(target: string): { fieldPath: string; resourceId: string } {
+function splitFieldTarget(target: string): {
+  fieldPath: string;
+  resourceId: string;
+} {
   const separator = target.indexOf(".");
   if (separator <= 0 || separator === target.length - 1) {
     throw new Error("Patch 字段操作缺少可解释的资源与字段路径。");
   }
-  return { fieldPath: target.slice(separator + 1), resourceId: target.slice(0, separator) };
+  return {
+    fieldPath: target.slice(separator + 1),
+    resourceId: target.slice(0, separator),
+  };
 }
 
 function fieldLabel(fieldPath: string): string {
@@ -746,6 +753,7 @@ function PatchReview({
   subject: ApprovalPatch;
 }) {
   const patch = subject.patch;
+  const riskLabel = { high: "高", low: "低", medium: "中" }[patch.side_effect_risk] ?? "未标注";
   return (
     <div className="gf-approvals__subject-content">
       <div className="gf-approvals__subject-lede">
@@ -753,19 +761,22 @@ function PatchReview({
         <div>
           <h3>{patch.rationale}</h3>
           <p>
-            {patch.ops.length} 项变更 · 风险 {patch.side_effect_risk} ·{" "}
-            {patch.produced_by === "human" ? "人工" : "Agent"}提案
+            {patch.ops.length} 项变更 · 影响风险：{riskLabel} ·{" "}
+            {patch.produced_by === "human" ? "人工草案" : "AI 草案"}
           </p>
         </div>
       </div>
       {patch.expected_to_fix && patch.expected_to_fix.length > 0 && (
         <div>
           <strong>预期修复</strong>
-          <ul>
-            {patch.expected_to_fix.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <p>已绑定 {patch.expected_to_fix.length} 个需要关闭的问题。</p>
+          <TechnicalDetails
+            items={patch.expected_to_fix.map((item, index) => ({
+              label: `问题 ${index + 1} 标识`,
+              value: item,
+            }))}
+            summary="查看问题绑定技术信息"
+          />
         </div>
       )}
       <ol className="gf-approvals__op-list" aria-label="Patch 变更内容">
@@ -934,7 +945,7 @@ function EvidenceReviewPanel({ evidence }: { evidence: EvidenceReview }) {
         <ShieldCheck aria-hidden="true" size={20} />
         <div>
           <h3>确定性验证已通过</h3>
-          <p>{evidence.requirements.length} 项检查均由 exact EvidenceSet 固化。</p>
+          <p>{evidence.requirements.length} 项检查均已保存，可随时追溯。</p>
         </div>
       </header>
       <ul>
@@ -954,8 +965,8 @@ function EvidenceReviewPanel({ evidence }: { evidence: EvidenceReview }) {
         ))}
       </ul>
       <div className="gf-cluster">
-        <a href={`/runs/${encodeURIComponent(evidence.runId)}`}>打开验证 Run</a>
-        <a href={`/artifacts/${encodeURIComponent(evidence.artifactId)}`}>打开 EvidenceSet</a>
+        <a href={`/runs/${encodeURIComponent(evidence.runId)}`}>查看验证过程</a>
+        <a href={`/artifacts/${encodeURIComponent(evidence.artifactId)}`}>查看完整证据</a>
       </div>
     </div>
   );
@@ -966,17 +977,23 @@ function TargetReview({ target }: { target: ApprovalTarget }) {
     target.subject_kind === "rollback_request"
       ? "回退到已选历史版本"
       : target.expected_ref
-        ? `更新当前 revision ${target.expected_ref.revision}`
-        : "创建新的权威 ref";
+        ? `更新当前第 ${target.expected_ref.revision} 版`
+        : "创建新的发布位置";
+  const refSegments = target.ref_name.split("/").filter(Boolean);
+  const refLeaf = refSegments[refSegments.length - 1] ?? target.ref_name;
+  const targetLabel = ["live", "head", "current"].includes(refLeaf)
+    ? "当前正式内容"
+    : `发布位置 · ${refLeaf}`;
   return (
     <section aria-label="审批影响目标" className="gf-approvals__target-review">
       <GitBranch aria-hidden="true" size={20} />
       <div>
         <span>这次批准将影响</span>
-        <strong>{target.ref_name}</strong>
+        <strong>{targetLabel}</strong>
         <p>{action}</p>
         <details>
           <summary>查看目标版本技术身份</summary>
+          <CopyableText copyLabel="复制发布位置名称" value={target.ref_name} />
           <CopyableText copyLabel="复制目标 Artifact ID" value={target.target_artifact_id} />
           {target.target_snapshot_id && (
             <CopyableText copyLabel="复制目标 Snapshot ID" value={target.target_snapshot_id} />

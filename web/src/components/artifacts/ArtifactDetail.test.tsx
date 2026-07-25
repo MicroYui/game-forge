@@ -80,16 +80,15 @@ describe("ArtifactDetail", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "工件详情" })).toBeVisible();
-    expect(screen.getByText(artifact.artifact_id)).toBeVisible();
-    expect(screen.getAllByText("patch")).toHaveLength(2);
-    expect(screen.getByText(artifact.payload_hash!)).toBeVisible();
-    expect(screen.getByText("domain:economy")).toBeVisible();
-    expect(screen.getByText("domain:quest")).toBeVisible();
-    expect(screen.getByText("repair-graph@2")).toBeVisible();
-    expect(screen.getByText("不适用")).toBeVisible();
-    expect(screen.getByText("artifact:parent")).toBeVisible();
-    expect(screen.getByText(/工件存在不代表当前 ref 权威/)).toBeVisible();
+    expect(screen.getByRole("heading", { name: "修改方案详情" })).toBeVisible();
+    expect(screen.getByText("经济系统、任务系统")).toBeVisible();
+    expect(screen.getByText("1 项直接来源")).toBeVisible();
+    expect(screen.getByText(artifact.artifact_id)).not.toBeVisible();
+    expect(screen.getByText(artifact.payload_hash!)).not.toBeVisible();
+    expect(screen.getByText("domain:economy")).not.toBeVisible();
+    expect(screen.getByText("repair-graph@2")).not.toBeVisible();
+    expect(screen.getByText("artifact:parent")).not.toBeVisible();
+    expect(screen.getByText(/这份记录存在，不代表它已经成为正式内容/)).toBeVisible();
     expect(screen.queryByText("secret-bucket")).not.toBeInTheDocument();
     expect(screen.queryByText("private/key")).not.toBeInTheDocument();
     expect(screen.queryByText("https://storage.internal")).not.toBeInTheDocument();
@@ -109,7 +108,7 @@ describe("ArtifactDetail", () => {
       />,
     );
 
-    expect(screen.getByText("历史工件未提供（不伪造）")).toBeVisible();
+    expect(screen.getByText("未提供完整性摘要")).toBeVisible();
     expect(screen.queryByText(/ObjectRef|ObjectLocation|对象位置/)).not.toBeInTheDocument();
   });
 
@@ -128,8 +127,10 @@ describe("ArtifactDetail", () => {
     );
 
     expect(longDomainId).toHaveLength(512);
+    expect(screen.getByText(longDomainId)).not.toBeVisible();
+    await user.click(screen.getByText("查看记录技术信息"));
     expect(screen.getByText(longDomainId)).toBeVisible();
-    await user.click(screen.getByRole("button", { name: "复制域 ID" }));
+    await user.click(screen.getByRole("button", { name: "复制内容领域 ID" }));
     expect(writeText).toHaveBeenCalledWith(longDomainId);
   });
 });

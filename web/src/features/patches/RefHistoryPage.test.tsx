@@ -114,14 +114,14 @@ describe("Ref history rollback draft", () => {
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    expect((await screen.findAllByText("Current · revision 2"))[0]).toBeVisible();
-    await user.click(screen.getByRole("radio", { name: "回退到 revision 1" }));
+    expect((await screen.findAllByText("第 2 版"))[0]).toBeVisible();
+    await user.click(screen.getByRole("radio", { name: "回退到第 1 版" }));
     expect(screen.getByRole("heading", { name: "回滚后会改变什么" })).toBeVisible();
     expect(screen.getByText(/120 → 80/)).toBeVisible();
-    await screen.findByRole("option", { name: /Safe design rollback/ });
-    await user.selectOptions(screen.getByLabelText("Rollback policy"), "builtin.rollback@3");
-    await user.type(screen.getByLabelText("Rollback reason"), "Restore the reviewed economy baseline.");
-    await user.click(screen.getByRole("button", { name: "创建 Rollback request" }));
+    await screen.findByRole("option", { name: "安全回退验证方案" });
+    await user.selectOptions(screen.getByLabelText("回退验证方案"), "builtin.rollback@3");
+    await user.type(screen.getByLabelText("回退原因"), "Restore the reviewed economy baseline.");
+    await user.click(screen.getByRole("button", { name: "创建回退请求" }));
     await user.click(await screen.findByRole("button", { name: "重试同一 intent" }));
 
     await waitFor(() => expect(draftRollback).toHaveBeenCalledTimes(2));
@@ -137,10 +137,10 @@ describe("Ref history rollback draft", () => {
     });
     expect(draftRollback.mock.calls[1][1]).toBe(draftRollback.mock.calls[0][1]);
     expect(draftRollback.mock.calls[1][2]).toBe(draftRollback.mock.calls[0][2]);
-    const createdLink = await screen.findByRole("link", { name: "打开 Rollback request" });
+    const createdLink = await screen.findByRole("link", { name: "继续验证回退请求" });
     expect(createdLink).toHaveAttribute("href", "/rollback-requests/artifact%3Arollback%3Anew");
     expect(createdLink.closest('[role="status"]')).not.toBeNull();
-    expect(screen.getByText(/draft 创建不会移动 ref/)).toBeVisible();
+    expect(screen.getByText(/创建请求不会修改正式内容/)).toBeVisible();
   });
 
   it("offers only an applied approval whose exact transition closes target to current", async () => {
@@ -182,16 +182,16 @@ describe("Ref history rollback draft", () => {
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    await user.click(await screen.findByRole("radio", { name: "回退到 revision 1" }));
+    await user.click(await screen.findByRole("radio", { name: "回退到第 1 版" }));
     const approvalSelect = await screen.findByRole("combobox", { name: "被回滚的审批（可选）" });
     await user.selectOptions(approvalSelect, REVERSED_APPROVAL_ID);
-    await user.selectOptions(screen.getByLabelText("Rollback policy"), "builtin.rollback@3");
-    await user.type(screen.getByLabelText("Rollback reason"), "Reverse the applied economy change.");
-    await user.click(screen.getByRole("button", { name: "创建 Rollback request" }));
+    await user.selectOptions(screen.getByLabelText("回退验证方案"), "builtin.rollback@3");
+    await user.type(screen.getByLabelText("回退原因"), "Reverse the applied economy change.");
+    await user.click(screen.getByRole("button", { name: "创建回退请求" }));
 
     await waitFor(() => expect(draftRollback).toHaveBeenCalledTimes(1));
     expect(draftRollback.mock.calls[0][1].reverses_approval_id).toBe(REVERSED_APPROVAL_ID);
-    expect(screen.getByRole("textbox", { name: "Reverses approval ID" })).not.toBeVisible();
+    expect(screen.getByRole("textbox", { name: "被回退的审批编号" })).not.toBeVisible();
   });
 
   it("keeps draft actions locked until an explicit authority reload succeeds", async () => {
@@ -233,11 +233,11 @@ describe("Ref history rollback draft", () => {
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    await user.click(await screen.findByRole("radio", { name: "回退到 revision 1" }));
-    await screen.findByRole("option", { name: /Safe design rollback/ });
-    await user.selectOptions(screen.getByLabelText("Rollback policy"), "builtin.rollback@3");
-    await user.type(screen.getByLabelText("Rollback reason"), "Restore the reviewed baseline.");
-    const createButton = screen.getByRole("button", { name: "创建 Rollback request" });
+    await user.click(await screen.findByRole("radio", { name: "回退到第 1 版" }));
+    await screen.findByRole("option", { name: "安全回退验证方案" });
+    await user.selectOptions(screen.getByLabelText("回退验证方案"), "builtin.rollback@3");
+    await user.type(screen.getByLabelText("回退原因"), "Restore the reviewed baseline.");
+    const createButton = screen.getByRole("button", { name: "创建回退请求" });
     await user.click(createButton);
     await screen.findByText("draft transport failed");
 
@@ -284,10 +284,10 @@ describe("Ref history rollback draft", () => {
     } as unknown as PatchWorkflowApi;
     renderPage(api);
 
-    await user.click(await screen.findByRole("radio", { name: "回退到 revision 1" }));
+    await user.click(await screen.findByRole("radio", { name: "回退到第 1 版" }));
 
-    expect(await screen.findByRole("heading", { name: "Rollback profiles 不可用" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "创建 Rollback request" })).toBeDisabled();
+    expect(await screen.findByRole("heading", { name: "回退验证方案不可用" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "创建回退请求" })).toBeDisabled();
     expect(draftRollback).not.toHaveBeenCalled();
   });
 });

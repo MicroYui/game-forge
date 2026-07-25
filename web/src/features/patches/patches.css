@@ -256,11 +256,57 @@
 .gf-patches__checklist label {
   display: flex;
   gap: var(--space-2);
-  align-items: center;
+  align-items: flex-start;
 }
 
 .gf-patches__checklist input {
   width: auto;
+  margin-block-start: 0.2rem;
+}
+
+.gf-patches__profile-copy {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.gf-patches__profile-copy small {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
+.gf-patches__form-stage-heading {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding-block: var(--space-2);
+  border-block-start: 1px solid var(--line);
+}
+
+.gf-patches__form-stage-heading:first-child {
+  padding-block-start: 0;
+  border-block-start: 0;
+}
+
+.gf-patches__form-stage-heading > span {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 1.75rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--deterministic);
+  color: var(--surface);
+  font-weight: 700;
+}
+
+.gf-patches__form-stage-heading h3,
+.gf-patches__form-stage-heading p {
+  margin: 0;
+}
+
+.gf-patches__form-stage-heading p {
+  margin-block-start: var(--space-1);
+  color: var(--muted);
 }
 
 .gf-patches__finding-evidence-groups {

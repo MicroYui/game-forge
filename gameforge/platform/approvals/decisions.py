@@ -16,6 +16,8 @@ from gameforge.contracts.identity import (
     DomainRegistryV1,
     DomainRoutePolicy,
     DomainRoutePolicyRefV1,
+    DomainScopeValue,
+    Permission,
     Principal,
     RolePolicy,
 )
@@ -107,6 +109,8 @@ def _require_current_actor(
     item: ApprovalItem,
     decision: ApprovalDecision,
     principal: Principal,
+    role_policy: RolePolicy,
+    domain_registry: DomainRegistryV1,
 ) -> None:
     if (
         decision.actor.principal_id != principal.id
@@ -115,8 +119,61 @@ def _require_current_actor(
         raise Forbidden("decision actor does not match the current principal")
     if principal.kind != "human" or principal.status != "active":
         raise Forbidden("approval decisions require an active human principal")
-    if principal.id == item.proposer.principal_id:
+    if (
+        current_self_decision_authority_reason_code(
+            item=item,
+            principal=principal,
+            role_policy=role_policy,
+            domain_registry=domain_registry,
+        )
+        is not None
+    ):
         raise Forbidden("maker-checker forbids the proposer from deciding")
+
+
+def _has_approval_permission(
+    *,
+    principal: Principal,
+    role_policy: RolePolicy,
+    domain_registry: DomainRegistryV1,
+    action: str,
+    domain_scope: DomainScopeValue,
+) -> bool:
+    return (
+        authorize(
+            principal=principal,
+            role_policy=role_policy,
+            requested_permission=Permission(
+                action=action,
+                resource_kind="approval",
+                domain_scope=domain_scope,
+            ),
+            domain_registry=domain_registry,
+        )
+        is AuthorizationDecision.ALLOW
+    )
+
+
+def current_self_decision_authority_reason_code(
+    *,
+    item: ApprovalItem,
+    principal: Principal,
+    role_policy: RolePolicy,
+    domain_registry: DomainRegistryV1,
+) -> str | None:
+    """Return the maker-checker blocker under the item's exact frozen policy."""
+
+    if principal.id != item.proposer.principal_id:
+        return None
+    if _has_approval_permission(
+        principal=principal,
+        role_policy=role_policy,
+        domain_registry=domain_registry,
+        action="approval.self_decide",
+        domain_scope=item.domain_scope,
+    ):
+        return None
+    return "maker_checker_conflict"
 
 
 def current_requirement_authority_reason_code(
@@ -128,10 +185,31 @@ def current_requirement_authority_reason_code(
 ) -> str | None:
     """Return the stable current-authority blocker for one frozen requirement."""
 
-    if requirement.assignee_principal_ids and (
-        principal.id not in requirement.assignee_principal_ids
+    route_override = _has_approval_permission(
+        principal=principal,
+        role_policy=role_policy,
+        domain_registry=domain_registry,
+        action="approval.route_override",
+        domain_scope=requirement.domain_scope,
+    )
+    if (
+        requirement.assignee_principal_ids
+        and (principal.id not in requirement.assignee_principal_ids)
+        and not route_override
     ):
         return "actor_not_assigned"
+    if route_override:
+        if (
+            authorize(
+                principal=principal,
+                role_policy=role_policy,
+                requested_permission=requirement.required_permission,
+                domain_registry=domain_registry,
+            )
+            is not AuthorizationDecision.ALLOW
+        ):
+            return "permission_denied"
+        return None
     assignments = tuple(
         assignment for assignment in principal.roles if assignment.role == requirement.route_role
     )
@@ -226,7 +304,16 @@ def evaluate_current_approve_votes(
             or principal.kind != decision.actor.principal_kind
             or principal.kind != "human"
             or principal.status != "active"
-            or principal.id == item.proposer.principal_id
+        ):
+            continue
+        if (
+            current_self_decision_authority_reason_code(
+                item=item,
+                principal=principal,
+                role_policy=role_policy,
+                domain_registry=domain_registry,
+            )
+            is not None
         ):
             continue
         for requirement_id in decision.requirement_ids:
@@ -361,7 +448,13 @@ def apply_approval_decision(
         role_policy=role_policy,
         approval_policy=approval_policy,
     )
-    _require_current_actor(item=item, decision=decision, principal=principal)
+    _require_current_actor(
+        item=item,
+        decision=decision,
+        principal=principal,
+        role_policy=role_policy,
+        domain_registry=domain_registry,
+    )
 
     requirements = {requirement.requirement_id: requirement for requirement in item.requirements}
     unknown = set(decision.requirement_ids) - requirements.keys()
@@ -549,7 +642,13 @@ def reauthorize_approved_item_for_apply(
                 decision_id=decision.decision_id,
                 principal_id=decision.actor.principal_id,
             )
-        _require_current_actor(item=item, decision=decision, principal=principal)
+        _require_current_actor(
+            item=item,
+            decision=decision,
+            principal=principal,
+            role_policy=role_policy,
+            domain_registry=domain_registry,
+        )
 
         for requirement_id in decision.requirement_ids:
             requirement = requirements[requirement_id]
@@ -601,6 +700,7 @@ __all__ = [
     "all_requirements_satisfied",
     "apply_approval_decision",
     "current_requirement_authority_reason_code",
+    "current_self_decision_authority_reason_code",
     "evaluate_current_approve_votes",
     "reauthorize_approved_item_for_apply",
     "validate_approval_policy_bindings",

@@ -208,7 +208,7 @@ export function toCytoscapeElements(facts: readonly GraphFact[]): ElementDefinit
       classes: "gf-kg-node--reference",
       data: {
         id: `entity:${id}`,
-        label: `未载入端点\n${compactLabel(id)}`,
+        label: "关联内容\n（未载入本页）",
         loaded: false,
         type: "REFERENCE",
       },

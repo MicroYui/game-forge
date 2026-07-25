@@ -23,17 +23,35 @@ from gameforge.spine.ir.snapshot import Snapshot
 class _FixedTransport:
     """Returns a canned response for any request (agent-logic test double, no network)."""
 
-    def __init__(self, text):
+    def __init__(self, text, *, finish_reason="stop"):
         self.text = text
+        self.finish_reason = finish_reason
         self.calls = []
 
     def complete(self, req):
         self.calls.append(req)
-        return ModelResponse(response_normalized=self.text)
+        return ModelResponse(response_normalized=self.text, finish_reason=self.finish_reason)
 
 
-def _router(text, tmp_path):
-    return ModelRouter(_FixedTransport(text), CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+class _SequencedTransport:
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.calls = []
+
+    def complete(self, req):
+        self.calls.append(req)
+        return ModelResponse(
+            response_normalized=self.responses[len(self.calls) - 1],
+            finish_reason="stop",
+        )
+
+
+def _router(text, tmp_path, *, finish_reason="stop"):
+    return ModelRouter(
+        _FixedTransport(text, finish_reason=finish_reason),
+        CassetteStore(tmp_path),
+        mode=RouterMode.PASSTHROUGH,
+    )
 
 
 _CONSTRAINTS_YAML = """
@@ -221,6 +239,66 @@ def test_generator_fallback_on_unparseable_output(tmp_path):
     assert res.fallback_taken is True
     assert res.produced["proposal"]["passed_gate"] is False
     assert res.produced["proposal"]["proposed_ops"] == []
+
+
+def test_generation_v4_delegates_output_budget_to_the_frozen_model_route(tmp_path):
+    base = _base_snapshot()
+    transport = _FixedTransport("[]")
+    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+
+    ContentGenerator(base, _checkers()).run(
+        _goal_input(base),
+        router,
+    )
+
+    assert transport.calls[0].params == {}
+
+
+def test_generator_fails_closed_when_provider_reports_output_truncation(tmp_path):
+    base = _base_snapshot()
+    payload = json.dumps(
+        [{"op": "add_entity", "target": "event:letters", "new_value": {"type": "EVENT"}}]
+    )
+
+    result = ContentGenerator(base, _checkers()).run(
+        _goal_input(base),
+        _router(payload, tmp_path, finish_reason="max_output_tokens"),
+    )
+
+    assert result.fallback_taken is True
+    assert result.produced["proposal"]["proposed_ops"] == []
+    assert result.produced["error"] == "model_output_truncated"
+
+
+def test_material_extraction_v4_splits_large_sources_and_combines_all_ops(tmp_path):
+    base = Snapshot.from_entities_relations([], [])
+    first = json.dumps(
+        [{"op": "add_entity", "target": "event:first", "new_value": {"type": "EVENT"}}]
+    )
+    second = json.dumps(
+        [{"op": "add_entity", "target": "event:second", "new_value": {"type": "EVENT"}}]
+    )
+    transport = _SequencedTransport((first, second))
+    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+
+    result = ContentGenerator(base, []).run_from_materials(
+        DesignGoalInput(goal="提取活动实体", grounding_snapshot_id=base.snapshot_id),
+        router,
+        materials=(("artifact:material", "第一段活动。\n\n第二段活动。"),),
+        max_chunk_bytes=len("第一段活动。\n\n".encode("utf-8")),
+        execute_local_gate=False,
+    )
+
+    assert result.fallback_taken is False
+    assert [item["target"] for item in result.produced["proposal"]["proposed_ops"]] == [
+        "event:first",
+        "event:second",
+    ]
+    assert len(transport.calls) == 2
+    assert all(call.params == {} for call in transport.calls)
+    assert all("Material extraction mode" in call.messages[-1].content for call in transport.calls)
+    assert "chunk 1/2" in transport.calls[0].messages[-1].content
+    assert "chunk 2/2" in transport.calls[1].messages[-1].content
 
 
 def _balanced_economy_snapshot() -> Snapshot:

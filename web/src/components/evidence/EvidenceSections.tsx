@@ -20,7 +20,7 @@ const sections = [
     description: "模型只提供建议，必须由人确认或由确定性预言机复验。",
     icon: MessageSquareWarning,
     key: "suggestion",
-    title: "LLM 建议（需人确认）",
+    title: "AI 建议（需人工确认）",
   },
   {
     description: "证据不足、未知、超时、超预算或尚待验证；未证明绝不等于通过。",

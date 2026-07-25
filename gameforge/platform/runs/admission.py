@@ -304,6 +304,21 @@ _DEFAULT_RUN_LIMITS: tuple[CostAmountV1, ...] = (
     _cost_amount("wall_time_ns", 3_600_000_000_000, unit="ns"),
     _cost_amount("concurrent_run", 16, unit="count"),
 )
+# The hold is a conservative execution forecast, not a reservation of every
+# budget's entire lifetime limit.  Reserving the full request limit made a
+# shared budget single-use: after one settled request, the next Run's full-limit
+# hold exceeded ``consumed + reserved <= limit``.  These bounds cover 128 model
+# calls at the catalog's 200k context / 32k output maxima while allowing shared
+# principal/system budgets to govern many independent Runs.
+_DEFAULT_RUN_RESERVATION: tuple[CostAmountV1, ...] = (
+    _cost_amount("input_token", 25_600_000, unit="token"),
+    _cost_amount("output_token", 4_096_000, unit="token"),
+    _cost_amount("cache_read_token", 25_600_000, unit="token"),
+    _cost_amount("cache_write_token", 25_600_000, unit="token"),
+    _cost_amount("request", 128, unit="request"),
+    _cost_amount("agent_step", 128, unit="step"),
+    _cost_amount("wall_time_ns", 3_600_000_000_000, unit="ns"),
+)
 _SYSTEM_BUDGET_SCOPE_ID = "global"
 # ``run-budget-selection@1`` is deliberately bounded.  Fetching one sentinel row
 # beyond the retained maximum proves completeness without silently truncating an
@@ -356,7 +371,7 @@ class DefaultRunBudgetPlanProvider:
         self._budget_policy_version = budget_policy_version
         self._limits = limits
         self._reservation = (
-            tuple(item for item in limits if item.dimension != "concurrent_run")
+            _DEFAULT_RUN_RESERVATION
             if reservation is None
             else reservation
         )
@@ -1010,6 +1025,8 @@ class _AuthorizationBinding:
     domain_registry: DomainRegistryV1
     resource_domain: DomainScopeValue
     permissions: tuple[Permission, ...]
+    frozen_workflow_role_policy: RolePolicy | None = None
+    frozen_workflow_domain_registry: DomainRegistryV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1452,6 +1469,7 @@ class RunAdmissionEngine:
             )
             params = GenerationProposePayloadV1(
                 base_snapshot_artifact_id=prospective.base_snapshot_artifact_id,
+                source_artifact_ids=prospective.source_artifact_ids,
                 constraint_snapshot_artifact_id=prospective.constraint_snapshot_artifact_id,
                 findings=prospective.findings,
                 objective_goal=PromptGoalBindingV1(
@@ -1509,6 +1527,11 @@ class RunAdmissionEngine:
             read=read,
             actor=actor,
             pending_source_artifacts=pending_source_artifacts,
+        )
+        self._verify_context_source_bindings(
+            params=params,
+            artifacts=artifacts,
+            read=read,
         )
         self._verify_finding_bindings(params=params, artifacts=artifacts, read=read)
         permission_item = (
@@ -1844,6 +1867,7 @@ class RunAdmissionEngine:
         self,
         *,
         base_snapshot_artifact_id: str,
+        source_artifact_ids: tuple[str, ...] = (),
         constraint_snapshot_artifact_id: str | None,
         findings: tuple[FindingEvidenceBindingV1, ...],
         objective_goal_text: str,
@@ -1864,6 +1888,7 @@ class RunAdmissionEngine:
         )
         params = GenerationProposePayloadV1(
             base_snapshot_artifact_id=base_snapshot_artifact_id,
+            source_artifact_ids=source_artifact_ids,
             constraint_snapshot_artifact_id=constraint_snapshot_artifact_id,
             findings=findings,
             objective_goal=PromptGoalBindingV1(
@@ -2160,6 +2185,11 @@ class RunAdmissionEngine:
             read=read,
             actor=actor,
             pending_source_artifacts=pending_source_artifacts,
+        )
+        self._verify_context_source_bindings(
+            params=params,
+            artifacts=artifacts,
+            read=read,
         )
         self._verify_finding_bindings(params=params, artifacts=artifacts, read=read)
         if resolve_execution_plan is None:
@@ -2790,12 +2820,47 @@ class RunAdmissionEngine:
             if not isinstance(constraint, ArtifactV2)
             else constraint.version_tuple.constraint_snapshot_id
         )
+        required_preview_parent_ids = {base.artifact_id, subject.artifact_id}
+        preview_parent_ids = set(preview.lineage)
+        extra_preview_parent_ids = preview_parent_ids - required_preview_parent_ids
+        allowed_planning_materials = {
+            ("source_raw", "project-material-original@1"),
+            ("source_rendered", "project-material-rendered@1"),
+        }
+        exact_planning_material_parents = all(
+            parent_id in subject.lineage
+            and isinstance(parent := read.artifacts.get(parent_id), ArtifactV2)
+            and (parent.kind, parent.meta.get("payload_schema_id")) in allowed_planning_materials
+            for parent_id in extra_preview_parent_ids
+        )
+        generation_tuple_fields = (
+            "doc_version",
+            "prompt_version",
+            "model_snapshot",
+            "agent_graph_version",
+            "tool_version",
+            "cassette_id",
+            "seed",
+        )
+        exact_preview_lineage = required_preview_parent_ids.issubset(preview_parent_ids) and (
+            not extra_preview_parent_ids
+            or (
+                patch.produced_by == "agent"
+                and patch.producer_run_id is not None
+                and exact_planning_material_parents
+                and all(
+                    getattr(preview.version_tuple, field_name)
+                    == getattr(subject.version_tuple, field_name)
+                    for field_name in generation_tuple_fields
+                )
+            )
+        )
         if (
             patch.revision != item.subject_revision
             or patch.base_snapshot_id != base.version_tuple.ir_snapshot_id
             or patch.target_snapshot_id != preview.version_tuple.ir_snapshot_id
             or subject.version_tuple.ir_snapshot_id != base.version_tuple.ir_snapshot_id
-            or set(preview.lineage) != {base.artifact_id, subject.artifact_id}
+            or not exact_preview_lineage
             or (
                 expected_finding_ids is not None
                 and tuple(sorted(set(patch.expected_to_fix))) != expected_finding_ids
@@ -4231,14 +4296,33 @@ class RunAdmissionEngine:
                 "run admission domain registry is unavailable",
                 component="run_admission_authorization",
             )
-        if validation_item is not None and (
-            validation_item.domain_registry_ref != role_policy.domain_registry_ref
-            or validation_item.role_policy_version != role_policy.policy_version
-            or validation_item.role_policy_digest != role_policy.policy_digest
-        ):
-            raise IntegrityViolation(
-                "workflow subject governance differs from the exact admission policy"
+        frozen_workflow_role_policy: RolePolicy | None = None
+        frozen_workflow_domain_registry: DomainRegistryV1 | None = None
+        if validation_item is not None:
+            frozen_workflow_role_policy = read.policies.get_role_policy(
+                validation_item.role_policy_version,
+                validation_item.role_policy_digest,
             )
+            if not isinstance(frozen_workflow_role_policy, RolePolicy):
+                raise DependencyUnavailable(
+                    "workflow subject role policy is unavailable",
+                    component="workflow_subject_authorization",
+                )
+            frozen_workflow_domain_registry = read.policies.get_domain_registry(
+                frozen_workflow_role_policy.domain_registry_ref
+            )
+            if not isinstance(frozen_workflow_domain_registry, DomainRegistryV1):
+                raise DependencyUnavailable(
+                    "workflow subject domain registry is unavailable",
+                    component="workflow_subject_authorization",
+                )
+            if (
+                validation_item.domain_registry_ref
+                != frozen_workflow_role_policy.domain_registry_ref
+            ):
+                raise IntegrityViolation(
+                    "workflow subject governance differs from its frozen role policy"
+                )
         resolver = self._registry.get_permission_resolver_key(kind)
         if definition.required_permission.domain_scope == "all" and resolver != (
             f"{kind.kind}-domain-resolver@1"
@@ -4272,11 +4356,32 @@ class RunAdmissionEngine:
                 action=requested.action,
                 resource_kind=requested.resource_kind,
             )
+        if frozen_workflow_role_policy is not None:
+            if frozen_workflow_domain_registry is None:
+                raise IntegrityViolation(
+                    "frozen workflow role policy has no domain registry authority"
+                )
+            if (
+                authorize(
+                    principal=actor.principal,
+                    role_policy=frozen_workflow_role_policy,
+                    requested_permission=requested,
+                    domain_registry=frozen_workflow_domain_registry,
+                )
+                is not AuthorizationDecision.ALLOW
+            ):
+                raise Forbidden(
+                    "actor is not authorized by the frozen workflow policy",
+                    action=requested.action,
+                    resource_kind=requested.resource_kind,
+                )
         return _AuthorizationBinding(
             role_policy=role_policy,
             domain_registry=registry,
             resource_domain=resource_domain,
             permissions=(requested,),
+            frozen_workflow_role_policy=frozen_workflow_role_policy,
+            frozen_workflow_domain_registry=frozen_workflow_domain_registry,
         )
 
     @staticmethod
@@ -4309,6 +4414,8 @@ class RunAdmissionEngine:
             domain_registry=authorization.domain_registry,
             resource_domain=authorization.resource_domain,
             permissions=(*authorization.permissions, replay_permission),
+            frozen_workflow_role_policy=authorization.frozen_workflow_role_policy,
+            frozen_workflow_domain_registry=authorization.frozen_workflow_domain_registry,
         )
 
     @staticmethod
@@ -4491,7 +4598,7 @@ class RunAdmissionEngine:
             if target is not None and target.artifact_id != params.base_snapshot_artifact_id:
                 raise Conflict("generation target ref does not bind the exact base snapshot")
             declared = self._validate_domain_scope(params.domain_scope, registry)
-            consumed_ids = [params.base_snapshot_artifact_id]
+            consumed_ids = [params.base_snapshot_artifact_id, *params.source_artifact_ids]
             if params.constraint_snapshot_artifact_id is not None:
                 consumed_ids.append(params.constraint_snapshot_artifact_id)
             consumed_ids.extend(item.evidence_artifact_id for item in params.findings)
@@ -4884,6 +4991,44 @@ class RunAdmissionEngine:
                         action=permission.action,
                         resource_kind=permission.resource_kind,
                     )
+
+            frozen_role_policy = authorization.frozen_workflow_role_policy
+            frozen_registry = authorization.frozen_workflow_domain_registry
+            if frozen_role_policy is not None:
+                if frozen_registry is None:
+                    raise IntegrityViolation(
+                        "frozen workflow role policy has no domain registry authority"
+                    )
+                retained_role_policy = policies.get_role_policy(
+                    frozen_role_policy.policy_version,
+                    frozen_role_policy.policy_digest,
+                )
+                if retained_role_policy != frozen_role_policy:
+                    raise Conflict(
+                        "frozen workflow role policy changed before atomic creation"
+                    )
+                retained_registry = policies.get_domain_registry(
+                    retained_role_policy.domain_registry_ref
+                )
+                if retained_registry != frozen_registry:
+                    raise Conflict(
+                        "frozen workflow domain registry changed before atomic creation"
+                    )
+                for permission in authorization.permissions:
+                    if (
+                        authorize(
+                            principal=current_principal,
+                            role_policy=retained_role_policy,
+                            requested_permission=permission,
+                            domain_registry=retained_registry,
+                        )
+                        is not AuthorizationDecision.ALLOW
+                    ):
+                        raise Forbidden(
+                            "frozen workflow authorization changed before atomic Run admission",
+                            action=permission.action,
+                            resource_kind=permission.resource_kind,
+                        )
 
             artifact_repository = getattr(transaction, "artifacts", None)
             object_bindings = getattr(transaction, "object_bindings", None)
@@ -5665,6 +5810,75 @@ class RunAdmissionEngine:
             raise IntegrityViolation("Prompt goal source is not UTF-8") from exc
         if not text:
             raise IntegrityViolation("Prompt goal source is empty")
+
+    def _verify_context_source_bindings(
+        self,
+        *,
+        params: RunKindPayload,
+        artifacts: dict[str, ArtifactV2],
+        read: AdmissionReadPort,
+    ) -> None:
+        if isinstance(params, GenerationProposePayloadV1):
+            source_ids = params.source_artifact_ids
+        else:
+            return
+        registry = self._goal_writer.policy.registry
+        for artifact_id in source_ids:
+            artifact = artifacts[artifact_id]
+            raw_provenance = artifact.meta.get("provenance")
+            try:
+                provenance = ProvenanceV1.model_validate(raw_provenance)
+            except (TypeError, ValueError) as exc:
+                raise IntegrityViolation(
+                    "context source provenance is invalid",
+                    artifact_id=artifact_id,
+                ) from exc
+            definition = registry.get(provenance.source_kind_id)
+            if (
+                provenance.source_kind_registry_version != registry.registry_version
+                or definition is None
+                or provenance.trust not in definition.allowed_trust_levels
+                or "context" not in definition.allowed_prompt_purposes
+                or provenance.source_hash != artifact.payload_hash
+                or provenance.parent_source_artifact_ids != artifact.lineage
+            ):
+                raise IntegrityViolation(
+                    "context source provenance differs from source-kind authority",
+                    artifact_id=artifact_id,
+                )
+            if artifact.kind == "source_raw":
+                if artifact.lineage or provenance.transformations:
+                    raise IntegrityViolation(
+                        "raw context source cannot claim derived lineage",
+                        artifact_id=artifact_id,
+                    )
+            elif artifact.kind == "source_rendered":
+                if not artifact.lineage or not provenance.transformations:
+                    raise IntegrityViolation(
+                        "rendered context source requires transformation lineage",
+                        artifact_id=artifact_id,
+                    )
+                final = provenance.transformations[-1]
+                if final.output_hash != artifact.payload_hash:
+                    raise IntegrityViolation(
+                        "rendered context source transformation output differs",
+                        artifact_id=artifact_id,
+                    )
+            else:  # guarded by exact input-kind requirements
+                raise IntegrityViolation("context source Artifact kind is invalid")
+            blob = self._load_artifact_blob(artifact, read=read)
+            try:
+                text = blob.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise IntegrityViolation(
+                    "context source is not canonical UTF-8 text",
+                    artifact_id=artifact_id,
+                ) from exc
+            if not text or len(text) > 1_048_576:
+                raise IntegrityViolation(
+                    "context source text is empty or exceeds the prompt bound",
+                    artifact_id=artifact_id,
+                )
 
     def _verify_input_artifacts(
         self,
@@ -6717,6 +6931,8 @@ class RunAdmissionEngine:
                 add(suite, ("regression_suite",))
         elif isinstance(params, GenerationProposePayloadV1):
             add(params.base_snapshot_artifact_id, ("ir_snapshot",))
+            for source in params.source_artifact_ids:
+                add(source, ("source_raw", "source_rendered"))
             add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
             add(params.objective_goal.source_artifact_id, ("source_raw",))
             add_ref(params.target, ("ir_snapshot",))

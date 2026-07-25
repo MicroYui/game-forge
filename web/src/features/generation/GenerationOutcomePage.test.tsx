@@ -1,5 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -46,7 +47,9 @@ const PREVIEW_DIGEST = "3".repeat(64);
 const REPAIRED_PATCH_DIGEST = "4".repeat(64);
 const REPAIRED_PREVIEW_DIGEST = "5".repeat(64);
 const hash = "a".repeat(64);
-const domainScope: components["schemas"]["DomainScope"] = { domain_ids: ["domain:economy"] };
+const domainScope: components["schemas"]["DomainScope"] = {
+  domain_ids: ["domain:economy"],
+};
 
 function summary(
   artifactId: string,
@@ -537,11 +540,17 @@ const approvalRequirement: components["schemas"]["ApprovalRequirement"] = {
 const approvalView: ApprovalView = {
   approval: {
     approval_id: APPROVAL_ID,
-    approval_policy: { policy_digest: "c".repeat(64), policy_version: "approval@1" },
+    approval_policy: {
+      policy_digest: "c".repeat(64),
+      policy_version: "approval@1",
+    },
     approval_schema_version: "approval@1",
     created_at: "2026-07-20T00:00:01Z",
     decisions: [],
-    domain_registry_ref: { registry_digest: "d".repeat(64), registry_version: "domains@1" },
+    domain_registry_ref: {
+      registry_digest: "d".repeat(64),
+      registry_version: "domains@1",
+    },
     domain_scope: domainScope,
     evidence_set_artifact_id: null,
     last_validation_failure_artifact_id: null,
@@ -551,7 +560,10 @@ const approvalView: ApprovalView = {
     role_policy_digest: "e".repeat(64),
     role_policy_version: "roles@1",
     route_policy: {
-      domain_registry_ref: { registry_digest: "d".repeat(64), registry_version: "domains@1" },
+      domain_registry_ref: {
+        registry_digest: "d".repeat(64),
+        registry_version: "domains@1",
+      },
       route_digest: "f".repeat(64),
       route_version: "routes@1",
     },
@@ -577,8 +589,16 @@ const approvalView: ApprovalView = {
   requirement_progress: [
     {
       decision_eligibility: [
-        { decision: "approve", eligible: false, reason_codes: ["workflow_not_pending"] },
-        { decision: "reject", eligible: false, reason_codes: ["workflow_not_pending"] },
+        {
+          decision: "approve",
+          eligible: false,
+          reason_codes: ["workflow_not_pending"],
+        },
+        {
+          decision: "reject",
+          eligible: false,
+          reason_codes: ["workflow_not_pending"],
+        },
         {
           decision: "request_changes",
           eligible: false,
@@ -880,7 +900,7 @@ async function expectUnsafeRepair(workflow: WorkflowFixtures) {
   );
   renderOutcome(harness.api);
 
-  expect(await screen.findByRole("heading", { name: "候选 authority 不安全" })).toBeVisible();
+  expect(await screen.findByRole("heading", { name: "生成结果无法安全展示" })).toBeVisible();
   expect(screen.queryByRole("navigation", { name: "候选后续动作" })).not.toBeInTheDocument();
   expect(screen.queryByText("generation_gate_passed")).not.toBeInTheDocument();
 }
@@ -894,21 +914,23 @@ describe("Generation outcome", () => {
 
     renderOutcome(harness.api);
 
-    expect(await screen.findByText(PATCH_ID)).toBeVisible();
-    expect(screen.getByText(PREVIEW_ID)).toBeVisible();
-    expect(screen.getByText(CONFIG_ID)).toBeVisible();
-    expect(screen.getByText(GATE_EVIDENCE_ID)).toBeVisible();
-    expect(screen.getByText(RENDERED_ID)).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "候选内容已通过初步检查" })).toBeVisible();
+    expect(screen.getByText("修改方案")).toBeVisible();
+    expect(screen.getByText("修改后预览")).toBeVisible();
+    expect(screen.getByText("可试玩配置")).toBeVisible();
+    for (const technicalId of [RUN_ID, PATCH_ID, PREVIEW_ID, CONFIG_ID, GATE_EVIDENCE_ID, RENDERED_ID]) {
+      for (const element of screen.getAllByText(technicalId)) expect(element).not.toBeVisible();
+    }
     expect(screen.queryByRole("link", { name: RENDERED_ID })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review 候选" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "检查这次修改" })).toHaveAttribute(
       "href",
       `/reviews?sourceRun=${encodeURIComponent(RUN_ID)}&snapshot=${encodeURIComponent(PREVIEW_ID)}&constraint=${encodeURIComponent(CONSTRAINT_ID)}`,
     );
-    expect(screen.getByRole("link", { name: `派生 TaskSuite · ${CONFIG_ID}` })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "创建试玩任务" })).toHaveAttribute(
       "href",
       `/playtest?sourceRun=${encodeURIComponent(RUN_ID)}&preview=${encodeURIComponent(PREVIEW_ID)}&config=${encodeURIComponent(CONFIG_ID)}&constraint=${encodeURIComponent(CONSTRAINT_ID)}&action=derive`,
     );
-    expect(screen.getByRole("link", { name: `进入 Playtest · ${CONFIG_ID}` })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "直接进入自动试玩" })).toHaveAttribute(
       "href",
       `/playtest?sourceRun=${encodeURIComponent(RUN_ID)}&preview=${encodeURIComponent(PREVIEW_ID)}&config=${encodeURIComponent(CONFIG_ID)}&constraint=${encodeURIComponent(CONSTRAINT_ID)}`,
     );
@@ -937,7 +959,8 @@ describe("Generation outcome", () => {
     act(() => harness.callbacks()?.onEvent(terminalSuccessEvent(), "7"));
 
     await waitFor(() => expect(getRun).toHaveBeenCalledTimes(2));
-    expect(await screen.findByText(PATCH_ID)).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "候选内容已通过初步检查" })).toBeVisible();
+    for (const element of screen.getAllByText(PATCH_ID)) expect(element).not.toBeVisible();
     expect(harness.api.getArtifact).toHaveBeenCalledWith(RESULT_ID);
   });
 
@@ -949,12 +972,15 @@ describe("Generation outcome", () => {
 
     renderOutcome(harness.api);
 
-    const pageTitle = screen.getByRole("heading", { level: 1, name: "生成结果" });
+    const pageTitle = screen.getByRole("heading", {
+      level: 1,
+      name: "生成结果",
+    });
     const runHeader = pageTitle.closest("header");
     expect(runHeader).not.toBeNull();
     expect(within(runHeader!).getByText(RUN_ID).tagName).toBe("CODE");
     const outcomeHeading = await screen.findByRole("heading", {
-      name: "拦截成功：金币奖励 150 超过上限 80",
+      name: "拦截成功：金币奖励 150 超过规则上限 80",
     });
     expect(outcomeHeading).toBeVisible();
     const technicalStatus = screen.getByText("查看运行技术状态").closest("details");
@@ -962,22 +988,28 @@ describe("Generation outcome", () => {
     expect(
       outcomeHeading.compareDocumentPosition(technicalStatus!) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    expect(screen.getByText("failed")).not.toBeVisible();
+    expect(screen.getByText("失败")).not.toBeVisible();
+    expect(screen.queryByText("failed")).not.toBeInTheDocument();
     expect(screen.getByText("生成已完成，确定性门禁阻止了不合规提议；这不是系统故障。")).toBeVisible();
     expect(screen.getByRole("region", { name: "提议改动" })).toHaveTextContent(
-      "失踪的商队 quest:missing_caravan reward.gold 60 → 150",
+      "失踪的商队 金币奖励 60 → 150",
     );
     expect(screen.getByRole("region", { name: "拦截原因" })).toHaveTextContent(
-      "side_quest_reward_gold_cap 150 > 80 确定性检查 · confirmed",
+      "金币奖励 150 超过规则上限 80",
+    );
+    expect(screen.getByRole("region", { name: "拦截原因" })).toHaveTextContent(
+      "系统已阻止这份提议进入正式流程",
     );
     expect(screen.getByRole("region", { name: "正式内容状态" })).toHaveTextContent("正式内容未变化");
-    expect(screen.getByRole("region", { name: "正式内容状态" })).toHaveTextContent("没有移动任何正式 ref");
+    expect(screen.getByRole("region", { name: "正式内容状态" })).toHaveTextContent("正式版本保持不变");
     expect(screen.getByRole("link", { name: "调整目标后重新生成" })).toHaveAttribute("href", "/generation");
     expect(screen.queryByRole("button", { name: /repair/i })).not.toBeInTheDocument();
     const evidenceDetails = screen.getByText("查看技术证据（3）").closest("details");
     expect(evidenceDetails).not.toHaveAttribute("open");
     act(() => harness.callbacks()?.onEvent(preliminaryGateEvent(), "6"));
-    const preliminaryGate = await screen.findByRole("heading", { name: "Preliminary gate" });
+    const preliminaryGate = await screen.findByRole("heading", {
+      name: "初步确定性检查",
+    });
     expect(preliminaryGate.closest("section")).toHaveAttribute("data-state", "error");
     expect(screen.getByText(PATCH_ID)).not.toBeVisible();
     expect(screen.getByText(PREVIEW_ID)).not.toBeVisible();
@@ -997,6 +1029,78 @@ describe("Generation outcome", () => {
     expect(harness.api.getArtifact).not.toHaveBeenCalledWith(CASSETTE_ID);
   });
 
+  it("explains a rejected dangling relation without exposing raw identifiers", async () => {
+    const artifacts = new Map(rejectedArtifacts());
+    artifacts.set(
+      PATCH_ID,
+      artifactView(patchSummary, {
+        ...rejectedPatchPayload(),
+        ops: [
+          {
+            new_value: {
+              dst_id: "item:broken_emblem",
+              src_id: "ghost:missing",
+              type: "DROPS_FROM",
+            },
+            op: "add_relation",
+            op_id: "generation:dangling",
+            target: "relation:dangling",
+          },
+        ],
+      }),
+    );
+    artifacts.set(
+      PREVIEW_ID,
+      artifactView(previewSummary, {
+        entities: {},
+        meta_schema_version: "meta@1",
+        relations: {
+          "relation:dangling": {
+            dst_id: "item:broken_emblem",
+            schema_version: "ir-core@1",
+            src_id: "ghost:missing",
+            type: "DROPS_FROM",
+          },
+        },
+      }),
+    );
+    artifacts.set(
+      GATE_EVIDENCE_ID,
+      artifactView(gateEvidenceSummary, {
+        findings: [
+          {
+            defect_class: "invalid_generation_proposal",
+            entities: [],
+            evidence: { reason_code: "identity_conflict" },
+            oracle_type: "deterministic",
+            relations: [],
+            severity: "major",
+            source: "checker",
+            status: "confirmed",
+          },
+        ],
+        payload_schema_version: "checker-report@1",
+        snapshot_id: PREVIEW_SNAPSHOT_ID,
+      }),
+    );
+    const harness = outcomeApi(async () => run("failed", { failureArtifactId: FAILURE_ID }), artifacts);
+
+    renderOutcome(harness.api);
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "拦截成功：内容名称或关系引用无法唯一对应",
+      }),
+    ).toBeVisible();
+    expect(screen.getByRole("region", { name: "提议改动" })).toHaveTextContent("新增内容关系");
+    expect(screen.getByRole("region", { name: "拦截原因" })).toHaveTextContent(
+      "内容名称或关系引用无法唯一对应",
+    );
+    for (const identifier of ["ghost:missing", "item:broken_emblem", "relation:dangling"]) {
+      expect(screen.getByText(identifier)).not.toBeVisible();
+    }
+  });
+
   it("fails closed instead of making semantic claims when rejected evidence payloads disagree", async () => {
     const artifacts = new Map(rejectedArtifacts());
     const checker = structuredClone(artifacts.get(GATE_EVIDENCE_ID)!);
@@ -1007,7 +1111,7 @@ describe("Generation outcome", () => {
 
     renderOutcome(harness.api);
 
-    expect(await screen.findByRole("heading", { name: "候选 authority 不安全" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "生成结果无法安全展示" })).toBeVisible();
     expect(screen.queryByText(/60\s*→\s*150/)).not.toBeInTheDocument();
     expect(screen.queryByText("正式内容未变化")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "调整目标后重新生成" })).not.toBeInTheDocument();
@@ -1023,7 +1127,11 @@ describe("Generation outcome", () => {
 
     act(() => harness.callbacks()?.onStateChange({ status: "disconnected" }));
 
-    expect(await screen.findByRole("heading", { name: "拦截成功：金币奖励 150 超过上限 80" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", {
+        name: "拦截成功：金币奖励 150 超过规则上限 80",
+      }),
+    ).toBeVisible();
     expect(screen.queryByRole("heading", { name: "事件流连接中断" })).not.toBeInTheDocument();
   });
 
@@ -1053,7 +1161,10 @@ describe("Generation outcome", () => {
     await waitFor(() => expect(harness.callbacks()).not.toBeNull());
 
     act(() =>
-      harness.callbacks()?.onStateChange({ error: new Error("invalid terminal frame"), status: "error" }),
+      harness.callbacks()?.onStateChange({
+        error: new Error("invalid terminal frame"),
+        status: "error",
+      }),
     );
 
     expect(await screen.findByRole("heading", { name: "事件流连接中断" })).toBeVisible();
@@ -1067,7 +1178,7 @@ describe("Generation outcome", () => {
     act(() => harness.callbacks()?.onStateChange({ status: "disconnected" }));
 
     expect(await screen.findByRole("heading", { name: "事件流连接中断" })).toBeVisible();
-    expect(screen.getByText("queued")).toBeVisible();
+    expect(screen.getByText("等待开始")).toBeVisible();
     expect(screen.queryByText("查看运行技术状态")).not.toBeInTheDocument();
   });
 
@@ -1093,26 +1204,30 @@ describe("Generation outcome", () => {
 
     renderOutcome(harness.api);
 
-    const successor = await screen.findByRole("region", { name: "新 Patch workflow 状态" });
-    expect(successor).toHaveTextContent(REPAIRED_PATCH_ID);
-    expect(successor).toHaveTextContent("r2");
-    expect(successor).toHaveTextContent(PATCH_ID);
-    expect(successor).toHaveTextContent(/evidence\s*0/i);
-    expect(successor).toHaveTextContent(/decisions\s*0/i);
+    const successor = await screen.findByRole("region", {
+      name: "新 Patch workflow 状态",
+    });
+    expect(within(successor).getByRole("heading", { name: "当前修改 · 第 2 版" })).toBeVisible();
+    expect(within(successor).getByText("验证证据").nextSibling).toHaveTextContent("0");
+    expect(within(successor).getByText("审批决定").nextSibling).toHaveTextContent("0");
+    expect(within(successor).getByText(REPAIRED_PATCH_ID)).not.toBeVisible();
+    expect(within(successor).getByText(PATCH_ID)).not.toBeVisible();
 
-    const superseded = screen.getByRole("region", { name: "旧 Patch workflow 状态" });
-    expect(superseded).toHaveTextContent(PATCH_ID);
-    expect(superseded).toHaveTextContent("r1");
-    expect(superseded).toHaveTextContent("superseded");
-    expect(superseded).toHaveTextContent("non-current");
-    expect(superseded).toHaveTextContent(/evidence\s*2/i);
-    expect(superseded).toHaveTextContent(/decisions\s*2/i);
+    const superseded = screen.getByRole("region", {
+      name: "旧 Patch workflow 状态",
+    });
+    expect(within(superseded).getByRole("heading", { name: "上一版修改 · 第 1 版" })).toBeVisible();
+    expect(within(superseded).getByText("已由新版本替代")).toBeVisible();
+    expect(within(superseded).getByText("是否为当前版本").nextSibling).toHaveTextContent("否");
+    expect(within(superseded).getByText("验证证据").nextSibling).toHaveTextContent("2");
+    expect(within(superseded).getByText("审批决定").nextSibling).toHaveTextContent("2");
+    expect(within(superseded).getByText(PATCH_ID)).not.toBeVisible();
     expect(screen.getByText("旧审批状态不会继承")).toBeVisible();
-    expect(screen.getByRole("link", { name: "打开 exact Patch workflow" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "打开修改详情" })).toHaveAttribute(
       "href",
       `/patches/${encodeURIComponent(REPAIRED_PATCH_ID)}`,
     );
-    expect(screen.getByRole("link", { name: "Review 候选" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "检查这次修改" })).toHaveAttribute(
       "href",
       `/reviews?sourceRun=${encodeURIComponent(RUN_ID)}&snapshot=${encodeURIComponent(REPAIRED_PREVIEW_ID)}&constraint=${encodeURIComponent(CONSTRAINT_ID)}`,
     );
@@ -1135,7 +1250,8 @@ describe("Generation outcome", () => {
     renderOutcome(harness.api);
 
     expect(await screen.findByText("repair_unverified")).toBeVisible();
-    expect(screen.getByText(REPAIR_EVIDENCE_ID)).toBeVisible();
+    expect(screen.getByText("回归验证证据")).toBeVisible();
+    expect(screen.getByText(REPAIR_EVIDENCE_ID)).not.toBeVisible();
     expect(screen.queryByRole("link", { name: "打开 exact Patch workflow" })).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "候选后续动作" })).not.toBeInTheDocument();
     expect(screen.queryByText(/submit|apply|validate/i)).not.toBeInTheDocument();
@@ -1228,7 +1344,7 @@ describe("Generation outcome", () => {
       const harness = outcomeApi(async () => runView, artifacts);
       renderOutcome(harness.api);
 
-      expect(await screen.findByRole("heading", { name: "候选 authority 不安全" })).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "生成结果无法安全展示" })).toBeVisible();
       expect(harness.api.getPatch).not.toHaveBeenCalled();
       expect(harness.api.getApprovalBinding).not.toHaveBeenCalled();
       expect(screen.queryByRole("navigation", { name: "候选后续动作" })).not.toBeInTheDocument();
@@ -1249,7 +1365,9 @@ describe("Generation outcome", () => {
 
     renderOutcome(harness.api);
 
-    expect(await screen.findByText("malformed_manifest")).toBeVisible();
+    expect(await screen.findByText("malformed_manifest")).not.toBeVisible();
+    await userEvent.click(screen.getByText("查看校验技术信息"));
+    expect(screen.getByText("malformed_manifest")).toBeVisible();
     expect(harness.api.getArtifact).toHaveBeenCalledTimes(1);
     expect(harness.api.getPatch).not.toHaveBeenCalled();
     expect(harness.api.getApprovalBinding).not.toHaveBeenCalled();

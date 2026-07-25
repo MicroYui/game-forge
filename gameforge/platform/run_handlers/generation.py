@@ -123,6 +123,14 @@ class PreparedEvidenceV1:
 
 
 @dataclass(frozen=True, slots=True)
+class GenerationSourceContext:
+    """One exact UTF-8 planning-material source supplied to generation@7."""
+
+    artifact_id: str
+    text: str
+
+
+@dataclass(frozen=True, slots=True)
 class GenerationRunRequest:
     """Fully-resolved inputs for one generation-gate agent invocation."""
 
@@ -138,6 +146,7 @@ class GenerationRunRequest:
     max_checker_work_units: int
     max_simulation_work_units: int
     router: BridgeModelRouter
+    source_contexts: tuple[GenerationSourceContext, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -301,9 +310,11 @@ class GenerationProposalHandler:
         snapshot = self.snapshot_loader(self.blobs, payload.base_snapshot_artifact_id)
         constraints = self._constraints(payload)
         self._validate_execution_config(execution_config, snapshot, constraints)
+        prompt_version = self._generation_prompt_version(context)
         goal = self.goal_loader(self.blobs, payload.objective_goal.source_artifact_id).model_copy(
             update={"grounding_snapshot_id": snapshot.snapshot_id}
         )
+        source_contexts = self._context_sources(payload)
         findings = self.finding_loader(self.blobs, payload)
         router = build_bridge_router(
             context=context,
@@ -313,6 +324,7 @@ class GenerationProposalHandler:
                 sorted(
                     (
                         payload.base_snapshot_artifact_id,
+                        *payload.source_artifact_ids,
                         payload.objective_goal.source_artifact_id,
                         *(binding.evidence_artifact_id for binding in payload.findings),
                     )
@@ -325,7 +337,7 @@ class GenerationProposalHandler:
                 snapshot=snapshot,
                 constraints=tuple(constraints),
                 goal=goal,
-                prompt_version=self._generation_prompt_version(context),
+                prompt_version=prompt_version,
                 findings=findings,
                 gate_requirements=self._gate_requirements(context),
                 gate_simulation_seed=execution_config.gate_simulation_seed,
@@ -334,6 +346,7 @@ class GenerationProposalHandler:
                 max_checker_work_units=execution_config.max_work_units,
                 max_simulation_work_units=execution_config.max_simulation_work_units,
                 router=router,
+                source_contexts=source_contexts,
             )
         )
         self._validate_preview_replay(snapshot, outcome)
@@ -403,6 +416,22 @@ class GenerationProposalHandler:
         if payload.constraint_snapshot_artifact_id is None:
             return []
         return self.constraint_loader(self.blobs, payload.constraint_snapshot_artifact_id)
+
+    def _context_sources(
+        self,
+        payload: GenerationProposePayloadV1,
+    ) -> tuple[GenerationSourceContext, ...]:
+        contexts: list[GenerationSourceContext] = []
+        for artifact_id in payload.source_artifact_ids:
+            raw = self.blobs.read_bytes(artifact_id)
+            try:
+                text = raw.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise ValueError("generation context source must be UTF-8 text") from exc
+            if not text:
+                raise ValueError("generation context source must be non-empty")
+            contexts.append(GenerationSourceContext(artifact_id=artifact_id, text=text))
+        return tuple(contexts)
 
     @staticmethod
     def _generation_prompt_version(context: ExecutorContextLike) -> str:
@@ -556,6 +585,8 @@ class GenerationProposalHandler:
     ) -> tuple[PreparedArtifact, ...]:
         # constraint_snapshot_artifact_id is guaranteed non-null when export
         # profiles exist (payload validator), so config lineage is well-formed.
+        if not payload.candidate_export_profiles:
+            return ()
         constraint_id = payload.constraint_snapshot_artifact_id
         assert constraint_id is not None
         artifacts: list[PreparedArtifact] = []
@@ -640,7 +671,7 @@ class GenerationProposalHandler:
 
     # ------------------------------------------------------------------ lineage
     def _patch_lineage(self, payload: GenerationProposePayloadV1) -> tuple[str, ...]:
-        lineage = [payload.base_snapshot_artifact_id]
+        lineage = [payload.base_snapshot_artifact_id, *payload.source_artifact_ids]
         if payload.constraint_snapshot_artifact_id is not None:
             lineage.append(payload.constraint_snapshot_artifact_id)
         lineage.append(payload.objective_goal.source_artifact_id)
@@ -650,7 +681,7 @@ class GenerationProposalHandler:
     def _preview_lineage(self, payload: GenerationProposePayloadV1) -> tuple[str, ...]:
         # new preview = base + patch(prepared sibling, publisher-injected); the
         # frozen preview lineage has NO constraint role.
-        return (payload.base_snapshot_artifact_id,)
+        return (payload.base_snapshot_artifact_id, *payload.source_artifact_ids)
 
     def _evidence_lineage(self, payload: GenerationProposePayloadV1) -> tuple[str, ...]:
         # gate checker/sim/review = preview(prepared sibling) + optional constraint;

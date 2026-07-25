@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useReducer, type KeyboardEvent } from "react";
 
+import { TechnicalDetails } from "../identity";
 import { Aureus2DRenderer } from "./Aureus2DRenderer";
 import { GenericTraceRenderer } from "./GenericTraceRenderer";
 import type { TracePlayback } from "./model";
@@ -171,28 +172,30 @@ export function TracePlayer({
     >
       <header className="gf-trace__header">
         <div>
-          <p className="gf-trace__eyebrow">Playtest Trace</p>
+          <p className="gf-trace__eyebrow">自动试玩轨迹</p>
           <h2>可复现轨迹回放</h2>
-          <code>{trace.traceId}</code>
+          <p>按步骤查看 AI 在游戏中的操作和结果。</p>
         </div>
         <dl>
           <div>
-            <dt>环境契约</dt>
-            <dd>{trace.environmentContractVersion}</dd>
+            <dt>记录步骤</dt>
+            <dd>{trace.frames.length}</dd>
           </div>
           <div>
-            <dt>轨迹 Schema</dt>
-            <dd>{trace.tracePayloadSchemaId}</dd>
-          </div>
-          <div>
-            <dt>初始 state_hash</dt>
-            <dd>{trace.initialStateHash}</dd>
-          </div>
-          <div>
-            <dt>最终 state_hash</dt>
-            <dd>{trace.finalStateHash}</dd>
+            <dt>关键标记</dt>
+            <dd>{trace.markers.length}</dd>
           </div>
         </dl>
+        <TechnicalDetails
+          items={[
+            { label: "轨迹标识", value: trace.traceId },
+            { label: "环境契约", value: trace.environmentContractVersion },
+            { label: "轨迹数据格式", value: trace.tracePayloadSchemaId },
+            { label: "初始状态指纹", value: trace.initialStateHash },
+            { label: "最终状态指纹", value: trace.finalStateHash },
+          ]}
+          summary="查看轨迹技术信息"
+        />
       </header>
 
       {resolution.fallbackReason && (
@@ -244,14 +247,7 @@ export function TracePlayer({
 
         <div className="gf-trace__transport-position">
           <strong>{frameCount === 0 ? "0 / 0" : `${state.currentIndex + 1} / ${frameCount}`}</strong>
-          {currentFrame ? (
-            <>
-              <span>Tick {currentFrame.tick}</span>
-              <code>{currentFrame.stateHash}</code>
-            </>
-          ) : (
-            <span>无动作帧</span>
-          )}
+          {currentFrame ? <span>第 {state.currentIndex + 1} 步</span> : <span>无动作帧</span>}
         </div>
 
         <label className="gf-trace__speed">

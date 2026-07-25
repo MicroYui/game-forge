@@ -5,13 +5,9 @@ import { useMemo, useState } from "react";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { TraceWaterfall } from "../../components/charts";
+import { compactDateTime, TechnicalDetails } from "../../components/identity";
 import { LogExplorer } from "../../components/logs";
-import {
-  CopyableText,
-  CursorTable,
-  type CursorPaginationState,
-  type CursorTableColumn,
-} from "../../components/tables";
+import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { observabilityApi, type LogPage, type ObservabilityApi, type SpanPage } from "./api";
 import {
@@ -24,6 +20,18 @@ import {
 import "./observability.css";
 
 type SpanView = SpanPage["items"][number];
+
+const traceStatusLabels: Readonly<Record<string, string>> = {
+  error: "失败",
+  ok: "正常",
+  unset: "状态未知",
+};
+
+function durationLabel(durationNs: number | null): string {
+  if (durationNs == null) return "未报告耗时";
+  const milliseconds = durationNs / 1_000_000;
+  return milliseconds < 1 ? `${milliseconds.toFixed(2)} 毫秒` : `${milliseconds.toFixed(1)} 毫秒`;
+}
 
 function ReadError({ error, onRetry }: { error: Error; onRetry(): void }) {
   if (error instanceof ApiProblemError) return <ProblemPanel problem={error.problem} />;
@@ -62,8 +70,8 @@ function SpanInspector({ view }: { view: SpanView }) {
     <section className="gf-observability__inspector" aria-labelledby="span-inspector-heading">
       <header>
         <div>
-          <p className="gf-observability__kicker">Safe span projection</p>
-          <h2 id="span-inspector-heading">Span inspector</h2>
+          <p className="gf-observability__kicker">安全诊断视图</p>
+          <h2 id="span-inspector-heading">步骤详情</h2>
         </div>
         {inspector.redactedCount > 0 && (
           <span className="gf-observability__redacted">
@@ -74,65 +82,77 @@ function SpanInspector({ view }: { view: SpanView }) {
       </header>
       <dl className="gf-observability__inspector-meta">
         <div>
-          <dt>Name</dt>
+          <dt>步骤</dt>
           <dd>{inspector.name}</dd>
         </div>
         <div>
-          <dt>Span ID</dt>
+          <dt>层级</dt>
+          <dd>{inspector.parentSpanId ? "子步骤" : "起始步骤"}</dd>
+        </div>
+        <div>
+          <dt>状态</dt>
+          <dd>{traceStatusLabels[inspector.status] ?? inspector.status}</dd>
+        </div>
+        <div>
+          <dt>执行时间</dt>
           <dd>
-            <CopyableText copyLabel="复制 Span ID" value={inspector.spanId} />
+            {compactDateTime(inspector.startedAt)} → {compactDateTime(inspector.endedAt)}
           </dd>
         </div>
         <div>
-          <dt>Parent</dt>
-          <dd>
-            <code>{inspector.parentSpanId ?? "root"}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>{inspector.status}</dd>
-        </div>
-        <div>
-          <dt>Started / ended</dt>
-          <dd>
-            {inspector.startedAt} → {inspector.endedAt}
-          </dd>
-        </div>
-        <div>
-          <dt>Duration</dt>
-          <dd>{inspector.durationNs} ns</dd>
+          <dt>耗时</dt>
+          <dd>{durationLabel(inspector.durationNs)}</dd>
         </div>
       </dl>
+      <TechnicalDetails
+        items={[
+          { label: "步骤 ID", value: inspector.spanId },
+          { label: "父步骤 ID", value: inspector.parentSpanId ?? "root" },
+          { label: "状态代码", value: inspector.status },
+          { label: "原始耗时（纳秒）", value: String(inspector.durationNs) },
+        ]}
+        summary="查看步骤技术信息"
+      />
       {inspector.error && (
         <div className="gf-observability__span-error">
-          <strong>{inspector.error.error_type}</strong>
+          <strong>此步骤执行失败</strong>
           <span>{inspector.error.message}</span>
-          {inspector.error.stack_fingerprint && <code>{inspector.error.stack_fingerprint}</code>}
+          <TechnicalDetails
+            items={[
+              { label: "错误类型", value: inspector.error.error_type },
+              ...(inspector.error.stack_fingerprint
+                ? [{ label: "错误指纹", value: inspector.error.stack_fingerprint }]
+                : []),
+            ]}
+            summary="查看错误技术信息"
+          />
         </div>
       )}
-      <div className="gf-observability__inspector-columns">
-        <SafeFields label="Attributes" rows={inspector.attributes} />
-        <SafeFields label="Resource" rows={inspector.resource} />
-      </div>
-      <section className="gf-observability__events" aria-label="Span events">
-        <h3>Events</h3>
-        {inspector.events.length === 0 ? (
-          <p>没有事件。</p>
-        ) : (
-          <ol>
-            {inspector.events.map((event, index) => (
-              <li key={`${event.occurredAt}:${event.name}:${index}`}>
-                <header>
-                  <strong>{event.name}</strong>
-                  <time dateTime={event.occurredAt}>{event.occurredAt}</time>
-                </header>
-                <SafeFields label={`${event.name} attributes`} rows={event.attributes} />
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
+      <details>
+        <summary>查看步骤诊断数据</summary>
+        <div className="gf-observability__inspector-columns">
+          <SafeFields label="步骤属性" rows={inspector.attributes} />
+          <SafeFields label="运行资源" rows={inspector.resource} />
+        </div>
+        <section className="gf-observability__events" aria-label="步骤事件">
+          <h3>步骤事件</h3>
+          {inspector.events.length === 0 ? (
+            <p>没有事件。</p>
+          ) : (
+            <ol>
+              {inspector.events.map((event, index) => (
+                <li key={`${event.occurredAt}:${event.name}:${index}`}>
+                  <header>
+                    <strong>{event.name}</strong>
+                    <time dateTime={event.occurredAt}>{compactDateTime(event.occurredAt)}</time>
+                  </header>
+                  <SafeFields label={`${event.name} 属性`} rows={event.attributes} />
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      </details>
     </section>
   );
 }
@@ -210,31 +230,30 @@ function LogCursor({
 function spanColumns(onSelect: (spanId: string) => void): readonly CursorTableColumn<SpanView>[] {
   return [
     {
-      header: "Span",
+      header: "执行步骤",
       id: "span",
       render: (view) => (
         <div className="gf-observability__table-primary">
-          <CopyableText copyLabel="复制 Span ID" value={view.span.span_id} />
           <button className="gf-link-button" onClick={() => onSelect(view.span.span_id)} type="button">
-            检查 {view.span.name}
+            查看 {view.span.name}
           </button>
         </div>
       ),
     },
     {
-      header: "Parent",
+      header: "层级",
       id: "parent",
-      render: (view) => <code>{view.span.parent_span_id ?? "root"}</code>,
+      render: (view) => (view.span.parent_span_id ? "子步骤" : "起始步骤"),
     },
     {
-      header: "Status",
+      header: "状态",
       id: "status",
-      render: (view) => <span>{view.span.status}</span>,
+      render: (view) => <span>{traceStatusLabels[view.span.status] ?? view.span.status}</span>,
     },
     {
-      header: "Duration",
+      header: "耗时",
       id: "duration",
-      render: (view) => <span>{view.span.duration_ns} ns</span>,
+      render: (view) => <span>{durationLabel(view.span.duration_ns)}</span>,
     },
   ];
 }
@@ -308,10 +327,10 @@ export function TraceDetailPage({
     return (
       <div className="gf-page gf-observability">
         <StatePanel
-          description={`正在读取 ${traceId}`}
+          description="正在读取这次运行的执行步骤。"
           headingLevel={1}
           state="loading"
-          title="正在读取 Trace"
+          title="正在读取运行追踪"
         />
       </div>
     );
@@ -320,7 +339,7 @@ export function TraceDetailPage({
     return (
       <div className="gf-page gf-observability">
         <header className="gf-page-header">
-          <h1>Trace 详情</h1>
+          <h1>运行追踪</h1>
         </header>
         <ReadError error={summaryQuery.error} onRetry={() => void summaryQuery.refetch()} />
       </div>
@@ -330,10 +349,10 @@ export function TraceDetailPage({
     return (
       <div className="gf-page gf-observability">
         <StatePanel
-          description="Trace summary 响应为空；页面没有推断缺失内容。"
+          description="运行追踪摘要为空，页面不会猜测缺失内容。"
           headingLevel={1}
           state="error"
-          title="Trace summary 不可用"
+          title="运行追踪不可用"
         />
       </div>
     );
@@ -343,49 +362,58 @@ export function TraceDetailPage({
     <div className="gf-page gf-observability" data-layout="editorial-trace-detail">
       <header className="gf-observability__hero gf-observability__hero--trace">
         <div>
-          <p className="gf-observability__kicker">Exact trace · bounded spans · safe inspection</p>
-          <h1>Trace 详情</h1>
-          <CopyableText copyLabel="复制 Trace ID" value={summary.trace_id} />
+          <p className="gf-observability__kicker">运行诊断</p>
+          <h1>运行追踪</h1>
           <p>
-            {summary.span_count} spans · {summary.service_names.join(" / ") || "service 未报告"} ·{" "}
-            {summary.duration_ns == null ? "duration unavailable" : `${summary.duration_ns} ns`}
+            {summary.span_count} 个执行步骤 · {summary.service_names.join(" / ") || "未报告执行服务"} ·{" "}
+            {durationLabel(summary.duration_ns ?? null)}
           </p>
         </div>
         <div className="gf-observability__hero-mark" aria-hidden="true">
           <Braces size={30} />
-          <span>TRACE</span>
+          <span>追踪</span>
         </div>
       </header>
-      {summary.truncated && <TruncatedNotice scope="Trace summary" />}
+      {summary.truncated && <TruncatedNotice scope="运行追踪摘要" />}
 
-      <section className="gf-observability__trace-summary" aria-label="Trace summary">
+      <section className="gf-observability__trace-summary" aria-label="运行追踪摘要">
         <div>
-          <span>Status</span>
+          <span>状态</span>
           <strong className={`u-status u-status--${traceSummaryTone(summary.status)}`}>
-            {summary.status}
+            {traceStatusLabels[summary.status] ?? summary.status}
           </strong>
         </div>
         <div>
-          <span>Root span</span>
-          <code>{summary.root_span_id ?? "unavailable"}</code>
+          <span>起始步骤</span>
+          <span>{summary.root_span_id ? "已识别" : "未报告"}</span>
         </div>
         <div>
-          <span>Time range</span>
+          <span>执行时间</span>
           <span>
-            {summary.started_at} → {summary.ended_at ?? "open"}
+            {compactDateTime(summary.started_at)} →{" "}
+            {summary.ended_at ? compactDateTime(summary.ended_at) : "仍在进行"}
           </span>
         </div>
         <div>
-          <span>Run bindings</span>
+          <span>关联运行</span>
           <span className="gf-observability__run-links">
-            {summary.run_ids.map((runId) => (
+            {summary.run_ids.map((runId, index) => (
               <a href={`/runs/${encodeURIComponent(runId)}`} key={runId}>
-                {runId}
+                查看关联运行 {index + 1}
               </a>
             ))}
           </span>
         </div>
       </section>
+      <TechnicalDetails
+        items={[
+          { label: "追踪 ID", value: summary.trace_id },
+          { label: "起始步骤 ID", value: summary.root_span_id ?? "未报告" },
+          { label: "追踪数据版本", value: summary.trace_schema_version },
+          ...summary.run_ids.map((runId) => ({ label: "关联运行 ID", value: runId })),
+        ]}
+        summary="查看追踪技术信息"
+      />
 
       {spansQuery.isPending ? (
         <StatePanel description="正在读取 bounded Span page。" state="loading" title="正在读取 Span" />
@@ -393,14 +421,14 @@ export function TraceDetailPage({
         <ReadError error={spansQuery.error} onRetry={() => void spansQuery.refetch()} />
       ) : (
         <>
-          {spanPages.some((page) => page.truncated) && <TruncatedNotice scope="Span page" />}
+          {spanPages.some((page) => page.truncated) && <TruncatedNotice scope="执行步骤列表" />}
           <TraceWaterfall
             spans={traceWaterfallSpans(spans)}
-            summary={`${spans.length} / ${summary.span_count} spans loaded · duration uses Span monotonic duration`}
-            title="Trace waterfall"
+            summary={`已加载 ${spans.length} / ${summary.span_count} 个执行步骤`}
+            title="执行步骤时间线"
           />
           <CursorTable
-            caption="Trace spans"
+            caption="执行步骤"
             columns={spanColumns(setSelectedSpanId)}
             getRowKey={(view) => view.span.span_id}
             items={spans}
@@ -418,8 +446,8 @@ export function TraceDetailPage({
         <header className="gf-observability__section-heading">
           <Network aria-hidden="true" size={21} />
           <div>
-            <h2>Trace 日志</h2>
-            <p>查询绑定 exact trace_id 与 Trace 自身时间窗；日志仍由 LogExplorer 执行字段级安全呈现。</p>
+            <h2>运行日志</h2>
+            <p>日志只显示这次追踪对应的安全字段；内部标识默认收起。</p>
           </div>
         </header>
         {logsQuery.isPending ? (
@@ -431,10 +459,11 @@ export function TraceDetailPage({
             {logPages.some((page) => page.truncated) && <TruncatedNotice scope="Log page" />}
             {logPages[0] && (
               <p className="u-small">
-                实际 coverage · {logPages[0].coverage_start} → {logPages[0].coverage_end}
+                日志覆盖时间 · {compactDateTime(logPages[0].coverage_start)} →{" "}
+                {compactDateTime(logPages[0].coverage_end)}
               </p>
             )}
-            <LogExplorer items={logs} title="Trace 日志记录" />
+            <LogExplorer items={logs} title="运行日志记录" />
             <LogCursor
               error={logsQuery.error}
               isFetching={logsQuery.isFetchingNextPage}

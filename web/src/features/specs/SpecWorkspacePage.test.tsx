@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import type { components } from "../../api/generated/openapi";
@@ -25,7 +26,10 @@ const baseArtifact: components["schemas"]["ArtifactSummaryV1"] = {
   payload_hash: "a".repeat(64),
   payload_schema_id: "ir-core@1",
   summary_schema_version: "artifact-summary@1",
-  version_tuple: { ir_snapshot_id: "snapshot:frontier", tool_version: "ingest@1" },
+  version_tuple: {
+    ir_snapshot_id: "snapshot:frontier",
+    tool_version: "ingest@1",
+  },
 };
 
 const spec: Spec = {
@@ -44,7 +48,10 @@ const constraintSnapshot: ConstraintSnapshot = {
     kind: "constraint_snapshot",
     payload_hash: "b".repeat(64),
     payload_schema_id: "constraint-snapshot@1",
-    version_tuple: { constraint_snapshot_id: "constraint:candidate", tool_version: "compile@1" },
+    version_tuple: {
+      constraint_snapshot_id: "constraint:candidate",
+      tool_version: "compile@1",
+    },
   },
   constraints: [],
   dsl_grammar_version: "dsl@1",
@@ -130,10 +137,12 @@ function api(overrides: Partial<SpecWorkspaceApi> = {}): SpecWorkspaceApi {
   };
 }
 
-function renderPage(workspaceApi: SpecWorkspaceApi) {
+function renderPage(workspaceApi: SpecWorkspaceApi, initialEntry = "/specs") {
   return render(
     <QueryClientProvider client={createQueryClient()}>
-      <SpecWorkspacePage api={workspaceApi} />
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <SpecWorkspacePage api={workspaceApi} />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -147,6 +156,69 @@ function deferred<T>() {
 }
 
 describe("SpecWorkspacePage", () => {
+  it("shows only matching project proposals and carries the exact project rule target into review", async () => {
+    const matchingProposal = {
+      ...constraintProposal,
+      proposal: {
+        ...constraintProposal.proposal,
+        source_bindings: [
+          {
+            provenance_hash: "d".repeat(64),
+            source_artifact_id: sourceRendered.artifact_id,
+            source_ref: null,
+          },
+        ],
+      },
+    } satisfies ConstraintProposal;
+    const query = new URLSearchParams({
+      constraint: constraintSnapshot.artifact.artifact_id,
+      constraintRef: "projects/project:sky-harbor/constraints/head",
+      constraintRevision: "2",
+      project: "project:sky-harbor",
+      projectName: "天空港",
+      source: sourceRendered.artifact_id,
+    });
+    renderPage(
+      api({
+        listConstraintProposals: vi.fn(async () =>
+          page([constraintProposal, matchingProposal], null, "read:proposals:project"),
+        ),
+      }),
+      `/specs?${query.toString()}`,
+    );
+
+    const table = await screen.findByRole("region", { name: "规则提案" });
+    expect(within(table).getAllByRole("link", { name: "查看提案" })).toHaveLength(1);
+    const href = within(table).getByRole("link", { name: "查看提案" }).getAttribute("href") ?? "";
+    expect(href).toContain("project=project%3Asky-harbor");
+    expect(href).toContain("constraintRevision=2");
+    expect(href).toContain("constraintRef=projects%2Fproject%3Asky-harbor%2Fconstraints%2Fhead");
+  });
+
+  it("gives same-time unpublished content distinct planner-facing names", async () => {
+    const candidateOne = {
+      ...spec,
+      artifact: { ...spec.artifact, artifact_id: "artifact:spec:candidate-one" },
+      ref_name: null,
+      ref_value: null,
+    } satisfies Spec;
+    const candidateTwo = {
+      ...spec,
+      artifact: { ...spec.artifact, artifact_id: "artifact:spec:candidate-two" },
+      ref_name: null,
+      ref_value: null,
+    } satisfies Spec;
+
+    renderPage(
+      api({
+        listSpecs: vi.fn(async () => page([candidateOne, spec, candidateTwo], null, "read:specs")),
+      }),
+    );
+
+    expect(await screen.findByText("未发布内容 · 第 1 份")).toBeVisible();
+    expect(screen.getByText("未发布内容 · 第 2 份")).toBeVisible();
+  });
+
   it("fully reads raw and rendered source catalogs before rendering first-proposal pickers", async () => {
     const secondRaw = {
       ...sourceRaw,
@@ -166,20 +238,20 @@ describe("SpecWorkspacePage", () => {
       }),
     );
 
-    const agent = (await screen.findByRole("heading", { name: "Agent 提案" })).closest("article")!;
+    const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
     expect(
       within(agent).getByRole("checkbox", {
-        name: /原始策划材料（source_raw）.*artifact:sou…frontier/,
+        name: /原始策划材料 · 2026-07-19/,
       }),
     ).toBeVisible();
     expect(
       within(agent).getByRole("checkbox", {
-        name: /原始策划材料（source_raw）.*artifact:sou…w-harbor/,
+        name: /原始策划材料 · 2026-07-21/,
       }),
     ).toBeVisible();
     expect(
       within(agent).getByRole("checkbox", {
-        name: /已解析策划材料（source_rendered）.*artifact:sou…frontier/,
+        name: /已解析策划材料 · 2026-07-20/,
       }),
     ).toBeVisible();
     expect(listArtifacts.mock.calls).toEqual([
@@ -199,7 +271,7 @@ describe("SpecWorkspacePage", () => {
     renderPage(api({ listArtifacts }));
 
     expect(await screen.findByRole("heading", { name: "无法读取规格工作台" })).toBeVisible();
-    expect(screen.queryByRole("heading", { name: "Agent 提案" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "从策划材料提取规则" })).not.toBeInTheDocument();
   });
 
   it("moves from loading to a contract-honest ready workspace and preserves opaque cursors", async () => {
@@ -224,35 +296,33 @@ describe("SpecWorkspacePage", () => {
     expect(screen.getByRole("heading", { level: 1, name: "正在读取规格工作台" })).toBeVisible();
     first.resolve(page([spec], "opaque.spec+/=", "read:specs"));
 
-    expect(await screen.findByRole("heading", { level: 1, name: "规格与约束快照" })).toBeVisible();
-    expect(screen.getByText(/不是全局权威约束列表/)).toBeVisible();
-    expect(screen.getByText("需由发布结果或 ref 历史另行证明")).toBeVisible();
-    expect(screen.getAllByText("registry@3")[0]).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Agent 提案" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "内容与规则" })).toBeVisible();
+    expect(screen.getByText(/只有标记为当前版本的内容/)).toBeVisible();
+    expect(screen.getByText("发布状态需查看发布记录")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "从策划材料提取规则" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Human typed draft" })).not.toBeVisible();
+    expect(screen.getByText(/AI 先生成候选/)).toBeVisible();
+
+    await user.click(screen.getByText("高级：手工导入结构化内容或规则"));
     expect(screen.getByRole("heading", { name: "Human typed draft" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Human spec upload" })).toBeVisible();
-    expect(screen.getByText(/proposal 仍需 Human 修订/)).toBeVisible();
 
-    const proposalTable = screen.getByRole("region", { name: "约束提案（候选 Artifact）" });
-    expect(within(proposalTable).getByText("artifact:proposal:economy")).toBeVisible();
-    expect(within(proposalTable).getByText("agent")).toBeVisible();
-    expect(within(proposalTable).getByText("revision 3")).toBeVisible();
-    expect(within(proposalTable).getByText("pending_approval")).toBeVisible();
-    expect(within(proposalTable).getByRole("link", { name: "run:constraint:proposal" })).toHaveAttribute(
-      "href",
-      "/runs/run%3Aconstraint%3Aproposal",
-    );
-    expect(within(proposalTable).getByRole("link", { name: "检查 exact proposal" })).toHaveAttribute(
+    const proposalTable = screen.getByRole("region", { name: "规则提案" });
+    expect(within(proposalTable).getByText("规则提案 · 第 3 版")).toBeVisible();
+    expect(within(proposalTable).getByText("AI 生成")).toBeVisible();
+    expect(within(proposalTable).getByText("待审批")).toBeVisible();
+    expect(within(proposalTable).getByText("artifact:proposal:economy")).not.toBeVisible();
+    expect(within(proposalTable).getByRole("link", { name: "查看提案" })).toHaveAttribute(
       "href",
       "/constraint-proposals/artifact%3Aproposal%3Aeconomy",
     );
 
-    const specTable = screen.getByRole("region", { name: "规格工件" });
+    const specTable = screen.getByRole("region", { name: "内容版本列表" });
     await user.click(within(specTable).getByRole("button", { name: "加载下一页" }));
 
-    expect(await within(specTable).findByText("artifact:spec:harbor")).toBeVisible();
+    expect(await within(specTable).findByText("artifact:spec:harbor")).not.toBeVisible();
     expect(listSpecs).toHaveBeenLastCalledWith("opaque.spec+/=");
-    expect(screen.getByText("未绑定 ref；工件存在不表示当前版本")).toBeVisible();
+    expect(screen.getByText("未发布，不会被当作当前版本使用")).toBeVisible();
   });
 
   it("renders an explicit empty workspace instead of inventing a current spec", async () => {
@@ -264,14 +334,21 @@ describe("SpecWorkspacePage", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { name: "尚无可读取的规格、约束快照或提案" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", {
+        name: "尚无可读取的规格、约束快照或提案",
+      }),
+    ).toBeVisible();
     expect(screen.queryByText("当前规格")).not.toBeInTheDocument();
   });
 
   it("keeps proposal cursor expiry explicit and restarts only after the operator chooses it", async () => {
     const restartedProposal = {
       ...constraintProposal,
-      artifact: { ...constraintProposal.artifact, artifact_id: "artifact:proposal:restarted" },
+      artifact: {
+        ...constraintProposal.artifact,
+        artifact_id: "artifact:proposal:restarted",
+      },
     } satisfies ConstraintProposal;
     const listConstraintProposals = vi
       .fn<SpecWorkspaceApi["listConstraintProposals"]>()
@@ -300,14 +377,14 @@ describe("SpecWorkspacePage", () => {
     renderPage(api({ listConstraintProposals }));
 
     const proposalTable = await screen.findByRole("region", {
-      name: "约束提案（候选 Artifact）",
+      name: "规则提案",
     });
     await user.click(within(proposalTable).getByRole("button", { name: "加载下一页" }));
     expect(await within(proposalTable).findByText(/分页游标已过期/)).toBeVisible();
     expect(listConstraintProposals).toHaveBeenCalledTimes(2);
 
     await user.click(within(proposalTable).getByRole("button", { name: "重新开始查询" }));
-    expect(await within(proposalTable).findByText("artifact:proposal:restarted")).toBeVisible();
+    expect(await within(proposalTable).findByText("artifact:proposal:restarted")).not.toBeVisible();
     expect(listConstraintProposals).toHaveBeenLastCalledWith(null);
   });
 
@@ -323,7 +400,7 @@ describe("SpecWorkspacePage", () => {
     expect(screen.queryByText(/database password/)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "重试" }));
 
-    expect(await screen.findByRole("heading", { name: "规格与约束快照" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "内容与规则" })).toBeVisible();
     expect(listSpecs).toHaveBeenCalledTimes(2);
   });
 

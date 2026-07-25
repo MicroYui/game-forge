@@ -26,6 +26,20 @@
   <sub>约 88 秒 · 输入需求 → 查看差异 → 真实试玩 → 修复复测 → 独立审批 → 应用</sub>
 </p>
 
+## 从一个新游戏开始
+
+当前默认入口是 **游戏项目**，策划不需要先认识 Snapshot、Artifact 或 SHA：
+
+1. 创建游戏项目，填写名称、代号、简介和类型；
+2. 粘贴创意，或一次选择多份飞书文本 / Markdown / HTML / blocks JSON / DOCX / XLSX / CSV；
+3. 从 1–64 份材料组合一次 AI 实体与关系提案；同一游戏可长期保留多次提案；
+4. 在可视化图谱中新增、删除和修改角色、地点、任务及关系；
+5. 人工确认后运行确定性验证、审批并发布首个内容版本；
+6. 从同一项目继续生成规则、NPC 与其他内容，或派生任务集并启动真实 Playtest。
+
+AI 输出始终只是候选；正式内容只有在 exact validation、审批和 apply 完成后才会产生新 revision。
+未发布的提案可以填写原因后放弃，材料、Run 与检查证据不会被删除；已发布内容则必须通过版本治理发起回滚。
+
 ## 先看一个具体任务
 
 假设你正在维护任务「失踪的商队」。玩家现在需要收集 **3 枚破损徽记**，地图上的唯一采集点也刚好提供 **3 枚**。你想尝试把任务需求提高到 4，于是在 GameForge 的「内容生成」页输入：
@@ -151,10 +165,11 @@ Playtest 最终判定任务未完成并留下可回放轨迹。从候选 Diff、
   </tr>
 </table>
 
-## 八个页面分别做什么
+## 项目入口与八个专业工作台分别做什么
 
 | 页面 | 你在这里做什么 | 它回答的问题 |
 |---|---|---|
+| 游戏项目 | 创建游戏、添加策划材料、编辑实体关系并发布首版 | 这款游戏从哪里开始，当前正式内容是哪一版？ |
 | 规范与知识图谱 | 浏览版本化 Spec-IR、约束、来源和关系 | 当前内容事实究竟是什么？ |
 | 内容生成 | 输入目标，生成 Patch / preview / config 候选 | Agent 实际提议了什么？ |
 | 审查报告 | 分区检查确定性、仿真、建议与未证明结论 | 哪些结论有证据？ |
@@ -211,9 +226,21 @@ GameForge 不让 LLM 充当正确性裁判。Agent 只负责抽取、分诊、�
 | Playtest completion | flat `5/20` → layered `14/20` → memory `15/20` | 冻结的 20 条 / 组回放样本；Planner / Executor **+45pp**，MemTrace 再 **+5pp** |
 | 真人 QA 病例研究 | manual `0/4`；GameForge-assisted `3/4` | 单一参与者、8 sessions / 4 matched pairs，不能泛化到所有用户 |
 | QA 配对节省时间 | 平均 **3.41 min** | 95% bootstrap CI **[1.21, 5.04]**；错误 / 超时按预注册 8 分钟 cap |
-| 产品表面 | **8 页 · 77 operations** | API 表面以 [`OpenAPI v1`](docs/api/openapi-v1.json) 为准 |
+| 产品表面 | **项目入口 + 8 个专业工作台 · 93 operations** | API 表面以 [`OpenAPI v1`](docs/api/openapi-v1.json) 为准 |
 
 Bench 的完整分母、置信区间和 evidence refs 保存在版本化的 [`BenchReport`](scenarios/bench/bench-report.json)，不是 README 手写成绩。
+
+### 工程与冻结证据状态
+
+| Milestone | Current status | Historical audit anchor |
+|---|---|---|
+| **M3** | ✅ engineering complete，产品证据也已由 `participant-04` 闭合 | 历史门禁曾为 `qa.evidence_missing`；原始记录保留但不再代表当前缺口 |
+| **M4** | 🔄 implementation in progress，M4a–M4d 已完成，M4e 待推进 | 历史外部证据缺口 does not block M4 |
+
+Flare 的 B0B、Corpus Freeze 与 M3d-1..4 **were not entered**；其负投资结论保持冻结。
+Endless Sky 通用 B0A 的 candidate universe SHA-256 为
+`f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f`，历史终态为
+`awaiting_human_evidence`。该通用路径只作审计；后续固定 8-case 外部病例与 M3 最终证据已独立完成。
 
 ## 三种游戏内容证据
 

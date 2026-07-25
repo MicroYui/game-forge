@@ -205,6 +205,25 @@ def _domain_and_role_policy() -> tuple[DomainRegistryV1, RolePolicy]:
             ),
         ),
     }
+    grants["platform_admin"] = (
+        *grants["identity_admin"],
+        *grants["tooling"],
+        Permission(
+            action="approval.decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+        Permission(
+            action="approval.self_decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+        Permission(
+            action="approval.route_override",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+    )
     effective_from = "2026-07-14T00:00:00Z"
     policy = RolePolicy(
         policy_version="roles@1",

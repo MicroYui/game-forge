@@ -136,7 +136,7 @@ def _permission_resolver_keys(registry: Any) -> set[str]:
     }
 
 
-def test_generation_v2_graph_is_active_while_v1_remains_replayable() -> None:
+def test_generation_has_one_current_execution_graph() -> None:
     registry = build_builtin_registry()
 
     graphs = registry.list_agent_execution_graphs_for_run_kind(
@@ -152,8 +152,7 @@ def test_generation_v2_graph_is_active_while_v1_remains_replayable() -> None:
         )
         for graph in graphs
     ] == [
-        ("generation-graph@1", "replay_only", "generation@1", "generation@1"),
-        ("generation-graph@2", "active", "generation@2", "generation@1"),
+        ("generation-graph@7", "active", "generation@7", "generation@1"),
     ]
 
 
@@ -198,6 +197,34 @@ def test_task11_execution_profile_catalog_remains_byte_identical() -> None:
         "6473a8a4fe0d92133c97f57005e668881743b69206481d7dedec854f248647e4"
     )
     assert len(canonical_json(catalog.model_dump(mode="json")).encode("utf-8")) == 23_745
+
+
+def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -> None:
+    catalogs = build_builtin_registry().list_execution_profile_catalogs()
+
+    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3]
+    old_checker = next(
+        definition
+        for definition in catalogs[0].definitions
+        if definition.profile.profile_id == "builtin.checker"
+    )
+    current_checker = next(
+        definition
+        for definition in catalogs[-1].definitions
+        if definition.profile.profile_id == "builtin.checker"
+        and definition.profile.version == 2
+    )
+    assert "invalid_event_lifecycle" not in old_checker.config["allowed_defect_classes"]
+    assert {
+        "event_scope_membership_missing",
+        "event_scope_owner_missing",
+        "invalid_event_lifecycle",
+        "permanent_depends_on_limited_content",
+        "unbound_event_schedule",
+    }.issubset(current_checker.config["allowed_defect_classes"])
+    lifecycle = {item.profile: item for item in catalogs[-1].lifecycle}
+    assert lifecycle[old_checker.profile].state == "active"
+    assert lifecycle[current_checker.profile].state == "active"
 
 
 def test_readiness_rejects_record_shards_counted_from_prompt_links() -> None:

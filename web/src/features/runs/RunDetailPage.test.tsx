@@ -262,21 +262,22 @@ describe("RunDetailPage", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent("正在读取运行详情");
     expect(screen.getByRole("heading", { level: 1, name: "运行详情" })).toBeVisible();
-    expect(await screen.findByRole("heading", { name: "运行 run:1" })).toBeVisible();
-    expect(screen.getByText("/api/v1/runs/run%3A1/events")).toBeVisible();
-    expect(screen.getByRole("link", { name: "finding:1 · r2" })).toHaveAttribute(
+    expect(await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。")).toBeVisible();
+    for (const element of screen.getAllByText("/api/v1/runs/run%3A1/events")) {
+      expect(element).not.toBeVisible();
+    }
+    expect(screen.getByRole("link", { name: "任务不可达 · 第 1 条" })).toHaveAttribute(
       "href",
       "/findings/finding%3A1/revisions/2",
     );
-    expect(screen.getByText("任务不可达")).toBeVisible();
     expect(screen.getByRole("link", { name: "打开结果工件" })).toHaveAttribute(
       "href",
       "/artifacts/artifact%3Aresult",
     );
-    expect(screen.getByText(/"outcome_code": "completed"/)).toBeVisible();
+    expect(screen.getByText(/"outcome_code": "completed"/)).not.toBeVisible();
     expect(screen.getByText("当前 RunView 未绑定失败清单。")).toBeVisible();
-    expect(screen.getByText("command:1 · rejected")).toBeVisible();
-    expect(screen.getByRole("link", { name: "trace:1" })).toHaveAttribute(
+    expect(screen.getByText("取消运行 · 未执行")).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看运行追踪 1" })).toHaveAttribute(
       "href",
       "/observability/traces/trace%3A1",
     );
@@ -304,7 +305,7 @@ describe("RunDetailPage", () => {
       );
     });
 
-    expect(screen.getByText("attempt.progress · 2026-07-19T12:00:30Z")).toBeVisible();
+    expect(screen.getByText("进度更新 · 2026年7月19日 12:00")).toBeVisible();
     expect(screen.getByText("已完成 2 / 4")).toBeVisible();
   });
 
@@ -321,7 +322,8 @@ describe("RunDetailPage", () => {
     });
     renderPage(api);
 
-    const payload = await screen.findByLabelText("结果清单 payload");
+    await userEvent.setup().click(await screen.findByText("查看原始结果数据"));
+    const payload = screen.getByLabelText("结果清单 payload");
     expect(payload).toHaveAttribute("tabindex", "0");
     expect(payload).toHaveTextContent(longValue);
   });
@@ -343,16 +345,16 @@ describe("RunDetailPage", () => {
     });
     const user = userEvent.setup();
     renderPage(api);
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
 
     expect(api.loadFindingsPage).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "加载更多Findings" }));
+    await user.click(screen.getByRole("button", { name: "加载更多问题" }));
     await user.click(screen.getByRole("button", { name: "加载更多命令" }));
     await user.click(screen.getByRole("button", { name: "加载更多追踪" }));
 
-    expect(await screen.findByRole("link", { name: "finding:2 · r1" })).toBeVisible();
-    expect(screen.getByText("command:2 · rejected")).toBeVisible();
-    expect(screen.getByRole("link", { name: "trace:2" })).toBeVisible();
+    expect(await screen.findByRole("link", { name: "任务不可达 · 第 2 条" })).toBeVisible();
+    expect(screen.getAllByText("取消运行 · 未执行")).toHaveLength(2);
+    expect(screen.getByRole("link", { name: "查看运行追踪 2" })).toBeVisible();
     expect(api.loadFindingsPage).toHaveBeenCalledWith("run:1", "findings.next+/=");
     expect(api.loadCommandsPage).toHaveBeenCalledWith("run:1", "commands.next+/=");
     expect(api.loadTracesPage).toHaveBeenCalledWith("run:1", "traces.next+/=");
@@ -366,9 +368,9 @@ describe("RunDetailPage", () => {
     const { api } = createApi({ loadFindingsPage });
     const user = userEvent.setup();
     const { queryClient } = renderPage(api);
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
 
-    await user.click(screen.getByRole("button", { name: "加载更多Findings" }));
+    await user.click(screen.getByRole("button", { name: "加载更多问题" }));
     act(() => {
       queryClient.setQueryData<RunDetailSnapshot>(["run-detail", "run:1"], {
         ...detailSnapshot,
@@ -376,11 +378,11 @@ describe("RunDetailPage", () => {
         run: { ...detailSnapshot.run, revision: 5 },
       });
     });
-    expect(await screen.findByRole("link", { name: "finding:fresh · r2" })).toBeVisible();
+    expect(await screen.findByText("finding:fresh")).not.toBeVisible();
     await act(async () => pending.resolve(page([lateFinding], null) as FindingRevisionPage));
 
-    expect(screen.getByRole("link", { name: "finding:fresh · r2" })).toBeVisible();
-    expect(screen.queryByRole("link", { name: "finding:late · r2" })).not.toBeInTheDocument();
+    expect(screen.getByText("finding:fresh")).not.toBeVisible();
+    expect(screen.queryByText("finding:late")).not.toBeInTheDocument();
   });
 
   it("never lets an old Run page or stream state overwrite a reused route", async () => {
@@ -404,10 +406,10 @@ describe("RunDetailPage", () => {
     });
     const user = userEvent.setup();
     const { rerenderRun } = renderPage(api);
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
     const oldStream = stream();
 
-    await user.click(screen.getByRole("button", { name: "加载更多Findings" }));
+    await user.click(screen.getByRole("button", { name: "加载更多问题" }));
     act(() => {
       oldStream.emit(
         {
@@ -434,15 +436,14 @@ describe("RunDetailPage", () => {
 
     rerenderRun("run:2");
 
-    expect(await screen.findByRole("heading", { name: "运行 run:2" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "finding:run-2 · r2" })).toBeVisible();
-    expect(screen.queryByText("attempt.progress · 2026-07-19T12:00:30Z")).not.toBeInTheDocument();
+    expect(await screen.findByText("finding:run-2")).not.toBeVisible();
+    expect(screen.queryByText("进度更新 · 2026年7月19日 12:00")).not.toBeInTheDocument();
     expect(screen.queryByText(/最早可用游标 17/)).not.toBeInTheDocument();
 
     await act(async () => pending.resolve(page([staleFinding], null) as FindingRevisionPage));
 
-    expect(screen.getByRole("link", { name: "finding:run-2 · r2" })).toBeVisible();
-    expect(screen.queryByRole("link", { name: "finding:stale-run-1 · r2" })).not.toBeInTheDocument();
+    expect(screen.getByText("finding:run-2")).not.toBeVisible();
+    expect(screen.queryByText("finding:stale-run-1")).not.toBeInTheDocument();
   });
 
   it("keeps an expired page cursor until the operator explicitly restarts that collection", async () => {
@@ -472,16 +473,16 @@ describe("RunDetailPage", () => {
     const { api } = createApi({ loadFindingsPage });
     const user = userEvent.setup();
     renderPage(api);
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
 
-    await user.click(screen.getByRole("button", { name: "加载更多Findings" }));
+    await user.click(screen.getByRole("button", { name: "加载更多问题" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("读取快照已过期");
     expect(loadFindingsPage).toHaveBeenCalledTimes(1);
 
-    await user.click(screen.getByRole("button", { name: "从首屏重新读取 Findings" }));
+    await user.click(screen.getByRole("button", { name: "从首屏重新读取 问题" }));
 
-    expect(await screen.findByRole("link", { name: "finding:fresh · r2" })).toBeVisible();
+    expect(await screen.findByText("finding:fresh")).not.toBeVisible();
     expect(loadFindingsPage).toHaveBeenNthCalledWith(2, "run:1", null);
   });
 
@@ -529,7 +530,7 @@ describe("RunDetailPage", () => {
       "href",
       "/artifacts/artifact%3Afailure",
     );
-    expect(screen.getByText(/"cause_code": "validation_failed"/)).toBeVisible();
+    expect(screen.getByText(/"cause_code": "validation_failed"/)).not.toBeVisible();
     expect(screen.getByText("当前 RunView 未绑定结果工件。")).toBeVisible();
   });
 
@@ -537,7 +538,7 @@ describe("RunDetailPage", () => {
     const { api, stream } = createApi();
     const user = userEvent.setup();
     renderPage(api);
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
 
     stream().restart.mockRejectedValueOnce(new Error("事件流重启失败"));
     act(() => stream().expire("17"));
@@ -555,7 +556,7 @@ describe("RunDetailPage", () => {
     const { api, stream } = createApi();
     const user = userEvent.setup();
     renderPage(api);
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
 
     act(() => stream().disconnect());
 
@@ -616,7 +617,7 @@ describe("RunDetailPage", () => {
         <RunDetailPage api={api} runId="run:1" />
       </QueryClientProvider>,
     );
-    await screen.findByRole("heading", { name: "运行 run:1" });
+    await screen.findByText("这里汇总本次运行的进度、检查结果与可追溯证据。");
 
     await user.click(screen.getByRole("button", { name: "取消运行" }));
     expect(RecoverySocket.latest?.protocols).toEqual([RUN_COMMAND_SUBPROTOCOL, "gameforge.csrf.csrf-route"]);

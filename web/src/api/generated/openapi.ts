@@ -784,6 +784,213 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Projects */
+        get: operations["list_projects_api_v1_projects_get"];
+        put?: never;
+        /** Create Project */
+        post: operations["create_project_api_v1_projects_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Project */
+        get: operations["get_project_api_v1_projects__project_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Project */
+        patch: operations["update_project_api_v1_projects__project_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/content-drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Content Draft */
+        post: operations["create_content_draft_api_v1_projects__project_id__content_drafts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/extractions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Extractions */
+        get: operations["list_extractions_api_v1_projects__project_id__extractions_get"];
+        put?: never;
+        /** Create Extraction */
+        post: operations["create_extraction_api_v1_projects__project_id__extractions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/extractions/{extraction_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Extraction */
+        get: operations["get_extraction_api_v1_projects__project_id__extractions__extraction_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/extractions/{extraction_id}:discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Discard Extraction */
+        post: operations["discard_extraction_api_v1_projects__project_id__extractions__extraction_id__discard_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/materials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Materials */
+        get: operations["list_materials_api_v1_projects__project_id__materials_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/materials/{material_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Material */
+        get: operations["get_material_api_v1_projects__project_id__materials__material_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/materials/{material_id}:archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive Material */
+        post: operations["archive_material_api_v1_projects__project_id__materials__material_id__archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/materials:text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Text Material */
+        post: operations["add_text_material_api_v1_projects__project_id__materials_text_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/materials:upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload Material */
+        post: operations["upload_material_api_v1_projects__project_id__materials_upload_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}:archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive Project */
+        post: operations["archive_project_api_v1_projects__project_id__archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/refs/{ref_name}/history": {
         parameters: {
             query?: never;
@@ -2542,6 +2749,59 @@ export interface components {
             /** Supersedes Revision */
             supersedes_revision?: number | null;
         };
+        /** GameProjectV1 */
+        GameProjectV1: {
+            /** Bootstrap Snapshot Artifact Id */
+            bootstrap_snapshot_artifact_id: string;
+            /** Constraint Ref Name */
+            constraint_ref_name: string;
+            /** Content Ref Name */
+            content_ref_name: string;
+            /** Created At */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+            current_constraint_ref?: components["schemas"]["RefValue"] | null;
+            current_content_ref?: components["schemas"]["RefValue"] | null;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            domain_scope: components["schemas"]["DomainScope"];
+            /**
+             * Genre
+             * @default
+             */
+            genre: string;
+            /** Latest Approval Id */
+            latest_approval_id?: string | null;
+            /** Latest Extraction Id */
+            latest_extraction_id?: string | null;
+            /** Latest Patch Artifact Id */
+            latest_patch_artifact_id?: string | null;
+            /** Project Id */
+            project_id: string;
+            /** Project Key */
+            project_key: string;
+            /**
+             * Project Schema Version
+             * @default game-project@1
+             * @constant
+             */
+            project_schema_version: "game-project@1";
+            /** Revision */
+            revision: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "active" | "archived";
+            /** Updated At */
+            updated_at: string;
+        };
         /**
          * GenerationProposeRequestV1
          * @description ``POST /generation:propose`` — fixes ``generation.propose@1``.
@@ -2577,6 +2837,11 @@ export interface components {
              * @constant
              */
             request_schema_version: "generation-propose-request@1";
+            /**
+             * Source Artifact Ids
+             * @default []
+             */
+            source_artifact_ids: string[];
             target: components["schemas"]["RefReadBindingV1"];
         };
         /** GraphItemV1 */
@@ -2735,6 +3000,72 @@ export interface components {
             request_schema_version: "human-spec-upload-request@1";
             /** Schema Registry Version */
             schema_registry_version: string;
+        };
+        /** IdentityAliasGroupV1 */
+        IdentityAliasGroupV1: {
+            /**
+             * Alias Schema Version
+             * @default identity-alias-group@1
+             * @constant
+             */
+            alias_schema_version: "identity-alias-group@1";
+            /** Aliases */
+            aliases: string[];
+            /** Canonical Identity */
+            canonical_identity: string;
+        };
+        /** IdentityConflictCandidateV1 */
+        IdentityConflictCandidateV1: {
+            /** Op Id */
+            op_id: string;
+            /** Source Identity */
+            source_identity: string;
+            value: components["schemas"]["JsonValue"];
+        };
+        /** IdentityConflictV1 */
+        IdentityConflictV1: {
+            /** Candidates */
+            candidates: components["schemas"]["IdentityConflictCandidateV1"][];
+            /** Canonical Identity */
+            canonical_identity: string;
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "attribute_value_conflict" | "entity_type_conflict" | "ambiguous_unqualified_alias" | "relation_shape_conflict" | "dangling_relation_endpoint" | "malformed_operation";
+            /** Conflict Id */
+            conflict_id: string;
+            /**
+             * Conflict Schema Version
+             * @default identity-conflict@1
+             * @constant
+             */
+            conflict_schema_version: "identity-conflict@1";
+        };
+        /** IdentityNormalizationSummaryV1 */
+        IdentityNormalizationSummaryV1: {
+            /** Alias Group Count */
+            alias_group_count: number;
+            /** Auto Merge Count */
+            auto_merge_count: number;
+            /** Blocking Conflict Count */
+            blocking_conflict_count: number;
+            /** Input Operation Count */
+            input_operation_count: number;
+            /** Output Operation Count */
+            output_operation_count: number;
+            /**
+             * Policy Version
+             * @default identity-normalization@1
+             * @constant
+             */
+            policy_version: "identity-normalization@1";
+            /**
+             * Summary Schema Version
+             * @default identity-normalization-summary@1
+             * @constant
+             */
+            summary_schema_version: "identity-normalization-summary@1";
         };
         JsonValue: unknown;
         /**
@@ -3791,6 +4122,368 @@ export interface components {
             /** Version */
             version: number;
         };
+        /** ProjectArchiveRequestV1 */
+        ProjectArchiveRequestV1: {
+            /** Expected Revision */
+            expected_revision: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Request Schema Version
+             * @default project-archive-request@1
+             * @constant
+             */
+            request_schema_version: "project-archive-request@1";
+        };
+        /** ProjectCreateRequestV1 */
+        ProjectCreateRequestV1: {
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            domain_scope: components["schemas"]["DomainScope"];
+            /**
+             * Genre
+             * @default
+             */
+            genre: string;
+            /** Project Key */
+            project_key: string;
+            /**
+             * Request Schema Version
+             * @default project-create-request@1
+             * @constant
+             */
+            request_schema_version: "project-create-request@1";
+        };
+        /** ProjectExtractionCreateRequestV1 */
+        ProjectExtractionCreateRequestV1: {
+            /**
+             * Candidate Export Profiles
+             * @default []
+             */
+            candidate_export_profiles: components["schemas"]["ProfileRefV1"][];
+            /** Cassette Artifact Id */
+            cassette_artifact_id?: string | null;
+            execution_version_plan?: components["schemas"]["ExecutionVersionPlanV1"] | null;
+            generation_policy?: components["schemas"]["ProfileRefV1"] | null;
+            /**
+             * Llm Execution Mode
+             * @default record
+             * @enum {string}
+             */
+            llm_execution_mode: "live" | "record" | "replay";
+            /** Material Ids */
+            material_ids: string[];
+            /** Objective Goal Text */
+            objective_goal_text: string;
+            /**
+             * Planning Scope
+             * @default auto
+             * @enum {string}
+             */
+            planning_scope: "auto" | "game_foundation" | "permanent_feature" | "limited_event" | "live_update";
+            /**
+             * Request Schema Version
+             * @default project-extraction-create-request@1
+             * @constant
+             */
+            request_schema_version: "project-extraction-create-request@1";
+        };
+        /** ProjectExtractionDiscardRequestV1 */
+        ProjectExtractionDiscardRequestV1: {
+            /** Expected Revision */
+            expected_revision: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Request Schema Version
+             * @default project-extraction-discard-request@1
+             * @constant
+             */
+            request_schema_version: "project-extraction-discard-request@1";
+        };
+        /**
+         * ProjectExtractionIssueV1
+         * @description One deterministic gate issue translated for a planning workflow.
+         */
+        ProjectExtractionIssueV1: {
+            /**
+             * Affected Content
+             * @default []
+             */
+            affected_content: string[];
+            /** Code */
+            code: string;
+            /** Description */
+            description: string;
+            /** Issue Id */
+            issue_id: string;
+            /**
+             * Issue Schema Version
+             * @default project-extraction-issue@1
+             * @constant
+             */
+            issue_schema_version: "project-extraction-issue@1";
+            /** Resolution Hint */
+            resolution_hint: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "critical" | "major" | "minor" | "info";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "structure" | "economy";
+            /** Title */
+            title: string;
+        };
+        /** ProjectExtractionPageV1 */
+        ProjectExtractionPageV1: {
+            /** Items */
+            items: components["schemas"]["ProjectExtractionV1"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Schema Version
+             * @default project-extraction-page@1
+             * @constant
+             */
+            page_schema_version: "project-extraction-page@1";
+        };
+        /** ProjectExtractionV1 */
+        ProjectExtractionV1: {
+            /**
+             * Alias Groups
+             * @default []
+             */
+            alias_groups: components["schemas"]["IdentityAliasGroupV1"][];
+            /** Approval Id */
+            approval_id?: string | null;
+            /** Base Snapshot Artifact Id */
+            base_snapshot_artifact_id: string;
+            /** Created At */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+            /** Discard Reason */
+            discard_reason?: string | null;
+            /** Discarded At */
+            discarded_at?: string | null;
+            /** Discarded By */
+            discarded_by?: string | null;
+            /** Disposition */
+            disposition?: "discarded" | null;
+            /** Extraction Id */
+            extraction_id: string;
+            /**
+             * Extraction Schema Version
+             * @default project-extraction@1
+             * @constant
+             */
+            extraction_schema_version: "project-extraction@1";
+            /** Failure Cause Code */
+            failure_cause_code?: string | null;
+            /** Failure Message */
+            failure_message?: string | null;
+            /** Failure Retryable */
+            failure_retryable?: boolean | null;
+            /**
+             * Identity Conflicts
+             * @default []
+             */
+            identity_conflicts: components["schemas"]["IdentityConflictV1"][];
+            /** Material Ids */
+            material_ids: string[];
+            normalization_summary?: components["schemas"]["IdentityNormalizationSummaryV1"] | null;
+            /** Patch Artifact Id */
+            patch_artifact_id?: string | null;
+            /**
+             * Planning Scope
+             * @default auto
+             * @enum {string}
+             */
+            planning_scope: "auto" | "game_foundation" | "permanent_feature" | "limited_event" | "live_update";
+            /** Preview Snapshot Artifact Id */
+            preview_snapshot_artifact_id?: string | null;
+            /** Project Id */
+            project_id: string;
+            /** Publication Approval Id */
+            publication_approval_id?: string | null;
+            /** Publication Patch Artifact Id */
+            publication_patch_artifact_id?: string | null;
+            /** Revision */
+            revision: number;
+            /** Run Id */
+            run_id: string;
+            /** Source Artifact Ids */
+            source_artifact_ids: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "needs_resolution" | "ready" | "failed";
+            /** Updated At */
+            updated_at: string;
+            /**
+             * Validation Issues
+             * @default []
+             */
+            validation_issues: components["schemas"]["ProjectExtractionIssueV1"][];
+        };
+        /** ProjectGraphDraftRequestV1 */
+        ProjectGraphDraftRequestV1: {
+            /**
+             * Candidate Export Profiles
+             * @default []
+             */
+            candidate_export_profiles: components["schemas"]["ProfileRefV1"][];
+            /** Entities */
+            entities: components["schemas"]["Entity"][];
+            /** Expected Project Revision */
+            expected_project_revision: number;
+            /** Expected Source Extraction Revision */
+            expected_source_extraction_revision: number;
+            /** Rationale */
+            rationale: string;
+            /** Relations */
+            relations: components["schemas"]["Relation"][];
+            /**
+             * Request Schema Version
+             * @default project-graph-draft-request@1
+             * @constant
+             */
+            request_schema_version: "project-graph-draft-request@1";
+            /**
+             * Side Effect Risk
+             * @default low
+             */
+            side_effect_risk: string;
+            /** Source Extraction Id */
+            source_extraction_id: string;
+        };
+        /** ProjectMaterialPageV1 */
+        ProjectMaterialPageV1: {
+            /** Items */
+            items: components["schemas"]["ProjectMaterialV1"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Schema Version
+             * @default project-material-page@1
+             * @constant
+             */
+            page_schema_version: "project-material-page@1";
+        };
+        /** ProjectMaterialTextRequestV1 */
+        ProjectMaterialTextRequestV1: {
+            /** Display Name */
+            display_name: string;
+            /**
+             * Request Schema Version
+             * @default project-material-text-request@1
+             * @constant
+             */
+            request_schema_version: "project-material-text-request@1";
+            /**
+             * Source Format
+             * @enum {string}
+             */
+            source_format: "plain_text" | "markdown" | "html" | "feishu_blocks_json";
+            /** Text */
+            text: string;
+        };
+        /** ProjectMaterialV1 */
+        ProjectMaterialV1: {
+            /** Byte Size */
+            byte_size: number;
+            /** Created At */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+            /** Display Name */
+            display_name: string;
+            /** Material Id */
+            material_id: string;
+            /**
+             * Material Schema Version
+             * @default project-material@1
+             * @constant
+             */
+            material_schema_version: "project-material@1";
+            /** Media Type */
+            media_type: string;
+            /** Original Source Artifact Id */
+            original_source_artifact_id: string;
+            /**
+             * Parse Status
+             * @enum {string}
+             */
+            parse_status: "ready" | "rejected";
+            /**
+             * Parse Warnings
+             * @default []
+             */
+            parse_warnings: string[];
+            /** Parser Id */
+            parser_id: string;
+            /** Parser Version */
+            parser_version: string;
+            /** Project Id */
+            project_id: string;
+            /** Rendered Source Artifact Id */
+            rendered_source_artifact_id: string;
+            /** Revision */
+            revision: number;
+            /**
+             * Source Format
+             * @enum {string}
+             */
+            source_format: "plain_text" | "markdown" | "html" | "feishu_blocks_json" | "docx" | "xlsx" | "csv";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "archived";
+            /** Text Char Count */
+            text_char_count: number;
+        };
+        /** ProjectPageV1 */
+        ProjectPageV1: {
+            /** Items */
+            items: components["schemas"]["GameProjectV1"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Schema Version
+             * @default project-page@1
+             * @constant
+             */
+            page_schema_version: "project-page@1";
+        };
+        /** ProjectUpdateRequestV1 */
+        ProjectUpdateRequestV1: {
+            /** Description */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            domain_scope: components["schemas"]["DomainScope"];
+            /** Expected Revision */
+            expected_revision: number;
+            /** Genre */
+            genre: string;
+            /**
+             * Request Schema Version
+             * @default project-update-request@1
+             * @constant
+             */
+            request_schema_version: "project-update-request@1";
+        };
         /** ProspectiveConstraintProposeRequestV1 */
         ProspectiveConstraintProposeRequestV1: {
             /** Authoring Goal Text */
@@ -3848,6 +4541,11 @@ export interface components {
              * @enum {string}
              */
             request_schema_version: "generation-propose-request@1";
+            /**
+             * Source Artifact Ids
+             * @default []
+             */
+            source_artifact_ids: string[];
             target: components["schemas"]["RefReadBindingV1"];
         };
         /**
@@ -10849,6 +11547,2001 @@ export interface operations {
             };
             /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    list_projects_api_v1_projects_get: {
+        parameters: {
+            query?: {
+                status?: ("draft" | "active" | "archived") | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache`. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag bound to the read snapshot of this page. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectPageV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    create_project_api_v1_projects_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectCreateRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameProjectV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_project_api_v1_projects__project_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameProjectV1"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    update_project_api_v1_projects__project_id__patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectUpdateRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameProjectV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    create_content_draft_api_v1_projects__project_id__content_drafts_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectGraphDraftRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchArtifactReadViewV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    list_extractions_api_v1_projects__project_id__extractions_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache`. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag bound to the read snapshot of this page. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectExtractionPageV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    create_extraction_api_v1_projects__project_id__extractions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectExtractionCreateRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Run event stream link with rel=events. */
+                    Link?: string;
+                    /** @description Relative status URL of the accepted project extraction. */
+                    Location?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    /** @description Run authority executing this extraction. */
+                    "X-Run-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectExtractionV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_extraction_api_v1_projects__project_id__extractions__extraction_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                extraction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectExtractionV1"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    discard_extraction_api_v1_projects__project_id__extractions__extraction_id__discard_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+                extraction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectExtractionDiscardRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectExtractionV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    list_materials_api_v1_projects__project_id__materials_get: {
+        parameters: {
+            query?: {
+                status?: ("active" | "archived") | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache`. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag bound to the read snapshot of this page. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectMaterialPageV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_material_api_v1_projects__project_id__materials__material_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                material_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectMaterialV1"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    archive_material_api_v1_projects__project_id__materials__material_id__archive_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+                material_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectArchiveRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectMaterialV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    add_text_material_api_v1_projects__project_id__materials_text_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectMaterialTextRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectMaterialV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    upload_material_api_v1_projects__project_id__materials_upload_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+                /** @description Visible source file name, retained as the material display name. */
+                "X-GameForge-File-Name": string;
+                /** @description Deterministic parser selected for the uploaded bytes. */
+                "X-GameForge-Source-Format": "plain_text" | "markdown" | "html" | "feishu_blocks_json" | "docx" | "xlsx" | "csv";
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectMaterialV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    archive_project_api_v1_projects__project_id__archive_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectArchiveRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameProjectV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };

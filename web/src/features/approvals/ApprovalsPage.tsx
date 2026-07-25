@@ -6,12 +6,8 @@ import { createMutationIntent } from "../../api/csrf";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { useToast } from "../../app/providers";
-import {
-  CopyableText,
-  CursorTable,
-  type CursorPaginationState,
-  type CursorTableColumn,
-} from "../../components/tables";
+import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
+import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ConfirmDialog, PermissionGate, ProblemPanel, StatePanel } from "../../components/ui";
 import { messages } from "../../i18n/zh-CN";
 import {
@@ -50,7 +46,10 @@ const approvalQueryKey = (approvalId: string) => ["approvals", "detail", approva
 
 const decisionReasons: Record<ApprovalAction, readonly { label: string; value: string }[]> = {
   approve: [
-    { label: "已核对实际改动与验证证据", value: "content_and_evidence_reviewed" },
+    {
+      label: "已核对实际改动与验证证据",
+      value: "content_and_evidence_reviewed",
+    },
     { label: "已核对确定性验证结果", value: "evidence_reviewed" },
     { label: "已核对发布目标与影响范围", value: "target_and_scope_reviewed" },
   ],
@@ -62,7 +61,10 @@ const decisionReasons: Record<ApprovalAction, readonly { label: string; value: s
   request_changes: [
     { label: "需要修订受审内容", value: "content_changes_required" },
     { label: "需要补充验证证据", value: "evidence_changes_required" },
-    { label: "需要修正发布目标或影响范围", value: "target_or_scope_changes_required" },
+    {
+      label: "需要修正发布目标或影响范围",
+      value: "target_or_scope_changes_required",
+    },
   ],
 };
 
@@ -86,6 +88,11 @@ const subjectKindLabels: Record<ApprovalViewData["approval"]["subject_kind"], st
   patch: "内容补丁",
   rollback_request: "回滚请求",
 };
+
+function principalLabel(principalId: string, principalKind: string): string {
+  const readable = principalId.replace(/^[^:]+:/u, "");
+  return `${principalKind === "human" ? "人员" : "系统"} · ${readable}`;
+}
 
 function normalizedError(error: unknown, fallback: string): Error {
   return error instanceof Error ? error : new Error(fallback);
@@ -112,27 +119,41 @@ const queueColumns: readonly CursorTableColumn<ApprovalViewData>[] = [
     header: "审批",
     id: "approval",
     render: (view) => (
-      <div className="gf-approvals__table-primary">
-        <CopyableText copyLabel="复制审批 ID" scrollable value={view.approval.approval_id} />
-        <a href={`/approvals/${encodeURIComponent(view.approval.approval_id)}`}>打开审批详情</a>
-        <span>
-          {subjectKindLabels[view.approval.subject_kind]} · 受审版本 {view.approval.subject_revision}
-        </span>
-      </div>
+      <ResourceIdentity
+        actionLabel="查看并处理"
+        description={`${approvalStatusLabels[view.approval.status]} · ${view.requirement_progress.length} 项审批职责`}
+        details={[
+          {
+            copyLabel: "复制审批标识",
+            label: "审批标识",
+            value: view.approval.approval_id,
+          },
+          {
+            copyLabel: "复制受审内容标识",
+            label: "受审内容标识",
+            value: view.approval.subject_artifact_id,
+          },
+          { label: "流程版本", value: String(view.approval.workflow_revision) },
+        ]}
+        href={`/approvals/${encodeURIComponent(view.approval.approval_id)}`}
+        title={`${subjectKindLabels[view.approval.subject_kind]} · 第 ${view.approval.subject_revision} 版`}
+      />
     ),
   },
   {
     header: "提议者",
     id: "proposer",
     render: (view) => (
-      <div className="gf-approvals__table-primary">
-        <CopyableText
-          copyLabel="复制 proposer principal ID"
-          scrollable
-          value={view.approval.proposer.principal_id}
-        />
-        <span>{view.approval.proposer.principal_kind}</span>
-      </div>
+      <ResourceIdentity
+        details={[
+          {
+            copyLabel: "复制人员标识",
+            label: "人员标识",
+            value: view.approval.proposer.principal_id,
+          },
+        ]}
+        title={principalLabel(view.approval.proposer.principal_id, view.approval.proposer.principal_kind)}
+      />
     ),
   },
   {
@@ -141,9 +162,9 @@ const queueColumns: readonly CursorTableColumn<ApprovalViewData>[] = [
     render: (view) => (
       <span className="gf-approvals__domain-list">
         {view.approval.domain_scope.domain_ids.map((domainId) => (
-          <code className="gf-approvals__bounded-id" key={domainId} tabIndex={0}>
-            {domainId}
-          </code>
+          <span className="gf-approvals__bounded-id" key={domainId}>
+            {domainLabel(domainId)}
+          </span>
         ))}
       </span>
     ),
@@ -153,7 +174,7 @@ const queueColumns: readonly CursorTableColumn<ApprovalViewData>[] = [
     id: "workflow",
     render: (view) => (
       <span className="gf-approvals__nowrap" tabIndex={0}>
-        {approvalStatusLabels[view.approval.status]} · 流程版本 {view.approval.workflow_revision}
+        {approvalStatusLabels[view.approval.status]}
       </span>
     ),
   },
@@ -198,10 +219,7 @@ function ApprovalsHero() {
       <div>
         <p className="gf-approvals__kicker">制作与审查</p>
         <h1>审批队列</h1>
-        <p>
-          这里只展示服务端按当前身份投影的 <code>assignee=me</code>{" "}
-          队列；权限、有效票与职责分离仍由平台守卫决定。
-        </p>
+        <p>这里只展示当前登录身份可以处理的事项；系统会自动检查权限与职责分离。</p>
       </div>
       <div aria-hidden="true" className="gf-approvals__hero-mark">
         <Gavel size={25} />
@@ -304,20 +322,14 @@ export function ApprovalsPage({ api = approvalsApi }: { api?: ApprovalsApi }) {
         onLoadMore={(cursor) => void readPage(cursor, false)}
         onRestart={() => void readPage(null, true)}
         paginationState={queuePaginationState(queue)}
-        toolbar={<span className="u-small">读取快照 · {queue.readSnapshotId}</span>}
+        toolbar={
+          <TechnicalDetails
+            items={[{ label: "队列读取快照", value: queue.readSnapshotId }]}
+            summary="队列技术信息"
+          />
+        }
       />
     </article>
-  );
-}
-
-function PolicyValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>
-        <CopyableText copyLabel={`复制 ${label}`} scrollable value={value} />
-      </dd>
-    </div>
   );
 }
 
@@ -346,13 +358,13 @@ function EligibilityCell({
 function domainLabel(domainId: string): string {
   return (
     {
-      builtin: "内置规则域",
+      builtin: "内置内容",
       "domain:combat": "战斗系统",
       "domain:economy": "经济系统",
       "domain:narrative": "叙事内容",
       "domain:quest": "任务系统",
       "domain:rewards": "奖励系统",
-    }[domainId] ?? domainId
+    }[domainId] ?? domainId.replace(/^domain:/u, "")
   );
 }
 
@@ -363,6 +375,14 @@ function frozenPermissionLabel(
   const action = permission.action === "approve" ? "批准" : permission.action;
   const resource = permission.resource_kind === "constraint_proposal" ? "约束提案" : permission.resource_kind;
   return `${action}${resource}`;
+}
+
+function requirementBusinessLabel(view: ApprovalViewData, requirementId: string): string {
+  const requirement = view.approval.requirements.find((item) => item.requirement_id === requirementId);
+  if (!requirement) return "另一项审批职责";
+  const role = messages.roles[requirement.route_role] ?? requirement.route_role;
+  const domains = requirement.domain_scope.domain_ids.map(domainLabel);
+  return `${role} · ${domains.join("、")}`;
 }
 
 function RequirementTable({
@@ -432,9 +452,9 @@ function RequirementTable({
                     <span>
                       指定审批人
                       {requirement.assignee_principal_ids.map((principalId) => (
-                        <code className="gf-approvals__bounded-id" key={principalId} tabIndex={0}>
-                          {principalId}
-                        </code>
+                        <span className="gf-approvals__bounded-id" key={principalId}>
+                          {principalLabel(principalId, "human")}
+                        </span>
                       ))}
                     </span>
                   )}
@@ -447,11 +467,21 @@ function RequirementTable({
                 </td>
                 <td>
                   {progress.unmet_distinct_from_requirement_ids.length > 0 ? (
-                    progress.unmet_distinct_from_requirement_ids.map((requirementId) => (
-                      <code className="gf-approvals__bounded-id" key={requirementId} tabIndex={0}>
-                        {requirementId}
-                      </code>
-                    ))
+                    <>
+                      {progress.unmet_distinct_from_requirement_ids.map((requirementId) => (
+                        <span className="gf-approvals__bounded-id" key={requirementId}>
+                          {requirementBusinessLabel(view, requirementId)}
+                        </span>
+                      ))}
+                      <details>
+                        <summary>查看职责技术标识</summary>
+                        {progress.unmet_distinct_from_requirement_ids.map((requirementId) => (
+                          <code className="gf-approvals__bounded-id" key={requirementId} tabIndex={0}>
+                            {requirementId}
+                          </code>
+                        ))}
+                      </details>
+                    </>
                   ) : (
                     <span>无职责隔离缺口</span>
                   )}
@@ -480,8 +510,8 @@ function DecisionLedger({ view }: { view: ApprovalViewData }) {
       <header className="gf-approvals__section-heading">
         <LockKeyhole aria-hidden="true" size={20} />
         <div>
-          <h2>不可变决定记录</h2>
-          <p>每条决定都绑定当时的流程版本；当前有效票数由服务端重新投影。</p>
+          <h2>审批记录（不可更改）</h2>
+          <p>每次决定都会按当时状态永久保存；上方进度由系统自动更新。</p>
         </div>
       </header>
       {view.approval.decisions.length === 0 ? (
@@ -492,42 +522,48 @@ function DecisionLedger({ view }: { view: ApprovalViewData }) {
             <li key={decision.decision_id}>
               <header>
                 <span className="u-status u-status--info">{actionLabels[decision.decision]}</span>
-                <time dateTime={decision.occurred_at}>{decision.occurred_at}</time>
+                <time dateTime={decision.occurred_at}>{compactDateTime(decision.occurred_at)}</time>
               </header>
-              <CopyableText copyLabel="复制决定 ID" scrollable value={decision.decision_id} />
               <dl>
                 <div>
                   <dt>决定人</dt>
-                  <dd>
-                    <code className="gf-approvals__bounded-id" tabIndex={0}>
-                      {decision.actor.principal_id}
-                    </code>
-                    {decision.actor.principal_kind}
-                  </dd>
+                  <dd>{principalLabel(decision.actor.principal_id, decision.actor.principal_kind)}</dd>
                 </div>
                 <div>
-                  <dt>提交时流程版本</dt>
-                  <dd>{decision.expected_workflow_revision}</dd>
-                </div>
-                <div>
-                  <dt>原因代码</dt>
+                  <dt>决定原因</dt>
                   <dd>
-                    <code className="gf-approvals__bounded-id" tabIndex={0}>
-                      {decision.reason_code}
-                    </code>
+                    {decisionReasons[decision.decision].find(
+                      (reason) => reason.value === decision.reason_code,
+                    )?.label ?? "其他已记录原因"}
                   </dd>
                 </div>
                 <div>
                   <dt>审批职责</dt>
                   <dd>
                     {decision.requirement_ids.map((id) => (
-                      <code className="gf-approvals__bounded-id" key={id} tabIndex={0}>
-                        {id}
-                      </code>
+                      <span className="gf-approvals__bounded-id" key={id}>
+                        {requirementBusinessLabel(view, id)}
+                      </span>
                     ))}
                   </dd>
                 </div>
               </dl>
+              <TechnicalDetails
+                items={[
+                  { label: "决定 ID", value: decision.decision_id },
+                  { label: "决定人 ID", value: decision.actor.principal_id },
+                  {
+                    label: "提交时流程版本",
+                    value: String(decision.expected_workflow_revision),
+                  },
+                  { label: "原因代码", value: decision.reason_code },
+                  {
+                    label: "审批职责 ID",
+                    value: decision.requirement_ids.join(", "),
+                  },
+                ]}
+                summary="查看决定技术信息"
+              />
               {decision.comment && <p>{decision.comment}</p>}
             </li>
           ))}
@@ -709,20 +745,37 @@ export function ApprovalDetailPage({
     <article className="gf-approvals gf-page">
       <header className="gf-approvals__hero gf-approvals__hero--detail">
         <div>
-          <p className="gf-approvals__kicker">精确人工授权</p>
+          <p className="gf-approvals__kicker">人工审批</p>
           <h1>审批详情</h1>
-          <div className="gf-approvals__hero-id">
-            <CopyableText copyLabel="复制审批 ID" scrollable value={view.approval.approval_id} />
-          </div>
           <p>
-            {approvalStatusLabels[view.approval.status]} · 流程版本 {view.approval.workflow_revision}
+            {subjectKindLabels[view.approval.subject_kind]} · 第 {view.approval.subject_revision} 版 ·{" "}
+            {approvalStatusLabels[view.approval.status]}
           </p>
         </div>
         <div aria-hidden="true" className="gf-approvals__hero-mark">
           <ShieldCheck size={25} />
-          <span>版本 {view.approval.workflow_revision}</span>
+          <span>{approvalStatusLabels[view.approval.status]}</span>
         </div>
       </header>
+
+      <TechnicalDetails
+        items={[
+          { label: "审批 ID", value: view.approval.approval_id },
+          { label: "流程版本", value: String(view.approval.workflow_revision) },
+          { label: "并发版本 ETag", value: current.etag },
+          { label: "提议者 ID", value: view.approval.proposer.principal_id },
+          {
+            label: "受审 Artifact ID",
+            value: view.approval.subject_artifact_id,
+          },
+          { label: "受审内容摘要", value: view.approval.subject_digest },
+          {
+            label: "内容域 ID",
+            value: view.approval.domain_scope.domain_ids.join(", "),
+          },
+        ]}
+        summary="查看审批技术信息"
+      />
 
       <section aria-label="审批权威" className="gf-approvals__section">
         <header className="gf-approvals__section-heading">
@@ -736,10 +789,7 @@ export function ApprovalDetailPage({
           <div>
             <dt>提议者</dt>
             <dd>
-              <code className="gf-approvals__bounded-id" tabIndex={0}>
-                {view.approval.proposer.principal_id}
-              </code>
-              {view.approval.proposer.principal_kind}
+              {principalLabel(view.approval.proposer.principal_id, view.approval.proposer.principal_kind)}
             </dd>
           </div>
           <div>
@@ -750,37 +800,13 @@ export function ApprovalDetailPage({
             <a href={approvalSubjectHref(view.approval)}>打开受审对象</a>
           </div>
           <div>
-            <dt>受审工件</dt>
-            <dd>
-              <CopyableText
-                copyLabel="复制受审工件 ID"
-                scrollable
-                value={view.approval.subject_artifact_id}
-              />
-            </dd>
-          </div>
-          <div>
-            <dt>受审内容摘要</dt>
-            <dd>
-              <CopyableText copyLabel="复制受审内容摘要" scrollable value={view.approval.subject_digest} />
-            </dd>
-          </div>
-          <div>
             <dt>内容域</dt>
             <dd className="gf-approvals__domain-list">
               {view.approval.domain_scope.domain_ids.map((domainId) => (
-                <code className="gf-approvals__bounded-id" key={domainId} tabIndex={0}>
-                  {domainId}
-                </code>
+                <span className="gf-approvals__bounded-id" key={domainId}>
+                  {domainLabel(domainId)}
+                </span>
               ))}
-            </dd>
-          </div>
-          <div>
-            <dt>当前并发版本</dt>
-            <dd>
-              <code className="gf-approvals__bounded-id" tabIndex={0}>
-                {current.etag}
-              </code>
             </dd>
           </div>
         </dl>
@@ -788,7 +814,7 @@ export function ApprovalDetailPage({
 
       {subjectReview.isPending ? (
         <StatePanel
-          description="正在读取 exact 受审内容、冻结目标与 EvidenceSet。"
+          description="正在读取受审内容、发布目标和确定性验证证据。"
           state="loading"
           title="正在准备审批材料"
         />
@@ -802,15 +828,15 @@ export function ApprovalDetailPage({
         <header className="gf-approvals__section-heading">
           <Route aria-hidden="true" size={20} />
           <div>
-            <h2>冻结策略闭包</h2>
-            <p>页面展示审批记录冻结的版本与摘要，不读取或猜测当前别名。</p>
+            <h2>本次审批所用规则</h2>
+            <p>这些规则在审批创建时已经固定，后续规则更新不会悄悄改变本次审批。</p>
           </div>
         </header>
-        <dl className="gf-approvals__policy-grid">
-          {frozenPolicyRows.map(([label, value]) => (
-            <PolicyValue key={label} label={label} value={value} />
-          ))}
-        </dl>
+        <p>审批、角色、路由和内容域规则已随本次审批锁定，共 4 类。</p>
+        <TechnicalDetails
+          items={frozenPolicyRows.map(([label, value]) => ({ label, value }))}
+          summary="查看审批规则技术信息"
+        />
       </section>
 
       <section className="gf-approvals__section">
@@ -818,7 +844,7 @@ export function ApprovalDetailPage({
           <ClipboardCheck aria-hidden="true" size={20} />
           <div>
             <h2>逐项审批进度</h2>
-            <p>票数、职责隔离缺口与三种动作资格全部使用当前服务端投影。</p>
+            <p>系统会实时计算有效票数、职责隔离要求和当前可用操作。</p>
           </div>
         </header>
         {needsExplicitReconfirmation && (
@@ -839,7 +865,7 @@ export function ApprovalDetailPage({
           <Gavel aria-hidden="true" size={20} />
           <div>
             <h2>提交审批决定</h2>
-            <p>只提交勾选的审批职责；流程版本、并发版本与幂等键均绑定本次读取和单次用户意图。</p>
+            <p>只会提交你勾选的审批职责；并发保护由系统自动处理。</p>
           </div>
         </header>
         <form
@@ -906,9 +932,9 @@ export function ApprovalDetailPage({
           <div className="gf-approvals__selection-summary" role="status">
             <strong>已选择 {selected.length} 项审批职责</strong>
             {selected.map((requirementId) => (
-              <code className="gf-approvals__bounded-id" key={requirementId} tabIndex={0}>
-                {requirementId}
-              </code>
+              <span className="gf-approvals__bounded-id" key={requirementId}>
+                {requirementBusinessLabel(view, requirementId)}
+              </span>
             ))}
             {selectedEligibilityChanged && (
               <span>服务端资格已变化；保留输入，但当前不能提交。可取消勾选后重新选择。</span>
@@ -944,7 +970,7 @@ export function ApprovalDetailPage({
 
       <ConfirmDialog
         confirmLabel={`确认${actionLabels[action]}`}
-        description={`你将对 ${confirmationSubject} 作出${actionLabels[action]}决定；确定性证据集已通过，目标为 ${confirmationTarget}。将以流程版本 ${view.approval.workflow_revision} 对 ${selected.length} 项已选审批职责追加不可变记录。`}
+        description={`你将对 ${confirmationSubject} 作出${actionLabels[action]}决定；确定性验证已通过，目标为 ${confirmationTarget}。本次决定涉及 ${selected.length} 项审批职责，提交后会永久保存。`}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={() => {
           setConfirmOpen(false);

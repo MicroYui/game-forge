@@ -27,7 +27,10 @@ function approvalView(): ApprovalViewData {
   return {
     approval: {
       approval_id: "approval:multi-domain:7",
-      approval_policy: { policy_digest: "a".repeat(64), policy_version: "approval-policy@1" },
+      approval_policy: {
+        policy_digest: "a".repeat(64),
+        policy_version: "approval-policy@1",
+      },
       approval_schema_version: "approval@1",
       created_at: "2026-07-20T02:00:00Z",
       decisions: [
@@ -42,7 +45,10 @@ function approvalView(): ApprovalViewData {
           requirement_ids: ["requirement:economy"],
         },
       ],
-      domain_registry_ref: { registry_digest: "b".repeat(64), registry_version: "domains@7" },
+      domain_registry_ref: {
+        registry_digest: "b".repeat(64),
+        registry_version: "domains@7",
+      },
       domain_scope: { domain_ids: ["domain:economy", "domain:narrative"] },
       evidence_set_artifact_id: "artifact:evidence:7",
       last_validation_failure_artifact_id: null,
@@ -79,7 +85,10 @@ function approvalView(): ApprovalViewData {
       role_policy_digest: "c".repeat(64),
       role_policy_version: "roles@9",
       route_policy: {
-        domain_registry_ref: { registry_digest: "b".repeat(64), registry_version: "domains@7" },
+        domain_registry_ref: {
+          registry_digest: "b".repeat(64),
+          registry_version: "domains@7",
+        },
         route_digest: "d".repeat(64),
         route_version: "routes@4",
       },
@@ -244,8 +253,16 @@ function patchTargetSubject(view = approvalView()): ApprovalArtifactPayload {
     },
     payload: {
       entities: {
-        "npc:lincheng": { attrs: { name: "林澈" }, schema_version: "ir-core@1", type: "NPC" },
-        "npc:linyi": { attrs: { name: "林逸" }, schema_version: "ir-core@1", type: "NPC" },
+        "npc:lincheng": {
+          attrs: { name: "林澈" },
+          schema_version: "ir-core@1",
+          type: "NPC",
+        },
+        "npc:linyi": {
+          attrs: { name: "林逸" },
+          schema_version: "ir-core@1",
+          type: "NPC",
+        },
       },
       meta_schema_version: "meta@1",
       relations: {},
@@ -359,7 +376,10 @@ function rollbackSubject(view = rollbackApprovalView()): ApprovalRollbackRequest
       payload_hash: view.approval.subject_digest,
       payload_schema_id: "rollback-request@1",
       summary_schema_version: "artifact-summary@1",
-      version_tuple: { ir_snapshot_id: target.target_snapshot_id, tool_version: "rollback@1" },
+      version_tuple: {
+        ir_snapshot_id: target.target_snapshot_id,
+        tool_version: "rollback@1",
+      },
     },
     request: {
       expected_current_ref: target.expected_ref,
@@ -552,14 +572,16 @@ describe("ApprovalsPage", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "审批队列" })).toBeVisible();
     expect(approvalsApi.listMine).toHaveBeenCalledWith(null);
     const table = await screen.findByRole("table", { name: "待我审批" });
-    const row = within(table).getByRole("row", { name: /approval:multi-domain:7/ });
-    expect(row).toHaveTextContent("human:alice");
-    expect(row).toHaveTextContent("domain:economy");
-    expect(row).toHaveTextContent("domain:narrative");
-    expect(row).toHaveTextContent("待审批 · 流程版本 12");
+    const row = within(table).getByRole("row", { name: /内容补丁 · 第 3 版/ });
+    expect(row).toHaveTextContent("人员 · alice");
+    expect(row).toHaveTextContent("经济系统");
+    expect(row).toHaveTextContent("叙事内容");
+    expect(within(row).getByText("approval:multi-domain:7")).not.toBeVisible();
+    expect(row).toHaveTextContent("待审批");
+    expect(within(row).getByText("12")).not.toBeVisible();
     expect(row).toHaveTextContent("0 / 2 项职责已满足");
     expect(row).toHaveTextContent("批准 1 · 驳回 2 · 请修改 2");
-    expect(within(row).getByRole("link", { name: "打开审批详情" })).toHaveAttribute(
+    expect(within(row).getByRole("link", { name: "查看并处理" })).toHaveAttribute(
       "href",
       "/approvals/approval%3Amulti-domain%3A7",
     );
@@ -598,7 +620,7 @@ describe("ApprovalsPage", () => {
     await user.click(screen.getByRole("button", { name: "加载下一页" }));
 
     expect(await screen.findByText("分页游标已过期；现有行仅代表过期前已读取的快照。")).toBeVisible();
-    expect(within(table).getByText("approval:multi-domain:7")).toBeVisible();
+    expect(within(table).getByText("approval:multi-domain:7")).not.toBeVisible();
     expect(listMine).toHaveBeenNthCalledWith(1, null);
     expect(listMine).toHaveBeenNthCalledWith(2, staleCursor);
 
@@ -614,12 +636,18 @@ describe("ApprovalsPage", () => {
     renderPage(<ApprovalsPage api={api({ listMine: vi.fn(async () => page([longView])) })} />);
 
     const approvalId = await screen.findByText(longApprovalId);
+    expect(approvalId).not.toBeVisible();
+    await userEvent.setup().click(approvalId.closest("details")!.querySelector("summary")!);
+    expect(approvalId).toBeVisible();
     expect(approvalId).toHaveClass("gf-copyable__value--scrollable");
     expect(approvalId).toHaveAttribute("tabindex", "0");
 
     const row = approvalId.closest("tr");
     expect(row).not.toBeNull();
-    for (const value of ["待审批 · 流程版本 12", "0 / 2 项职责已满足", "批准 1 · 驳回 2 · 请修改 2"]) {
+    const workflowStatus = within(row!).getByText("待审批", { exact: true });
+    expect(workflowStatus).toHaveClass("gf-approvals__nowrap");
+    expect(workflowStatus).toHaveAttribute("tabindex", "0");
+    for (const value of ["0 / 2 项职责已满足", "批准 1 · 驳回 2 · 请修改 2"]) {
       expect(within(row!).getByText(value)).toHaveClass("gf-approvals__nowrap");
       expect(within(row!).getByText(value)).toHaveAttribute("tabindex", "0");
     }
@@ -632,37 +660,46 @@ describe("ApprovalDetailPage", () => {
 
     expect(await screen.findByRole("heading", { level: 1, name: "审批详情" })).toBeVisible();
     const authority = screen.getByRole("region", { name: "审批权威" });
-    expect(authority).toHaveTextContent("human:alice");
-    expect(authority).toHaveTextContent("artifact:patch:7");
+    expect(authority).toHaveTextContent("人员 · alice");
+    expect(authority).toHaveTextContent("内容补丁 · 版本 3");
     expect(within(authority).getByRole("link", { name: "打开受审对象" })).toHaveAttribute(
       "href",
       "/patches/artifact%3Apatch%3A7",
     );
-    expect(authority).toHaveTextContent("domain:economy");
-    expect(authority).toHaveTextContent("domain:narrative");
+    expect(authority).toHaveTextContent("经济系统");
+    expect(authority).toHaveTextContent("叙事内容");
+    for (const technicalValue of ["human:alice", "artifact:patch:7", "domain:economy, domain:narrative"]) {
+      expect(screen.getByText(technicalValue)).not.toBeVisible();
+    }
 
-    const subjectReview = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const subjectReview = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(subjectReview).toHaveTextContent("你正在批准什么");
     expect(subjectReview).toHaveTextContent("把支线任务奖励金币上限修正为 80。");
+    expect(subjectReview).toHaveTextContent("1 项变更 · 影响风险：低 · 人工草案");
+    expect(subjectReview).toHaveTextContent("已绑定 1 个需要关闭的问题。");
+    expect(screen.getByText("金币奖励上限不一致")).not.toBeVisible();
     expect(subjectReview).toHaveTextContent("未命名对象的金币奖励：120 → 80");
-    expect(subjectReview).toHaveTextContent("quest:side-01.reward_gold");
+    expect(screen.getByText("quest:side-01.reward_gold")).not.toBeVisible();
     expect(subjectReview).toHaveTextContent("修改前");
     expect(subjectReview).toHaveTextContent("120");
     expect(subjectReview).toHaveTextContent("修改后");
     expect(subjectReview).toHaveTextContent("80");
     expect(within(subjectReview).getByRole("region", { name: "审批影响目标" })).toHaveTextContent(
-      "refs/design/live",
+      "当前正式内容",
     );
+    expect(screen.getByText("refs/design/live")).not.toBeVisible();
     expect(subjectReview).toHaveTextContent("确定性验证已通过");
     expect(subjectReview).toHaveTextContent("确定性检查");
-    expect(subjectReview).toHaveTextContent("checker@1");
+    expect(screen.getByText("checker@1")).not.toBeVisible();
 
     const policies = screen.getByRole("region", { name: "冻结策略" });
     expect(policies).toHaveTextContent("approval-policy@1");
     expect(policies).toHaveTextContent("roles@9");
     expect(policies).toHaveTextContent("routes@4");
     expect(policies).toHaveTextContent("domains@7");
-    expect(policies).toHaveTextContent("a".repeat(64));
+    expect(screen.getByText("a".repeat(64))).not.toBeVisible();
 
     const requirements = screen.getByRole("table", { name: "审批职责进度" });
     const economy = within(requirements)
@@ -671,20 +708,23 @@ describe("ApprovalDetailPage", () => {
     expect(economy).not.toBeNull();
     expect(economy).toHaveTextContent("数值策划");
     expect(economy).toHaveTextContent("1 / 2");
-    expect(economy).toHaveTextContent("requirement:narrative");
+    expect(economy).toHaveTextContent("内容策划 · 叙事内容");
+    expect(within(economy!).getByText("requirement:narrative")).not.toBeVisible();
     expect(economy).toHaveTextContent("批准可用");
     const narrative = within(requirements)
       .getByRole("checkbox", { name: "选择 内容策划 · 叙事内容" })
       .closest("tr");
     expect(narrative).not.toBeNull();
-    expect(narrative).toHaveTextContent("当前身份已覆盖与此 requirement 互斥的职责");
+    expect(narrative).toHaveTextContent("当前身份已经承担了必须由另一人完成的审批职责");
     expect(narrative).toHaveTextContent("驳回可用");
     expect(narrative).toHaveTextContent("请修改可用");
 
     const decisions = screen.getByRole("region", { name: "不可变决定记录" });
-    expect(decisions).toHaveTextContent("decision:immutable:1");
-    expect(decisions).toHaveTextContent("human:charlie");
-    expect(decisions).toHaveTextContent("evidence_reviewed");
+    expect(decisions).toHaveTextContent("人员 · charlie");
+    expect(decisions).toHaveTextContent("已核对确定性验证结果");
+    for (const technicalValue of ["decision:immutable:1", "human:charlie", "evidence_reviewed"]) {
+      expect(within(decisions).getByText(technicalValue)).not.toBeVisible();
+    }
     expect(decisions).toHaveTextContent("经济回归证据已复核。");
   });
 
@@ -716,7 +756,9 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(review).toHaveTextContent("新增 NPC「林逸」");
     expect(review).toHaveTextContent("好友：林逸 → 林澈");
     expect(within(review).getAllByText("查看原始字段")).toHaveLength(2);
@@ -781,8 +823,12 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
-    const operations = within(review).getByRole("list", { name: "Patch 变更内容" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
+    const operations = within(review).getByRole("list", {
+      name: "Patch 变更内容",
+    });
     expect(operations).toHaveTextContent("收集徽章步骤的数量：3 → 4");
     expect(operations).toHaveTextContent("收集徽章步骤 位于 青石村的距离：3 → 4");
     const primarySummaries = within(operations)
@@ -801,7 +847,11 @@ describe("ApprovalDetailPage", () => {
       {
         new_value: {
           entities: [
-            { attrs: { name: "收集徽章任务", reward_gold: 80 }, id: "quest:emblem", type: "QUEST" },
+            {
+              attrs: { name: "收集徽章任务", reward_gold: 80 },
+              id: "quest:emblem",
+              type: "QUEST",
+            },
             { attrs: { name: "林逸" }, id: "npc:linyi", type: "NPC" },
           ],
           relations: [
@@ -849,7 +899,10 @@ describe("ApprovalDetailPage", () => {
       entities: {
         "location:qingstone": { attrs: { name: "青石村" }, type: "LOCATION" },
         "npc:linyi": { attrs: { name: "林逸" }, type: "NPC" },
-        "quest:emblem": { attrs: { name: "收集徽章任务", reward_gold: 80 }, type: "QUEST" },
+        "quest:emblem": {
+          attrs: { name: "收集徽章任务", reward_gold: 80 },
+          type: "QUEST",
+        },
       },
       meta_schema_version: "meta@1",
       relations: {
@@ -883,8 +936,12 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
-    const operations = within(review).getByRole("list", { name: "Patch 变更内容" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
+    const operations = within(review).getByRole("list", {
+      name: "Patch 变更内容",
+    });
     expect(operations).toHaveTextContent("受影响对象");
     expect(operations).toHaveTextContent("QUEST「收集徽章任务」");
     expect(operations).toHaveTextContent("NPC「林逸」");
@@ -952,7 +1009,9 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(within(review).queryByRole("alert")).not.toBeInTheDocument();
     expect(within(review).getByRole("list", { name: "Patch 变更内容" })).toHaveTextContent(
       "实体：新增 0 · 删除 0 · 替换 1",
@@ -977,7 +1036,9 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(within(review).getByRole("alert")).toHaveTextContent("无法安全读取完整受审内容");
     expect(screen.getByRole("button", { name: "提交批准" })).toBeDisabled();
   });
@@ -1038,7 +1099,9 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(review).toHaveTextContent("支线任务奖励金币不得超过 80。");
     expect(review).toHaveTextContent("reward_gold ≤ 80");
     expect(review).toHaveTextContent("QUEST · 变量 q");
@@ -1053,7 +1116,9 @@ describe("ApprovalDetailPage", () => {
     const approvalsApi = rollbackApi(view);
     renderPage(<ApprovalDetailPage api={approvalsApi} approvalId="approval:multi-domain:7" />);
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(review).toHaveTextContent("恢复经过验证的商队任务基线。");
     const changes = within(review).getByRole("list", { name: "回滚内容差异" });
     expect(changes).toHaveTextContent("回退后恢复");
@@ -1109,7 +1174,9 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(within(review).getByRole("alert")).toHaveTextContent("无法安全读取完整受审内容");
     await user.click(screen.getByRole("checkbox", { name: "选择 数值策划 · 经济系统" }));
     await user.selectOptions(screen.getByLabelText("决定原因"), "evidence_reviewed");
@@ -1157,7 +1224,7 @@ describe("ApprovalDetailPage", () => {
       expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
     expect(await screen.findByText("部分批准已记录；其他审批职责仍待处理。")).toBeVisible();
-    expect(screen.getByText("待审批 · 流程版本 13")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "审批详情" }).closest("header")).toHaveTextContent("待审批");
     expect(
       screen.getByRole("checkbox", { name: "选择 数值策划 · 经济系统" }).closest("tr"),
     ).toHaveTextContent("2 / 2");
@@ -1231,7 +1298,8 @@ describe("ApprovalDetailPage", () => {
     await user.click(screen.getByRole("button", { name: "提交批准" }));
     await user.click(screen.getByRole("button", { name: "确认批准" }));
 
-    expect(await screen.findByText("revision_conflict")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "内容已被更新" })).toBeVisible();
+    expect(screen.getByText("revision_conflict")).not.toBeVisible();
     expect(getApproval).toHaveBeenCalledOnce();
     expect(decide).toHaveBeenCalledOnce();
     expect(screen.getByRole("checkbox", { name: "选择 数值策划 · 经济系统" })).toBeChecked();
@@ -1251,8 +1319,16 @@ describe("ApprovalDetailPage", () => {
     refreshed.requirement_progress[0] = {
       ...refreshed.requirement_progress[0]!,
       decision_eligibility: [
-        { decision: "approve", eligible: false, reason_codes: ["route_role_missing"] },
-        { decision: "reject", eligible: false, reason_codes: ["route_role_missing"] },
+        {
+          decision: "approve",
+          eligible: false,
+          reason_codes: ["route_role_missing"],
+        },
+        {
+          decision: "reject",
+          eligible: false,
+          reason_codes: ["route_role_missing"],
+        },
         {
           decision: "request_changes",
           eligible: false,
@@ -1279,7 +1355,8 @@ describe("ApprovalDetailPage", () => {
     await user.click(screen.getByRole("button", { name: "提交批准" }));
     await user.click(screen.getByRole("button", { name: "确认批准" }));
 
-    expect(await screen.findByText("forbidden")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "没有操作权限" })).toBeVisible();
+    expect(screen.getByText("forbidden")).not.toBeVisible();
     await waitFor(() => expect(getApproval).toHaveBeenCalledTimes(2));
     expect(decide).toHaveBeenCalledOnce();
     expect(screen.getByRole("checkbox", { name: "选择 数值策划 · 经济系统" })).toBeChecked();
@@ -1298,7 +1375,11 @@ describe("ApprovalDetailPage", () => {
     blocked.requirement_progress = blocked.requirement_progress.map((progress) => ({
       ...progress,
       decision_eligibility: (["approve", "reject", "request_changes"] as ApprovalAction[]).map(
-        (decision) => ({ decision, eligible: false, reason_codes: ["maker_checker_conflict"] }),
+        (decision) => ({
+          decision,
+          eligible: false,
+          reason_codes: ["maker_checker_conflict"],
+        }),
       ),
       eligible_for_current_actor: false,
     }));
@@ -1309,7 +1390,7 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    expect(await screen.findAllByText("maker-checker：提议者不能决定自己的提议")).toHaveLength(6);
+    expect(await screen.findAllByText("职责隔离：提议者不能审批自己的提议")).toHaveLength(6);
     expect(screen.getByRole("button", { name: "提交批准" })).toBeDisabled();
   });
 
@@ -1324,7 +1405,9 @@ describe("ApprovalDetailPage", () => {
       />,
     );
 
-    const review = await screen.findByRole("region", { name: "受审内容与验证依据" });
+    const review = await screen.findByRole("region", {
+      name: "受审内容与验证依据",
+    });
     expect(within(review).getByRole("alert")).toHaveTextContent("无法安全读取完整受审内容");
     await user.click(screen.getByRole("checkbox", { name: "选择 数值策划 · 经济系统" }));
     await user.selectOptions(screen.getByLabelText("决定原因"), "__custom__");

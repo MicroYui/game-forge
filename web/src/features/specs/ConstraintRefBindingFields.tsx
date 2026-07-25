@@ -1,5 +1,5 @@
 import { GitBranch, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ApiProblemError } from "../../api/problem";
 import { CopyableText } from "../../components/tables";
@@ -60,6 +60,14 @@ export function ConstraintRefBindingFields({
   const [advancedArtifactId, setAdvancedArtifactId] = useState("");
   const [advancedRevision, setAdvancedRevision] = useState("");
 
+  useEffect(() => {
+    if (value === null) return;
+    setMode(value.expectedRef ? "existing" : "new");
+    setRefName(value.refName);
+    setAdvancedArtifactId(value.expectedRef?.artifact_id ?? "");
+    setAdvancedRevision(value.expectedRef ? String(value.expectedRef.revision) : "");
+  }, [value]);
+
   function selectMode(next: "existing" | "new") {
     setMode(next);
     setError(null);
@@ -84,8 +92,8 @@ export function ConstraintRefBindingFields({
     } catch (caught) {
       setError(
         caught instanceof ApiProblemError && caught.problem.status === 404
-          ? "没有找到这个 ref；如果要创建它，请选择“创建新 ref”。"
-          : "无法读取完整 ref 历史；未选择任何版本。",
+          ? "没有找到这个发布位置；如果要新建，请选择“创建新的发布位置”。"
+          : "无法读取完整版本历史；未选择任何版本。",
       );
     } finally {
       setLoading(false);
@@ -114,7 +122,7 @@ export function ConstraintRefBindingFields({
             onChange={() => selectMode("new")}
             type="radio"
           />
-          创建新 ref
+          创建新的发布位置
         </label>
         <label>
           <input
@@ -123,12 +131,12 @@ export function ConstraintRefBindingFields({
             onChange={() => selectMode("existing")}
             type="radio"
           />
-          更新已有 ref
+          更新已有发布位置
         </label>
       </div>
       {mode !== "" && (
         <label>
-          Ref 名称
+          发布位置名称
           <input
             onChange={(event) => changeRefName(event.target.value)}
             placeholder="例如 constraints/head"
@@ -139,7 +147,7 @@ export function ConstraintRefBindingFields({
       )}
       {mode === "new" && refName.trim() && (
         <p className="gf-specs__field-hint">
-          将以“当前不存在”作为并发前提；如果同名 ref 已存在，服务器会拒绝，不会覆盖。
+          如果同名发布位置已经存在，服务器会拒绝本次操作，不会覆盖已有内容。
         </p>
       )}
       {mode === "existing" && (
@@ -150,7 +158,7 @@ export function ConstraintRefBindingFields({
           type="button"
         >
           <Search aria-hidden="true" size={16} />
-          {loading ? "正在查找当前版本" : "查找当前版本"}
+          {loading ? "正在读取当前版本" : "读取当前版本"}
         </button>
       )}
       {error && <p role="alert">{error}</p>}
@@ -159,7 +167,7 @@ export function ConstraintRefBindingFields({
           <GitBranch aria-hidden="true" size={18} />
           <div>
             <strong>{value.refName}</strong>
-            <span>已选择当前 revision {value.expectedRef.revision}</span>
+            <span>已选择当前第 {value.expectedRef.revision} 版</span>
             <details>
               <summary>查看 exact 技术身份</summary>
               <CopyableText copyLabel="复制当前 ref Artifact ID" value={value.expectedRef.artifact_id} />

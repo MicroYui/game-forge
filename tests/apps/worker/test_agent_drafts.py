@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 import gameforge.apps.worker.app as worker_app
 from gameforge.apps.worker.agent_drafts import (
     WorkerAgentDraftGovernanceRefs,
+    WorkerAgentDraftLineageVerifier,
     WorkerAgentDraftPreparedAssembler,
     WorkerAgentDraftRunGateway,
     build_agent_draft_workflow_port,
@@ -333,6 +334,32 @@ def test_port_assembles_exact_published_generation_artifacts_and_run_scope() -> 
     assert prepared.approval_item.target_binding.target_artifact_id == artifacts[1].artifact_id  # type: ignore[attr-defined,union-attr]
     assert {binding.expected_revision for binding in prepared.object_bindings} == {3}  # type: ignore[attr-defined]
     assert result.approval_item == prepared.approval_item  # type: ignore[attr-defined]
+
+
+def test_lineage_verifier_accepts_preview_with_direct_planning_material_parent() -> None:
+    request, artifacts, _ = _generation_material()
+    original_subject, original_preview = artifacts
+    patch_payload = request.payloads_by_rule["primary"][0]
+    subject, _ = _artifact(
+        kind="patch",
+        payload=patch_payload,
+        version_tuple=original_subject.version_tuple,
+        lineage=("artifact:base", "artifact:material", "artifact:goal"),
+        schema_id="patch@2",
+    )
+    preview, _ = _artifact(
+        kind="ir_snapshot",
+        payload={"snapshot": "preview"},
+        version_tuple=original_preview.version_tuple,
+        lineage=("artifact:base", "artifact:material", subject.artifact_id),
+        schema_id="ir-core@1",
+    )
+
+    WorkerAgentDraftLineageVerifier().validate_terminal_draft_publication(
+        subject_artifact=subject,
+        companion_artifacts=(preview,),
+        retained_parent_ids=("artifact:base", "artifact:goal", "artifact:material"),
+    )
 
 
 def test_terminal_producer_check_uses_bounded_run_authority() -> None:

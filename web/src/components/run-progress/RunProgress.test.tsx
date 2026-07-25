@@ -62,18 +62,21 @@ describe("RunProgress", () => {
     );
 
     expect(screen.getByRole("heading", { name: "运行进度" })).toBeVisible();
-    expect(screen.getByText("succeeded")).toBeVisible();
+    expect(screen.getByText("已完成")).toBeVisible();
     expect(screen.getByRole("progressbar")).toHaveAttribute("value", "2");
     expect(screen.getByText("已完成 2 / 4")).toBeVisible();
     expect(screen.getByRole("link", { name: "结果工件" })).toHaveAttribute(
       "href",
       "/artifacts/artifact%3Aresult",
     );
-    expect(screen.getByRole("link", { name: "追踪 trace:1" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看运行追踪" })).toHaveAttribute(
       "href",
       "/observability/traces/trace%3A1",
     );
-    expect(screen.getByText("command:1 · applied")).toBeVisible();
+    expect(screen.getByText("取消运行 · 已执行")).toBeVisible();
+    for (const element of screen.getAllByText("run:1")) expect(element).not.toBeVisible();
+    expect(screen.getByText("trace:1")).not.toBeVisible();
+    expect(screen.getByText("command:1")).not.toBeVisible();
   });
 
   it("renders progress without a guessed maximum when total units are unknown", () => {

@@ -2,7 +2,7 @@ import { FlaskConical, MessageSquareWarning, ShieldCheck } from "lucide-react";
 import { useId } from "react";
 
 import type { components } from "../../api/generated/openapi";
-import { CopyableText } from "../tables";
+import { TechnicalDetails } from "../identity";
 import "./evidence.css";
 
 type FindingRevision = components["schemas"]["FindingRevisionV1"];
@@ -16,24 +16,42 @@ export interface FindingCardAuthorityBinding {
 }
 
 const severityLabels = {
-  critical: "严重 · critical",
-  major: "主要 · major",
-  minor: "次要 · minor",
+  critical: "严重",
+  major: "重要",
+  minor: "一般",
 } as const;
 
 const oracleMeta = {
   deterministic: { icon: ShieldCheck, label: "确定性预言机" },
-  "llm-assisted": { icon: MessageSquareWarning, label: "LLM 建议（需人确认）" },
+  "llm-assisted": { icon: MessageSquareWarning, label: "AI 建议（需人工确认）" },
   simulation: { icon: FlaskConical, label: "仿真证据（描述性）" },
 } as const;
 
 const statusLabels = {
-  accepted_risk: "已接受风险 · accepted_risk",
-  confirmed: "已确认 · confirmed",
-  dismissed: "已驳回 · dismissed",
-  fixed: "已修复 · fixed",
-  unproven: "未证明 · unproven",
+  accepted_risk: "已接受风险",
+  confirmed: "已确认",
+  dismissed: "已忽略",
+  fixed: "已修复",
+  unproven: "未证明",
 } as const;
+
+const defectClassLabels: Readonly<Record<string, string>> = {
+  dead_quest: "任务无法完成",
+  economy_collapse: "经济系统可能失衡",
+  playtest_incomplete: "试玩未完成",
+  quest_dead_end: "任务流程存在死路",
+  reward_out_of_range: "数值超出允许范围",
+  unreachable_target: "目标无法到达",
+};
+
+export function findingDisplayMessage(defectClass: string, message: string): string {
+  if (/\p{Script=Han}/u.test(message)) return message;
+  const label = defectClassLabels[defectClass] ?? "内容规则问题";
+  if (/requires navigation ground truth/iu.test(message)) {
+    return `${label}：当前内容缺少导航依据，暂时无法完成判断。`;
+  }
+  return `${label}：检查器发现了需要策划确认的问题。`;
+}
 
 function isSourceRef(value: unknown): value is SourceRef {
   if (typeof value !== "object" || value === null) return false;
@@ -77,6 +95,24 @@ export function FindingCard({
   const sourceRef = readSourceRef(finding);
   const oracle = oracleMeta[finding.payload.oracle_type];
   const OracleIcon = oracle.icon;
+  const displayMessage = findingDisplayMessage(finding.payload.defect_class, finding.payload.message);
+  const technicalItems = [
+    { label: "问题 ID", value: finding.finding_id },
+    { label: "内容快照 ID", value: finding.payload.snapshot_id },
+    { label: "生成运行 ID", value: finding.payload.producer_run_id },
+    { label: "缺陷类别代码", value: finding.payload.defect_class },
+    { label: "问题数据版本", value: finding.payload.payload_schema_version },
+    { label: "修订数据版本", value: finding.revision_schema_version },
+    ...(displayMessage === finding.payload.message
+      ? []
+      : [{ label: "检查器原始说明", value: finding.payload.message }]),
+    ...(authorityBinding
+      ? [
+          { label: "问题摘要", value: authorityBinding.findingDigest },
+          { label: "证据记录 ID", value: authorityBinding.evidenceArtifactId },
+        ]
+      : []),
+  ];
 
   return (
     <article
@@ -98,82 +134,66 @@ export function FindingCard({
             {statusLabels[finding.payload.status]}
           </span>
         </div>
-        <h3 id={titleId}>{finding.payload.message}</h3>
+        <h3 id={titleId}>{displayMessage}</h3>
         {detailHref && (
           <a className="gf-finding-card__detail-link" href={detailHref}>
-            查看 exact Finding 修订
+            查看此问题的历史版本
           </a>
         )}
       </header>
 
       <dl className="gf-finding-card__facts">
         <div>
-          <dt>Finding ID</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Finding ID" value={finding.finding_id} />
-          </dd>
+          <dt>问题版本</dt>
+          <dd>第 {finding.revision} 版</dd>
         </div>
         <div>
-          <dt>修订</dt>
-          <dd>不可变修订 {finding.revision}</dd>
+          <dt>问题类型</dt>
+          <dd>{defectClassLabels[finding.payload.defect_class] ?? "其他规则问题"}</dd>
         </div>
         <div>
-          <dt>缺陷类别</dt>
-          <dd>{finding.payload.defect_class}</dd>
-        </div>
-        <div>
-          <dt>精确快照</dt>
-          <dd>
-            <CopyableText copyLabel="复制快照 ID" value={finding.payload.snapshot_id} />
-          </dd>
-        </div>
-        <div>
-          <dt>source_ref</dt>
+          <dt>来源位置</dt>
           <dd>{sourceRef ? sourceRefLabel(sourceRef) : "未提供"}</dd>
-        </div>
-        <div>
-          <dt>生产 Run</dt>
-          <dd>
-            <CopyableText copyLabel="复制生产 Run ID" value={finding.payload.producer_run_id} />
-          </dd>
         </div>
         {authorityBinding && (
           <>
             <div>
-              <dt>Run link ordinal</dt>
+              <dt>检查位置</dt>
               <dd>
-                attempt {authorityBinding.attemptNo} · ordinal {authorityBinding.ordinal}
+                第 {authorityBinding.attemptNo} 次检查 · 第 {authorityBinding.ordinal} 条结果
               </dd>
             </div>
             <div>
-              <dt>Finding digest</dt>
-              <dd>
-                <CopyableText copyLabel="复制 Finding digest" value={authorityBinding.findingDigest} />
-              </dd>
-            </div>
-            <div>
-              <dt>Evidence Artifact</dt>
+              <dt>检查证据</dt>
               <dd>
                 <a href={`/artifacts/${encodeURIComponent(authorityBinding.evidenceArtifactId)}`}>
-                  {authorityBinding.evidenceArtifactId}
+                  查看检查证据
                 </a>
               </dd>
             </div>
           </>
         )}
       </dl>
+      <TechnicalDetails items={technicalItems} summary="查看问题技术信息" />
 
       <section className="gf-finding-card__repro" aria-label="最小复现">
         <h4>最小复现</h4>
-        <pre tabIndex={0}>{jsonText(finding.payload.minimal_repro ?? {})}</pre>
+        <p>系统已保存用于重复验证此问题的输入。</p>
+        <details>
+          <summary>查看原始复现数据</summary>
+          <pre tabIndex={0}>{jsonText(finding.payload.minimal_repro ?? {})}</pre>
+        </details>
       </section>
 
       <section className="gf-finding-card__evidence" aria-label="Finding evidence payload">
         <h4>证据 payload</h4>
         {finding.payload.evidence === undefined ? (
-          <p className="gf-finding-card__empty">未提供 evidence payload</p>
+          <p className="gf-finding-card__empty">未提供检查证据数据</p>
         ) : (
-          <pre tabIndex={0}>{jsonText(finding.payload.evidence)}</pre>
+          <details>
+            <summary>查看原始证据数据</summary>
+            <pre tabIndex={0}>{jsonText(finding.payload.evidence)}</pre>
+          </details>
         )}
       </section>
     </article>

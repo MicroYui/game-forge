@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createMutationIntent, ReauthenticationRequiredError, type MutationIntent } from "../../api/csrf";
 import { ApiProblemError } from "../../api/problem";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
+import { TechnicalDetails } from "../../components/identity";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
 import type {
@@ -48,7 +49,19 @@ function profileKey(profile: ExecutionProfile): string {
 }
 
 function profileLabel(profile: ExecutionProfile): string {
-  return `${profile.display_name} · ${profileKey(profile)}`;
+  if (profile.profile.profile_id.startsWith("builtin.")) {
+    const builtInLabels: Partial<Record<ExecutionProfile["profile_kind"], string>> = {
+      checker: "默认确定性检查",
+      llm_triage: "默认 AI 问题归纳",
+      review: "默认内容检查方案",
+      simulation: "默认经济仿真",
+    };
+    const builtInLabel = builtInLabels[profile.profile_kind];
+    // Several versions of one built-in profile stay selectable at once, so the
+    // version keeps every choice distinguishable for keyboard and screen-reader use.
+    if (builtInLabel !== undefined) return `${builtInLabel} v${profile.profile.version}`;
+  }
+  return profile.display_name;
 }
 
 function supportsReview(profile: ExecutionProfile): boolean {
@@ -391,14 +404,11 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
         <div className="gf-review__launch-title">
           <Play aria-hidden="true" size={21} />
           <div>
-            <p className="gf-review__kicker">Exact candidate · bounded review run</p>
-            <h2 id="review-launch-title">启动候选 Review</h2>
+            <p className="gf-review__kicker">候选内容 · 有边界的自动检查</p>
+            <h2 id="review-launch-title">启动内容检查</h2>
           </div>
         </div>
-        <p>
-          Exact 候选 Artifact 与 constraint 齐备时显示；来源 Run 仅作可选导航上下文。先解析 execution
-          option，再提交真实 Review Run。
-        </p>
+        <p>选择本次要用的固定规则检查、经济仿真和 AI 问题归纳方案，然后开始一次可追溯的内容检查。</p>
       </header>
 
       <div className="gf-review__launch-body">
@@ -410,13 +420,13 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           }}
         >
           <label>
-            Review profile
+            内容检查方案
             <select
               disabled={controlsFrozen}
               onChange={(event) => setReviewKey(event.target.value)}
               value={reviewKey}
             >
-              <option value="">请选择 active Review profile</option>
+              <option value="">请选择内容检查方案</option>
               {reviewProfiles.map((profile) => (
                 <option key={profileKey(profile)} value={profileKey(profile)}>
                   {profileLabel(profile)}
@@ -427,18 +437,16 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
 
           <p className="gf-review__launch-note" role="note">
             {hasConstraintRules
-              ? `当前 exact constraint 含 ${constraint.data.constraints.length} 条约束；必须选择至少一个 Checker，Simulation 可选。`
-              : "当前 exact constraint 含 0 条约束；Checker 或 Simulation 至少选择一种。"}
+              ? `当前规则含 ${constraint.data.constraints.length} 条约束；必须选择至少一项确定性检查，经济仿真可选。`
+              : "当前没有额外规则；确定性检查或经济仿真至少选择一种。"}
           </p>
 
           <fieldset className="gf-review__profile-fieldset">
-            <legend>Checker profiles（{hasConstraintRules ? "当前约束必选" : "空约束时可选"}）</legend>
+            <legend>确定性检查（{hasConstraintRules ? "当前规则下必选" : "没有额外规则时可选"}）</legend>
             {checkerProfiles.length === 0 ? (
               <p>
-                目录中没有兼容的 active checker；
-                {hasConstraintRules
-                  ? "当前约束非空，无法启动 Review。"
-                  : "可选择 Simulation 启动当前空约束 Review。"}
+                当前没有兼容的确定性检查方案；
+                {hasConstraintRules ? "由于存在规则，本次无法开始内容检查。" : "你仍可选择经济仿真开始检查。"}
               </p>
             ) : (
               checkerProfiles.map((profile) => {
@@ -459,9 +467,9 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           </fieldset>
 
           <fieldset className="gf-review__profile-fieldset">
-            <legend>Simulation profiles（空约束时可作为唯一确定性执行维度）</legend>
+            <legend>经济仿真（没有额外规则时可单独使用）</legend>
             {simulationProfiles.length === 0 ? (
-              <p>目录中没有兼容的 active simulation。</p>
+              <p>当前没有兼容的经济仿真方案。</p>
             ) : (
               simulationProfiles.map((profile) => {
                 const key = profileKey(profile);
@@ -481,7 +489,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           </fieldset>
 
           <label>
-            LLM triage profile
+            AI 问题归纳方案
             <select
               disabled={controlsFrozen}
               onChange={(event) => setTriageKey(event.target.value)}
@@ -497,16 +505,16 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           </label>
           {!selectedTriage && (
             <p className="gf-review__launch-note" role="note">
-              当前 execution-options 契约只解析带 LLM triage 的 Agent Review；不选择时不会发起 Run。
+              当前自动检查需要选择一项 AI 问题归纳方案；AI 只负责整理建议，不负责判定对错。
             </p>
           )}
 
           <div className="gf-review__launch-row">
             {seedRequired ? (
               <label>
-                Seed
+                随机种子
                 <input
-                  aria-label="Seed"
+                  aria-label="随机种子"
                   aria-describedby="review-seed-help"
                   disabled={controlsFrozen}
                   min="0"
@@ -517,17 +525,17 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
                   value={seed}
                 />
                 <span className="u-small" id="review-seed-help">
-                  所选 profile 包含随机执行；必须填写非负整数 Seed。
+                  所选方案包含随机执行；请填写一个非负整数，便于重复本次检查。
                 </span>
               </label>
             ) : (
               <div className="gf-review__launch-note" role="note">
-                <strong>Seed 不适用</strong>
-                <span>当前所选 profiles 均为确定性执行；请求固定发送 seed=null。</span>
+                <strong>不需要随机种子</strong>
+                <span>当前所选方案均为确定性执行，重复运行会得到可复核的结果。</span>
               </div>
             )}
             <label>
-              LLM execution mode
+              AI 运行方式
               <select
                 disabled={controlsFrozen}
                 onChange={(event) => {
@@ -537,16 +545,16 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
                 }}
                 value={mode}
               >
-                <option value="">请选择 live / record / replay</option>
-                <option value="live">live</option>
-                <option value="record">record</option>
-                <option value="replay">replay</option>
+                <option value="">请选择运行方式</option>
+                <option value="live">在线检查（推荐）</option>
+                <option value="record">在线检查并保存回放</option>
+                <option value="replay">使用历史回放（测试用）</option>
               </select>
             </label>
           </div>
           {mode === "replay" && (
             <label>
-              Replay source Run
+              历史回放来源
               <select
                 disabled={controlsFrozen}
                 onChange={(event) => setReplaySourceRunId(event.target.value)}
@@ -565,45 +573,47 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
           )}
           {mode === "replay" && replayRuns.isError && (
             <p className="gf-review__launch-note" role="alert">
-              无法读取已完成 Run 目录；Review 不会要求手工粘贴 Run ID。
+              无法读取已完成的回放来源；页面不会要求你手工粘贴技术编号。
             </p>
           )}
           <button disabled={!canSubmit} type="submit">
-            {attempt?.pending ? "正在解析并提交…" : "启动 Review"}
+            {attempt?.pending ? "正在准备检查…" : "开始内容检查"}
           </button>
         </form>
 
-        <aside className="gf-review__launch-ledger" aria-label="Review input 账页">
+        <aside className="gf-review__launch-ledger" aria-label="本次内容检查范围">
           <ShieldCheck aria-hidden="true" size={20} />
-          <h3>Exact Review inputs</h3>
+          <h3>本次将检查</h3>
           <dl>
             <div>
-              <dt>导航来源 Run（非提交输入）</dt>
-              <dd>
-                {context.sourceRunId ? (
-                  <a href={`/runs/${encodeURIComponent(context.sourceRunId)}`}>{context.sourceRunId}</a>
-                ) : (
-                  "无"
-                )}
-              </dd>
+              <dt>设计内容</dt>
+              <dd>当前候选版本</dd>
             </div>
             <div>
-              <dt>Candidate Artifact</dt>
-              <dd>{context.snapshotArtifactId}</dd>
-            </div>
-            <div>
-              <dt>Constraint</dt>
-              <dd>{context.constraintArtifactId}</dd>
+              <dt>规则</dt>
+              <dd>已发布的权威规则</dd>
             </div>
           </dl>
+          <TechnicalDetails
+            items={[
+              ...(context.sourceRunId ? [{ label: "Source Run ID", value: context.sourceRunId }] : []),
+              { label: "Candidate Artifact ID", value: context.snapshotArtifactId },
+              { label: "Constraint Artifact ID", value: context.constraintArtifactId },
+            ]}
+            summary="查看检查输入技术信息"
+          />
         </aside>
       </div>
 
       {attempt && <LaunchFailure attempt={attempt} onRetry={() => void execute(attempt)} />}
       {attempt?.result && (
         <div className="gf-review__launch-success" role="status">
-          <strong>Review Run 已接受</strong>
-          <a href={`/runs/${encodeURIComponent(attempt.result.run_id)}`}>打开 Run {attempt.result.run_id}</a>
+          <strong>内容检查已开始</strong>
+          <a href={`/runs/${encodeURIComponent(attempt.result.run_id)}`}>查看检查进度</a>
+          <TechnicalDetails
+            items={[{ label: "Run ID", value: attempt.result.run_id }]}
+            summary="查看运行技术信息"
+          />
         </div>
       )}
     </section>

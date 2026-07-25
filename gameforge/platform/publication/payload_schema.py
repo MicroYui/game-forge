@@ -1371,6 +1371,10 @@ _SCHEMA_VALIDATORS = {
     "source-raw@1": _unavailable(
         "source-raw@1", "source_raw is a dedicated raw UTF-8 byte payload"
     ),
+    "project-material-original@1": _unavailable(
+        "project-material-original@1",
+        "project material originals are connector-verified opaque byte payloads",
+    ),
     "agent-prompt-context@1": _available(
         "agent-prompt-context@1",
         "context_schema_version",
@@ -1380,6 +1384,10 @@ _SCHEMA_VALIDATORS = {
     "source-rendered@1": _unavailable(
         "source-rendered@1",
         "source_rendered is validated as an exact model-router request by its runtime publisher",
+    ),
+    "project-material-rendered@1": _unavailable(
+        "project-material-rendered@1",
+        "project material rendered text is verified by the deterministic ingestion runtime",
     ),
     "ir-core@1": _available(
         "ir-core@1", "meta_schema_version", META_SCHEMA_VERSION, _validate_ir_snapshot

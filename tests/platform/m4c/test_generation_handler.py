@@ -59,6 +59,7 @@ MODEL_REF = "anthropic/claude-opus-4-8/m2a@1"
 SNAPSHOT_ID = "artifact:snapshot"
 CONSTRAINT_ID = "artifact:constraints"
 GOAL_ID = "artifact:goal"
+SOURCE_ID = "artifact:planning-material"
 _HEX = "a" * 64
 
 # A base with a real gold faucet (mob drops gold) but no dangling references.
@@ -285,7 +286,7 @@ def _context(
     bridge: FakeModelBridge,
     *,
     payload: GenerationProposePayloadV1 | None = None,
-    prompt_version: str = "generation@1",
+    prompt_version: str = "generation@7",
 ):
     actual_payload = payload or _payload()
     requirements = tuple(
@@ -328,9 +329,7 @@ def _context(
             {"generation": MODEL_REF},
             prompt_versions={"generation": prompt_version},
             tool_versions={"generation": "generation@1"},
-            agent_graph_version=(
-                "generation-graph@2" if prompt_version == "generation@2" else "generation-graph@1"
-            ),
+            agent_graph_version="generation-graph@7",
         ),
         cassette_artifact_id="artifact:cassette",
         model_bridge=bridge,
@@ -491,6 +490,79 @@ def test_generation_gate_pass_emits_patch_preview_config_and_gate_evidence() -> 
     assert preview.version_tuple.constraint_snapshot_id is None
 
 
+def test_generation_without_constraint_or_export_profile_emits_a_content_draft() -> None:
+    store = _store()
+    bridge = FakeModelBridge(responses=(_BENIGN_OPS,))
+    payload = _payload().model_copy(
+        update={
+            "constraint_snapshot_artifact_id": None,
+            "candidate_export_profiles": (),
+        }
+    )
+
+    outcome = _handler(store)(_context(bridge, payload=payload))
+
+    assert isinstance(outcome, PreparedRunResult)
+    assert outcome.summary.outcome_code == "generation_gate_passed"
+    assert "config_export" not in _kinds(outcome)
+
+
+def test_generation_material_sources_reach_prompt_context_and_candidate_lineage() -> None:
+    store = _store()
+    store.register(
+        SOURCE_ID,
+        "飞书策划：air.quality 与 air_quality 表示同一空气质量属性。".encode(),
+    )
+    payload = _payload().model_copy(update={"source_artifact_ids": (SOURCE_ID,)})
+    bridge = FakeModelBridge(responses=(_BENIGN_OPS,))
+
+    outcome = _handler(store)(_context(bridge, payload=payload))
+
+    assert isinstance(outcome, PreparedRunResult)
+    request = bridge.requests[0]
+    assert request.source_artifact_ids == tuple(sorted((GOAL_ID, SNAPSHOT_ID, SOURCE_ID)))
+    prompt = request.model_request.messages[-1].content
+    assert "UNTRUSTED CONTEXT" in prompt
+    assert "air.quality 与 air_quality" in prompt
+    assert request.prompt_context.source_artifact_ids == request.source_artifact_ids
+    patch = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
+    preview = next(artifact for artifact in outcome.artifacts if artifact.kind == "ir_snapshot")
+    assert SOURCE_ID in patch.lineage
+    assert SOURCE_ID in preview.lineage
+
+
+def test_generation_material_type_alias_is_canonical_before_the_gate() -> None:
+    store = _store()
+    store.register(SOURCE_ID, "限时活动《梦中未寄出的信》将在须弥开启。".encode())
+    payload = _payload().model_copy(update={"source_artifact_ids": (SOURCE_ID,)})
+    bridge = FakeModelBridge(
+        responses=(
+            json.dumps(
+                [
+                    {
+                        "op": "add_entity",
+                        "target": "event:unmailed-letter",
+                        "new_value": {
+                            "type": "limited_time_event",
+                            "attrs": {"display_name": "梦中未寄出的信"},
+                        },
+                    }
+                ]
+            ),
+        )
+    )
+
+    outcome = _handler(store)(_context(bridge, payload=payload))
+
+    assert isinstance(outcome, PreparedRunResult)
+    patch_artifact = next(item for item in outcome.artifacts if item.kind == "patch")
+    patch = PatchV2.model_validate(json.loads(store.read_prepared(patch_artifact.object_ref)))
+    assert patch.ops[0].new_value["type"] == "EVENT"
+    preview_artifact = next(item for item in outcome.artifacts if item.kind == "ir_snapshot")
+    preview = json.loads(store.read_prepared(preview_artifact.object_ref))
+    assert preview["entities"]["event:unmailed_letter"]["type"] == "EVENT"
+
+
 def test_generation_prompt_profile_cap_rejects_before_bridge_or_object_write() -> None:
     store = _store()
     bridge = FakeModelBridge(responses=(_BENIGN_OPS,))
@@ -517,6 +589,148 @@ def test_generation_gate_reject_is_evidence_only_failure_without_subject() -> No
     assert outcome.cause_code == "generation_gate_rejected"
     assert outcome.failure_class == "business_rule"
     assert [item.phase_code for item in progress] == ["generation.preliminary_gate"]
+    rejected_patch_artifact = next(
+        artifact for artifact in outcome.artifacts if artifact.kind == "patch"
+    )
+    rejected_patch = PatchV2.model_validate(
+        json.loads(store.read_prepared(rejected_patch_artifact.object_ref))
+    )
+    assert [operation.model_dump(mode="json") for operation in rejected_patch.ops] == [
+        {
+            "op_id": "g0",
+            "op": "add_relation",
+            "target": "bad",
+            "old_value": None,
+            "new_value": {
+                "type": "DROPS_FROM",
+                "src_id": "ghost:missing",
+                "dst_id": "gold",
+            },
+            "source_ref": None,
+        }
+    ]
+    assert rejected_patch.target_snapshot_id != rejected_patch.base_snapshot_id
+    rejected_preview_artifact = next(
+        artifact for artifact in outcome.artifacts if artifact.kind == "ir_snapshot"
+    )
+    rejected_preview = json.loads(store.read_prepared(rejected_preview_artifact.object_ref))
+    assert rejected_preview["relations"]["bad"] == {
+        "dst_id": "gold",
+        "schema_version": "ir-core@1",
+        "src_id": "ghost:missing",
+        "type": "DROPS_FROM",
+    }
+
+
+def test_generation_normalizes_lexical_entity_aliases_before_the_gate() -> None:
+    store = _store()
+    response = json.dumps(
+        [
+            {
+                "op": "add_entity",
+                "target": "air.quality",
+                "new_value": {"type": "ITEM", "attrs": {"label": "Air quality"}},
+                "op_id": "alias-dot",
+            },
+            {
+                "op": "add_entity",
+                "target": "AIR_QUALITY",
+                "new_value": {"type": "ITEM", "attrs": {"label": "Air quality"}},
+                "op_id": "alias-underscore",
+            },
+            {
+                "op": "add_relation",
+                "target": "air.drop",
+                "new_value": {
+                    "type": "DROPS_FROM",
+                    "src_id": "mob",
+                    "dst_id": "air.quality",
+                },
+                "op_id": "alias-relation",
+            },
+        ]
+    )
+
+    outcome = _handler(store)(_context(FakeModelBridge(responses=(response,))))
+
+    assert isinstance(outcome, PreparedRunResult)
+    patch_artifact = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
+    patch = PatchV2.model_validate(json.loads(store.read_prepared(patch_artifact.object_ref)))
+    assert [(operation.op, operation.target) for operation in patch.ops] == [
+        ("add_entity", "item:air_quality"),
+        ("add_relation", "rel:air_drop"),
+    ]
+    assert patch.ops[1].new_value["dst_id"] == "item:air_quality"
+    checker = next(artifact for artifact in outcome.artifacts if artifact.kind == "checker_run")
+    checker_payload = json.loads(store.read_prepared(checker.object_ref))
+    normalization = next(
+        finding
+        for finding in checker_payload["findings"]
+        if finding["defect_class"] == "identity_normalization"
+    )
+    assert normalization["status"] == "fixed"
+    assert normalization["evidence"]["summary"] == {
+        "summary_schema_version": "identity-normalization-summary@1",
+        "policy_version": "identity-normalization@1",
+        "input_operation_count": 3,
+        "output_operation_count": 2,
+        "alias_group_count": 1,
+        "auto_merge_count": 1,
+        "blocking_conflict_count": 0,
+    }
+    assert normalization["evidence"]["alias_groups"] == [
+        {
+            "alias_schema_version": "identity-alias-group@1",
+            "canonical_identity": "item:air_quality",
+            "aliases": ["AIR_QUALITY", "air.quality", "item:air_quality"],
+        }
+    ]
+    assert normalization["evidence"]["blocking_conflicts"] == []
+
+
+def test_generation_identity_value_conflict_fails_closed_with_complete_evidence() -> None:
+    store = _store()
+    response = json.dumps(
+        [
+            {
+                "op": "add_entity",
+                "target": "air.quality",
+                "new_value": {"type": "ITEM", "attrs": {"label": "Clean"}},
+                "op_id": "alias-clean",
+            },
+            {
+                "op": "add_entity",
+                "target": "air_quality",
+                "new_value": {"type": "ITEM", "attrs": {"label": "Polluted"}},
+                "op_id": "alias-polluted",
+            },
+        ]
+    )
+
+    outcome = _handler(store)(_context(FakeModelBridge(responses=(response,))))
+
+    assert isinstance(outcome, PreparedRunFailure)
+    checker = next(artifact for artifact in outcome.artifacts if artifact.kind == "checker_run")
+    checker_payload = json.loads(store.read_prepared(checker.object_ref))
+    rejection = next(
+        finding
+        for finding in checker_payload["findings"]
+        if finding["defect_class"] == "invalid_generation_proposal"
+    )
+    assert rejection["evidence"] == {"reason_code": "identity_conflict"}
+    normalization = next(
+        finding
+        for finding in checker_payload["findings"]
+        if finding["defect_class"] == "identity_normalization"
+    )
+    assert normalization["status"] == "confirmed"
+    assert normalization["evidence"]["summary"]["blocking_conflict_count"] == 1
+    conflict = normalization["evidence"]["blocking_conflicts"][0]
+    assert conflict["canonical_identity"] == "item:air_quality.label"
+    assert {candidate["value"] for candidate in conflict["candidates"]} == {
+        "Clean",
+        "Polluted",
+    }
 
 
 def test_generation_parse_fallback_cannot_turn_an_empty_proposal_into_gate_pass() -> None:
@@ -595,7 +809,7 @@ def test_generation_structural_rejection_retains_typed_evidence_only_outcome(
     )
 
 
-def test_generation_v2_nested_reward_edit_reaches_confirmed_cap_finding() -> None:
+def test_generation_nested_reward_edit_reaches_confirmed_cap_finding() -> None:
     store = _store()
     quest = Entity(
         id="quest:missing_caravan",
@@ -646,7 +860,7 @@ def test_generation_v2_nested_reward_edit_reaches_confirmed_cap_finding() -> Non
         execution_config_resolver=lambda _profile: _execution_config(),
     )
 
-    outcome = handler(_context(bridge, prompt_version="generation@2"))
+    outcome = handler(_context(bridge))
 
     assert isinstance(outcome, PreparedRunFailure)
     patch_artifact = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
@@ -668,7 +882,7 @@ def test_generation_v2_nested_reward_edit_reaches_confirmed_cap_finding() -> Non
     assert cap["status"] == "confirmed"
     assert cap["constraint_id"] == "side_quest_reward_gold_cap"
     request = bridge.requests[0].model_request
-    assert request.prompt_version == "generation@2"
+    assert request.prompt_version == "generation@7"
     assert "set_entity_attr" in request.messages[0].content
     assert "Do NOT include the literal segment attrs" in request.messages[0].content
 

@@ -104,25 +104,34 @@ function renderPage(patchApi: PatchWorkflowApi) {
   );
 }
 
+function patchLink(artifactId: string) {
+  const row = screen.getByText(artifactId).closest("tr");
+  if (!row) throw new Error(`Patch row not found for ${artifactId}`);
+  return within(row).getByRole("link", { name: "查看修改" });
+}
+
 describe("Patch workspace", () => {
   it("keeps immutable Patch revisions and rollback requests as separate ledgers", async () => {
     renderPage(api());
 
-    const patchLedger = await screen.findByRole("region", { name: "Patch revision ledger" });
-    expect(await within(patchLedger).findByText("revision 3")).toBeVisible();
-    expect(within(patchLedger).getByText(/validated · workflow 7/)).toBeVisible();
-    expect(within(patchLedger).getByRole("link", { name: `打开 ${PATCH_ID}` })).toHaveAttribute(
+    const patchLedger = await screen.findByRole("region", {
+      name: "内容修改记录",
+    });
+    expect(await within(patchLedger).findByText("内容修改 · 第 3 版")).toBeVisible();
+    expect(within(patchLedger).getByText("已验证 · 流程版本 7")).toBeVisible();
+    expect(within(patchLedger).getByText(PATCH_ID)).not.toBeVisible();
+    expect(within(patchLedger).getByRole("link", { name: "查看修改" })).toHaveAttribute(
       "href",
       `/patches/${encodeURIComponent(PATCH_ID)}`,
     );
 
-    const rollbackLedger = screen
-      .getByRole("heading", { name: "Rollback request ledger", level: 2 })
+    const rollbackSection = screen
+      .getByRole("heading", { name: "版本恢复请求", level: 2 })
       .closest("section");
-    expect(rollbackLedger).not.toBeNull();
-    expect(within(rollbackLedger!).getByText("spec/main")).toBeVisible();
-    expect(within(rollbackLedger!).getByText(/history revision 1/)).toBeVisible();
-    expect(within(rollbackLedger!).getByRole("link", { name: `打开 ${ROLLBACK_ID}` })).toHaveAttribute(
+    expect(rollbackSection).not.toBeNull();
+    expect(within(rollbackSection!).getByText("spec/main")).toBeVisible();
+    expect(within(rollbackSection!).getAllByText(/恢复到第 1 版/)[0]).toBeVisible();
+    expect(within(rollbackSection!).getByRole("link", { name: "查看回滚" })).toHaveAttribute(
       "href",
       `/rollback-requests/${encodeURIComponent(ROLLBACK_ID)}`,
     );
@@ -146,10 +155,14 @@ describe("Patch workspace", () => {
       }),
     );
 
-    const transition = await screen.findByText(`${longBase} → ${longTarget}`);
+    const transition = await screen.findByText(longBase);
+    expect(transition).not.toBeVisible();
+    await userEvent.setup().click(transition.closest("details")!.querySelector("summary")!);
+    expect(transition).toBeVisible();
     expect(transition).toHaveClass("gf-copyable__value--scrollable");
     expect(transition).toHaveAttribute("tabindex", "0");
-    expect(screen.getByRole("button", { name: "复制 Snapshot transition" })).toBeVisible();
+    expect(screen.getByText(longTarget)).toBeVisible();
+    expect(screen.getByRole("button", { name: "复制修改前版本标识" })).toBeVisible();
   });
 
   it("keeps cursor pages on one read snapshot", async () => {
@@ -159,7 +172,15 @@ describe("Patch workspace", () => {
       .mockResolvedValueOnce(page([patch], "read:patches", "cursor:2"))
       .mockResolvedValueOnce(
         page(
-          [{ ...patch, artifact: { ...patch.artifact, artifact_id: "artifact:patch:older" } }],
+          [
+            {
+              ...patch,
+              artifact: {
+                ...patch.artifact,
+                artifact_id: "artifact:patch:older",
+              },
+            },
+          ],
           "read:patches",
         ),
       );
@@ -167,11 +188,10 @@ describe("Patch workspace", () => {
 
     await user.click(await screen.findByRole("button", { name: "加载下一页" }));
 
-    const ledger = screen
-      .getByRole("heading", { name: "Patch revision ledger", level: 2 })
-      .closest("section");
+    const ledger = screen.getByRole("heading", { name: "内容修改记录", level: 2 }).closest("section");
     expect(ledger).not.toBeNull();
-    expect(await within(ledger!).findByRole("link", { name: "打开 artifact:patch:older" })).toBeVisible();
+    expect(await screen.findByText("artifact:patch:older")).not.toBeVisible();
+    expect(patchLink("artifact:patch:older")).toBeVisible();
     expect(listPatches).toHaveBeenNthCalledWith(2, "cursor:2");
   });
 });

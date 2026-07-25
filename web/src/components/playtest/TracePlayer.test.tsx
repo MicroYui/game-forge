@@ -196,21 +196,34 @@ describe("TracePlayer", () => {
     render(<TracePlayer trace={trace} />);
 
     const controls = screen.getByLabelText("轨迹播放控制");
-    expect(within(controls).getByText("Tick 4")).toBeInTheDocument();
-    expect(within(controls).getByText(trace.frames[0].stateHash)).toBeInTheDocument();
-    expect(screen.getAllByText(/navigate_to/)).not.toHaveLength(0);
-    expect(screen.getByLabelText("动作结果")).toHaveTextContent("ok");
-    expect(screen.getByLabelText("状态")).toHaveTextContent("此契约未提供");
-    expect(screen.getByLabelText("事件")).toHaveTextContent("此契约未提供");
-    expect(screen.getByRole("heading", { level: 3, name: "动作 JSON" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "动作结果" })).toBeInTheDocument();
+    expect(within(controls).getByText("第 1 步")).toBeInTheDocument();
+    expect(screen.getByLabelText("本步操作")).toHaveTextContent("前往目标");
+    expect(screen.getByLabelText("操作结果")).toHaveTextContent("操作成功");
+    expect(screen.getByLabelText("状态")).toHaveTextContent("已保存本步后的状态指纹");
+    expect(screen.getByLabelText("事件")).toHaveTextContent("没有单独的事件明细");
+    expect(screen.getByRole("heading", { level: 3, name: "本步操作" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "操作结果" })).toBeInTheDocument();
     expect(screen.getByText("循环")).toBeInTheDocument();
     expect(screen.getByText("卡死")).toBeInTheDocument();
     expect(screen.getByText("失败")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /finding:quest-loop.*r3/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看关联问题 · 第 3 版" })).toHaveAttribute(
       "href",
       "/findings/finding%3Aquest-loop?revision=3",
     );
+  });
+
+  it("keeps SHA identifiers and contract fields out of the beginner-facing view", async () => {
+    const user = userEvent.setup();
+    render(<TracePlayer trace={trace} />);
+
+    for (const value of screen.getAllByText(/^sha256:/u)) expect(value).not.toBeVisible();
+    expect(screen.getByText(trace.traceId)).not.toBeVisible();
+    expect(screen.getByText(trace.environmentContractVersion)).not.toBeVisible();
+    expect(screen.getByText(trace.tracePayloadSchemaId)).not.toBeVisible();
+
+    await user.click(screen.getByText("查看轨迹技术信息"));
+    expect(screen.getByText(trace.traceId)).toBeVisible();
+    expect(screen.getByText(trace.initialStateHash)).toBeVisible();
   });
 
   it("keeps raw JSON collapsed, lazy and keyboard-scrollable", async () => {
@@ -218,10 +231,9 @@ describe("TracePlayer", () => {
     render(<TracePlayer trace={trace} />);
 
     expect(screen.queryByText(/artifact:config-exact-payload/)).not.toBeInTheDocument();
-    await user.click(screen.getByText("完整 PlaytestTraceV1 原始 JSON"));
+    await user.click(screen.getByText("查看完整轨迹原始数据（高级）"));
     expect(screen.getByText(/artifact:config-exact-payload/)).toBeInTheDocument();
     expect(screen.getByLabelText("完整轨迹原始 JSON")).toHaveAttribute("tabindex", "0");
-    expect(screen.getByLabelText("动作 JSON 滚动区")).toHaveAttribute("tabindex", "0");
   });
 
   it("uses aria-label plus hover/focus tooltip data for every icon-only transport button", () => {
@@ -240,15 +252,15 @@ describe("TracePlayer", () => {
     const controls = screen.getByLabelText("轨迹播放控制");
 
     await user.click(screen.getByRole("button", { name: "前进一步" }));
-    expect(within(controls).getByText("Tick 5")).toBeInTheDocument();
+    expect(within(controls).getByText("第 2 步")).toBeInTheDocument();
 
     const player = screen.getByRole("region", { name: "Playtest 轨迹播放器" });
     fireEvent.keyDown(player, { key: "ArrowRight" });
-    expect(within(controls).getByText("Tick 6")).toBeInTheDocument();
+    expect(within(controls).getByText("第 3 步")).toBeInTheDocument();
     fireEvent.keyDown(player, { key: "Home" });
-    expect(within(controls).getByText("Tick 4")).toBeInTheDocument();
+    expect(within(controls).getByText("第 1 步")).toBeInTheDocument();
     fireEvent.keyDown(player, { key: "End" });
-    expect(within(controls).getByText("Tick 9")).toBeInTheDocument();
+    expect(within(controls).getByText("第 6 步")).toBeInTheDocument();
     fireEvent.keyDown(player, { key: " " });
     expect(screen.getByRole("button", { name: "暂停" })).toBeInTheDocument();
 
@@ -266,15 +278,15 @@ describe("TracePlayer", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "播放" }));
       act(() => vi.advanceTimersByTime(100));
-      expect(within(controls).getByText("Tick 5")).toBeInTheDocument();
+      expect(within(controls).getByText("第 2 步")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "暂停" })).toBeInTheDocument();
 
       act(() => vi.advanceTimersByTime(100));
-      expect(within(controls).getByText("Tick 6")).toBeInTheDocument();
+      expect(within(controls).getByText("第 3 步")).toBeInTheDocument();
       for (let index = 0; index < 3; index += 1) {
         act(() => vi.advanceTimersByTime(100));
       }
-      expect(within(controls).getByText("Tick 9")).toBeInTheDocument();
+      expect(within(controls).getByText("第 6 步")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "播放" })).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
@@ -296,18 +308,15 @@ describe("TracePlayer", () => {
       })),
     };
     render(<TracePlayer trace={longTrace} />);
-    const timeline = screen.getByRole("list", { name: "有界动作时间轴" });
+    const timeline = screen.getByRole("list", { name: "操作时间轴" });
     expect(within(timeline).getAllByRole("listitem")).toHaveLength(100);
 
     const player = screen.getByRole("region", { name: "Playtest 轨迹播放器" });
     fireEvent.keyDown(player, { key: "End" });
-    expect(screen.getByRole("button", { name: /第 1000 帧.*Tick 999/ })).toHaveAttribute(
-      "aria-current",
-      "true",
-    );
+    expect(screen.getByRole("button", { name: "第 1000 步" })).toHaveAttribute("aria-current", "true");
     expect(within(timeline).getAllByRole("button")).toHaveLength(101);
 
-    await user.click(screen.getByRole("button", { name: "再加载 100 帧" }));
+    await user.click(screen.getByRole("button", { name: "再加载 100 步" }));
     expect(within(timeline).getAllByRole("listitem")).toHaveLength(201);
   });
 
@@ -342,16 +351,17 @@ describe("TracePlayer", () => {
 
     render(<TracePlayer trace={markedTrace} />);
 
-    const timeline = screen.getByRole("list", { name: "有界动作时间轴" });
+    const timeline = screen.getByRole("list", { name: "操作时间轴" });
     expect(within(timeline).getAllByRole("button")).toHaveLength(101);
-    expect(screen.getByRole("button", { name: /第 150 帧.*Tick 149/ })).toBeVisible();
-    expect(screen.getByRole("link", { name: /finding:terminal-failure.*r4/ })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "第 150 步" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看关联问题 · 第 4 版" })).toHaveAttribute(
       "href",
       "/findings/finding%3Aterminal-failure/revisions/4",
     );
   });
 
-  it("wraps 512+ identifiers and a 4096-character action result inside bounded columns", () => {
+  it("keeps very long identifiers and action results inside folded technical details", async () => {
+    const user = userEvent.setup();
     const longResult = "x".repeat(4096);
     const longTrace: TracePlayback = {
       ...trace,
@@ -361,10 +371,15 @@ describe("TracePlayer", () => {
     };
     const { container } = render(<TracePlayer trace={longTrace} />);
 
-    expect(screen.getByText(longTrace.traceId)).toBeInTheDocument();
-    expect(screen.getAllByText(longResult)).not.toHaveLength(0);
-    expect(container.querySelector(".gf-trace__timeline-result")).toHaveTextContent(longResult);
+    expect(screen.getByText(longTrace.traceId)).not.toBeVisible();
+    expect(screen.getByText(`"${longResult}"`)).not.toBeVisible();
+    expect(container.querySelector(".gf-trace__timeline-result")).toHaveTextContent("已记录操作结果");
     expect(container.querySelector(".gf-trace__timeline-result")).toHaveClass("gf-trace__timeline-result");
+
+    await user.click(screen.getByText("查看轨迹技术信息"));
+    await user.click(screen.getByText("查看本步技术信息"));
+    expect(screen.getByText(longTrace.traceId)).toBeVisible();
+    expect(screen.getByText(`"${longResult}"`)).toBeVisible();
   });
 
   it("renders an independently validated Aureus fixture without attributing it to the trace contract", () => {
@@ -418,9 +433,9 @@ describe("TracePlayer", () => {
       );
 
       expect(screen.getByText(/已切换到通用检查视图/)).toBeInTheDocument();
-      expect(screen.getAllByText(/navigate_to/)).not.toHaveLength(0);
-      expect(screen.getByLabelText("状态")).toHaveTextContent("此契约未提供");
-      expect(screen.getByLabelText("事件")).toHaveTextContent("此契约未提供");
+      expect(screen.getAllByText("前往目标")).not.toHaveLength(0);
+      expect(screen.getByLabelText("状态")).toHaveTextContent("已保存本步后的状态指纹");
+      expect(screen.getByLabelText("事件")).toHaveTextContent("没有单独的事件明细");
     },
   );
 });

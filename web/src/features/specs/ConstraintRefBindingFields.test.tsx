@@ -39,10 +39,13 @@ describe("ConstraintRefBindingFields", () => {
     const api = { listRefHistory: vi.fn() };
     const { onChange } = renderFields(api as Pick<SpecWorkflowApi, "listRefHistory">);
 
-    await user.click(screen.getByRole("radio", { name: "创建新 ref" }));
-    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
+    await user.click(screen.getByRole("radio", { name: "创建新的发布位置" }));
+    await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "constraints/head");
 
-    expect(onChange).toHaveBeenLastCalledWith({ expectedRef: null, refName: "constraints/head" });
+    expect(onChange).toHaveBeenLastCalledWith({
+      expectedRef: null,
+      refName: "constraints/head",
+    });
     expect(screen.queryByRole("textbox", { name: "Artifact ID" })).not.toBeInTheDocument();
   });
 
@@ -54,11 +57,11 @@ describe("ConstraintRefBindingFields", () => {
       .mockResolvedValueOnce(page(2, null));
     const { onChange } = renderFields({ listRefHistory });
 
-    await user.click(screen.getByRole("radio", { name: "更新已有 ref" }));
-    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
-    await user.click(screen.getByRole("button", { name: "查找当前版本" }));
+    await user.click(screen.getByRole("radio", { name: "更新已有发布位置" }));
+    await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "constraints/head");
+    await user.click(screen.getByRole("button", { name: "读取当前版本" }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent("已选择当前 revision 2");
+    expect(await screen.findByRole("status")).toHaveTextContent("已选择当前第 2 版");
     expect(onChange).toHaveBeenLastCalledWith({
       expectedRef: { artifact_id: "artifact:constraint:2", revision: 2 },
       refName: "constraints/head",
@@ -75,11 +78,11 @@ describe("ConstraintRefBindingFields", () => {
       .mockResolvedValueOnce(page(2, null, "read:two"));
     const { onChange } = renderFields({ listRefHistory });
 
-    await user.click(screen.getByRole("radio", { name: "更新已有 ref" }));
-    await user.type(screen.getByRole("textbox", { name: "Ref 名称" }), "constraints/head");
-    await user.click(screen.getByRole("button", { name: "查找当前版本" }));
+    await user.click(screen.getByRole("radio", { name: "更新已有发布位置" }));
+    await user.type(screen.getByRole("textbox", { name: "发布位置名称" }), "constraints/head");
+    await user.click(screen.getByRole("button", { name: "读取当前版本" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("无法读取完整 ref 历史");
+    expect(await screen.findByRole("alert")).toHaveTextContent("无法读取完整版本历史");
     expect(onChange).toHaveBeenLastCalledWith(null);
   });
 });

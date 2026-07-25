@@ -114,12 +114,49 @@ def _seed_retained_cli_policies(
                 resource_kind="identity",
                 domain_scope=None,
             ),
+            Permission(
+                action="read",
+                resource_kind="metric",
+                domain_scope=None,
+            ),
         ),
         "tooling": (
             Permission(
                 action="run",
                 resource_kind="tooling",
                 domain_scope="all",
+            ),
+        ),
+        "platform_admin": (
+            Permission(
+                action="identity.manage",
+                resource_kind="identity",
+                domain_scope=None,
+            ),
+            Permission(
+                action="run",
+                resource_kind="tooling",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.decide",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.self_decide",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.route_override",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="read",
+                resource_kind="metric",
+                domain_scope=None,
             ),
         ),
     }
@@ -158,7 +195,7 @@ class _BootstrapService:
             principal_id="human:admin",
             principal_revision=4,
             password_credential_id="password:admin:1",
-            roles=("identity_admin", "tooling"),
+            roles=("identity_admin", "platform_admin", "tooling"),
         )
 
 
@@ -187,7 +224,7 @@ def test_identity_cli_bootstrap_calls_only_the_platform_service_and_redacts_secr
         "password_credential_id": "password:admin:1",
         "principal_id": "human:admin",
         "principal_revision": 4,
-        "roles": ["identity_admin", "tooling"],
+        "roles": ["identity_admin", "platform_admin", "tooling"],
         "status": "created",
     }
 
@@ -290,11 +327,11 @@ def test_gameforge_cli_dispatch_constructs_real_bootstrap_service_when_none_is_i
     assert "correct horse battery staple" not in output
     result = json.loads(output)
     assert result["status"] == "created"
-    assert result["roles"] == ["identity_admin", "tooling"]
+    assert result["roles"] == ["identity_admin", "platform_admin", "tooling"]
     engine = get_engine(database_url)
     with Session(engine) as session:
         assert session.scalar(select(func.count()).select_from(PrincipalRow)) == 1
-        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 2
+        assert session.scalar(select(func.count()).select_from(RoleAssignmentRow)) == 3
         assert session.scalar(select(func.count()).select_from(PasswordCredentialRow)) == 1
         assert session.scalar(select(func.count()).select_from(AuditRow)) == 1
     engine.dispose()

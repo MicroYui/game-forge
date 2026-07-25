@@ -306,16 +306,16 @@ describe("ObservabilityPage", () => {
     const testApi = api();
     renderPage(testApi);
 
-    expect(await screen.findByRole("heading", { level: 1, name: "可观测性" })).toBeVisible();
-    expect((await screen.findAllByText("run:7"))[0]).toBeVisible();
-    expect(screen.getAllByText("succeeded")[0]).toBeVisible();
-    expect((await screen.findAllByRole("link", { name: new RegExp(traceId) }))[0]).toHaveAttribute(
+    expect(await screen.findByRole("heading", { level: 1, name: "运行监控" })).toBeVisible();
+    for (const runId of await screen.findAllByText("run:7")) expect(runId).not.toBeVisible();
+    expect(screen.getAllByText("成功")[0]).toBeVisible();
+    expect((await screen.findAllByRole("link", { name: "查看调用链" }))[0]).toHaveAttribute(
       "href",
       `/observability/traces/${traceId}`,
     );
-    const traceTruncation = await screen.findByText("Trace page 已截断");
-    const logTruncation = screen.getByText("Log page 已截断");
-    const metricTruncation = screen.getByText("Metric page 已截断");
+    const traceTruncation = await screen.findByText("调用链结果已截断");
+    const logTruncation = screen.getByText("日志较长，当前仅显示一部分");
+    const metricTruncation = screen.getByText("指标数据较长，当前仅显示一部分");
     expect(traceTruncation).toBeVisible();
     expect(logTruncation).toBeVisible();
     expect(metricTruncation).toBeVisible();
@@ -323,23 +323,25 @@ describe("ObservabilityPage", () => {
     expect(logTruncation).not.toHaveAttribute("role");
     expect(metricTruncation).not.toHaveAttribute("role");
 
-    expect(screen.getByRole("heading", { name: "Run 日志" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "运行日志" })).toBeVisible();
     expect(screen.getByText("Run completed")).toBeVisible();
     expect(screen.queryByText("must never render")).not.toBeInTheDocument();
 
-    expect(screen.getByText(/同一时间窗的系统运营指标/)).toBeVisible();
-    expect(screen.getByText(/不能归因于当前 Run/)).toBeVisible();
-    expect(screen.getByText(/descriptor v1 · counter · request/)).toBeVisible();
-    expect(screen.getByText("a".repeat(64))).toBeVisible();
+    expect(screen.getByText(/整体服务健康指标/)).toBeVisible();
+    expect(screen.getByText(/不会细分到某次运行或某位用户/)).toBeVisible();
+    expect(screen.getByText(/第 1 版 · 累计计数 · 次请求/)).toBeVisible();
+    expect(screen.getByText("a".repeat(64))).not.toBeVisible();
 
     const unknownUsage = screen.getByTestId("cost-usage-usage:unknown");
     const zeroUsage = screen.getByTestId("cost-usage-usage:zero");
-    expect(unknownUsage).toHaveTextContent("Token usage unavailable");
-    expect(unknownUsage).toHaveTextContent("Monetary unavailable");
-    expect(zeroUsage).toHaveTextContent("Total token 0");
-    expect(zeroUsage).toHaveTextContent("Monetary 0 USD");
-    expect(screen.getByText("budget-set:run:7")).toBeVisible();
-    const budgetTable = screen.getByRole("table", { name: "预算 · budget:run:7数据表" });
+    expect(unknownUsage).toHaveTextContent("服务商未提供用量");
+    expect(unknownUsage).toHaveTextContent("服务商未提供费用");
+    expect(zeroUsage).toHaveTextContent("总计 0");
+    expect(zeroUsage).toHaveTextContent("0 USD");
+    expect(screen.getByText("budget-set:run:7")).not.toBeVisible();
+    const budgetTable = screen.getByRole("table", {
+      name: "预算上限 · 第 4 版数据表",
+    });
     expect(within(budgetTable).getAllByText("0 request")).toHaveLength(2);
 
     expect(testApi.queryLogs).toHaveBeenCalledWith(
@@ -364,7 +366,11 @@ describe("ObservabilityPage", () => {
 
   it("keeps loaded Trace rows on 410 and restarts only after an explicit choice", async () => {
     const user = userEvent.setup();
-    const firstPage = { ...tracePage, next_cursor: "trace-page:2", truncated: false };
+    const firstPage = {
+      ...tracePage,
+      next_cursor: "trace-page:2",
+      truncated: false,
+    };
     const restartedPage = {
       ...tracePage,
       items: [{ ...tracePage.items[0], trace_id: "3".repeat(32), truncated: false }],
@@ -396,15 +402,19 @@ describe("ObservabilityPage", () => {
       .mockResolvedValueOnce(restartedPage);
     renderPage(api({ listRunTraces }));
 
-    const traceTable = await screen.findByRole("region", { name: "该 Run 的 Trace" });
+    const traceTable = await screen.findByRole("region", {
+      name: "这次运行的调用链",
+    });
     await user.click(within(traceTable).getByRole("button", { name: "加载下一页" }));
     expect(await within(traceTable).findByText(/分页游标已过期/)).toBeVisible();
-    expect(within(traceTable).getByText(traceId)).toBeVisible();
+    expect(within(traceTable).getByText(traceId)).not.toBeVisible();
 
     await user.click(within(traceTable).getByRole("button", { name: "重新开始查询" }));
     await waitFor(() => expect(listRunTraces).toHaveBeenLastCalledWith(run.run_id, null));
-    const restartedTable = await screen.findByRole("region", { name: "该 Run 的 Trace" });
-    expect(within(restartedTable).getByText("3".repeat(32))).toBeVisible();
+    const restartedTable = await screen.findByRole("region", {
+      name: "这次运行的调用链",
+    });
+    expect(within(restartedTable).getByText("3".repeat(32))).not.toBeVisible();
     expect(within(restartedTable).queryByText(traceId)).not.toBeInTheDocument();
   });
 
@@ -423,17 +433,25 @@ describe("ObservabilityPage", () => {
   it("bounds 512-character Run and terminal identifiers inside the scrollable table", async () => {
     const longRunId = `run:${"r".repeat(508)}`;
     const longArtifactId = `artifact:${"a".repeat(503)}`;
-    const longRun = { ...run, result_artifact_id: longArtifactId, run_id: longRunId };
+    const longRun = {
+      ...run,
+      result_artifact_id: longArtifactId,
+      run_id: longRunId,
+    };
     renderPage(
       api({
         listRuns: vi.fn().mockResolvedValue({ ...runPage, items: [longRun] }),
       }),
     );
 
-    const table = await screen.findByRole("region", { name: "已授权 Run" });
+    const table = await screen.findByRole("region", {
+      name: "可查看的运行记录",
+    });
+    expect(within(table).getByText(longRunId)).not.toBeVisible();
     expect(within(table).getByText(longRunId)).toHaveAttribute("tabindex", "0");
+    expect(within(table).getByText(longArtifactId)).not.toBeVisible();
     expect(within(table).getByText(longArtifactId)).toHaveAttribute("tabindex", "0");
-    expect(within(table).getByText(/attempt 2 · revision 5/)).toHaveClass("gf-observability__table-nowrap");
+    expect(within(table).getByText(/第 2 次尝试 · 第 5 版/)).toHaveClass("gf-observability__table-nowrap");
   });
 
   it("renders exact histogram bounds, cumulative bucket counts, and unavailable sum", async () => {
@@ -485,14 +503,14 @@ describe("ObservabilityPage", () => {
       }),
     );
 
-    await user.click(await screen.findByText(/查看 exact histogram buckets/));
+    await user.click(await screen.findByText(/查看详细分布区间/));
     const histogramTable = await screen.findByRole("table", {
-      name: "gameforge.worker.duration histogram buckets",
+      name: "gameforge.worker.duration 详细分布区间",
     });
     expect(within(histogramTable).getByRole("columnheader", { name: "≤ 10 ms" })).toBeVisible();
     expect(within(histogramTable).getByRole("columnheader", { name: "≤ 100 ms" })).toBeVisible();
-    expect(within(histogramTable).getByRole("columnheader", { name: "+Inf" })).toBeVisible();
-    expect(within(histogramTable).getByRole("cell", { name: "unavailable" })).toBeVisible();
+    expect(within(histogramTable).getByRole("columnheader", { name: "超出上限" })).toBeVisible();
+    expect(within(histogramTable).getByRole("cell", { name: "未提供" })).toBeVisible();
     expect(within(histogramTable).getAllByRole("cell", { name: "3" })).toHaveLength(2);
   });
 });

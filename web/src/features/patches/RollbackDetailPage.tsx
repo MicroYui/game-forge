@@ -6,7 +6,7 @@ import { createMutationIntent, ReauthenticationRequiredError } from "../../api/c
 import type { components } from "../../api/generated/openapi";
 import { cursorFromPage } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
-import { CopyableText } from "../../components/tables";
+import { compactDateTime, TechnicalDetails } from "../../components/identity";
 import { ConfirmDialog, ProblemPanel, StatePanel } from "../../components/ui";
 import {
   buildRollbackApplyRequest,
@@ -140,8 +140,33 @@ async function collectArtifacts(api: PatchWorkflowApi, kind: ArtifactKind): Prom
   throw new Error(`${kind} catalog exceeded its bounded page count.`);
 }
 
-function shortId(value: string): string {
-  return value.length <= 24 ? value : `${value.slice(0, 12)}…${value.slice(-8)}`;
+function workflowStatusLabel(value: string): string {
+  const labels: Record<string, string> = {
+    applied: "已完成回退",
+    approved: "已批准，待应用",
+    auto_apply_eligible: "验证通过，可应用",
+    changes_requested: "需要修改后重新提交",
+    draft: "草案，待验证",
+    pending_approval: "等待审批",
+    rejected: "审批未通过",
+    rolled_back: "已被后续回退",
+    submitted: "等待审批",
+    superseded: "已由新版本替代",
+    validating: "正在验证",
+    validation_failed: "验证未通过",
+    validated: "验证通过，待审批",
+  };
+  return labels[value] ?? "处理中";
+}
+
+function artifactKindLabel(value: string): string {
+  const labels: Record<string, string> = {
+    constraint_snapshot: "约束版本",
+    ir_snapshot: "设计内容版本",
+    patch: "修改草案",
+    rollback_request: "回退请求",
+  };
+  return labels[value] ?? "内容版本";
 }
 
 async function collectLineage(api: PatchWorkflowApi, artifactId: string): Promise<LineagePage["items"]> {
@@ -296,26 +321,24 @@ function EvidenceLedger({ data }: { data: RollbackDetailData }) {
   const item = data.approval.value.approval;
   return (
     <div className="gf-patches__evidence-ledger">
-      <h3>Workflow evidence Artifact ledger</h3>
+      <h3>验证依据</h3>
       <p className="gf-patches__muted">
-        中性索引：history、schema、impact 与 regression 证据只有在解析 exact requirement 后才能分类。
+        系统会保留版本历史、兼容性、影响分析和回归测试结果，审批人可逐项核对。
       </p>
       <div className="gf-patches__evidence-list">
         {item.evidence_set_artifact_id ? (
-          <a href={`/artifacts/${encodeURIComponent(item.evidence_set_artifact_id)}`}>
-            EvidenceSet · {item.evidence_set_artifact_id}
-          </a>
+          <a href={`/artifacts/${encodeURIComponent(item.evidence_set_artifact_id)}`}>查看完整验证依据</a>
         ) : (
           <p>尚无 EvidenceSet；rollback validation 尚未形成可审批 verdict。</p>
         )}
         {item.last_validation_failure_artifact_id && (
           <a href={`/artifacts/${encodeURIComponent(item.last_validation_failure_artifact_id)}`}>
-            Validation failure · {item.last_validation_failure_artifact_id}
+            查看最近一次验证失败记录
           </a>
         )}
-        {item.regression_evidence_artifact_ids.map((artifactId) => (
+        {item.regression_evidence_artifact_ids.map((artifactId, index) => (
           <a href={`/artifacts/${encodeURIComponent(artifactId)}`} key={artifactId}>
-            Regression / impact companion · {artifactId}
+            查看回归与影响分析依据 {index + 1}
           </a>
         ))}
         {data.evidence && data.evidence.artifact.artifact_id !== item.evidence_set_artifact_id && (
@@ -422,10 +445,10 @@ export function RollbackDetailPage({
     return (
       <div className="gf-page gf-patches">
         <StatePanel
-          description="正在闭合 RollbackRequest、Approval、target binding、ref history 与 target content lineage。"
+          description="正在核对回退请求、审批、正式版本历史和目标内容。"
           headingLevel={1}
           state="loading"
-          title="正在读取 Rollback workflow"
+          title="正在读取回退流程"
         />
       </div>
     );
@@ -439,10 +462,10 @@ export function RollbackDetailPage({
         ) : (
           <StatePanel
             action={<button onClick={() => void workflow.refetch()}>重试</button>}
-            description="Rollback subject、binding、Approval、history 或 lineage 未能形成 exact authority。"
+            description="回退请求、审批、版本历史或目标内容未能完整核对；为避免误操作，页面已停止继续。"
             headingLevel={1}
             state="error"
-            title="Rollback authority 不可用"
+            title="回退信息暂不可用"
           />
         )}
       </div>
@@ -541,70 +564,54 @@ export function RollbackDetailPage({
   return (
     <div className="gf-page gf-patches gf-rollback-detail" data-layout="editorial-rollback-detail">
       <nav aria-label="Rollback 导航" className="gf-patches__back-nav">
-        <a href="/patches">返回 Patch / Diff</a>
-        <a href={`/refs/${encodeURIComponent(data.target.ref_name)}/history`}>Ref history</a>
+        <a href="/patches">返回修改工作台</a>
+        <a href={`/refs/${encodeURIComponent(data.target.ref_name)}/history`}>查看正式版本历史</a>
         <a href={`/artifacts/${encodeURIComponent(data.current.value.artifact.artifact_id)}`}>
-          Request Artifact
+          查看回退请求完整记录
         </a>
-        <a href={`/artifacts/${encodeURIComponent(data.target.target_artifact_id)}`}>Target Artifact</a>
+        <a href={`/artifacts/${encodeURIComponent(data.target.target_artifact_id)}`}>查看目标版本完整记录</a>
       </nav>
 
       <header className="gf-patches__hero gf-patches__hero--detail">
         <div>
-          <p className="gf-patches__kicker">Rollback request · governed ref transition</p>
-          <h1>Rollback {data.target.ref_name}</h1>
+          <p className="gf-patches__kicker">安全版本回退</p>
+          <h1>回退正式内容</h1>
           <p>{data.current.value.request.reason}</p>
         </div>
         <span className="gf-patches__status-mark">
           <RotateCcw aria-hidden="true" size={17} />
-          {item.status}
+          {workflowStatusLabel(item.status)}
         </span>
       </header>
 
-      <dl className="gf-patches__facts" aria-label="Rollback exact workflow authority">
-        <div className="gf-patches__fact-wide">
-          <dt>Rollback Artifact</dt>
-          <dd>
-            <CopyableText
-              copyLabel="复制 Rollback Artifact ID"
-              value={data.current.value.artifact.artifact_id}
-            />
-          </dd>
+      <dl className="gf-patches__facts" aria-label="回退请求概况">
+        <div>
+          <dt>当前正式版本</dt>
+          <dd>第 {data.currentRef.revision} 版</dd>
         </div>
         <div>
-          <dt>ETag</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Rollback ETag" value={data.current.etag} />
-          </dd>
+          <dt>准备恢复</dt>
+          <dd>历史第 {data.current.value.request.target_history_revision} 版</dd>
         </div>
         <div>
-          <dt>Workflow</dt>
+          <dt>独立审批</dt>
           <dd>
-            head {data.binding.subject_head_revision} · workflow {data.binding.workflow_revision}
-          </dd>
-        </div>
-        <div>
-          <dt>Current ref</dt>
-          <dd>Current · revision {data.currentRef.revision}</dd>
-        </div>
-        <div className="gf-patches__fact-wide">
-          <dt>Current 技术身份</dt>
-          <dd>
-            <details>
-              <summary>查看 current ref Artifact ID</summary>
-              <CopyableText copyLabel="复制 current ref Artifact ID" value={data.currentRef.artifact_id} />
-            </details>
-          </dd>
-        </div>
-        <div>
-          <dt>Approval</dt>
-          <dd>
-            <a href={`/approvals/${encodeURIComponent(data.binding.approval_id)}`}>
-              {data.binding.approval_id}
-            </a>
+            <a href={`/approvals/${encodeURIComponent(data.binding.approval_id)}`}>查看审批进度</a>
           </dd>
         </div>
       </dl>
+      <TechnicalDetails
+        items={[
+          { label: "Rollback Artifact ID", value: data.current.value.artifact.artifact_id },
+          { label: "ETag", value: data.current.etag },
+          { label: "Current ref Artifact ID", value: data.currentRef.artifact_id },
+          { label: "Approval ID", value: data.binding.approval_id },
+          { label: "Ref name", value: data.target.ref_name },
+          { label: "Subject head revision", value: String(data.binding.subject_head_revision) },
+          { label: "Workflow revision", value: String(data.binding.workflow_revision) },
+        ]}
+        summary="查看回退请求技术信息"
+      />
 
       {refDrifted && item.status !== "applied" && (
         <StatePanel
@@ -617,68 +624,68 @@ export function RollbackDetailPage({
 
       <RollbackContentComparison
         current={data.currentArtifact}
-        currentLabel={`Current revision ${data.current.value.request.expected_current_ref.revision}`}
+        currentLabel={`当前第 ${data.current.value.request.expected_current_ref.revision} 版`}
         diff={data.contentDiff}
         target={data.targetArtifact}
-        targetLabel={`目标 revision ${data.current.value.request.target_history_revision}`}
+        targetLabel={`目标第 ${data.current.value.request.target_history_revision} 版`}
       />
 
       <section className="gf-patches__workspace-section" aria-labelledby="rollback-target-title">
         <header>
           <GitCommitHorizontal aria-hidden="true" size={21} />
           <div>
-            <h2 id="rollback-target-title">Frozen ref transition</h2>
-            <p>所有后续命令复制 retained target binding；页面不从 current ref 重新推导目标。</p>
+            <h2 id="rollback-target-title">已锁定的回退目标</h2>
+            <p>后续验证和审批始终使用这里锁定的当前版本与历史目标，避免目标在流程中发生变化。</p>
           </div>
         </header>
         <dl className="gf-patches__target-ledger">
           <div>
-            <dt>Expected current ref</dt>
-            <dd>revision {data.current.value.request.expected_current_ref.revision}</dd>
+            <dt>发起时的正式版本</dt>
+            <dd>第 {data.current.value.request.expected_current_ref.revision} 版</dd>
           </div>
           <div>
-            <dt>Historical target</dt>
-            <dd>history revision {data.current.value.request.target_history_revision}</dd>
+            <dt>要恢复的历史版本</dt>
+            <dd>第 {data.current.value.request.target_history_revision} 版</dd>
           </div>
           <div>
-            <dt>Target digest</dt>
-            <dd>
-              <CopyableText copyLabel="复制 rollback target digest" value={data.target.target_digest} />
-            </dd>
+            <dt>验证方案</dt>
+            <dd>{data.rollbackProfile.display_name}</dd>
           </div>
           <div>
-            <dt>Frozen rollback profile</dt>
-            <dd>
-              {data.current.value.request.rollback_profile_binding.profile.profile_id}@
-              {data.current.value.request.rollback_profile_binding.profile.version} · catalog{" "}
-              {data.current.value.request.rollback_profile_binding.catalog_version} ·{" "}
-              {data.rollbackProfile.status}
-            </dd>
+            <dt>关联原审批</dt>
+            <dd>{data.current.value.request.reverses_approval_id ? "已关联" : "未关联"}</dd>
           </div>
           <div>
-            <dt>Reverses approval</dt>
-            <dd>{data.current.value.request.reverses_approval_id ?? "未绑定"}</dd>
-          </div>
-          <div>
-            <dt>Target kind / snapshot</dt>
-            <dd>
-              {data.target.target_artifact_kind} · {data.target.target_snapshot_id ?? "not applicable"}
-            </dd>
+            <dt>目标内容类型</dt>
+            <dd>{artifactKindLabel(data.target.target_artifact_kind)}</dd>
           </div>
           <div className="gf-patches__fact-wide">
-            <dt>Exact transition identity</dt>
+            <dt>技术信息</dt>
             <dd>
-              <details>
-                <summary>查看 current 与 target Artifact ID</summary>
-                <CopyableText
-                  copyLabel="复制 frozen current Artifact ID"
-                  value={data.current.value.request.expected_current_ref.artifact_id}
-                />
-                <CopyableText
-                  copyLabel="复制 frozen target Artifact ID"
-                  value={data.target.target_artifact_id}
-                />
-              </details>
+              <TechnicalDetails
+                items={[
+                  { label: "Target digest", value: data.target.target_digest },
+                  {
+                    label: "Rollback profile",
+                    value: `${data.current.value.request.rollback_profile_binding.profile.profile_id}@${data.current.value.request.rollback_profile_binding.profile.version}`,
+                  },
+                  {
+                    label: "Profile catalog version",
+                    value: String(data.current.value.request.rollback_profile_binding.catalog_version),
+                  },
+                  {
+                    label: "Reverses approval ID",
+                    value: data.current.value.request.reverses_approval_id ?? "未绑定",
+                  },
+                  { label: "Target snapshot ID", value: data.target.target_snapshot_id ?? "不适用" },
+                  {
+                    label: "Frozen current Artifact ID",
+                    value: data.current.value.request.expected_current_ref.artifact_id,
+                  },
+                  { label: "Frozen target Artifact ID", value: data.target.target_artifact_id },
+                ]}
+                summary="查看目标绑定技术信息"
+              />
             </dd>
           </div>
         </dl>
@@ -688,24 +695,21 @@ export function RollbackDetailPage({
         <header>
           <Waypoints aria-hidden="true" size={21} />
           <div>
-            <h2 id="rollback-history-title">Ref history</h2>
-            <p>apply 前不新增 revision；apply 成功后 current 指向历史 Artifact，但 revision 继续单调递增。</p>
+            <h2 id="rollback-history-title">正式版本历史</h2>
+            <p>最终应用前不会新增版本；应用成功后，恢复的内容会成为一个新的正式版本。</p>
           </div>
         </header>
         <ol className="gf-patches__history-list">
           {[...data.history].reverse().map((entry) => (
             <li key={entry.value.revision}>
               <span>
-                {entry.value.revision === data.currentRef.revision ? "Current" : "revision"}{" "}
-                {entry.value.revision}
+                {entry.value.revision === data.currentRef.revision ? "当前" : "历史"}第 {entry.value.revision}{" "}
+                版
               </span>
-              <details>
-                <summary>查看 exact Artifact 身份</summary>
-                <CopyableText
-                  copyLabel={`复制 history revision ${entry.value.revision} Artifact ID`}
-                  value={entry.value.artifact_id}
-                />
-              </details>
+              <TechnicalDetails
+                items={[{ label: "Artifact ID", value: entry.value.artifact_id }]}
+                summary="查看版本技术信息"
+              />
             </li>
           ))}
         </ol>
@@ -715,35 +719,30 @@ export function RollbackDetailPage({
         <header>
           <ShieldCheck aria-hidden="true" size={21} />
           <div>
-            <h2 id="rollback-validation-title">Rollback validation</h2>
-            <p>
-              history、schema compatibility、impact 与 regression 由 exact validation Run 形成 EvidenceSet。
-            </p>
+            <h2 id="rollback-validation-title">验证回退是否安全</h2>
+            <p>系统会检查版本历史、结构兼容性、影响范围和所选回归套件，并保存可追溯的验证依据。</p>
           </div>
         </header>
         <div className="gf-patches__execution-form">
           <label>
-            Frozen rollback policy
-            <input
-              disabled
-              value={`${data.current.value.request.rollback_profile_binding.profile.profile_id}@${data.current.value.request.rollback_profile_binding.profile.version}`}
-            />
+            回退验证方案
+            <input disabled value={data.rollbackProfile.display_name} />
           </label>
           <label>
-            Schema compatibility policy
+            结构兼容性检查方案
             <select onChange={(event) => setSchemaProfileKey(event.target.value)} value={schemaProfileKey}>
-              <option value="">选择 active schema compatibility profile</option>
+              <option value="">请选择兼容性检查方案</option>
               {data.schemaProfiles.map((profile) => (
                 <option key={profileKey(profile)} value={profileKey(profile)}>
-                  {profile.display_name} · {profileKey(profile)}
+                  {profile.display_name}
                 </option>
               ))}
             </select>
           </label>
           <fieldset className="gf-patches__checklist">
-            <legend>Impact profiles</legend>
+            <legend>影响分析方案</legend>
             {data.impactProfiles.length === 0 ? (
-              <span className="gf-patches__muted">没有 active impact profile</span>
+              <span className="gf-patches__muted">暂无可用的影响分析方案</span>
             ) : (
               data.impactProfiles.map((profile) => {
                 const key = profileKey(profile);
@@ -759,21 +758,21 @@ export function RollbackDetailPage({
                       }}
                       type="checkbox"
                     />
-                    {profile.display_name} · {key}
+                    {profile.display_name}
                   </label>
                 );
               })
             )}
           </fieldset>
           <label>
-            Seed
+            随机种子
             <input min={0} onChange={(event) => setSeed(event.target.value)} type="number" value={seed} />
           </label>
           <p className="gf-patches__muted">
-            Seed {seedRequired ? "required by the resolved stochastic/regression closure" : "not applicable"}.
+            {seedRequired ? "所选检查包含随机或回归过程，需要固定种子以便复现。" : "当前检查无需随机种子。"}
           </p>
           <fieldset className="gf-patches__checklist gf-patches__form-wide">
-            <legend>Regression suites（可选）</legend>
+            <legend>回归测试套件（可选）</legend>
             <label>
               搜索回归套件
               <input
@@ -783,11 +782,11 @@ export function RollbackDetailPage({
               />
             </label>
             {data.regressionSuites.length === 0 ? (
-              <span className="gf-patches__muted">当前 Artifact 目录没有 regression_suite。</span>
+              <span className="gf-patches__muted">当前没有可选的回归测试套件。</span>
             ) : visibleRegressionSuites.length === 0 ? (
               <span className="gf-patches__muted">没有匹配的回归套件。</span>
             ) : (
-              visibleRegressionSuites.map((artifact) => (
+              visibleRegressionSuites.map((artifact, index) => (
                 <label key={artifact.artifact_id}>
                   <input
                     checked={regressionSuiteIds.has(artifact.artifact_id)}
@@ -799,8 +798,7 @@ export function RollbackDetailPage({
                     }}
                     type="checkbox"
                   />
-                  回归套件 · {artifact.created_at?.slice(0, 10) ?? "时间未知"} · {artifact.payload_schema_id}{" "}
-                  · {shortId(artifact.artifact_id)}
+                  回归套件 {index + 1} · {compactDateTime(artifact.created_at)}
                 </label>
               ))
             )}
@@ -808,17 +806,15 @@ export function RollbackDetailPage({
         </div>
         <div className="gf-patches__action-row">
           <button disabled={!canValidate} onClick={validate} type="button">
-            启动 rollback validation
+            开始安全验证
           </button>
           {acceptedRunId && (
             <div className="gf-patches__live-receipt" role="status">
-              <a href={`/runs/${encodeURIComponent(acceptedRunId)}`}>打开 accepted Run</a>
+              <a href={`/runs/${encodeURIComponent(acceptedRunId)}`}>查看本次验证进度</a>
             </div>
           )}
           {item.active_validation_run_id && (
-            <a href={`/runs/${encodeURIComponent(item.active_validation_run_id)}`}>
-              打开 active validation Run
-            </a>
+            <a href={`/runs/${encodeURIComponent(item.active_validation_run_id)}`}>查看正在进行的验证</a>
           )}
         </div>
         <EvidenceLedger data={data} />
@@ -829,32 +825,36 @@ export function RollbackDetailPage({
           <Send aria-hidden="true" size={21} />
           <div>
             <h2 id="rollback-approval-title" ref={applyReturnFocusRef} tabIndex={-1}>
-              Independent approval & apply
+              独立审批并应用
             </h2>
-            <p>Rollback 永不 auto-apply；maker-checker 决定来自独立 ApprovalItem。</p>
+            <p>版本回退不会自动应用，必须由另一位有权限的负责人独立审批。</p>
           </div>
         </header>
         <div className="gf-patches__approval-actions">
           <button disabled={!canSubmit} onClick={submit} type="button">
             提交独立人工审批
           </button>
-          <a href={`/approvals/${encodeURIComponent(data.binding.approval_id)}`}>打开 Approval</a>
+          <a href={`/approvals/${encodeURIComponent(data.binding.approval_id)}`}>查看审批详情</a>
           <button disabled={!canApply} onClick={() => setConfirmApply(true)} type="button">
-            Apply approved rollback
+            应用已批准的回退
           </button>
         </div>
         {applyResult && (
           <div className="gf-patches__live-receipt" role="status">
             <StatePanel
-              description={`ref now points to ${applyResult.ref_value.artifact_id} at revision ${applyResult.ref_value.revision}.`}
+              description={`历史内容已恢复，并成为新的正式第 ${applyResult.ref_value.revision} 版。`}
               state="terminal"
-              title="Rollback 已通过 ref transition 应用"
+              title="版本回退已完成"
             />
-            {applyResult.ref_transition_id && (
-              <p>
-                Ref transition · <code>{applyResult.ref_transition_id}</code>
-              </p>
-            )}
+            <TechnicalDetails
+              items={[
+                { label: "Artifact ID", value: applyResult.ref_value.artifact_id },
+                ...(applyResult.ref_transition_id
+                  ? [{ label: "Ref transition ID", value: applyResult.ref_transition_id }]
+                  : []),
+              ]}
+              summary="查看应用结果技术信息"
+            />
           </div>
         )}
       </section>
@@ -890,23 +890,25 @@ export function RollbackDetailPage({
         <header>
           <BadgeCheck aria-hidden="true" size={21} />
           <div>
-            <h2 id="target-lineage-title">Historical target content lineage</h2>
-            <p>这是 target Artifact 的 immutable parent DAG；apply 只追加 ref history 与 RefTransition。</p>
+            <h2 id="target-lineage-title">目标版本的来源</h2>
+            <p>这里展示所选历史内容的来源链，方便追溯它由哪些更早版本演变而来。</p>
           </div>
         </header>
-        <p className="gf-patches__principle">
-          RefTransition is not a content-lineage edge；页面不会把 rollback request 画成 target 的新 parent。
-        </p>
+        <p className="gf-patches__principle">回退只会新增一条正式版本历史，不会改写原有内容的来源关系。</p>
         {data.lineage.length === 0 ? (
-          <p className="gf-patches__muted">Target Artifact 没有可见 parent lineage。</p>
+          <p className="gf-patches__muted">所选历史版本没有更早的可见来源。</p>
         ) : (
           <ul className="gf-patches__history-list">
-            {data.lineage.map((entry) => (
+            {data.lineage.map((entry, index) => (
               <li key={`${entry.depth}:${entry.artifact.artifact_id}`}>
-                <span>depth {entry.depth}</span>
+                <span>来源层级 {entry.depth}</span>
                 <a href={`/artifacts/${encodeURIComponent(entry.artifact.artifact_id)}`}>
-                  {entry.artifact.artifact_id}
+                  查看来源版本 {index + 1}
                 </a>
+                <TechnicalDetails
+                  items={[{ label: "Artifact ID", value: entry.artifact.artifact_id }]}
+                  summary="查看来源技术信息"
+                />
               </li>
             ))}
           </ul>
@@ -914,13 +916,13 @@ export function RollbackDetailPage({
       </section>
 
       <ConfirmDialog
-        confirmLabel="确认 Apply rollback"
-        description={`将 ${data.target.ref_name} 从 revision ${data.current.value.request.expected_current_ref.revision} 指向历史 Artifact ${data.target.target_artifact_id}。此动作需要服务器再次执行 exact ref CAS。`}
+        confirmLabel="确认应用回退"
+        description={`这会把历史第 ${data.current.value.request.target_history_revision} 版的内容恢复为新的正式版本。系统会在提交时再次确认当前版本没有变化。`}
         onCancel={() => setConfirmApply(false)}
         onConfirm={apply}
         open={confirmApply}
         returnFocusRef={applyReturnFocusRef}
-        title="Apply approved rollback?"
+        title="确认应用已批准的版本回退？"
       />
     </div>
   );

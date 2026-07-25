@@ -272,6 +272,31 @@
   min-width: 0;
 }
 
+.gf-log__trace-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  font-size: var(--font-size-small);
+  font-weight: 650;
+}
+
+.gf-log__technical {
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--line);
+}
+
+.gf-log__technical > summary {
+  width: fit-content;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+}
+
+.gf-log__technical[open] > summary {
+  margin-block-end: var(--space-3);
+}
+
 .gf-log__error {
   display: grid;
   gap: var(--space-1);

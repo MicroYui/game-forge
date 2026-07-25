@@ -144,6 +144,52 @@ def _role_policy(registry: DomainRegistryV1) -> RolePolicy:
     )
 
 
+def _platform_admin_role_policy(
+    registry: DomainRegistryV1,
+    *,
+    self_decide: bool = True,
+    route_override: bool = True,
+) -> RolePolicy:
+    ref = _registry_ref(registry)
+    grants = dict(_role_policy(registry).grants)
+    admin_permissions = [
+        Permission(
+            action="approval.decide",
+            resource_kind="approval",
+            domain_scope="all",
+        ),
+    ]
+    if self_decide:
+        admin_permissions.append(
+            Permission(
+                action="approval.self_decide",
+                resource_kind="approval",
+                domain_scope="all",
+            )
+        )
+    if route_override:
+        admin_permissions.append(
+            Permission(
+                action="approval.route_override",
+                resource_kind="approval",
+                domain_scope="all",
+            )
+        )
+    grants["platform_admin"] = tuple(admin_permissions)
+    return RolePolicy(
+        policy_version="roles@platform-admin",
+        domain_registry_ref=ref,
+        grants=grants,
+        effective_from=NOW,
+        policy_digest=compute_role_policy_digest(
+            "roles@platform-admin",
+            ref,
+            grants,
+            NOW,
+        ),
+    )
+
+
 def _approval_policy() -> ApprovalPolicyV1:
     fields = {
         "policy_version": "approval-policy@1",
@@ -733,6 +779,89 @@ def test_maker_checker_human_assignee_route_role_and_current_permission_guards()
             registry,
             route,
             no_grants,
+            approval,
+        )
+
+
+def test_platform_admin_can_decide_own_proposal_with_explicit_frozen_authority() -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _platform_admin_role_policy(registry)
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        assignees={"route:economy": ("human:assigned",)},
+    )
+    admin = _principal(
+        "human:maker",
+        _assignment("human:maker", "platform_admin", ("economy",)),
+    )
+
+    approved = _apply(
+        item,
+        _decision(item, admin.id, "route:economy"),
+        admin,
+        registry,
+        route,
+        role,
+        approval,
+    )
+
+    assert approved.status == "approved"
+    assert approved.decisions[0].actor.principal_id == item.proposer.principal_id
+    reauthorize_approved_item_for_apply(
+        item=approved,
+        principal_resolver=lambda principal_id: admin if principal_id == admin.id else None,
+        domain_registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+    )
+
+
+@pytest.mark.parametrize(
+    ("self_decide", "route_override", "message"),
+    (
+        (False, True, "maker-checker"),
+        (True, False, "assigned"),
+    ),
+)
+def test_platform_admin_self_decision_fails_closed_without_each_explicit_permission(
+    self_decide: bool,
+    route_override: bool,
+    message: str,
+) -> None:
+    registry = _registry()
+    route = _route_policy(registry)
+    role = _platform_admin_role_policy(
+        registry,
+        self_decide=self_decide,
+        route_override=route_override,
+    )
+    approval = _approval_policy()
+    item = _item(
+        registry=registry,
+        route_policy=route,
+        role_policy=role,
+        approval_policy=approval,
+        assignees={"route:economy": ("human:assigned",)},
+    )
+    admin = _principal(
+        "human:maker",
+        _assignment("human:maker", "platform_admin", ("economy",)),
+    )
+
+    with pytest.raises(Forbidden, match=message):
+        _apply(
+            item,
+            _decision(item, admin.id, "route:economy"),
+            admin,
+            registry,
+            route,
+            role,
             approval,
         )
 

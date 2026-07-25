@@ -11,6 +11,7 @@ import { ApiProblemError } from "../../api/problem";
 import { createBrowserRunCommandClient } from "../../api/runtime";
 import type { RunEventStreamState } from "../../api/sse";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
+import { compactDateTime, TechnicalDetails } from "../../components/identity";
 import { RunCommandControls, RunProgress, type RunEventItem } from "../../components/run-progress";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
@@ -47,6 +48,36 @@ const terminalEvents = new Set<RunEvent["event_type"]>([
   "run.timed_out",
 ]);
 const terminalRunStatuses = new Set<RunView["status"]>(["succeeded", "failed", "cancelled", "timed_out"]);
+
+function domainLabel(domainId: string): string {
+  return (
+    {
+      "domain:combat": "战斗系统",
+      "domain:economy": "经济系统",
+      "domain:narrative": "叙事内容",
+      "domain:quest": "任务系统",
+      "domain:rewards": "奖励系统",
+      "domain:builtin": "内置内容",
+      builtin: "内置内容",
+    }[domainId] ?? domainId.replace(/^domain:/u, "")
+  );
+}
+
+function environmentLabel(profile: { profile_id: string; version: number }): string {
+  return profile.profile_id === "builtin.environment" || profile.profile_id === "builtin.aureus_env"
+    ? "默认试玩环境"
+    : profile.profile_id;
+}
+
+function executionProfileLabel(profile: ExecutionProfile): string {
+  if (profile.profile_kind === "task_suite_derivation" && profile.display_name.startsWith("builtin.")) {
+    return "标准试玩任务生成方案";
+  }
+  if (profile.profile_kind === "playtest_planner" && profile.display_name.startsWith("builtin.")) {
+    return "标准 AI 试玩方案";
+  }
+  return profile.display_name;
+}
 
 interface CandidateContextIds {
   sourceRunId: string | null;
@@ -102,9 +133,10 @@ function isUnknownTransportError(error: Error | null): boolean {
   );
 }
 
-function isUnknownDeriveAttempt(
-  attempt: DeriveAttempt | null,
-): attempt is DeriveAttempt & { intent: MutationIntent; request: TaskSuiteDeriveRequest } {
+function isUnknownDeriveAttempt(attempt: DeriveAttempt | null): attempt is DeriveAttempt & {
+  intent: MutationIntent;
+  request: TaskSuiteDeriveRequest;
+} {
   return (
     attempt !== null &&
     attempt.intent !== null &&
@@ -113,9 +145,10 @@ function isUnknownDeriveAttempt(
   );
 }
 
-function isUnknownLaunchAttempt(
-  attempt: LaunchAttempt | null,
-): attempt is LaunchAttempt & { intent: MutationIntent; request: PlaytestRunRequest } {
+function isUnknownLaunchAttempt(attempt: LaunchAttempt | null): attempt is LaunchAttempt & {
+  intent: MutationIntent;
+  request: PlaytestRunRequest;
+} {
   return (
     attempt !== null &&
     attempt.intent !== null &&
@@ -449,7 +482,7 @@ function MutationError({ error }: { error: Error | null }) {
   if (error === null) return null;
   if (error instanceof ApiProblemError) return <ProblemPanel problem={error.problem} />;
   if (error instanceof PlaytestPageAuthorityError) {
-    return <StatePanel description={error.message} state="error" title="Playtest launch docket 无效" />;
+    return <StatePanel description={error.message} state="error" title="自动试玩设置无效" />;
   }
   if (error instanceof ExecutionOptionResolutionError) {
     return (
@@ -545,7 +578,9 @@ function TrackedRun({
   runId: string;
 }) {
   const [events, setEvents] = useState<RunEventItem[]>([]);
-  const [streamState, setStreamState] = useState<RunEventStreamState>({ status: "idle" });
+  const [streamState, setStreamState] = useState<RunEventStreamState>({
+    status: "idle",
+  });
   const streamRef = useRef<PlaytestEventStreamHandle>();
   const streamReceivedEventRef = useRef(false);
   const run = useQuery({
@@ -598,11 +633,11 @@ function TrackedRun({
   }, [api, refetch, runId]);
 
   return (
-    <section className="gf-playtest__run" aria-label={`${label} ${runId}`}>
+    <section className="gf-playtest__run" aria-label={label}>
       <header>
-        <p className="gf-playtest__kicker">Run-backed operation</p>
+        <p className="gf-playtest__kicker">后台任务进度</p>
         <h2>{label}</h2>
-        <code>{runId}</code>
+        <TechnicalDetails items={[{ label: "运行标识", value: runId }]} summary="查看运行技术信息" />
       </header>
       {streamState.status === "expired" && (
         <StatePanel
@@ -798,20 +833,22 @@ function DerivedSuiteRecovery({
   }
   return (
     <StatePanel
-      description={`已从 RunResult 闭合并绑定 exact TaskSuite ${result.data.suite.artifact.artifact_id}。`}
+      description="新的试玩任务已经生成并完成绑定检查。"
       state="terminal"
-      title="TaskSuite 派生完成"
+      title="试玩任务已准备好"
     />
   );
 }
 
 function SuiteCard({
   disabled,
+  ordinal,
   onSelect,
   selected,
   suite,
 }: {
   disabled: boolean;
+  ordinal: number;
   onSelect(): void;
   selected: boolean;
   suite: TaskSuiteArtifactView;
@@ -820,44 +857,63 @@ function SuiteCard({
     <article className="gf-playtest__suite-card" data-selected={selected || undefined}>
       <header>
         <div>
-          <p>Immutable TaskSuite</p>
-          <code>{suite.artifact.artifact_id}</code>
+          <p>可重复运行的试玩任务</p>
+          <h3>
+            试玩任务集 {ordinal} · {suite.task_suite.episodes.length} 个任务
+          </h3>
         </div>
-        <span>{suite.task_suite.episodes.length} episodes</span>
+        <span>{suite.task_suite.episodes.length} 个任务</span>
       </header>
       <dl>
         <div>
-          <dt>Config</dt>
-          <dd>{suite.task_suite.config_export_artifact_id}</dd>
+          <dt>覆盖内容</dt>
+          <dd>{taskSuiteDomainIds(suite).map(domainLabel).join("、")}</dd>
         </div>
         <div>
-          <dt>Environment</dt>
-          <dd>{profileKey(suite.task_suite.environment_profile)}</dd>
+          <dt>试玩环境</dt>
+          <dd>{environmentLabel(suite.task_suite.environment_profile)}</dd>
         </div>
         <div>
-          <dt>Derivation</dt>
-          <dd>{profileKey(suite.task_suite.suite_profile)}</dd>
-        </div>
-        <div>
-          <dt>Oracle registry</dt>
-          <dd>v{suite.task_suite.completion_oracle_registry_ref.registry_version}</dd>
+          <dt>完成判定</dt>
+          <dd>由系统规则自动确认</dd>
         </div>
       </dl>
+      <TechnicalDetails
+        items={[
+          { label: "任务集标识", value: suite.artifact.artifact_id },
+          {
+            label: "配置标识",
+            value: suite.task_suite.config_export_artifact_id,
+          },
+          {
+            label: "环境方案",
+            value: profileKey(suite.task_suite.environment_profile),
+          },
+          {
+            label: "任务生成方案",
+            value: profileKey(suite.task_suite.suite_profile),
+          },
+          {
+            label: "判定规则版本",
+            value: String(suite.task_suite.completion_oracle_registry_ref.registry_version),
+          },
+        ]}
+      />
       <button
-        aria-label={selected ? "已选择" : `选择 ${suite.artifact.artifact_id}`}
+        aria-label={selected ? `已选择第 ${ordinal} 组试玩任务` : `选择第 ${ordinal} 组试玩任务`}
         className={selected ? "gf-secondary-button" : "gf-primary-button"}
         disabled={disabled}
         onClick={onSelect}
         type="button"
       >
-        {selected ? "已选择" : "选择此 TaskSuite"}
+        {selected ? "已选择" : "使用这组试玩任务"}
       </button>
     </article>
   );
 }
 
 function ConfigCandidateCard({ candidate, onSelect }: { candidate: ConfigCandidate; onSelect(): void }) {
-  const generatedAt = candidate.createdAt?.replace("T", " ").replace("Z", " UTC") ?? "时间未记录";
+  const generatedAt = compactDateTime(candidate.createdAt);
   const candidateTitle = candidate.createdAt ? `内容候选 · ${candidate.createdAt.slice(11, 16)}` : "内容候选";
   return (
     <article className="gf-playtest__candidate-card">
@@ -866,7 +922,7 @@ function ConfigCandidateCard({ candidate, onSelect }: { candidate: ConfigCandida
           <p>可试玩配置</p>
           <h3>{candidateTitle}</h3>
         </div>
-        <span>{profileKey(candidate.environmentProfile)}</span>
+        <span>{environmentLabel(candidate.environmentProfile)}</span>
       </header>
       <dl>
         <div>
@@ -875,37 +931,32 @@ function ConfigCandidateCard({ candidate, onSelect }: { candidate: ConfigCandida
         </div>
         <div>
           <dt>运行环境</dt>
-          <dd>{candidate.envContractVersion}</dd>
+          <dd>Aureus 试玩沙盒</dd>
         </div>
         <div>
           <dt>覆盖领域</dt>
-          <dd>{candidate.domainIds.join("、")}</dd>
+          <dd>{candidate.domainIds.map(domainLabel).join("、")}</dd>
         </div>
       </dl>
-      <details>
-        <summary>查看精确绑定</summary>
-        <dl>
-          <div>
-            <dt>配置</dt>
-            <dd>{candidate.artifactId}</dd>
-          </div>
-          <div>
-            <dt>内容预览</dt>
-            <dd>{candidate.previewArtifactId}</dd>
-          </div>
-          <div>
-            <dt>规则快照</dt>
-            <dd>{candidate.constraintArtifactId}</dd>
-          </div>
-        </dl>
-      </details>
+      <TechnicalDetails
+        items={[
+          { label: "配置标识", value: candidate.artifactId },
+          { label: "内容预览标识", value: candidate.previewArtifactId },
+          { label: "规则版本标识", value: candidate.constraintArtifactId },
+          { label: "环境契约", value: candidate.envContractVersion },
+          {
+            label: "环境方案",
+            value: profileKey(candidate.environmentProfile),
+          },
+        ]}
+      />
       <button
-        aria-label={`使用配置 ${candidate.artifactId}`}
+        aria-label={`准备${candidateTitle}`}
         className="gf-primary-button"
         onClick={onSelect}
         type="button"
       >
-        选择并准备 TaskSuite
+        准备自动试玩
       </button>
     </article>
   );
@@ -923,6 +974,16 @@ export function PlaytestPage({
   const previewArtifactId = searchParams.get("preview")?.trim() || null;
   const configArtifactId = searchParams.get("config")?.trim() || null;
   const constraintArtifactId = searchParams.get("constraint")?.trim() || null;
+  const projectId = searchParams.get("project")?.trim() || null;
+  const projectName = searchParams.get("projectName")?.trim() || "当前游戏";
+  const projectContentArtifactId = searchParams.get("projectContent")?.trim() || null;
+  const projectConstraintArtifactId = searchParams.get("projectConstraint")?.trim() || null;
+  const hasProjectBinding =
+    projectId !== null || projectContentArtifactId !== null || projectConstraintArtifactId !== null;
+  const projectBindingError =
+    hasProjectBinding && (projectId === null || projectContentArtifactId === null)
+      ? new PlaytestPageAuthorityError("项目试玩入口缺少项目或当前内容版本，请回到项目页刷新后重试。")
+      : null;
   const selectedSuiteId = searchParams.get("suite")?.trim() || null;
   const deriveRunId = searchParams.get("deriveRun")?.trim() || null;
   const playtestRunId = searchParams.get("run")?.trim() || null;
@@ -931,6 +992,9 @@ export function PlaytestPage({
     previewArtifactId,
     configArtifactId,
     constraintArtifactId,
+    projectId,
+    projectContentArtifactId,
+    projectConstraintArtifactId,
     selectedSuiteId,
     deriveRunId,
     playtestRunId,
@@ -1005,8 +1069,11 @@ export function PlaytestPage({
   }, []);
 
   const configCandidates = useInfiniteQuery({
-    enabled: showCandidateCatalog,
-    initialPageParam: { cursor: null, readSnapshotId: null } as ConfigCandidatePageParam,
+    enabled: showCandidateCatalog && projectBindingError === null,
+    initialPageParam: {
+      cursor: null,
+      readSnapshotId: null,
+    } as ConfigCandidatePageParam,
     queryFn: ({ pageParam }) => loadConfigCandidatePage(api, pageParam),
     getNextPageParam: (lastPage, allPages): ConfigCandidatePageParam | undefined => {
       const next = cursorFromPage(lastPage.page);
@@ -1017,13 +1084,23 @@ export function PlaytestPage({
       }
       return { cursor: next, readSnapshotId: lastPage.page.read_snapshot_id };
     },
-    queryKey: ["playtest", "config-candidates", candidateReadGeneration],
+    queryKey: [
+      "playtest",
+      "config-candidates",
+      projectId,
+      projectContentArtifactId,
+      projectConstraintArtifactId,
+      candidateReadGeneration,
+    ],
     retry: false,
   });
 
   const suiteList = useInfiniteQuery({
     enabled: !contextIsPartial && (contextIds === null || context.isSuccess),
-    initialPageParam: { cursor: null, readSnapshotId: null } as TaskSuitePageParam,
+    initialPageParam: {
+      cursor: null,
+      readSnapshotId: null,
+    } as TaskSuitePageParam,
     queryFn: ({ pageParam }) => {
       const authority = context.data;
       return loadTaskSuitePage(
@@ -1267,11 +1344,25 @@ export function PlaytestPage({
     const intent = createMutationIntent();
     const routeGeneration = routeGenerationRef.current.generation;
     mutationChainRef.current = "derive";
-    setDeriveAttempt({ accepted: null, error: null, intent, ownerKey, pending: true, request });
+    setDeriveAttempt({
+      accepted: null,
+      error: null,
+      intent,
+      ownerKey,
+      pending: true,
+      request,
+    });
     try {
       const accepted = await api.deriveTaskSuite(request, intent);
       if (!mountedRef.current) return;
-      setDeriveAttempt({ accepted, error: null, intent, ownerKey, pending: false, request });
+      setDeriveAttempt({
+        accepted,
+        error: null,
+        intent,
+        ownerKey,
+        pending: false,
+        request,
+      });
       if (routeIsCurrent(routeGeneration) && currentContextOwnerRef.current === ownerKey) {
         updateSearch({ deriveRun: accepted.run_id, run: null });
       }
@@ -1447,11 +1538,25 @@ export function PlaytestPage({
       execution_version_plan: option.execution_version_plan,
     };
     const intent = createMutationIntent();
-    setLaunchAttempt({ accepted: null, error: null, intent, ownerKey, pending: true, request });
+    setLaunchAttempt({
+      accepted: null,
+      error: null,
+      intent,
+      ownerKey,
+      pending: true,
+      request,
+    });
     try {
       const accepted = await api.runPlaytest(request, intent);
       if (!mountedRef.current) return;
-      setLaunchAttempt({ accepted, error: null, intent, ownerKey, pending: false, request });
+      setLaunchAttempt({
+        accepted,
+        error: null,
+        intent,
+        ownerKey,
+        pending: false,
+        request,
+      });
       if (routeIsCurrent(routeGeneration) && currentSuiteOwnerRef.current === ownerKey) {
         updateSearch({ run: accepted.run_id });
       }
@@ -1501,13 +1606,23 @@ export function PlaytestPage({
       }
       artifactIds.add(item.artifactId);
     }
-    return { error: null, items };
-  }, [configCandidates.data]);
+    const projectItems = projectId
+      ? items.filter(
+          (item) =>
+            projectConstraintArtifactId !== null &&
+            item.previewArtifactId === projectContentArtifactId &&
+            item.constraintArtifactId === projectConstraintArtifactId,
+        )
+      : items;
+    return { error: null, items: projectItems };
+  }, [configCandidates.data, projectConstraintArtifactId, projectContentArtifactId, projectId]);
   const suiteListError = suiteList.error ?? suiteProjection.error;
   const configCandidateError = configCandidates.error ?? configCandidateProjection.error;
-  const contextError = contextIsPartial
-    ? new PlaytestPageAuthorityError("preview, config, and constraint navigation IDs must be complete.")
-    : context.error;
+  const contextError =
+    projectBindingError ??
+    (contextIsPartial
+      ? new PlaytestPageAuthorityError("preview, config, and constraint navigation IDs must be complete.")
+      : context.error);
   const suites = suiteProjection.items;
   const candidateConfigs = configCandidateProjection.items;
   const deriveOutcomeUnknown = isUnknownDeriveAttempt(deriveAttempt);
@@ -1530,17 +1645,27 @@ export function PlaytestPage({
     <div className="gf-page gf-playtest" data-layout="editorial-playtest">
       <header className="gf-playtest__hero">
         <div>
-          <p className="gf-playtest__kicker">Deterministic oracle · Agent execution · exact trace</p>
+          <p className="gf-playtest__kicker">AI 自动试玩与规则判定</p>
           <h1>自动试玩</h1>
-          <p>
-            从不可变 TaskSuite 选择明确 episode，让真实 Playtest Agent 运行；Run 成功与任务通过始终分开陈述。
-          </p>
+          <p>选择一版候选内容，系统会生成试玩任务、自动操作游戏，并用确定性规则判断是否完成。</p>
         </div>
         <div className="gf-playtest__hero-mark" aria-hidden="true">
           <Gamepad2 size={30} />
-          <span>PLAYTEST</span>
+          <span>试玩</span>
         </div>
       </header>
+
+      {projectId && projectBindingError === null && (
+        <section className="gf-playtest__context" aria-label="项目试玩范围" role="region">
+          <header>
+            <GitBranch aria-hidden="true" size={22} />
+            <div>
+              <h2>只显示{projectName}项目当前版本可用的试玩配置</h2>
+              <p>内容与规则版本已经从项目带入；选择配置后，系统仍会逐项重验不可变工件。</p>
+            </div>
+          </header>
+        </section>
+      )}
 
       {contextError ? (
         <StatePanel description={contextError.message} state="error" title="候选绑定无法闭合" />
@@ -1555,33 +1680,48 @@ export function PlaytestPage({
           <header>
             <GitBranch aria-hidden="true" size={22} />
             <div>
-              <h2 id="playtest-context-title">候选绑定账本</h2>
-              <p>URL 只携带导航候选；以下身份已由专用资源读取与 ConfigExport payload 对拍。</p>
+              <h2 id="playtest-context-title">本次试玩内容</h2>
+              <p>系统已核对候选内容、规则、配置和试玩环境，可以安全地继续。</p>
             </div>
           </header>
           <ol>
             <li>
-              <span>Preview</span>
-              <code>{context.data.previewArtifactId}</code>
+              <span>候选内容</span>
+              <strong>候选内容已准备</strong>
             </li>
             <li>
-              <span>Config</span>
-              <code>{context.data.configArtifactId}</code>
+              <span>试玩配置</span>
+              <strong>配置已准备</strong>
             </li>
             <li>
-              <span>Constraint</span>
-              <code>{context.data.constraintArtifactId}</code>
+              <span>校验规则</span>
+              <strong>规则已绑定</strong>
             </li>
             <li>
-              <span>Environment</span>
-              <code>{profileKey(context.data.environmentProfile)}</code>
+              <span>试玩环境</span>
+              <strong>{environmentLabel(context.data.environmentProfile)}</strong>
             </li>
           </ol>
+          <TechnicalDetails
+            items={[
+              { label: "内容预览标识", value: context.data.previewArtifactId },
+              { label: "试玩配置标识", value: context.data.configArtifactId },
+              {
+                label: "规则版本标识",
+                value: context.data.constraintArtifactId,
+              },
+              {
+                label: "环境方案",
+                value: profileKey(context.data.environmentProfile),
+              },
+              ...(context.data.sourceRunId
+                ? [{ label: "来源运行标识", value: context.data.sourceRunId }]
+                : []),
+            ]}
+          />
           {context.data.sourceRunId && (
             <p>
-              导航来源：
-              <a href={`/runs/${encodeURIComponent(context.data.sourceRunId)}`}>{context.data.sourceRunId}</a>
-              ；不作为 TaskSuite authority。
+              <a href={`/runs/${encodeURIComponent(context.data.sourceRunId)}`}>查看来源生成记录</a>
             </p>
           )}
         </section>
@@ -1594,7 +1734,7 @@ export function PlaytestPage({
           <header>
             <Gamepad2 aria-hidden="true" size={22} />
             <div>
-              <p className="gf-playtest__kicker">Same-tab candidate selection</p>
+              <p className="gf-playtest__kicker">选择候选内容</p>
               <h2 id="playtest-candidate-catalog-title">选择待试玩候选</h2>
               <p>直接选择已生成的配置；页面会在当前标签页重验内容预览、规则与运行环境。</p>
             </div>
@@ -1633,11 +1773,20 @@ export function PlaytestPage({
           ) : candidateConfigs.length === 0 ? (
             <StatePanel
               action={
-                <a className="gf-secondary-button" href="/generation">
-                  前往内容生成
+                <a
+                  className="gf-secondary-button"
+                  href={projectId ? `/projects/${encodeURIComponent(projectId)}` : "/generation"}
+                >
+                  {projectId ? "返回项目继续准备" : "前往内容生成"}
                 </a>
               }
-              description="当前没有可用于派生 TaskSuite 的 ConfigExport；请先生成一个候选。"
+              description={
+                projectId && projectConstraintArtifactId === null
+                  ? "这个项目还没有发布规则版本；请先回到项目生成并发布规则。"
+                  : projectId
+                    ? "当前项目的内容与规则版本还没有匹配的试玩配置，请先生成项目内容。"
+                    : "当前没有可试玩的候选内容，请先生成一版候选。"
+              }
               state="empty"
               title="暂无待试玩候选"
             />
@@ -1680,13 +1829,7 @@ export function PlaytestPage({
             </>
           )}
         </section>
-      ) : (
-        <StatePanel
-          description="正在按已选择的 TaskSuite 或 Run 恢复工作区；不会从未绑定的 ConfigExport 猜测候选。"
-          state="loading"
-          title="正在恢复自动试玩上下文"
-        />
-      )}
+      ) : null}
 
       {!contextIsPartial && profiles.isError && (
         <StatePanel
@@ -1717,21 +1860,21 @@ export function PlaytestPage({
         <header>
           <Boxes aria-hidden="true" size={22} />
           <div>
-            <p className="gf-playtest__kicker">Immutable suite ledger</p>
-            <h2 id="playtest-suite-ledger-title">TaskSuite 发现</h2>
+            <p className="gf-playtest__kicker">可重复运行的任务</p>
+            <h2 id="playtest-suite-ledger-title">选择试玩任务</h2>
           </div>
         </header>
         {contextIsPartial ? (
           <StatePanel
-            description="补全 preview、config 与 constraint 后才会读取或展示 TaskSuite。"
+            description="候选内容、试玩配置或规则不完整，暂时无法准备试玩任务。"
             state="error"
-            title="TaskSuite authority 已阻断"
+            title="试玩内容不完整"
           />
         ) : suiteList.isPending ? (
           <StatePanel
-            description="正在读取服务端精确筛选的 TaskSuite。"
+            description="正在寻找与当前候选内容完全匹配的试玩任务。"
             state="loading"
-            title="正在发现 TaskSuite"
+            title="正在准备试玩任务"
           />
         ) : suiteListError ? (
           suiteListError instanceof CursorExpiredError ? (
@@ -1767,17 +1910,18 @@ export function PlaytestPage({
                 </button>
               ) : undefined
             }
-            description="当前 exact config/constraint/environment 下没有已派生 TaskSuite。"
+            description="当前候选还没有试玩任务，可以立即创建一组。"
             state="empty"
-            title="没有匹配的 TaskSuite"
+            title="还没有试玩任务"
           />
         ) : (
           <>
             <div className="gf-playtest__suite-grid">
-              {suites.map((item) => (
+              {suites.map((item, index) => (
                 <SuiteCard
                   disabled={launchControlsLocked}
                   key={item.artifact.artifact_id}
+                  ordinal={index + 1}
                   onSelect={() => {
                     setRecoveredSuite(null);
                     updateSearch({
@@ -1799,9 +1943,9 @@ export function PlaytestPage({
                   onClick={() => void suiteList.fetchNextPage()}
                   type="button"
                 >
-                  {suiteList.isFetchingNextPage ? "正在加载下一页…" : "加载更多 TaskSuite"}
+                  {suiteList.isFetchingNextPage ? "正在加载下一页…" : "加载更多试玩任务"}
                 </button>
-                <span>已载入 {suites.length} 个 immutable suites</span>
+                <span>已载入 {suites.length} 组试玩任务</span>
               </div>
             )}
           </>
@@ -1818,25 +1962,25 @@ export function PlaytestPage({
           <header>
             <FlaskConical aria-hidden="true" size={22} />
             <div>
-              <p className="gf-playtest__kicker">Exact deterministic derivation</p>
-              <h2 id="playtest-derive-title">派生 TaskSuite</h2>
+              <p className="gf-playtest__kicker">从当前候选创建任务</p>
+              <h2 id="playtest-derive-title">创建试玩任务</h2>
             </div>
           </header>
           {deriveRequested && (
             <p className="gf-playtest__derive-notice" role="status">
-              已切换到显式重新派生；确认 profile 后提交新的 TaskSuite Run，旧 suite 不会被静默复用。
+              将为当前候选重新创建一组任务；原来的任务仍会保留。
             </p>
           )}
           {!deriveOutcomeUnknown && profiles.isPending ? (
-            <p role="status">正在读取派生 profile…</p>
+            <p role="status">正在读取任务生成方案…</p>
           ) : !deriveOutcomeUnknown && profiles.isError ? (
-            <p role="status">请先使用上方操作恢复 execution profile 目录。</p>
+            <p role="status">请先使用上方操作恢复任务生成方案目录。</p>
           ) : !deriveOutcomeUnknown && derivationOptions.length === 0 ? (
-            <p role="alert">没有覆盖 exact candidate domain 的 active derivation profile。</p>
+            <p role="alert">没有可用于当前候选内容的任务生成方案。</p>
           ) : (
             <>
               <label>
-                <span>TaskSuite derivation profile</span>
+                <span>任务生成方案</span>
                 <select
                   disabled={deriveControlsLocked}
                   value={derivationKey}
@@ -1844,16 +1988,17 @@ export function PlaytestPage({
                 >
                   {derivationOptions.map((profile) => (
                     <option key={profileKey(profile.profile)} value={profileKey(profile.profile)}>
-                      {profileKey(profile.profile)} · {profile.domain_scope.domain_ids.join(", ")}
+                      {executionProfileLabel(profile)} ·{" "}
+                      {profile.domain_scope.domain_ids.map(domainLabel).join("、")}
                     </option>
                   ))}
                 </select>
               </label>
               {derivationBinding.isPending ? (
                 <StatePanel
-                  description="正在读取所选 profile 的冻结派生 binding。"
+                  description="正在核对所选任务生成方案。"
                   state="loading"
-                  title="正在读取派生 binding"
+                  title="正在准备任务生成方案"
                 />
               ) : derivationBinding.isError ? (
                 <StatePanel
@@ -1863,36 +2008,50 @@ export function PlaytestPage({
                       onClick={() => void derivationBinding.refetch()}
                       type="button"
                     >
-                      重试读取派生 binding
+                      重试读取任务生成方案
                     </button>
                   }
                   description={
                     derivationBinding.error instanceof ApiProblemError
                       ? derivationBinding.error.problem.detail
-                      : derivationBinding.error.message || "派生 binding 读取失败。"
+                      : "任务生成方案暂时无法读取。"
                   }
                   state="error"
-                  title="派生 binding 不可用"
+                  title="任务生成方案不可用"
                 />
               ) : derivationBinding.data ? (
                 <dl className="gf-playtest__binding">
                   <div>
-                    <dt>Oracle registry</dt>
-                    <dd>
-                      v{derivationBinding.data.completion_oracle_registry_ref.registry_version} ·{" "}
-                      {derivationBinding.data.completion_oracle_registry_ref.digest}
-                    </dd>
+                    <dt>完成判定</dt>
+                    <dd>已绑定确定性规则</dd>
                   </div>
                   <div>
-                    <dt>Max scenarios</dt>
+                    <dt>最多生成任务</dt>
                     <dd>{derivationBinding.data.max_scenarios}</dd>
                   </div>
                   <div>
-                    <dt>Prepared bytes</dt>
-                    <dd>{derivationBinding.data.max_total_prepared_artifact_bytes}</dd>
+                    <dt>准备数据上限</dt>
+                    <dd>
+                      {Math.round(derivationBinding.data.max_total_prepared_artifact_bytes / 1024 / 1024)} MB
+                    </dd>
                   </div>
                 </dl>
               ) : null}
+              {derivationBinding.data && (
+                <TechnicalDetails
+                  items={[
+                    {
+                      label: "判定规则摘要",
+                      value: derivationBinding.data.completion_oracle_registry_ref.digest,
+                    },
+                    {
+                      label: "判定规则版本",
+                      value: String(derivationBinding.data.completion_oracle_registry_ref.registry_version),
+                    },
+                    { label: "任务生成方案", value: derivationKey },
+                  ]}
+                />
+              )}
               <button
                 className="gf-primary-button"
                 disabled={
@@ -1907,7 +2066,7 @@ export function PlaytestPage({
                   ? "正在提交派生 Run…"
                   : deriveOutcomeUnknown
                     ? "重试同一派生 intent"
-                    : "派生 exact TaskSuite"}
+                    : "创建试玩任务"}
               </button>
               {deriveOutcomeUnknown && (
                 <p className="gf-playtest__frozen-attempt" role="status">
@@ -1933,12 +2092,7 @@ export function PlaytestPage({
 
       {!contextIsPartial && deriveRunId && (
         <>
-          <TrackedRun
-            api={api}
-            commandClient={commandClient}
-            label="TaskSuite 派生 Run"
-            runId={deriveRunId}
-          />
+          <TrackedRun api={api} commandClient={commandClient} label="试玩任务生成进度" runId={deriveRunId} />
           {context.data && (
             <DerivedSuiteRecovery
               api={api}
@@ -1998,12 +2152,12 @@ export function PlaytestPage({
               }}
               type="button"
             >
-              选择新派生的 {recoveredSuite.artifactId}
+              切换到新创建的试玩任务
             </button>
           }
-          description="新派生的 TaskSuite 已就绪；当前 launch owner 不会被自动替换。"
+          description="新任务已经准备好。为避免打断当前设置，需要由你确认切换。"
           state="terminal"
-          title="等待显式切换 TaskSuite"
+          title="是否使用新试玩任务？"
         />
       )}
 
@@ -2030,9 +2184,16 @@ export function PlaytestPage({
           <header>
             <ListChecks aria-hidden="true" size={22} />
             <div>
-              <p className="gf-playtest__kicker">Explicit episode selection</p>
-              <h2 id="playtest-launch-title">Playtest launch docket</h2>
-              <code>{selectedSuite.data.artifact.artifact_id}</code>
+              <p className="gf-playtest__kicker">选择任务并启动</p>
+              <h2 id="playtest-launch-title">开始自动试玩</h2>
+              <TechnicalDetails
+                items={[
+                  {
+                    label: "试玩任务集标识",
+                    value: selectedSuite.data.artifact.artifact_id,
+                  },
+                ]}
+              />
             </div>
           </header>
           {profiles.isSuccess && plannerOptions.length === 0 && !launchOutcomeUnknown && (
@@ -2043,8 +2204,8 @@ export function PlaytestPage({
             />
           )}
           <fieldset disabled={launchControlsLocked}>
-            <legend>Exact episode subset</legend>
-            {selectedSuite.data.task_suite.episodes.map((episode) => (
+            <legend>选择要试玩的任务</legend>
+            {selectedSuite.data.task_suite.episodes.map((episode, index) => (
               <label key={episode.episode_id}>
                 <input
                   checked={selectedEpisodeIds.has(episode.episode_id)}
@@ -2060,14 +2221,21 @@ export function PlaytestPage({
                   type="checkbox"
                 />
                 <span>
-                  {episode.episode_id} · 最多 {episode.step_budget} 步
+                  任务 {index + 1} · 最多 {episode.step_budget} 步
                 </span>
               </label>
             ))}
           </fieldset>
+          <TechnicalDetails
+            items={selectedSuite.data.task_suite.episodes.map((episode, index) => ({
+              label: `任务 ${index + 1} 标识`,
+              value: episode.episode_id,
+            }))}
+            summary="任务技术信息"
+          />
           <div className="gf-playtest__launch-grid">
             <label>
-              <span>Planner profile</span>
+              <span>AI 试玩方案</span>
               <select
                 disabled={launchControlsLocked}
                 value={plannerKey}
@@ -2075,14 +2243,14 @@ export function PlaytestPage({
               >
                 {plannerOptions.map((profile) => (
                   <option key={profileKey(profile.profile)} value={profileKey(profile.profile)}>
-                    {profileKey(profile.profile)} · {profile.status} ·{" "}
-                    {profile.domain_scope.domain_ids.join(", ")}
+                    {executionProfileLabel(profile)} ·{" "}
+                    {profile.domain_scope.domain_ids.map(domainLabel).join("、")}
                   </option>
                 ))}
               </select>
             </label>
             <label>
-              <span>LLM execution mode</span>
+              <span>AI 运行方式</span>
               <select
                 disabled={launchControlsLocked}
                 value={mode}
@@ -2092,24 +2260,24 @@ export function PlaytestPage({
                   if (next !== "replay") setReplaySourceRunId("");
                 }}
               >
-                <option value="record">record</option>
-                <option value="live">live</option>
-                <option value="replay">replay</option>
+                <option value="record">运行并保存记录</option>
+                <option value="live">直接运行</option>
+                <option value="replay">回放历史记录</option>
               </select>
             </label>
             <label>
-              <span>Interaction mode</span>
+              <span>操作方式</span>
               <select
                 disabled={launchControlsLocked}
                 value={interactionMode}
                 onChange={(event) => setInteractionMode(event.target.value as InteractionMode)}
               >
-                <option value="autonomous">autonomous</option>
-                <option value="bounded_choice">bounded_choice</option>
+                <option value="autonomous">自动完成</option>
+                <option value="bounded_choice">只在允许范围内选择</option>
               </select>
             </label>
             <label>
-              <span>Seed</span>
+              <span>随机种子</span>
               <input
                 disabled={launchControlsLocked}
                 min="0"
@@ -2133,7 +2301,7 @@ export function PlaytestPage({
             </label>
             {mode === "replay" && (
               <label>
-                <span>Replay source Run</span>
+                <span>回放来源</span>
                 <select
                   disabled={launchControlsLocked}
                   onChange={(event) => setReplaySourceRunId(event.target.value)}
@@ -2160,8 +2328,8 @@ export function PlaytestPage({
             {launchAttempt?.pending
               ? "正在解析并提交…"
               : launchOutcomeUnknown
-                ? "重试同一 Playtest intent"
-                : "解析并启动 Playtest"}
+                ? "重试同一次启动"
+                : "开始自动试玩"}
           </button>
           {launchOutcomeUnknown && (
             <p className="gf-playtest__frozen-attempt" role="status">
@@ -2189,7 +2357,7 @@ export function PlaytestPage({
 
       {!contextIsPartial && playtestRunId && (
         <>
-          <TrackedRun api={api} commandClient={commandClient} label="Playtest Run" runId={playtestRunId} />
+          <TrackedRun api={api} commandClient={commandClient} label="自动试玩进度" runId={playtestRunId} />
           <PlaytestTerminalPanel
             api={api}
             request={launchAttempt?.accepted?.run_id === playtestRunId ? launchAttempt.request : null}
@@ -2201,7 +2369,7 @@ export function PlaytestPage({
 
       <footer className="gf-playtest__principle">
         <ShieldCheck aria-hidden="true" size={18} />
-        <span>Completion oracle 与 trace 由确定性契约判定；LLM Agent 只负责有边界地执行。</span>
+        <span>试玩是否完成及轨迹结果由固定规则判定；AI 只负责在明确边界内执行操作。</span>
         <Route aria-hidden="true" size={18} />
       </footer>
     </div>

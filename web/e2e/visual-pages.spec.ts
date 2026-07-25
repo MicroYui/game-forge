@@ -22,13 +22,13 @@ test.describe("@visual V3 product-page matrix", () => {
       await assertV3PageGeometry(page, pageCase);
 
       if (pageCase.id === "reviews" && pageCase.viewport.width <= 412) {
-        const snapshotValue = page
-          .getByRole("table", { name: "Review Artifact 历史" })
-          .getByText("snapshot:v3", { exact: true });
-        const snapshotBox = await snapshotValue.boundingBox();
+        const contentVersionLabel = page
+          .getByRole("table", { name: "历史检查报告" })
+          .getByText("固定内容版本", { exact: true });
+        const snapshotBox = await contentVersionLabel.boundingBox();
         expect(
           snapshotBox,
-          "Review snapshot ID must not collapse into a one-character column",
+          "Review content-version label must not collapse into a one-character column",
         ).not.toBeNull();
         expect(snapshotBox!.width).toBeGreaterThanOrEqual(96);
       }

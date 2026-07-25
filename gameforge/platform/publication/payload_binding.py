@@ -395,12 +395,14 @@ def expected_typed_run_parent_ids(
             bind("snapshot", (params.base_snapshot_artifact_id,))
             bind("constraint", (params.constraint_snapshot_artifact_id,))
             bind("goal", (params.objective_goal.source_artifact_id,))
+            bind("planning_material", params.source_artifact_ids)
             bind(
                 "supporting_evidence",
                 tuple(item.evidence_artifact_id for item in params.findings),
             )
         elif rule_id == "preview":
             bind("base", (params.base_snapshot_artifact_id,))
+            bind("planning_material", params.source_artifact_ids)
         else:
             bind("constraint", (params.constraint_snapshot_artifact_id,))
     elif isinstance(params, PatchRepairPayloadV1):

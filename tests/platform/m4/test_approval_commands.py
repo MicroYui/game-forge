@@ -182,6 +182,35 @@ def _roles(registry: DomainRegistryV1) -> RolePolicy:
     )
 
 
+def _platform_admin_roles(registry: DomainRegistryV1) -> RolePolicy:
+    ref = _domain_ref(registry)
+    grants = {
+        "platform_admin": tuple(
+            Permission(action=action, resource_kind=resource_kind, domain_scope="all")
+            for action, resource_kind in (
+                ("propose", "patch"),
+                ("propose", "constraint_proposal"),
+                ("propose", "rollback_request"),
+                ("approval.decide", "approval"),
+                ("approval.self_decide", "approval"),
+                ("approval.route_override", "approval"),
+            )
+        )
+    }
+    return RolePolicy(
+        policy_version="roles@platform-admin",
+        domain_registry_ref=ref,
+        grants=grants,
+        effective_from=NOW,
+        policy_digest=compute_role_policy_digest(
+            "roles@platform-admin",
+            ref,
+            grants,
+            NOW,
+        ),
+    )
+
+
 def _approval_policy() -> ApprovalPolicyV1:
     fields = {
         "policy_version": "approval-policy@1",
@@ -2500,6 +2529,41 @@ def test_decide_current_supports_partial_requirement_approval() -> None:
     assert partial.workflow_revision == pending.workflow_revision + 1
     assert partial.decisions[0].requirement_ids == ("route:economy",)
     assert harness.state.audit[-1][0] == "approval.partially_approved"
+
+
+def test_decide_current_audits_explicit_platform_admin_self_approval() -> None:
+    harness = _harness()
+    roles = _platform_admin_roles(harness.registry)
+    policies = harness.capabilities.policies
+    assert isinstance(policies, _Policies)
+    policies.roles = roles
+    harness.roles = roles
+    assignment = RoleAssignmentV1(
+        assignment_id="assignment:human:maker:platform-admin",
+        principal_id="human:maker",
+        role="platform_admin",
+        scope="all",
+        status="active",
+        revision=1,
+        granted_at=NOW,
+        granted_by=AuditActor(principal_id="system:bootstrap", principal_kind="system"),
+    )
+    admin = _principal("human:maker").model_copy(update={"roles": (assignment,)})
+    harness.principals.values[admin.id] = admin
+    pending = _pending_item(harness)
+
+    approved = harness.service.decide_current(
+        approval_id=pending.approval_id,
+        request=_server_decision_request(pending),
+        context=_context(
+            actor=admin.id,
+            key="decision:platform-admin-self",
+            request_hash="7" * 64,
+        ),
+    )
+
+    assert approved.status == "approved"
+    assert harness.state.audit[-1][0] == "approval.privileged_self_approved"
 
 
 def test_decide_current_revalidates_historical_votes_before_final_approval() -> None:

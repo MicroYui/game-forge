@@ -10,13 +10,14 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { createMutationIntent } from "../../api/csrf";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { EvidenceSections } from "../../components/evidence";
+import { TechnicalDetails } from "../../components/identity";
 import { CopyableText } from "../../components/tables";
 import { ConfirmDialog, ProblemPanel, StatePanel } from "../../components/ui";
 import { messages } from "../../i18n/zh-CN";
@@ -74,6 +75,20 @@ const REVISION_OPEN_STATUSES: ReadonlySet<ApprovalRecord["status"]> = new Set([
   "changes_requested",
   "rejected",
 ]);
+
+const constraintWorkflowStatusLabels: Readonly<Record<string, string>> = {
+  applied: "已发布",
+  approved: "已批准",
+  changes_requested: "需要修改",
+  draft: "编辑中",
+  pending_approval: "待审批",
+  rejected: "未通过审批",
+  rolled_back: "已回退",
+  superseded: "已被新版替代",
+  validated: "检查已通过",
+  validating: "检查中",
+  validation_failed: "检查未通过",
+};
 
 interface WorkflowData {
   approval: VersionedResource<ApprovalView> | null;
@@ -166,7 +181,10 @@ function parseRevisionConstraints(
     if (!Array.isArray(parsed) || parsed.length === 0 || parsed.some((item) => !isRecord(item))) {
       return { ok: false };
     }
-    return { ok: true, value: parsed as HumanConstraintRevisionRequest["constraints"] };
+    return {
+      ok: true,
+      value: parsed as HumanConstraintRevisionRequest["constraints"],
+    };
   } catch {
     return { ok: false };
   }
@@ -200,11 +218,17 @@ function parseEvidence(artifactView: ArtifactPayloadView | null, approval: Appro
     artifactView.artifact.artifact_id !== approval.evidence_set_artifact_id ||
     artifactView.artifact.payload_schema_id !== "evidence-set@1"
   ) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id ?? null };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id ?? null,
+    };
   }
   const payload = artifactView.payload;
   if (!isRecord(payload) || payload.evidence_schema_version !== "evidence-set@1") {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id,
+    };
   }
   const status = payload.overall_status;
   const runId = payload.validation_run_id;
@@ -216,10 +240,16 @@ function parseEvidence(artifactView: ArtifactPayloadView | null, approval: Appro
     payload.subject_digest !== approval.subject_digest ||
     !Array.isArray(requirements)
   ) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id,
+    };
   }
   if (status === "passed" && !evidenceTargetMatches(payload.target_binding, constraintTarget(approval))) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id,
+    };
   }
   const safeRequirements: Extract<EvidenceView, { kind: "evidence" }>["requirements"] = [];
   for (const requirement of requirements) {
@@ -236,7 +266,10 @@ function parseEvidence(artifactView: ArtifactPayloadView | null, approval: Appro
         requirement.evidence_artifact_id !== undefined &&
         typeof requirement.evidence_artifact_id !== "string")
     ) {
-      return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+      return {
+        kind: "unsafe",
+        schemaId: artifactView.artifact.payload_schema_id,
+      };
     }
     safeRequirements.push({
       evidenceArtifactId:
@@ -267,7 +300,10 @@ function parseCompileEvidence(
     artifactView.artifact.kind !== "validation_evidence" ||
     artifactView.artifact.payload_schema_id !== "constraint-compile-evidence@1"
   ) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id ?? null };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id ?? null,
+    };
   }
   const payload = artifactView.payload;
   if (
@@ -282,7 +318,10 @@ function parseCompileEvidence(
     payload.overall_status !== compileRequirement.status ||
     !Array.isArray(payload.stages)
   ) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id,
+    };
   }
   const stages: Extract<CompileEvidenceView, { kind: "compile" }>["stages"] = [];
   for (const value of payload.stages) {
@@ -305,7 +344,10 @@ function parseCompileEvidence(
       (value.engine_id !== null && value.engine_id !== undefined && typeof value.engine_id !== "string") ||
       (value.reason_code !== null && value.reason_code !== undefined && typeof value.reason_code !== "string")
     ) {
-      return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+      return {
+        kind: "unsafe",
+        schemaId: artifactView.artifact.payload_schema_id,
+      };
     }
     stages.push({
       engineId: typeof value.engine_id === "string" ? value.engine_id : null,
@@ -325,7 +367,10 @@ function parseFailure(artifactView: ArtifactPayloadView | null, approval: Approv
     artifactView.artifact.artifact_id !== approval.last_validation_failure_artifact_id ||
     artifactView.artifact.payload_schema_id !== "run-failure@1"
   ) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id ?? null };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id ?? null,
+    };
   }
   const payload = artifactView.payload;
   if (
@@ -335,7 +380,10 @@ function parseFailure(artifactView: ArtifactPayloadView | null, approval: Approv
     typeof payload.cause_code !== "string" ||
     typeof payload.redacted_message !== "string"
   ) {
-    return { kind: "unsafe", schemaId: artifactView.artifact.payload_schema_id };
+    return {
+      kind: "unsafe",
+      schemaId: artifactView.artifact.payload_schema_id,
+    };
   }
   return {
     causeCode: payload.cause_code,
@@ -349,6 +397,8 @@ function constraintTarget(item: ApprovalRecord): ConstraintTargetBinding | null 
   const target = item.target_binding;
   return target?.subject_kind === "constraint_proposal" ? target : null;
 }
+
+const WORKFLOW_IDENTITY_READ_ATTEMPTS = 3;
 
 function profileKey(profile: ExecutionProfile): string {
   return `${profile.profile.profile_id}@${profile.profile.version}`;
@@ -488,7 +538,10 @@ function EvidenceStatus({
     const guidance = reasonExplanation(firstProblem?.reasonCode ?? null);
     evidenceContent = (
       <div className="gf-specs__evidence-summary">
-        <strong>确定性证据：{evidence.status === "passed" ? "validated" : evidence.status}</strong>
+        <strong>
+          确定性证据：
+          {evidence.status === "passed" ? "validated" : evidence.status}
+        </strong>
         <p>
           本次验证记录了 {evidence.requirements.length} 项检查；结论来自 EvidenceSet，而不是 Run
           的技术执行状态。
@@ -541,7 +594,8 @@ function EvidenceStatus({
         )}
         {compileEvidence.kind === "unsafe" && (
           <p role="alert">
-            编译证据 schema 无法安全解释：<code>{compileEvidence.schemaId ?? "unknown"}</code>。
+            编译证据 schema 无法安全解释：
+            <code>{compileEvidence.schemaId ?? "unknown"}</code>。
           </p>
         )}
         <a href={`/runs/${encodeURIComponent(evidence.runId)}`}>打开证据 Run</a>
@@ -583,61 +637,101 @@ export function ConstraintProposalPage({
   artifactId: string;
 }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const projectContextResult = useMemo(() => {
+    const projectId = searchParams.get("project")?.trim() ?? "";
+    if (!projectId) return { error: null, value: null };
+    const refName = searchParams.get("constraintRef")?.trim() ?? "";
+    const artifactId = searchParams.get("constraint")?.trim() || null;
+    const revisionText = searchParams.get("constraintRevision")?.trim() || null;
+    if (!refName || (artifactId === null) !== (revisionText === null)) {
+      return {
+        error: "项目规则发布位置或当前版本绑定不完整，请返回项目刷新后重试。",
+        value: null,
+      };
+    }
+    if (revisionText !== null && !/^[1-9]\d*$/u.test(revisionText)) {
+      return { error: "项目当前规则版本号无效，请返回项目刷新后重试。", value: null };
+    }
+    return {
+      error: null,
+      value: {
+        expectedRef:
+          artifactId && revisionText ? { artifact_id: artifactId, revision: Number(revisionText) } : null,
+        projectId,
+        projectName: searchParams.get("projectName")?.trim() || projectId.replace(/^project:/u, ""),
+        refName,
+      },
+    };
+  }, [searchParams]);
+  const projectContext = projectContextResult.value;
   const [currentArtifactId, setCurrentArtifactId] = useState(artifactId);
   useEffect(() => setCurrentArtifactId(artifactId), [artifactId]);
   const workflow = useQuery({
     queryFn: async (): Promise<WorkflowData> => {
-      const current = await api.getConstraintProposal(currentArtifactId);
-      const baseArtifactId = await resolveBaseArtifactId(api, current);
-      let binding: SubjectApprovalBindingView;
-      try {
-        binding = await api.getApprovalBinding(current.value.artifact.artifact_id);
-      } catch (error) {
-        if (error instanceof ApiProblemError && error.problem.status === 404) {
-          return {
-            approval: null,
-            baseArtifactId,
-            binding: null,
-            current,
-            evidenceArtifact: null,
-            failureArtifact: null,
-            requirementArtifacts: [],
-          };
+      // Proposal, binding and ApprovalView are three separate reads, so a workflow
+      // transition landing between them returns a skewed identity. Re-read the triple
+      // instead of turning that transient skew into a dead end; the exact identity
+      // guard below still fails closed when it never settles.
+      for (let attempt = 1; ; attempt += 1) {
+        const current = await api.getConstraintProposal(currentArtifactId);
+        const baseArtifactId = await resolveBaseArtifactId(api, current);
+        let binding: SubjectApprovalBindingView;
+        try {
+          binding = await api.getApprovalBinding(current.value.artifact.artifact_id);
+        } catch (error) {
+          if (error instanceof ApiProblemError && error.problem.status === 404) {
+            return {
+              approval: null,
+              baseArtifactId,
+              binding: null,
+              current,
+              evidenceArtifact: null,
+              failureArtifact: null,
+              requirementArtifacts: [],
+            };
+          }
+          throw error;
         }
-        throw error;
-      }
-      const approval = await api.getApproval(binding.approval_id);
-      const [evidenceArtifact, failureArtifact] = await Promise.all([
-        approval.value.approval.evidence_set_artifact_id
-          ? api.getArtifactPayload(approval.value.approval.evidence_set_artifact_id)
-          : Promise.resolve(null),
-        approval.value.approval.last_validation_failure_artifact_id
-          ? api.getArtifactPayload(approval.value.approval.last_validation_failure_artifact_id)
-          : Promise.resolve(null),
-      ]);
-      const evidence = parseEvidence(evidenceArtifact, approval.value.approval);
-      const requirementArtifactIds =
-        evidence.kind === "evidence"
-          ? [
-              ...new Set(
-                evidence.requirements.flatMap((item) =>
-                  item.evidenceArtifactId ? [item.evidenceArtifactId] : [],
+        const approval = await api.getApproval(binding.approval_id);
+        const settledIdentity =
+          approval.value.approval.workflow_revision === binding.workflow_revision &&
+          binding.workflow_revision === current.value.workflow_revision &&
+          approval.value.approval.status === binding.approval_status &&
+          binding.approval_status === current.value.approval_status;
+        if (!settledIdentity && attempt < WORKFLOW_IDENTITY_READ_ATTEMPTS) continue;
+        const [evidenceArtifact, failureArtifact] = await Promise.all([
+          approval.value.approval.evidence_set_artifact_id
+            ? api.getArtifactPayload(approval.value.approval.evidence_set_artifact_id)
+            : Promise.resolve(null),
+          approval.value.approval.last_validation_failure_artifact_id
+            ? api.getArtifactPayload(approval.value.approval.last_validation_failure_artifact_id)
+            : Promise.resolve(null),
+        ]);
+        const evidence = parseEvidence(evidenceArtifact, approval.value.approval);
+        const requirementArtifactIds =
+          evidence.kind === "evidence"
+            ? [
+                ...new Set(
+                  evidence.requirements.flatMap((item) =>
+                    item.evidenceArtifactId ? [item.evidenceArtifactId] : [],
+                  ),
                 ),
-              ),
-            ]
-          : [];
-      const requirementArtifacts = await Promise.all(
-        requirementArtifactIds.map((artifactId) => api.getArtifactPayload(artifactId)),
-      );
-      return {
-        approval,
-        baseArtifactId,
-        binding,
-        current,
-        evidenceArtifact,
-        failureArtifact,
-        requirementArtifacts,
-      };
+              ]
+            : [];
+        const requirementArtifacts = await Promise.all(
+          requirementArtifactIds.map((artifactId) => api.getArtifactPayload(artifactId)),
+        );
+        return {
+          approval,
+          baseArtifactId,
+          binding,
+          current,
+          evidenceArtifact,
+          failureArtifact,
+          requirementArtifacts,
+        };
+      }
     },
     queryKey: ["constraint-proposal", currentArtifactId],
     refetchInterval: (query) =>
@@ -690,17 +784,22 @@ export function ConstraintProposalPage({
     if (initializedProposalArtifactId.current === proposalArtifactId) return;
     initializedProposalArtifactId.current = proposalArtifactId;
     const target = constraintTarget(data.approval.value.approval);
+    const initialTarget = target
+      ? { expectedRef: target.expected_ref ?? null, refName: target.ref_name }
+      : projectContext
+        ? { expectedRef: projectContext.expectedRef, refName: projectContext.refName }
+        : null;
     setRationale(data.current.value.proposal.rationale);
     setRevisionConstraintsJson(JSON.stringify(data.current.value.proposal.constraints, null, 2));
-    setRefName(target?.ref_name ?? "");
-    setExpectedRefArtifactId(target?.expected_ref?.artifact_id ?? "");
-    setExpectedRefRevision(target?.expected_ref ? String(target.expected_ref.revision) : "");
-    setConfirmMissingRef(target !== null && target.expected_ref == null);
-    setRefSelection(target ? { expectedRef: target.expected_ref ?? null, refName: target.ref_name } : null);
+    setRefName(initialTarget?.refName ?? "");
+    setExpectedRefArtifactId(initialTarget?.expectedRef?.artifact_id ?? "");
+    setExpectedRefRevision(initialTarget?.expectedRef ? String(initialTarget.expectedRef.revision) : "");
+    setConfirmMissingRef(initialTarget !== null && initialTarget.expectedRef == null);
+    setRefSelection(initialTarget);
     setFollowUpRefSelection(null);
     setFollowUpDraft(null);
     setRequirementId("");
-  }, [workflow.data]);
+  }, [projectContext, workflow.data]);
 
   async function loadMoreProfiles() {
     const current = profileState;
@@ -719,7 +818,11 @@ export function ConstraintProposalPage({
         readSnapshotId: current.readSnapshotId,
       });
     } catch (error) {
-      setProfileState({ ...current, error: normalizedError(error), loading: false });
+      setProfileState({
+        ...current,
+        error: normalizedError(error),
+        loading: false,
+      });
     }
   }
 
@@ -743,10 +846,10 @@ export function ConstraintProposalPage({
     return (
       <div className="gf-page gf-specs">
         <StatePanel
-          description="正在读取候选 Artifact、exact ETag、审批绑定与 execution profile 目录。"
+          description="正在读取规则内容、审批进度和可用的自动检查方案。"
           headingLevel={1}
           state="loading"
-          title="正在读取约束候选"
+          title="正在读取规则草案"
         />
       </div>
     );
@@ -757,8 +860,8 @@ export function ConstraintProposalPage({
     return (
       <div className="gf-page gf-specs">
         <header className="gf-page-header">
-          <p className="gf-specs__kicker">Constraint proposal · Candidate</p>
-          <h1>约束候选</h1>
+          <p className="gf-specs__kicker">游戏规则修改</p>
+          <h1>规则修改草案</h1>
         </header>
         {loadError instanceof ApiProblemError ? (
           <ProblemPanel problem={loadError.problem} />
@@ -773,9 +876,9 @@ export function ConstraintProposalPage({
                 重试
               </button>
             }
-            description="候选工作流读取失败；未展示底层异常内容。"
+            description="规则草案读取失败；未展示底层异常内容。"
             state="error"
-            title="无法读取约束候选"
+            title="无法读取规则草案"
           />
         )}
       </div>
@@ -788,10 +891,10 @@ export function ConstraintProposalPage({
     return (
       <div className="gf-page gf-specs">
         <StatePanel
-          description="响应尚未形成完整的 proposal 与 profile 读取快照。"
+          description="规则草案仍在准备中。"
           headingLevel={1}
           state="loading"
-          title="正在读取约束候选"
+          title="正在读取规则草案"
         />
       </div>
     );
@@ -800,7 +903,7 @@ export function ConstraintProposalPage({
     return (
       <div className="gf-page gf-specs">
         <StatePanel
-          description="服务器未返回该 immutable proposal 的 retained approval binding；页面不会推导 approval ID。"
+          description="服务器没有返回与这份草案匹配的审批记录；为避免审批错对象，相关操作已停止。"
           headingLevel={1}
           state="error"
           title="审批绑定缺失"
@@ -815,6 +918,52 @@ export function ConstraintProposalPage({
   const binding = data.binding;
   const approval = data.approval.value;
   const item = approval.approval;
+  if (projectContextResult.error) {
+    return (
+      <div className="gf-page gf-specs">
+        <StatePanel
+          action={
+            <a className="gf-secondary-button" href="/projects">
+              返回游戏项目
+            </a>
+          }
+          description={projectContextResult.error}
+          headingLevel={1}
+          state="error"
+          title="项目规则绑定不完整"
+        />
+      </div>
+    );
+  }
+  const itemTarget = constraintTarget(item);
+  const projectTargetMismatch =
+    projectContext !== null &&
+    (baseArtifactId !== (projectContext.expectedRef?.artifact_id ?? null) ||
+      (itemTarget !== null &&
+        (itemTarget.ref_name !== projectContext.refName ||
+          (itemTarget.expected_ref?.artifact_id ?? null) !==
+            (projectContext.expectedRef?.artifact_id ?? null) ||
+          (itemTarget.expected_ref?.revision ?? null) !== (projectContext.expectedRef?.revision ?? null))));
+  if (projectTargetMismatch) {
+    return (
+      <div className="gf-page gf-specs">
+        <StatePanel
+          action={
+            <a
+              className="gf-secondary-button"
+              href={`/projects/${encodeURIComponent(projectContext.projectId)}`}
+            >
+              返回项目刷新
+            </a>
+          }
+          description="这份提案的基础规则或既有发布目标与项目当前版本不一致；页面没有自动改写或重定向。"
+          headingLevel={1}
+          state="error"
+          title="提案不属于项目当前规则版本"
+        />
+      </div>
+    );
+  }
   const bindingIsExact =
     binding.subject_kind === "constraint_proposal" &&
     binding.subject_artifact_id === proposal.artifact.artifact_id &&
@@ -972,9 +1121,13 @@ export function ConstraintProposalPage({
         setAcceptedRunId(null);
         setPublished(null);
         setCurrentArtifactId(revised.artifact.artifact_id);
-        navigate(`/constraint-proposals/${encodeURIComponent(revised.artifact.artifact_id)}`, {
-          replace: true,
-        });
+        const query = searchParams.toString();
+        navigate(
+          `/constraint-proposals/${encodeURIComponent(revised.artifact.artifact_id)}${query ? `?${query}` : ""}`,
+          {
+            replace: true,
+          },
+        );
       },
     );
   }
@@ -1078,85 +1231,99 @@ export function ConstraintProposalPage({
 
   return (
     <div className="gf-page gf-specs gf-constraint-proposal">
-      <nav aria-label="约束候选导航" className="gf-specs__back-nav">
-        <a href="/specs">返回规格工作台</a>
-        <a href={`/artifacts/${encodeURIComponent(proposal.artifact.artifact_id)}`}>查看安全 Artifact 摘要</a>
-        <a href={`/approvals/${encodeURIComponent(binding.approval_id)}`}>打开 exact approval</a>
-        <a href={`/constraint-proposals/${encodeURIComponent(proposal.artifact.artifact_id)}`}>
-          当前 revision canonical detail
+      <nav aria-label="规则草案导航" className="gf-specs__back-nav">
+        {projectContext ? (
+          <a href={`/projects/${encodeURIComponent(projectContext.projectId)}`}>
+            返回{projectContext.projectName}项目
+          </a>
+        ) : (
+          <a href="/specs">返回内容工作台</a>
+        )}
+        <a href={`/artifacts/${encodeURIComponent(proposal.artifact.artifact_id)}`}>查看来源记录</a>
+        <a href={`/approvals/${encodeURIComponent(binding.approval_id)}`}>查看审批进度</a>
+        <a
+          href={`/constraint-proposals/${encodeURIComponent(proposal.artifact.artifact_id)}${searchParams.size ? `?${searchParams.toString()}` : ""}`}
+        >
+          查看当前草案版本
         </a>
       </nav>
 
       <header className="gf-specs__hero gf-specs__hero--detail">
         <div>
-          <p className="gf-specs__kicker">Constraint proposal · Candidate Artifact</p>
-          <h1>约束候选</h1>
+          <p className="gf-specs__kicker">游戏规则修改</p>
+          <h1>规则修改草案</h1>
           <p className="gf-specs__lede">
-            候选 Artifact 不等于权威约束；只有确定性证据、另一位 Human 审批与 publish ref transition
-            能完成权威化。
+            核对规则内容、自动检查结果和审批进度；通过并发布前不会影响正式内容。
           </p>
         </div>
         <span className="gf-specs__status-mark">
           {isHuman ? <UserRound aria-hidden="true" size={17} /> : <Bot aria-hidden="true" size={17} />}
-          {hasHumanAuthorRevision
-            ? "Human 修订候选"
-            : isHuman
-              ? "Human 初稿 · 仍需确认修订"
-              : "Agent 候选 · 必须由 Human 修订"}
+          {hasHumanAuthorRevision ? "人工已修订" : isHuman ? "人工初稿 · 仍需确认" : "AI 起草 · 必须人工确认"}
         </span>
       </header>
 
-      <dl className="gf-specs__facts" aria-label="约束候选工作流身份">
+      {projectContext && (
+        <aside className="gf-specs__project-context" role="note">
+          <GitBranch aria-hidden="true" size={19} />
+          <div>
+            <strong>已绑定{projectContext.projectName}项目的规则发布位置</strong>
+            <p>发布位置和当前规则版本已锁定；若项目状态变化，服务器会按 exact binding 拒绝旧请求。</p>
+          </div>
+        </aside>
+      )}
+
+      <dl className="gf-specs__facts" aria-label="规则草案概览">
         <div>
-          <dt>Proposal Artifact</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Proposal Artifact ID" value={proposal.artifact.artifact_id} />
-          </dd>
-        </div>
-        <div>
-          <dt>Exact ETag</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Proposal ETag" value={current.etag} />
-          </dd>
-        </div>
-        <div>
-          <dt>Approval</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Approval ID" value={binding.approval_id} />
-          </dd>
+          <dt>规则数量</dt>
+          <dd>{proposal.proposal.constraints.length} 条</dd>
         </div>
         <div>
-          <dt>Workflow</dt>
-          <dd>
-            head {binding.subject_head_revision} · workflow {binding.workflow_revision} · {item.status}
-          </dd>
+          <dt>创建方式</dt>
+          <dd>{isHuman ? "人工创建" : "AI 起草"}</dd>
         </div>
-        <div className="gf-specs__fact-wide">
-          <dt>Subject digest</dt>
-          <dd>
-            <CopyableText copyLabel="复制 Subject digest" value={binding.subject_digest} />
-          </dd>
+        <div>
+          <dt>草案状态</dt>
+          <dd>{constraintWorkflowStatusLabels[item.status] ?? item.status}</dd>
         </div>
-        <div className="gf-specs__fact-wide">
-          <dt>Base constraint</dt>
-          <dd>
-            {typeof baseArtifactId === "string" ? (
-              <CopyableText copyLabel="复制 Base Constraint Artifact ID" value={baseArtifactId} />
-            ) : proposal.proposal.base_constraint_snapshot_id == null ? (
-              <span className="gf-specs__muted">无 base constraint snapshot</span>
-            ) : (
-              <span className="gf-specs__muted">parent summary 尚未唯一匹配</span>
-            )}
-          </dd>
+        <div>
+          <dt>基于已有规则</dt>
+          <dd>{typeof baseArtifactId === "string" ? "是" : "否"}</dd>
         </div>
       </dl>
+      <TechnicalDetails
+        items={[
+          {
+            label: "Proposal Artifact ID",
+            value: proposal.artifact.artifact_id,
+          },
+          { label: "Exact ETag", value: current.etag },
+          { label: "Approval ID", value: binding.approval_id },
+          {
+            label: "Subject head revision",
+            value: String(binding.subject_head_revision),
+          },
+          {
+            label: "Workflow revision",
+            value: String(binding.workflow_revision),
+          },
+          { label: "Subject digest", value: binding.subject_digest },
+          {
+            label: "Base constraint Artifact ID",
+            value:
+              typeof baseArtifactId === "string"
+                ? baseArtifactId
+                : (proposal.proposal.base_constraint_snapshot_id ?? "未绑定"),
+          },
+        ]}
+        summary="查看规则草案技术信息"
+      />
 
       {!isHuman && (
         <aside className="gf-specs__semantic-note" role="note">
           <Bot aria-hidden="true" size={20} />
           <div>
-            <strong>Agent 只提交候选</strong>
-            <p>必须先生成 produced_by=human 的 superseding revision，才能进入 compile / validate。</p>
+            <strong>AI 只负责起草</strong>
+            <p>请先核对并保存一次人工修订，之后才能运行自动检查。</p>
           </div>
         </aside>
       )}
@@ -1165,17 +1332,17 @@ export function ConstraintProposalPage({
         <aside className="gf-specs__semantic-note" role="note">
           <UserRound aria-hidden="true" size={20} />
           <div>
-            <strong>这份 Human 初稿还不是可验证 revision</strong>
-            <p>请在下方复核内容并提交一次人工修订；生成不可变的 superseding revision 后才能验证。</p>
+            <strong>这份人工初稿仍需确认</strong>
+            <p>请在下方核对内容并保存一次修订，之后才能运行自动检查。</p>
           </div>
         </aside>
       )}
 
       {!baseIsResolved && (
         <StatePanel
-          description="Proposal 声明了 base constraint snapshot，但 parent summaries 中没有唯一 kind/version-tuple 匹配；revision 与 validate 已停止。"
+          description="系统无法唯一确认这份草案基于哪一版正式规则；为避免改错版本，修订与检查已停止。"
           state="error"
-          title="Base Constraint Artifact 未唯一解析"
+          title="找不到草案所基于的规则版本"
         />
       )}
 
@@ -1215,9 +1382,9 @@ export function ConstraintProposalPage({
                 重新读取服务器状态
               </button>
             }
-            description="命令失败；未展示底层异常内容。请刷新 exact server state 后重试。"
+            description="操作失败；未展示底层异常内容。请重新读取最新状态后重试。"
             state="error"
-            title="工作流命令失败"
+            title="操作未完成"
           />
         ))}
 
@@ -1225,23 +1392,23 @@ export function ConstraintProposalPage({
         <header className="gf-specs__section-heading">
           <ShieldCheck aria-hidden="true" size={19} />
           <div>
-            <h2 id="evidence-title">验证证据</h2>
-            <p>仅解释 schema-guarded EvidenceSet 与 RunFailure；不从 Run status 推断 verdict。</p>
+            <h2 id="evidence-title">自动检查结果</h2>
+            <p>这里只展示系统保存的确定性检查结论，不会把“运行结束”误当成“规则正确”。</p>
           </div>
         </header>
         <EvidenceStatus compileEvidence={compileEvidence} evidence={evidence} failure={failure} />
         {item.active_validation_run_id && (
-          <a href={`/runs/${encodeURIComponent(item.active_validation_run_id)}`}>打开当前 validation Run</a>
+          <a href={`/runs/${encodeURIComponent(item.active_validation_run_id)}`}>查看当前检查进度</a>
         )}
-        {acceptedRunId && <a href={`/runs/${encodeURIComponent(acceptedRunId)}`}>打开 validation Run</a>}
+        {acceptedRunId && <a href={`/runs/${encodeURIComponent(acceptedRunId)}`}>查看检查过程</a>}
       </section>
 
       <section className="gf-specs__workspace-section" aria-labelledby="authority-binding-title">
         <header className="gf-specs__section-heading">
           <GitBranch aria-hidden="true" size={19} />
           <div>
-            <h2 id="authority-binding-title">显式 ref 绑定</h2>
-            <p>expected_ref=null 只能通过显式确认提交；页面不从 Artifact 名称或 kind 推断 authority。</p>
+            <h2 id="authority-binding-title">选择发布位置</h2>
+            <p>明确选择这份规则将发布到哪里；系统不会根据名称自行猜测。</p>
           </div>
         </header>
         {target && item.status !== "draft" ? (
@@ -1252,7 +1419,7 @@ export function ConstraintProposalPage({
                 <strong>{target.ref_name}</strong>
                 <span>
                   {target.expected_ref
-                    ? `冻结于 revision ${target.expected_ref.revision}`
+                    ? `基于第 ${target.expected_ref.revision} 版`
                     : item.status === "applied" || item.status === "rolled_back"
                       ? "发布时以新 ref 创建；这里显示的是历史前提"
                       : "冻结为新 ref（发布前必须仍不存在）"}
@@ -1277,7 +1444,9 @@ export function ConstraintProposalPage({
                 </aside>
                 <ConstraintRefBindingFields
                   api={api}
-                  disabled={mutationPending || mutationLocked || followUpDraft !== null}
+                  disabled={
+                    projectContext !== null || mutationPending || mutationLocked || followUpDraft !== null
+                  }
                   name="follow-up-proposal-target"
                   onChange={setFollowUpRefSelection}
                   value={followUpRefSelection}
@@ -1286,7 +1455,8 @@ export function ConstraintProposalPage({
                   (followUpRefSelection.expectedRef === null ||
                     followUpRefSelection.refName !== target.ref_name) && (
                     <p className="gf-specs__field-hint" role="alert">
-                      后续提案必须选择已有的 {target.ref_name}；不能把这次修改悄悄发布到别的 ref。
+                      后续提案必须选择已有的 {target.ref_name}
+                      ；不能把这次修改悄悄发布到别的 ref。
                     </p>
                   )}
               </div>
@@ -1295,7 +1465,7 @@ export function ConstraintProposalPage({
         ) : (
           <ConstraintRefBindingFields
             api={api}
-            disabled={mutationPending || mutationLocked}
+            disabled={projectContext !== null || mutationPending || mutationLocked}
             name="proposal-target"
             onChange={updateRefSelection}
             value={refSelection}
@@ -1308,18 +1478,16 @@ export function ConstraintProposalPage({
           <FilePenLine aria-hidden="true" size={19} />
           <div>
             <h2 id="human-revision-title">人工接管与修订</h2>
-            <p>
-              审阅并编辑当前 typed constraints；source bindings、base 与 DSL grammar 继续沿用本 revision。
-            </p>
+            <p>核对当前规则并写明修订原因；来源与规则语法会继续沿用，不需要重复配置。</p>
           </div>
         </header>
         {isHistoricalRevision && (
           <aside className="gf-specs__semantic-note" role="note">
             <AlertTriangle aria-hidden="true" size={20} />
             <div>
-              <strong>这是已保留的历史 revision</strong>
-              <p>它已被后续 revision 取代，只供审计和回看，不能再编辑或提交。</p>
-              <a href="/specs">返回规格工作台查看当前候选</a>
+              <strong>这是保留的历史版本</strong>
+              <p>它已被后续版本取代，只供审计和回看，不能再编辑或提交。</p>
+              <a href="/specs">返回内容工作台查看当前草案</a>
             </div>
           </aside>
         )}
@@ -1559,18 +1727,25 @@ export function ConstraintProposalPage({
           <section className="gf-specs__authority" data-authority="authoritative">
             <BadgeCheck aria-hidden="true" size={22} />
             <div>
-              <p className="gf-specs__authority-label">Authority</p>
+              <p className="gf-specs__authority-label">当前使用中</p>
               <h2>已发布为权威约束</h2>
-              <p>
-                {published.ref_name} · revision {published.ref_value.revision}
-              </p>
-              {published.ref_transition_id && <code>{published.ref_transition_id}</code>}
+              <p>正式规则已更新为第 {published.ref_value.revision} 版</p>
+              <TechnicalDetails
+                items={[
+                  { label: "Ref name", value: published.ref_name },
+                  { label: "Artifact ID", value: published.ref_value.artifact_id },
+                  ...(published.ref_transition_id
+                    ? [{ label: "Ref transition ID", value: published.ref_transition_id }]
+                    : []),
+                ]}
+                summary="查看发布结果技术信息"
+              />
               <a
                 href={`/constraints/${encodeURIComponent(published.ref_value.artifact_id)}?ref=${encodeURIComponent(published.ref_name)}`}
               >
                 查看已发布的权威约束
               </a>
-              <a href={`/refs/${encodeURIComponent(published.ref_name)}/history`}>检查 ref 历史</a>
+              <a href={`/refs/${encodeURIComponent(published.ref_name)}/history`}>查看正式规则版本历史</a>
             </div>
           </section>
         )}

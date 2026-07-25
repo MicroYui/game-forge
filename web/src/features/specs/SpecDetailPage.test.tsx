@@ -8,7 +8,12 @@ import { createQueryClient } from "../../api/query-client";
 import { SpecDetailPage, type SpecDetailApi } from "./SpecDetailPage";
 
 const cytoscapeMock = vi.hoisted(() => {
-  const selected = { addClass: vi.fn(), empty: () => false, select: vi.fn(), unselect: vi.fn() };
+  const selected = {
+    addClass: vi.fn(),
+    empty: () => false,
+    select: vi.fn(),
+    unselect: vi.fn(),
+  };
   const elements = { removeClass: vi.fn(), unselect: vi.fn() };
   return {
     factory: vi.fn(() => ({
@@ -36,7 +41,10 @@ const artifact: components["schemas"]["ArtifactSummaryV1"] = {
   payload_hash: "a".repeat(64),
   payload_schema_id: "ir-core@1",
   summary_schema_version: "artifact-summary@1",
-  version_tuple: { ir_snapshot_id: "snapshot:frontier", tool_version: "ingest@1" },
+  version_tuple: {
+    ir_snapshot_id: "snapshot:frontier",
+    tool_version: "ingest@1",
+  },
 };
 
 const spec: Spec = {
@@ -194,15 +202,15 @@ describe("SpecDetailPage", () => {
       }),
     );
 
-    expect(await screen.findByRole("heading", { level: 1, name: "规格详情" })).toBeVisible();
-    expect(screen.getByText("registry@3")).toBeVisible();
-    expect(screen.getByText("d".repeat(64))).toBeVisible();
-    expect(screen.getByText("refs/specs/frontier · revision 7")).toBeVisible();
-    expect(screen.getByRole("region", { name: "规格知识图谱" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "内容版本详情" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "当前内容 · 第 7 版" })).toBeVisible();
+    expect(screen.getByText("registry@3")).not.toBeVisible();
+    expect(screen.getByText("d".repeat(64))).not.toBeVisible();
+    expect(screen.getAllByRole("region", { name: "内容关系图" })).toHaveLength(2);
     expect(screen.getAllByText("quest:frontier-beacon").length).toBeGreaterThan(0);
-    expect(screen.getByRole("heading", { name: "创建 typed Patch 草案" })).toBeVisible();
-    const graphSection = screen.getByRole("heading", { name: "有界知识图谱" }).closest("section");
-    const patchSection = screen.getByRole("heading", { name: "创建 typed Patch 草案" }).closest("section");
+    expect(screen.getByRole("heading", { name: "创建修改草案" })).toBeVisible();
+    const graphSection = screen.getByRole("heading", { name: "内容关系图" }).closest("section");
+    const patchSection = screen.getByRole("heading", { name: "创建修改草案" }).closest("section");
     if (!graphSection || !patchSection)
       throw new Error("Spec sections are missing their semantic containers.");
     expect(
@@ -217,7 +225,7 @@ describe("SpecDetailPage", () => {
 
     await user.click(screen.getByRole("button", { name: "加载下一页图谱" }));
 
-    expect(await screen.findAllByText("step:report-guide")).not.toHaveLength(0);
+    expect(await screen.findAllByText("向向导汇报")).not.toHaveLength(0);
     expect(listSpecGraph).toHaveBeenLastCalledWith(artifact.artifact_id, "opaque.graph+/=");
   });
 
@@ -230,7 +238,8 @@ describe("SpecDetailPage", () => {
     const detailApi = api({ draftPatch });
     const user = userEvent.setup();
     renderPage(detailApi);
-    await screen.findByRole("heading", { name: "创建 typed Patch 草案" });
+    await screen.findByRole("heading", { name: "创建修改草案" });
+    await user.click(screen.getByText("高级：配置导出验证"));
     await user.click(screen.getByText("高级：精确绑定、前置条件与原始 JSON"));
 
     await user.selectOptions(
@@ -238,7 +247,9 @@ describe("SpecDetailPage", () => {
       "builtin.aureus_csv_export@2",
     );
     await user.type(
-      screen.getByRole("textbox", { name: "Constraint snapshot Artifact ID（可选）" }),
+      screen.getByRole("textbox", {
+        name: "Constraint snapshot Artifact ID（可选）",
+      }),
       "artifact:constraint:frontier",
     );
     fireEvent.change(screen.getByRole("textbox", { name: "Patch operations JSON" }), {
@@ -254,10 +265,10 @@ describe("SpecDetailPage", () => {
       },
     });
     await user.type(screen.getByRole("textbox", { name: "变更说明" }), "调整前哨信标");
-    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "low");
-    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+    await user.type(screen.getByRole("textbox", { name: "可能影响（必填）" }), "low");
+    await user.click(screen.getByRole("button", { name: "创建修改草案" }));
 
-    expect(await screen.findByRole("heading", { name: "Patch 创建结果未知" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "修改草案创建结果未知" })).toBeVisible();
     await user.click(screen.getByRole("button", { name: "以同一 intent 重试" }));
 
     expect(draftPatch).toHaveBeenCalledTimes(2);
@@ -285,7 +296,7 @@ describe("SpecDetailPage", () => {
       },
       { idempotencyKey: expect.any(String) },
     );
-    expect(await screen.findByRole("link", { name: "打开 Patch 草案" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "检查修改草案" })).toHaveAttribute(
       "href",
       "/patches/artifact%3Apatch%3Afrontier",
     );
@@ -295,7 +306,8 @@ describe("SpecDetailPage", () => {
     const detailApi = api();
     const user = userEvent.setup();
     renderPage(detailApi);
-    await screen.findByRole("heading", { name: "创建 typed Patch 草案" });
+    await screen.findByRole("heading", { name: "创建修改草案" });
+    await user.click(screen.getByText("高级：配置导出验证"));
     await user.click(screen.getByText("高级：精确绑定、前置条件与原始 JSON"));
 
     await user.selectOptions(
@@ -315,24 +327,28 @@ describe("SpecDetailPage", () => {
       target: { value: operations },
     });
     await user.type(screen.getByRole("textbox", { name: "变更说明" }), "演示错误奖励进入 Repair 闭环");
-    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "低风险，仅修改单个任务奖励");
-    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+    await user.type(screen.getByRole("textbox", { name: "可能影响（必填）" }), "低风险，仅修改单个任务奖励");
+    await user.click(screen.getByRole("button", { name: "创建修改草案" }));
 
     expect(detailApi.draftPatch).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent("已选择配置导出方案；配置导出必须绑定约束快照");
     expect(screen.getByRole("textbox", { name: "Patch operations JSON" })).toHaveValue(operations);
     expect(screen.getByRole("textbox", { name: "变更说明" })).toHaveValue("演示错误奖励进入 Repair 闭环");
-    expect(screen.getByRole("textbox", { name: "副作用风险" })).toHaveValue("低风险，仅修改单个任务奖励");
+    expect(screen.getByRole("textbox", { name: "可能影响（必填）" })).toHaveValue(
+      "低风险，仅修改单个任务奖励",
+    );
     expect(screen.getByRole("listbox", { name: /配置导出方案/ })).toHaveValue([
       "builtin.aureus_csv_export@2",
     ]);
-    expect(screen.getByRole("button", { name: "创建 Patch 草案" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "创建修改草案" })).toBeEnabled();
 
     await user.type(
-      screen.getByRole("textbox", { name: "Constraint snapshot Artifact ID（可选）" }),
+      screen.getByRole("textbox", {
+        name: "Constraint snapshot Artifact ID（可选）",
+      }),
       "artifact:constraint:frontier",
     );
-    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+    await user.click(screen.getByRole("button", { name: "创建修改草案" }));
 
     expect(detailApi.draftPatch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -356,7 +372,7 @@ describe("SpecDetailPage", () => {
     const detailApi = api();
     const user = userEvent.setup();
     renderPage(detailApi);
-    await screen.findByRole("heading", { name: "创建 typed Patch 草案" });
+    await screen.findByRole("heading", { name: "创建修改草案" });
     await user.click(screen.getByText("高级：精确绑定、前置条件与原始 JSON"));
 
     fireEvent.change(screen.getByRole("textbox", { name: "Patch operations JSON" }), {
@@ -373,8 +389,8 @@ describe("SpecDetailPage", () => {
       },
     });
     await user.type(screen.getByRole("textbox", { name: "变更说明" }), "降低任务金币奖励");
-    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "low");
-    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+    await user.type(screen.getByRole("textbox", { name: "可能影响（必填）" }), "low");
+    await user.click(screen.getByRole("button", { name: "创建修改草案" }));
 
     expect(detailApi.draftPatch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -383,7 +399,7 @@ describe("SpecDetailPage", () => {
       }),
       { idempotencyKey: expect.any(String) },
     );
-    expect(await screen.findByRole("link", { name: "打开 Patch 草案" })).toBeVisible();
+    expect(await screen.findByRole("link", { name: "检查修改草案" })).toBeVisible();
   });
 
   it("creates 林逸、双向好友与新手村位置关系 without asking the maker to copy IDs", async () => {
@@ -440,8 +456,8 @@ describe("SpecDetailPage", () => {
     );
 
     await user.type(screen.getByRole("textbox", { name: "变更说明" }), "新增林逸的人际与位置关系");
-    await user.type(screen.getByRole("textbox", { name: "副作用风险" }), "low");
-    await user.click(screen.getByRole("button", { name: "创建 Patch 草案" }));
+    await user.type(screen.getByRole("textbox", { name: "可能影响（必填）" }), "low");
+    await user.click(screen.getByRole("button", { name: "创建修改草案" }));
 
     expect(detailApi.draftPatch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -488,14 +504,14 @@ describe("SpecDetailPage", () => {
       }),
       { idempotencyKey: expect.any(String) },
     );
-    expect(await screen.findByRole("link", { name: "打开 Patch 草案" })).toBeVisible();
+    expect(await screen.findByRole("link", { name: "检查修改草案" })).toBeVisible();
   });
 
   it("shows an explicit graph-empty state without treating the snapshot as invalid", async () => {
     renderPage(api({ listSpecGraph: vi.fn(async () => graphPage([], null)) }));
 
-    expect(await screen.findByRole("heading", { name: "当前快照没有图谱事实" })).toBeVisible();
-    expect(screen.getByText("snapshot:frontier")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "这一版还没有内容关系" })).toBeVisible();
+    expect(screen.getByText("snapshot:frontier")).not.toBeVisible();
   });
 
   it("renders the loading and sanitized problem states", async () => {
@@ -505,10 +521,10 @@ describe("SpecDetailPage", () => {
     });
     renderPage(api({ getSpec: vi.fn(() => pending) }));
 
-    expect(screen.getByRole("heading", { level: 1, name: "正在读取规格详情" })).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1, name: "正在读取内容版本" })).toBeVisible();
     reject(new Error("storage token=must-not-render"));
 
-    expect(await screen.findByRole("heading", { name: "无法读取规格详情" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "无法读取内容版本" })).toBeVisible();
     expect(screen.queryByText(/storage token/)).not.toBeInTheDocument();
   });
 });

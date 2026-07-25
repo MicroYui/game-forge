@@ -6,13 +6,9 @@ import { useSearchParams } from "react-router-dom";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { AreaSparkChart, CostBarChart, type CostBarDatum } from "../../components/charts";
+import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
 import { LogExplorer } from "../../components/logs";
-import {
-  CopyableText,
-  CursorTable,
-  type CursorPaginationState,
-  type CursorTableColumn,
-} from "../../components/tables";
+import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import {
   observabilityApi,
@@ -82,66 +78,109 @@ function statusTone(status: RunView["status"]): string {
   return "info";
 }
 
+const runStatusLabels: Record<RunView["status"], string> = {
+  cancelled: "已取消",
+  failed: "失败",
+  leased: "已分配",
+  queued: "排队中",
+  retry_wait: "等待重试",
+  running: "运行中",
+  succeeded: "成功",
+  timed_out: "已超时",
+};
+
+function traceStatusLabel(status: TraceSummary["status"]): string {
+  return status === "ok" ? "正常" : status === "error" ? "异常" : "状态未知";
+}
+
+function durationLabel(durationNs: number | null | undefined): string {
+  if (durationNs === null || durationNs === undefined) return "耗时未记录";
+  const milliseconds = durationNs / 1_000_000;
+  return milliseconds >= 1_000
+    ? `${(milliseconds / 1_000).toFixed(2)} 秒`
+    : `${milliseconds.toFixed(1)} 毫秒`;
+}
+
 const runColumns: readonly CursorTableColumn<RunView>[] = [
   {
-    header: "Run",
+    header: "运行记录",
     id: "run",
     render: (run) => (
-      <div className="gf-observability__table-primary">
-        <CopyableText copyLabel="复制 Run ID" scrollable value={run.run_id} />
-        <a href={`/observability?run=${encodeURIComponent(run.run_id)}`}>以此 Run 为上下文</a>
-      </div>
+      <ResourceIdentity
+        actionLabel="查看这次运行"
+        description={`第 ${run.attempt_no ?? 1} 次尝试`}
+        details={[{ label: "Run ID", value: run.run_id }]}
+        href={`/observability?run=${encodeURIComponent(run.run_id)}`}
+        title={`运行记录 · 第 ${run.revision} 版`}
+      />
     ),
   },
   {
     header: "状态",
     id: "status",
-    render: (run) => <span className={`u-status u-status--${statusTone(run.status)}`}>{run.status}</span>,
+    render: (run) => (
+      <span className={`u-status u-status--${statusTone(run.status)}`}>{runStatusLabels[run.status]}</span>
+    ),
   },
   {
-    header: "Attempt / revision",
+    header: "执行次数 / 内容版本",
     id: "revision",
     render: (run) => (
       <span className="gf-observability__table-nowrap">
-        attempt {run.attempt_no ?? "未分配"} · revision {run.revision}
+        第 {run.attempt_no ?? "—"} 次尝试 · 第 {run.revision} 版
       </span>
     ),
   },
   {
     header: "终态清单",
     id: "terminal",
-    render: (run) => (
-      <code className="gf-observability__terminal-id" tabIndex={0}>
-        {run.result_artifact_id ?? run.failure_artifact_id ?? "尚无终态清单"}
-      </code>
-    ),
+    render: (run) => {
+      const terminalId = run.result_artifact_id ?? run.failure_artifact_id;
+      if (!terminalId) return <span>运行中，暂无最终结果</span>;
+      return (
+        <ResourceIdentity
+          details={[
+            {
+              label: run.result_artifact_id ? "结果 Artifact ID" : "失败 Artifact ID",
+              value: terminalId,
+            },
+          ]}
+          title={run.result_artifact_id ? "已生成结果" : "已记录失败原因"}
+        />
+      );
+    },
   },
 ];
 
 const traceColumns: readonly CursorTableColumn<TraceSummary>[] = [
   {
-    header: "Trace",
+    header: "调用链",
     id: "trace",
     render: (trace) => (
-      <div className="gf-observability__table-primary">
-        <CopyableText copyLabel="复制 Trace ID" value={trace.trace_id} />
-        <a href={`/observability/traces/${encodeURIComponent(trace.trace_id)}`}>打开 {trace.trace_id}</a>
-      </div>
+      <ResourceIdentity
+        actionLabel="查看调用链"
+        description={compactDateTime(trace.started_at)}
+        details={[{ label: "Trace ID", value: trace.trace_id }]}
+        href={`/observability/traces/${encodeURIComponent(trace.trace_id)}`}
+        title="调用链记录"
+      />
     ),
   },
   {
     header: "状态",
     id: "status",
     render: (trace) => (
-      <span className={`u-status u-status--${traceSummaryTone(trace.status)}`}>{trace.status}</span>
+      <span className={`u-status u-status--${traceSummaryTone(trace.status)}`}>
+        {traceStatusLabel(trace.status)}
+      </span>
     ),
   },
   {
-    header: "Span / services",
+    header: "步骤 / 服务",
     id: "coverage",
     render: (trace) => (
       <span>
-        {trace.span_count} spans · {trace.service_names.join(" / ") || "service 未报告"}
+        {trace.span_count} 个步骤 · {trace.service_names.join(" / ") || "服务未报告"}
       </span>
     ),
   },
@@ -150,7 +189,7 @@ const traceColumns: readonly CursorTableColumn<TraceSummary>[] = [
     id: "time",
     render: (trace) => (
       <span>
-        {trace.started_at} · {trace.duration_ns == null ? "duration unavailable" : `${trace.duration_ns} ns`}
+        {compactDateTime(trace.started_at)} · {durationLabel(trace.duration_ns)}
       </span>
     ),
   },
@@ -166,21 +205,24 @@ function WindowControls({ active, onApply }: { active: TimeWindow; onApply(windo
     const startMs = Date.parse(start);
     const endMs = Date.parse(end);
     if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || startMs >= endMs) {
-      setError("请输入有效 UTC 时间，且结束时间必须晚于开始时间。后端仍会独立执行查询边界校验。");
+      setError("请输入带时区的有效时间，且结束时间必须晚于开始时间。");
       return;
     }
     setError(null);
-    onApply({ endUtc: new Date(endMs).toISOString(), startUtc: new Date(startMs).toISOString() });
+    onApply({
+      endUtc: new Date(endMs).toISOString(),
+      startUtc: new Date(startMs).toISOString(),
+    });
   }
 
   return (
     <form className="gf-observability__window" onSubmit={submit}>
       <label>
-        <span>开始 UTC（ISO 8601）</span>
+        <span>开始时间（含时区）</span>
         <input onChange={(event) => setStart(event.target.value)} required value={start} />
       </label>
       <label>
-        <span>结束 UTC（ISO 8601）</span>
+        <span>结束时间（含时区）</span>
         <input onChange={(event) => setEnd(event.target.value)} required value={end} />
       </label>
       <button className="gf-secondary-button" type="submit">
@@ -191,10 +233,16 @@ function WindowControls({ active, onApply }: { active: TimeWindow; onApply(windo
   );
 }
 
-function exactValue(value: string | undefined): { exact: string | null; plot: number | null } {
+function exactValue(value: string | undefined): {
+  exact: string | null;
+  plot: number | null;
+} {
   if (value === undefined) return { exact: null, plot: null };
   const plot = Number(value);
-  return { exact: value, plot: Number.isFinite(plot) && plot >= 0 ? plot : null };
+  return {
+    exact: value,
+    plot: Number.isFinite(plot) && plot >= 0 ? plot : null,
+  };
 }
 
 function budgetData(snapshot: RunCostView["budget_set"]["snapshots"][number]): CostBarDatum[] {
@@ -203,12 +251,75 @@ function budgetData(snapshot: RunCostView["budget_set"]["snapshots"][number]): C
     const reserved = snapshot.reserved.find((item) => item.dimension === limit.dimension);
     return {
       consumed: exactValue(consumed?.value ?? "0"),
-      label: limit.dimension,
+      label: budgetDimensionLabel(limit.dimension),
       limit: exactValue(limit.value),
       reserved: exactValue(reserved?.value ?? "0"),
       unit: limit.currency ? `${limit.unit} ${limit.currency}` : limit.unit,
     };
   });
+}
+
+function budgetDimensionLabel(dimension: string): string {
+  const labels: Record<string, string> = {
+    agent_step: "智能助手步骤",
+    cache_read_token: "缓存读取量",
+    cache_write_token: "缓存写入量",
+    concurrent_run: "并发运行数",
+    input_token: "输入量",
+    monetary: "费用",
+    output_token: "输出量",
+    request: "请求次数",
+    wall_time_ns: "运行时长",
+  };
+  return labels[dimension] ?? dimension;
+}
+
+function executionSourceLabel(source: RunCostView["usage"][number]["execution_source"]): string {
+  if (source === "online") return "在线调用";
+  if (source === "full_response_cache") return "结果缓存";
+  return "固定回放";
+}
+
+function usageScopeLabel(scope: RunCostView["usage"][number]["scope"]): string {
+  return scope === "attempt_call" ? "一次模型调用" : "一个智能助手步骤";
+}
+
+function settlementScopeLabel(scope: string): string {
+  if (scope === "run_budget_hold") return "运行预算预留";
+  if (scope === "attempt_call") return "模型调用";
+  if (scope === "agent_step") return "智能助手步骤";
+  return scope;
+}
+
+function settlementStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    conservatively_settled: "按上限保守结算",
+    held_unknown: "等待用量确认",
+    late_reconciled: "延迟数据已补算",
+    reconciled: "已按实际用量结算",
+    released: "已释放",
+    reserved: "已预留",
+  };
+  return labels[status] ?? status;
+}
+
+function metricTypeLabel(metricType: string): string {
+  if (metricType === "counter") return "累计计数";
+  if (metricType === "gauge") return "即时数值";
+  if (metricType === "histogram") return "区间分布";
+  return metricType;
+}
+
+function metricUnitLabel(unit: string): string {
+  const labels: Record<string, string> = {
+    bytes: "字节",
+    count: "个",
+    currency: "货币单位",
+    milliseconds: "毫秒",
+    request: "次请求",
+    seconds: "秒",
+  };
+  return labels[unit] ?? unit;
 }
 
 function CostUsage({ item }: { item: RunCostView["usage"][number] }) {
@@ -218,67 +329,72 @@ function CostUsage({ item }: { item: RunCostView["usage"][number] }) {
   return (
     <article className="gf-observability__usage" data-testid={`cost-usage-${item.usage_id}`}>
       <header>
-        <CopyableText copyLabel="复制 Usage ID" value={item.usage_id} />
-        <span className="u-status u-status--info">{item.execution_source}</span>
+        <strong>用量记录 · 第 {item.attempt_no} 次执行</strong>
+        <span className="u-status u-status--info">{executionSourceLabel(item.execution_source)}</span>
       </header>
+      <TechnicalDetails items={[{ label: "用量记录 ID", value: item.usage_id }]} summary="查看用量技术信息" />
       <dl>
         <div>
-          <dt>Scope</dt>
+          <dt>计量范围</dt>
           <dd>
-            {item.scope} · attempt {item.attempt_no} · transport {item.transport_attempt ?? "N/A"}
+            {usageScopeLabel(item.scope)} · 第 {item.attempt_no} 次执行
+            {item.transport_attempt === null || item.transport_attempt === undefined
+              ? ""
+              : ` · 第 ${item.transport_attempt} 次传输`}
           </dd>
         </div>
         <div>
-          <dt>Token usage</dt>
+          <dt>模型用量</dt>
           <dd>
             {tokens.status === "unavailable" ? (
-              "Token usage unavailable"
+              "服务商未提供用量"
             ) : (
               <span>
-                Total token {observationValue(tokens.status, tokens.total_tokens)} · input{" "}
-                {observationValue(tokens.status, tokens.input_tokens)} · output{" "}
-                {observationValue(tokens.status, tokens.output_tokens)} · cache read{" "}
-                {observationValue(tokens.status, tokens.cache_read_tokens)} · cache write{" "}
+                总计 {observationValue(tokens.status, tokens.total_tokens)} · 输入{" "}
+                {observationValue(tokens.status, tokens.input_tokens)} · 输出{" "}
+                {observationValue(tokens.status, tokens.output_tokens)} · 读取缓存{" "}
+                {observationValue(tokens.status, tokens.cache_read_tokens)} · 写入缓存{" "}
                 {observationValue(tokens.status, tokens.cache_write_tokens)}
               </span>
             )}
           </dd>
         </div>
         <div>
-          <dt>Provider latency</dt>
+          <dt>模型服务耗时</dt>
           <dd>
             {latency.status === "reported"
-              ? `${observationValue(latency.status, latency.provider_latency_ms)} ms`
-              : "Latency unavailable"}
+              ? `${observationValue(latency.status, latency.provider_latency_ms)} 毫秒`
+              : "服务商未提供耗时"}
           </dd>
         </div>
         <div>
-          <dt>Monetary</dt>
+          <dt>模型费用</dt>
           <dd>
             {monetary.status === "reported"
-              ? `Monetary ${observationValue(monetary.status, monetary.amount)} ${monetary.currency ?? "currency unavailable"}`
-              : "Monetary unavailable"}
+              ? `${observationValue(monetary.status, monetary.amount)} ${monetary.currency ?? "币种未提供"}`
+              : "服务商未提供费用"}
           </dd>
         </div>
         <div>
-          <dt>Provider prefix cache</dt>
+          <dt>模型缓存</dt>
           <dd>
             {item.provider_prefix_cache.status === "reported"
               ? item.provider_prefix_cache.hit
-                ? "reported hit"
-                : "reported miss"
-              : "unavailable"}
+                ? "已命中"
+                : "未命中"
+              : "服务商未提供"}
           </dd>
         </div>
         <div>
-          <dt>Wall time</dt>
-          <dd>{item.wall_time_ns} ns</dd>
+          <dt>总耗时</dt>
+          <dd>{durationLabel(item.wall_time_ns)}</dd>
         </div>
       </dl>
       {item.adjustment_of_usage_id && (
-        <p>
-          Late adjustment of <code>{item.adjustment_of_usage_id}</code>
-        </p>
+        <TechnicalDetails
+          items={[{ label: "被调整的 Usage ID", value: item.adjustment_of_usage_id }]}
+          summary="查看延迟调整技术信息"
+        />
       )}
     </article>
   );
@@ -309,70 +425,90 @@ function CostSection({
         <Coins aria-hidden="true" size={21} />
         <div>
           <h2>冻结预算与成本结算</h2>
-          <p>预算来自 Run 创建时冻结的 BudgetSetSnapshot；Usage observation 的 unavailable 绝不按 0 呈现。</p>
+          <p>预算以运行开始时的规则为准；服务商未提供的用量会明确标记，不会被误算成 0。</p>
         </div>
       </header>
 
       <div className="gf-observability__authority-strip">
         <div>
-          <span>Budget set</span>
-          <CopyableText copyLabel="复制 Budget Set ID" value={first.budget_set.budget_set_snapshot_id} />
+          <span>预算状态</span>
+          <strong>已按运行开始时的规则冻结</strong>
         </div>
         <div>
-          <span>Selection policy</span>
+          <span>预算选择规则</span>
           <code>{first.budget_set.selection_policy_version}</code>
         </div>
         <div>
-          <span>Captured</span>
-          <time dateTime={first.budget_set.captured_at}>{first.budget_set.captured_at}</time>
+          <span>冻结时间</span>
+          <time dateTime={first.budget_set.captured_at}>{compactDateTime(first.budget_set.captured_at)}</time>
         </div>
+        <TechnicalDetails
+          items={[
+            {
+              label: "Budget Set ID",
+              value: first.budget_set.budget_set_snapshot_id,
+            },
+            ...first.budget_set.snapshots.flatMap((snapshot, index) => [
+              {
+                label: `预算 ${index + 1} Snapshot ID`,
+                value: snapshot.snapshot_id,
+              },
+              {
+                label: `预算 ${index + 1} Budget ID`,
+                value: snapshot.budget_id,
+              },
+              { label: `预算 ${index + 1} Scope ID`, value: snapshot.scope_id },
+            ]),
+          ]}
+          summary="查看预算技术信息"
+        />
       </div>
 
       <section className="gf-observability__settlement" aria-label="成本结算摘要">
         <div className="gf-observability__summary-grid">
           <article>
-            <span>Usage evidence</span>
-            <strong>{summary.usage_evidence_status}</strong>
+            <span>用量证据</span>
+            <strong>{summary.usage_evidence_status === "recorded" ? "已记录" : "未记录"}</strong>
             {summary.usage_evidence_status === "not_recorded" && <small>不等于 0 成本</small>}
           </article>
           <article>
-            <span>Settlement groups</span>
+            <span>结算项目</span>
             <strong>{summary.total_group_count}</strong>
           </article>
           <article data-tone={summary.held_unknown_group_count > 0 ? "warning" : "neutral"}>
-            <span>Held unknown</span>
+            <span>等待确认</span>
             <strong>{summary.held_unknown_group_count}</strong>
           </article>
           <article>
-            <span>Late adjustments</span>
+            <span>延迟补算</span>
             <strong>{summary.late_adjustment_usage_count}</strong>
           </article>
           <article>
-            <span>Usage entries</span>
+            <span>用量记录</span>
             <strong>{summary.usage_entry_count}</strong>
           </article>
         </div>
         <div className="u-scroll-region" tabIndex={0}>
           <table>
-            <caption className="u-sr-only">成本结算 group 状态</caption>
+            <caption className="u-sr-only">成本结算项目状态</caption>
             <thead>
               <tr>
-                <th scope="col">Scope</th>
-                <th scope="col">Status</th>
-                <th scope="col">Count</th>
+                <th scope="col">范围</th>
+                <th scope="col">状态</th>
+                <th scope="col">数量</th>
               </tr>
             </thead>
             <tbody>
               {summary.group_counts.map((row) => (
                 <tr key={`${row.scope}:${row.status}`}>
-                  <td>{row.scope}</td>
-                  <td>{row.status}</td>
+                  <td>{settlementScopeLabel(row.scope)}</td>
+                  <td>{settlementStatusLabel(row.status)}</td>
                   <td>{row.group_count}</td>
                 </tr>
               ))}
               {summary.group_counts.length === 0 && (
                 <tr>
-                  <td colSpan={3}>没有 settlement group；以 evidence status 解释，不补 0 usage。</td>
+                  <td colSpan={3}>没有结算项目；请按用量证据状态理解，不会自动补成 0。</td>
                 </tr>
               )}
             </tbody>
@@ -385,8 +521,8 @@ function CostSection({
           <CostBarChart
             data={budgetData(snapshot)}
             key={snapshot.snapshot_id}
-            summary={`${snapshot.scope_kind}:${snapshot.scope_id} · ${snapshot.policy_version} · frozen revision ${snapshot.budget_revision_at_freeze}`}
-            title={`预算 · ${snapshot.budget_id}`}
+            summary={`${snapshot.scope_kind} · ${snapshot.policy_version} · 第 ${snapshot.budget_revision_at_freeze} 版冻结规则`}
+            title={`预算上限 · 第 ${snapshot.budget_revision_at_freeze} 版`}
           />
         ))}
       </div>
@@ -397,9 +533,9 @@ function CostSection({
         ))}
         {usage.length === 0 && (
           <StatePanel
-            description="Usage evidence 没有记录；这不是 0 token、0 latency 或 0 monetary 的声明。"
+            description="没有记录到用量证据；这不代表用量、耗时或费用为 0。"
             state="empty"
-            title="没有 Usage observation"
+            title="没有用量记录"
           />
         )}
       </div>
@@ -460,9 +596,9 @@ function MetricSeries({ descriptor, page }: { descriptor: MetricDescriptor; page
   if (page.series.length === 0) {
     return (
       <StatePanel
-        description="该 exact descriptor 在当前窗口没有点；空 bucket 不补零，也不插值。"
+        description="该指标在当前时间范围内没有数据；空白时段不会自动补零或推算。"
         state="empty"
-        title="该时间窗没有 Metric 点"
+        title="该时间范围没有指标数据"
       />
     );
   }
@@ -491,16 +627,16 @@ function MetricSeries({ descriptor, page }: { descriptor: MetricDescriptor; page
           >
             <AreaSparkChart
               data={points}
-              summary={`${labels || "无 labels"} · exact descriptor v${series.descriptor.descriptor_version} · ${series.unit} · resolution ${page.effective_resolution_s}s · coverage ${page.coverage_start} → ${page.coverage_end}`}
+              summary={`${labels || "无分组维度"} · 第 ${series.descriptor.descriptor_version} 版 · ${series.unit} · 每 ${page.effective_resolution_s} 秒汇总 · ${page.coverage_start} → ${page.coverage_end}`}
               title={seriesTitle}
-              valueLabel={series.metric_type === "histogram" ? "count" : series.unit}
+              valueLabel={series.metric_type === "histogram" ? "数量" : series.unit}
             />
             {series.metric_type === "histogram" && (
               <HistogramDetails
                 bounds={series.bucket_bounds ?? descriptor.histogram_bucket_bounds}
                 metricName={descriptor.metric_name}
                 points={series.histogram_points ?? []}
-                seriesLabel={labels || `series ${index + 1}`}
+                seriesLabel={labels || `数据组 ${index + 1}`}
                 unit={series.unit}
               />
             )}
@@ -526,20 +662,20 @@ function HistogramDetails({
 }) {
   return (
     <details className="gf-observability__histogram">
-      <summary>查看 exact histogram buckets · {seriesLabel}</summary>
+      <summary>查看详细分布区间 · {seriesLabel}</summary>
       <div className="u-scroll-region" tabIndex={0}>
-        <table aria-label={`${metricName} histogram buckets`}>
+        <table aria-label={`${metricName} 详细分布区间`}>
           <thead>
             <tr>
-              <th scope="col">UTC bucket</th>
-              <th scope="col">Count</th>
-              <th scope="col">Sum ({unit})</th>
+              <th scope="col">记录时间</th>
+              <th scope="col">数量</th>
+              <th scope="col">合计（{unit}）</th>
               {bounds.map((bound) => (
                 <th key={bound} scope="col">
                   ≤ {bound} {unit}
                 </th>
               ))}
-              <th scope="col">+Inf</th>
+              <th scope="col">超出上限</th>
             </tr>
           </thead>
           <tbody>
@@ -547,7 +683,7 @@ function HistogramDetails({
               <tr key={point.ts_utc}>
                 <th scope="row">{point.ts_utc}</th>
                 <td>{point.count}</td>
-                <td>{point.sum ?? "unavailable"}</td>
+                <td>{point.sum ?? "未提供"}</td>
                 {point.cumulative_bucket_counts.map((count, index) => (
                   <td key={index}>{count}</td>
                 ))}
@@ -714,29 +850,29 @@ export function ObservabilityPage({
     <div className="gf-page gf-observability" data-layout="editorial-observability">
       <header className="gf-observability__hero">
         <div>
-          <p className="gf-observability__kicker">Run correlation · bounded reads · redacted evidence</p>
-          <h1>可观测性</h1>
-          <p>从已授权 Run 进入 Trace、Span、日志与冻结成本；Metric 保持系统时序语义，不伪装成单 Run 指标。</p>
+          <p className="gf-observability__kicker">运行状态 · 日志 · 成本</p>
+          <h1>运行监控</h1>
+          <p>先选择一次系统运行，再查看调用链、日志和成本；技术标识仅在需要排障时展开。</p>
         </div>
         <div className="gf-observability__hero-mark" aria-hidden="true">
           <Network size={30} />
-          <span>OBSERVE</span>
+          <span>监控</span>
         </div>
       </header>
 
       {runsQuery.isPending ? (
-        <StatePanel description="正在读取已授权 Run 快照。" state="loading" title="正在读取 Run" />
+        <StatePanel description="正在读取你有权查看的运行记录。" state="loading" title="正在读取运行记录" />
       ) : runsQuery.isError && runPages.length === 0 ? (
         <ReadError error={runsQuery.error} onRetry={() => void runsQuery.refetch()} />
       ) : runSnapshotMismatch ? (
         <StatePanel
-          description="分页返回了不同 read snapshot；页面已停止混合这些行。"
+          description="分页期间数据版本发生变化；页面已停止混合不同批次的记录。"
           state="error"
-          title="Run 快照不一致"
+          title="运行记录版本不一致"
         />
       ) : (
         <CursorTable
-          caption="已授权 Run"
+          caption="可查看的运行记录"
           columns={runColumns}
           getRowKey={(item) => item.run_id}
           headingLevel={2}
@@ -746,7 +882,15 @@ export function ObservabilityPage({
           onRestart={() => setRunEpoch((value) => value + 1)}
           paginationState={paginationState(runsQuery)}
           toolbar={
-            <span className="u-small">read snapshot · {runPages[0]?.read_snapshot_id ?? "pending"}</span>
+            <TechnicalDetails
+              items={[
+                {
+                  label: "读取快照",
+                  value: runPages[0]?.read_snapshot_id ?? "pending",
+                },
+              ]}
+              summary="查看列表技术信息"
+            />
           }
         />
       )}
@@ -755,40 +899,43 @@ export function ObservabilityPage({
         <header className="gf-observability__section-heading">
           <Activity aria-hidden="true" size={21} />
           <div>
-            <h2>当前 Run context</h2>
-            <p>只有从已授权列表或精确 deep link 读取到的 Run 才成为本页上下文。</p>
+            <h2>当前查看的运行</h2>
+            <p>从上方列表选择一项后，这里会显示该次运行的详细监控信息。</p>
           </div>
         </header>
         {selectedRunId === null ? (
           <StatePanel
-            description="从上方列表选择一个 Run，再读取其 Trace、日志与成本。"
+            description="从上方列表选择一次运行，再查看它的调用链、日志与成本。"
             state="empty"
-            title="尚未选择 Run"
+            title="尚未选择运行记录"
           />
         ) : runQuery.isPending ? (
-          <StatePanel description={`正在读取 ${selectedRunId}`} state="loading" title="正在绑定 Run" />
+          <StatePanel description="正在读取这次运行的详细信息。" state="loading" title="正在打开运行记录" />
         ) : runQuery.isError ? (
           <ReadError error={runQuery.error} onRetry={() => void runQuery.refetch()} />
         ) : run ? (
           <div className="gf-observability__run-context">
             <div>
-              <span>Run ID</span>
-              <CopyableText copyLabel="复制当前 Run ID" value={run.run_id} />
+              <span>运行记录</span>
+              <strong>第 {run.revision} 版内容</strong>
             </div>
             <div>
-              <span>Status</span>
-              <strong className={`u-status u-status--${statusTone(run.status)}`}>{run.status}</strong>
+              <span>状态</span>
+              <strong className={`u-status u-status--${statusTone(run.status)}`}>
+                {runStatusLabels[run.status]}
+              </strong>
             </div>
             <div>
-              <span>Attempt</span>
+              <span>执行次数</span>
               <strong>{run.attempt_no ?? "未分配"}</strong>
             </div>
             <div>
-              <span>Revision</span>
+              <span>内容版本</span>
               <strong>{run.revision}</strong>
             </div>
+            <TechnicalDetails items={[{ label: "Run ID", value: run.run_id }]} summary="查看运行技术信息" />
             <a className="gf-secondary-button" href={`/runs/${encodeURIComponent(run.run_id)}`}>
-              打开 Run 详情
+              查看完整运行记录
             </a>
           </div>
         ) : null}
@@ -799,23 +946,21 @@ export function ObservabilityPage({
           <header className="gf-observability__section-heading">
             <Network aria-hidden="true" size={21} />
             <div>
-              <h2>Run → Trace</h2>
-              <p>
-                Trace 列表由 <code>/runs/{"{run_id}"}/traces</code> 精确绑定，不按时间猜测所属 Run。
-              </p>
+              <h2>调用链</h2>
+              <p>这里仅显示与当前运行精确关联的调用链，不会按时间范围猜测归属。</p>
             </div>
           </header>
           {tracesQuery.isPending ? (
-            <StatePanel description="正在读取该 Run 的 Trace。" state="loading" title="正在读取 Trace" />
+            <StatePanel description="正在读取这次运行的调用链。" state="loading" title="正在读取调用链" />
           ) : tracesQuery.isError && tracePages.length === 0 ? (
             <ReadError error={tracesQuery.error} onRetry={() => void tracesQuery.refetch()} />
           ) : (
             <>
               {tracePages.some((page) => page.truncated) && (
-                <TruncatedNotice>Trace page 已截断</TruncatedNotice>
+                <TruncatedNotice>调用链结果已截断</TruncatedNotice>
               )}
               <CursorTable
-                caption="该 Run 的 Trace"
+                caption="这次运行的调用链"
                 columns={traceColumns}
                 getRowKey={(item) => item.trace_id}
                 items={traces}
@@ -841,7 +986,7 @@ export function ObservabilityPage({
           <TimerReset aria-hidden="true" size={21} />
           <div>
             <h2>查询时间窗</h2>
-            <p>Run 日志与系统 Metric 使用同一显式 UTC `[start,end)` 时间窗；后端仍独立执行有界校验。</p>
+            <p>运行日志与系统指标使用同一时间范围，便于对照定位问题。</p>
           </div>
         </header>
         <WindowControls
@@ -859,20 +1004,22 @@ export function ObservabilityPage({
           <header className="gf-observability__section-heading">
             <Logs aria-hidden="true" size={21} />
             <div>
-              <h2>Run 日志</h2>
-              <p>只显示服务端脱敏字段，并在 UI 再阻止 prompt/raw response 等敏感键。</p>
+              <h2>运行日志</h2>
+              <p>这里只显示已脱敏的信息；提示词、模型原始回复等敏感内容不会出现在页面中。</p>
             </div>
           </header>
           {logsQuery.isPending ? (
-            <StatePanel description="正在读取 Run 日志。" state="loading" title="正在读取日志" />
+            <StatePanel description="正在读取本次运行的日志。" state="loading" title="正在读取日志" />
           ) : logsQuery.isError && logPages.length === 0 ? (
             <ReadError error={logsQuery.error} onRetry={() => void logsQuery.refetch()} />
           ) : (
             <>
-              {logPages.some((page) => page.truncated) && <TruncatedNotice>Log page 已截断</TruncatedNotice>}
+              {logPages.some((page) => page.truncated) && (
+                <TruncatedNotice>日志较长，当前仅显示一部分</TruncatedNotice>
+              )}
               {logPages[0] && (
                 <p className="u-small">
-                  实际 coverage · {logPages[0].coverage_start} → {logPages[0].coverage_end}
+                  实际覆盖时间 · {logPages[0].coverage_start} → {logPages[0].coverage_end}
                 </p>
               )}
               <LogExplorer items={logs} title="脱敏日志记录" />
@@ -892,32 +1039,27 @@ export function ObservabilityPage({
         <header className="gf-observability__section-heading">
           <Gauge aria-hidden="true" size={21} />
           <div>
-            <h2>系统 Metric</h2>
+            <h2>系统指标</h2>
             <p>
-              这里是同一时间窗的系统运营指标。Descriptor 禁止 run/trace/span/artifact/principal 高基数 label，
-              因此这些序列不能归因于当前 Run。
+              这里展示同一时间范围内的整体服务健康指标。为保护系统稳定性和用户信息，这些数据不会细分到某次运行或某位用户。
             </p>
           </div>
         </header>
         {descriptorsQuery.isPending ? (
-          <StatePanel
-            description="正在读取 exact descriptor registry。"
-            state="loading"
-            title="正在读取 Metric 描述符"
-          />
+          <StatePanel description="正在读取可用的系统指标。" state="loading" title="正在读取系统指标" />
         ) : descriptorsQuery.isError ? (
           <ReadError error={descriptorsQuery.error} onRetry={() => void descriptorsQuery.refetch()} />
         ) : descriptors.length === 0 ? (
           <StatePanel
-            description="本地 descriptor registry 尚未就绪；页面没有猜测指标名称。"
+            description="指标目录尚未就绪，页面不会猜测或拼接不存在的数据。"
             state="empty"
-            title="没有可查询的 Metric descriptor"
+            title="暂时没有可查询的系统指标"
           />
         ) : selectedDescriptor ? (
           <>
             <div className="gf-observability__metric-controls">
               <label>
-                <span>Exact descriptor</span>
+                <span>指标</span>
                 <select
                   onChange={(event) => setDescriptorKey(event.target.value)}
                   value={descriptorSelectValue}
@@ -933,53 +1075,52 @@ export function ObservabilityPage({
                 </select>
               </label>
               <label>
-                <span>Resolution</span>
+                <span>汇总间隔</span>
                 <select
                   onChange={(event) => setResolutionSeconds(Number(event.target.value))}
                   value={resolutionSeconds}
                 >
-                  <option value={60}>60 s</option>
-                  <option value={300}>300 s</option>
-                  <option value={900}>900 s</option>
+                  <option value={60}>1 分钟</option>
+                  <option value={300}>5 分钟</option>
+                  <option value={900}>15 分钟</option>
                 </select>
               </label>
             </div>
             <div className="gf-observability__descriptor">
               <div>
-                <span>Metric</span>
+                <span>指标名称</span>
                 <code>{selectedDescriptor.metric_name}</code>
               </div>
               <div>
-                <span>Version / type / unit</span>
+                <span>版本 / 类型 / 单位</span>
                 <strong>
-                  descriptor v{selectedDescriptor.descriptor_version} · {selectedDescriptor.metric_type} ·{" "}
-                  {selectedDescriptor.unit}
+                  第 {selectedDescriptor.descriptor_version} 版 ·{" "}
+                  {metricTypeLabel(selectedDescriptor.metric_type)} ·{" "}
+                  {metricUnitLabel(selectedDescriptor.unit)}
                 </strong>
               </div>
               <div>
-                <span>Exact digest</span>
-                <CopyableText
-                  copyLabel="复制 descriptor digest"
-                  value={selectedDescriptor.descriptor_digest}
-                />
+                <span>分组维度</span>
+                <code>{selectedDescriptor.label_keys.join(", ") || "无"}</code>
               </div>
-              <div>
-                <span>Labels</span>
-                <code>{selectedDescriptor.label_keys.join(", ") || "none"}</code>
-              </div>
+              <TechnicalDetails
+                items={[
+                  {
+                    label: "Descriptor digest",
+                    value: selectedDescriptor.descriptor_digest,
+                  },
+                ]}
+                summary="查看指标技术信息"
+              />
             </div>
             {metricQuery.isPending ? (
-              <StatePanel
-                description="正在按 exact descriptor 查询。"
-                state="loading"
-                title="正在读取 Metric"
-              />
+              <StatePanel description="正在读取该指标的数据。" state="loading" title="正在读取指标" />
             ) : metricQuery.isError && metricPages.length === 0 ? (
               <ReadError error={metricQuery.error} onRetry={() => void metricQuery.refetch()} />
             ) : (
               <>
                 {metricPages.some((page) => page.truncated) && (
-                  <TruncatedNotice>Metric page 已截断</TruncatedNotice>
+                  <TruncatedNotice>指标数据较长，当前仅显示一部分</TruncatedNotice>
                 )}
                 {metricPages.map((page, index) => (
                   <MetricSeries descriptor={selectedDescriptor} key={index} page={page} />

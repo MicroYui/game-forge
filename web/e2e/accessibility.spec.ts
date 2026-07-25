@@ -215,14 +215,14 @@ test.describe("@a11y keyboard and browser behavior", () => {
       await route.fallback();
     });
 
-    await page.getByRole("link", { name: "打开审批详情" }).first().click();
+    await page.getByRole("link", { name: "查看并处理" }).first().click();
     await expect(page.getByRole("heading", { level: 1, name: "审批详情" })).toBeVisible();
     await page.getByRole("radio", { name: "驳回" }).check();
     await page
       .getByRole("checkbox", { name: /^选择 / })
       .first()
       .check();
-    await page.getByLabel("决定原因代码").fill("a11y_focus_return");
+    await page.getByLabel("决定原因").selectOption("content_incorrect");
 
     const trigger = page.getByRole("button", { name: "提交驳回" });
     await trigger.click();

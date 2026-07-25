@@ -563,6 +563,83 @@ def test_approval_assignee_projection_uses_current_role_and_maker_checker(read_f
     assert alice.items == ()
 
 
+def test_approval_projection_exposes_explicit_platform_admin_self_decision() -> None:
+    registry = _registry()
+    ref = DomainRegistryRefV1(
+        registry_version=registry.registry_version,
+        registry_digest=registry.registry_digest,
+    )
+    grants = {
+        "platform_admin": (
+            Permission(
+                action="approval.decide",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.self_decide",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+            Permission(
+                action="approval.route_override",
+                resource_kind="approval",
+                domain_scope="all",
+            ),
+        )
+    }
+    policy = RolePolicy(
+        policy_version="roles@platform-admin",
+        domain_registry_ref=ref,
+        grants=grants,
+        effective_from=NOW,
+        policy_digest=compute_role_policy_digest(
+            "roles@platform-admin",
+            ref,
+            grants,
+            NOW,
+        ),
+    )
+    assignment = RoleAssignmentV1(
+        assignment_id="assignment:human:alice:platform-admin",
+        principal_id="human:alice",
+        role="platform_admin",
+        scope="all",
+        status="active",
+        revision=1,
+        granted_at=NOW,
+        granted_by=AuditActor(principal_id="system:bootstrap", principal_kind="system"),
+    )
+    admin = _principal("human:alice").model_copy(update={"roles": (assignment,)})
+    item = _approval(registry).model_copy(
+        update={
+            "role_policy_version": policy.policy_version,
+            "role_policy_digest": policy.policy_digest,
+        }
+    )
+
+    class _FrozenPolicies:
+        def get_role_policy(self, version: str, digest: str):
+            return (
+                policy
+                if (version, digest) == (policy.policy_version, policy.policy_digest)
+                else None
+            )
+
+        def get_domain_registry(self, registry_ref: DomainRegistryRefV1):
+            return registry if registry_ref == ref else None
+
+    view = CurrentApprovalProgressProjector(
+        policy_repository=_FrozenPolicies(),
+        principal_resolver=lambda principal_id: admin if principal_id == admin.id else None,
+    ).project(item, admin)
+
+    assert view.current_actor_allowed_requirement_ids == ("requirement:narrative",)
+    assert all(
+        eligibility.eligible for eligibility in view.requirement_progress[0].decision_eligibility
+    )
+
+
 def test_approval_projection_resolves_the_item_frozen_policy_after_deployment_upgrade() -> None:
     registry = _registry()
     frozen = _policy(registry)

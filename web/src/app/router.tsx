@@ -14,7 +14,7 @@ type ReturnLocationState = Partial<ReauthenticationLocationState>;
 function safeReturnPath(value: unknown): string {
   return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && value !== "/login"
     ? value
-    : "/specs";
+    : "/projects";
 }
 
 export function RequireAuth() {

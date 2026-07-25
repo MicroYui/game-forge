@@ -94,13 +94,13 @@ describe("ArtifactDetailPage", () => {
     const user = userEvent.setup();
     renderPage(api);
 
-    expect(await screen.findByRole("heading", { level: 1, name: "工件详情" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "修改方案详情" })).toBeVisible();
     await user.click(screen.getByRole("button", { name: "加载下一页" }));
     expect(await screen.findByText("下一页读取失败。")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "重试下一页" }));
 
-    expect(await screen.findByText("artifact:grandparent")).toBeVisible();
-    expect(screen.getByText("artifact:parent")).toBeVisible();
+    expect(await screen.findByText("内容版本 · 第 2 层来源")).toBeVisible();
+    expect(screen.getByText("内容版本 · 第 1 层来源")).toBeVisible();
     expect(loadLineagePage).toHaveBeenNthCalledWith(1, "artifact:child", "opaque.next+/=");
     expect(loadLineagePage).toHaveBeenNthCalledWith(2, "artifact:child", "opaque.next+/=");
   });
@@ -141,12 +141,13 @@ describe("ArtifactDetailPage", () => {
     const user = userEvent.setup();
     renderPage(api);
 
-    await screen.findByRole("heading", { level: 1, name: "工件详情" });
+    await screen.findByRole("heading", { level: 1, name: "修改方案详情" });
     await user.click(screen.getByRole("button", { name: "加载下一页" }));
     expect(await screen.findByText(/分页游标已过期/)).toBeVisible();
     await user.click(screen.getByRole("button", { name: "重新开始查询" }));
 
-    expect(await screen.findByText("artifact:restarted-parent")).toBeVisible();
+    expect(await screen.findByText("内容版本 · 第 1 层来源")).toBeVisible();
+    expect(screen.getByText("artifact:restarted-parent")).not.toBeVisible();
     expect(screen.queryByText("artifact:parent")).not.toBeInTheDocument();
     expect(loadLineagePage).toHaveBeenNthCalledWith(2, "artifact:child", null);
   });
@@ -167,7 +168,7 @@ describe("ArtifactDetailPage", () => {
     await screen.findByText("artifact:first");
     await user.click(screen.getByRole("button", { name: "加载下一页" }));
     view.rerenderArtifact("artifact:second");
-    expect(await screen.findByText("artifact:second")).toBeVisible();
+    expect(await screen.findByText("artifact:second")).not.toBeVisible();
 
     await act(async () => {
       latePage.resolve(
